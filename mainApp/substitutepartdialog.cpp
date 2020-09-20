@@ -24,10 +24,10 @@
  ***************************************************************************/
 
 #include <QtWidgets>
-#include "substitutepartdialog.h"
-#include "ui_substitutepartdialog.h"
 #include <QFileInfo>
 #include <functional>
+#include "substitutepartdialog.h"
+#include "ui_substitutepartdialog.h"
 
 #include "lc_global.h"
 #include "ldrawpartdialog.h"
@@ -37,12 +37,13 @@
 #include "color.h"
 
 #include "lc_qglwidget.h"
-#include "piecepreview.h"
+#include "previewwidget.h"
+#include "messageboxresizable.h"
 #include "pieceinf.h"
 #include "lc_application.h"
 #include "lc_model.h"
 #include "lc_library.h"
-#include "lc_scene.h"
+#include "project.h"
 
 SubstitutePartDialog::SubstitutePartDialog(
     const QStringList &attributes,
@@ -52,7 +53,8 @@ SubstitutePartDialog::SubstitutePartDialog(
     QDialog(parent),
     ui(new Ui::SubstitutePartDialog),
     mTypeInfo(nullptr),
-    mAction(action)
+    mAction(action),
+    mViewWidgetEnabled(false)
 {
      ui->setupUi(this);
 
@@ -146,7 +148,8 @@ SubstitutePartDialog::~SubstitutePartDialog()
 void SubstitutePartDialog::initialize()
 {
     mAttributes = mInitialAttributes;
-    bool show    = mAction != sRemove;
+    bool show   = mAction != sRemove;
+    mLdrawType.clear();
 
     if (Preferences::debugLogging)
         emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
@@ -399,16 +402,21 @@ void SubstitutePartDialog::valueChanged(double value)
 
 void SubstitutePartDialog::typeChanged()
 {
-    if (sender() == ui->typeBtn) {
+    Which attribute = InitialType;
+    if (sender() == ui->substituteEdit) {
         if (ui->substituteEdit->text().isEmpty()) {
             ui->substitueTitleLbl->setText(QString());
+            showPartPreview(attribute);
             return;
         }
         typeChanged(SubstituteType);
-    } else if (sender() == ui->ldrawTypeBtn) {
+    } else if (sender() == ui->ldrawEdit) {
         if (ui->ldrawEdit->text().isEmpty()) {
             ui->ldrawTitleLbl->setText(QString());
             mLdrawType = QString();
+             if (!ui->substituteEdit->text().isEmpty())
+                 attribute = SubstituteType;
+            showPartPreview(attribute);
             return;
         }
         typeChanged(LdrawType);
@@ -507,41 +515,80 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
     case LdrawType:
         partType = ui->ldrawEdit->text().trimmed();
         break;
-    case PartColor:
-        validCode = mAttributes.at(sColorCode).toUInt(&ok);
-        if (ok)
-            colorCode = validCode;
-        break;
-    default: /*InitialType*/
-        validCode = mAttributes.at(sColorCode).toUInt(&ok);
-        if (ok)
-            colorCode = validCode;
+    default: /*InitialType/PartColor*/
         partType = ui->nameEdit->text().trimmed();
         break;
     }
 
-    ui->previewFrame->setFrameStyle(QFrame::StyledPanel);
-    ui->previewFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    validCode = mAttributes.at(sColorCode).toUInt(&ok);
+    if (ok)
+        colorCode = validCode;
 
-    ui->previewFrame->setFocusPolicy(Qt::StrongFocus);
-    ui->previewFrame->setMouseTracking(true);
+    auto showErrorMessage = [] (const QString &partType)
+    {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        if (_icon.isNull())
+            _icon = QPixmap (":/icons/update.png");
 
-    QGridLayout *previewLayout = new QGridLayout(ui->previewFrame);
-    previewLayout->setContentsMargins(0, 0, 0, 0);
-    ui->previewFrame->setLayout(previewLayout);
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(tr ("Part Preview"));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        QString title = "<b>" + tr ("Part preview encountered and eror.") + "</b>";
+        QString text  = tr("Part '%2' failed to load in the preview window").arg(partType);
+        box.setText (title);
+        box.setInformativeText (text);
+        box.setStandardButtons (QMessageBox::Ok);
 
-    PiecePreview *Preview    = new PiecePreview();
-    lcQGLWidget  *ViewWidget = new lcQGLWidget(nullptr, Preview, false);
+        box.exec();
+    };
 
-    previewLayout->addWidget(ViewWidget);
+    if (!mViewWidgetEnabled) {
+        ui->previewFrame->setFrameStyle(QFrame::StyledPanel);
+        ui->previewFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    if (Preview && ViewWidget && !partType.isEmpty()) {
-        ViewWidget->preferredSize = QSize(ui->previewFrame->width(),
-                                          ui->previewFrame->height());
-        float Scale        = ViewWidget->deviceScale();
-        Preview->mWidth    = ViewWidget->width()  * Scale;
-        Preview->mHeight   = ViewWidget->height() * Scale;
+        ui->previewFrame->setFocusPolicy(Qt::StrongFocus);
+        ui->previewFrame->setMouseTracking(true);
+
+        previewLayout = new QGridLayout(ui->previewFrame);
+        previewLayout->setContentsMargins(0, 0, 0, 0);
+        ui->previewFrame->setLayout(previewLayout);
+
+        Preview        = nullptr;
+        PreviewProject = nullptr;
+        ActiveModel    = nullptr;
+        ViewWidget     = nullptr;
+
+        PreviewProject = new Project(true/*isPreview*/);
+
+        PreviewProject->SetActiveModel(0);
+
+        lcGetPiecesLibrary()->RemoveTemporaryPieces();
+
+        ActiveModel = PreviewProject->GetActiveModel();
+
+        Preview     = new PreviewWidget(ActiveModel, partType, colorCode, true/*isSubPreview*/);
+
+        ViewWidget  = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+
+        if (Preview && ViewWidget) {
+            previewLayout->addWidget(ViewWidget);
+            ViewWidget->preferredSize = ui->previewFrame->size();
+            float Scale               = ViewWidget->deviceScale();
+            Preview->mWidth           = ViewWidget->width()  * Scale;
+            Preview->mHeight          = ViewWidget->height() * Scale;
+            mViewWidgetEnabled        = true;
+            Preview->ZoomExtents();
+
+        } else {
+            showErrorMessage(partType);
+        }
+
+    } else if (Preview) {
         Preview->SetCurrentPiece(partType, colorCode);
+        Preview->ZoomExtents();
     }
 }
 
@@ -554,7 +601,7 @@ void SubstitutePartDialog::browseType(bool clicked)
                                                         .arg(mAttributes.at(sColorCode)));
       if (mTypeInfo) {
           ui->substituteEdit->setText(mTypeInfo->mFileName);
-          typeChanged();
+          typeChanged(SubstituteType);
       }
   } else
   if (sender() == ui->ldrawTypeBtn) {
@@ -563,7 +610,7 @@ void SubstitutePartDialog::browseType(bool clicked)
                                                         .arg(mAttributes.at(sColorCode)));
       if (mTypeInfo) {
           ui->ldrawEdit->setText(mTypeInfo->mFileName);
-          typeChanged();
+          typeChanged(LdrawType);
       }
   }
 

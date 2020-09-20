@@ -318,6 +318,9 @@ void Gui::create3DMenus()
 
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
+     // 3DViewer Preferences menu
+     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+     ViewerMenu->addSeparator();
      // Render menu
      ViewerMenu->addAction(blenderRenderAct);
      ViewerMenu->addAction(blenderImportAct);
@@ -384,9 +387,6 @@ void Gui::create3DMenus()
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
-     ViewerMenu->addSeparator();
-     // 3DViewer Preferences menu
-     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
      ViewerMenu->addSeparator();
 
      // Zoom slider menu item

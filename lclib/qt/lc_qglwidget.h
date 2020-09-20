@@ -6,7 +6,9 @@ class lcGLWidget;
 class lcQGLWidget : public QGLWidget
 {
 public:
-	lcQGLWidget(QWidget* Parent, lcGLWidget* Owner, bool IsView);
+/*** LPub3D Mod - preview widget ***/
+	lcQGLWidget(QWidget* Parent, lcGLWidget* Owner, bool isView, bool isPreview = false);
+/*** LPub3D Mod end ***/
 	~lcQGLWidget();
 
 	QSize sizeHint() const override;
@@ -14,6 +16,9 @@ public:
 	lcGLWidget *widget;
 	QSize preferredSize;
 	bool mIsView;
+/*** LPub3D Mod - preview widget ***/
+	bool mIsPreview;
+/*** LPub3D Mod end ***/
 
 	float deviceScale()
 	{

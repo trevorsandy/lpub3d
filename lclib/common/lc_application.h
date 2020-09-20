@@ -90,7 +90,11 @@ public:
 /*** LPub3D Mod - add background colour to preferences ***/
 	quint32 mBackgroundSolidColor;
 /*** LPub3D Mod end ***/
-
+/*** LPub3D Mod - preview widget ***/
+	quint32 mActivePreviewColor;
+	int mViewSpherePreviewSize;
+	lcViewSphereLocation mViewSpherePreviewLocation;
+/*** LPub3D Mod end ***/
 };
 
 /*** LPub3D Mod - change QApplication to QObject ***/

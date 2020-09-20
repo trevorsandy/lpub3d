@@ -75,10 +75,62 @@ class EditWindow : public QMainWindow
 public:
     explicit EditWindow(QMainWindow *parent = nullptr, bool modelFileEdit = false);
     QToolBar *editToolBar;
+    QTextEditor *textEdit()
+    {
+        return _textEdit;
+    }
+    bool modelFileEdit()
+    {
+        return _modelFileEdit;
+    }
+    QString& getCurrentFile()
+    {
+        return fileName;
+    }
+
+signals:
+    void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
+    void refreshModelFileSig();
+    void getSubFileListSig();
+    void redrawSig();
+    void updateSig();
+    void enableWatcherSig();
+    void disableWatcherSig();
+    void updateDisabledSig(bool);
+    void editModelFileSig();
+    void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
+
+public slots:
+    void displayFile(LDrawFile *, const QString &fileName);
+    void setSubFiles(const QStringList& subFiles);
+    void modelFileChanged(const QString &fileName);
+    void showLine(int, int);
+    void highlightSelectedLines(QVector<int> &lines);
+    void updateDisabled(bool);
+    void clearEditorWindow();
+    void pageUpDown(
+      QTextCursor::MoveOperation op,
+      QTextCursor::MoveMode      moveMode);
+
+private slots:
+    void openWith();
+    void contentsChange(int position, int charsRemoved, int charsAdded);
+    bool saveFile();
+    bool maybeSave();
+    void redraw();
+    void update(bool state);
+    void enableSave();
+    void highlightCurrentLine();
+    void topOfDocument();
+    void previewLine();
+    void bottomOfDocument();
+    void showAllCharacters();
+    void mpdComboChanged(int index);
+    void showContextMenu(const QPoint &pt);
+    void updateSelectedParts();
+    void closeEvent(QCloseEvent *event);
 
 protected:
-
-private:
     void createActions();
     void createMenus();
     void createToolBars();
@@ -86,23 +138,32 @@ private:
     void readSettings();
     void writeSettings();
 
-    QTextEditor  *_textEdit;
-    Highlighter  *highlighter;
-    QComboBox    *mpdCombo;
-    QString       fileName;            // of model file currently being displayed
-    int           showLineType;
-    int           fileOrderIndex;
-    bool          isIncludeFile;
-    bool          _modelFileEdit;
-    bool          _submodelListPending;
-    QString       _curSubFile;         // currently displayed submodel
-    QStringList   _subModelList;
-    int           _saveSubfileIndex;
+    QAbstractItemModel *modelFromFile(const QString& fileName);
+    void openWithProgramAndArgs(QString &program, QStringList &arguments);
+    void updateOpenWithActions();
+    void disableActions();
+    void enableActions();
+    bool validPreviewLine();
+    QCompleter *completer;
+
+    QTextEditor       *_textEdit;
+    Highlighter       *highlighter;
+    QComboBox         *mpdCombo;
+    QString            fileName;            // of model file currently being displayed
+    int                numOpenWithPrograms;
+    int                showLineType;
+    int                fileOrderIndex;
+    bool               isIncludeFile;
+    bool               _modelFileEdit;
+    bool               _subFileListPending;
+    QString            _curSubFile;         // currently displayed submodel
+    QStringList        _subFileList;
+    int                _saveSubfileIndex;
     QFileSystemWatcher fileWatcher;
 
     QList<QAction *> openWithActList;
     QAction  *editModelFileAct;
-    QAction  *previewPartAct;
+    QAction  *previewLineAct;
     QAction  *topAct;
     QAction  *bottomAct;
     QAction  *cutAct;
@@ -120,61 +181,6 @@ private:
     QAction  *saveAct;
     QAction  *undoAct;
     QAction  *redoAct;
-
-signals:
-    void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
-    void refreshModelFileSig();
-    void getSubModelListSig();
-    void redrawSig();
-    void updateSig();
-    void enableWatcherSig();
-    void disableWatcherSig();
-    void updateDisabledSig(bool);
-    void editModelFileSig();
-    void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
-
-private slots:
-    void openWith();
-    void contentsChange(int position, int charsRemoved, int charsAdded);
-    bool saveFile();
-    bool maybeSave();
-    void redraw();
-    void update(bool state);
-    void enableSave();
-    void highlightCurrentLine();
-    void topOfDocument();
-    void previewPart();
-    void bottomOfDocument();
-    void showAllCharacters();
-    void mpdComboChanged(int index);
-    void showContextMenu(const QPoint &pt);
-    void updateSelectedParts();
-    void closeEvent(QCloseEvent *event);
-
-public slots:
-    void displayFile(LDrawFile *, const QString &fileName);
-    void setSubModels(const QStringList& subModels);
-    void modelFileChanged(const QString &fileName);
-    void showLine(int, int);
-    void highlightSelectedLines(QVector<int> &lines);
-    void updateDisabled(bool);
-    void clearEditorWindow();
-    void pageUpDown(
-      QTextCursor::MoveOperation op,
-      QTextCursor::MoveMode      moveMode);
-
-public:
-    QTextEditor *textEdit() { return _textEdit; }
-    bool modelFileEdit() { return _modelFileEdit; }
-
-private:
-    QAbstractItemModel *modelFromFile(const QString& fileName);
-    void openWithProgramAndArgs(QString &program, QStringList &arguments);
-    void updateOpenWithActions();
-    void disableActions();
-    void enableActions();
-    bool validPreviewLine();
-    QCompleter *completer;
 };
 
 extern class EditWindow *editWindow;

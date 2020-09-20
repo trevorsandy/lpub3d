@@ -78,6 +78,11 @@ public:
 		if (mAmbientColor != Properties.mAmbientColor)
 			return false;
 
+/*** LPub3D Mod - preview widget ***/
+		if (mUnoffPartColorCode != Properties.mUnoffPartColorCode)
+			return false;
+/*** LPub3D Mod end ***/
+
 		return true;
 	}
 
@@ -99,6 +104,10 @@ public:
 	bool mBackgroundImageTile;
 
 	lcVector3 mAmbientColor;
+
+/*** LPub3D Mod - preview widget ***/
+	int mUnoffPartColorCode;
+/*** LPub3D Mod end ***/
 };
 
 struct lcModelHistoryEntry
@@ -110,7 +119,9 @@ struct lcModelHistoryEntry
 class lcModel
 {
 public:
-	lcModel(const QString& FileName);
+/*** LPub3D Mod - preview widget ***/
+	lcModel(const QString& FileName, bool isPreview = false);
+/*** LPub3D Mod end ***/
 	~lcModel();
 
 	lcModel(const lcModel&) = delete;
@@ -122,6 +133,13 @@ public:
 	{
 		return mSavedHistory != mUndoHistory[0];
 	}
+
+/*** LPub3D Mod - preview widget ***/
+	bool IsPreview()
+	{
+		return mIsPreview;
+	}
+/*** LPub3D Mod end ***/
 
 	bool GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const;
 	bool IncludesModel(const lcModel* Model) const;
@@ -158,6 +176,13 @@ public:
 	{
 		return mProperties;
 	}
+
+/*** LPub3D Mod - preview widget ***/
+	void SetUnoffPartColorCode(int ColorCode)
+	{
+		mProperties.mUnoffPartColorCode = ColorCode;
+	}
+/*** LPub3D Mod end ***/
 
 	void SetFileName(const QString& FileName)
 	{
@@ -247,8 +272,10 @@ public:
 	{
 		if (mUndoHistory.empty())
 			SaveCheckpoint(QString());
-
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview)
 		mSavedHistory = mUndoHistory[0];
+/*** LPub3D Mod end ***/
 	}
 
 	void Cut();
@@ -339,6 +366,8 @@ public:
 	{
 		mCameras.RemoveIndex(CameraIdx);
 	}
+
+	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved from protected) ***/
 /*** LPub3D Mod end ***/
 
 	void BeginMouseTool();
@@ -426,12 +455,15 @@ protected:
 
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
-	void AddPiece(lcPiece* Piece);
+//	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
 	void InsertPiece(lcPiece* Piece, int Index);
 
 	lcModelProperties mProperties;
 	PieceInfo* mPieceInfo;
 
+/*** LPub3D Mod - preview widget ***/
+	bool mIsPreview;
+/*** LPub3D Mod end ***/
 	bool mActive;
 	lcStep mCurrentStep;
 	lcVector3 mMouseToolDistance;

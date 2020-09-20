@@ -83,10 +83,12 @@ enum LC_PROFILE_KEY
 /*** LPub3D Mod - Build Modification ***/
 	LC_PROFILE_BUILD_MODIFICATION,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	LC_PROFILE_USE_IMAGE_SIZE,
 	LC_PROFILE_AUTO_CENTER_SELECTION,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 	LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,
 	LC_PROFILE_DEFAULT_DISTANCE_FACTOR,
@@ -95,21 +97,32 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_CAMERA_NEAR_PLANE,
 	LC_PROFILE_CAMERA_FAR_PLANE,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native Renderer settings ***/
 	// Native Renderer.
 	LC_PROFILE_NATIVE_VIEWPOINT,
 	LC_PROFILE_NATIVE_PROJECTION,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Timeline part icons ***/
 	LC_PROFILE_VIEW_PIECE_ICONS,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - View point zoom extent ***/
 	LC_PROFILE_VIEWPOINT_ZOOM_EXTENT,
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - true fade ***/
 	LC_PROFILE_LPUB_TRUE_FADE,
 	LC_PROFILE_CONDITIONAL_LINES,
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - preview widget ***/
+	LC_PROFILE_ACTIVE_PREVIEW_COLOR,
+	LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE,
+	LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION,
+/*** LPub3D Mod end ***/
+
 	LC_NUM_PROFILE_KEYS
 };
 

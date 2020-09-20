@@ -1032,6 +1032,9 @@ void View::DrawSelectMoveOverlay()
 	lcModel* ActiveModel = GetActiveModel();
 	ActiveModel->GetMoveRotateTransform(OverlayCenter, RelativeRotation);
 	bool AnyPiecesSelected = ActiveModel->AnyPiecesSelected();
+/*** LPub3D Mod - unused declaration ***/
+	Q_UNUSED(AnyPiecesSelected)
+/*** LPub3D Mod end ***/
 
 	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
 
@@ -1988,7 +1991,7 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW,  // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,         // LC_TRACKTOOL_ROLL
 		LC_TOOL_ZOOM_REGION,  // LC_TRACKTOOL_ZOOM_REGION
-		LC_TOOL_ROTATESTEP    // LC_TRACKTOOL_NONE          /*** LPub3D Mod - rotate step tool ***/
+		LC_TOOL_ROTATESTEP    // LC_TRACKTOOL_ROTATESTEP   /*** LPub3D Mod - rotate step tool ***/
 	};
 
 	return ToolFromTrackTool[mTrackTool];
@@ -2782,9 +2785,13 @@ void View::StopTracking(bool Accept)
 	lcModel* ActiveModel = GetActiveModel();
 
 	switch (Tool)
-	{
+	{   
 	case LC_TOOL_INSERT:
 	case LC_TOOL_LIGHT:
+/*** LPub3D Mod - enable lights ***/
+	case LC_TOOL_SUNLIGHT:
+	case LC_TOOL_AREALIGHT:
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_SPOTLIGHT:
@@ -2987,6 +2994,9 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 		StartTracking(TrackButton);
 		break;
 
+/*** LPub3D Mod - rotate step tracktool ***/
+	case LC_TRACKTOOL_ROTATESTEP:
+/*** LPub3D Mod end ***/
 	case LC_TRACKTOOL_COUNT:
 		break;
 	}
@@ -3450,6 +3460,9 @@ void View::OnMouseMove()
 		Redraw();
 		break;
 
+/*** LPub3D Mod - rotate step tracktool ***/
+	case LC_TRACKTOOL_ROTATESTEP:
+/*** LPub3D Mod end ***/
 	case LC_TRACKTOOL_COUNT:
 		break;
 	}

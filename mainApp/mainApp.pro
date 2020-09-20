@@ -423,7 +423,6 @@ HEADERS += \
     parmshighlighter.h \
     parmswindow.h \
     paths.h \
-    piecepreview.h \
     placement.h \
     placementdialog.h \
     pli.h \
@@ -436,6 +435,7 @@ HEADERS += \
     pointeritem.h \
     pointerplacementdialog.h \
     preferencesdialog.h \
+    previewwidget.h \
     range.h \
     range_element.h \
     ranges.h \
@@ -531,7 +531,6 @@ SOURCES += \
     parmshighlighter.cpp \
     parmswindow.cpp \
     paths.cpp \
-    piecepreview.cpp \
     placement.cpp \
     placementdialog.cpp \
     pli.cpp \
@@ -544,6 +543,7 @@ SOURCES += \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
     preferencesdialog.cpp \
+    previewwidget.cpp \
     printfile.cpp \
     projectglobals.cpp \
     range.cpp \

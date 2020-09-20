@@ -19,6 +19,9 @@
 #include "lpub.h"
 #include "annotations.h"
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget ***/
+#include "previewwidget.h"
+/*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 {
@@ -70,11 +73,15 @@ void lcHTMLExportOptions::SaveDefaults()
 /*** LPub3D Mod end ***/
 }
 
-Project::Project()
+/*** LPub3D Mod - preview widget ***/
+Project::Project(bool isPreview)
+	: mIsPreview(isPreview),
+	  mIsUnofficialPart(false)
 {
+/*** LPub3D Mod - preview widget ***/
 	mModified = false;
-/*** LPub3D Mod - default model name ***/
-	mActiveModel = new lcModel(tr(VIEWER_MODEL_DEFAULT));
+/*** LPub3D Mod - default model name and preview widget ***/
+	mActiveModel = new lcModel(tr(VIEWER_MODEL_DEFAULT), mIsPreview);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	mPageWidth = 0;
@@ -87,7 +94,10 @@ Project::Project()
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
 
-	QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview)
+		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
+/*** LPub3D Mod end ***/
 }
 
 Project::~Project()
@@ -211,8 +221,12 @@ void Project::SetActiveModel(int ModelIndex)
 		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
 
 	mActiveModel = mModels[ModelIndex];
-	gMainWindow->SetCurrentModelTab(mActiveModel);
-	mActiveModel->UpdateInterface();
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview) {
+		gMainWindow->SetCurrentModelTab(mActiveModel);
+		mActiveModel->UpdateInterface();
+	}
+/*** LPub3D Mod end ***/
 }
 
 void Project::SetActiveModel(const QString& FileName)
@@ -408,22 +422,41 @@ void Project::SetFileName(const QString& FileName)
 	if (mFileName == FileName)
 		return;
 
-	if (!mFileName.isEmpty())
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && !mFileName.isEmpty())
 		mFileWatcher.removePath(mFileName);
 
-	if (!FileName.isEmpty())
+	if (!mIsPreview && !FileName.isEmpty())
 		mFileWatcher.addPath(FileName);
+/*** LPub3D Mod end ***/
 
 	mFileName = FileName;
 }
 
-bool Project::Load(const QString& FileName)
+bool Project::Load(const QString& FileName, int PartColorCode)
 {
 	QFile File(FileName);
 
+/*** LPub3D Mod - preview widget ***/
+	QWidget *parent = nullptr;
+	int UnoffPartColorCode = LDRAW_MATERIAL_COLOUR;
+	if (mIsPreview) {
+		QString PartName = QFileInfo(FileName).fileName();
+		if ((gui->isUnofficialPart(PartName) ||
+			 gui->isUnofficialSubPart(PartName))) {
+			mIsUnofficialPart  = true;
+			UnoffPartColorCode = PartColorCode;
+		}
+	} else {
+		parent = gMainWindow;
+	}
+/*** LPub3D Mod end ***/
+
 	if (!File.open(QIODevice::ReadOnly))
 	{
-		QMessageBox::warning(gMainWindow, tr("Error"), tr("Error reading file '%1':\n%2").arg(FileName, File.errorString()));
+/*** LPub3D Mod - preview widget ***/
+		QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
+/*** LPub3D Mod end ***/
 		return false;
 	}
 
@@ -450,7 +483,12 @@ bool Project::Load(const QString& FileName)
 
 		while (!Buffer.atEnd())
 		{
-			lcModel* Model = new lcModel(QString());
+/*** LPub3D Mod - preview widget ***/
+			lcModel* Model = new lcModel(QString(), mIsPreview);
+			if (mIsUnofficialPart)
+				Model->SetUnoffPartColorCode(UnoffPartColorCode);
+/*** LPub3D Mod end ***/
+
 			int Pos = Model->SplitMPD(Buffer);
 
 			if (Models.empty() || !Model->GetFileName().isEmpty())
@@ -477,7 +515,9 @@ bool Project::Load(const QString& FileName)
 		MemFile.WriteBuffer(FileData.constData(), FileData.size());
 		MemFile.Seek(0, SEEK_SET);
 
-		lcModel* Model = new lcModel(QString());
+/*** LPub3D Mod - preview widget ***/
+		lcModel* Model = new lcModel(QString(), mIsPreview);
+/*** LPub3D Mod end ***/
 
 		if (Model->LoadBinary(&MemFile))
 		{
@@ -491,7 +531,9 @@ bool Project::Load(const QString& FileName)
 
 	if (mModels.IsEmpty())
 	{
-		QMessageBox::warning(gMainWindow, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
+/*** LPub3D Mod - preview widget ***/
+		QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
+/*** LPub3D Mod end ***/
 		return false;
 	}
 

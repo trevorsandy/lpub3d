@@ -3037,8 +3037,8 @@ Gui::Gui()
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editWindow,     SLOT(  clearEditorWindow()));
 
-    connect(this,           SIGNAL(setSubModelsSig(const QStringList &)),
-            editWindow,     SLOT(  setSubModels(   const QStringList &)));
+    connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
+            editWindow,     SLOT(  setSubFiles(   const QStringList &)));
 
     // Edit Window - Gui
     connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
@@ -3056,8 +3056,8 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(editModelFileSig()),
             this,           SLOT(  editModelFile()));
 
-    connect(editWindow,     SIGNAL(getSubModelListSig()),
-            this,           SLOT(  getSubModelList()));
+    connect(editWindow,     SIGNAL(getSubFileListSig()),
+            this,           SLOT(  getSubFileList()));
 
     connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
@@ -3249,9 +3249,9 @@ void Gui::initialize()
   }
 }
 
-void Gui::getSubModelList()
+void Gui::getSubFileList()
 {
-   setSubModelsSig(getSubModels());
+   setSubFilesSig(fileList());
 }
 
 void Gui::loadBLCodes()

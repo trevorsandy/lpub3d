@@ -59,8 +59,8 @@
 #include "lc_model.h"
 #include "lc_library.h"
 #include "project.h"
-#include "view.h"
-#include "piecepreview.h"
+
+#include "previewwidget.h"
 
 EditWindow *editWindow;
 
@@ -132,21 +132,23 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
-void EditWindow::previewPart()
+void EditWindow::previewLine()
 {
-    if (isIncludeFile || !sender() || sender() != previewPartAct)
+    if (isIncludeFile || !sender() || sender() != previewLineAct)
         return;
 
-    QStringList partKeys = previewPartAct->data().toString().split("|");
-    int colorCode = partKeys.at(0).toInt();
-    QString partType = partKeys.at(1);
-    bool isSubmodel = partKeys.at(2).toInt();
-    bool position = false;
+    QStringList partKeys = previewLineAct->data().toString().split("|");
+    int colorCode        = partKeys.at(0).toInt();
+    QString partType     = partKeys.at(1);
+    bool isSubfile       = partKeys.at(2).toInt();
+    bool isSubstitute    = partKeys.at(3).toInt();
 
-// /*
-    if (isSubmodel) {
+    Q_UNUSED(isSubstitute)
 
-        // Get the application icon as a pixmap
+    QString typeLabel    = isSubfile ? "Subfile" : "Part";
+    QString windowTitle  = QString("%1 Preview").arg(typeLabel);
+
+    auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
         QPixmap _icon = QPixmap(":/icons/lpub96.png");
         if (_icon.isNull())
             _icon = QPixmap (":/icons/update.png");
@@ -155,82 +157,56 @@ void EditWindow::previewPart()
         box.setWindowIcon(QIcon());
         box.setIconPixmap (_icon);
         box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(tr ("%1 Submodel Preview").arg(VER_PRODUCTNAME_STR));
+        box.setWindowTitle(windowTitle);
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        QString title = "<b>" + tr ("Submodel preview is not yet supported.&nbsp;&nbsp;&nbsp;"
-                                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
-        QString text = tr("The selected line specifies submodel '%1' which is not yet supported in the preview window.<br>")
-                          .arg(partType);
+        QString title = "<b>" + tr ("%1 preview encountered and eror.").arg(typeLabel) + "</b>";
+        QString text  = tr("%1 '%2' failed to load in the preview window").arg(typeLabel).arg(partType);
         box.setText (title);
-        box.setInformativeText (text);
+        box.setInformativeText (message.isEmpty() ? text : message);
         box.setStandardButtons (QMessageBox::Ok);
 
         box.exec();
+    };
 
-        return;
-    }
-// */
+    PreviewWidget *Preview        = nullptr;
+    Project       *PreviewProject = nullptr;
+    lcModel       *ActiveModel    = nullptr;
+    lcQGLWidget   *ViewWidget     = nullptr;
 
-    QString       modelPath;
-    PiecePreview *PartPreview   = nullptr;
-    View         *SubModView    = nullptr;
-    Project      *SubModProject = nullptr;
-    lcModel      *ActiveModel   = nullptr;
-    lcQGLWidget  *ViewWidget    = nullptr;
+    PreviewProject = new Project(true/*isPreview*/);
 
-    if (isSubmodel) {
-        modelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(partType);
+    if (isSubfile) {
+        QString modelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(partType);
 
-        SubModProject = new Project();
-
-        if (SubModProject->Load(modelPath))
-        {
-            SubModProject->SetActiveModel(0);
-
-            lcGetPiecesLibrary()->RemoveTemporaryPieces();
-
-            ActiveModel = SubModProject->GetActiveModel();
-
-            SubModView  = new View(ActiveModel);
-
-            ViewWidget  = new lcQGLWidget(nullptr, SubModView, false);
-
-            if (SubModView && ViewWidget) {
-
-                ViewWidget->setWindowTitle("Submodel Preview");
-
-                ViewWidget->preferredSize = QSize(500, 300);
-
-                float Scale         = ViewWidget->deviceScale();
-                SubModView->mWidth  = ViewWidget->width()  * Scale;
-                SubModView->mHeight = ViewWidget->height() * Scale;
-
-                position    = true;
-            }
+        if (!PreviewProject->Load(modelPath, colorCode)) {
+            showErrorMessage(QString("Failed to load '%1'.").arg(modelPath));
+            return;
         }
 
-    } else {
-        PartPreview = new PiecePreview();
+        if (PreviewProject->IsUnofficialPart())
+            windowTitle  = QString("Unofficial Part Preview");
 
-        ViewWidget = new lcQGLWidget(nullptr, PartPreview, false);
+        emit lpubAlert->messageSig(LOG_DEBUG, QString("Preview Subfile: %1").arg(modelPath));
 
-        if (PartPreview && ViewWidget) {
-
-            ViewWidget->setWindowTitle("Part Preview");
-
-            PartPreview->SetCurrentPiece(partType, colorCode);
-
-            ViewWidget->preferredSize = QSize(300, 200);
-
-            float Scale          = ViewWidget->deviceScale();
-            PartPreview->mWidth  = ViewWidget->width()  * Scale;
-            PartPreview->mHeight = ViewWidget->height() * Scale;
-
-            position = true;
-        }
+        partType.clear(); // trigger Subfile flag in PreviewWidget constructor
     }
 
-    if (position) {
+    PreviewProject->SetActiveModel(0);
+
+    lcGetPiecesLibrary()->RemoveTemporaryPieces();
+
+    ActiveModel = PreviewProject->GetActiveModel();
+
+    Preview  = new PreviewWidget(ActiveModel, partType, colorCode);
+
+    ViewWidget  = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+
+    if (Preview && ViewWidget) {
+        ViewWidget->setWindowTitle(windowTitle);
+        ViewWidget->preferredSize = QSize(300, 200);
+        float Scale               = ViewWidget->deviceScale();
+        Preview->mWidth           = ViewWidget->width()  * Scale;
+        Preview->mHeight          = ViewWidget->height() * Scale;
 
         const QRect desktop = QApplication::desktop()->geometry();
 
@@ -248,72 +224,77 @@ void EditWindow::previewPart()
 
         ViewWidget->show();
         ViewWidget->setFocus();
+        Preview->ZoomExtents();
+
+    } else {
+        showErrorMessage(QString());
     }
 }
 
 void EditWindow::updateOpenWithActions()
 {
+    numOpenWithPrograms = 0;
     QSettings Settings;
     QString const openWithProgramListKey("OpenWithProgramList");
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
 
-      QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+        QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
-      int numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+        numOpenWithPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
-      emit lpubAlert->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numPrograms));
+        emit lpubAlert->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numOpenWithPrograms));
 
-      QString programData, programName, programPath;
+        QString programData, programName, programPath;
 
-      auto getProgramIcon = [&programPath] ()
-      {
-          QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
-          QString iconPath       = pathList.first();
-          const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
-          if (!QFileInfo(iconFile).exists()) {
-              QFileInfo programInfo(programPath);
-              QFileSystemModel *fsModel = new QFileSystemModel;
-              fsModel->setRootPath(programInfo.path());
-              QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
-              QPixmap iconPixmap = fileIcon.pixmap(16,16);
-              if (!iconPixmap.save(iconFile))
-                  emit lpubAlert->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
-              return fileIcon;
-          }
-          return QIcon(iconFile);
-      };
+        auto getProgramIcon = [&programPath] ()
+        {
+            QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+            QString iconPath       = pathList.first();
+            const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
+            if (!QFileInfo(iconFile).exists()) {
+                QFileInfo programInfo(programPath);
+                QFileSystemModel *fsModel = new QFileSystemModel;
+                fsModel->setRootPath(programInfo.path());
+                QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
+                QPixmap iconPixmap = fileIcon.pixmap(16,16);
+                if (!iconPixmap.save(iconFile))
+                    emit lpubAlert->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+                return fileIcon;
+            }
+            return QIcon(iconFile);
+        };
 
-      // filter programPaths that don't exist
-      for (int i = 0; i < numPrograms; ) {
-        programData = programEntries.at(i).split("|").last();
-        programPath = programData;
-        QStringList arguments;
-        if (!programData.isEmpty())
-            openWithProgramAndArgs(programPath,arguments);
-        QFileInfo fileInfo(programPath);
-        if (fileInfo.exists()) {
-          programName = programEntries.at(i).split("|").first();
-          QString text = programName;
-          if (text.isEmpty())
-              text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-          openWithActList[i]->setText(text);
-          openWithActList[i]->setData(programData); // includes arguments
-          openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                   .arg(fileInfo.fileName()));
-          openWithActList[i]->setVisible(true);
-          i++;
-        } else {
-          programEntries.removeOne(programEntries.at(i));
-          --numPrograms;
+        // filter programPaths that don't exist
+        for (int i = 0; i < numOpenWithPrograms; ) {
+            programData = programEntries.at(i).split("|").last();
+            programPath = programData;
+            QStringList arguments;
+            if (!programData.isEmpty())
+                openWithProgramAndArgs(programPath,arguments);
+            QFileInfo fileInfo(programPath);
+            if (fileInfo.exists()) {
+                programName = programEntries.at(i).split("|").first();
+                QString text = programName;
+                if (text.isEmpty())
+                    text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+                openWithActList[i]->setText(text);
+                openWithActList[i]->setData(programData); // includes arguments
+                openWithActList[i]->setIcon(getProgramIcon());
+                openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                 .arg(fileInfo.fileName()));
+                openWithActList[i]->setVisible(true);
+                i++;
+            } else {
+                programEntries.removeOne(programEntries.at(i));
+                --numOpenWithPrograms;
+            }
         }
-      }
-      emit lpubAlert->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
+        emit lpubAlert->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numOpenWithPrograms));
 
-      // hide empty program actions
-      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++) {
-        openWithActList[j]->setVisible(false);
-      }
+        // hide empty program actions
+        for (int j = numOpenWithPrograms; j < Preferences::maxOpenWithPrograms; j++) {
+            openWithActList[j]->setVisible(false);
+        }
     }
 }
 
@@ -393,9 +374,9 @@ void EditWindow::createActions()
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw file in detached LDraw Editor"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SIGNAL(editModelFileSig()));
 
-    previewPartAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview highlighted part..."), this);
-    previewPartAct->setStatusTip(tr("Display the highlighted part in a popup 3D viewer"));
-    connect(previewPartAct, SIGNAL(triggered()), this, SLOT(previewPart()));
+    previewLineAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview highlighted line..."), this);
+    previewLineAct->setStatusTip(tr("Display the part on the highlighted line in a popup 3D viewer"));
+    connect(previewLineAct, SIGNAL(triggered()), this, SLOT(previewLine()));
 
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
@@ -506,7 +487,7 @@ void EditWindow::createActions()
 void EditWindow::disableActions()
 {
     editModelFileAct->setEnabled(false);
-    previewPartAct->setEnabled(false);
+    previewLineAct->setEnabled(false);
 
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
@@ -529,7 +510,6 @@ void EditWindow::disableActions()
 void EditWindow::enableActions()
 {
     editModelFileAct->setEnabled(true);
-    previewPartAct->setEnabled(true);
 
     redrawAct->setEnabled(true);
     selAllAct->setEnabled(true);
@@ -569,7 +549,6 @@ void EditWindow::createToolBars()
         editToolBar->addWidget(mpdCombo);
         editToolBar->addSeparator();
     }
-    editToolBar->addAction(previewPartAct);
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
     editToolBar->addAction(toggleCmmentAct);
@@ -587,17 +566,18 @@ void EditWindow::createToolBars()
 bool EditWindow::validPreviewLine ()
 {
     QString partType;
-    int validCode, isSubmodel = 0, colorCode = int(LDRAW_MATERIAL_COLOUR);
+    int validCode, isSubfile = 0, isSubstitute = 0, colorCode = int(LDRAW_MATERIAL_COLOUR);
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
-    bool ok = false;
+    bool colorOk = false;
 
     if (selection.startsWith("1 ")) {
         list = selection.split(" ", QString::SkipEmptyParts);
 
-        validCode = list[1].toInt(&ok);
+        validCode = list[1].toInt(&colorOk);
+
         // 0 1           2 3 4 5 6 7 8 9 10 11 12 13 14
         // 1 <colorCode> 0 0 0 0 0 1 1 0 0  0  1  0  <part type>
         for (int i = 14; i < list.size(); i++)
@@ -605,28 +585,26 @@ bool EditWindow::validPreviewLine ()
 
         partType = partType.trimmed();
 
-        if ((isSubmodel = _subModelList.contains(partType))) {
-            // TODO - temporary instruction until submodels are supported
-            return false;
-
-            previewPartAct->setText(tr("Preview highlighted submodel..."));
-            previewPartAct->setStatusTip(tr("Display the highlighted submodel in a popup 3D viewer"));
+        if ((isSubfile = _subFileList.contains(partType))) {
+            previewLineAct->setText(tr("Preview highlighted subfile..."));
+            previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
         }
 
-    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
+    } else if ((isSubstitute = selection.contains("LPUB PLI BEGIN SUB "))) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", QString::SkipEmptyParts);
 
         partType = list[5];
 
-        validCode = list[6].toInt(&ok);
+        validCode = list[6].toInt(&colorOk);
 
     } else {
+        previewLineAct->setEnabled(false);
         return false;
     }
 
-    if (ok)
+    if (colorOk)
         colorCode = validCode;
     partType = partType.trimmed();
 
@@ -634,40 +612,48 @@ bool EditWindow::validPreviewLine ()
                                QString("Editor PartType: %1, ColorCode: %2, Line: %3")
                                .arg(partType).arg(colorCode).arg(selection));
 
-    QString partKey = QString("%1|%2|%3").arg(colorCode).arg(partType).arg(isSubmodel);
+    QString partKey = QString("%1|%2|%3|%4")
+            .arg(colorCode).arg(partType).arg(isSubfile).arg(isSubstitute);
 
-    previewPartAct->setData(partKey);
+    previewLineAct->setData(partKey);
+    previewLineAct->setEnabled(true);
 
     return true;
 }
+
 void EditWindow::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = _textEdit->createStandardContextMenu();
-    menu->addSeparator();
     if (!fileName.isEmpty()) {
+        menu->addSeparator();
+        menu->addAction(previewLineAct);
+        previewLineAct->setEnabled(false);
+
         if (!isIncludeFile) {
-            _submodelListPending = true;
-            emit getSubModelListSig();
-            while (_submodelListPending)
+            _subFileListPending = true;
+            emit getSubFileListSig();
+            while (_subFileListPending)
                 QApplication::processEvents();
-            if (validPreviewLine()) {
-                menu->addAction(previewPartAct);
-            }
+            previewLineAct->setEnabled(validPreviewLine());
         }
+
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
             menu->addAction(editModelFileAct);
         }
-        if (openWithActList.size()) {
-            QMenu *openWithMenu;
-            openWithMenu = menu->addMenu(tr("Open With..."));
-            openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
-            openWithMenu->setStatusTip(tr("Open model file with selected application"));
-            for (int i = 0; i < openWithActList.size(); i++)
+
+        QMenu *openWithMenu;
+        openWithMenu = menu->addMenu(tr("Open With..."));
+        openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
+        openWithMenu->setStatusTip(tr("Open model file with selected application"));
+        openWithMenu->setEnabled(false);
+        if (numOpenWithPrograms) {
+            openWithMenu->setEnabled(true);
+            for (int i = 0; i < numOpenWithPrograms; i++)
                 openWithMenu->addAction(openWithActList.at(i));
-            menu->addSeparator();
         }
+        menu->addSeparator();
     }
     menu->addAction(topAct);
     menu->addAction(bottomAct);
@@ -1052,9 +1038,9 @@ void EditWindow::updateDisabled(bool state){
     }
 }
 
-void EditWindow::setSubModels(const QStringList& subModels){
-    _subModelList = subModels;
-    _submodelListPending = false;
+void EditWindow::setSubFiles(const QStringList& subFiles){
+    _subFileList = subFiles;
+    _subFileListPending = false;
 }
 
 void EditWindow::displayFile(

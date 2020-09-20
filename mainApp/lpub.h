@@ -1044,11 +1044,6 @@ public slots:
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
 
-  QStringList getSubModels()
-  {
-      return modelList();
-  }
-
   QString getViewerStepKey()
   {
       return viewerStepKey;
@@ -1317,7 +1312,7 @@ signals:
   void highlightSelectedLinesSig(QVector<int> &indexes);
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
-  void setSubModelsSig(const QStringList &subModels);
+  void setSubFilesSig(const QStringList &subFiles);
   void clearEditorWindowSig();
 
   void enable3DActionsSig();
@@ -1699,7 +1694,7 @@ private slots:
     void setFadeStepsFromCommandMeta();
     void setHighlightStepFromCommandMeta();
 
-    void getSubModelList();
+    void getSubFileList();
 
     /******************************************************************
      * File management functions

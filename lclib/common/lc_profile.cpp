@@ -70,20 +70,20 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
-	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(41, 128, 185, 255)),                 // LC_PROFILE_ACTIVE_VIEW_COLOR
+	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                            // LC_PROFILE_DRAW_EDGE_LINES
 	lcProfileEntry("Settings", "GridStuds", 1),                                                // LC_PROFILE_GRID_STUDS
-	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(24, 24, 24, 192)),                     // LC_PROFILE_GRID_STUD_COLOR
+	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(64, 64, 64, 192)),                     // LC_PROFILE_GRID_STUD_COLOR
 	lcProfileEntry("Settings", "GridLines", 1),                                                // LC_PROFILE_GRID_LINES
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                          // LC_PROFILE_GRID_LINE_SPACING
-	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(24, 24, 24, 255)),                     // LC_PROFILE_GRID_LINE_COLOR
+	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                        // LC_PROFILE_GRID_LINE_COLOR
 	lcProfileEntry("Settings", "AASamples", 1),                                                // LC_PROFILE_ANTIALIASING_SAMPLES
 	lcProfileEntry("Settings", "ViewSphereEnabled", 1),                                        // LC_PROFILE_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TopRight),     // LC_PROFILE_VIEW_SPHERE_LOCATION
 	lcProfileEntry("Settings", "ViewSphereSize", 100),                                         // LC_PROFILE_VIEW_SPHERE_SIZE
-	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(35, 38, 41, 255)),                   // LC_PROFILE_VIEW_SPHERE_COLOR
-	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(224, 224, 224, 255)),            // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
-	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(41, 128, 185, 255)),        // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(255, 255, 255, 255)),                // LC_PROFILE_VIEW_SPHERE_COLOR
+	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(100, 100, 100, 255)),            // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
+	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(255, 0, 0, 255)),           // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 
 	lcProfileEntry("Settings", "Language", ""),                                                // LC_PROFILE_LANGUAGE
 	lcProfileEntry("Settings", "ColorTheme", static_cast<int>(lcColorTheme::System)),          // LC_PROFILE_COLOR_THEME                                /*** LPub3D Mod - Set default colour theme to System ***/
@@ -132,6 +132,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod - modified POVRay path ***/
 	lcProfileEntry("POVRay", "POVRayPath", ""),                                                // LC_PROFILE_POVRAY_PATH                                /*** LPub3D Mod - POV-ray remove default path ***/
 /*** LPub3D Mod end ***/
+
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                                  // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Width", 1280),                                                   // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                   // LC_PROFILE_POVRAY_HEIGHT
@@ -139,10 +140,12 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod - Build Modification ***/
 	lcProfileEntry("Settings", "BuildModification", 0),                                        // LC_PROFILE_BUILD_MODIFICATION                         /*** LPub3D Mod - Build Modification ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "UseImageSize", 1),                                             // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "AutoCenterSelection", 1),                                      // LC_PROFILE_AUTO_CENTER_SELECTION                      /*** LPub3D Mod - Camera Globe Target Position ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultDistanceFactor", 5.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
@@ -151,19 +154,29 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "DefaultCameraNearPlane", 25.0f),                               //LC_PROFILE_CAMERA_NEAR_PLANE                           /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraFarPlane", 50000.0f),                             //LC_PROFILE_CAMERA_FAR_PLANE                            /*** LPub3D Mod - Update Default Camera ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native projection options ***/
 	lcProfileEntry("Settings", "NativeViewpoint",  7),                                         // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT] /*** LPub3D Mod - Native Renderer settings ***/
 	lcProfileEntry("Settings", "NativeProjection", 0),                                         // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - piece icons ***/
 	lcProfileEntry("Settings", "ViewPieceIcons", 0),                                           // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Viewpoint zoom extent ***/
 	lcProfileEntry("Settings", "ViewpointZoomExtent", 1),                                      // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                     /*** LPub3D Mod - View point zoom extent ***/
 /*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - true fade ***/
 	lcProfileEntry("Settings", "LPubTrueFade", 1),                                             // LC_PROFILE_LPUB_TRUE_FADE                            /*** LPub3D Mod - true fade ***/
-	lcProfileEntry("Settings", "ConditionalLines", 0)                                          // LC_PROFILE_CONDITIONAL_LINES                         /*** LPub3D Mod - true fade ***/
+	lcProfileEntry("Settings", "ConditionalLines", 0),                                         // LC_PROFILE_CONDITIONAL_LINES                         /*** LPub3D Mod - true fade ***/
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "ActivePreviewColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_ACTIVE_PREVIEW_COLOR                      /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "ViewSpherePreviewSize", 100),                                  // LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE                  /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "ViewSpherePreviewLocation", (int)lcViewSphereLocation::BottomLeft), // LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION         /*** LPub3D Mod - preview widget ***/
 /*** LPub3D Mod end ***/
 };
 

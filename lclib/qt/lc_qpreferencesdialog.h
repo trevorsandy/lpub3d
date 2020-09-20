@@ -65,6 +65,9 @@ public slots:
 	void on_studLogo_toggled();
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
+/*** LPub3D Mod - preview widget ***/
+	void on_ViewSpherePreviewSizeCombo_currentIndexChanged(int Index);
+/*** LPub3D Mod end ***/    
 /*** LPub3D Mod - Native Renderer settings ***/
 	void on_ViewpointsCombo_currentIndexChanged(int index);
 /*** LPub3D Mod end ***/

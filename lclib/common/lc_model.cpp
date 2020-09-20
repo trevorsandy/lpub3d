@@ -31,6 +31,9 @@
 #include "lpub.h"
 #include "metaitem.h"
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget ***/
+#include "previewwidget.h"
+/*** LPub3D Mod end ***/
 
 void lcModelProperties::LoadDefaults()
 {
@@ -44,6 +47,10 @@ void lcModelProperties::LoadDefaults()
 	mBackgroundImageTile = lcGetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_TILE);
 
 	mAmbientColor = lcVector3FromColor(lcGetProfileInt(LC_PROFILE_DEFAULT_AMBIENT_COLOR));
+
+/*** LPub3D Mod - preview widget ***/
+	mUnoffPartColorCode = 16;
+/*** LPub3D Mod end ***/
 }
 
 void lcModelProperties::SaveDefaults()
@@ -185,8 +192,11 @@ void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
 	}
 }
 
-lcModel::lcModel(const QString& FileName)
+/*** LPub3D Mod - preview widget ***/
+lcModel::lcModel(const QString& FileName, bool isPreview)
+	: mIsPreview(isPreview)
 {
+/*** LPub3D Mod end ***/
 	mProperties.mModelName = FileName;
 	mProperties.mFileName = FileName;
 	mProperties.LoadDefaults();
@@ -201,8 +211,10 @@ lcModel::~lcModel()
 {
 	if (mPieceInfo)
 	{
-		if (gMainWindow && gMainWindow->GetCurrentPieceInfo() == mPieceInfo)
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview && gMainWindow && gMainWindow->GetCurrentPieceInfo() == mPieceInfo)
 			gMainWindow->SetCurrentPieceInfo(nullptr);
+/*** LPub3D Mod end ***/
 
 		if (mPieceInfo->GetModel() == this)
 			mPieceInfo->SetPlaceholder();
@@ -269,8 +281,16 @@ void lcModel::DeleteModel()
 	lcReleaseTexture(mBackgroundTexture);
 	mBackgroundTexture = nullptr;
 
-	if (gMainWindow)
+/*** LPub3D Mod - preview widget ***/
+	if (mIsPreview && gPreviewWidget) {
+		lcCamera* Camera = gPreviewWidget->GetCamera();
+
+		if (Camera && !Camera->IsSimple() && mCameras.FindIndex(Camera) != -1)
+			gPreviewWidget->SetCamera(Camera);
+	}
+	else if (gMainWindow)
 	{
+/*** LPub3D Mod end ***/
 		const lcArray<View*>* Views = gMainWindow->GetViewsForModel(this);
 
 		// TODO: this is only needed to avoid a dangling pointer during undo/redo if a camera is set to a view but we should find a better solution instead
@@ -563,6 +583,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - true fade ***/
 	mLPubFade = false;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget ***/
+	bool IsUnofficialPart = mIsPreview && mProperties.mUnoffPartColorCode != LDRAW_MATERIAL_COLOUR;
+/*** LPub3D Mod end ***/
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 
 	mProperties.mAuthor.clear();
@@ -620,7 +643,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - parse rotstep line ***/
 			if (Token == QLatin1String("//"))
 			 {
-				 gMainWindow->ParseAndSetRotStep(LineStream);
+/*** LPub3D Mod - preview widget ***/
+				if (!mIsPreview)
+					gMainWindow->ParseAndSetRotStep(LineStream);
 			 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process color entry ***/
@@ -756,7 +781,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -768,6 +793,10 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			ReadingHeader = false;
 			int ColorCode;
 			LineStream >> ColorCode;
+/*** LPub3D Mod - preview widget ***/
+			if (IsUnofficialPart && ColorCode == LDRAW_MATERIAL_COLOUR)
+				ColorCode = mProperties.mUnoffPartColorCode;
+/*** LPub3D Mod end ***/
 
 			float IncludeMatrix[12];
 			for (int TokenIdx = 0; TokenIdx < 12; TokenIdx++)
@@ -1425,9 +1454,9 @@ void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMat
 {
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
-/*** LPub3D Mod - true fade ***/		
+/*** LPub3D Mod - true fade ***/
 			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive, LPubFade);
-/*** LPub3D Mod end ***/			
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::DrawBackground(lcGLWidget* Widget)
@@ -1918,6 +1947,12 @@ void lcModel::SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector
 
 void lcModel::SaveCheckpoint(const QString& Description)
 {
+/*** LPub3D Mod - preview widget ***/
+	if (mIsPreview) {
+		return;
+	}
+/*** LPub3D Mod end ***/
+
 	lcModelHistoryEntry* ModelHistoryEntry = new lcModelHistoryEntry();
 
 	ModelHistoryEntry->Description = Description;
@@ -1939,6 +1974,12 @@ void lcModel::SaveCheckpoint(const QString& Description)
 
 void lcModel::LoadCheckPoint(lcModelHistoryEntry* CheckPoint)
 {
+/*** LPub3D Mod - preview widget ***/
+	if (mIsPreview) {
+		return;
+	}
+/*** LPub3D Mod end ***/
+
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	std::vector<PieceInfo*> LoadedInfos;
 
@@ -1970,7 +2011,8 @@ void lcModel::SetActive(bool Active)
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
 /*** LPub3D Mod - Selected Parts ***/
-	emit gMainWindow->SetActiveModelSig(mProperties.mFileName,Active);
+	if (!mIsPreview)
+		emit gMainWindow->SetActiveModelSig(mProperties.mFileName,Active);
 /*** LPub3D Mod end ***/
 }
 
@@ -2531,14 +2573,18 @@ void lcModel::DeleteSelectedObjects()
 	if ((RemoveMask = RemoveSelectedObjects()))
 	{
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateTimeline(false, false);
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview) {
+			gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
-		int Rc = RemovedPieceRC;
-		bool IsPiece = ((RemoveMask >> Rc) & 1);
-		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
+			int Rc = RemovedPieceRC;
+			bool IsPiece = ((RemoveMask >> Rc) & 1);
+			gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateAllViews();
-		SaveCheckpoint(tr("Deleting"));
+			gMainWindow->UpdateAllViews();
+			SaveCheckpoint(tr("Deleting"));
+		}
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -4166,8 +4212,12 @@ void lcModel::SelectAllPieces()
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(true);
 
-	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview) {
+		gMainWindow->UpdateSelectedObjects(true);
+		gMainWindow->UpdateAllViews();
+	}
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::InvertSelection()
@@ -4331,8 +4381,10 @@ void lcModel::FindPiece(bool FindFirst, bool SearchForward)
 
 void lcModel::UndoAction()
 {
-	if (mUndoHistory.size() < 2)
+/*** LPub3D Mod - preview widget ***/
+	if (mIsPreview || mUndoHistory.size() < 2)
 		return;
+/*** LPub3D Mod end ***/
 
 	lcModelHistoryEntry* Undo = mUndoHistory.front();
 	mUndoHistory.erase(mUndoHistory.begin());
@@ -4346,8 +4398,10 @@ void lcModel::UndoAction()
 
 void lcModel::RedoAction()
 {
-	if (mRedoHistory.empty())
+/*** LPub3D Mod - preview widget ***/
+	if (mIsPreview || mRedoHistory.empty())
 		return;
+/*** LPub3D Mod end ***/
 
 	lcModelHistoryEntry* Redo = mRedoHistory.front();
 	mRedoHistory.erase(mRedoHistory.begin());
@@ -4366,8 +4420,10 @@ void lcModel::BeginMouseTool()
 
 void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 {
-	if (!Accept)
+/*** LPub3D Mod - preview widget ***/
+	if (!Accept && !mIsPreview)
 	{
+/*** LPub3D Mod end ***/
 		LoadCheckPoint(mUndoHistory[0]);
 		return;
 	}
@@ -4387,8 +4443,11 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_CAMERA:
-		gMainWindow->UpdateCameraMenu();
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview)
+			gMainWindow->UpdateCameraMenu();
 		SaveCheckpoint(tr("New Camera"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_SELECT:
@@ -4408,23 +4467,31 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case LC_TOOL_ZOOM:
-		if (!gMainWindow->GetActiveView()->mCamera->IsSimple())
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview && !gMainWindow->GetActiveView()->mCamera->IsSimple())
 			SaveCheckpoint(tr("Zoom"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_PAN:
-		if (!gMainWindow->GetActiveView()->mCamera->IsSimple())
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview && !gMainWindow->GetActiveView()->mCamera->IsSimple())
 			SaveCheckpoint(tr("Pan"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_ROTATE_VIEW:
-		if (!gMainWindow->GetActiveView()->mCamera->IsSimple())
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview && !gMainWindow->GetActiveView()->mCamera->IsSimple())
 			SaveCheckpoint(tr("Orbit"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_ROLL:
-		if (!gMainWindow->GetActiveView()->mCamera->IsSimple())
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview && !gMainWindow->GetActiveView()->mCamera->IsSimple())
 			SaveCheckpoint(tr("Roll"));
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_ZOOM_REGION:
@@ -4642,7 +4709,10 @@ void lcModel::UpdatePanTool(lcCamera* Camera, const lcVector3& Distance)
 {
 	Camera->Pan(Distance - mMouseToolDistance, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance = Distance;
-	gMainWindow->UpdateAllViews();
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview)
+		gMainWindow->UpdateAllViews();
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY)
@@ -4652,7 +4722,10 @@ void lcModel::UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY)
 	Camera->Orbit(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, Center, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = MouseX;
 	mMouseToolDistance.y = MouseY;
-	gMainWindow->UpdateAllViews();
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview)
+		gMainWindow->UpdateAllViews();
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::UpdateRollTool(lcCamera* Camera, float Mouse)
@@ -4721,13 +4794,17 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 	lcVector3 Points[8];
 	lcGetBoxCorners(Min, Max, Points);
 
-	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
+/*** LPub3D Mod - preview widget ***/
+	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
 
+	if (!mIsPreview) {
 /*** LPub3D Mod - Update Default Camera ***/
-//  gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateDefaultCamera(Camera);
+//        gMainWindow->UpdateSelectedObjects(false);
+		gMainWindow->UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+		gMainWindow->UpdateAllViews();
+	}
+/*** LPub3D Mod end ***/
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Zoom"));
@@ -4735,12 +4812,16 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 
 void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
-	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
+/*** LPub3D Mod - preview widget ***/
+	Camera->Zoom(Amount, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
+	if (!mIsPreview) {
 /*** LPub3D Mod - Update Default Camera ***/
-//  gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateDefaultCamera(Camera);
+//        gMainWindow->UpdateSelectedObjects(false);
+		gMainWindow->UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+		gMainWindow->UpdateAllViews();
+	}
+/*** LPub3D Mod end ***/
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Zoom"));

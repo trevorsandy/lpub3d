@@ -26,7 +26,7 @@ public:
 	int StepImagesWidth;
 	int StepImagesHeight;
 /*** LPub3D Mod - Highlight New Parts ***/
-    bool HighlightNewParts;
+	bool HighlightNewParts;
 /*** LPub3D Mod end ***/
 	bool PartsListStep;
 	bool PartsListEnd;
@@ -47,7 +47,9 @@ struct lcInstructionsPageLayout;
 class Project
 {
 public:
-	Project();
+/*** LPub3D Mod - preview widget ***/
+	Project(bool isPreview = false);
+/*** LPub3D Mod end ***/
 	~Project();
 
 	Project(const Project&) = delete;
@@ -147,6 +149,11 @@ public:
 		mModified = value;
 	}
 
+    bool IsUnofficialPart()
+    {
+        return mIsUnofficialPart;
+    }
+
 	void SetFileName(const QString& FileName); // moved from protected
 /*** LPub3D Mod end ***/
 
@@ -161,7 +168,7 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
-	bool Load(const QString& FileName);
+	bool Load(const QString& FileName, int PartColorCode = -1);
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);
@@ -202,8 +209,9 @@ protected:
 	float mResolution;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - model preview ***/
+/*** LPub3D Mod - preview widget ***/
 	bool mIsPreview;
+    bool mIsUnofficialPart;
 /*** LPub3D Mod end ***/
 };
 

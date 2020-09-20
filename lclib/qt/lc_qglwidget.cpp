@@ -48,8 +48,8 @@ void lcGLWidget::SetCursor(lcCursor CursorType)
 		{  0,  0, "" },                                 // lcCursor::Default
 		{  8,  3, ":/resources/cursor_insert" },        // lcCursor::Brick
 		{ 15, 15, ":/resources/cursor_light" },         // lcCursor::Light
-        { 15, 15, ":/resources/cursor_sunlight" },      // lcCursor::Sunlight   /*** LPub3D Mod - enable lights ***/
-        { 15, 15, ":/resources/cursor_arealight" },     // lcCursor::Arealight  /*** LPub3D Mod - enable lights ***/
+		{ 15, 15, ":/resources/cursor_sunlight" },      // lcCursor::Sunlight   /*** LPub3D Mod - enable lights ***/
+		{ 15, 15, ":/resources/cursor_arealight" },     // lcCursor::Arealight  /*** LPub3D Mod - enable lights ***/
 		{  7, 10, ":/resources/cursor_spotlight" },     // lcCursor::Spotlight
 		{ 15,  9, ":/resources/cursor_camera" },        // lcCursor::Camera
 		{  0,  2, ":/resources/cursor_select" },        // lcCursor::Select
@@ -87,9 +87,11 @@ void lcGLWidget::SetCursor(lcCursor CursorType)
 	}
 }
 
-lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
-	: QGLWidget(parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
+/*** LPub3D Mod - preview widget ***/
+lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool isView, bool isPreview)
+	: QGLWidget(parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first()), mIsPreview(isPreview)
 {
+/*** LPub3D Mod end ***/
 	mWheelAccumulator = 0;
 	widget = owner;
 	widget->mWidget = this;
@@ -113,8 +115,12 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
 			lcGetPreferences().mShadingMode = lcShadingMode::Flat;
 
-		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)
-			gMainWindow->GetPartSelectionWidget()->DisableIconMode();
+/*** LPub3D Mod - preview widget ***/
+		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)  {
+			if (!mIsPreview)
+				gMainWindow->GetPartSelectionWidget()->DisableIconMode();
+		}
+/*** LPub3D Mod end ***/
 
 		gPlaceholderMesh = new lcMesh;
 		gPlaceholderMesh->CreateBox();
@@ -127,11 +133,14 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 	preferredSize = QSize(0, 0);
 	setMouseTracking(true);
 
-	mIsView = view;
+/*** LPub3D Mod - preview widget ***/
+	mIsView = isView;
 	if (mIsView)
 	{
 		setFocusPolicy(Qt::StrongFocus);
-		setAcceptDrops(true);
+		if (!mIsPreview)
+			setAcceptDrops(true);
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -145,7 +154,10 @@ lcQGLWidget::~lcQGLWidget()
 		gTexFont.Reset();
 
 		lcGetPiecesLibrary()->ReleaseBuffers(widget->mContext);
-		View::DestroyResources(widget->mContext);
+/*** LPub3D Mod - preview widget ***/
+		if (!mIsPreview)
+			View::DestroyResources(widget->mContext);
+/*** LPub3D Mod end ***/
 		lcContext::DestroyResources();
 		lcViewSphere::DestroyResources(widget->mContext);
 
@@ -183,8 +195,10 @@ void lcQGLWidget::paintGL()
 
 void lcQGLWidget::keyPressEvent(QKeyEvent *event)
 {
-	if (mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
 	{
+/*** LPub3D Mod end ***/
 		widget->mInputState.Modifiers = event->modifiers();
 		widget->OnUpdateCursor();
 	}
@@ -194,8 +208,10 @@ void lcQGLWidget::keyPressEvent(QKeyEvent *event)
 
 void lcQGLWidget::keyReleaseEvent(QKeyEvent *event)
 {
-	if (mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
 	{
+/*** LPub3D Mod end ***/
 		widget->mInputState.Modifiers = event->modifiers();
 		widget->OnUpdateCursor();
 	}
@@ -338,8 +354,10 @@ void lcQGLWidget::wheelEvent(QWheelEvent *event)
 
 void lcQGLWidget::dragEnterEvent(QDragEnterEvent* DragEnterEvent)
 {
-	if (mIsView)
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && mIsView)
 	{
+/*** LPub3D Mod end ***/
 		const QMimeData* MimeData = DragEnterEvent->mimeData();
 
 		if (MimeData->hasFormat("application/vnd.leocad-part"))
@@ -359,8 +377,10 @@ void lcQGLWidget::dragEnterEvent(QDragEnterEvent* DragEnterEvent)
 
 void lcQGLWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
-	if (!mIsView)
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsView || mIsPreview)
 		return;
+/*** LPub3D Mod end ***/
 
 	((View*)widget)->EndDrag(false);
 
@@ -369,8 +389,10 @@ void lcQGLWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
 void lcQGLWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 {
-	if (mIsView)
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && mIsView)
 	{
+/*** LPub3D Mod end ***/
 		const QMimeData* MimeData = DragMoveEvent->mimeData();
 
 		if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))
@@ -393,8 +415,10 @@ void lcQGLWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 
 void lcQGLWidget::dropEvent(QDropEvent* DropEvent)
 {
-	if (mIsView)
+/*** LPub3D Mod - preview widget ***/
+	if (!mIsPreview && mIsView)
 	{
+/*** LPub3D Mod end ***/
 		const QMimeData* MimeData = DropEvent->mimeData();
 
 		if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))

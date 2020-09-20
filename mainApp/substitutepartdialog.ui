@@ -638,7 +638,7 @@
           <property name="minimumSize">
            <size>
             <width>160</width>
-            <height>100</height>
+            <height>130</height>
            </size>
           </property>
           <property name="frameShape">
@@ -771,6 +771,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>nameEdit</tabstop>
   <tabstop>substituteEdit</tabstop>
   <tabstop>typeBtn</tabstop>
   <tabstop>colorBtn</tabstop>
@@ -787,7 +788,6 @@
   <tabstop>rotateSpinY</tabstop>
   <tabstop>rotateSpinZ</tabstop>
   <tabstop>transformCombo</tabstop>
-  <tabstop>nameEdit</tabstop>
  </tabstops>
  <resources/>
  <connections>

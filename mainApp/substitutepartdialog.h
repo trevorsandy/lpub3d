@@ -32,7 +32,12 @@ namespace Ui {
 class SubstitutePartDialog;
 }
 
+class QGridLayout;
 class PieceInfo;
+class PreviewWidget;
+class Project;
+class lcModel;
+class lcQGLWidget;
 
 class SubstitutePartDialog : public QDialog
 {
@@ -90,6 +95,13 @@ private:
   QStringList               mDefaultAttributes;
   QStringList               mInitialAttributes;
   int                       mAction;
+  bool                      mViewWidgetEnabled;
+
+  QGridLayout              *previewLayout;
+  PreviewWidget            *Preview;
+  Project                  *PreviewProject;
+  lcModel                  *ActiveModel;
+  lcQGLWidget              *ViewWidget;
 };
 
 #endif // SUBSTITUTEPARTDIALOG_H

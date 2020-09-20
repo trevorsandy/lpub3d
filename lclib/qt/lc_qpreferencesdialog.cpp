@@ -129,6 +129,31 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	}
 	else
 		ui->ViewSphereSizeCombo->setCurrentIndex(0);
+	
+/*** LPub3D Mod - preview widget ***/
+	ui->ViewSpherePreviewLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSpherePreviewLocation);
+
+	if (mOptions->Preferences.mViewSphereEnabled)
+	{
+		switch (mOptions->Preferences.mViewSpherePreviewSize)
+		{
+		case 100:
+			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(3);
+			break;
+		case 75:
+			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(2);
+			break;
+		case 50:
+			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(1);
+			break;
+		default:
+			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(0);
+			break;
+		}
+	}
+	else
+		ui->ViewSpherePreviewSizeCombo->setCurrentIndex(0);
+/*** LPub3D Mod end ***/
 
 	ui->studLogo->setChecked(mOptions->StudLogo);
 	if (ui->studLogo->isChecked())
@@ -187,6 +212,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_gridStuds_toggled();
 	on_gridLines_toggled();
 	on_ViewSphereSizeCombo_currentIndexChanged(ui->ViewSphereSizeCombo->currentIndex());
+/*** LPub3D Mod - preview widget ***/
+	on_ViewSpherePreviewSizeCombo_currentIndexChanged(ui->ViewSpherePreviewSizeCombo->currentIndex());
+/*** LPub3D Mod end ***/    
 
 	updateCategories();
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
@@ -362,6 +390,25 @@ void lcQPreferencesDialog::accept()
 		mOptions->StudLogo = ui->studLogoCombo->currentIndex() + 1;
 	else
 		mOptions->StudLogo = 0;
+
+/*** LPub3D Mod - preview widget ***/   
+	mOptions->Preferences.mViewSpherePreviewLocation = (lcViewSphereLocation)ui->ViewSpherePreviewLocationCombo->currentIndex();
+
+	switch (ui->ViewSpherePreviewSizeCombo->currentIndex())
+	{
+	case 3:
+		mOptions->Preferences.mViewSpherePreviewSize = 100;
+		break;
+	case 2:
+		mOptions->Preferences.mViewSpherePreviewSize = 75;
+		break;
+	case 1:
+		mOptions->Preferences.mViewSpherePreviewSize = 50;
+		break;
+	default:
+		break;
+	}
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
 	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();
@@ -591,6 +638,13 @@ void lcQPreferencesDialog::on_gridLines_toggled()
 	ui->gridLineColor->setEnabled(ui->gridLines->isChecked());
 	ui->gridLineSpacing->setEnabled(ui->gridLines->isChecked());
 }
+
+/*** LPub3D Mod - preview widget ***/
+void lcQPreferencesDialog::on_ViewSpherePreviewSizeCombo_currentIndexChanged(int Index)
+{
+	ui->ViewSpherePreviewLocationCombo->setEnabled(Index != 0);
+}
+/*** LPub3D Mod end ***/  
 
 void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
 {
