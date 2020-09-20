@@ -896,7 +896,7 @@ public:
 
   float getDefaultCameraFoV(){
       return (Preferences::usingNativeRenderer ?
-                  CAMERA_FOV_NATIVE_DEFAULT :
+                  gApplication->mPreferences.mCFoV :
                   Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
                   CAMERA_FOV_LDVIEW_P_DEFAULT :
                   CAMERA_FOV_DEFAULT);
@@ -920,13 +920,13 @@ public:
 
   float getDefaultCameraZNear(){
       return (Preferences::usingNativeRenderer ?
-                  CAMERA_ZNEAR_NATIVE_DEFAULT :
+                  gApplication->mPreferences.mCNear :
                   CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultCameraZFar(){
       return (Preferences::usingNativeRenderer ?
-                  CAMERA_ZFAR_NATIVE_DEFAULT :
+                  gApplication->mPreferences.mCFar :
                   CAMERA_ZFAR_DEFAULT);
   }
 

@@ -376,7 +376,6 @@ HEADERS += \
     calloutbackgrounditem.h \
     calloutpointeritem.h \
     color.h \
-    cameradistfactordialog.h \
     commands.h \
     commonmenus.h \
     csiitem.h \
@@ -478,7 +477,6 @@ SOURCES += \
     calloutglobals.cpp \
     calloutpointeritem.cpp \
     color.cpp \
-    cameradistfactordialog.cpp \
     commandline.cpp \
     commands.cpp \
     commonmenus.cpp \

@@ -141,7 +141,12 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "UseImageSize", 0),                                          // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
 	/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultDistanceFactor", 5.0f),                              //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraPosition", 1250.0f),                           //LC_PROFILE_CAMERA_DEFAULT_POSITION                     /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraFieldOfView", 30.0f),                          //LC_PROFILE_CAMERA_FOV                                  /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraNearPlane", 25.0f),                            //LC_PROFILE_CAMERA_NEAR_PLANE                           /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraFarPlane", 50000.0f),                          //LC_PROFILE_CAMERA_FAR_PLANE                            /*** LPub3D Mod - Update Default Camera ***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native projection options ***/
 	lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/

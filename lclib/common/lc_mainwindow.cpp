@@ -2538,7 +2538,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - replace mStatusBarLabel ***/
-	 statusBar()->showMessage(EmitSelection == VIEWER_MOD && Focus->IsPiece() ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
+	 statusBar()->showMessage(Focus && Focus->IsPiece() && EmitSelection == VIEWER_MOD ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
 /*  mStatusPositionLabel->setText(Label);   */
 /*** LPub3D Mod end ***/
 }

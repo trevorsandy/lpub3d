@@ -554,38 +554,6 @@ public slots:
 
 /***********************************************************************
  *
- * CameraDistFactor
- *
- **********************************************************************/
-
-class NativeCDMeta;
-class QSpinBox;
-class CameraDistFactorGui : public MetaGui
-{
-  Q_OBJECT
-public:
-
-  CameraDistFactorGui(
-    QString const &heading,
-    NativeCDMeta *meta,
-    QGroupBox  *parent = nullptr);
-  ~CameraDistFactorGui() {}
-
-  virtual void apply(QString &modelName);
-
-private:
-  NativeCDMeta  *meta;
-
-  int       saveFactor;
-  QSpinBox  *cameraDistFactorSpin;
-  QLabel    *cameraDistFactorLabel;
-
-public slots:
-   void cameraDistFactorChange(int factor);
-};
-
-/***********************************************************************
- *
  * JustifyStep
  *
  **********************************************************************/
@@ -1057,38 +1025,26 @@ class RendererGui : public MetaGui
 public:
   bool          clearCaches;
 
-  RendererGui(NativeCDMeta *_meta,
-              QGroupBox *parent = nullptr);
+  RendererGui(QGroupBox *parent = nullptr);
   ~RendererGui() {}
 
   virtual void apply(QString &topLevelFile);
 
 private:
-  NativeCDMeta  *meta;
-
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
   QCheckBox    *ldvSnapshotListBox;
-  QCheckBox    *cameraDistFactorDefaultBox;
-  QCheckBox    *cameraDistFactorMetaBox;
   QGroupBox    *povFileGeneratorGrpBox;
-  QGroupBox    *cameraDistFactorGrpBox;
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
 
   QString       pick;
   QString       povFileGenChoice;
 
-  int           cameraDistFactorNative;
-  QSpinBox      *cameraDistFactorSpin;
-  QLabel        *cameraDistFactorLabel;
-
   bool          rendererModified;
   bool          singleCallModified;
   bool          snapshotListModified;
   bool          povFileGenModified;
-  bool          cameraDistFactorModified;
-  bool          cameraDistFactorDefaulSetting;
 
 public slots:
   void typeChange(QString const &);
@@ -1096,7 +1052,6 @@ public slots:
   void snapshotListChange(bool checked);
   void povFileGenNativeChange(bool checked);
   void povFileGenLDViewChange(bool checked);
-  void cameraDistFactorChange(int factor);
 };
 
 /***********************************************************************

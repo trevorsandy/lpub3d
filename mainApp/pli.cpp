@@ -1100,11 +1100,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             viewerOptions->PageWidth      = pageSizeP(meta, 0);
             viewerOptions->PageHeight     = pageSizeP(meta, 1);
             viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-            viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-            viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-            viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
             viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-            viewerOptions->NativeCDF      = meta->LPub.nativeCD.factor.value();
             viewerOptions->CameraName     = pliMeta.cameraName.value();
             viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
             viewerOptions->RotStepType    = rotate.at(3);
@@ -2506,11 +2502,7 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->PageWidth      = pageSizeP(meta, 0);
                     viewerOptions->PageHeight     = pageSizeP(meta, 1);
                     viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-                    viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-                    viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-                    viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
                     viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-                    viewerOptions->NativeCDF      = meta->LPub.nativeCD.factor.value();
                     viewerOptions->CameraName     = pliMeta.cameraName.value();
                     viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());;
                     viewerOptions->RotStepType    = rotate.at(3);

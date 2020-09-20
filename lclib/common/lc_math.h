@@ -7,10 +7,6 @@
 #define LC_RTOD (static_cast<float>(180 / M_PI))
 #define LC_PI (static_cast<float>(M_PI))
 #define LC_2PI (static_cast<float>(2 * M_PI))
-/*** LPub3D Mod - Camera Globe ***/
-#define LC_CDF (static_cast<float>(-5.0f))        // default camera distance factor
-#define LC_CAM_POS (static_cast<float>(1300.0f))  // default camera position
-/*** LPub3D Mod end ***/
 
 #define LC_RGB(r,g,b) LC_RGBA(r,g,b,255)
 #define LC_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24))) 
@@ -498,13 +494,13 @@ inline float GetStandardDistance(const float Resolution, const float Scale, cons
 inline float NativeCameraDistance(const float Distance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
 {
 	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
-	return (Distance / StandardDistance) * ((LC_CAM_POS / LC_CDF) * CDF);
+    return (Distance / StandardDistance) * CDF;
 }
 
 inline float StandardCameraDistance(const float NativeDistance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
 {
 	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
-	return StandardDistance * (NativeDistance / ((LC_CAM_POS / LC_CDF) * CDF));
+    return StandardDistance * (NativeDistance / CDF);
 }
 /*** LPub3D Mod end ***/
 

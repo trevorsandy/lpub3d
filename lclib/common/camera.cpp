@@ -27,7 +27,8 @@ lcCamera::lcCamera(bool Simple)
 		mState |= LC_CAMERA_SIMPLE;
 	else
 	{
-		mPosition = lcVector3(-250.0f, -250.0f, 75.0f);
+		float PP = GetCDP() / GetDDF();
+		mPosition = lcVector3(-PP, -PP, 75.0f);
 		mTargetPosition = lcVector3(0.0f, 0.0f, 0.0f);
 		mUpVector = lcVector3(-0.2357f, -0.2357f, 0.94281f);
 
@@ -67,10 +68,10 @@ lcCamera::~lcCamera()
 
 void lcCamera::Initialize()
 {
-	m_fovy = 30.0f;
-	m_zNear = 25.0f;
-	m_zFar = 50000.0f;
-	mState = 0;
+	m_fovy  = gApplication->mPreferences.mCFoV;
+	m_zNear = gApplication->mPreferences.mCNear;
+	m_zFar  = gApplication->mPreferences.mCFar;
+	mState  = 0;
 	memset(m_strName, 0, sizeof(m_strName));
 }
 
@@ -896,7 +897,7 @@ void lcCamera::Zoom(float Distance, lcStep Step, bool AddKey)
 {
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 	FrontVector.Normalize();
-	FrontVector *= -5.0f * Distance;
+	FrontVector *= GetDDF() * Distance;
 
 	// Don't zoom ortho in if it would cross the ortho focal plane.
 	if (IsOrtho())
@@ -1030,13 +1031,13 @@ void lcCamera::SetViewpoint(lcViewpoint Viewpoint)
 {
 	lcVector3 Positions[] =
 	{
-		lcVector3(    0.0f, -1250.0f,     0.0f), // LC_VIEWPOINT_FRONT
-		lcVector3(    0.0f,  1250.0f,     0.0f), // LC_VIEWPOINT_BACK
-		lcVector3(    0.0f,     0.0f,  1250.0f), // LC_VIEWPOINT_TOP
-		lcVector3(    0.0f,     0.0f, -1250.0f), // LC_VIEWPOINT_BOTTOM
-		lcVector3( 1250.0f,     0.0f,     0.0f), // LC_VIEWPOINT_LEFT
-		lcVector3(-1250.0f,     0.0f,     0.0f), // LC_VIEWPOINT_RIGHT
-		lcVector3(  375.0f,  -375.0f,   187.5f)  // LC_VIEWPOINT_HOME
+		lcVector3(    0.0f, -GetCDP(),     0.0f), // LC_VIEWPOINT_FRONT
+		lcVector3(    0.0f,  GetCDP(),     0.0f), // LC_VIEWPOINT_BACK
+		lcVector3(    0.0f,     0.0f,  GetCDP()), // LC_VIEWPOINT_TOP
+		lcVector3(    0.0f,     0.0f, -GetCDP()), // LC_VIEWPOINT_BOTTOM
+		lcVector3( GetCDP(),     0.0f,     0.0f), // LC_VIEWPOINT_LEFT
+		lcVector3(-GetCDP(),     0.0f,     0.0f), // LC_VIEWPOINT_RIGHT
+		lcVector3(  375.0f,   -375.0f,   187.5f)  // LC_VIEWPOINT_HOME
 	};
 
 	lcVector3 Ups[] =
@@ -1086,12 +1087,12 @@ void lcCamera::SetViewpoint(const lcVector3& Position)
 /*** LPub3D Mod - Camera Globe ***/
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
 {
-    SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
+	SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
 }
 
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target)
 {
-    SetAngles(Latitude, Longitude, Distance, Target, 1, false);
+	SetAngles(Latitude, Longitude, Distance, Target, 1, false);
 }
 
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey)
@@ -1109,7 +1110,7 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 
 /*** LPub3D Mod - Camera Globe ***/
 	float CameraDistance = NativeCameraDistance(Distance /*Standard Format*/,
-												lcGetActiveProject()->GetCDF(),
+												GetCDF(),
 												lcGetActiveProject()->GetModelWidth(),
 												lcGetActiveProject()->GetResolution(),
 												lcGetActiveProject()->GetModelScale());
@@ -1117,11 +1118,11 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 /*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
-    ChangeKey(mPositionKeys, mPosition, Step, AddKey);
-    ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
-    ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
+	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
+	ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
+	ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
 
-    UpdatePosition(Step);
+	UpdatePosition(Step);
 }
 
 void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) const
@@ -1142,7 +1143,7 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 
 /*** LPub3D Mod - Camera Globe ***/
 	Distance = StandardCameraDistance(lcLength(mPosition) /*Native Format*/,
-									  lcGetActiveProject()->GetCDF(),
+									  GetCDF(),
 									  lcGetActiveProject()->GetModelWidth(),
 									  lcGetActiveProject()->GetResolution(),
 									  lcGetActiveProject()->GetModelScale());
@@ -1152,6 +1153,26 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 /*** LPub3D Mod end ***/
 float lcCamera::GetScale()
 {
-	return 1 / (lcLength(mPosition) / ((LC_CAM_POS / LC_CDF) * lcGetActiveProject()->GetCDF())) ;
+	return 1 / (lcLength(mPosition) / GetCDF()) ;
 }
 /*** LPub3D Mod - Camera Globe ***/
+
+/*** LPub3D Mod - Update Default Camera ***/
+float lcCamera::GetCDP() const
+{
+	// Camera Default Position
+	return gApplication->mPreferences.mCDP;
+}
+
+float lcCamera::GetDDF() const
+{
+	// Default Distance Factor
+	return -gApplication->mPreferences.mDDF;
+}
+
+float lcCamera::GetCDF() const
+{
+	// Camera Distance Factor = Camera Default Position / Default Distance Factor
+	return (gApplication->mPreferences.mCDP / -gApplication->mPreferences.mDDF) * -gApplication->mPreferences.mDDF;
+}
+/*** LPub3D Mod end ***/

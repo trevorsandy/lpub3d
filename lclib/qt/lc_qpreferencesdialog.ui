@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
+    <width>536</width>
     <height>467</height>
    </rect>
   </property>
@@ -63,6 +63,9 @@
               <width>0</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Select default viewpoint</string>
             </property>
             <property name="statusTip">
              <string/>
@@ -140,6 +143,9 @@
               <height>0</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Select default projection</string>
+            </property>
             <property name="statusTip">
              <string/>
             </property>
@@ -179,6 +185,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
              <widget class="QCheckBox" name="gridStuds">
+              <property name="toolTip">
+               <string>Enable draw ground plane studs</string>
+              </property>
               <property name="text">
                <string>Draw studs</string>
               </property>
@@ -186,6 +195,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="gridStudColor">
+              <property name="toolTip">
+               <string>Select stud colour</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -193,13 +205,19 @@
             </item>
             <item>
              <widget class="QLabel" name="label">
+              <property name="toolTip">
+               <string>Select ground plane stud colour</string>
+              </property>
               <property name="text">
-               <string>studs</string>
+               <string>Lines</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="gridLineColor">
+              <property name="toolTip">
+               <string>Select grid line colour</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -211,6 +229,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
              <widget class="QCheckBox" name="gridLines">
+              <property name="toolTip">
+               <string>Enable draw grid lines</string>
+              </property>
               <property name="text">
                <string>Draw lines every</string>
               </property>
@@ -220,9 +241,25 @@
              <widget class="QLineEdit" name="gridLineSpacing">
               <property name="maximumSize">
                <size>
-                <width>75</width>
+                <width>30</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Draw grid line every 'n' studs</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_23">
+              <property name="minimumSize">
+               <size>
+                <width>35</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>studs</string>
               </property>
              </widget>
             </item>
@@ -247,6 +284,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_20">
             <item>
              <widget class="QLabel" name="label_8">
+              <property name="toolTip">
+               <string/>
+              </property>
               <property name="text">
                <string>Size:</string>
               </property>
@@ -254,6 +294,9 @@
             </item>
             <item>
              <widget class="QComboBox" name="ViewSphereSizeCombo">
+              <property name="toolTip">
+               <string>Set View Sphere size</string>
+              </property>
               <item>
                <property name="text">
                 <string>Disabled</string>
@@ -285,6 +328,9 @@
             </item>
             <item>
              <widget class="QComboBox" name="ViewSphereLocationCombo">
+              <property name="toolTip">
+               <string>Set View Sphere location</string>
+              </property>
               <item>
                <property name="text">
                 <string>Location</string>
@@ -325,6 +371,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="ViewSphereColorButton">
+              <property name="toolTip">
+               <string>Select View Sphere colour</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -339,6 +388,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="ViewSphereTextColorButton">
+              <property name="toolTip">
+               <string>Select View Sphere text colour</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -353,6 +405,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="ViewSphereHighlightColorButton">
+              <property name="toolTip">
+               <string>Select View Sphere highlight colour</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -368,6 +423,9 @@
          <layout class="QGridLayout" name="gridLayout">
           <item row="1" column="0">
            <widget class="QCheckBox" name="antiAliasing">
+            <property name="toolTip">
+             <string>Enable anti-aliasing</string>
+            </property>
             <property name="text">
              <string>Anti-aliasing</string>
             </property>
@@ -381,10 +439,16 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Set edge lines width in pixels</string>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="edgeLines">
+            <property name="toolTip">
+             <string>Enable edge lines</string>
+            </property>
             <property name="text">
              <string>Edge lines</string>
             </property>
@@ -412,6 +476,9 @@
           </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="antiAliasingSamples">
+            <property name="toolTip">
+             <string>Set LEGO stud logo exponent</string>
+            </property>
             <item>
              <property name="text">
               <string>2x</string>
@@ -431,6 +498,9 @@
           </item>
           <item row="1" column="5">
            <widget class="QComboBox" name="ShadingMode">
+            <property name="toolTip">
+             <string>Select shading mode</string>
+            </property>
             <item>
              <property name="text">
               <string>Wireframe</string>
@@ -457,6 +527,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="studLogo">
+            <property name="toolTip">
+             <string>Enable LEGO stud logo</string>
+            </property>
             <property name="text">
              <string>Stud Logo</string>
             </property>
@@ -464,6 +537,9 @@
           </item>
           <item row="2" column="1">
            <widget class="QComboBox" name="studLogoCombo">
+            <property name="toolTip">
+             <string>Select LEGO stud logo version</string>
+            </property>
             <item>
              <property name="text">
               <string>Logo1</string>
@@ -493,6 +569,9 @@
           </item>
           <item row="2" column="4">
            <widget class="QCheckBox" name="axisIcon">
+            <property name="toolTip">
+             <string>Enable show axis icon</string>
+            </property>
             <property name="text">
              <string>Axis icon</string>
             </property>
@@ -500,6 +579,12 @@
           </item>
           <item row="2" column="5">
            <widget class="QCheckBox" name="MeshLOD">
+            <property name="toolTip">
+             <string>Enable switching from high to low level of detail during zoom</string>
+            </property>
+            <property name="statusTip">
+             <string>Enable mesh level of detail</string>
+            </property>
             <property name="text">
              <string>Mesh LOD</string>
             </property>
@@ -507,6 +592,9 @@
           </item>
           <item row="2" column="3">
            <widget class="QCheckBox" name="FadeSteps">
+            <property name="toolTip">
+             <string>Enable fade previous step when in HTML export</string>
+            </property>
             <property name="text">
              <string>Fade Previous Steps</string>
             </property>
@@ -520,56 +608,183 @@
          <property name="title">
           <string>Camera Defaults</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_24">
-          <item>
-           <widget class="QCheckBox" name="defaultCameraProperties">
+         <layout class="QGridLayout" name="gridLayout_5">
+          <item row="4" column="2">
+           <widget class="QToolButton" name="resetFoV">
+            <property name="toolTip">
+             <string>Reset</string>
+            </property>
             <property name="text">
-             <string>Display properties</string>
+             <string>...</string>
             </property>
            </widget>
           </item>
-          <item>
-           <spacer name="horizontalSpacer_13">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="5" column="2">
+           <widget class="QToolButton" name="resetNearPlane">
+            <property name="toolTip">
+             <string>Reset</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <property name="text">
+             <string>...</string>
             </property>
-           </spacer>
+           </widget>
           </item>
-          <item>
+          <item row="6" column="2">
+           <widget class="QToolButton" name="resetFarPlane">
+            <property name="toolTip">
+             <string>Reset</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
            <widget class="QLabel" name="label_20">
+            <property name="toolTip">
+             <string>Set default field of view</string>
+            </property>
             <property name="text">
              <string>Field of View</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QSpinBox" name="spinBox"/>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Near Plane</string>
+          <item row="5" column="1">
+           <widget class="QDoubleSpinBox" name="cameraNearPlane">
+            <property name="toolTip">
+             <string>Set default near plane</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QSpinBox" name="spinBox_2"/>
+          <item row="6" column="1">
+           <widget class="QDoubleSpinBox" name="cameraFarPlane">
+            <property name="toolTip">
+             <string>Set default far plane</string>
+            </property>
+            <property name="maximum">
+             <double>900000.000000000000000</double>
+            </property>
+           </widget>
           </item>
-          <item>
+          <item row="6" column="0">
            <widget class="QLabel" name="label_22">
+            <property name="toolTip">
+             <string>Set default far plane</string>
+            </property>
             <property name="text">
              <string>Far Plane</string>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QSpinBox" name="spinBox_3"/>
+          <item row="4" column="1">
+           <widget class="QDoubleSpinBox" name="cameraFoV">
+            <property name="toolTip">
+             <string>Set default field of view</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="toolTip">
+             <string>Set default near plane</string>
+            </property>
+            <property name="text">
+             <string>Near Plane</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="4">
+           <widget class="QDoubleSpinBox" name="cameraDefaultPosition">
+            <property name="toolTip">
+             <string>Set the default camera position</string>
+            </property>
+            <property name="maximum">
+             <double>900000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="3">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>Camera Distance Factor</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="defaultCameraProperties">
+            <property name="toolTip">
+             <string>Display default camera properties in Properties window</string>
+            </property>
+            <property name="text">
+             <string>Display properties</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="4">
+           <widget class="QDoubleSpinBox" name="cameraDefaultDistanceFactor">
+            <property name="toolTip">
+             <string>Set default camera distance factor (automatically multiplied by -1)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="3">
+           <widget class="QLabel" name="label_25">
+            <property name="toolTip">
+             <string>Set the default camera position</string>
+            </property>
+            <property name="text">
+             <string>Default Camera Position</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QLabel" name="label_24">
+            <property name="toolTip">
+             <string>Set default camera distance factor (automatically multiplied by -1)</string>
+            </property>
+            <property name="text">
+             <string>Default Distance Factor</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="4">
+           <widget class="QLabel" name="cameraDistanceFactor">
+            <property name="toolTip">
+             <string>Camera distance factor - (Default Camera Position / -Default Distance Factor)</string>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="5">
+           <widget class="QToolButton" name="resetDefaultDistanceFactor">
+            <property name="toolTip">
+             <string>Reset</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QToolButton" name="resetDefaultPosition">
+            <property name="toolTip">
+             <string>Reset</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1453,6 +1668,7 @@
   <tabstop>mouseSensitivity</tabstop>
  </tabstops>
  <resources>
+  <include location="../lclib.qrc"/>
   <include location="../lclib.qrc"/>
  </resources>
  <connections>

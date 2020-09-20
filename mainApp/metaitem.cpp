@@ -58,7 +58,6 @@
 #include "sizeandorientationdialog.h"
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
-#include "cameradistfactordialog.h"
 #include "pointerattribdialog.h"
 #include "texteditdialog.h"
 #include "rotstepdialog.h"

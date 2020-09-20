@@ -10,7 +10,7 @@ class lcQPreferencesDialog;
 class lcQPreferencesDialog : public QDialog
 {
 	Q_OBJECT
-	
+
 public:
 	lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options);
 	~lcQPreferencesDialog();
@@ -59,8 +59,14 @@ public slots:
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
 /*** LPub3D Mod - Native Renderer settings ***/
-    void on_ViewpointsCombo_currentIndexChanged(int index);
+	void on_ViewpointsCombo_currentIndexChanged(int index);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Update Default Camera ***/
+	void on_cameraDefaultDistanceFactor_valueChanged(double value);
+	void on_cameraDefaultPosition_valueChanged(double value);
+	void cameraPropertyReset();
+/*** LPub3D Mod end ***/
+
 private:
 	Ui::lcQPreferencesDialog *ui;
 

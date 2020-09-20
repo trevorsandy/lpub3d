@@ -112,7 +112,7 @@ void Gui::create3DActions()
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
 
     defaultCameraPropertiesAct = new QAction(tr("Default Properties"),this);
-    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera propeties in Properties window"));
+    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties window"));
     defaultCameraPropertiesAct->setCheckable(true);
     defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
     connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
@@ -285,6 +285,7 @@ void Gui::create3DMenus()
 
      viewpointGroupAct->setMenu(gMainWindow->GetViewpointMenu());
      gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], viewpointZoomExtAct);
+     gMainWindow->GetViewpointMenu()->insertSeparator(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
 
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
@@ -572,15 +573,15 @@ void Gui::applyCameraSettings()
         {
         case DefFoV:
             // e.g.            30.0  +                 0.01         - 30.0
-            result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - CAMERA_FOV_NATIVE_DEFAULT;
+            result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
             break;
         case DefZNear:
             // e.g.            25.0  +             10.0         - 25.0
-            result = Camera->m_zNear + cameraMeta.znear.value() - CAMERA_ZNEAR_NATIVE_DEFAULT;
+            result = Camera->m_zNear + cameraMeta.znear.value() - gApplication->mPreferences.mCNear;
             break;
         case DefZFar:
             // e.g.         50000.0  +         4000.0          - 50000.0
-            result = Camera->m_zFar  + cameraMeta.zfar.value() - CAMERA_ZFAR_NATIVE_DEFAULT;
+            result = Camera->m_zFar  + cameraMeta.zfar.value() - gApplication->mPreferences.mCFar;
             break;
         }
 

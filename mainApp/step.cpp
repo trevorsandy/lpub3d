@@ -508,11 +508,7 @@ int Step::createCsi(
       viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
       viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
       viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-      viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-      viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
-      viewerOptions->NativeCDF      = meta.LPub.nativeCD.factor.value();
       viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
       viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));

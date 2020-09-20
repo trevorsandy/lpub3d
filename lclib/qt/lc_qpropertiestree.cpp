@@ -1611,9 +1611,9 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		PageSizeHeight  = lcGetActiveProject()->GetPageHeight();
 		ImageSizeWidth  = lcGetActiveProject()->GetImageWidth();
 		ImageSizeHeight = lcGetActiveProject()->GetImageHeight();
-		LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - CAMERA_FOV_NATIVE_DEFAULT;
-		LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - CAMERA_ZNEAR_NATIVE_DEFAULT;
-		LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - CAMERA_ZFAR_NATIVE_DEFAULT;
+        LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - gApplication->mPreferences.mCFoV;
+        LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - gApplication->mPreferences.mCNear;
+        LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - gApplication->mPreferences.mCFar;
 /*** LPub3D Mod end ***/
 	}
 

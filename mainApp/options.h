@@ -85,7 +85,6 @@ public:
     ImageHeight    = 600;
     PageWidth      = 800;
     PageHeight     = 600;
-    NativeCDF      = -260;
     Resolution     = 150.0f;
     ModelScale     = 1.0f;
     CameraDistance = 0.0f;
@@ -107,7 +106,6 @@ public:
   int ImageHeight;
   int PageWidth;
   int PageHeight;
-  int NativeCDF;
   int StudLogo;
   float Resolution;
   float ModelScale;

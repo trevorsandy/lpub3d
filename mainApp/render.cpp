@@ -2472,7 +2472,6 @@ int Native::renderCsi(
   float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
 
   // process native settings
-  int distanceFactor   = meta.LPub.nativeCD.factor.value();
   int studLogo         = meta.LPub.assem.studLogo.value();
   float camDistance    = meta.LPub.assem.cameraDistance.value();
   float cameraAngleX   = meta.LPub.assem.cameraAngles.value(0);
@@ -2534,7 +2533,6 @@ int Native::renderCsi(
   Options->Longitude         = noCA ? 0.0 : cameraAngleY;
   Options->Target            = target;
   Options->ModelScale        = modelScale;
-  Options->NativeCDF         = distanceFactor;
   Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth         = lineThickness;
   Options->UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
@@ -2674,7 +2672,6 @@ int Native::renderPli(
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
   // Populate render attributes
-  int distanceFactor   = meta.LPub.nativeCD.factor.value();
   int studLogo         = metaType.studLogo.value();
   float camDistance    = metaType.cameraDistance.value();
   float modelScale     = metaType.modelScale.value();
@@ -2726,7 +2723,6 @@ int Native::renderPli(
   Options->Longitude      = noCA ? 0.0 : cameraAngleY;
   Options->Target         = target;
   Options->ModelScale     = modelScale;
-  Options->NativeCDF      = distanceFactor;
   Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
   Options->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
@@ -2763,8 +2759,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
                 Export ? O->ImageHeight : O->PageHeight,
                 O->ImageFileName,
                 O->Resolution,
-                O->ModelScale,
-                O->NativeCDF);
+                O->ModelScale);
 
     lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
 
@@ -2797,7 +2792,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
         arguments << QString("CameraZNear: %1").arg(double(O->ZNear));
         arguments << QString("CameraZNear: %1").arg(double(O->ZFar));
         arguments << QString("CameraDistance: %1").arg(double(O->CameraDistance),0,'f',0);
-        arguments << QString("CameraNativeCDF: %1").arg(O->NativeCDF);
         arguments << QString("CameraProjection: %1").arg(O->IsOrtho ? "Orthographic" : "Perspective");
         arguments << QString("CameraName: %1").arg(O->CameraName.isEmpty() ? "Default" : O->CameraName);
         arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));

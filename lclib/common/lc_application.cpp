@@ -47,6 +47,11 @@ void lcPreferences::LoadDefaults()
 	mRestoreTabLayout = lcGetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT);
 /*** LPub3D Mod - Update Default Camera ***/
 	mDefaultCameraProperties = lcGetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES);
+	mDDF = lcGetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR);
+	mCDP = lcGetProfileFloat(LC_PROFILE_CAMERA_DEFAULT_POSITION);
+	mCFoV = lcGetProfileFloat(LC_PROFILE_CAMERA_FOV);
+	mCNear = lcGetProfileFloat(LC_PROFILE_CAMERA_NEAR_PLANE);
+	mCFar = lcGetProfileFloat(LC_PROFILE_CAMERA_FAR_PLANE);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
@@ -85,6 +90,11 @@ void lcPreferences::SaveDefaults()
 
 /*** LPub3D Mod - Update Default Camera ***/
 	lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, mDefaultCameraProperties);
+	lcSetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR, mDDF);
+	lcSetProfileFloat(LC_PROFILE_CAMERA_DEFAULT_POSITION, mCDP);
+	lcSetProfileFloat(LC_PROFILE_CAMERA_FOV, mCFoV);
+	lcSetProfileFloat(LC_PROFILE_CAMERA_NEAR_PLANE, mCNear);
+	lcSetProfileFloat(LC_PROFILE_CAMERA_FAR_PLANE, mCFar);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/

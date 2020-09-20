@@ -2085,28 +2085,6 @@ public:
 };
 
 /*------------------------*/
-/*
- * Native Camera Distance Factor Meta
- */
-class NativeCDMeta : public BranchMeta
-{
-public:
-  IntMeta factor;
-  void setPreferences()
-  {
-     Preferences::cameraDistFactorNative = factor.value();
-  }
-  NativeCDMeta();
-  NativeCDMeta(const NativeCDMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-//  virtual ~NativeCDMeta() {}
-  virtual void init(BranchMeta *parent,
-                    QString name);
-};
-
-/*------------------------*/
 
 class SettingsMeta : public BranchMeta
 {
@@ -3554,7 +3532,6 @@ public:
   ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
   StepPliMeta          stepPli;
-  NativeCDMeta         nativeCD;
 
   LPubMeta();
 //  virtual ~LPubMeta() {}

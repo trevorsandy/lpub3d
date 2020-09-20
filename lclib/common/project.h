@@ -96,8 +96,7 @@ public:
 		const int PageHeight,
 		const QString FileName,
 		const float Resolution,
-		const float ModelScale,
-		const float NativeCDF);
+        const float ModelScale);
 	void SetImageSize(
 		const int ImageWidth,
 		const int ImageHeight);
@@ -127,10 +126,6 @@ public:
 	float GetModelScale() const
 	{
 		return mModelScale;
-	}
-	float GetCDF() const
-	{
-		return mCDF;
 	}
 	bool GetViewerLoaded() const
 	{
@@ -186,7 +181,6 @@ protected:
 	int mPageWidth;
 	int mPageHeight;
 	int mImageType;
-	float mCDF;
 	float mResolution;
 	float mModelScale;
 	bool mViewerLoaded;

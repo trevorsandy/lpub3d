@@ -157,6 +157,19 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 /*** LPub3D Mod - Update Default Camera ***/
 	ui->defaultCameraProperties->setChecked(mOptions->Preferences.mDefaultCameraProperties);
+	ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));
+	ui->cameraDefaultPosition->setValue(qreal(mOptions->Preferences.mCDP));
+	ui->cameraFoV->setValue(qreal(mOptions->Preferences.mCFoV));
+	ui->cameraNearPlane->setValue(qreal(mOptions->Preferences.mCNear));
+	ui->cameraFarPlane->setValue(qreal(mOptions->Preferences.mCFar));
+	ui->cameraDistanceFactor->setText(QString::number(qreal(mOptions->Preferences.mCDP) /
+													  -qreal(mOptions->Preferences.mDDF)));
+	ui->cameraDistanceFactor->setStyleSheet("QLabel { background-color : lightGray; }");
+	connect(ui->resetDefaultDistanceFactor, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+	connect(ui->resetDefaultPosition, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+	connect(ui->resetFoV, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+	connect(ui->resetNearPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
+	connect(ui->resetFarPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
@@ -223,7 +236,7 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 
 	int Language = ui->Language->currentIndex();
-    if (Language < 0 || Language > static_cast<int>(LC_ARRAY_COUNT(gLanguageLocales)))
+	if (Language < 0 || Language > static_cast<int>(LC_ARRAY_COUNT(gLanguageLocales)))
 		Language = 0;
 	mOptions->Language = gLanguageLocales[Language];
 
@@ -278,6 +291,11 @@ void lcQPreferencesDialog::accept()
 
 /*** LPub3D Mod - Update Default Camera ***/
 	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();
+	mOptions->Preferences.mDDF = float(ui->cameraDefaultDistanceFactor->value());
+	mOptions->Preferences.mCDP = float(ui->cameraDefaultPosition->value());
+	mOptions->Preferences.mCFoV = float(ui->cameraFoV->value());
+	mOptions->Preferences.mCNear = float(ui->cameraNearPlane->value());
+	mOptions->Preferences.mCFar = float(ui->cameraFarPlane->value());
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
@@ -1081,5 +1099,34 @@ void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
 	if (index <=6)
 		ui->ProjectionCombo->setCurrentIndex(2); // Default
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Update Default Camera ***/
+void lcQPreferencesDialog::on_cameraDefaultDistanceFactor_valueChanged(double value)
+{
+	qreal cdp = ui->cameraDefaultPosition->value();
+	ui->cameraDistanceFactor->setText(QString::number(cdp / -value));
+}
+
+void lcQPreferencesDialog::on_cameraDefaultPosition_valueChanged(double value)
+{
+	qreal ddf = ui->cameraDefaultDistanceFactor->value();
+	ui->cameraDistanceFactor->setText(QString::number(value / -ddf));
+}
+
+void lcQPreferencesDialog::cameraPropertyReset()
+{
+	if (sender() == ui->resetDefaultDistanceFactor) {
+		ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));
+	} else if (sender() == ui->resetDefaultPosition) {
+		ui->cameraDefaultPosition->setValue(qreal(mOptions->Preferences.mCDP));
+	} else if (sender() == ui->resetFoV) {
+		ui->cameraFoV->setValue(qreal(mOptions->Preferences.mCFoV));
+	} else if (sender() == ui->resetNearPlane) {
+		ui->cameraNearPlane->setValue(qreal(mOptions->Preferences.mCNear));
+	} else if (sender() == ui->resetFarPlane) {
+		ui->cameraFarPlane->setValue(qreal(mOptions->Preferences.mCFar));
+	}
 }
 /*** LPub3D Mod end ***/

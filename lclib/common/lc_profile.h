@@ -86,6 +86,11 @@ enum LC_PROFILE_KEY
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
 	LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,
+	LC_PROFILE_DEFAULT_DISTANCE_FACTOR,
+	LC_PROFILE_CAMERA_DEFAULT_POSITION,
+	LC_PROFILE_CAMERA_FOV,
+	LC_PROFILE_CAMERA_NEAR_PLANE,
+	LC_PROFILE_CAMERA_FAR_PLANE,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native Renderer settings ***/
 	// Native Renderer.

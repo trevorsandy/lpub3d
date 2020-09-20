@@ -3286,25 +3286,6 @@ void HighlightStepMeta::init(
 }
 
 /* ------------------ */
-/*
- * Native Camera Distance Factor Meta
- */
-
-NativeCDMeta::NativeCDMeta() : BranchMeta()
-{
-    factor.setRange(-5000,5000);
-    factor.setValue(Preferences::cameraDistFactorNative);
-}
-
-void NativeCDMeta::init(
-    BranchMeta *parent,
-    QString name)
-{
-  AbstractMeta::init(parent, name);
-  factor.init(this, "FACTOR");
-}
-
-/* ------------------ */
 
 void RemoveMeta::init(BranchMeta *parent, QString name)
 {
@@ -5128,7 +5109,6 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");
-  nativeCD                 .init(this,"CAMERA_DISTANCE_NATIVE");
   reserve.setRange(0.0,1000000.0);
 }
 

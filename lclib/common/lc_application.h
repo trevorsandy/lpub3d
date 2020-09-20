@@ -54,6 +54,11 @@ public:
 	bool mRestoreTabLayout;
 /*** LPub3D Mod - Update Default Camera ***/
 	bool mDefaultCameraProperties;
+	float mDDF;
+	float mCDP;
+	float mCFoV;
+	float mCNear;
+	float mCFar;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/

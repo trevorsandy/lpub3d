@@ -345,11 +345,7 @@ int SubModel::createSubModelImage(
       viewerOptions->PageWidth      = pageSizeP(meta, 0);
       viewerOptions->PageHeight     = pageSizeP(meta, 1);
       viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-      viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-      viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
-      viewerOptions->NativeCDF      = meta->LPub.nativeCD.factor.value();
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
       viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;

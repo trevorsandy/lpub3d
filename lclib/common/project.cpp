@@ -83,7 +83,6 @@ Project::Project()
 	mPageWidth = 0;
 	mPageHeight = 0;
 	mImageType = 0;
-	mCDF = LC_CDF;
 	mResolution = 150.0f;
 	mModelScale = 1.0f;
 	mViewerLoaded = false;
@@ -101,16 +100,14 @@ Project::~Project()
 }
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
-void Project::SetRenderAttributes(
-	const int Type,
-	const int ImageWidth,
-	const int ImageHeight,
-	const int PageWidth,
-	const int PageHeight,
-	const QString FileName,
-	const float Resolution,
-	const float ModelScale,
-	const float NativeCDF)
+void Project::SetRenderAttributes(const int Type,
+    const int ImageWidth,
+    const int ImageHeight,
+    const int PageWidth,
+    const int PageHeight,
+    const QString FileName,
+    const float Resolution,
+    const float ModelScale)
 {
 	mImageType     = Type;
 	mPageWidth     = PageWidth;
@@ -118,9 +115,6 @@ void Project::SetRenderAttributes(
 	mImageFileName = FileName;
 	mResolution    = Resolution;
 	mModelScale    = ModelScale;
-	// This allows us to tweak the default camera distance
-	float CDF      = LC_CAM_POS / NativeCDF;
-	mCDF           = CDF < LC_CDF || CDF > LC_CDF ? CDF : LC_CDF;
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;
