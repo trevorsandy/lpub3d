@@ -38,7 +38,9 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   Steps *_steps,
   QRectF rect,
   QGraphicsItem *parent,
-  Meta *_meta)
+  Meta *_meta):
+    isHovered(false),
+    mouseIsDown(false)
 {
   meta = _meta;
   //page = dynamic_cast<Page *>(_steps);
@@ -49,6 +51,8 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setParentItem(parent);
   setToolTip("Steps Group - right-click to modify");
   setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, MultiStepsBackgroundObj);
   setZValue(MULTISTEPSBACKGROUND_ZVALUE_DEFAULT);
@@ -57,6 +61,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
 void MultiStepRangesBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   QGraphicsItem::mousePressEvent(event);
+  mouseIsDown = true;
   positionChanged = false;
   position = pos();
 }
@@ -69,6 +74,7 @@ void MultiStepRangesBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *eve
 
 void MultiStepRangesBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
@@ -82,6 +88,30 @@ void MultiStepRangesBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *
 
     changePlacementOffset(page->topOfSteps(),&meta->LPub.multiStep.placement,StepGroupType,true,false);
   }
+}
+
+void MultiStepRangesBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void MultiStepRangesBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void MultiStepRangesBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
 }
 
 MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(

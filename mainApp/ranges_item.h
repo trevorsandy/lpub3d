@@ -54,6 +54,11 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseMoveEvent( QGraphicsSceneMouseEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 class Range;
