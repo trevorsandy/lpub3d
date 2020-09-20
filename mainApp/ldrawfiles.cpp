@@ -149,6 +149,16 @@ LDrawSubFile::LDrawSubFile(
   _lineTypeIndexes.clear();
 }
 
+/* Only used to store fade or highlight content */
+
+CfgSubFile::CfgSubFile(
+  const QStringList &contents,
+  const QString     &subFilePath)
+{
+    _contents << contents;
+    _subFilePath = subFilePath;
+}
+
 /* initialize new Build Mod */
 BuildMod::BuildMod(const QString      &modStepKey,
                    const QVector<int> &modAttributes,
@@ -178,6 +188,7 @@ ViewerStep::ViewerStep(const QStringList &rotatedContents,
 void LDrawFile::empty()
 {
   _subFiles.clear();
+  _configuredSubFiles.clear();
   _subFileOrder.clear();
   _viewerSteps.clear();
   _buildMods.clear();
@@ -209,6 +220,22 @@ void LDrawFile::insert(const QString &mcFileName,
   _subFileOrder << fileName;
 }
 
+/* Add a new modSubFile - Only used to insert fade or highlight content */
+
+void LDrawFile::insertConfiguredSubFile(const QString &mcFileName,
+                                        QStringList    &contents,
+                                        const QString  &subFilePath)
+{
+  QString    fileName = mcFileName.toLower();
+  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+
+  if (i != _configuredSubFiles.end()) {
+    _configuredSubFiles.erase(i);
+  }
+  CfgSubFile subFile(contents,subFilePath);
+  _configuredSubFiles.insert(fileName,subFile);
+}
+
 /* return the number of lines in the file */
 
 int LDrawFile::size(const QString &mcFileName)
@@ -219,6 +246,23 @@ int LDrawFile::size(const QString &mcFileName)
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i == _subFiles.end()) {
+    mySize = 0;
+  } else {
+    mySize = i.value()._contents.size();
+  }
+  return mySize;
+}
+
+/* Only used to return fade or highlight content size */
+
+int LDrawFile::configuredSubFileSize(const QString &mcFileName)
+{
+  QString fileName = mcFileName.toLower();
+  int mySize;
+
+  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+
+  if (i == _configuredSubFiles.end()) {
     mySize = 0;
   } else {
     mySize = i.value()._contents.size();
@@ -610,6 +654,20 @@ void LDrawFile::changeContents(const QString &mcFileName,
     all.insert(position,charsAdded);
     setContents(fileName,all.split("\n"));
   }
+}
+
+/*  Only used by SubMeta::parse(...) to read fade or highlight content */
+
+QString LDrawFile::readConfiguredLine(const QString &mcFileName, int lineNumber)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, CfgSubFile>::iterator i = _configuredSubFiles.find(fileName);
+
+  if (i != _configuredSubFiles.end()) {
+      if (lineNumber < i.value()._contents.size())
+          return i.value()._contents[lineNumber];
+  }
+  return QString();
 }
 
 void LDrawFile::unrendered()

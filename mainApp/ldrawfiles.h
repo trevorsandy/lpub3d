@@ -82,6 +82,20 @@ class LDrawSubFile {
     }
 };
 
+class CfgSubFile {
+  public:
+    QStringList  _contents;
+    QString      _subFilePath;
+    CfgSubFile(){}
+    CfgSubFile(
+            const QStringList &contents,
+            const QString     &subFilePath = QString());
+    ~CfgSubFile()
+    {
+      _contents.clear();
+    }
+};
+
 class ViewerStep {
   public:
     QStringList _rotatedContents;
@@ -161,6 +175,7 @@ class BuildMod {
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
+    QMap<QString, CfgSubFile>   _configuredSubFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
     QVector<QVector<int>>       _buildModStepIndexes;
@@ -190,6 +205,7 @@ class LDrawFile {
     ~LDrawFile()
     {
       _subFiles.empty();
+      _configuredSubFiles.empty();
       _viewerSteps.empty();
       _ldcadGroups.empty();
       _buildMods.empty();
@@ -258,6 +274,15 @@ class LDrawFile {
                               int      position, 
                               int      charsRemoved, 
                         const QString &charsAdded);
+
+    // Only used to insert fade or highlight content
+    void insertConfiguredSubFile (const QString &fileName,
+                                        QStringList   &contents,
+                                        const QString &subFilePath = QString());
+    // Only used to read fade or highlight content
+    QString readConfiguredLine(const QString &fileName, int lineNumber);
+    // Only used to return fade or highlight content size
+    int configuredSubFileSize(const QString &mcFileName);
 
     bool isMpd();
     QString topLevelFile();

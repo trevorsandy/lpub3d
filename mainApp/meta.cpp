@@ -3325,11 +3325,23 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
       }
      if ((ldrawType && argc == 1) || !ldrawType) {
          // lets try to get the original type
-         Where lineBelow = here + 1;             // start looking at first line below
-         QString originalTypeLine = gui->readLine(lineBelow);
-         if (!(originalTypeLine[0] == '1')) {
-            lineBelow++;                         // move 2 lines down
-            originalTypeLine = gui->readLine(lineBelow);
+         bool configured = false;
+         bool fade       = gui->page.meta.LPub.fadeStep.fadeStep.value();
+         bool highlight  = gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+         if (fade || highlight) {
+             QFileInfo modelInfo(here.modelName);
+             configured = modelInfo.completeBaseName().endsWith(FADE_SFX) ||
+                          modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
+         }
+         Where lineBelow = here + 1;          // start at 1 line below
+         int numLines = configured ? gui->configuredSubFileSize(here.modelName) : gui->subFileSize(here.modelName);
+         QString originalTypeLine = configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
+         for (; !newStep && !validLine && lineBelow <= numLines; lineBelow++) {
+             newStep = originalTypeLine.endsWith("STEP") ||
+                       originalTypeLine.contains("ROTSTEP");
+             if (!(validLine = originalTypeLine[0] == '1') && !newStep) {
+                originalTypeLine =  configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
+             }
          }
          QStringList tokens;
          split(originalTypeLine,tokens);
@@ -3338,7 +3350,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
                  attributes    = tokens[14]+":0;";    // originalType
              originalColor = tokens[1];
          } else {
-             QString message = QString("Failed to locate substitute part original type below %1.<br>Got %2.")
+             QString message = QString("Failed to locate substitute original part type below %1.<br>Got %2.")
                                        .arg(argv.join(" ")).arg(originalTypeLine);
              emit gui->parseError(message,here);
          }

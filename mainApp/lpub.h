@@ -574,14 +574,26 @@ public:
   {
     return ldrawFile.size(modelName);
   }
+  // Only used to return fade or highlight content size
+  int configuredSubFileSize(const QString &modelName)
+  {
+    return ldrawFile.configuredSubFileSize(modelName);
+  }
   int numSteps(const QString &modelName)
   {
     return ldrawFile.numSteps(modelName);
   }
-  int numParts(){
+  int numParts()
+  {
     return ldrawFile.getPartCount();
   }
   QString readLine(const Where &here);
+
+  // Only used to read fade or highlight content
+  QString readConfiguredLine(const Where &here)
+  {
+    return ldrawFile.readConfiguredLine(here.modelName,here.lineNumber);
+  }
 
   bool isSubmodel(const QString &modelName)
   {
@@ -624,6 +636,10 @@ public:
     ldrawFile.insert(name,csiParts,date,false,true);
     writeToTmp();
   }
+
+  // Only used to insert fade or highlight content
+  void insertConfiguredSubFile(const QString &name,
+                                     QStringList &content);
 
   void clearPrevStepPositions()
   {

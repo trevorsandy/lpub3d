@@ -4266,6 +4266,7 @@ void Gui::writeToTmp()
             /* Faded version of submodels */
             emit messageSig(LOG_INFO, "Writing fade submodels to temp directory: " + fileNameStr);
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
+            gui->insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
           }
           // write configured (Highlight) submodels
@@ -4279,6 +4280,7 @@ void Gui::writeToTmp()
             /* Highlighted version of submodels */
             emit messageSig(LOG_INFO, "Writing highlight submodel to temp directory: " + fileNameStr);
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
+            gui->insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
           }
       }

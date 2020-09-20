@@ -1532,6 +1532,12 @@ void Gui::loadUpdatedImages()
    m_updateViewer = true;
 }
 
+void Gui::insertConfiguredSubFile(const QString &name,
+                                  QStringList &content) {
+    QString subFilePath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/" + name);
+    ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
+}
+
 void Gui::resetLastBuildMod(bool clearNextStep)
 {
     if (buildModsSize()){
@@ -5347,7 +5353,7 @@ void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msg
             box.exec();
         }
     }
-    logError() << qPrintable(parseMessage);
+    logError() << parseMessage.replace("<br>"," ");
 
     parsedMessages.append(here);
 }
