@@ -124,7 +124,7 @@ private slots:
     bool saveFile();
     bool maybeSave();
     void redraw();
-    void update();
+    void update(bool state);
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();

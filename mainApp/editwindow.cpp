@@ -145,8 +145,7 @@ void EditWindow::createActions()
     updateAct = new QAction(QIcon(":/resources/update.png"), tr("&Update"), this);
     updateAct->setShortcut(tr("Ctrl+U"));
     updateAct->setStatusTip(tr("Update page - Ctrl+U"));
-    connect(updateAct, SIGNAL(triggered()), this, SLOT(update()));
-    connect(updateAct, SIGNAL(triggered(bool)), this, SLOT(updateDisabled(bool)));
+    connect(updateAct, SIGNAL(triggered(bool)), this, SLOT(update(bool)));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
@@ -358,11 +357,15 @@ bool EditWindow::maybeSave()
                       "Do you want to save your changes?");
     box.setText (title);
     box.setInformativeText (text);
-    box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-    box.setDefaultButton   (QMessageBox::Yes);
+    box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Save);
 
-    if (box.exec() == QMessageBox::Yes) {
+    int ExecReturn = box.exec();
+    if (ExecReturn == QMessageBox::Save) {
       rc = saveFile();
+    } else
+    if (ExecReturn == QMessageBox::Cancel) {
+      rc = false;
     }
   }
   return rc;
@@ -515,9 +518,9 @@ void EditWindow::updateDisabled(bool state){
     if (sender() == updateAct &&
        !Preferences::saveOnUpdate)
     {
-        updateAct->setDisabled(true);
+        updateAct->setDisabled(state);
         if (!modelFileEdit())
-            emit updateDisabledSig(true);
+            emit updateDisabledSig(state);
     } else {
         updateAct->setDisabled(state);
     }
@@ -611,10 +614,11 @@ void EditWindow::redraw()
   redrawSig();
 }
 
-void EditWindow::update()
+void EditWindow::update(bool state)
 {
   if (modelFileEdit() && Preferences::saveOnUpdate)
       saveFile();
+  updateDisabled(state);
   updateSig();
 }
 

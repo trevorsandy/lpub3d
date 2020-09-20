@@ -1459,11 +1459,14 @@ void Gui::reloadCurrentPage(){
     }
 
     if (sender() == editWindow) {
+        bool _continue;
         if (Preferences::saveOnUpdate) {
-            maybeSave(false); // No prompt
+            _continue = maybeSave(false); // No prompt
         } else {
-            maybeSave(true,SaveOnUpdate);
+            _continue = maybeSave(true,SaveOnUpdate);
         }
+        if (!_continue)
+            return;
     }
 
     timer.start();
@@ -1481,11 +1484,14 @@ void Gui::reloadCurrentModelFile(){
     }
 
     if (sender() == editModeWindow) {
+        bool _continue;
         if (Preferences::saveOnUpdate) {
-            maybeSave(false); // No prompt
+            _continue = maybeSave(false); // No prompt
         } else {
-            maybeSave(true, SaveOnUpdate);
+            _continue = maybeSave(true, SaveOnUpdate);
         }
+        if (!_continue)
+            return;
     }
 
     timer.start();
@@ -1532,11 +1538,14 @@ void Gui::clearAndRedrawModelFile() {
     changeAccepted = true;
 
     if (sender() == editModeWindow) {
+        bool _continue;
         if (Preferences::saveOnRedraw) {
-            maybeSave(false); // No prompt
+            _continue = maybeSave(false); // No prompt
         } else {
-            maybeSave(true,SaveOnRedraw);
+            _continue = maybeSave(true,SaveOnRedraw);
         }
+        if (!_continue)
+            return;
     }
 
     timer.start();
@@ -1566,11 +1575,14 @@ void Gui::clearAndRedrawModelFile() {
 
 void Gui::clearAndReloadModelFile() {
     if (sender() == editWindow) {
+        bool _continue;
         if (Preferences::saveOnRedraw) {
-            maybeSave(false); // No prompt
+            _continue = maybeSave(false); // No prompt
         } else {
-            maybeSave(true, SaveOnRedraw);
+            _continue = maybeSave(true, SaveOnRedraw);
         }
+        if (!_continue)
+            return;
     }
     clearAllCaches();
 }
