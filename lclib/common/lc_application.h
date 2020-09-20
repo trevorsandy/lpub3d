@@ -85,6 +85,10 @@ public:
 /*** LPub3D Mod - true fade ***/
 	bool mConditionalLines;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - add background colour to preferences ***/
+    quint32 mBackgroundSolidColor;
+/*** LPub3D Mod end ***/
+
 };
 
 /*** LPub3D Mod - change QApplication to QObject ***/

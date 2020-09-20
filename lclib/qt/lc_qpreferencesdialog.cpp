@@ -45,6 +45,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
 	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
+/*** LPub3D Mod - add background colour to preferences ***/
+	connect(ui->BackgroundColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+/*** LPub3D Mod end ***/
 
 	ui->partsLibrary->setText(mOptions->LibraryPath);
 	ui->ColorConfigEdit->setText(mOptions->ColorConfigPath);
@@ -164,6 +167,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_GREEN(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_BLUE(mOptions->Preferences.mViewSphereHighlightColor)));
 	ui->ViewSphereHighlightColorButton->setIcon(pix);
+
+/*** LPub3D Mod - add background colour to preferences ***/
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_GREEN(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_BLUE(mOptions->Preferences.mBackgroundSolidColor)));
+	ui->BackgroundColorButton->setIcon(pix);
+/*** LPub3D Mod end ***/
 
 	on_studLogo_toggled();
 	on_antiAliasing_toggled();
@@ -502,6 +510,14 @@ void lcQPreferencesDialog::ColorButtonClicked()
 		Title = tr("Select View Sphere Highlight Color");
 		DialogOptions = 0;
 	}
+/*** LPub3D Mod - add background colour to preferences ***/
+	else if (Button == ui->BackgroundColorButton)
+	{
+		Color = &mOptions->Preferences.mBackgroundSolidColor;
+		Title = tr("Select Background Color");
+		DialogOptions = 0;
+	}
+/*** LPub3D Mod end ***/
 	else
 		return;
 

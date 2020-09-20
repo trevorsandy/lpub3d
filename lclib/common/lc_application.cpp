@@ -73,6 +73,10 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod - true fade ***/
 	mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - add background colour to preferences ***/
+	mBackgroundSolidColor = lcGetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR);
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -127,6 +131,10 @@ void lcPreferences::SaveDefaults()
 /*** LPub3D Mod - true fade ***/
 	lcSetProfileInt(LC_PROFILE_CONDITIONAL_LINES, mConditionalLines);
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - add background colour to preferences ***/
+	lcSetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR, mBackgroundSolidColor);
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
@@ -141,7 +149,9 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(35, 38, 41, 255);
 		mViewSphereTextColor = LC_RGBA(224, 224, 224, 255);
 		mViewSphereHighlightColor = LC_RGBA(41, 128, 185, 255);
-		// todo: background color
+/*** LPub3D Mod - add background colour to preferences ***/
+		mBackgroundSolidColor = LC_RGBA(128, 139, 150, 255);
+/*** LPub3D Mod end ***/
 	}
 	else
 	{
@@ -153,6 +163,9 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(255, 255, 255, 255);
 		mViewSphereTextColor = LC_RGBA(0, 0, 0, 255);
 		mViewSphereHighlightColor = LC_RGBA(255, 0, 0, 255);
+/*** LPub3D Mod - add background colour to preferences ***/
+		mBackgroundSolidColor = LC_RGBA(255, 255, 255, 255);
+/*** LPub3D Mod end ***/
 	}
 }
 
