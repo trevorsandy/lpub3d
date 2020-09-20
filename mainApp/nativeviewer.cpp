@@ -206,39 +206,38 @@ void Gui::create3DDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
     viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
 
-    tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->mTimelineToolBar*/, gMainWindow->mPropertiesToolBar);
 
     //Part Selection
-    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8("Parts"));
-    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
-    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
-
     QSettings Settings;
     bool viewable = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)))
         viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)).toBool();
-    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
     gMainWindow->mPartsToolBar->toggleViewAction()->setChecked(viewable);
+    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8("Parts"));
+    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
+    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
+    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
     connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)),
                                    this, SLOT (partsWidgetVisibilityChanged(bool)));
 
-    tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->mPropertiesToolBar*/, gMainWindow->mPartsToolBar);
 
     //Colors Selection
+    viewable = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)))
+        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)).toBool();
+    gMainWindow->mColorsToolBar->toggleViewAction()->setChecked(viewable);
     gMainWindow->mColorsToolBar->setWindowTitle(trUtf8("Colors"));
     gMainWindow->mColorsToolBar->setObjectName("ColorsToolbar");
     gMainWindow->mColorsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mColorsToolBar);
-    viewable = false;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)))
-        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)).toBool();
     viewMenu->addAction(gMainWindow->mColorsToolBar->toggleViewAction());
-    gMainWindow->mColorsToolBar->toggleViewAction()->setChecked(viewable);
     connect (gMainWindow->mColorsToolBar, SIGNAL (visibilityChanged(bool)),
                                     this, SLOT (coloursWidgetVisibilityChanged(bool)));
 
-    tabifyDockWidget(gMainWindow->mPartsToolBar, gMainWindow->mColorsToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->mPartsToolBar*/, gMainWindow->mColorsToolBar);
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
 }
