@@ -5353,6 +5353,9 @@ void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msg
             box.exec();
         }
     }
+    if (writingToTmp)
+        emit progressPermMessageSig("Writing submodels [Parse error - see log]...");
+
     logError() << parseMessage.replace("<br>"," ");
 
     parsedMessages.append(here);

@@ -1414,6 +1414,8 @@ private:
 
   int                    numPrograms;
 
+  bool                   writingToTmp;
+
   bool                   okToInvokeProgressBar()
   {
     return               (Preferences::lpub3dLoaded && Preferences::modeGUI);

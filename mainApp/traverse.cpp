@@ -4309,6 +4309,7 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
+  writingToTmp = true;
   if (Preferences::modeGUI && ! exporting()) {
       emit progressBarPermInitSig();
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
@@ -4334,15 +4335,13 @@ void Gui::writeToTmp()
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-      if (Preferences::modeGUI && ! exporting())
-        emit progressPermSetValueSig(i);
-
       content = ldrawFile.contents(fileName);
 
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
           emit messageSig(LOG_INFO_STATUS, "Writing submodel to temp directory: " + fileName + "...");
+
           writeToTmp(fileName,content);
 
           // capture file name extensions
@@ -4379,6 +4378,9 @@ void Gui::writeToTmp()
             writeToTmp(fileNameStr,configuredContent);
           }
       }
+
+      if (Preferences::modeGUI && ! exporting())
+        emit progressPermSetValueSig(i);
   }
 
   LDrawFile::_currentLevels.clear();
@@ -4406,6 +4408,7 @@ void Gui::writeToTmp()
       emit progressPermStatusRemoveSig();
   }
   emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
+  writingToTmp = false;
 }
 
 /*
