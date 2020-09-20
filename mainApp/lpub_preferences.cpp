@@ -1984,15 +1984,11 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     QString const perspectiveProjectionKey("PerspectiveProjection");
 
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
-        QVariant uValue(true);
-        perspectiveProjection = true;
+        QVariant uValue(perspectiveProjection);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
     } else {
         perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
     }
-
-    // Set Apply CA Locally if Preferred Rendeer is LDView and perspectiveProjection is true
-    applyCALocally = (perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
 
     // LDView multiple files single call rendering
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
@@ -2071,8 +2067,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
     // Apply latitude and longitude camera angles locally
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
-        QVariant uValue(true);
-        applyCALocally = true;
+        applyCALocally = !(perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
+        QVariant uValue(applyCALocally);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),uValue);
     } else {
         applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();

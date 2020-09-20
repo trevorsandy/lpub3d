@@ -1,4 +1,4 @@
-LPub3D 2.4.0.1.1645 (20 09 2020 08:52:39)
+LPub3D 2.4.0.1.1646 (20 09 2020 08:53:20)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Edit plain and rich text with new text edit dialogue #357
 - Enhancement - Enable texture mapping with Native renderer #374
 - Enhancement - Justify step contents for defined step width/height #358
+- Enhancement - Override LPub3D-set renderer flags #332
 - Enhancement - Second pass to adjust Step column/row on Callout/Rotate Icon move #352
 - Change - Adjust style size dialogue for circle and rectangle #229
 - Change - DPI and scale info is added to filename in PNG export #346
@@ -33,6 +34,7 @@ Revisions:
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
+- Fix - Update apply camera angle locally initialisation #378
 
  Base:
 
