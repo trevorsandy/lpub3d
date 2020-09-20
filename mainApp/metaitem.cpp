@@ -2684,8 +2684,17 @@ void MetaItem::insertPage(QString &meta)
 
   scanPastGlobal(topOfStep);
 
+  QString line = gui->readLine(topOfStep + 1); // appended line
+  QStringList argv;
+  split(line,argv);
+  bool skipStepMeta = (argv.size() >= 2 &&
+                       argv[0] == "0"   &&
+                       (argv[1] == "STEP" ||
+                        argv[1] == "ROTSTEP"));
+
   beginMacro("InsertPage");
-  appendMeta(topOfStep,"0 STEP");
+  if (!skipStepMeta)
+      appendMeta(topOfStep,"0 STEP");
   appendMeta(topOfStep,meta);
   endMacro();
 }
@@ -2774,9 +2783,19 @@ void MetaItem::insertPicture()
     if (filePath.startsWith(cwd))
         filePath = filePath.replace(cwd,".");
     QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(filePath);
-    Where topOfStep = gui->topOfPages[gui->displayPageNum-1];
-    scanPastGlobal(topOfStep);
-    appendMeta(topOfStep,meta);
+    Where insertPosition;
+    bool multiStep = false;
+    if (gui->getCurrentStep()){
+        if ((multiStep = gui->getCurrentStep()->multiStep))
+            insertPosition = gui->getCurrentStep()->bottomOfSteps();
+        else
+            insertPosition = gui->getCurrentStep()->topOfStep();
+    } else {
+        insertPosition = gui->page.topOfSteps();
+    }
+    if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
+        scanPastGlobal(insertPosition);
+    appendMeta(insertPosition, meta);
   }
 }
 
