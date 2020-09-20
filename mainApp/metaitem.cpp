@@ -3483,7 +3483,7 @@ void MetaItem::endMacro()
 void MetaItem::scanPastGlobal(
   Where &topOfStep)
 {
-  QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
+  QRegExp globalLine(GLOBAL_META_RX);
   gui->scanPast(topOfStep,globalLine);
 }
 
@@ -4857,6 +4857,23 @@ void MetaItem::removeLPubFormatting()
   endMacro();
 }
 
+void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool newCommand)
+{
+    Where itemTopOf = itemTop;
+    if (newCommand){
+        if (itemTopOf.modelName == gui->topLevelFile())
+            scanPastGlobal(itemTopOf);
+        // place below item command unless end of file
+        int eof = gui->subFileSize(itemTopOf.modelName);
+        if (itemTopOf.lineNumber == eof)
+            insertMeta(itemTopOf,metaString);
+        else
+            appendMeta(itemTopOf,metaString);
+    } else {
+        replaceMeta(itemTopOf,metaString);
+    }
+}
+
 void MetaItem::writeRotateStep(QString &value)
 {
     Meta content;
@@ -4908,7 +4925,7 @@ void MetaItem::writeRotateStep(QString &value)
             return;
           }
 
-        if (here.lineNumber == 0) {                                                 //if starting from [modelName]top.lineNumber because the passed in line number is 0
+        if (here.lineNumber == 0 /*newCommand*/) {                                                 //if starting from [modelName]top.lineNumber because the passed in line number is 0
             int  numLines  = gui->subFileSize(here.modelName);
             scanPastGlobal(here);                                                   //scan down the page - going from low pgNum to high pgNum
             for ( ; here < numLines; here++) {
@@ -4929,7 +4946,7 @@ void MetaItem::writeRotateStep(QString &value)
                     }
                 }
             }
-        }
+        } /*newCommand*/
 
         line = gui->readLine(here);                                                 //Here we are not starting from [modelName]top.lineNumber
         rc = content.parse(line,here);                                              //so we read the pass-in line number and check...

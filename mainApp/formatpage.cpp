@@ -1617,32 +1617,18 @@ void Gui::setSceneItemZValue(SceneObjectDirection direction)
     soMeta->setValue(soData);
     QString metaString = soMeta->format(true/*local*/,false/*global*/);
 
-    beginMacro("processCommand");
-    if (newCommand){
-        if (itemTop.modelName == gui->topLevelFile()) {
-            QRegExp rx(GLOBAL_META_RX);
-            gui->scanPast(itemTop,rx);
-            // place meta command last amongnst other commands if exist
-            rx.setPattern("^\\s*0\\s+!LPUB\\s+.*SEND_TO_BACK|BRING_TO_FRONT");
-            gui->scanPast(itemTop,rx);
-        }
-        // place below item command unless end of file
-        int eof = gui->subFileSize(itemTop.modelName);
-        if (itemTop.lineNumber == eof){
-            gui->insertLine(itemTop,metaString);
-        } else {
-            gui->appendLine(itemTop,metaString);
-            itemTop++; // adjust for debug output;
-        }
-    } else {
-        gui->replaceLine(itemTop,metaString);
-    }
-    if (debugLogging)
-        emit messageSig(LOG_DEBUG, QString("%1 %2 (%3) ITEM LINE NUMBER: %4 MODEL NAME: %5 STEP %6")
+    if (Preferences::debugLogging)
+        emit messageSig(LOG_DEBUG, QString("%1 %2 (%3) ITEM LINE NUMBER: %4 MODEL NAME: %5 STEP %6 %7")
                         .arg(direction == BringToFront ? "BRING TO FRONT" : "SEND TO BACK")
                         .arg(soMap[selectedItemObj]).arg(selectedItemObj)
                         .arg(itemTop.lineNumber).arg(itemTop.modelName)
-                        .arg(stepNumber));
+                        .arg(stepNumber).arg(newCommand ? "NEW COMMAND" : ""));
+
+    beginMacro("SceneItemZValue");
+
+    MetaItem mi;
+    mi.setMetaAlt(itemTop, metaString, newCommand);
+
     endMacro();
 }
 

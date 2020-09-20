@@ -461,6 +461,8 @@ public:
   
   void removeLPubFormatting();
 
+  void setMetaAlt(const Where &, const QString metaString, bool = false);
+
   void replaceMeta(const Where &here, const QString &line);
   void insertMeta( const Where &here, const QString &line);
   void appendMeta( const Where &here, const QString &line);
