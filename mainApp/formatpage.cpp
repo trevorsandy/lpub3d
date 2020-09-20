@@ -1451,7 +1451,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         AnnotateTextItem *annotateTextItem = dynamic_cast<AnnotateTextItem *>(selectedItem);
         if (annotateTextItem){
             itemTop = annotateTextItem->pli->top;
-            stepNumber = annotateTextItem->pli->step->stepNumber.number;
+            stepNumber = annotateTextItem->pli->step ? annotateTextItem->pli->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1460,7 +1460,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         PliBackgroundItem *pliBackgroundItem = dynamic_cast<PliBackgroundItem *>(selectedItem);
         if (pliBackgroundItem){
             itemTop = pliBackgroundItem->pli->top;
-            stepNumber = pliBackgroundItem->pli->step->stepNumber.number;
+            stepNumber = pliBackgroundItem->pli->step ? pliBackgroundItem->pli->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1469,7 +1469,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         InstanceTextItem *instanceTextItem = dynamic_cast<InstanceTextItem *>(selectedItem);
         if (instanceTextItem){
             itemTop = instanceTextItem->pli->top;
-            stepNumber = instanceTextItem->pli->step->stepNumber.number;
+            stepNumber = instanceTextItem->pli->step ? instanceTextItem->pli->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1499,7 +1499,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         RotateIconItem *rotateIconItem = dynamic_cast<RotateIconItem *>(selectedItem);
         if (rotateIconItem){
             itemTop = rotateIconItem->step->topOfStep();
-            stepNumber = rotateIconItem->step->stepNumber.number;
+            stepNumber = rotateIconItem->step ? rotateIconItem->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1516,8 +1516,8 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     {
         SubModelBackgroundItem *subModelBackgroundItem = dynamic_cast<SubModelBackgroundItem *>(selectedItem);
         if (subModelBackgroundItem){
-            itemTop = subModelBackgroundItem->subModel->step->topOfStep();
-            stepNumber = subModelBackgroundItem->subModel->step->stepNumber.number;
+            itemTop = subModelBackgroundItem->subModel->topOfStep();
+            stepNumber = subModelBackgroundItem->subModel->step ? subModelBackgroundItem->subModel->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1525,8 +1525,8 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
     {
         SMInstanceTextItem *sMInstanceTextItem = dynamic_cast<SMInstanceTextItem *>(selectedItem);
         if (sMInstanceTextItem){
-            itemTop = sMInstanceTextItem->subModel->step->topOfStep();
-            stepNumber = sMInstanceTextItem->subModel->step->stepNumber.number;
+            itemTop = sMInstanceTextItem->subModel->topOfStep();
+            stepNumber = sMInstanceTextItem->subModel->step ? sMInstanceTextItem->subModel->step->stepNumber.number : 0;
         }
     }
         break;
@@ -1535,7 +1535,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         PGraphicsPixmapItem *pGraphicsPixmapItem = dynamic_cast<PGraphicsPixmapItem *>(selectedItem);
         if (pGraphicsPixmapItem){
             itemTop = pGraphicsPixmapItem->pli->topOfStep();
-            stepNumber = pGraphicsPixmapItem->pli->step->stepNumber.number;
+            stepNumber = pGraphicsPixmapItem->pli->step ? pGraphicsPixmapItem->pli->step->stepNumber.number : 0;
         }
     }
         break;
