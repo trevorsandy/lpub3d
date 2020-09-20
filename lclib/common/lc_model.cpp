@@ -616,6 +616,17 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			}
 			else if (Token == QLatin1String("LIGHT"))
 			{
+/*** LPub3D Mod - enable lights ***/
+				if (!Light)
+					Light = new lcLight(0.0f, 0.0f, 0.0f);
+
+				if (Light->ParseLDrawLine(LineStream))
+				{
+					Light->CreateName(mLights);
+					mLights.Add(Light);
+					Light = nullptr;
+				}
+ /*** LPub3D Mod end ***/
 			}
 			else if (Token == QLatin1String("GROUP"))
 			{

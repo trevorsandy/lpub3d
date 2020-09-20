@@ -590,7 +590,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
 		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in properties tab"), /*** LPub3D Mod - enable lights ***/
+        QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
 /*** LPub3D Mod - enable lights ***/
@@ -598,14 +598,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
 		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in properties tab"),
+        QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
 		""
 	},
 	// LC_EDIT_ACTION_AREALIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
 		QT_TRANSLATE_NOOP("Menu", "Arealight"),
-		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in properties tab"),
+        QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in Properties tab"),
 		""
 	},
 /*** LPub3D Mod end ***/
@@ -613,14 +613,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
 		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in properties tab"),  /*** LPub3D Mod - enable lights ***/
+        QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in Properties tab"),  /*** LPub3D Mod - enable lights ***/
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Camera"),
 		QT_TRANSLATE_NOOP("Menu", "Camera"),
-		QT_TRANSLATE_NOOP("Status", "Create a new camera"),
+        QT_TRANSLATE_NOOP("Status", "Add a new camera - edit in Properties tab"),              /*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_EDIT_ACTION_SELECT

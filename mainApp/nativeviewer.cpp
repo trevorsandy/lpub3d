@@ -91,10 +91,19 @@ void Gui::create3DActions()
         ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
         ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
     }
-    applyCameraAct = new QAction(ApplyCameraIcon,tr("&Apply Camera Settings"),this);
-    applyCameraAct->setStatusTip(tr("Apply camera settings to this step - Shift+A"));
+    applyCameraAct = new QAction(ApplyCameraIcon,tr("Save Settings"),this);
+    applyCameraAct->setStatusTip(tr("Save current camera settings to current step - Shift+A"));
     applyCameraAct->setShortcut(tr("Shift+A"));
     connect(applyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
+
+    QIcon ApplyLightIcon;
+    ApplyLightIcon.addFile(":/resources/applylightsettings.png");
+    ApplyLightIcon.addFile(":/resources/applylightsettings_16.png");
+    applyLightAct = new QAction(ApplyLightIcon,tr("Save Settings"),this);
+    applyLightAct->setStatusTip(tr("[FUTURE USE] Save light settings to current step - Shift+I"));
+    applyLightAct->setShortcut(tr("Shift+I"));
+    applyLightAct->setEnabled(false);  // TODO - Enable when completely implemented
+    connect(applyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
     useImageSizeAct = new QAction(tr("Custom Image Size"),this);
     useImageSizeAct->setStatusTip(tr("Maintain initial image width and height or enter custom image size"));
@@ -102,8 +111,8 @@ void Gui::create3DActions()
     useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
 
-    defaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
-    defaultCameraPropertiesAct->setStatusTip(tr("Display camera propeties in Properties window"));
+    defaultCameraPropertiesAct = new QAction(tr("Default Properties"),this);
+    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera propeties in Properties window"));
     defaultCameraPropertiesAct->setCheckable(true);
     defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
     connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
@@ -129,11 +138,11 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setIcon(QIcon(":/resources/clear_transform.png"));
 
     // Light icons
-    LightGroupAct = new QAction(tr("Lights"), this);
-    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
-    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
-    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
-    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+    lightGroupAct = new QAction(tr("Lights"), this);
+    lightGroupAct->setToolTip(tr("Lights - Pointlight"));
+    lightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
+    lightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
+    lightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SUNLIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SPOTLIGHT));
@@ -142,18 +151,18 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandTip", QVariant("Lights - Sunlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandTip", QVariant("Lights - Spotlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]->setProperty("CommandTip", QVariant("Lights - Arealight"));
-    connect(LightGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    connect(lightGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
 
     // Viewpoint icons
-    ViewpointGroupAct = new QAction(tr("Viewpoints"), this);
-    ViewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
-    ViewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
-    ViewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
-    ViewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    viewpointGroupAct = new QAction(tr("Viewpoints"), this);
+    viewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
+    viewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
+    viewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
+    viewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setIcon(QIcon(":/resources/front.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setIcon(QIcon(":/resources/back.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setIcon(QIcon(":/resources/left.png"));
@@ -174,7 +183,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->   setProperty("CommandTip", QVariant("Viewpoints - Top"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandTip", QVariant("Viewpoints - Bottom"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->  setProperty("CommandTip", QVariant("Viewpoints - Home"));
-    connect(ViewpointGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    connect(viewpointGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
@@ -183,11 +192,11 @@ void Gui::create3DActions()
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
 
-    ViewpointZoomExtAct = new QAction(tr("Fit To View"),this);
-    ViewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
-    ViewpointZoomExtAct->setCheckable(true);
-    ViewpointZoomExtAct->setChecked(lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT));
-    connect(ViewpointZoomExtAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    viewpointZoomExtAct = new QAction(tr("Fit To View"),this);
+    viewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
+    viewpointZoomExtAct->setCheckable(true);
+    viewpointZoomExtAct->setChecked(lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT));
+    connect(viewpointZoomExtAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
 
     viewerZoomSliderAct = new QWidgetAction(nullptr);
     viewerZoomSliderWidget = new QSlider();
@@ -265,15 +274,17 @@ void Gui::create3DMenus()
      buildModMenu->addAction(removeBuildModAct);
      createBuildModAct->setMenu(buildModMenu);
 
-     LightMenu = new QMenu(tr("Lights"), this);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]);
-     LightGroupAct->setMenu(LightMenu);
+     lightMenu = new QMenu(tr("Lights"), this);
+     lightMenu->addAction(applyLightAct);
+     lightMenu->addSeparator();
+     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]);
+     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]);
+     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]);
+     lightGroupAct->setMenu(lightMenu);
 
-     ViewpointGroupAct->setMenu(gMainWindow->GetViewpointMenu());
-     gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], ViewpointZoomExtAct);
+     viewpointGroupAct->setMenu(gMainWindow->GetViewpointMenu());
+     gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], viewpointZoomExtAct);
 
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
@@ -301,11 +312,11 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
-     gMainWindow->GetToolsMenu()->addAction(applyCameraAct);
+//     gMainWindow->GetToolsMenu()->addAction(applyCameraAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
-     gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(ViewpointGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(viewpointGroupAct);
 //     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
@@ -350,11 +361,14 @@ void Gui::create3DMenus()
      gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setMenu(rotateActionMenu);
 
      cameraMenu = new QMenu(tr("Camera Settings"),this);
+     cameraMenu->addAction(applyCameraAct);
+     cameraMenu->addSeparator();
      cameraMenu->addAction(defaultCameraPropertiesAct);
      cameraMenu->addSeparator();
      cameraMenu->addAction(setTargetPositionAct);
      cameraMenu->addAction(useImageSizeAct);
-     applyCameraAct->setMenu(cameraMenu);
+     gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(cameraMenu);
+//     applyCameraAct->setMenu(cameraMenu);
 }
 
 void Gui::create3DToolBars()
@@ -376,11 +390,11 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->mToolsToolBar->addAction(createBuildModAct);
-    gMainWindow->mToolsToolBar->addAction(applyCameraAct);
+//    gMainWindow->mToolsToolBar->addAction(applyCameraAct);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
-    gMainWindow->mToolsToolBar->addAction(LightGroupAct);
+    gMainWindow->mToolsToolBar->addAction(lightGroupAct);
     gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(ViewpointGroupAct);
+    gMainWindow->mToolsToolBar->addAction(viewpointGroupAct);
 //    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
@@ -397,19 +411,21 @@ void Gui::create3DToolBars()
 void Gui::Disable3DActions()
 {
     applyCameraAct->setEnabled(false);
+//    applyLightAct->setEnabled(false);  // TODO - Future use
     createBuildModAct->setEnabled(false);
-    LightGroupAct->setEnabled(false);
-    ViewpointGroupAct->setEnabled(false);
+    lightGroupAct->setEnabled(false);
+    viewpointGroupAct->setEnabled(false);
 }
 
 void Gui::Enable3DActions()
 {
     applyCameraAct->setEnabled(true);
+//    applyLightAct->setEnabled(true);  // TODO - Future use
     createBuildModAct->setEnabled(buildModRange.first() || hasBuildMods());
     applyBuildModAct->setEnabled(hasBuildMods());
     removeBuildModAct->setEnabled(hasBuildMods());
-    LightGroupAct->setEnabled(true);
-    ViewpointGroupAct->setEnabled(true);
+    lightGroupAct->setEnabled(true);
+    viewpointGroupAct->setEnabled(true);
 }
 
 void Gui::create3DDockWindows()
@@ -522,6 +538,17 @@ void Gui::ViewerZoomSlider(int value)
 void Gui::ResetViewerZoomSlider()
 {
    viewerZoomSliderWidget->setValue(50);
+}
+
+void Gui::applyLightSettings()
+{
+    View* ActiveView = gMainWindow->GetActiveView();
+
+    lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+    for (lcLight* Light : ActiveModel->mLights)
+        if (Light->IsSelected())
+            messageSig(LOG_DEBUG, QString("TODO - SAVE LIGHT [%1]").arg(Light->m_strName));
 }
 
 void Gui::applyCameraSettings()
@@ -725,19 +752,19 @@ void Gui::groupActionTriggered()
     QString commandTip;
     bool ok;
 
-    if (Action == ViewpointZoomExtAct)
+    if (Action == viewpointZoomExtAct)
     {
-        lcSetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT, ViewpointZoomExtAct->isChecked());
+        lcSetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT, viewpointZoomExtAct->isChecked());
     }
-    else if (Action == ViewpointGroupAct)
+    else if (Action == viewpointGroupAct)
     {
-        commandId = lcCommandId(ViewpointGroupAct->property("CommandId").toInt(&ok));
+        commandId = lcCommandId(viewpointGroupAct->property("CommandId").toInt(&ok));
         if (ok)
             gMainWindow->mActions[commandId]->trigger();
     }
-    else if (Action == LightGroupAct)
+    else if (Action == lightGroupAct)
     {
-        commandId = lcCommandId(LightGroupAct->property("CommandId").toInt(&ok));
+        commandId = lcCommandId(lightGroupAct->property("CommandId").toInt(&ok));
         if (ok)
             gMainWindow->mActions[commandId]->trigger();
     }
@@ -750,30 +777,30 @@ void Gui::groupActionTriggered()
                 commandId == LC_EDIT_ACTION_SUNLIGHT ||
                 commandId == LC_EDIT_ACTION_SPOTLIGHT ||
                 commandId == LC_EDIT_ACTION_AREALIGHT) {
-                LightGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
-                LightGroupAct->setToolTip(tr(commandTip.toLatin1()));
-                LightGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
-                LightGroupAct->setProperty("CommandId", QVariant(commandId));
+                lightGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
+                lightGroupAct->setToolTip(tr(commandTip.toLatin1()));
+                lightGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
+                lightGroupAct->setProperty("CommandId", QVariant(commandId));
             } else {
-                ViewpointGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
-                ViewpointGroupAct->setToolTip(tr(commandTip.toLatin1()));
-                ViewpointGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
-                ViewpointGroupAct->setProperty("CommandId", QVariant(commandId));
+                viewpointGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
+                viewpointGroupAct->setToolTip(tr(commandTip.toLatin1()));
+                viewpointGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
+                viewpointGroupAct->setProperty("CommandId", QVariant(commandId));
             }
         }
     }
 }
 
 void Gui::restoreLightAndViewpointDefaults(){
-    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
-    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
-    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
-    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+    lightGroupAct->setToolTip(tr("Lights - Pointlight"));
+    lightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
+    lightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
+    lightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
 
-    ViewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
-    ViewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
-    ViewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
-    ViewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    viewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
+    viewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
+    viewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
+    viewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
 }
 
 void Gui::enableBuildModification()
@@ -872,7 +899,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
         // Save the current model
         if (!lcGetActiveProject()->Save(modelFile))
-            emit gui->messageSig(LOG_ERROR, QString("Failed to save current model to file [%1]").arg(modelFile));
+            emit messageSig(LOG_ERROR, QString("Failed to save current model to file [%1]").arg(modelFile));
 
         // Reset the camera
         bool RemovedCamera = false;
@@ -912,10 +939,10 @@ void Gui::createBuildModification()
 
             lcArray<lcGroup*>  mGroups;
             lcArray<lcCamera*> mCameras;
+            lcArray<lcLight*>  mLights;
             lcArray<lcPiece*>  mLoadPieces;
             lcArray<lcGroup*>  mLoadGroups;
             lcArray<lcPiece*>  mSavePieces;
-            lcArray<lcLight*>  mSaveLights;
             lcArray<lcGroup*>  mSaveGroups;
             lcModelProperties  mSaveProperties;
             lcArray<lcPieceControlPoint> ControlPoints; // empty placeholder
@@ -927,10 +954,10 @@ void Gui::createBuildModification()
             bool BuildModPart  = false;
             lcPiece *Piece     = nullptr;
             lcCamera *Camera   = nullptr;
+            lcLight  *Light    = nullptr;
             mSaveProperties    = ActiveModel->GetProperties();
             mSaveFileLines     = ActiveModel->mFileLines;
             mSavePieces        = ActiveModel->GetPieces();
-            mSaveLights        = ActiveModel->mLights;
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
             int ModelIndex      = buildModRange.at(BM_MODEL_INDEX);
@@ -1141,6 +1168,18 @@ void Gui::createBuildModification()
                             Camera->CreateName(mCameras);
                             mCameras.Add(Camera);
                             Camera = nullptr;
+                        }
+                    }
+                    else if (Token == QLatin1String("LIGHT"))
+                    {
+                        if (!Light)
+                            Light = new lcLight(0.0f, 0.0f, 0.0f);
+
+                        if (Light->ParseLDrawLine(LineStream))
+                        {
+                            Light->CreateName(mLights);
+                            mLights.Add(Light);
+                            Light = nullptr;
                         }
                     }
                     else if (Token == QLatin1String("GROUP"))
@@ -1424,7 +1463,7 @@ void Gui::createBuildModification()
                 if (!SelectedOnly || Camera->IsSelected())
                     Camera->SaveLDraw(Stream);
 
-            for (lcLight* Light : mSaveLights)
+            for (lcLight* Light : mLights)
                 if (!SelectedOnly || Light->IsSelected())
                     Light->SaveLDraw(Stream);
 

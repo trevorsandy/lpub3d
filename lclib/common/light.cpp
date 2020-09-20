@@ -81,6 +81,43 @@ lcLight::~lcLight()
 {
 }
 
+void lcLight::CreateName(const lcArray<lcLight*>& Lights)
+{
+	if (m_strName[0])
+	{
+		bool Found = false;
+
+		for (lcLight* Light : Lights)
+		{
+			if (!strcmp(Light->m_strName, m_strName))
+			{
+				Found = true;
+				break;
+			}
+		}
+
+		if (!Found)
+			return;
+	}
+
+	int i, max = 0;
+/*** LPub3D Mod - enable lights ***/
+	const char* Prefix = (mLightType == LC_POINTLIGHT ? "Pointlight "
+						: mLightType == LC_SUNLIGHT   ? "Sunlight "
+						: mLightType == LC_SPOTLIGHT  ? "Spotlight "
+						: mLightType == LC_AREALIGHT  ? "Arealight "
+						: "Light");
+
+	for (int LightIdx = 0; LightIdx < Lights.GetSize(); LightIdx++)
+		if (strncmp(Lights[LightIdx]->m_strName, Prefix, strlen(Prefix)) == 0)
+			if (sscanf(Lights[LightIdx]->m_strName + strlen(Prefix), " %d", &i) == 1)
+				if (i > max)
+					max = i;
+
+	sprintf(m_strName, "%s %d", Prefix, max+1);
+/*** LPub3D Mod end ***/
+}
+
 void lcLight::SaveLDraw(QTextStream& Stream) const
 {
 /*** LPub3D Mod - enable lights ***/
@@ -150,7 +187,7 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 					Stream << QLatin1String("0 !LEOCAD LIGHT SIZE ") << mLightFactor[0] << LineEnding;
 			}
 			if (mLightShapeKeys.GetSize() > 1) {
-				SaveKeysLDraw(Stream, mSpotExponentKeys, "LIGHT SHAPE_KEY ");
+				SaveKeysLDraw(Stream, mLightShapeKeys, "LIGHT SHAPE_KEY ");
 			} else {
 				Stream << QLatin1String("0 !LEOCAD LIGHT SHAPE ");
 
@@ -217,41 +254,111 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 /*** LPub3D Mod end ***/
 }
 
-void lcLight::CreateName(const lcArray<lcLight*>& Lights)
+/*** LPub3D Mod - enable lights ***/
+bool lcLight::ParseLDrawLine(QTextStream& Stream)
 {
-	if (m_strName[0])
+	while (!Stream.atEnd())
 	{
-		bool Found = false;
-
-		for (lcLight* Light : Lights)
+		QString Token;
+		Stream >> Token;
+		if (Token == QLatin1String("COLOR_RGB"))
 		{
-			if (!strcmp(Light->m_strName, m_strName))
-			{
-				Found = true;
-				break;
-			}
+			Stream >> mLightColor[0] >> mLightColor[1] >> mLightColor[2];
+			ChangeKey(mLightColorKeys, mLightColor, 1, true);
 		}
-
-		if (!Found)
-			return;
+		else if (Token == QLatin1String("POWER") ||
+				 Token == QLatin1String("STRENGTH"))
+		{
+			Stream >> mSpotExponent;
+			ChangeKey(mSpotExponentKeys, mSpotExponent, 1, true);
+		}
+		else if (Token == QLatin1String("ANGLE") ||
+				 Token == QLatin1String("RADIUS") ||
+				 Token == QLatin1String("SIZE") ||
+				 Token == QLatin1String("WIDTH") ||
+				 Token == QLatin1String("HEIGHT") ||
+				 Token == QLatin1String("SPOT_BLEND"))
+		{
+			if(Token == QLatin1String("HEIGHT") ||
+			   Token == QLatin1String("SPOT_BLEND"))
+				Stream >> mLightFactor[1];
+			else
+				Stream >> mLightFactor[0];
+			ChangeKey(mLightFactorKeys, mLightFactor, 1, true);
+		}
+		else if (Token == QLatin1String("SPOT_SIZE"))
+		{
+			Stream >> mSpotSize;
+			ChangeKey(mLightSpotSizeKeys, mSpotSize, 1, true);
+		}
+		else if (Token == QLatin1String("SHAPE"))
+		{
+			Stream >> mLightShape;
+			ChangeKey(mLightShapeKeys, mLightShape, 1, true);
+		}
+		else if (Token == QLatin1String("SPECULAR"))
+		{
+			Stream >>mLightSpecular;
+			ChangeKey(mLightSpecularKeys, mLightSpecular, 1, true);
+		}
+		else if (Token == QLatin1String("CUTOFF_DISTANCE"))
+		{
+			mEnableCutoff = true;
+			Stream >> mSpotCutoff;
+			ChangeKey(mSpotCutoffKeys, mSpotCutoff, 1, true);
+		}
+		else if (Token == QLatin1String("TYPE"))
+		{
+			Stream >> mLightType;
+			ChangeKey(mLightTypeKeys, mLightType, 1, true);
+		}
+		else if (Token == QLatin1String("POSITION"))
+		{
+			Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
+			ChangeKey(mPositionKeys, mPosition, 1, true);
+		}
+		else if (Token == QLatin1String("TARGET_POSITION"))
+		{
+			Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
+			ChangeKey(mTargetPositionKeys, mTargetPosition, 1, true);
+		}
+		else if (Token == QLatin1String("COLOR_RGB_KEY"))
+			LoadKeysLDraw(Stream, mLightColorKeys);
+		else if ((Token == QLatin1String("POWER_KEY")) ||
+				 (Token == QLatin1String("STRENGTH_KEY")))
+			LoadKeysLDraw(Stream, mSpotExponentKeys);
+		else if ((Token == QLatin1String("ANGLE_KEY")) ||
+				 (Token == QLatin1String("RADIUS_KEY")) ||
+				 (Token == QLatin1String("SIZE_KEY")) ||
+				 (Token == QLatin1String("RADIUS_AND_SPOT_BLEND_KEY")))
+			LoadKeysLDraw(Stream, mLightFactorKeys);
+		else if (Token == QLatin1String("SPOT_SIZE_KEY"))
+			LoadKeysLDraw(Stream, mLightSpotSizeKeys);
+		else if (Token == QLatin1String("SHAPE_KEY"))
+			LoadKeysLDraw(Stream, mLightShapeKeys);
+		else if (Token == QLatin1String("SPECULAR_KEY"))
+			LoadKeysLDraw(Stream, mLightSpecularKeys);
+		else if (Token == QLatin1String("CUTOFF_DISTANCE_KEY"))
+			LoadKeysLDraw(Stream, mSpotCutoffKeys);
+		else if (Token == QLatin1String("TYPE_KEY"))
+			LoadKeysLDraw(Stream, mLightTypeKeys);
+		else if (Token == QLatin1String("POSITION_KEY"))
+			LoadKeysLDraw(Stream, mPositionKeys);
+		else if (Token == QLatin1String("TARGET_POSITION_KEY"))
+			LoadKeysLDraw(Stream, mTargetPositionKeys);
+		else if (Token == QLatin1String("NAME"))
+		{
+			QString Name = Stream.readAll().trimmed();
+			QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
+			strncpy(m_strName, NameUtf.constData(), sizeof(m_strName));
+			m_strName[sizeof(m_strName) - 1] = 0;
+			return true;
+		}
 	}
 
-	int i, max = 0;
-/*** LPub3D Mod - enable lights ***/
-	const char* Prefix = (mLightType == LC_POINTLIGHT ? "Pointlight "
-						: mLightType == LC_SUNLIGHT   ? "Sunlight "
-						: mLightType == LC_SPOTLIGHT  ? "Spotlight "
-						: "Arealight ");
-
-	for (int LightIdx = 0; LightIdx < Lights.GetSize(); LightIdx++)
-		if (strncmp(Lights[LightIdx]->m_strName, Prefix, strlen(Prefix)) == 0)
-			if (sscanf(Lights[LightIdx]->m_strName + strlen(Prefix), " %d", &i) == 1)
-				if (i > max)
-					max = i;
-
-	sprintf(m_strName, "%s %d", Prefix, max+1);
-/*** LPub3D Mod end ***/
+	return false;
 }
+/*** LPub3D Mod end ***/
 
 void lcLight::CompareBoundingBox(lcVector3& Min, lcVector3& Max)
 {

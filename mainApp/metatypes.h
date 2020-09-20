@@ -281,6 +281,16 @@ enum sortOrder {
     TertiaryDirection
 };
 
+enum lightType
+{
+    M_UNDEFINED_LIGHT,
+    M_POINTLIGHT,
+    M_SUNLIGHT,
+    M_SPOTLIGHT,
+    M_AREALIGHT,
+    M_NUM_LIGHT_TYPES
+};
+
 class PlacementData
 {
 public:
@@ -428,6 +438,7 @@ public:
     itemObj     = 0;
   }
 };
+
 
 // TODO confirm if this is still needed
 class PageSizeData{

@@ -2115,20 +2115,25 @@ public:
   MarginsMeta          margin;
 
   // stud
-  IntMeta             studLogo;
+  IntMeta              studLogo;
 
   // assem image scale
   FloatMeta            modelScale;
-  // assem native camera position
+
+  // assem shared native camera settings (selected camera)
   FloatMeta            cameraDistance;
-  FloatMeta            cameraFoV;
   FloatPairMeta        cameraAngles;
-  FloatMeta            znear;
-  FloatMeta            zfar;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
+
+  // assem specific camera settings
   StringMeta           cameraName;
+  FloatMeta            cameraFoV;
+  FloatMeta            znear;
+  FloatMeta            zfar;
   FloatXYZMeta         target;
+  FloatXYZMeta         position;
+  FloatXYZMeta         upvector;
 
   SettingsMeta();
   SettingsMeta(const SettingsMeta &rhs) : BranchMeta(rhs)
@@ -3459,6 +3464,69 @@ public:
 
 /*------------------------*/
 
+class CameraMeta : public BranchMeta
+{
+public:
+  BoolMeta     hidden;       // bool      IsHidden()
+  BoolMeta     orthographic; // bool      IsOrtho()
+  StringMeta   cameraName;   // char      m_strName
+  FloatMeta    fov;          // float     m_fovy
+  FloatMeta    znear;        // float     m_zNear
+  FloatMeta    zfar;         // float     m_zFar
+  FloatXYZMeta target;       // lcVector3 mPosition
+  FloatXYZMeta position;     // lcVector3 mTargetPosition
+  FloatXYZMeta upvector;     // lcVector3 mUpVector
+
+  CameraMeta();
+  CameraMeta(const CameraMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+//  virtual ~CameraMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+
+/*------------------------*/
+
+class LightMeta : public BranchMeta
+{
+public:
+  StringMeta    lightName;     // char      m_strName
+  IntMeta       lightType;     // int       mLightType;
+  IntMeta       lightShape;    // int       mLightShape;
+  FloatMeta     lightSpecular; // float     mLightSpecular;
+  FloatMeta     spotSize;      // float     mSpotSize;
+  FloatMeta     spotCutoff;    // float     mSpotCutoff;
+  FloatMeta     power;         // float     mSpotExponent;
+  FloatMeta     strength;      // float     mSpotExponent
+
+  FloatMeta     angle;         // float     mLightFactor[0]
+  FloatMeta     radius;        // float     mLightFactor[0]
+  FloatMeta     width;         // float     mLightFactor[0]
+  FloatMeta     size;          // float     mLightFactor[0]
+
+  FloatMeta     height;        // float     mLightFactor[1]
+  FloatMeta     spotBlend;     // float     mLightFactor[1]
+
+  FloatMeta     fov;           // float     m_fovy
+  FloatMeta     znear;         // float     m_zNear
+  FloatMeta     zfar;          // float     m_zFar
+  FloatXYZMeta  lightColour;   // lcVector3 mLightColor
+  FloatXYZMeta  target;        // lcVector3 mPosition
+  FloatXYZMeta  position;      // lcVector3 mTargetPosition
+
+  LightMeta();
+  LightMeta(const LightMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+//  virtual ~LightMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class LPubMeta : public BranchMeta
 {
 public:
@@ -3554,7 +3622,9 @@ public:
   LeoCadGroupMeta group;
   RcMeta          model;
   RcMeta          piece;
+  CameraMeta      cameras;
   RcMeta          camera;
+  LightMeta       lights;
   RcMeta          light;
   RcMeta          synth;
   LeoCadMeta() {}

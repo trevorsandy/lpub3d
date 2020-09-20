@@ -4966,6 +4966,96 @@ void ResolutionMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+CameraMeta::CameraMeta() : BranchMeta()
+{
+  hidden.setValue(false);
+  orthographic.setValue(false);
+  fov.setFormats(5,4,"9.999");
+  fov.setRange(gui->getDefaultFOVMinRange(),
+               gui->getDefaultFOVMaxRange());
+  fov.setValue(gui->getDefaultCameraFoV());
+  znear.setRange(1.0f,FLT_MAX);
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setRange(1.0f,FLT_MAX);
+  zfar.setValue(gui->getDefaultCameraZFar());
+}
+
+void CameraMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  hidden.init       (this,"HIDDEN");      // Add to highlight
+  orthographic.init (this,"ORTHOGRAPHIC");
+  cameraName.init   (this,"NAME");
+  fov.init          (this,"FOV");
+  znear.init        (this,"ZNEAR");
+  zfar.init         (this,"ZFAR");
+  target.init       (this,"TARGET_POSITION");
+  position.init     (this,"POSITION");
+  upvector.init     (this,"UP_VECTOR");
+}
+
+/* ------------------ */
+
+LightMeta::LightMeta() : BranchMeta()
+{
+  lightType.setValue(M_UNDEFINED_LIGHT);
+  lightShape.setValue(0.0f);
+  lightSpecular.setValue(0.0f);
+  spotSize.setValue(0.0f);
+  spotCutoff.setValue(0.0f);
+
+  power.setValue(0.0f);
+  strength.setValue(0.0f);
+
+  angle.setValue(0.0f);
+  radius.setValue(0.0f);
+  width.setValue(0.0f);
+  size.setValue(0.0f);
+
+  height.setValue(0.0f);
+  spotBlend.setValue(0.0f);
+
+  fov.setFormats(5,4,"9.999");
+  fov.setRange(gui->getDefaultFOVMinRange(),
+               gui->getDefaultFOVMaxRange());
+  fov.setValue(gui->getDefaultCameraFoV());
+  znear.setRange(1.0f,FLT_MAX);
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setRange(1.0f,FLT_MAX);
+  zfar.setValue(gui->getDefaultCameraZFar());
+}
+
+void LightMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  lightName.init     (this,"NAME");        // Add to highlight
+  lightType.init     (this,"TYPE");
+  lightShape.init    (this,"SHAPE");
+  lightSpecular.init (this,"SPECULAR");
+  spotSize.init      (this,"SPOT_SIZE");
+  spotCutoff.init    (this,"LIGHT_FOV");
+
+  power.init         (this,"POWER");
+  strength.init      (this,"STRENGTH");
+
+  angle.init         (this,"ANGLE");
+  radius.init        (this,"RADIUS");
+  width.init         (this,"WIDTH");
+  size.init          (this,"SIZE");
+
+  height.init        (this,"HEIGHT");
+  spotBlend.init     (this,"SPOT_BLEND");
+
+  lightColour.init   (this,"COLOR_RGB");
+  fov.init           (this,"FOV");
+  znear.init         (this,"ZNEAR");
+  zfar.init          (this,"ZFAR");
+  target.init        (this,"TARGET_POSITION");
+  position.init      (this,"POSITION");
+}
+
+/* ------------------ */
+
 void NoStepMeta::init(
     BranchMeta *parent,
     const QString name,

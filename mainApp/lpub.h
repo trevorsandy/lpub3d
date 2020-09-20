@@ -1157,6 +1157,7 @@ public slots:
   void showDefaultCameraProperties();
   void restoreLightAndViewpointDefaults();
   void applyCameraSettings();
+  void applyLightSettings();
   void applyBuildModification();
   void removeBuildModification();
   void createBuildModification();
@@ -1666,6 +1667,7 @@ private:
   QMenu    *sceneGuidesMenu;
 
   QMenu    *cameraMenu;
+  QMenu    *lightMenu;
   QMenu    *buildModMenu;
   QMenu    *rotateActionMenu;
 
@@ -1860,10 +1862,10 @@ private:
   QAction *enableRotstepRotateAct;
   QAction *exportHtmlStepsAct;
 
-  QMenu* LightMenu;
-  QAction *LightGroupAct;
-  QAction *ViewpointGroupAct;
-  QAction *ViewpointZoomExtAct;
+  QAction *applyLightAct;
+  QAction *lightGroupAct;
+  QAction *viewpointGroupAct;
+  QAction *viewpointZoomExtAct;
 
   // help
 

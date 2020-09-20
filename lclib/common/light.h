@@ -219,6 +219,9 @@ public:
 	}
 
 	void SaveLDraw(QTextStream& Stream) const;
+/*** LPub3D Mod - enable lights ***/
+	bool ParseLDrawLine(QTextStream& Stream);
+/*** LPub3D Mod end ***/
 
 public:
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const override;
