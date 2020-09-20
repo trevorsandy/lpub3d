@@ -45,6 +45,9 @@
 //#define PRINT_DEBUG
 #endif
 
+static bool exportPdf    = true;
+static bool printPreview = true;
+
 // Compare two variants.
 bool lessThan(const int &v1, const int &v2)
 {
@@ -1590,9 +1593,11 @@ void Gui::exportAs(const QString &_suffix)
 
 //-----------------PRINT FUNCTIONS------------------------//
 
-void Gui::PrintPdf(QPrinter* Printer)
+void Gui::Print(QPrinter* Printer)
 {
-  bool preview = false /* m_previewDialog */;  //Hack
+  bool preview = printPreview;
+  QString mode = exportPdf ? "pdf" : "file";
+
   emit hidePreviewDialogSig();
 
   /*
@@ -1667,10 +1672,10 @@ void Gui::PrintPdf(QPrinter* Printer)
   QPainter Painter(Printer);
 
   // initialize progress bar dialog
-  m_progressDialog->setWindowTitle(preview ? "Preview pdf" : "Preview pdf" /* Export pdf */);  //Hack
+  m_progressDialog->setWindowTitle(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode);  //Hack
   if (Preferences::modeGUI)
       m_progressDialog->show();
-  m_progressDlgMessageLbl->setText(preview ? "Generating preview..." : "Exporting...");
+  m_progressDlgMessageLbl->setText(preview ? "Generating preview" + mode + "..." : exportPdf ? "Exporting" + mode + "..." : "Printing" + mode + "...");
 
   for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
     {
@@ -1698,15 +1703,17 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("Export %1 terminated before completion.")
+                                                     .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                   if (preview){
                       m_previewDialog = false;
+                      exportPdf = printPreview = true;
                     }
                   return;
                 }
 
               m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2...").arg(Page).arg(ToPage)
-                                               .arg(preview ? "Preview" : "Export"));
+                                               .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
               m_progressDlgProgressBar->setValue(Page);
               QApplication::processEvents();
 
@@ -1716,19 +1723,19 @@ void Gui::PrintPdf(QPrinter* Printer)
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                                       .arg(pageWidthPx)
-                                       .arg(pageHeightPx)
+                                       .arg(double(pageWidthPx))
+                                       .arg(double(pageHeightPx))
                                        .arg(displayPageNum)
                                        .arg(ToPage)
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Preview" : "Export");
+                                       .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode);
 
               // set up the view
-              QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
-              QRect bounding(0, 0, pageWidthPx, pageHeightPx);
+              QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
+              QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
               view.scale(1.0,1.0);
-              view.setMinimumSize(pageWidthPx,pageHeightPx);
-              view.setMaximumSize(pageWidthPx,pageHeightPx);
+              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
               view.setGeometry(bounding);
               view.setSceneRect(boundingRect);
               view.setRenderHints(
@@ -1747,16 +1754,17 @@ void Gui::PrintPdf(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Export"));
+                                      .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                       if (preview){
                           m_previewDialog = false;
+                          exportPdf = printPreview = false;
                         }
                       return;
                     }
 
                   // render this page
                   drawPage(&view,&scene,true);
-                  scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+                  scene.setSceneRect(0.0,0.0,double(pageWidthPx),double(pageHeightPx));
                   scene.render(&Painter);
                   clearPage(&view,&scene);
 
@@ -1813,9 +1821,10 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("%1 terminated before completion.").arg(exportPdf ? "Export" + mode : "Print" + mode));
                   if (preview){
                       m_previewDialog = false;
+                      exportPdf = printPreview = false;
                     }
                   return;
                 }
@@ -1823,7 +1832,7 @@ void Gui::PrintPdf(QPrinter* Printer)
               displayPageNum = Page = printPage;
 
               m_progressDlgMessageLbl->setText(QString("%1 page %2 of %3 for range %4 ")
-                                               .arg(preview ? "Preview" : "Export")
+                                               .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode)
                                                .arg(Page)
                                                .arg(printPages.count())
                                                .arg(pageRanges.join(" ")));
@@ -1836,20 +1845,20 @@ void Gui::PrintPdf(QPrinter* Printer)
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("%6 page %3 of %4, size(pixels) W %1 x H %2, orientation %5 for range %7")
-                                       .arg(pageWidthPx)
-                                       .arg(pageHeightPx)
+                                       .arg(double(pageWidthPx))
+                                       .arg(double(pageHeightPx))
                                        .arg(Page)
                                        .arg(printPages.count())
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Preview" : "Export")
+                                       .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode)
                                        .arg(pageRanges.join(" "));
 
               // set up the view
-              QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
-              QRect bounding(0, 0, pageWidthPx, pageHeightPx);
+              QRectF boundingRect(0.0, 0.0, double(pageWidthPx), double(pageHeightPx));
+              QRect bounding(0, 0, int(pageWidthPx), int(pageHeightPx));
               view.scale(1.0,1.0);
-              view.setMinimumSize(pageWidthPx,pageHeightPx);
-              view.setMaximumSize(pageWidthPx,pageHeightPx);
+              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
               view.setGeometry(bounding);
               view.setSceneRect(boundingRect);
               view.setRenderHints(
@@ -1868,16 +1877,17 @@ void Gui::PrintPdf(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Export"));
+                                      .arg(preview ? "Preview" + mode : exportPdf ? "Export" + mode : "Print" + mode));
                       if (preview){
                           m_previewDialog = false;
+                          exportPdf = printPreview = false;
                         }
                       return;
                     }
 
                   // render this page
                   drawPage(&view,&scene,true);
-                  scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+                  scene.setSceneRect(0.0,0.0,int(pageWidthPx),int(pageHeightPx));
                   scene.render(&Painter);
                   clearPage(&view,&scene);
 
@@ -1911,10 +1921,11 @@ void Gui::PrintPdf(QPrinter* Printer)
   if (Preferences::modeGUI)
       m_progressDialog->hide();
 
-  emit messageSig(LOG_STATUS,QString("%1 completed.").arg(preview ? "Preview" : "Export to pdf"));
+  emit messageSig(LOG_STATUS,QString("%1 completed.").arg(preview ? "Preview" + mode : exportPdf ? "Export to" + mode : "Print to" + mode));
 
   if (preview){
       m_previewDialog = false;
+      exportPdf = printPreview = false;
     }
 }
 
@@ -1978,55 +1989,75 @@ void Gui::ShowPrintDialog()
 
     QPrintDialog PrintDialog(&Printer, this);
 
-    if (PrintDialog.exec() == QDialog::Accepted)
-        PrintPdf(&Printer);
+    m_previewDialog = false;
+
+    if (PrintDialog.exec() == QDialog::Accepted) {
+        exportPdf = printPreview = false;
+        Print(&Printer);
+    }
 }
 
-void Gui::TogglePrintPreview()
+void Gui::TogglePdfExportPreview()
 {
-  m_previewDialog = true;
+    TogglePrintPreview(EXPORT_PDF);
+}
 
-  if (! exportAsDialog(EXPORT_PDF)){
-      m_previewDialog = false;
-      return;
+void Gui::TogglePrintToFilePreview()
+{
+    TogglePrintPreview(PRINT_FILE);
+}
+
+void Gui::TogglePrintPreview(ExportMode m)
+{
+    m_previewDialog = true;
+
+    if (! exportAsDialog(m)){
+        m_previewDialog = false;
+        return;
     }
 
-  int PageCount = maxPages;
+    printPreview = true;
+    exportPdf    = m == EXPORT_PDF;
 
-  QPrinter Printer(QPrinter::ScreenResolution);
+    int PageCount = maxPages;
 
-  //set page parameters
-  Printer.setFromTo(1, PageCount + 1);
+    QPrinter Printer(QPrinter::ScreenResolution);
 
-  // determine location for output file
-  QFileInfo fileInfo(curFile);
-  QString baseName = fileInfo.completeBaseName();
-  QString fileName = QDir::currentPath() + "/" + baseName;
-  fileInfo.setFile(fileName);
-  QString suffix = fileInfo.suffix();
-  if (suffix == "") {
-      fileName += ".pdf";
-    } else if (suffix != ".pdf" && suffix != ".PDF") {
-      fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
+    //set page parameters
+    Printer.setFromTo(1, PageCount + 1);
+
+    QPrintPreviewDialog Preview(&Printer, this);
+
+    if (exportPdf) {
+        // determine location for output file
+        QFileInfo fileInfo(curFile);
+        QString baseName = fileInfo.completeBaseName();
+        QString fileName = QDir::currentPath() + "/" + baseName;
+        fileInfo.setFile(fileName);
+        QString suffix = fileInfo.suffix();
+        if (suffix == "") {
+            fileName += ".pdf";
+        } else if (suffix != ".pdf" && suffix != ".PDF") {
+            fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
+        }
+
+        pdfPrintedFile = fileName;
+        Printer.setOutputFileName(pdfPrintedFile);
     }
 
-  pdfPrintedFile = fileName;
-  Printer.setOutputFileName(pdfPrintedFile);
+    connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(Print(QPrinter*)));
+    connect(this,     SIGNAL(hidePreviewDialogSig()),   &Preview, SLOT(hide()));
 
-  QPrintPreviewDialog Preview(&Printer, this);
+    int rc = Preview.exec();
 
-  connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(PrintPdf(QPrinter*)));
-  connect(this,     SIGNAL(hidePreviewDialogSig()),   &Preview, SLOT(hide()));
-
-  int rc = Preview.exec();
-
-  logStatus() << "Pdf export preview result is" << (rc == 1 ? pdfPrintedFile + " exported" : "preview only");  // 0=preview only, 1=export output
-
-  if (rc == 1) {
-      showPrintedFile();
+    if (exportPdf) {
+        messageSig(LOG_STATUS, QString("Pdf export preview result is %1").arg(rc == 1 ? pdfPrintedFile + " exported" : "preview only"));  // 0=preview only, 1=export output
+        if (rc == 1) {
+            showPrintedFile();
+        }
     }
 
-  m_previewDialog = false;
+    m_previewDialog = false;
 }
 
 

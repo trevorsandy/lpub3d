@@ -3645,17 +3645,29 @@ void Gui::createActions()
     closeFileAct->setEnabled(false);
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
-    printToFileAct = new QAction(QIcon(":/resources/file_print.png"), tr("&Print..."), this);
-    printToFileAct->setShortcut(tr(""));
-    printToFileAct->setStatusTip(tr("Print the current document"));
+    QIcon printToFilePreviewIcon;
+    printToFilePreviewIcon.addFile(":/resources/file_print_preview.png");
+    printToFilePreviewIcon.addFile(":/resources/file_print_preview_16.png");
+    printToFilePreviewAct = new QAction(printToFilePreviewIcon, tr("File Print Pre&view..."), this);
+    printToFilePreviewAct->setShortcut(tr("Alt+Shift+P"));
+    printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed - Alt+Shift+P"));
+    printToFilePreviewAct->setEnabled(false);
+    connect(printToFilePreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintToFilePreview()));
+
+    QIcon printToFileIcon;
+    printToFileIcon.addFile(":/resources/file_print.png");
+    printToFileIcon.addFile(":/resources/file_print_16.png");
+    printToFileAct = new QAction(printToFileIcon, tr("File &Print..."), this);
+    printToFileAct->setShortcut(tr("Alt+Shift+F"));
+    printToFileAct->setStatusTip(tr("Print the current document - Alt+Shift+F"));
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
     exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
     exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
-    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current document to be printed - Alt+P"));
+    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current pdf document to be exported - Alt+P"));
     exportAsPdfPreviewAct->setEnabled(false);
-    connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintPreview()));
+    connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePdfExportPreview()));
 
     exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File"), this);
     exportAsPdfAct->setShortcut(tr("Alt+F"));
@@ -4344,8 +4356,9 @@ void Gui::enableActions()
   saveCopyAct->setEnabled(true);
   closeFileAct->setEnabled(true);
 
-  exportAsPdfAct->setEnabled(true);
   printToFileAct->setEnabled(true);
+  printToFilePreviewAct->setEnabled(true);
+  exportAsPdfAct->setEnabled(true);
   exportAsPdfPreviewAct->setEnabled(true);
 
   exportPngAct->setEnabled(true);
@@ -4436,9 +4449,10 @@ void Gui::disableActions()
   saveCopyAct->setEnabled(false);
   closeFileAct->setEnabled(false);
 
-  exportAsPdfAct->setEnabled(false);
+  printToFilePreviewAct->setEnabled(false);
   printToFileAct->setEnabled(false);
   exportAsPdfPreviewAct->setEnabled(false);
+  exportAsPdfAct->setEnabled(false);
 
   exportPngAct->setEnabled(false);
   exportJpgAct->setEnabled(false);
@@ -4569,7 +4583,8 @@ void Gui::createMenus()
     exportMenu->addSeparator();
     exportMenu->setDisabled(true);
 
-    //fileMenu->addAction(printToFileAct);
+    fileMenu->addAction(printToFilePreviewAct);
+    fileMenu->addAction(printToFileAct);
     fileMenu->addAction(exportAsPdfPreviewAct);
     fileMenu->addAction(exportAsPdfAct);
     fileMenu->addSeparator();
@@ -4772,7 +4787,8 @@ void Gui::createToolBars()
     //fileToolBar->addAction(saveCopyAct);
     fileToolBar->addAction(closeFileAct);
 
-    //fileToolBar->addAction(printToFileAct);
+    fileToolBar->addAction(printToFilePreviewAct);
+    fileToolBar->addAction(printToFileAct);
     fileToolBar->addAction(exportAsPdfPreviewAct);
     fileToolBar->addAction(exportAsPdfAct);
 

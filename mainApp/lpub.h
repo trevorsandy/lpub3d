@@ -443,7 +443,8 @@ enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum ExportMode { EXPORT_NONE  = -1,//-1
+enum ExportMode { PRINT_FILE   = -2,//-2
+                  EXPORT_NONE  = -1,//-1
                   PAGE_PROCESS = 0, // 0
                   EXPORT_PDF,       // 1
                   EXPORT_PNG,       // 2
@@ -1161,7 +1162,9 @@ public slots:
 
   void showPovrayRenderDialog();
 
-  void TogglePrintPreview();
+  void TogglePdfExportPreview();
+  void TogglePrintToFilePreview();
+  void TogglePrintPreview(ExportMode m);
 
   void DownloadFinished(lcHttpReply* Reply);
 
@@ -1523,7 +1526,7 @@ private slots:
     bool validatePageRange();
 
     void ShowPrintDialog();
-    void PrintPdf(QPrinter* Printer);
+    void Print(QPrinter* Printer);
 
     void exportAs(const QString &);
     void exportAsHtml();
@@ -1660,8 +1663,9 @@ private:
   QAction  *saveAsAct;
   QAction  *saveCopyAct;
   QAction  *closeFileAct;
-  QAction  *exportAsPdfAct;
   QAction  *printToFileAct;
+  QAction  *printToFilePreviewAct;
+  QAction  *exportAsPdfAct;
   QAction  *exportAsPdfPreviewAct;
   QAction  *exportPngAct;
   QAction  *exportJpgAct;

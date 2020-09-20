@@ -67,9 +67,15 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
     switch(gui->exportMode){
+    case PRINT_FILE:
+        setWindowTitle(tr("%1 file").arg(preview ? "Print preview":"Print to"));
+        ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Print preview":"Export to file"));
+        ui->checkBoxResetCache->setText(tr("Reset all caches before %1 file").arg(preview ? "previewing":"exporting"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
+        break;
     case EXPORT_PDF:
-        setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Export to"));
-        ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Export to pdf"));
+        setWindowTitle(tr("%1 pdf").arg(preview ? "Export preview":"Export to"));
+        ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Export preview":"Export to pdf"));
         ui->checkBoxResetCache->setText(tr("Reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
         break;
