@@ -87,6 +87,7 @@ static QString PositionNames[] =
  * ldraw file held in the the ldr string
  *
  ********************************************/
+static bool enableLineTypeIndexes;
 
 static void remove_group(
     QStringList  in,     // csiParts
@@ -103,7 +104,7 @@ static void remove_group(
   QRegExp grpRx;
 
   if (in.size() != tin.size()) {
-      Preferences::enableLineTypeIndexes = false;
+      enableLineTypeIndexes = false;
       QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
                               .arg(in.size()).arg(tin.size()));
       emit gui->messageSig(LOG_NOTICE, message);
@@ -202,7 +203,7 @@ static void remove_parttype(
   model = model.toLower();
 
   if (in.size() != tin.size()) {
-      Preferences::enableLineTypeIndexes = false;
+      enableLineTypeIndexes = false;
       QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
                               .arg(in.size()).arg(tin.size()));
       emit gui->messageSig(LOG_NOTICE, message);
@@ -245,7 +246,7 @@ static void remove_partname(
   name = name.toLower();
 
   if (in.size() != tin.size()) {
-      Preferences::enableLineTypeIndexes = false;
+      enableLineTypeIndexes = false;
       QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
                               .arg(in.size()).arg(tin.size()));
       emit gui->messageSig(LOG_NOTICE, message);
@@ -3491,7 +3492,7 @@ void Gui::drawPage(
   savePrevStepPosition = 0;
   saveContStepNum = 1;
 
-  Preferences::enableLineTypeIndexes = true;
+  enableLineTypeIndexes = true;
 
   PgSizeData pageSize;
   if (exporting()) {

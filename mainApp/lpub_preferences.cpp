@@ -245,7 +245,6 @@ bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
 bool    Preferences::debugLogging               = false;
-bool    Preferences::enableLineTypeIndexes      = true;
 bool    Preferences::blenderIs28OrLater         = true;
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
