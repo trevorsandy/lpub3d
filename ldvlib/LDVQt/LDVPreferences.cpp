@@ -162,6 +162,9 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
     connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableStudLogoCombo() ) );
+    connect( studLogoCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
 
     loadSettings();
 #ifdef WIN32
@@ -658,6 +661,7 @@ void LDVPreferences::doPrimitivesApply(void)
 	}
 	ldPrefs->setQualityStuds(!lowQualityStudsButton->isChecked());
 	ldPrefs->setHiResPrimitives(hiresPrimitivesButton->isChecked());
+    ldPrefs->setStudLogo(studLogoBox->isChecked() ? studLogoCombo->currentIndex() + 1 : 0 );
 	ldPrefs->applyPrimitivesSettings();
 	ldPrefs->commitPrimitivesSettings();
 }
@@ -1179,6 +1183,13 @@ void LDVPreferences::reflectPrimitivesSettings(void)
 		drawTransparentTexturesLastButton->setChecked(ldPrefs->getTexturesAfterTransparent());
 		transparentOffsetSlider->setValue(ldPrefs->getTextureOffsetFactor()*10);
 	}
+    studLogoBox->setChecked(ldPrefs->getStudLogo());
+    if (studLogoBox->isChecked())
+        studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo() - 1);
+    else
+        studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo());
+    enableStudLogoCombo();
+
 }
 
 void LDVPreferences::reflectUpdatesSettings(void)
@@ -2696,6 +2707,11 @@ void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString 
 		textField->setText(dir = selectedfile);
 		applyButton->setEnabled(true);
     }
+}
+
+void LDVPreferences::enableStudLogoCombo()
+{
+   studLogoCombo->setEnabled(studLogoBox->isChecked());
 }
 
 void LDVPreferences::enableApply(void)

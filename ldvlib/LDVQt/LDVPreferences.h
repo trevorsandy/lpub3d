@@ -173,6 +173,7 @@ public slots:
 	void snapshotSaveDirBrowse();
 	void partsListsSaveDirBrowse();
 	void exportsSaveDirBrowse();
+    void enableStudLogoCombo();
 
 protected:
 	void doGeneralApply(void);
