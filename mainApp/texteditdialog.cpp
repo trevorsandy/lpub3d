@@ -27,6 +27,8 @@
 #include <QMessageBox>
 #include <QFontDialog>
 #include <QColorDialog>
+#include <QTextCodec>
+#include <QDebug>
 
 #include "texteditdialog.h"
 #include "ui_texteditdialog.h"
@@ -40,18 +42,22 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
 
     setWindowTitle(windowTitle);
 
-    if (windowTitle.contains("Renderer Arguments"))
+    rendererArgs = windowTitle.contains("Renderer Arguments");
+    if (rendererArgs)
         ui->statusBar->showMessage("Enter space delimited renderer arguments.");
-
-    QString _fontString = "Arial,24,-1,255,75,0,0,0,0,0";
-    QString _fontColor = "Black";
 
     text      = goods;
     richText  = _richText;
-    font.fromString(editFont.isEmpty() ? _fontString : editFont);
-    fontColor.setNamedColor(editFontColor.isEmpty() ? _fontColor : editFontColor);
 
-// Suppress font actions
+    QFont textFont("Arial");
+    textFont.setStyleHint(QFont::SansSerif);
+    if (editFont.isEmpty())
+        font = textFont;
+    else
+        font.fromString(editFont);
+    fontColor.setNamedColor(editFontColor.isEmpty() ? "Black" : editFontColor);
+
+    // Suppress font actions - used for adding renderer arguments
     if (!fontActions && !richText)
     {
         ui->actionRichText->setVisible(false);
@@ -63,18 +69,27 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
         ui->textEdit->setPlainText(text);
     }
     else
+    // Include rich text actions
     {
         ui->textEdit->setFont(font);
-        if (fontColor.isValid())
-            ui->textEdit->setTextColor(fontColor);
         ui->actionRichText->setChecked(richText);
-        if (richText)
-            ui->textEdit->setHtml(text);
-        else
-            ui->textEdit->setPlainText(text);
-        ui->actionBold->setEnabled(richText);
-        ui->actionItalic->setEnabled(richText);
-        ui->actionUnderline->setEnabled(richText);
+
+        connect(ui->textEdit, &QTextEdit::currentCharFormatChanged,
+                this, &TextEditDialog::currentCharFormatChanged);
+
+        QByteArray data = text.toUtf8();
+        QTextCodec *codec = Qt::codecForHtml(data);
+        QString content = codec->toUnicode(data);
+        if (richText && Qt::mightBeRichText(content)) {
+            ui->textEdit->setHtml(content);
+        } else {
+            if (fontColor.isValid())
+                ui->textEdit->setTextColor(fontColor);
+            content = QString::fromLocal8Bit(data);
+            ui->textEdit->setPlainText(content);
+        }
+
+        fontChanged(ui->textEdit->font());
     }
 
     setModal(true);
@@ -86,27 +101,21 @@ TextEditDialog::~TextEditDialog()
     delete ui;
 }
 
-bool TextEditDialog::getText(
-      QString &goods,
-      QString  windowTitle)
+void TextEditDialog::on_actionRichText_triggered()
 {
-    QString empty = QString();
-    TextEditDialog *dialog = new TextEditDialog(goods,empty,empty,windowTitle);
-
-    bool ok = dialog->exec() == QDialog::Accepted;
-    if (ok) {
-        goods = dialog->text;
-    }
-    return ok;
+    richText = ui->actionRichText->isChecked();
+    setWindowTitle(QString("Edit %1 Text").arg(richText ? "Rich" : "Plain"));
+    fontChanged(ui->textEdit->font());
 }
 
-bool TextEditDialog::getText(
-      QString &goods,
-      QString &editFont,
-      QString &editFontColor,
-      bool    &richText,
-      QString  windowTitle,
-      bool     fontActions)
+void TextEditDialog::currentCharFormatChanged(const QTextCharFormat &format)
+{
+    if (rendererArgs)
+        return;
+    fontChanged(format.font());
+}
+
+void TextEditDialog::fontChanged(const QFont &f)
 {
     ui->actionBold->setChecked(f.bold());
     if (richText){
@@ -117,16 +126,11 @@ bool TextEditDialog::getText(
         ui->actionUnderline->setVisible(false);
     }
 
-    bool ok = dialog->exec() == QDialog::Accepted;
-    if (ok) {
-        goods = dialog->text;
-        richText = dialog->richText;
-    }
-    if (!richText){
-        editFont = dialog->font.toString();
-        editFontColor = dialog->fontColor.name();
-    }
-    return ok;
+    QString fontProperties = QString("Font: %1, Size: %2")
+            .arg(QString("%1%2").arg(QFontInfo(f).family())
+                 .arg(f.bold() ? " Bold" : f.italic() ? " Italic" : f.underline() ? " Underline" : ""))
+            .arg(QString::number(f.pointSize()));
+    ui->statusBar->showMessage(fontProperties);
 }
 
 void TextEditDialog::on_actionAccept_triggered()
@@ -173,15 +177,6 @@ void TextEditDialog::on_actionRedo_triggered()
     ui->textEdit->redo();
 }
 
-void TextEditDialog::on_actionRichText_triggered()
-{
-    richText = ui->actionRichText->isChecked();
-    setWindowTitle(QString("Edit %1 Text").arg(richText ? "Rich" : "Plain"));
-    ui->actionBold->setEnabled(richText);
-    ui->actionItalic->setEnabled(richText);
-    ui->actionUnderline->setEnabled(richText);
-}
-
 void TextEditDialog::on_actionFont_triggered()
 {
     bool fontSelected;
@@ -215,7 +210,20 @@ void TextEditDialog::on_actionBold_triggered()
                                   ui->textEdit->setFontWeight(QFont::Normal);
 }
 
+// get text - simple
+bool TextEditDialog::getText(
+      QString &goods,
+      QString  windowTitle)
+{
+    QString empty = QString();
+    TextEditDialog *dialog = new TextEditDialog(goods,empty,empty,windowTitle);
 
+    bool ok = dialog->exec() == QDialog::Accepted;
+    if (ok) {
+        goods = dialog->text;
+    }
+    return ok;
+}
 
 // get text - rich text
 bool TextEditDialog::getText(

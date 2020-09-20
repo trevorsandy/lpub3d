@@ -30,6 +30,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui {
 class TextEditDialog;
 }
+class QTextCharFormat;
 QT_END_NAMESPACE
 
 class TextEditDialog : public QDialog
@@ -58,12 +59,15 @@ public:
       bool      fontActions = false);
 
     bool richText;
+    bool rendererArgs;
 
     QString   text;
     QFont     font;
     QColor    fontColor;
 
 private slots:
+    void currentCharFormatChanged(const QTextCharFormat &format);
+
     void on_actionNew_triggered();
 
     void on_actionAccept_triggered();
@@ -94,6 +98,7 @@ private slots:
 
 private:
     Ui::TextEditDialog *ui;
+    void fontChanged(const QFont &f);
 };
 
 #endif // TEXTEDITDIALOG_H
