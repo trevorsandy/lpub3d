@@ -601,7 +601,7 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   position = pos();
   gui->showLine(step->topOfStep());
   step->loadTheViewer();
-  update();
+//  update();
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
