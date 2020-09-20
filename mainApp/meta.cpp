@@ -3329,15 +3329,48 @@ void PartMeta::init(BranchMeta *parent, QString name)
 Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 {
   bool ok[10];
+  bool ldrawType = false;
   Rc rc = FailureRc;
   int argc = argv.size() - index;
+  QString originalColor;
+  QString attributes = "undefined;";
+  if (argc > 0){
+     if ((ldrawType = argv[argv.size() - 2] == "LDRAW_TYPE")){
+          // the last item is an ldrawType - specified when substitute is a generated part
+          attributes = argv[argv.size() - 1]+":1;";
+          // recalculate argc
+          argc = argv.size() - (index + 2);
+      }
+     if ((ldrawType && argc == 1) || !ldrawType) {
+         // lets try to get the original type
+         Where lineBelow = here + 1;             // start looking at first line below
+         QString originalTypeLine = gui->readLine(lineBelow);
+         if (!(originalTypeLine[0] == '1')) {
+            lineBelow++;                         // move 2 lines down
+            originalTypeLine = gui->readLine(lineBelow);
+         }
+         QStringList tokens;
+         split(originalTypeLine,tokens);
+         if (tokens.size() == 15 && tokens[0] == "1") {
+             if(!ldrawType)
+                 attributes    = tokens[14]+":0;";    // originalType
+             originalColor = tokens[1];
+         } else {
+             QString message = QString("Failed to locate substitute part original type below %1.<br>Got %2.")
+                                       .arg(argv.join(" ")).arg(originalTypeLine);
+             emit gui->parseError(message,here);
+         }
+     }
+  }
+  if (argc > 1){
+      _value.part  = argv[index];
+      _value.color = argv[index+1];
+  }
   if (argc == 1) {
     _value.part  = argv[index];
-    _value.color = "";
+    _value.color = originalColor;
     _value.type  = rc = PliBeginSub1Rc;
   } else if (argc == 2) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
     _value.type  = rc = PliBeginSub2Rc;
   } else if (argc == 3) {
     _value.part  = argv[index];
@@ -3346,16 +3379,12 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     if (ok[0])
       _value.type = rc = PliBeginSub3Rc;
   } else if (argc == 4) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
     argv[index+2].toFloat(&ok[0]);
     argv[index+3].toFloat(&ok[1]);
     ok[0] &= ok[1];
     if (ok[0])
       _value.type = rc = PliBeginSub4Rc;;
   } else if (argc == 6) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
     argv[index+2].toFloat(&ok[0]);
     argv[index+3].toFloat(&ok[1]);
     argv[index+4].toFloat(&ok[2]);
@@ -3364,8 +3393,6 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     if (ok[0])
       _value.type = rc = PliBeginSub5Rc;
   } else if (argc == 9) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
     argv[index+2].toFloat(&ok[0]);
     argv[index+3].toFloat(&ok[1]);
     argv[index+4].toFloat(&ok[2]);
@@ -3377,9 +3404,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     ok[3] &= ok[4] &= ok[5] & ok[6];
     if (ok[0])
       _value.type = rc = PliBeginSub6Rc;      // target
-  } else if (argc == 10) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
+  } else if (argc == 10) {;
     argv[index+2].toFloat(&ok[0]);
     argv[index+3].toFloat(&ok[1]);
     argv[index+4].toFloat(&ok[2]);
@@ -3393,8 +3418,6 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
     if (ok[0] && argv[index+9].contains(rx))
       _value.type = rc = PliBeginSub7Rc;       // Rotstep
   } else if (argc == 13) {
-    _value.part  = argv[index];
-    _value.color = argv[index+1];
     argv[index+ 2].toFloat(&ok[0]);
     argv[index+ 3].toFloat(&ok[1]);
     argv[index+ 4].toFloat(&ok[2]);
@@ -3413,15 +3436,15 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
       _value.type = rc = PliBeginSub8Rc;     // target and rotstep
   }
   if (rc != FailureRc) {
-    // populate attrs
-    QString attributes;
-    // place argvs in string - advance past part and color +2
+    // add attributes - advance past part and color +2
     for (int i = index+2; i < argv.size(); i++){
         attributes.append(argv.at(i)+";");
     }
-    // append line number to string - used by Pli::partLine()
+    // append line number to end of attributes - used by Pli::partLine()
     attributes.append(QString::number(here.lineNumber));
-    _value.attrs = attributes;
+    _value.attrs     = attributes;
+    // indicate if we have an ldrawType - used by format
+    _value.ldrawType = ldrawType;
     _here[0] = here;
     _here[1] = here;
   }
@@ -3430,6 +3453,10 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 
 QString SubMeta::format(bool local, bool global)
 {
+  // Thi routine is acutally not used.
+  // Substitute commands are formatted by MetaItem::substitutePLIPart
+  QStringList _attributeList = _value.attrs.split(";");
+
   QString foo;
   
   if (_value.type == PliBeginSub1Rc) {
@@ -3441,69 +3468,73 @@ QString SubMeta::format(bool local, bool global)
   } else if (_value.type == PliBeginSub3Rc) {
     foo = QString("%1 %2 %3")
             .arg(_value.part).arg(_value.color)
-            .arg(_value.attrs[sModelScale]);
+            .arg(_attributeList[sModelScale]);
   } else if (_value.type == PliBeginSub4Rc) {
     foo = QString("%1 %2 %3 %4")
             .arg(_value.part).arg(_value.color)
-            .arg(_value.attrs[sModelScale])
-            .arg(_value.attrs[sCameraFoV]);
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV]);
   } else if (_value.type == PliBeginSub5Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6")
             .arg(_value.part).arg(_value.color)
-            .arg(_value.attrs[sModelScale])
-            .arg(_value.attrs[sCameraFoV])
-            .arg(_value.attrs[sCameraAngleXX])
-            .arg(_value.attrs[sCameraAngleYY]);
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY]);
   } else if (_value.type == PliBeginSub6Rc) {
     foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9")
             .arg(_value.part).arg(_value.color)
-            .arg(_value.attrs[sModelScale])
-            .arg(_value.attrs[sCameraFoV])
-            .arg(_value.attrs[sCameraAngleXX])
-            .arg(_value.attrs[sCameraAngleYY])
-            .arg(_value.attrs[sTargetX])
-            .arg(_value.attrs[sTargetY])
-            .arg(_value.attrs[sTargetZ]);
+            .arg(_attributeList[sModelScale])
+            .arg(_attributeList[sCameraFoV])
+            .arg(_attributeList[sCameraAngleXX])
+            .arg(_attributeList[sCameraAngleYY])
+            .arg(_attributeList[sTargetX])
+            .arg(_attributeList[sTargetY])
+            .arg(_attributeList[sTargetZ]);
   } else if (_value.type == PliBeginSub7Rc) {
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
               .arg(_value.part).arg(_value.color)
-              .arg(_value.attrs[sModelScale])
-              .arg(_value.attrs[sCameraFoV])
-              .arg(_value.attrs[sCameraAngleXX])
-              .arg(_value.attrs[sCameraAngleYY])
-              .arg(_value.attrs[sRotX])
-              .arg(_value.attrs[sRotY])
-              .arg(_value.attrs[sRotZ])
-              .arg(_value.attrs[sTransform]);
+              .arg(_attributeList[sModelScale])
+              .arg(_attributeList[sCameraFoV])
+              .arg(_attributeList[sCameraAngleXX])
+              .arg(_attributeList[sCameraAngleYY])
+              .arg(_attributeList[sRotX])
+              .arg(_attributeList[sRotY])
+              .arg(_attributeList[sRotZ])
+              .arg(_attributeList[sTransform]);
     } else { /*PliBeginSub8Rc */
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13")
               .arg(_value.part).arg(_value.color)
-              .arg(_value.attrs[sModelScale])
-              .arg(_value.attrs[sCameraFoV])
-              .arg(_value.attrs[sCameraAngleXX])
-              .arg(_value.attrs[sCameraAngleYY])
-              .arg(_value.attrs[sTargetX])
-              .arg(_value.attrs[sTargetY])
-              .arg(_value.attrs[sTargetZ])
-              .arg(_value.attrs[sRotX])
-              .arg(_value.attrs[sRotY])
-              .arg(_value.attrs[sRotZ])
-              .arg(_value.attrs[sTransform]);
+              .arg(_attributeList[sModelScale])
+              .arg(_attributeList[sCameraFoV])
+              .arg(_attributeList[sCameraAngleXX])
+              .arg(_attributeList[sCameraAngleYY])
+              .arg(_attributeList[sTargetX])
+              .arg(_attributeList[sTargetY])
+              .arg(_attributeList[sTargetZ])
+              .arg(_attributeList[sRotX])
+              .arg(_attributeList[sRotY])
+              .arg(_attributeList[sRotZ])
+              .arg(_attributeList[sTransform]);
     }
+
+  if (_value.ldrawType){
+      foo += QString(" LDRAW_TYPE %1").arg(_attributeList.first());
+  }
 
   return LeafMeta::format(local,global,foo);
 }
 
 void SubMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ> <rotX> <rotY> <rotZ> <ABS|REL|ADD>";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <rotX> <rotY> <rotZ> <ABS|REL|ADD>";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ>";
-  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long>";
-  out << preamble + " <part> <color> <scale> <fov>";
-  out << preamble + " <part> <color> <scale>";
-  out << preamble + " <part> <color>";
-  out << preamble + " <part>";
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ> <rotX> <rotY> <rotZ> <ABS|REL|ADD> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <rotX> <rotY> <rotZ> <ABS|REL|ADD> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <targetX> <targetY> <targetZ> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> <scale> <fov> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> <scale> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> <color> [LDRAW_TYPE <part>]";
+  out << preamble + " <part> [LDRAW_TYPE <part>]";
 }
 
 /* ------------------ */ 

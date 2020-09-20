@@ -389,6 +389,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bJUSTIFY_LEFT\\b"
     << "\\bLANDSCAPE\\b"
     << "\\bLDGLITE_PARMS\\b"
+    << "\\bLDRAW_TYPE\\b"
     << "\\bLDVIEW_PARMS\\b"
     << "\\bLEFT\\b"
     << "\\bLEGO\\b"

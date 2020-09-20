@@ -83,7 +83,7 @@ enum SubAttributes {
     sRotY,            // 10 level 7/8 substitution
     sRotZ,            // 11 level 7/8 substitution
     sTransform,       // 12 level 7/8 substitution
-    sSubType,         // 13 levels
+    sOriginalType,    // 13 Substituted part/Original LDraw part
     sSubstitute,      // 14
     sUpdate,          // 15
     sRemove           // 16

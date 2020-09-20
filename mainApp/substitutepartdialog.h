@@ -38,6 +38,10 @@ class PieceInfo;
 class SubstitutePartDialog : public QDialog
 {
   Q_OBJECT
+  enum WhichType {
+      SubstituteType,
+      LdrawType
+  };
 public:
     explicit SubstitutePartDialog(
       const QStringList &attributes,
@@ -54,6 +58,7 @@ public:
             const QStringList &defaultList = QStringList());
 
     bool mModified;
+    QString mLdrawType;
     QStringList mAttributes;
 
 public slots:
@@ -73,6 +78,7 @@ private slots:
 
 protected:
   void initialize();
+  void typeChanged(WhichType);
 //  void drawPreview();
 //  std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
 

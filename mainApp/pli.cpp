@@ -226,15 +226,22 @@ int Pli::pageSizeP(Meta *meta, int which){
 QString Pli::partLine(QString &line, Where &here, Meta &meta)
 {
   QString attributes = QString(";%1;%2").arg(here.modelName).arg(here.lineNumber);
+  // substitute part routine
   if (meta.LPub.pli.begin.sub.value().type) {
-      SubData subData = meta.LPub.pli.begin.sub.value();
+      SubData subData      = meta.LPub.pli.begin.sub.value();
       QStringList attrArgs = subData.attrs.split(";");
       // check if substitute type is not 0 and substitute lineNumber matches here.lineNumber (this line)
       if (subData.type && attrArgs.last().toInt() == here.lineNumber) {
-          // remove substitues line number and ';' delimiter from substitute attributes
-          subData.attrs.chop(attrArgs.last().size()+1);
-          // append substitute attributes and type to string - used by Pli::setParts()
-          attributes.append(QString("|%1|%2").arg(subData.attrs).arg(subData.type));
+          // remove substitues line number from substitute attributes
+          attrArgs.removeLast();
+          // capture first attribute from attrArgs(subOriginalType)
+          QString subOriginalType = attrArgs.first();
+          // then cut the first attribute from attrArgs
+          attrArgs.removeFirst();
+          // append substitute type and attributes, if any, to attributes - used by Pli::setParts()
+          attributes.append(QString("|%1%2").arg(subData.type).arg(attrArgs.size() ? QString("|%1").arg(attrArgs.join(";")) : ""));
+          // place subOriginalType at the end of attributes
+          attributes.append(QString("|%1").arg(subOriginalType));
       }
   }
   return line + attributes;
@@ -322,6 +329,12 @@ void Pli::setParts(
           styleMeta.font   = pliMeta.annotate.font;
           styleMeta.color  = pliMeta.annotate.color;
 
+          // extract the substitute original or ldraw type
+          bool isSubstitute       = segments.size() > 2;
+          bool validOriginalType  = isSubstitute && segments.last() != "undefined";
+          QString subOriginalType = validOriginalType ? segments.last() : QString();
+          bool isSubLdrawType     = validOriginalType ? QStringList(subOriginalType.split(":")).last().toInt() : false;
+
           // initialize element id
           QString element = QString();
 
@@ -332,7 +345,8 @@ void Pli::setParts(
               if (bom && displayElement) {
 
                   QString _colorid = color;
-                  QString _typeid  = QFileInfo(type).completeBaseName();
+                  QString _typeid  = QFileInfo(isSubLdrawType ?
+                                                   QStringList(subOriginalType.split(":")).first() : type).completeBaseName();
 
                   int which = 0; // Bricklink
                   if ( pliMeta.partElements.legoElements.value())
@@ -421,7 +435,7 @@ void Pli::setParts(
               where = here;
 
           auto getGroupMeta = [this,&partGroups,&where,&baseName,
-                               &found,&meta,&key,&color,&groupMeta]( )
+                               &found,&key,&color,&groupMeta]( )
           {
               if (!pliMeta.enablePliPartGroup.value())
                   return groupMeta;
@@ -464,43 +478,47 @@ void Pli::setParts(
 
           // extract substitute part arguments
 
+          // segments[3] = 0=substituteType,colour, 1=type of sub, 2=subOriginalType
+          // segments[4] = 0=substituteType,colour, 1=type of sub, 2=sub attributes, 3=subOriginalType
           QString subAddAttributes;
           int subType = 0;
-          if (segments.size() == 3) {
-              QStringList attributes = segments.at(1).split(";");
-              subType = segments.at(2).toInt();
-              if (subType > PliBeginSub2Rc){
-                  modelScale = attributes.at(sModelScale+sAdj).toFloat();
-              }
-              if (subType > PliBeginSub3Rc){
-                  cameraFoV = attributes.at(sCameraFoV+sAdj).toDouble();
-              }
-              if (subType > PliBeginSub4Rc) {
-                  cameraAngleXX = attributes.at(sCameraAngleXX+sAdj).toDouble();
-                  cameraAngleYY = attributes.at(sCameraAngleYY+sAdj).toDouble();
-              }
-              if (subType > PliBeginSub5Rc) {
-                  subAddAttributes = QString("_%1_%2_%3")
-                                     .arg(attributes.at(sTargetX+sAdj))
-                                     .arg(attributes.at(sTargetY+sAdj))
-                                     .arg(attributes.at(sTargetZ+sAdj));
-              }
-              if (subType > PliBeginSub6Rc) {
-                  subAddAttributes = QString("_%1_%2_%3_%4")
-                                     .arg(attributes.at(sRotX+sAdj))
-                                     .arg(attributes.at(sRotY+sAdj))
-                                     .arg(attributes.at(sRotZ+sAdj))
-                                     .arg(attributes.at(sTransform+sAdj));
-              }
-              if (subType > PliBeginSub7Rc) {
-                  subAddAttributes = QString("_%1_%2_%3_%4_%5_%6_%7")
-                                     .arg(attributes.at(sTargetX+sAdj))
-                                     .arg(attributes.at(sTargetY+sAdj))
-                                     .arg(attributes.at(sTargetZ+sAdj))
-                                     .arg(attributes.at(sRotX+sAdj))
-                                     .arg(attributes.at(sRotY+sAdj))
-                                     .arg(attributes.at(sRotZ+sAdj))
-                                     .arg(attributes.at(sTransform+sAdj));
+          if (isSubstitute) {
+              subType = segments.at(1).toInt();
+              if (segments.size() > 3 /*hasAttributes*/) {
+                  QStringList attributes = segments.at(2).split(";");
+                  if (subType > PliBeginSub2Rc){
+                      modelScale = attributes.at(sModelScale+sAdj).toFloat();
+                  }
+                  if (subType > PliBeginSub3Rc){
+                      cameraFoV = attributes.at(sCameraFoV+sAdj).toDouble();
+                  }
+                  if (subType > PliBeginSub4Rc) {
+                      cameraAngleXX = attributes.at(sCameraAngleXX+sAdj).toDouble();
+                      cameraAngleYY = attributes.at(sCameraAngleYY+sAdj).toDouble();
+                  }
+                  if (subType > PliBeginSub5Rc) {
+                      subAddAttributes = QString("_%1_%2_%3")
+                                         .arg(attributes.at(sTargetX+sAdj))
+                                         .arg(attributes.at(sTargetY+sAdj))
+                                         .arg(attributes.at(sTargetZ+sAdj));
+                  }
+                  if (subType > PliBeginSub6Rc) {
+                      subAddAttributes = QString("_%1_%2_%3_%4")
+                                         .arg(attributes.at(sRotX+sAdj))
+                                         .arg(attributes.at(sRotY+sAdj))
+                                         .arg(attributes.at(sRotZ+sAdj))
+                                         .arg(attributes.at(sTransform+sAdj));
+                  }
+                  if (subType > PliBeginSub7Rc) {
+                      subAddAttributes = QString("_%1_%2_%3_%4_%5_%6_%7")
+                                         .arg(attributes.at(sTargetX+sAdj))
+                                         .arg(attributes.at(sTargetY+sAdj))
+                                         .arg(attributes.at(sTargetZ+sAdj))
+                                         .arg(attributes.at(sRotX+sAdj))
+                                         .arg(attributes.at(sRotY+sAdj))
+                                         .arg(attributes.at(sRotZ+sAdj))
+                                         .arg(attributes.at(sTransform+sAdj));
+                  }
               }
           }
 
@@ -533,13 +551,14 @@ void Pli::setParts(
           }
 
           // assemble image name
-          QString imageName = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() +
-              Paths::partsDir + QDir::separator() + nameKey + ".png";
+          QString imageName = QDir::toNativeSeparators(QDir::currentPath() + "/" +
+                              Paths::partsDir + "/" + nameKey + ".png");
 
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
                   part->subType         = subType;
+                  part->subOriginalType = subOriginalType;
                   part->element         = element;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
@@ -557,6 +576,7 @@ void Pli::setParts(
               if ( ! parts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
                   part->subType         = subType;
+                  part->subOriginalType = subOriginalType;
                   part->element         = element;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
@@ -898,6 +918,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
+    int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
 
     // set key substitute flag when there is a name change
     int keySub = 0;
@@ -952,7 +973,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
 
         QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-                                   .arg(gStep->stepNumber.number)
+                                   .arg(stepNumber)
                                    .arg(nameKeys.at(nPageWidth))     // pageSizeP
                                    .arg(nameKeys.at(nResolution))    // resolution
                                    .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
@@ -980,7 +1001,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3;%4")
                                                         .arg(ia.baseName[pT])
                                                         .arg(top.lineNumber)
-                                                        .arg(gStep->stepNumber.number)
+                                                        .arg(stepNumber)
                                                         .arg(ia.partColor[pT]));
 
         // Check if viewer PLI part does exist in repository
@@ -2271,6 +2292,7 @@ int Pli::partSizeLDViewSCall() {
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
+    int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
 
     // 1. generate ldr files
     foreach(key,parts.keys()) {
@@ -2349,7 +2371,7 @@ int Pli::partSizeLDViewSCall() {
                 QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
 
                 QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-                                           .arg(gStep->stepNumber.number)
+                                           .arg(stepNumber)
                                            .arg(nameKeys.at(nPageWidth))     // pageSizeP
                                            .arg(nameKeys.at(nResolution))    // resolution
                                            .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
@@ -2399,7 +2421,7 @@ int Pli::partSizeLDViewSCall() {
                 viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
                                                                 .arg(ia.baseName[pT])
                                                                 .arg(top.lineNumber)
-                                                                .arg(gStep->stepNumber.number)
+                                                                .arg(stepNumber)
                                                                 .arg(ia.partColor[pT]));
 
                 // Check if viewer PLI part does exist in repository
@@ -2956,9 +2978,8 @@ bool Pli::autoRange(Where &top, Where &bottom)
     }
 }
 
-QString PGraphicsPixmapItem::pliToolTip(
-    QString type,
-    QString color)
+QString PGraphicsPixmapItem::pliToolTip(QString type,
+    QString color, bool isSub)
 {
   QString title = Pli::titleDescription(type);
   if (title == "") {
@@ -2966,14 +2987,18 @@ QString PGraphicsPixmapItem::pliToolTip(
       title = gui->readLine(here);
       title = title.right(title.length() - 2);
     }
+  QString originalType =
+          isSub && !part->subOriginalType.isEmpty() ?
+              QString(" (Substitute for %1)")
+                  .arg(QStringList(part->subOriginalType.split(":")).first()) : QString();
   QString toolTip =
-  QString("%1 (%2) %3 \"%4\" - right-click to modify")
-          .arg(LDrawColor::name(color))
-          .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
-          .arg(type)
-          .arg(QString("%1%2")
-               .arg(title)
-               .arg(part->subType ? " (Substitute)" : QString()));
+          QString("%1 (%2) %3 \"%4\" - right-click to modify")
+                  .arg(LDrawColor::name(color))
+                  .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
+                  .arg(type)
+                  .arg(QString("%1%2")
+                       .arg(title)
+                       .arg(originalType));
   return toolTip;
 }
 
@@ -3530,7 +3555,7 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   Pli     *_pli,
   PliPart *_part,
   QPixmap &pixmap,
-  PlacementType  _parentRelativeType,
+  PlacementType _parentRelativeType,
   QString &type,
   QString &color) :
     isHovered(false),
@@ -3539,11 +3564,12 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   parentRelativeType = _parentRelativeType;
   pli = _pli;
   part = _part;
+  bool isSub = _part->subType;
   setPixmap(pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
   setAcceptHoverEvents(true);
-  setToolTip(pliToolTip(type,color));
+  setToolTip(pliToolTip(type,color,isSub));
   setData(ObjectId, PartsListPixmapObj);
   setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);
 }
@@ -3679,7 +3705,9 @@ void PGraphicsPixmapItem::contextMenuEvent(
       if (attributes.size() == 6      /*BaseAttributes - removals*/)
           attributes.append(QString("0 0 0 0 0 0 REL").split(" "));
       else if (attributes.size() == 9 /*Target - removals*/)
-          attributes.append(QString("0 0 0 REL").split(" "));
+          attributes.append(QString("0 0 0 REL").split(" ")); /*13 items total without substituted part [new substitution]*/
+      if (!part->subOriginalType.isEmpty())
+          attributes.append(part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
   } /*else if (selectedAction == cameraAnglesAction) {
       changeCameraAngles(pl+" Camera Angles",

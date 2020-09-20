@@ -67,6 +67,16 @@ SubstitutePartDialog::SubstitutePartDialog(
                           QStringList() << "type" << "color" << defaultList;
      mInitialAttributes = attributes;
 
+     if (mAction != sRemove){
+         mShowExtAttrsBtn = new QPushButton(tr("More..."));
+         ui->buttonBox->addButton(mShowExtAttrsBtn, QDialogButtonBox::ActionRole);
+         connect(mShowExtAttrsBtn,SIGNAL(clicked(bool)),
+                 this,            SLOT(  showExtendedAttributes(bool)));
+
+         ui->extendedSettingsBox->setVisible(false);
+         this->adjustSize();
+     }
+
      initialize();
 
      connect(ui->typeBtn,SIGNAL(clicked(bool)),
@@ -77,6 +87,12 @@ SubstitutePartDialog::SubstitutePartDialog(
 
      connect(ui->colorBtn,SIGNAL(clicked(bool)),
              this,        SLOT(  browseColor(bool)));
+
+     connect(ui->ldrawTypeBtn,SIGNAL(clicked(bool)),
+             this,            SLOT(  browseType(bool)));
+
+     connect(ui->ldrawEdit,SIGNAL(editingFinished()),
+             this,         SLOT(  typeChanged()));
 
      connect(ui->scaleSpin,SIGNAL(valueChanged(double)),
              this,         SLOT  (valueChanged(double)));
@@ -127,20 +143,6 @@ SubstitutePartDialog::~SubstitutePartDialog()
     delete ui;
 }
 
-bool SubstitutePartDialog::getSubstitutePart(
-   QStringList       &attributes,
-   QWidget           *parent,
-   int                action,
-   const QStringList &defaultList) {
-
-    SubstitutePartDialog *dialog = new SubstitutePartDialog(attributes,parent,action,defaultList);
-    bool ok = dialog->exec() == QDialog::Accepted;
-    if (ok) {
-      attributes = dialog->mAttributes;
-    }
-    return ok;
-}
-
 void SubstitutePartDialog::initialize()
 {
     mAttributes = mInitialAttributes;
@@ -149,6 +151,21 @@ void SubstitutePartDialog::initialize()
     if (Preferences::debugLogging)
         emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
                                    .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
+
+    // extract valid type and adjust attributes
+    QString type = mAttributes.at(sType);
+    QString substituteType;
+    if (mAttributes.size() - 1 == sOriginalType/*has original type*/){
+        QString originalType = QStringList(mAttributes.last().split(":")).first();
+        if (mAction == sUpdate) {
+            substituteType = type;
+            type = originalType;
+        }
+        if (QStringList(mAttributes.last().split(":")).last().toInt()/*is Ldraw type*/) {
+            mLdrawType = originalType;
+        }
+        mAttributes.removeLast();
+    }
 
     qreal min = -10000.0, max = 10000.0, step = 0.1, val = 1.0;
     auto dec = [] (const qreal v)
@@ -177,8 +194,8 @@ void SubstitutePartDialog::initialize()
     readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
     ui->nameEdit->setReadOnly(true);
     ui->nameEdit->setPalette(readOnlyPalette);
-    ui->nameEdit->setText(mAttributes.at(sType));
-    ui->titleLbl->setText(Pli::titleDescription(mAttributes.at(sType)));
+    ui->nameEdit->setText(type);
+    ui->titleLbl->setText(Pli::titleDescription(type));
     ui->titleLbl->adjustSize();
 
     ui->primarySettingsBox->setVisible(show);
@@ -186,6 +203,18 @@ void SubstitutePartDialog::initialize()
     ui->substituteEdit->clear();
     ui->substituteEdit->setClearButtonEnabled(true);
     ui->substitueTitleLbl->clear();
+    if (mAction == sUpdate && !substituteType.isEmpty()) {
+        ui->substituteEdit->setText(substituteType);
+        ui->substitueTitleLbl->setText(Pli::titleDescription(substituteType));
+    }
+
+    ui->ldrawEdit->clear();
+    ui->ldrawEdit->setClearButtonEnabled(true);
+    ui->ldrawTitleLbl->clear();
+    if (!mLdrawType.isEmpty()){
+       ui->ldrawEdit->setText(mLdrawType);
+       ui->ldrawTitleLbl->setText(Pli::titleDescription(mLdrawType));
+    }
 
     QColor partColor = LDrawColor::color(LDrawColor::value(mAttributes.at(sColorCode),true));
     if(partColor.isValid() ) {
@@ -203,15 +232,6 @@ void SubstitutePartDialog::initialize()
     }
 
     // Extended settings
-
-    if (show){
-        mShowExtAttrsBtn = new QPushButton(tr("More..."));
-        ui->buttonBox->addButton(mShowExtAttrsBtn, QDialogButtonBox::ActionRole);
-        connect(mShowExtAttrsBtn,SIGNAL(clicked(bool)),
-                this,            SLOT(  showExtendedAttributes(bool)));
-
-        ui->extendedSettingsBox->setVisible(false);
-    }
 
     if (show)
         val = mAttributes.at(sModelScale).toDouble();
@@ -297,6 +317,20 @@ void SubstitutePartDialog::initialize()
     mModified = !show;
 }
 
+bool SubstitutePartDialog::getSubstitutePart(
+   QStringList       &attributes,
+   QWidget           *parent,
+   int                action,
+   const QStringList &defaultList) {
+
+    SubstitutePartDialog *dialog = new SubstitutePartDialog(attributes,parent,action,defaultList);
+    bool ok = dialog->exec() == QDialog::Accepted;
+    if (ok) {
+      attributes = dialog->mAttributes;
+    }
+    return ok;
+}
+
 void SubstitutePartDialog::showExtendedAttributes(bool clicked){
     Q_UNUSED(clicked);
 
@@ -359,45 +393,99 @@ void SubstitutePartDialog::valueChanged(double value)
 
 void SubstitutePartDialog::typeChanged()
 {
-  if (ui->substituteEdit->text().isEmpty()) {
-      ui->substitueTitleLbl->setText(QString());
-      return;
-  }
-  QString const type = ui->substituteEdit->text();
-  QString const newType(QFileInfo(type).suffix().isEmpty() ? type + ".dat" : type);
-  QString const currentType = ui->nameEdit->text();
-  if (newType != currentType) {
-      ui->substituteEdit->setText(newType);
-  } else {
-      ui->messageLbl->setText(QString("Part type %1 is the same as current type.").arg(currentType));
-      ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
-      return;
-  }
-  ui->substitueTitleLbl->setText(Pli::titleDescription(newType));
-  if (!ui->substitueTitleLbl->text().isEmpty()) {
-      ui->substitueTitleLbl->adjustSize();
-      ui->messageLbl->setText(QString());
-      mAttributes[sType] = newType;
-      mModified = true;
-  } else {
-      if (!type.isEmpty()) {
-          ui->messageLbl->setText(QString("Part type %1 was not found.").arg(type));
-          ui->messageLbl->setStyleSheet("QLabel { color : red; }");
-      }
-  }
-  //adjustSize();
+    if (sender() == ui->typeBtn) {
+        if (ui->substituteEdit->text().isEmpty()) {
+            ui->substitueTitleLbl->setText(QString());
+            return;
+        }
+        typeChanged(SubstituteType);
+    } else if (sender() == ui->ldrawTypeBtn) {
+        if (ui->ldrawEdit->text().isEmpty()) {
+            ui->ldrawTitleLbl->setText(QString());
+            mLdrawType = QString();
+            return;
+        }
+        typeChanged(LdrawType);
+    }
+}
+
+void SubstitutePartDialog::typeChanged(WhichType whichType)
+{
+    QString type,newType,currentType;
+
+    if (whichType == SubstituteType) {
+        type        = ui->substituteEdit->text();
+        currentType = ui->nameEdit->text();
+        newType     = QString(QFileInfo(type).suffix().isEmpty() ? type + ".dat" : type);
+        if (newType != currentType) {
+            ui->substituteEdit->setText(newType);
+        } else {
+            ui->messageLbl->setText(QString("Part type %1 is the same as current type.").arg(currentType));
+            ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            return;
+        }
+        ui->substitueTitleLbl->setText(Pli::titleDescription(newType));
+        if (!ui->substitueTitleLbl->text().isEmpty()) {
+            ui->substitueTitleLbl->adjustSize();
+            ui->messageLbl->setText(QString());
+            mAttributes[sType] = newType;
+            mModified = true;
+        } else {
+            if (!type.isEmpty()) {
+                ui->messageLbl->setText(QString("Part type %1 was not found.").arg(type));
+                ui->messageLbl->setStyleSheet("QLabel { color : red; }");
+            }
+        }
+
+    } else
+    if (whichType == LdrawType) {
+        type        = ui->ldrawEdit->text();
+        currentType = ui->substituteEdit->text();
+        newType     = QString(QFileInfo(type).suffix().isEmpty() ? type + ".dat" : type);
+        if (newType != currentType) {
+            ui->ldrawEdit->setText(newType);
+        } else {
+            ui->messageLbl->setText(QString("Part type %1 is the same as substitute type.").arg(currentType));
+            ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            return;
+        }
+        ui->ldrawTitleLbl->setText(Pli::titleDescription(newType));
+        if (!ui->ldrawTitleLbl->text().isEmpty()) {
+            ui->ldrawTitleLbl->adjustSize();
+            ui->messageLbl->setText(QString());
+            mLdrawType = newType;
+            mModified = true;
+        } else {
+            if (!type.isEmpty()) {
+                ui->messageLbl->setText(QString("Part type %1 was not found.").arg(type));
+                ui->messageLbl->setStyleSheet("QLabel { color : red; }");
+            }
+        }
+    }
 }
 
 void SubstitutePartDialog::browseType(bool clicked)
 {
   Q_UNUSED(clicked);
-  mTypeInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2")
-                                                    .arg(ui->nameEdit->text())
-                                                    .arg(mAttributes.at(sColorCode)));
-  if (mTypeInfo) {
-      ui->substituteEdit->setText(mTypeInfo->mFileName);
-      typeChanged();
+  if (sender() == ui->typeBtn) {
+      mTypeInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2")
+                                                        .arg(ui->nameEdit->text())
+                                                        .arg(mAttributes.at(sColorCode)));
+      if (mTypeInfo) {
+          ui->substituteEdit->setText(mTypeInfo->mFileName);
+          typeChanged();
+      }
+  } else
+  if (sender() == ui->ldrawTypeBtn) {
+      mTypeInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2")
+                                                        .arg(ui->substituteEdit->text())
+                                                        .arg(mAttributes.at(sColorCode)));
+      if (mTypeInfo) {
+          ui->ldrawEdit->setText(mTypeInfo->mFileName);
+          typeChanged();
+      }
   }
+
 }
 
 void SubstitutePartDialog::colorChanged(const QString &colorName)
@@ -651,6 +739,11 @@ void SubstitutePartDialog::accept()
                 mAttributes.clear();
                 mModified = false;
                 return;
+            }
+
+            // Finally attached Ldraw Type if exist and other attribues also exist
+            if (mAttributes.size() && !mLdrawType.isEmpty()){
+                mAttributes.append(QString("LDRAW_TYPE %1").arg(mLdrawType));
             }
 
         } else {

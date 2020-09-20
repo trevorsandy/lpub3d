@@ -82,7 +82,7 @@ class PliPart {
     AnnotateTextItem    *annotateText;
     AnnotateTextItem    *annotateElement;
     PGraphicsPixmapItem *pixmap;
-    PartGroupItem    *pliPartGroup;
+    PartGroupItem       *pliPartGroup;
 
     QString              sortElement;
     QString              sortCategory;
@@ -90,6 +90,7 @@ class PliPart {
     QString              sortSize;
     QString              nameKey;
     QString              imageName;
+    QString              subOriginalType;
 
     int                  width;
     int                  height;
@@ -363,7 +364,7 @@ public:
             PlacementType  _parentRelativeType,
             QString &type,
             QString &color);
-    QString pliToolTip(QString type, QString Color);
+    QString pliToolTip(QString type, QString Color,bool isSub = false);
     PliPart *part;
     Pli     *pli;
     PlacementType  parentRelativeType;

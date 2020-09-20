@@ -625,9 +625,11 @@ public:
   QString color;
   QString part;
   int     type;
+  bool    ldrawType;
   SubData()
   {
-    type  = 0;
+    type      = 0;
+    ldrawType = false;
   }
 };
 
