@@ -1424,6 +1424,72 @@ int Gui::drawPage(
             case RotStepRc:
             case StepRc:
 
+              // Special case where we have a step group with a NOSTEP command
+              // in the last STEP which is also a rotated or assembled called out submodel
+              if (noStep && calledOut) {
+                if (current.modelName.contains("whole_rotated_") ||
+                    current.modelName.contains("whole_assembled_")) {
+                  bool nsHasParts    = false;
+                  bool nsHasNoStep   = false;
+                  bool nsIsStepGroup = false;
+                  Meta nsMeta        = curMeta;
+                  QStringList nsTokens;
+                  split(addLine,nsTokens);
+                  // start with the original subfile content
+                  QStringList nsContent = ldrawFile.contents(nsTokens[14]);
+                  int nsNumLines = nsContent.size();
+                  Where nsWalkBack(nsTokens[14],nsNumLines);
+                  for (; nsWalkBack.lineNumber >= 0; nsWalkBack--) {
+                    QString nsLine = gui->readLine(nsWalkBack);
+                    if (isHeader(nsLine)) {
+                      // if we reached the top of the submodel so break
+                      break;
+                    } else {
+                      nsTokens.clear();
+                      split(nsLine,nsTokens);
+                      bool nsLine_1_5 = nsTokens.size() && nsTokens[0].size() == 1 &&
+                           nsTokens[0] >= "1" && nsTokens[0] <= "5";
+                      bool nsLine_0 = nsTokens.size() > 0 && nsTokens[0] == "0";
+                      if (nsLine_1_5) {
+                        // we have a valid part so record part added
+                        nsHasParts = true;
+                      } else if (nsLine_0) {
+                        Rc rc = nsMeta.parse(nsLine,nsWalkBack,false);
+                        if (rc == StepRc || rc == RotStepRc) {
+                          // are we in a new step which is in a step group ?
+                          if (nsIsStepGroup) {
+                            // confirm previous step does not have a NOSTEP command
+                            // and parts have been added
+                            if (nsHasParts && !nsHasNoStep) {
+                              // we have a STEP where parts were added and no NOSTEP command encountered
+                              // so this step group can be rendered as a rotated or assembled callout
+                              noStep = false;
+                              break;
+                            } else {
+                              // clear the registers for new parts added and NOSTEP check
+                              nsHasParts  = false;
+                              nsHasNoStep = false;
+                            }
+                          } else {
+                            // the last step did not have MULTI_STEP_END so break
+                            break;
+                          }
+                        } else if (rc == NoStepRc) {
+                          // NOSTEP encountered so record it and continue to the top of the step group
+                          nsHasNoStep = true;
+                        } else if (rc == StepGroupEndRc) {
+                          // we are in a step group so proceed
+                          nsIsStepGroup = true;
+                        } else if (rc == StepGroupBeginRc) {
+                          // we have reached the top of the step group so break
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
               // STEP - special case of no parts added, but BFX load and not NOSTEP
               if (! partsAdded && bfxLoad && ! noStep) {
                   if (step == nullptr) {
