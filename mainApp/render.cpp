@@ -2476,8 +2476,6 @@ int Native::renderCsi(
   float cameraAngleY   = meta.LPub.assem.cameraAngles.value(1);
   float modelScale     = meta.LPub.assem.modelScale.value();
   float cameraFoV      = meta.LPub.assem.cameraFoV.value();
-  float zNear          = gApplication->mPreferences.mCNear; //meta.LPub.assem.znear.value();
-  float zFar           = gApplication->mPreferences.mCFar; //meta.LPub.assem.zfar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   xyzVector target     = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2527,8 +2525,6 @@ int Native::renderCsi(
   Options->IsOrtho           = isOrtho;
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
-  Options->ZNear             = zNear;
-  Options->ZFar              = zFar;
   Options->Latitude          = noCA ? 0.0 : cameraAngleX;
   Options->Longitude         = noCA ? 0.0 : cameraAngleY;
   Options->Target            = target;
@@ -2675,8 +2671,6 @@ int Native::renderPli(
   float cameraAngleX   = metaType.cameraAngles.value(0);
   float cameraAngleY   = metaType.cameraAngles.value(1);
   float cameraFoV      = metaType.cameraFoV.value();
-  float zNear          = gApplication->mPreferences.mCNear; //metaType.znear.value();
-  float zFar           = gApplication->mPreferences.mCFar;  //metaType.zfar.value();
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
   xyzVector target     = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
@@ -2716,8 +2710,6 @@ int Native::renderPli(
   Options->IsOrtho        = isOrtho;
   Options->CameraName     = cameraName;
   Options->FoV            = cameraFoV;
-  Options->ZNear          = zNear;
-  Options->ZFar           = zFar;
   Options->Latitude       = noCA ? 0.0 : cameraAngleX;
   Options->Longitude      = noCA ? 0.0 : cameraAngleY;
   Options->Target         = target;

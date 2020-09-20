@@ -310,8 +310,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCAMERA_FOV\\b"
     << "\\bCAMERA_ORTHOGRAPHIC\\b"
     << "\\bCAMERA_TARGET\\b"
-    << "\\bCAMERA_ZFAR\\b"
-    << "\\bCAMERA_ZNEAR\\b"
     << "\\bCENTER\\b"
     << "\\bCIRCLE_STYLE\\b"
     << "\\bCLEAR\\b"

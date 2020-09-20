@@ -100,7 +100,7 @@ void Gui::create3DActions()
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
 
     defaultCameraPropertiesAct = new QAction(tr("Default Properties"),this);
-    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties window"));
+    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
     defaultCameraPropertiesAct->setCheckable(true);
     defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
     connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
@@ -574,8 +574,6 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->pli.pliMeta.modelScale;
             cameraMeta.cameraFoV      = currentStep->pli.pliMeta.cameraFoV;
-            cameraMeta.zfar           = currentStep->pli.pliMeta.zfar;
-            cameraMeta.znear          = currentStep->pli.pliMeta.znear;
             cameraMeta.isOrtho        = currentStep->pli.pliMeta.isOrtho;
             cameraMeta.imageSize      = currentStep->pli.pliMeta.imageSize;
             cameraMeta.target         = currentStep->pli.pliMeta.target;
@@ -585,8 +583,6 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraDistance = currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->subModel.subModelMeta.modelScale;
             cameraMeta.cameraFoV      = currentStep->subModel.subModelMeta.cameraFoV;
-            cameraMeta.zfar           = currentStep->subModel.subModelMeta.zfar;
-            cameraMeta.znear          = currentStep->subModel.subModelMeta.znear;
             cameraMeta.isOrtho        = currentStep->subModel.subModelMeta.isOrtho;
             cameraMeta.imageSize      = currentStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = currentStep->subModel.subModelMeta.target;

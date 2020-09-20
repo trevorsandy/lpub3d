@@ -89,8 +89,6 @@ public:
     ModelScale     = 1.0f;
     CameraDistance = 0.0f;
     FoV            = 0.0f;
-    ZNear          = 0.0f;
-    ZFar           = 0.0f;
     Latitude       = 0.0f;
     Longitude      = 0.0f;
     RotStep        = xyzVector(0, 0, 0);
@@ -111,8 +109,6 @@ public:
   float ModelScale;
   float CameraDistance;
   float FoV;
-  float ZNear;
-  float ZFar;
   float Latitude;
   float Longitude;
   bool UsingViewpoint;

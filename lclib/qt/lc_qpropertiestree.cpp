@@ -1552,14 +1552,16 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 /*** LPub3D Mod - Rename Camera Settings ***/
 		cameraSettings = addProperty(nullptr, tr("Viewer Settings"), PropertyGroup);
 /*** LPub3D Mod end ***/
-		cameraOrtho = addProperty(cameraSettings, tr("Orthographic"), PropertyBool);
 		cameraFOV = addProperty(cameraSettings, tr("Field of View"), PropertyFloat);
-		cameraNear = addProperty(cameraSettings, tr("Near"), PropertyFloat);
-		cameraFar = addProperty(cameraSettings, tr("Far"), PropertyFloat);
+/*** LPub3D Mod - Camera Globe ***/
+		cameraNear = addProperty(cameraSettings, tr("ZNear"), PropertyFloatReadOnly);
+		cameraFar = addProperty(cameraSettings, tr("ZFar"), PropertyFloatReadOnly);
+		cameraOrtho = addProperty(cameraSettings, tr("Orthographic"), PropertyBoolReadOnly);
+/*** LPub3D Mod end ***/
 		cameraName = addProperty(cameraSettings, tr("Name"), PropertyString);
 
 /*** LPub3D Mod - Camera Globe ***/
-		picture = addProperty(nullptr, tr("Picture"), PropertyGroup);
+		picture = addProperty(nullptr, tr("Model Image"), PropertyGroup);
 		pictureModelScale = addProperty(picture, tr("Scale"), PropertyFloatReadOnly);
 		pictureResolution = addProperty(picture, tr("Resolution"), PropertyFloatReadOnly);
 		picturePageSizeWidth = addProperty(picture, tr("Page Width"), PropertyFloatReadOnly);
@@ -1593,11 +1595,6 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	float ZNear = 1.0f;
 	float ZFar = 100.0f;
 	const char* Name = "";
-/*** LPub3D Mod - Camera Globe ***/
-	float LPub3D_FoV   = FoV;
-	float LPub3D_ZNear = ZNear;
-	float LPub3D_ZFar  = ZFar;
-/*** LPub3D Mod end ***/
 	if (Camera)
 	{
 /*** LPub3D Mod - Camera Globe ***/
@@ -1622,9 +1619,6 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		PageSizeHeight  = lcGetActiveProject()->GetPageHeight();
 		ImageSizeWidth  = lcGetActiveProject()->GetImageWidth();
 		ImageSizeHeight = lcGetActiveProject()->GetImageHeight();
-		LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - gApplication->mPreferences.mCFoV;
-		LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - gApplication->mPreferences.mCNear;
-		LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - gApplication->mPreferences.mCFar;
 /*** LPub3D Mod end ***/
 	}
 
@@ -1664,23 +1658,14 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraUpZ->setData(0, PropertyValueRole, UpVector[1]);
 /*** LPub3D Mod end ***/
 
-	cameraOrtho->setText(1, Ortho ? "True" : "False");
-	cameraOrtho->setData(0, PropertyValueRole, Ortho);
 	cameraFOV->setText(1, lcFormatValueLocalized(FoV));
-/*** LPub3D Mod - Camera Globe ***/
-	cameraFOV->setToolTip(1,QString("LPub3D Setting: %1").arg(double(LPub3D_FoV)));
-/*** LPub3D Mod end ***/
 	cameraFOV->setData(0, PropertyValueRole, FoV);
 	cameraNear->setText(1, lcFormatValueLocalized(ZNear));
-/*** LPub3D Mod - Camera Globe ***/
-	cameraNear->setToolTip(1,QString("LPub3D Setting: %1").arg(int(LPub3D_ZNear)));
-/*** LPub3D Mod end ***/
 	cameraNear->setData(0, PropertyValueRole, ZNear);
 	cameraFar->setText(1, lcFormatValueLocalized(ZFar));
-/*** LPub3D Mod - Camera Globe ***/
-	cameraFar->setToolTip(1,QString("LPub3D Setting: %1").arg(int(LPub3D_ZFar)));
-/*** LPub3D Mod end ***/
 	cameraFar->setData(0, PropertyValueRole, ZFar);
+	cameraOrtho->setText(1, Ortho ? "True" : "False");
+	cameraOrtho->setData(0, PropertyValueRole, Ortho);
 
 	cameraName->setText(1, Name);
 	cameraName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Name));

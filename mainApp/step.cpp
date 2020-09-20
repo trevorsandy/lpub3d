@@ -152,8 +152,6 @@ Step::Step(
       csiStepMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
       csiStepMeta.isOrtho          = _meta.LPub.assem.isOrtho;
       csiStepMeta.imageSize        = _meta.LPub.assem.imageSize;
-      csiStepMeta.zfar             = _meta.LPub.assem.zfar;
-      csiStepMeta.znear            = _meta.LPub.assem.znear;
       csiStepMeta.target           = _meta.LPub.assem.target;
     }
   pli.steps                 = grandparent();
@@ -447,8 +445,6 @@ int Step::createCsi(
          meta.LPub.assem.cameraFoV      = csiStepMeta.cameraFoV;
          meta.LPub.assem.isOrtho        = csiStepMeta.isOrtho;
          meta.LPub.assem.imageSize      = csiStepMeta.imageSize;
-         meta.LPub.assem.zfar           = csiStepMeta.zfar;
-         meta.LPub.assem.znear          = csiStepMeta.znear;
          meta.LPub.assem.target         = csiStepMeta.target;
 
          // set the extra renderer parms

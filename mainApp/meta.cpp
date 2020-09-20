@@ -2933,10 +2933,6 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -2957,8 +2953,6 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   cameraDistance.init   (this,"CAMERA_DISTANCE");
   cameraFoV.init        (this,"CAMERA_FOV");
   cameraAngles.init     (this,"CAMERA_ANGLES");
-  znear.init            (this,"CAMERA_ZNEAR");
-  zfar.init             (this,"CAMERA_ZFAR");
   isOrtho.init          (this,"CAMERA_ORTHOGRAPHIC");
   cameraName.init       (this,"CAMERA_NAME");
   target.init           (this,"CAMERA_TARGET");
@@ -4000,10 +3994,6 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
 
   // movable pli part groups
@@ -4035,8 +4025,6 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   cameraFoV            .init(this,"CAMERA_FOV");
   cameraAngles         .init(this,"CAMERA_ANGLES");
   cameraDistance       .init(this,"CAMERA_DISTANCE");
-  znear                .init(this,"CAMERA_ZNEAR");
-  zfar                 .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */
@@ -4420,10 +4408,6 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4446,8 +4430,6 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   cameraFoV.init      (this,"CAMERA_FOV");
   cameraAngles.init   (this,"CAMERA_ANGLES");
   cameraDistance.init (this,"CAMERA_DISTANCE");
-  znear.init          (this,"CAMERA_ZNEAR");
-  zfar.init           (this,"CAMERA_ZFAR");
   isOrtho.init        (this,"CAMERA_ORTHOGRAPHIC");
   cameraName.init     (this,"CAMERA_NAME");
   target.init         (this,"CAMERA_TARGET");
@@ -4525,10 +4507,6 @@ PliMeta::PliMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setValue(gui->getDefaultCameraZFar());
-  zfar.setRange(1.0f,FLT_MAX);
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4572,8 +4550,6 @@ void PliMeta::init(BranchMeta *parent, QString name)
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
-  znear           .init(this,"CAMERA_ZNEAR");
-  zfar            .init(this,"CAMERA_ZFAR");
   isOrtho         .init(this,"CAMERA_ORTHOGRAPHIC");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
@@ -4656,10 +4632,6 @@ BomMeta::BomMeta() : PliMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4705,8 +4677,6 @@ void BomMeta::init(BranchMeta *parent, QString name)
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
-  znear           .init(this,"CAMERA_ZNEAR");
-  zfar            .init(this,"CAMERA_ZFAR");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
 
@@ -4955,21 +4925,15 @@ CameraMeta::CameraMeta() : BranchMeta()
   fov.setRange(gui->getDefaultFOVMinRange(),
                gui->getDefaultFOVMaxRange());
   fov.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
 }
 
 void CameraMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  hidden.init       (this,"HIDDEN");      // Add to highlight
+  hidden.init       (this,"HIDDEN");      // Add to LeoCAD highlight
   orthographic.init (this,"ORTHOGRAPHIC");
   cameraName.init   (this,"NAME");
   fov.init          (this,"FOV");
-  znear.init        (this,"ZNEAR");
-  zfar.init         (this,"ZFAR");
   target.init       (this,"TARGET_POSITION");
   position.init     (this,"POSITION");
   upvector.init     (this,"UP_VECTOR");
@@ -5000,16 +4964,12 @@ LightMeta::LightMeta() : BranchMeta()
   fov.setRange(gui->getDefaultFOVMinRange(),
                gui->getDefaultFOVMaxRange());
   fov.setValue(gui->getDefaultCameraFoV());
-  znear.setRange(1.0f,FLT_MAX);
-  znear.setValue(gui->getDefaultCameraZNear());
-  zfar.setRange(1.0f,FLT_MAX);
-  zfar.setValue(gui->getDefaultCameraZFar());
 }
 
 void LightMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  lightName.init     (this,"NAME");        // Add to highlight
+  lightName.init     (this,"NAME");        // Add to LeoCAD highlight
   lightType.init     (this,"TYPE");
   lightShape.init    (this,"SHAPE");
   lightSpecular.init (this,"SPECULAR");
@@ -5029,8 +4989,6 @@ void LightMeta::init(BranchMeta *parent, QString name)
 
   lightColour.init   (this,"COLOR_RGB");
   fov.init           (this,"FOV");
-  znear.init         (this,"ZNEAR");
-  zfar.init          (this,"ZFAR");
   target.init        (this,"TARGET_POSITION");
   position.init      (this,"POSITION");
 }

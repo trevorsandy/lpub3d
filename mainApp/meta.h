@@ -2107,8 +2107,6 @@ public:
   // assem specific camera settings
   StringMeta           cameraName;
   FloatMeta            cameraFoV;
-  FloatMeta            znear;
-  FloatMeta            zfar;
   FloatXYZMeta         target;
   FloatXYZMeta         position;
   FloatXYZMeta         upvector;
@@ -3204,8 +3202,6 @@ public:
   FloatMeta            cameraFoV;
   FloatPairMeta        cameraAngles;
   FloatMeta            cameraDistance;
-  FloatMeta            znear;
-  FloatMeta            zfar;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
@@ -3279,8 +3275,6 @@ public:
   FloatMeta            cameraDistance;
   FloatMeta            cameraFoV;
   FloatPairMeta        cameraAngles;
-  FloatMeta            znear;
-  FloatMeta            zfar;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
@@ -3449,8 +3443,6 @@ public:
   BoolMeta     orthographic; // bool      IsOrtho()
   StringMeta   cameraName;   // char      m_strName
   FloatMeta    fov;          // float     m_fovy
-  FloatMeta    znear;        // float     m_zNear
-  FloatMeta    zfar;         // float     m_zFar
   FloatXYZMeta target;       // lcVector3 mPosition
   FloatXYZMeta position;     // lcVector3 mTargetPosition
   FloatXYZMeta upvector;     // lcVector3 mUpVector
@@ -3488,8 +3480,6 @@ public:
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
   FloatMeta     fov;           // float     m_fovy
-  FloatMeta     znear;         // float     m_zNear
-  FloatMeta     zfar;          // float     m_zFar
   FloatXYZMeta  lightColour;   // lcVector3 mLightColor
   FloatXYZMeta  target;        // lcVector3 mPosition
   FloatXYZMeta  position;      // lcVector3 mTargetPosition
