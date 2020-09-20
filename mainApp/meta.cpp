@@ -3756,7 +3756,7 @@ AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
   background.setValue(BackgroundData::BgTransparent);
   font.setValuePoints("Arial,20,-1,5,50,0,0,0,0,0");
   color.setValue("#3a3938");
-  size.setValuesInches(0.28f,0.28f);      //42px @ 150DPI
+  size.setValuesInches(STYLE_SIZE_DEFAULT,STYLE_SIZE_DEFAULT);      //42px @ 150DPI
   size.setRange(0.1f,1.0f);
   size.setFormats(6,4,"9.9999");
   style.setValue(AnnotationStyle::none);
@@ -4538,7 +4538,7 @@ PliMeta::PliMeta() : BranchMeta()
   rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   rectangleStyle.color.setValue("#34699d"); // #3a3938
   rectangleStyle.style.setValue(AnnotationStyle::rectangle);
-  rectangleStyle.size.setValuesInches(0.28f,0.28f);
+  rectangleStyle.size.setValuesInches(STYLE_SIZE_DEFAULT,STYLE_SIZE_DEFAULT);
   rectangleStyle.size.setRange(0.1f,8.0f);
 
   squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
@@ -4656,14 +4656,14 @@ BomMeta::BomMeta() : PliMeta()
   elementStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   elementStyle.color.setValue("#34699d");
   elementStyle.style.setValue(AnnotationStyle::element);
-  elementStyle.size.setValuesInches(1.0f,0.28f);
+  elementStyle.size.setValuesInches(1.0f,STYLE_SIZE_DEFAULT);
   elementStyle.size.setRange(0.1f,1.0f);
 
   rectangleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
   rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   rectangleStyle.color.setValue("#34699d"); // #3a3938
   rectangleStyle.style.setValue(AnnotationStyle::rectangle);
-  rectangleStyle.size.setValuesInches(0.28f,0.28f);
+  rectangleStyle.size.setValuesInches(STYLE_SIZE_DEFAULT,STYLE_SIZE_DEFAULT);
   rectangleStyle.size.setRange(0.1f,8.0f);
 
   squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");

@@ -378,6 +378,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define PLACEHOLDER_IMAGE_WIDTH               68    // pixels
 #define PLACEHOLDER_IMAGE_HEIGHT              79
 
+#define STYLE_SIZE_DEFAULT                    0.28f // annotation style width, height, diameter in inches
+
 #define GRID_SIZE_INDEX_DEFAULT               1 // 20
 
 #define GHOST_META    "0 GHOST"

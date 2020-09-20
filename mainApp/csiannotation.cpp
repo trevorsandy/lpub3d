@@ -252,22 +252,24 @@ void CsiAnnotationItem::addGraphicsItems(
         styleRect = textRect;
     } else {
         // set rectangle size and dimensions parameters
-        bool fixedStyle = style.value() != AnnotationStyle::rectangle;
+        bool fixedStyle  = style.value() != AnnotationStyle::rectangle;
         bool isRectangle = style.value() == AnnotationStyle::rectangle;
-        UnitsMeta rSize;
+        UnitsMeta rectSize;
         if (isRectangle) {
-            if ((_part->styleMeta.size.valueInches(XX) > 0.28f  ||
-                 _part->styleMeta.size.valueInches(XX) < 0.28f) ||
-                (_part->styleMeta.size.valueInches(YY) > 0.28f  ||
-                 _part->styleMeta.size.valueInches(YY) < 0.28f)) {
-                rSize = _part->styleMeta.size;
+            if ((_part->styleMeta.size.valueInches(XX) > STYLE_SIZE_DEFAULT  ||
+                 _part->styleMeta.size.valueInches(XX) < STYLE_SIZE_DEFAULT) ||
+                (_part->styleMeta.size.valueInches(YY) > STYLE_SIZE_DEFAULT  ||
+                 _part->styleMeta.size.valueInches(YY) < STYLE_SIZE_DEFAULT)) {
+                rectSize = _part->styleMeta.size;
             } else {
-                rSize.setValuePixels(XX,int(textRect.width()));
-                rSize.setValuePixels(YY,int(textRect.height()));
+                int widthInPx  = int(textRect.width());
+                int heightInPx = int(textRect.height());
+                rectSize.setValuePixels(XX,widthInPx);
+                rectSize.setValuePixels(YY,heightInPx);
             }
         }
-        QRectF _styleRect = QRectF(0,0,fixedStyle ? _part->styleMeta.size.valuePixels(XX) : isRectangle ? rSize.valuePixels(XX) : textRect.width(),
-                                       fixedStyle ? _part->styleMeta.size.valuePixels(YY) : isRectangle ? rSize.valuePixels(YY) : textRect.height());
+        QRectF _styleRect = QRectF(0,0,fixedStyle ? _part->styleMeta.size.valuePixels(XX) : isRectangle ? rectSize.valuePixels(XX) : textRect.width(),
+                                       fixedStyle ? _part->styleMeta.size.valuePixels(YY) : isRectangle ? rectSize.valuePixels(YY) : textRect.height());
         styleRect = boundingRect().adjusted(0,0,_styleRect.width()-textRect.width(),_styleRect.height()-textRect.height());
 
         // scale down the font as needed

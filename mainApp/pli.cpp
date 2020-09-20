@@ -431,8 +431,6 @@ void Pli::setParts(
                       styleMeta = pliMeta.rectangleStyle;
                   }
               }
-              styleMeta.size.setValuePixels(XX,int (styleMeta.size.valuePixels(XX)));
-              styleMeta.size.setValuePixels(YY,int (styleMeta.size.valuePixels(YY)));
           }
 
           bool found                 = false;
@@ -3808,22 +3806,24 @@ AnnotateTextItem::AnnotateTextItem(
       styleRect = textRect;
   } else {
       // set rectangle size and dimensions parameters
-      bool fixedStyle = part->styleMeta.style.value() != AnnotationStyle::rectangle && !isElement;
-      bool isRectangle = part->styleMeta.style.value() == AnnotationStyle::rectangle;
-      UnitsMeta rSize;
+      bool fixedStyle  = _part->styleMeta.style.value() != AnnotationStyle::rectangle && !isElement;
+      bool isRectangle = _part->styleMeta.style.value() == AnnotationStyle::rectangle;
+      UnitsMeta rectSize;
       if (isRectangle) {
-          if ((_part->styleMeta.size.valueInches(XX) > 0.28f  ||
-               _part->styleMeta.size.valueInches(XX) < 0.28f) ||
-              (_part->styleMeta.size.valueInches(YY) > 0.28f  ||
-               _part->styleMeta.size.valueInches(YY) < 0.28f)) {
-              rSize = _part->styleMeta.size;
+          if ((_part->styleMeta.size.valueInches(XX) > STYLE_SIZE_DEFAULT  ||
+               _part->styleMeta.size.valueInches(XX) < STYLE_SIZE_DEFAULT) ||
+              (_part->styleMeta.size.valueInches(YY) > STYLE_SIZE_DEFAULT  ||
+               _part->styleMeta.size.valueInches(YY) < STYLE_SIZE_DEFAULT)) {
+              rectSize = _part->styleMeta.size;
           } else {
-              rSize.setValuePixels(XX,int(textRect.width()));
-              rSize.setValuePixels(YY,int(textRect.height()));
+              int widthInPx  = int(textRect.width());
+              int heightInPx = int(textRect.height());
+              rectSize.setValuePixels(XX,widthInPx);
+              rectSize.setValuePixels(YY,heightInPx);
           }
       }
-      QRectF _styleRect = QRectF(0,0,fixedStyle ? styleSize.valuePixels(XX) : isRectangle ? rSize.valuePixels(XX) : textRect.width(),
-                                     fixedStyle ? styleSize.valuePixels(YY) : isRectangle ? rSize.valuePixels(YY) : textRect.height());
+      QRectF _styleRect = QRectF(0,0,fixedStyle ? styleSize.valuePixels(XX) : isRectangle ? rectSize.valuePixels(XX) : textRect.width(),
+                                     fixedStyle ? styleSize.valuePixels(YY) : isRectangle ? rectSize.valuePixels(YY) : textRect.height());
       styleRect = boundingRect().adjusted(0,0,_styleRect.width()-textRect.width(),_styleRect.height()-textRect.height());
 
       // scale down the font as needed
