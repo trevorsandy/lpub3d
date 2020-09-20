@@ -2695,7 +2695,7 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
 
 bool Render::LoadViewer(const ViewerOptions *Options){
 
-    gui->setViewerStepKey(Options->ViewerStepKey);
+    gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
     Project* StepProject = new Project();
     if (LoadStepProject(StepProject, Options->ViewerStepKey)){
@@ -2706,7 +2706,7 @@ bool Render::LoadViewer(const ViewerOptions *Options){
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
                              .arg(Options->ViewerStepKey));
-        gui->setViewerStepKey(QString());
+        gui->setViewerStepKey(QString(),0);
         delete StepProject;
         return false;
     }
@@ -2736,24 +2736,21 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     }
 
 #ifdef QT_DEBUG_MODE
-    // viewerStepKey elements:
-    // CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
-    // PLI: 0=modelName, 1=colour, 2=stepNumber
-    // SMP: 0=modelName_suffix, 1=lineNumber, 2=stepNumber
-
+    // viewerStepKey - 3 elements:
+    // CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_fm (finalModel)]
+    // SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+    // PLI: 0=partName,  1=colourNumber, 2=stepNumber
     QFileInfo outFileInfo(FileName);
-    QStringList keys    = gui->getViewerStepKeys();
     QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
-    QString baseName    = keys[0];
+    bool pliPart        = imageType.toLower() == "pli";
+    QStringList keys    = gui->getViewerStepKeys(true/*get Name*/, pliPart);
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
                                   .arg(outFileInfo.absolutePath())
                                   .arg(imageType)
-                                  .arg(imageType == "pli" ?
-                                           QString("%1_%2_%3")
-                                                   .arg(baseName)
-                                                   .arg(keys[1])
-                                                   .arg(keys[2]) : baseName);
-
+                                  .arg(QString("%1_%2_%3")
+                                               .arg(keys[0])
+                                               .arg(keys[1])
+                                               .arg(keys[2]));
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")

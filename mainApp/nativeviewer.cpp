@@ -333,7 +333,6 @@ void Gui::applyCameraSettings()
     emit messageSig(LOG_STATUS,QString("Setting Camera %1").arg(Camera->m_strName));
 
     QString imageFileName;
-    Step *currentStep = gui->getCurrentStep();
 
     if (currentStep){
         int it = lcGetActiveProject()->GetImageType();
@@ -525,9 +524,12 @@ void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
  *
  ********************************************/
 
-QStringList Gui::getViewerStepKeys(bool modelName)
+QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
 {
-    // viewerStepKey elements CSI: 0=modelNameIndex, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
+    // viewerStepKey - 3 elements:
+    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_fm (finalModel)]
+    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
     QStringList keys = viewerStepKey.split(";");
     // confirm keys has at least 3 elements
     if (keys.size() < 3) {
@@ -536,23 +538,25 @@ QStringList Gui::getViewerStepKeys(bool modelName)
         return QStringList();
     }
 
-    bool ok;
-    int modelNameIndex = keys[0].toInt(&ok);
-    if (!ok) {
-        if (Preferences::debugLogging)
-            emit messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
-        return QStringList();
-    }
+    if (!pliPart) {
+        bool ok;
+        int modelNameIndex = keys[0].toInt(&ok);
+        if (!ok) {
+            if (Preferences::debugLogging)
+                emit messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+            return QStringList();
+        }
 
-    if (modelName)
-        keys.replace(0,getSubmodelName(modelNameIndex));
+        if (modelName)
+            keys.replace(0,getSubmodelName(modelNameIndex));
+    }
 
     return keys;
 }
 
 /*********************************************
  *
- * extract stepKey
+ * extract stepKey - callled for CSI and SMP only
  *
  ********************************************/
 
@@ -603,21 +607,23 @@ QStringList Gui::getViewerStepKeys(bool modelName)
 
 /*********************************************
  *
- * current step
+ * current step - called for CSI and SMP only
  *
  ********************************************/
 
-Step *Gui::getCurrentStep()
+void Gui::setCurrentStep()
 {
     Where here;
     int stepNumber;
+    Step *step = nullptr;
 
     extractStepKey(here,stepNumber);
 
-    if (!stepNumber)
-        return nullptr;
+    if (!stepNumber) {
+        currentStep = step;
+        return;
+    }
 
-    Step *step     = nullptr;
     bool stepMatch = false;
     bool multiStep = false;
     bool calledOut = false;
@@ -665,7 +671,7 @@ Step *Gui::getCurrentStep()
                                            .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
                                            .arg(multiStep ? "multi step" : calledOut ? "called out" : "single step")
                                            .arg(here.modelName).arg(here.lineNumber));
-    return step;
+    currentStep = step;
 }
 
 /*********************************************
@@ -682,21 +688,21 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
     if (currentModel) {
 
-        if (!getCurrentStep())
+        if (!currentStep)
             return false;
 
         if (Preferences::debugLogging) {
             emit messageSig(LOG_TRACE, QString("Step lineIndex size: %1 item(s)")
-                                                .arg(getCurrentStep()->lineTypeIndexes.size()));
-            for (int i = 0; i < getCurrentStep()->lineTypeIndexes.size(); ++i)
+                                                .arg(currentStep->lineTypeIndexes.size()));
+            for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
                 emit messageSig(LOG_TRACE, QString("-Part lineNumber: [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
-                                                   .arg(getCurrentStep()->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+                                                   .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
         }
 
         if (fromViewer)      // input relativeIndes
-            lineNumber = getCurrentStep()->getLineTypeRelativeIndex(lineIndex);
+            lineNumber = currentStep->getLineTypeRelativeIndex(lineIndex);
         else                 // input lineTypeIndex
-            lineNumber = getCurrentStep()->getLineTypeIndex(lineIndex);
+            lineNumber = currentStep->getLineTypeIndex(lineIndex);
 
     } else {
 
@@ -718,6 +724,9 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
     if (! exporting()) {
 
+        if (!currentStep)
+            return;
+
         QVector<int> lines;
         bool fromViewer   = source > EDITOR_LINE;
         bool validLine    = false;
@@ -725,7 +734,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         int lineNumber    = -1;;
         QString stepModel = viewerStepKey.isEmpty() ? "undefined" : gui->getSubmodelName(QString(viewerStepKey[0]).toInt());
         QString modelName = indexes.size() ? getSubmodelName(indexes.at(0).modelIndex) : "undefined";
-        int modelIndex    = stepModel == modelName || modelName == "undefined" ? -1 : indexes.at(0).modelIndex;
+        int modelIndex    = modelName == "undefined" ? -1 : indexes.at(0).modelIndex;
 
         if (Preferences::debugLogging && modelIndex != -1) {
             emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")

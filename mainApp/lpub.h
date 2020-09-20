@@ -756,7 +756,12 @@ public:
       return KpageScene;
   }
 
-  Step *getCurrentStep();
+  void setCurrentStep();
+
+  Step *getCurrentStep()
+  {
+      return currentStep;
+  }
 
   bool getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber);
 
@@ -853,9 +858,9 @@ public slots:
   void SetRotStepMeta();
   void SetActiveModel(const QString &fileName,bool newSubmodel);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
-  QStringList getViewerStepKeys(bool modelName = true);
+  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false);
 
-  void setViewerStepKey(const QString &stepKey)
+  void setViewerStepKey(const QString &stepKey, int notPliPart)
   {
       viewerStepKey = stepKey;
       currentStep   = nullptr;
@@ -1171,6 +1176,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
+  Step                  *currentStep;        // the current step as loaded in the 3DViewer
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 

@@ -3151,6 +3151,8 @@ void Gui::drawPage(
   lastStepPageNum  = -1;
   savePrevStepPosition = 0;
   saveContStepNum = 1;
+  currentStep = nullptr;
+  Preferences::enableLineTypeIndexes = true;
 
   PgSizeData pageSize;
   if (exporting()) {

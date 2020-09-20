@@ -2901,14 +2901,19 @@ void MetaItem::insertText()
 
     bool append        = true;
     bool isRichText    = false;
-    bool multiStep     = gui->getCurrentStep()->multiStep;
+    bool multiStep     = false;
     bool textPlacement = gui->page.meta.LPub.page.textPlacement.value();
     PlacementType parentRelativeType = PageType;
 
-    if (multiStep)
-        insertPosition = gui->getCurrentStep()->bottomOfSteps();
-    else
-        insertPosition = gui->getCurrentStep()->topOfStep();
+    if (gui->getCurrentStep()){
+        if ((multiStep = gui->getCurrentStep()->multiStep))
+            insertPosition = gui->getCurrentStep()->bottomOfSteps();
+        else
+            insertPosition = gui->getCurrentStep()->topOfStep();
+    } else {
+        insertPosition = gui->page.topOfSteps();
+    }
+
     if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
         scanPastGlobal(insertPosition);
 
