@@ -104,7 +104,6 @@ enum Rc {
          MLCadSkipEndRc,
          MLCadGroupRc,
          LDCadGroupRc,
-         LDCadGeneratedRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
 

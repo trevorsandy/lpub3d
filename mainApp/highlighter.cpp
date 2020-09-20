@@ -664,7 +664,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "!?\\bLDCAD PATH_CAP\\b"
     << "!?\\bLDCAD PATH_POINT\\b"
     << "!?\\bLDCAD PATH_SKIN\\b"
-    << "!?\\bLDCAD GENERATED\\b"
     << "!?\\bLDCAD SCRIPT\\b"
     << "!?\\bLDCAD GROUP_NXT\\b"
     ;

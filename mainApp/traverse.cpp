@@ -79,6 +79,43 @@ static QString PositionNames[] =
 //    Positions pos;
 //};
 
+/********************************************
+ *
+ * partLine
+ *
+ * this adds a csiPart tot the csiParts list
+ * and updates the lineType index accordingly
+ * taking into account part groups, types and
+ * part names meta commands
+ *
+ ********************************************/
+
+static void partLine(
+   QString      &line,
+   QStringList  &csiParts,
+   QVector<int> &typeIndexes,
+   int           lineNumber,
+   Rc            rc,
+   bool          appendIndex = true)
+{
+    // for group meta lines, substitute lineNumber with Rc
+    int indexValue;
+    switch (rc){
+    case MLCadGroupRc:
+    case LDCadGroupRc:
+    case LeoCadGroupBeginRc:
+    case LeoCadGroupEndRc:
+        indexValue = rc;
+        break;
+    default:
+        indexValue = lineNumber;
+        break;
+    }
+    csiParts.append(line);
+    if (appendIndex)
+        typeIndexes.append(indexValue);
+}
+
 /*********************************************
  *
  * remove_group
@@ -513,7 +550,7 @@ int Gui::drawPage(
               color = tokens[1];
             }
 
-          opts.csiParts << line;
+          partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,OkRc);
           partsAdded = true;
 
           // STEP - Allocate STEP
@@ -805,7 +842,7 @@ int Gui::drawPage(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              opts.csiParts << line;
+              partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,rc);
               break;
 
             case IncludeRc:
@@ -2093,8 +2130,6 @@ int Gui::findPage(
 
   ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
 
-  bool skipLDCadGenerated = false;
-
   for ( ;
         opts.current.lineNumber < numLines;
         opts.current.lineNumber++) {
@@ -2229,22 +2264,17 @@ int Gui::findPage(
                   }
               }
           }
-          if (!skipLDCadGenerated)
-              lineTypeIndexes.append(opts.current.lineNumber);
         case '2':
         case '3':
         case '4':
         case '5':
             ++partsAdded;
-            csiParts << line;
+            partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,OkRc,line.toLatin1()[0] == '1');
             break;
 
         case '0':
           rc = meta.parse(line,opts.current);
           switch (rc) {
-            case LDCadGeneratedRc:
-              skipLDCadGenerated = true;
-              break;
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
@@ -2455,7 +2485,6 @@ int Gui::findPage(
                   saveCurrent = opts.current;  // so that draw page doesn't have to
                   // deal with steps that are not steps
                 }
-              skipLDCadGenerated = false;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -2518,7 +2547,7 @@ int Gui::findPage(
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
               if (opts.pageNum < displayPageNum) {
-                  csiParts << line;
+                  partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,rc);
                   partsAdded = true;
                 }
               break;
@@ -2611,9 +2640,6 @@ int Gui::findPage(
 
             case NoStepRc:
               noStep = true;
-              break;
-            case EndOfFileRc:
-              skipLDCadGenerated = false;
               break;
             default:
               break;
@@ -3302,8 +3328,8 @@ void Gui::writeToTmp(const QString &fileName,
                            .arg(fname) .arg(file.errorString()));
     } else {
       int fileNameIndex = ldrawFile.getSubmodelIndex(fileName);
-      bool skipLDCadGenerated = false;
-      QStringList csiParts;
+      QVector<int> lineTypeIndexes;
+      QStringList  csiParts;
       QHash<QString, QStringList> bfx;
 
       for (int i = 0; i < contents.size(); i++) {
@@ -3313,10 +3339,7 @@ void Gui::writeToTmp(const QString &fileName,
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
-                  csiParts << line;
-                  if (!skipLDCadGenerated){
-                      ldrawFile.setLineTypeRelativeIndex(fileNameIndex,i/*relativeTypeIndx*/);
-                  }
+                  partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,OkRc);
               } else {
                   Meta meta;
                   Rc   rc;
@@ -3329,14 +3352,6 @@ void Gui::writeToTmp(const QString &fileName,
                   case ColourRc:
                       csiParts << line;
                       break;
-                  case LDCadGeneratedRc:
-                      skipLDCadGenerated = true;
-                      break;
-                  case RotStepRc:
-                  case StepRc:
-                  case EndOfFileRc:
-                      skipLDCadGenerated = false;
-                      break;
                       /* Buffer exchange */
                   case BufferStoreRc:
                       bfx[meta.bfx.value()] = csiParts;
@@ -3348,7 +3363,7 @@ void Gui::writeToTmp(const QString &fileName,
                   case LDCadGroupRc:
                   case LeoCadGroupBeginRc:
                   case LeoCadGroupEndRc:
-                      csiParts << line;
+                      partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,rc);
                       break;
                       /* remove a group or all instances of a part type */
                   case GroupRemoveRc:
@@ -3373,6 +3388,8 @@ void Gui::writeToTmp(const QString &fileName,
               }
           }
       }
+
+      ldrawFile.setLineTypeRelativeIndexes(fileNameIndex,lineTypeIndexes);
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
@@ -3415,7 +3432,6 @@ void Gui::writeToTmp()
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
-          ldrawFile.resetLineTypeRelativeIndex(fileName);
           emit messageSig(LOG_INFO, "Writing submodel to temp directory: " + fileName + "...");
           writeToTmp(fileName,content);
 

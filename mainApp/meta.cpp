@@ -4999,7 +4999,6 @@ void LDCadMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   LDCadGrp.       init(this,"GROUP_NXT",  LDCadGroupRc);
-  LDCadGenerated .init(this,"GENERATED ", LDCadGeneratedRc);
 }
 
 /* ------------------ */

@@ -1327,6 +1327,8 @@ private:
 
   void writeToTmp();
 
+  void addCsiTypeLine();
+
   QStringList configureModelSubFile(
     const QStringList &,
     const QString &,
