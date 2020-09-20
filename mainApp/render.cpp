@@ -788,7 +788,8 @@ int POVRay::renderCsi(
 
   removeEmptyStrings(povArguments);
 
-  emit gui->messageSig(LOG_STATUS, "Executing POVRay render CSI - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing POVRay %1 CSI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
@@ -1109,7 +1110,8 @@ int POVRay::renderPli(
 
   removeEmptyStrings(povArguments);
 
-  emit gui->messageSig(LOG_STATUS, "Executing POVRay render PLI - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing POVRay %1 PLI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
@@ -1261,7 +1263,8 @@ int LDGLite::renderCsi(
 
   removeEmptyStrings(arguments);
 
-  emit gui->messageSig(LOG_STATUS, "Executing LDGLite render CSI - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing LDGLite %1 CSI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
@@ -1323,6 +1326,7 @@ int LDGLite::renderPli(
   // Populate render attributes
   QString transform  = metaType.rotStep.value().type;
   bool  noCA         = transform  == "ABS";
+  bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFov    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
@@ -1422,7 +1426,8 @@ int LDGLite::renderPli(
 
   removeEmptyStrings(arguments);
 
-  emit gui->messageSig(LOG_STATUS, "Executing LDGLite render PLI - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing LDGLite %1 PLI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
@@ -1737,7 +1742,8 @@ int LDView::renderCsi(
 
       removeEmptyStrings(arguments);
 
-      emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
+      emit gui->messageSig(LOG_INFO_STATUS, QString("Executing LDView %1 CSI render - please wait...")
+                                                    .arg(pp ? "Perspective" : "Orthographic"));
 
       // execute LDView process
       if (executeLDViewProcess(arguments, Options::CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
@@ -2122,7 +2128,8 @@ int LDView::renderPli(
 
   removeEmptyStrings(arguments);
 
-  emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing LDView %1 PLI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   // execute LDView process
   if (executeLDViewProcess(arguments, Options::PLI) != 0)
@@ -2215,6 +2222,7 @@ int Native::renderCsi(
   // Camera Angles always passed to Native renderer except if ABS rotstep
   QString rotstepType      = meta.rotStep.value().type;
   bool noCA = rotstepType == "ABS";
+  bool pp   = Preferences::perspectiveProjection;
   bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
 
   // Renderer options
@@ -2246,11 +2254,12 @@ int Native::renderCsi(
   gApplication->SetProject(CsiImageProject);
 
   // Render image
-  emit gui->messageSig(LOG_STATUS, "Rendering Native CSI image - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   if (gui->exportingObjects()) {
       if (csiKeys.size()) {
-          emit gui->messageSig(LOG_STATUS, "Rendering CSI Objects - please wait...");
+          emit gui->messageSig(LOG_INFO_STATUS, "Rendering CSI Objects...");
           QString baseName = csiKeys.first();
           QString outPath  = gui->saveDirectoryName;
           bool ldvExport   = true;
@@ -2385,7 +2394,8 @@ int Native::renderPli(
   bool useImageSize    = metaType.imageSize.value(0) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
-  bool  noCA          = metaType.rotStep.value().type  == "ABS";
+  bool noCA            = metaType.rotStep.value().type  == "ABS";
+  bool pp              = Preferences::perspectiveProjection;
 
   // Process substitute part attributes
   if (keySub) {
@@ -2431,7 +2441,8 @@ int Native::renderPli(
   gApplication->SetProject(PliImageProject);
 
   // Render image
-  emit gui->messageSig(LOG_STATUS, "Rendering Native PLI image - please wait...");
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 PLI render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic"));
 
   if (!RenderNativeImage(Options)) {
       return -1;
