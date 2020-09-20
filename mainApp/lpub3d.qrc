@@ -183,6 +183,7 @@
         <file alias="rotateiconsize.png">resources/rotateiconsize.png</file>
         <file alias="save.png">resources/save.png</file>
         <file alias="saveas.png">resources/saveas.png</file>
+        <file alias="savecopy.png">resources/savecopy.png</file>
         <file alias="saveimage.png">resources/saveimage.png</file>
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>

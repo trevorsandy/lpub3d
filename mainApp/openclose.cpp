@@ -278,6 +278,27 @@ void Gui::saveAs()
   enableWatcher();
 } 
 
+void Gui::saveCopy()
+{
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw (*.mpd *.ldr *.dat)"));
+  if (fileName.isEmpty()) {
+    return;
+  }
+
+  QFileInfo fileInfo(fileName);
+  QString extension = fileInfo.suffix().toLower();
+
+  if (extension == "mpd" ||
+      extension == "ldr" ||
+      extension == "dat") {
+    saveFile(fileName);
+  } else {
+    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                              QMessageBox::tr("Invalid LDraw extension %1 specified.  File not saved.")
+                                .arg(extension));
+  }
+}
+
 bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 {
   QString senderLabel;

@@ -1357,6 +1357,7 @@ private slots:
     void open();
     void save();
     void saveAs();
+    void saveCopy();
 
     void bringToFront();
     void sendToBack();
@@ -1564,6 +1565,7 @@ private:
   QAction  *openAct;
   QAction  *saveAct;
   QAction  *saveAsAct;
+  QAction  *saveCopyAct;
   QAction  *closeFileAct;
   QAction  *exportAsPdfAct;
   QAction  *printToFileAct;

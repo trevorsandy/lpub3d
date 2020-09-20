@@ -3609,6 +3609,12 @@ void Gui::createActions()
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+    saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
+    saveCopyAct->setShortcut(tr("Ctrl+Shift+C"));
+    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name - Ctrl+Shift+C"));
+    saveCopyAct->setEnabled(false);
+    connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveCopy()));
+
     closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close"), this);
     closeFileAct->setShortcut(tr("Ctrl+W"));
     closeFileAct->setStatusTip(tr("Close current model file - Ctrl+W"));
@@ -4312,6 +4318,7 @@ void Gui::loadPages(){
 void Gui::enableActions()
 {
   saveAsAct->setEnabled(true);
+  saveCopyAct->setEnabled(true);
   closeFileAct->setEnabled(true);
 
   exportAsPdfAct->setEnabled(true);
@@ -4402,6 +4409,7 @@ void Gui::enableActions()
 void Gui::disableActions()
 {
   saveAsAct->setEnabled(false);
+  saveCopyAct->setEnabled(false);
   closeFileAct->setEnabled(false);
 
   exportAsPdfAct->setEnabled(false);
@@ -4506,6 +4514,7 @@ void Gui::createMenus()
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
+    fileMenu->addAction(saveCopyAct);
     fileMenu->addAction(closeFileAct);
 
     exportMenu = fileMenu->addMenu("Export As...");
@@ -4723,6 +4732,7 @@ void Gui::createToolBars()
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
     fileToolBar->addAction(saveAsAct);
+    //fileToolBar->addAction(saveCopyAct);
     fileToolBar->addAction(closeFileAct);
 
     //fileToolBar->addAction(printToFileAct);
