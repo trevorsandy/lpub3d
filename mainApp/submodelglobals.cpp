@@ -226,10 +226,15 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   child = new NumberGui(&subModelMeta->instance,instanceCountBox);
   data->children.append(child);
 
+  box = new QGroupBox("Studs");
+  vlayout->addWidget(box);
+  child = new ComboGui("Display Stud Logo","Logo1|Logo2|Logo3|Logo4|Logo5",&subModelMeta->studLogo,box,true);
+  data->children.append(child);
+
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Instance");
+  childtab->addTab(widget,"More...");
 
   /*
    * SM Submodel level color

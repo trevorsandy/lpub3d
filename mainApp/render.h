@@ -198,6 +198,7 @@ public:
     CameraName     = QString();
     UsingViewpoint = false;
     IsOrtho        = false;
+    StudLogo       = 0;
     ImageWidth     = 800 ;
     ImageHeight    = 600;
     PageWidth      = 800;
@@ -225,6 +226,7 @@ public:
   int PageWidth;
   int PageHeight;
   int NativeCDF;
+  int StudLogo;
   float Resolution;
   float ModelScale;
   float CameraDistance;

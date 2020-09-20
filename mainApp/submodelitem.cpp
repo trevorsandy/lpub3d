@@ -307,6 +307,7 @@ int SubModel::createSubModelImage(
 
       // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
+      viewerOptions.StudLogo       = subModelMeta.studLogo.value();
       viewerOptions.ImageFileName  = imageName;
       viewerOptions.Resolution     = resolution();
       viewerOptions.PageWidth      = pageSizeP(meta, 0);

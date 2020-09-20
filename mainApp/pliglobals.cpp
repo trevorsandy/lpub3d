@@ -217,6 +217,11 @@ GlobalPliDialog::GlobalPliDialog(
   child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
   data->children.append(child);
 
+  box = new QGroupBox("Studs");
+  vlayout->addWidget(box);
+  child = new ComboGui("Display Stud Logo","Logo1|Logo2|Logo3|Logo4|Logo5",&pliMeta->studLogo,box,true);
+  data->children.append(child);
+
   if ( ! bom) {
     box = new QGroupBox("Submodels");
     vlayout->addWidget(box);
@@ -228,7 +233,7 @@ GlobalPliDialog::GlobalPliDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("Sort/Submodels"));
+  childtab->addTab(widget,tr("More..."));
 
   /*
    * PLI Annotations

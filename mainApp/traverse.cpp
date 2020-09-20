@@ -1690,15 +1690,15 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
-                          // set camera
-                          steps->meta.LPub.assem.cameraAngles   = step->csiCameraMeta.cameraAngles;
-                          steps->meta.LPub.assem.cameraDistance = step->csiCameraMeta.cameraDistance;
-                          steps->meta.LPub.assem.modelScale     = step->csiCameraMeta.modelScale;
-                          steps->meta.LPub.assem.cameraFoV      = step->csiCameraMeta.cameraFoV;
-                          steps->meta.LPub.assem.isOrtho        = step->csiCameraMeta.isOrtho;
-                          steps->meta.LPub.assem.zfar           = step->csiCameraMeta.zfar;
-                          steps->meta.LPub.assem.znear          = step->csiCameraMeta.znear;
-                          steps->meta.LPub.assem.target         = step->csiCameraMeta.target;
+                          // set camera - REMOVE REDUNDANT AND NOT USED
+//                          steps->meta.LPub.assem.cameraAngles   = step->csiCameraMeta.cameraAngles;
+//                          steps->meta.LPub.assem.cameraDistance = step->csiCameraMeta.cameraDistance;
+//                          steps->meta.LPub.assem.modelScale     = step->csiCameraMeta.modelScale;
+//                          steps->meta.LPub.assem.cameraFoV      = step->csiCameraMeta.cameraFoV;
+//                          steps->meta.LPub.assem.isOrtho        = step->csiCameraMeta.isOrtho;
+//                          steps->meta.LPub.assem.zfar           = step->csiCameraMeta.zfar;
+//                          steps->meta.LPub.assem.znear          = step->csiCameraMeta.znear;
+//                          steps->meta.LPub.assem.target         = step->csiCameraMeta.target;
 
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =

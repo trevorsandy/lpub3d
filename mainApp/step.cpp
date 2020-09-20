@@ -143,6 +143,8 @@ Step::Step(
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
 
+      csiCameraMeta.studLogo         = _meta.LPub.assem.studLogo;
+
       csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
       csiCameraMeta.modelScale       = _meta.LPub.assem.modelScale;
       csiCameraMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
@@ -245,6 +247,9 @@ int Step::createCsi(
   FloatPairMeta noCA;
 
   ldrName.clear();
+
+//  if (multiStep)
+//  logTrace() << "STEP NO: "<< stepNumber.number << ", STUD LOGO: " << meta.LPub.multiStep.csi.studLogo.value();
 
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -391,6 +396,8 @@ int Step::createCsi(
          showStatus = true;
 
          // set camera
+         meta.LPub.assem.studLogo       = csiCameraMeta.studLogo;
+
          meta.LPub.assem.cameraAngles   = csiCameraMeta.cameraAngles;
          meta.LPub.assem.cameraDistance = csiCameraMeta.cameraDistance;
          meta.LPub.assem.modelScale     = csiCameraMeta.modelScale;
@@ -455,6 +462,7 @@ int Step::createCsi(
       // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.ImageFileName  = pngName;
+      viewerOptions.StudLogo       = csiCameraMeta.studLogo.value();
       viewerOptions.Resolution     = resolution();
       viewerOptions.PageWidth      = gui->pageSize(meta.LPub.page, 0);
       viewerOptions.PageHeight     = gui->pageSize(meta.LPub.page, 1);

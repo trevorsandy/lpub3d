@@ -2095,6 +2095,9 @@ public:
   PlacementMeta        placement;
   MarginsMeta          margin;
 
+  // stud
+  IntMeta             studLogo;
+
   // assem image scale
   FloatMeta            modelScale;
   // assem native camera position
@@ -3169,6 +3172,7 @@ public:
   AnnotationStyleMeta  rectangleStyle;
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;
+  IntMeta              studLogo;
 
   // pli image generation
   FloatMeta            cameraFoV;
@@ -3242,6 +3246,7 @@ public:
   StringMeta            povrayParms;
   BoolMeta              showStepNumber;
   CsiAnnotationMeta     annotation;
+  IntMeta               studLogo;
 
   // image generation
   FloatMeta            cameraDistance;

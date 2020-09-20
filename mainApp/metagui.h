@@ -143,8 +143,7 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
+
 class QLineEdit;
 class UnitsGui : public MetaGui
 {
@@ -213,12 +212,46 @@ public slots:
 
 /***********************************************************************
  *
+ * Combo Box
+ *
+ **********************************************************************/
+
+class IntMeta;
+class QComboBox;
+class ComboGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  ComboGui(
+    QString const &heading,
+    QString const &namedValues,
+    IntMeta       *meta,
+    QGroupBox     *parent = nullptr,
+    bool           useCheck = false);
+  ~ComboGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  IntMeta   *meta;
+  QLabel    *label;
+  QCheckBox *check;
+  QComboBox *combo;
+  bool       useCheck;
+
+public slots:
+  void valueChanged(int);
+  void valueChanged(bool);
+};
+
+/***********************************************************************
+ *
  * Number
  *
  **********************************************************************/
 
 class NumberMeta;
-class QGroupBox;
 class QPushButton;
 class NumberGui : public MetaGui
 {
@@ -230,8 +263,6 @@ public:
   ~NumberGui() {}
 
   virtual void apply(QString &modelName);
-
-
 
 private:
   NumberMeta  *meta;
@@ -269,9 +300,6 @@ enum RelativeTos
 { fc = 1 ,   bc = 2,     ph  = 4,      pf  = 8};
 
 class PageAttributeTextMeta;
-class QGroupBox;
-class QLineEdit;
-class QPushButton;
 class PlacementMeta;
 class PageAttributePlacementEnum;
 class GlobalPageDialog;
@@ -354,11 +382,6 @@ public slots:
  **********************************************************************/
 
 class PageAttributePictureMeta;
-class QLabel;
-class QPushButton;
-class QLineEdit;
-class QRadioButton;
-class QGroupBox;
 class QDoubleSpinBox;
 class FloatMeta;
 class PageAttributePictureGui : public MetaGui
@@ -440,9 +463,6 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
-class QLineEdit;
 class HeaderFooterHeightGui : public MetaGui
 {
   Q_OBJECT
@@ -475,8 +495,6 @@ public slots:
  **********************************************************************/
 
 class FadeStepMeta;
-class QGroupBox;
-class QPushButton;
 class FadeStepGui : public MetaGui
 {
   Q_OBJECT
@@ -498,7 +516,6 @@ private:
   QLabel      *readOnlyLabel;
   QComboBox   *colorCombo;
 
-
 public slots:
   void colorChange(QString const &colorName);
 };
@@ -510,8 +527,6 @@ public slots:
  **********************************************************************/
 
 class HighlightStepMeta;
-class QGroupBox;
-class QPushButton;
 class HighlightStepGui : public MetaGui
 {
   Q_OBJECT
@@ -544,7 +559,6 @@ public slots:
  **********************************************************************/
 
 class NativeCDMeta;
-class QGroupBox;
 class QSpinBox;
 class CameraDistFactorGui : public MetaGui
 {
@@ -606,8 +620,6 @@ public slots:
  **********************************************************************/ 
  
 class RotStepData; 
-class QGroupBox; 
-class QDoubleSpinBox; 
 class RotStepGui : public MetaGui 
 { 
   Q_OBJECT 
@@ -637,10 +649,7 @@ public slots:
  * Integer Spin Box 
  * 
  **********************************************************************/ 
- 
-class IntMeta; 
-class QLabel; 
-class QSpinBox; 
+
 class SpinGui : public MetaGui 
 { 
   Q_OBJECT 
@@ -675,8 +684,6 @@ public slots:
  **********************************************************************/
 
 class FloatMeta;
-class QLabel;
-class QDoubleSpinBox;
 class DoubleSpinGui : public MetaGui
 {
   Q_OBJECT
@@ -778,12 +785,6 @@ public slots:
  **********************************************************************/
 
 class BackgroundMeta;
-class QLabel;
-class QPushButton;
-class QLineEdit;
-class QRadioButton;
-class QGroupBox;
-
 class BackgroundGui : public MetaGui
 {
   Q_OBJECT
@@ -833,7 +834,6 @@ public slots:
  **********************************************************************/
 
 class BorderMeta;
-class QSpinBox;
 class BorderGui : public MetaGui
 {
   Q_OBJECT
@@ -949,7 +949,6 @@ public slots:
  **********************************************************************/
 
 class ConstrainMeta;
-class QComboBox;
 class ConstrainGui : public MetaGui
 {
   Q_OBJECT
@@ -1052,8 +1051,6 @@ public slots:
  *
  **********************************************************************/
 
-class QCheckBox;
-class QRadioButton;
 class RendererGui : public MetaGui
 {
   Q_OBJECT
@@ -1108,7 +1105,6 @@ public slots:
  *
  **********************************************************************/
 
-class QCheckBox;
 class ShowSubModelGui : public MetaGui
 {
   Q_OBJECT
@@ -1306,8 +1302,6 @@ public slots:
  **********************************************************************/
 
 class PliAnnotationMeta;
-class QLabel;
-class QRadioButton;
 class PliAnnotationGui : public MetaGui
 {
   Q_OBJECT
@@ -1326,7 +1320,6 @@ public:
   bool extendedStyleModified;
   bool hoseStyleModified;
   bool panelStyleModified;
-
 
   PliAnnotationGui(
       QString const       &heading,
@@ -1387,8 +1380,6 @@ public slots:
  **********************************************************************/
 
 class CsiAnnotationMeta;
-class QLabel;
-class QRadioButton;
 class CsiAnnotationGui : public MetaGui
 {
   Q_OBJECT
@@ -1402,7 +1393,6 @@ public:
   bool hoseDisplayModified;
   bool panelDisplayModified;
   bool placementModified;
-
 
   CsiAnnotationGui(
       QString const     &heading,
@@ -1446,9 +1436,6 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
-class QRadioButton;
 class PageOrientationGui : public MetaGui
 {
   Q_OBJECT
@@ -1479,9 +1466,6 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
-class QLineEdit;
 class RotateIconSizeGui : public MetaGui
 {
   Q_OBJECT
@@ -1521,9 +1505,6 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
-class QLineEdit;
 class PageSizeGui : public MetaGui
 {
   Q_OBJECT
@@ -1565,10 +1546,6 @@ public slots:
  *
  **********************************************************************/
 
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QRadioButton;
 class SizeAndOrientationGui : public MetaGui
 {
   Q_OBJECT
@@ -1616,8 +1593,6 @@ public slots:
  **********************************************************************/
 
 class StringListMeta;
-class QGroupBox;
-class QPushButton;
 class SubModelColorGui : public MetaGui
 {
   Q_OBJECT

@@ -2916,6 +2916,11 @@ void ArrowEndMeta::doc(QStringList &out, QString preamble)
 
 SettingsMeta::SettingsMeta() : BranchMeta()
 {
+
+   // stud
+  studLogo.setRange(0,5);
+  studLogo.setValue(0);
+
   // assem image generation
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"#99999.9");
@@ -2942,6 +2947,8 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   placement.init        (this,"PLACEMENT");
   margin.init           (this,"MARGINS");
+  // stud
+  studLogo.init         (this,"STUD_LOGO");
   // assem image scale
   modelScale.init       (this,"MODEL_SCALE");
   // assem native camera position
@@ -3834,6 +3841,8 @@ SubModelMeta::SubModelMeta() : PliMeta()
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
+  studLogo.setRange(0,5);
+  studLogo.setValue(0);
   RotStepData rotStepData;
   rotStepData.rots[0] = 0.0f;
   rotStepData.rots[1] = 0.0f;
@@ -3874,6 +3883,7 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   modelScale           .init(this,"MODEL_SCALE");
   show                 .init(this,"SHOW");
   showTopModel         .init(this,"SHOW_TOP_MODEL");
+  studLogo             .init(this,"STUD_LOGO");
   showInstanceCount    .init(this,"SHOW_INSTANCE_COUNT");
   ldviewParms          .init(this,"LDVIEW_PARMS");
   ldgliteParms         .init(this,"LDGLITE_PARMS");
@@ -4257,6 +4267,8 @@ AssemMeta::AssemMeta() : BranchMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");    // Deprecated - using Quality Settings, v2.3.7
   showStepNumber.setValue(true);
+  studLogo.setRange(0,5);
+  studLogo.setValue(0);
 
   // image generation
   cameraAngles.setFormats(7,4,"###9.90");
@@ -4283,6 +4295,7 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   ldviewParms.init    (this,"LDVIEW_PARMS");
   ldgliteParms.init   (this,"LDGLITE_PARMS");
   povrayParms .init   (this,"POVRAY_PARMS");
+  studLogo.init       (this,"STUD_LOGO");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
   cameraFoV.init        (this,"CAMERA_FOV");
@@ -4328,6 +4341,8 @@ PliMeta::PliMeta() : BranchMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
+  studLogo.setRange(0,5);
+  studLogo.setValue(0);
 
   //annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
   annotate.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
@@ -4394,6 +4409,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
+  studLogo        .init(this,"STUD_LOGO");
   begin           .init(this,"BEGIN");
   end             .init(this,"END",           PliEndRc);
   sort            .init(this,"SORT");
@@ -4450,6 +4466,8 @@ BomMeta::BomMeta() : PliMeta()
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
+  studLogo.setRange(0,5);
+  studLogo.setValue(0);
 
   elementStyle.border.setValue(BorderData::BdrNone,BorderData::BdrLnNone,"#ffffff");
   elementStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
@@ -4518,6 +4536,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
+  studLogo        .init(this,"STUD_LOGO");
   begin           .init(this,"BEGIN");
   begin.ignore.rc = BomBeginIgnRc;
   end             .init(this,"END",BomEndRc);

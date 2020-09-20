@@ -480,6 +480,8 @@ int POVRay::renderCsi(
       .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
       .arg(cd);
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-StudLogo=%1") .arg(studLogo);
   QString m  = meta.LPub.assem.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(meta.LPub.assem.target.x()))
@@ -496,6 +498,8 @@ int POVRay::renderCsi(
   QStringList arguments;
   arguments << CA;
   arguments << cg;
+  if (studLogo)
+        arguments << sl;
   arguments << m;
   arguments << w;
   arguments << h;
@@ -743,6 +747,8 @@ int POVRay::renderPli(
                                       .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(cd);
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-StudLogo=%1") .arg(studLogo);
   QString m  = meta.LPub.assem.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(metaType.target.x()))
@@ -759,6 +765,8 @@ int POVRay::renderPli(
   QStringList arguments;
   arguments << CA;
   arguments << cg;
+  if (studLogo)
+      arguments << sl;
   arguments << m;
   arguments << w;
   arguments << h;
@@ -1023,6 +1031,9 @@ int LDGLite::renderCsi(
                                  .arg(double(meta.LPub.assem.target.y()))
                                  .arg(double(meta.LPub.assem.target.z())) : QString();
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-sl%1") .arg(studLogo);
+
   QStringList arguments;
   arguments << CA;                  // camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
@@ -1031,6 +1042,8 @@ int LDGLite::renderCsi(
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
+  if (studLogo)
+      arguments << sl;              // stud logo
 
   QStringList list;
   // First, load parms from meta if any
@@ -1177,6 +1190,9 @@ int LDGLite::renderPli(
                                  .arg(double(metaType.target.y()))
                                  .arg(double(metaType.target.z())) : QString();
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-sl%1") .arg(studLogo);
+
   QStringList arguments;
   arguments << CA;                  // Camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
@@ -1185,6 +1201,8 @@ int LDGLite::renderPli(
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
+  if (studLogo)
+      arguments << sl;              // stud logo
 
   QStringList list;
   // First, load extra parms from meta if any
@@ -1417,6 +1435,8 @@ int LDView::renderCsi(
                                  .arg(double(meta.LPub.assem.target.y()))
                                  .arg(double(meta.LPub.assem.target.z())) : QString();
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-StudLogo=%1") .arg(studLogo);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -1426,6 +1446,8 @@ int LDView::renderCsi(
   QStringList arguments;
   arguments << CA;                        // 00. Camera FOV in degrees
   arguments << cg;                        // 01. Camera globe
+  if (studLogo)
+      arguments << sl;              // stud logo
   arguments << m;                         // 03. model origin for the camera to look at
   arguments << w;                         // 04. SaveWidth
   arguments << h;                         // 05. SaveHeight
@@ -1708,6 +1730,8 @@ int LDView::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
+  int studLogo = meta.LPub.assem.studLogo.value();
+  QString sl = QString("-StudLogo=%1") .arg(studLogo);
   QString m  = meta.LPub.assem.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(metaType.target.x()))
@@ -1725,6 +1749,8 @@ int LDView::renderPli(
     arguments << CA;
     arguments << cg;
   }
+  if (studLogo)
+      arguments << sl;
   arguments << m;
   arguments << w;
   arguments << h;
@@ -1818,6 +1844,7 @@ int Native::renderCsi(
 
   // process native settings
   int distanceFactor   = meta.LPub.nativeCD.factor.value();
+  int studLogo         = meta.LPub.assem.studLogo.value();
   float camDistance    = meta.LPub.assem.cameraDistance.value();
   float cameraAngleX   = meta.LPub.assem.cameraAngles.value(0);
   float cameraAngleY   = meta.LPub.assem.cameraAngles.value(1);
@@ -1829,6 +1856,7 @@ int Native::renderCsi(
   QString cameraName   = meta.LPub.assem.cameraName.value();
   xyzVector target     = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
   if (nType == NTypeCalledOut) {
+    studLogo           = meta.LPub.callout.csi.studLogo.value();
     camDistance        = meta.LPub.callout.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(0);
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(1);
@@ -1840,6 +1868,7 @@ int Native::renderCsi(
     cameraName         = meta.LPub.callout.csi.cameraName.value();
     target             = xyzVector(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
   } else if (nType == NTypeMultiStep) {
+    studLogo           = meta.LPub.multiStep.csi.studLogo.value();
     camDistance        = meta.LPub.multiStep.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(0);
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(1);
@@ -1861,6 +1890,7 @@ int Native::renderCsi(
   Options.ImageType         = CSI;
   Options.InputFileName     = ldrName;
   Options.OutputFileName    = pngName;
+  Options.StudLogo          = studLogo;
   Options.Resolution        = resolution();
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
@@ -2010,6 +2040,7 @@ int Native::renderPli(
 
   // Populate render attributes
   int distanceFactor   = meta.LPub.nativeCD.factor.value();
+  int studLogo         = metaType.studLogo.value();
   float camDistance    = metaType.cameraDistance.value();
   float modelScale     = metaType.modelScale.value();
   float cameraFov      = metaType.cameraFoV.value();
@@ -2042,6 +2073,7 @@ int Native::renderPli(
   Options.ImageType      = PLI;
   Options.InputFileName  = ldrNames.first();
   Options.OutputFileName = pngName;
+  Options.StudLogo       = studLogo;
   Options.Resolution     = resolution();
   Options.ImageWidth     = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight    = gui->pageSize(meta.LPub.page, 1);
@@ -2092,6 +2124,8 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
                 O.Resolution,
                 O.ModelScale,
                 O.NativeCDF);
+
+    lcGetPiecesLibrary()->SetStudLogo(O.StudLogo,true);
 
     if (!Export)
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();

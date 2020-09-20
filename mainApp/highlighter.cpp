@@ -478,6 +478,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSTEPS\\b"
     << "\\bSTRETCH\\b"
     << "\\bSTYLE\\b"
+    << "\\bSTUD_LOGO\\b"
     << "\\bSUB\\b"
     << "\\bSUBMODEL_BACKGROUND_COLOR\\b"
     << "\\bSUBMODEL_DISPLAY\\b"

@@ -649,6 +649,83 @@ void ConstrainGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * Combo Box
+ *
+ **********************************************************************/
+
+ComboGui::ComboGui(
+  QString const &heading,
+  QString const &namedValues,
+  IntMeta       *_meta,
+  QGroupBox     *parent,
+  bool           _useCheck)
+{
+  meta = _meta;
+  useCheck = _useCheck;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  int index = meta->value();
+
+  label = nullptr;
+  check = nullptr;
+  if (!heading.isEmpty()) {
+    if (useCheck) {
+        check = new QCheckBox(heading,parent);
+        check->setChecked(index);
+        layout->addWidget(check);
+        connect(check,SIGNAL(toggled(bool)),
+                this, SLOT(valueChanged(bool)));
+    } else {
+        label = new QLabel(heading,parent);
+        layout->addWidget(label);
+    }
+  }
+
+  combo = new QComboBox(parent);
+  QStringList comboItems;
+  if (namedValues.isEmpty()){
+     combo->addItem("Default");
+  } else {
+     comboItems = namedValues.split("|");
+     for (QString &item : comboItems)
+         combo->addItem(item);
+  }
+  combo->setEnabled(useCheck ? index : true);
+  combo->setCurrentIndex(useCheck ? index ? index - 1 : index : index);
+  layout->addWidget(combo);
+  connect(combo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT  (valueChanged(int)));
+}
+
+void ComboGui::valueChanged(bool checked)
+{
+  combo->setEnabled(checked);
+  valueChanged(checked ? combo->currentIndex() : 0);
+}
+
+void ComboGui::valueChanged(int value)
+{
+  meta->setValue(useCheck ? value ? value + 1 : value : value);
+  modified = true;
+}
+
+void ComboGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * Number
  *
  **********************************************************************/

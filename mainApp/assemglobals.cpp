@@ -67,12 +67,14 @@ GlobalAssemDialog::GlobalAssemDialog(
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QGridLayout *boxGrid = new QGridLayout();
+  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
+   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+
   setLayout(layout);
   layout->addWidget(tab);
 
   QWidget *widget;
-  QGridLayout *grid;
-
+  QVBoxLayout *vlayout;
   MetaGui *child;
   QGroupBox *box;
 
@@ -83,11 +85,11 @@ GlobalAssemDialog::GlobalAssemDialog(
    */
 
   widget = new QWidget(nullptr);
-  grid = new QGridLayout(nullptr);
-  widget->setLayout(grid);
+  vlayout  = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox("Assembly");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   box->setLayout(boxGrid);
 
   // Scale
@@ -107,7 +109,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   /* Assembly camera settings */
 
   box = new QGroupBox("Default Assembly Orientation");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -127,9 +129,7 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   /* Step Number */
   box = new QGroupBox("Step Number");
-  grid->addWidget(box);
-
-  boxGrid->addWidget(child);
+  vlayout->addWidget(box);
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
   child = new NumberGui(stepNumber,box);
   data->children.append(child);
@@ -144,33 +144,37 @@ GlobalAssemDialog::GlobalAssemDialog(
   bool fixedAnnotations  = data->meta.LPub.pli.annotation.fixedAnnotations.value();
 
   widget = new QWidget(nullptr);
-  grid = new QGridLayout(nullptr);
-  widget->setLayout(grid);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox("Step");
-  grid->addWidget(box);
-  QVBoxLayout *vLayout = new QVBoxLayout();
-  box->setLayout(vLayout);
+  vlayout->addWidget(box);
+  box->setLayout(childlayout);
 
   child = new CheckBoxGui("Step Number",&assem->showStepNumber);
   data->children.append(child);
-  vLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   box = new QGroupBox("Annotation");
-  grid->addWidget(box);
-  vLayout = new QVBoxLayout();
-  box->setLayout(vLayout);
+  vlayout->addWidget(box);
+  childlayout = new QVBoxLayout();
+  box->setLayout(childlayout);
 
   child = new CsiAnnotationGui("",&assem->annotation,nullptr,fixedAnnotations);
   data->children.append(child);
-  vLayout->addWidget(child);
+  childlayout->addWidget(child);
   box->setEnabled(enableAnnotations);
   if (!enableAnnotations)
       box->setToolTip("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation.");
 
+  box = new QGroupBox("Studs");
+  vlayout->addWidget(box);
+  child = new ComboGui("Display Stud Logo","Logo1|Logo2|Logo3|Logo4|Logo5",&assem->studLogo,box,true);
+  data->children.append(child);
+
   //spacer
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
+
+  vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Display");
 
