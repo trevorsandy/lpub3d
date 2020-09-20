@@ -521,6 +521,7 @@ public:
   bool            resetCache;       // reset model, fade and highlight parts
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
+  Where           buildModNextStep;  // top of last encountered Step containing a BuildMod action
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialogue
@@ -825,6 +826,11 @@ public:
   bool buildModsSize()
   {
       return ldrawFile.buildModsSize();
+  }
+
+  void removeBuildMod(const QString &buildModKey = "")
+  {
+      ldrawFile.removeBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
   void setNextStepBuildModAction(const QStringList &contents, Where step = Where());
@@ -1331,7 +1337,6 @@ private:
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
   Step                  *currentStep;        // the current step as loaded in the 3DViewer
-  Where                  buildModNextStep;  // top of last encountered Step containing a BuildMod action
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
   bool                   m_exportingContent; // indicate export/printing underway

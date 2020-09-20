@@ -1966,6 +1966,19 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
       _buildModList.append(modKey);
 }
 
+bool LDrawFile::removeBuildMod(const QString &buildModKey)
+{
+    QString modKey  = buildModKey.toLower();
+    QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+    if (i != _buildMods.end()) {
+        _buildMods.erase(i);
+        if (_buildModList.contains(modKey))
+            _buildModList.removeAt(_buildModList.indexOf(modKey));
+        return true;
+    }
+    return false;
+}
+
 void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
 {
     QString  modKey = buildModKey.toLower();

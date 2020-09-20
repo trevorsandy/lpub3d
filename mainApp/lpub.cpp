@@ -291,13 +291,21 @@ void Gui::insertFinalModel(){
   if (Preferences::enableFadeSteps ||
       Preferences::enableHighlightStep){
       int modelStatus = mi.okToInsertFinalModel();
-      if (modelStatus != modelExist)
+      if (modelStatus != modelExist) {
+        emit messageSig(LOG_INFO, QString("Inserting final model..."));
         mi.insertFinalModel(modelStatus);
+      }
   } else
   if (! Preferences::enableFadeSteps &&
       ! Preferences::enableHighlightStep){
-      if (mi.okToInsertFinalModel() == modelExist)
+      if (mi.okToInsertFinalModel() == modelExist) {
+        emit messageSig(LOG_INFO, QString("Removing final model..."));
         mi.deleteFinalModel();
+      }
+  }
+  if (buildModsSize()){
+      removeBuildMod(/*last*/);
+      buildModNextStep = Where();
   }
 }
 
