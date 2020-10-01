@@ -62,30 +62,35 @@
 #define whereH
 
 #include <QString>
+#include <QStringList>
 
 class Where
 {
   public:
     QString modelName;
+    int     modelIndex;
     int     lineNumber;
 
     Where()
     {
       modelName     = "undefined";
       lineNumber    = 0;
+      modelIndex    = -1;
     }
 
     Where(const Where &rhs)
     {
-      modelName = rhs.modelName;
-      lineNumber  = rhs.lineNumber;
+      modelName     = rhs.modelName;
+      modelIndex    = rhs.modelIndex;
+      lineNumber    = rhs.lineNumber;
     }
 
     Where operator=(const Where &rhs)
     {
       if (this != &rhs) {
-        modelName = rhs.modelName;
-        lineNumber = rhs.lineNumber;
+        modelName   = rhs.modelName;
+        modelIndex  = rhs.modelIndex;
+        lineNumber  = rhs.lineNumber;
       }
       return *this;
     }
@@ -94,13 +99,101 @@ class Where
       QString _modelName,
       int     _lineNumber)
     {
-      modelName     = _modelName;
-      lineNumber    = _lineNumber;
+      modelName    = _modelName;
+      modelIndex   = -1;
+      lineNumber   = _lineNumber;
+    }
+
+    Where(
+      QString _modelName,
+      QString _lineNumber)
+    {
+      modelName    = _modelName;
+      modelIndex   = -1;
+      bool ok;
+      int foo      = _lineNumber.toInt(&ok);
+      if (ok)
+          lineNumber = foo;
+    }
+
+    Where(
+      int _modelIndex,
+      int _lineNumber)
+    {
+      modelName    = "undefined";
+      modelIndex   = _modelIndex;
+      lineNumber   = _lineNumber;
+    }
+
+    Where(
+      QString _modelName,
+      int     _modelIndex,
+      int     _lineNumber)
+    {
+      modelName    = _modelName;
+      modelIndex   = _modelIndex;
+      lineNumber   = _lineNumber;
+    }
+
+    Where(QString _modelName)
+    {
+      modelName    = _modelName;
+      modelIndex   = -1;
+      lineNumber   = 0;
     }
 
     Where(int _lineNumber)
     {
-      lineNumber = _lineNumber;
+      modelName    = "undefined";
+      modelIndex   = -1;
+      lineNumber   = _lineNumber;
+    }
+
+    inline QStringList indexToStringList() const
+    {
+        return QStringList()
+                << QString::number(modelIndex)
+                << QString::number(lineNumber);
+    }
+
+    inline QString indexToString() const
+    {
+        return indexToStringList().join(" ");
+    }
+
+    inline QStringList nameToStringList() const
+    {
+        return QStringList()
+                << modelName
+                << QString::number(lineNumber);
+    }
+
+    inline QString nameToString() const
+    {
+        return nameToStringList().join(" ");
+    }
+
+    inline QStringList toStringList() const
+    {
+        return QStringList()
+                << modelName
+                << QString::number(modelIndex)
+                << QString::number(lineNumber);
+    }
+
+    inline QString toString() const
+    {
+        return toStringList().join(" ");
+    }
+
+    void setModelName(const QString &where)
+    {
+        modelName = where;
+    }
+
+    void setModelIndex(const int &where)
+    {
+        modelIndex = where;
     }
 
     const Where operator+(const int &where) const
@@ -181,18 +274,21 @@ class Where
     bool operator<(const Where &other) const
     {
       return modelName  == other.modelName &&
+             modelIndex == other.modelIndex &&
              lineNumber < other.lineNumber;
     }
 
     bool operator==(const Where &other) const
     {
       return modelName  == other.modelName &&
+             modelIndex == other.modelIndex &&
              lineNumber == other.lineNumber;
     }
 
     bool operator!=(const Where &other) const
     {
       return modelName  != other.modelName ||
+             modelIndex != other.modelIndex ||
              lineNumber != other.lineNumber;
     }
 
