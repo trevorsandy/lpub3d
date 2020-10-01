@@ -652,7 +652,7 @@ GlobalPageDialog::GlobalPageDialog(
   // these are placed in reverse order so the meta commands are properly written
   data->children.append(childTextPlacementMeta);
   data->children.append(childTextPlacement);
-  connect (childTextPlacement->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(enableTextPlacement(bool)));
+  connect (childTextPlacement->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableTextPlacement(bool)));
 
   //spacer
   vLayout->addSpacerItem(vSpacer);

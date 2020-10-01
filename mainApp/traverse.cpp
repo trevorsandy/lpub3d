@@ -1718,7 +1718,7 @@ int Gui::drawPage(
                       PlacementData placementData;
                       // Override default assignments, which is for PliPerStep true
                       // Step Number
-                      if (/*steps->meta*/steps->groupStepMeta.LPub.assem.showStepNumber.value()) {
+                      if (/*steps->meta*/steps->groupStepMeta.LPub.multiStep.showGroupStepNumber.value()) {
                           placementData = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value();
                           if ((placementData.relativeTo    == CsiType ||
                               (placementData.relativeTo    == PartsListType &&
@@ -1735,7 +1735,7 @@ int Gui::drawPage(
                           steps->groupStepNumber.number    = opts.groupStepNumber;
                           steps->groupStepNumber.sizeit();
 
-                          emit messageSig(LOG_INFO_STATUS, "Add Step group step number for multi-step page " + opts.current.modelName);
+                          emit messageSig(LOG_DEBUG, "Add Step group step number for multi-step page " + opts.current.modelName);
 
                           // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
                           placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
@@ -1751,7 +1751,7 @@ int Gui::drawPage(
                               steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(RightTopOutside,StepNumberType);
                           }
                       }
-                      // if no step number
+                      // step number not shown
                       else {
                           placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
                           // if Submodel Preview relative to StepNumber
@@ -2704,6 +2704,9 @@ int Gui::findPage(
                                           opts.current.modelName /*renderParentModel*/);
                               findPage(view, scene, meta, line, calloutOpts);
 
+                              // Restore step number to rendered step number.
+                              if (meta.LPub.multiStep.pli.perStep.value() == false)
+                                 stepNumber = saveGroupStepNum;
                               saveStepPageNum = stepPageNum;
                               meta.submodelStack.pop_back();
                               meta.rotStep = saveRotStep2;            // restore old rotstep
@@ -2765,6 +2768,15 @@ int Gui::findPage(
                       saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
                   }
               }
+
+              // Incremet groupStepNumber as we being a subsequent new page
+              if (meta.LPub.multiStep.pli.perStep.value() == false) {
+                  Where walk(opts.current.modelName);
+                  mi->scanForwardStepGroup(walk);
+                  if (opts.current.lineNumber > walk.lineNumber)
+                      opts.groupStepNumber++;
+              }
+
               // Steps within step group modify bfxStore2 as they progress
               // so we must save bfxStore2 and use the saved copy when
               // we call drawPage for a step group.
@@ -2774,7 +2786,6 @@ int Gui::findPage(
             case StepGroupEndRc:
               if (stepGroup && ! noStep2 && ! buildModIgnore) {
                   stepGroup = false;
-
                   if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                       saveLineTypeIndexes    = lineTypeIndexes;
                       saveCsiParts           = csiParts;
@@ -2861,9 +2872,12 @@ int Gui::findPage(
 #endif
                       }
                   } // exporting
-                  ++opts.pageNum;
+
+                  ++opts.pageNum;         
                   topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
                   saveStepPageNum = ++stepPageNum;
+                  // TODO add increment condition here
+                    saveGroupStepNum = opts.groupStepNumber;
 
                   if (Preferences::modeGUI && ! exporting()) {
                       emit messageSig(LOG_STATUS, QString("Counting document page %1...")

@@ -91,9 +91,7 @@ public:
   CheckBoxGui(){}
   ~CheckBoxGui() {}
 
-  QCheckBox *getCheckbox() {return check;}
-
-  void setEnabled(bool enabled);
+  QCheckBox *getCheckBox() {return check;}
 
   virtual void apply(QString &modelName);
 
@@ -697,7 +695,7 @@ public:
   ContStepNumGui(){}
   ~ContStepNumGui() {}
 
-  QCheckBox *getCheckbox() {return check;}
+  QCheckBox *getCheckBox() {return check;}
 
   void setEnabled(bool enabled);
 
@@ -764,7 +762,7 @@ public:
   BuildModEnabledGui(){}
   ~BuildModEnabledGui() {}
 
-  QCheckBox *getCheckbox() {return check;}
+  QCheckBox *getCheckBox() {return check;}
 
   void setEnabled(bool enabled);
 

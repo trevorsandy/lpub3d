@@ -275,12 +275,17 @@ class GlobalMultiStepDialog : public QDialog
 private:
   GlobalMultiStepPrivate *data;
 
+  CheckBoxGui *showGrpStepNumCheckBoxGui;
+  CheckBoxGui *countGrpStepsCheckBoxGui;
+
 public:
   GlobalMultiStepDialog(QString &topLevelFile, Meta &meta);
   ~GlobalMultiStepDialog() {}
   static void getMultiStepGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void pliPerStepStateChanged(int state);
+  void showGrpStepNumStateChanged(int state);
   void accept();
   void cancel();
 };

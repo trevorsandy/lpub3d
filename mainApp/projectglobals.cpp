@@ -96,7 +96,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   ContStepNumGui *childContStepNumbersBox = new ContStepNumGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
-  connect (childContStepNumbersBox->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   QDialogButtonBox *buttonBox;
 

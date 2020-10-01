@@ -523,9 +523,11 @@ void Steps::addGraphicsItems(
   QGraphicsItem *parent/*backdrop*/)
 {
   // SN
-  if (! meta.LPub.multiStep.pli.perStep.value() && groupStepNumber.number) {
-    groupStepNumber.addStepNumber(dynamic_cast<Page *>(this), parent);
-  }
+    if (! meta.LPub.multiStep.pli.perStep.value() &&
+          meta.LPub.multiStep.showGroupStepNumber.value() &&
+          groupStepNumber.number) {
+        groupStepNumber.addStepNumber(dynamic_cast<Page *>(this), parent);
+    }
 
   // PLI
   if (pli.tsize() && ! pli.bom) {

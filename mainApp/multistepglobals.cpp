@@ -58,7 +58,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
-  QHBoxLayout *childlayout = new QHBoxLayout();
+  QGridLayout *boxGrid = new QGridLayout();
 
   setLayout(layout);
   layout->addWidget(tab);
@@ -83,27 +83,10 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   vlayout->addWidget(box);
   child = new UnitsGui("L/R|T/B",&multiStepMeta->margin,box);
   data->children.append(child);
-  
-  box = new QGroupBox("Parts List");
-  vlayout->addWidget(box);
-  box->setLayout(childlayout);
-
-  child = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
-  data->children.append(child);
-  childlayout->addWidget(child);
-
-  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->pli.margin);
-  data->children.append(child);
-  childlayout->addWidget(child);
 
   box = new QGroupBox("Step Justification");
   vlayout->addWidget(box);
   child = new JustifyStepGui("Set step justification",&multiStepMeta->justifyStep,box);
-  data->children.append(child);
-
-  box = new QGroupBox("Submodel");
-  vlayout->addWidget(box);
-  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
   data->children.append(child);
 
   box = new QGroupBox("Callout and Rotate Icon");
@@ -119,65 +102,112 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   tab->addTab(widget,"Contents");
 
   /*
-   * CSI Assembly Tab
-   */
-   QGridLayout *boxGrid = new QGridLayout();
-   widget = new QWidget();
-   vlayout = new QVBoxLayout(nullptr);
-   widget->setLayout(vlayout);
+  * Display Tab
+  */
 
-   box = new QGroupBox("Assembly Image");
-   vlayout->addWidget(box);
-   box->setLayout(boxGrid);
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
-   // Scale
-   child = new DoubleSpinGui("Scale",
-                             &multiStepMeta->csi.modelScale,
-                             multiStepMeta->csi.modelScale._min,
-                             multiStepMeta->csi.modelScale._max,
-                             0.01f);
-   data->children.append(child);
-   boxGrid->addWidget(child);
+  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
-   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  box = new QGroupBox("Parts List");
+  vlayout->addWidget(box);
+  box->setLayout(childlayout);
 
-   child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->csi.margin);
-   data->children.append(child);
-   boxGrid->addWidget(child);
+  CheckBoxGui *childPliPerStep = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
+  connect(childPliPerStep->getCheckBox(), SIGNAL(stateChanged(int)),
+          this,                           SLOT(  pliPerStepStateChanged(int)));
+  data->children.append(childPliPerStep);
+  childlayout->addWidget(childPliPerStep);
 
-   /* Assembly camera settings */
+  showGrpStepNumCheckBoxGui = new CheckBoxGui("Show Group Step Number",&multiStepMeta->showGroupStepNumber);
+  showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!multiStepMeta->pli.perStep.value());
+  data->children.append(showGrpStepNumCheckBoxGui);
+  childlayout->addWidget(showGrpStepNumCheckBoxGui);
+  connect(showGrpStepNumCheckBoxGui->getCheckBox(), SIGNAL(stateChanged(int)),
+          this,                                     SLOT(  showGrpStepNumStateChanged(int)));
 
-   box = new QGroupBox("Default Assembly Orientation");
-   vlayout->addWidget(box);
-   boxGrid = new QGridLayout();
-   box->setLayout(boxGrid);
+  countGrpStepsCheckBoxGui = new CheckBoxGui("Count Group Steps",&multiStepMeta->countGroupSteps);
+  countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(multiStepMeta->showGroupStepNumber.value());
+  data->children.append(countGrpStepsCheckBoxGui);
+  childlayout->addWidget(countGrpStepsCheckBoxGui);
 
-   // camera field of view
-   child = new DoubleSpinGui("Camera FOV",
-                             &multiStepMeta->csi.cameraFoV,
-                             multiStepMeta->csi.cameraFoV._min,
-                             multiStepMeta->csi.cameraFoV._max,
-                             multiStepMeta->csi.cameraFoV.value());
-   data->children.append(child);
-   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
-   boxGrid->addWidget(child,0,0,1,2);
+  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->pli.margin);
+  data->children.append(child);
+  childlayout->addWidget(child);
 
-   // view angles
-   child = new FloatsGui("Latitude","Longitude",&multiStepMeta->csi.cameraAngles);
-   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
-   data->children.append(child);
-   boxGrid->addWidget(child,1,0);
+  box = new QGroupBox("Submodel");
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
+  data->children.append(child);
 
-   box = new QGroupBox("Assembly Margins");
-   vlayout->addWidget(box);
-   child = new UnitsGui("L/R|T/B",&multiStepMeta->csi.margin,box);
-   data->children.append(child);
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
 
-   //spacer
-   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-   vlayout->addSpacerItem(vSpacer);
+  tab->addTab(widget,"Display");
 
-   tab->addTab(widget,"Assembly");
+  /*
+  * CSI Assembly Tab
+  */
+  boxGrid = new QGridLayout();
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Assembly Image");
+  vlayout->addWidget(box);
+  box->setLayout(boxGrid);
+
+  // Scale
+  child = new DoubleSpinGui("Scale",
+                            &multiStepMeta->csi.modelScale,
+                            multiStepMeta->csi.modelScale._min,
+                            multiStepMeta->csi.modelScale._max,
+                            0.01f);
+  data->children.append(child);
+  boxGrid->addWidget(child);
+
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+
+  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->csi.margin);
+  data->children.append(child);
+  boxGrid->addWidget(child);
+
+  /* Assembly camera settings */
+
+  box = new QGroupBox("Default Assembly Orientation");
+  vlayout->addWidget(box);
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  // camera field of view
+  child = new DoubleSpinGui("Camera FOV",
+                            &multiStepMeta->csi.cameraFoV,
+                            multiStepMeta->csi.cameraFoV._min,
+                            multiStepMeta->csi.cameraFoV._max,
+                            multiStepMeta->csi.cameraFoV.value());
+  data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  boxGrid->addWidget(child,0,0,1,2);
+
+  // view angles
+  child = new FloatsGui("Latitude","Longitude",&multiStepMeta->csi.cameraAngles);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  data->children.append(child);
+  boxGrid->addWidget(child,1,0);
+
+  box = new QGroupBox("Assembly Margins");
+  vlayout->addWidget(box);
+  child = new UnitsGui("L/R|T/B",&multiStepMeta->csi.margin,box);
+  data->children.append(child);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Assembly");
 
   /*
    * Divider tab
@@ -212,11 +242,21 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   adjustSize();
 }
 
-void GlobalMultiStepDialog::getMultiStepGlobals(
-  QString topLevelFile, Meta &meta)
+void GlobalMultiStepDialog::getMultiStepGlobals(QString topLevelFile, Meta &meta)
 {
   GlobalMultiStepDialog *dialog = new GlobalMultiStepDialog(topLevelFile, meta);
   dialog->exec();
+}
+
+void GlobalMultiStepDialog::pliPerStepStateChanged(int state)
+{
+    showGrpStepNumCheckBoxGui->getCheckBox()->setEnabled(!state);
+    countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(!state &&
+    showGrpStepNumCheckBoxGui->getCheckBox()->isChecked());
+}
+
+void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state){
+    countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(state);
 }
 
 void GlobalMultiStepDialog::accept()

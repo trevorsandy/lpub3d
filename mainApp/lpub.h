@@ -507,6 +507,7 @@ public:
   int             stepPageNum;      // the number displayed on the page
   int             saveStepPageNum;  // saved instance of the number displayed on the page
   int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
+  int             saveGroupStepNum; // saved step group step number when pli per step is false
   int             firstStepPageNum; // the first Step page number - used to specify frontCover page
   int             lastStepPageNum;  // the last Step page number - used to specify backCover page
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps

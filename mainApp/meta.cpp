@@ -4893,6 +4893,8 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(LeftTopOutside,CsiType);
   pli.perStep.setValue(true);
+  showGroupStepNumber.setValue(true); // Used with pli per page
+  countGroupSteps.setValue(false);    // Used by pli per page group step number
   // Submodel
   subModel.placement.setValue(RightTopOutside,StepNumberType);
   subModel.show.setValue(true);
@@ -4925,6 +4927,8 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   alloc    .init(this,    "ALLOC");
   csi      .init(this,    "ASSEM");
   pli      .init(this,    "PLI");
+  showGroupStepNumber .init(this, "SHOW_GROUP_STEP_NUMBER");
+  countGroupSteps .init(this,  "COUNT_GROUP_STEPS");
   subModel .init(this,    "SUBMODEL_DISPLAY");
   rotateIcon .init(this,  "ROTATE_ICON");
 

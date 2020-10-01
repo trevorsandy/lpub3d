@@ -1090,13 +1090,11 @@ int Gui::addGraphicsPageItems(
       if (page->pli.tsize()) {
 
           // Add pli per page items
-          if (! page->meta.LPub.multiStep.pli.perStep.value()) {
-              addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
-          }
+          addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
 
           // Place the group step number on the page if pliPerStep = false
-
-          if (page->groupStepNumber.number) {
+          if (page->meta.LPub.multiStep.showGroupStepNumber.value() &&
+              page->groupStepNumber.number) {
               page->groupStepNumber.stepNumber->setPos(
                           page->groupStepNumber.stepNumber->loc[XX],
                           page->groupStepNumber.stepNumber->loc[YY]);
@@ -1940,7 +1938,8 @@ int Gui::addPliPerPageItems(
   GroupStepNumberItem *groupStepNumber   = page->groupStepNumber.stepNumber;
   bool                 displayPageNumber = page->meta.LPub.page.dpn.value();
 
-  if (groupStepNumber && page->groupStepNumber.number){
+  if (page->meta.LPub.multiStep.showGroupStepNumber.value() &&
+      groupStepNumber && page->groupStepNumber.number) {
       PlacementData pld = groupStepNumber->placement.value();
       if (pld.relativeTo == PageType) {
           plPage.appendRelativeTo(groupStepNumber);

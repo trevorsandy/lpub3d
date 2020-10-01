@@ -3382,6 +3382,8 @@ public:
   CalloutPliMeta        pli;
   SepMeta               sep;
   NumberPlacementMeta   stepNum;
+  BoolMeta              showGroupStepNumber;
+  BoolMeta              countGroupSteps;
   FontListMeta          subModelFont;
   StringListMeta        subModelFontColor;
 
