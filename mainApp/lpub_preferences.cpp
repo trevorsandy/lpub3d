@@ -3259,7 +3259,7 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     return result;
 }
 
-int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type)
+int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type, bool option)
 {
     foreach (QString messageNotShown, messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
@@ -3272,7 +3272,7 @@ int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, 
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
     box.setText(message);
     box.setIcon(QMessageBox::Icon::Warning);
-    box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+    box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
     box.setDefaultButton   (QMessageBox::Cancel);
     QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
     box.setCheckBox(cb);

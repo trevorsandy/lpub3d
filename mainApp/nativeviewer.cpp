@@ -2627,7 +2627,7 @@ void Gui::deleteBuildModification()
     QString title = "Build Modification";
 
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
-    switch (Preferences::showMessage(msgID, text, title, type))
+    switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
     {
     default:
     case QMessageBox::Cancel:

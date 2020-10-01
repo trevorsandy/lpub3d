@@ -127,7 +127,7 @@ class Preferences
     static void setBlenderVersionPreference(QString);
     static void setDebugLogging(bool); 
 
-    static int showMessage(Preferences::MsgID, const QString &message, const QString &title = "", const QString &type = "");
+    static int showMessage(Preferences::MsgID, const QString &message, const QString &title = "", const QString &type = "", bool option = false);
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;

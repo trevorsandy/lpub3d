@@ -1165,7 +1165,7 @@ public slots:
   void parseError(const QString errorMsg,
                   const Where &here,
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
-                  bool override = false);
+                  bool option = false);
 
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);

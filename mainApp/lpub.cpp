@@ -5444,7 +5444,7 @@ void Gui::showLine(const Where &topOfStep, int type)
     }
 }
 
-void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool override)
+void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool option)
 {
     if (parsedMessages.contains(here))
         return;
@@ -5463,11 +5463,11 @@ void Gui::parseError(const QString message, const Where &here, Preferences::MsgK
         if (subFileSize(here.modelName) < Preferences::editorLinesPerPage || Preferences::editorBufferedPaging)
             showLine(here, LINE_ERROR);
         bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
-        if (okToShowMessage || override) {
+        if (okToShowMessage) {
             Where messageLine = here;
             messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
             Preferences::MsgID msgID(msgKey,messageLine.indexToString());
-            Preferences::showMessage(msgID, parseMessage, keyType[msgID.msgKey][0], keyType[msgID.msgKey][1]);
+            Preferences::showMessage(msgID, parseMessage, keyType[msgID.msgKey][0], keyType[msgID.msgKey][1], option);
         }
         if (writingToTmp)
             emit progressPermMessageSig(QString("Writing submodel [Parse Error%1")
