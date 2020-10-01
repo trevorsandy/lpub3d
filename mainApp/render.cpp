@@ -2864,7 +2864,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
-    bool ZoomExtents    = !RenderImage && IsOrtho;
+    bool ZoomExtents    = false; // TODO - Set as menu item? (!RenderImage && IsOrtho);
     bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
 
     if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
