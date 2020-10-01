@@ -2579,7 +2579,7 @@ int Gui::findPage(
   bool inserted           = false;
   bool resetIncludeRc     = false;
 
-  ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
+  ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, stepNumber/*opts.groupStepNumber*/, countInstances);
 
   /*
    * For findPage(), the BuildMod behaviour captures the appropriate 'block' of lines
@@ -2717,7 +2717,7 @@ int Gui::findPage(
                                           opts.printing,
                                           opts.buildModLevel,
                                           opts.contStepNumber,
-                                          stepNumber,            /*renderStepNumber */
+                                          stepNumber,            /*groupStepNumber */
                                           opts.current.modelName /*renderParentModel*/);
                               findPage(view, scene, meta, line, calloutOpts);
 
@@ -2842,7 +2842,7 @@ int Gui::findPage(
                                   saveLineTypeIndexes,
                                   saveBfxLineTypeIndexes,
                                   saveStepNumber,
-                                  opts.renderStepNumber,
+                                  opts.groupStepNumber,
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
@@ -3017,7 +3017,7 @@ int Gui::findPage(
                                       saveLineTypeIndexes,
                                       saveBfxLineTypeIndexes,
                                       saveStepNumber,
-                                      opts.renderStepNumber,
+                                      opts.groupStepNumber,
                                       opts.updateViewer,
                                       opts.isMirrored,
                                       opts.printing,
@@ -3316,7 +3316,7 @@ int Gui::findPage(
                       saveLineTypeIndexes,
                       saveBfxLineTypeIndexes,
                       saveStepNumber,
-                      opts.renderStepNumber,
+                      opts.groupStepNumber,
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
@@ -3837,7 +3837,7 @@ void Gui::countPages()
                   false          /*printing*/,
                   0              /*buildModLevel*/,
                   0              /*contStepNumber*/,
-                  0              /*renderStepNumber*/,
+                  0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
       findPage(KpageView,KpageScene,meta,empty/*addLine*/,findOptions);
       topOfPages.append(current);
@@ -3927,7 +3927,7 @@ void Gui::drawPage(
               printing,
               0            /*buildModLevel*/,
               0            /*contStepNumber*/,
-              0            /*renderStepNumber*/,
+              0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
   if (findPage(view,scene,meta,empty/*addLine*/,findOptions) == HitBuildModAction && Preferences::buildModEnabled) {
       QApplication::restoreOverrideCursor();
