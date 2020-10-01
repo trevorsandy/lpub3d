@@ -1465,9 +1465,11 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
             // Check if BuildMod meta is present
             if (metaBuildModNotFund) {
-                if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                    bool state = tokens.last() == "FALSE" ? false : true ;
-                    Preferences::buildModEnabled  = state;
+                if (smLine.startsWith("0 !LPUB BUILD_MOD")) {
+                    bool enabled = true;
+                    if (smLine.contains("BUILD_MOD_ENABLED"))
+                        enabled = tokens.last() == "FALSE" ? false : true ;
+                    Preferences::buildModEnabled  = enabled;
                     metaBuildModNotFund = false;
                 }
             }

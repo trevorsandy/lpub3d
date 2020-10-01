@@ -4843,7 +4843,6 @@ void Gui::disableActions()
   removeLPubFormattingAct->setEnabled(false);
 
   editModelFileAct->setEnabled(false);
-  editPliControlFileAct->setEnabled(false);
 
   openWorkingFolderAct->setEnabled(false);
   setPageLineEdit->setEnabled(false);

@@ -1192,7 +1192,6 @@ void Gui::reset3DViewerMenusAndToolbars()
         enableBuildModAct->setVisible(visible);
         createBuildModAct->setVisible(visible);
     }
-
     enableBuildModification();
 }
 

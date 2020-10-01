@@ -4449,8 +4449,9 @@ void Gui::writeToTmp(const QString &fileName,
                   // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
                   case BuildModBeginRc:
                       if (!Preferences::buildModEnabled) {
-                          parseError("Build mod meta command encountered but this functionality is currently disabled.<br>"
-                                     "Enable at Build Instructions Setup -> Project Setup or remove build mod file content. ",
+                          parseError("Build Mod meta command encountered but this functionality is currently disabled.<br>"
+                                     "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
+                                     "again' to disable Build Mod meta parse notifications.",
                                      here,Preferences::BuildModErrors);
                           break;
                       }
