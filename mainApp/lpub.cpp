@@ -2534,8 +2534,8 @@ void Gui::preferences()
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
     bool lineParseErrorsCompare         = Preferences::lineParseErrors;
-    bool showInsertErrorsCompare         = Preferences::showInsertErrors;
-    bool showAnnotationMessagesCompare  = Preferences::showAnnotationMessages;
+    bool showInsertErrorsCompare        = Preferences::showInsertErrors;
+    bool showAnnotationErrorsCompare    = Preferences::showAnnotationErrors;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -2614,7 +2614,7 @@ void Gui::preferences()
 
         bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
         bool showInsertErrorsChanged       = Preferences::showInsertErrors                       != showInsertErrorsCompare;
-        bool showAnnotationMessagesChanged = Preferences::showAnnotationMessages                 != showAnnotationMessagesCompare;
+        bool showAnnotationErrorsChanged = Preferences::showAnnotationErrors                 != showAnnotationErrorsCompare;
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
@@ -2818,8 +2818,8 @@ void Gui::preferences()
         if (lineParseErrorsChanged)
                     emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
 
-        if (showAnnotationMessagesChanged)
-                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationMessages? "ON" : "OFF"));
+        if (showAnnotationErrorsChanged)
+                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationErrors? "ON" : "OFF"));
 
 
         if (showInsertErrorsChanged)
@@ -5408,6 +5408,13 @@ void Gui::readSettings()
     Settings.endGroup();
 
     readNativeSettings();
+
+    QString const MessagesNotShownKey("MessagesNotShown");
+    if (Settings.contains(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey))) {
+        QByteArray data = Settings.value(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey)).toByteArray();
+        QDataStream dataStreamRead(data);
+        dataStreamRead >> Preferences::messagesNotShown;
+    }
 }
 
 void Gui::writeSettings()
@@ -5420,6 +5427,13 @@ void Gui::writeSettings()
     Settings.endGroup();
 
     writeNativeSettings();
+
+    QByteArray data;
+    QDataStream dataStreamWrite(&data, QIODevice::WriteOnly);
+    dataStreamWrite << Preferences::messagesNotShown;
+    QVariant uValue(data);
+    QString const MessagesNotShownKey("MessagesNotShown");
+    Settings.setValue(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey),uValue);
 }
 
 void Gui::showLine(const Where &topOfStep, int type)
@@ -5430,66 +5444,37 @@ void Gui::showLine(const Where &topOfStep, int type)
     }
 }
 
-void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences::MsgKey msgKey, bool override)
+void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool override)
 {
     if (parsedMessages.contains(here))
         return;
 
-    bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
-    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI) {
-        if (subFileSize(here.modelName) < 500)
-            showLine(here, LINE_ERROR);
-        if (showMessagePreference || override) {
-            QString type,title;
-            switch (msgKey) {
-            case Preferences::MsgKey::IncludeFileErrors:
-                title = "Include File Meta";
-                type = "include file parse errors";
-                break;
-            case Preferences::MsgKey::InsertErrors:
-                title = "Insert Meta";
-                type = "insert parse errors";
-                break;
-            case Preferences::MsgKey::BuildModErrors:
-                title = "Build Modification Meta";
-                type = "build modification parse errors";
-                break;
-            case Preferences::MsgKey::AnnotationMessages:
-                title = "Annotation Meta";
-                type = "annotation parse messages";
-                break;
-            default: /*Preferences::MsgKey::ParseErrors*/
-                title = "Command Meta";
-                type = "meta parse errors";
-                break;
-            }
-            QMessageBoxResizable box;
-            box.setWindowTitle(tr("%1 %2 Parse").arg(VER_PRODUCTNAME_STR).arg(title));
-            box.setText(parseMessage);
-            box.setIcon(QMessageBox::Icon::Warning);
-            box.addButton(QMessageBox::Ok);
-            box.setDefaultButton(QMessageBox::Ok);
-            // override 'Do not show ... again' message
-            if (!override) {
-                QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
-                box.setCheckBox(cb);
-                QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
-                    if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-                        Preferences::setShowMessagePreference(false,msgKey);
-                    else
-                        Preferences::setShowMessagePreference(true,msgKey);
-                });
-            }
-            box.adjustSize();
-            box.exec();
-        }
-    }
-    if (writingToTmp)
-        emit progressPermMessageSig(QString("Writing submodel [Parse Error%1")
-                                    .arg(showMessagePreference ? "]...          " : " - see log]... " ));
+    const QString keyType[][2] = {
+       // Message Title,           Type Description
+       {"Command Meta",            "meta parse error"},               //ParseErrors
+       {"Insert Meta",             "insert parse error"},             //InsertErrors
+       {"Build Modification Meta", "build modification parse error"}, //BuildModErrors
+       {"Include File Meta",       "include file parse error" },      //IncludeFileErrors
+       {"Annoatation Meta",        "annotation parse error"}          //AnnotationErrors
+    };
 
-    logError() << parseMessage.replace("<br>"," ");
+    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
+    if (Preferences::modeGUI) {
+        if (subFileSize(here.modelName) < Preferences::editorLinesPerPage || Preferences::editorBufferedPaging)
+            showLine(here, LINE_ERROR);
+        bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
+        if (okToShowMessage || override) {
+            Where messageLine = here;
+            messageLine.setModelIndex(getSubmodelIndex(messageLine.modelName));
+            Preferences::MsgID msgID(msgKey,messageLine.indexToString());
+            Preferences::showMessage(msgID, parseMessage, keyType[msgID.msgKey][0], keyType[msgID.msgKey][1]);
+        }
+        if (writingToTmp)
+            emit progressPermMessageSig(QString("Writing submodel [Parse Error%1")
+                                        .arg(okToShowMessage ? "]...          " : " - see log]... " ));
+    }
+
+    logError() << qPrintable(parseMessage.replace("<br>"," "));
 
     parsedMessages.append(here);
 }

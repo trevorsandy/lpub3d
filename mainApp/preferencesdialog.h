@@ -96,7 +96,7 @@ class PreferencesDialog : public QDialog
     bool          showInsertErrors();
     bool          showBuildModErrors();
     bool          showIncludeFileErrors();
-    bool          showAnnotationMessages();
+    bool          showAnnotationErrors();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
     bool          addLSynthSearchDir();
@@ -178,6 +178,7 @@ class PreferencesDialog : public QDialog
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
 
+    void messageManagement();
     void sceneColorButtonClicked();
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
@@ -186,13 +187,28 @@ class PreferencesDialog : public QDialog
 private:
     Ui::PreferencesDialog ui;
 
-    QWidget       *parent;
+    QWidget     *parent;
+
+    QDialog     *messageDialog;
+    QToolButton *parseErrorTBtn;
+    QLabel      *parseErrorLbl;
+    QToolButton *insertErrorTBtn;
+    QLabel      *insertErrorLbl;
+    QToolButton *buildModErrorTBtn;
+    QLabel      *buildModErrorLbl;
+    QToolButton *includeErrorTBtn;
+    QLabel      *includeErrorLbl;
+    QToolButton *annotationErrorTBtn;
+    QLabel      *annotationErrorLbl;
+    QToolButton *clearDetailErrorsTBtn;
+    QLabel      *clearDetailErrorsLbl;
+    QDialogButtonBox *messageButtonBox;
 
     bool mShowLineParseErrors;
     bool mShowInsertErrors;
     bool mShowBuildModErrors;
     bool mShowIncludeFileErrors;
-    bool mShowAnnotationMessages;
+    bool mShowAnnotationErrors;
 
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;

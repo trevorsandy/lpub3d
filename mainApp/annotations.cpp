@@ -40,7 +40,7 @@ QHash<QString, QString>     Annotations::ld2blCodesXRef;
 QHash<QString, QString>     Annotations::ld2rbColorsXRef;
 QHash<QString, QString>     Annotations::ld2rbCodesXRef;
 
-QList<Where>                Annotations::annotationMessages;
+QList<Where>                Annotations::AnnotationErrors;
 
 void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
 /*
@@ -1200,7 +1200,7 @@ Annotations::Annotations()
 {
     returnString = QString();
     bool rxFound = false;
-    annotationMessages.clear();
+    AnnotationErrors.clear();
 
     QString message,fileName;
     if (titleAnnotations.size() == 0) {
@@ -1250,8 +1250,8 @@ Annotations::Annotations()
                                   "# File: %1<br>"
                                   "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
                                   .arg(fileName);
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             titleAnnotations.clear();
@@ -1321,8 +1321,8 @@ Annotations::Annotations()
                                   "# File: %1<br>"
                                   "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$")
                                   .arg(fileName);
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         }
     }
@@ -1378,8 +1378,8 @@ Annotations::Annotations()
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(fileName);
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             annotationStyles.clear();
@@ -1451,8 +1451,8 @@ Annotations::Annotations()
                                  "Regenerate %1 by renaming the existing file and<br>"
                                  "select edit %1 from the configuration menu.")
                                  .arg(fileName);
-               Where here(fileName,1001);
-               annotationMessage(message,here);
+               Where annotationFile(fileName);
+               annotationMessage(message,annotationFile);
            }
         } else {
             blColors.clear();
@@ -1520,8 +1520,8 @@ Annotations::Annotations()
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(fileName);
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             ld2blColorsXRef.clear();
@@ -1589,8 +1589,8 @@ Annotations::Annotations()
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2blCodesXRefFile).fileName());
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             ld2blCodesXRef.clear();
@@ -1660,8 +1660,8 @@ Annotations::Annotations()
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbColorsXRefFile).fileName());
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             ld2rbColorsXRef.clear();
@@ -1729,8 +1729,8 @@ Annotations::Annotations()
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbCodesXRefFile).fileName());
-                Where here(fileName,1001);
-                annotationMessage(message,here);
+                Where annotationFile(fileName);
+                annotationMessage(message,annotationFile);
             }
         } else {
             ld2rbCodesXRef.clear();
@@ -2690,35 +2690,20 @@ bool Annotations::exportfreeformAnnotationsHeader(){
     return true;
 }
 
-void Annotations::annotationMessage(QString &message, Where &here)
+void Annotations::annotationMessage(QString &message, Where &thisFile)
 {
-    if (annotationMessages.contains(here))
+    if (AnnotationErrors.contains(thisFile))
         return;
 
-    QString parseMessage = QString("%1<br>(file: %2)") .arg(message) .arg(here.modelName);
-    if (Preferences::modeGUI) {
-        if (Preferences::showAnnotationMessages) {
-            QCheckBox *cb = new QCheckBox("Do not show annotation message again.");
-            QMessageBoxResizable box;
-            box.setWindowTitle(QMessageBox::tr(VER_PRODUCTNAME_STR " Annotation Message"));
-            box.setText(parseMessage);
-            box.setIcon(QMessageBox::Icon::Warning);
-            box.addButton(QMessageBox::Ok);
-            box.setDefaultButton(QMessageBox::Ok);
-            box.setCheckBox(cb);
-
-            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
-                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                    Preferences::setShowMessagePreference(false, Preferences::AnnotationMessages);
-                } else {
-                    Preferences::setShowMessagePreference(true, Preferences::AnnotationMessages);
-                }
-            });
-            box.adjustSize();
-            box.exec();
-        }
+    QString parseMessage = QString("%1<br>(file: %2)") .arg(message) .arg(thisFile.modelName/*annotation file name*/);
+    bool okToShowMessage = Preferences::getShowMessagePreference(Preferences::AnnotationErrors);
+    if (Preferences::modeGUI && okToShowMessage) {
+        Preferences::MsgID msgID(Preferences::AnnotationErrors,thisFile.nameToString());
+        if (okToShowMessage)
+            Preferences::showMessage(msgID, parseMessage, "Annoatation File", "annotation file error");
     }
+
     logError() << qPrintable(parseMessage.replace("<br>"," "));
 
-    annotationMessages.append(here);
+    AnnotationErrors.append(thisFile);
 }

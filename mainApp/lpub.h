@@ -511,7 +511,7 @@ public:
   int             lastStepPageNum;  // the last Step page number - used to specify backCover page
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
   QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
-  QList<Where>    parsedMessages;       // previously parsed messages
+  QList<Where>    parsedMessages;   // previously parsed messages within the current session
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
@@ -1161,17 +1161,10 @@ public slots:
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
-  void showLineMessage(const QString message,
-                       const Where &here,
-                       Preferences::MsgKey = Preferences::ParseErrors,
-                       bool override = false);
   void parseError(const QString errorMsg,
                   const Where &here,
-                  Preferences::MsgKey key = Preferences::ParseErrors,
-                  bool override = false)
-  {
-      showLineMessage(errorMsg,here,key,override);
-  }
+                  Preferences::MsgKey msgKey = Preferences::ParseErrors,
+                  bool override = false);
 
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);

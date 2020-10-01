@@ -1239,7 +1239,7 @@ int Gui::drawPage(
                     message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                 }
                 if (stepContains(top,partLineRx)) {
-                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::MsgKey::InsertErrors);
+                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
                 }
                 if (proceed) {
                     opts.stepNum--;
@@ -1286,7 +1286,7 @@ int Gui::drawPage(
                     message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                   }
                   if (stepContains(top,partLineRx)) {
-                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::MsgKey::InsertErrors);
+                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
                   }
               }
               break;
@@ -1294,7 +1294,7 @@ int Gui::drawPage(
             case InsertPageRc:
               {
                 if (stepContains(topOfStep,partLineRx))
-                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::MsgKey::InsertErrors),
+                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::InsertErrors),
                                opts.current);
 
                 partsAdded = true;
@@ -3974,7 +3974,7 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
         switch (line.toLatin1()[0]) {
         case '1':
             parseError(QString("Invalid include line [%1].<br>"
-                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),includeHere,Preferences::MsgKey::IncludeFileErrors);
+                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),includeHere,Preferences::IncludeFileErrors);
             return prc;
         case '0':
             prc = meta.parse(line,includeHere);
@@ -3989,7 +3989,7 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
                 parseError(QString("Substitute part meta commands are not supported in include file: [%1].<br>"
-                                   "Add this command to the model file or to a submodel.").arg(line),includeHere,Preferences::MsgKey::IncludeFileErrors);
+                                   "Add this command to the model file or to a submodel.").arg(line),includeHere,Preferences::IncludeFileErrors);
                 return InvalidLineRc;
             default:
                 break;

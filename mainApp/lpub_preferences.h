@@ -32,8 +32,27 @@ class Preferences
         InsertErrors,
         BuildModErrors,
         IncludeFileErrors,
-        AnnotationMessages,
+        AnnotationErrors,
         NumKeys
+    };
+
+    struct MsgID {
+        MsgKey msgKey;
+        QString uID;
+        MsgID(){}
+        MsgID(MsgKey _msgKey, QString _uID)
+        {
+            msgKey = _msgKey;
+            uID    = _uID;
+        }
+        const QString toString() const
+        {
+           return QString("%1 %2").arg(msgKey).arg(uID);
+        }
+        const QString keyToString() const
+        {
+            return QString(msgKey);
+        }
     };
 
     Preferences();
@@ -90,7 +109,6 @@ class Preferences
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
-    static void setShowMessagePreference(bool,MsgKey = ParseErrors);
     static void setShowSaveOnRedrawPreference(bool);
     static void setShowSaveOnUpdatePreference(bool);
     static void setStdOutToLogPreference(bool);
@@ -108,6 +126,8 @@ class Preferences
     static void setBlenderExePathPreference(QString);
     static void setBlenderVersionPreference(QString);
     static void setDebugLogging(bool); 
+
+    static int showMessage(Preferences::MsgID, const QString &message, const QString &title = "", const QString &type = "");
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;
@@ -210,6 +230,7 @@ class Preferences
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
+    static QStringList messagesNotShown;
 
     static bool    usingDefaultLibrary;
     static bool    ldrawiniFound;
@@ -293,7 +314,7 @@ class Preferences
     static bool    showInsertErrors;
     static bool    showBuildModErrors;
     static bool    showIncludeFileErrors;
-    static bool    showAnnotationMessages;
+    static bool    showAnnotationErrors;
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
     static bool    suppressStdOutToLog;
@@ -332,6 +353,7 @@ class Preferences
     virtual ~Preferences() {}
 };
 
+extern const QString msgKeyTypes [][2];
 extern Preferences preferences;
 
 #endif

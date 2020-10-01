@@ -2401,25 +2401,9 @@ void Gui::applyBuildModification()
                         "Model: " + model + ", Line: " + line + ", Step: " + step;
         QString type  = "Apply build modification errors";
         QString title = "Build Modification";
-        Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
-        QMessageBoxResizable box;
-        box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
-        box.setText(text);
-        box.setIcon(QMessageBox::Icon::Warning);
 
-        box.addButton(QMessageBox::Ok);
-        box.setDefaultButton(QMessageBox::Ok);
-
-        QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
-        box.setCheckBox(cb);
-        QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
-            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-                Preferences::setShowMessagePreference(false,msgKey);
-            else
-                Preferences::setShowMessagePreference(true,msgKey);
-        });
-        box.adjustSize();
-        box.exec();
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        Preferences::showMessage(msgID, text, title, type);
 
         return;
     }
@@ -2477,25 +2461,9 @@ void Gui::removeBuildModification()
                         "Model: " + model + ", Line: " + line + ", Step: " + step;
         QString type  = "Remove build modification errors";
         QString title = "Build Modification";
-        Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
-        QMessageBoxResizable box;
-        box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
-        box.setText(text);
-        box.setIcon(QMessageBox::Icon::Warning);
 
-        box.addButton(QMessageBox::Ok);
-        box.setDefaultButton(QMessageBox::Ok);
-
-        QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
-        box.setCheckBox(cb);
-        QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
-            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-                Preferences::setShowMessagePreference(false,msgKey);
-            else
-                Preferences::setShowMessagePreference(true,msgKey);
-        });
-        box.adjustSize();
-        box.exec();
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        Preferences::showMessage(msgID, text, title, type);
 
         return;
     }
@@ -2647,30 +2615,19 @@ void Gui::deleteBuildModification()
     if (!buildModKeys.size())
         return;
 
+    QString model = "undefined", line = "undefined", step = "undefined";
+    QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
+    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     QString text  = "This action cannot be completelly undone by the Undo button. "
-                    " The BuildMod related image and viewer entry content will be parmanently deleted.<br>"
+                    "The BuildMod related image and viewer entry content will be parmanently deleted.<br>"
+                    "Model: " + model + ", Line: " + line + ", Step: " + step + "<br>"
                     "You can use reload to regenerate the deleted image.<br><br>"
                     "Do you want to continue ?";
     QString type  = "delete warning";
     QString title = "Build Modification";
-    Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
-    QMessageBoxResizable box;
-    box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
-    box.setText(text);
-    box.setIcon(QMessageBox::Icon::Warning);
 
-    QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
-    box.setCheckBox(cb);
-    QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
-        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-            Preferences::setShowMessagePreference(false,msgKey);
-        else
-            Preferences::setShowMessagePreference(true,msgKey);
-    });
-    box.adjustSize();
-    box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
-    box.setDefaultButton   (QMessageBox::Cancel);
-    switch (box.exec())
+    Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+    switch (Preferences::showMessage(msgID, text, title, type))
     {
     default:
     case QMessageBox::Cancel:

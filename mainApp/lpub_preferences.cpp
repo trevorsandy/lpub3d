@@ -44,14 +44,22 @@
 
 Preferences preferences;
 
-const QString MsgKeys[Preferences::MsgKey::NumKeys] =
+const QString MsgKeys[Preferences::NumKeys] =
 {
-    "ShowLineParseErrors",
-    "ShowInsertErrors",
-    "ShowBuildModErrors",
-    "ShowIncludeLineErrors",
-    "ShowAnnotationMessages"
+    "ShowLineParseErrors",    // ParseErrors
+    "ShowInsertErrors",       // InsertErrors
+    "ShowBuildModErrors",     // BuildModErrors
+    "ShowIncludeLineErrors",  // IncludeFileErrors
+    "ShowAnnotationErrors"    // AnnotationErrors
+};
 
+const QString msgKeyTypes [][2] = {
+   // Message Title,      Type Description
+   {"Command",            "command message"},       //ParseErrors
+   {"Insert",             "insert message"},        //InsertErrors
+   {"Build Modification", "build modification"},    //BuildModErrors
+   {"Include File",       "include file message" }, //IncludeFileErrors
+   {"Annoatation",        "annotation message"}     //AnnotationErrors
 };
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
@@ -100,6 +108,7 @@ QString Preferences::blenderExe;
 
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
+QStringList Preferences::messagesNotShown;
 
 //Dynamic page attributes
 QString Preferences::defaultAuthor;
@@ -242,7 +251,7 @@ bool    Preferences::lineParseErrors            = true;
 bool    Preferences::showInsertErrors           = true;
 bool    Preferences::showBuildModErrors         = true;
 bool    Preferences::showIncludeFileErrors      = true;
-bool    Preferences::showAnnotationMessages     = true;
+bool    Preferences::showAnnotationErrors       = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
@@ -3105,13 +3114,13 @@ void Preferences::userInterfacePreferences()
           showBuildModErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey)).toBool();
   }
 
-  QString const showAnnotationMessagesKey("ShowAnnotationMessages");
-  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey))) {
+  QString const showAnnotationErrorsKey("ShowAnnotationErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey))) {
           QVariant uValue(true);
-          showAnnotationMessages = true;
-          Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey),uValue);
+          showAnnotationErrors = true;
+          Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey),uValue);
   } else {
-          showAnnotationMessages = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey)).toBool();
+          showAnnotationErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationErrorsKey)).toBool();
   }
 
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
@@ -3217,33 +3226,6 @@ void Preferences::userInterfacePreferences()
   }
 }
 
-void Preferences::setShowMessagePreference(bool b,MsgKey key)
-{
-    QSettings Settings;
-    QVariant uValue(b);
-    QString const showMessageKey(MsgKeys[key]);
-    Settings.setValue(QString("%1/%2").arg(MESSAGES,showMessageKey),uValue);
-    switch(key){
-    case ParseErrors:
-        lineParseErrors = b;
-        break;
-    case InsertErrors:
-        showInsertErrors = b;
-        break;
-    case BuildModErrors:
-        showBuildModErrors = b;
-        break;
-    case IncludeFileErrors:
-        showIncludeFileErrors = b;
-        break;
-    case AnnotationMessages:
-        showAnnotationMessages = b;
-        break;
-    default:
-        break;
-    }
-}
-
 bool Preferences::getShowMessagePreference(MsgKey key)
 {
     bool result = true;
@@ -3268,13 +3250,38 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     case IncludeFileErrors:
         showIncludeFileErrors = result;
         break;
-    case AnnotationMessages:
-        showAnnotationMessages = result;
+    case AnnotationErrors:
+        showAnnotationErrors = result;
         break;
     default:
         break;
     }
     return result;
+}
+
+int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type)
+{
+    foreach (QString messageNotShown, messagesNotShown)
+        if (messageNotShown.startsWith(msgID.toString()))
+            return 1;
+
+    QString msgTitle = title.isEmpty() ? msgKeyTypes[msgID.msgKey][0] : title;
+    QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
+
+    QMessageBoxResizable box;
+    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+    box.setText(message);
+    box.setIcon(QMessageBox::Icon::Warning);
+    box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Cancel);
+    QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
+    box.setCheckBox(cb);
+    QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+            messagesNotShown.append(QString(msgID.toString() + "|" + message));
+    });
+    box.adjustSize();
+    return box.exec();
 }
 
 void Preferences::setShowSaveOnRedrawPreference(bool b)
@@ -4284,10 +4291,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowIncludeFileErrors"),showIncludeFileErrors);
         }
 
-        if (showAnnotationMessages != dialog->showAnnotationMessages())
+        if (showAnnotationErrors != dialog->showAnnotationErrors())
         {
-            showAnnotationMessages = dialog->showAnnotationMessages();
-            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowAnnotationMessages"),showAnnotationMessages);
+            showAnnotationErrors = dialog->showAnnotationErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowAnnotationErrors"),showAnnotationErrors);
         }
 
         if (showSaveOnRedraw != dialog->showSaveOnRedraw())
