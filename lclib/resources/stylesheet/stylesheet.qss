@@ -1,3 +1,9 @@
+/*
+   Trevor SANDY
+   Last Update Sep 16, 2020
+   Copyright (c) 2020 by Trevor SANDY
+*/
+
 QToolBar {
     border: none;
 }
@@ -86,3 +92,9 @@ QTabBar::close-button:hover {
 QTabBar::close-button:pressed {
     background-color: rgba(255, 255, 255, 40);
 }
+
+/*** LPub3D Mod - observe specified drop-down size ***/
+QComboBox {
+    combobox-popup: 0;
+}
+/*** LPub3D Mod end ***/ 
