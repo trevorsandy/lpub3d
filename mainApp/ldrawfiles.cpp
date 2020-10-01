@@ -1104,7 +1104,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         MissingHeader  headerMissing = NoneMissing;
 
         emit gui->progressPermRangeSig(1, stageContents.size());
-        emit gui->progressPermMessageSig(QString("Loading %1 %2").arg(fileType()).arg( fileInfo.fileName()));
+        emit gui->progressPermMessageSig(QString("Loading %1 '%2'").arg(fileType()).arg( fileInfo.fileName()));
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1, Start Index %2")
                              .arg(stageContents.size()).arg(fileIndx));
@@ -1431,7 +1431,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         emit gui->progressBarPermInitSig();
         emit gui->progressPermRangeSig(1, contents.size());
-        emit gui->progressPermMessageSig(QString("Loading LDR %1 %2...").arg(fileType).arg(fileInfo.fileName()));
+        emit gui->progressPermMessageSig(QString("Loading LDR %1 '%2'...").arg(fileType).arg(fileInfo.fileName()));
 
         QDateTime datetime = fileInfo.lastModified();
 

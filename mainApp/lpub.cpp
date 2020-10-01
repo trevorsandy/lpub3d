@@ -379,9 +379,6 @@ void Gui::displayPage()
       enableActions2();
       emit enable3DActionsSig();
     }
-  if (! ContinuousPage())
-      emit messageSig(LOG_STATUS,QString("Page loaded%1.")
-                  .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
 }
 
 void Gui::nextPage()
@@ -4650,6 +4647,7 @@ void Gui::loadPages(){
 
   MetaItem mi;
   int pageNum     = 0;
+  setGoToPageCombo->clear();
   setGoToPageCombo->setMaxCount(0);
   setGoToPageCombo->setMaxCount(1000);
   bool frontCoverPage = mi.frontCoverPageExist();

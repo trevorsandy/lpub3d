@@ -546,6 +546,8 @@ int Gui::drawPage(
                                  .arg(QString("%1%2").arg(displayPageNum).arg(coverPage ? " (Cover Page)" : ""))
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
+    emit messageSig(LOG_INFO_STATUS, QString("Counting document pages..."));
+    QApplication::processEvents();
   };
 
   auto insertAttribute =
@@ -2811,6 +2813,7 @@ int Gui::findPage(
                                   stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/);
+
                       if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
                           // return to init drawPage to rerun findPage to regenerate content
                           return HitBuildModAction;
@@ -2822,7 +2825,8 @@ int Gui::findPage(
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
                       saveLineTypeIndexes.clear();
-                  } // isDisplayPage/*opts.pageNum == displayPageNum*/
+
+                  } // isDisplayPage /*opts.pageNum == displayPageNum*/
 
                   // ignored when processing buildMod display
                   if (exporting()) {
@@ -2851,6 +2855,12 @@ int Gui::findPage(
                   ++opts.pageNum;
                   topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
                   saveStepPageNum = ++stepPageNum;
+
+                  if (Preferences::modeGUI && ! exporting()) {
+                      emit messageSig(LOG_STATUS, QString("Counting document page %1...")
+                                      .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+                      QApplication::processEvents();
+                  }
                 } // StepGroup
               noStep2 = false;
               break;
@@ -2983,7 +2993,8 @@ int Gui::findPage(
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
                           saveLineTypeIndexes.clear();
-                        } // isDisplayPage/*opts.pageNum == displayPageNum*/
+
+                        } // isDisplayPage /*opts.pageNum == displayPageNum*/
 
                       if (exporting()) {
                           pageSizes.remove(opts.pageNum);
@@ -3011,6 +3022,12 @@ int Gui::findPage(
 
                       ++opts.pageNum;
                       topOfPages.append(opts.current); // TopOfStep (Step)
+
+                      if (Preferences::modeGUI && ! exporting()) {
+                          emit messageSig(LOG_STATUS, QString("Counting document page %1...")
+                                          .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+                          QApplication::processEvents();
+                      }
                     } // ! StepGroup
 
                   topOfStep = opts.current;
@@ -3030,7 +3047,6 @@ int Gui::findPage(
                 }
               noStep2 = noStep;
               noStep = false;
-              emit messageSig(LOG_STATUS, QString("Parsing remaining modle file pages..."));
               break;
 
             case CalloutBeginRc:
@@ -3264,13 +3280,14 @@ int Gui::findPage(
                       opts.printing,
                       opts.buildModLevel,
                       bfxStore2);
+
           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
               // Set opts.current to topOfStep
               opts.current = pageOptions.current;
               // rerun findPage to reflect change in pre-displayPageNum csiParts
               return HitBuildModAction;
           }
-        }
+      }
       if (exporting()) {
           pageSizes.remove(opts.pageNum);
           if (pageSizeUpdate) {
@@ -3293,11 +3310,16 @@ int Gui::findPage(
                          << "Model:" << opts.current.modelName;
 #endif
             }
-        } // exporting
+      } // exporting
       ++opts.pageNum;
       topOfPages.append(opts.current); // TopOfStep (Last Step)
       ++stepPageNum;
-      emit messageSig(LOG_STATUS, QString("Parsing remaining modle file pages..."));
+
+      if (Preferences::modeGUI && ! exporting()) {
+          emit messageSig(LOG_STATUS, QString("Counting document page %1...")
+                          .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+          QApplication::processEvents();
+      }
     }  // Last Step in Submodel
   return 0;
 }

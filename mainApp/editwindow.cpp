@@ -1109,7 +1109,7 @@ void EditWindow::displayFile(
           QProgressDialog *progressDialog = nullptr;
 
           if (setProgressDialog) {
-              QString message = QString("Loading %1, please wait...").arg(QFileInfo(fileName).fileName());
+              QString message = QString("Loading '%1', please wait...").arg(QFileInfo(fileName).fileName());
               progressDialog = new QProgressDialog(message, "Cancel",0,0,this);
               progressDialog->setWindowModality(Qt::WindowModal);
               // hide cancel button
