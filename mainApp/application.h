@@ -194,6 +194,7 @@ private:
 #endif
 
 void clearCustomPartCache(bool silent = false);
+void clearAndReloadModelFileFromSettings();
 void clearAndReloadModelFile();
 void reloadCurrentPage();
 void restartApplication();

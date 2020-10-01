@@ -362,4 +362,12 @@ public slots:
   void clearCache(bool);
   void checkConflict(bool);
 };
+
+void clearPliCache();
+void clearAndReloadModelFileFromSettings();
+void clearCsiCache();
+void clearSubmodelCache();
+void clearPliCache();
+void clearTempCache();
+
 #endif

@@ -36,13 +36,6 @@
 #include "metatypes.h"
 #include "gradients.h"
 
-void clearPliCache();
-void clearAndReloadModelFile();
-void clearCsiCache();
-void clearSubmodelCache();
-void clearPliCache();
-void clearTempCache();
-
 class QWidget;
 class QString;
 class QHBoxLayout;
