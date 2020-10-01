@@ -1210,13 +1210,13 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
       bool ok[3];
       argv[index+1].toInt(&ok[0]);
       argv[index+3].toFloat(&ok[1]);
-      argv[index+4].toInt(&ok[2]);
+      argv[index+4].toFloat(&ok[2]);
       if (ok[0] && ok[1] && ok[2]) {
           _value[pushed].type      = BorderData::BdrRound;
           _value[pushed].line      = setBorderLine(argv[index+1]);
           _value[pushed].color     = argv[index+2];
           _value[pushed].thickness = argv[index+3].toFloat(&ok[0]);
-          _value[pushed].radius    = argv[index+4].toInt(&ok[0]);
+          _value[pushed].radius    = argv[index+4].toFloat(&ok[1]);
           index += 5;
           rc = OkRc;
         }
@@ -1224,13 +1224,13 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
       rc = FailureRc;
       bool ok[2];
       argv[index+2].toFloat(&ok[0]);
-      argv[index+3].toInt(&ok[1]);
+      argv[index+3].toFloat(&ok[1]);
       if (ok[0] && ok[1]) {
           _value[pushed].type  = BorderData::BdrRound;
           _value[pushed].line  = BorderData::BdrLnSolid;
           _value[pushed].color = argv[index+1];
           _value[pushed].thickness = argv[index+2].toFloat(&ok[0]);
-          _value[pushed].radius    = argv[index+3].toInt(&ok[0]);
+          _value[pushed].radius    = argv[index+3].toFloat(&ok[1]);
           index += 4;
           rc = OkRc;
         }
