@@ -3837,7 +3837,6 @@ void Gui::drawPage(
 
   maxPages    = 1;
   stepPageNum = 1;
-  currentStep = nullptr;
 
   // if not buildMod action
   if (! buildMod) {
@@ -3918,6 +3917,8 @@ void Gui::drawPage(
 */
 
       maxPages--;
+
+      setCurrentStep();
 
       if (Preferences::modeGUI && ! exporting()) {
           QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);

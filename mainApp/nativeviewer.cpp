@@ -2717,11 +2717,11 @@ bool Gui::saveBuildModification()
 
 void Gui::setViewerStepKey(const QString &stepKey, int notPliPart)
 {
+    Q_UNUSED(notPliPart)
+
     viewerStepKey = stepKey;
     currentStep   = nullptr;
     mBuildModRange = { 0, 0, -1 };
-    if (notPliPart)
-        setCurrentStep();
 }
 
 /*********************************************

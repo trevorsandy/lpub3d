@@ -83,6 +83,7 @@ void Gui::clearPage(
     }
     scene->clear();
   }
+  currentStep = nullptr;
 }
 
 /*********************************************
