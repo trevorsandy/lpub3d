@@ -377,6 +377,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   // show message options
   mShowLineParseErrors    = Preferences::lineParseErrors;
+  mShowInsertErrors       = Preferences::showInsertErrors;
   mShowBuildModErrors     = Preferences::showBuildModErrors;
   mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
   mShowAnnotationMessages = Preferences::showAnnotationMessages;
@@ -934,43 +935,35 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     QDialog *dialog = new QDialog();
     dialog->setWindowTitle("Parse Messages");
     QFormLayout *form = new QFormLayout(dialog);
-    form->addRow(new QLabel("Message Options"));
 
     // options - parse errors
-    QGroupBox *parseErrorGrpBox = new QGroupBox("Model Line Parse Errors");
+    QGroupBox *parseErrorGrpBox = new QGroupBox("Parse Errors Message Types");
     form->addWidget(parseErrorGrpBox);
-    QFormLayout *parseErrorSubform = new QFormLayout(parseErrorGrpBox);
+    QVBoxLayout *parseErrorLayout = new QVBoxLayout(parseErrorGrpBox);
 
-    QCheckBox * parseErrorChkBox = new QCheckBox("Show errors", dialog);
+    QCheckBox * parseErrorChkBox = new QCheckBox("Show model line parse errors", dialog);
     parseErrorChkBox->setChecked(Preferences::lineParseErrors);
-    parseErrorSubform->addRow(parseErrorChkBox);
+    parseErrorLayout->addWidget(parseErrorChkBox);
+
+    // options - insert errors
+    QCheckBox * insertErrorChkBox = new QCheckBox("Show model insert errors", dialog);
+    insertErrorChkBox ->setChecked(Preferences::showInsertErrors);
+    parseErrorLayout->addWidget(insertErrorChkBox );
 
     // options - build modification errors
-    QGroupBox *buildModErrorGrpBox = new QGroupBox("Build Modification Errors");
-    form->addWidget(buildModErrorGrpBox);
-    QFormLayout *buildModErrorSubform = new QFormLayout(buildModErrorGrpBox);
-
-    QCheckBox * buildModErrorChkBox = new QCheckBox("Show errors", dialog);
+    QCheckBox * buildModErrorChkBox = new QCheckBox("Show build modification errors", dialog);
     buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
-    buildModErrorSubform->addRow(buildModErrorChkBox);
+    parseErrorLayout->addWidget(buildModErrorChkBox);
 
     // options - include file errors
-    QGroupBox *includeFileErrorGrpBox = new QGroupBox("Include File Errors");
-    form->addWidget(includeFileErrorGrpBox);
-    QFormLayout *includeFileErrorSubform = new QFormLayout(includeFileErrorGrpBox);
-
-    QCheckBox * includeFileErrorChkBox = new QCheckBox("Show errors", dialog);
+    QCheckBox * includeFileErrorChkBox = new QCheckBox("Show include file errors", dialog);
     includeFileErrorChkBox->setChecked(Preferences::showIncludeFileErrors);
-    includeFileErrorSubform->addRow(includeFileErrorChkBox);
+    parseErrorLayout->addWidget(includeFileErrorChkBox);
 
     // options - annotation message
-    QGroupBox *annotationMessageGrpBox = new QGroupBox("Annotation Messages");
-    form->addWidget(annotationMessageGrpBox);
-    QFormLayout *annotationMessageSubform = new QFormLayout(annotationMessageGrpBox);
-
-    QCheckBox * annotationMessageChkBox = new QCheckBox("Show messages", dialog);
+    QCheckBox * annotationMessageChkBox = new QCheckBox("Show annotation messages", dialog);
     annotationMessageChkBox->setChecked(Preferences::showAnnotationMessages);
-    annotationMessageSubform->addRow(annotationMessageChkBox);
+    parseErrorLayout->addWidget(annotationMessageChkBox);
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -982,6 +975,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
 
     if (dialog->exec() == QDialog::Accepted) {
         mShowLineParseErrors    = parseErrorChkBox->isChecked();
+        mShowInsertErrors       = insertErrorChkBox ->isChecked();
         mShowBuildModErrors     = buildModErrorChkBox->isChecked();
         mShowIncludeFileErrors  = includeFileErrorChkBox->isChecked();
         mShowAnnotationMessages = annotationMessageChkBox->isChecked();
@@ -1323,6 +1317,11 @@ int PreferencesDialog::pageDisplayPause()
 bool PreferencesDialog::showLineParseErrors()
 {
  return mShowLineParseErrors;
+}
+
+bool PreferencesDialog::showInsertErrors()
+{
+ return mShowInsertErrors ;
 }
 
 bool PreferencesDialog::showBuildModErrors()

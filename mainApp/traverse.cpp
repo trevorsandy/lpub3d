@@ -1216,12 +1216,12 @@ int Gui::drawPage(
                 // Do this before creating the step so we can use the file name during csi generation
                 // to indicate this step file is not an actual step - just a model display
                 // The Display Model command syntax is:
-                // 0 STEP
+                // 0 [ROT]STEP
+                // 0 !LPUB INSERT PAGE
                 // 0 !LPUB ASSEM CAMERA_ANGLES LOCAL 40.0000 65.0000
                 // 0 !LPUB ASSEM MODEL_SCALE LOCAL  2.0000
-                // 0 !LPUB INSERT PAGE
                 // 0 !LPUB INSERT DISPLAY_MODEL
-                // 0 STEP
+                // 0 [ROT]STEP
                 // Note that LOCAL settings must be placed before INSERT PAGE meta command
 
                 Where top;
@@ -1230,15 +1230,15 @@ int Gui::drawPage(
                 if (rc == InsertFinalModelRc) {
                     // for final model, check from top of previous step
                     top = getTopOfPreviousStep();
-                    message = QString("INSERT MODEL meta must be preceded by 0 STEP before part (type 1) at line");
+                    message = QString("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
 
                     proceed = curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value();
                 } else { /*InsertDisplayModelRc*/
                     top = opts.current;
-                    message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 STEP before part (type 1) at line");
+                    message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                 }
                 if (stepContains(top,partLineRx)) {
-                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current);
+                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::MsgKey::InsertErrors);
                 }
                 if (proceed) {
                     opts.stepNum--;
@@ -1276,16 +1276,16 @@ int Gui::drawPage(
 
                     // for back cover page, check from top of previous step
                     top = getTopOfPreviousStep();
-                    message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 STEP before part (type 1) at line");
+                    message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
                   } else {
                     page.frontCover = true;
                     page.backCover  = false;
 
                     top = topOfStep;
-                    message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 STEP before part (type 1) at line");
+                    message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                   }
                   if (stepContains(top,partLineRx)) {
-                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current);
+                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::MsgKey::InsertErrors);
                   }
               }
               break;
@@ -1293,7 +1293,7 @@ int Gui::drawPage(
             case InsertPageRc:
               {
                 if (stepContains(topOfStep,partLineRx))
-                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1),
+                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::MsgKey::InsertErrors),
                                opts.current);
 
                 partsAdded = true;

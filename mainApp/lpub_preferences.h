@@ -29,11 +29,13 @@ class Preferences
   public:
     enum MsgKey {
         ParseErrors,
+        InsertErrors,
         BuildModErrors,
         IncludeFileErrors,
         AnnotationMessages,
         NumKeys
     };
+
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
@@ -289,6 +291,7 @@ class Preferences
     static bool    showGuidesCoordinates;
     static bool    showTrackingCoordinates;
     static bool    lineParseErrors;
+    static bool    showInsertErrors;
     static bool    showBuildModErrors;
     static bool    showIncludeFileErrors;
     static bool    showAnnotationMessages;

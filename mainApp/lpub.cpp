@@ -2546,6 +2546,7 @@ void Gui::preferences()
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
     bool lineParseErrorsCompare         = Preferences::lineParseErrors;
+    bool showInsertErrorsCompare         = Preferences::showInsertErrors;
     bool showAnnotationMessagesCompare  = Preferences::showAnnotationMessages;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
@@ -2624,6 +2625,7 @@ void Gui::preferences()
         bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
 
         bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
+        bool showInsertErrorsChanged       = Preferences::showInsertErrors                       != showInsertErrorsCompare;
         bool showAnnotationMessagesChanged = Preferences::showAnnotationMessages                 != showAnnotationMessagesCompare;
 
         if (defaultUnitsChanged     )
@@ -2825,37 +2827,22 @@ void Gui::preferences()
             box.exec();
         }
 
-        if (lineParseErrorsChanged     )
+        if (lineParseErrorsChanged)
                     emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
 
-        if (showAnnotationMessagesChanged     )
+        if (showAnnotationMessagesChanged)
                     emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationMessages? "ON" : "OFF"));
 
 
-        if (displayThemeChanged) {
-            if( Preferences::themeAutoRestart) {
-                displayThemeRestart = true;
-            }
-            else
-            if (displayThemeChanged) {
-                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
-                box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
-                                     "Editor syntax highlighting will update the next time you start %1")
-                                     .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-                box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" to set the Theme without restart.\n\n"
-                                                "You can suppress this message in Preferences, Themes")
-                                                .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-                int execReturn = box.exec();
-                if (execReturn == QMessageBox::Ok) {
-                    displayThemeRestart = true;
-                } else if (execReturn == QMessageBox::Cancel) {
-                    displayThemeChanged = false;
-                    if (Preferences::displayTheme == THEME_DARK)
-                        Preferences::displayTheme = THEME_DEFAULT;
-                    else
-                        Preferences::displayTheme = THEME_DARK;
-                }
-            }
+        if (showInsertErrorsChanged)
+                   emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
+
+        if (displayThemeChanged         ||
+            sceneBackgroundColorChanged ||
+            sceneGridColorChanged       ||
+            sceneRulerTickColorChanged  ||
+            sceneGuideColorChanged)
+        {
             if (displayThemeChanged)
                 loadTheme(displayThemeRestart);
         }
@@ -5476,6 +5463,10 @@ void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences
             case Preferences::MsgKey::IncludeFileErrors:
                 title = "Include File Meta";
                 type = "include file parse errors";
+                break;
+            case Preferences::MsgKey::InsertErrors:
+                title = "Insert Meta";
+                type = "insert parse errors";
                 break;
             case Preferences::MsgKey::BuildModErrors:
                 title = "Build Modification Meta";

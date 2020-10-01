@@ -94,6 +94,7 @@ class PreferencesDialog : public QDialog
     bool          includeFunction();
     bool          includeAllLogAttrib();
     bool          showLineParseErrors();
+    bool          showInsertErrors();
     bool          showBuildModErrors();
     bool          showIncludeFileErrors();
     bool          showAnnotationMessages();
@@ -189,6 +190,7 @@ private:
     QWidget       *parent;
 
     bool mShowLineParseErrors;
+    bool mShowInsertErrors;
     bool mShowBuildModErrors;
     bool mShowIncludeFileErrors;
     bool mShowAnnotationMessages;

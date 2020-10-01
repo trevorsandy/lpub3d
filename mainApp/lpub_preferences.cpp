@@ -47,9 +47,11 @@ Preferences preferences;
 const QString MsgKeys[Preferences::MsgKey::NumKeys] =
 {
     "ShowLineParseErrors",
+    "ShowInsertErrors",
     "ShowBuildModErrors",
     "ShowIncludeLineErrors",
     "ShowAnnotationMessages"
+
 };
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
@@ -238,6 +240,7 @@ bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::lineParseErrors            = true;
+bool    Preferences::showInsertErrors           = true;
 bool    Preferences::showBuildModErrors         = true;
 bool    Preferences::showIncludeFileErrors      = true;
 bool    Preferences::showAnnotationMessages     = true;
@@ -3086,6 +3089,14 @@ void Preferences::userInterfacePreferences()
           lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
   }
 
+  QString const insertErrorsKey("ShowInsertErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,insertErrorsKey))) {
+      QVariant uValue(showInsertErrors);
+      Settings.setValue(QString("%1/%2").arg(MESSAGES,insertErrorsKey),uValue);
+  } else {
+      showInsertErrors = Settings.value(QString("%1/%2").arg(MESSAGES,insertErrorsKey)).toBool();
+  }
+
   QString const showIncludeFileErrorsKey("ShowIncludeFileErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey))) {
           QVariant uValue(true);
@@ -3226,6 +3237,9 @@ void Preferences::setShowMessagePreference(bool b,MsgKey key)
     case ParseErrors:
         lineParseErrors = b;
         break;
+    case InsertErrors:
+        showInsertErrors = b;
+        break;
     case BuildModErrors:
         showBuildModErrors = b;
         break;
@@ -3254,6 +3268,9 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     switch(key){
     case ParseErrors:
         lineParseErrors = result;
+        break;
+    case InsertErrors:
+        showInsertErrors = result;
         break;
     case BuildModErrors:
         showBuildModErrors = result;
@@ -4257,6 +4274,12 @@ bool Preferences::getPreferences()
         {
             lineParseErrors = dialog->showLineParseErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowLineParseErrors"),lineParseErrors);
+        }
+
+        if (showInsertErrors != dialog->showInsertErrors())
+        {
+            showInsertErrors = dialog->showInsertErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowInsertErrors"),showInsertErrors);
         }
 
         if (showBuildModErrors != dialog->showBuildModErrors())
