@@ -264,18 +264,19 @@ int SubModel::createSubModelImage(
   QStringList ldrNames = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                                                    Paths::tmpDir + QDir::separator() + "submodel.ldr");
 
-  // Check if png file date modified is older than model file (on the stack) date modified
+  // Check if model content or png file date modified is older than model file (on the stack), date modified
   imageOutOfDate = false;
 
   QFile part(imageName);
 
   if (part.exists()) {
       QDateTime lastModified = QFileInfo(imageName).lastModified();
-      if (meta->LPub.multiStep.pli.perStep.value() == true){
+      if (meta->LPub.multiStep.pli.perStep.value() == true) {
           QStringList parsedStack = step->submodelStack();
           parsedStack << step->parent->modelName();
           if ( ! isOlder(parsedStack,lastModified)) {
               imageOutOfDate = true;
+              emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
               if (imageOutOfDate && ! part.remove()) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
               }
@@ -283,6 +284,7 @@ int SubModel::createSubModelImage(
       } else {
           if ( ! isOlder(type,lastModified)) {
               imageOutOfDate = true;
+              emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
               if (imageOutOfDate && ! part.remove()) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
               }
@@ -380,7 +382,7 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerSubmodelKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
+          gui->insertViewerStep(viewerSubmodelKey,rotatedSubmodel,subModel,ldrNames.first(),imageName,stepKey,multistep,callout);
       }
 
       // set viewer display options

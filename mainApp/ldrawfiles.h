@@ -104,6 +104,7 @@ class ViewerStep {
     QStringList _rotatedContents;
     QStringList _unrotatedContents;
     QString   	_filePath;
+    QString     _imagePath;
     QString     _csiKey;
     bool        _modified;
     bool        _multiStep;
@@ -117,6 +118,7 @@ class ViewerStep {
       const QStringList &rotatedContents,
       const QStringList &unrotatedContents,
       const QString     &filePath,
+      const QString     &imagePath,
       const QString     &csiKey,
       bool               multiStep,
       bool               calledOut);
@@ -363,7 +365,7 @@ class LDrawFile {
     bool getBuildModStepIndexHere(int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
-    bool removeBuildMod(const QString &buildModKey);
+    bool deleteBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
@@ -374,19 +376,22 @@ class LDrawFile {
                           const QStringList &rotatedContents,
                           const QStringList &unrotatedContents,
                           const QString     &filePath,
+                          const QString     &imagePath,
                           const QString     &csiKey,
                           bool               multiStep,
                           bool               calledOut);
     void updateViewerStep(const QString     &fileName,
                           const QStringList &contents,
                           bool rotated = true);
-    QStringList getViewerStepRotatedContents(const QString &fileName);
-    QStringList getViewerStepUnrotatedContents(const QString &fileName);
-    QString     getViewerStepFilePath(const QString &fileName);
-    QString     getViewerConfigKey(const QString &fileName);
-    bool        isViewerStepMultiStep(const QString &fileName);
-    bool        isViewerStepCalledOut(const QString &fileName);
-    bool        viewerStepContentExist(const QString &fileName);
+    QStringList getViewerStepRotatedContents(const QString &stepKey);
+    QStringList getViewerStepUnrotatedContents(const QString &stepKey);
+    QString     getViewerStepFilePath(const QString &stepKey);
+    QString     getViewerStepImagePath(const QString &stepKey);
+    QString     getViewerConfigKey(const QString &stepKey);
+    bool        isViewerStepMultiStep(const QString &stepKey);
+    bool        isViewerStepCalledOut(const QString &stepKey);
+    bool        viewerStepContentExist(const QString &stepKey);
+    bool        deleteViewerStep(const QString &stepKey);
     void        clearViewerSteps();
 
     QString     getSubmodelName(int submodelIndx);

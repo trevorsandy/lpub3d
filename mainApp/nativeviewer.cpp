@@ -2646,18 +2646,52 @@ void Gui::deleteBuildModification()
     if (!buildModKeys.size())
         return;
 
+    QString text  = "This action cannot be completelly undone by the Undo button. "
+                    " The BuildMod related image and viewer entry content will be parmanently deleted.<br>"
+                    "You can use reload to regenerate the deleted image.<br><br>"
+                    "Do you want to continue ?";
+    QString type  = "delete warning";
+    QString title = "Build Modification";
+    Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
+    QMessageBoxResizable box;
+    box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+    box.setText(text);
+    box.setIcon(QMessageBox::Icon::Warning);
+
+    QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
+    box.setCheckBox(cb);
+    QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
+        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+            Preferences::setShowMessagePreference(false,msgKey);
+        else
+            Preferences::setShowMessagePreference(true,msgKey);
+    });
+    box.adjustSize();
+    box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Cancel);
+    switch (box.exec())
+    {
+    default:
+    case QMessageBox::Cancel:
+        return; // cancel request
+
+    case QMessageBox::Ok:
+        break;  // apply changes
+    }
+
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::Mt::CSI:
     case Options::Mt::SMP:
     {
-        int modBeginLineNum  = getBuildModBeginLineNumber(buildModKeys.first());
-        int modActionLineNum = getBuildModActionLineNumber(buildModKeys.first());
-        int modEndLineNum    = getBuildModEndLineNumber(buildModKeys.first());
-        QString modelName    = getBuildModModelName(buildModKeys.first());
+        QString buildModKey  = buildModKeys.first();
+        int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
+        int modActionLineNum = getBuildModActionLineNumber(buildModKey);
+        int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
+        QString modelName    = getBuildModModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
-            emit messageSig(LOG_ERROR, QString("There was a problem receiving buld mod attributes for key [%1]").arg(buildModKeys.first()));
+            emit messageSig(LOG_ERROR, QString("There was a problem receiving buld mod attributes for key [%1]").arg(buildModKey));
             return;
         }
 
@@ -2665,9 +2699,9 @@ void Gui::deleteBuildModification()
 
         // delete existing APPLY/REMOVE (action) commands, starting from the bottom of the step
         Rc rc;
-        QString buildModKey, modLine;
+        QString modKey, modLine;
         Where here, topOfStep, bottomOfStep;
-        QMap<int, int> actionsMap = getBuildModActions(buildModKeys.first());
+        QMap<int, int> actionsMap = getBuildModActions(buildModKey);
         QList<int> stepIndexes = actionsMap.keys();
         std::sort(stepIndexes.begin(), stepIndexes.end(), std::greater<int>()); // sort stepIndexes descending
         foreach (int stepIndex, stepIndexes) {
@@ -2683,8 +2717,8 @@ void Gui::deleteBuildModification()
                         switch (rc) {
                         case BuildModApplyRc:
                         case BuildModRemoveRc:
-                            buildModKey = page.meta.LPub.buildMod.key();
-                            if (buildModKey == buildModKeys.first())
+                            modKey = page.meta.LPub.buildMod.key();
+                            if (modKey == buildModKey)
                                 deleteLine(here);
                             break;
                         default:
@@ -2709,6 +2743,27 @@ void Gui::deleteBuildModification()
         if (rc == BuildModEndModRc)
             for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);
+
+        // get viewerStepKey
+        QString viewerStepKey = getBuildModStepKey(buildModKey);
+        if (!viewerStepKey.isEmpty()) {
+            // delete step image to trigger image regen
+            QString csiFile = getViewerStepImagePath(viewerStepKey);
+            QFile file(csiFile);
+            if (file.exists()) {
+                if (! file.remove())
+                    emit messageSig(LOG_ERROR,QString("Failed to remove BuildMod step image file %1.").arg(QFileInfo(csiFile).fileName()));
+            }
+            // delete viewer step to trigger viewer update
+            if (!deleteViewerStep(viewerStepKey))
+                emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
+        } else {
+            emit messageSig(LOG_ERROR, QString("Failed to receive the step key using BuildMod key [%1]").arg(buildModKey));
+        }
+
+        // delete BuildMod
+        if (!deleteBuildMod(buildModKey))
+            emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
 
         endMacro();
     }

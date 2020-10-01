@@ -701,6 +701,7 @@ public:
                         const QStringList &rotatedContents,
                         const QStringList &unrotatedContents,
                         const QString     &filePath,
+                        const QString     &imagePath,
                         const QString     &csiKey,
                         bool               multiStep,
                         bool               calledOut)
@@ -709,6 +710,7 @@ public:
                                  rotatedContents,
                                  unrotatedContents,
                                  filePath,
+                                 imagePath,
                                  csiKey,
                                  multiStep,
                                  calledOut);
@@ -729,6 +731,11 @@ public:
       return ldrawFile.getViewerStepFilePath(stepKey);
   }
 
+  QString getViewerStepImagePath(const QString &stepKey)
+  {
+      return ldrawFile.getViewerStepImagePath(stepKey);
+  }
+
   QString getViewerConfigKey(const QString &stepKey)
   {
       return ldrawFile.getViewerConfigKey(stepKey);
@@ -747,6 +754,11 @@ public:
   bool viewerStepContentExist(const QString &stepKey)
   {
       return ldrawFile.viewerStepContentExist(stepKey);
+  }
+
+  bool deleteViewerStep(const QString &stepKey)
+  {
+    return ldrawFile.deleteViewerStep(stepKey);
   }
 
   void clearViewerSteps(){
@@ -884,9 +896,9 @@ public:
       return ldrawFile.buildModsSize();
   }
 
-  void removeBuildMod(const QString &buildModKey = "")
+  bool deleteBuildMod(const QString &buildModKey = QString())
   {
-      ldrawFile.removeBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
+      return ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
   QString getBuildModChangeKey()

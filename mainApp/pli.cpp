@@ -1078,7 +1078,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             if (rotStep.isEmpty())
                 keyPart2.append(QString("_0_0_0_REL"));
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
+            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout);
 
             if ( ! part.exists()) {
 
@@ -2503,7 +2503,7 @@ int Pli::partSizeLDViewSCall() {
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),pliPartKey,multistep,callout);
+                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout);
 
                     if ( ! part.exists()) {
 

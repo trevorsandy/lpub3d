@@ -334,13 +334,15 @@ int Step::createCsi(
   QFile csi(pngName);
   csiExist = csi.exists();
   if (csiExist) {
+      QString parentModelName = parent->modelName();
       QDateTime lastModified = QFileInfo(pngName).lastModified();
       QStringList parsedStack = submodelStack();
-      parsedStack << parent->modelName();
+      parsedStack << parentModelName;
       if ( ! isOlder(parsedStack,lastModified)) {
           csiOutOfDate = true;
+          emit gui->messageSig(LOG_DEBUG,QString("CSI image out of date %1.").arg(QFileInfo(pngName).fileName()));
           if (! csi.remove()) {
-              emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI PNG file."));
+              emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI image file %1.").arg(QFileInfo(pngName).fileName()));
           }
       }
   }
@@ -496,7 +498,7 @@ int Step::createCsi(
           if (!meta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
+          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut);
       }
 
       // for now, we always set viewer display options

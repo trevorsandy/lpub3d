@@ -173,12 +173,14 @@ BuildMod::BuildMod(const QString      &modStepKey,
 ViewerStep::ViewerStep(const QStringList &rotatedContents,
                        const QStringList &unrotatedContents,
                        const QString     &filePath,
+                       const QString     &imagePath,
                        const QString     &csiKey,
                        bool               multiStep,
                        bool               calledOut){
     _rotatedContents << rotatedContents;
     _unrotatedContents << unrotatedContents;
     _filePath  = filePath;
+    _imagePath = imagePath;
     _csiKey    = csiKey;
     _modified  = false;
     _multiStep = multiStep;
@@ -2272,7 +2274,7 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
       _buildModList.append(modKey);
 }
 
-bool LDrawFile::removeBuildMod(const QString &buildModKey)
+bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
     QString modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
@@ -2760,6 +2762,7 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  const QStringList &rotatedContents,
                                  const QStringList &unrotatedContents,
                                  const QString     &filePath,
+                                 const QString     &imagePath,
                                  const QString     &csiKey,
                                  bool               multiStep,
                                  bool               calledOut)
@@ -2770,7 +2773,7 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
-  ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,csiKey,multiStep,calledOut);
+  ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut);
   _viewerSteps.insert(mStepKey,viewerStep);
 }
 
@@ -2826,6 +2829,18 @@ QString LDrawFile::getViewerStepFilePath(const QString &stepKey)
   return _emptyString;
 }
 
+/* return viewer step image path */
+
+QString LDrawFile::getViewerStepImagePath(const QString &stepKey)
+{
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  if (i != _viewerSteps.end()) {
+    return i.value()._imagePath;
+  }
+  return _emptyString;
+}
+
 /* return viewer step CSI key */
 
 QString LDrawFile::getViewerConfigKey(const QString &stepKey)
@@ -2849,6 +2864,19 @@ bool LDrawFile::viewerStepContentExist(const QString &stepKey)
     return true;
   }
   return false;
+}
+
+/* Delete Viewer Step */
+
+bool LDrawFile::deleteViewerStep(const QString &stepKey)
+{
+    QString mStepKey = stepKey.toLower();
+    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+    if (i != _viewerSteps.end()) {
+        _viewerSteps.erase(i);
+        return true;
+    }
+    return false;
 }
 
 /* return viewer step is multiStep */
