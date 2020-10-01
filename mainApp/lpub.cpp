@@ -388,7 +388,7 @@ void Gui::updateClipboard()
         QGuiApplication::clipboard()->setText(data, QClipboard::Clipboard);
 
         QString efn =QFileInfo(data).fileName();
-        // Manually elided to 30 chars
+        // Text elided to 20 chars
         QString fileName = QString("Part %1")
                            .arg(efn.size() > 20 ?
                                 efn.left(17) + "..." +
@@ -4052,13 +4052,13 @@ void Gui::createActions()
     blenderIcon.addFile(":/resources/blendericon.png");
     blenderIcon.addFile(":/resources/blendericon16.png");
     blenderRenderAct = new QAction(blenderIcon,tr("Blender Render..."), this);
-    blenderRenderAct->setShortcut(tr("Alt+Shift+9"));
+    blenderRenderAct->setShortcut(tr("Alt+Shift+8"));
     blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles - Alt+Shift+8"));
     blenderRenderAct->setEnabled(false);
     connect(blenderRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
     blenderImportAct = new QAction(blenderIcon,tr("Blender Import..."), this);
-    blenderImportAct->setShortcut(tr("Alt+Shift+8"));
+    blenderImportAct->setShortcut(tr("Alt+Shift+9"));
     blenderImportAct->setStatusTip(tr("Import the current step and launch Blender - Alt+Shift+9"));
     blenderImportAct->setEnabled(false);
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
