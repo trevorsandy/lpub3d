@@ -600,7 +600,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define THEME_HIGHLIGHT_06_DARK                "#c2a4c0" // 06 [LDraw Line Type 1]
 #define THEME_HIGHLIGHT_07_DARK                "#f46105" // 07 [LDraw Colour Code]
-#define THEME_HIGHLIGHT_08_DARK                "#ed3d63" // 08 [LDraw Part Position]
+#define THEME_HIGHLIGHT_08_DARK                "#46b5d1" // 08 [LDraw Part Position] #ed3d63
 #define THEME_HIGHLIGHT_09_DARK                "#ddffef" // 09 [LDraw Part Transform1]
 #define THEME_HIGHLIGHT_10_DARK                "#a2ffd2" // 10 [LDraw Part Transform2]
 #define THEME_HIGHLIGHT_11_DARK                "#5cffb0" // 11 [LDraw Part Transform3]
@@ -617,8 +617,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_21_DARK                "#9421a6" // 21 [MLCad Body]
 #define THEME_HIGHLIGHT_22_DARK                "#ff8080" // 22 [LPub3D False]
 #define THEME_HIGHLIGHT_23_DARK                "#adff2f" // 23 [LPub3D True]
-#define THEME_HIGHLIGHT_24_DARK                "#ff3366" // 24 [LPub3D]
-#define THEME_HIGHLIGHT_25_DARK                "#ff1818" // 25 [LPub3D Body]
+#define THEME_HIGHLIGHT_24_DARK                "#f638dc" // 24 [LPub3D] #ff3366
+#define THEME_HIGHLIGHT_25_DARK                "#ff3366" // 25 [LPub3D Body]  #ff1818 #ad1d45
 #define THEME_HIGHLIGHT_26_DARK                "#aeaeae" // 26 [LDraw Header Value]
 #define THEME_HIGHLIGHT_27_DARK                "#81d4fa" // 27 [LPub3D Quoted text]
 #define THEME_HIGHLIGHT_28_DARK                "#ffffff" // 28 [LDraw Line type 0 First Character]

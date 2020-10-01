@@ -1713,7 +1713,7 @@ void PreferencesDialog::accept(){
         missingParms = true;
         ui.logValiationLbl->show();
         ui.logValiationLbl->setText("At lease one attribute must be included.");
-        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : blue; }");
+        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
       }
     if (ui.logLevelsGrpBox->isChecked() &&
         ! ui.fatalLevelBox->isChecked() &&
@@ -1726,7 +1726,7 @@ void PreferencesDialog::accept(){
         missingParms = true;
         ui.logValiationLbl->show();
         ui.logValiationLbl->setText("At lease one logging level must be selected.");
-        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : blue; }");
+        ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
       }
     if (missingParms){
         if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialogue?",

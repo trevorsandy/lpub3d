@@ -6531,7 +6531,10 @@ void BlenderRenderDialogGui::getRenderSettings(
         blenderLabel->setText("Blender Version");
         blenderVersionEdit->setText(Preferences::blenderVersion);
     } else {
-        blenderLabel->setStyleSheet("QLabel { color : blue; }");
+        if (Preferences::displayTheme == THEME_DARK)
+            blenderLabel->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
+        else
+            blenderLabel->setStyleSheet("QLabel { color : blue; }");
         blenderLabel->setText("Blender not configured");
         blenderVersionEdit->setVisible(mBlenderConfigured);
     }
@@ -7257,7 +7260,10 @@ void BlenderRenderDialogGui::configureBlender()
                 mBlenderConfigured = true;
                 mBlenderAddonUpdate = !mBlenderConfigured;
                 blenderLabel->setText("Blender Version");
-                blenderLabel->setStyleSheet("QLabel { color : black; }");
+                if (Preferences::displayTheme == THEME_DARK)
+                    blenderLabel->setStyleSheet("QLabel { color : white ; }");
+                else
+                    blenderLabel->setStyleSheet("QLabel { color : black; }");
                 blenderVersionEdit->setText(Preferences::blenderVersion);
                 blenderVersionEdit->setToolTip("Display the Blender and LPub3D Render addon version");
                 blenderVersionEdit->setVisible(mBlenderConfigured);
@@ -7523,7 +7529,10 @@ void BlenderRenderDialogGui::showResult()
         mBlenderConfigured = true;
         mBlenderAddonUpdate = !mBlenderConfigured;
         blenderLabel->setText("Blender Version");
-        blenderLabel->setStyleSheet("QLabel { color : black; }");
+        if (Preferences::displayTheme == THEME_DARK)
+            blenderLabel->setStyleSheet("QLabel { color : white ; }");
+        else
+            blenderLabel->setStyleSheet("QLabel { color : black; }");
         blenderVersionEdit->setText(blenderVersion);
         blenderVersionEdit->setToolTip("Display the Blender and LPub3D Render addon version");
         blenderVersionEdit->setVisible(mBlenderConfigured);

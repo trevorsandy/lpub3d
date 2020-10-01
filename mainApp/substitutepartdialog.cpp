@@ -435,7 +435,10 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->substituteEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as current type.").arg(currentType));
-            ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            if (Preferences::displayTheme == THEME_DARK)
+                ui->messageLbl->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
+            else
+                ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
             return;
         }
         ui->substitueTitleLbl->setText(Pli::titleDescription(newType));
@@ -459,7 +462,10 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->ldrawEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as substitute type.").arg(currentType));
-            ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            if (Preferences::displayTheme == THEME_DARK)
+                ui->messageLbl->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
+            else
+                ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
             return;
         }
         ui->ldrawTitleLbl->setText(Pli::titleDescription(newType));
