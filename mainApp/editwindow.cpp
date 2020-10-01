@@ -1031,6 +1031,16 @@ void EditWindow::updateSelectedParts() {
 void EditWindow::showLine(int lineNumber, int lineType)
 {
   showLineType = lineType;
+  if (Preferences::editorBufferedPaging && lineNumber > _pageIndx) {
+      int linesNeeded = (lineNumber - _pageIndx );
+      int jumps = linesNeeded / Preferences::editorLinesPerPage;
+      if (!(linesNeeded % Preferences::editorLinesPerPage))
+              jumps++;
+      for (int i = 0; i < jumps; i++)
+          loadPagedContent();
+      emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine jump %1 %2 to line %3 from line %4.")
+                                                   .arg(jumps).arg(jumps == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx));
+  }
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
   for (int i = 0; i < lineNumber; i++) {
     _textEdit->moveCursor(QTextCursor::Down,QTextCursor::MoveAnchor);
