@@ -657,6 +657,22 @@ QAction* CommonMenus::resetPartGroupMenu(
   return action;
 }
 
+QAction* CommonMenus::previewPartMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Preview %1...") .arg(name);
+  QAction *action;
+
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/previewpart.png"));
+
+  formatted = QString("Display the %1 in a popup 3D viewer") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::hideMenu(
         QMenu   &menu,
   const QString  name)

@@ -53,9 +53,14 @@
 #include "range_element.h"
 #include "dependencies.h"
 
+#include "lc_qglwidget.h"
+#include "lc_model.h"
 #include "lc_library.h"
+#include "project.h"
 #include "pieceinf.h"
 #include "lc_category.h"
+
+#include "previewwidget.h"
 
 QCache<QString,QString> Pli::orientation;
 
@@ -3551,6 +3556,103 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);
 }
 
+void PGraphicsPixmapItem::previewPart() {
+    int colorCode        = part->color.toInt();
+    QString partType     = part->type;
+    bool isSubfile       = gui->isSubmodel(part->type);
+    bool isSubstitute    = part->subType;
+
+    Q_UNUSED(isSubstitute)
+
+    QString typeLabel    = isSubfile ? "Subfile" : "Part";
+    QString windowTitle  = QString("%1 Preview").arg(typeLabel);
+
+    auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        if (_icon.isNull())
+            _icon = QPixmap (":/icons/update.png");
+
+        QMessageBox box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(windowTitle);
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        QString title = "<b>" + QString ("%1 preview encountered and eror.").arg(typeLabel) + "</b>";
+        QString text  = QString ("%1 '%2' failed to load in the preview window").arg(typeLabel).arg(partType);
+        box.setText (title);
+        box.setInformativeText (message.isEmpty() ? text : message);
+        box.setStandardButtons (QMessageBox::Ok);
+
+        box.exec();
+    };
+
+    PreviewWidget *Preview        = nullptr;
+    Project       *PreviewProject = nullptr;
+    lcModel       *ActiveModel    = nullptr;
+    lcQGLWidget   *ViewWidget     = nullptr;
+
+    PreviewProject = new Project(true/*isPreview*/);
+
+    if (isSubfile) {
+        QString modelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(partType);
+
+        if (!PreviewProject->Load(modelPath, colorCode)) {
+            showErrorMessage(QString("Failed to load '%1'.").arg(modelPath));
+            return;
+        }
+
+        if (PreviewProject->IsUnofficialPart())
+            windowTitle  = QString("Unofficial Part Preview");
+
+        emit gui->messageSig(LOG_DEBUG, QString("Preview Subfile: %1").arg(modelPath));
+
+        partType.clear(); // trigger Subfile flag in PreviewWidget constructor
+    }
+
+    PreviewProject->SetActiveModel(0);
+
+    lcGetPiecesLibrary()->RemoveTemporaryPieces();
+
+    ActiveModel = PreviewProject->GetActiveModel();
+
+    Preview  = new PreviewWidget(ActiveModel, partType, colorCode);
+
+    ViewWidget  = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+
+    if (Preview && ViewWidget) {
+        ViewWidget->setWindowTitle(windowTitle);
+        ViewWidget->preferredSize = QSize(300, 200);
+        float Scale               = ViewWidget->deviceScale();
+        Preview->mWidth           = ViewWidget->width()  * Scale;
+        Preview->mHeight          = ViewWidget->height() * Scale;
+
+        const QRect desktop = QApplication::desktop()->geometry();
+
+        QGraphicsView *view = pli->background->scene()->views().first();
+        QPointF sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomLeft());
+        QPoint viewP = view->mapFromScene(sceneP);
+        QPoint pos = view->viewport()->mapToGlobal(viewP);
+        if (pos.x() < desktop.left())
+            pos.setX(desktop.left());
+        if (pos.y() < desktop.top())
+            pos.setY(desktop.top());
+
+        if ((pos.x() + ViewWidget->width()) > desktop.width())
+            pos.setX(desktop.width() - ViewWidget->width());
+        if ((pos.y() + ViewWidget->height()) > desktop.bottom())
+            pos.setY(desktop.bottom() - ViewWidget->height());
+        ViewWidget->move(pos);
+
+        ViewWidget->show();
+        ViewWidget->setFocus();
+        Preview->ZoomExtents();
+
+    } else {
+        showErrorMessage(QString());
+    }
+}
+
 void PGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     isHovered = !this->isSelected() && !mouseIsDown;
@@ -3618,6 +3720,9 @@ void PGraphicsPixmapItem::contextMenuEvent(
   } else {
       substitutePartAction = commonMenus.substitutePartMenu(menu,pl);
   }
+
+  QAction *previewPartAction = commonMenus.previewPartMenu(menu,pl);
+
   QAction *hideAction = commonMenus.hidePliPartMenu(menu,pl);
 
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
@@ -3652,6 +3757,8 @@ void PGraphicsPixmapItem::contextMenuEvent(
                     top,
                     bottom,
                     &pli->pliMeta.part.margin);
+    } else if (selectedAction == previewPartAction) {
+      previewPart();
     } else if (selectedAction == hideAction) {
       hidePLIParts(this->part->instances);
     } else if (selectedAction == resetPartGroupAction) {

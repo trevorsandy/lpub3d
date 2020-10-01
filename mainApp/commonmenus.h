@@ -192,6 +192,10 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *previewPartMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *resetPartGroupMenu(
           QMenu   &menu,
     const QString  name = "");
