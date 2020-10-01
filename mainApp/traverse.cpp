@@ -1800,6 +1800,23 @@ int Gui::drawPage(
                   } else {    // pli per step = false
                       steps->groupStepNumber.number     = 0;
                       steps->groupStepNumber.stepNumber = nullptr;
+
+                      // check the pli placement to be sure it's relative to CsiType
+                      if (steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo != CsiType) {
+                          PlacementData placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
+                          QString message = QString("Invalid PLI placement. "
+                                                    "Step group PLI per STEP set to TRUE but PLI placement is "
+                                                    + placementNames[  placementData.placement] + " "
+                                                    + relativeNames [  placementData.relativeTo] + " "
+                                                    + prepositionNames[placementData.preposition] + "<br>"
+                                                    "It should be relative to "
+                                                    + relativeNames [CsiType] + ".<br>"
+                                                    "A valid placeemnt is MULTI_STEP PLI PLACEMENT "
+                                                    + placementNames[TopLeft] + " "
+                                                    + relativeNames [CsiType] + " "
+                                                    + prepositionNames[Outside] + "<br>");
+                          parseError(message, opts.current,Preferences::ParseErrors,false,true/*overide*/);
+                      }
                   }
                   opts.pliParts.clear();
                   opts.pliPartGroups.clear();
