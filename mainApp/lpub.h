@@ -1777,8 +1777,6 @@ private:
   QToolBar *editParamsToolBar;
   QToolBar *zoomToolBar;
   QToolBar *navigationToolBar;
-  QToolBar *mpdToolBar;
-  SeparatorComboBox *mpdCombo;
 
   // file
   QAction  *openAct;
@@ -1870,16 +1868,17 @@ private:
   // view
   // navigation toolbar
 
-  QAction  *firstPageAct;
-  QAction  *lastPageAct;
-  QAction  *nextPageAct;
-  QAction  *previousPageAct;
-  QAction  *nextPageComboAct;
-  QAction  *nextPageContinuousAct;
-  QAction  *previousPageComboAct;
-  QAction  *previousPageContinuousAct;
-  QLineEdit*setPageLineEdit;
-  QComboBox*setGoToPageCombo;
+  QAction           *firstPageAct;
+  QAction           *lastPageAct;
+  QAction           *nextPageAct;
+  QAction           *previousPageAct;
+  QAction           *nextPageComboAct;
+  QAction           *nextPageContinuousAct;
+  QAction           *previousPageComboAct;
+  QAction           *previousPageContinuousAct;
+  QLineEdit         *setPageLineEdit;
+  QComboBox         *setGoToPageCombo;
+  SeparatorComboBox *mpdCombo;
 
   // manage Caches
   QAction *clearAllCachesAct;

@@ -504,6 +504,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define EDITOR_MAX_LINES_DEFAULT                10000         // maximum number of lines to capture at each data read
 #define EDITOR_DECORATION_DEFAULT               1             // 0 = simple, 1 = fancy
 
+#define MPD_COMBO_MIN_ITEMS_DEFAULT             25
+#define GO_TO_PAGE_MIN_ITEMS_DEFAULT            10
+
 // Color picker: https://www.w3schools.com/colors/colors_picker.asp
 
 // Team color supplements

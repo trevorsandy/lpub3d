@@ -917,6 +917,15 @@ int LDrawFile::loadFile(const QString &fileName)
 
     countParts(topLevelFile());
 
+    QString loadStatusMessage = QString("%1 model file %2 loaded. Part Count %3. %4")
+            .arg(mpd ? "MPD" : "LDR")
+            .arg(fileInfo.fileName())
+            .arg(_partCount)
+            .arg(gui->elapsedTime(t.elapsed()));
+    emit gui->messageSig(LOG_INFO_STATUS, QString("%1").arg(loadStatusMessage));
+
+    QApplication::processEvents();
+
     auto getCount = [] (const LoadMsgType lmt)
     {
         if (lmt == ALL_LOAD_MSG)
@@ -939,15 +948,6 @@ int LDrawFile::loadFile(const QString &fileName)
     int spc = getCount(SUBPART_LOAD_MSG);
     int apc = _partCount;
     bool delta = apc != vpc;
-
-    QString statusMessage = QString("%1 model file %2 loaded. "
-                                    "Part Count %3. %4")
-            .arg(mpd ? "MPD" : "LDR")
-            .arg(fileInfo.fileName())
-            .arg(apc)
-            .arg(gui->elapsedTime(t.elapsed()));
-
-    emit gui->messageSig(LOG_INFO_STATUS, QString("%1").arg(statusMessage));
 
     emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
                                             .arg(Preferences::buildModEnabled ? "Enabled" : "Disabled"));

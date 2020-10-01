@@ -3805,10 +3805,13 @@ void Gui::countPages()
         } else {
           displayPageNum = savedDpn;
         }
-      QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-      setPageLineEdit->setText(string);
-      statusBarMsg("");
-    }
+
+      if (Preferences::modeGUI && ! exporting()) {
+        QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+        setPageLineEdit->setText(string);
+        statusBarMsg("");
+      }
+   }
 }
 
 void Gui::drawPage(
@@ -3903,9 +3906,11 @@ void Gui::drawPage(
 
       maxPages--;
 
-      QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-      if (! exporting())
-        setPageLineEdit->setText(string);
+      if (Preferences::modeGUI && ! exporting()) {
+          QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+          if (! exporting())
+              setPageLineEdit->setText(string);
+      }
 
       QApplication::restoreOverrideCursor();
   }

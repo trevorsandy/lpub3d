@@ -373,12 +373,17 @@ void Gui::displayPage()
 
   timer.start();
   if (macroNesting == 0) {
-      clearPage(KpageView,KpageScene);
-      page.coverPage = false;
-      drawPage(KpageView,KpageScene,false);
+    clearPage(KpageView,KpageScene);
+    page.coverPage = false;
+    drawPage(KpageView,KpageScene,false);
+    if (Preferences::modeGUI && ! exporting()) {
       enableActions2();
       emit enable3DActionsSig();
     }
+  }
+  if (! ContinuousPage())
+      emit messageSig(LOG_STATUS,QString("Page loaded%1.")
+                  .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
 }
 
 void Gui::nextPage()
@@ -2969,22 +2974,20 @@ Gui::Gui()
     setCentralWidget(KpageView);
 
     mpdCombo = new SeparatorComboBox(this);
-    mpdCombo->setMinimumContentsLength(25);
+    mpdCombo->setMinimumContentsLength(MPD_COMBO_MIN_ITEMS_DEFAULT);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     mpdCombo->setToolTip(tr("Current Submodel"));
     mpdCombo->setStatusTip("Use dropdown to select submodel");
-    connect(mpdCombo,SIGNAL(activated(int)),
-            this,    SLOT(mpdComboChanged(int)));
+    mpdCombo->setEnabled(false);
 
     setGoToPageCombo = new QComboBox(this);
-    setGoToPageCombo->setToolTip(tr("Current Page"));
-    setGoToPageCombo->setMinimumContentsLength(10);
+    setGoToPageCombo->setMinimumContentsLength(GO_TO_PAGE_MIN_ITEMS_DEFAULT);
     setGoToPageCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     setGoToPageCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    setGoToPageCombo->setToolTip(tr("Current Page"));
     setGoToPageCombo->setStatusTip("Use dropdown to select page");
-    connect(setGoToPageCombo,SIGNAL(activated(int)),
-            this,            SLOT(setGoToPage(int)));
+    setGoToPageCombo->setEnabled(false);
 
     undoStack = new QUndoStack();
     macroNesting = 0;
@@ -4647,9 +4650,8 @@ void Gui::loadPages(){
 
   MetaItem mi;
   int pageNum     = 0;
+  disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
-  setGoToPageCombo->setMaxCount(0);
-  setGoToPageCombo->setMaxCount(1000);
   bool frontCoverPage = mi.frontCoverPageExist();
   bool backCoverPage  = mi.backCoverPageExist();
 
@@ -4666,7 +4668,10 @@ void Gui::loadPages(){
       else
         setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
     }
+  mpdCombo->setEnabled(mpdCombo->count());
+  setGoToPageCombo->setEnabled(setGoToPageCombo->count());
   setGoToPageCombo->setCurrentIndex(displayPageNum-1);
+  connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
 }
 
 void Gui::enableActions()
@@ -4860,7 +4865,6 @@ void Gui::enableActions2()
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
-
     loadPages();
 }
 
@@ -5268,22 +5272,25 @@ void Gui::createToolBars()
     connect (editParamsToolBar, SIGNAL (visibilityChanged(bool)),
                           this, SLOT (editParamsToolBarVisibilityChanged(bool)));
 
+
+    previousPageComboAct->setMenu(previousPageContinuousMenu);
+    nextPageComboAct->setMenu(nextPageContinuousMenu);
+
     navigationToolBar = addToolBar(tr("Navigation Toolbar"));
     navigationToolBar->setObjectName("NavigationToolbar");
     navigationToolBar->addAction(firstPageAct);
-
-    previousPageComboAct->setMenu(previousPageContinuousMenu);
+    navigationToolBar->addSeparator();
     navigationToolBar->addAction(previousPageComboAct);
+    navigationToolBar->addSeparator();
     navigationToolBar->addWidget(setPageLineEdit);
-
-    nextPageComboAct->setMenu(nextPageContinuousMenu);
+    navigationToolBar->addSeparator();
     navigationToolBar->addAction(nextPageComboAct);
+    navigationToolBar->addSeparator();
     navigationToolBar->addAction(lastPageAct);
+    navigationToolBar->addSeparator();
     navigationToolBar->addWidget(setGoToPageCombo);
-
-    mpdToolBar = addToolBar(tr("MPD Toolbar"));
-    mpdToolBar->setObjectName("MPDToolbar");
-    mpdToolBar->addWidget(mpdCombo);
+    navigationToolBar->addSeparator();
+    navigationToolBar->addWidget(mpdCombo);
 
     zoomToolBar = addToolBar(tr("Zoom Toolbar"));
     zoomToolBar->setObjectName("ZoomToolbar");
