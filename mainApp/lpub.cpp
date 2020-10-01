@@ -32,14 +32,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QProgressDialog>
-
 #include <ui_progress_dialog.h>
 
-//#include "lc_global.h"
-//#include "lc_math.h"
-
 #include "lpub.h"
-
 #include "name.h"
 #include "editwindow.h"
 #include "parmswindow.h"
@@ -2813,7 +2808,7 @@ void Gui::preferences()
                 box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
                                      "Editor syntax highlighting will update the next time you start %1")
                                      .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-                box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
+                box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" to set the Theme without restart.\n\n"
                                                 "You can suppress this message in Preferences, Themes")
                                                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
                 int execReturn = box.exec();

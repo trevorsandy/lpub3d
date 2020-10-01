@@ -67,6 +67,9 @@ public:
     /// Sets the theme
     void setTheme();
 
+    /// Gets the theme
+    QString getTheme();
+
 #ifdef Q_OS_WIN
     /// Console redirection for Windows
     void RedirectIOToConsole();
@@ -118,6 +121,9 @@ private:
 
     /// File specified on via commandline
     QString m_commandline_file;
+
+    /// Theme set at startup
+    QString m_theme;
 
 #ifdef Q_OS_WIN
     /// Windows console information

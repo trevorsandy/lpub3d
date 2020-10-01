@@ -219,11 +219,17 @@ bool Application::modeGUI()
   return ! m_console_mode;
 }
 
-void Application::setTheme(){
+QString Application::getTheme()
+{
+    return m_theme;
+}
 
+void Application::setTheme()
+{
+  m_theme = Preferences::displayTheme;
   lcColorTheme viewerColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
   bool viewerDarkTheme = viewerColorTheme == lcColorTheme::Dark;
-  bool darkTheme = Preferences::displayTheme == THEME_DARK;
+  bool darkTheme = m_theme == THEME_DARK;
 
   auto setViewerThemeColor = [&viewerDarkTheme, &darkTheme] (LC_PROFILE_KEY key, QString darkHex, QString defaultHex) {
       // set modify alpha flag to true if key is grid stud color
@@ -306,7 +312,7 @@ void Application::setTheme(){
           Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DARK);
     }
   else
-  if (Preferences::displayTheme == THEME_DEFAULT){
+  if (m_theme == THEME_DEFAULT){
       // Set default style settings
       QApplication::setStyle(QApplication::style()->objectName());
       QApplication::setPalette(qApp->style()->standardPalette());

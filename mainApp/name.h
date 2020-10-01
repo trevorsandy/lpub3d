@@ -345,48 +345,49 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
 #define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
 
-#define GLOBAL_META_RX             "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
+#define GLOBAL_META_RX                              "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
 
 // registry sections
-#define DEFAULTS                   "Defaults"
-#define POVRAY                     "POVRay"
-#define SETTINGS                   "Settings"
-#define MESSAGES                   "Messages"
-#define MAINWINDOW                 "MainWindow"
-#define PARMSWINDOW                "ParmsWindow"
-#define EDITWINDOW                 "EditWindow"
-#define FINDREPLACEWINDOW          "FindReplaceWindow"
-#define UPDATES                    "Updates"
-#define LOGGING                    "Logging"
-#define IMPORTLDRAW                "importldraw"
-#define IMPORTDEFAULT              "DEFAULT"
+#define DEFAULTS                               "Defaults"
+#define POVRAY                                 "POVRay"
+#define SETTINGS                               "Settings"
+#define MESSAGES                               "Messages"
+#define MAINWINDOW                             "MainWindow"
+#define PARMSWINDOW                            "ParmsWindow"
+#define EDITWINDOW                             "EditWindow"
+#define FINDREPLACEWINDOW                      "FindReplaceWindow"
+#define UPDATES                                "Updates"
+#define LOGGING                                "Logging"
+#define IMPORTLDRAW                            "importldraw"
+#define IMPORTDEFAULT                          "DEFAULT"
 
-#define FADE_SFX                    "-fade"
-#define HIGHLIGHT_SFX               "-highlight"
-#define SAVE_DISPLAY_PAGE_NUM_KEY   "SaveDisplayPageNum"
-#define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
-#define VIEW_EXPORT_TOOLBAR_KEY     "ViewExportToolbar"
-#define VIEW_CACHE_TOOLBAR_KEY      "ViewCacheToolbar"
-#define VIEW_SETUP_TOOLBAR_KEY      "ViewSetupToolbar"
-#define VIEW_EDIT_TOOLBAR_KEY       "ViewEditToolbar"
-#define VIEW_EDITPARAMS_TOOLBAR_KEY "ViewEditParamsToolbar"
+#define FADE_SFX                                "-fade"
+#define HIGHLIGHT_SFX                           "-highlight"
+#define SAVE_DISPLAY_PAGE_NUM_KEY               "SaveDisplayPageNum"
+#define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
+#define VIEW_EXPORT_TOOLBAR_KEY                 "ViewExportToolbar"
+#define VIEW_CACHE_TOOLBAR_KEY                  "ViewCacheToolbar"
+#define VIEW_SETUP_TOOLBAR_KEY                  "ViewSetupToolbar"
+#define VIEW_EDIT_TOOLBAR_KEY                   "ViewEditToolbar"
+#define VIEW_EDITPARAMS_TOOLBAR_KEY             "ViewEditParamsToolbar"
 
-#define CASE_CHECK    "CaseCheck"
-#define WORD_CHECK    "WordCheck"
-#define REGEXP_CHECK  "RegExpCheck"
-#define DEFAULT       0
-#define NEXT          1
-#define PREVIOUS      2
+#define CASE_CHECK                              "CaseCheck"
+#define WORD_CHECK                              "WordCheck"
+#define REGEXP_CHECK                            "RegExpCheck"
+#define DEFAULT                                 0
+#define NEXT                                    1
+#define PREVIOUS                                2
 
-#define RENDER_IMAGE_MAX_SIZE                 32768 // pixels
-#define PLACEHOLDER_IMAGE_WIDTH               68    // pixels
-#define PLACEHOLDER_IMAGE_HEIGHT              79
 
-#define STYLE_SIZE_DEFAULT                    0.28f // annotation style width, height, diameter in inches
+#define RENDER_IMAGE_MAX_SIZE                   32768 // pixels
+#define PLACEHOLDER_IMAGE_WIDTH                 68    // pixels
+#define PLACEHOLDER_IMAGE_HEIGHT                79
 
-#define GRID_SIZE_INDEX_DEFAULT               1 // 20
+#define STYLE_SIZE_DEFAULT                      0.28f // annotation style width, height, diameter in inches
 
-#define GHOST_META    "0 GHOST"
+#define GRID_SIZE_INDEX_DEFAULT                 1 // 20
+
+#define GHOST_META                              "0 GHOST"
 
 #define MAX_NUM_POV_GEN_ARGS (128)
 
@@ -608,10 +609,10 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_19_DARK         "#ff9900" // 19 [LDCad]
 #define THEME_HIGHLIGHT_20_DARK         "#0079cf" // 20 [MLCad]
 #define THEME_HIGHLIGHT_21_DARK         "#9421a6" // 21 [MLCad Body]
-#define THEME_HIGHLIGHT_22_DARK         "#ff1818" // 22 [LPub3D False]
+#define THEME_HIGHLIGHT_22_DARK         "#ff8080" // 22 [LPub3D False]
 #define THEME_HIGHLIGHT_23_DARK         "#adff2f" // 23 [LPub3D True]
 #define THEME_HIGHLIGHT_24_DARK         "#ff3366" // 24 [LPub3D]
-#define THEME_HIGHLIGHT_25_DARK         "#aa0000" // 25 [LPub3D Body]
+#define THEME_HIGHLIGHT_25_DARK         "#ff1818" // 25 [LPub3D Body]
 #define THEME_HIGHLIGHT_26_DARK         "#aeaeae" // 26 [LDraw Header Value]
 #define THEME_HIGHLIGHT_27_DARK         "#81d4fa" // 27 [LPub3D Quoted text]
 #define THEME_HIGHLIGHT_28_DARK         "#ffffff" // 28 [LDraw Line type 0 First Character]
