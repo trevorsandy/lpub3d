@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Sep 16, 2019
+# Last Update Septmber 18, 2020
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d-ci] commits to production [lpub3d].
@@ -12,6 +12,18 @@
 #   ./ci_cutover.sh
 # GitHub API, Dropbox oauth, Sourceforge rsa keys must be placed in specific folder at the repositories root:
 #   ./Production_cutover/secrets/
+#   Expected secrets folder contents (file names may vary; left-side key and token names are fixed):
+#        - .sfdeploy_travis_rsa                                Soruceforge rsa key
+#        - .github_api_keys                                    GitHub API token, Secure API keys and repository token keys :
+#            - GITHUB_PROD_SECURE_API_KEY=<YOUR KEY HERE>      Production repository
+#            - GITHUB_DEVL_SECURE_API_KEY=<YOUR KEY HERE>      Maintenance or development repository
+#            - ...                                             Additional repository
+#            - TRAVIS_PROD_GITHUB_TOKEN_KEY=<YOUR TOKEN HERE>  Production repository
+#            - TRAVIS_DEVL_GITHUB_TOKEN_KEY=<YOUR TOKEN HERE>  Maintenance or development repository
+#            - ...                                             Additional repository
+#            - GITHUB_API_TOKEN=<YOUR TOKEN HERE>              GitHub global authorization
+#        - .dropbox_oauth                                      Dropbox authorization key
+#            - OAUTH_ACCESS_TOKEN=<YOUR TOKEN HERE>
 #
 # Execution Steps:
 #
@@ -32,7 +44,7 @@
 #
 # Step 3 of 3 Final commit and production version change [execute once for version 
 #   change [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.3.13" TAG=v2.3.13 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D v2.3.13" TAG=v2.3.13 REL=1 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 #
 # Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d-ci'
 # $ cp -f lpub3d/mainApp/docs/README.txt lpub3d-ci/mainApp/docs/
@@ -50,48 +62,52 @@
 #   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: git tag [Default=v2.3.13] - change as needed
-#   - MSG: git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
-#   - FRESH: delete current lpub3d directory otherwise, only overwrite existing files [default=no]
-#   - REV: increment revision [Default=yes]
-#   - CNT: increment commit count [Default=yes]
+#   - TAG: Git tag [Default=v2.3.13] - change as needed
+#   - MSG: Git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
+#   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [default=no]
+#   - REV: Increment revision [Default=yes]
+#   - CNT: Increment commit count [Default=yes]
 #   - OBS_CFG: Set OBS config and README file updates [Default=no]
-#   - RELEASE: Release build, do not delete build tag [Default=no]
+#   - REL: Release build, do not delete build tag [Default=no]
+#   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
+#   - NOSTAT: Do not show the options_status [Default=null]
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
 # $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.3.13" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D version 2.3.13" REL=1 REV=no OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="LPub3D version 2.3.13" TAG=v2.3.13 REV=no OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="Issue template and renderer logging updates" OBS_CFG=yes ./ci_cutover.sh
 #
-# Move to lpub3d-obs repository
-# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.13 ./ci_cutover.sh
+# Move from lpub3d-ci to lpub3d-obs repository
+# $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.13 ./ci_cutover.sh
 #
-# Move to lpub3dnext repository
-# Step 1 of 2 Change lpub3dnext branch to CUTOVER_IN
+# Move from lpub3d-ci to lpub3dnext repository
+# Step 1 of 2 Change lpub3dnext branch to CUTOVER_CI
 # Step 2 of 2 Final commit version change [execute once]
-# $ env GIT_NAME=lpub3dnext MSG="Next Development cutover - v2.3.13 r(28)" TAG=v2.3.14 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.3.13 REL=1 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.3.13 OBS_CFG=no ./ci_cutover.sh
 #
 # Move from lpub3dnext to lpub3d-ci repository
 # Step 1 of 2 Change lpub3d-ci branch to NEXT_IN
 # Step 2 of 2 Maintenance commits [execute for each commit except the final one for version change]
-# $ env GIT_NAME=lpub3d-ci DEV_NAME=lpub3dnext MSG="Kool next feature" ./ci_cutover.sh
-
-cd "/mnt/c/Users/Trevor/Projects" # ~/Projects
+# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="64d28eb6-301019 Add PLI parts..." TAG=v2.3.13 OBS_CFG=yes ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
 HOME_DIR=$PWD
+
+NEXT_CUT=${AUTO:-}
+NO_STATUS=${NOSTAT:-}
 LOCAL_TAG=${TAG:-v2.3.13}
-FRESH_BUILD=${FRESH:-no}
+FRESH_BUILD=${FRESH:-}
 INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
 FORCE_CONFIG=${OBS_CFG:-no}
-TO_REPO_NAME=${GIT_NAME:-lpub3d}
-FROM_REPO_NAME=${DEV_NAME:-lpub3d-ci}
-RELEASE_COMMIT=${RELEASE:-no}
+TO_REPO_NAME=${TO_REPO:-lpub3d}
+FROM_REPO_NAME=${FROM_REPO:-lpub3d-ci}
+RELEASE_COMMIT=${REL:-}
 COMMIT_MSG="${MSG:-LPub3D ${TAG}}"
 
 function options_status
@@ -101,13 +117,14 @@ function options_status
     echo "--SCRIPT_NAME....$SCRIPT_NAME"
     echo "--FROM_REPO_NAME..$FROM_REPO_NAME"    
     echo "--TO_REPO_NAME....$TO_REPO_NAME"
-    echo "--RELEASE_COMMIT..$RELEASE_COMMIT"
-    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
-    echo "--FRESH_BUILD.....$FRESH_BUILD"
+    echo "--REPO_PATH.......$HOME_DIR"
     echo "--LOCAL_TAG.......$LOCAL_TAG"
     echo "--COMMIT_MSG......$COMMIT_MSG"
-    [ -n "$INC_REVISION" ] && echo "--INCREMENT_REV...$INC_REVISION" || true
-    [ -n "$FORCE_CONFIG" ] && echo "--OBS_CONFIG......$FORCE_CONFIG" || true
+    [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || true
+    [ -n "$INC_REVISION" ] && echo "--INCREMENT_REV...YES" || true
+    [ -n "$FORCE_CONFIG" ] && echo "--OBS_CONFIG......YES" || true
+    [ -n "$RELEASE_COMMIT" ] && echo "--RELEASE_COMMIT..YES" || true    
+    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
     echo 
 }
 
@@ -143,19 +160,43 @@ exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
 # Show options
-options_status
+if [ -z "$NO_STATUS" ]; then options_status; fi
 
 # Confirmation
-read -p "  Are you sure (y/n)? " -n 1 -r
-echo    # (optional) move to a new line
-if [[ ! $REPLY =~ ^[Yy]$ ]]
+if [ -z "NEXT_CUT" ]
 then
-  [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+    sleep 1s && read -p "  Are you sure (y/n)? " -n 1 -r
+    echo    # (optional) move to a new line
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+    [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+    fi
 fi
 
 # Remove current lpub3d folder and clone fresh instance if requested
-[ "$FRESH_BUILD" != "no" ] && [ -d "$TO_REPO_NAME" ] && \
-echo && echo "--Remove old $TO_REPO_NAME instance..." && rm -rf "$TO_REPO_NAME" || true
+if [[ -n "$FRESH_BUILD" && -d "$TO_REPO_NAME" ]]; then
+    echo && echo "--Attempting to remove old $TO_REPO_NAME instance..." 
+    cd $HOME_DIR/$TO_REPO_NAME
+    if [ -d ".git" ]
+    then
+        if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
+            git checkout master
+        fi
+        if [ -n "$(git status -s)" ]; then
+            echo && echo "--ERROR - Uncommitted changes detected - exiting..."  
+            cd $HOME_DIR
+            exit 1
+        fi
+    fi
+    cd $HOME_DIR
+    rm -rf "$TO_REPO_NAME"
+    if [ -d "$TO_REPO_NAME" ]; then
+        echo && echo "--ERROR - Could not remove $TO_REPO_NAME - exiting..."
+        exit 1
+    else
+        echo "--Removed $TO_REPO_NAME."
+    fi
+fi
 
 # Clone new instance of lpub3d if old instance does not exist or was removed
 if [ ! -d "$TO_REPO_NAME" ]; then
@@ -165,18 +206,66 @@ else
     echo && echo "1-Updating existing $TO_REPO_NAME instance..."
 fi
 
+# Verify we are in the right source repository branch
 cd $HOME_DIR/$FROM_REPO_NAME
-if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then git checkout CUTOVER;
-elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then git checkout NEXT_OUT; 
+if [ -n "$(git status -s)" ]; then
+    echo && echo "--INFO - Stashing uncommitted $FROM_REPO_NAME changes..."  
+    git stash
+fi
+if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then 
+    START_BRANCH=CUTOVER_CI; 
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then 
+    START_BRANCH=CUTOVER_CI; 
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then 
+    START_BRANCH=CUTOVER_NEXT;
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then 
+    START_BRANCH=CUTOVER_NEXT;
+fi
+if [ -n "$(git show-ref refs/heads/$START_BRANCH)" ]
+then # start branch exist
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$START_BRANCH" ]
+    then # start branch not checked out so do so
+        git checkout $START_BRANCH
+    fi
+else # start branch does not exist so exit
+    echo "-- VERY WIERD! Branch '$START_BRANCH' does not exist - exiting..."
+    exit 1
 fi
 
+# Prepare destination repository branch
 cd $HOME_DIR/$TO_REPO_NAME
-if [ "$TO_REPO_NAME" = "lpub3dnext" ];then git checkout CUTOVER_IN; fi
-
+if [ -n "$(git status -s)" ]; then
+    echo && echo "--INFO - Stashing uncommitted $TO_REPO_NAME changes..."  
+    git stash
+fi
+if [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]];then 
+    START_BRANCH=master
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+    START_BRANCH=CUTOVER_CI
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]];then 
+    START_BRANCH=CUTOVER_NEXT
+fi
+if [ -n "$(git show-ref refs/heads/$START_BRANCH)" ]
+then # start branch exist
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$START_BRANCH" ]
+    then # start branch not checked out so do so
+        git checkout $START_BRANCH
+    fi
+else # start branch does not exist so create it and checkout
+    git checkout -b $START_BRANCH
+fi
+if [ "$(git rev-parse --abbrev-ref HEAD)" = "$START_BRANCH" ]
+then # Test that all is ok
+    echo "   -Branch $START_BRANCH checked out."
+else
+    echo "   -MY GOODNESS! Branch $START_BRANCH checkout failed - exiting."
+    exit 1
+fi
+    
 echo "2-Remove current $TO_REPO_NAME content except .git folder and .user file..."
 find . -not -name '*.user' -not -path "./.git/*" -type f -exec rm -rf {} +
 
-echo "3-Copy $FROM_REPO_NAME content to $TO_REPO_NAME except .git folder..." && cd ../$FROM_REPO_NAME
+echo "3-Copy $FROM_REPO_NAME content to $TO_REPO_NAME except .git folder and .user file..." && cd ../$FROM_REPO_NAME
 find . -not -name '*.log*' \
        -not -name '*.user' \
        -not -name '*Makefile*' \
@@ -200,40 +289,39 @@ cp -f ./.gitignore ../$TO_REPO_NAME
 echo "4-Rename all files with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..." && cd ../$TO_REPO_NAME
 for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./.git*" \
-              -not -path "./mainApp/qdarkstyle*" \
               -not -path "./lclib*" \
               -not -path "./ldvlib*" \
               -not -path "./ldrawini*" \
               -not -path "./qslog*" \
               -not -path "./quazip*" \
               -not -path "./qsimpleupdater*" \
+              -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
-    if [ "$TO_REPO_NAME" = "lpub3d" ]; then newFile=$(echo $file | sed s/-ci//g);
-    elif [ "$TO_REPO_NAME" = "lpub3d-obs" ]; then newFile=$(echo $file | sed s/-ci/-obs/g);
-    elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then newFile=$(echo $file | sed s/-ci/next/g);
-    elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then newFile=$(echo $file | sed s/lpub3dnext/lpub3d-ci/g);
+    if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/-ci//g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then newFile=$(echo $file | sed s/-ci/next/g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/next//g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then newFile=$(echo $file | sed s/next/-ci/g);
     fi
-    mv -f $file $newFile
-    [ -f $newFile ] && echo " -file changed: $newFile."
+    mv -f "$file" "$newFile"
+    [ -f "$newFile" ] && echo " -file changed: $newFile."
 done
-if [ "$TO_REPO_NAME" = "lpub3dnext" ]; then 
-  projFile="LPub3D.pro"
-  newProjFile="LPub3DNext.pro"
-  mv -f $projFile $newProjFile
-  [ -f $newProjFile ] && echo " -file changed: $newProjFile."  
-elif [ "$FROM_REPO_NAME" = "lpub3dnext" ]; then
-  projFile="LPub3DNext.pro"
-  newProjFile="LPub3D.pro"
-  mv -f $projFile $newProjFile
-  [ -f $newProjFile ] && echo " -file changed: $newProjFile."  
+if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+    projFileName="LPub3D.pro"
+    newProjFileName="LPub3DNext.pro"
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+    projFileName="LPub3DNext.pro"
+    newProjFileName="LPub3D.pro"
+fi
+if [[ -f $projFileName && -z $newProjFileName && ($projFileName != $newProjFileName)]]; then
+    mv -f "$projFileName" "$newProjFileName"
+    [ -f "$newProjFileName" ] && echo " -file changed: $newProjFileName." || echo " -Error - $newProjFileName was not renamed." 
 fi
 
 echo "5-Change occurrences of '$FROM_REPO_NAME' to '$TO_REPO_NAME' in files..."
 for file in $(find . -type f \
               -not -path "./.git/*" \
               -not -path "./mainApp/images*" \
-              -not -path "./mainApp/qdarkstyle*" \
               -not -path "./lclib*" \
               -not -path "./ldvlib*" \
               -not -path "./ldrawini*" \
@@ -241,6 +329,7 @@ for file in $(find . -type f \
               -not -path "./quazip*" \
               -not -path "./qsimpleupdater*" \
               -not -path "./builds/utilities/ci/ci_cutover.sh*" \
+              -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
     cat $file | grep -qE "$FROM_REPO_NAME" \
@@ -257,7 +346,6 @@ fi
 echo "7-Update README.md Title"
 file=README.md
 if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/' - Dev, CI, and Test'//g -i $file; echo " -file $file updated.";
-elif [ "$TO_REPO_NAME" = "lpub3d-obs" ]; then sed s/' - Dev, CI, and Test'/' - Open Build Service Integration and Test'/g -i $file; echo " -file $file updated.";
 elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo " -file $file updated.";
 elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed s/' - Next Development'/' - Dev, CI, and Test'/g -i $file; echo " -file $file updated.";
 else echo " -ERROR - file $file NOT updated.";
@@ -281,40 +369,40 @@ tar cvf .secrets.tar .dropbox_oauth .sfdeploy_travis_rsa
 && rm -f .secrets.tar .dropbox_oauth .sfdeploy_travis_rsa \
 && echo " -.secrets.tar.enc moved to secure dir and secrets files removed." \
 || echo " -.secrets.tar.enc not found."
-# Update Travis-CI secure variable key generated by 'travis encrypt-file'
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/'cacf73a1954d'/'ad0a5b26bc84'/g -i $file; echo " -file $file updated with secure variable key.";
-elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed s/'cacf73a1954d'/'803e43b27eca'/g -i $file; echo " -file $file updated with secure variable key.";
-elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed s/'803e43b27eca'/'cacf73a1954d'/g -i $file; echo " -file $file updated with secure variable key.";
+source $secretsDir/.github_api_keys
+if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed s/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
 else echo " -ERROR - file $file NOT updated.";
 fi
 
 echo "10-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
-    dos2unix -k $file
+    dos2unix -k $file &>> $LOG
 done
 echo "11-Change other line endings from CRLF to LF"
-dos2unix -k builds/utilities/hooks/*
-dos2unix -k builds/utilities/create-dmg
-dos2unix -k builds/utilities/dmg-utils/*
-dos2unix -k builds/utilities/ci/travis/*
-dos2unix -k builds/utilities/mesa/*
-dos2unix -k builds/utilities/set-ldrawdir.command
-dos2unix -k builds/linux/docker-compose/*
-dos2unix -k builds/linux/docker-compose/dockerfiles/*
-dos2unix -k builds/linux/obs/*
-dos2unix -k builds/linux/obs/alldeps/*
-dos2unix -k builds/linux/obs/alldeps/debian/*
-dos2unix -k builds/linux/obs/debian/*
-dos2unix -k builds/linux/obs/debian/source/*
-dos2unix -k builds/macx/*
+dos2unix -k builds/utilities/hooks/* &>> $LOG
+dos2unix -k builds/utilities/create-dmg &>> $LOG
+dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
+dos2unix -k builds/utilities/ci/travis/* &>> $LOG
+dos2unix -k builds/utilities/mesa/* &>> $LOG
+dos2unix -k builds/utilities/set-ldrawdir.command &>> $LOG
+dos2unix -k builds/linux/docker-compose/* &>> $LOG
+dos2unix -k builds/linux/docker-compose/dockerfiles/* &>> $LOG
+dos2unix -k builds/linux/obs/* &>> $LOG
+dos2unix -k builds/linux/obs/alldeps/* &>> $LOG
+dos2unix -k builds/linux/obs/alldeps/debian/* &>> $LOG
+dos2unix -k builds/linux/obs/debian/* &>> $LOG
+dos2unix -k builds/linux/obs/debian/source/* &>> $LOG
+dos2unix -k builds/macx/* &>> $LOG
 
 echo "12-Change Windows script line endings from LF to CRLF"
-unix2dos -k builds/windows/*
-unix2dos -k builds/utilities/CreateRenderers.bat
-unix2dos -k builds/utilities/update-config-files.bat
-unix2dos -k builds/utilities/nsis-scripts/*
-unix2dos -k builds/utilities/nsis-scripts/Include/*
+unix2dos -k builds/windows/* &>> $LOG
+unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
+unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
+unix2dos -k builds/utilities/nsis-scripts/* &>> $LOG
+unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
 
 echo "13-Patch update-config-files.sh"
 file=builds/utilities/update-config-files.sh
@@ -324,7 +412,6 @@ sed -e s/'.dsc   - add'/'.dsc      - add'/g \
 || echo " -ERROR - file $file NOT updated."
 
 echo "14-update github api_key for Travis CI"
-source $(cd ../ && echo $PWD)/Production_cutover/secrets/.github_api_keys
 file=.travis.yml
 if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
 elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_NEXT_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
@@ -333,7 +420,7 @@ else echo " -ERROR - file $file NOT updated.";
 fi
 
 echo "15-Add new files..."
-git add .
+git add . &>> $LOG
 git reset HEAD 'mainApp/docs/README.txt'
 
 echo "16-Create local tag in $TO_REPO_NAME repository"
@@ -349,26 +436,31 @@ $COMMIT_MSG
 pbEOF
 env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
-if [ "$RELEASE_COMMIT" = "no" ]; then 
-   echo "18-Delete local tag"
+if [ -z "$RELEASE_COMMIT" ]; then
+   echo "18-Delete local tag in $TO_REPO_NAME repository"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
-else
-   echo "18-Create local tag in $FROM_REPO_NAME repository" 
-   cd ../$FROM_REPO_NAME
-   if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
-   git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
-   git_tag="$(git tag -l -n $LOCAL_TAG)" && \
-   [ -n "$git_tag" ] && echo " -git tag $git_tag created."
-fi
-cd $HOME_DIR/$FROM_REPO_NAME
-if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
-  git checkout master;
-  cd $HOME_DIR/$TO_REPO_NAME
-  git checkout master;
-elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then 
-  git checkout master;
-  cd $HOME_DIR
 fi
 
-echo "Finished - COMMIT_MSG...$COMMIT_MSG" && echo
+# Checkout master in destination development or maintenance repository 
+if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+  git checkout master;
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+  git checkout master;
+fi
+
+cd $HOME_DIR/$FROM_REPO_NAME
+if [ -z "$NEXT_CUT" ]
+then
+    git checkout master
+    if [ -n "$RELEASE_COMMIT" ]; then
+        echo "19-Create local tag in $FROM_REPO_NAME repository" 
+        if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
+        git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
+        git_tag="$(git tag -l -n $LOCAL_TAG)" && \
+        [ -n "$git_tag" ] && echo " -git tag $git_tag created."
+    fi   
+    cd $HOME_DIR;
+fi
+
+echo && echo "   -Commit cutover completed: $COMMIT_MSG"
