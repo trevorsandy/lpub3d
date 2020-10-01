@@ -87,7 +87,12 @@ public:
 	{
 		return mShowPartNames;
 	}
-
+/*** LPub3D Mod - Part selection preview ***/
+	int GetColorIndex() const
+	{
+		return mColorIndex;
+	}
+/*** LPub3D Mod end ***/
 	bool IsColorLocked() const
 	{
 		return mColorLocked;
@@ -179,8 +184,14 @@ public slots:
 	void TogglePartAliases();
 	void ToggleListMode();
 	void ToggleFixedColor();
+/*** LPub3D Mod - Part selection preview ***/
+	void PreviewSelection(int InfoIndex);
+/*** LPub3D Mod end ***/
 
 protected:
+/*** LPub3D Mod - Part selection preview ***/
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+/*** LPub3D Mod end ***/
 	void SetIconSize(int Size);
 
 	lcPartSelectionListModel* mListModel;

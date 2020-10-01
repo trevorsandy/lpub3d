@@ -1203,11 +1203,8 @@ void SMGraphicsPixmapItem::previewSubModel()
     int colorCode        = part->color.toInt();
     QString partType     = part->type;
     bool isSubfile       = gui->isSubmodel(part->type);
-    bool isSubstitute    = false;
 
-    Q_UNUSED(isSubstitute)
-
-    QString typeLabel    = isSubfile ? "Subfile" : "Part";
+    QString typeLabel    = isSubfile ? "Submodel" : "Part";
     QString windowTitle  = QString("%1 Preview").arg(typeLabel);
 
     auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
@@ -1345,6 +1342,15 @@ void SMGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     isHovered = false;
     QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void SMGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem::mouseDoubleClickEvent(event);
+    if ( event->button() == Qt::LeftButton ) {
+        previewSubModel();;
+    }
+
 }
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

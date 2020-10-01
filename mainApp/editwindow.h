@@ -107,6 +107,7 @@ public slots:
     void modelFileChanged(const QString &fileName);
     void showLine(int, int);
     void highlightSelectedLines(QVector<int> &lines);
+    void triggerPreviewLine();
     void updateDisabled(bool);
     void clearEditorWindow();
     void setTextEditHighlighter();
@@ -224,6 +225,7 @@ public:
 
 signals:
     void updateSelectedParts();
+    void triggerPreviewLine();
 
 public slots:
     void resizeEvent(QResizeEvent *e) override;
@@ -244,6 +246,7 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void focusInEvent(QFocusEvent *e) override;
+    void mouseDoubleClickEvent(QMouseEvent *e) override;
     QString currentWord() const;
 
 private:

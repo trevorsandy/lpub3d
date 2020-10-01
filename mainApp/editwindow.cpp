@@ -102,8 +102,9 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     }
 
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
-    connect(_textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
     connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
+    connect(_textEdit, SIGNAL(triggerPreviewLine()),   this,  SLOT(triggerPreviewLine()));
 
     setCentralWidget(_textEdit);
 
@@ -164,7 +165,7 @@ void EditWindow::previewLine()
 
     Q_UNUSED(isSubstitute)
 
-    QString typeLabel    = isSubfile ? "Subfile" : "Part";
+    QString typeLabel    = isSubfile ? "Submodel" : "Part";
     QString windowTitle  = QString("%1 Preview").arg(typeLabel);
 
     auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
@@ -690,6 +691,18 @@ void EditWindow::showContextMenu(const QPoint &pt)
     delete menu;
 }
 
+void EditWindow::triggerPreviewLine()
+{
+    if (!isIncludeFile && !_subFileListPending) {
+        _subFileListPending = true;
+        emit getSubFileListSig();
+        while (_subFileListPending)
+            QApplication::processEvents();
+        if (validPreviewLine())
+            emit previewLineAct->triggered();
+    }
+}
+
 void EditWindow::mpdComboChanged(int index)
 {
     Q_UNUSED(index)
@@ -1090,6 +1103,7 @@ void EditWindow::displayFile(
   fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
   isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
+  _subFileListPending = false;
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
@@ -1427,6 +1441,15 @@ QTextEditor::QTextEditor(QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
     //highlightCurrentLine();
+}
+
+void QTextEditor::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    QWidget::mouseDoubleClickEvent(event);
+    if ( event->button() == Qt::LeftButton ) {
+        emit triggerPreviewLine();
+    }
+    return;
 }
 
 void QTextEditor::setCompleter(QCompleter *comp)

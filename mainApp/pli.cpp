@@ -3564,7 +3564,7 @@ void PGraphicsPixmapItem::previewPart() {
 
     Q_UNUSED(isSubstitute)
 
-    QString typeLabel    = isSubfile ? "Subfile" : "Part";
+    QString typeLabel    = isSubfile ? "Submodel" : "Part";
     QString windowTitle  = QString("%1 Preview").arg(typeLabel);
 
     auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
@@ -3663,6 +3663,14 @@ void PGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     isHovered = false;
     QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem::mouseDoubleClickEvent(event);
+    if ( event->button() == Qt::LeftButton ) {
+        previewPart();
+    }
 }
 
 void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
