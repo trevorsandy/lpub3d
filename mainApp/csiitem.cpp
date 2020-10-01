@@ -450,6 +450,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *copyCsiImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
+  menu.addSeparator();
   copyCsiImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
 #endif
 

@@ -4657,7 +4657,7 @@ void Gui::createActions()
 
     // Begin Jaco's code
 
-    onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online manual"), this);
+    onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual"), this);
     onlineManualAct->setStatusTip(tr("Visit the Online Manual Website."));
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
@@ -4676,7 +4676,7 @@ void Gui::createActions()
     viewLogAct->setStatusTip(tr("View %1 log - Alt+L").arg(VER_PRODUCTNAME_STR));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
-    openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open working folder"), this);
+    openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
     openWorkingFolderAct->setShortcut(tr("Alt+Shift+D"));
     openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+D"));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
@@ -4961,7 +4961,10 @@ void Gui::createMenus()
     fileMenu->addAction(printToFileAct);
     fileMenu->addAction(exportAsPdfPreviewAct);
     fileMenu->addAction(exportAsPdfAct);
+#ifndef QT_NO_CLIPBOARD
+    fileMenu->addSeparator();
     fileMenu->addAction(copyFilePathToClipboardAct);
+#endif
     fileMenu->addSeparator();
 
     recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));

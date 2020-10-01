@@ -3599,6 +3599,7 @@ void PGraphicsPixmapItem::contextMenuEvent(
 
   QAction *copyPliImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
+  menu.addSeparator();
   copyPliImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
 #endif
 
