@@ -1725,6 +1725,7 @@ int Gui::drawPage(
                                placementData.justification == Top &&
                                placementData.placement     == Left &&
                                placementData.preposition   == Outside))) {
+                              // Place the step number relative to page header
                               steps->groupStepMeta.LPub.multiStep.stepNum.placement.setValue(BottomLeftOutside,PageHeaderType);
                             }
 
@@ -1752,6 +1753,7 @@ int Gui::drawPage(
                       }
                       // if no step number
                       else {
+                          placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
                           // if Submodel Preview relative to StepNumber
                           if (previewNotPerStep &&
                                   steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType) {
@@ -1795,7 +1797,7 @@ int Gui::drawPage(
                           if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
                               emit messageSig(LOG_ERROR, "Failed to set Submodel Preview for " + topOfStep.modelName + "...");
                       }
-                  } else {
+                  } else {    // pli per step = false
                       steps->groupStepNumber.number     = 0;
                       steps->groupStepNumber.stepNumber = nullptr;
                   }
