@@ -2955,6 +2955,8 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
+    mi            = new MetaItem();
+
     lpubAlert     = new LPubAlert();
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
