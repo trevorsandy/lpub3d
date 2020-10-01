@@ -1418,10 +1418,19 @@ void Gui::ShowStepRotationStatus()
     statusBarMsg(rotLabel);
 }
 
+void Gui::loadTheme(){
+  Application::instance()->setTheme();
+  emit setTextEditHighlighterSig();
+  reloadViewer();
+}
+
 void Gui::reloadViewer(){
-  if (!getCurFile().isEmpty()) {
-      Project* NewProject = new Project();
-      gApplication->SetProject(NewProject);
+  if (getCurrentStep()){
+    Render::LoadViewer(getCurrentStep()->viewerOptions);
+  } else {
+    Project* NewProject = new Project();
+    gApplication->SetProject(NewProject);
+    UpdateAllViews();
   }
 }
 

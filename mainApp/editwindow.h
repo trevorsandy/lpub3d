@@ -109,6 +109,7 @@ public slots:
     void highlightSelectedLines(QVector<int> &lines);
     void updateDisabled(bool);
     void clearEditorWindow();
+    void setTextEditHighlighter();
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
@@ -160,6 +161,7 @@ protected:
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;
+    int                showLineNumber;
     int                fileOrderIndex;
     bool               isIncludeFile;
     bool               _modelFileEdit;

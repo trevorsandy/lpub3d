@@ -74,10 +74,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     verticalScrollBar = _textEdit->verticalScrollBar();
 
-    if (Preferences::editorDecoration == SIMPLE)
-      highlighterSimple = new HighlighterSimple(_textEdit->document());
-    else
-      highlighter = new Highlighter(_textEdit->document());
+    setTextEditHighlighter();
 
     _textEdit->setLineWrapMode(QTextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
@@ -143,6 +140,15 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
     QApplication::restoreOverrideCursor();
 #endif
     return new QStringListModel(words, completer);
+}
+
+void EditWindow::setTextEditHighlighter()
+{
+    if (Preferences::editorDecoration == SIMPLE)
+      highlighterSimple = new HighlighterSimple(_textEdit->document());
+    else
+      highlighter = new Highlighter(_textEdit->document());
+    highlightCurrentLine();
 }
 
 void EditWindow::previewLine()
@@ -1031,20 +1037,23 @@ void EditWindow::updateSelectedParts() {
 void EditWindow::showLine(int lineNumber, int lineType)
 {
   showLineType = lineType;
-  if (Preferences::editorBufferedPaging && lineNumber > _pageIndx) {
-      int linesNeeded = (lineNumber - _pageIndx );
-      int jumps = linesNeeded / Preferences::editorLinesPerPage;
+  showLineNumber = lineNumber;
+  if (Preferences::editorBufferedPaging &&
+      showLineNumber > Preferences::editorLinesPerPage &&
+      showLineNumber > _pageIndx) {
+      int linesNeeded = (showLineNumber - _pageIndx );
+      int jump = linesNeeded / Preferences::editorLinesPerPage;
       if (!(linesNeeded % Preferences::editorLinesPerPage))
-              jumps++;
-      for (int i = 0; i < jumps; i++)
+          jump++;
+      for (int i = 0; i < jump; i++)
           loadPagedContent();
       emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine jump %1 %2 to line %3 from line %4.")
-                                                   .arg(jumps).arg(jumps == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx));
+                                 .arg(jump).arg(jump == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
   }
+
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
-  for (int i = 0; i < lineNumber; i++) {
+  for (int i = 0; i < showLineNumber; i++)
     _textEdit->moveCursor(QTextCursor::Down,QTextCursor::MoveAnchor);
-  }
 //  _textEdit->moveCursor(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
   _textEdit->ensureCursorVisible();
 

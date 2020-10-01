@@ -224,26 +224,66 @@ QString Application::getTheme()
     return m_theme;
 }
 
-void Application::setTheme()
+void Application::setTheme(bool appStarted)
 {
   m_theme = Preferences::displayTheme;
   lcColorTheme viewerColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
   bool viewerDarkTheme = viewerColorTheme == lcColorTheme::Dark;
   bool darkTheme = m_theme == THEME_DARK;
 
-  auto setViewerThemeColor = [&viewerDarkTheme, &darkTheme] (LC_PROFILE_KEY key, QString darkHex, QString defaultHex) {
-      // set modify alpha flag to true if key is grid stud color
-      bool modAlpha = key == LC_PROFILE_GRID_STUD_COLOR;
-      // get profile color
+  auto getColorFromHex = [] (const QString &hexColor, int alpha = 255)
+  {
+      QColor c = QColor(hexColor);
+      return quint32(LC_RGBA(c.red(), c.green(), c.blue(), alpha));
+  };
+
+  auto setViewerThemeColor = [&appStarted, &getColorFromHex, &viewerDarkTheme, &darkTheme] (
+          LC_PROFILE_KEY key, QString darkHex, QString defaultHex, int alpha = 255) {
+      // get current viewer theme color (before change)
       quint32 pc = quint32(lcGetProfileInt(key));
-      // get new theme color
-      QColor c = QColor(viewerDarkTheme ? darkHex : defaultHex);
-      quint32 tc = LC_RGBA(c.red(), c.green(), c.blue(), modAlpha ? 192 : c.alpha());
-      // set profile color to new theme color if not user specified - i.e. it is a theme color
+      // get corresponding default theme color (before change)
+      quint32 tc = getColorFromHex(viewerDarkTheme ? darkHex : defaultHex, alpha);
+      // viewer theme color to new theme color if color not user specified - i.e. current color is a theme color
       if (pc == tc) {
-          c = QColor(darkTheme ? darkHex : defaultHex);
-          tc = LC_RGBA(c.red(), c.green(), c.blue(), modAlpha ? 192 : c.alpha());
+          // get new theme color
+          tc = getColorFromHex(darkTheme ? darkHex : defaultHex, alpha);
+          // set view profile key
           lcSetProfileInt(key, int(tc));
+          // set preference property if applicaiton already started - i.e. change preference
+          if (appStarted) {
+              switch (key)
+              {
+              case LC_PROFILE_AXES_COLOR:
+                  lcGetPreferences().mAxesColor = tc;
+                  break;
+              case LC_PROFILE_OVERLAY_COLOR:
+                  lcGetPreferences().mOverlayColor = tc;
+                  break;
+              case LC_PROFILE_ACTIVE_VIEW_COLOR:
+                  lcGetPreferences().mActiveViewColor = tc;
+                  break;
+              case LC_PROFILE_GRID_STUD_COLOR:
+                  lcGetPreferences().mGridStudColor = tc;
+                  break;
+              case LC_PROFILE_GRID_LINE_COLOR:
+                  lcGetPreferences().mGridLineColor = tc;
+                  break;
+              case LC_PROFILE_VIEW_SPHERE_COLOR:
+                  lcGetPreferences().mViewSphereColor = tc;
+                  break;
+              case LC_PROFILE_VIEW_SPHERE_TEXT_COLOR:
+                  lcGetPreferences().mViewSphereTextColor = tc;
+                  break;
+              case LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR:
+                  lcGetPreferences().mViewSphereHighlightColor = tc;
+                  break;
+              case LC_PROFILE_DEFAULT_BACKGROUND_COLOR:
+                  lcGetPreferences().mBackgroundSolidColor = tc;
+                  break;
+              default:
+                  break;
+              }
+          }
       }
   };
 
@@ -257,7 +297,7 @@ void Application::setTheme()
 
       Palette.setColor(QPalette::Window, QColor(THEME_DARK_PALETTE_WINDOW));                 // 49, 52, 55,    #313437
       Palette.setColor(QPalette::WindowText, QColor(THEME_DARK_PALETTE_WINDOW_TEXT));        // 240, 240, 240  #F0F0F0
-      Palette.setColor(QPalette::Base, QColor(THEME_DARK_PALETTE_BASE));                     // 35, 38, 41     #23262
+      Palette.setColor(QPalette::Base, QColor(THEME_DARK_PALETTE_BASE));                     // 35, 38, 41     #232629
       Palette.setColor(QPalette::AlternateBase, QColor(THEME_DARK_PALETTE_ALT_BASE));        // 44, 47, 50     #2C2F32
       Palette.setColor(QPalette::ToolTipBase, QColor(THEME_DARK_PALETTE_TIP_BASE));          // 224, 224, 244  #E0E0F4
       Palette.setColor(QPalette::ToolTipText, QColor(THEME_DARK_PALETTE_TIP_TEXT));          // 58, 58, 58     #3A3A3A
@@ -298,18 +338,6 @@ void Application::setTheme()
               fprintf(stdout,"%s", QString(styleSheetMessage.append("\n")).toLatin1().constData());
           }
       }
-
-      // Set dark mode scene colours
-      if (!Preferences::customSceneBackgroundColor)
-          Preferences::setSceneBackgroundColorPreference(THEME_SCENE_BGCOLOR_DARK);
-      if (!Preferences::customSceneGridColor)
-          Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DARK);
-      if (!Preferences::customSceneRulerTickColor)
-          Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DARK);
-      if (!Preferences::customSceneRulerTrackingColor)
-          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DARK);
-      if (!Preferences::customSceneGuideColor)
-          Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DARK);
     }
   else
   if (m_theme == THEME_DEFAULT){
@@ -318,33 +346,33 @@ void Application::setTheme()
       QApplication::setPalette(qApp->style()->standardPalette());
       qApp->setStyleSheet( QString() );
       viewerColorTheme = lcColorTheme::System;
-
-      // Set default scene colours
-      if (!Preferences::customSceneBackgroundColor)
-          Preferences::setSceneBackgroundColorPreference(THEME_SCENE_BGCOLOR_DEFAULT);
-      if (!Preferences::customSceneGridColor)
-          Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DEFAULT);
-      if (!Preferences::customSceneRulerTickColor)
-          Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DEFAULT);
-      if (!Preferences::customSceneRulerTrackingColor)
-          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DEFAULT);
-      if (!Preferences::customSceneGuideColor)
-          Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DEFAULT);
     }
 
+  // Set default scene colours
+  if (!Preferences::customSceneBackgroundColor)
+      Preferences::setSceneBackgroundColorPreference(darkTheme ? THEME_SCENE_BGCOLOR_DARK : THEME_SCENE_BGCOLOR_DEFAULT);
+  if (!Preferences::customSceneGridColor)
+      Preferences::setSceneGridColorPreference(darkTheme ? THEME_GRID_PEN_DARK : THEME_GRID_PEN_DEFAULT);
+  if (!Preferences::customSceneRulerTickColor)
+      Preferences::setSceneRulerTickColorPreference(darkTheme ? THEME_RULER_TICK_PEN_DARK : THEME_RULER_TICK_PEN_DEFAULT);
+  if (!Preferences::customSceneRulerTrackingColor)
+      Preferences::setSceneRulerTrackingColorPreference(darkTheme ? THEME_RULER_TRACK_PEN_DARK : THEME_RULER_TRACK_PEN_DEFAULT);
+  if (!Preferences::customSceneGuideColor)
+      Preferences::setSceneGuideColorPreference(darkTheme ? THEME_GUIDE_PEN_DARK : THEME_GUIDE_PEN_DEFAULT);
+
   // Set 3DViewer colours
-  setViewerThemeColor(LC_PROFILE_DEFAULT_BACKGROUND_COLOR,   THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
   setViewerThemeColor(LC_PROFILE_AXES_COLOR,                 THEME_DARK_AXES_COLOR,              THEME_DEFAULT_AXES_COLOR);
   setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,              THEME_DARK_OVERLAY_COLOR,           THEME_DEFAULT_OVERLAY_COLOR);
   setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,          THEME_DARK_ACTIVE_VIEW_COLOR,       THEME_DEFAULT_ACTIVE_VIEW_COLOR);
   setViewerThemeColor(LC_PROFILE_ACTIVE_PREVIEW_COLOR,       THEME_DARK_ACTIVE_PREVIEW_COLOR,    THEME_DEFAULT_ACTIVE_PREVIEW_COLOR);
-  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,            THEME_DARK_GRID_STUD_COLOR,         THEME_DEFAULT_GRID_STUD_COLOR);
+  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,            THEME_DARK_GRID_STUD_COLOR,         THEME_DEFAULT_GRID_STUD_COLOR, 192/*alpha*/);
   setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,            THEME_DARK_GRID_LINE_COLOR,         THEME_DEFAULT_GRID_LINE_COLOR);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,          THEME_DARK_VIEW_SPHERE_COLOR,       THEME_DEFAULT_VIEW_SPHERE_COLOR);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,  THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR);
+  setViewerThemeColor(LC_PROFILE_DEFAULT_BACKGROUND_COLOR,   THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
 
-  // Set 3DViewer colour theme flag
+  // Set 3DViewer colour theme - apply this after interface settings update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
 }
 
@@ -892,7 +920,7 @@ void Application::initialize()
 */
 
     // set theme
-    setTheme();
+    setTheme(false/*appStarted*/);
 
     emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 

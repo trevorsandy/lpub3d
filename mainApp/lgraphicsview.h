@@ -57,6 +57,7 @@ public slots:
   void setSceneTheme();
   void setResolution(float);
   void setShowCoordinates();
+  void setViewBorderStyleSheet();
 
 signals:
     void setSceneRulerSig();

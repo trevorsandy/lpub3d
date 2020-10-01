@@ -1973,29 +1973,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QCheckBox" name="themeAutoRestartBox">
-              <property name="toolTip">
-               <string>Check to suppress message prompt to restart application on theme change.</string>
-              </property>
-              <property name="text">
-               <string>Restart automatically on theme change</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
            </layout>
           </item>
           <item>
@@ -2897,7 +2874,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>browsePublishLogo</tabstop>
   <tabstop>publishDescriptionEdit</tabstop>
   <tabstop>themeCombo</tabstop>
-  <tabstop>themeAutoRestartBox</tabstop>
   <tabstop>sceneBackgroundColorButton</tabstop>
   <tabstop>sceneRulerTickColorButton</tabstop>
   <tabstop>sceneGuideColorButton</tabstop>

@@ -322,7 +322,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.themeCombo->addItem(THEME_DEFAULT);
   ui.themeCombo->addItem(THEME_DARK);
   ui.themeCombo->setCurrentText(Preferences::displayTheme);
-  ui.themeAutoRestartBox->setChecked(Preferences::themeAutoRestart);
 
   QPixmap colorPix(12, 12);
   sceneBackgroundColorStr = Preferences::sceneBackgroundColor;
@@ -372,8 +371,16 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
   //populate readme from the web
-  m_updater->setChangelogOnly(DEFS_URL, true);
-  m_updater->checkForUpdates (DEFS_URL);
+  bool processing = true;
+  auto processRequest = [this, &processing] ()
+  {
+      m_updater->setChangelogOnly(DEFS_URL, true);
+      m_updater->checkForUpdates (DEFS_URL);
+      processing = false;
+  };
+  processRequest();
+  while (processing)
+      QApplication::processEvents();
 
   // show message options
   mShowLineParseErrors    = Preferences::lineParseErrors;
@@ -1244,11 +1251,6 @@ bool PreferencesDialog::resetSceneColors()
   return resetSceneColorsFlag;
 }
 
-bool PreferencesDialog::themeAutoRestart()
-{
-  return ui.themeAutoRestartBox->isChecked();
-}
-
 QString const PreferencesDialog::defaultURL()
 {
   return ui.publishURL_Edit->displayText();
@@ -1423,7 +1425,9 @@ QStringList const PreferencesDialog::searchDirSettings()
 }
 
 void PreferencesDialog::updateChangelog (QString url) {
-    if (url == DEFS_URL) {
+    bool processing = true;
+    auto processRequest = [this, &url, &processing] ()
+    {
         if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
             ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1 revision %2")
                                               .arg(m_updater->getLatestVersion(url))
@@ -1433,6 +1437,13 @@ void PreferencesDialog::updateChangelog (QString url) {
             else
                 ui.changeLog_txbr->setText(m_updater->getChangelog (url));
         }
+        processing = false;
+    };
+
+    if (url == DEFS_URL) {
+        processRequest();
+        while (processing)
+            QApplication::processEvents();
     }
 }
 
@@ -1442,29 +1453,38 @@ QString const PreferencesDialog::moduleVersion()
 }
 
 void PreferencesDialog::checkForUpdates () {
-  /* Get settings from the UI */
-  QString moduleVersion = ui.moduleVersion_Combo->currentText();
-  QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
-  bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
-  bool enableDownloader = ui.enableDownloader_Chk->isChecked();
-  bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
-  bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
+    bool processing = true;
+    auto processRequest = [this, &processing] ()
+    {
+        /* Get settings from the UI */
+        QString moduleVersion = ui.moduleVersion_Combo->currentText();
+        QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
+        bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
+        bool enableDownloader = ui.enableDownloader_Chk->isChecked();
+        bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
+        bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
 
-  /* Apply the settings */
-  if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
-    m_updater->setModuleVersion(DEFS_URL, moduleVersion);
-  if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
-      m_updater->setModuleRevision(DEFS_URL, moduleRevision);
-  m_updater->setShowRedirects(DEFS_URL, showRedirects);
-  m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
-  m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
-  m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);
+        /* Apply the settings */
+        if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
+            m_updater->setModuleVersion(DEFS_URL, moduleVersion);
+        if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
+            m_updater->setModuleRevision(DEFS_URL, moduleRevision);
+        m_updater->setShowRedirects(DEFS_URL, showRedirects);
+        m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
+        m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
+        m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);
 
-  /* Check for updates */
-  m_updater->checkForUpdates (DEFS_URL);
+        /* Check for updates */
+        m_updater->checkForUpdates (DEFS_URL);
 
-  QSettings Settings;
-  Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+        QSettings Settings;
+        Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+        processing = false;
+    };
+
+    processRequest();
+    while (processing)
+        QApplication::processEvents();
 }
 
 void PreferencesDialog::accept(){

@@ -64,7 +64,6 @@ class PreferencesDialog : public QDialog
     QString const sceneRulerTrackingColor();
     QString const sceneGuideColor();
     QStringList const searchDirSettings();
-    bool          themeAutoRestart();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();

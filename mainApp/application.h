@@ -65,7 +65,7 @@ public:
     bool modeGUI();
 
     /// Sets the theme
-    void setTheme();
+    void setTheme(bool appStarted = true);
 
     /// Gets the theme
     QString getTheme();

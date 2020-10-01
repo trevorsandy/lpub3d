@@ -64,6 +64,13 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
 
 }
 
+void LGraphicsView::setViewBorderStyleSheet(){
+  if (Preferences::displayTheme == THEME_DARK)
+    setStyleSheet(QString("QGraphicsView { border: 1px solid %1; }").arg(THEME_DARK_GRAPHICSVIEW_BORDER_COLOR));
+  else
+    setStyleSheet("");
+}
+
 void LGraphicsView::setSceneRuler(){
 
   if (Preferences::sceneRuler) {
@@ -193,10 +200,13 @@ void LGraphicsView::setSceneGuidesPos(){
 }
 
 void LGraphicsView::setSceneBackgroundBrush(){
-  this->scene()->setBackgroundBrush(QColor(Preferences::sceneBackgroundColor));
+  QColor color(Preferences::sceneBackgroundColor);
+  QBrush brush(color);
+  this->scene()->setBackgroundBrush(brush);
 }
 
 void LGraphicsView::setSceneTheme(){
+  setViewBorderStyleSheet();
   setSceneBackgroundBrush();
   setSceneRuler();
   setSceneGuides();

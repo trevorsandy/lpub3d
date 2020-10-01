@@ -212,7 +212,6 @@ class Preferences
     static QStringList ldSearchDirs;
 
     static bool    usingDefaultLibrary;
-    static bool    themeAutoRestart;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
     static bool    enableLDViewSingleCall;

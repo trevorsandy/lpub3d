@@ -1385,14 +1385,6 @@ void Gui::mpdComboChanged(int index)
     }
 }
 
-void Gui::loadTheme(bool restart){
-  Application::instance()->setTheme();
-  if (!restart) {
-      reloadViewer();
-      reloadCurrentModelFile();
-    }
-}
-
 void  Gui::restartApplication(bool changeLibrary){
     QStringList args;
     if (! changeLibrary && ! getCurFile().isEmpty()){
@@ -2517,7 +2509,6 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool displayThemeRestart            = false;
     bool libraryChangeRestart           = false;
     bool defaultUnitsCompare            = Preferences::preferCentimeters;
     bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
@@ -2844,7 +2835,10 @@ void Gui::preferences()
             sceneGuideColorChanged)
         {
             if (displayThemeChanged)
-                loadTheme(displayThemeRestart);
+                loadTheme();
+            KpageView->setSceneTheme();
+            if (sceneGridColorChanged)
+                reloadCurrentPage();
         }
 
         if (!getCurFile().isEmpty()) {
@@ -2913,18 +2907,8 @@ void Gui::preferences()
             logger.setLoggingLevel(OffLevel);
         }
 
-        if (displayThemeRestart || altLDConfigPathChanged || libraryChangeRestart) {
+        if (altLDConfigPathChanged || libraryChangeRestart) {
             restartApplication(libraryChangeRestart);
-        }
-
-        if (sceneBackgroundColorChanged ||
-            sceneGridColorChanged       ||
-            sceneRulerTickColorChanged  ||
-            sceneGuideColorChanged)
-        {
-            KpageView->setSceneTheme();
-            if (sceneGridColorChanged)
-                reloadCurrentPage();
         }
     }
 }
@@ -3050,6 +3034,9 @@ Gui::Gui()
 
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editWindow,     SLOT(  clearEditorWindow()));
+
+    connect(this,           SIGNAL(setTextEditHighlighterSig()),
+            editWindow,     SLOT(  setTextEditHighlighter()));
 
     connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
             editWindow,     SLOT(  setSubFiles(   const QStringList &)));

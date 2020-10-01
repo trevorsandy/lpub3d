@@ -171,7 +171,6 @@ bool    Preferences::perspectiveProjection      = true;
 bool    Preferences::saveOnRedraw               = true;
 bool    Preferences::saveOnUpdate               = true;
 
-bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
@@ -2890,15 +2889,6 @@ void Preferences::userInterfacePreferences()
           displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
   }
 
-  QString const themeAutoRestartKey("ThemeAutoRestart");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey))) {
-          QVariant uValue(false);
-          themeAutoRestart = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey),uValue);
-  } else {
-          themeAutoRestart = Settings.value(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey)).toBool();
-  }
-
   QString const sceneRulerKey("SceneRuler");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
           QVariant uValue(false);
@@ -3394,15 +3384,6 @@ void Preferences::setSceneRulerTrackingPreference(int i)
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),sceneRulerTracking);
 }
 
-void Preferences::setCustomSceneBackgroundColorPreference(bool b)
-{
-  QSettings Settings;
-  customSceneBackgroundColor = b;
-  QVariant uValue(b);
-  QString const sceneBackgroundColorKey("CustomSceneBackgroundColor");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),uValue);
-}
-
 void Preferences::setCustomSceneGridColorPreference(bool b)
 {
   QSettings Settings;
@@ -3445,6 +3426,15 @@ void Preferences::setSceneBackgroundColorPreference(QString s)
   sceneBackgroundColor = s;
   QVariant uValue(s);
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),uValue);
+}
+
+void Preferences::setCustomSceneBackgroundColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneBackgroundColor = b;
+  QVariant uValue(b);
+  QString const sceneBackgroundColorKey("CustomSceneBackgroundColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),uValue);
 }
 
@@ -4432,43 +4422,50 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DoNotShowPageProcessDlg"),doNotShowPageProcessDlg);
         }
 
+        bool darkTheme = displayTheme == THEME_DARK;
         if (displayTheme != dialog->displayTheme()){
             displayTheme = dialog->displayTheme();
+            darkTheme  = displayTheme == THEME_DARK;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
         }
 
         if (sceneBackgroundColor != dialog->sceneBackgroundColor()){
             sceneBackgroundColor = dialog->sceneBackgroundColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
-            setCustomSceneBackgroundColorPreference(true);
+            bool customColor = (sceneGuideColor != (darkTheme ? THEME_SCENE_BGCOLOR_DARK : THEME_SCENE_BGCOLOR_DEFAULT));
+            setCustomSceneBackgroundColorPreference(customColor);
         }
 
         if (sceneGridColor != dialog->sceneGridColor()){
             sceneGridColor = dialog->sceneGridColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
-            setCustomSceneGridColorPreference(true);
+            bool customColor = (sceneGridColor != (darkTheme ? THEME_GRID_PEN_DARK : THEME_GRID_PEN_DEFAULT));
+            setCustomSceneGridColorPreference(customColor);
         }
 
         if (sceneRulerTickColor != dialog->sceneRulerTickColor()){
             sceneRulerTickColor = dialog->sceneRulerTickColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
-            setCustomSceneRulerTickColorPreference(true);
+            bool customColor = (sceneRulerTickColor != (darkTheme ? THEME_RULER_TICK_PEN_DARK : THEME_RULER_TICK_PEN_DEFAULT));
+            setCustomSceneRulerTickColorPreference(customColor);
         }
 
         if (sceneRulerTrackingColor != dialog->sceneRulerTrackingColor()){
             sceneRulerTrackingColor = dialog->sceneRulerTrackingColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
-            setCustomSceneRulerTrackingColorPreference(true);
+            bool customColor = (sceneRulerTrackingColor != (darkTheme ? THEME_RULER_TRACK_PEN_DARK : THEME_RULER_TRACK_PEN_DEFAULT));
+            setCustomSceneRulerTrackingColorPreference(customColor);
         }
 
         if (sceneGuideColor != dialog->sceneGuideColor()){
             sceneGuideColor = dialog->sceneGuideColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
-            setCustomSceneGuideColorPreference(true);
+            bool customColor = (sceneGuideColor != (darkTheme ? THEME_GUIDE_PEN_DARK : THEME_GUIDE_PEN_DEFAULT));
+            setCustomSceneGuideColorPreference(customColor);
         }
 
         if (dialog->resetSceneColors()) {
-            if (displayTheme == THEME_DARK) {
+            if (darkTheme) {
                 sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK;
                 sceneGridColor = THEME_GRID_PEN_DARK;
                 sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK;
@@ -4486,12 +4483,6 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
-        }
-
-        if (themeAutoRestart != dialog->themeAutoRestart())
-        {
-            themeAutoRestart = dialog->themeAutoRestart();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ThemeAutoRestart"),themeAutoRestart);
         }
 
         if (moduleVersion != dialog->moduleVersion()){

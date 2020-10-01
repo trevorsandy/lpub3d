@@ -1282,7 +1282,7 @@ public slots:
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage();
   void reloadViewer();
-  void loadTheme(bool restart = true);
+  void loadTheme();
   void restartApplication(bool changeLibrary = false);
   void resetModelCache(QString file = QString());
 
@@ -1317,6 +1317,7 @@ signals:
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);
   void clearEditorWindowSig();
+  void setTextEditHighlighterSig();
 
   void enable3DActionsSig();
   void disable3DActionsSig();
