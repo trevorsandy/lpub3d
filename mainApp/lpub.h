@@ -1027,6 +1027,9 @@ public:
   QUrl mUrl;
 
 public slots:
+#ifndef QT_NO_CLIPBOARD
+  void updateClipboard();
+#endif
   void httpDownloadFinished();
   void cancelDownload();
   void updateDownloadProgress(qint64, qint64);
@@ -1907,6 +1910,7 @@ private:
   QAction *projectSetupAct;
   QAction *fadeStepSetupAct;
   QAction *highlightStepSetupAct;
+  QAction *copyFilePathToClipboardAct;
 
   QAction *preferencesAct;
 

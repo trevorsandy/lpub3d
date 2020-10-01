@@ -367,6 +367,38 @@ void Gui::removeLPubFormatting()
   displayPage();
 }
 
+#ifndef QT_NO_CLIPBOARD
+void Gui::updateClipboard()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action) {
+        QString data;
+        if (action == copyFilePathToClipboardAct) {
+            data = getCurFile();
+        } else {
+            data = action->data().toString();
+        }
+
+        if (data.isEmpty()) {
+            emit messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
+                                               .arg(sender()->metaObject()->className()));
+            return;
+        }
+
+        QGuiApplication::clipboard()->setText(data, QClipboard::Clipboard);
+
+        QString efn =QFileInfo(data).fileName();
+        // Manually elided to 30 chars
+        QString fileName = QString("Part %1")
+                           .arg(efn.size() > 20 ?
+                                efn.left(17) + "..." +
+                                efn.right(3) : efn);
+
+        emit messageSig(LOG_INFO_STATUS, QString("Copied '%1' to clipboard.").arg(fileName));
+    }
+}
+#endif
+
 void Gui::displayPage()
 {
   emit messageSig(LOG_STATUS, "Processing page display...");
@@ -4031,6 +4063,12 @@ void Gui::createActions()
     blenderImportAct->setEnabled(false);
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
     
+    copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Copy Path to Clipboard"), this);
+    copyFilePathToClipboardAct->setShortcut(tr("Alt+Shift+0"));
+    copyFilePathToClipboardAct->setStatusTip(tr("Copy current file path to clipboard - Alt+Shift+0"));
+    copyFilePathToClipboardAct->setEnabled(false);
+    connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
     povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
     povrayRenderAct->setShortcut(tr("Alt+9"));
     povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
@@ -4768,6 +4806,7 @@ void Gui::enableActions()
   blenderRenderAct->setEnabled(true);
   blenderImportAct->setEnabled(true);
   povrayRenderAct->setEnabled(true);
+  copyFilePathToClipboardAct->setEnabled(true);
 
   //3DViewer
   //ViewerExportMenu->setEnabled(true); // Hide 3DViewer step export functions
@@ -4845,6 +4884,7 @@ void Gui::disableActions()
   blenderRenderAct->setEnabled(false);
   blenderImportAct->setEnabled(false);
   povrayRenderAct->setEnabled(false);
+  copyFilePathToClipboardAct->setEnabled(false);
 
   // 3DViewer
   // ViewerExportMenu->setEnabled(false); // Hide 3DViewer step export functions
@@ -4922,6 +4962,7 @@ void Gui::createMenus()
     fileMenu->addAction(printToFileAct);
     fileMenu->addAction(exportAsPdfPreviewAct);
     fileMenu->addAction(exportAsPdfAct);
+    fileMenu->addAction(copyFilePathToClipboardAct);
     fileMenu->addSeparator();
 
     recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));

@@ -1456,6 +1456,11 @@ void SubModelBackgroundItem::contextMenuEvent(
         }
     }
 
+    QAction *copySmpImagePathAction = nullptr;
+#ifndef QT_NO_CLIPBOARD
+    copySmpImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+#endif
+
     QAction *selectedAction   = menu.exec(event->screenPos());
 
     if (selectedAction == nullptr) {
@@ -1548,6 +1553,10 @@ void SubModelBackgroundItem::contextMenuEvent(
                            bottom,
                            Render::getRenderer(),
                            &subModel->subModelMeta.povrayParms);
+    } else if (selectedAction == copySmpImagePathAction) {
+        QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
+        copySmpImagePathAction->setData(subModel->imageName);
+        emit copySmpImagePathAction->triggered();
     }
   }
 }

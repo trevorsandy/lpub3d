@@ -448,6 +448,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                                          : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
+  QAction *copyCsiImagePathAction = nullptr;
+#ifndef QT_NO_CLIPBOARD
+  copyCsiImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+#endif
+
   Where top, bottom;
   switch (parentRelativeType) {
     case StepGroupType:
@@ -586,7 +591,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                          bottomOfStep,
                          Render::getRenderer(),
                          &step->povrayParms);
-    }
+    } else if (selectedAction == copyCsiImagePathAction) {
+      QObject::connect(copyCsiImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
+      copyCsiImagePathAction->setData(step->pngName);
+      emit copyCsiImagePathAction->triggered();
+  }
 }
 
 void CsiItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

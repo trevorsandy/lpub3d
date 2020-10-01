@@ -3575,10 +3575,11 @@ void PGraphicsPixmapItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString partlbl = this->part->type.size() > 15 ?
-                    this->part->type.left(12) + "..." +
-                    this->part->type.right(3) : this->part->type;
-  QString pl = QString("Part %1").arg(partlbl);
+  // Text elided to 15 chars
+  QString pl = QString("Part %1")
+              .arg(this->part->type.size() > 15 ?
+                   this->part->type.left(12) + "..." +
+                   this->part->type.right(3) : this->part->type);
 
   QAction *substitutePartAction = nullptr;
   QAction *removeSubstitutePartAction = nullptr;
@@ -3595,6 +3596,11 @@ void PGraphicsPixmapItem::contextMenuEvent(
   QAction *resetPartGroupAction = nullptr;
   if (pli->pliMeta.enablePliPartGroup.value())
       resetPartGroupAction = commonMenus.resetPartGroupMenu(menu,pl);
+
+  QAction *copyPliImagePathAction = nullptr;
+#ifndef QT_NO_CLIPBOARD
+  copyPliImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+#endif
 
 // Manipulate individual PLI images
 //  QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
@@ -3652,6 +3658,10 @@ void PGraphicsPixmapItem::contextMenuEvent(
       if (!part->subOriginalType.isEmpty())
           attributes.append(part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
+  } else if (selectedAction == copyPliImagePathAction) {
+      QObject::connect(copyPliImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
+      copyPliImagePathAction->setData(pli->imageName);
+      emit copyPliImagePathAction->triggered();
   } /*else if (selectedAction == cameraAnglesAction) {
       changeCameraAngles(pl+" Camera Angles",
                       top,

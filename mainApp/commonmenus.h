@@ -79,6 +79,10 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *copyToClipboardMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *fontMenu(
           QMenu   &menu,
     const QString  name = "");

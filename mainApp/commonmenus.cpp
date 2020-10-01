@@ -80,6 +80,24 @@ QAction* CommonMenus::annotationMenu(
   return action;
 }
 
+QAction* CommonMenus::copyToClipboardMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Copy %1 Path To Clipboard") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/copytoclipboard.png"));
+
+  formatted = QString(
+   "Copy %1 image path to the clipboard") .arg(name);
+
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::fontMenu(
         QMenu   &menu, 
   const QString  name)
