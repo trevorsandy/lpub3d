@@ -124,7 +124,7 @@ class SubModel : public Placement {
     SubModelBackgroundItem *background;
     SubModelMeta            subModelMeta;
     QString                 imageName;
-    QString                 viewerStepKey;
+    QString                 viewerSubmodelKey;
     ViewerOptions          *viewerOptions;
 
     Meta                   *meta;

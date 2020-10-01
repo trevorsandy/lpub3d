@@ -90,6 +90,7 @@ class Step : public AbstractRangeElement
     bool                  fadeSteps;
     bool                  highlightStep;
     bool                  adjustOnItemOffset;
+    bool                  updateViewer;
     QString               ldrName;
     QString               pngName;
     QString               csiKey;

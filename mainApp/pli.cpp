@@ -999,7 +999,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         if (!rotStep.isEmpty())
             keyPart2.append(QString("_%1").arg(rotStep));
 
-        emit gui->messageSig(LOG_INFO, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
+        emit gui->messageSig(LOG_INFO, QString("Generate PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
@@ -1014,13 +1014,25 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
                                   .arg(ia.partColor[pT])
                                   .arg(stepNumber);
 
+//        if (Preferences::debugLogging)
+//            emit gui->messageSig(LOG_DEBUG,
+//                                 QString("PLI ViewerPliPartKey Attributes "
+//                                         "Key(baseName;partColor;stepNumber [%1], "
+//                                         "modelName [%2], "
+//                                         "top lineNumber [%3], "
+//                                         "step type [%4], "
+//                                         "type lineNumber [%5]")
+//                                         .arg(viewerPliPartKey)
+//                                         .arg(top.modelName)
+//                                         .arg(top.lineNumber)
+//                                         .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
+//                                         .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
+
         // Check if viewer PLI part does exist in repository
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
-        // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-        bool viewerUpdate = viewerPliPartKey == gui->getViewerStepKey();
-
-        if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
+        // Generate and renderer  PLI Part file
+        if ( ! part.exists() || addViewerPliPartContent) {
 
             showElapsedTime = true;
 
@@ -1090,10 +1102,9 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             }
         }
 
-        // Generate 3DViewer PLI part entry
+        // Set 3DViewer PLI part entry
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
             // set viewer display options
-
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
             viewerOptions                 = new ViewerOptions();
@@ -1112,8 +1123,9 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             viewerOptions->Longitude      = nameKeys.at(8).toFloat();
             viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
             viewerOptions->Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
-            if (!viewerOptsList.contains(keyPart1))
-                viewerOptsList.insert(keyPart1,viewerOptions);
+            if (viewerOptsList.contains(keyPart1))
+                viewerOptsList.remove(keyPart1);
+            viewerOptsList.insert(keyPart1,viewerOptions);
         }
 
         // create icon path key - using actual color code
@@ -1158,7 +1170,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, int sub) {
     int rc = 0;
 
-    emit gui->messageSig(LOG_INFO, "Render PLI images using LDView Single Call...");
+    emit gui->messageSig(LOG_INFO, "Generate PLI images using LDView Single Call...");
 
     if (! ldrNames.isEmpty()) {
         // feed DAT to renderer
@@ -2425,13 +2437,24 @@ int Pli::partSizeLDViewSCall() {
                                            .arg(ia.partColor[pT])
                                            .arg(stepNumber);
 
+                if (Preferences::debugLogging)
+                    emit gui->messageSig(LOG_DEBUG,
+                                         QString("PLI (SC) ViewerPliPartKey Attributes "
+                                                 "Key(baseName;partColor;stepNumber [%1], "
+                                                 "modelName [%2], "
+                                                 "top lineNumber [%3], "
+                                                 "step type [%4], "
+                                                 "type lineNumber [%5]")
+                                                 .arg(viewerPliPartKey)
+                                                 .arg(top.modelName)
+                                                 .arg(top.lineNumber)
+                                                 .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
+                                                 .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
+
                 // Check if viewer PLI part does exist in repository
                 bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
-                // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-                bool viewerUpdate = viewerPliPartKey == gui->getViewerStepKey();
-
-                if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
+                if ( ! part.exists() || addViewerPliPartContent) {
 
                     // store ldrName - long name includes nameKey
                     ia.ldrNames[pT] << ldrName;
@@ -2494,7 +2517,7 @@ int Pli::partSizeLDViewSCall() {
 
                 } else { ia.ldrNames[pT] << QStringList(); } // part already exist
 
-                // Generate 3DViewer Submodel entry
+                // Set 3DViewer PLI part entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
                     // set viewer display options
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
@@ -2515,8 +2538,9 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->Longitude      = nameKeys.at(8).toFloat();
                     viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
                     viewerOptions->Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
-                    if (!viewerOptsList.contains(keyPart1))
-                        viewerOptsList.insert(keyPart1,viewerOptions);
+                    if (viewerOptsList.contains(keyPart1))
+                        viewerOptsList.remove(keyPart1);
+                    viewerOptsList.insert(keyPart1,viewerOptions);
                 }
 
             }     // for every part type
@@ -3541,11 +3565,16 @@ void PGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    QString viewerOptKey = QString("%1_%2").arg(QFileInfo(part->type).completeBaseName()).arg(part->color);
+    QString type = QFileInfo(part->type).completeBaseName();
+    QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
     pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
     pli->viewerOptions->ImageWidth  = part->pixmapWidth;
     pli->viewerOptions->ImageHeight = part->pixmapHeight;
-    pli->loadTheViewer();
+    QString viewerPliPartKey        = QString("%1;%2;%3")
+                                             .arg(type).arg(part->color)
+                                             .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
+    if (gui->getViewerStepKey() != viewerPliPartKey)
+        pli->loadTheViewer();
 
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);

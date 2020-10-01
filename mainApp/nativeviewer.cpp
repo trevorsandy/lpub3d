@@ -469,7 +469,6 @@ void Gui::initiaizeNativeViewer()
     connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),             this,        SLOT(SetRotStepAngleZ(float,bool)));
     connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),       this,        SLOT(SetRotStepTransform(QString&,bool)));
     connect(gMainWindow, SIGNAL(GetRotStepMeta()),                         this,        SLOT(GetRotStepMeta()));
-    connect(gMainWindow, SIGNAL(updateSig()),                              this,        SLOT(loadUpdatedImages()));
     connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
     connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
     connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));

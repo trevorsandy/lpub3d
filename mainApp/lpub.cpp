@@ -405,9 +405,9 @@ void Gui::displayPage()
 
   timer.start();
   if (macroNesting == 0) {
-    clearPage(KpageView,KpageScene);
-    page.coverPage = false;
-    drawPage(KpageView,KpageScene,false);
+    bool updateViewer = currentStep ? currentStep->updateViewer : true;
+    clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
+    drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
     if (Preferences::modeGUI && ! exporting()) {
       enableActions2();
       emit enable3DActionsSig();
@@ -1247,15 +1247,13 @@ void Gui::displayFile(
 #ifdef QT_DEBUG_MODE        
         QElapsedTimer t;
         t.start();
-        emit messageSig(LOG_DEBUG,tr("Editor loading..."));
 #endif        
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
             displayFileSig(ldrawFile, modelName);
 #ifdef QT_DEBUG_MODE            
-            emit messageSig(LOG_DEBUG,tr("Editor loaded - %1")
-                                             .arg(elapsedTime(t.elapsed())));
+            emit messageSig(LOG_DEBUG,tr("Editor loaded - %1").arg(elapsedTime(t.elapsed())));
 #endif
             if (curSubFile == modelName)
                 return;
@@ -1402,13 +1400,6 @@ void  Gui::restartApplication(bool changeLibrary){
     messageSig(LOG_INFO, QString("Restarted LPub3D with Command: %1 %2")
                .arg(QApplication::applicationFilePath()).arg(args.join(" ")));
     QCoreApplication::quit();
-}
-
-void Gui::loadUpdatedImages()
-{
-   m_updateViewer = false;
-   reloadCurrentPage();
-   m_updateViewer = true;
 }
 
 void Gui::insertConfiguredSubFile(const QString &name,
@@ -2939,7 +2930,6 @@ Gui::Gui()
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
     resetCache                      = false;
-    m_updateViewer                  = true;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;
     m_exportingContent              = false;

@@ -296,9 +296,7 @@ int Gui::addGraphicsPageItems(
     bool            printing)
 {
 
-  QElapsedTimer  t; t.start();
-  emit messageSig(LOG_DEBUG, QString("Draw page graphics..."));
-
+  QElapsedTimer            t; t.start();
   Page                    *page  = dynamic_cast<Page *>(steps);
 
   Placement                plPage;

@@ -174,6 +174,7 @@ Step::Step(
   placeSubModel             = false;
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;
+  updateViewer              = true;    // this is set to false on csiItem mouseReleaseEvent and countPages
   fadeSteps                 = _meta.LPub.fadeStep.fadeStep.value();
   highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   gStep = this;
@@ -353,62 +354,32 @@ int Step::createCsi(
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
 
-  if (Preferences::debugLogging)
-      emit gui->messageSig(LOG_DEBUG,
-                           QString("DEBUG - CSI ViewerStepKey Attributes "
-                                   "Key(modelNameIndex;lineNumber;stepNumber[_dm]) [%1], "
-                                   "modelName [%2], "
-                                   "top lineNumber [%3], "
-                                   "step type [%4], "
-                                   "type lineNumber [%5], "
-                                   "stepNumber [%6]")
-                                   .arg(viewerStepKey)
-                                   .arg(top.modelName)
-                                   .arg(top.lineNumber)
-                                   .arg(calledOut ? "called out" : multiStep ? "step group" : "single step")
-                                   .arg(calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber)
-                                   .arg(stepNumber.number));
+//  if (Preferences::debugLogging)
+//      emit gui->messageSig(LOG_DEBUG,
+//                           QString("CSI ViewerStepKey Attributes "
+//                                   "Key(modelNameIndex;lineNumber;stepNumber[_dm]) [%1], "
+//                                   "modelName [%2], "
+//                                   "top lineNumber [%3], "
+//                                   "step type [%4], "
+//                                   "type lineNumber [%5], "
+//                                   "stepNumber [%6]")
+//                                   .arg(viewerStepKey)
+//                                   .arg(top.modelName)
+//                                   .arg(top.lineNumber)
+//                                   .arg(calledOut ? "called out" : multiStep ? "step group" : "single step")
+//                                   .arg(calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber)
+//                                   .arg(stepNumber.number));
 
-  // Viewer Csi does not yet exist in repository
-  bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
-  // We are processing again the current step so Csi must have been updated in the viewer
-  bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
+  // Generate  the renderer CSI file
+  bool generageCSIFile = ! csiExist || csiOutOfDate /*|| gui->exportingObjects()*/;
 
-  // Generate 3DViewer CSI entry - TODO move to after generate renderer CSI file
-  if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
-
-      // set rotated parts
-      QStringList rotatedParts = csiParts;
-
-       // RotateParts #3 - 5 parms, rotate parts for 3DViewer, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
-          emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
-
-      // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
-      rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
-
-      // header and closing meta
-
-      renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
-
-      // consolidate subfiles and parts into single file
-      if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
-          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
-
-      // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-      if (!csiStepMeta.target.isPopulated())
-          keyPart2.append(QString("_0_0_0"));
-      if (!meta.rotStep.isPopulated())
-          keyPart2.append(QString("_0_0_0_REL"));
-      QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-      gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
-  }
-
-  // generate renderer CSI file
-  if ( ! csiExist || csiOutOfDate || gui->exportingObjects()) {
+  if (generageCSIFile) {
 
      QElapsedTimer timer;
      timer.start();
+
+     // this is initialized to true but set to false on csiItem mouseReleaseEvent so reset here
+     updateViewer = true;
 
      // populate ldr file name
      ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key));
@@ -488,15 +459,47 @@ int Step::createCsi(
      }
   }
 
-  // If not using LDView SCall, populate pixmap
-  if (! renderer->useLDViewSCall()) {
-      pixmap->load(pngName);
-      csiPlacement.size[0] = pixmap->width();
-      csiPlacement.size[1] = pixmap->height();
-  }
-
+  // Generate 3DViewer CSI entry
   if (! gui->exportingObjects()) {
-      // set viewer display options
+
+      // Viewer Csi does not yet exist in repository
+      bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
+
+      // We are processing again the current step but the Csi has changed - i.e. updated in the viewer
+      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() && generageCSIFile);
+
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
+
+          updateViewer = true; // just to be safe
+
+          // set rotated parts
+          QStringList rotatedParts = csiParts;
+
+          // RotateParts #3 - 5 parms, rotate parts for 3DViewer, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
+          if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
+              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+
+          // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
+          rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+
+          // header and closing meta
+
+          renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
+
+          // consolidate subfiles and parts into single file
+          if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
+              emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+
+          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+          if (!csiStepMeta.target.isPopulated())
+              keyPart2.append(QString("_0_0_0"));
+          if (!meta.rotStep.isPopulated())
+              keyPart2.append(QString("_0_0_0_REL"));
+          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
+      }
+
+      // for now, we always set viewer display options
       viewerOptions                 = new ViewerOptions();
       viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->ImageFileName  = pngName;
@@ -514,20 +517,31 @@ int Step::createCsi(
       viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
       if (! renderer->useLDViewSCall()) {
-         viewerOptions->ImageWidth  = pixmap->width();
-         viewerOptions->ImageHeight = pixmap->height();
+          viewerOptions->ImageWidth  = pixmap->width();
+          viewerOptions->ImageHeight = pixmap->height();
       }
 
       // Load the 3DViewer - only at page view so callouts and multistep Steps are not loaded here
-      if (!calledOut && !multiStep)
+      if (!calledOut && !multiStep && updateViewer)
           loadTheViewer();
+  }
+
+  // Reset updateViewer - leave value in place for calledOut and multiStep
+  if (!calledOut && !multiStep)
+      updateViewer = true;
+
+  // If not using LDView SCall, populate pixmap
+  if (! renderer->useLDViewSCall()) {
+      pixmap->load(pngName);
+      csiPlacement.size[0] = pixmap->width();
+      csiPlacement.size[1] = pixmap->height();
   }
 
   return rc;
 }
 
 bool Step::loadTheViewer(){
-    if (! gui->exporting() && gui->updateViewer()) {
+    if (! gui->exporting() && updateViewer) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerStepKey));

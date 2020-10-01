@@ -282,78 +282,22 @@ int SubModel::createSubModelImage(
       }
   }
 
-  // Populate viewerStepKey variable
-  viewerStepKey = QString("%1;%2;%3_%4")
+  // Populate viewerSubmodelKey variable
+  viewerSubmodelKey = QString("%1;%2;%3_%4")
                           .arg(gui->getSubmodelIndex(bottom.modelName/*QFileInfo(type).fileName()*/))
                           .arg(bottom.lineNumber)
                           .arg(stepNumber)
                           .arg(PREVIEW_SUBMODEL_SUFFIX);
 
-  emit gui->messageSig(LOG_DEBUG,QString("DEBUG - SubModel Preview viewerStepKey [%1] - modelName [%2]")
-                                         .arg(viewerStepKey).arg(QFileInfo(type).fileName()));
-
-  // Viewer submodel does not yet exist in repository
-  bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
-
-  // We are processing again the current submodel Key so Submodel must have been updated in the viewer
-  bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
-
-  // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
-  if (! gui->exportingObjects()) {
-      if ((addViewerStepContent || imageOutOfDate || viewerUpdate)) {
-
-          FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
-          QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");
-
-          // set submodel entries - unrotated and rotated
-          QStringList subModel = QStringList()
-                  << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
-          QStringList rotatedSubmodel = subModel;
-
-          // RotateParts #3 - 5 parms, submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
-          if ((rc = renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedSubmodel,cameraAngles,false)) != 0)
-              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
-
-          // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
-          rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
-
-          // header and closing meta for 3DViewer
-          renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
-
-          // consolidate submodel subfiles into single file
-          if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))
-              emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer Submodel subfiles"));
-
-          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-          if (!subModelMeta.target.isPopulated())
-              keyPart2.append(QString("_0_0_0"));
-          if (!subModelMeta.rotStep.isPopulated())
-              keyPart2.append(QString("_0_0_0_REL"));
-          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerStepKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
-      }
-
-      // set viewer display options
-      viewerOptions                 = new ViewerOptions();
-      viewerOptions->ImageType      = Options::SMP;
-      viewerOptions->ViewerStepKey  = viewerStepKey;
-      viewerOptions->StudLogo       = subModelMeta.studLogo.value();
-      viewerOptions->ImageFileName  = imageName;
-      viewerOptions->Resolution     = resolution();
-      viewerOptions->PageWidth      = pageSizeP(meta, 0);
-      viewerOptions->PageHeight     = pageSizeP(meta, 1);
-      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
-      viewerOptions->CameraName     = subModelMeta.cameraName.value();
-      viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
-      viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
-      viewerOptions->Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
-      viewerOptions->ModelScale     = subModelMeta.modelScale.value();
-      viewerOptions->Target         = xyzVector(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
-  }
+  if (Preferences::debugLogging)
+      emit gui->messageSig(LOG_DEBUG,QString("SMP ViewerSubmodelKey Attributes "
+                                             "Key SubmodelIndex, bottom.lineNum, stepNum, suffix [%1], "
+                                             "modelName [%2]")
+                           .arg(viewerSubmodelKey)
+                           .arg(bottom.modelName));
 
   // Generate and renderer Submodel file
-  if ( ! part.exists() || imageOutOfDate) {
+  if (! part.exists() || imageOutOfDate) {
 
       QElapsedTimer timer;
       timer.start();
@@ -392,12 +336,67 @@ int SubModel::createSubModelImage(
       }
   }
 
-  pixmap->load(imageName);
-
+  // Generate the 3DViewer Submodel entry
   if (! gui->exportingObjects()) {
-      viewerOptions->ImageWidth  = pixmap->width();
-      viewerOptions->ImageHeight = pixmap->height();
+
+      // Viewer submodel does not yet exist in repository
+      bool addViewerStepContent = !gui->viewerStepContentExist(viewerSubmodelKey);
+
+      if (addViewerStepContent || imageOutOfDate) {
+
+          FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
+          QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");
+
+          // set submodel entries - unrotated and rotated
+          QStringList subModel = QStringList()
+                  << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
+          QStringList rotatedSubmodel = subModel;
+
+          // RotateParts #3 - 5 parms, submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
+          if ((rc = renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedSubmodel,cameraAngles,false)) != 0)
+              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
+
+          // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
+          rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
+
+          // header and closing meta for 3DViewer
+          renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
+
+          // consolidate submodel subfiles into single file
+          if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))
+              emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer Submodel subfiles"));
+
+          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+          if (!subModelMeta.target.isPopulated())
+              keyPart2.append(QString("_0_0_0"));
+          if (!subModelMeta.rotStep.isPopulated())
+              keyPart2.append(QString("_0_0_0_REL"));
+          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          gui->insertViewerStep(viewerSubmodelKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
+      }
+
+      // set viewer display options
+      viewerOptions                 = new ViewerOptions();
+      viewerOptions->ImageType      = Options::SMP;
+      viewerOptions->ViewerStepKey  = viewerSubmodelKey;
+      viewerOptions->StudLogo       = subModelMeta.studLogo.value();
+      viewerOptions->ImageFileName  = imageName;
+      viewerOptions->Resolution     = resolution();
+      viewerOptions->PageWidth      = pageSizeP(meta, 0);
+      viewerOptions->PageHeight     = pageSizeP(meta, 1);
+      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
+      viewerOptions->CameraName     = subModelMeta.cameraName.value();
+      viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
+      viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
+      viewerOptions->Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
+      viewerOptions->ModelScale     = subModelMeta.modelScale.value();
+      viewerOptions->Target         = xyzVector(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
+      viewerOptions->ImageWidth     = pixmap->width();
+      viewerOptions->ImageHeight    = pixmap->height();
   }
+
+  pixmap->load(imageName);
 
   return rc;
 }
@@ -1077,7 +1076,7 @@ bool SubModel::loadTheViewer(){
     if (! gui->exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with Submodel key: %1")
-                                 .arg(viewerStepKey));
+                                 .arg(viewerSubmodelKey));
             return false;
         }
     }
@@ -1248,7 +1247,8 @@ void SMGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    subModel->loadTheViewer();
+    if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey)
+        subModel->loadTheViewer();
 
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);

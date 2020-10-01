@@ -620,7 +620,8 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
-  step->loadTheViewer();
+  if (gui->getViewerStepKey() != step->viewerStepKey)
+      step->loadTheViewer();
 //  update();
 }
 
@@ -667,40 +668,41 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
     if (positionChanged) {
-
       beginMacro(QString("DragCsi"));
-      
-      PlacementData placementData = step->csiPlacement.placement.value();
-      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-      calcOffsets(placementData,placementData.offsets,topLeft,size);
-      step->csiPlacement.placement.setValue(placementData);
-
-      QPoint deltaI(int(pos().x() - position.x()),
-                    int(pos().y() - position.y()));
       if (step) {
-        // callouts
-        for (int i = 0; i < step->list.size(); i++) {
-          Callout *callout = step->list[i];
-          callout->updatePointers(deltaI);
-        }
-        // page pointers
-        for (int i = 0; i < PP_POSITIONS; i++){
-            Positions position = Positions(i);
-            PagePointer *pagePointer = step->page()->pagePointers.value(position);
-            if (pagePointer)
-                pagePointer->updatePointers(deltaI,this);
-        }
-        // dividers
-        for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-          DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-          foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
-              if (item == this)
-                  pointerItem->updatePointer(deltaI);
+          step->updateViewer = false; // nothing new to visualize
+
+          PlacementData placementData = step->csiPlacement.placement.value();
+          qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+          qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+          calcOffsets(placementData,placementData.offsets,topLeft,size);
+          step->csiPlacement.placement.setValue(placementData);
+
+          QPoint deltaI(int(pos().x() - position.x()),
+                        int(pos().y() - position.y()));
+
+          // callouts
+          for (int i = 0; i < step->list.size(); i++) {
+              Callout *callout = step->list[i];
+              callout->updatePointers(deltaI);
           }
-        }
+          // page pointers
+          for (int i = 0; i < PP_POSITIONS; i++){
+              Positions position = Positions(i);
+              PagePointer *pagePointer = step->page()->pagePointers.value(position);
+              if (pagePointer)
+                  pagePointer->updatePointers(deltaI,this);
+          }
+          // dividers
+          for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
+              DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+              foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+                  if (item == this)
+                      pointerItem->updatePointer(deltaI);
+              }
+          }
       }
-      changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);  
+      changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);
       endMacro();
     }
   }

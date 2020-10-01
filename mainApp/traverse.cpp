@@ -883,6 +883,7 @@ int Gui::drawPage(
                               calloutBfxLineTypeIndexes,
                               1                   /*stepNum*/,
                               opts.groupStepNumber,
+                              opts.updateViewer,
                               ldrawFile.mirrored(tokens),
                               opts.printing,
                               opts.buildModLevel,
@@ -1967,6 +1968,8 @@ int Gui::drawPage(
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
+              messageSig(LOG_DEBUG, QString("DrawPage() - Update Viewer [%1] Step Number  %2")
+                         .arg(opts.updateViewer ? "True" : "False").arg(opts.stepNum));
              /*
               * STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
               */
@@ -2054,6 +2057,7 @@ int Gui::drawPage(
                     }
 
                   emit messageSig(LOG_INFO, "Processing CSI bfx load special case for " + topOfStep.modelName + "...");
+                  step->updateViewer = opts.updateViewer;
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
@@ -2135,7 +2139,7 @@ int Gui::drawPage(
                           opts.pliParts.clear();
                           opts.pliPartGroups.clear();
 
-                          emit messageSig(LOG_INFO, "Add step PLI for " + topOfStep.modelName + "...");
+                          emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
 
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
@@ -2205,6 +2209,7 @@ int Gui::drawPage(
                       step->placeRotateIcon = rotateIcon;
 
                       emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+                      step->updateViewer = opts.updateViewer;
                       int rc = step->createCsi(
                                   opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                   configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
@@ -2688,6 +2693,7 @@ int Gui::findPage(
                                           opts.pageNum,
                                           current2,
                                           opts.pageSize,
+                                          opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
                                           opts.buildModLevel,
@@ -2807,6 +2813,7 @@ int Gui::findPage(
                                   saveBfxLineTypeIndexes,
                                   saveStepNumber,
                                   opts.renderStepNumber,
+                                  opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
                                   opts.buildModLevel,
@@ -2978,6 +2985,7 @@ int Gui::findPage(
                                       saveBfxLineTypeIndexes,
                                       saveStepNumber,
                                       opts.renderStepNumber,
+                                      opts.updateViewer,
                                       opts.isMirrored,
                                       opts.printing,
                                       opts.buildModLevel,
@@ -3276,6 +3284,7 @@ int Gui::findPage(
                       saveBfxLineTypeIndexes,
                       saveStepNumber,
                       opts.renderStepNumber,
+                      opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
                       opts.buildModLevel,
@@ -3790,6 +3799,7 @@ void Gui::countPages()
                   maxPages,
                   current,
                   emptyPageSize,
+                  false          /*updateViewer*/,
                   false          /*mirrored*/,
                   false          /*printing*/,
                   0              /*buildModLevel*/,
@@ -3818,6 +3828,7 @@ void Gui::drawPage(
     LGraphicsView  *view,
     LGraphicsScene *scene,
     bool            printing,
+    bool            updateViewer/*true*/,
     bool            buildMod/*false*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -3874,10 +3885,12 @@ void Gui::drawPage(
                  << "Model:" << current.modelName;
 #endif
     }
+
   FindPageOptions findOptions(
               maxPages,
               current,
               pageSize,
+              updateViewer,
               false        /*mirrored*/,
               printing,
               0            /*buildModLevel*/,
@@ -3887,7 +3900,7 @@ void Gui::drawPage(
   if (findPage(view,scene,meta,empty/*addLine*/,findOptions) == HitBuildModAction && Preferences::buildModEnabled) {
       QApplication::restoreOverrideCursor();
       clearPage(KpageView,KpageScene);
-      drawPage(view,scene,printing,true/*buildMod*/);
+      drawPage(view,scene,printing,updateViewer,true/*buildMod*/);
   } else {
       topOfPages.append(current);
 /*

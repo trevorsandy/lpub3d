@@ -162,7 +162,7 @@ public:
             int             &_pageNum,
             Where           &_current,
             PgSizeData      &_pageSize,
-
+            bool             _updateViewer,
             bool             _isMirrored,
             bool             _printing,
             int              _buildModLevel,
@@ -174,6 +174,7 @@ public:
           current           (_current),
           pageSize          (_pageSize),
 
+          updateViewer      (_updateViewer),
           isMirrored        (_isMirrored),
           printing          (_printing),
           buildModLevel     (_buildModLevel),
@@ -185,6 +186,7 @@ public:
     Where         &current;
     PgSizeData    &pageSize;
 
+    bool           updateViewer;
     bool           isMirrored;
     bool           printing;
     int            buildModLevel;
@@ -211,6 +213,7 @@ public:
 
             int                          _stepNum,
             int                          _groupStepNumber,
+            bool                         _updateViewer,
             bool                         _isMirrored,
             bool                         _printing,
             int                          _buildModLevel,
@@ -231,6 +234,7 @@ public:
 
           stepNum                       (_stepNum),
           groupStepNumber               (_groupStepNumber),
+          updateViewer                  (_updateViewer),
           isMirrored                    (_isMirrored),
           printing                      (_printing),
           buildModLevel                 (_buildModLevel),
@@ -251,6 +255,7 @@ public:
 
     int                          stepNum;
     int                          groupStepNumber;
+    bool                         updateViewer;
     bool                         isMirrored;
     bool                         printing;
     int                          buildModLevel;
