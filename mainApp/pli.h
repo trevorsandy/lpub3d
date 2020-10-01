@@ -74,6 +74,7 @@ class PliPart {
     QString              color;
     QString              text;
     QString              element;
+    QString              description;
     PliPartGroupMeta     groupMeta;
     NumberMeta           instanceMeta;
     AnnotationStyleMeta  styleMeta;
@@ -270,8 +271,8 @@ class Pli : public Placement {
 
     void placeCols(QList<QString> &);
     bool initAnnotationString();
-    void getAnnotation(QString &, QString &);
-    void partClass(QString &, QString &);
+    void getAnnotation(QString &, QString &, const QString &description);
+    void partClass(QString &, const QString &description);
     int  createPartImage(QString &, QString &, QString &, QPixmap*,int = 0);
     int  createPartImagesLDViewSCall(QStringList &, bool, int);      //LDView performance improvement
     QString orient(QString &color, QString part);

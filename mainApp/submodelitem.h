@@ -56,6 +56,7 @@ class SubModelPart {
     // where the exist in an LDraw file
     QString               type;
     QString               color;
+    QString               description;
     NumberMeta            instanceMeta;
     MarginsMeta           csiMargin;
     SMInstanceTextItem   *instanceText;

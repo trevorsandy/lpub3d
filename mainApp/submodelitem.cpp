@@ -166,6 +166,7 @@ void SubModel::setSubModel(
 
   if ( ! parts.contains(key)) {
       SubModelPart *part = new SubModelPart(type,color);
+      part->description  = Pli::titleDescription(type);
       part->instanceMeta = subModelMeta.instance;
       part->csiMargin    = subModelMeta.part.margin;
       parts.insert(key,part);
@@ -1193,14 +1194,7 @@ void SMInstanceTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
  // SMGraphicsPixmapItem
 QString SMGraphicsPixmapItem::subModelToolTip(QString type)
 {
-  QString title = Pli::titleDescription(type);
-  if (title == "") {
-    Where here(type,0);
-    title = gui->readLine(here);
-    title = title.right(title.length() - 2);
-  }
-  QString toolTip;
-  toolTip = type + " \"" + title + "\" - right-click to modify";
+  QString toolTip = type + " \"" + part->description + "\" - right-click to modify";
   return toolTip;
 }
 

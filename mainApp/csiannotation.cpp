@@ -239,7 +239,7 @@ void CsiAnnotationItem::addGraphicsItems(
                               .arg(_part->type)
                               .arg(LDrawColor::name(_part->color))
                               .arg(LDrawColor::ldColorCode(LDrawColor::name(_part->color)))
-                              .arg(Pli::titleDescription(_part->type));
+                              .arg(_part->description);
 
     setText(textString,fontString,toolTip);
 

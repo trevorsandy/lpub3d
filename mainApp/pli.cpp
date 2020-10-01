@@ -331,8 +331,10 @@ void Pli::setParts(
 
           QString key = QString("%1_%2").arg(baseName).arg(color);
 
+          QString description = titleDescription(type);
+
           QString sortCategory;
-          partClass(type,sortCategory);  // populate sort category using part class and
+          partClass(sortCategory,description);  // populate sort category using part class and
 
           // initialize default style settings
           AnnotationStyleMeta styleMeta;
@@ -570,6 +572,7 @@ void Pli::setParts(
                   part->subType         = subType;
                   part->subOriginalType = subOriginalType;
                   part->element         = element;
+                  part->description     = description;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
@@ -588,6 +591,7 @@ void Pli::setParts(
                   part->subType         = subType;
                   part->subOriginalType = subOriginalType;
                   part->element         = element;
+                  part->description     = description;
                   part->styleMeta       = styleMeta;
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
@@ -705,7 +709,8 @@ bool Pli::initAnnotationString()
 
 void Pli::getAnnotation(
     QString &type,
-    QString &annotateStr)
+    QString &annotateStr,
+    const QString &description)
 {
   annotateStr.clear();
 
@@ -718,7 +723,7 @@ void Pli::getAnnotation(
   bool titleAndFreeform = pliMeta.annotation.titleAndFreeformAnnotation.value();
 
   // pick up annotations
-  annotateStr = titleDescription(type);
+  annotateStr = description;
 
   if(title || titleAndFreeform){
       if (titleAnnotations.size() == 0 && !titleAndFreeform) {
@@ -881,9 +886,7 @@ int Pli::createSubModelIcons()
             part->instanceMeta = pliMeta.instance;
             part->csiMargin    = pliMeta.part.margin;
             part->sortColour   = QString("%1").arg(color,5,'0');
-            part->sortCategory = QString();
             part->nameKey      = nameKey;
-            part->imageName    = QString();
             parts.insert(key,part);
         }
         return key;
@@ -1255,7 +1258,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
                 part->styleMeta.style.value() == AnnotationStyle::rectangle)
                 descr = Annotations::getStyleAnnotation(part->type);
             else
-                getAnnotation(part->type,descr);
+                getAnnotation(part->type,descr,part->description);
 
             if (descr.size()) {
 
@@ -1472,10 +1475,10 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
 }
 
 void Pli::partClass(
-    QString &type,
-    QString &pclass)
+    QString &pclass,
+    const QString &description)
 {
-  pclass = titleDescription(type);
+  pclass = description;
 
   if (pclass.length()) {
       QRegExp rx("^(\\w+)\\s+([0-9a-zA-Z]+).*$");
@@ -2155,7 +2158,7 @@ int Pli::partSize()
                   part->styleMeta.style.value() == AnnotationStyle::rectangle)
                   descr = Annotations::getStyleAnnotation(part->type);
               else
-                  getAnnotation(part->type,descr);
+                  getAnnotation(part->type,descr,part->description);
 
               if (descr.size()) {
 
@@ -2999,40 +3002,37 @@ bool Pli::autoRange(Where &top, Where &bottom)
     }
 }
 
-QString PGraphicsPixmapItem::pliToolTip(QString type,
-    QString color, bool isSub)
+QString PGraphicsPixmapItem::pliToolTip(
+    QString type,
+    QString color,
+    bool isSub)
 {
-  QString title = Pli::titleDescription(type);
-  if (title == "") {
-      Where here(type,0);
-      title = gui->readLine(here);
-      title = title.right(title.length() - 2);
-    }
   QString originalType =
           isSub && !part->subOriginalType.isEmpty() ?
               QString(" (Substitute for %1)")
                   .arg(QStringList(part->subOriginalType.split(":")).first()) : QString();
+
   QString toolTip =
           QString("%1 (%2) %3 \"%4\" - right-click to modify")
                   .arg(LDrawColor::name(color))
                   .arg(LDrawColor::ldColorCode(LDrawColor::name(color)))
                   .arg(type)
                   .arg(QString("%1%2")
-                       .arg(title)
+                       .arg(part->description)
                        .arg(originalType));
   return toolTip;
 }
 
 const QString Pli::titleDescription(const QString &part)
 {
-  QString    titleDescription;
-  QFileInfo  info(part);
-  PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+  PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(QFileInfo(part).fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+  if (pieceInfo)
+      return pieceInfo->m_strDescription;
 
-  if (pieceInfo) {
-      titleDescription = pieceInfo->m_strDescription;
-    }
-  return titleDescription;
+  Where here(part,0);
+  QString title = gui->readLine(here);
+  title = title.right(title.length() - 2);
+  return title;
 }
 
 PliBackgroundItem::PliBackgroundItem(
