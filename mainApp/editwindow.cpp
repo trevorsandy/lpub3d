@@ -858,6 +858,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines)
                 lineColor = QColor(Qt::yellow).lighter(180);
             } else if (Preferences::displayTheme == THEME_DARK) {
                 lineColor = QColor(Qt::yellow).lighter(180);
+                lineColor.setAlpha(100); // make 60% transparent
             }
         }
 
