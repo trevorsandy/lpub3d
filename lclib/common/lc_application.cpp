@@ -85,6 +85,9 @@ void lcPreferences::LoadDefaults()
 	mViewSpherePreviewSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE);
 	mViewSpherePreviewLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION));
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Selected Parts ***/
+	mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -150,6 +153,9 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_ACTIVE_PREVIEW_COLOR, mActivePreviewColor);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE, mViewSpherePreviewSize);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION, static_cast<int>(mViewSpherePreviewLocation));
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Selected Parts ***/
+	lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, mBuildMofificationEnabled);
 /*** LPub3D Mod end ***/
 }
 

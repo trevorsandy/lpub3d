@@ -86,7 +86,7 @@ public:
                                     int = -1 /*EXPORT_NONE*/,
                                     int = 6 /*NumIniFiles*/);
   static bool            LoadStepProject(Project *,
-                                     const QString &);
+                                     const ViewerOptions *);
   static int             createNativeModelFile(QStringList &csiParts,
                                      bool doFadeStep,
                                      bool doHighlightStep);

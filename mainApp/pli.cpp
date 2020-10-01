@@ -3683,8 +3683,11 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     QString viewerPliPartKey        = QString("%1;%2;%3")
                                              .arg(type).arg(part->color)
                                              .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
-    if (gui->getViewerStepKey() != viewerPliPartKey)
-        pli->loadTheViewer();
+
+    if (gui->getViewerStepKey() != viewerPliPartKey) {
+        if (gui->saveBuildModification())
+            pli->loadTheViewer();
+    }
 
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);

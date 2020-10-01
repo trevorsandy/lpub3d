@@ -149,12 +149,17 @@ public:
 		mModified = value;
 	}
 
-    bool IsUnofficialPart()
-    {
-        return mIsUnofficialPart;
-    }
-
 	void SetFileName(const QString& FileName); // moved from protected
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget ***/
+	void SetIsUnofficialPart(bool value)
+	{
+		mIsUnofficialPart = value;
+	}
+	bool IsUnofficialPart() const
+	{
+		return mIsUnofficialPart;
+	}
 /*** LPub3D Mod end ***/
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
@@ -211,7 +216,7 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
 	bool mIsPreview;
-    bool mIsUnofficialPart;
+	bool mIsUnofficialPart;
 /*** LPub3D Mod end ***/
 };
 

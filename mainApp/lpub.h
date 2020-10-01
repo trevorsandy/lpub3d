@@ -896,7 +896,7 @@ public:
 
   void resetLastBuildMod(bool clearNextStep = false);
 
-  void reset3DViewerMenusAndToolbars();
+  void enableBuildModMenuAndActions();
 
   bool setBuildModChangeKey();
 

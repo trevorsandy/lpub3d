@@ -1355,8 +1355,10 @@ void SMGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey)
-        subModel->loadTheViewer();
+    if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey) {
+        if (gui->saveBuildModification())
+            subModel->loadTheViewer();
+    }
 
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);

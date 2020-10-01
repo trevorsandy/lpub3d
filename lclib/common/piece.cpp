@@ -575,7 +575,12 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	if (IsFocused(LC_PIECE_SECTION_POSITION))
 		Context->SetInterfaceColor(LC_COLOR_FOCUSED);
 	else
-		Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod - Selected Parts ***/
+		if (gApplication->mPreferences.mBuildMofificationEnabled)
+			Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
+		else
+			Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod end ***/
 
 	Context->SetVertexBufferPointer(LineVerts);
 	Context->SetVertexFormatPosition(3);
@@ -688,9 +693,9 @@ void lcPiece::AddMainModelRenderMeshes(lcScene& Scene, bool Highlight, bool Fade
 
 /*** LPub3D Mod - true fade ***/
 	if (!mMesh)
-        mPieceInfo->AddRenderMeshes(Scene, mModelWorld, mColorIndex, RenderMeshState, ParentActive, LPubFade);
+		mPieceInfo->AddRenderMeshes(Scene, mModelWorld, mColorIndex, RenderMeshState, ParentActive, LPubFade);
 	else
-        Scene.AddMesh(mMesh, mModelWorld, mColorIndex, RenderMeshState, LPubFade);
+		Scene.AddMesh(mMesh, mModelWorld, mColorIndex, RenderMeshState, LPubFade);
 /*** LPub3D Mod end ***/
 
 	if (RenderMeshState == lcRenderMeshState::Focused || RenderMeshState == lcRenderMeshState::Selected)
@@ -715,9 +720,9 @@ void lcPiece::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMat
 
 /*** LPub3D Mod - true fade ***/
 	if (!mMesh)
-        mPieceInfo->AddRenderMeshes(Scene, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, ActiveSubmodelInstance == this, LPubFade);
+		mPieceInfo->AddRenderMeshes(Scene, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, ActiveSubmodelInstance == this, LPubFade);
 	else
-        Scene.AddMesh(mMesh, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, LPubFade);
+		Scene.AddMesh(mMesh, lcMul(mModelWorld, WorldMatrix), ColorIndex, RenderMeshState, LPubFade);
 /*** LPub3D Mod end ***/
 
 	if (ParentActive && (RenderMeshState == lcRenderMeshState::Focused || RenderMeshState == lcRenderMeshState::Selected))

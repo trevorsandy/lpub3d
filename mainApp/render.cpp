@@ -3069,7 +3069,7 @@ bool Render::LoadViewer(const ViewerOptions *Options){
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
     Project* StepProject = new Project();
-    if (LoadStepProject(StepProject, Options->ViewerStepKey)){
+    if (LoadStepProject(StepProject, Options)){
         gApplication->SetProject(StepProject);
         gui->UpdateAllViews();
     }
@@ -3089,9 +3089,9 @@ bool Render::LoadViewer(const ViewerOptions *Options){
         return false;
 }
 
-bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
+bool Render::LoadStepProject(Project* StepProject, const ViewerOptions *O)
 {
-    QString FileName = gui->getViewerStepFilePath(viewerStepKey);
+    QString FileName = gui->getViewerStepFilePath(O->ViewerStepKey);
 
     if (FileName.isEmpty())
     {
@@ -3099,8 +3099,8 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
         return false;
     }
 
-    QStringList CsiContent = gui->getViewerStepRotatedContents(viewerStepKey);
-    if (CsiContent.isEmpty())
+    QStringList Content = gui->getViewerStepRotatedContents(O->ViewerStepKey);
+    if (Content.isEmpty())
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
         return false;
@@ -3128,8 +3128,8 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
                              .arg(outfileName) .arg(file.errorString()));
     }
     QTextStream out(&file);
-    for (int i = 0; i < CsiContent.size(); i++) {
-        QString line = CsiContent[i];
+    for (int i = 0; i < Content.size(); i++) {
+        QString line = Content[i];
         out << line << endl;
     }
     file.close();
@@ -3139,7 +3139,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     StepProject->SetFileName(FileName);
 
     QByteArray QBA;
-    foreach(QString line, CsiContent){
+    foreach(QString line, Content){
         QBA.append(line);
         QBA.append(QString("\n"));
     }
@@ -3178,11 +3178,20 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     }
 
     if (StepProject->GetModels().IsEmpty())
-        return false;
+        return false;  
 
     if (StepProject->GetModels().GetSize() == 1)
     {
         lcModel* Model = StepProject->GetModels()[0];
+
+        // Set isUnofficial part fileName
+        if (O->ImageType == Options::Mt::PLI) {
+            QString FileName = Model->GetProperties().mModelName;
+            if ((gui->isUnofficialPart(FileName) ||
+                 gui->isUnofficialSubPart(FileName))) {
+                StepProject->SetIsUnofficialPart(true);
+            }
+        }
 
         if (Model->GetProperties().mFileName.isEmpty())
         {

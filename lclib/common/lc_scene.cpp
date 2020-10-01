@@ -209,7 +209,13 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 					break;
 
 				case lcRenderMeshState::Selected:
-					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
+ /*** LPub3D Mod - Selected Parts ***/
+					if (gApplication->mPreferences.mBuildMofificationEnabled)
+						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_BM_SELECTED, 0.5f);
+					else
+						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
+/*** LPub3D Mod end ***/
+
 					break;
 
 				case lcRenderMeshState::Focused:
@@ -235,7 +241,12 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 					break;
 
 				case lcRenderMeshState::Selected:
-					Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod - Selected Parts ***/
+				   if (gApplication->mPreferences.mBuildMofificationEnabled)
+					   Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
+				   else
+					   Context->SetInterfaceColor(LC_COLOR_SELECTED);
+/*** LPub3D Mod end ***/
 					break;
 
 				case lcRenderMeshState::Focused:

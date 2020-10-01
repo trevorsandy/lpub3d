@@ -3204,7 +3204,7 @@ int Gui::findPage(
                 bool value = meta.LPub.buildModEnabled.value();
                 if (Preferences::buildModEnabled != value) {
                     Preferences::buildModEnabled  = value;
-                    reset3DViewerMenusAndToolbars();
+                    enableBuildModMenuAndActions();
                     emit messageSig(LOG_INFO, QString("Build Modifications are %1")
                                                       .arg(value ? "Enabled" : "Disabled"));
                 }

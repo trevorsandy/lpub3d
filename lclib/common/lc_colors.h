@@ -41,6 +41,9 @@ struct lcColorGroup
 enum lcInterfaceColor
 {
 	LC_COLOR_SELECTED,
+/*** LPub3D Mod - Selected Parts ***/
+	LC_COLOR_BM_SELECTED,
+/*** LPub3D Mod end ***/
 	LC_COLOR_FOCUSED,
 	LC_COLOR_CAMERA,
 	LC_COLOR_LIGHT,

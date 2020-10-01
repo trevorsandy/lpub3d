@@ -44,12 +44,22 @@
 #include "application.h"
 #include "lc_partselectionwidget.h"
 
+const QStringList BuildModChangeTriggers = QStringList()
+        << "Deleting" << "Adding Piece"
+        << "Moving"   << "Rotating"
+        << "Painting" << "New Model"
+        << "Cutting"  << "Pasting"
+        << "Removing Step" << "Inserting Step"
+        << "Duplicating Pieces" << "New Model"
+        << "Ungrouping" << "Grouping" << "Inlining"
+           ;
+
 void Gui::create3DActions()
 {
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
-    createBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
+    createBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification - Shift+J"),this);
     createBuildModAct->setStatusTip(tr("Create a new build modification for this step - Shift+J"));
     createBuildModAct->setShortcut(tr("Shift+J"));
     connect(createBuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
@@ -57,7 +67,7 @@ void Gui::create3DActions()
     QIcon UpdateBuildModIcon;
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
-    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification"),this);
+    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification - Shift+K"),this);
     updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification - Shift+K"));
     updateBuildModAct->setShortcut(tr("Shift+K"));
     connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
@@ -485,14 +495,7 @@ void Gui::Disable3DActions()
 
 void Gui::Enable3DActions()
 {
-    bool enabled = buildModsSize();
-    if (Preferences::buildModEnabled)
-        createBuildModAct->setEnabled(mBuildModRange.first() || enabled);
-    applyBuildModAct->setEnabled(enabled);
-    removeBuildModAct->setEnabled(enabled);
-    loadBuildModAct->setEnabled(enabled);
-    updateBuildModAct->setEnabled(enabled);
-    deleteBuildModAct->setEnabled(enabled);
+    enableBuildModMenuAndActions();
 
     lightGroupAct->setEnabled(true);
     viewpointGroupAct->setEnabled(true);
@@ -552,6 +555,7 @@ void Gui::create3DDockWindows()
 
 void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
 {
+    undoAct->setData(UndoText);
     if (!UndoText.isEmpty())
     {
         viewerUndo = true;
@@ -1157,37 +1161,41 @@ void Gui::restoreLightAndViewpointDefaults(){
 
 void Gui::enableBuildModification()
 {
-    if (sender() == enableBuildModAct && Preferences::buildModEnabled)
-      lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, enableBuildModAct->isChecked());
+    if (sender() == enableBuildModAct)
+        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, Preferences::buildModEnabled && enableBuildModAct->isChecked());
+    else if (sender() == enableRotstepRotateAct)
+        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, !enableRotstepRotateAct->isChecked());
     else
-      lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, !enableRotstepRotateAct->isChecked());
+        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, Preferences::buildModEnabled);
 
+    bool buildModEnabled = Preferences::buildModEnabled    &&
+            lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) &&
+            (mBuildModRange.first() || buildModsSize())    &&
+            !curFile.isEmpty();
     QIcon RotateIcon;
-    RotateIcon.addFile(":/resources/rotaterotstep.png");
-    RotateIcon.addFile(":/resources/rotaterotstep16.png");
-    enableBuildModAct->setChecked(false);
-    enableRotstepRotateAct->setChecked(true);
-    if (Preferences::buildModEnabled) {
-        if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) && !curFile.isEmpty()) {
-            enableBuildModAct->setChecked(true);
-            enableRotstepRotateAct->setChecked(false);
-            RotateIcon.addFile(":/resources/rotatebuildmod.png");
-            RotateIcon.addFile(":/resources/rotatebuildmod16.png");
-        }
-    } else {
-        enableRotstepRotateAct->setEnabled(false);
-    }
+    if (buildModEnabled)
+        RotateIcon.addFile(":/resources/rotatebuildmod.png");
+    else
+        RotateIcon.addFile(":/resources/rotaterotstep.png");
+
+    enableBuildModAct->setChecked(buildModEnabled);
+    enableRotstepRotateAct->setChecked(!buildModEnabled);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
-    gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enableRotstepRotateAct->isChecked());
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(!buildModEnabled);
+    gApplication->mPreferences.mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 }
 
-void Gui::reset3DViewerMenusAndToolbars()
+void Gui::enableBuildModMenuAndActions()
 {
     if (!curFile.isEmpty()) {
-        bool visible = Preferences::buildModEnabled;
-        buildModMenu->setVisible(visible);
-        enableBuildModAct->setVisible(visible);
-        createBuildModAct->setVisible(visible);
+        bool actionsEnabled = buildModsSize();
+        if (Preferences::buildModEnabled)
+            createBuildModAct->setEnabled(mBuildModRange.first() || actionsEnabled);
+        applyBuildModAct->setEnabled(actionsEnabled);
+        removeBuildModAct->setEnabled(actionsEnabled);
+        loadBuildModAct->setEnabled(actionsEnabled);
+        updateBuildModAct->setEnabled(actionsEnabled);
+        deleteBuildModAct->setEnabled(actionsEnabled);
     }
     enableBuildModification();
 }
@@ -1406,7 +1414,8 @@ void Gui::SetRotStepMeta()
 
 void Gui::ShowStepRotationStatus()
 {
-    QString rotLabel = QString("ROTSTEP X: %1 Y: %2 Z: %3 Transform: %4")
+    QString rotLabel = QString("%1 X: %2 Y: %3 Z: %4 Transform: %5")
+                               .arg(lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) ? "BUILD MOD ROTATE" : "ROTSTEP")
                                .arg(QString::number(double(mRotStepAngleX), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleY), 'f', 2))
                                .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
@@ -2367,6 +2376,7 @@ void Gui::createBuildModification()
     }
 }
 
+#include "messageboxresizable.h"
 void Gui::applyBuildModification()
 {
     QStringList buildModKeys;
@@ -2377,10 +2387,42 @@ void Gui::applyBuildModification()
     if (!buildModKeys.size())
         return;
 
-    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey)
-        return;
-
     int it = lcGetActiveProject()->GetImageType();
+
+    // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
+
+    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
+        QString model = "undefined", line = "undefined", step = "undefined";
+        QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+        QString text  = "The selected build modification was created in this step."
+                        "It cannot be applied to the step it was created in.<br>"
+                        "Model: " + model + ", Line: " + line + ", Step: " + step;
+        QString type  = "Apply build modification errors";
+        QString title = "Build Modification";
+        Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
+        QMessageBoxResizable box;
+        box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+        box.setText(text);
+        box.setIcon(QMessageBox::Icon::Warning);
+
+        box.addButton(QMessageBox::Ok);
+        box.setDefaultButton(QMessageBox::Ok);
+
+        QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
+        box.setCheckBox(cb);
+        QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
+            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                Preferences::setShowMessagePreference(false,msgKey);
+            else
+                Preferences::setShowMessagePreference(true,msgKey);
+        });
+        box.adjustSize();
+        box.exec();
+
+        return;
+    }
+
     switch(it) {
     case Options::Mt::CSI:
     case Options::Mt::SMP:
@@ -2420,10 +2462,43 @@ void Gui::removeBuildModification()
     if (!buildModKeys.size())
         return;
 
-    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey)
-        return;
-
     int it = lcGetActiveProject()->GetImageType();
+
+    // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
+
+    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
+        QString model = "undefined", line = "undefined", step = "undefined";
+        QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+        QString text  = "The selected build modification was created in this step."
+                        "It cannot be removed from the step it was created in.<br>"
+                        "Select 'Delete Build Modification to delete.<br>"
+                        "Model: " + model + ", Line: " + line + ", Step: " + step;
+        QString type  = "Remove build modification errors";
+        QString title = "Build Modification";
+        Preferences::MsgKey msgKey = Preferences::MsgKey::BuildModErrors;
+        QMessageBoxResizable box;
+        box.setWindowTitle(tr("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+        box.setText(text);
+        box.setIcon(QMessageBox::Icon::Warning);
+
+        box.addButton(QMessageBox::Ok);
+        box.setDefaultButton(QMessageBox::Ok);
+
+        QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
+        box.setCheckBox(cb);
+        QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
+            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                Preferences::setShowMessagePreference(false,msgKey);
+            else
+                Preferences::setShowMessagePreference(true,msgKey);
+        });
+        box.adjustSize();
+        box.exec();
+
+        return;
+    }
+
     switch(it) {
     case Options::Mt::CSI:
     case Options::Mt::SMP:
@@ -2452,12 +2527,7 @@ void Gui::removeBuildModification()
         break;
     }
 
-    bool enabled = buildModsSize();
-    applyBuildModAct->setEnabled(enabled);
-    removeBuildModAct->setEnabled(enabled);
-    loadBuildModAct->setEnabled(enabled);
-    updateBuildModAct->setEnabled(enabled);
-    deleteBuildModAct->setEnabled(enabled);
+    enableBuildModMenuAndActions();
 }
 
 void Gui::loadBuildModification()
@@ -2647,12 +2717,7 @@ void Gui::deleteBuildModification()
         break;
     }
 
-    bool enabled = buildModsSize();
-    applyBuildModAct->setEnabled(enabled);
-    removeBuildModAct->setEnabled(enabled);
-    loadBuildModAct->setEnabled(enabled);
-    updateBuildModAct->setEnabled(enabled);
-    deleteBuildModAct->setEnabled(enabled);
+    enableBuildModMenuAndActions();
 }
 
 /*********************************************
@@ -2663,48 +2728,51 @@ void Gui::deleteBuildModification()
 
 bool Gui::saveBuildModification()
 {
+    if (!Preferences::buildModEnabled)
+        return true;     // continue
+
+    // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
+
     Project* Project = lcGetActiveProject();
-    if (Project->GetImageType() == Options::Mt::PLI)
-        return false;
+    if (Project->GetImageType() == Options::Mt::PLI /*&&
+       !Project->IsUnofficialPart()*/)
+        return true;     // continue
 
-    if (Project->IsModified() && Preferences::buildModEnabled) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        if (_icon.isNull())
-            _icon = QPixmap (":/icons/update.png");
+    QString change = undoAct->data().toString();
+    if (!BuildModChangeTriggers.contains(change))
+        return true;     // continue
 
-        QMessageBox box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        QString title = "<b>" +
-                (setBuildModChangeKey()
-                 ? tr("Save model changes to build modification '%1'?").arg(getBuildModChangeKey())
-                 : tr("Save model changes as build modification?")) + "</b>";
-        QString text = tr("Save changes as a build modification to this step?");
-        box.setText (title);
-        box.setInformativeText (text);
-        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-        box.setDefaultButton   (QMessageBox::Cancel);
-        switch (box.exec())
-        {
-        default:
-        case QMessageBox::Cancel:
-            return false;
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QMessageBox box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" +
+            (setBuildModChangeKey()
+             ? tr("Save model changes to build modification '%1'?").arg(getBuildModChangeKey())
+             : tr("Save model changes as build modification?")) + "</b>";
+    QString text = tr("Save changes as a build modification to this step?");
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Cancel);
+    switch (box.exec())
+    {
+    default:
+    case QMessageBox::Cancel:
+        return false; // cancel request
 
-        case QMessageBox::Yes:
-            updateBuildModification();
-            break;
+    case QMessageBox::Yes:
+        updateBuildModification();
+        break;       // apply changes
 
-        case QMessageBox::No:
-            return false;
-        }
-
-        return true;
+    case QMessageBox::No:
+        break;       // discard changes and continue
     }
 
-    return false;
+    return true;
 }
 
 /*********************************************
@@ -3035,6 +3103,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                         mBuildModRange = { lineNumber, lineNumber, modelIndex };
                     }
                     createBuildModAct->setEnabled(true);
+                    enableBuildModification();
                 }
             }
 
@@ -3049,15 +3118,15 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                         Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
                                      .arg(modelName).arg(lineNumber).arg(lineIndex);
                     } else {
-                        Message = tr("Invalid part lineNumber [%1] for step line index [%2]")
-                                     .arg(lineNumber).arg(lineIndex);
+                        Message = tr("%1 part lineNumber [%2] for step line index [%3]")
+                                     .arg(indexes.size() ? "Out of bounds" : "Invalid").arg(lineNumber).arg(lineIndex);
                     }
                 } else if (validLine) { // valid and not from viewer
                     Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
                                  .arg(modelName).arg(lineIndex).arg(lineNumber);
                 } else {                // invalid and not from viewer
-                    Message = tr("Invalid part lineNumber [%1] for step line index [%2]") // index and number flipped
-                                 .arg(lineIndex).arg(lineNumber);
+                    Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
+                                 .arg(indexes.size() ? "Out of bounds" : "Invalid").arg(lineIndex).arg(lineNumber);
                 }
                 emit messageSig(LOG_TRACE, Message);
             }
@@ -3069,6 +3138,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             } else if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 createBuildModAct->setEnabled(true);
                 updateBuildModAct->setEnabled(buildModsSize());
+                enableBuildModification();
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
                                               .arg(currentStep->stepNumber.number)
                                               .arg(modelName));

@@ -12,6 +12,9 @@ int gDefaultColor;
 lcVector4 gInterfaceColors[LC_NUM_INTERFACECOLORS] = // todo: make the colors configurable and include the grid and other hardcoded colors here as well.
 {
 	lcVector4(0.898f, 0.298f, 0.400f, 1.000f), // LC_COLOR_SELECTED
+/*** LPub3D Mod - Selected Parts ***/
+	lcVector4(0.474f, 0.847f, 0.474f, 1.000f), // LC_COLOR_BM_SELECTED   #00CC00
+/*** LPub3D Mod end ***/
 	lcVector4(0.400f, 0.298f, 0.898f, 1.000f), // LC_COLOR_FOCUSED
 	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_CAMERA
 	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_LIGHT
@@ -557,12 +560,12 @@ bool lcLoadColorEntry(const char* ColorEntry)
 
 	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.push_back((int)Colors.size() - 1);
 
-    gNumUserColors = int(Colors.size());
+	gNumUserColors = int(Colors.size());
 
 //        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
 //                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
 
-    return int(Colors.size()) > gNumColorBeforeAdd;
+	return int(Colors.size()) > gNumColorBeforeAdd;
 }
 /*** LPub3D Mod end ***/
 

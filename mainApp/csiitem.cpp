@@ -613,15 +613,16 @@ void CsiItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  gui->saveBuildModification();
   mouseIsDown = true;
   QGraphicsItem::mousePressEvent(event);
   positionChanged = false;
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
-  if (gui->getViewerStepKey() != step->viewerStepKey)
-      step->loadTheViewer();
+  if (gui->getViewerStepKey() != step->viewerStepKey) {
+      if (gui->saveBuildModification())
+          step->loadTheViewer();
+  }
 //  update();
 }
 

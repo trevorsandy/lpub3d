@@ -217,7 +217,7 @@ void lcMainWindow::CreateWidgets()
 	mActions[LC_FILE_EXPORT_POVRAY]->setDisabled(true);
 	mActions[LC_FILE_EXPORT_WAVEFRONT]->setDisabled(true);
 	//Tools
-	mActions[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
+	//[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_SELECT]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_ROTATE]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
@@ -1121,7 +1121,7 @@ void lcMainWindow::Enable3DActions()
 	mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(true);
 	mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(true);
 	//Tools
-	mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+	//mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_SELECT]->setEnabled(true);

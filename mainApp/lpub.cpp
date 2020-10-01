@@ -428,12 +428,12 @@ void Gui::nextPage()
       inputPageNum = rx.cap(1).toInt(&ok);
       if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
           countPages();
-          if (inputPageNum <= maxPages) {
-              if (inputPageNum != displayPageNum) {
-                  displayPageNum = inputPageNum;
-                  displayPage();
+          if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
+              if (!saveBuildModification())
                   return;
-                }
+              displayPageNum = inputPageNum;
+              displayPage();
+              return;
             } else {
               statusBarMsg("Page number entered is higher than total pages");
             }
@@ -443,6 +443,8 @@ void Gui::nextPage()
         } else {						// numbers are same so goto next page
           countPages();
           if (displayPageNum < maxPages) {
+              if (!saveBuildModification())
+                  return;
               ++displayPageNum;
               displayPage();
             } else {
@@ -516,12 +518,12 @@ void Gui::previousPage()
       inputPageNum = rx.cap(1).toInt(&ok);
       if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
           countPages();
-          if (inputPageNum >= 1) {
-              if (inputPageNum != displayPageNum) {
-                  displayPageNum = inputPageNum;
-                  displayPage();
+          if (inputPageNum >= 1 && inputPageNum != displayPageNum) {
+              if (!saveBuildModification())
                   return;
-                }
+              displayPageNum = inputPageNum;
+              displayPage();
+              return;
             } else {
               statusBarMsg("Page number entered is invalid");
             }
@@ -530,6 +532,8 @@ void Gui::previousPage()
           return;
         } else {						// numbers are same so goto previous page
           if (displayPageNum > 1) {
+              if (!saveBuildModification())
+                  return;
               displayPageNum--;
               displayPage();
             } else {
@@ -970,12 +974,12 @@ void Gui::setPage()
     inputPage = rx.cap(1).toInt(&ok);
     if (ok) {
       countPages();
-      if (inputPage <= maxPages) {
-        if (inputPage != displayPageNum) {
+      if (inputPage <= maxPages && inputPage != displayPageNum) {
+          if (!saveBuildModification())
+              return;
           displayPageNum = inputPage;
           displayPage();
           return;
-        }
       } else {
         statusBarMsg("Page number entered is higher than total pages");
       }
@@ -989,11 +993,11 @@ void Gui::setGoToPage(int index)
 {
   int goToPageNum = index+1;
   countPages();
-  if (goToPageNum <= maxPages) {
-      if (goToPageNum != displayPageNum) {
-          displayPageNum = goToPageNum;
-          displayPage();
-        }
+  if (goToPageNum <= maxPages && goToPageNum != displayPageNum) {
+        if (!saveBuildModification())
+            return;
+        displayPageNum = goToPageNum;
+        displayPage();
     }
 
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
@@ -1363,6 +1367,8 @@ void Gui::mpdComboChanged(int index)
           messageSig(LOG_INFO, QString( "SELECT Model: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
           countPages();
           if (modelPageNum && displayPageNum != modelPageNum) {
+              if (!saveBuildModification())
+                  return;
               displayPageNum  = modelPageNum;
               displayPage();
           } else {

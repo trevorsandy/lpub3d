@@ -2141,7 +2141,7 @@ void BuildModEnabledGui::apply(QString &modelName)
   if (modified) {
     if (change) {
       Preferences::buildModEnabled = bool(meta->value());
-      gui->reset3DViewerMenusAndToolbars();
+      gui->enableBuildModMenuAndActions();
       changeMessage = QString("Build Modifications are %1")
                                .arg(meta->value() ? "Enabled" : "Disabled");
       emit gui->messageSig(LOG_INFO, changeMessage);
