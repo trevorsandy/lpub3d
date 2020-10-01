@@ -198,7 +198,7 @@ GroupStepNumberItem::GroupStepNumberItem(
   mouseIsDown(false)
 {
   page = _page;
-  QString toolTip("Group Step Number - use popu menu");
+  QString toolTip("Group Step Number - use popup menu");
   setAttributes(StepNumberType,
                 page->relativeType,
                 _number,
@@ -341,7 +341,7 @@ PageNumberItem::PageNumberItem(
   mouseIsDown(false)
 {
   page = _page;
-  QString toolTip("Page Number - use popu menu");
+  QString toolTip("Page Number - use popup menu");
   setAttributes(PageNumberType,
                 page->relativeType,                 //Trevor@vers303 changed from static value SingleStepType
                 _number,
