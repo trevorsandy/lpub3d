@@ -93,10 +93,11 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
-  ContStepNumGui *childContStepNumbersBox = new ContStepNumGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
+  childContStepNumbersBox = new ContStepNumGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
   QDialogButtonBox *buttonBox;
 
@@ -123,6 +124,24 @@ void GlobalProjectDialog::clearCache(bool b)
 {
     if (!data->clearCache)
         data->clearCache = b;
+}
+
+void GlobalProjectDialog::checkConflict(bool b)
+{
+    if (b && data->meta.LPub.multiStep.countGroupSteps.value()) {
+        childContStepNumbersBox->getCheckBox()->setChecked(false);
+        QMessageBox box;
+        box.setTextFormat (Qt::RichText);
+        box.setIcon (QMessageBox::Critical);
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        box.setWindowTitle(tr ("Continuous Step Numbers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+        box.setStandardButtons (QMessageBox::Ok);
+        QString text = "<b> Count group step numbers conflict </b>";
+        QString message = QString("Continuous step numbers cannot coexist with count group step numbers.");
+        box.setText (text);
+        box.setInformativeText (message);
+        box.exec();
+    }
 }
 
 void GlobalProjectDialog::accept()

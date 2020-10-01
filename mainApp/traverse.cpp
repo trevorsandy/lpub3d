@@ -2693,6 +2693,12 @@ int Gui::findPage(
                               RotStepMeta saveRotStep2 = meta.rotStep;
                               meta.rotStep.clear();
 
+                              // set the group step number to the first step of the submodel
+                              if (meta.LPub.multiStep.pli.perStep.value() == false &&
+                                  meta.LPub.multiStep.showGroupStepNumber.value()) {
+                                  opts.groupStepNumber = stepNumber;
+                              }
+
                               // save Default pageSize information
                               PgSizeData pageSize2;
                               if (exporting()) {
@@ -2717,18 +2723,19 @@ int Gui::findPage(
                                           opts.printing,
                                           opts.buildModLevel,
                                           opts.contStepNumber,
-                                          stepNumber,            /*groupStepNumber */
+                                          opts.groupStepNumber,
                                           opts.current.modelName /*renderParentModel*/);
                               findPage(view, scene, meta, line, calloutOpts);
 
-                              // Restore step number to rendered step number.
-                              if (meta.LPub.multiStep.pli.perStep.value() == false)
-                                 stepNumber = saveGroupStepNum;
                               saveStepPageNum = stepPageNum;
                               meta.submodelStack.pop_back();
                               meta.rotStep = saveRotStep2;            // restore old rotstep
                               if (opts.contStepNumber) {              // capture continuous step number from exited submodel
                                   opts.contStepNumber = saveContStepNum;
+                              }
+
+                              if (opts.groupStepNumber) {              // capture group step number from exited submodel
+                                  opts.groupStepNumber = saveGroupStepNum;
                               }
 
                               if (exporting()) {
@@ -2786,12 +2793,14 @@ int Gui::findPage(
                   }
               }
 
-              // Incremet groupStepNumber as we being a subsequent new page
-              if (meta.LPub.multiStep.pli.perStep.value() == false) {
+              // New step group page so increment group step number and persisst to global
+              if (opts.groupStepNumber && meta.LPub.multiStep.countGroupSteps.value()) {
                   Where walk(opts.current.modelName);
                   mi->scanForwardStepGroup(walk);
-                  if (opts.current.lineNumber > walk.lineNumber)
+                  if (opts.current.lineNumber > walk.lineNumber) {
                       opts.groupStepNumber++;
+                      saveGroupStepNum = opts.groupStepNumber;
+                  }
               }
 
               // Steps within step group modify bfxStore2 as they progress
@@ -2826,6 +2835,9 @@ int Gui::findPage(
                           page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                           saveStepNumber = saveContStepNum;
                       }
+                      if (opts.groupStepNumber) { // persist step group step number
+                          saveGroupStepNum = opts.groupStepNumber;
+                      }
                       page.meta.pop();
                       page.meta.rotStep = saveRotStep;
 
@@ -2842,7 +2854,7 @@ int Gui::findPage(
                                   saveLineTypeIndexes,
                                   saveBfxLineTypeIndexes,
                                   saveStepNumber,
-                                  opts.groupStepNumber,
+                                  opts.groupStepNumber,    // pass group step number to drawPage
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
@@ -2862,7 +2874,6 @@ int Gui::findPage(
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
                       saveLineTypeIndexes.clear();
-
                   } // isDisplayPage /*opts.pageNum == displayPageNum*/
 
                   // ignored when processing buildMod display
@@ -2893,8 +2904,6 @@ int Gui::findPage(
                   ++opts.pageNum;         
                   topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
                   saveStepPageNum = ++stepPageNum;
-                  // TODO add increment condition here
-                    saveGroupStepNum = opts.groupStepNumber;
 
                   if (Preferences::modeGUI && ! exporting()) {
                       emit messageSig(LOG_STATUS, QString("Counting document page %1...")
@@ -2963,8 +2972,10 @@ int Gui::findPage(
                           }
                       }
                   }
+
                   stepNumber  += ! coverPage && ! stepPage;
                   stepPageNum += ! coverPage && ! stepGroup;
+
                   if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                       if ( ! stepGroup) {
                           saveLineTypeIndexes    = lineTypeIndexes;
@@ -2976,6 +2987,11 @@ int Gui::findPage(
                           saveBfxLineTypeIndexes = bfxLineTypeIndexes;
                           saveStepPageNum        = stepPageNum;
                           // bfxParts.clear();
+                          if (opts.groupStepNumber &&
+                              meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
+                              opts.groupStepNumber += ! coverPage && ! stepPage;
+                              saveGroupStepNum      = opts.groupStepNumber;
+                          }
                         }
                       if (opts.contStepNumber) { // save continuous step number from current model
                           saveContStepNum = opts.contStepNumber;
@@ -2997,7 +3013,11 @@ int Gui::findPage(
                           }
                           if (opts.contStepNumber) { // pass continuous step number to drawPage
                               page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
-                              saveStepNumber = opts.contStepNumber;
+                              saveStepNumber    = opts.contStepNumber;
+                          }
+                          if (opts.groupStepNumber) { // pass group step number to drawPage and persist
+                              saveGroupStepNum  = opts.groupStepNumber;
+                              saveStepNumber    = opts.groupStepNumber;
                           }
                           page.meta.pop();
                           page.meta.LPub.buildMod.clear();
@@ -3299,8 +3319,16 @@ int Gui::findPage(
           }
           saveContStepNum = opts.contStepNumber;
       }
+      if (opts.groupStepNumber && isPreDisplayPage &&
+          meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
+          opts.contStepNumber += ! coverPage && ! stepPage;
+          saveGroupStepNum     = opts.contStepNumber;
+      }
 
       if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
+          if (opts.groupStepNumber) {                   // pass group step number to drawPage
+              saveStepNumber = saveGroupStepNum;
+          }
           savePrevStepPosition = saveCsiParts.size();
           page.meta = saveMeta;
           QStringList pliParts;
@@ -3898,6 +3926,7 @@ void Gui::drawPage(
   firstStepPageNum = -1;
   lastStepPageNum  = -1;
   savePrevStepPosition = 0;
+  saveGroupStepNum = 0;
   saveContStepNum = 1;
 
   enableLineTypeIndexes = true;

@@ -1,4 +1,4 @@
-LPub3D 2.4.0.1.1970 (02 10 2020 01:36:45)
+LPub3D 2.4.0.1.1971 (02 10 2020 01:37:27)
 
 Features, enhancements, fixes and changes
 ------------
