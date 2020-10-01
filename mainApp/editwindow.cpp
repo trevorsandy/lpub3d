@@ -927,7 +927,7 @@ void EditWindow::highlightCurrentLine()
         else
         if (Preferences::displayTheme == THEME_DARK) {
             if (showLineType == LINE_ERROR)
-                lineColor = QColor(THEME_LINE_ERROR_DARK);
+                lineColor = QColor(THEME_LINE_ERROR_DARK).lighter(180);
             else
                 lineColor = QColor(THEME_LINE_HIGHLIGHT_DARK);
         }
