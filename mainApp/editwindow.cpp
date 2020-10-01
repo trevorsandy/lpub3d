@@ -60,6 +60,7 @@
 #include "lc_model.h"
 #include "lc_library.h"
 #include "project.h"
+#include "lc_mainwindow.h"
 
 #include "previewwidget.h"
 
@@ -838,7 +839,7 @@ bool EditWindow::saveFile()
   return rc;
 }
 
-void EditWindow::highlightSelectedLines(QVector<int> &lines)
+void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 {
     disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
                this,                  SLOT(  contentsChange(int,int,int)));
@@ -853,15 +854,22 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines)
 
         QColor lineColor = QColor(Qt::transparent);
         bool applyFormat = lines.size();
-        if (applyFormat){
-            if (Preferences::displayTheme == THEME_DEFAULT) {
-                lineColor = QColor(Qt::yellow).lighter(180);
-            } else if (Preferences::displayTheme == THEME_DARK) {
-                lineColor = QColor(Qt::yellow).lighter(180);
-                lineColor.setAlpha(100); // make 60% transparent
+        if (applyFormat) {
+            if (clear) {
+                if (Preferences::displayTheme == THEME_DEFAULT) {
+                    lineColor = QColor(Qt::white);
+                } else if (Preferences::displayTheme == THEME_DARK) {
+                    lineColor = QColor(THEME_SCENE_BGCOLOR_DARK);
+                }
+            } else {
+                if (Preferences::displayTheme == THEME_DEFAULT) {
+                    lineColor = QColor(Qt::yellow).lighter(180);
+                } else if (Preferences::displayTheme == THEME_DARK) {
+                    lineColor = QColor(Qt::yellow).lighter(180);
+                    lineColor.setAlpha(100); // make 60% transparent
+                }
             }
         }
-
         QTextCharFormat plainFormat(highlightCursor.charFormat());
         QTextCharFormat colorFormat = plainFormat;
         colorFormat.setBackground(lineColor);
@@ -979,6 +987,8 @@ void EditWindow::pageUpDown(
 }
 
 void EditWindow::updateSelectedParts() {
+    if (!gMainWindow->isVisible())
+        return;
 
     if (isIncludeFile)
         return;

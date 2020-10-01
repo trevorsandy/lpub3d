@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "lpub.h"
+#include "editwindow.h"
 #include "lpub_preferences.h"
 #include "step.h"
 #include "metagui.h"
@@ -3078,9 +3079,9 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
         if (Preferences::debugLogging) {
             emit messageSig(LOG_TRACE, QString("LPub Step lineIndex size: %1 item(s)")
                                                 .arg(currentStep->lineTypeIndexes.size()));
-            for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
-                emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
-                                                   .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+//            for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
+//                emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
+//                                                   .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
         }
 
         if (fromViewer)      // input relativeIndes
@@ -3137,7 +3138,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                                 .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
         }
 
-        for (int i = 0; i < indexes.size(); ++i) {
+        for (int i = 0; i < indexes.size() && source != VIEWER_CLEAR; ++i) {
 
             lineIndex = indexes.at(i).lineIndex;
             // New part lines are added in createBuildModification() routine
@@ -3185,12 +3186,14 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                 }
                 emit messageSig(LOG_TRACE, Message);
             }
-        }
+        } // indexes present and source is not VIEWER_CLEAR
 
         if (fromViewer) {
-            if (source == VIEWER_MOD) {
-                emit highlightSelectedLinesSig(lines);
-            } else if (source == VIEWER_DEL && Preferences::buildModEnabled) {
+            bool clear = source == VIEWER_CLEAR;
+            if (editWindow->isVisible() && (source == VIEWER_MOD || clear)) {
+                emit highlightSelectedLinesSig(lines, clear);
+            }
+            if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 createBuildModAct->setEnabled(true);
                 updateBuildModAct->setEnabled(buildModsSize());
                 enableBuildModification();
@@ -3198,8 +3201,9 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                                               .arg(currentStep->stepNumber.number)
                                               .arg(modelName));
             }
-        } else { /*fromEditor*/
-            emit setSelectedPiecesSig(lines);
+        } else { // indexes from editor
+            if (gMainWindow->isVisible())
+                emit setSelectedPiecesSig(lines);
         }
-    }
+    } // not exporting
 }

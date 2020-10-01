@@ -371,7 +371,7 @@ public:
 	void ToggleFullScreen();
 
 /*** LPub3D Mod - selected Line ***/
-	void UpdateSelectedObjects(bool SelectionChanged, int EmitSelection = VIEWER_LINE);
+    void UpdateSelectedObjects(bool SelectionChanged, int SelectionType = VIEWER_LINE);
 /*** LPub3D Mod end ***/
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);

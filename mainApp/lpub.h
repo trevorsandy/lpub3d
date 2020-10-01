@@ -1324,7 +1324,7 @@ signals:
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
-  void highlightSelectedLinesSig(QVector<int> &indexes);
+  void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);

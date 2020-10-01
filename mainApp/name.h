@@ -61,6 +61,8 @@ enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum ShowLineType { LINE_HIGHLIGHT, LINE_ERROR };
 enum SceneObjectInfo { ObjectId };
+
+
 enum PartSource {
     NOT_FOUND          = -1,                   // -1
     NEW_PART           = NOT_FOUND,            // -1
@@ -69,7 +71,8 @@ enum PartSource {
     VIEWER_NONE        = EDITOR_LINE,          //  0
     VIEWER_LINE,                               //  1
     VIEWER_MOD,                                //  2
-    VIEWER_DEL                                 //  3
+    VIEWER_DEL,                                //  3
+    VIEWER_CLEAR                               //  4
 };
 
 enum BuildModFlags {

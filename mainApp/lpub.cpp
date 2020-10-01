@@ -3025,8 +3025,8 @@ Gui::Gui()
     connect(this,           SIGNAL(showLineSig(int, int)),
             editWindow,     SLOT(  showLine(   int, int)));
 
-    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &)),
-            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &)));
+    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
+            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
 
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editWindow,     SLOT(  clearEditorWindow()));

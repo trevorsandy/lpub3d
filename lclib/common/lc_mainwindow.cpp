@@ -2390,7 +2390,7 @@ void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Whole model and selected Parts  ***/
-void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelection)
+void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionType)
 {
 	int Flags = 0;
 	lcArray<lcObject*> Selection;
@@ -2401,14 +2401,31 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 
 	lcTool Tool = GetTool();
-	bool BuildModTool = Tool == LC_TOOL_SELECT || Tool == LC_TOOL_ERASER;
-	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
+	bool BuildModTool = false;
+	switch (Tool)
+	{
+	case LC_TOOL_SELECT:
+	case LC_TOOL_INSERT:
+	case LC_TOOL_MOVE:
+	case LC_TOOL_ROTATE:
+	case LC_TOOL_ERASER:
+	case LC_TOOL_PAINT:
+	case LC_TOOL_COLOR_PICKER:
+		BuildModTool = true;
+		break;
+	default:
+		BuildModTool = false;
+		break;
+	}
+	bool BuildModEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
+	bool BuildModType = GetImageType() != Options::PLI;
 
+	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
 	if (Action && Action->isChecked()) {
 
 		if (ActiveModel) {
 			/*** LPub3D Mod - Select whole model if Rotate Tool selected and not build modification ***/
-			if (Tool == LC_TOOL_ROTATE && !lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
+			if (Tool == LC_TOOL_ROTATE && !BuildModEnabled) {
 
 				for (lcPiece* Piece : ActiveModel->GetPieces())
 					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
@@ -2424,7 +2441,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 			} else
 
 			/*** LPub3D Mod - Selected Parts ***/
-			if (EmitSelection && BuildModTool && GetImageType() != Options::PLI) {
+			if (SelectionType && BuildModTool && BuildModType) {
 
 				QVector<TypeLine> LineTypeIndexes;
 
@@ -2472,7 +2489,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 						}
 					}
 				}
-				emit SelectedPartLinesSig(LineTypeIndexes, PartSource(EmitSelection));
+				if (SelectionType != VIEWER_LINE)
+					emit SelectedPartLinesSig(LineTypeIndexes, PartSource(SelectionType));
 			}
 			/*** LPub3D Mod end ***/
 		}
@@ -2557,7 +2575,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - replace mStatusBarLabel ***/
-	 statusBar()->showMessage(Focus && Focus->IsPiece() && EmitSelection == VIEWER_MOD ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
+	 statusBar()->showMessage(Focus && Focus->IsPiece() && SelectionType == VIEWER_MOD ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
 /*  mStatusPositionLabel->setText(Label);   */
 /*** LPub3D Mod end ***/
 }

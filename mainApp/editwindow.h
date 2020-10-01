@@ -106,7 +106,7 @@ public slots:
     void setSubFiles(const QStringList& subFiles);
     void modelFileChanged(const QString &fileName);
     void showLine(int, int);
-    void highlightSelectedLines(QVector<int> &lines);
+    void highlightSelectedLines(QVector<int> &lines, bool clear);
     void triggerPreviewLine();
     void updateDisabled(bool);
     void clearEditorWindow();

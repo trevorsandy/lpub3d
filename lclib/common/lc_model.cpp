@@ -3545,24 +3545,18 @@ bool lcModel::AnyObjectsSelected() const
 	for (lcCamera* Camera : mCameras)
 		if (Camera->IsSelected())
 			return true;
-/*** LPub3D Mod - Build Modification, suppress select move overlay for pieces ***/
-/***/
-	if (Preferences::buildModEnabled) {
+/*** LPub3D Mod - Build Modification ***/
+	if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
 		if (gMainWindow->GetImageType() != Options::PLI) {
 			for (lcPiece* Piece : mPieces)
 				if (Piece->IsSelected())
 					return true;
 		}
 	}
-/***/
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Suppress select move overlay for light ***/
-/***/
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;
-/***/
-/*** LPub3D Mod end ***/
 	return false;
 }
 
@@ -3977,8 +3971,17 @@ lcArray<lcObject*> lcModel::GetSelectionModePieces(lcPiece* SelectedPiece) const
 
 void lcModel::ClearSelection(bool UpdateInterface)
 {
-	for (lcPiece* Piece : mPieces)
+/*** LPub3D Mod - Selected Parts ***/
+	bool WasSelected = false;
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Selected Parts ***/
+	for (lcPiece* Piece : mPieces) {
+		if (!WasSelected && Piece->IsSelected())
+			WasSelected = true;
 		Piece->SetSelected(false);
+	}
+/*** LPub3D Mod end ***/
 
 	for (lcCamera* Camera : mCameras)
 		Camera->SetSelected(false);
@@ -3986,10 +3989,13 @@ void lcModel::ClearSelection(bool UpdateInterface)
 	for (lcLight* Light : mLights)
 		Light->SetSelected(false);
 
-	if (UpdateInterface)
+/*** LPub3D Mod - Selected Parts ***/
+	if (UpdateInterface || WasSelected)
 	{
-		gMainWindow->UpdateSelectedObjects(true);
-		gMainWindow->UpdateAllViews();
+		gMainWindow->UpdateSelectedObjects(true, WasSelected ? VIEWER_CLEAR : VIEWER_LINE);
+		if (UpdateInterface)
+			gMainWindow->UpdateAllViews();
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -4053,16 +4059,17 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 	ClearSelection(false);
 /*** LPub3D Mod - Build Modification ***/
 	bool IsPiece = false;
-/*** LPub3D Mod end ***/
+	bool IsObject = false;
 
-	if (Object)
+	if ((IsObject = Object))
 	{
+/*** LPub3D Mod end ***/
 		Object->SetFocused(Section, true);
 
 /*** LPub3D Mod - Build Modification ***/
 		if ((IsPiece = Object->IsPiece()))
-/*** LPub3D Mod end ***/
 		{
+/*** LPub3D Mod end ***/
 			SelectGroup(((lcPiece*)Object)->GetTopGroup(), true);
 
 			if (EnableSelectionMode)
@@ -4073,7 +4080,9 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 		}
 	}
 /*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+	// If we have objects we send back viewer mod if we have a piece other wise we return VIEWER_LINE
+	// It no object, we return VIEWER_NONE here and have ClearSelection handle returns for objects that were selected.
+	gMainWindow->UpdateSelectedObjects(true, IsObject ? IsPiece ? VIEWER_MOD : VIEWER_LINE : VIEWER_NONE);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
@@ -4108,6 +4117,10 @@ void lcModel::SetSelectionAndFocus(const lcArray<lcObject*>& Selection, lcObject
 
 void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelectionMode, bool UpdateInterface)
 {
+/*** LPub3D Mod - Selected Parts ***/
+	bool IsPiece = false;
+/*** LPub3D Mod end ***/
+
 	for (lcObject* Object : Objects)
 	{
 		bool WasSelected = Object->IsSelected();
@@ -4115,6 +4128,11 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 
 		if (Object->IsPiece())
 		{
+/*** LPub3D Mod - Selected Parts ***/
+			if (!IsPiece)
+				IsPiece = true;
+/*** LPub3D Mod end ***/
+
 			if (!WasSelected)
 				SelectGroup(((lcPiece*)Object)->GetTopGroup(), true);
 
@@ -4126,10 +4144,13 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 		}
 	}
 
-	if (UpdateInterface)
+/*** LPub3D Mod - Selected Parts ***/
+	if (UpdateInterface || IsPiece)
 	{
-		gMainWindow->UpdateSelectedObjects(true);
-		gMainWindow->UpdateAllViews();
+		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+		if (UpdateInterface)
+			gMainWindow->UpdateAllViews();
+/*** LPub3D Mod end ***/
 	}
 }
 
