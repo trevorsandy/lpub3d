@@ -3362,8 +3362,9 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
       }
      if ((ldrawType && argc == 1) || !ldrawType) {
          // lets try to get the original type
-         bool newStep    = false;
          bool validLine  = false;
+         bool subEnd     = false;
+         bool newStep    = false;
          bool configured = false;
          bool fade       = gui->page.meta.LPub.fadeStep.fadeStep.value();
          bool highlight  = gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
@@ -3372,13 +3373,17 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
              configured = modelInfo.completeBaseName().endsWith(FADE_SFX) ||
                           modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
          }
-         Where lineBelow = here + 1;          // start at 1 line below
+         Where lineBelow = here + 1;          // start at 1 line below PLI BEGIN SUB meta
          int numLines = configured ? gui->configuredSubFileSize(here.modelName) : gui->subFileSize(here.modelName);
          QString originalTypeLine = configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
-         for (; !newStep && !validLine && lineBelow <= numLines; lineBelow++) {
-             newStep = originalTypeLine.endsWith("STEP") ||
-                       originalTypeLine.contains("ROTSTEP");
-             if (!(validLine = originalTypeLine[0] == '1') && !newStep) {
+         // read each line looking for type 1 line or end of step
+         for (; !validLine && !subEnd && !newStep && lineBelow <= numLines; lineBelow++) {
+             validLine = originalTypeLine[0] == '1';
+             subEnd    = originalTypeLine.endsWith("PLI END");
+             newStep   = originalTypeLine.endsWith("STEP") ||
+                         originalTypeLine.contains("ROTSTEP");
+             // do we have reason to stop checking?
+             if (!validLine && !subEnd && !newStep) {
                 originalTypeLine =  configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
              }
          }
@@ -3387,10 +3392,11 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
          split(originalTypeLine,tokens);
          if (tokens.size() == 15 && tokens[0] == "1") {
              if(!ldrawType)
-                 attributes  = tokens[14]+":0;";    // originalType
-             originalColor = tokens[1];
+                 attributes = tokens[14]+":0;";    // originalType
+             originalColor  = tokens[1];
          } else {
-             QString message = QString("Failed to locate substitute original part type below %1.<br>Got %2.")
+             QString message = QString("Invalid substitute meta command.<br>"
+                                       "No valid parts between %1 and PLI END.<br>Got %2.")
                                        .arg(argv.join(" ")).arg(originalTypeLine);
              emit gui->parseError(message,here);
          }
