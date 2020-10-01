@@ -561,7 +561,6 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
     else
     {
         viewerUndo = false;
-        undoAct->setEnabled(false);
         undoAct->setText(tr("&Undo"));
     }
 
@@ -574,7 +573,6 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
     else
     {
         viewerRedo = false;
-        redoAct->setEnabled(false);
         redoAct->setText(tr("&Redo"));
     }
 }
