@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 21, 2020
+rem  Last Update: September 15, 2020
 rem  Copyright (c) 2015 - 2020 by Trevor SANDY
 rem --
 SETLOCAL
@@ -44,11 +44,19 @@ SET TEST_APPVEYOR=0
 SET AUTO=0
 SET UNIVERSAL_BUILD=1
 
+IF /I "%INSTALL_CHECK_APPVEYOR%" EQU "True" (
+  ECHO.
+  ECHO - Install check for Appveyor detected.
+  SET APPVEYOR=True
+  SET TEST_APPVEYOR=1
+)
+
 IF /I "%INSTALL_CHECK%" EQU "True" (
   ECHO.
   ECHO - Install check detected.
   SET AUTO=1
 )
+
 IF /I "%APPVEYOR%" EQU "True" (
   SET AUTO=1
 )
@@ -111,6 +119,9 @@ SET VER_LPUB3D_TRACE=lpub3d_trace_cui-3.8
 SET LDGLITE_EXE=ldglite
 SET LDVIEW_EXE=LDView
 SET LPUB3D_TRACE_EXE=lpub3d_trace_cui
+
+SET OPENSSL_LIB=OpenSSL
+SET OPENSSL_VER=v1.0
 
 SET TimeStamp=http://timestamp.digicert.com
 SET Sha2=Sha256
@@ -409,6 +420,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   ECHO.
   ECHO   LP3D_ARCH......................[%LP3D_ARCH%]
   ECHO   PKG_DISTRO_DIR.................[%PKG_DISTRO_DIR%]
+  CALL :DOWNLOADOPENSSLLIBS %LP3D_ARCH%
+  CALL :DOWNLOADMSVCREDIST %LP3D_ARCH%
   CALL :COPYFILES
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
@@ -427,6 +440,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     ECHO.
     ECHO   LP3D_ARCH......................[%%A]
     ECHO   PKG_DISTRO_DIR.................[%LP3D_PRODUCT%_%%A]
+    CALL :DOWNLOADOPENSSLLIBS %%A
     CALL :DOWNLOADMSVCREDIST %%A
     CALL :COPYFILES
   )
@@ -870,6 +884,149 @@ SETLOCAL DISABLEDELAYEDEXPANSION
 ECHO   Generated %1 json version insert
 EXIT /b
 
+:DOWNLOADOPENSSLLIBS
+ECHO.
+ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%1]...
+
+IF /I "%APPVEYOR%" EQU "True" (
+  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+) ELSE (
+  CALL :DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
+)
+
+IF NOT EXIST "%DIST_DIR%\" (
+  ECHO.
+  ECHO - ERROR - Could not locate distribution path [%DIST_DIR%]
+  EXIT /b
+)
+
+SET OPENSSL_LIB_DIR=%DIST_DIR%\%OPENSSL_LIB%\%OPENSSL_VER%\%1
+
+IF NOT EXIST "%OPENSSL_LIB_DIR%\" (
+  ECHO.
+  ECHO - Create %OPENSSL_LIB% libraries store %OPENSSL_LIB_DIR%
+  MKDIR "%OPENSSL_LIB_DIR%\"
+)
+
+SET OpensslCONTENT=unknown
+SET OpensslVERIFIED=unknown
+SET OutputPATH=%OPENSSL_LIB_DIR%
+
+CALL :CREATEWEBCONTENTDOWNLOADVBS
+
+REM For libEAY
+IF "%OPENSSL_VER%" EQU "v1.0" (
+  SET OpensslCONTENT=libeay32-x64.dll
+  SET OpensslVERIFIED=libeay32.dll
+  IF "%1" EQU "x86" (
+    SET OpensslCONTENT=libeay32.dll
+    SET OpensslVERIFIED=libeay32.dll
+  )
+)
+IF "%OPENSSL_VER%" EQU "v1.1" (
+  SET OpensslCONTENT=libcrypto-1_1-x64.dll 
+  SET OpensslVERIFIED=libcrypto-1_1-x64.dll
+  IF "%1" EQU "x86" (
+    SET OpensslCONTENT=libcrypto-1_1.dll
+    SET OpensslVERIFIED=libcrypto-1_1.dll
+  )
+)
+
+ECHO.
+ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
+
+IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
+  CALL :GET_OPENSSL_LIB %1
+)  ELSE (
+  ECHO.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %1 library %OpensslVERIFIED% exist. Nothing to do.
+)
+
+CALL :SET_OPENSSL_LIB %1 
+
+REM For libSSL
+IF "%OPENSSL_VER%" EQU "v1.0" (
+  SET OpensslCONTENT=ssleay32-x64.dll
+  SET OpensslVERIFIED=ssleay32.dll
+  IF "%1" EQU "x86" (
+    SET OpensslCONTENT=ssleay32.dll
+    SET OpensslVERIFIED=ssleay32.dll
+  )
+)
+IF "%OPENSSL_VER%" EQU "v1.1" (
+  SET OpensslCONTENT=libssl-1_1.dll 
+  SET OpensslVERIFIED=libssl-1_1.dll
+  IF "%1" EQU "x86" (
+    SET OpensslCONTENT=libssl-1_1-x64.dll
+    SET OpensslVERIFIED=libssl-1_1-x64.dll
+  )
+)
+
+ECHO.
+ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
+
+IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
+  CALL :GET_OPENSSL_LIB %1
+)  ELSE (
+  ECHO.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %1 library %OpensslVERIFIED% exist. Nothing to do.
+)
+
+CALL :SET_OPENSSL_LIB %1
+EXIT /b
+
+:GET_OPENSSL_LIB
+SET WebCONTENT="%OutputPATH%\%OpensslCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%OpensslCONTENT%
+
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+
+IF NOT EXIST "%OutputPATH%\%OpensslCONTENT%" (
+  ECHO.
+  ECHO - ERROR - %OPENSSL_LIB% library %OpensslCONTENT% %OPENSSL_VER% %1 not downloaded
+)
+
+IF "%OPENSSL_VER%" EQU "v1.0" (
+  IF "%1" EQU "x86_64" (
+    ECHO.
+    ECHO - Renaming library file "%OpensslCONTENT%" to "%OpensslVERIFIED%"
+    REN "%WebCONTENT%" %OpensslVERIFIED%
+    ECHO.
+    IF EXIST "%OutputPATH%\%OpensslVERIFIED%" (
+      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 is availble
+    ) ELSE (
+      ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 not found
+    )
+  )
+)
+EXIT /b
+
+:SET_OPENSSL_LIB
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1
+
+IF NOT EXIST "%PKG_TARGET_DIR%\" (
+  ECHO.
+  ECHO - ERROR - %PKG_TARGET_DIR% does not exist...
+)
+
+IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
+  ECHO.
+  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1...
+  ECHO - From: %OPENSSL_LIB_DIR%
+  ECHO - To:   %PKG_TARGET_DIR%
+  IF EXIST "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" (
+    COPY /V /Y "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 does not exist in %OPENSSL_LIB_DIR%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 exist in %PKG_TARGET_DIR%. Nothing to do.
+)
+EXIT /b
+
 :DOWNLOADMSVCREDIST
 ECHO.
 ECHO - Download Microsoft Visual C++ 2015 %1 Redistributable Update 3...
@@ -1143,7 +1300,8 @@ IF EXIST %TEMP%\$\%vbs% (
 >>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
 >>%t% url = args(0)
 >>%t% target = args(1)
->>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
+>>%t% WScript.Echo "- Target: '" ^& target ^& "'...", vbLF
+>>%t% WScript.Echo "- Source: '" ^& url ^& "'...", vbLF
 >>%t%.
 >>%t% http.Open "GET", url, False
 >>%t% http.Send
@@ -1180,7 +1338,7 @@ IF EXIST %TEMP%\$\%vbs% (
 >>%t%.
 
 ECHO.
-ECHO - VBS file "%vbs%" is done compiling
+ECHO - VBS file "%vbs%" at "%TEMP%\$\%vbs%" is done compiling
 EXIT /b
 
 :DIST_DIR_REL_TO_ABS

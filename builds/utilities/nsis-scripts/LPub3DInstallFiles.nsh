@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: June 29, 2019
+;Last Update: September 15, 2020
 ;Copyright (C) 2016 - 2020 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -23,6 +23,10 @@ ${If} ${RunningX64}
 
     ;Deposit new 64bit files...
     File "${Win64BuildDir}\${LPub3DBuildFile}"
+
+    ;OpenSSL v1.0 - up to Qt 5.12.9
+    File "${Win64BuildDir}\libeay32.dll"
+    File "${Win64BuildDir}\ssleay32.dll"
 
     File "${Win64BuildDir}\Qt5Concurrent.dll"
     File "${Win64BuildDir}\Qt5Core.dll"
@@ -116,6 +120,10 @@ ${Else}
     ;Deposit new 32bit files...
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
     File "${Win32BuildDir}\${LPub3DBuildFile}"
+
+    ;OpenSSL v1.0 - up to Qt 5.12.9
+    File "${Win32BuildDir}\libeay32.dll"
+    File "${Win32BuildDir}\ssleay32.dll"
 
     File "${Win32BuildDir}\Qt5Concurrent.dll"
     File "${Win32BuildDir}\Qt5Core.dll"

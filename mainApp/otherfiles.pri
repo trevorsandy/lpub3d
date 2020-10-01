@@ -91,6 +91,7 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/set-ldrawdir.command \
 ../builds/utilities/update-config-files.bat \
 ../builds/utilities/update-config-files.sh \
+../builds/utilities/GetWindowsOpenSSL.bat \
 ../builds/utilities/version.info \
 ../builds/windows/AutoBuild.cmd \
 ../builds/windows/CreateExePkg.cmd \

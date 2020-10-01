@@ -3,7 +3,7 @@
 Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 29, 2019
+rem  Last Update: September 15, 2020
 rem  Copyright (c) 2017 - 2020 by Trevor SANDY
 
 rem  To Run:
@@ -19,11 +19,8 @@ IF "%SCRIPT_DIR%" EQU "windows" (
   SET ABS_WD=%CD%
 )
 
+rem Working directory is repository root - i.e. lpub3d
 CD /D %ABS_WD%
-
-rem set application version variables
-SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
-CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
 
 rem Initialize needed variables
 SET PACKAGE=LPub3D
@@ -67,6 +64,10 @@ IF NOT [%2]==[] (
 )
 
 rem Parse platform input flags
+IF /I "%1"=="-help" (
+  GOTO :USAGE
+)
+
 IF [%1]==[] (
   SET PLATFORM=-all
 )
@@ -82,6 +83,10 @@ IF /I "%1"=="x86_64" (
 IF NOT [%2]==[] (
   SET UPDATE_LDRAW_LIBS=%2
 )
+
+rem set application version variables
+SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
+CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
 
 rem Check if build all platforms
 IF /I "%PLATFORM%"=="-all" (

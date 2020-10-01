@@ -1,5 +1,5 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: June 28, 2019
+;Last Update: September 15, 2020
 ;Copyright (C) 2016 - 2020 by Trevor SANDY
 
 ;Deposit new files...
@@ -57,23 +57,31 @@ ${If} ${RunningX64}
     ;New 64bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_seh-1.dll"
 
-	;64bit 3rd party renderer utility - LDView
-	Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
+    ;OpenSSL v1.0 - up to Qt 5.12.9
+    Delete "$INSTDIR\libeay32.dll"
+    Delete "$INSTDIR\ssleay32.dll"
 
-	;64bit 3rd party renderer utility - LPub3D_Trace
-	Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
+    ;64bit 3rd party renderer utility - LDView
+    Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
+
+    ;64bit 3rd party renderer utility - LPub3D_Trace
+    Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
 ${Else}
     ;MSVC 2015 Redistributables
     Delete "${INSTDIR}\vcredist_x86.exe"
 
-	;New 32bit Stuff - Qt Libraries
-	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
+    ;New 32bit Stuff - Qt Libraries
+    Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 
-	;32bit 3rd party renderer utility - LDView
-	Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"
+    ;OpenSSL v1.0 - up to Qt 5.12.9
+    Delete "$INSTDIR\libeay32.dll"
+    Delete "$INSTDIR\ssleay32.dll"
 
-	;32bit 3rd party renderer utility - LPub3D_Trace
-	Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}32.exe"
+    ;32bit 3rd party renderer utility - LDView
+    Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"
+
+    ;32bit 3rd party renderer utility - LPub3D_Trace
+    Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}32.exe"
 ${EndIf}
 
 ;data repository folder
