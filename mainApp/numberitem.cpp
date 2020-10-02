@@ -109,6 +109,7 @@ NumberItem::NumberItem(
 
 NumberPlacementItem::NumberPlacementItem()
 {
+  value = 0;
   relativeType = PageNumberType;
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,true);

@@ -304,9 +304,8 @@ int Gui::addGraphicsPageItems(
   PlacementHeader         *pageHeader;
   PlacementFooter         *pageFooter;
   PageBackgroundItem      *pageBg;
-  PageNumberItem          *pageNumber = nullptr;
-  SubmodelInstanceCount   *instanceCount = nullptr;
-  TextItem                *textItem = nullptr;
+  PageNumberItem          *pageNumber    = nullptr;
+  TextItem                *textItem      = nullptr;
 
   // disable viewer menu on conver page
   GetToolsToolBar()->setEnabled(!page->coverPage);
@@ -380,10 +379,10 @@ int Gui::addGraphicsPageItems(
 
   addCoverPageAttributes(page,pageBg,pageHeader,pageFooter,plPage);
 
-  // Display the page number, instance count and page attributes
+  // Display the page number
 
-  bool displayPageNumber = page->meta.LPub.page.dpn.value();
-  if (displayPageNumber && ! coverPage) {
+  bool displayPageNumber = page->meta.LPub.page.dpn.value() && ! coverPage;
+  if (displayPageNumber) {
 
       // allocate QGraphicsTextItem for page number
 
@@ -399,150 +398,72 @@ int Gui::addGraphicsPageItems(
       pageNumber->size[XX]     = (int) pageNumber->document()->size().width();
       pageNumber->size[YY]     = (int) pageNumber->document()->size().height();
 
-      PlacementData  placementData;
+      PlacementData  placementData = pageNumber->placement.value();
 
-      placementData = pageNumber->placement.value();
+      bool pageNumberRelativeToPageItem = placementData.relativeTo == PageType       ||
+                                          placementData.relativeTo == PageHeaderType ||
+                                          placementData.relativeTo == PageFooterType;
 
-      if (page->meta.LPub.page.togglePnPlacement.value() && ! (stepPageNum & 1)) {
-          switch (placementData.placement) {
-            case TopLeft:
-              placementData.placement = TopRight;
-              break;
-            case Top:
-            case Bottom:
-              switch (placementData.justification) {
+      if (pageNumberRelativeToPageItem) {
+          if (page->meta.LPub.page.togglePnPlacement.value() && ! (stepPageNum & 1)) {
+              switch (placementData.placement) {
+                case TopLeft:
+                  placementData.placement = TopRight;
+                  break;
+                case Top:
+                case Bottom:
+                  switch (placementData.justification) {
+                    case Left:
+                      placementData.justification = Right;
+                      break;
+                    case Right:
+                      placementData.justification = Left;
+                      break;
+                    default:
+                      break;
+                    }
+                  break;
+                case TopRight:
+                  placementData.placement = TopLeft;
+                  break;
                 case Left:
-                  placementData.justification = Right;
+                  placementData.placement = Right;
                   break;
                 case Right:
-                  placementData.justification = Left;
+                  placementData.placement = Left;
+                  break;
+                case BottomLeft:
+                  placementData.placement = BottomRight;
+                  break;
+                case BottomRight:
+                  placementData.placement = BottomLeft;
                   break;
                 default:
                   break;
                 }
-              break;
-            case TopRight:
-              placementData.placement = TopLeft;
-              break;
-            case Left:
-              placementData.placement = Right;
-              break;
-            case Right:
-              placementData.placement = Left;
-              break;
-            case BottomLeft:
-              placementData.placement = BottomRight;
-              break;
-            case BottomRight:
-              placementData.placement = BottomLeft;
-              break;
-            default:
-              break;
+              pageNumber->placement.setValue(placementData);
             }
-          pageNumber->placement.setValue(placementData);
-        }
 
-      plPage.appendRelativeTo(pageNumber);
-      plPage.placeRelative(pageNumber);
-      pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
+          if (placementData.relativeTo == PageType) {
+              plPage.appendRelativeTo(pageNumber);
+              plPage.placeRelative(pageNumber);
+          } else if(placementData.relativeTo == PageHeaderType) {
+              pageHeader->appendRelativeTo(pageNumber);
+              pageHeader->placeRelative(pageNumber);
+          } else if (placementData.relativeTo == PageFooterType) {
+              pageFooter->appendRelativeTo(pageNumber);
+              pageFooter->placeRelative(pageNumber);
+          }
 
-      // if this page contains the last step of the submodel,
-      // and instance is > 1 and merge instance count, then display instance
+          pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
-      // allocate QGraphicsTextItem for instance number
+      } // page number relative to page item
 
-      if (endOfSubmodel && page->displayInstanceCount/*page->instances > 1*/) {
+    } // display Page Number && ! coverPage
 
-          instanceCount = new SubmodelInstanceCount(
-                page,
-                page->meta.LPub.page.instanceCount,
-                "x%d ",
-                page->instances,
-                pageBg);
+  // Process last page instance count and page attributes
 
-          /*
-       * To make mousemove always know how to calculate offset, I modified
-       * SubmodelInstanceClass to be derived from Placement.  The relativeToSize
-       * offset calculation are in Placement.
-       *
-       * The offset calculation works great, but we end up with a problem
-       * SubmodelInstanceCount gets placement from NumberPlacementItem, and
-       * placement from Placement.  To work around this, I had to hack (and I mean
-       * ugly) SubmodelInstanceCount to Placement.
-       */
-
-          if (instanceCount) {
-              instanceCount->setSize(int(instanceCount->document()->size().width()),
-                                     int(instanceCount->document()->size().height()));
-              instanceCount->loc[XX] = 0;
-              instanceCount->loc[YY] = 0;
-              instanceCount->tbl[0] = 0;
-              instanceCount->tbl[1] = 0;
-
-              instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-
-    //              logDebug() << "TogglePageNumber:" << page->meta.LPub.page.togglePnPlacement.value();
-    //              logDebug() << (page->meta.LPub.page.number.number % 2 ?
-    //                                 tr("Page %1 is Even").arg(stepPageNum) :
-    //                                 tr("Page %1 is Odd").arg(stepPageNum));
-    //              logDebug() << "Placement: " << RectNames[page->meta.LPub.page.instanceCount.placement.value().rectPlacement]
-    //                         << "(" << page->meta.LPub.page.instanceCount.placement.value().rectPlacement << ")" ;
-
-              PlacementData placementData = instanceCount->placement.value();
-
-              if (placementData.relativeTo == PageNumberType) {
-
-                  if (page->meta.LPub.page.togglePnPlacement.value() &&
-                      ! (stepPageNum % 2 /* if page is odd */)) {
-                      switch (placementData.rectPlacement){
-                      case (TopLeftOutsideCorner):
-                          instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
-                          break;
-                      case (TopLeftOutside):
-                          instanceCount->placement.setValue(TopRightOutSide,PageNumberType);
-                          break;
-                      case (LeftTopOutside):
-                          instanceCount->placement.setValue(RightTopOutside,PageNumberType);
-                          break;
-                      case (LeftOutside):
-                          instanceCount->placement.setValue(RightOutside,PageNumberType);
-                          break;
-                      case (LeftBottomOutside):
-                          instanceCount->placement.setValue(RightBottomOutside,PageNumberType);
-                          break;
-                      case (BottomLeftOutsideCorner):
-                          instanceCount->placement.setValue(BottomRightOutsideCorner,PageNumberType);
-                          break;
-                      case (BottomLeftOutside):
-                          instanceCount->placement.setValue(BottomRightOutside,PageNumberType);
-                          break;
-                      default:
-                          instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-                          break;
-                      }
-                    } else {
-                      instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
-                    }
-                  pageNumber->placeRelative(instanceCount);
-                } else {
-                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
-                  plPage.placeRelative(instanceCount);
-                }
-              instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
-            } // instanceCount
-
-        } // endOfSubmodel && page->displayInstanceCount
-
-      // Process Content Page Attributes - with page number
-
-      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,false/*do not display instance count*/);
-
-    } else {
-
-      // Process Content Page Attributes - without page number and end of submodel
-
-      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,nullptr,plPage,endOfSubmodel);
-    }
+  addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,endOfSubmodel);
 
   /* Create any graphics items in the insert list */
 
@@ -1087,18 +1008,10 @@ int Gui::addGraphicsPageItems(
 
       //  Place BOM and pli per page items
 
-      if (page->pli.tsize()) {
+      if (page->pli.tsize()/*we have a pli per page*/) {
 
           // Add pli per page items
           addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
-
-          // Place the group step number on the page if pliPerStep = false
-          if (page->meta.LPub.multiStep.showGroupStepNumber.value() &&
-              page->groupStepNumber.number) {
-              page->groupStepNumber.stepNumber->setPos(
-                          page->groupStepNumber.stepNumber->loc[XX],
-                          page->groupStepNumber.stepNumber->loc[YY]);
-          }
 
           // Place the Bill of materials on the page if specified
 
@@ -1123,12 +1036,6 @@ int Gui::addGraphicsPageItems(
           // Place the PLI on the page if pliPerStep = false
 
           page->pli.setPos(page->pli.loc[XX],page->pli.loc[YY]);
-      }
-
-      // Place the SubModel Preview on the page if pliPerStep = false
-
-      if (page->subModel.tsize()){
-          page->subModel.setPos(page->subModel.loc[XX],page->subModel.loc[YY]);
       }
   }
 
@@ -1933,13 +1840,15 @@ int Gui::addPliPerPageItems(
   PageNumberItem  *pageNumber,
   Placement       &plPage){
 
-  Pli                 *pli               = &page->pli;
-  SubModel            *subModel          = &page->subModel;
-  GroupStepNumberItem *groupStepNumber   = page->groupStepNumber.stepNumber;
-  bool                 displayPageNumber = page->meta.LPub.page.dpn.value();
+  Pli                 *pli                    = &page->pli;
+  SubModel            *subModel               = &page->subModel;
+  GroupStepNumberItem *groupStepNumber        = page->groupStepNumber.stepNumber;
+  bool                 displayPageNumber      = page->meta.LPub.page.dpn.value();
+  bool                 validPageNumber        = displayPageNumber && pageNumber && pageNumber->value;
+  bool                 displayGroupStepNumber = page->meta.LPub.multiStep.showGroupStepNumber.value();
+  bool                 validGroupStepNumber   = displayGroupStepNumber && groupStepNumber && page->groupStepNumber.number;
 
-  if (page->meta.LPub.multiStep.showGroupStepNumber.value() &&
-      groupStepNumber && page->groupStepNumber.number) {
+  if (validGroupStepNumber) {
       PlacementData pld = groupStepNumber->placement.value();
       if (pld.relativeTo == PageType) {
           plPage.appendRelativeTo(groupStepNumber);
@@ -1956,13 +1865,15 @@ int Gui::addPliPerPageItems(
       } else if (subModel && pld.relativeTo == SubModelType) {
           subModel->appendRelativeTo(groupStepNumber);
           subModel->placeRelative(groupStepNumber);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+      } else if (validPageNumber && pld.relativeTo == PageNumberType) {
           pageNumber->appendRelativeTo(groupStepNumber);
           pageNumber->placeRelative(groupStepNumber);
       } else {
           plPage.appendRelativeTo(groupStepNumber);
           plPage.placeRelative(groupStepNumber);
       }
+
+      groupStepNumber->setPos(groupStepNumber->loc[XX], groupStepNumber->loc[YY]);
   }
 
   if (subModel){
@@ -1979,16 +1890,18 @@ int Gui::addPliPerPageItems(
       } else if (pli && pld.relativeTo == PartsListType) {
           pli->appendRelativeTo(subModel);
           pli->placeRelative(subModel);
-      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
+      } else if (validGroupStepNumber && pld.relativeTo == StepNumberType) {
           groupStepNumber->appendRelativeTo(subModel);
           groupStepNumber->placeRelative(subModel);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+      } else if (validPageNumber && pld.relativeTo == PageNumberType) {
           pageNumber->appendRelativeTo(subModel);
           pageNumber->placeRelative(subModel);
       } else {
           plPage.appendRelativeTo(subModel);
           plPage.placeRelative(subModel);
       }
+
+      subModel->setPos(subModel->loc[XX],subModel->loc[YY]);
   }
 
   if (pli){
@@ -2002,20 +1915,39 @@ int Gui::addPliPerPageItems(
       } else if (pageFooter && pld.relativeTo == PageFooterType) {
           pageFooter->appendRelativeTo(pli);
           pageFooter->placeRelative(pli);
-      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
+      } else if (validGroupStepNumber && pld.relativeTo == StepNumberType) {
           groupStepNumber->appendRelativeTo(pli);
           groupStepNumber->placeRelative(pli);
       } else if (subModel && pld.relativeTo == SubModelType) {
           subModel->appendRelativeTo(pli);
           subModel->placeRelative(pli);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+      } else if (validPageNumber && pld.relativeTo == PageNumberType) {
           pageNumber->appendRelativeTo(pli);
           pageNumber->placeRelative(pli);
       } else {
           plPage.appendRelativeTo(pli);
           plPage.placeRelative(pli);
       }
+
+      // For now, pli per page is shared with BOM so we setPos() is in formatpage
   }
+
+  if (validPageNumber){
+      PlacementData  pld = pageNumber->placement.value();
+      if (pli && pld.relativeTo == PartsListType) {
+          pli->appendRelativeTo(pageNumber);
+          pli->placeRelative(pageNumber);
+      } else if (subModel && pld.relativeTo == SubModelType) {
+          subModel->appendRelativeTo(pageNumber);
+          subModel->placeRelative(pageNumber);
+      } else if (validGroupStepNumber && pld.relativeTo == StepNumberType) {
+          groupStepNumber->appendRelativeTo(pageNumber);
+          groupStepNumber->placeRelative(pageNumber);
+      }
+
+      pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
+  }
+
   return 0;
 }
 
@@ -2037,7 +1969,8 @@ int Gui::addContentPageAttributes(
       PageAttributeTextItem   *email     = new PageAttributeTextItem(page,page->meta.LPub.page.email,pageBg);
       PageAttributeTextItem   *copyright = new PageAttributeTextItem(page,page->meta.LPub.page.copyright,pageBg);
       PageAttributeTextItem   *author    = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
-      bool displayPageNumber = page->meta.LPub.page.dpn.value();
+      bool displayPageNumber             = page->meta.LPub.page.dpn.value();;
+      bool validPageNumber               = displayPageNumber && pageNumber && pageNumber->value;
 
       //  Content Page URL (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
       bool displayURL         = page->meta.LPub.page.url.display.value();
@@ -2090,7 +2023,7 @@ int Gui::addContentPageAttributes(
           } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(url);
               pageFooter->placeRelative(url);
-          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (validPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(url);
               pageNumber->placeRelative(url);
           } else if (displayEmail && pld.relativeTo == PageEmailType) {
@@ -2121,7 +2054,7 @@ int Gui::addContentPageAttributes(
           } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(email);
               pageFooter->placeRelative(email);
-          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (validPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(email);
               pageNumber->placeRelative(email);
           } else if (displayURL && pld.relativeTo == PageURLType) {
@@ -2152,7 +2085,7 @@ int Gui::addContentPageAttributes(
           } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(copyright);
               pageFooter->placeRelative(copyright);
-          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (validPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(copyright);
               pageNumber->placeRelative(copyright);
           } else if (displayURL && pld.relativeTo == PageURLType) {
@@ -2183,7 +2116,7 @@ int Gui::addContentPageAttributes(
           } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(author);
               pageFooter->placeRelative(author);
-          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (validPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(author);
               pageNumber->placeRelative(author);
           } else if (displayURL && pld.relativeTo == PageURLType) {
@@ -2195,10 +2128,6 @@ int Gui::addContentPageAttributes(
           } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
               copyright->appendRelativeTo(author);
               copyright->placeRelative(author);
-          } else if (displayPageNumber) {
-              author->placement.setValue(LeftBottomOutside,PageNumberType);
-              pageNumber->appendRelativeTo(author);
-              pageNumber->placeRelative(author);
           } else {
               plPage.appendRelativeTo(author);
               plPage.placeRelative(author);
@@ -2210,9 +2139,7 @@ int Gui::addContentPageAttributes(
 
       if (endOfSubmodel && page->displayInstanceCount/*page->instances > 1*/) {
 
-          SubmodelInstanceCount   *instanceCount;
-
-          instanceCount = new SubmodelInstanceCount(
+          SubmodelInstanceCount   *instanceCount = new SubmodelInstanceCount(
                       page,
                       page->meta.LPub.page.instanceCount,
                       "x%d ",
@@ -2224,12 +2151,18 @@ int Gui::addContentPageAttributes(
                                      int(instanceCount->document()->size().height()));
               instanceCount->loc[XX] = 0;
               instanceCount->loc[YY] = 0;
-              instanceCount->tbl[0] = 0;
-              instanceCount->tbl[1] = 0;
+              instanceCount->tbl[0]  = 0;
+              instanceCount->tbl[1]  = 0;
 
               instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
 
-              if (displayAuthor){
+              PlacementData icPld = instanceCount->placement.value();
+
+              bool icRelativeToPageItem = icPld.relativeTo == PageType       ||
+                                          icPld.relativeTo == PageHeaderType ||
+                                          icPld.relativeTo == PageFooterType;
+
+              if (displayAuthor && icPld.relativeTo == PageAuthorType) {
                   PlacementData pld = author->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2237,17 +2170,16 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                          ((pld.relativeTo    == PageNumberType          )||
-                           (pld.rectPlacement == BottomRightInsideCorner  &&
-                            pld.relativeTo    == PageType)))
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
                   {
                       instanceCount->placement.setValue(TopOutside,PageAuthorType);
                       author->appendRelativeTo(instanceCount);
                       author->placeRelative(instanceCount);
 
                   }
-              }
-              if (displayEmail){
+              } else if (displayEmail && icPld.relativeTo == PageEmailType){
                   PlacementData pld = email->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2255,16 +2187,15 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                          ((pld.relativeTo    == PageNumberType          )||
-                           (pld.rectPlacement == BottomRightInsideCorner  &&
-                            pld.relativeTo    == PageType)))
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
                   {
                       instanceCount->placement.setValue(TopOutside,PageEmailType);
                       email->appendRelativeTo(instanceCount);
                       email->placeRelative(instanceCount);
                   }
-              }
-              if (displayURL){
+              } else if (displayURL && icPld.relativeTo == PageURLType){
                   PlacementData pld = url->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2272,16 +2203,15 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                          ((pld.relativeTo    == PageNumberType          )||
-                           (pld.rectPlacement == BottomRightInsideCorner  &&
-                            pld.relativeTo    == PageType)))
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
                   {
                       instanceCount->placement.setValue(TopOutside,PageURLType);
                       url->appendRelativeTo(instanceCount);
                       url->placeRelative(instanceCount);
                   }
-              }
-              if (displayCopyright){
+              } else if (displayCopyright && icPld.relativeTo == PageCopyrightType){
                   PlacementData pld = copyright->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
                        pld.rectPlacement == TopLeftOutside           ||
@@ -2289,24 +2219,66 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                          ((pld.relativeTo    == PageNumberType          )||
-                           (pld.rectPlacement == BottomRightInsideCorner  &&
-                            pld.relativeTo    == PageType)))
+                     ((pld.relativeTo    == PageNumberType          )||
+                      (pld.rectPlacement == BottomRightInsideCorner  &&
+                       pld.relativeTo    == PageType)))
                   {
                       instanceCount->placement.setValue(TopOutside,PageCopyrightType);
                       copyright->appendRelativeTo(instanceCount);
                       copyright->placeRelative(instanceCount);
                   }
-              }
-              else
-              {
-                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
-                  plPage.appendRelativeTo(instanceCount);
-                  plPage.placeRelative(instanceCount);
+              } else if (validPageNumber && icPld.relativeTo == PageNumberType) {
+                  if (page->meta.LPub.page.togglePnPlacement.value() &&
+                          ! (stepPageNum % 2 /* if page is odd */)) {
+                      switch (icPld.rectPlacement){
+                      case (TopLeftOutsideCorner):
+                          instanceCount->placement.setValue(TopRightOutsideCorner,PageNumberType);
+                          break;
+                      case (TopLeftOutside):
+                          instanceCount->placement.setValue(TopRightOutSide,PageNumberType);
+                          break;
+                      case (LeftTopOutside):
+                          instanceCount->placement.setValue(RightTopOutside,PageNumberType);
+                          break;
+                      case (LeftOutside):
+                          instanceCount->placement.setValue(RightOutside,PageNumberType);
+                          break;
+                      case (LeftBottomOutside):
+                          instanceCount->placement.setValue(RightBottomOutside,PageNumberType);
+                          break;
+                      case (BottomLeftOutsideCorner):
+                          instanceCount->placement.setValue(BottomRightOutsideCorner,PageNumberType);
+                          break;
+                      case (BottomLeftOutside):
+                          instanceCount->placement.setValue(BottomRightOutside,PageNumberType);
+                          break;
+                      default:
+                          instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+                          break;
+                      }
+                  } else {
+                      instanceCount->placement = page->meta.LPub.page.instanceCount.placement;
+                  }
+                  pageNumber->appendRelativeTo(instanceCount);
+                  pageNumber->placeRelative(instanceCount);
+              } else if (icRelativeToPageItem) {
+                  if (icPld.relativeTo == PageType) {
+                      instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
+                      plPage.appendRelativeTo(instanceCount);
+                      plPage.placeRelative(instanceCount);
+                  } else if(icPld.relativeTo == PageHeaderType) {
+                      instanceCount->placement.setValue(BottomRightOutsideCorner,PageHeaderType);
+                      pageHeader->appendRelativeTo(instanceCount);
+                      pageHeader->placeRelative(instanceCount);
+                  } else if (icPld.relativeTo == PageFooterType) {
+                      instanceCount->placement.setValue(TopRightOutsideCorner,PageFooterType);
+                      pageFooter->appendRelativeTo(instanceCount);
+                      pageFooter->placeRelative(instanceCount);
+                  }
               }
               instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
           }
-        }
+       }
     }
   return 0;
 }
