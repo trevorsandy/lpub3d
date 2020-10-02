@@ -28,15 +28,37 @@
 #ifndef PREVIEWWIDGET_H
 #define PREVIEWWIDGET_H
 
+#include <QMainWindow>
 #include <QString>
+#include "lc_global.h"
 #include "lc_glwidget.h"
-#include "camera.h"
 #include "lc_scene.h"
 #include "lc_viewsphere.h"
 #include "lc_commands.h"
+#include "lc_application.h"
+#include "camera.h"
 
+class QLabel;
+class Project;
 class lcModel;
 class lcPiece;
+class lcQGLWidget;
+
+class PreviewDockWidget : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit PreviewDockWidget(QMainWindow *parent = nullptr);
+    bool SetCurrentPiece(const QString &PartType, int ColorCode);
+    void ClearPreview();
+
+protected:
+    QToolBar      *toolBar;
+    QLabel        *label;
+    PreviewWidget *Preview;
+    lcQGLWidget   *ViewWidget;
+};
 
 class PreviewWidget : public lcGLWidget
 {
@@ -57,10 +79,7 @@ public:
         LC_TRACKTOOL_COUNT
     };
 
-    PreviewWidget(lcModel* Model,
-                 const QString &PartType,
-                 int ColorCode,
-                 bool subPreview = false);
+    PreviewWidget(bool subPreview = false);
     ~PreviewWidget();
 
     lcTool GetTool() const
@@ -71,6 +90,11 @@ public:
     lcCamera* GetCamera() const
     {
         return mCamera;
+    }
+
+    QString GetDescription() const
+    {
+        return mDescription;
     }
 
     lcVector3 UnprojectPoint(const lcVector3& Point) const
@@ -85,7 +109,8 @@ public:
         lcUnprojectPoints(Points, NumPoints, mCamera->mWorldView, GetProjectionMatrix(), Viewport);
     }
 
-    void SetCurrentPiece(const QString& PartType, int ColorCode);
+    void ClearPreview();
+    bool SetCurrentPiece(const QString& PartType, int ColorCode);
     lcMatrix44 GetProjectionMatrix() const;
     lcModel* GetActiveModel() const;
     lcCursor GetCursor() const;
@@ -123,17 +148,18 @@ protected:
     void StopTracking(bool Accept);
     void OnButtonDown(lcTrackButton TrackButton);
 
+    Project* mLoader;
     lcModel* mModel;
     lcCamera* mCamera;
     lcViewSphere mViewSphere;
-    lcPiece* mActiveSubmodelInstance;
-    lcMatrix44 mActiveSubmodelTransform;
 
     lcScene mScene;
 
     lcTool mTool;
     lcTrackButton mTrackButton;
     lcTrackTool mTrackTool;
+
+    QString mDescription;
 
     bool mIsPart;
     bool mIsSubPreview;

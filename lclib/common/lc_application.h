@@ -24,6 +24,23 @@ enum class lcViewSphereLocation
 	BottomRight
 };
 
+/*** LPub3D Mod - preview widget ***/
+enum class lcPreviewLocation
+{
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
+};
+
+enum class lcPreviewPosition
+{
+	Dockable,
+	Floating,
+	Viewport
+};
+/*** LPub3D Mod end ***/
+
 enum class lcColorTheme
 {
 	Dark,
@@ -91,9 +108,16 @@ public:
 	quint32 mBackgroundSolidColor;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
-	quint32 mActivePreviewColor;
-	int mViewSpherePreviewSize;
-	lcViewSphereLocation mViewSpherePreviewLocation;
+	int mPreviewEnabled;
+	quint32 mPreviewActiveColor;
+	int mPreviewViewSphereEnabled;
+	int mPreviewViewSphereSize;
+	lcViewSphereLocation mPreviewViewSphereLocation;
+	lcPreviewLocation mPreviewLocation;
+	lcPreviewPosition mPreviewPosition;
+	int mPreviewSize;
+	int mDrawPreviewAxis;
+	int mDrawPreviewViewSphere;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	bool mBuildMofificationEnabled;

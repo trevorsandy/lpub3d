@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>534</width>
-    <height>520</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -587,442 +587,590 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab_2">
       <attribute name="title">
        <string>Interface</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_14">
        <item>
-        <widget class="QGroupBox" name="groupBox_8">
-         <property name="title">
-          <string>Overlays</string>
+        <widget class="QTabWidget" name="tabWidget_2">
+         <property name="currentIndex">
+          <number>0</number>
          </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="4">
-           <widget class="QToolButton" name="OverlayColorButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="ActiveViewColorButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5" rowspan="2">
-           <spacer name="horizontalSpacer_9">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="AxisIconCheckBox">
-            <property name="text">
-             <string>Axis icon</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2" rowspan="2">
-           <widget class="QToolButton" name="AxesColorButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_28">
-            <property name="text">
-             <string>Active View:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="label_27">
-            <property name="text">
-             <string>Overlay Color:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4">
-           <widget class="QToolButton" name="BackgroundColorButton">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>View Background Color:</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>Overlays, Base Grid</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QGroupBox" name="groupBox_8">
+             <property name="title">
+              <string>Overlays</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_6">
+              <item row="0" column="4">
+               <widget class="QToolButton" name="OverlayColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QToolButton" name="ActiveViewColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="5" rowspan="2">
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="AxisIconCheckBox">
+                <property name="text">
+                 <string>Axis icon</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2" rowspan="2">
+               <widget class="QToolButton" name="AxesColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Active View:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Overlay Color:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QToolButton" name="BackgroundColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>View Background Color:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Base Grid</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="gridStuds">
+                <property name="toolTip">
+                 <string>Enable draw ground plane studs</string>
+                </property>
+                <property name="text">
+                 <string>Draw Studs:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QToolButton" name="gridStudColor">
+                <property name="toolTip">
+                 <string>Select stud colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="gridLines">
+                <property name="toolTip">
+                 <string>Enable draw grid lines</string>
+                </property>
+                <property name="text">
+                 <string>Draw lines every</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label_23">
+                <property name="minimumSize">
+                 <size>
+                  <width>35</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>studs</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4">
+               <widget class="QToolButton" name="gridLineColor">
+                <property name="toolTip">
+                 <string>Select grid line colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="5">
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>228</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="gridLineSpacing">
+                <property name="maximumSize">
+                 <size>
+                  <width>75</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Draw grid line every 'n' studs</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="themeColorsGroup">
+             <property name="title">
+              <string>Colors</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QPushButton" name="ResetColorsButton">
+                <property name="toolTip">
+                 <string>Reset interface colors to theme default</string>
+                </property>
+                <property name="text">
+                 <string>Reset...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>149</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string>View Sphere, Preview</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_15">
+           <item>
+            <widget class="QGroupBox" name="ViewSphereGroup">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>View Sphere</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_8">
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>View Location:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QToolButton" name="ViewSphereColorButton">
+                <property name="toolTip">
+                 <string>Select View Sphere colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Text Color:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QComboBox" name="PreviewViewSphereLocationCombo">
+                <item>
+                 <property name="text">
+                  <string>Top Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Top Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="5">
+               <widget class="QToolButton" name="ViewSphereHighlightColorButton">
+                <property name="toolTip">
+                 <string>Select View Sphere highlight colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QComboBox" name="ViewSphereLocationCombo">
+                <property name="toolTip">
+                 <string>Set View Sphere location</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Top Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Top Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="PreviewViewSphereSizeCombo">
+                <item>
+                 <property name="text">
+                  <string>Disabled</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Small</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Medium</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Large</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QToolButton" name="ViewSphereTextColorButton">
+                <property name="toolTip">
+                 <string>Select View Sphere text colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_8">
+                <property name="toolTip">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string>View Size:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Preview Size:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Color:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="6">
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>70</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="ViewSphereSizeCombo">
+                <property name="toolTip">
+                 <string>Set View Sphere size</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Disabled</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Small</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Medium</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Large</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Preview Location:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Highlight Color:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="PreviewGroup">
+             <property name="title">
+              <string>Preview</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="3">
+               <widget class="QLabel" name="label_32">
+                <property name="text">
+                 <string>Preview Location:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QComboBox" name="PreviewLocationCombo">
+                <item>
+                 <property name="text">
+                  <string>Top Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Top Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <spacer name="horizontalSpacer_12">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="0" colspan="2">
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>Preview Position:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QComboBox" name="PreviewPositionCombo">
+                <item>
+                 <property name="text">
+                  <string>Dockable</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Floating</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QComboBox" name="PreviewSizeCombo">
+                <item>
+                 <property name="text">
+                  <string>Disabled</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Small</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Large</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_31">
+                <property name="text">
+                 <string>Preview Size:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QCheckBox" name="PreviewViewSphereCheckBox">
+                <property name="text">
+                 <string>View Sphere</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4">
+               <widget class="QCheckBox" name="PreviewAxisIconCheckBox">
+                <property name="text">
+                 <string>Axis Icon</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>191</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
         </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>Base Grid</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="gridStuds">
-            <property name="toolTip">
-             <string>Enable draw ground plane studs</string>
-            </property>
-            <property name="text">
-             <string>Draw Studs:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QToolButton" name="gridStudColor">
-            <property name="toolTip">
-             <string>Select stud colour</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="gridLines">
-            <property name="toolTip">
-             <string>Enable draw grid lines</string>
-            </property>
-            <property name="text">
-             <string>Draw lines every</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLabel" name="label_23">
-            <property name="minimumSize">
-             <size>
-              <width>35</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>studs</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4">
-           <widget class="QToolButton" name="gridLineColor">
-            <property name="toolTip">
-             <string>Select grid line colour</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <spacer name="horizontalSpacer_8">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>228</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="gridLineSpacing">
-            <property name="maximumSize">
-             <size>
-              <width>75</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Draw grid line every 'n' studs</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="ViewSphereGroup">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>View Sphere</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Color:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="ViewSphereSizeCombo">
-            <property name="toolTip">
-             <string>Set View Sphere size</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>Disabled</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Small</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Medium</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Large</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QComboBox" name="ViewSphereLocationCombo">
-            <property name="toolTip">
-             <string>Set View Sphere location</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>Top Left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Top Right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bottom Left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bottom Right</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>Text Color:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <widget class="QToolButton" name="ViewSphereTextColorButton">
-            <property name="toolTip">
-             <string>Select View Sphere text colour</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="6">
-           <spacer name="horizontalSpacer_10">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>70</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="toolTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string>View Size:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>View Location:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QToolButton" name="ViewSphereColorButton">
-            <property name="toolTip">
-             <string>Select View Sphere colour</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Highlight Color:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="5">
-           <widget class="QToolButton" name="ViewSphereHighlightColorButton">
-            <property name="toolTip">
-             <string>Select View Sphere highlight colour</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Preview Size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="ViewSpherePreviewSizeCombo">
-            <item>
-             <property name="text">
-              <string>Disabled</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Small</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Medium</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Large</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Preview Location</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QComboBox" name="ViewSpherePreviewLocationCombo">
-            <item>
-             <property name="text">
-              <string>Top Left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Top Right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bottom Left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bottom Right</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="themeColorsGroup">
-         <property name="title">
-          <string>Colors</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
-           <widget class="QPushButton" name="ResetColorsButton">
-            <property name="toolTip">
-             <string>Reset interface colors to theme default</string>
-            </property>
-            <property name="text">
-             <string>Reset...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>142</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -1909,24 +2057,30 @@
   <tabstop>cameraDefaultPosition</tabstop>
   <tabstop>resetDefaultPosition</tabstop>
   <tabstop>cameraDistanceFactor</tabstop>
+  <tabstop>tabWidget_2</tabstop>
   <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>AxesColorButton</tabstop>
-  <tabstop>ActiveViewColorButton</tabstop>
   <tabstop>OverlayColorButton</tabstop>
+  <tabstop>ActiveViewColorButton</tabstop>
   <tabstop>BackgroundColorButton</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridStudColor</tabstop>
   <tabstop>gridLines</tabstop>
   <tabstop>gridLineSpacing</tabstop>
   <tabstop>gridLineColor</tabstop>
+  <tabstop>ResetColorsButton</tabstop>
   <tabstop>ViewSphereSizeCombo</tabstop>
   <tabstop>ViewSphereLocationCombo</tabstop>
-  <tabstop>ViewSpherePreviewSizeCombo</tabstop>
-  <tabstop>ViewSpherePreviewLocationCombo</tabstop>
+  <tabstop>PreviewViewSphereSizeCombo</tabstop>
+  <tabstop>PreviewViewSphereLocationCombo</tabstop>
   <tabstop>ViewSphereColorButton</tabstop>
   <tabstop>ViewSphereTextColorButton</tabstop>
   <tabstop>ViewSphereHighlightColorButton</tabstop>
-  <tabstop>ResetColorsButton</tabstop>
+  <tabstop>PreviewSizeCombo</tabstop>
+  <tabstop>PreviewLocationCombo</tabstop>
+  <tabstop>PreviewPositionCombo</tabstop>
+  <tabstop>PreviewViewSphereCheckBox</tabstop>
+  <tabstop>PreviewAxisIconCheckBox</tabstop>
   <tabstop>partsLibrary</tabstop>
   <tabstop>partsLibraryBrowse</tabstop>
   <tabstop>partsArchiveBrowse</tabstop>
@@ -1944,10 +2098,10 @@
   <tabstop>authorName</tabstop>
   <tabstop>mouseSensitivity</tabstop>
   <tabstop>viewPieceIconsRadio</tabstop>
-  <tabstop>viewColorIconsRadio</tabstop>
   <tabstop>fixedDirectionKeys</tabstop>
   <tabstop>autoLoadMostRecent</tabstop>
   <tabstop>RestoreTabLayout</tabstop>
+  <tabstop>viewColorIconsRadio</tabstop>
   <tabstop>categoriesTree</tabstop>
   <tabstop>partsTree</tabstop>
   <tabstop>importCategories</tabstop>

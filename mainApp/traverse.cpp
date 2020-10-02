@@ -3253,12 +3253,14 @@ int Gui::findPage(
               break;
 
             case BuildModEnableRc:
-              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
-                  if (Preferences::buildModEnabled != meta.LPub.buildModEnabled.value()) {
-                      Preferences::buildModEnabled  = meta.LPub.buildModEnabled.value();
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+              {
+                  bool enabled = meta.LPub.buildModEnabled.value();
+                  if (Preferences::buildModEnabled != enabled) {
+                      Preferences::buildModEnabled  = enabled;
                       enableBuildModMenuAndActions();
                       emit messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                      .arg(meta.LPub.buildModEnabled.value() ? "Enabled" : "Disabled"));
+                                      .arg(enabled ? "Enabled" : "Disabled"));
                   }
               }
               break;

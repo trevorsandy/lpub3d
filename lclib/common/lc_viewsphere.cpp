@@ -37,10 +37,10 @@ lcViewSphere::lcViewSphere(PreviewWidget* Preview, bool subPreview)
 	mMouseDown = false;
 
 	// set size small for substitue part dialogue preview
-	if (subPreview && lcGetPreferences().mViewSpherePreviewSize != 50)
-		mViewSphereSize = lcGetPreferences().mViewSpherePreviewSize * 0.70;
+	if (subPreview && lcGetPreferences().mPreviewViewSphereSize != 50)
+		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize * 0.70;
 	else
-		mViewSphereSize = lcGetPreferences().mViewSpherePreviewSize;
+		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize;
 }
 /*** LPub3D Mod end ***/
 
@@ -189,7 +189,7 @@ void lcViewSphere::Draw()
 	lcContext* Context = mIsPreview ? mPreview->mContext : mView->mContext;
 	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
 	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;
-	lcViewSphereLocation Location = mIsPreview ? Preferences.mViewSpherePreviewLocation : Preferences.mViewSphereLocation;
+	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
 /*** LPub3D Mod end ***/
 
 	int Left = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
@@ -351,7 +351,7 @@ std::bitset<6> lcViewSphere::GetIntersectionFlags(lcVector3& Intersection) const
 {
 	const lcPreferences& Preferences = lcGetPreferences();
 /*** LPub3D Mod - preview widget ***/
-	lcViewSphereLocation Location = mIsPreview ? Preferences.mViewSpherePreviewLocation : Preferences.mViewSphereLocation;
+	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
 
 	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
 	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;

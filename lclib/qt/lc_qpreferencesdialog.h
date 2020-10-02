@@ -66,7 +66,9 @@ public slots:
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
 /*** LPub3D Mod - preview widget ***/
-	void on_ViewSpherePreviewSizeCombo_currentIndexChanged(int Index);
+    void on_PreviewSizeCombo_currentIndexChanged(int Index);
+    void on_PreviewViewSphereSizeCombo_currentIndexChanged(int Index);
+    void on_PreviewPositionCombo_currentIndexChanged(int Index);
 /*** LPub3D Mod end ***/    
 /*** LPub3D Mod - Native Renderer settings ***/
 	void on_ViewpointsCombo_currentIndexChanged(int index);

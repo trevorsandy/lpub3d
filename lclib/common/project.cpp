@@ -19,9 +19,6 @@
 #include "lpub.h"
 #include "annotations.h"
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-#include "previewwidget.h"
-/*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 {
@@ -75,8 +72,7 @@ void lcHTMLExportOptions::SaveDefaults()
 
 /*** LPub3D Mod - preview widget ***/
 Project::Project(bool isPreview)
-	: mIsPreview(isPreview),
-	  mIsUnofficialPart(false)
+	: mIsPreview(isPreview)
 {
 /*** LPub3D Mod - preview widget ***/
 	mModified = false;
@@ -433,23 +429,14 @@ void Project::SetFileName(const QString& FileName)
 	mFileName = FileName;
 }
 
-bool Project::Load(const QString& FileName, int PartColorCode)
+bool Project::Load(const QString& FileName)
 {
 	QFile File(FileName);
 
 /*** LPub3D Mod - preview widget ***/
 	QWidget *parent = nullptr;
-	int UnoffPartColorCode = LDRAW_MATERIAL_COLOUR;
-	if (mIsPreview) {
-		QString PartName = QFileInfo(FileName).fileName();
-		if ((gui->isUnofficialPart(PartName) ||
-			 gui->isUnofficialSubPart(PartName))) {
-			mIsUnofficialPart  = true;
-			UnoffPartColorCode = PartColorCode;
-		}
-	} else {
+	if (!mIsPreview)
 		parent = gMainWindow;
-	}
 /*** LPub3D Mod end ***/
 
 	if (!File.open(QIODevice::ReadOnly))
@@ -483,11 +470,7 @@ bool Project::Load(const QString& FileName, int PartColorCode)
 
 		while (!Buffer.atEnd())
 		{
-/*** LPub3D Mod - preview widget ***/
 			lcModel* Model = new lcModel(QString(), mIsPreview);
-			if (mIsUnofficialPart)
-				Model->SetUnoffPartColorCode(UnoffPartColorCode);
-/*** LPub3D Mod end ***/
 
 			int Pos = Model->SplitMPD(Buffer);
 

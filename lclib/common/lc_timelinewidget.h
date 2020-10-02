@@ -21,17 +21,23 @@ public slots:
 	void CurrentItemChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous);
 	void ItemSelectionChanged();
 	void CustomMenuRequested(QPoint Pos);
+/*** LPub3D Mod - Part selection preview ***/
+	void PreviewSelection(QTreeWidgetItem* Current);
+/*** LPub3D Mod end ***/
 
 protected:
 	void dropEvent(QDropEvent* DropEvent) override;
 	void mousePressEvent(QMouseEvent* MouseEvent) override;
 	void UpdateModel();
 	void UpdateCurrentStepItem();
+/*** LPub3D Mod - Part selection preview ***/
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
-    void GetIcon(int Size, int ColorIndex, bool IsModel);
-    bool GetPieceIcon(int Size, QString IconUID);
+	void GetIcon(int Size, int ColorIndex, bool IsModel);
+	bool GetPieceIcon(int Size, QString IconUID);
 
-    QMap<QString, QIcon> mPieceIcons;
+	QMap<QString, QIcon> mPieceIcons;
 /*** LPub3D Mod end ***/
 	QMap<int, QIcon> mIcons;
 	QMap<lcPiece*, QTreeWidgetItem*> mItems;

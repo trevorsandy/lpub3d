@@ -5,6 +5,12 @@
 #include "pieceinf.h"
 #include "lc_mainwindow.h"
 
+/*** LPub3D Mod - Part selection preview ***/
+#include "lc_qglwidget.h"
+#include "previewwidget.h"
+#include "lpubalert.h"
+/*** LPub3D Mod end ***/
+
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
 {
@@ -602,6 +608,99 @@ void lcTimelineWidget::mousePressEvent(QMouseEvent* Event)
 	else
 		QTreeWidget::mousePressEvent(Event);
 }
+
+/*** LPub3D Mod - Part selection preview ***/
+void lcTimelineWidget::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	QTreeWidget::mouseDoubleClickEvent(event);
+	if ( event->button() == Qt::LeftButton ) {
+		QTreeWidgetItem* CurrentItem = currentItem();
+		PreviewSelection(CurrentItem);
+	}
+}
+
+void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
+{
+	lcPiece* Piece = (lcPiece*)Current->data(0, Qt::UserRole).value<uintptr_t>();
+	if (!Piece)
+		return;
+
+	PieceInfo* Info = Piece->mPieceInfo;
+	if (!Info)
+		return;
+
+	bool IsSubfile    = Info->IsModel();
+	QString PartType  = Info->mFileName;
+	quint32 ColorCode = IsSubfile ? LDRAW_MATERIAL_COLOUR :
+									Piece->mColorCode;
+
+	if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
+		emit gMainWindow->previewPieceSig(PartType, ColorCode);
+		return;
+	}
+
+	if (!lcGetPreferences().mPreviewEnabled)
+		return;
+
+	QString TypeLabel    = IsSubfile ? "Submodel" : "Part";
+	QString WindowTitle  = QString("%1 Preview").arg(TypeLabel);
+
+	PreviewWidget *Preview = new PreviewWidget();
+
+	lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+
+	if (Preview && ViewWidget) {
+		if (!Preview->SetCurrentPiece(PartType, ColorCode))
+			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(PartType));
+
+		ViewWidget->setWindowTitle(WindowTitle);
+		int Size[2] = { 300,200 };
+		if (lcGetPreferences().mPreviewSize == 400) {
+			Size[0] = 400; Size[1] = 300;
+		}
+		ViewWidget->preferredSize = QSize(Size[0], Size[1]);
+		float Scale               = ViewWidget->deviceScale();
+		Preview->mWidth           = ViewWidget->width()  * Scale;
+		Preview->mHeight          = ViewWidget->height() * Scale;
+
+		const QRect desktop = QApplication::desktop()->geometry();
+
+		QPoint pos;
+		switch (lcGetPreferences().mPreviewLocation)
+		{
+		case lcPreviewLocation::TopRight:
+			pos = mapToGlobal(rect().topRight());
+			break;
+		case lcPreviewLocation::TopLeft:
+			pos = mapToGlobal(rect().topLeft());
+			break;
+		case lcPreviewLocation::BottomRight:
+			pos = mapToGlobal(rect().bottomRight());
+			break;
+		default:
+			pos = mapToGlobal(rect().bottomLeft());
+			break;
+		}
+		if (pos.x() < desktop.left())
+			pos.setX(desktop.left());
+		if (pos.y() < desktop.top())
+			pos.setY(desktop.top());
+
+		if ((pos.x() + ViewWidget->width()) > desktop.width())
+			pos.setX(desktop.width() - ViewWidget->width());
+		if ((pos.y() + ViewWidget->height()) > desktop.bottom())
+			pos.setY(desktop.bottom() - ViewWidget->height());
+		ViewWidget->move(pos);
+
+		ViewWidget->setMinimumSize(100,100);
+		ViewWidget->show();
+		ViewWidget->setFocus();
+	} else {
+		emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.")
+								   .arg(Info->mFileName));
+	}
+}
+/*** LPub3D Mod end ***/
 
 void lcTimelineWidget::UpdateModel()
 {

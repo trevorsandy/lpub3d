@@ -3184,15 +3184,6 @@ bool Render::LoadStepProject(Project* StepProject, const ViewerOptions *O)
     {
         lcModel* Model = StepProject->GetModels()[0];
 
-        // Set isUnofficial part fileName
-        if (O->ImageType == Options::Mt::PLI) {
-            QString FileName = Model->GetProperties().mModelName;
-            if ((gui->isUnofficialPart(FileName) ||
-                 gui->isUnofficialSubPart(FileName))) {
-                StepProject->SetIsUnofficialPart(true);
-            }
-        }
-
         if (Model->GetProperties().mFileName.isEmpty())
         {
             Model->SetFileName(FileInfo.fileName());

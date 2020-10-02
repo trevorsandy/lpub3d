@@ -99,8 +99,6 @@ private:
 
   QGridLayout              *previewLayout;
   PreviewWidget            *Preview;
-  Project                  *PreviewProject;
-  lcModel                  *ActiveModel;
   lcQGLWidget              *ViewWidget;
 };
 

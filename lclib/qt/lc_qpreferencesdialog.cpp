@@ -131,28 +131,54 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->ViewSphereSizeCombo->setCurrentIndex(0);
 	
 /*** LPub3D Mod - preview widget ***/
-	ui->ViewSpherePreviewLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSpherePreviewLocation);
+	ui->PreviewAxisIconCheckBox->setChecked(mOptions->Preferences.mDrawPreviewAxis);
 
-	if (mOptions->Preferences.mViewSphereEnabled)
+	ui->PreviewViewSphereCheckBox->setChecked(mOptions->Preferences.mDrawPreviewViewSphere);
+
+	ui->PreviewLocationCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewLocation);
+
+	ui->PreviewPositionCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewPosition);
+
+	if (mOptions->Preferences.mPreviewEnabled)
 	{
-		switch (mOptions->Preferences.mViewSpherePreviewSize)
+		switch (mOptions->Preferences.mPreviewSize)
 		{
-		case 100:
-			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(3);
+		case 400:
+			ui->PreviewSizeCombo->setCurrentIndex(2);
 			break;
-		case 75:
-			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(2);
+		case 300:
+			ui->PreviewSizeCombo->setCurrentIndex(1);
 			break;
-		case 50:
-			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(1);
-			break;
-		default:
-			ui->ViewSpherePreviewSizeCombo->setCurrentIndex(0);
+		default: /*Disabled*/
+			ui->PreviewSizeCombo->setCurrentIndex(0);
 			break;
 		}
 	}
 	else
-		ui->ViewSpherePreviewSizeCombo->setCurrentIndex(0);
+		ui->PreviewSizeCombo->setCurrentIndex(0);
+
+	ui->PreviewViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewViewSphereLocation);
+
+	if (mOptions->Preferences.mPreviewViewSphereEnabled)
+	{
+		switch (mOptions->Preferences.mPreviewViewSphereSize)
+		{
+		case 100:
+			ui->PreviewViewSphereSizeCombo->setCurrentIndex(3);
+			break;
+		case 75:
+			ui->PreviewViewSphereSizeCombo->setCurrentIndex(2);
+			break;
+		case 50:
+			ui->PreviewViewSphereSizeCombo->setCurrentIndex(1);
+			break;
+		default:
+			ui->PreviewViewSphereSizeCombo->setCurrentIndex(0);
+			break;
+		}
+	}
+	else
+		ui->PreviewViewSphereSizeCombo->setCurrentIndex(0);
 /*** LPub3D Mod end ***/
 
 	ui->studLogo->setChecked(mOptions->StudLogo);
@@ -213,7 +239,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_gridLines_toggled();
 	on_ViewSphereSizeCombo_currentIndexChanged(ui->ViewSphereSizeCombo->currentIndex());
 /*** LPub3D Mod - preview widget ***/
-	on_ViewSpherePreviewSizeCombo_currentIndexChanged(ui->ViewSpherePreviewSizeCombo->currentIndex());
+	on_PreviewViewSphereSizeCombo_currentIndexChanged(ui->PreviewViewSphereSizeCombo->currentIndex());
+	on_PreviewSizeCombo_currentIndexChanged(ui->PreviewSizeCombo->currentIndex());
+	on_PreviewPositionCombo_currentIndexChanged(ui->PreviewPositionCombo->currentIndex());
+	ui->PreviewLocationCombo->setEnabled(
+				ui->PreviewSizeCombo->currentIndex() != 0 &&
+				ui->PreviewPositionCombo->currentIndex() != 0);
 /*** LPub3D Mod end ***/    
 
 	updateCategories();
@@ -392,18 +423,39 @@ void lcQPreferencesDialog::accept()
 		mOptions->StudLogo = 0;
 
 /*** LPub3D Mod - preview widget ***/   
-	mOptions->Preferences.mViewSpherePreviewLocation = (lcViewSphereLocation)ui->ViewSpherePreviewLocationCombo->currentIndex();
+	mOptions->Preferences.mDrawPreviewAxis = ui->PreviewAxisIconCheckBox->isChecked();
 
-	switch (ui->ViewSpherePreviewSizeCombo->currentIndex())
+	mOptions->Preferences.mDrawPreviewViewSphere = ui->PreviewViewSphereCheckBox->isChecked();
+
+	mOptions->Preferences.mPreviewLocation = (lcPreviewLocation)ui->PreviewLocationCombo->currentIndex();
+
+	mOptions->Preferences.mPreviewPosition = (lcPreviewPosition)ui->PreviewPositionCombo->currentIndex();
+
+	switch (ui->PreviewSizeCombo->currentIndex())
 	{
-	case 3:
-		mOptions->Preferences.mViewSpherePreviewSize = 100;
-		break;
 	case 2:
-		mOptions->Preferences.mViewSpherePreviewSize = 75;
+		mOptions->Preferences.mPreviewSize = 400;
 		break;
 	case 1:
-		mOptions->Preferences.mViewSpherePreviewSize = 50;
+		mOptions->Preferences.mPreviewSize = 300;
+		break;
+	default:
+		mOptions->Preferences.mPreviewEnabled = 0;
+		break;
+	}
+
+	mOptions->Preferences.mPreviewViewSphereLocation = (lcViewSphereLocation)ui->PreviewViewSphereLocationCombo->currentIndex();
+
+	switch (ui->PreviewViewSphereSizeCombo->currentIndex())
+	{
+	case 3:
+		mOptions->Preferences.mPreviewViewSphereSize = 100;
+		break;
+	case 2:
+		mOptions->Preferences.mPreviewViewSphereSize = 75;
+		break;
+	case 1:
+		mOptions->Preferences.mPreviewViewSphereSize = 50;
 		break;
 	default:
 		break;
@@ -640,9 +692,24 @@ void lcQPreferencesDialog::on_gridLines_toggled()
 }
 
 /*** LPub3D Mod - preview widget ***/
-void lcQPreferencesDialog::on_ViewSpherePreviewSizeCombo_currentIndexChanged(int Index)
+void lcQPreferencesDialog::on_PreviewViewSphereSizeCombo_currentIndexChanged(int Index)
 {
-	ui->ViewSpherePreviewLocationCombo->setEnabled(Index != 0);
+	ui->PreviewViewSphereLocationCombo->setEnabled(Index != 0);
+}
+
+void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
+{
+	ui->PreviewLocationCombo->setEnabled(Index != 0);
+	if (ui->PreviewPositionCombo->currentIndex() != 0)
+		ui->PreviewPositionCombo->setEnabled(Index != 0);
+	ui->PreviewAxisIconCheckBox->setEnabled(Index != 0);
+	ui->PreviewViewSphereCheckBox->setEnabled(Index != 0);
+}
+
+void lcQPreferencesDialog::on_PreviewPositionCombo_currentIndexChanged(int Index)
+{
+	ui->PreviewSizeCombo->setEnabled(Index != 0);
+	ui->PreviewLocationCombo->setEnabled(Index != 0);
 }
 /*** LPub3D Mod end ***/  
 

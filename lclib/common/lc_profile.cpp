@@ -174,9 +174,16 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "ActivePreviewColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_ACTIVE_PREVIEW_COLOR                      /*** LPub3D Mod - preview widget ***/
-    lcProfileEntry("Settings", "ViewSpherePreviewSize", 75),                                  // LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE                  /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "ViewSpherePreviewLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION         /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewActiveColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_PREVIEW_ACTIVE_COLOR                      /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                 // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED               /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                   // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE                  /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION           /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED                           /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE                              /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION                          /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION                          /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                          // LC_PROFILE_PREVIEW_DRAW_AXES                         /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "DrawPreviewViewSphere",1)                                      // LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE                  /*** LPub3D Mod - preview widget ***/
 /*** LPub3D Mod end ***/
 };
 

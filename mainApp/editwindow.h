@@ -100,6 +100,7 @@ signals:
     void updateDisabledSig(bool);
     void editModelFileSig();
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
+    void previewPieceSig(const QString &, int);
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);

@@ -663,7 +663,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_DARK_AXES_COLOR                  THEME_DEFAULT_AXES_COLOR        // 0, 0, 0, 255       LC_PROFILE_AXES_COLOR
 #define THEME_DARK_OVERLAY_COLOR               THEME_DEFAULT_AXES_COLOR        // 0, 0, 0, 255       LC_PROFILE_OVERLAY_COLOR
 #define THEME_DARK_ACTIVE_VIEW_COLOR           "#2980B9"                       // 41, 128, 185, 255  LC_PROFILE_ACTIVE_VIEW_COLOR
-#define THEME_DARK_ACTIVE_PREVIEW_COLOR        "#999999"                       // 153, 153, 153,255  LC_PROFILE_ACTIVE_PREVIEW_COLOR
+#define THEME_DARK_ACTIVE_PREVIEW_COLOR        "#999999"                       // 153, 153, 153,255  LC_PROFILE_PREVIEW_ACTIVE_COLOR
 #define THEME_DARK_GRID_STUD_COLOR             "#181818"                       // 24, 24, 24, 192    LC_PROFILE_GRID_STUD_COLOR
 #define THEME_DARK_GRID_LINE_COLOR             THEME_DARK_GRID_STUD_COLOR      // 24, 24, 24, 255    LC_PROFILE_GRID_LINE_COLOR
 #define THEME_DARK_VIEW_SPHERE_COLOR           "#232629"                       // 35, 38, 41, 255    LC_PROFILE_VIEW_SPHERE_COLOR

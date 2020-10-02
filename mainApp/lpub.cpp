@@ -2915,8 +2915,9 @@ Gui::Gui()
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
-    displayPageNum = 1;
-    numPrograms    = 0;
+    PreviewWidget     = nullptr;
+    displayPageNum    = 1;
+    numPrograms       = 0;
 
     processOption                   = EXPORT_ALL_PAGES;
     exportMode                      = EXPORT_PDF;
@@ -3003,11 +3004,18 @@ Gui::Gui()
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));
 
+    connect(this,           SIGNAL(previewPieceSig(const QString &,int)),
+            this,           SLOT(previewPiece(const QString &,int)));
+
+
     // Gui - ParmsWindow
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
     // Gui - EditWindow
+    connect(editWindow,     SIGNAL(previewPieceSig(const QString &,int)),
+            this,           SLOT(previewPiece(const QString &,int)));
+
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
             editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
 
@@ -5333,6 +5341,8 @@ void Gui::createDockWindows()
     fileEditDockWindow->setWidget(editWindow);
     addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
     viewMenu->addAction(fileEditDockWindow->toggleViewAction());
+
+    connect(fileEditDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
 
     create3DDockWindows();
 

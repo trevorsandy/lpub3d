@@ -419,6 +419,7 @@ class lcPreferences;
 class lcPiecesLibrary;
 class lcModel;
 class lcPartSelectionWidget;
+class PreviewDockWidget;
 class View;
 
 class ColourPartListWorker;
@@ -1062,6 +1063,8 @@ public slots:
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
+  void previewPiece(const QString &type, int colorCode);
+  void togglePreviewWidget(bool);
 
   QString getViewerStepKey()
   {
@@ -1325,6 +1328,7 @@ signals:
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);
+  void previewPieceSig(const QString &, int);
   void clearEditorWindowSig();
   void setTextEditHighlighterSig();
 
@@ -1617,6 +1621,7 @@ private slots:
 
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
+    void enableWindowFlags(bool);
 
     // Begin Jaco's code
 
@@ -1736,11 +1741,16 @@ private:
   void writeSettings();
   void readNativeSettings();
   void writeNativeSettings();
+  bool createPreviewWidget();
 
   QDockWidget       *fileEditDockWindow;
-//** 3D
+
   QDockWidget       *viewerDockWindow;
-//**
+
+  QDockWidget       *previewDockWindow;
+
+  // Preview widget;
+  PreviewDockWidget *PreviewWidget;
 
   // Menus
   QMenu    *fileMenu;

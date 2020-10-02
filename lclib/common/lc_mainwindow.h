@@ -371,7 +371,7 @@ public:
 	void ToggleFullScreen();
 
 /*** LPub3D Mod - selected Line ***/
-    void UpdateSelectedObjects(bool SelectionChanged, int SelectionType = VIEWER_LINE);
+	void UpdateSelectedObjects(bool SelectionChanged, int SelectionType = VIEWER_LINE);
 /*** LPub3D Mod end ***/
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
@@ -447,6 +447,10 @@ public slots:
 
 /*** LPub3D Mod - signals ***/
 signals:
+/*** LPub3D Mod - preview widget ***/
+	void previewPieceSig(const QString &, int);
+	void togglePreviewWidgetSig(bool);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - rotate step signals ***/
 	QVector<float> GetRotStepMeta();   // used to capture step meta angles
 	void SetRotStepMeta();

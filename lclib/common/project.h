@@ -151,16 +151,6 @@ public:
 
 	void SetFileName(const QString& FileName); // moved from protected
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-	void SetIsUnofficialPart(bool value)
-	{
-		mIsUnofficialPart = value;
-	}
-	bool IsUnofficialPart() const
-	{
-		return mIsUnofficialPart;
-	}
-/*** LPub3D Mod end ***/
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
@@ -173,7 +163,7 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
-	bool Load(const QString& FileName, int PartColorCode = -1);
+	bool Load(const QString& FileName);
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);
@@ -216,7 +206,6 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
 	bool mIsPreview;
-	bool mIsUnofficialPart;
 /*** LPub3D Mod end ***/
 };
 

@@ -44,10 +44,6 @@
 #include "dependencies.h"
 
 #include "lc_qglwidget.h"
-#include "lc_model.h"
-#include "lc_library.h"
-#include "project.h"
-
 #include "previewwidget.h"
 
 const Where &SubModel::topOfStep()
@@ -1204,67 +1200,36 @@ void SMGraphicsPixmapItem::previewSubModel()
 {
     int colorCode        = part->color.toInt();
     QString partType     = part->type;
-    bool isSubfile       = gui->isSubmodel(part->type);
 
+    if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
+        emit gui->previewPieceSig(partType, colorCode);
+        return;
+    }
+
+    if (!lcGetPreferences().mPreviewEnabled)
+        return;
+
+    bool isSubfile       = gui->isSubmodel(part->type);
     QString typeLabel    = isSubfile ? "Submodel" : "Part";
     QString windowTitle  = QString("%1 Preview").arg(typeLabel);
 
-    auto showErrorMessage = [&partType, &windowTitle, &typeLabel] (const QString message) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        if (_icon.isNull())
-            _icon = QPixmap (":/icons/update.png");
+    PreviewWidget *Preview = new PreviewWidget();
 
-        QMessageBox box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(windowTitle);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        QString title = "<b>" + QString ("%1 preview encountered and eror.").arg(typeLabel) + "</b>";
-        QString text  = QString ("%1 '%2' failed to load in the preview window").arg(typeLabel).arg(partType);
-        box.setText (title);
-        box.setInformativeText (message.isEmpty() ? text : message);
-        box.setStandardButtons (QMessageBox::Ok);
-
-        box.exec();
-    };
-
-    PreviewWidget *Preview        = nullptr;
-    Project       *PreviewProject = nullptr;
-    lcModel       *ActiveModel    = nullptr;
-    lcQGLWidget   *ViewWidget     = nullptr;
-
-    PreviewProject = new Project(true/*isPreview*/);
-
-    if (isSubfile) {
-        QString modelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(partType);
-
-        if (!PreviewProject->Load(modelPath, colorCode)) {
-            showErrorMessage(QString("Failed to load '%1'.").arg(modelPath));
-            return;
-        }
-
-        if (PreviewProject->IsUnofficialPart())
-            windowTitle  = QString("Unofficial Part Preview");
-
-        emit gui->messageSig(LOG_DEBUG, QString("Preview Subfile: %1").arg(modelPath));
-
-        partType.clear(); // trigger Subfile flag in PreviewWidget constructor
-    }
-
-    PreviewProject->SetActiveModel(0);
-
-    lcGetPiecesLibrary()->RemoveTemporaryPieces();
-
-    ActiveModel = PreviewProject->GetActiveModel();
-
-    Preview  = new PreviewWidget(ActiveModel, partType, colorCode);
-
-    ViewWidget  = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
     if (Preview && ViewWidget) {
+        if (!Preview->SetCurrentPiece(partType, colorCode))
+            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+
+        QString typeLabel    = isSubfile ? "Submodel" : "Part";
+        QString windowTitle  = QString("%1 Preview").arg(typeLabel);
+
         ViewWidget->setWindowTitle(windowTitle);
-        ViewWidget->preferredSize = QSize(300, 200);
+        int Size[2] = { 300,200 };
+        if (lcGetPreferences().mPreviewSize == 400) {
+            Size[0] = 400; Size[1] = 300;
+        }
+        ViewWidget->preferredSize = QSize(Size[0], Size[1]);
         float Scale               = ViewWidget->deviceScale();
         Preview->mWidth           = ViewWidget->width()  * Scale;
         Preview->mHeight          = ViewWidget->height() * Scale;
@@ -1272,7 +1237,22 @@ void SMGraphicsPixmapItem::previewSubModel()
         const QRect desktop = QApplication::desktop()->geometry();
 
         QGraphicsView *view = subModel->background->scene()->views().first();
-        QPointF sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
+        QPointF sceneP;
+        switch (lcGetPreferences().mPreviewLocation)
+        {
+        case lcPreviewLocation::TopRight:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topRight());
+            break;
+        case lcPreviewLocation::TopLeft:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topLeft());
+            break;
+        case lcPreviewLocation::BottomRight:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomRight());
+            break;
+        default:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
+            break;
+        }
         QPoint viewP = view->mapFromScene(sceneP);
         QPoint pos = view->viewport()->mapToGlobal(viewP);
         if (pos.x() < desktop.left())
@@ -1286,12 +1266,12 @@ void SMGraphicsPixmapItem::previewSubModel()
             pos.setY(desktop.bottom() - ViewWidget->height());
         ViewWidget->move(pos);
 
+        ViewWidget->setMinimumSize(100,100);
         ViewWidget->show();
         ViewWidget->setFocus();
-        Preview->ZoomExtents();
-
     } else {
-        showErrorMessage(QString());
+        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.")
+                                   .arg(partType));
     }
 }
 

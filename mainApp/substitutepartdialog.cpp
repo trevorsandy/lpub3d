@@ -36,14 +36,10 @@
 #include "pli.h"
 #include "color.h"
 
+#include "pieceinf.h"
+
 #include "lc_qglwidget.h"
 #include "previewwidget.h"
-#include "messageboxresizable.h"
-#include "pieceinf.h"
-#include "lc_application.h"
-#include "lc_model.h"
-#include "lc_library.h"
-#include "project.h"
 
 SubstitutePartDialog::SubstitutePartDialog(
     const QStringList &attributes,
@@ -530,27 +526,6 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
     if (ok)
         colorCode = validCode;
 
-    auto showErrorMessage = [] (const QString &partType)
-    {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        if (_icon.isNull())
-            _icon = QPixmap (":/icons/update.png");
-
-        QMessageBoxResizable box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(tr ("Part Preview"));
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        QString title = "<b>" + tr ("Part preview encountered and eror.") + "</b>";
-        QString text  = tr("Part '%2' failed to load in the preview window").arg(partType);
-        box.setText (title);
-        box.setInformativeText (text);
-        box.setStandardButtons (QMessageBox::Ok);
-
-        box.exec();
-    };
-
     if (!mViewWidgetEnabled) {
         ui->previewFrame->setFrameStyle(QFrame::StyledPanel);
         ui->previewFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -562,39 +537,24 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
         previewLayout->setContentsMargins(0, 0, 0, 0);
         ui->previewFrame->setLayout(previewLayout);
 
-        Preview        = nullptr;
-        PreviewProject = nullptr;
-        ActiveModel    = nullptr;
-        ViewWidget     = nullptr;
-
-        PreviewProject = new Project(true/*isPreview*/);
-
-        PreviewProject->SetActiveModel(0);
-
-        lcGetPiecesLibrary()->RemoveTemporaryPieces();
-
-        ActiveModel = PreviewProject->GetActiveModel();
-
-        Preview     = new PreviewWidget(ActiveModel, partType, colorCode, true/*isSubPreview*/);
-
-        ViewWidget  = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+        Preview    = new PreviewWidget(true/*substitute preview*/);
+        ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
         if (Preview && ViewWidget) {
+            if (!Preview->SetCurrentPiece(partType, colorCode))
+                emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
             previewLayout->addWidget(ViewWidget);
             ViewWidget->preferredSize = ui->previewFrame->size();
             float Scale               = ViewWidget->deviceScale();
             Preview->mWidth           = ViewWidget->width()  * Scale;
             Preview->mHeight          = ViewWidget->height() * Scale;
             mViewWidgetEnabled        = true;
-            Preview->ZoomExtents();
-
         } else {
-            showErrorMessage(partType);
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
         }
-
     } else if (Preview) {
-        Preview->SetCurrentPiece(partType, colorCode);
-        Preview->ZoomExtents();
+        if (!Preview->SetCurrentPiece(partType, colorCode))
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
     }
 }
 
