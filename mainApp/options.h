@@ -167,7 +167,7 @@ public:
             bool             _printing,
             int              _buildModLevel,
             int              _contStepNumber,
-            int              _renderStepNumber  = 0,
+            int              _groupStepNumber = 0,
             QString          _renderParentModel = "")
         :
           pageNum           (_pageNum),
@@ -179,7 +179,7 @@ public:
           printing          (_printing),
           buildModLevel     (_buildModLevel),
           contStepNumber    (_contStepNumber),
-          renderStepNumber  (_renderStepNumber),
+          groupStepNumber   (_groupStepNumber),
           renderParentModel (_renderParentModel)
     {  }
     int           &pageNum;
@@ -191,7 +191,7 @@ public:
     bool           printing;
     int            buildModLevel;
     int            contStepNumber;
-    int            renderStepNumber;
+    int            groupStepNumber;
     QString        renderParentModel;
 };
 
