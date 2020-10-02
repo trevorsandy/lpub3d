@@ -1027,14 +1027,19 @@ int Application::run()
   return ExecReturn;
 }
 
-void clearCustomPartCache(bool silent)
+void clearAndReloadModelFileFromSettings()
 {
-    gui->clearCustomPartCache(silent);
+    gui->clearAndReloadModelFile(true);
 }
 
 void clearAndReloadModelFile()
 {
     gui->clearAndReloadModelFile();
+}
+
+void clearCustomPartCache(bool silent)
+{
+    gui->clearCustomPartCache(silent);
 }
 
 void reloadCurrentPage(){

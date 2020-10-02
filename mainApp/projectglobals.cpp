@@ -76,9 +76,10 @@ GlobalProjectDialog::GlobalProjectDialog(
   
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
-  BuildModEnabledGui *childBuildModEnabledbersBox = new BuildModEnabledGui("Enable Build Modification functionality",&lpubMeta->buildModEnabled,box);
+  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable Build Modification functionality",&lpubMeta->buildModEnabled,box);
   box->setToolTip("Use Build Modification meta syntax. This functionality replaces or accompanies the legacy BUFEXCHG functionality.");
-  data->children.append(childBuildModEnabledbersBox);
+  data->children.append(childBuildModEnabled);
+  connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Consolidate Submodel Instances");
   box->setCheckable(true);
@@ -159,7 +160,7 @@ void GlobalProjectDialog::accept()
   mi.endMacro();
 
   if (data->clearCache) {
-      clearAndReloadModelFile();
+      clearAndReloadModelFileFromSettings();
   }
 
   QDialog::accept();

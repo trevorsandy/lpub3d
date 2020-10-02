@@ -1531,8 +1531,8 @@ void Gui::clearAndRedrawModelFile() {
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndReloadModelFile() {
-    if (sender() == editWindow) {
+void Gui::clearAndReloadModelFile(bool fromProjectSetup) {
+    if (sender() == editWindow || fromProjectSetup) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
