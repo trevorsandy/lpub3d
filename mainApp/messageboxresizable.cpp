@@ -43,10 +43,6 @@ void QMessageBoxResizable::showDetails(bool clicked){
     }
 }
 
-void QMessageBoxResizable::setText(const QString &text){
-    QMessageBox::setText(text);
-}
-
 void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
 
     if (text.isEmpty()) {

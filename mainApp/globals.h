@@ -348,7 +348,6 @@ class GlobalProjectDialog : public QDialog
   Q_OBJECT
 private:
   GlobalProjectPrivate *data;
-  ContStepNumGui *childContStepNumbersBox;
 
 public:
 
@@ -360,14 +359,5 @@ public slots:
   void accept();
   void cancel();
   void clearCache(bool);
-  void checkConflict(bool);
 };
-
-void clearPliCache();
-void clearAndReloadModelFileFromSettings();
-void clearCsiCache();
-void clearSubmodelCache();
-void clearPliCache();
-void clearTempCache();
-
 #endif

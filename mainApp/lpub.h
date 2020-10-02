@@ -1167,8 +1167,7 @@ public slots:
   void parseError(const QString errorMsg,
                   const Where &here,
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
-                  bool option = false,
-                  bool override = false);
+                  bool option = false);
 
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
@@ -1285,7 +1284,7 @@ public slots:
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
-  void clearAndReloadModelFile(bool fromProjectSetup = false);
+  void clearAndReloadModelFile();
   void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();

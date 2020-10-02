@@ -65,7 +65,6 @@ enum SceneObjectInfo { ObjectId };
 
 enum PartSource {
     NOT_FOUND          = -1,                   // -1
-    OUT_OF_BOUNDS      = NOT_FOUND,            // -1
     NEW_PART           = NOT_FOUND,            // -1
     NEW_MODEL          = NOT_FOUND,            // -1
     EDITOR_LINE,                               //  0

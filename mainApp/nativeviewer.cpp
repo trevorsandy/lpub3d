@@ -3101,8 +3101,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             // New part lines are added in createBuildModification() routine
             if (lineIndex != NEW_PART) {
                 validLine = getSelectedLine(modelIndex, lineIndex, source, lineNumber);
-                if (lineNumber != OUT_OF_BOUNDS)
-                    lines.append(lineNumber);
+                lines.append(lineNumber);
             }
 
             if (validLine) {
@@ -3130,19 +3129,17 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                                      .arg(modelName);
                     } else if (validLine) {
                         Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                     .arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
+                                     .arg(modelName).arg(lineNumber).arg(lineIndex);
                     } else {
                         Message = tr("%1 part lineNumber [%2] for step line index [%3]")
-                                     .arg(indexes.size() ? "Out of bounds" : "Invalid")
-                                     .arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineNumber));
+                                     .arg(indexes.size() ? "Out of bounds" : "Invalid").arg(lineNumber).arg(lineIndex);
                     }
                 } else if (validLine) { // valid and not from viewer
                     Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                 .arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
+                                 .arg(modelName).arg(lineIndex).arg(lineNumber);
                 } else {                // invalid and not from viewer
                     Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
-                                 .arg(indexes.size() ? "Out of bounds" : "Invalid")
-                                 .arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineNumber));
+                                 .arg(indexes.size() ? "Out of bounds" : "Invalid").arg(lineIndex).arg(lineNumber);
                 }
                 emit messageSig(LOG_TRACE, Message);
             }
@@ -3162,7 +3159,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                                               .arg(modelName));
             }
         } else { // indexes from editor
-            if (lines.size() && gMainWindow->isVisible())
+            if (gMainWindow->isVisible())
                 emit setSelectedPiecesSig(lines);
         }
     } // not exporting

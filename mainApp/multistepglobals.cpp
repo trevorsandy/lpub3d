@@ -256,22 +256,7 @@ void GlobalMultiStepDialog::pliPerStepStateChanged(int state)
 }
 
 void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state){
-    if (state && !data->meta.LPub.multiStep.pli.perStep.value()
-              && data->meta.LPub.contStepNumbers.value()) {
-        QMessageBox box;
-        box.setTextFormat (Qt::RichText);
-        box.setIcon (QMessageBox::Critical);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(tr ("Count Group Step Numbers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
-        box.setStandardButtons (QMessageBox::Ok);
-        QString text = "<b> Continuous step numbers conflict; </b>";
-        QString message = QString("Count group step numbers cannot coexist with continuous step numbers.");
-        box.setText (text);
-        box.setInformativeText (message);
-        box.exec();
-    } else {
-        countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(state);
-    }
+    countGrpStepsCheckBoxGui->getCheckBox()->setEnabled(state);
 }
 
 void GlobalMultiStepDialog::accept()

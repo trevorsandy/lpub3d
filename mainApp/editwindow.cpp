@@ -610,7 +610,7 @@ bool EditWindow::validPreviewLine ()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-        partType = partType.trimmed().toLower();
+        partType = partType.trimmed();
 
         if ((isSubfile = _subFileList.contains(partType))) {
             previewLineAct->setText(tr("Preview highlighted subfile..."));

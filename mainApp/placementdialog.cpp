@@ -56,37 +56,37 @@ const QString PlacementDialog::labels[][5] =
 };
 
 const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , Ph , Pf,  Tf,  At,  Ct,  Et,  Urlt, Ms}
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , Ph , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
   /*  3 StepNumber       Sn      */{Page , Csi , Pli                          , Ph , Pf},
   /*  4 Pli              Pli     */{Page , Csi       , Pn , Sn           , Sm , Ph , Pf},
   /*  5 Callout          Callout */{Page , Csi , Pli      , Sn                , Ph , Pf},
-  /*  6 PageNum          Pn      */{Page                                      , Ph , Pf},
+  /*  6 PageNum          Pn      */{Page , Csi , Pli , Pn , Sn , Callout      , Ph , Pf},
 
   /*  7 Title            Tt      */{Page},
-  /*  8 ModelName        Mnt     */{Page                                                , Tt},
+  /*  8 ModelName        Mnt     */{Page                                                                               , Tt},
   /*  9 Author           At      */{Page             , Pn                     , Ph , Pf , Tt ,      Ct , Et , Urlt},
   /* 10 Url              Urlt    */{Page             , Pn                     , Ph , Pf      , At , Ct , Et},
-  /* 11 ModelDesc        Mdt     */{Page                                                                           , Pt},
-  /* 12 PublishDesc      Pdt     */{Page                                                                           , Mdt},
+  /* 11 ModelDesc        Mdt     */{Page                                                                               , Pt},
+  /* 12 PublishDesc      Pdt     */{Page                                                                               , Mdt},
   /* 13 Copyright        Ct      */{Page             , Pn                     , Ph , Pf      , At ,      Et , Urlt},
   /* 14 Email            Et      */{Page             , Pn                     , Ph , Pf      , At , Ct ,      Urlt},
   /* 15 Disclaimer       Dt      */{Page                                                               , Et},
   /* 16 Parts            Pt      */{Page                                                     , At},
-  /* 17 Plug             Plt     */{Page                                                                           , Dt},
-  /* 18 SubmodelInsCount Sic     */{Page , Csi , Pli , Pn , Sn                , Ph, Pf       , At , Ct,  Et,  Urlt},
+  /* 17 Plug             Plt     */{Page                                                                               , Dt},
+  /* 18 SubmodelInsCount Sic     */{Page , Csi , Pli , Pn , Sn},
   /* 19 DocumentLogo     Dlt     */{Page                                      , Ph , Pf},
   /* 20 CoverImage       Cit     */{Page},
-  /* 21 PlugImage        Pit     */{Page                                           , Pf                            , Plt},
+  /* 21 PlugImage        Pit     */{Page                                           , Pf                                , Plt},
   /* 22 PageHeader       Ph      */{Page},
   /* 23 PageFooter       Pf      */{Page},
   /* 24 Category         Cat     */{Page             , Pn                     , Ph , Pf , Tt ,      Ct , Et , Urlt},
   /* 25 Submodel         Sm      */{Page , Csi , Pli , Pn , Sn                , Ph , Pf},
   /* 26 RotateIcon       Ri      */{Page , Csi , Pli      , Sn},
   /* 27 Csi Part         Cp      */{       Csi},
-  /* 28 Step             Stp     */{Page                                                                           , Rng},
+  /* 28 Step             Stp     */{Page , Rng},
   /* 29 Range                    */{Page},
   /* 30 Text                     */{Page                                      , Ph , Pf},
   /* 31 Bom                      */{Page                                      , Ph , Pf},
@@ -95,8 +95,8 @@ const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 33 SingleStep               */{Page , Csi},
   /* 34 Reserve                  */{Page},
   /* 35 CoverPage                */{Page},
-  /* 36 CsiAnnotationType        */{                             Callout                                           , Ms},
-  /* 37 DividerPointer           */{                                                                                 Cp}
+  /* 36 CsiAnnotationType        */{                             Callout ,               Ms},
+  /* 37 DividerPinter            */{       Cp}
 
   /* 38 NumRelatives             */
 };
@@ -178,7 +178,7 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "Page Header",                //22 Ph
   "Page Footer",                //23 Pf
   "Category",                   //24 Cat
-  "Submodel",                   //25 Sm
+  "Submodel",                   //25 Cat
   "Rotate Icon",                //26 Ri
   "CSI Part",                   //27 Cp
   "Step Rectangle",             //28 Stp
@@ -258,161 +258,154 @@ PlacementDialog::PlacementDialog(
 //                ;
 
   switch (parentType) {
-  case StepGroupType:                                //parent type [Multi-step page]
+    case StepGroupType:                             //parent type
       switch (placedType) {
-      case StepType:                 //placed type
-          oks << Page << Rng;
-          break;
-      case PageURLType:               //placed type
-          oks << Page << Pn << Ph << Pf;
-          break;
-      case PageEmailType:             //placed type
-          oks << Page << Pn << Ph << Pf             << Urlt;
-          break;
-      case PageAuthorType:            //placed type
-          oks << Page << Pn << Ph << Pf       << Et << Urlt;
-          break;
-      case PageCopyrightType:         //placed type
-          oks << Page << Pn << Ph << Pf << At << Et << Urlt;
-          break;
-      case PageNumberType:            //placed type
+        case StepType:                 //placed type
+            oks << Page << Rng;
+        break;
+        case PageURLType:               //placed type
+            oks << Page << Pn << Ph << Pf;
+        break;
+        case PageEmailType:             //placed type
+            oks << Page << Pn << Ph << Pf             << Urlt;
+        break;
+        case PageAuthorType:            //placed type
+            oks << Page << Pn << Ph << Pf       << Et << Urlt;
+        break;
+        case PageCopyrightType:         //placed type
+            oks << Page << Pn << Ph << Pf << At << Et << Urlt;
+        break;
+        case PartsListType:             //placed type
           if (pliPerStep) {
-              oks << Page << Ph << Pf;
+            oks << Csi  << Sm << Sn /*<< Stp*/;
           } else {
-              oks << Page << Ph << Pf << Pli << Sm << Sn;
+            oks << Page << Sm << Sn << Ph << Pf << Ms;
           }
-          break;
-      case PartsListType:             //placed type
+        break;
+        case StepNumberType:            //placed type
           if (pliPerStep) {
-              oks << Csi  << Sm << Sn /*<< Stp*/;
+            oks << Csi << Pli << Sm /*<< Stp*/;
           } else {
-              oks << Page << Sm << Sn << Ph << Pf << Ms;
+            oks << Page << Pli  << Sm << Ph << Pf << Ms;
           }
-          break;
-      case StepNumberType:            //placed type
+        break;
+        case SubModelType:              //placed type
           if (pliPerStep) {
-              oks << Csi << Pli << Sm /*<< Stp*/;
+            oks << Csi << Pli << Sn /*<< Stp*/;
           } else {
-              oks << Page << Pli  << Sm << Ph << Pf << Ms;
+            oks << Page << Pli << Sn << Ph << Pf << Ms;
           }
-          break;
-      case SubModelType:              //placed type
-          if (pliPerStep) {
-              oks << Csi << Pli << Sn /*<< Stp*/;
-          } else {
-              oks << Page << Pli << Sn << Ph << Pf << Ms;
-          }
-          break;
-      case CalloutType:               //placed type
+        break;
+        case CalloutType:               //placed type
           oks << Page << Csi << Pli << Sn /*<< Stp*/;
-          break;
-      case SubmodelInstanceCountType: //placed type
-          oks << Page << Ph << Pf << Pn;
-          break;
-      case PagePointerType:           //placed type
+        break;
+        case SubmodelInstanceCountType: //placed type
+          oks << Page << Pn;
+        break;
+        case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
-          break;
-      case RotateIconType:            //placed type
+        break;
+        case RotateIconType:            //placed type
           oks << Csi << Pli << Sn /*<< Stp*/;
-          break;
-      case TextType:                  //placed type
+        break;
+        case TextType:                  //placed type
           oks << Page << Ph << Pf/* << Stp  << Csi*/;
-          break;
-      default:                        //placed type
+        break;
+        default:                        //placed type
           oks << Page << Pn /*<< Stp*/;
-          break;
+        break;
       }
-      break;
-  case CalloutType:                                  //parent type
+    break;
+    case CalloutType:                               //parent type
       switch (placedType) {
-      case PartsListType:             //placed type
+        case PartsListType:             //placed type
           oks << Csi << Sm;
-          break;
-      case StepNumberType:            //placed type
+        break;
+        case StepNumberType:            //placed type
           oks << Csi  << Pli << Sm;
-          break;
-      case CalloutType:               //placed type
+        break;
+        case CalloutType:               //placed type
           oks << Csi  << Pli << Sn << Callout << Sm;
-          break;
-      case SubmodelInstanceCountType: //placed type
-          oks << Page << Ph << Pf << Pn;
-          break;
-      case PagePointerType:           //placed type
+        break;
+        case SubmodelInstanceCountType: //placed type
+          oks << Page << Pn;
+        break;
+        case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
-          break;
-      case SubModelType:             //placed type
-      case RotateIconType:           //placed type
+        break;
+        case SubModelType:             //placed type
+        case RotateIconType:           //placed type
           oks << Csi << Pli << Sn;
-          break;
-      default:
+        break;
+        default:
           oks << Csi << Pli << Sn;
-          break;
+        break;
       }
-      break;
-  case StepType:                                     //parent type
+    break;
+    case StepType:                                  //parent type
       switch (placedType) {
-      case PartsListType:             //placed type
+        case PartsListType:             //placed type
           oks << Page << Csi << Sn << Sm << Ph << Pf;
-          break;
-      case StepNumberType:            //placed type
+        break;
+        case StepNumberType:            //placed type
           oks << Page << Csi << Pli << Sm << Ph << Pf;
-          break;
-      case CalloutType:               //placed type
+        break;
+        case CalloutType:               //placed type
           oks << Page << Csi << Sn << Pli;
-          break;
-      case SubmodelInstanceCountType: //placed type
+        break;
+        case SubmodelInstanceCountType: //placed type
           oks << Page << Csi << Pli << Pn << Sn;
-          break;
-      case PagePointerType:           //placed type
+        break;
+        case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
-          break;
-      case SubModelType:              //placed type
+        break;
+        case SubModelType:              //placed type
           oks << Page << Csi << Pli << Sn << Ph << Pf;
-          break;
-      case RotateIconType:           //placed type
+        break;
+        case RotateIconType:           //placed type
           oks << Csi << Pli << Sn;
-          break;
-      default:                        //placed type
+        break;
+        default:                        //placed type
           oks << Page << Csi << Pli << Sn;
-          break;
+        break;
       }
-      break;
-  case SingleStepType:                               //parent type [Single-step page]
+    break;
+  case SingleStepType:                              //parent type
       switch (placedType) {
       case PageURLType:                  //placed type
-          if (onPageType == BackCoverPage) {
-              oks << Page                                       << Ct;
-          } else
-              oks << Page << Pn << Ph << Pf;
-          break;
+        if (onPageType == BackCoverPage) {
+           oks << Page                                       << Ct;
+        } else
+           oks << Page << Pn << Ph << Pf;
+      break;
       case PageEmailType:                //placed type
-          if (onPageType == BackCoverPage) {
-              oks << Page                               << Urlt;
-          } else
-              oks << Page << Pn << Ph << Pf             << Urlt;
-          break;
+        if (onPageType == BackCoverPage) {
+           oks << Page                               << Urlt;
+        } else
+           oks << Page << Pn << Ph << Pf             << Urlt;
+      break;
       case PageAuthorType:               //placed type
-          if (onPageType == FrontCoverPage) {
-              oks << Page                                        << Tt;
-          } else if (onPageType == BackCoverPage) {
-              oks << Page                                        << Tt;
-          } else
-              oks << Page << Pn << Ph << Pf       << Et << Urlt;
-          break;
+        if (onPageType == FrontCoverPage) {
+           oks << Page                                        << Tt;
+        } else if (onPageType == BackCoverPage) {
+           oks << Page                                        << Tt;
+        } else
+           oks << Page << Pn << Ph << Pf       << Et << Urlt;
+      break;
       case PageCopyrightType:            //placed type
-          if (onPageType == BackCoverPage) {
-              oks << Page                   << At;
-          } else
-              oks << Page << Pn << Ph << Pf << At << Et << Urlt;
-          break;
+        if (onPageType == BackCoverPage) {
+           oks << Page                   << At;
+        } else
+           oks << Page << Pn << Ph << Pf << At << Et << Urlt;
+      break;
       default:                           //placed type
-          oks << relativeToOks[placedType];
-          break;
+        oks << relativeToOks[placedType];
+      break;
       }
-      break;
-  default:                                           //parent type
+    break;
+    default:                             //parent type
       oks << relativeToOks[placedType];
-      break;
+    break;
   }
 
   int currentIndex = 0;
