@@ -2784,22 +2784,24 @@ int Gui::findPage(
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
-                  int showStepNum = opts.contStepNumber == 1 ? stepNumber : opts.contStepNumber;
-                  if (opts.pageNum == 1) {
-                      meta.LPub.subModel.showStepNum.setValue(showStepNum);
-                  } else {
-                      saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                  if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
+                      int showStepNum = opts.contStepNumber == 1 ? stepNumber : opts.contStepNumber;
+                      if (opts.pageNum == 1) {
+                          meta.LPub.subModel.showStepNum.setValue(showStepNum);
+                      } else {
+                          saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
+                      }
                   }
-              }
 
-              // New step group page so increment group step number and persisst to global
-              if (opts.groupStepNumber && meta.LPub.multiStep.countGroupSteps.value()) {
-                  Where walk(opts.current.modelName);
-                  mi->scanForwardStepGroup(walk);
-                  if (opts.current.lineNumber > walk.lineNumber) {
-                      opts.groupStepNumber++;
-                      saveGroupStepNum = opts.groupStepNumber;
+                  // New step group page so increment group step number and persisst to global
+                  if (opts.groupStepNumber && meta.LPub.multiStep.countGroupSteps.value()) {
+                      Where walk(opts.current.modelName);
+                      mi->scanForwardStepGroup(walk);
+                      if (opts.current.lineNumber > walk.lineNumber) {
+                          opts.groupStepNumber++;
+                          saveGroupStepNum = opts.groupStepNumber;
+                      }
                   }
               }
 
@@ -3242,25 +3244,22 @@ int Gui::findPage(
               break;
 
             case ContStepNumRc:
-              {
-                  if (meta.LPub.contStepNumbers.value()) {
-                      if (! opts.contStepNumber)
-                          opts.contStepNumber++;
-                  } else {
-                      opts.contStepNumber = 0;
-                  }
+              if (meta.LPub.contStepNumbers.value()) {
+                  if (! opts.contStepNumber)
+                      opts.contStepNumber++;
+              } else {
+                  opts.contStepNumber = 0;
               }
               break;
 
             case BuildModEnableRc:
-              {
-                bool value = meta.LPub.buildModEnabled.value();
-                if (Preferences::buildModEnabled != value) {
-                    Preferences::buildModEnabled  = value;
-                    enableBuildModMenuAndActions();
-                    emit messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                                      .arg(value ? "Enabled" : "Disabled"));
-                }
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                  if (Preferences::buildModEnabled != meta.LPub.buildModEnabled.value()) {
+                      Preferences::buildModEnabled  = meta.LPub.buildModEnabled.value();
+                      enableBuildModMenuAndActions();
+                      emit messageSig(LOG_INFO, QString("Build Modifications are %1")
+                                      .arg(meta.LPub.buildModEnabled.value() ? "Enabled" : "Disabled"));
+                  }
               }
               break;
 
