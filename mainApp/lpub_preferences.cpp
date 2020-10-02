@@ -3259,7 +3259,7 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     return result;
 }
 
-int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type, bool option)
+int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type, bool option, bool override)
 {
     foreach (QString messageNotShown, messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
@@ -3274,12 +3274,14 @@ int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, 
     box.setIcon(QMessageBox::Icon::Warning);
     box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
     box.setDefaultButton   (QMessageBox::Cancel);
-    QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
-    box.setCheckBox(cb);
-    QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {
-        if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-            messagesNotShown.append(QString(msgID.toString() + "|" + message));
-    });
+    if (!override) {
+        QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
+        box.setCheckBox(cb);
+        QObject::connect(cb, &QCheckBox::stateChanged, [&message, &msgID](int state) {
+            if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                messagesNotShown.append(QString(msgID.toString() + "|" + message));
+        });
+    }
     box.adjustSize();
     return box.exec();
 }
