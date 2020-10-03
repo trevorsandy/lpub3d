@@ -1,4 +1,96 @@
-LPub3D 2.4.0.1.1989 (03 10 2020 07:52:56)
+LPub3D 2.4.0.1.1990 (03 10 2020 07:53:39)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+        
+- Feature - 3DViewer point, sun and area light for Blender integration #413
+- Feature - Add bring-to-front and send-to-back for page items #244
+- Feature - Add substitute part from context menu #280
+- Feature - Automate theme change without application restart. #73
+- Feature - Blender renderer integration #416
+- Feature - Build modification #411
+- Feature - Display stud logo #425
+- Feature - LDraw editor part, model, and submodel 3D preview #441
+- Feature - Redesign include meta command #396
+- Enhancement - 3DViewer Display Default Camera Properties #331 #344
+- Enhancement - Add page count to file load status notification #436
+- Enhancement - Add projection to command line options #440
+- Enhancement - Add Rectangle to fixed annotations styles #350
+- Enhancement - Add simple (faster) editor text decoration option #445
+- Enhancement - Add text placement #375
+- Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
+- Enhancement - Colour picker and part lookup #427
+- Enhancement - Consolidate editor, page configuration and 3DViewer undo/redo #426
+- Enhancement - Copy file path for current model file, PLI, CSI and submodel display #443
+- Enhancement - Display PLI part in 3DViewer and add item size to PLI and CSI tool-tips #424
+- Enhancement - Do not show this message for individual messages #453
+- Enhancement - Expand parse line error management #417
+- Enhancement - Expand page number and instance count placement #455
+- Enhancement - Expanded parameter file editing functionality #439
+- Enhancement - Experimental - calculate pointer meta #423
+- Enhancement - Export steps in HTML format with fade previous and highlight current step #418
+- Enhancement - Hide/un-hide pieces context menu item #414
+- Enhancement - Highlight bounding rectangle on hover to rotate Icon page attributes and multi-step range #422
+- Enhancement - Highlight select part line in LDraw editor #419
+- Enhancement - Insert display model at any step #415
+- Enhancement - Integrate 3DViewer and native renderer camera #412
+- Enhancement - LDraw editor load paging for very large model files #442
+- Enhancement - Menu option to turn on or off part archiving on startup #437
+- Enhancement - Move helper part category to top of search list #428
+- Enhancement - Multi step PLI per step with step number and submodel preview #382
+- Enhancement - Open parameter files in designated system editor #429
+- Enhancement - Open with programs #420
+- Enhancement - Remove 'Draw transparent textures last' option from LDView renderer preferences #430
+- Enhancement - Save a copy of current model file #421
+- Enhancement - Show and count group step number checkbox for multi-step PLI per page #452
+- Enhancement - Support spaces in rectangle 'variable length' style annotations #434
+- Enhancement - Unofficial custom part and textures sub-folder in sub-folder handling #446
+- Enhancement - Update and redraw save file to disk #336
+- Enhancement - Update LDView renderer to version 4.4 #431
+- Enhancement - Use relative path for images #400
+- Change - Add OpenSSL v1.0 libraries to Windows distribution #393
+- Change - Enable rotate icon placement on single step page #348
+- Change - OFFSET inconsistently uses relative and pixel values #383
+- Change - PNG Export - transparent background exports as black background #380
+- Change - Redesign ldrawFile load and parse checks #398
+- Change - Rotated Callout not displayed when last step contains NOSTEP #376
+- Change - Setting perspective view with LDView renderer #378
+- Change - Undeclared hard dependency in Debian package #401
+- Change - Update apply camera angle locally #378
+- Fix - Annotation style too small when using centimetres #435
+- Fix - Bill of Material part count anomaly when using BUFEXCHG #404
+- Fix - Cable annotation title not reporting cm #403
+- Fix - Crash when adding text to an inserted blank page #402
+- Fix - Crash when hanging orientation of substitute part #432
+- Fix - DPI and scale info is added to filename in PNG export #346
+- Fix - Excessive part count #438
+- Fix - Fade Previous Parts also affect transparent parts in current step #405
+- Fix - Inserted image in first page of submodel appear in parent model #399
+- Fix - Invalid Library Version (SDL2) on macOS #387
+- Fix - Keyword OUTIDE used where the intention is to use OUTSIDE #384
+- Fix - MultiStep background and placement statements ignored #392
+- Fix - Parse failure on ROUND PLI border #448
+- Fix - Preference panel default size on macOS #312
+- Fix - Render substitute parts with LDView single call flag on #433
+- Fix - Setting display page numbers to false, makes times indicator of non-called-out submodels disappear #406 #407
+- Fix - Spelling of popup #450
+- Fix - Step number displayed on cover page when PLI per step is disabled #388
+- Fix - Update scene items bring to front send to back #379
+- How To - LDraw syntax definitions for Notepad++ (added to extras folder) #444 
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.3.13.124.1864 (04 01 2020 16:53:58)
 
 Features, enhancements, fixes and changes
 ------------

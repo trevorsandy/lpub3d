@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Septmber 18, 2020
+# Last Update October 03, 2020
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d-ci] commits to production [lpub3d].
@@ -220,6 +220,8 @@ elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then
     START_BRANCH=CUTOVER_NEXT;
 elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then 
     START_BRANCH=CUTOVER_NEXT;
+else 
+    START_BRANCH=master;       # cutover production to development or maintenance
 fi
 if [ -n "$(git show-ref refs/heads/$START_BRANCH)" ]
 then # start branch exist
@@ -244,6 +246,10 @@ elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; th
     START_BRANCH=CUTOVER_CI
 elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]];then 
     START_BRANCH=CUTOVER_NEXT
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
+    START_BRANCH=CUTOVER_CI
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]];then 
+    START_BRANCH=CUTOVER_NEXT    
 fi
 if [ -n "$(git show-ref refs/heads/$START_BRANCH)" ]
 then # start branch exist
@@ -256,9 +262,9 @@ else # start branch does not exist so create it and checkout
 fi
 if [ "$(git rev-parse --abbrev-ref HEAD)" = "$START_BRANCH" ]
 then # Test that all is ok
-    echo "   -Branch $START_BRANCH checked out."
+    echo " -branch $START_BRANCH checked out."
 else
-    echo "   -MY GOODNESS! Branch $START_BRANCH checkout failed - exiting."
+    echo " -MY GOODNESS! Branch $START_BRANCH checkout failed - exiting."
     exit 1
 fi
     
@@ -298,20 +304,26 @@ for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
-    if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/-ci//g);
+    if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/-ci//g);
     elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then newFile=$(echo $file | sed s/-ci/next/g);
     elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then newFile=$(echo $file | sed s/next//g);
     elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then newFile=$(echo $file | sed s/next/-ci/g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dNext" ]]; then newFile=$(echo $file | sed s/lpub3d/lpub3dnext/g);
+    elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then newFile=$(echo $file | sed s/lpub3d/lpub3d-ci/g);    
     fi
     mv -f "$file" "$newFile"
     [ -f "$newFile" ] && echo " -file changed: $newFile."
 done
+# rename project file with '$FROM_REPO_NAME' in the name to '$TO_REPO_NAME'..."
 if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     projFileName="LPub3D.pro"
     newProjFileName="LPub3DNext.pro"
 elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
     projFileName="LPub3DNext.pro"
     newProjFileName="LPub3D.pro"
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+    projFileName="LPub3D.pro"
+    newProjFileName="LPub3DNext.pro"
 fi
 if [[ -f $projFileName && -z $newProjFileName && ($projFileName != $newProjFileName)]]; then
     mv -f "$projFileName" "$newProjFileName"
@@ -328,7 +340,8 @@ for file in $(find . -type f \
               -not -path "./qslog*" \
               -not -path "./quazip*" \
               -not -path "./qsimpleupdater*" \
-              -not -path "./builds/utilities/ci/ci_cutover.sh*" \
+              -not -path "./builds/utilities/ci/travis/releases" \
+              -not -path "./builds/utilities/ci/ci_cutover.sh" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
@@ -337,17 +350,20 @@ do
     && echo " -file updated: $file" || true
 done
 
-echo "6-Update sfdeploy.sh"
+echo "6-Update 'dry-run' flag in sfdeploy.sh"
 file=builds/utilities/ci/sfdeploy.sh
 if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/'--dry-run '//g -i $file; echo " -file $file updated.";
-else echo " -NOTICE - $TO_REPO_NAME not production, file $file NOT updated.";
+else sed s/'rsync --recursive'/'rsync --dry-run --recursive'/g -i $file; echo " -NOTICE - $TO_REPO_NAME not production, 'dry-run' preserved in $file.";
 fi
 
 echo "7-Update README.md Title"
 file=README.md
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/' - Dev, CI, and Test'//g -i $file; echo " -file $file updated.";
-elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo " -file $file updated.";
-elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed s/' - Next Development'/' - Dev, CI, and Test'/g -i $file; echo " -file $file updated.";
+if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Dev, CI, and Test'//g -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Next Development'//g -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s/' - Next Development'/' - Dev, CI, and Test'/g -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dNext" ]]; then s/'# LPub3D'/'# LPub3D - Next Development'/g -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s/'# LPub3D'/'# LPub3D - Dev, CI, and Test'/g -i $file; echo " -file $file updated.";  
 else echo " -ERROR - file $file NOT updated.";
 fi
 
@@ -370,18 +386,34 @@ tar cvf .secrets.tar .dropbox_oauth .sfdeploy_travis_rsa
 && echo " -.secrets.tar.enc moved to secure dir and secrets files removed." \
 || echo " -.secrets.tar.enc not found."
 source $secretsDir/.github_api_keys
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
-elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
-elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed s/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+if   [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3dnext" ]]; then sed s/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then sed s/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d"     && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then sed s/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/${TRAVIS_DEVL_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d"     && "$TO_REPO_NAME" = "lpub3dnext" ]]; then sed s/${TRAVIS_PROD_GITHUB_TOKEN_KEY}/${TRAVIS_NEXT_GITHUB_TOKEN_KEY}/g -i $file; echo " -file $file updated with secure variable key.";
 else echo " -ERROR - file $file NOT updated.";
 fi
 
-echo "10-Change *.sh line endings from CRLF to LF"
+echo "10-Replace leading spaces with tabs for LCLib files"
+counter=0
+for file in $(find ./lclib -type f -name '*.h' -o -name '*.cpp')
+do
+    echo "Converting $file..." &>> $LOG && \
+    data=$(unexpand --first-only -t 4 $file) && \
+    rm "$file" && \
+    echo "$data" > "$file" && \
+    counter=$((counter + 1)) || true
+done
+echo " -files updated: $counter"
+
+echo "11-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
     dos2unix -k $file &>> $LOG
 done
-echo "11-Change other line endings from CRLF to LF"
+
+echo "12-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/* &>> $LOG
 dos2unix -k builds/utilities/create-dmg &>> $LOG
 dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
@@ -397,39 +429,42 @@ dos2unix -k builds/linux/obs/debian/* &>> $LOG
 dos2unix -k builds/linux/obs/debian/source/* &>> $LOG
 dos2unix -k builds/macx/* &>> $LOG
 
-echo "12-Change Windows script line endings from LF to CRLF"
+echo "13-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/* &>> $LOG
 unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
 unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/* &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
 
-echo "13-Patch update-config-files.sh"
+echo "14-Patch update-config-files.sh"
 file=builds/utilities/update-config-files.sh
 sed -e s/'.dsc   - add'/'.dsc      - add'/g \
     -e s/'.spec  - add'/'.spec     - add'/g -i $file \
 && echo " -file $file updated." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "14-update github api_key for Travis CI"
+echo "15-update github api_key for Travis CI"
 file=.travis.yml
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
-elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_NEXT_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
-elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then sed "s,^        secure: ${GITHUB_NEXT_SECURE_API_KEY},        secure: ${GITHUB_DEVL_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+if   [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3d" ]]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3dnext" ]]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_NEXT_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed "s,^        secure: ${GITHUB_NEXT_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then sed "s,^        secure: ${GITHUB_NEXT_SECURE_API_KEY},        secure: ${GITHUB_DEVL_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d"     && "$TO_REPO_NAME" = "lpub3dnext" ]]; then sed "s,^        secure: ${GITHUB_PROD_SECURE_API_KEY},        secure: ${GITHUB_NEXT_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
+elif [[ "$FROM_REPO_NAME" = "lpub3d"     && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then sed "s,^        secure: ${GITHUB_PROD_SECURE_API_KEY},        secure: ${GITHUB_DEVL_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
 else echo " -ERROR - file $file NOT updated.";
 fi
 
-echo "15-Add new files..."
+echo "16-Add new files..."
 git add . &>> $LOG
 git reset HEAD 'mainApp/docs/README.txt'
 
-echo "16-Create local tag in $TO_REPO_NAME repository"
+echo "17-Create local tag in $TO_REPO_NAME repository"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
 [ -n "$git_tag" ] && echo " -git tag $git_tag created."
 
-echo "17-Stage and commit changed files..."
+echo "18-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
@@ -442,13 +477,18 @@ if [ -z "$RELEASE_COMMIT" ]; then
    rm -f update-config-files.sh.log
 fi
 
-# Checkout master in destination development or maintenance repository 
+echo "19-Restore repository checked out state..."
+# Checkout master in source [in TO_REPO_NAME]
 if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
-  git checkout master;
+    CHECKOUT_MASTER=1
 elif [[ "$FROM_REPO_NAME" = "lpub3dnext" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then
-  git checkout master;
+    CHECKOUT_MASTER=1
+elif [[ "$FROM_REPO_NAME" = "lpub3d" ]]; then
+    CHECKOUT_MASTER=1
 fi
+[ -z "$CHECKOUT_MASTER" ] && git checkout master || true
 
+# Checkout master in destination [in FROM_REPO_NAME]
 cd $HOME_DIR/$FROM_REPO_NAME
 if [ -z "$NEXT_CUT" ]
 then

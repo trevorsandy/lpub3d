@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update September 19, 2020
+# Last Update October 03, 2020
 #
 # Purpose:
 # This script will 'cutover' a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -32,7 +32,7 @@
 # Identify starting commit
 # Execute:
 #   $ chmod +x next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 CLONE=1 RELEASE=1 COMMIT=f61eb11778e1fb206f ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=f61eb11778e1fb206f ./next_cutover.sh
 #
 # Command Examples:
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
@@ -133,7 +133,8 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 f="${CWD}/$ME"
 ext=".log"
-if [[ -e "$f$ext" ]] ; then
+if [[ -e "$f$ext" ]]
+then
     i=1
     f="${f%.*}";
     while [[ -e "${f}_${i}${ext}" ]]; do
@@ -166,7 +167,8 @@ options_status
 cd $HOME_DIR/$FROM_REPO_NAME
 
 echo && echo "-1 Checkout $START_BRANCH branch at starting cutover commit $START_COMMIT..."
-if [ -n "$(git status -s)" ]; then
+if [ -n "$(git status -s)" ]
+then
     echo && echo "--INFO - Stashing uncommitted $FROM_REPO_NAME changes..."  
     git stash &>> $LOG
 fi
@@ -199,6 +201,9 @@ sleep 1s && read -p "  Do you want to continue (y/n)? " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
+  if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
+    git checkout master &>> $LOG
+  fi
   [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
 
@@ -229,7 +234,12 @@ do
     if [[ $RETURN_CODE != 0 ]]      # return code
     then
         echo
-        if [ -n "$USE_CHERRY_PICK" ]; then echo "-- WHOA! Cherry-pick '$SHORT_COMMIT' failed."; else echo "-- WHOA! Reset '$SHORT_COMMIT' failed."; fi
+        if [ -n "$USE_CHERRY_PICK" ]
+        then 
+            echo "-- WHOA! Cherry-pick '$SHORT_COMMIT' failed."
+        else 
+            echo "-- WHOA! Reset '$SHORT_COMMIT' failed."
+        fi
         echo "-- Return code was $RETURN_CODE - exiting!"
         FinishElapsedTime "Terminated"
         exit 1
