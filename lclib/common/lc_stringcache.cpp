@@ -197,4 +197,3 @@ void lcStringCache::DrawStrings(lcContext* Context, const lcMatrix44* Transforms
 	Context->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 	Context->DrawPrimitives(GL_TRIANGLES, 0, Strings.size() * 6);
 }
-

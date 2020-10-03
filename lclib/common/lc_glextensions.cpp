@@ -186,7 +186,7 @@ void lcInitializeGLExtensions(const QGLContext* Context)
 #define GL_DEBUG_OUTPUT 0x92E0
 #endif
 
-        if (DebugMessageCallback)
+		if (DebugMessageCallback)
 		{
 			DebugMessageCallback((GLDEBUGPROCARB)&lcGLDebugCallback, nullptr);
 			glEnable(GL_DEBUG_OUTPUT);

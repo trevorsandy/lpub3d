@@ -183,4 +183,3 @@ void lcSetProfileFloat(LC_PROFILE_KEY Key, float Value);
 void lcSetProfileString(LC_PROFILE_KEY Key, const QString& Value);
 void lcSetProfileStringList(LC_PROFILE_KEY Key, const QStringList& Value);
 void lcSetProfileBuffer(LC_PROFILE_KEY Key, const QByteArray& Buffer);
-

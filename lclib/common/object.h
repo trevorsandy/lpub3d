@@ -247,4 +247,3 @@ protected:
 private:
 	lcObjectType mObjectType;
 };
-

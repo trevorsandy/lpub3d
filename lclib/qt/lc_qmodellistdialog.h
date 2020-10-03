@@ -42,4 +42,3 @@ private:
 	void UpdateButtons();
 	Ui::lcQModelListDialog* ui;
 };
-

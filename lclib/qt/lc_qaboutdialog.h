@@ -17,4 +17,3 @@ public:
 private:
 	Ui::lcQAboutDialog *ui;
 };
-

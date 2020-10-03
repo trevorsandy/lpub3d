@@ -7,7 +7,7 @@
 lcPartPaletteDialog::lcPartPaletteDialog(QWidget* Parent, std::vector<lcPartPalette>& PartPalettes)
 	: QDialog(Parent), ui(new Ui::lcPartPaletteDialog), mPartPalettes(PartPalettes)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 	ui->ImportButton->hide();

@@ -293,4 +293,3 @@ enum lcTool
 };
 
 extern const char* gToolNames[LC_NUM_TOOLS];
-

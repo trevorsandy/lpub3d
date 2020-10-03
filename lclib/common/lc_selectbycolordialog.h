@@ -20,4 +20,3 @@ public slots:
 protected:
 	lcQColorPicker* mColorPicker;
 };
-

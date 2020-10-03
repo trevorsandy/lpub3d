@@ -186,4 +186,3 @@ inline lcPreferences& lcGetPreferences()
 {
 	return gApplication->mPreferences;
 }
-

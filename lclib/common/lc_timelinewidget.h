@@ -44,4 +44,3 @@ protected:
 	QTreeWidgetItem* mCurrentStepItem;
 	bool mIgnoreUpdates;
 };
-

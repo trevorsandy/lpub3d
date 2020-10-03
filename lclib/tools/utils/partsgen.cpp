@@ -264,4 +264,3 @@ int main(int argc, char* argv[])
 	for (unsigned int PartIdx = 0; PartIdx < sizeof(Parts) / sizeof(Parts[0]); PartIdx++)
 		GeneratePart(Parts[PartIdx][0], Parts[PartIdx][1]);
 }
-

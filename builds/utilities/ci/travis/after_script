@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 12, 2020
+#  Last Update: October 03, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -95,7 +95,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform upload";
   fi;
 
-  # Upload continuous build assets to GitHub
+  # Upload continuous build assets to GitHub at each build when not deploying
   if [ "$LP3D_DEPLOY_PKG" != "yes" ]; then
     export GREP_PATH=grep;
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export GREP_PATH=ggrep; fi
@@ -154,7 +154,9 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then
       bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg*
     fi;
-    # Sourceforge.net Continuous Deploy
-    source ${LP3D_CI_SCRIPT_DIR}/releases
   fi;
+  # Upload Sourceforge.net build assets at each build for continuous and official deploy
+  if [ "$LP3D_DEPLOY_PACKAGES" != "true" ]; then
+    source ${LP3D_CI_SCRIPT_DIR}/releases
+  fi
 fi

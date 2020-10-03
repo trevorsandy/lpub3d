@@ -4,8 +4,8 @@
 #include "lc_category.h"
 
 lcQCategoryDialog::lcQCategoryDialog(QWidget *parent, void *data) :
-    QDialog(parent),
-    ui(new Ui::lcQCategoryDialog)
+	QDialog(parent),
+	ui(new Ui::lcQCategoryDialog)
 {
 	ui->setupUi(this);
 

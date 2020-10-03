@@ -962,8 +962,8 @@ inline lcVector3 lcMatrix33ToEulerAngles(const lcMatrix33& RotMat)
 inline float lcMatrix44::Determinant() const
 {
 	return r[0][0] * r[1][1] * r[2][2] + r[0][1] * r[1][2] * r[2][0] +
-	       r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
-	       r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
+		   r[0][2] * r[1][0] * r[2][1] - r[0][0] * r[1][2] * r[2][1] -
+		   r[0][1] * r[1][0] * r[2][2] - r[0][2] * r[1][1] * r[2][0];
 }
 
 inline lcMatrix44 lcMatrix44Identity()
@@ -2106,4 +2106,3 @@ bool SphereIntersectsVolume(const Vector3& Center, float Radius, const Vector4* 
 
 	return true;
 }*/
-

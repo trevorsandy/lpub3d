@@ -219,4 +219,3 @@ protected:
 	static lcVertexBuffer mRotateMoveVertexBuffer;
 	static lcIndexBuffer mRotateMoveIndexBuffer;
 };
-

@@ -16,8 +16,8 @@ lcQAboutDialog::lcQAboutDialog(QWidget *parent) :
 	ui->version->setText(tr("3DViewer - by LeoCAD Continuous Build %1").arg(QString::fromLatin1(QT_STRINGIFY(LC_CONTINUOUS_BUILD))));
 #else
 /*** LPub3D Mod - vesion build ***/
-    ui->version->setText(tr("3DViewer - by LeoCAD Version %1 - Rev %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
-                                                                       .arg(QString::fromLatin1(LC_VERSION_BUILD)));
+	ui->version->setText(tr("3DViewer - by LeoCAD Version %1 - Rev %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+																	   .arg(QString::fromLatin1(LC_VERSION_BUILD)));
 /*** LPub3D Mod end ***/
 #endif
 

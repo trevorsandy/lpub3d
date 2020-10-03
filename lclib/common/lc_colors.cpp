@@ -358,7 +358,7 @@ bool lcLoadColorFile(lcFile& File)
 					GroupSpecial = true;
 			}
 			else if (!strcmp(Token, "CHROME") || !strcmp(Token, "PEARLESCENT") || !strcmp(Token, "RUBBER") ||
-			         !strcmp(Token, "MATTE_METALIC") || !strcmp(Token, "METAL") || !strcmp(Token, "LUMINANCE"))
+					 !strcmp(Token, "MATTE_METALIC") || !strcmp(Token, "METAL") || !strcmp(Token, "LUMINANCE"))
 			{
 				GroupSpecial = true;
 			}

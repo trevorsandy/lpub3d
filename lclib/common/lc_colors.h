@@ -88,4 +88,3 @@ inline bool lcIsColorTranslucent(size_t ColorIndex)
 {
 	return gColorList[ColorIndex].Translucent;
 }
-

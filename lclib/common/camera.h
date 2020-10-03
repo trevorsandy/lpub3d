@@ -327,4 +327,3 @@ protected:
 
 	quint32 mState;
 };
-

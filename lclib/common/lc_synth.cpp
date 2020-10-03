@@ -871,7 +871,7 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 		lcVector3 Offset = lcMul31(lcVector3(0.0f, -5.0f, 0.0f), Sections[SectionIdx]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
-		        Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
+				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
 
 		File.WriteBuffer(Line, strlen(Line));
 	}
@@ -891,7 +891,7 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 		const char* Part = SectionIdx != Sections.GetSize() / 2 ? "754.dat" : "756.dat";
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
-		        Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], Part);
+				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], Part);
 
 		File.WriteBuffer(Line, strlen(Line));
 	}
@@ -903,7 +903,7 @@ void lcSynthInfoFlexibleHose::AddParts(lcMemFile& File, lcLibraryMeshData&, cons
 		lcVector3 Offset = lcMul31(lcVector3(0.0f, 5.0f - 2.56f, 0.0f), Sections[SectionIdx]);
 
 		sprintf(Line, "1 16 %f %f %f %f %f %f %f %f %f %f %f %f %s\n", Offset[0], Offset[1], Offset[2], Transform[0][0], Transform[1][0], Transform[2][0],
-		        Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
+				Transform[0][1], Transform[1][1], Transform[2][1], Transform[0][2], Transform[1][2], Transform[2][2], EdgeParts[PartIdx]);
 
 		File.WriteBuffer(Line, strlen(Line));
 	}

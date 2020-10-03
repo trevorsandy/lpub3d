@@ -40,4 +40,3 @@ public:
 	lcPixelFormat mFormat;
 	unsigned char* mData;
 };
-

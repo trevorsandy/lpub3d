@@ -63,4 +63,3 @@ private:
 	int currentColorIndex;
 	int initialColorIndex;
 };
-

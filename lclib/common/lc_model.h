@@ -481,4 +481,3 @@ protected:
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
 };
-

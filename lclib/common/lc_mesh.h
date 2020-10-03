@@ -118,4 +118,3 @@ public:
 };
 
 extern lcMesh* gPlaceholderMesh;
-

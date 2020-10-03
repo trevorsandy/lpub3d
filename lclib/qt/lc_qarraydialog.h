@@ -25,4 +25,3 @@ public slots:
 private:
 	Ui::lcQArrayDialog *ui;
 };
-

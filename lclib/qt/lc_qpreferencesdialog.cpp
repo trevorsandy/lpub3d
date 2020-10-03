@@ -1444,4 +1444,3 @@ void lcQPreferencesDialog::cameraPropertyReset()
 	}
 }
 /*** LPub3D Mod end ***/
-

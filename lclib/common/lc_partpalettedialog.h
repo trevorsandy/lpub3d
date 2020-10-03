@@ -8,11 +8,11 @@ struct lcPartPalette;
 
 class lcPartPaletteDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    lcPartPaletteDialog(QWidget* Parent, std::vector<lcPartPalette>& PartPalettes);
-    ~lcPartPaletteDialog();
+	lcPartPaletteDialog(QWidget* Parent, std::vector<lcPartPalette>& PartPalettes);
+	~lcPartPaletteDialog();
 
 protected slots:
 	void accept() override;

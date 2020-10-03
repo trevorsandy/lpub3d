@@ -23,4 +23,3 @@ public slots:
 private:
 	Ui::lcQFindDialog *ui;
 };
-

@@ -214,4 +214,3 @@ inline lcModel* lcGetActiveModel()
 	const Project* const Project = lcGetActiveProject();
 	return Project ? Project->GetActiveModel() : nullptr;
 }
-

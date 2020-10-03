@@ -45,4 +45,3 @@ protected:
 	int mCurCell;
 	QPoint mDragStartPosition;
 };
-

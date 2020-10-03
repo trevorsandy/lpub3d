@@ -3,14 +3,14 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 16, 2019
+#  Last Update: October 03, 2019
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Set release description
 if [ "$LPUB3D_DIR" != "lpub3d" ]; then
-  if [ "$LPUB3D_DIR" = "lpub3d" ]; then
+  if [ "$LPUB3D_DIR" = "lpub3dnext" ]; then
     LP3D_RELEASE_DESCRIPTION="LPub3D - Next Release"
   else
     LP3D_RELEASE_DESCRIPTION="LPub3D - Development Release"
@@ -42,44 +42,47 @@ if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)"
 else
   echo "LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
 fi
-# Deploy to Sourceforge.net
-if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
-  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-    if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      export LP3D_ASSET_EXT="*.pkg.tar.zst*"
+# Deploy to Sourceforge upload except from Travis' 'GitHub and Sourceforge Deploy' stage
+# On Travis, Sourceforge upload is run for each build in 'after_script'
+if [ "$LP3D_DEPLOY_PACKAGES" != "true" ]; then
+  if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      if [ "$LP3D_BUILD_ARCH" = "true" ]; then
+        export LP3D_ASSET_EXT="*.pkg.tar.zst*"
+      fi;
+      if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
+        export LP3D_ASSET_EXT="*.rpm*"
+      fi;
+      if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
+        export LP3D_ASSET_EXT="*.deb*"
+      fi;
     fi;
-    if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-      export LP3D_ASSET_EXT="*.rpm*"
+    if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+      export LP3D_ASSET_EXT="*.AppImage*"
     fi;
-    if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-      export LP3D_ASSET_EXT="*.deb*"
+    if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+      export LP3D_ASSET_EXT="*.dmg*"
     fi;
-  fi;
-  if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    export LP3D_ASSET_EXT="*.AppImage*"
-  fi;
-  if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    export LP3D_ASSET_EXT="*.dmg*"
-  fi;
-  chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
-  # Upload Sourceforge deploy log to Dropbox for temp storage
-  if [ -f "/tmp/.dropbox_oauth" ]; then
-    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-    sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
-    if [ -f "$sfdeployLog" ]; then
-      cp -f "$sfdeployLog" $LP3D_LOGS_DIR;
-      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/$sfdeployLog" "$LP3D_DROPBOX_DIR/logs"/;
+    chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
+    # Upload Sourceforge deploy log to Dropbox for temp storage
+    if [ -f "/tmp/.dropbox_oauth" ]; then
+      chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+      sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
+      if [ -f "$sfdeployLog" ]; then
+        cp -f "$sfdeployLog" $LP3D_LOGS_DIR;
+        ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/$sfdeployLog" "$LP3D_DROPBOX_DIR/logs"/;
+      else
+        echo "ERROR - Sourceforge deploy log not found, nothing copied";
+      fi
     else
-      echo "ERROR - Sourceforge deploy log not found, nothing copied";
-    fi
+      echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform Sourceforge deploy log upload";
+    fi;
   else
-    echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform Sourceforge deploy log upload";
-  fi;
-else
-  if [ -n "$LP3D_SKIP_SF_DEPLOY" ]; then
-    echo "NOTICE - LP3D_SKIP_SF_DEPLOY detected. Deploy to Sourceforge skipped.";
-  fi
-  if [ -n "$LP3D_SF_DEPLOY_ABORT" ]; then
-    echo "NOTICE - LP3D_SF_DEPLOY_ABORT detected. Deploy to Sourceforge aborted.";
+    if [ -n "$LP3D_SKIP_SF_DEPLOY" ]; then
+      echo "NOTICE - LP3D_SKIP_SF_DEPLOY detected. Deploy to Sourceforge skipped.";
+    fi
+    if [ -n "$LP3D_SF_DEPLOY_ABORT" ]; then
+      echo "NOTICE - LP3D_SF_DEPLOY_ABORT detected. Deploy to Sourceforge aborted.";
+    fi
   fi
 fi

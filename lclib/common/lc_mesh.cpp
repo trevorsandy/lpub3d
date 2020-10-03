@@ -301,7 +301,7 @@ void lcMesh::ExportPOVRay(lcFile& File, const char* MeshName, const char** Color
 			const lcVector3 n3 = lcUnpackNormal(Verts[Indices[Idx + 2]].Normal);
 
 			sprintf(Line, "  smooth_triangle { <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f>, <%.2f, %.2f, %.2f> }\n",
-			        -v1.y, -v1.x, v1.z, -n1.y, -n1.x, n1.z, -v2.y, -v2.x, v2.z, -n2.y, -n2.x, n2.z, -v3.y, -v3.x, v3.z, -n3.y, -n3.x, n3.z);
+					-v1.y, -v1.x, v1.z, -n1.y, -n1.x, n1.z, -v2.y, -v2.x, v2.z, -n2.y, -n2.x, n2.z, -v3.y, -v3.x, v3.z, -n3.y, -n3.x, n3.z);
 			File.WriteLine(Line);
 		}
 

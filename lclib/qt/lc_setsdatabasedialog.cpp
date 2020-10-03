@@ -5,7 +5,7 @@
 
 lcSetsDatabaseDialog::lcSetsDatabaseDialog(QWidget* Parent)
 	: QDialog(Parent),
-    ui(new Ui::lcSetsDatabaseDialog)
+	ui(new Ui::lcSetsDatabaseDialog)
 {
 	ui->setupUi(this);
 	ui->SearchEdit->installEventFilter(this);

@@ -44,4 +44,3 @@ struct lcPreferencesDialogOptions
 	bool MouseShortcutsModified;
 	bool MouseShortcutsDefault;
 };
-

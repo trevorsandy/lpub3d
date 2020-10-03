@@ -85,15 +85,15 @@ public:
 	bool Load(const QString& LibraryPath, bool ShowProgress);
 	void Unload();
 /*** LPub3D Mod - library reload ***/
-    bool ReloadUnoffLib();
+	bool ReloadUnoffLib();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Unofficial library ***/
-    void UnloadUnofficialLib();
+	void UnloadUnofficialLib();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Official library reload ***/
-    void UnloadOfficialLib();
+	void UnloadOfficialLib();
 /*** LPub3D Mod end ***/
 
 	void RemoveTemporaryPieces();
@@ -211,4 +211,3 @@ protected:
 	bool mHasUnofficial;
 	bool mCancelLoading;
 };
-

@@ -96,7 +96,7 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
 fi
 # Decrypt and extract encrypted files
 if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_803e43b27eca_key -iv $encrypted_803e43b27eca_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
+  [ "$TRAVIS_SECURE_ENV_VARS" == "false" ] || openssl aes-256-cbc -K $encrypted_10e57b63baa9_key -iv $encrypted_10e57b63baa9_iv -in ${LP3D_SECURE_DIR}/.secrets.tar.enc -out /tmp/.secrets.tar -d;
   if [ -f "/tmp/.secrets.tar" ]; then
     echo "Extracting secrets..." && tar xvf /tmp/.secrets.tar -C /tmp/;
   else

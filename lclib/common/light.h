@@ -326,4 +326,3 @@ protected:
 	quint32 mState;
 /*** LPub3D Mod - enable point lignt, moved m_strName to public ***/
 };
-

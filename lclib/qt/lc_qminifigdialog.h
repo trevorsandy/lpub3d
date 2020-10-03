@@ -40,4 +40,3 @@ protected:
 	QDoubleSpinBox* getAngleEdit(int index);
 	int getAngleIndex(QObject *widget);
 };
-
