@@ -69,21 +69,20 @@ bool PreviewDockWidget::SetCurrentPiece(const QString &PartType, int ColorCode)
 void PreviewDockWidget::ClearPreview()
 {
     Preview->ClearPreview();
-    label->setText("");
+    label->setText(QString());
 }
 
 PreviewWidget::PreviewWidget(bool subPreview)
 : mLoader(new Project(true/*isPreview*/)),
-  mViewSphere(this/*Preview*/, subPreview),
-  mIsPart(false),
-  mIsSubPreview(subPreview)
+      mViewSphere(this/*Preview*/, subPreview),
+     mIsSubPreview(subPreview)
 {
-    mTool        = LC_TOOL_SELECT;
-    mTrackTool   = LC_TRACKTOOL_NONE;
+    mTool = LC_TOOL_SELECT;
+    mTrackTool = LC_TRACKTOOL_NONE;
     mTrackButton = lcTrackButton::None;
 
     mLoader->SetActiveModel(0);
-    mModel  = mLoader->GetActiveModel();
+    mModel = mLoader->GetActiveModel();
     mCamera = nullptr;
 
     SetDefaultCamera();
@@ -94,22 +93,17 @@ PreviewWidget::~PreviewWidget()
     if (mCamera && mCamera->IsSimple())
         delete mCamera;
 
-    if (mIsPart) {
-        lcPiecesLibrary* Library = lcGetPiecesLibrary();
-        for (lcPiece* Piece : mModel->GetPieces())
-        {
-            PieceInfo *Info = Piece->mPieceInfo;
-            Library->ReleasePieceInfo(Info);
-        }
-    }
+    delete mLoader;
 }
 
-bool PreviewWidget::SetCurrentPiece(const QString &PartType, int ColorCode)
+bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
 {
-    lcPiecesLibrary  *Library = lcGetPiecesLibrary();
+    lcPiecesLibrary* Library = lcGetPiecesLibrary();
     PieceInfo* Info = Library->FindPiece(PartType.toLatin1().constData(), nullptr, false, false);
-    if (Info) {
-        mIsPart = true;
+
+    if (Info)
+    {
+        mIsModel     = Info->IsModel();
         mDescription = Info->m_strDescription;
         lcModel* ActiveModel = GetActiveModel();
 
@@ -119,44 +113,37 @@ bool PreviewWidget::SetCurrentPiece(const QString &PartType, int ColorCode)
         Library->LoadPieceInfo(Info, false, true);
         Library->WaitForLoadQueue();
 
-        float* Matrix =  lcMatrix44Identity();;
-        lcMatrix44 Transform(lcVector4( Matrix[0],  Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8],  Matrix[10], -Matrix[9],  0.0f),
-                             lcVector4(-Matrix[4], -Matrix[6],  Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
-
-        int CurrentStep = 1;
+        lcStep CurrentStep = 1;
         lcPiece* Piece = new lcPiece(nullptr);
 
         Piece->SetPieceInfo(Info, PartType, false);
-        Piece->Initialize(Transform, CurrentStep);
+        Piece->Initialize(lcMatrix44Identity(), CurrentStep);
         Piece->SetColorCode(ColorCode);
 
         ActiveModel->AddPiece(Piece);
+    }
+    else
+    {
+        QString ModelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(PartType);
 
-        emit lpubAlert->messageSig(LOG_DEBUG,
-                                   QString("Preview PartType: %1, Name: %2, ColorCode: %3, ColorIndex: %4")
-                                   .arg(Piece->GetID()).arg(Piece->GetName()).arg(ColorCode).arg( Piece->mColorIndex));
-        Piece = nullptr;
-    } else {
-        QString ModelPath = QString("%1/%2/%3")
-                .arg(QDir::currentPath())
-                .arg(Paths::tmpDir)
-                .arg(PartType);
-
-        if (!mLoader->Load(ModelPath)) {
+        if (!mLoader->Load(ModelPath))
+        {
             emit lpubAlert->messageSig(LOG_DEBUG,QString("Failed to load '%1'.").arg(ModelPath));
             return false;
         }
 
         mLoader->SetActiveModel(0);
         lcGetPiecesLibrary()->RemoveTemporaryPieces();
-        mModel = mLoader->GetActiveModel();
         if (ColorCode != LDRAW_MATERIAL_COLOUR)
             mModel->SetUnoffPartColorCode(ColorCode);
+        mModel = mLoader->GetActiveModel();
         if (!mModel->GetProperties().mDescription.isEmpty())
             mDescription = mModel->GetProperties().mDescription;
         else
             mDescription = PartType;
+        mIsModel = true;
     }
+
     ZoomExtents();
 
     return true;
@@ -175,6 +162,7 @@ void PreviewWidget::SetDefaultCamera()
 {
     if (!mCamera || !mCamera->IsSimple())
         mCamera = new lcCamera(true);
+
     mCamera->SetViewpoint(LC_VIEWPOINT_HOME);
 }
 
@@ -194,7 +182,8 @@ lcModel* PreviewWidget::GetActiveModel() const
 void PreviewWidget::ZoomExtents()
 {
     lcModel* ActiveModel = GetActiveModel();
-    if (ActiveModel) {
+    if (ActiveModel)
+    {
         ActiveModel->ZoomExtents(mCamera, float(mWidth) / float(mHeight));
         Redraw();
     }
@@ -267,7 +256,7 @@ void PreviewWidget::DrawViewport()
 
 void PreviewWidget::DrawAxes()
 {
-//	glClear(GL_DEPTH_BUFFER_BIT);
+    //	glClear(GL_DEPTH_BUFFER_BIT);
 
     const float Verts[28 * 3] =
     {
@@ -358,17 +347,17 @@ void PreviewWidget::StartTracking(lcTrackButton TrackButton)
 
     switch (Tool)
     {
-    case LC_TOOL_SELECT:
-        break;
+        case LC_TOOL_SELECT:
+            break;
 
-    case LC_TOOL_PAN:
-    case LC_TOOL_ROTATE_VIEW:
-        ActiveModel->BeginMouseTool();
-        break;
+        case LC_TOOL_PAN:
+        case LC_TOOL_ROTATE_VIEW:
+            ActiveModel->BeginMouseTool();
+            break;
 
-    case LC_NUM_TOOLS:
-    default:
-        break;
+        case LC_NUM_TOOLS:
+        default:
+            break;
     }
 
     OnUpdateCursor();
@@ -384,17 +373,17 @@ void PreviewWidget::StopTracking(bool Accept)
 
     switch (Tool)
     {
-    case LC_TOOL_SELECT:
-        break;
+        case LC_TOOL_SELECT:
+            break;
 
-    case LC_TOOL_PAN:
-    case LC_TOOL_ROTATE_VIEW:
-        ActiveModel->EndMouseTool(Tool, Accept);
-        break;
+        case LC_TOOL_PAN:
+        case LC_TOOL_ROTATE_VIEW:
+            ActiveModel->EndMouseTool(Tool, Accept);
+            break;
 
-    case LC_NUM_TOOLS:
-    default:
-        break;
+        case LC_NUM_TOOLS:
+        default:
+            break;
     }
 
     mTrackButton = lcTrackButton::None;
@@ -408,19 +397,19 @@ void PreviewWidget::OnButtonDown(lcTrackButton TrackButton)
 {
     switch (mTrackTool)
     {
-    case LC_TRACKTOOL_NONE:
-        break;
+        case LC_TRACKTOOL_NONE:
+            break;
 
-    case LC_TRACKTOOL_PAN:
-        StartTracking(TrackButton);
-        break;
+        case LC_TRACKTOOL_PAN:
+            StartTracking(TrackButton);
+            break;
 
-    case LC_TRACKTOOL_ORBIT_XY:
-        StartTracking(TrackButton);
-        break;
+        case LC_TRACKTOOL_ORBIT_XY:
+            StartTracking(TrackButton);
+            break;
 
-    case LC_TRACKTOOL_COUNT:
-        break;
+        case LC_TRACKTOOL_COUNT:
+            break;
     }
 }
 
@@ -617,10 +606,10 @@ void PreviewWidget::OnMouseMove()
 
     switch (mTrackTool)
     {
-    case LC_TRACKTOOL_NONE:
-        break;
+        case LC_TRACKTOOL_NONE:
+            break;
 
-    case LC_TRACKTOOL_PAN:
+        case LC_TRACKTOOL_PAN:
         {
             lcVector3 Points[4] =
             {
@@ -654,15 +643,15 @@ void PreviewWidget::OnMouseMove()
             ActiveModel->UpdatePanTool(mCamera, MoveStart - Intersection);
             Redraw();
         }
-    break;
-
-    case LC_TRACKTOOL_ORBIT_XY:
-        ActiveModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
-        Redraw();
         break;
 
-    case LC_TRACKTOOL_COUNT:
-        break;
+        case LC_TRACKTOOL_ORBIT_XY:
+            ActiveModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+            Redraw();
+            break;
+
+        case LC_TRACKTOOL_COUNT:
+            break;
     }
 }
 

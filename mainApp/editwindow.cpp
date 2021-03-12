@@ -152,6 +152,10 @@ void EditWindow::setTextEditHighlighter()
 
 void EditWindow::previewLine()
 {
+    lcPreferences& Preferences = lcGetPreferences();
+    if (!Preferences.mPreviewEnabled)
+        return;
+
     if (isIncludeFile || !sender() || sender() != previewLineAct)
         return;
 
@@ -159,17 +163,10 @@ void EditWindow::previewLine()
     int colorCode        = partKeys.at(0).toInt();
     QString partType     = partKeys.at(1);
 
-    if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
         emit previewPieceSig(partType, colorCode);
         return;
     }
-
-    if (!lcGetPreferences().mPreviewEnabled)
-        return;
-
-    bool isSubfile       = partKeys.at(2).toInt();
-    bool isSubstitute    = partKeys.at(3).toInt();
-    Q_UNUSED(isSubstitute)
 
     PreviewWidget *Preview = new PreviewWidget();
 
@@ -179,12 +176,11 @@ void EditWindow::previewLine()
         if (!Preview->SetCurrentPiece(partType, colorCode))
             emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
 
-        QString typeLabel    = isSubfile ? "Submodel" : "Part";
-        QString windowTitle  = QString("%1 Preview").arg(typeLabel);
+        QString windowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
 
         ViewWidget->setWindowTitle(windowTitle);
         int Size[2] = { 300,200 };
-        if (lcGetPreferences().mPreviewSize == 400) {
+        if (Preferences.mPreviewSize == 400) {
             Size[0] = 400; Size[1] = 300;
         }
         ViewWidget->preferredSize = QSize(Size[0], Size[1]);
@@ -195,7 +191,7 @@ void EditWindow::previewLine()
         const QRect desktop = QApplication::desktop()->geometry();
 
         QPoint pos;
-        switch (lcGetPreferences().mPreviewLocation)
+        switch (Preferences.mPreviewLocation)
         {
         case lcPreviewLocation::TopRight:
             pos = mapToGlobal(rect().topRight());
@@ -571,7 +567,7 @@ void EditWindow::createToolBars()
 bool EditWindow::validPreviewLine ()
 {
     QString partType;
-    int validCode, isSubfile = 0, isSubstitute = 0, colorCode = int(LDRAW_MATERIAL_COLOUR);
+    int validCode, colorCode = int(LDRAW_MATERIAL_COLOUR);
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
@@ -590,12 +586,12 @@ bool EditWindow::validPreviewLine ()
 
         partType = partType.trimmed().toLower();
 
-        if ((isSubfile = _subFileList.contains(partType))) {
+        if (_subFileList.contains(partType)) {
             previewLineAct->setText(tr("Preview highlighted subfile..."));
             previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
         }
 
-    } else if ((isSubstitute = selection.contains("LPUB PLI BEGIN SUB "))) {
+    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", QString::SkipEmptyParts);
@@ -617,8 +613,7 @@ bool EditWindow::validPreviewLine ()
                                QString("Editor PartType: %1, ColorCode: %2, Line: %3")
                                .arg(partType).arg(colorCode).arg(selection));
 
-    QString partKey = QString("%1|%2|%3|%4")
-            .arg(colorCode).arg(partType).arg(isSubfile).arg(isSubstitute);
+    QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
 
     previewLineAct->setData(partKey);
     previewLineAct->setEnabled(true);

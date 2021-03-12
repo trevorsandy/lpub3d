@@ -2916,6 +2916,7 @@ Gui::Gui()
     Preferences::exportPreferences();
 
     PreviewWidget     = nullptr;
+    previewDockWindow = nullptr;
     displayPageNum    = 1;
     numPrograms       = 0;
 

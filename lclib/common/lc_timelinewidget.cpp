@@ -621,6 +621,10 @@ void lcTimelineWidget::mouseDoubleClickEvent(QMouseEvent *event)
 
 void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
 {
+	lcPreferences& Preferences = lcGetPreferences();
+	if (!Preferences.mPreviewEnabled)
+		return;
+
 	lcPiece* Piece = (lcPiece*)Current->data(0, Qt::UserRole).value<uintptr_t>();
 	if (!Piece)
 		return;
@@ -629,21 +633,13 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
 	if (!Info)
 		return;
 
-	bool IsSubfile    = Info->IsModel();
 	QString PartType  = Info->mFileName;
-	quint32 ColorCode = IsSubfile ? LDRAW_MATERIAL_COLOUR :
-									Piece->mColorCode;
+	quint32 ColorCode = Piece->mColorCode;
 
 	if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
 		emit gMainWindow->previewPieceSig(PartType, ColorCode);
 		return;
 	}
-
-	if (!lcGetPreferences().mPreviewEnabled)
-		return;
-
-	QString TypeLabel    = IsSubfile ? "Submodel" : "Part";
-	QString WindowTitle  = QString("%1 Preview").arg(TypeLabel);
 
 	PreviewWidget *Preview = new PreviewWidget();
 
@@ -652,6 +648,8 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
 	if (Preview && ViewWidget) {
 		if (!Preview->SetCurrentPiece(PartType, ColorCode))
 			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(PartType));
+
+		QString WindowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
 
 		ViewWidget->setWindowTitle(WindowTitle);
 		int Size[2] = { 300,200 };

@@ -1016,12 +1016,13 @@ int Application::run()
     delete gui;
     gui = nullptr;
 
+    delete gApplication;
+    gApplication = nullptr;
+
     delete availableVersions;
     availableVersions = nullptr;
 
     ldvWidget = nullptr;
-
-    gApplication = nullptr;
   }
 
   return ExecReturn;

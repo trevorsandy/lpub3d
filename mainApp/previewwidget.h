@@ -54,10 +54,10 @@ public:
     void ClearPreview();
 
 protected:
-    QToolBar      *toolBar;
-    QLabel        *label;
-    PreviewWidget *Preview;
-    lcQGLWidget   *ViewWidget;
+    QToolBar        *toolBar;
+    QLabel          *label;
+    PreviewWidget   *Preview;
+    lcQGLWidget     *ViewWidget;
 };
 
 class PreviewWidget : public lcGLWidget
@@ -95,6 +95,11 @@ public:
     QString GetDescription() const
     {
         return mDescription;
+    }
+
+    bool IsModel() const
+    {
+        return mIsModel;
     }
 
     lcVector3 UnprojectPoint(const lcVector3& Point) const
@@ -160,14 +165,14 @@ protected:
     lcTrackTool mTrackTool;
 
     QString mDescription;
-
-    bool mIsPart;
     bool mIsSubPreview;
+    bool mIsModel;
+
     bool mTrackUpdated;
     int mMouseDownX;
     int mMouseDownY;
 };
 
-extern class PreviewWidget* gPreviewWidget;
+extern PreviewWidget* gPreviewWidget;
 
 #endif // PREVIEWWIDGET_H

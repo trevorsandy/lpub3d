@@ -561,8 +561,8 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(viewerDockWindow, gMainWindow->GetTimelineToolBar());
 
     // Preview
-    previewDockWindow = nullptr;
-    if (lcGetPreferences().mPreviewPosition == lcPreviewPosition::Dockable)
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
         createPreviewWidget();
 
     connect(viewerDockWindow,                    SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
@@ -579,7 +579,7 @@ bool Gui::createPreviewWidget()
 
     if (PreviewWidget) {
         previewDockWindow = new QDockWidget(tr("3DPreview"), this);
-        previewDockWindow->setWindowTitle(trUtf8("3DPreview"));
+        previewDockWindow->setWindowTitle(tr("3DPreview"));
         previewDockWindow->setObjectName("PreviewDockWindow");
         previewDockWindow->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         previewDockWindow->setWidget(PreviewWidget);
@@ -632,10 +632,10 @@ void Gui::enableWindowFlags(bool detached)
     if (detached) {
         QDockWidget *dockWidget = qobject_cast<QDockWidget *>(sender());
         dockWidget->setWindowFlags(Qt::CustomizeWindowHint |
-                                          Qt::Window |
-                                          Qt::WindowMinimizeButtonHint |
-                                          Qt::WindowMaximizeButtonHint |
-                                          Qt::WindowCloseButtonHint);
+                                   Qt::Window |
+                                   Qt::WindowMinimizeButtonHint |
+                                   Qt::WindowMaximizeButtonHint |
+                                   Qt::WindowCloseButtonHint);
         dockWidget->show();
     }
 }

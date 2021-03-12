@@ -701,25 +701,21 @@ void lcPartSelectionListView::mouseDoubleClickEvent(QMouseEvent *event)
 /*** LPub3D Mod - Part selection preview ***/
 void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 {
+	lcPreferences& Preferences = lcGetPreferences();
+	if (!Preferences.mPreviewEnabled)
+		return;
+
 	PieceInfo* Info = mListModel->GetPieceInfo(InfoIndex);
 	if (!Info)
 		return;
 
-	bool IsSubfile    = Info->IsModel();
 	QString PartType  = Info->mFileName;
-	quint32 ColorCode = IsSubfile ? LDRAW_MATERIAL_COLOUR :
-									lcGetColorCode(mListModel->GetColorIndex());
+	quint32 ColorCode = lcGetColorCode(mListModel->GetColorIndex());
 
-	if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
+	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
 		emit gMainWindow->previewPieceSig(PartType, ColorCode);
 		return;
 	}
-
-	if (!lcGetPreferences().mPreviewEnabled)
-		return;
-
-	QString TypeLabel    = IsSubfile ? "Submodel" : "Part";
-	QString WindowTitle  = QString("%1 Preview").arg(TypeLabel);
 
 	PreviewWidget *Preview = new PreviewWidget();
 
@@ -729,9 +725,11 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 		if (!Preview->SetCurrentPiece(PartType, ColorCode))
 			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(PartType));
 
+		QString WindowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
+
 		ViewWidget->setWindowTitle(WindowTitle);
 		int Size[2] = { 300,200 };
-		if (lcGetPreferences().mPreviewSize == 400) {
+		if (Preferences.mPreviewSize == 400) {
 			Size[0] = 400; Size[1] = 300;
 		}
 		ViewWidget->preferredSize = QSize(Size[0], Size[1]);
@@ -742,7 +740,7 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 		const QRect desktop = QApplication::desktop()->geometry();
 
 		QPoint pos;
-		switch (lcGetPreferences().mPreviewLocation)
+		switch (Preferences.mPreviewLocation)
 		{
 		case lcPreviewLocation::TopRight:
 			pos = mapToGlobal(rect().topRight());

@@ -3553,20 +3553,17 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
 }
 
 void PGraphicsPixmapItem::previewPart() {
+    lcPreferences& Preferences = lcGetPreferences();
+    if (!Preferences.mPreviewEnabled)
+        return;
+
     int colorCode        = part->color.toInt();
     QString partType     = part->type;
 
-    if (lcGetPreferences().mPreviewPosition != lcPreviewPosition::Floating) {
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
         emit gui->previewPieceSig(partType, colorCode);
         return;
     }
-
-    if (!lcGetPreferences().mPreviewEnabled)
-        return;
-
-    bool isSubfile       = gui->isSubmodel(part->type);
-    QString typeLabel    = isSubfile ? "Submodel" : "Part";
-    QString windowTitle  = QString("%1 Preview").arg(typeLabel);
 
     PreviewWidget *Preview = new PreviewWidget();
 
@@ -3576,12 +3573,11 @@ void PGraphicsPixmapItem::previewPart() {
         if (!Preview->SetCurrentPiece(partType, colorCode))
             emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
 
-        QString typeLabel    = isSubfile ? "Submodel" : "Part";
-        QString windowTitle  = QString("%1 Preview").arg(typeLabel);
+        QString windowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
 
         ViewWidget->setWindowTitle(windowTitle);
         int Size[2] = { 300,200 };
-        if (lcGetPreferences().mPreviewSize == 400) {
+        if (Preferences.mPreviewSize == 400) {
             Size[0] = 400; Size[1] = 300;
         }
         ViewWidget->preferredSize = QSize(Size[0], Size[1]);
@@ -3593,7 +3589,7 @@ void PGraphicsPixmapItem::previewPart() {
 
         QGraphicsView *view = pli->background->scene()->views().first();
         QPointF sceneP;
-        switch (lcGetPreferences().mPreviewLocation)
+        switch (Preferences.mPreviewLocation)
         {
         case lcPreviewLocation::TopRight:
             sceneP = pli->background->mapToScene(pli->background->boundingRect().topRight());
