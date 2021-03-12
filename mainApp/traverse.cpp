@@ -3094,11 +3094,11 @@ int Gui::findPage(
                 if (!Preferences::buildModEnabled)
                     break;
                 if (!pageDisplayed) {
-                    opts.buildMod.key        = meta.LPub.buildMod.key();
+                    opts.buildMod.key = meta.LPub.buildMod.key();
                     opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
                     if (buildModContains(opts.buildMod.key))
                         buildModActions.insert(opts.buildMod.level,
-                                                    getBuildModAction(opts.buildMod.key, getBuildModNextStepIndex()));
+                                                    getBuildModAction(opts.buildMod.key, getBuildModNextStepIndex(),BM_PREVIOUS_ACTION));
                     else
                         buildModActions.insert(opts.buildMod.level, BuildModNoActionRc);
                     if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
