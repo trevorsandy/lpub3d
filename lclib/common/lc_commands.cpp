@@ -740,7 +740,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "View.ZoomExtents"),
 		QT_TRANSLATE_NOOP("Menu", "Zoom E&xtents"),
 		QT_TRANSLATE_NOOP("Status", "Fit all pieces in current the view (hold the CTRL key down to zoom all views)"),
-		""
+		"Shift+X"                                                                                                         /*** LPub3D Mod - LPub3D Add Shortcut ***/
 	},
 	// LC_VIEW_LOOK_AT
 	{
