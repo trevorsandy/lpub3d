@@ -43,6 +43,8 @@
 #include "LDVPreferences.h"
 #include "LDVWidget.h"
 
+#include "lc_edgecolordialog.h"
+
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 
 LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
@@ -162,9 +164,12 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
 	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
 	connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-	connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-	connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableStudLogoCombo() ) );
-	connect( studLogoCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
+	connect( automateEdgeColorBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( automateEdgeColorBox, SIGNAL(toggled(bool)), this, SLOT(enableAutomateEdgeColorButton()) );
+	connect( automateEdgeColorButton, SIGNAL(clicked()), this, SLOT(automateEdgeColor()) );
+	connect( studStyleCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
+	connect( studStyleCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(enableHighContrastButton(int)) );
+	connect( highContrastButton, SIGNAL(clicked()), this, SLOT(automateEdgeColor()) );
 
 	loadSettings();
 #ifdef WIN32
@@ -670,7 +675,8 @@ void LDVPreferences::doPrimitivesApply(void)
 	}
 	ldPrefs->setQualityStuds(!lowQualityStudsButton->isChecked());
 	ldPrefs->setHiResPrimitives(hiresPrimitivesButton->isChecked());
-	ldPrefs->setStudLogo(studLogoBox->isChecked() ? studLogoCombo->currentIndex() + 1 : 0 );
+	ldPrefs->setAutomateEdgeColor(automateEdgeColorBox->isChecked());
+	ldPrefs->setStudStyle(studStyleCombo->currentIndex());
 	ldPrefs->applyPrimitivesSettings();
 	ldPrefs->commitPrimitivesSettings();
 }
@@ -1201,13 +1207,10 @@ void LDVPreferences::reflectPrimitivesSettings(void)
 	{
 		transparentOffsetSlider->setValue(int(ldPrefs->getTextureOffsetFactor()*10));
 	}
-	studLogoBox->setChecked(ldPrefs->getStudLogo());
-	if (studLogoBox->isChecked())
-		studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo() - 1);
-	else
-		studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo());
-	enableStudLogoCombo();
-
+	automateEdgeColorBox->setChecked(ldPrefs->getAutomateEdgeColor());
+	enableStudStyleCombo();
+	enableAutomateEdgeColorButton();
+	enableHighContrastButton(studStyleCombo->currentIndex());
 }
 
 void LDVPreferences::reflectUpdatesSettings(void)
@@ -1272,11 +1275,18 @@ void LDVPreferences::doResetTimesUpdates(void)
 	LDrawModelViewer::resetUnofficialDownloadTimes();
 }
 
-void LDVPreferences::getRGB(int color, int &r, int &g, int &b)
+void LDVPreferences::getRGBA(int color, int &r, int &g, int &b, int &a)
 {
 	r = color & 0xFF;
 	g = (color >> 8) & 0xFF;
 	b = (color >> 16) & 0xFF;
+	a = (color >> 24) & 0xFF;
+}
+
+void LDVPreferences::getRGB(int color, int &r, int &g, int &b)
+{
+	int dummy = 255;
+	getRGBA(color, r, g, b, dummy);
 }
 
 void LDVPreferences::setStatusBar(bool value)
@@ -2611,7 +2621,7 @@ void LDVPreferences::userDefaultChangedAlertCallback(TCAlert *alert)  // Not Use
 	{
 		if (strcmp(key, CHECK_PART_TRACKER_KEY) == 0)
 		{
-			if (this)
+			if (ldPrefs)
 			{
 				reflectUpdatesSettings();
 			}
@@ -2731,9 +2741,47 @@ void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString 
 	}
 }
 
-void LDVPreferences::enableStudLogoCombo()
+void LDVPreferences::enableStudStyleCombo()
 {
-   studLogoCombo->setEnabled(studLogoBox->isChecked());
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("Plain"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("ThinLineLogo"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("OutlineLogo"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("SharpTopLogo"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("RoundedTopLogo"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("FlattenedLogo"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("HighContrast"))));
+	studStyleCombo->addItem(QString::fromStdWString(TCObject::ls(_UC("HighContrastWithLogo"))));
+	studStyleCombo->setCurrentIndex(ldPrefs->getStudStyle());
+}
+
+void LDVPreferences::enableAutomateEdgeColorButton()
+{
+	automateEdgeColorButton->setEnabled(automateEdgeColorBox->isChecked());
+}
+
+void LDVPreferences::enableHighContrastButton(int index)
+{
+	highContrastButton->setEnabled(index > 5);
+}
+
+void LDVPreferences::automateEdgeColor()
+{
+	lcAutomateEdgeColorDialog Dialog(this, sender() == highContrastButton);
+	if (Dialog.exec() == QDialog::Accepted)
+	{
+		int r, g, b, a;
+		getRGBA(Dialog.mStudCylinderColor, r, g, b, a);
+		ldPrefs->setStudCylinderColor(r, g, b, a);
+		getRGBA(Dialog.mPartEdgeColor, r, g, b, a);
+		ldPrefs->setPartEdgeColor(r, g, b, a);
+		getRGBA(Dialog.mBlackEdgeColor, r, g, b, a);
+		ldPrefs->setBlackEdgeColor(r, g, b, a);
+		getRGBA(Dialog.mDarkEdgeColor, r, g, b, a);
+		ldPrefs->setDarkEdgeColor(r, g, b, a);
+
+		ldPrefs->setPartEdgeContrast(Dialog.mPartEdgeContrast);
+		ldPrefs->setPartColorValueLDIndex(Dialog.mPartColorValueLDIndex);
+	}
 }
 
 void LDVPreferences::enableApply(void)

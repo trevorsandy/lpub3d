@@ -43,6 +43,7 @@ public:
 	void abandonChanges(void);
 	bool getAllowPrimitiveSubstitution(void);
 	void getRGB(int color, int &r, int &g, int &b);
+	void getRGBA(int color, int &r, int &g, int &b, int &a);
 	void getBackgroundColor(int &r, int &g, int &b);
 	bool getShowErrors(void);
 	void setAniso(int);
@@ -164,16 +165,19 @@ public slots:
 	void doAnisotropicSlider(int);
 	void doDrawLightDats();
 	void doSaveDefaultViewAngle();
-#ifdef WIN32	
+#ifdef WIN32
 	void fsaaModeBoxChanged(const QString&);
-#endif // WIN32	
+#endif // WIN32
 	void snapshotSaveDirBoxChanged();
 	void partsListsSaveDirBoxChanged();
 	void exportsListsSaveDirBoxChanged();
 	void snapshotSaveDirBrowse();
 	void partsListsSaveDirBrowse();
 	void exportsSaveDirBrowse();
-	void enableStudLogoCombo();
+	void enableStudStyleCombo();
+	void automateEdgeColor();
+	void enableAutomateEdgeColorButton();
+	void enableHighContrastButton(int);
 
 protected:
 	void doGeneralApply(void);

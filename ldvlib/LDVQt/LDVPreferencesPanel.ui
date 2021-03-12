@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -1714,7 +1714,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleULOff.png</normaloff>:/resources/LightAngleULOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1731,7 +1731,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleUMOff.png</normaloff>:/resources/LightAngleUMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1748,7 +1748,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleUROff.png</normaloff>:/resources/LightAngleUROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1765,7 +1765,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleMLOff.png</normaloff>:/resources/LightAngleMLOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1782,7 +1782,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleMMOff.png</normaloff>:/resources/LightAngleMMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1799,7 +1799,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleMROff.png</normaloff>:/resources/LightAngleMROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1816,7 +1816,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleLLOff.png</normaloff>:/resources/LightAngleLLOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1833,7 +1833,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleLMOff.png</normaloff>:/resources/LightAngleLMOff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -1850,7 +1850,7 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="resources.qrc">
+                    <iconset>
                      <normaloff>:/resources/LightAngleLROff.png</normaloff>:/resources/LightAngleLROff.png</iconset>
                    </property>
                    <property name="checkable">
@@ -3296,74 +3296,66 @@
          <property name="title">
           <string>&amp;Miscellaneous</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QCheckBox" name="studLogoBox">
-              <property name="text">
-               <string>Stud Logo</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="studLogoCombo">
-              <property name="currentIndex">
-               <number>2</number>
-              </property>
-              <item>
-               <property name="text">
-                <string>Single Wire</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Double Wire</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Raised Flat</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Raised Rounded</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Subtle Rounded</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="3" column="0" colspan="2">
            <widget class="QCheckBox" name="lowQualityStudsButton">
             <property name="text">
              <string>Low quality studs (faster)</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="5">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="hiresPrimitivesButton">
             <property name="text">
              <string>Use hi-res primitives when available</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="automateEdgeColorBox">
+            <property name="text">
+             <string>Automate Edge Color</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="studStyleCombo">
+            <property name="currentIndex">
+             <number>-1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Stud Style:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="highContrastButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QToolButton" name="automateEdgeColorButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>
@@ -3957,15 +3949,35 @@ into effect until the next time a model is loaded.</string>
  <layoutdefault spacing="4" margin="11"/>
  <tabstops>
   <tabstop>tabs</tabstop>
+  <tabstop>fsaaModeBox</tabstop>
+  <tabstop>aaLinesButton</tabstop>
   <tabstop>backgroundColorButton</tabstop>
   <tabstop>defaultColorButton</tabstop>
   <tabstop>transparentButton</tabstop>
   <tabstop>processLdconfigLdrButton</tabstop>
   <tabstop>randomColorsButton</tabstop>
+  <tabstop>autoCropButton</tabstop>
+  <tabstop>transparentBackgroundButton</tabstop>
+  <tabstop>havePixelBufferButton</tabstop>
   <tabstop>fieldOfViewDoubleSpin</tabstop>
+  <tabstop>showAxesButton</tabstop>
+  <tabstop>frameRateButton</tabstop>
+  <tabstop>showErrorsButton</tabstop>
+  <tabstop>memoryUsageBox</tabstop>
+  <tabstop>snapshotSaveDirBox</tabstop>
+  <tabstop>snapshotSaveDirEdit</tabstop>
+  <tabstop>snapshotSaveDirButton</tabstop>
+  <tabstop>partsListsSaveDirBox</tabstop>
+  <tabstop>partsListsSaveDirEdit</tabstop>
+  <tabstop>partsListsSaveDirButton</tabstop>
+  <tabstop>exportsListsSaveDirBox</tabstop>
+  <tabstop>exportsSaveDirEdit</tabstop>
+  <tabstop>exportsSaveDirButton</tabstop>
+  <tabstop>iniFileEdit</tabstop>
   <tabstop>generalResetButton</tabstop>
   <tabstop>seamWidthButton</tabstop>
   <tabstop>seamWidthDoubleSpin</tabstop>
+  <tabstop>partBoundingBoxOnlyBox</tabstop>
   <tabstop>wireframeButton</tabstop>
   <tabstop>wireframeFogButton</tabstop>
   <tabstop>wireframeRemoveHiddenLineButton</tabstop>
@@ -3982,19 +3994,30 @@ into effect until the next time a model is loaded.</string>
   <tabstop>highQualityLinesButton</tabstop>
   <tabstop>alwaysBlackLinesButton</tabstop>
   <tabstop>edgeThicknessSlider</tabstop>
-  <tabstop>geometryResetButton</tabstop>
   <tabstop>lightingButton</tabstop>
   <tabstop>qualityLightingButton</tabstop>
   <tabstop>subduedLightingButton</tabstop>
   <tabstop>specularLightingButton</tabstop>
   <tabstop>alternateLightingButton</tabstop>
+  <tabstop>lightingDir11</tabstop>
+  <tabstop>lightingDir12</tabstop>
+  <tabstop>lightingDir13</tabstop>
+  <tabstop>lightingDir21</tabstop>
+  <tabstop>lightingDir22</tabstop>
+  <tabstop>lightingDir23</tabstop>
+  <tabstop>lightingDir31</tabstop>
+  <tabstop>lightingDir32</tabstop>
+  <tabstop>lightingDir33</tabstop>
+  <tabstop>effectsUseLIGHTDATButton</tabstop>
+  <tabstop>effectsReplaceStandarLightButton</tabstop>
+  <tabstop>effectsHideLIGHTButton</tabstop>
   <tabstop>stereoButton</tabstop>
   <tabstop>crossEyedStereoButton</tabstop>
   <tabstop>parallelStereoButton</tabstop>
   <tabstop>stereoAmountSlider</tabstop>
   <tabstop>wireframeCutawayButton</tabstop>
-  <tabstop>colorCutawayButton</tabstop>
   <tabstop>monochromeCutawayButton</tabstop>
+  <tabstop>colorCutawayButton</tabstop>
   <tabstop>cutawayOpacitySlider</tabstop>
   <tabstop>cutawayThicknessSlider</tabstop>
   <tabstop>sortTransparencyButton</tabstop>
@@ -4003,24 +4026,43 @@ into effect until the next time a model is loaded.</string>
   <tabstop>smoothCurvesButton</tabstop>
   <tabstop>effectsResetButton</tabstop>
   <tabstop>primitiveSubstitutionButton</tabstop>
+  <tabstop>curveQualitySlider</tabstop>
+  <tabstop>useTextureMapsButton</tabstop>
+  <tabstop>transparentOffsetSlider</tabstop>
   <tabstop>textureStudsButton</tabstop>
   <tabstop>nearestFilteringButton</tabstop>
   <tabstop>bilinearFilteringButton</tabstop>
   <tabstop>trilinearFilteringButton</tabstop>
   <tabstop>anisotropicFilteringButton</tabstop>
   <tabstop>anisotropicFilteringSlider</tabstop>
-  <tabstop>curveQualitySlider</tabstop>
+  <tabstop>studStyleCombo</tabstop>
+  <tabstop>highContrastButton</tabstop>
+  <tabstop>automateEdgeColorBox</tabstop>
+  <tabstop>automateEdgeColorButton</tabstop>
   <tabstop>lowQualityStudsButton</tabstop>
   <tabstop>hiresPrimitivesButton</tabstop>
   <tabstop>primitvesResetButton</tabstop>
+  <tabstop>preferenceSetList</tabstop>
+  <tabstop>hotkeyPreferenceSetButton</tabstop>
+  <tabstop>delPreferenceSetButton</tabstop>
+  <tabstop>newPreferenceSetButton</tabstop>
+  <tabstop>updatesNoproxyButton</tabstop>
+  <tabstop>updatesWindowsproxyButton</tabstop>
+  <tabstop>updatesProxyButton</tabstop>
+  <tabstop>proxyEdit</tabstop>
+  <tabstop>portEdit</tabstop>
+  <tabstop>updatesMissingpartsButton</tabstop>
+  <tabstop>daymissingpartcheckText</tabstop>
+  <tabstop>dayupdatedpartcheckText</tabstop>
+  <tabstop>updatesResetTimesButton</tabstop>
+  <tabstop>updatesResetButton</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>applyButton</tabstop>
+  <tabstop>geometryResetButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
