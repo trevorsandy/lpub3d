@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 15, 2020
+#  Last Update: October 16, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -44,21 +44,11 @@ cd $LP3D_BUILD_FOLDER
 if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_STORAGE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
-    if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      export LP3D_ASSET_EXT="pkg.tar.zst"
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
-    fi;
-    if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-      export LP3D_ASSET_EXT="rpm"
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
-    fi;
-    if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-      export LP3D_ASSET_EXT="deb"
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
-    fi;
+    [ "$LP3D_BUILD_ARCH" = "true" ] && export LP3D_ASSET_EXT="pkg.tar.zst"
+    [ "$LP3D_BUILD_FEDORA" = "true" ] && export LP3D_ASSET_EXT="rpm"
+    [ "$LP3D_BUILD_UBUNTU" = "true" ] && export LP3D_ASSET_EXT="deb"
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
+    file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
@@ -97,7 +87,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     LP3D_DROPBOX_DIR="$LP3D_DROPBOX_BUILDS_DIR";
   fi;
 
-  # Upload assets to Dropbox for temp storage
+  # Upload assets to Dropbox storage
   if [ -f "/tmp/.dropbox_oauth" ]; then
     chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
     ./"${LP3D_CI_DIR}/dropbox_uploader.sh" mkdir "$LP3D_DROPBOX_DIR";
@@ -150,29 +140,12 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     else
       echo  "   Error: could not update release title ${upload_script_file}"
     fi;
-    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst.sha512
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst
-      fi;
-      if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm.sha512
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm
-      fi;
-      if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.deb.sha512
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.deb
-      fi;
-    fi;
-    if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage.sha512
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage
-    fi;
-    if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg.sha512
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg
-    fi;
+    # Perform GitHub upload
+    file_DPkg=$(find $LP3D_DOWNLOAD_ASSETS/ -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
+    [ -f "${file_DPkg}" ] && bash upload.sh "${file_DPkg}" || echo "ERROR - ${file_DPkg} GitHub upload failed."
+    [ -f "${file_DPkg}" ] && bash upload.sh "${file_DPkg}.sha512"  || echo "ERROR - ${file_DPkg} GitHub upload failed."
   fi;
+  
   # Upload Sourceforge.net build assets at each build for continuous and official deploy
   if [ "$LP3D_DEPLOY_PACKAGES" != "true" ]; then
     source ${LP3D_CI_SCRIPT_DIR}/releases
