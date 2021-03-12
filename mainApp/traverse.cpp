@@ -2495,6 +2495,11 @@ int Gui::drawPage(
 
                   dividerType = NoDivider;
 
+                  // increment continuous step number
+                  if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
+                      steps->groupStepMeta.LPub.contModelStepNum.setValue(
+                                  steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
+
                   steps->meta.pop();
                   steps->meta.LPub.buildMod.clear();
                   curMeta.LPub.buildMod.clear();

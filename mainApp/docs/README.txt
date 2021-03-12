@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2143 (12 03 2021 07:44:21)
+LPub3D 2.4.1.1.2144 (12 03 2021 07:44:59)
 
 Features, enhancements, fixes and changes
 ------------
@@ -24,6 +24,7 @@ Revisions:
 - Fix - Empty editor when buffered pages is on and lines per page is less than default #462
 - Fix - Format callout mono images for native renderer #458
 - Fix - Load PLI substitute and excluded part lists on initialisation #471
+- Fix - LPub3D 2.3.13 and 2.4 not showing times indicator in certain instances #480
 - Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
 - Fix - Rounded corners are not round but oval #473
 - Fix - Segmentation fault (core dumped) when dragging step number #466
