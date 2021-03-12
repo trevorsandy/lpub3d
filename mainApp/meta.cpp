@@ -6235,12 +6235,7 @@ void Meta::processSpecialCases(QString &line, Where &here){
         line.replace(parseRx.cap(1),"CAMERA_ANGLES");
         return;
     }
-    /* Legacy LPub backward compatibilty. Replace HIGHLIGHT/FADE with ENABLE */
-    parseRx.setPattern("\\s+(HIGHLIGHT|FADE)\\s+");
-    if (line.contains(parseRx)) {
-        line.replace(parseRx.cap(1),"ENABLE");
-        return;
-    }
+
     /* Native camera distance deprecated. Command ignored if not GLOBAL */
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
         if (gui->parsedMessages.contains(here)) {

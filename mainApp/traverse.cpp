@@ -1155,7 +1155,7 @@ int Gui::drawPage(
               if (Preferences::enableFadeSteps)
                   break;
               if (! curMeta.LPub.fadeStep.setup.value())
-                  parseError("Fade previous step cannot run. FADE_STEP SETUP was not detected in the first step of the main model file.",opts.current);
+                  parseError("Fade previous steps will not be processed. FADE_STEP SETUP is not set to TRUE in the first step of the main model file.",opts.current);
               else if (rc == EnableFadeStepsRc)
                   curMeta.LPub.fadeStep.setPreferences();
               else
@@ -1167,7 +1167,7 @@ int Gui::drawPage(
               if (Preferences::enableHighlightStep)
                   break;
               if (! curMeta.LPub.highlightStep.setup.value())
-                  parseError("Fade previous step cannot run. HIGHLIGHT_STEP SETUP was not detected in the first step of the main model file.",opts.current);
+                  parseError("Highlight current step will not be processed. HIGHLIGHT_STEP SETUP is not set to TRUE in the first step of the main model file.",opts.current);
               else if (rc == EnableHighlightStepRc)
                   curMeta.LPub.highlightStep.setPreferences();
               else
