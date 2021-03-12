@@ -1121,7 +1121,7 @@ public:
 
   void restorePreferredRenderer();
 
-  void setPreferredRenderer(const QString &renderer = QString());
+  void setNativeRenderer();
 
   bool compareVersionStr(const QString &first, const QString &second);
 
@@ -1549,11 +1549,6 @@ private:
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
-  QString                saveRenderer;
-  bool                   saveProjection;
-  bool                   saveSingleCall;
-  bool                   saveSnapShotList;
-  bool                   saveNativeGenerator;
   bool                   setupFadeSteps;
   bool                   setupHighlightStep;
 
@@ -1565,8 +1560,11 @@ private:
   int                     bomOccurrence;   // the actual occurrence of each pli BOM
   QStringList             bomParts;        // list of part strings configured for BOM setup
   QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
-  RendererData            savedData;       // store current renderer data;
   lcPreview*              preview;
+
+  RendererData            savedData;       // store current renderer data when temporarily switching renderer;
+  QString                 saveRenderer;    // saved renderer when temporarily switching to Native renderer
+  bool                    saveProjection;  // saved projection when temporarily switching to Native renderer
 
   bool                   okToInvokeProgressBar()
   {

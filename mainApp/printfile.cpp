@@ -560,7 +560,7 @@ void Gui::exportAsHtml()
     emit setExportingObjectsSig(true);
 
     // Switch to Native Renderer for fast processing
-    setPreferredRenderer();
+    setNativeRenderer();
 
     // store current display page number
     int savePageNumber = displayPageNum;
@@ -1285,7 +1285,7 @@ void Gui::exportAs(const QString &_suffix)
   // Switch to Native Renderer for fast processing
   if (exportingObjects()) {
 
-      setPreferredRenderer();
+      setNativeRenderer();
 
       char *exportsDir = nullptr;
       exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);

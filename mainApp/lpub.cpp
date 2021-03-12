@@ -223,19 +223,12 @@ void Gui::httpDownloadFinished()
  * set Native renderer for fast processing
  **********************************************************************/
 
-void Gui::setPreferredRenderer(const QString &renderer) {
-    if (!Preferences::usingNativeRenderer || !renderer.isEmpty()) {
+void Gui::setNativeRenderer() {
+    if (!Preferences::usingNativeRenderer) {
         saveRenderer   = Preferences::preferredRenderer;
         saveProjection = Preferences::perspectiveProjection;
-        saveSingleCall = Preferences::enableLDViewSingleCall;
-        if (renderer.isEmpty()) {
-           Preferences::preferredRenderer   = RENDERER_NATIVE;
-           Preferences::usingNativeRenderer = true;
-        } else {
-           Preferences::preferredRenderer   = renderer;
-        }
+        Preferences::preferredRenderer      = RENDERER_NATIVE;
         Preferences::perspectiveProjection  = true;
-        Preferences::enableLDViewSingleCall = false;
         Render::setRenderer(Preferences::preferredRenderer);
     }
 }
@@ -244,7 +237,6 @@ void Gui::restorePreferredRenderer() {
     if (!saveRenderer.isEmpty()) {
         Preferences::preferredRenderer      = saveRenderer;
         Preferences::perspectiveProjection  = saveProjection;
-        Preferences::enableLDViewSingleCall = saveSingleCall;
         Preferences::usingNativeRenderer    = saveRenderer == RENDERER_NATIVE;
         Render::setRenderer(Preferences::preferredRenderer);
         saveRenderer = QString();
