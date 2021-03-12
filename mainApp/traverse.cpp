@@ -2997,8 +2997,8 @@ int Gui::findPage(
                                       // Set buildMod action
                                       if (opts.buildMod.state != BM_NONE)
                                           opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                                      // set partsAdded so countPage will properly trigger 
-                                      opts.flags.partsAdded++; 
+                                      // set partsAdded so countPage will properly trigger
+                                      opts.flags.partsAdded++;
                                       // advance one line so we don't process this line again in the countPage block
                                       opts.current++;
                                       // set processing state
@@ -3180,7 +3180,7 @@ int Gui::findPage(
                       }
                   } // Exporting
 
-                  ++opts.pageNum;         
+                  ++opts.pageNum;
                   topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
@@ -4421,7 +4421,7 @@ void Gui::drawPage(
       }
 
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, meta, &ldrawFile, modelStack, findOptions);
-      if (exporting() || ContinuousPage()) {
+      if (exporting() || ContinuousPage() || mloadingFile) {
           future.waitForFinished();
           pagesCounted();
       } else {
@@ -4445,28 +4445,31 @@ void Gui::pagesCounted()
     if (Preferences::modeGUI && ! exporting()) {
         QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
         setPageLineEdit->setText(string);
+    } // modeGUI and not exporting
 
-        // countPage
-        if (saveDisplayPageNum) {
-            if (displayPageNum > maxPages)
-                displayPageNum = maxPages;
-            else
-                displayPageNum = saveDisplayPageNum;
+    // countPage
+    if (saveDisplayPageNum) {
+        if (displayPageNum > maxPages)
+            displayPageNum = maxPages;
+        else
+            displayPageNum = saveDisplayPageNum;
 
-            saveDisplayPageNum = 0;
+        saveDisplayPageNum = 0;
 
-            emit messageSig(LOG_STATUS,QString());
-        }
-        // drawPage
-        else {
-            if (mloadingFile) {
+        emit messageSig(LOG_STATUS,QString());
+    }
+    // drawPage
+    else
+    {
+        if (mloadingFile) {
+            if (Preferences::modeGUI && ! exporting()) {
                 emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                                     QString("LDraw model file %1 aborted.").arg(getCurFile()) :
                                     QString("Model loaded (%1 pages, %2 parts). %3")
                                     .arg(maxPages)
                                     .arg(ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
-                if (!maxPages || !ldrawFile.getPartCount()) {
+                if (!maxPages && !ldrawFile.getPartCount()) {
                     emit messageSig(LOG_ERROR,QString("File '%1' is invalid - %2 pages, %3 parts loaded.")
                                     .arg(getCurFile())
                                     .arg(maxPages)
@@ -4475,18 +4478,22 @@ void Gui::pagesCounted()
                     if (waitingSpinner->isSpinning())
                         waitingSpinner->stop();
                 }
-                mloadingFile = false;
-            } else if (! ContinuousPage()) {
-                emit messageSig(LOG_INFO_STATUS,QString("Page %1 loaded %2.")
-                                .arg(displayPageNum)
-                                .arg(gui->elapsedTime(timer.elapsed())));
-            }
+            } // modeGUI and not exporting
+        } else if (! ContinuousPage()) {
+            emit messageSig(LOG_INFO_STATUS,QString("Page %1 loaded %2.")
+                            .arg(displayPageNum)
+                            .arg(gui->elapsedTime(timer.elapsed())));
+        }
+
+        if (Preferences::modeGUI && ! exporting()) {
             enableActions2();
             enableNavigationActions(true);
             enable3DActions(!page.coverPage);
-        }
+        } // modeGUI and not exporting
+    }
 
-    } // modeGUI and not exporting
+    if (mloadingFile)
+        mloadingFile = false;
 
 //#ifdef QT_DEBUG_MODE
 //    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
