@@ -1677,6 +1677,11 @@ private:
     QString const   &addLine,
     DrawPageOptions &opts);
 
+  void setSceneItemZValueDirection(
+          QMap<Where, SceneObjectData> *selectedSceneItems,
+          Meta &curMeta,
+    const QString &line);
+
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
   int include(Meta &meta, Where &includeHere, bool &inserted);

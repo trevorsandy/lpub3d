@@ -1403,130 +1403,7 @@ int Gui::drawPage(
               break;
 
            case SceneItemZValueDirectionRc:
-              {
-                   auto insertItem = [&selectedSceneItems](Where here, SceneObjectData soData){
-                      if (selectedSceneItems.contains(here))
-                          selectedSceneItems.remove(here);
-                      selectedSceneItems.insert(here,soData);
-                      if (Preferences::debugLogging){
-                          emit gui->messageSig(LOG_DEBUG, QString("Selected item %1 (%2) added to the current page item list.")
-                                              .arg(soMap[SceneObject(soData.itemObj)])
-                                              .arg(soData.itemObj));
-                      }
-                  };
-
-                  if (line.contains(curMeta.LPub.page.scene.assemAnnotation.preamble))
-                      insertItem(curMeta.LPub.page.scene.assemAnnotation.here(),
-                                 curMeta.LPub.page.scene.assemAnnotation.value());
-                  else if (line.contains(curMeta.LPub.page.scene.assemAnnotationPart.preamble))
-                      insertItem(curMeta.LPub.page.scene.assemAnnotationPart.here(),
-                                 curMeta.LPub.page.scene.assemAnnotationPart.value());
-                  else if (line.contains(curMeta.LPub.page.scene.assem.preamble))
-                      insertItem(curMeta.LPub.page.scene.assem.here(),
-                                 curMeta.LPub.page.scene.assem.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutUnderpinning.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutUnderpinning.here(),
-                                 curMeta.LPub.page.scene.calloutUnderpinning.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutBackground.here(),
-                                 curMeta.LPub.page.scene.calloutBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutPointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutPointer.here(),
-                                 curMeta.LPub.page.scene.calloutPointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutInstance.here(),
-                                 curMeta.LPub.page.scene.calloutInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerBackground.here(),
-                                 curMeta.LPub.page.scene.dividerBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.divider.preamble))
-                      insertItem(curMeta.LPub.page.scene.divider.here(),
-                                 curMeta.LPub.page.scene.divider.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerLine.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerLine.here(),
-                                 curMeta.LPub.page.scene.dividerLine.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerPointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerPointer.here(),
-                                 curMeta.LPub.page.scene.dividerPointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pointerGrabber.here(),
-                                 curMeta.LPub.page.scene.pointerGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pliGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pliGrabber.here(),
-                                 curMeta.LPub.page.scene.pliGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.submodelGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.submodelGrabber.here(),
-                                 curMeta.LPub.page.scene.submodelGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.insertPicture.preamble))
-                      insertItem(curMeta.LPub.page.scene.insertPicture.here(),
-                                 curMeta.LPub.page.scene.insertPicture.value());
-                  else if (line.contains(curMeta.LPub.page.scene.insertText.preamble))
-                      insertItem(curMeta.LPub.page.scene.insertText.here(),
-                                 curMeta.LPub.page.scene.insertText.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageAttributePixmap.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageAttributePixmap.here(),
-                                 curMeta.LPub.page.scene.pageAttributePixmap.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageAttributeText.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageAttributeText.here(),
-                                 curMeta.LPub.page.scene.pageAttributeText.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageNumber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pageNumber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pagePointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.pagePointer.here(),
-                                 curMeta.LPub.page.scene.pagePointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListAnnotation.preamble))
-                      insertItem(curMeta.LPub.page.scene.pagePointer.here(),
-                                 curMeta.LPub.page.scene.partsListAnnotation.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListBackground.here(),
-                                 curMeta.LPub.page.scene.partsListBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.partsListInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerHead.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerHead.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerFirstSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerFirstSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerSecondSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerSecondSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerThirdSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerThirdSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.rotateIconBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.rotateIconBackground.here(),
-                                 curMeta.LPub.page.scene.rotateIconBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.stepNumber.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepNumber.here(),
-                                 curMeta.LPub.page.scene.stepNumber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.subModelBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.subModelBackground.here(),
-                                 curMeta.LPub.page.scene.subModelBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.subModelInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.subModelInstance.here(),
-                                 curMeta.LPub.page.scene.subModelInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.submodelInstanceCount.preamble))
-                      insertItem(curMeta.LPub.page.scene.submodelInstanceCount.here(),
-                                 curMeta.LPub.page.scene.submodelInstanceCount.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListPixmap.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListPixmap.here(),
-                                 curMeta.LPub.page.scene.partsListPixmap.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListGroup.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListGroup.here(),
-                                 curMeta.LPub.page.scene.partsListGroup.value());
-                  else if (line.contains(curMeta.LPub.page.scene.stepBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.stepBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.multiStepBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.multiStepBackground.value());
-                  else /*if (line.contains(curMeta.LPub.page.scene.multiStepsBackground.preamble))*/
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.multiStepsBackground.value());
-              }
+              setSceneItemZValueDirection(&selectedSceneItems, curMeta, line);
               break;
 
            case PliPartGroupRc:
@@ -5503,4 +5380,133 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
                  .arg(_mainColourValue)     // main color value
                  .arg(_edgeColourValue)     // edge color value
                  .arg(_alphaValue);         // color alpha value
+}
+
+void Gui::setSceneItemZValueDirection(
+        QMap<Where, SceneObjectData> *selectedSceneItems,
+        Meta &curMeta,
+  const QString &line)
+{
+    auto insertItem = [&selectedSceneItems](Where here, SceneObjectData soData) {
+       if (selectedSceneItems->contains(here))
+           selectedSceneItems->remove(here);
+       selectedSceneItems->insert(here,soData);
+       if (Preferences::debugLogging){
+           emit gui->messageSig(LOG_DEBUG, QString("Selected item %1 (%2) added to the current page item list.")
+                               .arg(soMap[SceneObject(soData.itemObj)])
+                               .arg(soData.itemObj));
+       }
+   };
+
+   if (line.contains(curMeta.LPub.page.scene.assemAnnotation.preamble))
+       insertItem(curMeta.LPub.page.scene.assemAnnotation.here(),
+                  curMeta.LPub.page.scene.assemAnnotation.value());
+   else if (line.contains(curMeta.LPub.page.scene.assemAnnotationPart.preamble))
+       insertItem(curMeta.LPub.page.scene.assemAnnotationPart.here(),
+                  curMeta.LPub.page.scene.assemAnnotationPart.value());
+   else if (line.contains(curMeta.LPub.page.scene.assem.preamble))
+       insertItem(curMeta.LPub.page.scene.assem.here(),
+                  curMeta.LPub.page.scene.assem.value());
+   else if (line.contains(curMeta.LPub.page.scene.calloutUnderpinning.preamble))
+       insertItem(curMeta.LPub.page.scene.calloutUnderpinning.here(),
+                  curMeta.LPub.page.scene.calloutUnderpinning.value());
+   else if (line.contains(curMeta.LPub.page.scene.calloutBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.calloutBackground.here(),
+                  curMeta.LPub.page.scene.calloutBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.calloutPointer.preamble))
+       insertItem(curMeta.LPub.page.scene.calloutPointer.here(),
+                  curMeta.LPub.page.scene.calloutPointer.value());
+   else if (line.contains(curMeta.LPub.page.scene.calloutInstance.preamble))
+       insertItem(curMeta.LPub.page.scene.calloutInstance.here(),
+                  curMeta.LPub.page.scene.calloutInstance.value());
+   else if (line.contains(curMeta.LPub.page.scene.dividerBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.dividerBackground.here(),
+                  curMeta.LPub.page.scene.dividerBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.divider.preamble))
+       insertItem(curMeta.LPub.page.scene.divider.here(),
+                  curMeta.LPub.page.scene.divider.value());
+   else if (line.contains(curMeta.LPub.page.scene.dividerLine.preamble))
+       insertItem(curMeta.LPub.page.scene.dividerLine.here(),
+                  curMeta.LPub.page.scene.dividerLine.value());
+   else if (line.contains(curMeta.LPub.page.scene.dividerPointer.preamble))
+       insertItem(curMeta.LPub.page.scene.dividerPointer.here(),
+                  curMeta.LPub.page.scene.dividerPointer.value());
+   else if (line.contains(curMeta.LPub.page.scene.pointerGrabber.preamble))
+       insertItem(curMeta.LPub.page.scene.pointerGrabber.here(),
+                  curMeta.LPub.page.scene.pointerGrabber.value());
+   else if (line.contains(curMeta.LPub.page.scene.pliGrabber.preamble))
+       insertItem(curMeta.LPub.page.scene.pliGrabber.here(),
+                  curMeta.LPub.page.scene.pliGrabber.value());
+   else if (line.contains(curMeta.LPub.page.scene.submodelGrabber.preamble))
+       insertItem(curMeta.LPub.page.scene.submodelGrabber.here(),
+                  curMeta.LPub.page.scene.submodelGrabber.value());
+   else if (line.contains(curMeta.LPub.page.scene.insertPicture.preamble))
+       insertItem(curMeta.LPub.page.scene.insertPicture.here(),
+                  curMeta.LPub.page.scene.insertPicture.value());
+   else if (line.contains(curMeta.LPub.page.scene.insertText.preamble))
+       insertItem(curMeta.LPub.page.scene.insertText.here(),
+                  curMeta.LPub.page.scene.insertText.value());
+   else if (line.contains(curMeta.LPub.page.scene.pageAttributePixmap.preamble))
+       insertItem(curMeta.LPub.page.scene.pageAttributePixmap.here(),
+                  curMeta.LPub.page.scene.pageAttributePixmap.value());
+   else if (line.contains(curMeta.LPub.page.scene.pageAttributeText.preamble))
+       insertItem(curMeta.LPub.page.scene.pageAttributeText.here(),
+                  curMeta.LPub.page.scene.pageAttributeText.value());
+   else if (line.contains(curMeta.LPub.page.scene.pageNumber.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.pageNumber.value());
+   else if (line.contains(curMeta.LPub.page.scene.pagePointer.preamble))
+       insertItem(curMeta.LPub.page.scene.pagePointer.here(),
+                  curMeta.LPub.page.scene.pagePointer.value());
+   else if (line.contains(curMeta.LPub.page.scene.partsListAnnotation.preamble))
+       insertItem(curMeta.LPub.page.scene.pagePointer.here(),
+                  curMeta.LPub.page.scene.partsListAnnotation.value());
+   else if (line.contains(curMeta.LPub.page.scene.partsListBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.partsListBackground.here(),
+                  curMeta.LPub.page.scene.partsListBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.partsListInstance.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.partsListInstance.value());
+   else if (line.contains(curMeta.LPub.page.scene.pointerHead.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.pointerHead.value());
+   else if (line.contains(curMeta.LPub.page.scene.pointerFirstSeg.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.pointerFirstSeg.value());
+   else if (line.contains(curMeta.LPub.page.scene.pointerSecondSeg.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.pointerSecondSeg.value());
+   else if (line.contains(curMeta.LPub.page.scene.pointerThirdSeg.preamble))
+       insertItem(curMeta.LPub.page.scene.pageNumber.here(),
+                  curMeta.LPub.page.scene.pointerThirdSeg.value());
+   else if (line.contains(curMeta.LPub.page.scene.rotateIconBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.rotateIconBackground.here(),
+                  curMeta.LPub.page.scene.rotateIconBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.stepNumber.preamble))
+       insertItem(curMeta.LPub.page.scene.stepNumber.here(),
+                  curMeta.LPub.page.scene.stepNumber.value());
+   else if (line.contains(curMeta.LPub.page.scene.subModelBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.subModelBackground.here(),
+                  curMeta.LPub.page.scene.subModelBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.subModelInstance.preamble))
+       insertItem(curMeta.LPub.page.scene.subModelInstance.here(),
+                  curMeta.LPub.page.scene.subModelInstance.value());
+   else if (line.contains(curMeta.LPub.page.scene.submodelInstanceCount.preamble))
+       insertItem(curMeta.LPub.page.scene.submodelInstanceCount.here(),
+                  curMeta.LPub.page.scene.submodelInstanceCount.value());
+   else if (line.contains(curMeta.LPub.page.scene.partsListPixmap.preamble))
+       insertItem(curMeta.LPub.page.scene.partsListPixmap.here(),
+                  curMeta.LPub.page.scene.partsListPixmap.value());
+   else if (line.contains(curMeta.LPub.page.scene.partsListGroup.preamble))
+       insertItem(curMeta.LPub.page.scene.partsListGroup.here(),
+                  curMeta.LPub.page.scene.partsListGroup.value());
+   else if (line.contains(curMeta.LPub.page.scene.stepBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.stepBackground.here(),
+                  curMeta.LPub.page.scene.stepBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.multiStepBackground.preamble))
+       insertItem(curMeta.LPub.page.scene.stepBackground.here(),
+                  curMeta.LPub.page.scene.multiStepBackground.value());
+   else /*if (line.contains(curMeta.LPub.page.scene.multiStepsBackground.preamble))*/
+       insertItem(curMeta.LPub.page.scene.stepBackground.here(),
+                  curMeta.LPub.page.scene.multiStepsBackground.value());
 }
