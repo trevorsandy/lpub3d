@@ -72,7 +72,10 @@ public:
 
 enum class lcLibrarySourceType
 {
-	Library,
+/*** LPub3D Mod - Split library source ***/
+	Official,
+	Unofficial,
+/*** LPub3D Mod end ***/
 	StudLogo
 };
 

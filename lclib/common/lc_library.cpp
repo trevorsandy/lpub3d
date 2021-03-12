@@ -39,7 +39,7 @@ lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
 /*** LPub3D Mod - portable cache ***/
-	if (QDir(Preferences::lpub3dPath + "/extras").exists()) 
+	if (QDir(Preferences::lpub3dPath + "/extras").exists())
 	{
 		// we have a portable distribution
 		mCachePath = Preferences::lpub3dPath + "/cache";
@@ -352,8 +352,9 @@ bool lcPiecesLibrary::OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType Zi
 		return false;
 
 	std::unique_ptr<lcLibrarySource> Source(new lcLibrarySource);
-	Source->Type = ZipFileType != lcZipFileType::StudLogo ? lcLibrarySourceType::Library : lcLibrarySourceType::StudLogo;
-
+/*** LPub3D Mod - Split library source ***/
+	Source->Type = ZipFileType == lcZipFileType::Official ? lcLibrarySourceType::Official : ZipFileType == lcZipFileType::Unofficial ? lcLibrarySourceType::Unofficial : lcLibrarySourceType::StudLogo;
+/*** LPub3D Mod end ***/
 	for (int FileIdx = 0; FileIdx < ZipFile->mFiles.GetSize(); FileIdx++)
 	{
 		lcZipFileInfo& FileInfo = ZipFile->mFiles[FileIdx];
@@ -527,7 +528,9 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
 	{
 		std::unique_ptr<lcLibrarySource> Source(new lcLibrarySource);
-		Source->Type = lcLibrarySourceType::Library;
+/*** LPub3D Mod - Split library source ***/
+		Source->Type = !BaseFolderIdx && mHasUnofficial ? lcLibrarySourceType::Unofficial : lcLibrarySourceType::Official;
+/*** LPub3D Mod end ***/
 
 		const char* PrimitiveDirectories[] = { "p/", "parts/s/" };
 		bool SubFileDirectories[] = { false, false, true };
@@ -1907,7 +1910,7 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 	//load unofficial library content
 	QString OfficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawPartsArchive);
 	QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
-	if (OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
+	if (OpenArchive(UnofficialFileName, lcZipFileType::Unofficial))
 		ReadArchiveDescriptions(OfficialFileName, UnofficialFileName);
 	else
 		return false;
@@ -1919,14 +1922,39 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Unofficial library ***/
-void lcPiecesLibrary::UnloadUnofficialLib() {
-	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
+void lcPiecesLibrary::UnloadUnofficialLib()
+{
+	for (auto& Source : mSources)
+	{
+		const auto& SourceIt = std::find(mSources.begin(), mSources.end(), Source);
+		if (SourceIt != mSources.end() && Source->Type == lcLibrarySourceType::Unofficial)
+		{
+			mSources.erase(SourceIt);
+			break;
+		}
+	}
+
+	if (mZipFiles[static_cast<int>(lcZipFileType::Unofficial)])
+		mZipFiles[static_cast<int>(lcZipFileType::Unofficial)].reset();
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Official library reload ***/
-void lcPiecesLibrary::UnloadOfficialLib() {
+void lcPiecesLibrary::UnloadOfficialLib()
+{
 	mNumOfficialPieces = 0;
-	mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
+
+	for (auto& Source : mSources)
+	{
+		const auto& SourceIt = std::find(mSources.begin(), mSources.end(), Source);
+		if (SourceIt != mSources.end() && Source->Type == lcLibrarySourceType::Official)
+		{
+			mSources.erase(SourceIt);
+			break;
+		}
+	}
+
+	if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
+		mZipFiles[static_cast<int>(lcZipFileType::Official)].reset();
 }
 /*** LPub3D Mod end ***/
