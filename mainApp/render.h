@@ -93,7 +93,7 @@ public:
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
-  static int            setLDrawHeaderAndFooterMeta(QStringList &parts,
+  static int            setLDrawHeaderAndFooterMeta(QStringList &lines,
                                      const QString &modelName,
                                      int imageType,
                                      bool displayOnly = false);

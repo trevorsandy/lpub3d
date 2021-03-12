@@ -237,17 +237,17 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-int Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
+int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_modelName, int imageType, bool displayOnly) {
 
     QStringList tokens;
-    QString baseName = QFileInfo(modelName).completeBaseName().toLower();
+    QString baseName = QFileInfo(_modelName).completeBaseName()/*.toLower()*/;
     bool isMPD       = imageType == Options::SMP || imageType == Options::MON;  // always MPD if imageType is SMP or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
     // Test for MPD
     if (!isMPD) {
-        for (int i = 0; i < parts.size(); i++) {
-            QString line = parts.at(i);
+        for (int i = 0; i < lines.size(); i++) {
+            QString line = lines.at(i);
             split(line, tokens);
             if (tokens[0] == "1" && tokens.size() == 15) {
                 QString type = tokens[tokens.size()-1];
@@ -278,6 +278,13 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &model
          baseName = baseName.append("_Preview");
     }
 
+    // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround 3DViewer abend
+    QString modelName = _modelName;
+    if (imageType == Options::PLI && isMPD) {
+        modelName.prepend("Pli_");
+        baseName.prepend("Pli_");
+    }
+
     // special case where model file is a display model or final step in fade step document
     if (displayOnly) {
         baseName = baseName.append("_Display_Model");
@@ -285,13 +292,13 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &model
 
     // description and name are already added to mono image
     if (imageType != Options::MON) {
-        parts.prepend(QString("0 Name: %1").arg(modelName));
-        parts.prepend(QString("0 %1").arg(baseName));
+        lines.prepend(QString("0 Name: %1").arg(modelName));
+        lines.prepend(QString("0 %1").arg(baseName));
     }
 
     if (isMPD) {
-        parts.prepend(QString("0 FILE %1").arg(modelName));
-        parts.append("0 NOFILE");
+        lines.prepend(QString("0 FILE %1").arg(modelName));
+        lines.append("0 NOFILE");
     }
 
     return isMPD;
@@ -3619,7 +3626,7 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                           nativeSubModels[index]);
 
           /* initialize the working submodel file - define header. */
-          QString modelName = QFileInfo(nativeSubModels[index]).completeBaseName().toLower();
+          QString modelName = QFileInfo(nativeSubModels[index]).completeBaseName()/*.toLower()*/;
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
 
