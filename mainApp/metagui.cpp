@@ -2049,21 +2049,21 @@ CountInstanceGui::CountInstanceGui(
 
   topRadio    = new QRadioButton("At Top",parent);
   topRadio->setChecked(meta->value() == CountAtTop);
-  topRadio->setToolTip("Consolidate instances at first occurrence in the entire model file.");
+  topRadio->setToolTip("Consolidate instances and display count at last step page of first occurrence in the entire model file.");
   layout->addWidget(topRadio);
   connect(topRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
   modelRadio = new QRadioButton("At Model (default)",parent);
   modelRadio->setChecked(meta->value() > CountFalse && meta->value() < CountAtStep);
-  modelRadio->setToolTip("Consolidate instances at first occurrence in the parent model.");
+  modelRadio->setToolTip("Consolidate instances and display count at last step page of first occurrence in the parent model.");
   layout->addWidget(modelRadio);
   connect(modelRadio,SIGNAL(clicked(bool)),
           this,      SLOT(  radioChanged(bool)));
 
   stepRadio    = new QRadioButton("At Step",parent);
   stepRadio->setChecked(meta->value() == CountAtStep);
-  stepRadio->setToolTip("Consolidate instances at first occurrence in the current step.");
+  stepRadio->setToolTip("Consolidate instances and display count at step page of first occurrence in the current step.");
   layout->addWidget(stepRadio);
   connect(stepRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));

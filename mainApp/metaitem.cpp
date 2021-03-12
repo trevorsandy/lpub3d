@@ -234,14 +234,14 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
     SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
     Where step(tos.modelName,tos.lineNumber);
 
-    /* Now scan the lines following this line, to see if there is another
-   * submodel just like this one that needs to be added as multiplier.
+  /* Now we want to scan backward to see if there is another
+   * submodel just like this one then we scan the lines
+   * following this line, to see if there is another submodel
+   * just like this one that needs to be added as multiplier.
    *
-   * We also want to scan backward for the same submodel.
-   *
-   * In either direction, we need to stop on STEP/ROTSTEP.  We also need
-   * to stop on other sub-models, or mirror images of the same sub-model.
-   * Lastly, models that are callouts are not counted as instances.
+   * In either direction, we need to stop on STEP/ROTSTEP.
+   * Models that are callouts are not counted as instances and
+   * Build Modification content are also excluded from the instance count
    */
 
   int instanceCount = 0;
@@ -250,7 +250,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   Where lastInstance, firstInstance;
 
   Rc rc;
-//  int buildModLevel = 0;
+  int buildModLevel = 0;
   bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
@@ -266,6 +266,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           break;
         }
         rc = meta->parse(line,walkBack);
+        // part substitutions are not counted
         if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
             ignorePartLine = true;
         if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
@@ -289,18 +290,18 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
               break;
             }
           }
-        }
-//        else // build modification
-//        if (argv.size() >= 4 && argv[0] == "0" &&
-//           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
-//            argv[2] == "BUILD_MOD") {
-//          if (argv[3] == "BEGIN") {
-//            buildModLevel = getLevel(argv[4],BM_BEGIN);
-//          } else if (tokens[3] == "END_MOD") {
-//            buildModLevel = getLevel(QString(), BM_END);
-//          }
-//          ignorePartLine = buildModLevel;
-//        } // build modification end
+        } // callout submodel
+        // build modification content are not counted
+        else if (argv.size() >= 4 && argv[0] == "0" &&
+           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+            argv[2] == "BUILD_MOD") {
+          if (argv[3] == "BEGIN") {
+            buildModLevel = getLevel(argv[4],BM_BEGIN);
+          } else if (argv[3] == "END_MOD") {
+            buildModLevel = getLevel(QString(), BM_END);
+          }
+          ignorePartLine = buildModLevel;
+        } // build modification
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
           continue;
@@ -338,6 +339,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         break;
       }
       rc = meta->parse(line,walk);
+      // part substitutions are not counted
       if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
           ignorePartLine = true;
       if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
@@ -360,19 +362,19 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             ignorePartLine = false;
             break;
           }
-//          else // build modification
-//          if (argv.size() >= 4 && argv[0] == "0" &&
-//             (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
-//              argv[2] == "BUILD_MOD") {
-//            if (argv[3] == "BEGIN") {
-//              buildModLevel = getLevel(argv[4],BM_BEGIN);
-//            } else if (tokens[3] == "END_MOD") {
-//              buildModLevel = getLevel(QString(), BM_END);
-//            }
-//            ignorePartLine = buildModLevel;
-//          } // build modification end
         }
-      }
+      } // callout
+      // build modification content are not counted
+      else if (argv.size() >= 4 && argv[0] == "0" &&
+         (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+          argv[2] == "BUILD_MOD") {
+        if (argv[3] == "BEGIN") {
+          buildModLevel = getLevel(argv[4],BM_BEGIN);
+        } else if (argv[3] == "END_MOD") {
+          buildModLevel = getLevel(QString(), BM_END);
+        }
+        ignorePartLine = buildModLevel;
+      } // build modification
     } else if (argv.size() == 15 && argv[0] == "1") {
       if (gui->isSubmodel(argv[14])) {
         if (ignorePartLine)
@@ -408,14 +410,14 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
      parent file so we use it to target the correct SUBMODEL*/
 
     SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
-    Where step(tos.modelName,tos.lineNumber);
+    Where subModel(tos.modelName,0);
+    gui->skipHeader(subModel);
 
     /* Scan the lines following this line, to see if there is another
    * submodel just like this one that needs to be added as multiplier.
    *
-   * We need to stop on STEP/ROTSTEP.  We also need to stop
-   * on other sub-models, or mirror images of the same sub-model.
-   * Lastly, models that are callouts are not counted as instances.
+   * Models that are callouts are not counted as instances and
+   * Build Modification content are also excluded from the instance count
    */
 
   int instanceCount = 0;
@@ -424,9 +426,9 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
   Where lastInstance, firstInstance;
 
   Rc rc;
-//  int buildMod = 0;
+  int buildModLevel = 0;
   bool ignorePartLine = false;
-  walk = step;
+  walk = subModel;
 
   numLines = gui->subFileSize(walk.modelName);
   for ( ; walk.lineNumber < numLines; walk++) {
@@ -435,6 +437,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
       rc = meta->parse(line,walk);
+      // part substitutions are not counted
       if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
           ignorePartLine = true;
       if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
@@ -457,19 +460,19 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
             ignorePartLine = false;
             break;
           }
-//          else // build modification
-//          if (argv.size() >= 4 && argv[0] == "0" &&
-//             (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
-//              argv[2] == "BUILD_MOD") {
-//            if (argv[3] == "BEGIN") {
-//              buildModLevel = getLevel(argv[4],BM_BEGIN);
-//            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//              buildModLevel = getLevel(QString(), BM_END);
-//            }
-//            ignorePartLine = buildModLevel;
-//          } // build modification end
         }
-      }
+      } // callout
+      // build modification content are not counted
+      else if (argv.size() >= 4 && argv[0] == "0" &&
+         (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+          argv[2] == "BUILD_MOD") {
+          if (argv[3] == "BEGIN") {
+              buildModLevel = getLevel(argv[4],BM_BEGIN);
+          } else if ((argv[3] == "END_MOD")) {
+              buildModLevel = getLevel(QString(), BM_END);
+          }
+          ignorePartLine = buildModLevel;
+      } // build modification end
     } else if (argv.size() == 15 && argv[0] == "1") {
       if (gui->isSubmodel(argv[14])) {
         if (ignorePartLine)

@@ -444,6 +444,8 @@ int Gui::drawPage(
   Range   *range           = nullptr;
   Step    *step            = nullptr;
 
+  int      instances       = 1;
+  int      finalModelLine  = 1;
   bool     global          = true;
   bool     pliIgnore       = false;
   bool     partIgnore      = false;
@@ -457,7 +459,7 @@ int Gui::drawPage(
   bool     noStep          = false;
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
-  bool     displayCount    = false;
+  bool     displayInstanceCount = false;
   bool     previewNotPerStep = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
@@ -516,13 +518,13 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  auto drawPageStatus = [this, &opts, &multiStep, &callout] () {
+  auto drawPageStatus = [this, &opts, &multiStep, &callout, &coverPage] () {
       int charWidth = QFontMetrics(font()).averageCharWidth();
       QFontMetrics currentMetrics(font());
       QString elidedModelName = currentMetrics.elidedText(opts.current.modelName,
                                                           Qt::ElideRight, charWidth * 30/*characters*/);
       emit messageSig(LOG_INFO_STATUS, QString("Processing %1 draw-page for page %2, step %3, model '%4'...")
-                      .arg(multiStep ? "multi-step" : callout ? "called out" : "single-step")
+                      .arg(multiStep ? "multi-step" : callout ? "called out" : coverPage ? "cover page" : "single-step")
                       .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName));
       QApplication::processEvents();
   };
@@ -1730,24 +1732,27 @@ int Gui::drawPage(
                   * ends and capturing the curMeta afte is too late as it is popped at the end of every step
                   * steps->meta = curMeta
                   */
-                  // get the number of submodel instances in the model file
-                  int countInstanceOverride = /*steps->meta*/steps->groupStepMeta.LPub.page.countInstanceOverride.value();
-                  int instances = countInstanceOverride ? countInstanceOverride :
-                                                          ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+
+                  // get the default number of submodel instances in the model file
+                  instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                  displayInstanceCount = countInstances && instances > 1;
                   // count the instances - use steps->meta (vs. steps->groupStepMeta) to access current submodelStack
                   //
                   // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
                   // the updated countInstances routine's configuration is CountAtModel - this is the default options set
                   // and configurable in Project globals
-                  displayCount = countInstances && instances > 1;
-                  if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
-                      MetaItem mi;
+                  if (displayInstanceCount) {
+                      // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                      if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
+                          instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
+                      else
                       if (countInstances == CountAtStep)
-                          instances = mi.countInstancesInStep(&steps->meta, opts.current.modelName);
+                          instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
                       else
                       if (countInstances > CountFalse && countInstances < CountAtStep)
-                          instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                          instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
                   }
+
 #ifdef QT_DEBUG_MODE
                   if (steps->meta.LPub.multiStep.pli.perStep.value() !=
                       steps->groupStepMeta.LPub.multiStep.pli.perStep.value())
@@ -1833,11 +1838,13 @@ int Gui::drawPage(
 
                           emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
 
-                          steps->subModel.displayInstanceCount = displayCount;
+                          steps->subModel.displayInstanceCount = displayInstanceCount;
                           if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
                               emit messageSig(LOG_ERROR, "Failed to set Submodel Preview for " + topOfStep.modelName + "...");
                       }
-                  } else {    // pli per step = false
+                  } // pli per step = false
+                  else
+                  { // pli per step = true
                       steps->groupStepNumber.number     = 0;
                       steps->groupStepNumber.stepNumber = nullptr;
 
@@ -1882,7 +1889,7 @@ int Gui::drawPage(
                   if (page) {
                       page->inserts              = inserts;
                       page->instances            = instances;
-                      page->displayInstanceCount = displayCount;
+                      page->displayInstanceCount = displayInstanceCount;
                       page->pagePointers         = pagePointers;
                       page->selectedSceneItems   = selectedSceneItems;
                     }
@@ -2235,25 +2242,27 @@ int Gui::drawPage(
                               emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                               // get the number of submodel instances in the model file
-                              int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
-                              int instances = countInstanceOverride ? countInstanceOverride :
-                                                                      ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                              displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
+                              instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                              displayInstanceCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
                               // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
                               // the updated countInstances routine's configuration is CountAtModel - this is the default options set
                               // and configurable in Project globals
-                              if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
+                              if (displayInstanceCount) {
+                                  // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                                  if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
+                                      instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
+                                  else
                                   if (countInstances == CountAtStep)
                                       instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
                                   else
-                                      if (countInstances > CountFalse && countInstances < CountAtStep)
-                                          instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                                  if (countInstances > CountFalse && countInstances < CountAtStep)
+                                      instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
                               }
 
                               steps->meta.LPub.subModel.instance.setValue(instances);
                               step->subModel.setSubModel(opts.current.modelName,steps->meta);
 
-                              step->subModel.displayInstanceCount = displayCount;
+                              step->subModel.displayInstanceCount = displayInstanceCount;
 
                               if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
                                   emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
@@ -2373,26 +2382,31 @@ int Gui::drawPage(
                                   steps->meta.LPub.contModelStepNum.value() >= numSteps :
                                   opts.stepNum >= numSteps;
 
-                      int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
-                      int instances = countInstanceOverride ? countInstanceOverride :
-                                                              ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                      displayCount = countInstances && instances > 1;
+                      // get the number of submodel instances in the model file
+                      int instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                      displayInstanceCount = countInstances && instances > 1;
                       // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
                       // the updated countInstances routine's configuration is CountAtModel - this is the default options set
                       // and configurable in Project globals
-                      if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
-                          MetaItem mi;
-                          if (countInstances == CountAtStep)
-                              instances = mi.countInstancesInStep(&steps->meta, opts.current.modelName);
+                      if (displayInstanceCount) {
+                          // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                          if (steps->meta.LPub.page.countInstanceOverride.value())
+                              instances = steps->meta.LPub.page.countInstanceOverride.value();
                           else
-                              if (countInstances > CountFalse && countInstances < CountAtStep)
-                                  instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                          if (countInstances == CountAtStep)
+                              instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                          else
+                          if (countInstances > CountFalse && countInstances < CountAtStep)
+                              instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
                       }
+
+
+
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {
                           page->instances            = instances;
-                          page->displayInstanceCount = displayCount;
+                          page->displayInstanceCount = displayInstanceCount;
                           page->selectedSceneItems   = selectedSceneItems;
 
                           if (step) {
@@ -2432,7 +2446,7 @@ int Gui::drawPage(
                                       steps->meta.LPub.subModel.instance.setValue(instances);
                                       step->subModel.setSubModel(opts.current.modelName,steps->meta);
 
-                                      step->subModel.displayInstanceCount = displayCount;
+                                      step->subModel.displayInstanceCount = displayInstanceCount;
 
                                       if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
                                           emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
@@ -3257,7 +3271,7 @@ int Gui::findPage(
             case LeoCadGroupEndRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
-                }
+              }
               partsAdded = true;
               break;
 
@@ -3265,8 +3279,8 @@ int Gui::findPage(
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-              if (! buildModIgnore) {
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                  if (! buildModIgnore) {
                     QStringList newCSIParts;
                     QVector<int> newLineTypeIndexes;
                     if (rc == RemoveGroupRc) {
@@ -3278,8 +3292,8 @@ int Gui::findPage(
                     }
                     csiParts = newCSIParts;
                     lineTypeIndexes = newLineTypeIndexes;
-                  }
-              } // ! buildModIgnore
+                  } // ! buildModIgnore
+              }
               break;
 
             case IncludeRc:
@@ -3313,7 +3327,8 @@ int Gui::findPage(
               break;
 
             case CountInstanceRc:
-              countInstances = meta.LPub.countInstance.value();
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+                  countInstances = meta.LPub.countInstance.value();
               break;
 
             case ContStepNumRc:
