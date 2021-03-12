@@ -2639,21 +2639,36 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   InsertData insertData;
   Rc rc = OkRc;
 
+  QString insert;
   if (argv.size() - index == 1) {
       if (argv[index] == "PAGE") {
-          return InsertPageRc;
-        } else if (argv[index] == "MODEL") {
-          return InsertFinalModelRc;
-        } else if (argv[index] == "DISPLAY_MODEL") {
-          return InsertDisplayModelRc;
-        } else if (argv[index] == "COVER_PAGE") {
-          return InsertCoverPageRc;
-        }
-    } else if (argv.size() - index == 2) {
+          rc = InsertPageRc;
+      } else if (argv[index] == "MODEL") {
+          rc = InsertFinalModelRc;
+      } else if (argv[index] == "DISPLAY_MODEL") {
+          rc = InsertDisplayModelRc;
+      } else if (argv[index] == "COVER_PAGE") {
+          rc = InsertCoverPageRc;
+      }
+  } else if (argv.size() - index == 2) {
       if (argv[index] == "COVER_PAGE") {
-          return InsertCoverPageRc;
-        }
-    }
+          rc = InsertCoverPageRc;
+      }
+  }
+
+  if (rc != OkRc) {
+      if (gui->pageProcessRunning != PROC_NONE) {
+          QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
+          Where topOfStep = here;
+          gui->getTopOfStepWhere(topOfStep);
+          if (gui->stepContains(topOfStep, partTypeLineRx)) {
+              here.setModelIndex(gui->getSubmodelIndex(here.modelName));
+              gui->parseError(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
+                              .arg(argv[index]).arg(topOfStep.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+          }
+      }
+      return rc;
+  }
 
   if (argv.size() - index > 1 && argv[index] == "PICTURE") {
       insertData.type = InsertData::InsertPicture;
@@ -3394,13 +3409,12 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
              if(!ldrawType)
                  attributes = tokens[14]+":0;";    // originalType
              originalColor  = tokens[1];
-         } else {
-             if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
-                 QString message = QString("Invalid substitute meta command.<br>"
-                                           "No valid parts between %1 and PLI END.<br>Got %2.")
-                         .arg(argv.join(" ")).arg(originalTypeLine);
-                 emit gui->parseError(message,here);
-             }
+         } else if (gui->pageProcessRunning != PROC_NONE) {
+             here.setModelIndex(gui->getSubmodelIndex(here.modelName));
+             QString message = QString("Invalid substitute meta command.<br>"
+                                       "No valid parts between %1 and PLI END.<br>Got %2.")
+                     .arg(argv.join(" ")).arg(originalTypeLine);
+             emit gui->parseError(message,here);
          }
      }
   }
@@ -5617,6 +5631,7 @@ void Meta::processSpecialCases(QString &line, Where &here){
         if (gui->parsedMessages.contains(here)) {
             line = "0 // IGNORED";
         } else if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
+            here.setModelIndex(gui->getSubmodelIndex(here.modelName));
             QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
             if (line.contains(typesRx)) {
                 QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "

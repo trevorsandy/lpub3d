@@ -433,7 +433,7 @@ int Gui::drawPage(
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
-  QRegExp beginSubLineRc("^\\s*1|\\bBEGIN SUB\\b");
+  QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
   QStringList configuredCsiParts; // fade and highlight configuration
   QString  line, csiName;
   Callout *callout         = nullptr;
@@ -1273,7 +1273,7 @@ int Gui::drawPage(
                     top = opts.current;
                     message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                 }
-                if (stepContains(top,beginSubLineRc)) {
+                if (stepContains(top,partTypeLineRx)) {
                     parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
                 }
                 if (proceed) {
@@ -1320,7 +1320,7 @@ int Gui::drawPage(
                     top = topOfStep;
                     message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
                   }
-                  if (stepContains(top,beginSubLineRc)) {
+                  if (stepContains(top,partTypeLineRx)) {
                       parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current, Preferences::InsertErrors);
                   }
               }
@@ -1328,9 +1328,9 @@ int Gui::drawPage(
 
             case InsertPageRc:
               {
-                if (stepContains(topOfStep,beginSubLineRc))
-                    parseError(QString("INSERT PAGE meta must be followed by 0 [ROT]STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::InsertErrors),
-                               opts.current);
+                if (stepContains(topOfStep,partTypeLineRx))
+                    parseError(QString("INSERT PAGE meta must be followed by 0 [ROT]STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1),
+                               opts.current, Preferences::InsertErrors);
 
                 partsAdded = true;
 

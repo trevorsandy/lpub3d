@@ -391,8 +391,8 @@ void Gui::updateClipboard()
 
 void Gui::displayPage()
 {
-  emit messageSig(LOG_STATUS, "Processing page display...");
   pageProcessRunning = PROC_DISPLAY_PAGE;
+  emit messageSig(LOG_STATUS, "Processing page display...");
   timer.start();
   if (macroNesting == 0) {
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
@@ -5582,7 +5582,7 @@ void Gui::showLine(const Where &here, int type)
   }
 }
 
-void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool option, bool override)
+void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool option/*false*/, bool override/*false*/)
 {
     if (parsedMessages.contains(here))
         return;
@@ -5598,8 +5598,9 @@ void Gui::parseError(const QString message, const Where &here, Preferences::MsgK
 
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
-        if (subFileSize(here.modelName) < Preferences::editorLinesPerPage || Preferences::editorBufferedPaging)
+        if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
             showLine(here, LINE_ERROR);
+        }
         bool okToShowMessage = Preferences::getShowMessagePreference(msgKey);
         if (okToShowMessage) {
             Where messageLine = here;
