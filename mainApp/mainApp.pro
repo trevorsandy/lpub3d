@@ -634,13 +634,15 @@ QMAKE_CFLAGS_WARN_ON += \
     -Wno-unused-parameter \
     -Wno-sign-compare
 }
+
 macx {
 
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-overloaded-virtual \
     -Wno-self-assign \
     -Wno-sometimes-uninitialized \
-    -Wno-unused-result
+    -Wno-unused-result \
+    -Wno-deprecated-declarations
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 
 } else: win32 {
@@ -665,6 +667,7 @@ QMAKE_CXXFLAGS_WARN_ON += \
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-strict-aliasing
 QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
+
 }
 
 #message($$CONFIG)
