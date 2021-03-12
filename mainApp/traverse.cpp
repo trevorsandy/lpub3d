@@ -2849,7 +2849,7 @@ int Gui::findPage(
 #endif
                               } // Exporting
 
-                              // if page displayed return to preserve state for page count
+                              // if page displayed, end processing
                               if (opts.pageNum > displayPageNum) {
                                   // set processing state
                                   pageProcessRunning = PROC_DISPLAY_PAGE;
@@ -3022,21 +3022,21 @@ int Gui::findPage(
                   topOfPages.append(opts.current);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
-                  // if page displayed return to preserve state for page count
+                  // if page displayed, save state and end processing
                   if (pageDisplayed) {
-                      // save where we stopped in the parent model
+                      // if submodel, save where we stopped in the parent model
                       if (meta.submodelStack.size()) {
-                          // add current position to the countPage stack
-                          ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                          modelStack << toms;
-                          // now add parent model positions other than those in the top level model
+                          // add parent model positions - excpet positions in the top level model
                           Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
-                              if (getSubmodelIndex(tos.modelName) > 0) {
+                             if (getSubmodelIndex(tos.modelName) > 0) {
                                   ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
-                                  modelStack << toms;
-                              }
-                          }
-                      }
+                                  modelStack.append(toms);
+                             }
+                         }
+                          // lastly, add the current where position
+                          ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                          modelStack.append(toms);
+                     }
                       // set processing state
                       pageProcessRunning = PROC_DISPLAY_PAGE;
                       return OkRc;
@@ -3216,21 +3216,21 @@ int Gui::findPage(
                       ++opts.pageNum;
                       topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
 
-                      // if page displayed return to preserve state for page count
+                      // if page displayed, save state and end processing
                       if (pageDisplayed) {
-                          // save where we stopped in the parent model
+                          // if submodel, save where we stopped in the parent model
                           if (meta.submodelStack.size()) {
-                              // add current position to the countPage stack
-                              ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                              modelStack << toms;
-                              // now add parent model positions other than those in the top level model
+                              // add parent model positions - excpet positions in the top level model
                               Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
-                                  if (getSubmodelIndex(tos.modelName) > 0) {
+                                 if (getSubmodelIndex(tos.modelName) > 0) {
                                       ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
-                                      modelStack << toms;
-                                  }
-                              }
-                          }
+                                      modelStack.append(toms);
+                                 }
+                             }
+                              // lastly, add the current where position
+                              ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                              modelStack.append(toms);
+                         }
                           // set processing state
                           pageProcessRunning = PROC_DISPLAY_PAGE;
                           return OkRc;
@@ -4190,32 +4190,32 @@ void Gui::drawPage(LGraphicsView  *view,
 
   } else {
 
-      // Where findPage stopped in the parent model
+      // For submodels, save where findPage stopped in the parent model
       if (modelStack.size()) {
 
           /* Switch findOptions.current stepNumber and renderParentModel with top modelStack item */
 
-          // save first modelStack item for stepNumber and current
-          int newStepNumber = modelStack.first().stepNumber;
-          Where newCurrent(modelStack.first().modelName,
-                           getSubmodelIndex(modelStack.first().modelName),
-                           modelStack.first().lineNumber);
+          // save last modelStack item to - step number and current where
+          int newStepNumber = modelStack.last().stepNumber;
+          Where newCurrent(modelStack.last().modelName,
+                           getSubmodelIndex(modelStack.last().modelName),
+                           modelStack.last().lineNumber);
 
-          // remove first modelStack item
-          modelStack.pop_front();
+          // remove last modelStack item
+          modelStack.pop_back();
 
-          // save current for modelStack
+          // save current where position to the modelStack
           ModelStack toms(findOptions.current.modelName,
                           findOptions.current.lineNumber,
                           findOptions.stepNumber);
 
-          // set renderParentModel from 2nd (now first) entry, stepNumber and current
-          findOptions.renderParentModel = modelStack.size() ? modelStack.first().modelName : topLevelFile();
-          findOptions.stepNumber = newStepNumber;
+          // set curent, stepNumber and renderParentModel from next up modelStack modelName or top model
           findOptions.current = newCurrent;
+          findOptions.stepNumber = newStepNumber;
+          findOptions.renderParentModel = modelStack.size() ? modelStack.last().modelName : topLevelFile();
 
-          // insert first modelStack item from current
-          modelStack.insert(0, toms);
+          // insert last modelStack item from current
+          modelStack.append(toms);
       }
 
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, meta, &ldrawFile, modelStack, findOptions);

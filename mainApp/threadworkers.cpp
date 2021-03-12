@@ -2075,14 +2075,13 @@ int CountPageWorker::countPage(
 
   Rc  rc;
   int partsAdded         = 0;
-  int countInstances     = meta.LPub.countInstance.value();
-  bool useModelStack     = modelStack.size();
+  int countInstances     = meta.LPub.countInstance.value();;
   bool localSubmodel     = ! opts.current.lineNumber;
 
-  if (localSubmodel || useModelStack) {
+  if (localSubmodel || modelStack.size()) {
       if (localSubmodel)
           gui->skipHeader(opts.current);
-      ldrawFile->setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, countInstances);
+      ldrawFile->setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber, countInstances);
   }
 
   Where topOfStep = opts.current;
@@ -2510,22 +2509,26 @@ int CountPageWorker::countPage(
 
     }  // Last Step in Submodel
 
-  // Set current, stepNumber and renderParentModel to where we stopped in the parent model
-  if (opts.current.lineNumber == numLines && useModelStack) {
-      int newStepNumber = modelStack.first().stepNumber;
-      Where newCurrent(modelStack.first().modelName,
-                       gui->getSubmodelIndex(modelStack.first().modelName),
-                       modelStack.first().lineNumber);
+  // if submodel, load where findPage stopped in the parent model
+  if (opts.current.lineNumber == numLines && modelStack.size()) {
 
-      // remove first modelStack item
-      modelStack.pop_front();
+      /* Set last modelStack item to opts current, stepNumber and renderParentModel */
 
-      // set renderParentModel from 2nd modelStack entry, stepNumber and current
-      opts.renderParentModel = modelStack.size() ? modelStack.first().modelName : QString();
-      opts.stepNumber = newStepNumber;
+      // save last modelStack item - step number and current where
+      int newStepNumber = modelStack.last().stepNumber;
+      Where newCurrent(modelStack.last().modelName,
+                       gui->getSubmodelIndex(modelStack.last().modelName),
+                       modelStack.last().lineNumber);
+
+      // remove last modelStack item
+      modelStack.pop_back();
+
+      // set curent, stepNumber and renderParentModel from next up modelStack modelName
       opts.current = newCurrent;
+      opts.stepNumber = newStepNumber;
+      opts.renderParentModel = modelStack.size() ? modelStack.last().modelName : QString();
 
-      // call countPage
+      // let's go
       countPage(meta, ldrawFile, modelStack, opts);
     }
 

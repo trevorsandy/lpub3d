@@ -329,10 +329,10 @@ class CountPageWorker : public QObject
 
 public slots:
     static int countPage(
-            Meta              ,
-            LDrawFile        *,
-            QList<ModelStack>&,
-            FindPageOptions  &);
+            Meta,
+            LDrawFile *,
+            QList<ModelStack> &,
+            FindPageOptions &);
 };
 
 class LDrawFile;
