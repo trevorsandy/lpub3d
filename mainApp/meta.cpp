@@ -3395,10 +3395,12 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
                  attributes = tokens[14]+":0;";    // originalType
              originalColor  = tokens[1];
          } else {
-             QString message = QString("Invalid substitute meta command.<br>"
-                                       "No valid parts between %1 and PLI END.<br>Got %2.")
-                                       .arg(argv.join(" ")).arg(originalTypeLine);
-             emit gui->parseError(message,here);
+             if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
+                 QString message = QString("Invalid substitute meta command.<br>"
+                                           "No valid parts between %1 and PLI END.<br>Got %2.")
+                         .arg(argv.join(" ")).arg(originalTypeLine);
+                 emit gui->parseError(message,here);
+             }
          }
      }
   }
@@ -5614,7 +5616,7 @@ void Meta::processSpecialCases(QString &line, Where &here){
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
         if (gui->parsedMessages.contains(here)) {
             line = "0 // IGNORED";
-        } else {
+        } else if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
             QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
             if (line.contains(typesRx)) {
                 QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "

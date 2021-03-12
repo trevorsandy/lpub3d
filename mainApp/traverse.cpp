@@ -429,6 +429,7 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
+  pageProcessRunning = PROC_DRAW_PAGE;
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
@@ -551,6 +552,8 @@ int Gui::drawPage(
     emit messageSig(LOG_TRACE, pageRenderMessage);
     emit messageSig(LOG_INFO_STATUS, QString("Counting document pages..."));
     setPageLineEdit->setText(QString("Counting pages..."));
+    pageProcessRunning = PROC_COUNT_PAGE;
+    QCoreApplication::processEvents();
   };
 
   auto insertAttribute =
@@ -1973,6 +1976,7 @@ int Gui::drawPage(
                       // set the stepKey to clear the image cache
                       buildModClearStepKey = QString("%1;%2;%3").arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
                       // Rerun to findPage() to regenerate parts and options for buildMod action
+                      pageProcessRunning = PROC_FIND_PAGE;
                       return HitBuildModAction;
                   }
               }
@@ -2533,6 +2537,7 @@ int Gui::drawPage(
                           .arg(line);
 
               emit messageSig(LOG_ERROR,message);
+              pageProcessRunning = PROC_FIND_PAGE;
               return RangeErrorRc;
             }
             default:
@@ -2578,7 +2583,8 @@ int Gui::findPage(
   bool pageSizeUpdate     = false;
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
-  bool pageDisplayed      = false;
+  bool pageDisplayed      = opts.pageNum > displayPageNum;
+  pageProcessRunning      = pageDisplayed ? PROC_COUNT_PAGE : PROC_FIND_PAGE;
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
@@ -2677,7 +2683,7 @@ int Gui::findPage(
    */
 
   for ( ;
-        opts.current.lineNumber < numLines;
+        opts.current.lineNumber < numLines && (opts.parsing ? !pageDisplayed : true );
         opts.current.lineNumber++) {
 
       // if reading include file, return to current line, do not advance
@@ -2789,6 +2795,7 @@ int Gui::findPage(
                                           opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
+                                          opts.parsing,
                                           opts.buildModLevel,
                                           opts.contStepNumber,
                                           opts.groupStepNumber,
@@ -2936,6 +2943,7 @@ int Gui::findPage(
 
                       if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
                           // return to init drawPage to rerun findPage to regenerate content
+                          pageProcessRunning = PROC_DISPLAY_PAGE;
                           return HitBuildModAction;
                       }
 
@@ -2976,6 +2984,7 @@ int Gui::findPage(
                   topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
                   saveStepPageNum = ++stepPageNum;
                   pageDisplayed = opts.pageNum > displayPageNum;
+                  pageProcessRunning = pageDisplayed ? PROC_COUNT_PAGE : PROC_FIND_PAGE;
 
                   if (Preferences::modeGUI && ! exporting()) {
                       emit messageSig(LOG_STATUS, QString("Counting document page %1...")
@@ -3007,9 +3016,6 @@ int Gui::findPage(
               // Set buildModIgnore based on 'next' step buildModAction
               case BuildModEndModRc:
                 if (!pageDisplayed) {
-                    if (opts.buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
-                        parseError("Key required for nested build mod meta command",
-                                   opts.current,Preferences::BuildModErrors);
                     if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
                         buildModIgnore = false;
                     else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
@@ -3116,6 +3122,7 @@ int Gui::findPage(
                                       bfxStore2);
 
                           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+                              pageProcessRunning = PROC_DISPLAY_PAGE;
                               // Set opts.current to topOfStep
                               opts.current = pageOptions.current;
                               // rerun findPage to reflect change in pre-displayPageNum csiParts
@@ -3177,7 +3184,8 @@ int Gui::findPage(
                   saveCurrent = opts.current;  // so that draw page doesn't have to
                   // deal with steps that are not steps
                 }
-              pageDisplayed = opts.pageNum > displayPageNum;;
+              pageDisplayed = opts.pageNum > displayPageNum;
+              pageProcessRunning = pageDisplayed ? PROC_COUNT_PAGE : PROC_FIND_PAGE;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -3322,7 +3330,6 @@ int Gui::findPage(
               }
               break;
 
-
             case StartStepNumberRc:
               if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
                    opts.current.modelName != ldrawFile.topLevelFile())
@@ -3439,6 +3446,7 @@ int Gui::findPage(
                       bfxStore2);
 
           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+              pageProcessRunning = PROC_DISPLAY_PAGE;
               // Set opts.current to topOfStep
               opts.current = pageOptions.current;
               // rerun findPage to reflect change in pre-displayPageNum csiParts
@@ -3477,6 +3485,7 @@ int Gui::findPage(
           QApplication::processEvents();
       }
     }  // Last Step in Submodel
+  pageProcessRunning = PROC_DISPLAY_PAGE;
   return 0;
 }
 
@@ -3929,45 +3938,38 @@ void Gui::countPages()
   if (maxPages < 1 + pa) {
       emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
-      Where current(ldrawFile.topLevelFile(),0,0);
-      ldrawFile.setModelStartPageNumber(current.modelName,1 + pa);
-      int savedDpn     =  displayPageNum;
+      current          =  Where(ldrawFile.topLevelFile(),0,0);
       displayPageNum   =  1 << 31;  // really large number: 2147483648
       firstStepPageNum = -1;
       lastStepPageNum  = -1;
       maxPages         =  1 + pa;
-      stepPageNum      = maxPages;
+      stepPageNum      =  maxPages;
+      ldrawFile.setModelStartPageNumber(current.modelName,1 + pa);
       Meta meta;
       QString empty;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
+
       FindPageOptions findOptions(
-                  maxPages,
+                  maxPages,      /*pageNum*/
                   current,
                   emptyPageSize,
                   buildModActions,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
                   false          /*printing*/,
+                  false          /*parsing*/,
                   0              /*buildModLevel*/,
                   0              /*contStepNumber*/,
                   0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
-      findPage(KpageView,KpageScene,meta,empty/*addLine*/,findOptions);
-      topOfPages.append(current);
-      maxPages--;
 
-      if (displayPageNum > maxPages) {
-          displayPageNum = maxPages;
-        } else {
-          displayPageNum = savedDpn;
-        }
+      // counting pages, view and scene are not needed so we pass null
+      LGraphicsView  *nullView  = nullptr;
+      LGraphicsScene *nullScene = nullptr;
+      findPage(nullView,nullScene,meta,empty/*addLine*/,findOptions);
 
-      if (Preferences::modeGUI && ! exporting()) {
-        QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-        setPageLineEdit->setText(string);
-        statusBarMsg("");
-      }
+      pagesCounted();
    }
 }
 
@@ -3981,8 +3983,7 @@ void Gui::drawPage(LGraphicsView  *view,
 
   enableNavigationActions(false);
 
-  Where current(ldrawFile.topLevelFile(),0,0);
-
+  current     = Where(ldrawFile.topLevelFile(),0,0);
   maxPages    = 1 + pa;
   stepPageNum = maxPages;
 
@@ -4037,11 +4038,11 @@ void Gui::drawPage(LGraphicsView  *view,
   QMap<int,int> buildModActions;
   QString empty;
   Meta    meta;
-  firstStepPageNum = -1;
-  lastStepPageNum  = -1;
+  firstStepPageNum     = -1;
+  lastStepPageNum      = -1;
   savePrevStepPosition = 0;
-  saveGroupStepNum = 1 + sa;
-  saveContStepNum = 1 + sa;
+  saveGroupStepNum     = 1 + sa;
+  saveContStepNum      = 1 + sa;
 
   enableLineTypeIndexes = true;
 
@@ -4062,49 +4063,90 @@ void Gui::drawPage(LGraphicsView  *view,
   }
 
   FindPageOptions findOptions(
-              maxPages,
+              maxPages,    /*pageNum*/
               current,
               pageSize,
               buildModActions,
               updateViewer,
               false        /*mirrored*/,
               printing,
+              true         /*parsing*/,
               0            /*buildModLevel*/,
               0            /*contStepNumber*/,
               0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
+
   if (findPage(view,scene,meta,empty/*addLine*/,findOptions) == HitBuildModAction && Preferences::buildModEnabled) {
+      pageProcessRunning = PROC_DISPLAY_PAGE;
       QApplication::restoreOverrideCursor();
       clearPage(KpageView,KpageScene);
       buildModActionChange = true;
       drawPage(view,scene,printing,updateViewer,buildModActionChange);
+
   } else {
-      topOfPages.append(current);
-/*
-#ifdef QT_DEBUG_MODE
-      emit messageSig(LOG_NOTICE, QString("DrawPage Page Indexes:"));
-      for (int i = 0; i < topOfPages.size(); i++)
-      {
-          emit messageSig(LOG_NOTICE, QString("PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                                             .arg(i)                            // index
-                                             .arg(topOfPages.at(i).modelIndex)  // modelIndex
-                                             .arg(topOfPages.at(i).lineNumber)  // lineNumber
-                                             .arg(topOfPages.at(i).modelName)); // modelName
-      }
-#endif
-*/
 
-      maxPages--;
+      // counting pages, view and scene are not needed so we pass null
+      LGraphicsView  *nullView  = nullptr;
+      LGraphicsScene *nullScene = nullptr;
+      findOptions.parsing       = false;
+      findPage(nullView,nullScene,meta,empty/*addLine*/,findOptions);
 
-      enableBuildModActions();
-
-      if (Preferences::modeGUI && ! exporting()) {
-          QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-          setPageLineEdit->setText(string);
-      }
+      pagesCounted();
 
       QApplication::restoreOverrideCursor();
   }
+}
+
+void Gui::pagesCounted()
+{
+    topOfPages.append(current);
+/*
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG, QString("Page Counted: %1 of %2 Current %3")
+                    .arg(displayPageNum) .arg(maxPages).arg(current.toString()));
+
+    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
+    for (int i = 0; i < topOfPages.size(); i++)
+    {
+          emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+                                             .arg(i)                                            // index
+                                             .arg(getSubmodelIndex(topOfPages.at(i).modelName)) // modelIndex
+                                             .arg(topOfPages.at(i).lineNumber)                  // lineNumber
+                                             .arg(topOfPages.at(i).modelName));                 // modelName
+    }
+#endif
+*/
+    maxPages--;
+
+    if (Preferences::modeGUI && ! exporting()) {
+        QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+        setPageLineEdit->setText(string);
+
+        // count pages routine
+        if (saveDisplayPageNum) {
+            if (displayPageNum > maxPages)
+                displayPageNum = maxPages;
+            else
+                displayPageNum = saveDisplayPageNum;
+
+            saveDisplayPageNum = 0;
+
+            emit messageSig(LOG_STATUS,QString());
+        } else {
+            if (mloadingFile) {
+                emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
+                                    QString("LDraw model file %1 aborted.").arg(getCurFile()) :
+                                    QString("Model file loaded (%1 pages, %2 parts). %3")
+                                    .arg(maxPages)
+                                    .arg(ldrawFile.getPartCount())
+                                    .arg(elapsedTime(timer.elapsed())));
+                mloadingFile = false;
+            } else {
+                emit messageSig(LOG_STATUS,QString("Page loaded%1.")
+                                .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
+            }
+        }
+    } // modeGUI and not exporting
 }
 
 void Gui::skipHeader(Where &current)

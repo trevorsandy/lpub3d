@@ -509,6 +509,7 @@ public:
   int             saveStepPageNum;  // saved instance of the number displayed on the page
   int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
   int             saveGroupStepNum; // saved step group step number when pli per step is false
+  int             saveDisplayPageNum; // saved display page number when counting pages
   int             firstStepPageNum; // the first Step page number - used to specify frontCover page
   int             lastStepPageNum;  // the last Step page number - used to specify backCover page
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
@@ -523,6 +524,7 @@ public:
   int             exportMode;       // export Mode
   int             processOption;    // export Option
   int             pageDirection;    // continuous page processing direction
+  int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
@@ -536,6 +538,7 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
+  bool             mloadingFile;        // flag to indicate file being loaded.
 
   void            *noData;
 
@@ -1511,6 +1514,7 @@ private:
   QStringList            buildModSubmodels;   // submodels implicated when checking for next step build modifications
 
   QString                saveRenderer;
+  Where                  current;             // current line being parsed by drawPage
 
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
@@ -1521,8 +1525,6 @@ private:
   int                    m_workerJobResult;
 
   int                    numPrograms;
-
-  int                    pageProcessRunning;      // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...,
 
   bool                   okToInvokeProgressBar()
   {
@@ -1661,6 +1663,7 @@ private:
   bool getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber);
 
 private slots:
+    void pagesCounted();
     void open();
     void openWith();
     void save();

@@ -68,7 +68,7 @@ enum Theme { ThemeDark, ThemeDefault };
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum ShowLineType { LINE_HIGHLIGHT, LINE_ERROR };
-enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_DISPLAY_PAGE };
+enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_FIND_PAGE, PROC_DRAW_PAGE, PROC_DISPLAY_PAGE, PROC_COUNT_PAGE };
 enum SceneObjectInfo { ObjectId };
 
 

@@ -3036,18 +3036,20 @@ Gui::Gui()
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
-    sa                = 0;
-    pa                = 0;
-    displayPageNum    = 1 + pa;
-    numPrograms       = 0;
-    PreviewWidget     = nullptr;
-    previewDockWindow = nullptr;
+    sa                 = 0;
+    pa                 = 0;
+    saveDisplayPageNum = 0;
+    displayPageNum     = 1 + pa;
+    numPrograms        = 0;
+    PreviewWidget      = nullptr;
+    previewDockWindow  = nullptr;
 
     pageProcessRunning              = PROC_NONE;        // display page process
     processOption                   = EXPORT_ALL_PAGES; // export process
     exportMode                      = EXPORT_PDF;
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
+    mloadingFile                    = false;
     resetCache                      = false;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;

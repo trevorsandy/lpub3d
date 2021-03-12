@@ -769,6 +769,7 @@ bool Gui::openFile(QString &fileName)
   disableWatcher();
 
   pageDirection = PAGE_NEXT;
+  mloadingFile = true;
   parsedMessages.clear();
   clearPage(KpageView,KpageScene,true);
   closeFile();
