@@ -138,7 +138,7 @@ contains(BUILD_TYPE,continuous) {
 }
 
 !equals(GIT_BASE_NAME, $$lower("lpub3d")) {
-    equals(GIT_BASE_NAME, $$lower("lpub3d")) {
+    equals(GIT_BASE_NAME, $$lower("lpub3d-ci")) {
         DEFINES += LP3D_NEXT_BUILD
     } else {
         DEFINES += LP3D_DEVOPS_BUILD

@@ -57,4 +57,3 @@ void LDVAlertHandler::snapshotTakerAlertCallback(TCAlert *alert)
 		m_ldvw->snapshotTakerAlertCallback(alert);
 	}
 }
-

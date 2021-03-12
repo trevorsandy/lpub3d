@@ -35,7 +35,7 @@ typedef std::set<std::string> StringSet;
 class LDVExtensionsSetup  : public TCAlertSender
 {
 public:
-    static void setup( HWND hWnd, HINSTANCE hInstance );
+	static void setup( HWND hWnd, HINSTANCE hInstance );
 	static bool checkForWGLExtension(char* extension, bool force = false);
 	static bool haveMultisampleExtension(bool force = false);
 	static bool havePixelBufferExtension(bool force = false);
@@ -53,13 +53,13 @@ public:
 	static TCIntArray *getFSAAModes(void) { return sm_fsaaModes; }
 protected:
 
-    HINSTANCE hInstance;
-    HDC hdc;
-    HWND hWnd;
+	HINSTANCE hInstance;
+	HDC hdc;
+	HWND hWnd;
 
-    LDVExtensionsSetup( HWND hWnd, HINSTANCE hInstance );
+	LDVExtensionsSetup( HWND hWnd, HINSTANCE hInstance );
 	virtual ~LDVExtensionsSetup(void);
-    virtual BOOL initExtensions(void);
+	virtual BOOL initExtensions(void);
 	virtual void scanFSAAModes(void);
 	virtual void recordPixelFormats(void);
 

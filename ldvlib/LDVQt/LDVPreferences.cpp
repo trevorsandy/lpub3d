@@ -2145,8 +2145,8 @@ void LDVPreferences::enableTextureStuds(void)
 	}
 	if (anisoLevel > 1.0)
 	{
-	 	anisotropicFilteringButton->toggle();
-	 	setAniso((int)(log(anisoLevel)/log(2.0)+0.5f));
+		anisotropicFilteringButton->toggle();
+		setAniso((int)(log(anisoLevel)/log(2.0)+0.5f));
 	}
 	if (anisoLevel > maxAniso)
 	{
@@ -2752,4 +2752,3 @@ void LDVPreferences::disableProxy(void)
 	doProxyServer(false);
 	enableApply();
 }
-

@@ -1,20 +1,19 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Sep 12, 2020
+# Last Update: October 05, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 language: cpp
-sudo: required
 dist: xenial
 
 git:
-  depth: 150000
+  depth: false
 
 cache:
   ccache: true
   directories:
-  - ${LP3D_LDRAW_DIR}
-  - ${LP3D_DIST_DIR_BASE}
+  - "${LP3D_LDRAW_DIR}"
+  - "${LP3D_DIST_DIR_BASE}"
 
 # The following variables can be set to true from
 # Travis-CI Site->More Options->Settings->Environment Variables
@@ -33,64 +32,59 @@ cache:
 #
 env:
   global:
-    - LP3D_QT_BASE=512
-    - LP3D_LDRAW_DIR=${HOME}/ldraw
-    - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
-    - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
-    - LP3D_LOGS_DIR=${LP3D_RELEASES_DIR}/logs
-    - LP3D_UPDATE_ASSETS=${LP3D_RELEASES_DIR}/updates
-    - LP3D_DOWNLOAD_ASSETS=${LP3D_RELEASES_DIR}/downloads
-    - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
-    - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
-    - LP3D_COMPOSE_DIR=builds/linux/docker-compose
-    - LP3D_CI_DIR=builds/utilities/ci
-    - LP3D_SECURE_DIR=builds/utilities/ci/secure
-    - LP3D_CI_SCRIPT_DIR=builds/utilities/ci/travis
-    - LP3D_DROPBOX_BUILDS_DIR=travis-ci/builds
-    - LP3D_DROPBOX_RELEASES_DIR=travis-ci/releases
-    - LP3D_DROPBOX_LOGS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/logs
-    - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
-    - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
-    - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
-    - LP3D_VER_LDGLITE=ldglite-1.3
-    - LP3D_VER_LDVIEW=ldview-4.4
-    - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
-    - LP3D_VER_MESALIB=mesa
-    - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-    - LP3D_UPLOADTOOL_REV=master
-
+  - LP3D_QT_BASE=512
+  - LP3D_LDRAW_DIR=${HOME}/ldraw
+  - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
+  - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
+  - LP3D_LOGS_DIR=${LP3D_RELEASES_DIR}/logs
+  - LP3D_UPDATE_ASSETS=${LP3D_RELEASES_DIR}/updates
+  - LP3D_DOWNLOAD_ASSETS=${LP3D_RELEASES_DIR}/downloads
+  - LP3D_3RD_BUILD_FOLDER=${LP3D_BUILD_FOLDER}/..
+  - LP3D_DIST_DIR_BASE=${LP3D_3RD_BUILD_FOLDER}/lpub3d_3rdparty_base
+  - LP3D_COMPOSE_DIR=builds/linux/docker-compose
+  - LP3D_CI_DIR=builds/utilities/ci
+  - LP3D_SECURE_DIR=builds/utilities/ci/secure
+  - LP3D_CI_SCRIPT_DIR=builds/utilities/ci/travis
+  - LP3D_DROPBOX_BUILDS_DIR=travis-ci/builds
+  - LP3D_DROPBOX_RELEASES_DIR=travis-ci/releases
+  - LP3D_DROPBOX_LOGS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/logs
+  - LP3D_DROPBOX_UPDATES_DIR=${LP3D_DROPBOX_RELEASES_DIR}/updates
+  - LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_RELEASES_DIR}/downloads
+  - LP3D_RELEASE_LABEL="LPub3D $(date +'%d.%m.%Y')"
+  - LP3D_VER_LDGLITE=ldglite-1.3
+  - LP3D_VER_LDVIEW=ldview-4.4
+  - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
+  - LP3D_VER_MESALIB=mesa
+  - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building
+    instructions."
+  - LP3D_UPLOADTOOL_REV=master
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
 
 stages:
-  - name: Prepare Build Storage
-    if: tag IS blank
-  - name: Prepare Release Storage
-    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
-  - name: Build and Package
-  - name: Compile Source
-    if: tag IS blank
-  - name: GitHub and Sourceforge Deploy
-    if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+- name: Prepare Build Storage
+  if: tag IS blank
+- name: Prepare Release Storage
+  if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
+- name: Build and Package
+- name: Compile Source
+  if: tag IS blank
+- name: GitHub and Sourceforge Deploy
+  if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
 before_install:
-  - source ${LP3D_CI_SCRIPT_DIR}/before_install
-
+- source ${LP3D_CI_SCRIPT_DIR}/before_install
 install:
-  - source ${LP3D_CI_SCRIPT_DIR}/install
-
+- source ${LP3D_CI_SCRIPT_DIR}/install
 before_script:
-  - source ${LP3D_CI_SCRIPT_DIR}/before_script
-
+- source ${LP3D_CI_SCRIPT_DIR}/before_script
 script:
-  - source ${LP3D_CI_SCRIPT_DIR}/script
-
+- source ${LP3D_CI_SCRIPT_DIR}/script
 after_script:
-  - source ${LP3D_CI_SCRIPT_DIR}/after_script
-
+- source ${LP3D_CI_SCRIPT_DIR}/after_script
 jobs:
- fast_finish: true
- include:
+  fast_finish: true
+  include:
   - stage: Prepare Build Storage
     env: LP3D_BUILD_STORAGE=true
     os: linux
@@ -134,18 +128,18 @@ jobs:
     script: source ${LP3D_CI_SCRIPT_DIR}/releases
     deploy:
       provider: releases
-      name: $LP3D_RELEASE_LABEL
-      body: $LP3D_RELEASE_DESCRIPTION
+      name: "$LP3D_RELEASE_LABEL"
+      body: "$LP3D_RELEASE_DESCRIPTION"
       api_key:
-        secure: BVAK5ojmnBxuV8UIn9HZkfKLPaOZx0W5Ga3wQa3KveYiyTC0h7U9KRZr6kLQYFTZiTf/SGJTn06hiEkJfhaT3HvfuKIYzFl7kF3HnkoolG991aNtAcoCSHHxXMRT7+SYoHGOwBAlDyYgcmwGozCMD3c8cWB0o7qZuzFHr5lp+PyEZOb/OkeZvcUlb6DkK+7lYQ5RESrhSBNWBgzhS+3CuSpIAi/Zqg0CMRoIknfzw2uef1NfTTEdOGfcW499//oS9Y3Up/TruG/3EEcEXt7OXfxBPZGvtzia4NP2jGVNV4TbWuhJAx747cLAYWX0lMUnEFUpMbMNT45G+YUeO2/fNc4XeY9CfjAQkUAM0SBcbEqTfk6BBMyn6YYD574ShZOrVaLGkG/4HX36WljD9nc1rBvuKXfcU1mnKXuWPA5wYfhmJLXznd0zVpBC+3hprbC9+HOKKyjufYXCyOlTRc9Q7Iw68ot/uxqaE331mtY4vG5UetlvPWRyxoj6gwmhreaUz3MjXBs5dEozZBWNCIsFb25u/5Rpl9FoCbnuf3HFSwuq/Fw7yqq9tVyMMMHQxqQlwZHsEODBGvZ8BcGkU0Uc4b2vlDtvslmjhKZiIpVTYh63SpcyZJ9AoL8B/5BD1g8tBjaZ5uycLjYFRkeSBK/NJx9+ltFRlFWjaYl7e85gcN0=
+        secure: a6uWXXv7NQNVEccxq4hDtMczJCSJsdPJUVppYoY0Q5C1YqVyceWjDdY6hgV2pOSKqyoJNPkQbyJHn3LML5Gv1X9mnvnuelg6gaXXV2lUQf4BzGDRO2/4bd0phdvt7fGIVjiED/b/YYNESFH6fq6HQdlBi+rYaZ0RUNVvanYHFAo077xfcz7rnXJqzuxM5l2LY1s+gvoKDjIrP//+tDP0lCQz0SQvHFjaJwGHW9c9ppUEok34VWnlR3tgT/pmj08jpeTlGYSPh6zbmLwC949MCFY1/QUSxBF/0Y6NhYBLeLTvwneY2hIbs9JgCl+AoRDhQ6nT5c+RzQZqU9jofcf9gtlXcyi9uQkO6c5drmBrmtCucEYXGJ5/90dxMh+GhwDgImxHqI/Fy+MWVTUVF06vLErCm/KfHh19hKBeAcaDw1xLgAEmLFjG5SA67EWH5QSqdl7Puxje15YqxmO4ZJFNyMF8kObt1tNdGbsxyOoAjmm1Rg27KJZl9FzEX3yRBImA3gB8Wf2cESlYcljCMHzPxqecLxoh+iC/7GbWDZ02X/oFSAElmmZSwqA7YEV22TZ+eaq+MwQWRIEvGbQGZl7voKSpWZ3dijX5lC4XurCgcVZlQ02hG22QFKNDZ1ub3SQPwdnUfnpbl/x2yeNmjPJnDXBU1PvzfVWtwaIjkxoGirs=
       file_glob: true
-      file: $LP3D_DOWNLOAD_ASSETS/*
+      file: "$LP3D_DOWNLOAD_ASSETS/*"
       overwrite: true
-      skip_cleanup: true
+      cleanup: true
       on:
         repo: trevorsandy/lpub3d
-        branch: $TRAVIS_BRANCH
-        condition: $LP3D_DEPLOY_PKG = yes
+        branch: "$TRAVIS_BRANCH"
+        condition: "$LP3D_DEPLOY_PKG = yes"
 
 branches:
   except:

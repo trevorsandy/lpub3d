@@ -97,4 +97,3 @@ void qstringtoucstring(ucstring &dst, const QString &src)
 		dst[i] = characters[i].unicode();
 	}
 }
-

@@ -1,5 +1,5 @@
 [![LPub3D-Logo][lpub3d-logo]][lpub3d-url]
-# LPub3D
+# LPub3D - Next Development
 An LDraw™ editor for LEGO® style digital building instructions.
 
 [![GitHub release][gh-rel-badge]][gh-rel-url]                        |[![GitHub commits (since latest release)][gh-comm-since-badge]][gh-comm-since-url]|[![GitHub last commit][gh-lst-commit-badge]][gh-lst-commit-url]

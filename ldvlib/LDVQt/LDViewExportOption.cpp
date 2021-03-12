@@ -649,8 +649,8 @@ void LDViewExportOption::applyExtraSearchDirs(void)
 		char key[128];
 		char extraDir[]="";
 
-	    sprintf(key, "%s/Dir%03d", EXTRA_SEARCH_DIRS_KEY, i + 1);
-	    TCUserDefaults::setStringForKey(extraDir, key, false);
+		sprintf(key, "%s/Dir%03d", EXTRA_SEARCH_DIRS_KEY, i + 1);
+		TCUserDefaults::setStringForKey(extraDir, key, false);
 	}
 	if (m_modelViewer)
 	{
