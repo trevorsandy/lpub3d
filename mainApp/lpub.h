@@ -1139,6 +1139,7 @@ public slots:
   QDockWidget*           GetPartsToolBar();
   QDockWidget*           GetColorsToolBar();
   bool                   GetViewPieceIcons();
+  int                    GetStudLogo();
 
   void                   SetStudLogo(int, bool);
   void                   SetSubmodelIconsLoaded(bool);

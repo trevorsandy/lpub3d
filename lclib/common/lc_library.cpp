@@ -20,8 +20,8 @@
 #include <QtConcurrent>
 #endif
 /*** LPub3D Mod - Includes ***/
-#include "lpub.h"
-#include "version.h"
+#include "lpubalert.h"
+#include "lpub_preferences.h"
 /*** LPub3D Mod end ***/
 
 #if MAX_MEM_LEVEL >= 8
@@ -269,16 +269,12 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 		if (CustomColorsPath.isEmpty())
 			return false;
-		
-/*** LPub3D Mod - load alternate LDConfig.ldr message ***/
-		gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(CustomColorsPath));
-/*** LPub3D Mod end ***/
 
 		lcDiskFile ColorFile(CustomColorsPath);
 		return ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile);
 	};
 
-	if (OpenArchive(LibraryPath, LC_ZIPFILE_OFFICIAL))
+	if (OpenArchive(QFileInfo(LibraryPath).absoluteFilePath(), LC_ZIPFILE_OFFICIAL))
 	{
 		lcMemFile ColorFile;
 
@@ -289,7 +285,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 /*** LPub3D Mod end ***/
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
-/*** LPub3D Mod - custom parts archive name ***/
+/*** LPub3D Mod - set unofficial library name ***/
 		QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
 /*** LPub3D Mod end ***/
 
@@ -329,6 +325,10 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 bool lcPiecesLibrary::OpenArchive(const QString& FileName, lcZipFileType ZipFileType)
 {
+/*** LPub3D Mod - loading library ***/
+	lpubAlert->messageSig(LOG_INFO, QString("Loading archive %1...").arg(FileName));
+/*** LPub3D Mod end ***/
+
 	lcDiskFile* File = new lcDiskFile(FileName);
 
 	if (!File->Open(QIODevice::ReadOnly) || !OpenArchive(File, FileName, ZipFileType))

@@ -628,7 +628,7 @@ int POVRay::renderCsi(
   QString transform  = meta.rotStep.value().type;
   bool noCA          = Preferences::applyCALocally || transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = meta.LPub.assem.studLogo.value() ? meta.LPub.assem.studLogo.value() : -1;
+  int studLogo       = meta.LPub.assem.studLogo.value();
   float modelScale   = meta.LPub.assem.modelScale.value();
   float cameraFoV    = meta.LPub.assem.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0);
@@ -736,7 +736,7 @@ int POVRay::renderCsi(
 
   getRendererSettings(CA, cg, parmsArgs);
 
-  QString s  = studLogo >= 0 ? QString("-StudLogo=%1").arg(studLogo) : "";
+  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -954,7 +954,7 @@ int POVRay::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = metaType.studLogo.value() ? metaType.studLogo.value() : -1;
+  int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(0);
@@ -1083,7 +1083,7 @@ int POVRay::renderPli(
 
   getRendererSettings(CA, cg, noCA, parmsArgs);
 
-  QString s  = studLogo >= 0 ? QString("-StudLogo=%1").arg(studLogo) : "";
+  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
@@ -1658,7 +1658,7 @@ int LDView::renderCsi(
     QString transform  = meta.rotStep.value().type;
     bool noCA          = Preferences::applyCALocally || transform == "ABS";
     bool pp            = Preferences::perspectiveProjection;
-    int studLogo       = meta.LPub.assem.studLogo.value() ? meta.LPub.assem.studLogo.value() : -1;
+    int studLogo       = meta.LPub.assem.studLogo.value();
     float modelScale   = meta.LPub.assem.modelScale.value();
     float cameraFoV    = meta.LPub.assem.cameraFoV.value();
     float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0);
@@ -1992,7 +1992,7 @@ int LDView::renderCsi(
     bool haveLdrNames   = !ldrNames.isEmpty();
     bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
-    QString s  = studLogo >= 0 ? QString("-StudLogo=%1").arg(studLogo) : "";
+    QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
     QString w  = QString("-SaveWidth=%1")  .arg(width);
     QString h  = QString("-SaveHeight=%1") .arg(height);
     QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2149,7 +2149,7 @@ int LDView::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = metaType.studLogo.value() ? metaType.studLogo.value() : -1;
+  int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(0);
@@ -2453,7 +2453,7 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  QString s  = studLogo >= 0 ? QString("-StudLogo=%1").arg(studLogo) : "";
+  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2704,7 +2704,7 @@ int Native::renderCsi(
                                    .arg(noCA ? 0.0 : double(cameraAngleY))
                                    .arg(pp ? QString::number(cd * cdf,'f',0) : QString::number(cd) );
 
-              QString s  = studLogo > 0 ? QString("-StudLogo=%1").arg(studLogo) : "";
+              QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
               QString w  = QString("-SaveWidth=%1") .arg(double(Options->ImageWidth));
               QString h  = QString("-SaveHeight=%1") .arg(double(Options->ImageHeight));
               QString f  = QString("-ExportFile=%1") .arg(Options->ExportFileName);
@@ -2846,11 +2846,15 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
                 O->ImageFileName,
                 O->Resolution);
 
-    gui->SetStudLogo(O->StudLogo,true);
-
     if (!RenderImage) {
         gui->enableApplyLightAction();
         gui->GetPartSelectionWidget()->SetDefaultPart();
+    }
+
+    bool ResetStudLogo = false;
+    if (O->StudLogo && O->StudLogo != gui->GetStudLogo()) {
+        ResetStudLogo = true;
+        gui->SetStudLogo(O->StudLogo,true/*reload*/);
     }
 
     View* ActiveView = gui->GetActiveView();
@@ -3052,6 +3056,9 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             }
         }
     }
+
+    if (ResetStudLogo)
+        gui->SetStudLogo(gui->GetStudLogo(),false/*reload*/);
 
     return rc;
 }

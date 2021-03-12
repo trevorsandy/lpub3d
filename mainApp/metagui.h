@@ -219,7 +219,8 @@ public:
     QString const &namedValues,
     IntMeta       *meta,
     QGroupBox     *parent = nullptr,
-    bool           useCheck = false);
+    bool           enable = false,
+    bool           check = false);
   ~ComboGui() {}
 
   virtual void apply(QString &modelName);
@@ -227,9 +228,9 @@ public:
 private:
   IntMeta   *meta;
   QLabel    *label;
-  QCheckBox *check;
+  QCheckBox *checkBox;
   QComboBox *combo;
-  bool       useCheck;
+  bool       check;
 
 public slots:
   void valueChanged(int);

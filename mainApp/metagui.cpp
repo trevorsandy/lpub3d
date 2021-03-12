@@ -662,10 +662,11 @@ ComboGui::ComboGui(
   QString const &namedValues,
   IntMeta       *_meta,
   QGroupBox     *parent,
-  bool           _useCheck)
+  bool           enable,
+  bool          _check)
 {
   meta = _meta;
-  useCheck = _useCheck;
+  check = _check;
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -675,16 +676,22 @@ ComboGui::ComboGui(
     setLayout(layout);
   }
 
-  int index = meta->value();
+  int index = 0;
+  bool enabled = enable;
+  if (meta->value()) {
+      enabled = true;
+      // account for 0 (no logo) default value
+      index = meta->value() - 1;
+  }
 
   label = nullptr;
-  check = nullptr;
+  checkBox = nullptr;
   if (!heading.isEmpty()) {
-    if (useCheck) {
-        check = new QCheckBox(heading,parent);
-        check->setChecked(index);
-        layout->addWidget(check);
-        connect(check,SIGNAL(toggled(bool)),
+    if (check) {
+        checkBox = new QCheckBox(heading,parent);
+        checkBox->setChecked(enabled);
+        layout->addWidget(checkBox);
+        connect(checkBox,SIGNAL(toggled(bool)),
                 this, SLOT(valueChanged(bool)));
     } else {
         label = new QLabel(heading,parent);
@@ -695,14 +702,14 @@ ComboGui::ComboGui(
   combo = new QComboBox(parent);
   QStringList comboItems;
   if (namedValues.isEmpty()){
-     combo->addItem("Default");
+     combo->addItem("None specified");
   } else {
      comboItems = namedValues.split("|");
      for (QString &item : comboItems)
          combo->addItem(item);
   }
-  combo->setEnabled(useCheck ? index : true);
-  combo->setCurrentIndex(useCheck ? index ? index - 1 : index : index);
+  combo->setEnabled(enabled);
+  combo->setCurrentIndex(index);
   layout->addWidget(combo);
   connect(combo,SIGNAL(currentIndexChanged(int)),
           this, SLOT  (valueChanged(int)));
@@ -711,13 +718,15 @@ ComboGui::ComboGui(
 void ComboGui::valueChanged(bool checked)
 {
   combo->setEnabled(checked);
-  valueChanged(checked ? combo->currentIndex() : 0);
+  valueChanged(combo->currentIndex());
 }
 
 void ComboGui::valueChanged(int value)
 {
-  meta->setValue(useCheck ? value ? value + 1 : value : value);
-  modified = true;
+  // account for 0 (no logo) default value
+  int adjValue = combo->isEnabled() ? value + 1 : 0;
+  if ((modified = adjValue != meta->value()))
+    meta->setValue(adjValue);
 }
 
 void ComboGui::apply(QString &modelName)

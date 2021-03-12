@@ -11,8 +11,8 @@
 #include "view.h"
 
 /*** LPub3D Mod - includes ***/
-#include "application.h"
 #include "name.h"
+#include "application.h"
 #include "threadworkers.h"
 /*** LPub3D Mod end ***/
 
@@ -408,7 +408,7 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 
 	}
 
-	emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
+	emit Application::instance()->splashMsgSig("75% - Archive libraries loading...");
 /*** LPub3D Mod end ***/
 
 	if (mLibrary == nullptr)

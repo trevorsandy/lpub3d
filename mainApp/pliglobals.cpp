@@ -219,7 +219,12 @@ GlobalPliDialog::GlobalPliDialog(
 
   box = new QGroupBox("Studs");
   vlayout->addWidget(box);
-  child = new ComboGui("Display Stud Logo","Logo1|Logo2|Logo3|Logo4|Logo5",&pliMeta->studLogo,box,true);
+  child = new ComboGui("Display Stud Logo",
+                       "Single Wire|Double Wire|Raised Flat|Raised Rounded|Subtle Rounded",
+                       &pliMeta->studLogo,
+                       box,
+                       false/*enabled*/,
+                       true/*useCheckBox*/);
   data->children.append(child);
 
   if ( ! bom) {

@@ -228,7 +228,12 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   box = new QGroupBox("Studs");
   vlayout->addWidget(box);
-  child = new ComboGui("Display Stud Logo","Logo1|Logo2|Logo3|Logo4|Logo5",&subModelMeta->studLogo,box,true);
+  child = new ComboGui("Display Stud Logo",
+                       "Single Wire|Double Wire|Raised Flat|Raised Rounded|Subtle Rounded",
+                       &subModelMeta->studLogo,
+                       box,
+                       false/*enabled*/,
+                       true/*useCheckBox*/);
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

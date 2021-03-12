@@ -1568,6 +1568,11 @@ void Gui::reloadViewer(){
      gMainWindow->mSubmodelIconsLoaded = value;
  }
 
+ int Gui::GetStudLogo()
+ {
+     return lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+ }
+
  void Gui::SetStudLogo(int Logo, bool value)
  {
      lcGetPiecesLibrary()->SetStudLogo(Logo, value);
