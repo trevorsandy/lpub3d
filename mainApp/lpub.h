@@ -1130,7 +1130,7 @@ public:
       QString      group,  // steps->meta.LPub.remove.group.value()
       QStringList  &out,   // newCSIParts
       QVector<int> &tiout, // newTypeIndexes
-      Meta         &meta);
+      Meta         *meta);
 
   static void remove_parttype(
       QStringList   in,     // csiParts

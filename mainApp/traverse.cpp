@@ -96,7 +96,7 @@ void Gui::remove_group(
     QString      group,  // steps->meta.LPub.remove.group.value()
     QStringList  &out,   // newCSIParts
     QVector<int> &tiout, // newTypeIndexes
-    Meta         &meta)
+    Meta         *meta)
 {
 
   bool    grpMatch = false;
@@ -114,7 +114,7 @@ void Gui::remove_group(
   for (int i = 0; i < in.size(); i++) {
 
       QString line = in.at(i);
-      grpRx = meta.groupRx(line,grpType);
+      grpRx = meta->groupRx(line,grpType);
 
       if (!grpRx.isEmpty() && grpType) {
           // MLCad Groups
@@ -1211,7 +1211,7 @@ int Gui::drawPage(
                 QStringList newCSIParts;
                 QVector<int> newLineTypeIndexes;
                 if (rc == RemoveGroupRc) {
-                    remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,curMeta);
+                    remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&curMeta);
                 } else if (rc == RemovePartTypeRc) {
                     remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                 } else {
@@ -3349,7 +3349,7 @@ int Gui::findPage(
                     QStringList newCSIParts;
                     QVector<int> newLineTypeIndexes;
                     if (rc == RemoveGroupRc) {
-                        remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                        remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
                     } else if (rc == RemovePartTypeRc) {
                         remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                     } else {
@@ -3828,7 +3828,7 @@ int Gui::getBOMParts(
                   QStringList newPLIParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
-                      remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,meta);
+                      remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,&meta);
                   } else if (rc == RemovePartTypeRc) {
                       remove_parttype(pliParts,dummy,meta.LPub.remove.parttype.value(),newPLIParts,dummy);
                   } else {
@@ -4892,7 +4892,7 @@ void Gui::writeToTmp(const QString &fileName,
                           QStringList newCSIParts;
                           QVector<int> newLineTypeIndexes;
                           if (rc == RemoveGroupRc) {
-                              remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                              remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,&meta);
                           } else if (rc == RemovePartTypeRc) {
                               remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                           } else {
