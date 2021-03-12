@@ -90,7 +90,7 @@ elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
     brew install gl2ps jpeg minizip;
   fi;
-  brew install ccache
+#  brew install ccache
   export PATH="/usr/local/opt/ccache/libexec:$PATH";
   export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
 fi
