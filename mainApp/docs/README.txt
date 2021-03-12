@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2135 (12 03 2021 07:39:04)
+LPub3D 2.4.1.1.2136 (12 03 2021 07:39:45)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Fix - Load PLI substitute and excluded part lists on initialisation #471
 - Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
 - Fix - Rounded corners are not round but oval #473
+- Fix - Segmentation fault (core dumped) when dragging step number #466
 - Fix - Some settings do not appear to save #457
 - Fix - Treat as part substitution causes crash #478
 - HowTo - Assure LPub3D release integrity with SHA-512 #461

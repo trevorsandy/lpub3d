@@ -282,32 +282,31 @@ void GroupStepNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void GroupStepNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     mouseIsDown = true;
-    QGraphicsItem::mousePressEvent(event);
-    update();
+    NumberPlacementItem::mousePressEvent(event);
 }
 
 void GroupStepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   mouseIsDown = false;
 
-  QGraphicsItem::mouseReleaseEvent(event);
+  NumberPlacementItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    QPointF newPosition;
+    QPointF positionMoved;
 
     Where topOfSteps    = page->topOfSteps();
     Where bottomOfSteps = page->bottomOfSteps();
     bool  useTop        = parentRelativeType != StepGroupType;
 
-    newPosition = pos() - position;
+    positionMoved = pos() - position;
 
-    if (newPosition.x() || newPosition.y()) {
+    if (positionMoved.x() || positionMoved.y()) {
       positionChanged = true;
 
       PlacementData placementData = placement.value();
-      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+      placementData.offsets[0] += positionMoved.x()/relativeToSize[0];
+      placementData.offsets[1] += positionMoved.y()/relativeToSize[1];
       placement.setValue(placementData);
 
       changePlacementOffset(useTop ? topOfSteps : bottomOfSteps,
@@ -315,7 +314,6 @@ void GroupStepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                             StepNumberType);
     }
   }
-//  update();
 }
 
 void GroupStepNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -424,32 +422,31 @@ void PageNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void PageNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     mouseIsDown = true;
-    QGraphicsItem::mousePressEvent(event);
-    update();
+    NumberPlacementItem::mousePressEvent(event);
 }
 
 void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   mouseIsDown = false;
 
-  QGraphicsItem::mouseReleaseEvent(event);
+  NumberPlacementItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    QPointF newPosition;
+    QPointF positionMoved;
 
     Where topOfSteps    = page->topOfSteps();                       //Trevor@vers303 add
     Where bottomOfSteps = page->bottomOfSteps();                    //Trevor@vers303 add
     bool  useTop        = parentRelativeType != StepGroupType;
 
-    newPosition = pos() - position;
+    positionMoved = pos() - position;
     
-    if (newPosition.x() || newPosition.y()) {
+    if (positionMoved.x() || positionMoved.y()) {
       positionChanged = true;
 
       PlacementData placementData = placement.value();
-      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+      placementData.offsets[0] += positionMoved.x()/relativeToSize[0];
+      placementData.offsets[1] += positionMoved.y()/relativeToSize[1];
       placement.setValue(placementData);
 
       changePlacementOffset(useTop ? topOfSteps : bottomOfSteps,     //Trevor@vers303 change from page-bottomOfSteps()
@@ -457,7 +454,6 @@ void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                             StepNumberType);
     }
   }
-  update();
 }
 
 void PageNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -568,36 +564,40 @@ void StepNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void StepNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     mouseIsDown = true;
-    QGraphicsItem::mousePressEvent(event);
-    update();
+    NumberPlacementItem::mousePressEvent(event);
 }
 
 void StepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
   mouseIsDown = false;
 
-  QGraphicsItem::mouseReleaseEvent(event);
+  NumberPlacementItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-    QPointF newPosition;
+    QPointF positionMoved;
 
-    newPosition = pos() - position;
+    positionMoved = pos() - position;
+
+//    qDebug() << QString("Old Position X %1, Y %2, positionMoved X %3, Y %4")
+//                .arg(position.x()).arg(position.y())
+//                .arg(positionMoved.x()).arg(positionMoved.y());
     
-    if (newPosition.x() || newPosition.y()) {
+    if (positionMoved.x() || positionMoved.y()) {
       positionChanged = true;
 
       PlacementData placementData = placement.value();
 
-      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+      placementData.offsets[0] += positionMoved.x()/relativeToSize[0];
+      placementData.offsets[1] += positionMoved.y()/relativeToSize[1];
 
       placement.setValue(placementData);
 
-      changePlacementOffset(step->topOfStep(),&placement,StepNumberType);
+      Where topOfStep = step->topOfStep();
+
+      changePlacementOffset(topOfStep, &placement, StepNumberType);
     }
   }
-  update();
 }
 
 void StepNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
