@@ -429,14 +429,6 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
-  emit messageSig(LOG_INFO_STATUS, QString("Processing draw %1, model '%2'...")
-                  .arg(stepContains(opts.current,"MULTI_STEP BEGIN") ?
-                           QString("multi-step page %1").arg(displayPageNum) :
-                           QString("single-step page %1, step %2").arg(displayPageNum).arg(opts.stepNum))
-                  .arg(opts.current.modelName));
-
-  QApplication::processEvents();
-
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
@@ -518,6 +510,17 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageHeader.size.setValue(0,pW);
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
+
+  auto drawPageStatus = [this, &opts, &multiStep, &callout] () {
+      int charWidth = QFontMetrics(font()).averageCharWidth();
+      QFontMetrics currentMetrics(font());
+      QString elidedModelName = currentMetrics.elidedText(opts.current.modelName,
+                                                          Qt::ElideRight, charWidth * 30/*characters*/);
+      emit messageSig(LOG_INFO_STATUS, QString("Processing %1 draw-page for page %2, step %3, model '%4'...")
+                      .arg(multiStep ? "multi-step" : callout ? "called out" : "single-step")
+                      .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName));
+      QApplication::processEvents();
+  };
 
   auto getTopOfPreviousStep = [this,&topOfStep] () {
       int adjustedIndx = exporting() ? displayPageNum : displayPageNum - 1;
@@ -625,6 +628,8 @@ int Gui::drawPage(
      opts.buildModLevel,
      buildModIgnore,
      buildModItems);
+
+  drawPageStatus();
 
   /*
    * do until end of page
@@ -2420,6 +2425,8 @@ int Gui::drawPage(
                       drawPageElapsedTime();
                       return HitEndOfPage;
                   } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
+
+                  drawPageStatus();
 
                   lightList.clear();
 
