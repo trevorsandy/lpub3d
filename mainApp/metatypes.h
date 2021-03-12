@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -476,7 +476,7 @@ public:
 
 class InsertData
 {
-public:  
+public:
   enum InsertType
   {
     InsertPicture,
@@ -598,7 +598,7 @@ public:
   float   margin[2];  // in units [inches]
   bool    hideArrows;
   bool    useDefault;
-  
+
   BorderData()
   {
     thickness  = 0.125;
@@ -620,16 +620,16 @@ class PointerAttribData
       Line,
       Border
     } attribType;
-    struct Where {
+    struct Here {
       QString modelName  = "undefined";
       int     lineNumber = 0;
     };
     int id;
     QString parent;
     BorderData lineData;
-    Where      lineWhere;
+    Here       lineHere;
     BorderData borderData;
-    Where      borderWhere;
+    Here       borderHere;
 
     PointerAttribData()
     {

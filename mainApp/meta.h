@@ -255,10 +255,10 @@ public:
   AbstractMeta(AbstractMeta&&rhs) = default;
   AbstractMeta& operator=(const AbstractMeta&rhs) = default;
   AbstractMeta& operator=(AbstractMeta&&rhs) = default;
-  
+
   /* Initialize thyself */
 
-  virtual void init(BranchMeta *parent, 
+  virtual void init(BranchMeta *parent,
                     QString name);
 
   /* Parse thyself */
@@ -288,7 +288,7 @@ public:
   Where     _here[2];
 
   LeafMeta() : AbstractMeta()
-  { 
+  {
   }
   LeafMeta(const LeafMeta &rhs) : AbstractMeta(rhs)
   {
@@ -313,15 +313,15 @@ public:
     pushed = 0;
   }
 
-  bool preambleMatch(QStringList &argv, int index, QString &match) 
+  bool preambleMatch(QStringList &argv, int index, QString &match)
   {
     if (argv.size() != index) {
     }
     return preamble == match;
   }
-  
+
   virtual QString format(bool local, bool global) = 0;
-  
+
   virtual QString format(bool local, bool global, QString);
 
   virtual void doc(QStringList &out, QString preamble)  { out << preamble; }
@@ -333,7 +333,7 @@ public:
 
 class BranchMeta : public AbstractMeta {
 public:
-  /* 
+  /*
    * This is a list of the possible keywords for this token in
    * the syntax
    */
@@ -341,7 +341,7 @@ public:
   QHash<QString, AbstractMeta *> list;
   BranchMeta() : AbstractMeta() {}
   virtual ~BranchMeta();
-  
+
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual bool    preambleMatch(QStringList &argv, int index, QString &_preamble);
   virtual void    doc(QStringList &out, QString preamble);
@@ -389,7 +389,7 @@ public:
  * This leaf meta is used when the the rest of the input
  * is a simple integer
  */
-  
+
 class IntMeta : public RcMeta {
 private:
   int       _value[2];
@@ -426,8 +426,8 @@ public:
     _max = max;
   }
 //  virtual ~IntMeta() {}
-  virtual void init(BranchMeta *parent, 
-                    const QString name, 
+  virtual void init(BranchMeta *parent,
+                    const QString name,
                     Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
           QString format(bool,bool);
@@ -435,7 +435,7 @@ public:
 };
 /*
  * This is a leaf object for floating point number */
-  
+
 class FloatMeta : public RcMeta {
 protected:
   float     _value[2];
@@ -485,8 +485,8 @@ public:
     _precision  = precision;
     _inputMask  = inputMask;
   }
-  virtual void    init(BranchMeta *parent, 
-                       const QString name, 
+  virtual void    init(BranchMeta *parent,
+                       const QString name,
                        Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
           QString format(bool,bool);
@@ -494,7 +494,7 @@ public:
 };
 
 /* This is a leaf object class for two floating point numbers */
-  
+
 class FloatPairMeta : public RcMeta {
 protected:
   float     _value[2][2];
@@ -564,7 +564,7 @@ public:
     return _default;
   }
 //  virtual ~FloatPairMeta() {}
-  virtual void    init(BranchMeta *parent, 
+  virtual void    init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
@@ -770,13 +770,13 @@ public:
 /*
  * This leaf meta is used when using real world measuring units
  */
-  
+
 class UnitMeta : public FloatMeta {
 public:
-  virtual float value()  // the value as the user sees it 
+  virtual float value()  // the value as the user sees it
   {
     float t = _value[pushed];
-    
+
     if (resolutionType() == DPCM) {
       t = inches2centimeters(t);
     }
@@ -817,7 +817,7 @@ public:
   virtual float value(int which)
   {
     float t = _value[pushed][which];
-    
+
     if (resolutionType() == DPCM) {
       t = inches2centimeters(t);
     }
@@ -841,7 +841,7 @@ public:
     _value[pushed][0] = v1;
     _value[pushed][1] = v2;
   }
-  
+
   virtual float valueInches(int which)
   {
     return _value[pushed][which];
@@ -855,7 +855,7 @@ public:
     _value[pushed][0] = v1;
     _value[pushed][1] = v2;
   }
-  
+
   virtual void setValuePixels(int which, int pixels);
 
   virtual int valuePixels(int which);
@@ -1150,7 +1150,7 @@ public:
   {
     _value[pushed] = value;
   }
-  BoolMeta () 
+  BoolMeta ()
   {
   }
   BoolMeta(const BoolMeta &rhs) : RcMeta(rhs)
@@ -1220,7 +1220,7 @@ public:
     _value[pushed] = value;
   }
   void setValue(
-    BackgroundData::Background type, 
+    BackgroundData::Background type,
     QString string)
   {
     _value[pushed].type = type;
@@ -1232,7 +1232,7 @@ public:
     _value[pushed].type = type;
   }
   BackgroundMeta() : LeafMeta()
-  { 
+  {
   }
   BackgroundMeta(const BackgroundMeta &rhs) : LeafMeta(rhs)
   {
@@ -1341,8 +1341,8 @@ public:
 //  virtual ~BorderMeta() { }
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
-  void    pop() 
-  { 
+  void    pop()
+  {
     if (pushed) {
       _value[1].color.clear();
       pushed = 0;
@@ -1397,12 +1397,12 @@ public:
   {
     if (_value[pushed].attribType == PointerAttribData::Line) {
         _value[pushed].borderData  = pointerAttribData.borderData;
-        _value[pushed].borderWhere = pointerAttribData.borderWhere;
+        _value[pushed].borderHere  = pointerAttribData.borderHere;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Border) {
-        _value[pushed].lineData  = pointerAttribData.lineData;
-        _value[pushed].lineWhere = pointerAttribData.lineWhere;
+        _value[pushed].lineData    = pointerAttribData.lineData;
+        _value[pushed].lineHere    = pointerAttribData.lineHere;
     }
   }
 
@@ -1486,8 +1486,8 @@ public:
            _result.lineData.thickness    = argv[index+3].toFloat();
            _result.lineData.hideArrows   = argv[index+4].toInt();        // used to show/hide arrow tip
            _result.lineData.useDefault   = false;
-           _result.lineWhere.modelName   = here.modelName;
-           _result.lineWhere.lineNumber  = here.lineNumber;
+           _result.lineHere.modelName    = here.modelName;
+           _result.lineHere.lineNumber   = here.lineNumber;
         } else
           if (argv[index] == "BORDER") {
            _result.attribType            = PointerAttribData::Border;
@@ -1496,8 +1496,8 @@ public:
            _result.borderData.color      = argv[index+2];
            _result.borderData.thickness  = argv[index+3].toFloat();
            _result.borderData.useDefault = false;
-           _result.borderWhere.modelName = here.modelName;
-           _result.borderWhere.lineNumber= here.lineNumber;
+           _result.borderHere.modelName  = here.modelName;
+           _result.borderHere.lineNumber = here.lineNumber;
         }
         bool noParent                    = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
         _result.id                       = argv[isLine ? index+5 : index+4].toInt();
@@ -1546,8 +1546,8 @@ public:
     return _result;
   }
   void setValue(
-    PlacementEnc placement, 
-    float loc, 
+    PlacementEnc placement,
+    float loc,
     float base,
     int segments,
     float x1,
@@ -1573,8 +1573,8 @@ public:
     _value[pushed].y4        = y4;            // MidTipY
   }
   void setValueUnit(
-    PlacementEnc placement, 
-    float loc, 
+    PlacementEnc placement,
+    float loc,
     float base,
     int segments,
     float x1,
@@ -1851,7 +1851,7 @@ public:
  *          . '  /
  *      . '     /
  *   tx---------hix (hafting center)
- *      ` .     \ 
+ *      ` .     \
  *          ` .  \
  *              ` .
  */
@@ -2103,7 +2103,7 @@ public:
     }
     return _result;
   }
-  void setValue(QString color, 
+  void setValue(QString color,
                 float thickness,
                 float margin0,
                 float margin1)
@@ -2157,7 +2157,7 @@ public:
     _result.margin[1] *= resolution();
     return _result;
   }
-  void setValueInches(QString color, 
+  void setValueInches(QString color,
                 float thickness,
                 float margin0,
                 float margin1)
@@ -2513,7 +2513,7 @@ public:
 
 //  virtual ~NumberMeta() {}
 
-  virtual void init(BranchMeta *parent, 
+  virtual void init(BranchMeta *parent,
                     QString name);
 };
 
@@ -2527,7 +2527,7 @@ public:
   }
 
 //  virtual ~NumberPlacementMeta() {}
-  virtual void init(BranchMeta *parent, 
+  virtual void init(BranchMeta *parent,
                     QString name);
 };
 
@@ -2749,7 +2749,7 @@ public:
   StringMeta group;
   StringMeta parttype;
   StringMeta partname;
-  RemoveMeta() 
+  RemoveMeta()
   {
   }
   RemoveMeta(const RemoveMeta &rhs) : BranchMeta(rhs)
@@ -2759,7 +2759,7 @@ public:
 //  virtual ~RemoveMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
-  
+
 /* This class is used to parse PART IGNORE in PLI metas
  * do we want to try to use values instead of the PART
  * keyword
@@ -2779,9 +2779,9 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
-/* 
+/*
  * This class is used to parse PLI substitute
- * commands 
+ * commands
  */
 
 class SubMeta : public LeafMeta
@@ -2794,7 +2794,7 @@ public:
     return _value;
   }
   SubMeta() : LeafMeta()
-  { 
+  {
   }
   SubMeta(const SubMeta &rhs) : LeafMeta(rhs)
   {
@@ -2820,7 +2820,7 @@ private:
   ConstrainData _value[2];
   ConstrainData _result;
   bool _default;
-  
+
 public:
   bool isDefault()
   {
@@ -2882,7 +2882,7 @@ class PliBeginMeta : public BranchMeta
 public:
   RcMeta        ignore;
   SubMeta       sub;
-  PliBeginMeta() 
+  PliBeginMeta()
   {
   }
   PliBeginMeta(const PliBeginMeta &rhs) : BranchMeta(rhs)
@@ -2921,7 +2921,7 @@ class PartIgnMeta : public BranchMeta
 public:
   PartBeginMeta begin;
   RcMeta        end;
-  PartIgnMeta() 
+  PartIgnMeta()
   {
   }
   PartIgnMeta(const PartIgnMeta &rhs) : BranchMeta(rhs)
@@ -3031,8 +3031,8 @@ public:
   {
     return _value.buffer;
   }
-  BuffExchgMeta() 
-  { 
+  BuffExchgMeta()
+  {
   }
   BuffExchgMeta(const BuffExchgMeta &rhs) : LeafMeta(rhs)
   {
@@ -3418,7 +3418,7 @@ public:
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
 
-  //pageAttributes 
+  //pageAttributes
   PageAttributeTextMeta     titleFront;              //from LDrawFile - LDraw: File
   PageAttributeTextMeta     titleBack;               //from LDrawFile - LDraw: File
   PageAttributeTextMeta     modelName;               //from LDrawFile - LDraw: Name
@@ -3683,7 +3683,7 @@ public:
 /*
  * Resolution meta
  */
-  
+
 class ResolutionMeta : public LeafMeta {
 private:
 public:
@@ -3714,7 +3714,7 @@ public:
   {
     return 1.0/64;
   }
-  ResolutionMeta() 
+  ResolutionMeta()
   {
     setIsDefaultResolution(true);
   }
@@ -3723,7 +3723,7 @@ public:
   }
 //  virtual ~ResolutionMeta() {}
   void pop() { pushed = 0; setIsDefaultResolution(true); }
-  virtual void init(BranchMeta *parent, 
+  virtual void init(BranchMeta *parent,
                     QString name);
   virtual Rc parse(QStringList &argv, int index, Where &here);
           QString format(bool,bool);

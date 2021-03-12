@@ -130,7 +130,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   MultiStepMeta *multiStep = &_meta->LPub.multiStep;
   background        = nullptr;
   border            = nullptr;
-  margin            = &multiStep->margin; 
+  margin            = &multiStep->margin;
   placement         = &multiStep->placement;
   freeform          = &multiStep->freeform;
   alloc             = &multiStep->alloc;
@@ -481,7 +481,7 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == nullptr) {
     return;
   }
-  
+
   Step *nextStep = nullptr;
   nextStep = parentStep->nextStep();
   if ( ! nextStep)
@@ -516,8 +516,8 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       if (pointer->stepNum   == parentStep->stepNumber.number) {
         modelName             = pointer->here.modelName;
         PointerAttribData pad = pointer->pointerAttrib.value();
-        Where lineAttribTop   = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
-        Where borderAttribTop = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
+        Where lineAttribTop   = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
+        Where borderAttribTop = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
         // for each pointer load the pointer...
         hash.insert(pointer->here.lineNumber,MetaCmd);
         lineNumbers << pointer->here.lineNumber;

@@ -663,9 +663,9 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   bool isCallout = pointerParentType == CalloutType;
   PointerAttribData pad = pointer.pointerAttrib.value();
 
-  Where lineAttribTop      = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
+  Where lineAttribTop      = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
   Where lineAttribBottom   = lineAttribTop;
-  Where borderAttribTop    = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
+  Where borderAttribTop    = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
   Where borderAttribBottom = borderAttribTop;
 
   QAction *setLineAttributesAction = menu.addAction("Edit Line Attributes");
