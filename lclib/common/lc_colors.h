@@ -11,14 +11,15 @@ struct lcColor
 {
 	quint32 Code;
 	int Group;
-	bool Translucent;
+	bool Translucent = false;
+	bool Adjusted = false;
 	lcVector4 Value;
 	lcVector4 Edge;
 	char Name[LC_MAX_COLOR_NAME];
 	char SafeName[LC_MAX_COLOR_NAME];
 /*** LPub3D Mod - use 3DViewer colors ***/
-	int CValue;
-	int EValue;
+	quint32 CValue;
+	quint32 EValue;
 	int Alpha;
 /*** LPub3D Mod end ***/
 };

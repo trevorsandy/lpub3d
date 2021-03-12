@@ -591,6 +591,7 @@ void lcMainWindow::CreateMenus()
 	EditMenu->addAction(mActions[LC_EDIT_CUT]);
 	EditMenu->addAction(mActions[LC_EDIT_COPY]);
 	EditMenu->addAction(mActions[LC_EDIT_PASTE]);
+	EditMenu->addAction(mActions[LC_EDIT_PASTE_STEPS]);
 	EditMenu->addSeparator();
 	EditMenu->addAction(mActions[LC_EDIT_FIND]);
 	EditMenu->addAction(mActions[LC_EDIT_FIND_NEXT]);
@@ -2617,10 +2618,11 @@ void lcMainWindow::UpdateTimeline(bool Clear, bool UpdateItems)
 
 void lcMainWindow::UpdatePaste(bool Enabled)
 {
-	QAction* Action = mActions[LC_EDIT_PASTE];
+	if (mActions[LC_EDIT_PASTE])
+		mActions[LC_EDIT_PASTE]->setEnabled(Enabled);
 
-	if (Action)
-		Action->setEnabled(Enabled);
+	if (mActions[LC_EDIT_PASTE_STEPS])
+		mActions[LC_EDIT_PASTE_STEPS]->setEnabled(Enabled);
 }
 
 void lcMainWindow::UpdateCurrentStep()
@@ -3046,19 +3048,9 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 	QString SaveFileName = FileName;
 	Project* Project = lcGetActiveProject();
 
-	if (!SaveFileName.isEmpty() && Project->GetModels().GetSize() > 1 && QFileInfo(SaveFileName).suffix().toLower() != QLatin1String("mpd"))
-		SaveFileName.clear();
-
 	if (SaveFileName.isEmpty())
 	{
 		SaveFileName = Project->GetFileName();
-
-		if (Project->GetModels().GetSize() > 1 && QFileInfo(SaveFileName).suffix().toLower() != QLatin1String("mpd"))
-		{
-			int SuffixLength = QFileInfo(SaveFileName).suffix().length();
-			if (SuffixLength)
-				SaveFileName = SaveFileName.left(SaveFileName.length() - SuffixLength - 1);
-		}
 
 		if (SaveFileName.isEmpty())
 			SaveFileName = QFileInfo(QDir(lcGetProfileString(LC_PROFILE_PROJECTS_PATH)), Project->GetTitle()).absoluteFilePath();
@@ -3273,7 +3265,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_PASTE:
 		if (ActiveModel)
-			ActiveModel->Paste();
+			ActiveModel->Paste(true);
+		break;
+
+	case LC_EDIT_PASTE_STEPS:
+		if (ActiveModel)
+			ActiveModel->Paste(false);
 		break;
 
 	case LC_EDIT_FIND:

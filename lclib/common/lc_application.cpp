@@ -1008,8 +1008,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		/***
 	if (Options.AutomateEdgeColor && lcIsHighContrast(Options.StudStyle))
 	{
-		Options.StdErr += tr("Automate edge color and high contrast stud style cannot be enabled at the same time.\n");
-		Options.ParseOK = false;
+		Options.StdErr += tr("High contrast stud and edge color settings are ignored when -aec or --automate-edge-color is set.\n");
 	}
 		***/
 /*** LPub3D Mod end ***/

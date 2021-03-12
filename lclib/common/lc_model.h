@@ -258,7 +258,7 @@ public:
 
 	void Cut();
 	void Copy();
-	void Paste();
+	void Paste(bool PasteToCurrentStep);
 	void DuplicateSelectedPieces();
 	void PaintSelectedPieces();
 

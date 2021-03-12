@@ -1220,7 +1220,7 @@ void lcModel::Copy()
 	gApplication->ExportClipboard(File);
 }
 
-void lcModel::Paste()
+void lcModel::Paste(bool PasteToCurrentStep)
 {
 	if (gApplication->mClipboard.isEmpty())
 		return;
@@ -1241,9 +1241,17 @@ void lcModel::Paste()
 	for (lcPiece* Piece : PastedPieces)
 	{
 		Piece->SetFileLine(-1);
-		Piece->SetStepShow(mCurrentStep);
 
-		SelectedObjects.Add(Piece);
+		if (PasteToCurrentStep)
+		{
+			Piece->SetStepShow(mCurrentStep);
+			SelectedObjects.Add(Piece);
+		}
+		else
+		{
+			if (Piece->GetStepShow() <= mCurrentStep)
+				SelectedObjects.Add(Piece);
+		}
 	}
 
 	Merge(Model);

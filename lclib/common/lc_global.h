@@ -59,7 +59,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.01"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_BUILD "191e5f7"
+#define LC_VERSION_BUILD "b99724c"
 /*** LPub3D Mod end ***/
 
 

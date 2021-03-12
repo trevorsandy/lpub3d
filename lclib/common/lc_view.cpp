@@ -472,6 +472,7 @@ void lcView::ShowContextMenu() const
 
 /*** LPub3D Mod - context menu management ***/
 /***
+	Popup->addAction(Actions[LC_EDIT_PASTE_STEPS]);
 	Popup->addAction(Actions[LC_PIECE_DUPLICATE]);
 
 	Popup->addSeparator();
