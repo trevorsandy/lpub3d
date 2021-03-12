@@ -481,7 +481,7 @@ public:
   int             sa;               // step number adustment
   int             exportMode;       // export Mode
   int             processOption;    // export Option
-  int             pageDirection;    // continuous page processing direction
+  int             pageDirection;    // page processing direction
   int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
   QString         pageRangeText;    // page range parameters
@@ -534,7 +534,7 @@ public:
   }
   void  displayPage();
 
-  bool continuousPageDialog(Direction d);
+  bool continuousPageDialog(PageDirection d);
 
   /* We need to send ourselves these, to eliminate recursion and the model
    * changing under foot */
@@ -1303,7 +1303,7 @@ public slots:
   void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
 
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
-  void setPageContinuousIsRunning(bool b = true, Direction d = DIRECTION_NOT_SET);
+  void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
   void setContinuousPage(bool b){ m_contPageProcessing = b; }
   bool ContinuousPage() { return m_contPageProcessing; }
   void cancelContinuousPage(){ m_contPageProcessing = false; }

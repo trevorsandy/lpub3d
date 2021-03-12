@@ -687,7 +687,7 @@ void Gui::previousPageContinuous()
     }
 }
 
-void Gui::setPageContinuousIsRunning(bool b, Direction d){
+void Gui::setPageContinuousIsRunning(bool b, PageDirection d){
 
     if (d != DIRECTION_NOT_SET) pageDirection = d;
 
@@ -724,7 +724,7 @@ void Gui::setContinuousPageAct(PAction p) {
     }
 }
 
-bool Gui::continuousPageDialog(Direction d)
+bool Gui::continuousPageDialog(PageDirection d)
 {
   pageDirection = d;
   int pageCount = 0;
@@ -3280,7 +3280,6 @@ Gui::Gui()
     qRegisterMetaType<CountInstanceEnc>("CountInstanceEnc");
     qRegisterMetaType<Dim>("Dim");
     qRegisterMetaType<Dimensions>("Dimensions");
-    qRegisterMetaType<Direction>("Direction");
     qRegisterMetaType<DisplayModelType>("DisplayModelType");
     qRegisterMetaType<DividerType>("DividerType");
     qRegisterMetaType<ExportMode>("ExportMode");
@@ -3304,6 +3303,7 @@ Gui::Gui()
     qRegisterMetaType<NativeType>("NativeType");
     qRegisterMetaType<OrientationEnc>("OrientationEnc");
     qRegisterMetaType<PAction>("PAction");
+    qRegisterMetaType<PageDirection>("PageDirection");
     qRegisterMetaType<PageTypeEnc>("PageTypeEnc");
     qRegisterMetaType<PartSource>("PartSource");
     qRegisterMetaType<PartType>("PartType");

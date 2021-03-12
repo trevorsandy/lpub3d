@@ -24,6 +24,15 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    static const QString directionNames[] =
+    {
+      "Unspecified", //DIRECTION_NOT_SET,
+      "Next",        //PAGE_NEXT,
+      "Forward",     //PAGE_JUMP_FORWARD,
+      "Previous",    //PAGE_PREVIOUS,
+      "Backward"     //PAGE_JUMP_BACKWARD
+    };
+
     bool preview = gui->m_previewDialog;
     linePageRange  = gui->setPageLineEdit->displayText().replace("of","-").replace(" ","");
 
@@ -134,7 +143,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         break;
 
     case PAGE_PROCESS:
-        QString direction = gui->pageDirection == PAGE_NEXT ? "Next" : "Previous";
+        QString direction = directionNames[gui->pageDirection];
         setWindowTitle(tr("%1 page continuous processing").arg(direction));
         ui->groupBoxPrintOptions->setTitle("Page processing options");
         ui->checkBoxResetCache->setText(tr("Reset all caches before %1 page processing").arg(direction.toLower()));
