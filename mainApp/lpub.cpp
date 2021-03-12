@@ -1741,7 +1741,18 @@ void Gui::clearAndReloadModelFile(bool fromProjectSetup) { // EditWindow Redraw
         if (!_continue)
             return;
     }
-    clearAllCaches();
+
+    if (fromProjectSetup) {
+        timer.start();
+        clearPLICache();
+        clearCSICache();
+        clearSubmodelCache();
+        clearTempCache();
+        emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
+                        .arg(ldrawFile.getPartCount())
+                        .arg(elapsedTime(timer.elapsed())));
+    } else
+        clearAllCaches();
 }
 
 void Gui::clearAllCaches()
