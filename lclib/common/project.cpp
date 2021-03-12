@@ -466,7 +466,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		FileData = File.readAll();
 	}
 	else if (!StepKey.isEmpty() || IsLPubModel)
-	{            
+	{
 		QStringList Content;
 
 		if (IsLPubModel)
