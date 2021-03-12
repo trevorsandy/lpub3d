@@ -116,4 +116,3 @@ UI_DIR          = $$DESTDIR/.ui
 
 # Input files
 include(quazip.pri)
-include(../LPub3DPlatformSpecific.pri)

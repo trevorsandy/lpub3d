@@ -146,7 +146,6 @@ RCC_DIR         = $$DESTDIR/.qrc
 UI_DIR          = $$DESTDIR/.ui
 
 include(lclib.pri)
-include(../LPub3DPlatformSpecific.pri)
 
 # Suppress warnings
 !win32-msvc*:!macx {

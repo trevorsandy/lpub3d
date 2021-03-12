@@ -318,7 +318,6 @@ unix:!macx:include(linuxfiledistro.pri)
 
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
-include(../LPub3DPlatformSpecific.pri)
 
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

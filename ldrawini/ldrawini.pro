@@ -92,7 +92,6 @@ QMAKE_EXT_CPP = .c
 
 # Input files
 include(ldrawini.pri)
-include(../LPub3DPlatformSpecific.pri)
 
 # Suppress warnings
 !win32-msvc* {
