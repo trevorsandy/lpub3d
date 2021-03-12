@@ -1441,7 +1441,7 @@ public:
   {
     int index = 4;
 
-    #ifdef QT_DEBUG_MODE
+//    #ifdef QT_DEBUG_MODE
 //    QStringList debugLine;
 //    for(int i=0;i<argv.size();i++){
 //        debugLine << argv[i];
@@ -1454,7 +1454,7 @@ public:
 //    logTrace() << "\n[PARSE ATTRIBUTES LINE ARGV]:" << debugLine.join(" ");
 //    logDebug() << "\n[ATTRIBUTES LINE] - argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
 //                  ;
-    #endif
+//    #endif
 
         bool isLine = argv[index] == "LINE";
         _result = _value[pushed];

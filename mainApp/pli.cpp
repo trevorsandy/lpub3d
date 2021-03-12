@@ -180,7 +180,7 @@ void PliPart::addPartGroupToScene(
     if (annotateElement)
         pliPartGroup->addToGroup(annotateElement);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logTrace() << "\n"
 //    << "02/06 PLI PART GROUP ATTRIBUTES [" + groupMeta.value().type + "_" + groupMeta.value().color + "] - ADD TO SCENE"
 //    << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
@@ -195,7 +195,7 @@ void PliPart::addPartGroupToScene(
 //    << "\n8. Meta Model: " << groupMeta.here().modelName
 //    << "\n9. Meta Line:  " << groupMeta.here().lineNumber
 //    ;
-#endif
+//#endif
 
     // check if we have offset
     if (groupMeta.offset().x() == 0.0 && groupMeta.offset().y() == 0.0)
@@ -601,7 +601,7 @@ void Pli::setParts(
                 }
               parts[key]->instances.append(here);
             }
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //          logNotice() << "\n"
 //                      << "01/05 PLI PART GROUP ATTRIBUTES [" + key + "] - SET PART"
 //                      << "\n0. Found:      " <<(found ? "Yes" : "No")
@@ -617,7 +617,7 @@ void Pli::setParts(
 //                      << "\n8. Meta Model: " << groupMeta.here().modelName
 //                      << "\n9. Meta Line:  " << groupMeta.here().lineNumber
 //                         ;
-#endif
+//#endif
         }
     } //instances
 
@@ -976,9 +976,9 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {
         int ptRc = 0;
-#ifdef QT_DEBUG_MODE
-        QString CurrentPartType = PartTypeNames[pT];
-#endif
+//#ifdef QT_DEBUG_MODE
+//        QString CurrentPartType = PartTypeNames[pT];
+//#endif
         if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
             continue;
 
@@ -2405,9 +2405,9 @@ int Pli::partSizeLDViewSCall() {
 
             for (int pT = 0; pT < ptn.size(); pT++ ) {
 
-#ifdef QT_DEBUG_MODE
-                QString CurrentPartType = PartTypeNames[pT];
-#endif
+//#ifdef QT_DEBUG_MODE
+//                QString CurrentPartType = PartTypeNames[pT];
+//#endif
                 if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
                      continue;
 
@@ -2601,9 +2601,9 @@ int Pli::partSizeLDViewSCall() {
             emit gui->progressPermSetValueSig(pT);
         }
 
-#ifdef QT_DEBUG_MODE
-        QString CurrentPartType = PartTypeNames[pT];
-#endif
+//#ifdef QT_DEBUG_MODE
+//        QString CurrentPartType = PartTypeNames[pT];
+//#endif
 
         if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
              continue;

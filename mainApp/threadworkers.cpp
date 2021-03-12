@@ -275,9 +275,9 @@ bool PartWorker::loadLDrawSearchDirs(){
           QDir unofficialDir(unofficialRootDir);
           // Get sub directories
           QStringList unofficialSubDirs = unofficialDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
-#ifdef QT_DEBUG_MODE
-          //logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
-#endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
+//#endif
           if (unofficialSubDirs.count() > 0) {
               // Recurse unofficial subdirectories for excluded directories
               Q_FOREACH (QString unofficialSubDirName, unofficialSubDirs) {
@@ -384,9 +384,9 @@ void PartWorker::populateLdgLiteSearchDirs() {
     if (Preferences::preferredRenderer == RENDERER_LDGLITE && !Preferences::ldSearchDirs.isEmpty()){
 
         emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
-#ifdef QT_DEBUG_MODE
-        //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//        logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
+//#endif
         emit gui->messageSig(LOG_INFO, QString("LDGlite Search Directories..."));
 
         // Define excluded directories
@@ -600,9 +600,9 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                      fileDir  = fileString.section(":::",1,1).split("\\").first();
                      fileName = fileString.section(":::",1,1).split("\\").last();
                   }
-#ifdef QT_DEBUG_MODE
-                  //logDebug() << "FileDir:" << fileDir << "FileName:" << fileName;
-#endif
+//#ifdef QT_DEBUG_MODE
+//                  logDebug() << "FileDir:" << fileDir << "FileName:" << fileName;
+//#endif
                   QDir customFileDirPath;
                   if (libType == "g"){ // generated part
                       customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
@@ -848,9 +848,9 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                                fileDir  = childFileString.section(":::",1,1).split("\\").first();
                                fileName = childFileString.section(":::",1,1).split("\\").last();
                             }
-#ifdef QT_DEBUG_MODE
-                            //logDebug() << "FileDir:" << fileDir << "FileName:" << fileName;
-#endif
+//#ifdef QT_DEBUG_MODE
+//                            logDebug() << "FileDir:" << fileDir << "FileName:" << fileName;
+//#endif
                             QDir customFileDirPath;
                             if (fileDir.isEmpty()){
                                 customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
@@ -1622,9 +1622,9 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
 
             } else {
                 hasColour = true;
-#ifdef QT_DEBUG_MODE
-                //emit messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
-#endif
+//#ifdef QT_DEBUG_MODE
+//                emit messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
+//#endif
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
@@ -2694,12 +2694,12 @@ int BuildModWorker::setBuildMod(
         setBottomOfNextStep(bottomOfNextStep);                               // set bottom of next step
 
         startLine = topOfStep.lineNumber;                                    // set starting line number
-/*
-#ifdef QT_DEBUG_MODE
-        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
-                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
-#endif
-*/
+
+//#ifdef QT_DEBUG_MODE
+//        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+//                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
+//#endif
+
         if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
             bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
                             pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1

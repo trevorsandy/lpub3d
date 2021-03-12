@@ -2612,13 +2612,13 @@ void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &mo
         QMap<int, int>::iterator ai = i.value()._modActions.find(i.value()._modStepIndex);
         if (ai != i.value()._modActions.end())
             action = ai.value();
-      emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepKey: %1;%2;%3, StepIndex: %4, Action: %5, ModKey: %6")
-                           .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
-                           .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
-                           .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM))
-                           .arg(i.value()._modStepIndex)
-                           .arg(action ? action == BuildModApplyRc ? "Apply" : "Remove" : "NoActon")
-                           .arg(modKey));
+        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepKey: %1;%2;%3, StepIndex: %4, Action: %5, ModKey: %6")
+                             .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
+                             .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
+                             .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM))
+                             .arg(i.value()._modStepIndex)
+                             .arg(action ? action == BuildModApplyRc ? "Apply" : "Remove" : "NoActon")
+                             .arg(modKey));
 #endif
     }
 }
@@ -2947,7 +2947,6 @@ int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
                           .arg(bottom ? "BottomOfStep," : "TopOfStep,")
                           .arg(lineNumber).arg(stepIndex);
     }
-
 
     emit gui->messageSig(logType, message);
 #endif

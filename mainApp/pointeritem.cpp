@@ -293,12 +293,12 @@ void PointerItem::addShaftSegment(){
         break;
     }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //        logDebug() << "\n[DEBUG SEGMENTS]"
 //                      "\n[linefOrig]: " << linefOrig <<
 //                      "\n[centerPos]: " << centerPos <<
 //                      "\n[linefNew] : " << linefNew;
-#endif
+//#endif
 
     PointerAttribData *pad = &pointer.pointerAttrib.valuePixels();
     thickness = pad->lineData.thickness;

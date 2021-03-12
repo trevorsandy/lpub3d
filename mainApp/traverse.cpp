@@ -4396,19 +4396,18 @@ void Gui::pagesCounted()
 
     } // modeGUI and not exporting
 
-/*
-#ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
-    for (int i = 0; i < topOfPages.size(); i++)
-    {
-        emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                        .arg(i)                                            // index
-                        .arg(getSubmodelIndex(topOfPages.at(i).modelName)) // modelIndex
-                        .arg(topOfPages.at(i).lineNumber)                  // lineNumber
-                        .arg(topOfPages.at(i).modelName));                 // modelName
-    }
-#endif
-*/
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
+//    for (int i = 0; i < topOfPages.size(); i++)
+//    {
+//        emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+//                        .arg(i)                                            // index
+//                        .arg(getSubmodelIndex(topOfPages.at(i).modelName)) // modelIndex
+//                        .arg(topOfPages.at(i).lineNumber)                  // lineNumber
+//                        .arg(topOfPages.at(i).modelName));                 // modelName
+//    }
+//#endif
+
 }
 
 int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
@@ -4642,12 +4641,12 @@ int Gui::setBuildModForNextStep(
         setBottomOfNextStep(bottomOfNextStep);                               // set bottom of next step
 
         startLine = topOfStep.lineNumber;                                    // set starting line number
-/*
-#ifdef QT_DEBUG_MODE
-        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
-                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
-#endif
-*/
+
+//#ifdef QT_DEBUG_MODE
+//        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+//                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
+//#endif
+
         if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
             bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
                             pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1
@@ -5298,16 +5297,15 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       // save the current step position
       ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
 
-/*
-#ifdef QT_DEBUG_MODE
-      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
-                      .arg(stepNum)
-                      .arg(prevStepPosition)
-                      .arg(csiParts.size())
-                      .arg(ldrawFile.size(current.modelName))
-                      .arg(current.modelName));
-#endif
-*/
+//#ifdef QT_DEBUG_MODE
+//      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
+//                      .arg(stepNum)
+//                      .arg(prevStepPosition)
+//                      .arg(csiParts.size())
+//                      .arg(ldrawFile.size(current.modelName))
+//                      .arg(current.modelName));
+//#endif
+
       QStringList argv;
 
       for (int index = 0; index < csiParts.size(); index++) {

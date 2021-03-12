@@ -95,7 +95,7 @@ BranchMeta::~BranchMeta()
 Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 {
   //debug - capture line contents
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    QStringList debugLine;
 //    for(int i=0;i<argv.size();i++){
 //        debugLine << argv[i];
@@ -108,7 +108,7 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 //    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
 //                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
 //    logTrace() << debugLine.join(" ");
-#endif
+//#endif
 
   Rc rc;
   int offset;
@@ -130,12 +130,12 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 
           if (size - index > 1) {
               if (i.value()) {
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //                  QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: %3]")
 //                                         .arg(argv[index+offset]).arg(index).arg(offset);
 //                  logTrace() << "I.value():" << &i.value() << iVal
 //                                ;
-#endif
+//#endif
                   if (argv[index+offset] == "LOCAL") {
                       i.value()->pushed = true;
                       offset++;
@@ -855,7 +855,7 @@ const QString prepositionNames[] =
 QString PlacementMeta::format(bool local, bool global)
 {
   //debug logging
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  logNotice() << " \nPLACEMENT META FORMAT: "
 //              << " \nPUSHED VALUES: "
 //              << " \nPlacement: "      << _value[pushed].placement
@@ -870,7 +870,7 @@ QString PlacementMeta::format(bool local, bool global)
 //              << " \nRelativeTo: "     << relativeNames   [_value[pushed].relativeTo]
 //              << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
 //                 ;
-#endif
+//#endif
   QString foo;
   
   if (_value[pushed].preposition == Inside) {
@@ -1330,7 +1330,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
     bool isValid = argv[index-1].contains(rx);
 
 //debug - capture line contents
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    QStringList debugLine;
 //    for(int i=0;i<argv.size();i++){
 //        debugLine << argv[i];
@@ -1344,7 +1344,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 //                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
 //    logTrace() << debugLine.join(" ");
 //    logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2] << ", [" << (isValid ? "Valid ]" : "Not Valid ]");
-#endif
+//#endif
 
     int id = 0;
     bool isLine  = argv[index] == "LINE";
@@ -1414,13 +1414,13 @@ QString PointerAttribMeta::format(bool local, bool global)
                   .arg(_value[pushed].id)
                   .arg(_value[pushed].parent);
     foo += bar;
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logDebug() << "\n[FORMAT] PREAMBLE: " << preamble
 //               << " [FORMAT] PARENT   : " << _value[pushed].parent
 //               << " [FORMAT] ID       : " << _value[pushed].id
 //    logDebug() << "\n[FORMAT] LINE    : " << foo;
 //                  ;
-#endif
+//#endif
     return LeafMeta::format(local,global,foo);
 }
 
@@ -1489,11 +1489,11 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
               emit gui->messageSig(LOG_STATUS, parseMessage);
       }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logTrace() << "\nPARSE LINE: " << argv.join(" ") <<
 //                    "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
 //                    ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2];
-#endif
+//#endif
 
       QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
@@ -1623,7 +1623,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
       _value[pushed].segments   = _segments;
       if (pagePointer)
         _value[pushed].rectPlacement = _bRect; //Base Rect Placement
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      if (/*argv[1] == "PAGE"*/ true) {
 //          logDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
 //                    << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
@@ -1645,7 +1645,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 //                                                                                "None - Not PagePointer")
 //                       ;
 //      }
-#endif
+//#endif
       _here[pushed] = here;
 
       if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
@@ -1735,7 +1735,7 @@ QString PointerMeta::format(bool local, bool global)
       break;
     }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  if (/*pagePointer*/ true) {
 //    qDebug() << "\nPOINTER META FORMAT"
 //                "\nPreamble:         " <<  preamble <<
@@ -1746,7 +1746,7 @@ QString PointerMeta::format(bool local, bool global)
 //                "\nNew Meta Line:" << preamble + foo
 //                  ;
 //  }
-#endif
+//#endif
   return LeafMeta::format(local,global,foo);
 }
 
@@ -1766,7 +1766,7 @@ CsiAnnotationIconMeta::CsiAnnotationIconMeta() : LeafMeta()
 
 Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 {
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  QStringList debugLine = QStringList() << "[LINE:";
 //  for(int i=0;i<argv.size();i++){
 //      debugLine << argv[i];
@@ -1789,7 +1789,7 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
 //                       .arg(argv.size() - index)
 //                       .arg(here.modelName)
 //                       .arg(here.lineNumber);
-#endif
+//#endif
   CsiAnnotationIconData annotationData;
   Rc rc = FailureRc;
   if (argv.size() - index == 1) {
@@ -1842,10 +1842,10 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
       }
     }
   }
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  QString result = QString(", Result (%1)").arg(rc == 0 ? "OkRc" : "FailureRc");
 //  logDebug() << "\nCSI ANNOTATION ICON META PARSE DEBUG" << debugLine.join(" ") << result;
-#endif
+//#endif
   if (rc == OkRc) {
     _value[pushed] = annotationData;
     _here[pushed]  = here;
@@ -1891,10 +1891,10 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
       foo += bar;
   }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logDebug() << "\nCSI ANNOTATION ICON META FORMAT" <<
 //                  "\nPreamble:" << preamble << "LINE DATA" << foo;
-#endif
+//#endif
   return LeafMeta::format(local,global,foo);
 }
 
@@ -3881,7 +3881,7 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
       _value   = gd;
       _here[0] = here;
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logTrace() << "\n"
 //    << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
 //    << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
@@ -3896,7 +3896,7 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
 //    << "\n8. Meta Model: " << _here[0].modelName
 //    << "\n9. Meta Line:  " << _here[0].lineNumber
 //    ;
-#endif
+//#endif
 
       if (bomItem)
           return BomPartGroupRc;

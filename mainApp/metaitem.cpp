@@ -1168,7 +1168,7 @@ void MetaItem::setMeta(
   bool         askLocal,
   bool         global)
 {
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
 //                << "\n PAGE WHERE - "
 //                << "\nPAGE- "
@@ -1190,7 +1190,7 @@ void MetaItem::setMeta(
 //                << "\n7. AskLocal:                    "  << askLocal
 //                << "\n8. Global:                      "  << global
 //              ;
-#endif
+//#endif
   if (useTop) {
     setMetaTopOf(topOf,bottomOf,meta,append,local,askLocal,global);
 //    logNotice() << "\n SET META - USE TOP OF - ";
@@ -1287,7 +1287,7 @@ void MetaItem::setMetaBottomOf(
                 && lineNumber >= topOf.lineNumber
                 && lineNumber <= bottomOf.lineNumber;
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  logTrace() << "\nSET META BOTTOM OF PAGE WHERE:"
 //             << "\nPage TopOf Model Name:    " << topOf.modelName
 //             << "\nPage TopOf Line Number:   " << topOf.lineNumber
@@ -1301,7 +1301,7 @@ void MetaItem::setMetaBottomOf(
 //             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
 //             << "\nLine:                     " <<  meta->format(local, global)
 //                ;
-#endif
+//#endif
 
   if (metaInRange) {
     QString line = meta->format(meta->pushed,meta->global);
@@ -1454,7 +1454,7 @@ void MetaItem::changePlacementOffset(
   bool           global)
 {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 // qDebug() << "\nCHANGE PLACEMENT OFFSET -    "
 //          << "\nPAGE WHERE -                 "
 //          << " \nDefaultWhere (Model Name):  "   << defaultWhere.modelName
@@ -1477,7 +1477,7 @@ void MetaItem::changePlacementOffset(
 //          << "\n FORMATTED META -            "
 //          << "\nMeta Format:                 "   << placement->format(local,global)
 //          ;
-#endif
+//#endif
 
   QString newMetaString = placement->format(local,global);
 
@@ -1495,20 +1495,20 @@ void MetaItem::changePlacementOffset(
     if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
       defaultWhere = firstLine(defaultWhere.modelName);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logNotice() << " \nScanBackward[TOP]: EndOfFileRc (StepMask) - defaultLine is: "
 //                  << firstLine(defaultWhere.modelName).lineNumber
 //                  << " of model: "
 //                  << defaultWhere.modelName
 //                     ;
-#endif
+//#endif
 
     }
 
     if (type == StepGroupType) {
       scanForward(defaultWhere,StepGroupBeginMask);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logNotice() << " \nScanForward[BOTTOM]: StepGroupType (StepGroupBeginMask) - file name is: "
 //                  << defaultWhere.modelName
 //                  << " \nStop at line: "
@@ -1516,13 +1516,13 @@ void MetaItem::changePlacementOffset(
 //                  << " with line contents: \n"
 //                  << gui->readLine(defaultWhere)
 //                     ;
-#endif
+//#endif
 
     } else if (type == CalloutType) {
       scanForward(defaultWhere,CalloutEndMask);
       --defaultWhere;
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logNotice() << " \nScanForward[BOTTOM]: CalloutType (CalloutEndMask) - file name is: "
 //                  << defaultWhere.modelName
 //                  << " \nStop at line: "
@@ -1530,12 +1530,12 @@ void MetaItem::changePlacementOffset(
 //                  << " with line contents: \n"
 //                  << gui->readLine(defaultWhere)
 //                     ;
-#endif
+//#endif
 
     } else if (defaultWhere.modelName == gui->topLevelFile()) {
       scanPastGlobal(defaultWhere);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logNotice() << " \nTopLevelFile[TOP]: ScanPastGlobal - file name is: "
 //                  << defaultWhere.modelName
 //                  << " \nStop at line: "
@@ -1543,38 +1543,38 @@ void MetaItem::changePlacementOffset(
 //                  << " with line contents: \n"
 //                  << gui->readLine(defaultWhere)
 //                     ;
-#endif
+//#endif
 
     }
 
     if (defaultWhere.lineNumber == eof){
         insertMeta(defaultWhere,newMetaString);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //        logNotice() << " \nLast line so insert Meta:  \n" << newMetaString << " \nat line: "
 //                    << defaultWhere.lineNumber
 //                       ;
-#endif
+//#endif
 
     } else {
         appendMeta(defaultWhere,newMetaString);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //        logNotice() << " \nNot last line so append Meta: \n" << newMetaString << " \nat line: "
 //                    << defaultWhere.lineNumber+1
 //                       ;
-#endif
+//#endif
 
     }
 
   } else {
     replaceMeta(placement->here(),newMetaString);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logNotice() << " \nPlacement defined so replace Meta:  \n" << newMetaString << " \nat line: "
 //                << defaultWhere.lineNumber
 //                   ;
-#endif
+//#endif
 
   }
 }
@@ -1653,7 +1653,7 @@ void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
         }
     }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logDebug() << "\n"
 //    << "03 PLI PART GROUP ATTRIBUTES [" + groupMeta->value().type + "_" + groupMeta->value().color + "] - SET OFFSET"
 //    << "\n0. BOM:        " <<(groupMeta->value().bom ? "True" : "False")
@@ -1668,7 +1668,7 @@ void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
 //    << "\n8. Meta Model: " << groupMeta->here().modelName
 //    << "\n9. Meta Line:  " << groupMeta->here().lineNumber
 //    ;
-#endif
+//#endif
 
     if (canReplace) {
         metaString = groupMeta->format(groupMeta->pushed,groupMeta->global);
@@ -3396,7 +3396,7 @@ Rc MetaItem::scanBackward(
     QString line = gui->readLine(here);
     QStringList tokens;
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    logNotice() << "\n==SCAN BACKWARD READLINE==: "
 //              << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
 //              << " \nHere LINE:          " << here.lineNumber
@@ -3405,17 +3405,17 @@ Rc MetaItem::scanBackward(
 //              << " \nIs Header:          " << isHeader(line)
 //              << " \nParts Added:        " << partsAdded
 //                   ;
-#endif
+//#endif
 
     if (isHeader(line)) {
       scanPastGlobal(here);
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //      logNotice() << "\nIN SCAN BACKWARD AT HEADER: "
 //                << " \nScanPastGlobal"
 //                << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
 //                   ;
-#endif
+//#endif
 
       return EndOfFileRc;
     }
@@ -3431,51 +3431,51 @@ Rc MetaItem::scanBackward(
 
       if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //          logNotice() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
 //                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
 //                       ;
-#endif
+//#endif
 
          return rc;
 
       } else if (rc == InsertCoverPageRc /* && ((mask >> rc) & 1)*/) {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //          logNotice() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
 //                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
 //                       ;
-#endif
+//#endif
 
          return rc;
 
       } else if (rc == StepRc || rc == RotStepRc) {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //          logNotice() << "\nIN SCAN BACKWARD AT STEP: "
 //                    << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
 //                       ;
-#endif
+//#endif
 
           if (((mask >> rc) & 1) && partsAdded) {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //              logNotice() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
 //                        << " \nParts Added: " << partsAdded
 //                        << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
 //                         ;
-#endif
+//#endif
 
           return rc;
          }
         partsAdded = false;
       } else if (rc < ClearRc && ((mask >> rc) & 1)) {
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //          logNotice() << "\nIN SCAN BACKWARD AT CLEAR: "
 //                     << " \nRETURN ClearRc at Line:"  << here.lineNumber
 //                       ;
-#endif
+//#endif
 
         return rc;
       }
@@ -4070,11 +4070,11 @@ void MetaItem::writeCsiAnnotationMeta(
             emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
             return;
         }
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
 //                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
                       ;
-#endif
+//#endif
         if (update) {
             Where meta = here + 1;
             gui->replaceLine(meta,line);
@@ -4120,9 +4120,9 @@ bool MetaItem::offsetPoint(
       title           = "annotation";
   }
 
-#ifdef QT_DEBUG_MODE
-  label              += QString("_%1_").arg(partLineNum);
-#endif
+//#ifdef QT_DEBUG_MODE
+//  label              += QString("_%1_").arg(partLineNum);
+//#endif
 
   // line adjustment for custom color entry
   int colorLines      = 3; // transwhite
@@ -4598,22 +4598,22 @@ QPointF MetaItem::defaultPointerTip(
         }
       }
     }
-#ifdef QT_DEBUG_MODE
-    else
-    {
-      // get the last ROTSTEP...
-      if (argv.size() > 0 && argv[0] == "0") {
-        Where here(modelName,i);
-        Rc rc = meta.parse(line,here,false);
-        if (rc == RotStepRc) {
-
-          gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
-                          .arg(subModel)
-                          .arg(renderer->getRotstepMeta(meta.rotStep)));
-        }
-      }
-    }
-#endif
+//#ifdef QT_DEBUG_MODE
+//    else
+//    {
+//      // get the last ROTSTEP...
+//      if (argv.size() > 0 && argv[0] == "0") {
+//        Where here(modelName,i);
+//        Rc rc = meta.parse(line,here,false);
+//        if (rc == RotStepRc) {
+//
+//          gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
+//                          .arg(subModel)
+//                          .arg(renderer->getRotstepMeta(meta.rotStep)));
+//        }
+//      }
+//    }
+//#endif
     csiParts << line;
   }
 
@@ -4665,9 +4665,9 @@ QPointF MetaItem::defaultPointerTip(
   bool ok[2];
   QString pngName, ldrName, monoOutPngBaseName;
 #ifdef QT_DEBUG_MODE
-  monoOutPngBaseName =   QString("mono_%1").arg(QFileInfo(subModel).completeBaseName());
+  monoOutPngBaseName = QString("mono_%1").arg(QFileInfo(subModel).completeBaseName());
 #else
-  monoOutPngBaseName = "mono";
+  monoOutPngBaseName = QString("mono");
 #endif
   QStringList csiKeys, ldrNames;
   if (renderer->useLDViewSCall()) {
@@ -4736,29 +4736,30 @@ QPointF MetaItem::defaultPointerTip(
       left = width/2;
       top  = height/2;
     }
-
-    emit gui->messageSig(LOG_DEBUG,QString("Called out submodel [%1] for parent model [%2] default pointer tip position:")
-                                           .arg(subModel)
-                                           .arg(modelName));
-    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
-    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
-    emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
-                                                                   .arg(QString::number(left))
-                                                                   .arg(QString::number(width))
-                                                                   .arg(QString::number(offset.x(),'f',6)));
-
-    emit gui->messageSig(LOG_DEBUG,QString(" -Y (top[%1]/height[%2]): %3")
-                                                                   .arg(QString::number(top))
-                                                                   .arg(QString::number(height))
-                                                                   .arg(QString::number(offset.y(),'f',6)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -Tip Point: (%1, %2)")
-                                                 .arg(QString::number(offset.x(),'f',6))
-                                                 .arg(QString::number(offset.y(),'f',6)));
+//#ifdef QT_DEBUG_MODE
+//    emit gui->messageSig(LOG_DEBUG,QString("Called out submodel [%1] for parent model [%2] default pointer tip position:")
+//                                           .arg(subModel)
+//                                           .arg(modelName));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
+//    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
+//    emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
+//                                                                   .arg(QString::number(left))
+//                                                                   .arg(QString::number(width))
+//                                                                   .arg(QString::number(offset.x(),'f',6)));
+//
+//    emit gui->messageSig(LOG_DEBUG,QString(" -Y (top[%1]/height[%2]): %3")
+//                                                                   .arg(QString::number(top))
+//                                                                   .arg(QString::number(height))
+//                                                                   .arg(QString::number(offset.y(),'f',6)));
+//    emit gui->messageSig(LOG_DEBUG,QString(" -Tip Point: (%1, %2)")
+//                                                 .arg(QString::number(offset.x(),'f',6))
+//                                                 .arg(QString::number(offset.y(),'f',6)));
+//#endif
 
     return QPointF(qreal(left)/width, qreal(top)/height);
   }

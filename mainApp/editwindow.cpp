@@ -1828,7 +1828,7 @@ void EditWindow::preferences()
     QFormLayout *form = new QFormLayout(dialog);
 
     // options - editor decoration
-    QGroupBox *editorDecorationGrpBox = new QGroupBox(tr("Editor text decoration"));
+    QGroupBox *editorDecorationGrpBox = new QGroupBox(tr("Editor Text Decoration"));
     form->addWidget(editorDecorationGrpBox);
     QFormLayout *editorDecorationSubform = new QFormLayout(editorDecorationGrpBox);
 

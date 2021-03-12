@@ -490,7 +490,6 @@ void Gui::initiaizeNativeViewer()
     connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
     connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
     connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
-    connect(gMainWindow, SIGNAL(PreviewPieceSig(const QString &,int)),     this,        SLOT(previewPiece(const QString &,int)));
     connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
 
     emit disable3DActionsSig();
