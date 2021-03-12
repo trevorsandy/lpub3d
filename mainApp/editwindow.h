@@ -158,8 +158,8 @@ private slots:
 #ifndef QT_NO_CLIPBOARD
     void updateClipboard();
 #endif
-    void waitingSpinnerStarted();
-    void waitingSpinnerFinished();
+    void waitingSpinnerStart();
+    void waitingSpinnerStop();
 
 protected:
     void createActions();
@@ -200,7 +200,6 @@ protected:
     QAtomicInt         lineCount;
     bool               isIncludeFile;
     bool               isReadOnly;
-    bool               _spinnerStarted;
     bool               _modelFileEdit;
     bool               _subFileListPending;
     bool               _contentLoaded;

@@ -105,7 +105,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
                      this, SLOT(verticalScrollValueChanged(int)));
     }
 
-    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::waitingSpinnerFinished);
+    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::waitingSpinnerStop);
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
     connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
     connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
@@ -1298,7 +1298,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
           pages++;
 
       if (pages) {
-          waitingSpinnerStarted();
+          waitingSpinnerStart();
 
           emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Show Line %1 - Loading buffered page %2 lines...")
                                      .arg(lineNumber).arg(linesNeeded));
@@ -1313,7 +1313,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
           emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
                                      .arg(pages).arg(pages == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
 #endif
-          waitingSpinnerFinished();
+          waitingSpinnerStop();
       }
   }
 
@@ -1381,15 +1381,9 @@ void EditWindow::displayFile(
   lineCount       = 0;
   _pageIndx       = 0;
   _contentLoaded  = false;
-  _spinnerStarted = false;
+  _waitingSpinner = nullptr;
   QElapsedTimer t; t.start();
   QString content;
-
-  int maxSplit = 4;
-  QString str("How\nare\nall\nof\nyou\ndoing\nthis\nafternoon\nI\nfeel\nquite\ngood\ndoday\nmyself");
-  QStringList list = str.split('\n').mid(0, maxSplit);
-  QString remainingStr = str.section('\n', maxSplit);
-  list << remainingStr;
 
   auto loadContent = [this, &ldrawFile]()
   {
@@ -1419,7 +1413,7 @@ void EditWindow::displayFile(
              this,                  SLOT(  contentsChange(int,int,int)));
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("1. Editor Load Starting.."));
+    emit lpubAlert->messageSig(LOG_DEBUG,QString("1. Editor Load Starting..."));
 #endif
 
   if (fileName == "") {
@@ -1429,7 +1423,7 @@ void EditWindow::displayFile(
     if (!fileExists)
       return;
 
-    waitingSpinnerStarted();
+    waitingSpinnerStart();
 
     fileWatcher.removePath(fileName);
 
@@ -1454,7 +1448,7 @@ void EditWindow::displayFile(
 
     exitAct->setEnabled(true);
 
-    const QString message = tr("5. Detached Editor %1 File %2: Model %3, Lines %4 - %5")
+    const QString message = tr("Detached Editor %1 File %2: Model %3, Lines %4 - %5")
                                .arg(isIncludeFile ? "Include" : "Model")
                                .arg(reloaded ? "Updated" : "Load")
                                .arg(QFileInfo(fileName).fileName())
@@ -1462,7 +1456,7 @@ void EditWindow::displayFile(
                                .arg(lpubAlert->elapsedTime(t.elapsed()));
     statusBar()->showMessage(message, 3000);
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,message);
+    emit lpubAlert->messageSig(LOG_DEBUG,"5. "+message);
 #endif
 
   } // Detached Editor
@@ -1471,7 +1465,7 @@ void EditWindow::displayFile(
 
    /*loadContent();*/
 
-    waitingSpinnerStarted();
+    waitingSpinnerStart();
 
     lineCount = ldrawFile->size(fileName);
 
@@ -1497,7 +1491,7 @@ void EditWindow::displayFile(
 
     }
 
-    waitingSpinnerFinished();
+    waitingSpinnerStop();
 
 #ifdef QT_DEBUG_MODE
     emit lpubAlert->messageSig(LOG_DEBUG,QString("5. Editor File Load: Model %1, Lines %2 - %3")
@@ -1518,12 +1512,12 @@ void EditWindow::displayFile(
     fileWatcher.addPath(fileName);
 }
 
-void EditWindow::waitingSpinnerStarted()
+void EditWindow::waitingSpinnerStart()
 {
     if (!Preferences::modeGUI)
         return;
 
-    if (_spinnerStarted && _waitingSpinner) {
+    if (_waitingSpinner) {
         if (_waitingSpinner->isSpinning())
             _waitingSpinner->stop();
     } else {
@@ -1540,27 +1534,25 @@ void EditWindow::waitingSpinnerStarted()
         _waitingSpinner->setTextColor(_waitingSpinner->color());
         _waitingSpinner->setText(tr("Loading..."));
     }
-#ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Starting.."));
-#endif
     _waitingSpinner->start();
-    _spinnerStarted = true;
+
+#ifdef QT_DEBUG_MODE
+    emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Started"));
+#endif
+
     QApplication::processEvents();
 }
 
-void EditWindow::waitingSpinnerFinished()
+void EditWindow::waitingSpinnerStop()
 {
   if (!Preferences::modeGUI)
-      return;
+    return;
 
+  if (_waitingSpinner && _waitingSpinner->isSpinning()) {
+    _waitingSpinner->stop();
 #ifdef QT_DEBUG_MODE
-  emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Finished.."));
+    emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Stepped"));
 #endif
-  if (_spinnerStarted && _waitingSpinner) {
-    _spinnerStarted = false;
-    if (_waitingSpinner->isSpinning()) {
-      _waitingSpinner->stop();
-    }
   }
 }
 
