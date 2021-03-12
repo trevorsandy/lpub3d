@@ -445,7 +445,6 @@ int Gui::drawPage(
   Step    *step            = nullptr;
 
   int      instances       = 1;
-  int      finalModelLine  = 1;
   bool     global          = true;
   bool     pliIgnore       = false;
   bool     partIgnore      = false;

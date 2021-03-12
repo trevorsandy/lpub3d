@@ -47,6 +47,9 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     _textEdit          = new TextEditor(this);
 
     highlighter = new ParmsHighlighter(_textEdit->document());
+
+    setSelectionHighlighter();
+
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -63,6 +66,22 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     setCentralWidget(_textEdit);
 
     readSettings();
+}
+
+void ParmsWindow::setSelectionHighlighter()
+{
+    QColor highlightColor;
+    if (Preferences::displayTheme == THEME_DEFAULT)
+        highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
+    else if (Preferences::displayTheme == THEME_DARK)
+        highlightColor = QColor(THEME_DARK_PALETTE_HILIGHT_TEXT);
+    highlightColor.setAlpha(30);
+
+    auto palette = _textEdit->palette();
+    palette.setBrush(QPalette::Highlight, highlightColor);
+    palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
+
+    _textEdit->setPalette(palette);
 }
 
 void ParmsWindow::createActions()

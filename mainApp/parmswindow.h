@@ -118,6 +118,7 @@ private slots:
     void systemeditor();
     void showAllCharacters();
     void showContextMenu(const QPoint &pt);
+    void setSelectionHighlighter();
     void closeEvent(QCloseEvent *event);
 
 public slots:

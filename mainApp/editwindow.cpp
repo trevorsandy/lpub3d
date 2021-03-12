@@ -77,6 +77,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     setTextEditHighlighter();
 
+    setSelectionHighlighter();
+
     completer = new QCompleter(this);
     completer->setModel(modelFromFile(":/resources/autocomplete.lst"));
     completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
@@ -146,12 +148,31 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
+void EditWindow::setSelectionHighlighter()
+{
+    QColor highlightColor;
+    if (Preferences::displayTheme == THEME_DEFAULT)
+        highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
+    else if (Preferences::displayTheme == THEME_DARK)
+        highlightColor = QColor(THEME_DARK_PALETTE_HILIGHT_TEXT);
+    highlightColor.setAlpha(30);
+
+    auto palette = _textEdit->palette();
+    palette.setBrush(QPalette::Highlight, highlightColor);
+    palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
+
+    _textEdit->setPalette(palette);
+}
+
 void EditWindow::setTextEditHighlighter()
 {
     if (Preferences::editorDecoration == SIMPLE)
       highlighterSimple = new HighlighterSimple(_textEdit->document());
     else
       highlighter = new Highlighter(_textEdit->document());
+
+    setSelectionHighlighter();
+
     highlightCurrentLine();
 }
 
@@ -1545,7 +1566,7 @@ void EditWindow::enableSave()
 void EditWindow::readSettings()
 {
     QSettings Settings;
-    Settings.beginGroup(PARMSWINDOW);
+    Settings.beginGroup(EDITWINDOW);
     restoreGeometry(Settings.value("Geometry").toByteArray());
     restoreState(Settings.value("State").toByteArray());
     QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
@@ -1556,7 +1577,7 @@ void EditWindow::readSettings()
 void EditWindow::writeSettings()
 {
     QSettings Settings;
-    Settings.beginGroup(PARMSWINDOW);
+    Settings.beginGroup(EDITWINDOW);
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.setValue("Size", size());

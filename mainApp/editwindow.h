@@ -125,6 +125,7 @@ public slots:
     void updateDisabled(bool);
     void clearEditorWindow();
     void setTextEditHighlighter();
+    void setSelectionHighlighter();
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
