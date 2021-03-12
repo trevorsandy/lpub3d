@@ -560,7 +560,7 @@ bool EditWindow::validPartLine ()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
+    } else if (selection.contains(" PLI BEGIN SUB ")) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", QString::SkipEmptyParts);
@@ -663,7 +663,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
 void EditWindow::triggerPreviewLine()
 {
-    if (!isIncludeFile && !_subFileListPending) {
+    if (!isIncludeFile) {
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
