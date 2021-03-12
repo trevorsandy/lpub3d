@@ -566,6 +566,7 @@ SOURCES += \
     ranges_item.cpp \
     render.cpp \
     renderdialog.cpp \
+    reserve.cpp \
     resize.cpp \
     resolution.cpp \
     rotate.cpp \

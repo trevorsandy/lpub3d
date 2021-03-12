@@ -29,31 +29,39 @@
 #ifndef reserveH
 #define reserveH
 
-#include "meta.h"
-#include "where.h"
 #include "range_element.h"
-#include "lpub.h"
 
+class Where;
+class LPubMeta;
+class ReserveBackgroundItem;
 class Reserve : public AbstractRangeElement {
   public:
     Where here;
+    AllocEnc alloc;
+    ReserveBackgroundItem *background;
 
     Reserve(
       Where    &_here,
-      LPubMeta &meta)
-    {
-      top  = _here;
-      top.setModelIndex(gui->getSubmodelIndex(_here.modelName));
+      LPubMeta &meta);
 
-      float space;
-      space = meta.reserve.value();
-      relativeType = ReserveType;
-      if (meta.multiStep.alloc.value() == Horizontal) {
-          setSize(int(gui->pageSize(meta.page, 0) * space + 0.5),0);
-      } else {
-        setSize(0,int(gui->pageSize(meta.page, 1) * space + 0.5));
-      }
-    }
+    virtual void addGraphicsItems(
+      int ox,
+      int oy,
+      int sx,
+      int sy,
+      PlacementType parentRelativeType,
+      QGraphicsItem *);
+};
+
+class ReserveBackgroundItem : public QGraphicsRectItem, public MetaItem
+{
+  Reserve *reserve;
+
+public:
+  ReserveBackgroundItem(
+    Reserve       *reserve,
+    QGraphicsItem *parent);
+  Where top;
 };
 
 #endif

@@ -602,6 +602,9 @@ void Range::addGraphicsItems(
     if (list[i]->relativeType == StepType) {
       Step *step = dynamic_cast<Step *>(list[i]);
       step->addGraphicsItems(xx+loc[XX],yy+loc[YY],meta,parentRelativeType,parent,false);
+    } else if (list[i]->relativeType == ReserveType) {
+      Reserve *reserve = dynamic_cast<Reserve *>(list[i]);
+      reserve->addGraphicsItems(xx+loc[XX],yy+loc[YY],size[XX],size[YY],parentRelativeType,parent);
     }
   }
 }
