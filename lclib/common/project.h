@@ -181,6 +181,9 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
+/*** LPub3D Mod - preview widget ***/
+	bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
+/*** LPub3D Mod end ***/
 	bool Load(const QString& FileName);
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);

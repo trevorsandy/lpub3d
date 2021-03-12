@@ -419,8 +419,13 @@ void Project::ShowModelListDialog()
 
 void Project::SetFileName(const QString& FileName)
 {
+/*** LPub3D Mod - ignore fileWatcher ***/
 	if (mFileName == FileName)
 		return;
+	else
+		mFileName = FileName;
+	return;
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget ***/
 	if (!mIsPreview && !mFileName.isEmpty())
@@ -433,30 +438,126 @@ void Project::SetFileName(const QString& FileName)
 	mFileName = FileName;
 }
 
+/*** LPub3D Mod - preview widget ***/
 bool Project::Load(const QString& FileName)
 {
-	QFile File(FileName);
+	return Load(FileName, QString(), 0);
+}
 
-/*** LPub3D Mod - preview widget ***/
-	QWidget *parent = nullptr;
-	if (!mIsPreview)
+bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type)
+{
+	QString FileName = LoadFileName;
+	bool IsLPubModel = false;
+	QWidget* parent = nullptr;
+	if (mIsPreview)
+		IsLPubModel = gui->isSubmodel(QFileInfo(FileName).fileName()) || gui->isUnofficialPart(QFileInfo(FileName).fileName());
+	else
 		parent = gMainWindow;
-/*** LPub3D Mod end ***/
 
-	if (!File.open(QIODevice::ReadOnly))
+	QByteArray FileData;
+	if (!FileName.isEmpty() && !IsLPubModel)
 	{
-/*** LPub3D Mod - preview widget ***/
-		QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
-/*** LPub3D Mod end ***/
-		return false;
+		QFile File(FileName);
+		if (!File.open(QIODevice::ReadOnly))
+		{
+			QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
+			return false;
+		}
+		FileData = File.readAll();
+	}
+	else if (!StepKey.isEmpty() || IsLPubModel)
+	{            
+		QStringList Content;
+
+		if (IsLPubModel)
+		{
+			Content = gui->getLDrawFile().contents(QFileInfo(LoadFileName).fileName());
+		}
+		else
+		{
+			FileName = gui->getViewerStepFilePath(StepKey);
+
+			if (FileName.isEmpty())
+			{
+				QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for %1.").arg(FileName));
+				return false;
+			}
+
+			Content = gui->getViewerStepRotatedContents(StepKey);
+		}
+
+		if (Content.isEmpty())
+		{
+			QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
+			return false;
+		}
+
+		foreach(QString line, Content)
+		{
+			FileData.append(line+"\n");
+		}
+
+		if (!mIsPreview)
+		{
+			auto TitleCase = [] (const string& _s)
+			{
+				string s = _s;
+				bool cap = true;
+				for(unsigned int i = 0; i <= s.length(); i++) {
+					if (isalpha(s[i]) && cap == true) {
+						s[i] = toupper(s[i]);
+						cap = false;
+					}
+					else if (isspace(s[i])) {
+						cap = true;
+					}
+				}
+				return s;
+			};
+
+			// viewerStepKey - 3 elements:
+			// CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
+			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
+			QStringList Keys = gui->getViewerStepKeys(true/*get Name*/, Type == Options::PLI, StepKey);
+			if (Keys.size() > 2)
+				SetTimelineTitle(QString::fromStdString(TitleCase(Keys.at(0).toStdString())), Keys.at(2).toInt());
+
+#ifdef QT_DEBUG_MODE
+			QFileInfo outFileInfo(FileName);
+			QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
+			QString outfileName = QString("%1/viewer_%2_%3.ldr")
+										  .arg(outFileInfo.absolutePath())
+										  .arg(imageType)
+										  .arg(QString("%1_%2_%3")
+													   .arg(Keys.at(0))    // Name
+													   .arg(Keys.at(1))    // Line Number
+													   .arg(Keys.at(2)));  // Step Number
+			QFile file(outfileName);
+			if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+				QMessageBox::critical(parent, tr("Error"), tr("Cannot open 3DViewer file %1 for writing: %2")
+									  .arg(outfileName) .arg(file.errorString()));
+			}
+			QTextStream out(&file);
+			for (int i = 0; i < Content.size(); i++) {
+				QString line = Content[i];
+				out << line << endl;
+			}
+			file.close();
+#endif
+		}
+	}
+	else
+	{
+	   QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
 	}
 
 	mModels.DeleteAll();
 	SetFileName(FileName);
 	QFileInfo FileInfo(FileName);
 	QString Extension = FileInfo.suffix().toLower();
+/*** LPub3D Mod end ***/
 
-	QByteArray FileData = File.readAll();
 	bool LoadDAT;
 
 	if (Extension == QLatin1String("dat") || Extension == QLatin1String("ldr") || Extension == QLatin1String("mpd"))
@@ -519,7 +620,7 @@ bool Project::Load(const QString& FileName)
 	if (mModels.IsEmpty())
 	{
 /*** LPub3D Mod - preview widget ***/
-		QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
+		QMessageBox::critical(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
