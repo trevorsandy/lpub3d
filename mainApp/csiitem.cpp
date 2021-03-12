@@ -42,6 +42,7 @@
 #include "commonmenus.h"
 #include "pointer.h"
 #include "paths.h"
+#include "editwindow.h"
 
 #include "lc_qglwidget.h"
 #include "previewwidget.h"
@@ -575,11 +576,16 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       menu.addAction(deleteBuildModAction);
   }
 
+  // Copy to clipboard
   QAction *copyCsiImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
   menu.addSeparator();
   copyCsiImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
 #endif
+
+  QAction *viewCSIFileAction = menu.addAction(QString("View Step %1 CSI (Assembly) File").arg(step->stepNumber.number));
+  viewCSIFileAction->setWhatsThis("View the current LDraw CSI file in read-only mode");
+  viewCSIFileAction->setIcon(QIcon(":/resources/editldraw.png"));
 
   Where top, bottom;
   switch (parentRelativeType) {
@@ -731,6 +737,15 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       ; // triggered from gui
     } else if (selectedAction == deleteBuildModAction) {
       ; // triggered from gui
+    } else if (selectedAction == viewCSIFileAction) {
+      QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
+      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, 20);
+      const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
+      QString csiFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr");
+      gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
+      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1 (Read-Only)").arg(modelName));
+      gui->getEditModeWindow()->setReadOnly(true);
+      gui->getEditModeWindow()->show();
     }
 }
 

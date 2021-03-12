@@ -118,6 +118,7 @@ public slots:
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
+    void setReadOnly(bool enabled);
 
 private slots:
     void openWith();
@@ -215,6 +216,7 @@ protected:
 };
 
 extern class EditWindow *editWindow;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class QTextEditor : public QTextEdit
@@ -250,7 +252,7 @@ private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void updateLineNumberArea(QRectF /*rect_f*/);
     void updateLineNumberArea(int /*slider_pos*/);
-    void updateLineNumberArea(); 
+    void updateLineNumberArea();
     void findDialog();
     void toggleComment();
     void showCharacters(

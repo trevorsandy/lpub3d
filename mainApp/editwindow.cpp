@@ -540,6 +540,18 @@ void EditWindow::createToolBars()
     editToolBar->addAction(preferencesAct);
 }
 
+void EditWindow::setReadOnly(bool enabled)
+{
+    _textEdit->setReadOnly(enabled);
+    if (enabled) {
+        toggleCmmentAct->setVisible(!enabled);
+        cutAct->setVisible(!enabled);
+        pasteAct->setVisible(!enabled);
+        delAct->setVisible(!enabled);
+        mpdCombo->setVisible(!enabled);
+    }
+}
+
 bool EditWindow::validPartLine ()
 {
     QString partType;
@@ -1307,13 +1319,16 @@ void EditWindow::displayFile(
 {
   bool reloaded  = _fileName == fileName;
   fileName       = _fileName;
-  fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
-  isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
   _pageIndx      = 0;
-  _subFileListPending = true;
-  stepLines      = lineScope;
-  savedSelection.clear();
+
+  if (ldrawFile) {
+      fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
+      isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
+      _subFileListPending = true;
+      stepLines      = lineScope;
+      savedSelection.clear();
+  }
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
@@ -1356,18 +1371,18 @@ void EditWindow::displayFile(
           mpdCombo->setMaxCount(1000);
           if (isIncludeFile) {
               mpdCombo->addItem(QFileInfo(fileName).fileName());
-          } else {
+          } else if (ldrawFile) {
               mpdCombo->addItems(ldrawFile->subFileOrder());
           }
           if(_saveSubfileIndex) {
               mpdCombo->setCurrentIndex(_saveSubfileIndex);
               _saveSubfileIndex = 0;
           }
-          mpdCombo->setEnabled(!isIncludeFile);
+          mpdCombo->setEnabled(!isIncludeFile && ldrawFile);
 
           // check file encoding
           QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-          bool isUTF8 = LDrawFile::_currFileIsUTF8;
+          bool isUTF8 = ldrawFile ? LDrawFile::_currFileIsUTF8 : true;
           _textEdit->setIsUTF8(isUTF8);
 
           QFileInfo   fileInfo(fileName);
@@ -1377,7 +1392,17 @@ void EditWindow::displayFile(
           disconnect(_textEdit, SIGNAL(textChanged()),
                      this,      SLOT(enableSave()));
 
-          if (Preferences::editorBufferedPaging && ldrawFile->size(fileName) > Preferences::editorLinesPerPage) {
+          // count lines
+          int lineCount = 0;
+          if (ldrawFile) {
+              lineCount = ldrawFile->size(fileName);
+          } else {
+              qint64 currentPos = in.pos();
+              QString stream = in.read(currentPos);
+              lineCount = stream.count(QRegExp("\\r\\n?|\\n")) + 1;
+          }
+
+          if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
               _textEdit->document()->clear();
               while(!in.atEnd())
                   _pageContent.append(in.readLine());
@@ -1396,7 +1421,9 @@ void EditWindow::displayFile(
           exitAct->setEnabled(true);
           statusBar()->showMessage(tr("%1 file %2 %3")
                                    .arg(isIncludeFile ? "Include" : "Model").arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
-      } else {
+      } // modelFileEdit()
+      else
+      {
           if (Preferences::editorBufferedPaging && ldrawFile->size(fileName) > Preferences::editorLinesPerPage) {
               _textEdit->document()->clear();
               _pageContent = ldrawFile->contents(fileName);
@@ -1600,13 +1627,13 @@ void EditWindow::preferences()
             Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
             if (editorHighlightLines != Preferences::editorHighlightLines) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
-            emit lpubAlert->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
-        }
+                emit lpubAlert->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
+            }
 
-        Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
-        if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
-            emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
+            Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
+            if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
+                emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
             }
         }
     }

@@ -1106,6 +1106,11 @@ public:
       return include(meta, includeHere, inserted);
   }
 
+  EditWindow  *getEditModeWindow()
+  {
+      return editModeWindow;
+  }
+
   static void remove_group(
       QStringList  in,     // csiParts
       QVector<int> tin,    // typeIndexes
