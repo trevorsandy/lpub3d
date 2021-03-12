@@ -3240,7 +3240,11 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
 
 bool Render::NativeExport(const NativeOptions *Options) {
 
+    bool rc = true;
+
     QString exportModeName = nativeExportNames[Options->ExportMode];
+
+    lcHTMLExportOptions HTMLOptions;
 
     if (Options->ExportMode == EXPORT_HTML_STEPS ||
         Options->ExportMode == EXPORT_WAVEFRONT  ||
@@ -3250,12 +3254,22 @@ bool Render::NativeExport(const NativeOptions *Options) {
         Options->ExportMode == EXPORT_3DS_MAX*/) {
 
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
-        if (Options->ExportMode != EXPORT_HTML_STEPS) {
-            if (! gui->OpenProject(Options->InputFileName)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                               .arg(exportModeName));
-                return false;
-            }
+
+        if (Options->ExportMode == EXPORT_HTML_STEPS) {
+
+            HTMLOptions = lcHTMLExportOptions(lcGetActiveProject());
+
+            HTMLOptions.PathName = Options->ExportFileName;
+
+            lcQHTMLDialog Dialog(gui, &HTMLOptions);
+
+            if (Dialog.exec() != QDialog::Accepted)
+                return rc;
+        }
+        if (! gui->OpenProject(Options->InputFileName)) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
+                                 .arg(exportModeName));
+            return false;
         }
     }
     else
@@ -3265,60 +3279,46 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
     if (Options->ExportMode == EXPORT_CSV)
     {
-        lcGetActiveProject()->ExportCSV();
+        rc = lcGetActiveProject()->ExportCSV();
     }
     else
     if (Options->ExportMode == EXPORT_BRICKLINK)
     {
-        lcGetActiveProject()->ExportBrickLink();
+        rc = lcGetActiveProject()->ExportBrickLink();
     }
     else
     if (Options->ExportMode == EXPORT_WAVEFRONT)
     {
-        lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
+        rc = lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
+        if (rc) {
+           gui->openFolderSelect(Options->ExportFileName);
+        }
     }
     else
     if (Options->ExportMode == EXPORT_COLLADA)
     {
-        lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
+        rc = lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
+        if (rc) {
+           gui->openFolderSelect(Options->ExportFileName);
+        }
     }
     else
     if (Options->ExportMode == EXPORT_HTML_STEPS)
     {
-        bool rc = true;
-        bool exportCancelled = false;
-
-        lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
-
-        HTMLOptions.PathName = Options->ExportFileName;
-
-        lcQHTMLDialog Dialog(gui, &HTMLOptions);
-        if ((exportCancelled = Dialog.exec() != QDialog::Accepted))
-            rc = true;
-
         HTMLOptions.SaveDefaults();
 
-        if (! exportCancelled) {
+        rc = lcGetActiveProject()->ExportHTML(HTMLOptions);
 
-            if (! gui->OpenProject(Options->InputFileName)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                               .arg(exportModeName));
-                rc = false;
-            }
-
-            lcGetActiveProject()->ExportHTML(HTMLOptions);
-
+        if (rc) {
             QString htmlIndex = QDir::fromNativeSeparators(
-                                HTMLOptions.PathName + "/" +
-                                QFileInfo(Options->InputFileName).baseName() +
-                                "-index.html");
+                        HTMLOptions.PathName + "/" +
+                        QFileInfo(Options->InputFileName).baseName() +
+                        "-index.html");
 
             gui->setExportedFile(htmlIndex);
 
             gui->showExportedFile();
         }
-
-        return rc;
     }
 /*
     // These are executed through the LDV Native renderer
@@ -3334,7 +3334,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
     }
 */
 
-    return true;
+    return rc;
 }
 
 void Render::showLdvExportSettings(int iniFlag){
@@ -3349,7 +3349,6 @@ void Render::showLdvLDrawPreferences(int iniFlag){
 
 bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
     QString exportModeName = nativeExportNames[exportMode];
-    bool exportHTML = exportMode == EXPORT_HTML_PARTS;
     QStringList arguments = args;
 
     if (exportMode == EXPORT_NONE && iniFlag == NumIniFiles) {
@@ -3379,29 +3378,36 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
         break;
     }
 
+    bool rc = true;
+    bool exportHTML = exportMode == EXPORT_HTML_PARTS;
     QString workingDirectory = QDir::currentPath();
     emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
                                              .arg(exportModeName)
                                              .arg(arguments.join(" ")));
+
     ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+
     if (exportHTML)
         gui->connect(ldvWidget, SIGNAL(loadBLCodesSig()), gui, SLOT(loadBLCodes()));
+
     if (! ldvWidget->doCommand(arguments))  {
         emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
                                                 .arg(exportModeName)
                                                 .arg(arguments.join(" ")));
-        return false;
+        rc = false;
     }
+
     if (! QDir::setCurrent(workingDirectory)) {
         emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
                                                 .arg(exportModeName)
                                                 .arg(workingDirectory));
-        return false;
+        rc = false;
     }
+
     if (exportHTML)
         gui->disconnect(ldvWidget, SIGNAL(loadBLCodesSig()), gui, SLOT(loadBLCodes()));
 
-    return true;
+    return rc;
 }
 
 const QString Render::getPovrayRenderQuality(int quality)

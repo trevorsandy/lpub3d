@@ -369,8 +369,8 @@
 #endif
 
 // Set to enable PageSize debug logging
-#ifndef SIZE_DEBUG
-//#define SIZE_DEBUG
+#ifndef PAGE_SIZE_DEBUG
+//#define PAGE_SIZE_DEBUG
 #endif
 // Set to enable write parts output file for debugging
 #ifndef WRITE_PARTS_DEBUG
@@ -1146,17 +1146,17 @@ public slots:
   void SetActiveModel(const QString &modelName, bool setActive);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
+  void openFolderSelect(const QString &absoluteFilePath);
   void setViewerStepKey(const QString &stepKey, int notPliPart);
   void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
   void updatePreview();
+
   QDockWidget *getPreviewDockWindow()
   {
       return previewDockWindow;
   }
-
-
 
   void setPageProcessRunning(int p)
   {
@@ -1393,7 +1393,7 @@ public slots:
   void reloadViewer();
   void loadTheme();
   void restartApplication(bool changeLibrary = false);
-  void resetModelCache(QString file = QString());
+  void resetModelCache(QString file = QString(), bool commandLine = false);
 
   bool removeDir(int &count,const QString &dirName);
 
@@ -1674,7 +1674,6 @@ private:
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
   void openWith(const QString &filePath);
-  void openFolderSelect(const QString &absoluteFilePath);
   bool processPageRange(const QString &range);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);

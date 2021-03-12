@@ -1650,9 +1650,12 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
-void Gui::resetModelCache(QString file)
+void Gui::resetModelCache(QString file, bool commandLine)
 {
     if (resetCache && !file.isEmpty()) {
+        if (commandLine)
+            timer.start();
+
         emit messageSig(LOG_TRACE, QString("Reset parts cache is destructive!"));
         curFile = file;
         QString fileDir = QFileInfo(file).absolutePath();
@@ -1662,11 +1665,22 @@ void Gui::resetModelCache(QString file)
             emit messageSig(LOG_ERROR, QString("Reset cache failed to set current directory %1").arg(fileDir));
 
         clearCustomPartCache(true);
-        clearAllCaches();
+        if (commandLine) {
+            clearPLICache();
+            clearCSICache();
+            clearSubmodelCache();
+            clearTempCache();
+        } else {
+            clearAllCaches();
+        }
 
         if (! QDir::setCurrent(saveCurrentDir))
             emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
+
         resetCache = false;
+
+        if (commandLine)
+            emit messageSig(LOG_INFO, QString("All caches reset. %1").arg(elapsedTime(timer.elapsed())));
     }
 }
 

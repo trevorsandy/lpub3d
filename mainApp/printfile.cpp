@@ -41,8 +41,8 @@
 #include <LDLib/LDUserDefaultsKeys.h>
 
 // Set to enable print/export trace logging
-#ifndef PRINT_DEBUG
-//#define PRINT_DEBUG
+#ifndef PAGE_PRINT_DEBUG
+//#define PAGE_PRINT_DEBUG
 #endif
 
 static bool exportPdf    = true;
@@ -76,7 +76,7 @@ QPageLayout Gui::getPageLayout(bool nextPage){
       // we always want to send portrait width x height to the printer
       QPageSize pageSize(QSizeF(pageWidthIn,pageHeightIn),QPageSize::Inch,"",QPageSize::FuzzyMatch);
 
-#ifdef PRINT_DEBUG
+#ifdef PAGE_PRINT_DEBUG
       logDebug() << QString("         PAGE %5 SIZE LAYOUT - WidthIn: %1 x HeightIn: %2 Orientation: %3 DPx: %4 CurPage: %6")
                     .arg(QString::number(pageWidthIn,'f',4),
                          QString::number(pageHeightIn,'f',4))
@@ -116,7 +116,7 @@ void Gui::getExportPageSize(float &pageWidth, float &pageHeight,int d)
           pageWidth  = pageWidthIn;
           pageHeight = pageHeightIn;
         }
-#ifdef PRINT_DEBUG
+#ifdef PAGE_PRINT_DEBUG
       logDebug() << QString("  PAGE %6 SIZE PIXELS - WidthIn: %3 x HeightIn: %4 << WidthPx: %1 x HeightPx: %2 DPx: %5 CurPage: %6")
                     .arg(QString::number(pageWidth,'f',0),
                          QString::number(pageHeight,'f',0),
@@ -140,7 +140,7 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
   QMap<int,PgSizeData>::iterator i = pageSizes.find(pageNum);   // this page
   if (i != pageSizes.end()){
 
-#ifdef PRINT_DEBUG
+#ifdef PAGE_PRINT_DEBUG
       bool  ls = i.value().orientation == Landscape;
       logDebug() << QString("PAGE %2 ORIENTATION - %1 CurPage: %3")
                     .arg(ls ? "Landscape":"Portrait")
@@ -204,7 +204,7 @@ void Gui::checkMixedPageSizeStatus(){
 
               QMap<int,PgSizeData>::iterator i = pageSizes.find(key);   // this page
               if (i != pageSizes.end()){
-#ifdef PRINT_DEBUG
+#ifdef PAGE_PRINT_DEBUG
                   logDebug() << QString("%6 page %3 of %4, size(Inches) W %1 x H %2, ID %8, orientation %5 for range %7")
                                            .arg(pageSizes[key].sizeW)
                                            .arg(pageSizes[key].sizeH)
@@ -254,7 +254,7 @@ void Gui::checkMixedPageSizeStatus(){
         }
 
     } else if (processOption == EXPORT_ALL_PAGES) {
-#ifdef PRINT_DEBUG
+#ifdef PAGE_PRINT_DEBUG
       logDebug() << QString("Default  page         size(Inches) W %1 x H %2, ID %3, orientation %4")
                                .arg(pageSizes[DEF_SIZE].sizeW)
                                .arg(pageSizes[DEF_SIZE].sizeH)

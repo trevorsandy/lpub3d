@@ -3087,7 +3087,7 @@ int CountPageWorker::countPage(
                           if (gui->exporting()) {
                               pageSize2       = gui->getPageSize(DEF_SIZE);
                               pageSizeUpdate  = false;
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
                                          << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
                                          << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3119,7 +3119,7 @@ int CountPageWorker::countPage(
                           if (gui->exporting()) {
                               removePageSize(DEF_SIZE);
                               insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
                                          << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
                                          << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
@@ -3178,7 +3178,7 @@ int CountPageWorker::countPage(
                       if (pageSizeUpdate) {
                           pageSizeUpdate = false;
                           insertPageSize(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                      << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                      << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3187,7 +3187,7 @@ int CountPageWorker::countPage(
 #endif
                       } else {
                           insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
                                      << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
                                      << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
@@ -3219,7 +3219,7 @@ int CountPageWorker::countPage(
                           if (pageSizeUpdate) {
                               pageSizeUpdate = false;
                               insertPageSize(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                          << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3228,7 +3228,7 @@ int CountPageWorker::countPage(
 #endif
                             } else {
                               insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
                                          << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
                                          << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
@@ -3336,7 +3336,7 @@ int CountPageWorker::countPage(
 
                     removePageSize(DEF_SIZE);
                     insertPageSize(DEF_SIZE,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3366,7 +3366,7 @@ int CountPageWorker::countPage(
 
                     removePageSize(DEF_SIZE);
                     insertPageSize(DEF_SIZE,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3396,7 +3396,7 @@ int CountPageWorker::countPage(
           if (pageSizeUpdate) {
               pageSizeUpdate = false;
               insertPageSize(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                          << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3405,7 +3405,7 @@ int CountPageWorker::countPage(
 #endif
             } else {
               insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
                          << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
                          << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")

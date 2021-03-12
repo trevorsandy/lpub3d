@@ -1853,11 +1853,11 @@ int Gui::drawPage(
                       if (lastStep && !lastStep->csiPixmap.isNull()) {
                           emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
                           setCurrentStep(lastStep);
-                      if (!exportingObjects()) {
-                          showLine(lastStep->topOfStep());
-                          lastStep->loadTheViewer();
-                      }
-                  } else {
+                          if (!exportingObjects()) {
+                              showLine(lastStep->topOfStep());
+                              lastStep->loadTheViewer();
+                          }
+                      } else {
                           if (!exportingObjects())
                               showLine(steps->topOfSteps());
                       }
@@ -2417,7 +2417,7 @@ int Gui::drawPage(
                           // Load the 3DViewer -  callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
-                              if (!exportingObjects()) {
+                              if (Preferences::modeGUI && !exportingObjects()) {
                                   setCurrentStep(step);
                                   if (partsAdded)
                                       step->loadTheViewer();
@@ -2770,7 +2770,7 @@ int Gui::findPage(
                               if (exporting()) {
                                   pageSize2       = pageSizes[DEF_SIZE];
                                   pageSizeUpdate  = false;
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                                   logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
                                              << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
                                              << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
@@ -2810,7 +2810,7 @@ int Gui::findPage(
                               if (exporting()) {
                                   pageSizes.remove(DEF_SIZE);
                                   pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                                   logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
                                              << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                              << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
@@ -2974,7 +2974,7 @@ int Gui::findPage(
                       if (pageSizeUpdate) {
                           pageSizeUpdate = false;
                           pageSizes.insert(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                      << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                      << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -2983,7 +2983,7 @@ int Gui::findPage(
 #endif
                       } else {
                           pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
                                      << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                      << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
@@ -3175,7 +3175,7 @@ int Gui::findPage(
                           if (pageSizeUpdate) {
                               pageSizeUpdate = false;
                               pageSizes.insert(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                          << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3184,7 +3184,7 @@ int Gui::findPage(
 #endif
                             } else {
                               pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
                                          << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                          << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
@@ -3359,7 +3359,7 @@ int Gui::findPage(
 
                     pageSizes.remove(DEF_SIZE);
                     pageSizes.insert(DEF_SIZE,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3449,7 +3449,7 @@ int Gui::findPage(
 
                     pageSizes.remove(DEF_SIZE);
                     pageSizes.insert(DEF_SIZE,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                                << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3538,7 +3538,7 @@ int Gui::findPage(
           pageSizes.remove(opts.pageNum);
           if (pageSizeUpdate) {
               pageSizes.insert(opts.pageNum,opts.pageSize);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
                          << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
@@ -3547,7 +3547,7 @@ int Gui::findPage(
 #endif
             } else {
               pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
-#ifdef SIZE_DEBUG
+#ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
                          << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                          << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
@@ -4050,7 +4050,8 @@ void Gui::countPages()
    }
 }
 
-void Gui::drawPage(LGraphicsView  *view,
+void Gui::drawPage(
+    LGraphicsView  *view,
     LGraphicsScene *scene,
     bool            printing,
     bool            updateViewer/*true*/,
@@ -4146,8 +4147,8 @@ void Gui::drawPage(LGraphicsView  *view,
       pageSize.sizeID     = meta.LPub.page.size.valueSizeID();
       pageSize.orientation= meta.LPub.page.orientation.value();
       pageSizes.insert(     DEF_SIZE,pageSize);
-#ifdef SIZE_DEBUG
-      logTrace() << "0. Inserting INIT page size info at PageNumber:" << DEF_SIZE
+#ifdef PAGE_SIZE_DEBUG
+      logTrace() << "0. Inserting INIT page size info at PageNumber:" << maxPages
                  << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
                  << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
                  << "ID:" << pageSize.sizeID
