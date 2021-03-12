@@ -39,7 +39,7 @@ class lcCamera : public lcObject
 {
 public:
 /*** LPub3D Mod - LPUB meta command ***/
-	lcCamera(bool Simple, bool lpubmeta = true);
+	lcCamera(bool Simple, bool LPubMeta = true);
 /*** LPub3D Mod end ***/
 	lcCamera(float ex, float ey, float ez, float tx, float ty, float tz);
 	~lcCamera();
@@ -296,9 +296,9 @@ public:
 	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
 	void GetAngles(float& Latitude, float& Longitude, float& Distance) const;
 /*** LPub3D Mod - Camera Globe ***/
-	void SetAngles(float Latitude, float Longitude, float Distance);
-	void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target);
-	void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey);
+	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance);
+	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target);
+	void SetAngles(const float& Latitude, const float& Longitude, const float& Distance, const lcVector3& Target, lcStep Step, bool AddKey);
 	float GetScale();
 	float GetCDF() const;
 	float GetDDF() const;

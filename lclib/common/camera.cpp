@@ -20,9 +20,8 @@
 
 /*** LPub3D Mod - LPUB meta command ***/
 lcCamera::lcCamera(bool Simple, bool LPubMeta)
-	: lcObject(lcObjectType::Camera)
+	: lcObject(lcObjectType::Camera), mLPubMeta(LPubMeta)
 {
-	mLPubMeta = LPubMeta;
 /*** LPub3D Mod end ***/
 	Initialize();
 
@@ -46,12 +45,10 @@ lcCamera::lcCamera(bool Simple, bool LPubMeta)
 }
 
 lcCamera::lcCamera(float ex, float ey, float ez, float tx, float ty, float tz)
-	: lcObject(lcObjectType::Camera)
-{
 /*** LPub3D Mod - LPUB meta command ***/
-	mLPubMeta = true;
+	: lcObject(lcObjectType::Camera), mLPubMeta(true)
 /*** LPub3D Mod end ***/
-
+{
 	// Fix the up vector
 	lcVector3 UpVector(0, 0, 1), FrontVector(ex - tx, ey - ty, ez - tz), SideVector;
 	FrontVector.Normalize();
@@ -137,37 +134,39 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 {
 	QLatin1String LineEnding("\r\n");
 /*** LPub3D Mod - LPUB meta command ***/
-	Stream << QLatin1String(QString("0 %1 CAMERA FOV ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
+	lcVector3 Vector;
+	QString Meta(mLPubMeta ? "!LPUB" : "!LEOCAD");
+	Stream << QLatin1String(QString("0 %1 CAMERA FOV ").arg(Meta).toLatin1()) << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (mPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mPositionKeys, "CAMERA POSITION_KEY ");
 	else
-		if (mLPubMeta)
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			Stream << QLatin1String("0 !LPUB CAMERA POSITION ") << mPosition[0] << ' ' << -mPosition[2] << ' ' << mPosition[1] << LineEnding;
-		else
-			Stream << QLatin1String("0 !LEOCAD CAMERA POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	{
+		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mPosition) : mPosition;
+		Stream << QLatin1String(QString("0 %1 CAMERA POSITION ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+	}
 /*** LPub3D Mod end ***/
 
 	if (mTargetPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mTargetPositionKeys, "CAMERA TARGET_POSITION_KEY ");
 	else
-		if (mLPubMeta)
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			Stream << QLatin1String("0 !LPUB CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << -mTargetPosition[2] << ' ' << mTargetPosition[1] << LineEnding;
-		else
-			Stream << QLatin1String("0 !LEOCAD CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	{
+		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mTargetPosition) : mTargetPosition;
+		Stream << QLatin1String(QString("0 %1 CAMERA TARGET_POSITION ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+	}
 /*** LPub3D Mod end ***/
 
 	if (mUpVectorKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mUpVectorKeys, "CAMERA UP_VECTOR_KEY ");
 	else
-		if (mLPubMeta)
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-			Stream << QLatin1String("0 !LPUB CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << -mUpVector[2] << ' ' << mUpVector[1] << LineEnding;
-		else
-			Stream << QLatin1String("0 !LEOCAD CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << mUpVector[1] << ' ' << mUpVector[2] << LineEnding;
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	{
+		Vector = mLPubMeta ? lcVector3LeoCADToLDraw(mUpVector) : mUpVector;
+		Stream << QLatin1String(QString("0 %1 CAMERA UP_VECTOR ").arg(Meta).toLatin1()) << Vector[0] << ' ' << Vector[1] << ' ' << Vector[2] << LineEnding;
+	}
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - LPUB meta command ***/
@@ -215,14 +214,10 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			Stream >> m_zFar;
 		else if (Token == QLatin1String("POSITION"))
 		{
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Z(LD -Y) in the up direction ***/
+			Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
 			if (mLPubMeta)
-			{
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-				Stream >> mPosition[0] >> mPosition[2] >> mPosition[1];
-				mPosition[2] = -mPosition[2];
-			}
-			else
-				Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
+				mPosition = lcVector3LDrawToLeoCAD(mPosition);
 /*** LPub3D Mod end ***/
 			ChangeKey(mPositionKeys, mPosition, 1, true);
 		}
@@ -230,27 +225,19 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 		else if ((tarOk = Token == QLatin1String("TARGET_POSITION")))
 /*** LPub3D Mod end ***/
 		{
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Z(LD -Y) in the up direction ***/
+			Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
 			if (mLPubMeta)
-			{
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-				Stream >> mTargetPosition[0] >> mTargetPosition[2] >> mTargetPosition[1];
-				mTargetPosition[2] = -mTargetPosition[2];
-			}
-			else
-				Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
+				mTargetPosition = lcVector3LDrawToLeoCAD(mTargetPosition);
 /*** LPub3D Mod end ***/
 			ChangeKey(mTargetPositionKeys, mTargetPosition, 1, true);
 		}
 		else if (Token == QLatin1String("UP_VECTOR"))
 		{
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Z(LD -Y) in the up direction ***/
+			Stream >> mUpVector[0] >> mUpVector[1] >> mUpVector[2];
 			if (mLPubMeta)
-			{
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-				Stream >> mUpVector[0] >> mUpVector[2] >> mUpVector[1];
-				mUpVector[2] = -mUpVector[2];
-			}
-			else
-				Stream >> mUpVector[0] >> mUpVector[1] >> mUpVector[2];
+				mUpVector = lcVector3LDrawToLeoCAD(mUpVector);
 /*** LPub3D Mod end ***/
 			ChangeKey(mUpVectorKeys, mUpVector, 1, true);
 		}
@@ -1178,17 +1165,17 @@ void lcCamera::SetViewpoint(const lcVector3& Position, const lcVector3& Target, 
 }
 
 /*** LPub3D Mod - Camera Globe ***/
-void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
+void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const float &Distance)
 {
 	SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
 }
 
-void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target)
+void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const float &Distance, const lcVector3 &Target)
 {
 	SetAngles(Latitude, Longitude, Distance, Target, 1, false);
 }
 
-void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey)
+void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const float &Distance, const lcVector3 &Target, lcStep Step, bool AddKey)
 {
 	mPosition = lcVector3(0, -1, 0);
 	mTargetPosition = Target; //lcVector3(0, 0, 0);
@@ -1205,7 +1192,7 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 	int   Width      = lcGetActiveProject()->GetModelWidth();
 	int   Renderer   = lcGetActiveProject()->GetRenderer();
 	float Resolution = lcGetActiveProject()->GetResolution();
-	// Distance in Standard (LDU) Format - e.g. 3031329
+	// Convert distance to LeoCAD format from Lego Draw Unit (LDU) format - e.g. 3031329
 	float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
 	mPosition = lcMul(mPosition, LatitudeMatrix) * CameraDistance;
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
@@ -1238,7 +1225,7 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 	int   Width      = lcGetActiveProject()->GetModelWidth();
 	int   Renderer   = lcGetActiveProject()->GetRenderer();
 	float Resolution = lcGetActiveProject()->GetResolution();
-	// Distance in 3DViewer (Native) Format - e.g. 1250
+	// Convert distance to Lego Draw Unit (LDU) format from LeoCAD format - e.g. 1250
 	Distance = StandardCameraDistance(lcLength(mPosition), GetCDF(), Width, Resolution, Renderer);
 /*** LPub3D Mod end ***/
 }
