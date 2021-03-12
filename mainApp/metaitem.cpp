@@ -4363,7 +4363,7 @@ bool MetaItem::offsetPoint(
     } else {
       ok[0] = true;
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.png";
-      if (Preferences::usingNativeRenderer){
+      if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           // RotateParts #2 - 8 parms
           ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);
@@ -4846,7 +4846,7 @@ QPointF MetaItem::defaultPointerTip(
   } else {
       ok[0] = true;
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngBaseName + ".png";
-      if (Preferences::usingNativeRenderer){
+      if (Preferences::preferredRenderer == RENDERER_NATIVE) {
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
          // RotateParts #2 - 8 parms
          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);

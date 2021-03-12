@@ -1456,7 +1456,6 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
             rotStepMeta.setValue(rotStepData);
         }
 
-        bool nativeRenderer  = Preferences::usingNativeRenderer;
         QStringList rotatedType = QStringList() << orient(updatedColour, typeName);
         QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
 
@@ -1471,6 +1470,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         FloatPairMeta cameraAngles;
         cameraAngles.setValues(latitude,longitude);
 
+        bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE;
         // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
         if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
                 emit gui->messageSig(LOG_ERROR,QString("Failed to rotate type: %1.").arg(typeName));
@@ -3302,7 +3302,7 @@ void PliBackgroundItem::contextMenuEvent(
         QString rendererName = QString("Add %1 Arguments")
                 .arg(usingPovray ? "POV Generation":
                                    QString("%1 Renderer").arg(Render::getRenderer()));
-        if (!Preferences::usingNativeRenderer) {
+        if (Preferences::preferredRenderer != RENDERER_NATIVE) {
             rendererArgumentsAction = menu.addAction(rendererName);
             rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
             rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));

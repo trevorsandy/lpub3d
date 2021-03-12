@@ -3071,7 +3071,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             Camera->SetViewpoint(Viewpoint);
 
     } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
-        if (Preferences::usingNativeRenderer)
+        if (Preferences::preferredRenderer == RENDERER_NATIVE)
             Camera->m_fovy = O->FoV;
         else
             Camera->m_fovy = O->FoV + Camera->m_fovy - gui->getDefaultCameraFoV();

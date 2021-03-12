@@ -398,7 +398,6 @@ bool    Preferences::includeFileName            = false;
 bool    Preferences::includeFunction            = false;
 bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::archiveLSynthParts         = false;
-bool    Preferences::usingNativeRenderer        = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::extendedSubfileSearch      = false;
@@ -2132,9 +2131,6 @@ void Preferences::preferredRendererPreferences(bool persist)
             Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
         }
     }
-
-    // set using native Renderer flag
-    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
 
     // Default projection
     QString const perspectiveProjectionKey("PerspectiveProjection");
@@ -4964,8 +4960,6 @@ bool Preferences::getPreferences()
             ldrawFilesLoadMsgs = dialog->ldrawFilesLoadMsgs();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
         }
-
-        usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
         return true;
     } else {
         return false;

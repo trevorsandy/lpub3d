@@ -224,11 +224,11 @@ void Gui::httpDownloadFinished()
  **********************************************************************/
 
 void Gui::setNativeRenderer() {
-    if (!Preferences::usingNativeRenderer) {
+    if (Preferences::preferredRenderer != RENDERER_NATIVE) {
         saveRenderer   = Preferences::preferredRenderer;
         saveProjection = Preferences::perspectiveProjection;
-        Preferences::preferredRenderer      = RENDERER_NATIVE;
-        Preferences::perspectiveProjection  = true;
+        Preferences::preferredRenderer     = RENDERER_NATIVE;
+        Preferences::perspectiveProjection = true;
         Render::setRenderer(Preferences::preferredRenderer);
     }
 }
@@ -237,7 +237,6 @@ void Gui::restorePreferredRenderer() {
     if (!saveRenderer.isEmpty()) {
         Preferences::preferredRenderer      = saveRenderer;
         Preferences::perspectiveProjection  = saveProjection;
-        Preferences::usingNativeRenderer    = saveRenderer == RENDERER_NATIVE;
         Render::setRenderer(Preferences::preferredRenderer);
         saveRenderer = QString();
     }

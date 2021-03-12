@@ -270,7 +270,6 @@ class Preferences
     static bool    lgeoStlLib;
     static bool    addLSynthSearchDir;
     static bool    archiveLSynthParts;
-    static bool    usingNativeRenderer;
     static bool    skipPartsArchive;
     static bool    loadLastOpenedFile;
     static bool    extendedSubfileSearch;

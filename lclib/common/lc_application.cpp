@@ -1626,7 +1626,7 @@ void lcApplication::ShowPreferencesDialog()
 		 DrawConditionalChanged) && !restartApp && !redrawPage)
 		reloadPage = true;
 
-	if (Preferences::usingNativeRenderer && !restartApp)
+	if ((Preferences::preferredRenderer == RENDERER_NATIVE) && !restartApp)
 	{
 		if (shadingModeChanged     ||
 			drawEdgeLinesChanged   ||

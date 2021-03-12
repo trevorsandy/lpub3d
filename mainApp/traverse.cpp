@@ -2668,7 +2668,7 @@ int Gui::drawPage(
             {
               showLine(opts.current);
               QString message;
-              if (Preferences::usingNativeRenderer &&
+              if (Preferences::preferredRenderer == RENDERER_NATIVE &&
                   line.indexOf("CAMERA_FOV") != -1)
                   message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
                                     "<br>Meta command: %3"

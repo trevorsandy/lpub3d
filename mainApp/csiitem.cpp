@@ -533,7 +533,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QString rendererName = QString("Add %1 Arguments")
                                  .arg(usingPovray ? "POV Generation":
                                                     QString("%1 Renderer").arg(Render::getRenderer()));
-  if (!Preferences::usingNativeRenderer) {
+  if (Preferences::preferredRenderer != RENDERER_NATIVE) {
       rendererArgumentsAction = menu.addAction(rendererName);
       rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
       rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));

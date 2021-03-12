@@ -209,7 +209,7 @@ int Render::rotateParts(
   bool doFadeStep      = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
-  bool nativeRenderer  = Preferences::usingNativeRenderer && !ldvFunction;
+  bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction;
 
   QStringList rotatedParts = parts;
 

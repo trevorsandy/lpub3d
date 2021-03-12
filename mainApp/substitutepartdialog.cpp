@@ -245,7 +245,7 @@ void SubstitutePartDialog::initialize()
     ui->scaleSpin->setDecimals(dec(val));
     ui->scaleSpin->setValue(val);
 
-    if (Preferences::usingNativeRenderer){
+    if (Preferences::preferredRenderer == RENDERER_NATIVE){
         min = double(CAMERA_FOV_NATIVE_MIN_DEFAULT);
         max = double(CAMERA_FOV_NATIVE_MAX_DEFAULT);
     } else {

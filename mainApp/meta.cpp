@@ -1939,7 +1939,6 @@ void PreferredRendererMeta::setPreferences(bool reset)
     Preferences::enableLDViewSnaphsotList = data.useLDVSnapShotList;
     Preferences::useNativePovGenerator    = data.useNativeGenerator;
     Preferences::perspectiveProjection    = data.usePerspectiveProjection;
-    Preferences::usingNativeRenderer      = data.renderer == RENDERER_NATIVE;
     if (global) {
       Preferences::preferredRendererPreferences(global);
       if (Preferences::preferredRenderer != data.renderer)

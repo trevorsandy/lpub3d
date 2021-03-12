@@ -1014,7 +1014,7 @@ public:
 
   bool suppressColourMeta()
   {
-    return false; //Preferences::usingNativeRenderer;
+    return false; // Preferences::preferredRenderer == RENDERER_NATIVE;
   }
 
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);

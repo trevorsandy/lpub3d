@@ -612,7 +612,6 @@ int Gui::processCommandLine()
       Preferences::enableLDViewSnaphsotList = savedData.useLDVSnapShotList;
       Preferences::useNativePovGenerator    = savedData.useNativeGenerator;
       Preferences::perspectiveProjection    = savedData.usePerspectiveProjection;
-      Preferences::usingNativeRenderer      = savedData.renderer == RENDERER_NATIVE;
       Preferences::preferredRendererPreferences(true/*global*/);
   }
 

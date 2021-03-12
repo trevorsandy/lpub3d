@@ -237,7 +237,7 @@ int Step::createCsi(
     bool               buildModAction) // BuildMod action special case (no parts added)
 {
   bool csiExist       = false;
-  bool nativeRenderer = Preferences::usingNativeRenderer;
+  bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   int  nType          = NTypeDefault;
   FloatPairMeta cameraAngles;
   cameraAngles.setValues( csiStepMeta.cameraAngles.value(0),

@@ -1060,7 +1060,7 @@ void Gui::applyCameraSettings()
         {
             float result = qRound(Camera->m_fovy);
 
-            if (!Preferences::usingNativeRenderer)
+            if (Preferences::preferredRenderer != RENDERER_NATIVE)
                   // e.g.            30.0  +                 0.01         - 30.0
                    result = Camera->m_fovy + cameraMeta.cameraFoV.value() - GetPreferences().mCFoV;
 
@@ -1659,27 +1659,27 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
 float Gui::getDefaultCameraFoV() const
 {
-    return (Preferences::usingNativeRenderer ?
-                gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
-                Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                CAMERA_FOV_LDVIEW_P_DEFAULT :
-                CAMERA_FOV_DEFAULT);
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
+            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+            CAMERA_FOV_LDVIEW_P_DEFAULT :
+            CAMERA_FOV_DEFAULT);
 }
 
 float Gui::getDefaultFOVMinRange() const
 {
-    return (Preferences::usingNativeRenderer ?
-                CAMERA_FOV_NATIVE_MIN_DEFAULT :
-                CAMERA_FOV_MIN_DEFAULT);
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            CAMERA_FOV_NATIVE_MIN_DEFAULT :
+            CAMERA_FOV_MIN_DEFAULT);
 }
 
 float Gui::getDefaultFOVMaxRange() const
 {
-    return (Preferences::usingNativeRenderer ?
-                CAMERA_FOV_NATIVE_MAX_DEFAULT :
-                Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
-                CAMERA_FOV_MAX_DEFAULT);
+    return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+            CAMERA_FOV_NATIVE_MAX_DEFAULT :
+            Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+            CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
+            CAMERA_FOV_MAX_DEFAULT);
 }
 
 float Gui::getDefaultNativeCameraZNear() const

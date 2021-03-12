@@ -1152,7 +1152,6 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
 
   if (rendererChanged) {
     Preferences::preferredRenderer   = renderer;
-    Preferences::usingNativeRenderer = useNativeRenderer;
     Render::setRenderer(Preferences::preferredRenderer);
     Preferences::preferredRendererPreferences(true/*global*/);
     Preferences::updatePOVRayConfigFiles();
