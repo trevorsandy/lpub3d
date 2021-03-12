@@ -1748,12 +1748,18 @@ void EditWindow::update(bool state)
   updateSig();
 }
 
+void EditWindow::clearWindow() {
+  _textEdit->document()->clear();
+  _textEdit->document()->setModified(false);
+  fileName.clear();
+}
+
 void EditWindow::enableSave()
 {
   if (_textEdit->document()->isModified())
-    {
-      saveAct->setEnabled(true);
-    }
+  {
+    saveAct->setEnabled(true);
+  }
 }
 
 void EditWindow::readSettings()

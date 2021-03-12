@@ -130,6 +130,7 @@ public slots:
     void setPagedContent(const QStringList &);
     void setPlainText(const QString &);
     void setLineCount(int);
+    void clearWindow();
 
 private slots:
     void openWith();

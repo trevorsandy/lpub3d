@@ -692,8 +692,7 @@ void Gui::closeFile()
 {
   pa = sa = 0;
   ldrawFile.empty();
-  editWindow->textEdit()->document()->clear();
-  editWindow->textEdit()->document()->setModified(false);
+  editWindow->clearWindow();
   mpdCombo->clear();
   ClearPreviewWidget();
   mpdCombo->setEnabled(false);
