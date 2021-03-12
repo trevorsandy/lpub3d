@@ -2169,7 +2169,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		POVFile.WriteLine(Line);
 	}
 
-	lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+	const lcCamera* Camera = gMainWindow->GetActiveView()->GetCamera();
 	const lcVector3& Position = Camera->mPosition;
 	const lcVector3& Target = Camera->mTargetPosition;
 	const lcVector3& Up = Camera->mUpVector;
