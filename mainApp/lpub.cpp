@@ -59,7 +59,7 @@
 
 //3D Viewer
 #include "camera.h"
-#include "view.h"
+#include "lc_view.h"
 #include "piece.h"
 #include "lc_profile.h"
 #include "application.h"

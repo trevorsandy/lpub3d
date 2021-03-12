@@ -200,7 +200,7 @@ void EditWindow::previewLine()
         gMainWindow->PreviewPiece(partType, colorCode);
         return;
     } else {
-        lcPreviewWidget *Preview = new lcPreviewWidget();
+        lcPreview *Preview = new lcPreview();
         lcViewWidget *ViewWidget = new lcViewWidget(nullptr/*parent*/, Preview/*owner*/);
 
         if (Preview && ViewWidget) {

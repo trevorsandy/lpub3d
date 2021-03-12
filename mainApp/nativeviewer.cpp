@@ -44,7 +44,7 @@
 #include "camera.h"
 #include "piece.h"
 #include "group.h"
-#include "view.h"
+#include "lc_view.h"
 #include "application.h"
 #include "lc_partselectionwidget.h"
 
@@ -685,7 +685,7 @@ void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QR
         gMainWindow->PreviewPiece(partType, colorCode);
         return;
     } else {
-        lcPreviewWidget* Preview = new lcPreviewWidget();
+        lcPreview* Preview = new lcPreview();
         lcViewWidget* ViewWidget = new lcViewWidget(nullptr, Preview);
 
         if (Preview && ViewWidget)
@@ -824,7 +824,7 @@ void Gui::applyLightSettings()
         LightMeta lightMeta = meta.LeoCad.light;
         lightMeta.setValue(lightData);
 
-        View* ActiveView = gMainWindow->GetActiveView();
+        lcView* ActiveView = gMainWindow->GetActiveView();
 
         lcModel* ActiveModel = ActiveView->GetActiveModel();
 
@@ -1026,7 +1026,7 @@ void Gui::applyCameraSettings()
 
         SettingsMeta cameraMeta;
 
-        View* ActiveView = gMainWindow->GetActiveView();
+        lcView* ActiveView = gMainWindow->GetActiveView();
 
         if (!ActiveView)
             return;
@@ -1104,14 +1104,12 @@ void Gui::applyCameraSettings()
             if (QFileInfo(imageFileName).exists())
                 clearStepCSICache(imageFileName);
 
-            // Switch Y and Z axis with -Y(LC -Z) in the up direction
-            cameraMeta.target.setValues(Camera->mTargetPosition[0],
-                                        Camera->mTargetPosition[2],
-                                        Camera->mTargetPosition[1]);
+            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
+            lcVector3 ldrawPosition = lcVector3LeoCADToLDraw(Camera->mTargetPosition);
+            cameraMeta.target.setValues(ldrawPosition[0], ldrawPosition[1], ldrawPosition[2]);
             metaString = cameraMeta.target.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.target.here() == undefined;
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.target.here(), metaString, newCommand);
-//            currentStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true/*useTop*/,1/*append*/,true/*local*/,false/*askLocal,global=false*/);
         }
 
         if (useImageSizeAct->isChecked()) {
@@ -1522,7 +1520,7 @@ int Gui::GetImageHeight()
 
 void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 {
-    View* ActiveView     = gMainWindow->GetActiveView();
+    lcView* ActiveView   = gMainWindow->GetActiveView();
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     if (ActiveModel){
@@ -1697,19 +1695,19 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary();
  }
 
- View* Gui::GetActiveView()
+ lcView* Gui::GetActiveView()
  {
      return gMainWindow->GetActiveView();
  }
 
  void Gui::UpdateAllViews()
  {
-     lcGLWidget::UpdateAllViews();
+     lcView::UpdateAllViews();
  }
 
  lcModel* Gui::GetActiveModel()
  {
-     return GetActiveView()->GetActiveModel();
+     return GetActiveView() ? GetActiveView()->GetActiveModel() : nullptr;
  }
 
  lcPartSelectionWidget* Gui::GetPartSelectionWidget()
@@ -1848,7 +1846,7 @@ void Gui::createBuildModification()
     if (lcGetActiveProject()->GetImageType() != Options::CSI)
         return;
 
-    View* ActiveView = GetActiveView();
+    lcView* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     if (ActiveModel) {

@@ -17,7 +17,7 @@
 #include "lpub.h"
 #include "commands.h"
 
-#include "view.h"
+#include "lc_view.h"
 #include "lc_model.h"
 
 QString Gui::topLevelFile()
@@ -112,10 +112,8 @@ void Gui::setBuildModClearStepKey(const QString &text)
 void Gui::undo()
 {
   if (viewerUndo){
-    View* ActiveView = GetActiveView();
-    lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
-    if (ActiveModel)
-      ActiveModel->UndoAction();
+    if (GetActiveModel())
+      GetActiveModel()->UndoAction();
   } else {
     setBuildModClearStepKey(undoStack->undoText());
     macroNesting++;
@@ -128,10 +126,8 @@ void Gui::undo()
 void Gui::redo()
 {
   if (viewerRedo){
-    View* ActiveView = GetActiveView();
-    lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
-    if (ActiveModel)
-      ActiveModel->RedoAction();
+    if (GetActiveModel())
+      GetActiveModel()->RedoAction();
   } else {
     setBuildModClearStepKey(undoStack->redoText());
     macroNesting++;

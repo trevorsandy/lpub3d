@@ -429,7 +429,7 @@ class lcPreferences;
 class lcPiecesLibrary;
 class lcModel;
 class lcPartSelectionWidget;
-class View;
+class lcView;
 
 class ColourPartListWorker;
 class DialogExportPages;
@@ -1204,7 +1204,7 @@ public slots:
   int GetImageHeight();
 
   // Native viewer convenience calls
-  View*                  GetActiveView();
+  lcView*                GetActiveView();
   lcModel*               GetActiveModel();
   lcPartSelectionWidget* GetPartSelectionWidget();
   lcPiecesLibrary*       GetPiecesLibrary();

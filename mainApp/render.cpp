@@ -53,7 +53,7 @@
 #include "project.h"
 #include "pieceinf.h"
 #include "lc_model.h"
-#include "view.h"
+#include "lc_view.h"
 #include "camera.h"
 #include "lc_qhtmldialog.h"
 #include "lc_partselectionwidget.h"
@@ -2904,14 +2904,14 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         gui->SetStudLogo(O->StudLogo,true/*reload*/);
     }
 
-    View* ActiveView = gui->GetActiveView();
+    lcView* ActiveView = gui->GetActiveView();
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     lcCamera* Camera =  ActiveView->GetCamera();
 
-    // Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
-    lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
+    // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
+    lcVector3 Target = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
 
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
@@ -2997,11 +2997,11 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
         ActiveView->MakeCurrent();
         lcContext* Context = ActiveView->mContext;
-        View View(ActiveView->GetViewType(), ActiveModel);
-        View.SetCamera(Camera, false);
-        View.SetContext(Context);
+        lcView lcView(ActiveView->GetViewType(), ActiveModel);
+        lcView.SetCamera(Camera, false);
+        lcView.SetContext(Context);
 
-        if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {
+        if ((rc = lcView.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
             struct NativeImage
             {
@@ -3012,11 +3012,11 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
             ActiveModel->SetTemporaryStep(ImageStep);
 
-            View.OnDraw();
+            lcView.OnDraw();
 
-            Image.RenderedImage = View.GetRenderImage();
+            Image.RenderedImage = lcView.GetRenderImage();
 
-            View.EndRenderToImage();
+            lcView.EndRenderToImage();
 
             Context->ClearResources();
 
@@ -3126,7 +3126,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
     if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType))
     {
         gApplication->SetProject(Loader);
-        lcGLWidget::UpdateAllViews();
+        lcView::UpdateAllViews();
     }
     else
     {

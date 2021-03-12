@@ -541,7 +541,7 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
         previewLayout->setContentsMargins(0, 0, 0, 0);
         ui->previewFrame->setLayout(previewLayout);
 
-        Preview    = new lcPreviewWidget(true/*substitute preview*/);
+        Preview    = new lcPreview(true/*substitute preview*/);
 
         ViewWidget = new lcViewWidget(nullptr/*parent*/, Preview/*owner*/);
 

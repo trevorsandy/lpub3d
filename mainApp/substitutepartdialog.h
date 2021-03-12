@@ -34,7 +34,7 @@ class SubstitutePartDialog;
 
 class QGridLayout;
 class PieceInfo;
-class lcPreviewWidget;
+class lcPreview;
 class Project;
 class lcModel;
 class lcViewWidget;
@@ -98,7 +98,7 @@ private:
   bool                      mViewWidgetEnabled;
 
   QGridLayout              *previewLayout;
-  lcPreviewWidget          *Preview;
+  lcPreview                *Preview;
   lcViewWidget             *ViewWidget;
 };
 
