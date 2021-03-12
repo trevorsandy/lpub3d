@@ -1835,8 +1835,7 @@ void LDrawFile::countInstances(
       QStringList tokens;
       QString line = f->_contents[i];
       split(line,tokens);
-      
-      /* Sorry, but models that are callouts are not counted as instances */
+
         //lpub3d ignore part - so set ignore step
       if (tokens.size() == 5 && tokens[0] == "0" &&
          (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
@@ -1857,6 +1856,7 @@ void LDrawFile::countInstances(
           stepIndex = { modelIndex, i };
           _buildModStepIndexes.append(stepIndex);
           // called out
+          /* Sorry, but models that are callouts are not counted as instances */
         } else if (tokens[2] == "CALLOUT" &&
                    tokens[3] == "BEGIN") {
           callout    = true;
@@ -2641,6 +2641,7 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
           } else if (numActions) {
               // iterate backward to get the last action before the specified stepIndex
               int keyIndex = stepIndex;
+              insert.append(" Last");
               for (; keyIndex > 0; keyIndex--){
                   if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX){
                       action = i.value()._modActions.value(keyIndex);
@@ -2661,16 +2662,16 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
 
 #ifdef QT_DEBUG_MODE
   if (!action)
-      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod (INVALID)%1 Action StepIndex: %2, LastIndex: %3, BuildModKey: %4")
+      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod (INVALID)%1 Action StepIndex: %2, ActionStepIndex: %3, BuildModKey: %4")
                                               .arg(lastAction ? " Last" : "")
-                                              .arg(stepIndex)
+                                              .arg(lastAction ? "unspecified" : QString::number(stepIndex))
                                               .arg(lastIndex)
                                               .arg(modKey));
   else
-      emit gui->messageSig(LOG_TRACE, QString("%1 Action: %2, StepIndex: %3, LastIndex: %4, BuildModKey: %5")
+      emit gui->messageSig(LOG_TRACE, QString("%1 Action: %2, StepIndex: %3, ActionStepIndex: %4, BuildModKey: %5")
                                               .arg(insert)
                                               .arg(action == BuildModApplyRc ? "Apply" : "Remove")
-                                              .arg(stepIndex)
+                                              .arg(lastAction ? "unspecified" : QString::number(stepIndex))
                                               .arg(lastIndex)
                                               .arg(modKey));
 #endif
@@ -2944,7 +2945,7 @@ int LDrawFile::getBuildModNextStepIndex()
         }
         message = QString("Get BuildMod %1 "
                           "StepIndex: %2, "
-                          "OldStepIndex: %3, "
+                          "PrevStepIndex: %3, "
                           "ModelName: %4, "
                           "LineNumber: %5, "
                           "Result: %6")
@@ -2977,7 +2978,7 @@ bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &li
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_TRACE, QString("Set BuildMod %1 "
                                             "StepIndex: %2, "
-                                            "OldStepIndex: %3, "
+                                            "PrevStepIndex: %3, "
                                             "ModelName: %4, "
                                             "LineNumber: %5, "
                                             "Result: %6")

@@ -1549,7 +1549,8 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
             }
         }
     }
-    emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    if (count)
+        emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::resetModelCache(QString file)
