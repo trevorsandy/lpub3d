@@ -1900,6 +1900,12 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_AXES_COLOR;
                     else if (i == THEME_DARK_OVERLAY_COLOR)
                         key = LC_PROFILE_OVERLAY_COLOR;
+                    else if (i == THEME_DARK_MARQUEE_BORDER_COLOR)
+                        key = LC_PROFILE_MARQUEE_BORDER_COLOR;
+                    else if (i == THEME_DARK_MARQUEE_FILL_COLOR)
+                        key = LC_PROFILE_MARQUEE_FILL_COLOR;
+                    else if (i == THEME_DARK_INACTIVE_VIEW_COLOR)
+                        key = LC_PROFILE_INACTIVE_VIEW_COLOR;
                     else if (i == THEME_DARK_ACTIVE_VIEW_COLOR)
                         key = LC_PROFILE_ACTIVE_VIEW_COLOR;
                     else if (i == THEME_DARK_GRID_STUD_COLOR)
@@ -1925,6 +1931,12 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_AXES_COLOR;
                     else if (i == THEME_DEFAULT_OVERLAY_COLOR)
                         key = LC_PROFILE_OVERLAY_COLOR;
+                    else if (i == THEME_DEFAULT_MARQUEE_BORDER_COLOR)
+                        key = LC_PROFILE_MARQUEE_BORDER_COLOR;
+                    else if (i == THEME_DEFAULT_MARQUEE_FILL_COLOR)
+                        key = LC_PROFILE_MARQUEE_FILL_COLOR;
+                    else if (i == THEME_DEFAULT_INACTIVE_VIEW_COLOR)
+                        key = LC_PROFILE_INACTIVE_VIEW_COLOR;
                     else if (i == THEME_DEFAULT_ACTIVE_VIEW_COLOR)
                         key = LC_PROFILE_ACTIVE_VIEW_COLOR;
                     else if (i == THEME_DEFAULT_GRID_STUD_COLOR)
@@ -2064,6 +2076,8 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
             color.lighter(180).setAlpha(100);
         else if (index == THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT)
             color.lighter(180).setAlpha(100);
+        else if (index == THEME_DARK_MARQUEE_FILL_COLOR)
+            color.setAlpha(64);
     } else {
         if (index == THEME_DEFAULT_GRID_STUD_COLOR)
             color.setAlpha(192);
@@ -2073,6 +2087,8 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
             color.lighter(180);
         else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT)
             color.lighter(180);
+        if (index == THEME_DEFAULT_MARQUEE_FILL_COLOR)
+            color.setAlpha(64);
     }
     return color;
 }

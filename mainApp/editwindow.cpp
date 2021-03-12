@@ -197,7 +197,7 @@ void EditWindow::previewLine()
     QString partType     = partKeys.at(1);
 
     if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && !modelFileEdit()) {
-        gMainWindow->PreviewPiece(partType, colorCode);
+        gMainWindow->PreviewPiece(partType, colorCode, false);
         return;
     } else {
         lcPreview *Preview = new lcPreview();

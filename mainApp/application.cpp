@@ -22,13 +22,11 @@
 #include "lpub.h"
 #include "resolution.h"
 
-#include "lc_profile.h"
-#include "lc_application.h"
-#include "lc_mainwindow.h"
-
 #include "updatecheck.h"
-
 #include "QsLogDest.h"
+
+#include "lc_application.h"
+#include "lc_profile.h"
 
 #ifdef Q_OS_WIN
 
@@ -181,12 +179,6 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-#ifdef LC_USE_QOPENGLWIDGET
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-#endif
-
-    //QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
-
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
     QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
@@ -262,6 +254,15 @@ void Application::setTheme(bool appStarted)
                   break;
               case LC_PROFILE_OVERLAY_COLOR:
                   lcGetPreferences().mOverlayColor = tc;
+                  break;
+              case LC_PROFILE_MARQUEE_BORDER_COLOR:
+                  lcGetPreferences().mMarqueeBorderColor = tc;
+                  break;
+              case LC_PROFILE_MARQUEE_FILL_COLOR:
+                  lcGetPreferences().mMarqueeFillColor = tc;
+                  break;
+              case LC_PROFILE_INACTIVE_VIEW_COLOR:
+                  lcGetPreferences().mInactiveViewColor = tc;
                   break;
               case LC_PROFILE_ACTIVE_VIEW_COLOR:
                   lcGetPreferences().mActiveViewColor = tc;
@@ -390,6 +391,17 @@ void Application::setTheme(bool appStarted)
   setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,
                       Preferences::themeColors[THEME_DARK_OVERLAY_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_OVERLAY_COLOR]);
+  setViewerThemeColor(LC_PROFILE_MARQUEE_BORDER_COLOR,
+                      Preferences::themeColors[THEME_DARK_MARQUEE_BORDER_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_MARQUEE_BORDER_COLOR]);
+
+  setViewerThemeColor(LC_PROFILE_MARQUEE_FILL_COLOR,
+                      Preferences::themeColors[THEME_DARK_MARQUEE_FILL_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_MARQUEE_FILL_COLOR]);
+
+  setViewerThemeColor(LC_PROFILE_INACTIVE_VIEW_COLOR,
+                      Preferences::themeColors[THEME_DARK_INACTIVE_VIEW_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_INACTIVE_VIEW_COLOR]);
   setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,
                       Preferences::themeColors[THEME_DARK_ACTIVE_VIEW_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_ACTIVE_VIEW_COLOR]);
@@ -997,11 +1009,11 @@ void Application::initialize()
 
     emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
-    if (gApplication->Initialize(LibraryPaths, gui)) {
-        gui->initialize();
-    } else {
+    if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
         emit gui->messageSig(LOG_ERROR, QString("Unable to initialize 3D Viewer."));
         throw InitException{};
+    } else {
+        gui->initialize();
     }
 }
 
@@ -1039,11 +1051,10 @@ void Application::mainApp()
 int Application::run()
 {
   int ExecReturn = EXIT_FAILURE;
+
   try
   {
       mainApp();
-
-//      emit gui->messageSig(LOG_INFO, QString("Run: Application ready."));
 
       if (modeGUI())
           ExecReturn = m_application.exec();
@@ -1071,8 +1082,7 @@ int Application::run()
 
   if (!m_print_output)
   {
-    delete gMainWindow;
-    gMainWindow = nullptr;
+    gApplication->Shutdown();
 
     delete gui;
     gui = nullptr;
@@ -1117,5 +1127,27 @@ void messageSig(LogType logType, QString message){
     gui->messageSig(logType, message);
 }
 
-// Implements the main function here.
-ENTRY_POINT
+int main(int argc, char** argv)
+{
+#ifdef LC_USE_QOPENGLWIDGET
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+#endif
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
+    QScopedPointer<Application> app(new Application(argc, argv));
+    try
+    {
+        app->initialize();
+    }
+    catch(const InitException &ex)
+    {
+       fprintf(stdout, "Could not initialize the application.");
+    }
+    catch(...)
+    {
+       fprintf(stdout, "A fatal error ocurred.");
+    }
+    return app->run();
+}

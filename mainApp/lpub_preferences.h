@@ -354,7 +354,7 @@ class Preferences
     static bool    missingRendererLibs;
 #endif
 
-    static int     cameraDistFactorNative;
+    static int     nativeImageCameraFoVAdjust;
     static int     fadeStepsOpacity;
     static int     checkUpdateFrequency;
     static int     pageWidth;

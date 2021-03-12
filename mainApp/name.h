@@ -368,6 +368,9 @@ enum ThemeColorType {
     THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM,              // "#313437"
     THEME_DEFAULT_AXES_COLOR,                                // "#000000"
     THEME_DEFAULT_OVERLAY_COLOR,                             // "#000000"
+    THEME_DEFAULT_MARQUEE_BORDER_COLOR,                      // "#4040FF"
+    THEME_DEFAULT_MARQUEE_FILL_COLOR  ,                      // "#4040FF"
+    THEME_DEFAULT_INACTIVE_VIEW_COLOR ,                      // "#454545"
     THEME_DEFAULT_ACTIVE_VIEW_COLOR,                         // "#FF0000"
     THEME_DEFAULT_GRID_STUD_COLOR,                           // "#404040"
     THEME_DEFAULT_GRID_LINE_COLOR,                           // "#000000"
@@ -507,6 +510,9 @@ enum ThemeColorType {
     THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM,                 // "#FFFFFF"
     THEME_DARK_AXES_COLOR,                                   // "#A0A0A0"
     THEME_DARK_OVERLAY_COLOR,                                // "#000000"
+    THEME_DARK_MARQUEE_BORDER_COLOR,                         // "#4040FF"
+    THEME_DARK_MARQUEE_FILL_COLOR  ,                         // "#4040FF"
+    THEME_DARK_INACTIVE_VIEW_COLOR ,                         // "#454545"
     THEME_DARK_ACTIVE_VIEW_COLOR,                            // "#2980B9"
     THEME_DARK_GRID_STUD_COLOR,                              // "#181818"
     THEME_DARK_GRID_LINE_COLOR,                              // "#181818"
@@ -700,7 +706,7 @@ enum ThemeColorType {
 #define TENTE_FADE_COLOUR_DEFAULT               "Light_Orange"
 #define VEXIQ_FADE_COLOUR_DEFAULT               "VEX_Sky_Blue"
 
-#define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   -260  // Native camera distance factor for A4 portrait; factor is about -450 for A4 landscape
+#define NATIVE_IMAGE_CAMERA_FOV_ADJUST         15    // Native camera fov adjustment for image generation
 
 #define POVRAY_RENDER_QUALITY_DEFAULT           0    // 0=High, 1-Medium, 2=Low
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds

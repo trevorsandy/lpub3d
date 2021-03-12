@@ -79,6 +79,9 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultViewerGradientColorBottom",            "#313437", "Viewer Gradient Bottom"                    }, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM                  49,  52,  55, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
     {"ThemeDefaultAxesColor",                            "#000000", "Viewer Axes"                               }, // THEME_DEFAULT_AXES_COLOR                                     0,   0,   0, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDefaultOverlayColor",                         "#000000", "Viewer Overlay"                            }, // THEME_DEFAULT_OVERLAY_COLOR                                  0,   0,   0, 255 LC_PROFILE_OVERLAY_COLOR
+    {"ThemeDefaultMarqueeBorderColor",                   "#4040FF", "Viewer Marquee Border"                     }, // THEME_DEFAULT_MARQUEE_BORDER_COLOR                          64,  64, 255, 255 LC_PROFILE_MARQUEE_BORDER_COLOR
+    {"ThemeDefaultMarqueeFillColor",                     "#4040FF", "Viewer Marquee Fill"                       }, // THEME_DEFAULT_MARQUEE_FILL_COLOR                            64,  64, 255,  64 LC_PROFILE_MARQUEE_FILL_COLOR
+    {"ThemeDefaultInactiveViewColor",                    "#454545", "Viewer Inactive View"                      }, // THEME_DEFAULT_INACTIVE_VIEW_COLOR                           69,  69,  69, 255 LC_PROFILE_INACTIVE_VIEW_COLOR
     {"ThemeDefaultActiveViewColor",                      "#FF0000", "Viewer Active View"                        }, // THEME_DEFAULT_ACTIVE_VIEW_COLOR                            255,   0,   0, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDefaultGridStudColor",                        "#404040", "Viewer Grid Stud"                          }, // THEME_DEFAULT_GRID_STUD_COLOR                               64,  64,  64, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDefaultGridLineColor",                        "#000000", "Viewer Grid Line"                          }, // THEME_DEFAULT_GRID_LINE_COLOR                                0,   0,   0, 255 LC_PROFILE_GRID_LINE_COLOR
@@ -218,6 +221,9 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkViewerGradientColorBottom",               "#FFFFFF", "Viewer Gradient Bottom"                    }, // THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM                    255, 255, 255, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
     {"ThemeDarkAxesColor",                               "#A0A0A0", "Viewer Axes"                               }, // THEME_DARK_AXES_COLOR                                      160, 160, 160, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDarkOverlayColor",                            "#E0E0E0", "Viewer Overlay"                            }, // THEME_DARK_OVERLAY_COLOR                                   224, 224, 224, 255 LC_PROFILE_OVERLAY_COLOR
+    {"ThemeDarkMarqueeBorderColor",                      "#4040FF", "Viewer Marquee Border"                     }, // THEME_DARK_MARQUEE_BORDER_COLOR                             64,  64, 255, 255 LC_PROFILE_MARQUEE_BORDER_COLOR
+    {"ThemeDarkMarqueeFillColor",                        "#4040FF", "Viewer Marquee Fill"                       }, // THEME_DARK_MARQUEE_FILL_COLOR                               64,  64, 255,  64 LC_PROFILE_MARQUEE_FILL_COLOR
+    {"ThemeDarkInactiveViewColor",                       "#454545", "Viewer Inactive View"                      }, // THEME_DARK_INACTIVE_VIEW_COLOR                              69,  69,  69, 255 LC_PROFILE_INACTIVE_VIEW_COLOR
     {"ThemeDarkActiveViewColor",                         "#2980B9", "Viewer Active View"                        }, // THEME_DARK_ACTIVE_VIEW_COLOR                                41, 128, 185, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDarkGridStudColor",                           "#181818", "Viewer Grid Stud (192 alpha)"              }, // THEME_DARK_GRID_STUD_COLOR                                  24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDarkGridLineColor",                           "#181818", "Viewer Grid Line"                          }, // THEME_DARK_GRID_LINE_COLOR                                  24,  24,  24, 255 LC_PROFILE_GRID_LINE_COLOR
@@ -468,7 +474,7 @@ int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
 int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
-int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
+int     Preferences::nativeImageCameraFoVAdjust = NATIVE_IMAGE_CAMERA_FOV_ADJUST;
 
 int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT;
 
@@ -2323,11 +2329,12 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
-    // Native renderer camera distance factor - Do not add Settings if not exist
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"))) {
-        cameraDistFactorNative = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
+    // Native camera fov adjustment for image generation
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"))) {
+        nativeImageCameraFoVAdjust = NATIVE_IMAGE_CAMERA_FOV_ADJUST;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
     } else {
-        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative")).toInt();
+        nativeImageCameraFoVAdjust = Settings.value(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust")).toInt();
     }
 
     // povray generation renderer

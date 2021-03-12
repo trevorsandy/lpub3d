@@ -24,6 +24,8 @@
 #include "QsLog.h"
 #include "name.h"
 
+#include "lc_global.h"
+
 #ifdef Q_OS_WIN
   #include <Windows.h>
 #endif
@@ -148,50 +150,6 @@ private:
     BOOL m_allocated_console;
 #endif
 };
-
-/// ENTRY_POINT is a macro that implements the main function.
-#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-#define ENTRY_POINT \
-    int main(int argc, char** argv) \
-    { \
-        QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL); \
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); \
-        QScopedPointer<Application> app(new Application(argc, argv)); \
-        try \
-        { \
-            app->initialize(); \
-        } \
-        catch(const InitException &ex) \
-        { \
-           fprintf(stdout, "Could not initialize the application."); \
-        } \
-        catch(...) \
-        { \
-           fprintf(stdout, "A fatal error ocurred."); \
-        } \
-        return app->run(); \
-    }
-#else
-#define ENTRY_POINT \
-    int main(int argc, char** argv) \
-    { \
-        QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL); \
-        QScopedPointer<Application> app(new Application(argc, argv)); \
-        try \
-        { \
-            app->initialize(); \
-        } \
-        catch(const InitException &ex) \
-        { \
-           fprintf(stdout, "Could not initialize the application."); \
-        } \
-        catch(...) \
-        { \
-           fprintf(stdout, "A fatal error ocurred."); \
-        } \
-        return app->run(); \
-    }
-#endif
 
 void clearCustomPartCache(bool silent = false);
 void clearAndReloadModelFileFromSettings();

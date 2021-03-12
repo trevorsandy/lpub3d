@@ -2603,7 +2603,6 @@ int Native::renderCsi(
   int                nType)
 {
   QString ldrName     = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-  float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
 
   // process native settings
   int studLogo         = meta.LPub.assem.studLogo.value();
@@ -2667,7 +2666,7 @@ int Native::renderCsi(
   Options->InputFileName     = ldrName;
   Options->IsOrtho           = isOrtho;
   Options->Latitude          = noCA ? 0.0 : cameraAngleX;
-  Options->LineWidth         = lineThickness;
+  Options->LineWidth         = gui->GetPreferences().mLineWidth;
   Options->Longitude         = noCA ? 0.0 : cameraAngleY;
   Options->ModelScale        = modelScale;
   Options->OutputFileName    = pngName;
@@ -2860,7 +2859,7 @@ int Native::renderPli(
   Options->InputFileName  = ldrNames.first();
   Options->IsOrtho        = isOrtho;
   Options->Latitude       = noCA ? 0.0 : cameraAngleX;
-  Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  Options->LineWidth      = gui->GetPreferences().mLineWidth;;
   Options->Longitude      = noCA ? 0.0 : cameraAngleY;
   Options->ModelScale     = modelScale;
   Options->OutputFileName = pngName;
@@ -2929,12 +2928,14 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
+    lcCamera* Camera = nullptr;
+
+    bool ZoomExtents    = O->ZoomExtents;
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
-    bool ZoomExtents    = O->ZoomExtents; // was !RenderImage && IsOrtho;
     bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
+    bool SetTarget      = O->Target.isPopulated();
 
-    lcCamera* Camera = nullptr;
     if (DefaultCamera)
         Camera = ActiveView->GetCamera();
     else
@@ -2942,7 +2943,11 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
-        ActiveView->SetViewpoint(lcViewpoint(gui->GetPreferences().mNativeViewpoint));
+        lcViewpoint Viewpoint = lcViewpoint(gui->GetPreferences().mNativeViewpoint);
+        if (!RenderImage)
+            ActiveView->SetViewpoint(Viewpoint);
+        else
+            Camera->SetViewpoint(Viewpoint);
 
     } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
         if (Preferences::usingNativeRenderer)
@@ -2950,7 +2955,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         else
             Camera->m_fovy = O->FoV + Camera->m_fovy - gui->getDefaultCameraFoV();
 
-        bool SetTarget = O->Target.isPopulated();
         if (SetTarget) {
             if (Camera->m_zNear != O->ZNear)
                 Camera->m_zNear = O->ZNear;
@@ -2971,108 +2975,63 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         Camera->UpdatePosition(1);
 
         if (!DefaultCamera) {
-            bool RemovedCamera = false;
             for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
                 QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
                 if (Name == O->CameraName) {
-                    RemovedCamera = true;
                     ActiveModel->RemoveCameraIndex(CameraIdx);
+                    QStringList keys = gui->getViewerStepKeys(true/*Name*/,O->ImageType, O->ViewerStepKey);
+                    QString step;
+                    if (keys.size() >= 3)
+                        step = QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0));
+                    emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.").arg(O->CameraName).arg(step));
                 }
                 else
                     CameraIdx++;
             }
 
-            Camera->SetName(O->CameraName); // Camera->CreateName(ActiveModel->GetCameras());
+            Camera->SetName(O->CameraName);
             Camera->SetSelected(true);
+
             ActiveModel->AddCamera(Camera);
-            // QString CameraName = QString("Camera %1").arg(ActiveModel->GetCameras().GetSize());
             ActiveView->SetCamera(O->CameraName);
-
-            if (RemovedCamera) {
-                QStringList keys = gui->getViewerStepKeys(true/*Name*/,O->ImageType, O->ViewerStepKey);
-                QString step;
-                if (keys.size() >= 3)
-                    step = QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0));
-                emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.").arg(O->CameraName).arg(step));
-            }
         }
 
-        if (!SetTarget)
-            ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
-
-        ActiveView->SetProjection(IsOrtho);
-    }
-
-    if (Preferences::debugLogging){
-        QStringList arguments;
-        if (RenderImage) {
-            arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
-            arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
-            arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
-            arguments << (O->ImageFileName.isEmpty()   ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
-            arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
-            arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]));
-            arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1").arg(O->ExportArgs.join(" ")));
-            arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
-            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
-            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
-        } else {
-            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
-            if (O->RotStep.isPopulated())
-                arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+        if (!RenderImage) {
+            if (!SetTarget)
+                ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
+            ActiveView->SetProjection(IsOrtho);
         }
-        arguments << QString("StudLogo: %1").arg(O->StudLogo == 0 ? "None (0)" : O->StudLogo == 1 ? "Single-Wire (1)" : O->StudLogo == 2 ? "Double-Wire (2)" : O->StudLogo == 3 ? "Raised-Flat (3)" : O->StudLogo == 4 ? "Raised-Rounded (4)" : "Subtle-Rounded (5)");
-        arguments << QString("Resolution: %1").arg(double(O->Resolution));
-        arguments << QString("ImageWidth: %1").arg(O->ImageWidth);
-        arguments << QString("ImageHeight: %1").arg(O->ImageHeight);
-        arguments << QString("PageWidth: %1").arg(O->PageWidth);
-        arguments << QString("PageHeight: %1").arg(O->PageHeight);
-        arguments << QString("CameraFoV: %1").arg(double(Camera->m_fovy));
-        arguments << QString("CameraZNear: %1").arg(double(Camera->m_zNear));
-        arguments << QString("CameraZFar: %1").arg(double(Camera->m_zFar));
-        arguments << QString("CameraDistance (Scale %1): %2").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
-        arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
-        arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
-        arguments << QString("UsingViewpoint: %1").arg(UsingViewpoint ? "True" : "False");
-        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
-        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
-        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
-        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
-        if (O->Position.isPopulated())
-            arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3)").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
-        if (O->UpVector.isPopulated())
-            arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
-        removeEmptyStrings(arguments);
-
-        QString message = QString("%1 %2 Arguments: %3")
-                                .arg(RenderImage ? "Native Renderer" : "3DViewer")
-                                .arg(O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::PLI ? "PLI" : "SMP")
-                                .arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message) << "\n";
-#else
-      emit gui->messageSig(LOG_INFO, message);
-      emit gui->messageSig(LOG_INFO, QString());
-#endif
     }
 
     bool rc = true;
 
+    bool UseImageSize = false;
+    int  ImageWidth   = 0;
+    int  ImageHeight  = 0;
+    QString ImageType = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+
     // generate image
     if (RenderImage) {
+        UseImageSize = O->ImageWidth != O->PageWidth || O->ImageHeight != O->PageHeight;
+        ImageWidth   = int(O->PageWidth);
+        ImageHeight  = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
 
-        const bool UseImageSize = O->ImageWidth != O->PageWidth || O->ImageHeight != O->PageHeight;
-        const int  ImageWidth   = int(O->PageWidth);
-        const int  ImageHeight  = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
-        QString    ImageType    = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+        Camera->m_fovy = Camera->m_fovy + Preferences::nativeImageCameraFoVAdjust;
+        if (Camera->IsSimple())
+            Camera->SetOrtho(IsOrtho);
+        else
+            ActiveModel->SetCameraOrthographic(Camera, IsOrtho);
 
         const lcStep CurrentStep = ActiveModel->GetCurrentStep();
-        const lcStep ImageStep         = ActiveModel->GetLastStep();
+        const lcStep ImageStep   = ActiveModel->GetLastStep();
 
         lcView View(lcViewType::View, ActiveModel);
-        View.SetCamera(Camera, false);
+        View.SetCamera(Camera, true);
 
-#ifndef LC_USE_QOPENGLWIDGET
+#ifdef LC_USE_QOPENGLWIDGET
+        View.SetOffscreenContext();
+        View.MakeCurrent();
+#else
         ActiveView->MakeCurrent();
         lcContext* Context = ActiveView->mContext;
         View.SetContext(Context);
@@ -3089,18 +3048,18 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
             ActiveModel->SetTemporaryStep(ImageStep);
 
-            if (ZoomExtents)
-                ActiveModel->ZoomExtents(Camera, float(ImageWidth) / float(ImageHeight));
+            if (!SetTarget)
+                View.SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
 
             View.OnDraw();
 
             Image.RenderedImage = View.GetRenderImage();
 
-            View.EndRenderToImage();
-
 #ifndef LC_USE_QOPENGLWIDGET
             Context->ClearResources();
 #endif
+
+            View.EndRenderToImage();
 
             ActiveModel->SetTemporaryStep(CurrentStep);
 
@@ -3175,8 +3134,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
 
         } else {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("BeginRenderToImage for Native %1 image returned code %2.<br>"
-                                                           "Render framebuffer is not valid").arg(ImageType).arg(rc));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("BeginRenderToImage for Native %1 image returned code %2").arg(ImageType).arg(rc));
         }
 
         if (O->ExportMode != EXPORT_NONE) {
@@ -3186,6 +3144,63 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             }
         }
     }
+
+    if (Preferences::debugLogging){
+        QStringList arguments;
+        if (RenderImage) {
+            arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
+            arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
+            arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
+            arguments << (O->ImageFileName.isEmpty()   ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
+            arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
+            arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]));
+            arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1").arg(O->ExportArgs.join(" ")));
+            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
+            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
+            arguments << QString("UseImageSize: %1").arg(UseImageSize ? "True" : "False");
+        } else {
+            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
+            if (O->RotStep.isPopulated())
+                arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+        }
+        arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
+        arguments << QString("StudLogo: %1").arg(O->StudLogo == 0 ? "None (0)" : O->StudLogo == 1 ? "Single-Wire (1)" : O->StudLogo == 2 ? "Double-Wire (2)" : O->StudLogo == 3 ? "Raised-Flat (3)" : O->StudLogo == 4 ? "Raised-Rounded (4)" : "Subtle-Rounded (5)");
+        arguments << QString("Resolution: %1").arg(double(O->Resolution));
+        arguments << QString("ImageWidth: %1").arg(RenderImage ? ImageWidth : O->ImageWidth);
+        arguments << QString("ImageHeight: %1").arg(RenderImage ? ImageHeight : O->ImageHeight);
+        arguments << QString("PageWidth: %1").arg(O->PageWidth);
+        arguments << QString("PageHeight: %1").arg(O->PageHeight);
+        arguments << QString("CameraFoV: %1").arg(double(Camera->m_fovy));
+        arguments << QString("CameraZNear: %1").arg(double(Camera->m_zNear));
+        arguments << QString("CameraZFar: %1").arg(double(Camera->m_zFar));
+        arguments << QString("CameraDistance (Scale %1): %2").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
+        arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
+        arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
+        arguments << QString("UsingViewpoint: %1").arg(UsingViewpoint ? "True" : "False");
+        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
+        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
+        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
+        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
+        if (O->Position.isPopulated())
+            arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3)").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
+        if (O->UpVector.isPopulated())
+            arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
+        removeEmptyStrings(arguments);
+
+        QString message = QString("%1 %2 Arguments: %3")
+                                .arg(RenderImage ? "Native Renderer" : "3DViewer")
+                                .arg(ImageType)
+                                .arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message) << "\n";
+#else
+      emit gui->messageSig(LOG_INFO, message);
+      emit gui->messageSig(LOG_INFO, QString());
+#endif
+    }
+
+    if (!DefaultCamera)
+        delete Camera;
 
     if (ResetStudLogo)
         gui->SetStudLogo(gui->GetStudLogo(),false/*reload*/);

@@ -685,7 +685,7 @@ bool Gui::createPreviewWidget()
 void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QRect parentRect, QPoint position)
 {
     if (dockable) {
-        gMainWindow->PreviewPiece(partType, colorCode);
+        gMainWindow->PreviewPiece(partType, colorCode, false);
         return;
     } else {
         preview = new lcPreview();
@@ -2114,7 +2114,7 @@ void Gui::createBuildModification()
 
                 if (!Info->IsModel())
                 {
-                    lcMesh* Mesh = Info->IsTemporary() ? gPlaceholderMesh : Info->GetMesh();
+                    lcMesh* Mesh = Info->GetMesh();
 
                     if (Mesh && Mesh->mVertexCacheOffset == -1)
                         lcGetPiecesLibrary()->mBuffersDirty = true;
