@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 16, 2020
+#  Last Update: October 21, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -73,9 +73,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   # Create hash file
   cd $LP3D_DOWNLOAD_ASSETS
   file_DPkg=$(find ./ -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
-  file_Hash=${file_DPkg}.sha512
-  echo "Creating hash file failed for $file_DPkg..."
-  [ -n "$file_DPkg" ] && sha512sum "${file_DPkg}" > "${file_Hash}" || echo "ERROR - Creating hash file failed for $file_DPkg"
+  echo "Creating hash file for $file_DPkg..."
+  [ -n "$file_DPkg" ] && sha512sum "${file_DPkg}" > "${file_DPkg}.sha512" || echo "ERROR - Failed to create hash file ${file_DPkg}.sha512"
   cd $LP3D_BUILD_FOLDER
 
   # Set release or build Dropbox storage path
@@ -143,7 +142,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     # Perform GitHub upload
     file_DPkg=$(find $LP3D_DOWNLOAD_ASSETS/ -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     [ -f "${file_DPkg}" ] && bash upload.sh "${file_DPkg}" || echo "ERROR - ${file_DPkg} GitHub upload failed."
-    [ -f "${file_DPkg}" ] && bash upload.sh "${file_DPkg}.sha512"  || echo "ERROR - ${file_DPkg} GitHub upload failed."
+    [ -f "${file_DPkg}.sha512" ] && bash upload.sh "${file_DPkg}.sha512"  || echo "ERROR - ${file_DPkg}.sha512 GitHub upload failed."
   fi;
   
   # Upload Sourceforge.net build assets at each build for continuous and official deploy
