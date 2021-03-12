@@ -1026,6 +1026,8 @@ void lcApplication::ShowPreferencesDialog()
 			Dockable == lcPreviewPosition::Dockable);
 		//gMainWindow->TogglePreviewWidget(
 		//	Dockable == lcPreviewPosition::Dockable);
+
+	gMainWindow->GetPreviewWidget()->UpdatePreview();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preference refresh ***/
