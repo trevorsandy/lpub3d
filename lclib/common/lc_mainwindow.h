@@ -261,6 +261,11 @@ public:
 	}
 
 /*** LPub3D Mod - Expose dockwidgets toolbars and menus ***/
+	QMenu* GetTransformMenu() const
+	{
+		return mTransformMenu;
+	}
+
 	QMenu* GetSelectionModeMenu()
 	{
 		return mSelectionModeMenu;

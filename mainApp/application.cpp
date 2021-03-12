@@ -188,10 +188,7 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-  QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
-  QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 #ifdef Q_OS_WIN
-  // Set distribution type
   Preferences::setDistribution();
 #endif
   m_instance = this;
@@ -1118,9 +1115,9 @@ void messageSig(LogType logType, QString message)
 
 static void initializeSurfaceFormat(int argc, char* argv[])
 {
-    Application App(argc, argv);
-    lcApplication Viewer;
-    const lcCommandLineOptions Options = Viewer.ParseCommandLineOptions();
+    QCoreApplication CoreApp(argc, argv);
+
+    const lcCommandLineOptions Options = lcApplication::ParseCommandLineOptions();
 
     if (Options.ParseOK && Options.AASamples > 1)
     {
@@ -1132,6 +1129,10 @@ static void initializeSurfaceFormat(int argc, char* argv[])
 
 int main(int argc, char** argv)
 {
+    QCoreApplication::setOrganizationDomain(QLatin1String(VER_COMPANYDOMAIN_STR));
+    QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
+    QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
+
     initializeSurfaceFormat(argc, argv);
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);

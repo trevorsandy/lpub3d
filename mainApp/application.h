@@ -54,6 +54,8 @@ struct lcCommandLineOptions
     int ImageWidth;
     int ImageHeight;
     int AASamples;
+    lcShadingMode ShadingMode;
+    float LineWidth;
     lcStudStyle StudStyle;
     lcStep ImageStart;
     lcStep ImageEnd;

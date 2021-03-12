@@ -157,6 +157,10 @@ void Gui::create3DActions()
     defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
     connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
 
+    TransformAction = new QAction(tr("Transform"), this);
+    TransformAction->setStatusTip(tr("Transform Options"));
+    TransformAction->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+
     MoveAction = new QAction(tr("Movement Snap"), this);
     MoveAction->setStatusTip(tr("Snap translations to fixed intervals"));
     MoveAction->setIcon(QIcon(":/resources/edit_snap_move.png"));
@@ -297,6 +301,8 @@ void Gui::create3DMenus()
 
      gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setMenu(gMainWindow->GetSelectionModeMenu());
 
+     TransformAction->setMenu(gMainWindow->GetTransformMenu());
+
      SnapMenu = new QMenu(tr("Snap Menu"), this);
      SnapMenu->addAction(gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]);
      SnapMenu->addSeparator();
@@ -390,7 +396,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
      gMainWindow->GetToolsMenu()->addAction(viewpointGroupAct);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
+     gMainWindow->GetToolsMenu()->addAction(TransformAction);
      gMainWindow->GetToolsMenu()->addAction(MoveAction);
      gMainWindow->GetToolsMenu()->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
      ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
@@ -469,7 +475,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
     gMainWindow->GetToolsToolBar()->addAction(viewpointGroupAct);
     gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
+    gMainWindow->GetToolsToolBar()->addAction(TransformAction);
     gMainWindow->GetToolsToolBar()->addAction(MoveAction);
     gMainWindow->GetToolsToolBar()->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");

@@ -25,6 +25,7 @@
 #define VER_COMPILE_DATE_STR                DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME
 #define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_PATCH
 #define VER_PRODUCTNAME_STR                 "LPub3D"
+#define VER_COMPANYDOMAIN_STR               "LPub3D.org"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
 #define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
 #define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2021 by Trevor SANDY"

@@ -2069,6 +2069,7 @@ private:
   QMenu* SnapZMenu;
   QMenu* SnapMenu;
   QMenu* SnapAngleMenu;
+  QAction* TransformAction;
   QAction* MoveAction;
   QAction* AngleAction;
 
