@@ -10,11 +10,12 @@ class PieceInfo;
 class lcZipFile;
 class lcLibraryMeshData;
 
-enum lcZipFileType
+enum class lcZipFileType
 {
-	LC_ZIPFILE_OFFICIAL,
-	LC_ZIPFILE_UNOFFICIAL,
-	LC_NUM_ZIPFILES
+	Official,
+	Unofficial,
+	StudLogo,
+	Count
 };
 
 enum lcLibraryFolderType
@@ -26,9 +27,9 @@ enum lcLibraryFolderType
 
 enum class lcPrimitiveState
 {
-	NOT_LOADED,
-	LOADING,
-	LOADED
+	NotLoaded,
+	Loading,
+	Loaded
 };
 
 class lcLibraryPrimitive
@@ -42,7 +43,7 @@ public:
 
 		mZipFileType = ZipFileType;
 		mZipFileIndex = ZipFileIndex;
-		mState = lcPrimitiveState::NOT_LOADED;
+		mState = lcPrimitiveState::NotLoaded;
 		mStud = Stud;
 		mSubFile = SubFile;
 	}
@@ -55,7 +56,7 @@ public:
 
 	void Unload()
 	{
-		mState = lcPrimitiveState::NOT_LOADED;
+		mState = lcPrimitiveState::NotLoaded;
 		mMeshData.RemoveAll();
 	}
 
@@ -67,6 +68,24 @@ public:
 	bool mStud;
 	bool mSubFile;
 	lcLibraryMeshData mMeshData;
+};
+
+enum class lcLibrarySourceType
+{
+	Library,
+	StudLogo
+};
+
+struct lcLibrarySource
+{
+	~lcLibrarySource()
+	{
+		for (const auto& PrimitiveIt : Primitives)
+			delete PrimitiveIt.second;
+	}
+
+	lcLibrarySourceType Type;
+	std::map<std::string, lcLibraryPrimitive*> Primitives;
 };
 
 class lcPiecesLibrary : public QObject
@@ -126,17 +145,8 @@ public:
 	void GetPrimitiveFile(lcLibraryPrimitive* Primitive, std::function<void(lcFile& File)> Callback);
 	void GetPieceFile(const char* FileName, std::function<void(lcFile& File)> Callback);
 
-	bool IsPrimitive(const char* Name) const
-	{
-		return mPrimitives.find(Name) != mPrimitives.end();
-	}
-
-	lcLibraryPrimitive* FindPrimitive(const char* Name) const
-	{
-		const auto PrimitiveIt = mPrimitives.find(Name);
-		return PrimitiveIt != mPrimitives.end() ? PrimitiveIt->second : nullptr;
-	}
-
+	bool IsPrimitive(const char* Name) const;
+	lcLibraryPrimitive* FindPrimitive(const char* Name) const;
 	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
 
 	bool SupportsStudLogo() const;
@@ -149,7 +159,7 @@ public:
 
 	void SetOfficialPieces()
 	{
-		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
+		if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
 			mNumOfficialPieces = (int)mPieces.size();
 	}
 
@@ -163,7 +173,6 @@ public:
 	void UnloadUnusedParts();
 
 	std::map<std::string, PieceInfo*> mPieces;
-	std::map<std::string, lcLibraryPrimitive*> mPrimitives;
 	int mNumOfficialPieces;
 
 	std::vector<lcTexture*> mTextures;
@@ -193,7 +202,9 @@ protected:
 	bool ReadDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool WriteDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 
-	bool GetStudLogoFile(lcMemFile& PrimFile, int StudLogo, bool OpenStud);
+	void UpdateStudLogoSource();
+
+	std::vector<std::unique_ptr<lcLibrarySource>> mSources;
 
 	QMutex mLoadMutex;
 	QList<QFuture<void>> mLoadFutures;
@@ -206,7 +217,7 @@ protected:
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
-	std::unique_ptr<lcZipFile> mZipFiles[LC_NUM_ZIPFILES];
+	std::unique_ptr<lcZipFile> mZipFiles[static_cast<int>(lcZipFileType::Count)];
 	bool mHasUnofficial;
 	bool mCancelLoading;
 };

@@ -30,6 +30,7 @@ struct lcModelPartsEntry
 };
 
 class lcSynthInfo;
+enum class lcZipFileType;
 
 class PieceInfo
 {
@@ -117,7 +118,7 @@ public:
 		return mType != lcPieceInfoType::Part;
 	}
 
-	void SetZipFile(int ZipFileType, int ZipFileIndex)
+	void SetZipFile(lcZipFileType ZipFileType, int ZipFileIndex)
 	{
 		mZipFileType = ZipFileType;
 		mZipFileIndex = ZipFileIndex;
@@ -194,7 +195,7 @@ public:
 /*** LPub3D Mod 166 - part type check ***/
 	int m_iPartType;
 /*** LPub3D Mod end ***/
-	int mZipFileType;
+	lcZipFileType mZipFileType;
 	int mZipFileIndex;
 	lcPieceInfoState mState;
 	int mFolderType;
