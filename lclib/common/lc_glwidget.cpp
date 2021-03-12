@@ -2,10 +2,18 @@
 #include "lc_glwidget.h"
 #include "lc_application.h"
 #include "lc_context.h"
+#include "piece.h"
 #include "camera.h"
+#include "pieceinf.h"
 #include "texfont.h"
+#include "lc_model.h"
+#include "lc_scene.h"
+/*** LPub3D Mod - enable lights ***/
+#include "light.h"
+/*** LPub3D Mod end ***/
 
-lcGLWidget::lcGLWidget()
+lcGLWidget::lcGLWidget(lcModel* Model)
+	: mModel(Model), mScene(new lcScene())
 {
 	mContext = new lcContext();
 }
@@ -14,6 +22,22 @@ lcGLWidget::~lcGLWidget()
 {
 	if (mDeleteContext)
 		delete mContext;
+}
+
+lcModel* lcGLWidget::GetActiveModel() const
+{
+	return !mActiveSubmodelInstance ? mModel : mActiveSubmodelInstance->mPieceInfo->GetModel();
+}
+
+void lcGLWidget::SetMousePosition(int MouseX, int MouseY)
+{
+	mMouseX = MouseX;
+	mMouseY = MouseY;
+}
+
+void lcGLWidget::SetMouseModifiers(Qt::KeyboardModifiers MouseModifiers)
+{
+	mMouseModifiers = MouseModifiers;
 }
 
 void lcGLWidget::SetContext(lcContext* Context)
@@ -35,6 +59,66 @@ void lcGLWidget::Redraw()
 	mWidget->update();
 }
 
+lcCursor lcGLWidget::GetCursor() const
+{
+	if (mTrackButton != lcTrackButton::None)
+		return lcCursor::Hidden;
+
+	if (mTrackTool == lcTrackTool::Select)
+	{
+		if (mMouseModifiers & Qt::ControlModifier)
+			return lcCursor::SelectAdd;
+
+		if (mMouseModifiers & Qt::ShiftModifier)
+			return lcCursor::SelectRemove;
+	}
+
+	constexpr lcCursor CursorFromTrackTool[] =
+	{
+		lcCursor::Select,      // lcTrackTool::None
+		lcCursor::Brick,       // lcTrackTool::Insert
+		lcCursor::Light,       // lcTrackTool::PointLight
+		lcCursor::Sunlight,    // lcTrackTool::SunLight    /*** LPub3D Mod - enable lights ***/
+		lcCursor::Arealight,   // lcTrackTool::AreaLight   /*** LPub3D Mod - enable lights ***/
+		lcCursor::Spotlight,   // lcTrackTool::SpotLight
+		lcCursor::Camera,      // lcTrackTool::Camera
+		lcCursor::Select,      // lcTrackTool::Select
+		lcCursor::Move,        // lcTrackTool::MoveX
+		lcCursor::Move,        // lcTrackTool::MoveY
+		lcCursor::Move,        // lcTrackTool::MoveZ
+		lcCursor::Move,        // lcTrackTool::MoveXY
+		lcCursor::Move,        // lcTrackTool::MoveXZ
+		lcCursor::Move,        // lcTrackTool::MoveYZ
+		lcCursor::Move,        // lcTrackTool::MoveXYZ
+		lcCursor::Rotate,      // lcTrackTool::RotateX
+		lcCursor::Rotate,      // lcTrackTool::RotateY
+		lcCursor::Rotate,      // lcTrackTool::RotateZ
+		lcCursor::Rotate,      // lcTrackTool::RotateXY
+		lcCursor::Rotate,      // lcTrackTool::RotateXYZ
+		lcCursor::Move,        // lcTrackTool::ScalePlus
+		lcCursor::Move,        // lcTrackTool::ScaleMinus
+		lcCursor::Delete,      // lcTrackTool::Eraser
+		lcCursor::Paint,       // lcTrackTool::Paint
+		lcCursor::ColorPicker, // lcTrackTool::ColorPicker
+		lcCursor::Zoom,        // lcTrackTool::Zoom
+		lcCursor::Pan,         // lcTrackTool::Pan
+		lcCursor::RotateX,     // lcTrackTool::OrbitX
+		lcCursor::RotateY,     // lcTrackTool::OrbitY
+		lcCursor::RotateView,  // lcTrackTool::OrbitXY
+		lcCursor::Roll,        // lcTrackTool::Roll
+		lcCursor::ZoomRegion,  // lcTrackTool::ZoomRegion  /*** LPub3D Mod - Rotate Step ***/
+		lcCursor::RotateStep   // lcTrackTool::RotateStep
+		
+	};
+
+	LC_ARRAY_SIZE_CHECK(CursorFromTrackTool, lcTrackTool::Count);
+
+	if (mTrackTool >= lcTrackTool::None && mTrackTool < lcTrackTool::Count)
+		return CursorFromTrackTool[static_cast<int>(mTrackTool)];
+
+	return lcCursor::Select;
+}
+
 void lcGLWidget::SetCursor(lcCursor CursorType)
 {
 	if (mCursor == CursorType)
@@ -46,8 +130,9 @@ void lcGLWidget::SetCursor(lcCursor CursorType)
 		const char* Name;
 	};
 
-	const lcCursorInfo Cursors[] =
+	constexpr lcCursorInfo Cursors[] =
 	{
+		{  0,  0, "" },                                 // lcCursor::Hidden
 		{  0,  0, "" },                                 // lcCursor::Default
 		{  8,  3, ":/resources/cursor_insert" },        // lcCursor::Brick
 		{ 15, 15, ":/resources/cursor_light" },         // lcCursor::Light
@@ -73,21 +158,76 @@ void lcGLWidget::SetCursor(lcCursor CursorType)
 		{ 15, 15, ":/resources/cursor_select" }         // lcCursor::RotateStep /*** LPub3D Mod - rotate step ***/
 	};
 
-	static_assert(LC_ARRAY_COUNT(Cursors) == static_cast<int>(lcCursor::Count), "Array size mismatch");
+	LC_ARRAY_SIZE_CHECK(Cursors, lcCursor::Count);
 
-	QGLWidget* widget = (QGLWidget*)mWidget;
-
-	if (CursorType > lcCursor::Default && CursorType < lcCursor::Count)
+	if (CursorType == lcCursor::Hidden)
+	{
+		mWidget->setCursor(Qt::BlankCursor);
+		mCursor = CursorType;
+	}
+	else if (CursorType >= lcCursor::First && CursorType < lcCursor::Count)
 	{
 		const lcCursorInfo& Cursor = Cursors[static_cast<int>(CursorType)];
-		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));
+		mWidget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));
 		mCursor = CursorType;
 	}
 	else
 	{
-		widget->unsetCursor();
+		mWidget->unsetCursor();
 		mCursor = lcCursor::Default;
 	}
+}
+
+void lcGLWidget::UpdateCursor()
+{
+	SetCursor(GetCursor());
+}
+
+lcTool lcGLWidget::GetCurrentTool() const
+{
+	constexpr lcTool ToolFromTrackTool[] =
+	{
+		lcTool::Select,      // lcTrackTool::None
+		lcTool::Insert,      // lcTrackTool::Insert
+		lcTool::Light,       // lcTrackTool::PointLight
+		lcTool::SunLight,    // lcTrackTool::SunLight      /*** LPub3D Mod - enable lights ***/
+		lcTool::AreaLight,   // lcTrackTool::AreaLight     /*** LPub3D Mod - enable lights ***/
+		lcTool::SpotLight,   // lcTrackTool::SpotLight
+		lcTool::Camera,      // lcTrackTool::Camera
+		lcTool::Select,      // lcTrackTool::Select
+		lcTool::Move,        // lcTrackTool::MoveX
+		lcTool::Move,        // lcTrackTool::MoveY
+		lcTool::Move,        // lcTrackTool::MoveZ
+		lcTool::Move,        // lcTrackTool::MoveXY
+		lcTool::Move,        // lcTrackTool::MoveXZ
+		lcTool::Move,        // lcTrackTool::MoveYZ
+		lcTool::Move,        // lcTrackTool::MoveXYZ
+		lcTool::Rotate,      // lcTrackTool::RotateX
+		lcTool::Rotate,      // lcTrackTool::RotateY
+		lcTool::Rotate,      // lcTrackTool::RotateZ
+		lcTool::Rotate,      // lcTrackTool::RotateXY
+		lcTool::Rotate,      // lcTrackTool::RotateXYZ
+		lcTool::Move,        // lcTrackTool::ScalePlus
+		lcTool::Move,        // lcTrackTool::ScaleMinus
+		lcTool::Eraser,      // lcTrackTool::Eraser
+		lcTool::Paint,       // lcTrackTool::Paint
+		lcTool::ColorPicker, // lcTrackTool::ColorPicker
+		lcTool::Zoom,        // lcTrackTool::Zoom
+		lcTool::Pan,         // lcTrackTool::Pan
+		lcTool::RotateView,  // lcTrackTool::OrbitX
+		lcTool::RotateView,  // lcTrackTool::OrbitY
+		lcTool::RotateView,  // lcTrackTool::OrbitXY
+		lcTool::Roll,        // lcTrackTool::Roll
+		lcTool::ZoomRegion,  // lcTrackTool::ZoomRegion
+		lcTool::RotateStep   // lcTrackTool::RotateStep	   /*** LPub3D Mod - enable lights ***/	
+	};
+
+	LC_ARRAY_SIZE_CHECK(ToolFromTrackTool, lcTrackTool::Count);
+
+	if (mTrackTool >= lcTrackTool::None && mTrackTool < lcTrackTool::Count)
+		return ToolFromTrackTool[static_cast<int>(mTrackTool)];
+
+	return lcTool::Select;
 }
 
 lcMatrix44 lcGLWidget::GetProjectionMatrix() const
@@ -121,6 +261,120 @@ void lcGLWidget::UnprojectPoints(lcVector3* Points, int NumPoints) const
 {
 	int Viewport[4] = { 0, 0, mWidth, mHeight };
 	lcUnprojectPoints(Points, NumPoints, mCamera->mWorldView, GetProjectionMatrix(), Viewport);
+}
+
+void lcGLWidget::StartTracking(lcTrackButton TrackButton)
+{
+	mTrackButton = TrackButton;
+	mTrackUpdated = false;
+	mMouseDownX = mMouseX;
+	mMouseDownY = mMouseY;
+	lcTool Tool = GetCurrentTool();
+	lcModel* ActiveModel = GetActiveModel();
+
+	switch (Tool)
+	{
+		case lcTool::Insert:
+		case lcTool::Light:
+			break;
+
+/*** LPub3D Mod - enable lights ***/
+	case lcTool::SunLight:
+	case lcTool::AreaLight:
+/*** LPub3D Mod end ***/
+	case lcTool::SpotLight:
+		{
+			lcVector3 Position = GetCameraLightInsertPosition();
+			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
+/*** LPub3D Mod - enable lights ***/
+			int LightType =
+					Tool == lcTool::SunLight ? LC_SUNLIGHT
+											 : Tool == lcTool::SpotLight ? LC_SPOTLIGHT :
+																		   LC_AREALIGHT;
+			ActiveModel->BeginDirectionalLightTool(Position, Target, LightType);
+/*** LPub3D Mod end ***/
+		}
+		break;
+
+		case lcTool::Camera:
+		{
+			lcVector3 Position = GetCameraLightInsertPosition();
+			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
+			ActiveModel->BeginCameraTool(Position, Target);
+		}
+		break;
+
+		case lcTool::Select:
+/*** LPub3D Mod - Update Default Camera ***/
+		{
+			if (lcGetPreferences().mDefaultCameraProperties)
+			{
+				int Flags = 0;
+				lcArray<lcObject*> Selection;
+				lcObject* Focus = nullptr;
+
+				ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+				if (!Selection.GetSize() && !Focus)
+					ActiveModel->UpdateDefaultCamera(mCamera);
+			}
+		}
+/*** LPub3D Mod end ***/
+		break;
+
+		case lcTool::Move:
+		case lcTool::Rotate:
+			ActiveModel->BeginMouseTool();
+			break;
+
+		case lcTool::Eraser:
+		case lcTool::Paint:
+		case lcTool::ColorPicker:
+			break;
+
+		case lcTool::Zoom:
+		case lcTool::Pan:
+		case lcTool::RotateView:
+		case lcTool::Roll:
+			ActiveModel->BeginMouseTool();
+			break;
+
+		case lcTool::ZoomRegion:
+/*** LPub3D Mod - rotate step tool ***/
+		case lcTool::RotateStep:
+/*** LPub3D Mod end ***/
+		break;
+
+		case lcTool::Count:
+			break;
+	}
+
+	UpdateCursor();
+}
+
+lcVector3 lcGLWidget::GetCameraLightInsertPosition() const
+{
+	lcModel* ActiveModel = GetActiveModel();
+
+	std::array<lcVector3, 2> ClickPoints = { { lcVector3((float)mMouseX, (float)mMouseY, 0.0f), lcVector3((float)mMouseX, (float)mMouseY, 1.0f) } };
+	UnprojectPoints(ClickPoints.data(), 2);
+
+	if (ActiveModel != mModel)
+	{
+		lcMatrix44 InverseMatrix = lcMatrix44AffineInverse(mActiveSubmodelTransform);
+
+		for (lcVector3& Point : ClickPoints)
+			Point = lcMul31(Point, InverseMatrix);
+	}
+
+	lcVector3 Min, Max;
+	lcVector3 Center;
+
+	if (ActiveModel->GetPiecesBoundingBox(Min, Max))
+		Center = (Min + Max) / 2.0f;
+	else
+		Center = lcVector3(0.0f, 0.0f, 0.0f);
+
+	return lcRayPointClosestPoint(Center, ClickPoints[0], ClickPoints[1]);
 }
 
 void lcGLWidget::DrawBackground() const

@@ -306,12 +306,12 @@ void PieceInfo::AddRenderMesh(lcScene& Scene)
 }
 
 /*** LPub3D Mod - true fade ***/
-void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
+void PieceInfo::AddRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
 	if (mMesh || IsPlaceholder())
 /*** LPub3D Mod - true fade ***/	
-		Scene.AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
+		Scene->AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
 /*** LPub3D Mod end ***/
 
 	if (IsModel())

@@ -7,12 +7,20 @@
 class View;
 class lcPreviewWidget;
 
+enum class lcViewSphereLocation
+{
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
+};
+
 class lcViewSphere
 {
 public:
-	lcViewSphere(View *View);
+	lcViewSphere(View* View);
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcViewSphere(lcPreviewWidget* Preview, bool SubstitutePreview);
+	lcViewSphere(lcPreviewWidget* Preview, bool Substitute);
 /*** LPub3D Mod end ***/
 
 	void Draw();
@@ -25,19 +33,29 @@ public:
 	static void DestroyResources(lcContext* Context);
 
 protected:
+	void UpdateSettings();
 	lcMatrix44 GetViewMatrix() const;
 	lcMatrix44 GetProjectionMatrix() const;
 	std::bitset<6> GetIntersectionFlags(lcVector3& Intersection) const;
 
-	lcPreviewWidget* mPreview;
-	View* mView;
+	lcGLWidget* const mWidget = nullptr;
+	lcPreviewWidget* const mPreview = nullptr;
+	View* const mView = nullptr;
+	bool mIsPreview = false;
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	bool mIsSubstitute = false;
+/*** LPub3D Mod end ***/
+
+	int mSize = 1;
+	bool mEnabled = true;
+	lcViewSphereLocation mLocation = lcViewSphereLocation::TopRight;
+
+	int mMouseDownX = 0;
+	int mMouseDownY = 0;
+	bool mMouseDown = false;
+
 	lcVector3 mIntersection;
 	std::bitset<6> mIntersectionFlags;
-	int mViewSphereSize;
-	int mMouseDownX;
-	int mMouseDownY;
-	bool mMouseDown;
-	bool mIsPreview;
 
 	static lcTexture* mTexture;
 	static lcVertexBuffer mVertexBuffer;

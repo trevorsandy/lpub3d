@@ -35,31 +35,10 @@ protected:
 class lcPreviewWidget : public lcGLWidget
 {
 public:
-	enum class lcTrackButton
-	{
-		None,
-		Left,
-		Middle,
-		Right
-	};
-
-	enum lcTrackTool
-	{
-		LC_TRACKTOOL_NONE,
-		LC_TRACKTOOL_PAN,
-		LC_TRACKTOOL_ORBIT_XY,
-		LC_TRACKTOOL_COUNT
-	};
-
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcPreviewWidget(bool SubstitutePreview = false);
+	lcPreviewWidget(bool Substitute = false);
 /*** LPub3D Mod end ***/
 	~lcPreviewWidget();
-
-	lcTool GetTool() const
-	{
-		return mTool;
-	}
 
 	QString GetDescription() const
 	{
@@ -69,8 +48,6 @@ public:
 	void ClearPreview();
 	void UpdatePreview();
 	bool SetCurrentPiece(const QString& PartType, int ColorCode);
-	lcModel* GetActiveModel() const;
-	lcCursor GetCursor() const;
 	void SetCamera(lcCamera* Camera);
 	void SetDefaultCamera();
 	void ZoomExtents();
@@ -78,19 +55,13 @@ public:
 	// exclusively called from viewSphere
 	void SetViewpoint(const lcVector3& Position);
 	void StartOrbitTracking();
-	bool IsTracking() const
-	{
-		return mTrackButton != lcTrackButton::None;
-	}
 
 	bool IsModel() const
 	{
 		return mIsModel;
 	}
 	
-	void OnInitialUpdate() override;
 	void OnDraw() override;
-	void OnUpdateCursor() override;
 	void OnLeftButtonDown() override;
 	void OnLeftButtonUp() override;
 	void OnLeftButtonDoubleClick() override;
@@ -104,31 +75,15 @@ public:
 protected:
 	void DrawViewport();
 
-	lcTool GetCurrentTool() const;
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcTrackTool GetOverrideTrackTool(Qt::MouseButton Button) const;
-/*** LPub3D Mod end ***/
-	void StartTracking(lcTrackButton TrackButton);
 	void StopTracking(bool Accept);
 	void OnButtonDown(lcTrackButton TrackButton);
 
 	Project* mLoader;
-	lcModel* mModel;
 	lcViewSphere mViewSphere;
-
-	lcScene mScene;
-
-	lcTool mTool;
-	lcTrackButton mTrackButton;
-	lcTrackTool mTrackTool;
 
 	QString mDescription;
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	bool mIsSubPreview;
+	bool mIsSubstitute;
 /*** LPub3D Mod end ***/
 	bool mIsModel;
-	
-	bool mTrackUpdated;
-	int mMouseDownX;
-	int mMouseDownY;
 };

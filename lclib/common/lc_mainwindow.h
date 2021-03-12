@@ -407,7 +407,7 @@ public:
 	const QString GetPliIconsPath(QString &key);
 	const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Rotate Angles ***/
+ /*** LPub3D Mod - Rotate step angles ***/
 	void GetRotStepMetaAngles();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/

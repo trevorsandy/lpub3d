@@ -76,7 +76,7 @@ void lcModelTabWidget::ResetLayout()
 	TopWidget->deleteLater();
 
 	Widget->setFocus();
-	SetActiveView((View*)((lcQGLWidget*)Widget)->widget);
+	SetActiveView((View*)((lcQGLWidget*)Widget)->mWidget);
 }
 
 void lcModelTabWidget::Clear()
@@ -88,8 +88,8 @@ void lcModelTabWidget::Clear()
 	mViews.RemoveAll();
 	mActiveView = nullptr;
 	lcQGLWidget* Widget = (lcQGLWidget*)layout()->itemAt(0)->widget();
-	delete Widget->widget;
-	Widget->widget = nullptr;
+	delete Widget->mWidget;
+	Widget->mWidget = nullptr;
 }
 
 /*** LPub3D Mod - set lcMainWindow parent ***/
@@ -103,7 +103,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 /*** LPub3D Mod end ***/
 
 	mColorIndex = lcGetColorIndex(7);
-	mTool = LC_TOOL_SELECT;
+	mTool = lcTool::Select;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
 	mAngleSnapEnabled = true;
@@ -123,12 +123,14 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
-//TODO - Disable this
+/*** LPub3D Mod - disabled ***/
+/***
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		mRecentFiles[FileIdx] = lcGetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx));
+***/
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - gamepad connection moved to lcMainWindow::CreateWidgets() ***/
-
 /*** LPub3D Mod - status bar ***/
 	mLCStatusBar = new QStatusBar(this);
 /*** LPub3D Mod end ***/
@@ -145,10 +147,12 @@ lcMainWindow::~lcMainWindow()
 		mCurrentPieceInfo = nullptr;
 	}
 
-//TODO - Disable this
+/*** LPub3D Mod - disabled ***/
+/***
 	for (int FileIdx = 0; FileIdx < LC_MAX_RECENT_FILES; FileIdx++)
 		lcSetProfileString((LC_PROFILE_KEY)(LC_PROFILE_RECENT_FILE1 + FileIdx), mRecentFiles[FileIdx]);
-
+***/
+/*** LPub3D Mod end ***/
 	gMainWindow = nullptr;
 }
 
@@ -1324,81 +1328,81 @@ int lcMainWindow::GetImageType(){
 /*** LPub3D Mod - rotate step objects ***/
 void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 {
-  bool okToPropagate = false;
+	bool okToPropagate = false;
 
-  if (CommandId == LC_EDIT_TRANSFORM){
-	  QString TransformType = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
-							  (GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
-	  lcVector3 RotStepAngles = GetRotStepTransformAmount();
-	  okToPropagate = ((mExistingRotStep != RotStepAngles) ||
-					   (mRotStepTransform != TransformType));
-	  if (okToPropagate) {
-		  emit SetRotStepAngleX(RotStepAngles.x);
-		  emit SetRotStepAngleY(RotStepAngles.y);
-		  emit SetRotStepAngleZ(RotStepAngles.z);
-		  emit SetRotStepTransform(TransformType);
-		  mExistingRotStep = RotStepAngles;
-		  mRotStepTransform = TransformType;
-	  } else {
-		  emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
-										 .arg(QString::number(double(mExistingRotStep[0]), 'f', 2),
-											  QString::number(double(mExistingRotStep[1]), 'f', 2),
-											  QString::number(double(mExistingRotStep[2]), 'f', 2),
-											  QString::number(double(RotStepAngles[0]), 'f', 2),
-											  QString::number(double(RotStepAngles[1]), 'f', 2),
-											  QString::number(double(RotStepAngles[2]), 'f', 2))
-										  .arg(mRotStepTransform,TransformType));
-	  }
-  } else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
-	  okToPropagate = true;
-  }
+	if (CommandId == LC_EDIT_TRANSFORM){
+		QString TransformType = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
+								(GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
+		lcVector3 RotStepAngles = GetRotStepTransformAmount();
+		okToPropagate = ((mExistingRotStep != RotStepAngles) ||
+						 (mRotStepTransform != TransformType));
+		if (okToPropagate) {
+			emit SetRotStepAngleX(RotStepAngles.x);
+			emit SetRotStepAngleY(RotStepAngles.y);
+			emit SetRotStepAngleZ(RotStepAngles.z);
+			emit SetRotStepTransform(TransformType);
+			mExistingRotStep = RotStepAngles;
+			mRotStepTransform = TransformType;
+		} else {
+			emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
+								   .arg(QString::number(double(mExistingRotStep[0]), 'f', 2),
+								   QString::number(double(mExistingRotStep[1]), 'f', 2),
+					QString::number(double(mExistingRotStep[2]), 'f', 2),
+					QString::number(double(RotStepAngles[0]), 'f', 2),
+					QString::number(double(RotStepAngles[1]), 'f', 2),
+					QString::number(double(RotStepAngles[2]), 'f', 2))
+					.arg(mRotStepTransform,TransformType));
+		}
+	} else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
+		okToPropagate = true;
+	}
 
-  if (okToPropagate) {
-	  emit SetRotStepMeta();
-	  UpdateAllViews();
-  }
+	if (okToPropagate) {
+		emit SetRotStepMeta();
+		UpdateAllViews();
+	}
 }
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Rotate Step get rotate step angles ***/
+/*** LPub3D Mod - Rotate step angles ***/
 void lcMainWindow::GetRotStepMetaAngles()
 {
-  lcModel* mModel = lcGetActiveModel();
-  View* mView = GetActiveView();
+	lcModel* mModel = lcGetActiveModel();
+	View* mView = GetActiveView();
 
-  lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
+	lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
-  if (mView->mTrackButton != lcTrackButton::None)
+	if (mView->IsTracking())
 	{
-	  bool display = true;
-	  QVector<float> mExistingRotStep = GetRotStepMeta();
-	  lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
-	  switch (GetActiveView()->mTrackTool)
+		bool display = true;
+		QVector<float> mExistingRotStep = GetRotStepMeta();
+		lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
+		switch (mView->GetTrackTool())
 		{
-		case LC_TRACKTOOL_ROTATE_X:
-		  RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
-		  emit SetRotStepAngleX(RotStepAngles.x,display);
-		  qDebug() << "Rotate X: " << RotStepAngles.x;
-		  break;
-		case LC_TRACKTOOL_ROTATE_Y:
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-		  RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
-		  emit SetRotStepAngleZ(RotStepAngles.y,display);
-		  qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
-		  break;
-		case LC_TRACKTOOL_ROTATE_Z:
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
-		  RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
-		  emit SetRotStepAngleY(-RotStepAngles.z,display);
-		  qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
-		  break;
+		case lcTrackTool::RotateX:
+			RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
+			emit SetRotStepAngleX(RotStepAngles.x,display);
+			qDebug() << "Rotate X: " << RotStepAngles.x;
+			break;
+		case lcTrackTool::RotateY:
+			/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
+			RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
+			emit SetRotStepAngleZ(RotStepAngles.y,display);
+			qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
+			break;
+		case lcTrackTool::RotateZ:
+			/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
+			RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
+			emit SetRotStepAngleY(-RotStepAngles.z,display);
+			qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
+			break;
 		default:
-		  RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
-		  break;
+			RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
+			break;
 		};
-	  QString Transform = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
-						  (GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
-	  emit SetRotStepTransform(Transform,display);
+		QString Transform = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
+							(GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
+		emit SetRotStepTransform(Transform,display);
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1823,7 +1827,7 @@ QByteArray lcMainWindow::GetTabLayout()
 		{
 			if (Widget->metaObject() == &lcQGLWidget::staticMetaObject)
 			{
-				View* CurrentView = (View*)((lcQGLWidget*)Widget)->widget;
+				View* CurrentView = (View*)((lcQGLWidget*)Widget)->mWidget;
 
 				DataStream << (qint32)0;
 				DataStream << (qint32)(TabWidget->GetActiveView() == CurrentView ? 1 : 0);
@@ -1922,7 +1926,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				View* CurrentView = nullptr;
 
 				if (ParentWidget)
-					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->widget;
+					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->mWidget;
 
 				if (CameraType == 0)
 				{
@@ -1995,7 +1999,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 
 		if (ActiveWidget && TabWidget)
 		{
-			View* ActiveView = (View*)((lcQGLWidget*)ActiveWidget)->widget;
+			View* ActiveView = (View*)((lcQGLWidget*)ActiveWidget)->mWidget;
 			TabWidget->SetActiveView(ActiveView);
 		}
 	}
@@ -2072,9 +2076,9 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 
 		NewView = new View(Model);
 		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
-		ViewWidget->widget = NewView;
+		ViewWidget->mWidget = NewView;
 		NewView->mWidget = ViewWidget;
-		float Scale = ViewWidget->deviceScale();
+		float Scale = ViewWidget->GetDeviceScale();
 		NewView->mWidth = ViewWidget->width() * Scale;
 		NewView->mHeight = ViewWidget->height() * Scale;
 		AddView(NewView);
@@ -2163,7 +2167,7 @@ void lcMainWindow::SetTool(lcTool Tool)
 {
 	mTool = Tool;
 
-	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + mTool];
+	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + static_cast<int>(mTool)];
 
 	if (Action)
 		Action->setChecked(true);
@@ -2230,13 +2234,15 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 
 	mTransformType = TransformType;
 
-	const char* IconNames[static_cast<int>(lcTransformType::Count)] =
+	constexpr const char* IconNames[] =
 	{
 		":/resources/edit_transform_absolute_translation.png",
 		":/resources/edit_transform_relative_translation.png",
 		":/resources/edit_transform_absolute_rotation.png",
 		":/resources/edit_transform_relative_rotation.png"
 	};
+
+	LC_ARRAY_SIZE_CHECK(IconNames, lcTransformType::Count);
 
 	int TransformIndex = static_cast<int>(TransformType);
 	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION + TransformIndex]->setChecked(true);
@@ -2386,7 +2392,7 @@ void lcMainWindow::RemoveActiveView()
 	}
 
 	OtherWidget->setFocus();
-	SetActiveView((View*)((lcQGLWidget*)OtherWidget)->widget);
+	SetActiveView((View*)((lcQGLWidget*)OtherWidget)->mWidget);
 }
 
 void lcMainWindow::ResetViews()
@@ -2505,13 +2511,13 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	bool BuildModTool = false;
 	switch (Tool)
 	{
-	case LC_TOOL_SELECT:
-	case LC_TOOL_INSERT:
-	case LC_TOOL_MOVE:
-	case LC_TOOL_ROTATE:
-	case LC_TOOL_ERASER:
-	case LC_TOOL_PAINT:
-	case LC_TOOL_COLOR_PICKER:
+	case lcTool::Select:
+	case lcTool::Insert:
+	case lcTool::Move:
+	case lcTool::Rotate:
+	case lcTool::Eraser:
+	case lcTool::Paint:
+	case lcTool::ColorPicker:
 		BuildModTool = true;
 		break;
 	default:
@@ -2521,12 +2527,12 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	bool BuildModEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 	bool BuildModType = GetImageType() != Options::PLI;
 
-	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
+	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + static_cast<int>(Tool)];
 	if (Action && Action->isChecked()) {
 
 		if (ActiveModel) {
 			/*** LPub3D Mod - Select whole model if Rotate Tool selected and not build modification ***/
-			if (Tool == LC_TOOL_ROTATE && !BuildModEnabled) {
+			if (Tool == lcTool::Rotate && !BuildModEnabled) {
 
 				for (lcPiece* Piece : ActiveModel->GetPieces())
 					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
@@ -2664,7 +2670,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 		if (Focus && Focus->IsPiece())
 		{
 /*** LPub3D Mod - add transformation focus part message    ***/
-			QString focusPart = GetTool() == LC_TOOL_ROTATE ? ". Transform focus object: " : " -";
+			QString focusPart = GetTool() == lcTool::Rotate ? ". Transform focus object: " : " -";
 			Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
 /*** LPub3D Mod end ***/
 			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
@@ -3959,41 +3965,41 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_SELECT:
-		SetTool(LC_TOOL_SELECT);
+		SetTool(lcTool::Select);
 		break;
 
 	case LC_EDIT_ACTION_INSERT:
-		SetTool(LC_TOOL_INSERT);
+		SetTool(lcTool::Insert);
 		break;
 
 	case LC_EDIT_ACTION_LIGHT:
-		SetTool(LC_TOOL_LIGHT);
+		SetTool(lcTool::Light);
 		break;
 
 /*** LPub3D Mod - enable lights ***/
 		case LC_EDIT_ACTION_SUNLIGHT:
-		SetTool(LC_TOOL_SUNLIGHT);
+		SetTool(lcTool::SunLight);
 		break;
 
 	case LC_EDIT_ACTION_AREALIGHT:
-		SetTool(LC_TOOL_AREALIGHT);
+		SetTool(lcTool::AreaLight);
 		break;
 /*** LPub3D Mod end ***/
 
 	case LC_EDIT_ACTION_SPOTLIGHT:
-		SetTool(LC_TOOL_SPOTLIGHT);
+		SetTool(lcTool::SpotLight);
 		break;
 
 	case LC_EDIT_ACTION_CAMERA:
-		SetTool(LC_TOOL_CAMERA);
+		SetTool(lcTool::Camera);
 		break;
 
 	case LC_EDIT_ACTION_MOVE:
-		SetTool(LC_TOOL_MOVE);
+		SetTool(lcTool::Move);
 		break;
 
 	case LC_EDIT_ACTION_ROTATE:
-		SetTool(LC_TOOL_ROTATE);
+		SetTool(lcTool::Rotate);
 /*** LPub3D Mod - rotate step ***/
 		if (ActiveModel && !lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION))
 			ActiveModel->SelectAllPieces();
@@ -4001,40 +4007,40 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_ACTION_DELETE:
-		SetTool(LC_TOOL_ERASER);
+		SetTool(lcTool::Eraser);
 		break;
 
 	case LC_EDIT_ACTION_PAINT:
-		SetTool(LC_TOOL_PAINT);
+		SetTool(lcTool::Paint);
 		break;
 
 	case LC_EDIT_ACTION_COLOR_PICKER:
-		SetTool(LC_TOOL_COLOR_PICKER);
+		SetTool(lcTool::ColorPicker);
 		break;
 
 	case LC_EDIT_ACTION_ZOOM:
-		SetTool(LC_TOOL_ZOOM);
+		SetTool(lcTool::Zoom);
 		break;
 
 	case LC_EDIT_ACTION_ZOOM_REGION:
-		SetTool(LC_TOOL_ZOOM_REGION);
+		SetTool(lcTool::ZoomRegion);
 		break;
 
 	case LC_EDIT_ACTION_PAN:
-		SetTool(LC_TOOL_PAN);
+		SetTool(lcTool::Pan);
 		break;
 
 	case LC_EDIT_ACTION_ROTATE_VIEW:
-		SetTool(LC_TOOL_ROTATE_VIEW);
+		SetTool(lcTool::RotateView);
 		break;
 
 	case LC_EDIT_ACTION_ROLL:
-		SetTool(LC_TOOL_ROLL);
+		SetTool(lcTool::Roll);
 		break;
 
 /*** LPub3D Mod - rotate step objects ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
-		SetTool(LC_TOOL_ROTATESTEP);
+		SetTool(lcTool::RotateStep);
 		SetStepRotStepMeta(LC_EDIT_ACTION_ROTATESTEP);
 
 		break;

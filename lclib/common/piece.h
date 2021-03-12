@@ -444,8 +444,8 @@ public:
 	void RemoveKeyFrames() override;
 
 /*** LPub3D Mod - true fade ***/
-	void AddMainModelRenderMeshes(lcScene& Scene, bool Highlight, bool Fade, bool LPubFade = false) const;
-	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
+	void AddMainModelRenderMeshes(lcScene* Scene, bool Highlight, bool Fade, bool LPubFade = false) const;
+	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
 /*** LPub3D Mod end ***/
 	void SubmodelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const;
 

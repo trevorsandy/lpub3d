@@ -249,10 +249,12 @@ public:
 	{
 		if (mUndoHistory.empty())
 			SaveCheckpoint(QString());
+
 		if (!mIsPreview)
 			mSavedHistory = mUndoHistory[0];
 	}
 
+	void SetMinifig(const lcMinifig& Minifig);
 	void SetPreviewPiece(lcPiece* Piece)
 	{
 		AddPiece(Piece);
@@ -263,9 +265,9 @@ public:
 	void Paste();
 	void DuplicateSelectedPieces();
 
-	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
+	void GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
 /*** LPub3D Mod - true fade ***/	
-	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const;
+	void AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const;
 /*** LPub3D Mod end ***/
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
 	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
@@ -387,6 +389,8 @@ public:
 
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
+	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
+	void UpdateDefaultCamera(lcCamera* DefaultCamera);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
@@ -410,9 +414,6 @@ public:
 	void SetCameraZNear(lcCamera* Camera, float ZNear);
 	void SetCameraZFar(lcCamera* Camera, float ZFar);
 	void SetCameraName(lcCamera* Camera, const char* Name);
-/*** LPub3D Mod - Camera Globe ***/
-	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
 	void SetLightName(lcLight* Light, const char* Name);
 	void UpdateLight(lcLight* Light, const lcLightProps Props, int Property);

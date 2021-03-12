@@ -16,33 +16,48 @@ const float lcViewSphere::mRadius = 1.0f;
 const float lcViewSphere::mHighlightRadius = 0.35f;
 const int lcViewSphere::mSubdivisions = 7;
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
 lcViewSphere::lcViewSphere(View* View)
-	: mPreview(nullptr),
-	  mView(View),
-	  mIsPreview(false)
+	: mWidget(View), mPreview(nullptr), mView(View), mIsPreview(false), mIsSubstitute(false)
 {
-	mMouseDown = false;
+/*** LPub3D Mod end ***/
+	UpdateSettings();
 }
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-lcViewSphere::lcViewSphere(lcPreviewWidget* Preview, bool SubstitutePreview)
-	: mPreview(Preview),
-	  mView(nullptr),
-	  mIsPreview(true)
+lcViewSphere::lcViewSphere(lcPreviewWidget* Preview, bool Substitute)
+	: mWidget(Preview), mPreview(Preview), mView(nullptr), mIsPreview(true), mIsSubstitute(Substitute)
 {
-	mMouseDown = false;
-
-	// set size small for substitue part dialogue preview
-	if (SubstitutePreview && lcGetPreferences().mPreviewViewSphereSize != 50)
-		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize * 0.70;
-	else
-		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize;
-}
 /*** LPub3D Mod end ***/
+	UpdateSettings();
+}
+
+void lcViewSphere::UpdateSettings()
+{
+	const lcPreferences& Preferences = lcGetPreferences();
+
+	if (!mIsPreview)
+	{
+		mSize = Preferences.mViewSphereSize;
+		mEnabled = Preferences.mViewSphereEnabled;
+		mLocation = Preferences.mViewSphereLocation;
+	}
+	else
+	{
+/*** LPub3D Mod - preview widget for LPub3D ***/		
+		if (mIsSubstitute && Preferences.mPreviewViewSphereSize != 50)
+			mSize = Preferences.mPreviewViewSphereSize * 0.70;
+		else
+			mSize = Preferences.mPreviewViewSphereSize;
+/*** LPub3D Mod end ***/			
+		mEnabled = Preferences.mPreviewViewSphereEnabled;
+		mLocation = Preferences.mPreviewViewSphereLocation;
+	}
+}
 
 lcMatrix44 lcViewSphere::GetViewMatrix() const
 {
-	lcMatrix44 ViewMatrix = mIsPreview ? mPreview->GetCamera()->mWorldView : mView->GetCamera()->mWorldView;
+	lcMatrix44 ViewMatrix = mWidget->GetCamera()->mWorldView;
 	ViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 	return ViewMatrix;
 }
@@ -171,19 +186,17 @@ void lcViewSphere::DestroyResources(lcContext* Context)
 
 void lcViewSphere::Draw()
 {
-	const lcPreferences& Preferences = lcGetPreferences();
-	int ViewportSize = mIsPreview ? mViewSphereSize : Preferences.mViewSphereSize;
+	UpdateSettings();
 
-	if (ViewportSize == 0 || !Preferences.mViewSphereEnabled)
+	if (!mSize || !mEnabled)
 		return;
 
-	lcContext* Context = mIsPreview ? mPreview->mContext : mView->mContext;
-	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
-	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;
-	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
-
-	int Left = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
-	int Bottom = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
+	lcContext* Context = mWidget->mContext;
+	const int Width = mWidget->mWidth;
+	const int Height = mWidget->mHeight;
+	const int ViewportSize = mSize;
+	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
+	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
 	Context->SetViewport(Left, Bottom, ViewportSize, ViewportSize);
 
 	glDepthFunc(GL_ALWAYS);
@@ -225,6 +238,7 @@ void lcViewSphere::Draw()
 		HighlightPosition = lcVector4(lcNormalize(lcVector3(HighlightPosition)), mHighlightRadius);
 	}
 
+	const lcPreferences& Preferences = lcGetPreferences();
 	const lcVector4 TextColor = lcVector4FromColor(Preferences.mViewSphereTextColor);
 	const lcVector4 BackgroundColor = lcVector4FromColor(Preferences.mViewSphereColor);
 	const lcVector4 HighlightColor = lcVector4FromColor(Preferences.mViewSphereHighlightColor);
@@ -240,8 +254,7 @@ void lcViewSphere::Draw()
 
 bool lcViewSphere::OnLeftButtonDown()
 {
-	const lcPreferences& Preferences = lcGetPreferences();
-	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
+	if (!mSize || !mEnabled)
 		return false;
 
 	mIntersectionFlags = GetIntersectionFlags(mIntersection);
@@ -249,8 +262,8 @@ bool lcViewSphere::OnLeftButtonDown()
 	if (!mIntersectionFlags.any())
 		return false;
 
-	mMouseDownX = mIsPreview ? mPreview->mInputState.x : mView->mInputState.x;
-	mMouseDownY = mIsPreview ? mPreview->mInputState.y : mView->mInputState.y;
+	mMouseDownX = mWidget->GetMouseX();
+	mMouseDownY = mWidget->GetMouseY();
 	mMouseDown = true;
 
 	return true;
@@ -258,8 +271,7 @@ bool lcViewSphere::OnLeftButtonDown()
 
 bool lcViewSphere::OnLeftButtonUp()
 {
-	const lcPreferences& Preferences = lcGetPreferences();
-	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
+	if (!mSize || !mEnabled)
 		return false;
 
 	if (!mMouseDown)
@@ -287,8 +299,7 @@ bool lcViewSphere::OnLeftButtonUp()
 
 bool lcViewSphere::OnMouseMove()
 {
-	const lcPreferences& Preferences = lcGetPreferences();
-	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
+	if (!mSize || !mEnabled)
 		return false;
 
 	if (IsDragging())
@@ -298,7 +309,7 @@ bool lcViewSphere::OnMouseMove()
 		return true;
 	}
 
-	if (mIsPreview ? mPreview->IsTracking() : mView->IsTracking())
+	if (mWidget->IsTracking())
 		return false;
 
 	std::bitset<6> IntersectionFlags = GetIntersectionFlags(mIntersection);
@@ -306,7 +317,7 @@ bool lcViewSphere::OnMouseMove()
 	if (IntersectionFlags != mIntersectionFlags)
 	{
 		mIntersectionFlags = IntersectionFlags;
-		mIsPreview ? mPreview->Redraw() : mView->Redraw();
+		mWidget->Redraw();
 	}
 
 	return mIntersectionFlags.any();
@@ -314,23 +325,20 @@ bool lcViewSphere::OnMouseMove()
 
 bool lcViewSphere::IsDragging() const
 {
-	int InputStateX = mIsPreview ? mPreview->mInputState.x : mView->mInputState.x;
-	int InputStateY = mIsPreview ? mPreview->mInputState.y : mView->mInputState.y;
+	int InputStateX = mWidget->GetMouseX();
+	int InputStateY = mWidget->GetMouseY();
 	return mMouseDown && (qAbs(mMouseDownX - InputStateX) > 3 || qAbs(mMouseDownY - InputStateY) > 3);
 }
 
 std::bitset<6> lcViewSphere::GetIntersectionFlags(lcVector3& Intersection) const
 {
-	const lcPreferences& Preferences = lcGetPreferences();
-	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
-
-	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
-	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;
-	int ViewportSize = mIsPreview ? mViewSphereSize : Preferences.mViewSphereSize;
-	int Left = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
-	int Bottom = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
-	int x = (mIsPreview ? mPreview->mInputState.x : mView->mInputState.x) - Left;
-	int y = (mIsPreview ? mPreview->mInputState.y : mView->mInputState.y) - Bottom;
+	const int Width = mWidget->mWidth;
+	const int Height = mWidget->mHeight;
+	const int ViewportSize = mSize;
+	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
+	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
+	const int x = mWidget->GetMouseX() - Left;
+	const int y = mWidget->GetMouseY() - Bottom;
 	std::bitset<6> IntersectionFlags;
 
 	if (x < 0 || x > Width || y < 0 || y > Height)

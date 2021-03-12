@@ -1,9 +1,9 @@
 #include "lc_global.h"
+#include "minifig.h"
 #include "lc_colors.h"
-#include "lc_math.h"
 #include <string.h>
 #include <stdio.h>
-#include "minifig.h"
+#include "camera.h"
 #include "pieceinf.h"
 #include "project.h"
 #include "lc_model.h"
@@ -36,9 +36,13 @@ const char* MinifigWizard::mSectionNames[LC_MFW_NUMITEMS] =
 };
 
 MinifigWizard::MinifigWizard()
+	: lcGLWidget(nullptr)
 {
 	LoadSettings();
 	LoadTemplates();
+
+	mModel = new lcModel(QString(), false);
+	mCamera = new lcCamera(true);
 
 	mRotateX = 75.0f;
 	mRotateZ = 180.0f;
@@ -53,7 +57,10 @@ MinifigWizard::~MinifigWizard()
 
 	for (int i = 0; i < LC_MFW_NUMITEMS; i++)
 		if (mMinifig.Parts[i])
-			Library->ReleasePieceInfo(mMinifig.Parts[i]);
+			Library->ReleasePieceInfo(mMinifig.Parts[i]); // todo: don't call ReleasePieceInfo here because it may release textures and they need a GL context current
+
+	delete mModel;
+	delete mCamera;
 
 	SaveTemplates();
 }
@@ -95,7 +102,7 @@ void MinifigWizard::OnInitialUpdate()
 	MakeCurrent();
 	mContext->SetDefaultState();
 
-	static_assert(LC_ARRAY_COUNT(MinifigWizard::mSectionNames) == LC_MFW_NUMITEMS, "Array size mismatch.");
+	LC_ARRAY_SIZE_CHECK(MinifigWizard::mSectionNames, LC_MFW_NUMITEMS);
 
 	const int ColorCodes[LC_MFW_NUMITEMS] = { 4, 7, 14, 7, 1, 0, 7, 4, 4, 14, 14, 7, 7, 0, 0, 7, 7 };
 	const char* const Pieces[LC_MFW_NUMITEMS] = { "3624.dat", "", "3626bp01.dat", "", "973.dat", "3815.dat", "", "3819.dat", "3818.dat", "3820.dat", "3820.dat", "", "", "3817.dat", "3816.dat", "", "" };
@@ -329,10 +336,33 @@ void MinifigWizard::OnDraw()
 {
 	mContext->SetDefaultState();
 
-	const float Aspect = (float)mWidth/(float)mHeight;
 	mContext->SetViewport(0, 0, mWidth, mHeight);
 
 	DrawBackground();
+
+	// todo: temp viewport drawing code until this is merged with View
+	{
+		mContext->SetWorldMatrix(lcMatrix44Identity());
+		mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
+		mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
+
+		mContext->SetDepthWrite(false);
+		glDisable(GL_DEPTH_TEST);
+
+//		if (gMainWindow->GetActiveView() == this)
+		{
+			mContext->SetMaterial(lcMaterialType::UnlitColor);
+			mContext->SetColor(lcVector4FromColor(lcGetPreferences().mActiveViewColor));
+			float Verts[8] = { 0.0f, 0.0f, mWidth - 1.0f, 0.0f, mWidth - 1.0f, mHeight - 1.0f, 0.0f, mHeight - 1.0f };
+
+			mContext->SetVertexBufferPointer(Verts);
+			mContext->SetVertexFormatPosition(2);
+			mContext->DrawPrimitives(GL_LINE_LOOP, 0, 4);
+		}
+
+		mContext->SetDepthWrite(true);
+		glEnable(GL_DEPTH_TEST);
+	}
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
@@ -362,10 +392,11 @@ void MinifigWizard::OnDraw()
 	Eye = lcMul30(Eye, lcMatrix44RotationX(-mRotateX * LC_DTOR));
 	Eye = lcMul30(Eye, lcMatrix44RotationZ(-mRotateZ * LC_DTOR));
 
+	const float Aspect = (float)mWidth / (float)mHeight;
 	const lcMatrix44 Projection = lcMatrix44Perspective(30.0f, Aspect, 1.0f, 2500.0f);
 	mContext->SetProjectionMatrix(Projection);
 
-	lcMatrix44 ViewMatrix;
+	lcMatrix44& ViewMatrix = mCamera->mWorldView;
 
 	if (mAutoZoom)
 	{
@@ -389,17 +420,14 @@ void MinifigWizard::OnDraw()
 
 	Calculate();
 
-	lcScene Scene;
-	Scene.Begin(ViewMatrix);
-	Scene.SetAllowLOD(false);
+	mScene->Begin(ViewMatrix);
+	mScene->SetAllowLOD(false);
 
-	for (int PieceIdx = 0; PieceIdx < LC_MFW_NUMITEMS; PieceIdx++)
-		if (mMinifig.Parts[PieceIdx])
-			mMinifig.Parts[PieceIdx]->AddRenderMeshes(Scene, mMinifig.Matrices[PieceIdx], mMinifig.Colors[PieceIdx], lcRenderMeshState::Default, true);
+	mModel->GetScene(mScene.get(), mCamera, false, false);
 
-	Scene.End();
+	mScene->End();
 
-	Scene.Draw(mContext);
+	mScene->Draw(mContext);
 
 	mContext->ClearResources();
 }
@@ -408,8 +436,8 @@ void MinifigWizard::OnLeftButtonDown()
 {
 	if (mTracking == LC_TRACK_NONE)
 	{
-		mDownX = mInputState.x;
-		mDownY = mInputState.y;
+		mDownX = mMouseX;
+		mDownY = mMouseY;
 		mTracking = LC_TRACK_LEFT;
 	}
 }
@@ -430,8 +458,8 @@ void MinifigWizard::OnRightButtonDown()
 {
 	if (mTracking == LC_TRACK_NONE)
 	{
-		mDownX = mInputState.x;
-		mDownY = mInputState.y;
+		mDownX = mMouseX;
+		mDownY = mMouseY;
 		mTracking = LC_TRACK_RIGHT;
 	}
 }
@@ -447,30 +475,30 @@ void MinifigWizard::OnMouseMove()
 	if (mTracking == LC_TRACK_LEFT)
 	{
 		// Rotate.
-		mRotateZ += mInputState.x - mDownX;
-		mRotateX += mInputState.y - mDownY;
+		mRotateZ += mMouseX - mDownX;
+		mRotateX += mMouseY - mDownY;
 
 		if (mRotateX > 179.5f)
 			mRotateX = 179.5f;
 		else if (mRotateX < 0.5f)
 			mRotateX = 0.5f;
 
-		mDownX = mInputState.x;
-		mDownY = mInputState.y;
+		mDownX = mMouseX;
+		mDownY = mMouseY;
 
 		Redraw();
 	}
 	else if (mTracking == LC_TRACK_RIGHT)
 	{
 		// Zoom.
-		mDistance += (float)(mDownY - mInputState.y) * 0.2f;
+		mDistance += (float)(mDownY - mMouseY) * 0.2f;
 		mAutoZoom = false;
 
 		if (mDistance < 0.5f)
 			mDistance = 0.5f;
 
-		mDownX = mInputState.x;
-		mDownY = mInputState.y;
+		mDownX = mMouseX;
+		mDownY = mMouseY;
 
 		Redraw();
 	}
@@ -643,6 +671,8 @@ void MinifigWizard::Calculate()
 		Mat.SetTranslation(lcMul31(Center, Mat2));
 		Matrices[LC_MFW_LLEGA] = lcMul(Mat, Matrices[LC_MFW_LLEG]);
 	}
+
+	mModel->SetMinifig(mMinifig);
 }
 
 int MinifigWizard::GetSelectionIndex(int Type) const

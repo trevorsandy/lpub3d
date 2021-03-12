@@ -1,8 +1,5 @@
 #include "lc_global.h"
 #include "lc_previewwidget.h"
-/*** LPub3D Mod - preview widget for LPub3D ***/
-#include "lc_shortcuts.h"
-/*** LPub3D Mod end ***/
 #include "pieceinf.h"
 #include "piece.h"
 #include "project.h"
@@ -97,19 +94,12 @@ void lcPreviewDockWidget::SetPreviewLock()
 }
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-lcPreviewWidget::lcPreviewWidget(bool SubstitutePreview)
-	: mLoader(new Project(true/*IsPreview*/)),
-	mViewSphere(this/*Preview*/,SubstitutePreview),
-	mIsSubPreview(SubstitutePreview)
+lcPreviewWidget::lcPreviewWidget(bool Substitute)
+	: lcGLWidget(nullptr), mLoader(new Project(true/*IsPreview*/)), mViewSphere(this, Substitute), mIsSubstitute(Substitute)
 {
 /*** LPub3D Mod end ***/
-	mTool = LC_TOOL_SELECT;
-	mTrackTool = LC_TRACKTOOL_NONE;
-	mTrackButton = lcTrackButton::None;
-
 	mLoader->SetActiveModel(0);
 	mModel = mLoader->GetActiveModel();
-	mCamera = nullptr;
 
 	SetDefaultCamera();
 }
@@ -235,11 +225,6 @@ void lcPreviewWidget::SetCamera(lcCamera* Camera) // called by lcModel::DeleteMo
 	mCamera->CopyPosition(Camera);
 }
 
-lcModel* lcPreviewWidget::GetActiveModel() const
-{
-	return mModel;
-}
-
 void lcPreviewWidget::ZoomExtents()
 {
 	lcModel* ActiveModel = GetActiveModel();
@@ -252,9 +237,9 @@ void lcPreviewWidget::ZoomExtents()
 
 void lcPreviewWidget::StartOrbitTracking() // called by viewSphere
 {
-	mTrackTool = LC_TRACKTOOL_ORBIT_XY;
+	mTrackTool = lcTrackTool::OrbitXY;
 
-	OnUpdateCursor();
+	UpdateCursor();
 
 	OnButtonDown(lcTrackButton::Left);
 }
@@ -300,146 +285,54 @@ void lcPreviewWidget::DrawViewport()
 	glEnable(GL_DEPTH_TEST);
 }
 
-lcTool lcPreviewWidget::GetCurrentTool() const
-{
-	const lcTool ToolFromTrackTool[] =
-	{
-		LC_TOOL_SELECT,             // LC_TRACKTOOL_NONE
-		LC_TOOL_PAN,                // LC_TRACKTOOL_PAN
-		LC_TOOL_ROTATE_VIEW,        // LC_TRACKTOOL_ORBIT_XY
-	};
-
-	return ToolFromTrackTool[mTrackTool];
-}
-
-void lcPreviewWidget::StartTracking(lcTrackButton TrackButton)
-{
-	mTrackButton = TrackButton;
-	mTrackUpdated = false;
-	mMouseDownX = mInputState.x;
-	mMouseDownY = mInputState.y;
-	lcTool Tool = GetCurrentTool();  // Either LC_TRACKTOOL_NONE (LC_TOOL_SELECT) or LC_TRACKTOOL_ORBIT_XY (LC_TOOL_ROTATE_VIEW)
-	lcModel* ActiveModel = GetActiveModel();
-
-	switch (Tool)
-	{
-		case LC_TOOL_SELECT:
-			break;
-
-		case LC_TOOL_PAN:
-		case LC_TOOL_ROTATE_VIEW:
-			ActiveModel->BeginMouseTool();
-			break;
-
-		case LC_NUM_TOOLS:
-		default:
-			break;
-	}
-
-	OnUpdateCursor();
-}
-
-/*** LPub3D Mod - preview widget for LPub3D ***/
-lcPreviewWidget::lcTrackTool lcPreviewWidget::GetOverrideTrackTool(Qt::MouseButton Button) const
-{
-	lcTool OverrideTool = gMouseShortcuts.GetTool(Button, mInputState.Modifiers);
-
-	switch (OverrideTool)
-	{
-		case LC_NUM_TOOLS:         // Left Mouse Button
-			OverrideTool = lcTool(LC_TRACKTOOL_ORBIT_XY);
-			break;
-		case LC_TOOL_ROTATE_VIEW:  // Right Mouse Button
-			OverrideTool = lcTool(LC_TRACKTOOL_PAN);
-			break;
-		default:
-			OverrideTool = lcTool(LC_TRACKTOOL_NONE);
-			break;
-	}
-
-	lcPreviewWidget::lcTrackTool TrackToolFromTool[LC_NUM_TOOLS] =
-	{
-		LC_TRACKTOOL_NONE,         // LC_TOOL_SELECT
-		LC_TRACKTOOL_PAN,          // LC_TOOL_PAN
-		LC_TRACKTOOL_ORBIT_XY      // LC_TOOL_ROTATE_VIEW
-	};
-
-	return TrackToolFromTool[OverrideTool];
-}
-/*** LPub3D Mod end ***/
-
 void lcPreviewWidget::StopTracking(bool Accept)
 {
 	if (mTrackButton == lcTrackButton::None)
 		return;
 
-	lcTool Tool = GetCurrentTool();  // Either LC_TRACKTOOL_NONE (LC_TOOL_SELECT) or LC_TRACKTOOL_ORBIT_XY (LC_TOOL_ROTATE_VIEW)
+	lcTool Tool = GetCurrentTool();
 	lcModel* ActiveModel = GetActiveModel();
 
 	switch (Tool)
 	{
-		case LC_TOOL_SELECT:
+		case lcTool::Select:
 			break;
 
-		case LC_TOOL_PAN:
-		case LC_TOOL_ROTATE_VIEW:
+		case lcTool::Pan:
+		case lcTool::RotateView:
 			ActiveModel->EndMouseTool(Tool, Accept);
 			break;
 
-		case LC_NUM_TOOLS:
+		case lcTool::Count:
 		default:
 			break;
 	}
 
 	mTrackButton = lcTrackButton::None;
 
-	mTrackTool = LC_TRACKTOOL_NONE;
+	mTrackTool = lcTrackTool::None;
 
-	OnUpdateCursor();
+	UpdateCursor();
 }
 
 void lcPreviewWidget::OnButtonDown(lcTrackButton TrackButton)
 {
 	switch (mTrackTool)
 	{
-		case LC_TRACKTOOL_NONE:
+		case lcTrackTool::None:
 			break;
 
-		case LC_TRACKTOOL_PAN:
+		case lcTrackTool::Pan:
 			StartTracking(TrackButton);
 			break;
 
-		case LC_TRACKTOOL_ORBIT_XY:
+		case lcTrackTool::OrbitXY:
 			StartTracking(TrackButton);
 			break;
 
-		case LC_TRACKTOOL_COUNT:
+		case lcTrackTool::Count:
 			break;
 	}
-}
-
-lcCursor lcPreviewWidget::GetCursor() const
-{
-	const lcCursor CursorFromTrackTool[] =
-	{
-		lcCursor::Select,           // LC_TRACKTOOL_NONE
-		lcCursor::Pan,              // LC_TRACKTOOL_PAN
-		lcCursor::RotateView,       // LC_TRACKTOOL_ORBIT_XY
-	};
-
-	static_assert(LC_ARRAY_COUNT(CursorFromTrackTool) == LC_TRACKTOOL_COUNT, "Tracktool array size mismatch.");
-
-	if (mTrackTool >= 0 && mTrackTool < LC_ARRAY_COUNT(CursorFromTrackTool))
-		return CursorFromTrackTool[mTrackTool];
-
-	return lcCursor::Select;
-}
-
-void lcPreviewWidget::OnInitialUpdate()
-{
-	MakeCurrent();
-
-	mContext->SetDefaultState();
 }
 
 void lcPreviewWidget::OnDraw()
@@ -450,16 +343,16 @@ void lcPreviewWidget::OnDraw()
 	lcPreferences& Preferences = lcGetPreferences();
 	const bool DrawInterface = mWidget != nullptr;
 
-	mScene.SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
-	mScene.SetLODDistance(Preferences.mMeshLODDistance);
+	mScene->SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
+	mScene->SetLODDistance(Preferences.mMeshLODDistance);
 
-	mScene.Begin(mCamera->mWorldView);
+	mScene->Begin(mCamera->mWorldView);
 
-	mScene.SetDrawInterface(DrawInterface);
+	mScene->SetDrawInterface(DrawInterface);
 
-	mModel->GetScene(mScene, mCamera, false /*HighlightNewParts*/, false/*mFadeSteps*/);
+	mModel->GetScene(mScene.get(), mCamera, false /*HighlightNewParts*/, false/*mFadeSteps*/);
 
-	mScene.End();
+	mScene->End();
 
 	mContext->SetDefaultState();
 
@@ -471,18 +364,18 @@ void lcPreviewWidget::OnDraw()
 
 	mContext->SetLineWidth(Preferences.mLineWidth);
 
-	mScene.Draw(mContext);
+	mScene->Draw(mContext);
 
 	if (DrawInterface)
 	{
 		mContext->SetLineWidth(1.0f);
 /*** LPub3D Mod - preview widget for LPub3D ***/
-		if (Preferences.mDrawPreviewAxis && !mIsSubPreview)
+		if (Preferences.mDrawPreviewAxis && !mIsSubstitute)
 			DrawAxes();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-		if (Preferences.mDrawPreviewViewSphere && !mIsSubPreview)
+		if (Preferences.mDrawPreviewViewSphere && !mIsSubstitute)
 			mViewSphere.Draw();
 /*** LPub3D Mod end ***/
 
@@ -490,11 +383,6 @@ void lcPreviewWidget::OnDraw()
 	}
 
 	mContext->ClearResources();
-}
-
-void lcPreviewWidget::OnUpdateCursor()
-{
-	SetCursor(GetCursor());
 }
 
 void lcPreviewWidget::OnLeftButtonDown()
@@ -508,14 +396,12 @@ void lcPreviewWidget::OnLeftButtonDown()
 	if (mViewSphere.OnLeftButtonDown())
 		return;
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::LeftButton); // Default is LC_TRACKTOOL_ORBIT_XY;
-/*** LPub3D Mod end ***/
+	lcTrackTool OverrideTool = lcTrackTool::OrbitXY;
 
-	if (OverrideTool != LC_TRACKTOOL_NONE)
+	if (OverrideTool != lcTrackTool::None)
 	{
 		mTrackTool = OverrideTool;
-		OnUpdateCursor();
+		UpdateCursor();
 	}
 
 	OnButtonDown(lcTrackButton::Left);
@@ -540,14 +426,12 @@ void lcPreviewWidget::OnMiddleButtonDown()
 	}
 
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::MiddleButton); // Default is LC_TRACKTOOL_NONE;
-/*** LPub3D Mod end ***/
+	lcTrackTool OverrideTool = lcTrackTool::None;
 
-	if (OverrideTool != LC_TRACKTOOL_NONE)
+	if (OverrideTool != lcTrackTool::None)
 	{
 		mTrackTool = OverrideTool;
-		OnUpdateCursor();
+		UpdateCursor();
 	}
 #endif
 	OnButtonDown(lcTrackButton::Middle);
@@ -572,17 +456,16 @@ void lcPreviewWidget::OnRightButtonDown()
 		return;
 	}
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::RightButton); // Default is LC_TRACKTOOL_PAN;
-/*** LPub3D Mod end ***/
+	lcTrackTool OverrideTool = lcTrackTool::Pan;
 
-	if (OverrideTool != LC_TRACKTOOL_NONE)
+	if (OverrideTool != lcTrackTool::None)
 	{
 		mTrackTool = OverrideTool;
-		OnUpdateCursor();
+		UpdateCursor();
 	}
-
-	OnButtonDown(lcTrackButton::Right);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	OnButtonDown(lcTrackButton::Right);  // Fix
+/*** LPub3D Mod end ***/	
 }
 
 void lcPreviewWidget::OnRightButtonUp()
@@ -602,12 +485,12 @@ void lcPreviewWidget::OnMouseMove()
 	{
 		if (mViewSphere.OnMouseMove())
 		{
-			lcTrackTool NewTrackTool = mViewSphere.IsDragging() ? LC_TRACKTOOL_ORBIT_XY : LC_TRACKTOOL_NONE;
+			lcTrackTool NewTrackTool = mViewSphere.IsDragging() ? lcTrackTool::OrbitXY : lcTrackTool::None;
 
 			if (NewTrackTool != mTrackTool)
 			{
 				mTrackTool = NewTrackTool;
-				OnUpdateCursor();
+				UpdateCursor();
 			}
 
 			return;
@@ -616,20 +499,19 @@ void lcPreviewWidget::OnMouseMove()
 		return;
 	}
 
-	mTrackUpdated = true;
 	const float MouseSensitivity = 0.5f / (21.0f - lcGetPreferences().mMouseSensitivity);
 
 	switch (mTrackTool)
 	{
-		case LC_TRACKTOOL_NONE:
+		case lcTrackTool::None:
 			break;
 
-		case LC_TRACKTOOL_PAN:
+		case lcTrackTool::Pan:
 		{
 			lcVector3 Points[4] =
 			{
-				lcVector3((float)mInputState.x, (float)mInputState.y, 0.0f),
-				lcVector3((float)mInputState.x, (float)mInputState.y, 1.0f),
+				lcVector3((float)mMouseX, (float)mMouseY, 0.0f),
+				lcVector3((float)mMouseX, (float)mMouseY, 1.0f),
 				lcVector3(mMouseDownX, mMouseDownY, 0.0f),
 				lcVector3(mMouseDownX, mMouseDownY, 1.0f)
 			};
@@ -660,18 +542,18 @@ void lcPreviewWidget::OnMouseMove()
 		}
 		break;
 
-		case LC_TRACKTOOL_ORBIT_XY:
-			ActiveModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mInputState.x - mMouseDownX), 0.1f * MouseSensitivity * (mInputState.y - mMouseDownY));
+		case lcTrackTool::OrbitXY:
+			ActiveModel->UpdateOrbitTool(mCamera, 0.1f * MouseSensitivity * (mMouseX - mMouseDownX), 0.1f * MouseSensitivity * (mMouseY - mMouseDownY));
 			Redraw();
 			break;
 
-		case LC_TRACKTOOL_COUNT:
+		case lcTrackTool::Count:
 			break;
 	}
 }
 
 void lcPreviewWidget::OnMouseWheel(float Direction)
 {
-	mModel->Zoom(mCamera, (int)(((mInputState.Modifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
+	mModel->Zoom(mCamera, (int)(((mMouseModifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
 	Redraw();
 }

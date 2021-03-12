@@ -4,6 +4,7 @@
 #include "image.h"
 #include "lc_model.h"
 #include "project.h"
+#include "lc_viewsphere.h"
 /*** LPub3D Mod - includes ***/
 #include "lpub_preferences.h"
 /*** LPub3D Mod end ***/

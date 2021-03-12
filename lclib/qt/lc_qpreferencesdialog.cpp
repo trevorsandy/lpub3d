@@ -1235,7 +1235,7 @@ void lcQPreferencesDialog::UpdateMouseTree()
 {
 	ui->mouseTree->clear();
 
-	for (int ToolIdx = 0; ToolIdx < LC_NUM_TOOLS; ToolIdx++)
+	for (int ToolIdx = 0; ToolIdx < static_cast<int>(lcTool::Count); ToolIdx++)
 		UpdateMouseTreeItem(ToolIdx);
 }
 
@@ -1320,7 +1320,7 @@ void lcQPreferencesDialog::on_mouseAssign_clicked()
 		if (ui->mouseAlt->isChecked())
 			Modifiers |= Qt::AltModifier;
 
-		for (int ToolIdx = 0; ToolIdx < LC_NUM_TOOLS; ToolIdx++)
+		for (int ToolIdx = 0; ToolIdx < static_cast<int>(lcTool::Count); ToolIdx++)
 		{
 			if (ToolIdx == ButtonIndex)
 				continue;

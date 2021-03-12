@@ -167,7 +167,7 @@ public:
 	void ZoomExtents(float FoV, float AspectRatio, lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix) const;
 	void AddRenderMesh(lcScene& Scene);
 /*** LPub3D Mod - true fade ***/	
-	void AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
+	void AddRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
 /*** LPub3D Mod end ***/
 
 	void CreatePlaceholder(const char* Name);

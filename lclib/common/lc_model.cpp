@@ -1338,9 +1338,10 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
+void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
 {
-	mPieceInfo->AddRenderMesh(Scene);
+	if (mPieceInfo)
+		mPieceInfo->AddRenderMesh(*Scene);
 
 	for (const lcPiece* Piece : mPieces)
 	{
@@ -1353,20 +1354,20 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight
 		}
 	}
 
-	if (Scene.GetDrawInterface() && !Scene.GetActiveSubmodelInstance())
+	if (Scene->GetDrawInterface() && !Scene->GetActiveSubmodelInstance())
 	{
 		for (lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
-				Scene.AddInterfaceObject(Camera);
+				Scene->AddInterfaceObject(Camera);
 
 		for (lcLight* Light : mLights)
 			if (Light->IsVisible())
-				Scene.AddInterfaceObject(Light);
+				Scene->AddInterfaceObject(Light);
 	}
 }
 
 /*** LPub3D Mod - true fade ***/
-void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
+void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
 	for (lcPiece* Piece : mPieces)
@@ -1526,7 +1527,7 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 		Scene.SetAllowLOD(false);
 		Scene.Begin(ViewMatrix);
 
-		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::Default, true);
+		Image.Info->AddRenderMeshes(&Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::Default, true);
 
 		Scene.End();
 
@@ -2604,6 +2605,11 @@ void lcModel::RenamePiece(PieceInfo* Info)
 }
 
 /*** LPub3D Mod - Camera Globe ***/
+void lcModel::UpdateDefaultCamera(lcCamera* DefaultCamera)
+{
+	gMainWindow->UpdateDefaultCamera(DefaultCamera);
+}
+
 void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
 {
 	if (ObjectDistance.LengthSquared() >= 0.001f)
@@ -2616,7 +2622,7 @@ void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistanc
 
 		gMainWindow->UpdateAllViews();
 		SaveCheckpoint(tr("MovingDefaultCamera"));
-		gMainWindow->UpdateDefaultCamera(Camera);
+		UpdateDefaultCamera(Camera);
 	}
 }
 /*** LPub3D Mod end ***/
@@ -4330,67 +4336,67 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 
 	switch (Tool)
 	{
-	case LC_TOOL_INSERT:
-	case LC_TOOL_LIGHT:
+	case lcTool::Insert:
+	case lcTool::Light:
 /*** LPub3D Mod - enable lights ***/
-	case LC_TOOL_AREALIGHT:
-	case LC_TOOL_SUNLIGHT:
+	case lcTool::SunLight:
+	case lcTool::AreaLight:
 /*** LPub3D Mod end ***/
 		break;
 
-	case LC_TOOL_SPOTLIGHT:
+	case lcTool::SpotLight:
 		SaveCheckpoint(tr("New SpotLight"));
 		break;
 
-	case LC_TOOL_CAMERA:
+	case lcTool::Camera:
 		if (!mIsPreview)
 			gMainWindow->UpdateCameraMenu();
 		SaveCheckpoint(tr("New Camera"));
 		break;
 
-	case LC_TOOL_SELECT:
+	case lcTool::Select:
 		break;
 
-	case LC_TOOL_MOVE:
+	case lcTool::Move:
 		SaveCheckpoint(tr("Move"));
 		break;
 
-	case LC_TOOL_ROTATE:
+	case lcTool::Rotate:
 		SaveCheckpoint(tr("Rotate"));
 		break;
 
-	case LC_TOOL_ERASER:
-	case LC_TOOL_PAINT:
-	case LC_TOOL_COLOR_PICKER:
+	case lcTool::Eraser:
+	case lcTool::Paint:
+	case lcTool::ColorPicker:
 		break;
 
-	case LC_TOOL_ZOOM:
+	case lcTool::Zoom:
 		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Zoom"));
 		break;
 
-	case LC_TOOL_PAN:
+	case lcTool::Pan:
 		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Pan"));
 		break;
 
-	case LC_TOOL_ROTATE_VIEW:
+	case lcTool::RotateView:
 		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Orbit"));
 		break;
 
-	case LC_TOOL_ROLL:
+	case lcTool::Roll:
 		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Roll"));
 		break;
 
-	case LC_TOOL_ZOOM_REGION:
+	case lcTool::ZoomRegion:
 /*** LPub3D Mod - set tool rotatestep ***/
-	case LC_TOOL_ROTATESTEP:
+	case lcTool::RotateStep:
 /*** LPub3D Mod end ***/
 		break;
 
-	case LC_NUM_TOOLS:
+	case lcTool::Count:
 		break;
 	}
 }
@@ -4434,12 +4440,10 @@ void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVecto
 				: "Arealight ");
 	SaveCheckpoint(tr("%1").arg(light));
 }
-/*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - enable lights ***/
 void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)
-/*** LPub3D Mod end ***/
 {
+/*** LPub3D Mod end ***/
 	lcLight* Light = mLights[mLights.GetSize() - 1];
 
 	Light->MoveSelected(1, false, Position - mMouseToolDistance);
@@ -4634,7 +4638,7 @@ void lcModel::ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const l
 
 /*** LPub3D Mod - Update Default Camera ***/
 //  gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateDefaultCamera(Camera);
+	UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 
@@ -4693,7 +4697,7 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 	if (!mIsPreview) {
 /*** LPub3D Mod - Update Default Camera ***/
 //        gMainWindow->UpdateSelectedObjects(false);
-		gMainWindow->UpdateDefaultCamera(Camera);
+		UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 	}
@@ -4710,7 +4714,7 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
 	if (!mIsPreview) {
 /*** LPub3D Mod - Update Default Camera ***/
 //        gMainWindow->UpdateSelectedObjects(false);
-		gMainWindow->UpdateDefaultCamera(Camera);
+		UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 	}
@@ -4908,6 +4912,24 @@ void lcModel::ShowMinifigDialog()
 	SetSelectionAndFocus(Pieces, nullptr, 0, false);
 	gMainWindow->UpdateTimeline(false, false);
 	SaveCheckpoint(tr("Minifig"));
+}
+
+void lcModel::SetMinifig(const lcMinifig& Minifig)
+{
+	DeleteModel();
+
+	for (int PartIdx = 0; PartIdx < LC_MFW_NUMITEMS; PartIdx++)
+	{
+		if (!Minifig.Parts[PartIdx])
+			continue;
+
+		lcPiece* Piece = new lcPiece(Minifig.Parts[PartIdx]);
+
+		Piece->Initialize(Minifig.Matrices[PartIdx], 1);
+		Piece->SetColorIndex(Minifig.Colors[PartIdx]);
+		AddPiece(Piece);
+		Piece->UpdatePosition(1);
+	}
 }
 
 void lcModel::UpdateInterface()
