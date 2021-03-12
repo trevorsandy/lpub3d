@@ -1039,8 +1039,10 @@ void Gui::applyCameraSettings()
 
         if (!ActiveView)
             return;
+/*
         else if (autoCenterSelectionAct->isChecked())
             ActiveView->LookAt();
+*/
 
         lcCamera* Camera = ActiveView->GetCamera();
 

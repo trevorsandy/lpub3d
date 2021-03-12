@@ -1178,7 +1178,7 @@ void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const fl
 void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const float &Distance, const lcVector3 &Target, lcStep Step, bool AddKey)
 {
 	mPosition = lcVector3(0, -1, 0);
-	mTargetPosition = Target; //lcVector3(0, 0, 0);
+	mTargetPosition = lcVector3(0, 0, 0); //Target;
 /*** LPub3D Mod end ***/
 	mUpVector = lcVector3(0, 0, 1);
 
@@ -1189,13 +1189,24 @@ void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const fl
 	lcMatrix33 LatitudeMatrix = lcMatrix33FromAxisAngle(SideVector, LC_DTOR * Latitude);
 
 /*** LPub3D Mod - Camera Globe ***/
+	// Convert distance to LeoCAD format from Lego Draw Unit (LDU) format - e.g. 3031329
 	int   Width      = lcGetActiveProject()->GetModelWidth();
 	int   Renderer   = lcGetActiveProject()->GetRenderer();
 	float Resolution = lcGetActiveProject()->GetResolution();
-	// Convert distance to LeoCAD format from Lego Draw Unit (LDU) format - e.g. 3031329
 	float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
+
 	mPosition = lcMul(mPosition, LatitudeMatrix) * CameraDistance;
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
+
+	// Set LookAt Viewpoint
+	if (Target != mTargetPosition) {
+		mTargetPosition = Target;
+		lcVector3 Direction = mTargetPosition - mPosition;
+		SideVector = lcCross(Direction, mUpVector);
+		lcVector3 UpVector = lcCross(SideVector, Direction);
+		UpVector.Normalize();
+		mUpVector = UpVector;
+	}
 
 	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
 	ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
@@ -1222,10 +1233,10 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 		Longitude = -Longitude;
 
 /*** LPub3D Mod - Camera Globe ***/
+	// Convert distance to Lego Draw Unit (LDU) format from LeoCAD format - e.g. 1250
 	int   Width      = lcGetActiveProject()->GetModelWidth();
 	int   Renderer   = lcGetActiveProject()->GetRenderer();
 	float Resolution = lcGetActiveProject()->GetResolution();
-	// Convert distance to Lego Draw Unit (LDU) format from LeoCAD format - e.g. 1250
 	Distance = StandardCameraDistance(lcLength(mPosition), GetCDF(), Width, Resolution, Renderer);
 /*** LPub3D Mod end ***/
 }
