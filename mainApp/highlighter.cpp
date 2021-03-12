@@ -28,6 +28,7 @@
 #include <QtWidgets>
 #include "highlighter.h"
 #include "application.h"
+#include "lpub_preferences.h"
 #include "name.h"
 
 Highlighter::Highlighter(QTextDocument *parent)
@@ -38,67 +39,67 @@ Highlighter::Highlighter(QTextDocument *parent)
     QBrush br01,br02,br03,br04,br05,br06,br07,br08,br09,br10,br11,br12,br13,br14;
     QBrush br15,br16,br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28,br29;
     if (Application::instance()->getTheme() == THEME_DEFAULT) {
-        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
-        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
-        br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DEFAULT));
-        br04 = QBrush(QColor(THEME_HIGHLIGHT_04_DEFAULT));
-        br05 = QBrush(QColor(THEME_HIGHLIGHT_05_DEFAULT));
-        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DEFAULT));
-        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DEFAULT));
-        br08 = QBrush(QColor(THEME_HIGHLIGHT_08_DEFAULT));
-        br09 = QBrush(QColor(THEME_HIGHLIGHT_09_DEFAULT));
-        br10 = QBrush(QColor(THEME_HIGHLIGHT_10_DEFAULT));
-        br11 = QBrush(QColor(THEME_HIGHLIGHT_11_DEFAULT));
-        br12 = QBrush(QColor(THEME_HIGHLIGHT_12_DEFAULT));
-        br13 = QBrush(QColor(THEME_HIGHLIGHT_13_DEFAULT));
-        br14 = QBrush(QColor(THEME_HIGHLIGHT_14_DEFAULT));
-        br15 = QBrush(QColor(THEME_HIGHLIGHT_15_DEFAULT));
-        br16 = QBrush(QColor(THEME_HIGHLIGHT_16_DEFAULT));
-        br17 = QBrush(QColor(THEME_HIGHLIGHT_17_DEFAULT));
-        br18 = QBrush(QColor(THEME_HIGHLIGHT_18_DEFAULT));
-        br19 = QBrush(QColor(THEME_HIGHLIGHT_19_DEFAULT));
-        br20 = QBrush(QColor(THEME_HIGHLIGHT_20_DEFAULT));
-        br21 = QBrush(QColor(THEME_HIGHLIGHT_21_DEFAULT));
-        br22 = QBrush(QColor(THEME_HIGHLIGHT_22_DEFAULT));
-        br23 = QBrush(QColor(THEME_HIGHLIGHT_23_DEFAULT));
-        br24 = QBrush(QColor(THEME_HIGHLIGHT_24_DEFAULT));
-        br25 = QBrush(QColor(THEME_HIGHLIGHT_25_DEFAULT));
-        br26 = QBrush(QColor(THEME_HIGHLIGHT_26_DEFAULT));
-        br27 = QBrush(QColor(THEME_HIGHLIGHT_27_DEFAULT));
-        br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DEFAULT));
-        br29 = QBrush(QColor(THEME_HIGHLIGHT_29_DEFAULT));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_01_DEFAULT]));
+        br02 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_02_DEFAULT]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_03_DEFAULT]));
+        br04 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_04_DEFAULT]));
+        br05 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_05_DEFAULT]));
+        br06 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_06_DEFAULT]));
+        br07 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_07_DEFAULT]));
+        br08 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_08_DEFAULT]));
+        br09 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_09_DEFAULT]));
+        br10 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_10_DEFAULT]));
+        br11 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_11_DEFAULT]));
+        br12 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_12_DEFAULT]));
+        br13 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_13_DEFAULT]));
+        br14 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_14_DEFAULT]));
+        br15 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_15_DEFAULT]));
+        br16 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_16_DEFAULT]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_17_DEFAULT]));
+        br18 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_18_DEFAULT]));
+        br19 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_19_DEFAULT]));
+        br20 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_20_DEFAULT]));
+        br21 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_21_DEFAULT]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_22_DEFAULT]));
+        br23 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_23_DEFAULT]));
+        br24 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_24_DEFAULT]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_25_DEFAULT]));
+        br26 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_26_DEFAULT]));
+        br27 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_27_DEFAULT]));
+        br28 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_28_DEFAULT]));
+        br29 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_29_DEFAULT]));
       }
     else
     if (Application::instance()->getTheme() == THEME_DARK) {
-        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
-        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
-        br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DARK));
-        br04 = QBrush(QColor(THEME_HIGHLIGHT_04_DARK));
-        br05 = QBrush(QColor(THEME_HIGHLIGHT_05_DARK));
-        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DARK));
-        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DARK));
-        br08 = QBrush(QColor(THEME_HIGHLIGHT_08_DARK));
-        br09 = QBrush(QColor(THEME_HIGHLIGHT_09_DARK));
-        br10 = QBrush(QColor(THEME_HIGHLIGHT_10_DARK));
-        br11 = QBrush(QColor(THEME_HIGHLIGHT_11_DARK));
-        br12 = QBrush(QColor(THEME_HIGHLIGHT_12_DARK));
-        br13 = QBrush(QColor(THEME_HIGHLIGHT_13_DARK));
-        br14 = QBrush(QColor(THEME_HIGHLIGHT_14_DARK));
-        br15 = QBrush(QColor(THEME_HIGHLIGHT_15_DARK));
-        br16 = QBrush(QColor(THEME_HIGHLIGHT_16_DARK));
-        br17 = QBrush(QColor(THEME_HIGHLIGHT_17_DARK));
-        br18 = QBrush(QColor(THEME_HIGHLIGHT_18_DARK));
-        br19 = QBrush(QColor(THEME_HIGHLIGHT_19_DARK));
-        br20 = QBrush(QColor(THEME_HIGHLIGHT_20_DARK));
-        br21 = QBrush(QColor(THEME_HIGHLIGHT_21_DARK));
-        br22 = QBrush(QColor(THEME_HIGHLIGHT_22_DARK));
-        br23 = QBrush(QColor(THEME_HIGHLIGHT_23_DARK));
-        br24 = QBrush(QColor(THEME_HIGHLIGHT_24_DARK));
-        br25 = QBrush(QColor(THEME_HIGHLIGHT_25_DARK));
-        br26 = QBrush(QColor(THEME_HIGHLIGHT_26_DARK));
-        br27 = QBrush(QColor(THEME_HIGHLIGHT_27_DARK));
-        br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DARK));
-        br29 = QBrush(QColor(THEME_HIGHLIGHT_29_DARK));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_01_DARK]));
+        br02 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_02_DARK]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_03_DARK]));
+        br04 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_04_DARK]));
+        br05 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_05_DARK]));
+        br06 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_06_DARK]));
+        br07 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_07_DARK]));
+        br08 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_08_DARK]));
+        br09 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_09_DARK]));
+        br10 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_10_DARK]));
+        br11 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_11_DARK]));
+        br12 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_12_DARK]));
+        br13 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_13_DARK]));
+        br14 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_14_DARK]));
+        br15 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_15_DARK]));
+        br16 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_16_DARK]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_17_DARK]));
+        br18 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_18_DARK]));
+        br19 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_19_DARK]));
+        br20 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_20_DARK]));
+        br21 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_21_DARK]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_22_DARK]));
+        br23 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_23_DARK]));
+        br24 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_24_DARK]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_25_DARK]));
+        br26 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_26_DARK]));
+        br27 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_27_DARK]));
+        br28 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_28_DARK]));
+        br29 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_29_DARK]));
       }
 
     // LPub3D Number Format

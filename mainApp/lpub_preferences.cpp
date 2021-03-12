@@ -62,6 +62,171 @@ const QString msgKeyTypes [][2] = {
    {"Annoatation",        "annotation message"}     //AnnotationErrors
 };
 
+static const QString ThemeSettings [THEME_NUM_COLORS][2] =
+{                                                             // THEME_DEFAULT                               Default Theme
+    {"ThemeSceneBgcolorDefault",                  "#aeadac"}, // THEME_SCENE_BGCOLOR_DEFAULT                 Qt Light Gray
+    {"ThemeGridPenDefault",                       "#1e1b18"}, // THEME_GRID_PEN_DEFAULT                      Qt Double Dark Grey
+    {"ThemeRulerTickPenDefault",                  "#35322f"}, // THEME_RULER_TICK_PEN_DEFAULT                Qt Dark Grey
+    {"ThemeRulerTrackPenDefault",                 "#00FF00"}, // THEME_RULER_TRACK_PEN_DEFAULT               Custom Neon Green
+    {"ThemeGuidePenDefault",                      "#aa0000"}, // THEME_GUIDE_PEN_DEFAULT                     LPub3D Maroon
+    {"ThemeTransPageBorderDefault",               "#535559"}, // THEME_TRANS_PAGE_BORDER_DEFAULT             Custom Gray
+    {"ThemeNmlPenDefault",                        "#1e1b18"}, // THEME_NML_PEN_DEFAULT                       Qt Double Dark Grey [NOT USED]
+
+    {"ThemeDefaultPaletteLight",                  "#aeadac"}, // THEME_DEFAULT_PALETTE_LIGHT                 Qt Light Gray
+
+    {"ThemeDefaultViewerBackgroundColor",         "#FFFFFF"}, // THEME_DEFAULT_VIEWER_BACKGROUND_COLOR       255, 255, 255, 255 LC_PROFILE_BACKGROUND_COLOR
+    {"ThemeDefaultViewerGradientColorTop",        "#36485f"}, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP      54,  72,  95, 255 LC_PROFILE_GRADIENT_COLOR_TOP
+    {"ThemeDefaultViewerGradientColorBottom",     "#313437"}, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM   49,  52,  55, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
+    {"ThemeDefaultAxesColor",                     "#000000"}, // THEME_DEFAULT_AXES_COLOR                      0,   0,   0, 255
+    {"ThemeDefaultOverlayColor",                  "#000000"}, // THEME_DEFAULT_OVERLAY_COLOR                   0,   0,   0, 255
+    {"ThemeDefaultActiveViewColor",               "#FF0000"}, // THEME_DEFAULT_ACTIVE_VIEW_COLOR             255,   0,   0, 255
+    {"ThemeDefaultActivePreviewColor",            "#454545"}, // THEME_DEFAULT_ACTIVE_PREVIEW_COLOR           69,  69,  69, 255
+    {"ThemeDefaultGridStudColor",                 "#404040"}, // THEME_DEFAULT_GRID_STUD_COLOR                64,  64,  64, 192 (.75)
+    {"ThemeDefaultGridLineColor",                 "#000000"}, // THEME_DEFAULT_GRID_LINE_COLOR                 0,   0,   0, 255
+    {"ThemeDefaultViewSphereColor",               "#FFFFFF"}, // THEME_DEFAULT_VIEW_SPHERE_COLOR             255, 255, 255, 255
+    {"ThemeDefaultViewSphereTextColor",           "#646464"}, // THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR        100, 100, 100, 255
+    {"ThemeDefaultViewSphereHlightColor",         "#FF0000"}, // THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR      255,   0,   0, 255
+
+    {"ThemeHighlightLDrawCommentDefault",         "#006325"}, // THEME_HIGHLIGHT_01_DEFAULT                  br01 [LDraw Comments]
+    {"ThemeHighlightLDrawHeaderDefault",          "#4f97ba"}, // THEME_HIGHLIGHT_02_DEFAULT                  br02 [LDraw Header]
+    {"ThemeHighlightLPub3DLocalDefault",          "#005af6"}, // THEME_HIGHLIGHT_03_DEFAULT                  br03 [LDraw Body]
+    {"ThemeHighlightLPub3DGlobalDefault",         "#609cff"}, // THEME_HIGHLIGHT_04_DEFAULT                  br04 [LPub3D Local]
+    {"ThemeHighlightLPub3DGlobalDefault",         "#57649b"}, // THEME_HIGHLIGHT_05_DEFAULT                  br05 [LPub3D Global]
+
+    {"ThemeHighlightLDrawLineType1Default",       "#816288"}, // THEME_HIGHLIGHT_06_DEFAULT                  br06 [LDraw Line type 1]
+    {"ThemeHighlightLDrawColourCodeDefault",      "#f46105"}, // THEME_HIGHLIGHT_07_DEFAULT                  br07 [LDraw Colour code]
+    {"ThemeHighlightLDrawPartPositionDefault",    "#ed3d63"}, // THEME_HIGHLIGHT_08_DEFAULT                  br08 [LDraw Part Position]
+    {"ThemeHighlightLDrawPartTransform1Default",  "#8bc3f6"}, // THEME_HIGHLIGHT_09_DEFAULT                  br09 [LDraw Part Transform1]
+    {"ThemeHighlightLDrawPartTransform2Default",  "#51acff"}, // THEME_HIGHLIGHT_10_DEFAULT                  br10 [LDraw Part Transform2]
+    {"ThemeHighlightLDrawPartTransform2Default",  "#2f86ff"}, // THEME_HIGHLIGHT_11_DEFAULT                  br11 [LDraw Part Transform3]
+    {"ThemeHighlightLDrawPartFilDefault",         "#084575"}, // THEME_HIGHLIGHT_12_DEFAULT                  br12 [LDraw Part File]
+    {"ThemeHighlightLDrawLineTypes25Default",     "#7d5e18"}, // THEME_HIGHLIGHT_13_DEFAULT                  br13 [LDraw Line Types 2_5]
+    {"ThemeHighlightLPub3DNumberDefault",         "#fc9b14"}, // THEME_HIGHLIGHT_14_DEFAULT                  br14 [LPub3D Number]
+    {"ThemeHighlightLPub3DHex NumberDefault",     "#b87620"}, // THEME_HIGHLIGHT_15_DEFAULT                  br15 [LPub3D Hex Number]
+    {"ThemeHighlightLPub3DPageSizeDefault",       "#c15317"}, // THEME_HIGHLIGHT_16_DEFAULT                  br16 [LPub3D Page Size]
+
+    {"ThemeHighlightLeoCADMetaDefault",           "#14148c"}, // THEME_HIGHLIGHT_17_DEFAULT                  br17 [LeoCAD]
+    {"ThemeHighlightLSynthMetaDefault",           "#d882f6"}, // THEME_HIGHLIGHT_18_DEFAULT                  br18 [LSynth]
+    {"ThemeHighlightLDCadMetaDefault",            "#ff9900"}, // THEME_HIGHLIGHT_19_DEFAULT                  br19 [LDCad]
+    {"ThemeHighlightMLCadMetaDefault",            "#0079cf"}, // THEME_HIGHLIGHT_20_DEFAULT                  br20 [MLCad]
+    {"ThemeHighlightMLCadBodyDefault",            "#9421a6"}, // THEME_HIGHLIGHT_21_DEFAULT                  br21 [MLCad Body]
+    {"ThemeHighlightLPub3DFalseDefault",          "#ff1818"}, // THEME_HIGHLIGHT_22_DEFAULT                  br22 [LPub3D False]
+    {"ThemeHighlightLPub3DTrueDefault",           "#008000"}, // THEME_HIGHLIGHT_23_DEFAULT                  br23 [LPub3D True]
+    {"ThemeHighlightLPub3DMetaDefault",           "#cc5980"}, // THEME_HIGHLIGHT_24_DEFAULT                  br24 [LPub3D]
+    {"ThemeHighlightLPub3DBodyDefault",           "#aa0000"}, // THEME_HIGHLIGHT_25_DEFAULT                  br25 [LPub3D Body]
+    {"ThemeHighlightLDrawHeaderValueDefault",     "#545454"}, // THEME_HIGHLIGHT_26_DEFAULT                  br26 [LDraw Header Value]
+    {"ThemeHighlightLPub3DQuotedTextDefault",     "#231aff"}, // THEME_HIGHLIGHT_27_DEFAULT                  br27 [LPub3D Quoted Text]
+    {"ThemeHighlightLDrawLineType0Default",       "#000000"}, // THEME_HIGHLIGHT_28_DEFAULT                  br28 [LDraw Line Type 0 First Character]
+    {"ThemeHighlightLDCadGroupDefineDefault",     "#bd4900"}, // THEME_HIGHLIGHT_29_DEFAULT                  br29 [LDCad Group Define]
+
+    {"ThemeHighlightIniFileCommentDefault",       "#006325"}, // THEME_HIGHLIGHT_A_DEFAULT                   br01 [INI File - Comment]
+    {"ThemeHighlightIniFileHeaderDefault",        "#14148c"}, // THEME_HIGHLIGHT_B_DEFAULT                   br02 [INI File - Header]
+    {"ThemeHighlightIniFileEqualDefault",         "#0057ff"}, // THEME_HIGHLIGHT_C_DEFAULT                   br03 [INI File - Equal]
+    {"ThemeHighlightIniFileValueDefault",         "#b25a2f"}, // THEME_HIGHLIGHT_D_DEFAULT                   br04 [INI File - Value]
+
+    {"ThemeHighlightParamFilePartIdDefault",      "#084575"}, // THEME_HIGHLIGHT_E_DEFAULT                   br05 [Parameter File - Part ID]
+    {"ThemeHighlightParamFilePartCtrlDefault",    "#9421a6"}, // THEME_HIGHLIGHT_F_DEFAULT                   br06 [Parameter File - Part Control]
+    {"ThemeHighlightParamFilePartDescDefault",    "#aa0000"}, // THEME_HIGHLIGHT_G_DEFAULT                   br07 [Parameter File - Part Description]
+
+    {"ThemeLineHighlightDefault",                 "#ccccff"}, // THEME_LINE_HIGHLIGHT_DEFAULT                Qt:blue:lighter(180)
+    {"ThemeLineErrorDefault",                     "#ffcccc"}, // THEME_LINE_ERROR_DEFAULT                    Qt:Red:lighter(180)
+
+                                                              // THEME_DARK                                  Dark Theme
+    {"ThemeSceneBgcolorDark",                     "#31363b"}, // THEME_SCENE_BGCOLOR_DARK                    Custom Dark Grey
+    {"ThemeGridPenDark",                          "#ffffff"}, // THEME_GRID_PEN_DARK                         Qt White
+    {"ThemeRulerTickPenDark",                     "#eff0f1"}, // THEME_RULER_TICK_PEN_DARK                   Custom Pale Grey
+    {"ThemeRulerTrackPenDark",                    "#00FF00"}, // THEME_RULER_TRACK_PEN_DARK                  Custom Neon Green
+    {"ThemeGuidePenDark",                         "#aa0000"}, // THEME_GUIDE_PEN_DARK                        LPub3D Maroon
+    {"ThemeEditMarginDark",                       "#ABB2B9"}, // THEME_EDIT_MARGIN_DARK                      Custom Gray
+    {"ThemeTransPageBorderDark",                  "#aeadac"}, // THEME_TRANS_PAGE_BORDER_DARK                Qt Light Gray
+    {"ThemePaletteDisabledText",                  "#808080"}, // THEME_PALETTE_DISABLED_TEXT                 128, 128, 128, 255
+    {"ThemeNmlPenDark",                           "#ffffff"}, // THEME_NML_PEN_DARK                          Qt White [NOT USED]
+
+    {"ThemeHighlightLDrawCommentDark",            "#17c723"}, // THEME_HIGHLIGHT_01_DARK                     br01 [LDraw Comment]
+    {"ThemeHighlightLDrawHeaderDark",             "#fb743e"}, // THEME_HIGHLIGHT_02_DARK                     br02 [LDraw Header]
+    {"ThemeHighlightLPub3DLocalDark",             "#14aaff"}, // THEME_HIGHLIGHT_03_DARK                     br03 [LDraw Body]
+    {"ThemeHighlightLPub3DGlobalDark",            "#609cff"}, // THEME_HIGHLIGHT_04_DARK                     br04 [LPub3D Local]
+    {"ThemeHighlightLPub3DGlobalDark",            "#a0b2e2"}, // THEME_HIGHLIGHT_05_DARK                     br05 [LPub3D Global]
+
+    {"ThemeHighlightLDrawLineType1Dark",          "#c2a4c0"}, // THEME_HIGHLIGHT_06_DARK                     br06 [LDraw Line Type 1]
+    {"ThemeHighlightLDrawColourCodeDark",         "#f46105"}, // THEME_HIGHLIGHT_07_DARK                     br07 [LDraw Colour Code]
+    {"ThemeHighlightLDrawPartPositionDark",       "#46b5d1"}, // THEME_HIGHLIGHT_08_DARK                     br08 [LDraw Part Position] #ed3d63
+    {"ThemeHighlightLDrawPartTransform1Dark",     "#ddffef"}, // THEME_HIGHLIGHT_09_DARK                     br09 [LDraw Part Transform1]
+    {"ThemeHighlightLDrawPartTransform2Dark",     "#a2ffd2"}, // THEME_HIGHLIGHT_10_DARK                     br10 [LDraw Part Transform2]
+    {"ThemeHighlightLDrawPartTransform2Dark",     "#5cffb0"}, // THEME_HIGHLIGHT_11_DARK                     br11 [LDraw Part Transform3]
+    {"ThemeHighlightLDrawPartFilDark",            "#c3f6fe"}, // THEME_HIGHLIGHT_12_DARK                     br12 [LDraw Part File]
+    {"ThemeHighlightLDrawLineTypes25Dark",        "#7d5e18"}, // THEME_HIGHLIGHT_13_DARK                     br13 [LDraw Line Types 2_5]
+    {"ThemeHighlightLPub3DNumberDark",            "#fc9b14"}, // THEME_HIGHLIGHT_14_DARK                     br14 [LPub3D Number]
+    {"ThemeHighlightLPub3DHex NumberDark",        "#b87620"}, // THEME_HIGHLIGHT_15_DARK                     br15 [LPub3D Hex Number]
+    {"ThemeHighlightLPub3DPageSizeDark",          "#c15317"}, // THEME_HIGHLIGHT_16_DARK                     br16 [LPub3D Page Size]
+
+    {"ThemeHighlightLeoCADMetaDark",              "#0079cf"}, // THEME_HIGHLIGHT_17_DARK                     br17 [LeoCAD]
+    {"ThemeHighlightLSynthMetaDark",              "#ff9900"}, // THEME_HIGHLIGHT_18_DARK                     br18 [LSynth]
+    {"ThemeHighlightLDCadMetaDark",               "#ff9900"}, // THEME_HIGHLIGHT_19_DARK                     br19 [LDCad]
+    {"ThemeHighlightMLCadMetaDark",               "#0079cf"}, // THEME_HIGHLIGHT_20_DARK                     br20 [MLCad]
+    {"ThemeHighlightMLCadBodyDark",               "#9421a6"}, // THEME_HIGHLIGHT_21_DARK                     br21 [MLCad Body]
+    {"ThemeHighlightLPub3DFalseDark",             "#ff8080"}, // THEME_HIGHLIGHT_22_DARK                     br22 [LPub3D False]
+    {"ThemeHighlightLPub3DTrueDark",              "#adff2f"}, // THEME_HIGHLIGHT_23_DARK                     br23 [LPub3D True]
+    {"ThemeHighlightLPub3DMetaDark",              "#f638dc"}, // THEME_HIGHLIGHT_24_DARK                     br24 [LPub3D] #ff3366
+    {"ThemeHighlightLPub3DBodyDark",              "#ff3366"}, // THEME_HIGHLIGHT_25_DARK                     br25 [LPub3D Body]  #ff1818 #ad1d45
+    {"ThemeHighlightLDrawHeaderValueDark",        "#aeaeae"}, // THEME_HIGHLIGHT_26_DARK                     br26 [LDraw Header Value]
+    {"ThemeHighlightLPub3DQuotedTextDark",        "#81d4fa"}, // THEME_HIGHLIGHT_27_DARK                     br27 [LPub3D Quoted text]
+    {"ThemeHighlightLDrawLineType0Dark",          "#FFFFFF"}, // THEME_HIGHLIGHT_28_DARK                     br28 [LDraw Line type 0 First Character]
+    {"ThemeHighlightLDCadGroupDefineDark",        "#bd4900"}, // THEME_HIGHLIGHT_29_DARK                     br29 [LDCad Group Define]
+
+    {"ThemeHighlightIniFileCommentDark",          "#17c723"}, // THEME_HIGHLIGHT_A_DARK                      br01 [INI File - Comment]  br01 Custom Green
+    {"ThemeHighlightIniFileHeaderDark",           "#0079cf"}, // THEME_HIGHLIGHT_B_DARK                      br02 [INI File - Header] br02 Custom Blue
+    {"ThemeHighlightIniFileEqualDark",            "#ff5227"}, // THEME_HIGHLIGHT_C_DARK                      br03 [INI File - Equal] br03 Custom Orange
+    {"ThemeHighlightIniFileValueDark",            "#bbbfff"}, // THEME_HIGHLIGHT_D_DARK                      br04 [INI File - Value] br04 Custom Violet
+
+    {"ThemeHighlightParamFilePartIdDark",         "#c3f6fe"}, // THEME_HIGHLIGHT_E_DARK                      br05 [Parameter File - Part ID]
+    {"ThemeHighlightParamFilePartCtrlDark",       "#9421a6"}, // THEME_HIGHLIGHT_F_DARK                      br06 [Parameter File - Part Control]
+    {"ThemeHighlightParamFilePartDescDark",       "#aa0000"}, // THEME_HIGHLIGHT_G_DARK                      br07 [Parameter File - Part Description]
+
+    {"ThemeLineHighlightDark",                    "#5d5b59"}, // THEME_LINE_HIGHLIGHT_DARK                   Qt Medium Gray
+    {"ThemeLineErrorDark",                        "#ff0000"}, // THEME_LINE_ERROR_DARK                       Red:lighter(180)
+
+    {"ThemeDarkPaletteWindow",                    "#313437"}, // THEME_DARK_PALETTE_WINDOW                    49,  52,  55, 255
+    {"ThemeDarkPaletteWindowText",                "#F0F0F0"}, // THEME_DARK_PALETTE_WINDOW_TEXT              240, 240, 240, 255
+    {"ThemeDarkPaletteBase",                      "#232629"}, // THEME_DARK_PALETTE_BASE                      35,  38,  41, 255
+    {"ThemeDarkPaletteAltBase",                   "#2C2F32"}, // THEME_DARK_PALETTE_ALT_BASE                  44,  47,  50, 255
+    {"ThemeDarkPaletteTipBase",                   "#E0E0F4"}, // THEME_DARK_PALETTE_TIP_BASE                 224, 224, 244, 255
+    {"ThemeDarkPaletteTipText",                   "#3A3A3A"}, // THEME_DARK_PALETTE_TIP_TEXT                  58,  58,  58, 255
+
+    {"ThemeDarkPalettePholderText",               "#646464"}, // THEME_DARK_PALETTE_PHOLDER_TEXT             100, 100, 100, 255
+
+    {"ThemeDarkPaletteText",                      "#E0E0E0"}, // THEME_DARK_PALETTE_TEXT                     224, 224, 224, 255
+    {"ThemeDarkPaletteButton",                    "#2D3033"}, // THEME_DARK_PALETTE_BUTTON                    45,  48,  51, 255
+    {"ThemeDarkPaletteButtonText",                "#E0E0F4"}, // THEME_DARK_PALETTE_BUTTON_TEXT              224, 224, 244, 255
+    {"ThemeDarkPaletteLight",                     "#414141"}, // THEME_DARK_PALETTE_LIGHT                     65,  65,  65, 255
+    {"ThemeDarkPaletteMidlight",                  "#3E3E3E"}, // THEME_DARK_PALETTE_MIDLIGHT                  62,  62,  62, 255
+    {"ThemeDarkPaletteDark",                      "#232323"}, // THEME_DARK_PALETTE_DARK                      35,  35,  35, 255
+    {"ThemeDarkPaletteMid",                       "#323232"}, // THEME_DARK_PALETTE_MID                       50,  50,  50, 255
+    {"ThemeDarkPaletteShadow",                    "#141414"}, // THEME_DARK_PALETTE_SHADOW                    20,  20,  20, 255
+    {"ThemeDarkPaletteHilight",                   "#2980B9"}, // THEME_DARK_PALETTE_HILIGHT                   41, 128, 185, 255
+    {"ThemeDarkPaletteHilightText",               "#E8E8E8"}, // THEME_DARK_PALETTE_HILIGHT_TEXT             232, 232, 232, 255
+    {"ThemeDarkPaletteLink",                      "#2980B9"}, // THEME_DARK_PALETTE_LINK                      41, 128, 185, 255
+    {"ThemeDarkPaletteDisabledText",              "#808080"}, // THEME_DARK_PALETTE_DISABLED_TEXT            128, 128, 128, 255
+
+    {"ThemeDarkViewerBackgroundColor",            "#313437"}, // THEME_DARK_VIEWER_BACKGROUND_COLOR           49, 52,   55, 255 LC_PROFILE_BACKGROUND_COLOR
+    {"ThemeDarkViewerGradientColorTop",           "#0000bf"}, // THEME_DARK_VIEWER_GRADIENT_COLOR_TOP          0,  0,  191, 255 LC_PROFILE_GRADIENT_COLOR_TOP
+    {"ThemeDarkViewerGradientColorBottom",        "#FFFFFF"}, // THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM     255, 255, 255, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
+    {"ThemeDarkAxesColor",                        "#000000"}, // THEME_DARK_AXES_COLOR                         0,   0,   0, 255 LC_PROFILE_AXES_COLOR
+    {"ThemeDarkOverlayColor",                     "#000000"}, // THEME_DARK_OVERLAY_COLOR                      0,   0,   0, 255 LC_PROFILE_OVERLAY_COLOR
+    {"ThemeDarkActiveViewColor",                  "#2980B9"}, // THEME_DARK_ACTIVE_VIEW_COLOR                 41, 128, 185, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
+    {"ThemeDarkActivePreviewColor",               "#999999"}, // THEME_DARK_ACTIVE_PREVIEW_COLOR             153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
+    {"ThemeDarkGridStudColor",                    "#181818"}, // THEME_DARK_GRID_STUD_COLOR                   24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR
+    {"ThemeDarkGridLineColor",                    "#181818"}, // THEME_DARK_GRID_LINE_COLOR                   24,  24,  24, 255 LC_PROFILE_GRID_LINE_COLOR
+    {"ThemeDarkViewSphereColor",                  "#232629"}, // THEME_DARK_VIEW_SPHERE_COLOR                 35,  38,  41, 255 LC_PROFILE_VIEW_SPHERE_COLOR
+    {"ThemeDarkViewSphereTextColor",              "#E0E0E0"}, // THEME_DARK_VIEW_SPHERE_TEXT_COLOR           224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
+    {"ThemeDarkViewSphereHlightColor",            "#2980B9"}, // THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR          41, 128, 185, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+
+    {"ThemeDarkGraphicsviewBorderColor",          "#999999"}  // THEME_DARK_GRAPHICSVIEW_BORDER_COLOR        153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
+                                                              // THEME_NUM_COLORS
+};
+
+QString Preferences::themeColors[THEME_NUM_COLORS];
+
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
 QString Preferences::ldrawLibPath               = EMPTY_STRING_DEFAULT;
 QString Preferences::altLDConfigPath            = EMPTY_STRING_DEFAULT;
@@ -168,11 +333,11 @@ QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE
 QString Preferences::ld2rbColorsXRefFile        = VER_LPUB3D_LD2RBCOLORSXREF_FILE;
 QString Preferences::ld2rbCodesXRefFile         = VER_LPUB3D_LD2RBCODESXREF_FILE;
 
-QString Preferences::sceneBackgroundColor       = THEME_SCENE_BGCOLOR_DEFAULT;
-QString Preferences::sceneGridColor             = THEME_GRID_PEN_DEFAULT;
-QString Preferences::sceneRulerTickColor        = THEME_RULER_TICK_PEN_DEFAULT;
-QString Preferences::sceneRulerTrackingColor    = THEME_RULER_TRACK_PEN_DEFAULT;
-QString Preferences::sceneGuideColor            = THEME_GUIDE_PEN_DEFAULT;
+QString Preferences::sceneBackgroundColor       = ThemeSettings[THEME_SCENE_BGCOLOR_DEFAULT][1];
+QString Preferences::sceneGridColor             = ThemeSettings[THEME_GRID_PEN_DEFAULT][1];
+QString Preferences::sceneRulerTickColor        = ThemeSettings[THEME_RULER_TICK_PEN_DEFAULT][1];
+QString Preferences::sceneRulerTrackingColor    = ThemeSettings[THEME_RULER_TRACK_PEN_DEFAULT][1];
+QString Preferences::sceneGuideColor            = ThemeSettings[THEME_GUIDE_PEN_DEFAULT][1];
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
@@ -2919,18 +3084,34 @@ void Preferences::editorPreferences()
     }
 }
 
+void Preferences::themePreferences()
+{
+    QSettings Settings;
+
+
+    QString const displayThemeKey("DisplayTheme");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
+            displayTheme = THEME_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+    } else {
+            displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+    }
+
+    enum { T_Key, T_Color };
+    for (int i = 0; i < THEME_NUM_COLORS; i++) {
+        const QString themeKey(defaultThemeColors[i].key);
+        if ( ! Settings.contains(QString("%1/%2").arg(THEMECOLORS,themeKey))) {
+            themeColors[i] = defaultThemeColors[i].color;
+            Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[i]);
+        } else {
+            themeColors[i] = Settings.value(QString("%1/%2").arg(THEMECOLORS,themeKey)).toString();
+        }
+    }
+}
+
 void Preferences::userInterfacePreferences()
 {
   QSettings Settings;
-
-  QString const displayThemeKey("DisplayTheme");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
-          displayTheme = THEME_DEFAULT;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
-  } else {
-          displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
-  }
-
   QString const sceneRulerKey("SceneRuler");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
           QVariant uValue(false);
@@ -3021,8 +3202,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
           displayTheme == THEME_DARK ?
-          sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK :
-          sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
+          sceneBackgroundColor = themeColors[THEME_SCENE_BGCOLOR_DARK] :
+          sceneBackgroundColor = themeColors[THEME_SCENE_BGCOLOR_DEFAULT];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
   } else {
           sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString();
@@ -3031,8 +3212,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneGridColorKey("SceneGridColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGridColorKey))) {
           displayTheme == THEME_DARK ?
-          sceneGridColor = THEME_GRID_PEN_DARK :
-          sceneGridColor = THEME_GRID_PEN_DEFAULT;
+          sceneGridColor = themeColors[THEME_GRID_PEN_DARK] :
+          sceneGridColor = themeColors[THEME_GRID_PEN_DEFAULT];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
   } else {
           sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString();
@@ -3041,8 +3222,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey))) {
           displayTheme == THEME_DARK ?
-          sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK :
-          sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
+          sceneRulerTickColor = themeColors[THEME_RULER_TICK_PEN_DARK] :
+          sceneRulerTickColor = themeColors[THEME_RULER_TICK_PEN_DEFAULT];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
   } else {
           sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString();
@@ -3051,8 +3232,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
           displayTheme == THEME_DARK ?
-          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK :
-          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
+          sceneRulerTrackingColor = themeColors[THEME_RULER_TRACK_PEN_DARK] :
+          sceneRulerTrackingColor = themeColors[THEME_RULER_TRACK_PEN_DEFAULT];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
   } else {
           sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString();
@@ -3061,8 +3242,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneGuideColorKey("SceneGuideColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey))) {
           displayTheme == THEME_DARK ?
-          sceneGuideColor = THEME_GUIDE_PEN_DARK :
-          sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
+          sceneGuideColor = themeColors[THEME_GUIDE_PEN_DARK] :
+          sceneGuideColor = themeColors[THEME_GUIDE_PEN_DEFAULT];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
   } else {
           sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString();
@@ -4475,54 +4656,68 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
         }
 
+        if (dialog->themeColours().size()) {
+            QMap<int, QString>::ConstIterator i = dialog->themeColours().begin();
+            while (i != dialog->themeColours().end()) {
+                themeColors[i.key()] = i.value();
+                const QString themeKey(defaultThemeColors[i.key()].key);
+                Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[i.key()]);
+            }
+        }
+
         if (sceneBackgroundColor != dialog->sceneBackgroundColor()){
             sceneBackgroundColor = dialog->sceneBackgroundColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
-            bool customColor = (sceneGuideColor != (darkTheme ? THEME_SCENE_BGCOLOR_DARK : THEME_SCENE_BGCOLOR_DEFAULT));
+            bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_SCENE_BGCOLOR_DARK] :
+                                                                themeColors[THEME_SCENE_BGCOLOR_DEFAULT]));
             setCustomSceneBackgroundColorPreference(customColor);
         }
 
         if (sceneGridColor != dialog->sceneGridColor()){
             sceneGridColor = dialog->sceneGridColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
-            bool customColor = (sceneGridColor != (darkTheme ? THEME_GRID_PEN_DARK : THEME_GRID_PEN_DEFAULT));
+            bool customColor = (sceneGridColor != (darkTheme ? themeColors[THEME_GRID_PEN_DARK] :
+                                                               themeColors[THEME_GRID_PEN_DEFAULT]));
             setCustomSceneGridColorPreference(customColor);
         }
 
         if (sceneRulerTickColor != dialog->sceneRulerTickColor()){
             sceneRulerTickColor = dialog->sceneRulerTickColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
-            bool customColor = (sceneRulerTickColor != (darkTheme ? THEME_RULER_TICK_PEN_DARK : THEME_RULER_TICK_PEN_DEFAULT));
+            bool customColor = (sceneRulerTickColor != (darkTheme ? themeColors[THEME_RULER_TICK_PEN_DARK] :
+                                                                    themeColors[THEME_RULER_TICK_PEN_DEFAULT]));
             setCustomSceneRulerTickColorPreference(customColor);
         }
 
         if (sceneRulerTrackingColor != dialog->sceneRulerTrackingColor()){
             sceneRulerTrackingColor = dialog->sceneRulerTrackingColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
-            bool customColor = (sceneRulerTrackingColor != (darkTheme ? THEME_RULER_TRACK_PEN_DARK : THEME_RULER_TRACK_PEN_DEFAULT));
+            bool customColor = (sceneRulerTrackingColor != (darkTheme ? themeColors[THEME_RULER_TRACK_PEN_DARK] :
+                                                                        themeColors[THEME_RULER_TRACK_PEN_DEFAULT]));
             setCustomSceneRulerTrackingColorPreference(customColor);
         }
 
         if (sceneGuideColor != dialog->sceneGuideColor()){
             sceneGuideColor = dialog->sceneGuideColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
-            bool customColor = (sceneGuideColor != (darkTheme ? THEME_GUIDE_PEN_DARK : THEME_GUIDE_PEN_DEFAULT));
+            bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_GUIDE_PEN_DARK] :
+                                                                themeColors[THEME_GUIDE_PEN_DEFAULT]));
             setCustomSceneGuideColorPreference(customColor);
         }
 
         if (dialog->resetSceneColors()) {
             if (darkTheme) {
-                sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK;
-                sceneGridColor = THEME_GRID_PEN_DARK;
-                sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK;
-                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK;
-                sceneGuideColor = THEME_GUIDE_PEN_DARK;
+                sceneBackgroundColor    = themeColors[THEME_SCENE_BGCOLOR_DARK];
+                sceneGridColor          = themeColors[THEME_GRID_PEN_DARK];
+                sceneRulerTickColor     = themeColors[THEME_RULER_TICK_PEN_DARK];
+                sceneRulerTrackingColor = themeColors[THEME_RULER_TRACK_PEN_DARK];
+                sceneGuideColor         = themeColors[THEME_GUIDE_PEN_DARK];
             } else {
-                sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
-                sceneGridColor = THEME_GRID_PEN_DEFAULT;
-                sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
-                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
-                sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
+                sceneBackgroundColor    = themeColors[THEME_SCENE_BGCOLOR_DEFAULT];
+                sceneGridColor          = themeColors[THEME_GRID_PEN_DEFAULT];
+                sceneRulerTickColor     = themeColors[THEME_RULER_TICK_PEN_DEFAULT];
+                sceneRulerTrackingColor = themeColors[THEME_RULER_TRACK_PEN_DEFAULT];
+                sceneGuideColor         = themeColors[THEME_GUIDE_PEN_DEFAULT];
             }
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);

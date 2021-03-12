@@ -19,12 +19,13 @@
 #include <QPen>
 #include <QGraphicsSceneMouseEvent>
 #include "lgraphicsscene.h"
+#include "lpub_preferences.h"
 
 LGraphicsScene::LGraphicsScene(QObject *parent)
   : QGraphicsScene(parent),
-    guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 2, Qt::DashLine)),
-    gridPen(QPen(QBrush(QColor(THEME_GRID_PEN_DEFAULT)), 2, Qt::SolidLine)),
-    rulerTrackingPen(QPen(QBrush(QColor(THEME_RULER_TRACK_PEN_DEFAULT)), 2, Qt::SolidLine)),
+    guidePen(QPen(QBrush(QColor(Preferences::themeColors[THEME_GUIDE_PEN_DEFAULT])), 2, Qt::DashLine)),
+    gridPen(QPen(QBrush(QColor( Preferences::themeColors[THEME_GRID_PEN_DEFAULT])), 2, Qt::SolidLine)),
+    rulerTrackingPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_RULER_TRACK_PEN_DEFAULT])), 2, Qt::SolidLine)),
     mValidItem(false),
     mPliPartGroup(false),
     mSceneGuides(false),
@@ -187,8 +188,8 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
 
 void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
-    QPen guidPosPen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 0, Qt::SolidLine));
-    QPen rulerTrackingPosPen(QPen(QBrush(QColor(THEME_RULER_TRACK_PEN_DEFAULT)), 0, Qt::SolidLine));
+    QPen guidPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_GUIDE_PEN_DEFAULT])), 0, Qt::SolidLine));
+    QPen rulerTrackingPosPen(QPen(QBrush(QColor(Preferences::themeColors[THEME_RULER_TRACK_PEN_DEFAULT])), 0, Qt::SolidLine));
     QPen rulerCrosshairPen(QPen(QBrush(QColor(Qt::red)), 0, Qt::SolidLine));
 
     QPointF starPt;

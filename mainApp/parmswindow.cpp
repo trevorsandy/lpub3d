@@ -74,7 +74,7 @@ void ParmsWindow::setSelectionHighlighter()
     if (Preferences::displayTheme == THEME_DEFAULT)
         highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
     else if (Preferences::displayTheme == THEME_DARK)
-        highlightColor = QColor(THEME_DARK_PALETTE_HILIGHT_TEXT);
+        highlightColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT_TEXT]);
     highlightColor.setAlpha(30);
 
     auto palette = _textEdit->palette();
@@ -768,11 +768,11 @@ void TextEditor::highlightCurrentLine()
 
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
-            lineColor = QColor(THEME_LINE_HIGHLIGHT_DEFAULT);
+            lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DEFAULT]);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
-            lineColor = QColor(THEME_LINE_HIGHLIGHT_DARK);
+            lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DARK]);
         }
 
         selection.format.setBackground(lineColor);

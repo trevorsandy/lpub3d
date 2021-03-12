@@ -56,10 +56,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   QPalette readOnlyPalette = QApplication::palette();
   if (Preferences::displayTheme == THEME_DARK)
-      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DARK_PALETTE_MIDLIGHT));
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
   else
-      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DEFAULT_PALETTE_LIGHT));
-  readOnlyPalette.setColor(QPalette::Text,QColor(THEME_PALETTE_DISABLED_TEXT));
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+  readOnlyPalette.setColor(QPalette::Text,QColor(Preferences::themeColors[THEME_PALETTE_DISABLED_TEXT]));
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
   QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
@@ -879,17 +879,17 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
     resetSceneColorsFlag = checked;
 
     if (Preferences::displayTheme == THEME_DARK) {
-        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DARK;
-        sceneGridColorStr          = THEME_GRID_PEN_DARK;
-        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DARK;
-        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DARK;
-        sceneGuideColorStr         = THEME_GUIDE_PEN_DARK;
+        sceneBackgroundColorStr    = Preferences::themeColors[THEME_SCENE_BGCOLOR_DARK];
+        sceneGridColorStr          = Preferences::themeColors[THEME_GRID_PEN_DARK];
+        sceneRulerTickColorStr     = Preferences::themeColors[THEME_RULER_TICK_PEN_DARK];
+        sceneRulerTrackingColorStr = Preferences::themeColors[THEME_RULER_TRACK_PEN_DARK];
+        sceneGuideColorStr         = Preferences::themeColors[THEME_GUIDE_PEN_DARK];
     } else {
-        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DEFAULT;
-        sceneGridColorStr          = THEME_GRID_PEN_DEFAULT;
-        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DEFAULT;
-        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DEFAULT;
-        sceneGuideColorStr         = THEME_GUIDE_PEN_DEFAULT;
+        sceneBackgroundColorStr    = Preferences::themeColors[THEME_SCENE_BGCOLOR_DEFAULT];
+        sceneGridColorStr          = Preferences::themeColors[THEME_GRID_PEN_DEFAULT];
+        sceneRulerTickColorStr     = Preferences::themeColors[THEME_RULER_TICK_PEN_DEFAULT];
+        sceneRulerTrackingColorStr = Preferences::themeColors[THEME_RULER_TRACK_PEN_DEFAULT];
+        sceneGuideColorStr         = Preferences::themeColors[THEME_GUIDE_PEN_DEFAULT];
     }
 
     QPixmap pix(12, 12);

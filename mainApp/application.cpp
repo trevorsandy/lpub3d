@@ -301,30 +301,30 @@ void Application::setTheme(bool appStarted)
       // Set palette
       QPalette Palette = QApplication::palette();
 
-      Palette.setColor(QPalette::Window, QColor(THEME_DARK_PALETTE_WINDOW));                 // 49, 52, 55,    #313437
-      Palette.setColor(QPalette::WindowText, QColor(THEME_DARK_PALETTE_WINDOW_TEXT));        // 240, 240, 240  #F0F0F0
-      Palette.setColor(QPalette::Base, QColor(THEME_DARK_PALETTE_BASE));                     // 35, 38, 41     #232629
-      Palette.setColor(QPalette::AlternateBase, QColor(THEME_DARK_PALETTE_ALT_BASE));        // 44, 47, 50     #2C2F32
-      Palette.setColor(QPalette::ToolTipBase, QColor(THEME_DARK_PALETTE_TIP_BASE));          // 224, 224, 244  #E0E0F4
-      Palette.setColor(QPalette::ToolTipText, QColor(THEME_DARK_PALETTE_TIP_TEXT));          // 58, 58, 58     #3A3A3A
+      Palette.setColor(QPalette::Window, QColor(Preferences::themeColors[THEME_DARK_PALETTE_WINDOW]));                 // 49, 52, 55,    #313437
+      Palette.setColor(QPalette::WindowText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_WINDOW_TEXT]));        // 240, 240, 240  #F0F0F0
+      Palette.setColor(QPalette::Base, QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]));                     // 35, 38, 41     #232629
+      Palette.setColor(QPalette::AlternateBase, QColor(Preferences::themeColors[THEME_DARK_PALETTE_ALT_BASE]));        // 44, 47, 50     #2C2F32
+      Palette.setColor(QPalette::ToolTipBase, QColor(Preferences::themeColors[THEME_DARK_PALETTE_TIP_BASE]));          // 224, 224, 244  #E0E0F4
+      Palette.setColor(QPalette::ToolTipText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_TIP_TEXT]));          // 58, 58, 58     #3A3A3A
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-      Palette.setColor(QPalette::PlaceholderText, QColor(THEME_DARK_PALETTE_PHOLDER_TEXT));  // 100, 100, 100  #646464
+      Palette.setColor(QPalette::PlaceholderText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_PHOLDER_TEXT]));  // 100, 100, 100  #646464
 #endif
-      Palette.setColor(QPalette::Text, QColor(THEME_DARK_PALETTE_TEXT));                     // 224, 224, 224  #E0E0E0
-      Palette.setColor(QPalette::Button, QColor(THEME_DARK_PALETTE_BUTTON));                 // 45, 48, 51     #2D3033
-      Palette.setColor(QPalette::ButtonText, QColor(THEME_DARK_PALETTE_BUTTON_TEXT));        // 224, 224, 244  #E0E0F4
-      Palette.setColor(QPalette::Light, QColor(THEME_DARK_PALETTE_LIGHT));                   // 65, 65, 65     #414141
-      Palette.setColor(QPalette::Midlight, QColor(THEME_DARK_PALETTE_MIDLIGHT));             // 62, 62, 62     #3E3E3E
-      Palette.setColor(QPalette::Dark, QColor(THEME_DARK_PALETTE_DARK));                     // 35, 35, 35     #232323
-      Palette.setColor(QPalette::Mid, QColor(THEME_DARK_PALETTE_MID));                       // 50, 50, 50     #323232
-      Palette.setColor(QPalette::Shadow, QColor(THEME_DARK_PALETTE_SHADOW));                 // 20, 20, 20     #141414
-      Palette.setColor(QPalette::Highlight, QColor(THEME_DARK_PALETTE_HILIGHT));             // 41, 128, 185   #2980B9
-      Palette.setColor(QPalette::HighlightedText, QColor(THEME_DARK_PALETTE_HILIGHT_TEXT));  // 232, 232, 232  #E8E8E8
-      Palette.setColor(QPalette::Link, QColor(THEME_DARK_PALETTE_LINK));                     // 41, 128, 185   #2980B9
+      Palette.setColor(QPalette::Text, QColor(Preferences::themeColors[THEME_DARK_PALETTE_TEXT]));                     // 224, 224, 224  #E0E0E0
+      Palette.setColor(QPalette::Button, QColor(Preferences::themeColors[THEME_DARK_PALETTE_BUTTON]));                 // 45, 48, 51     #2D3033
+      Palette.setColor(QPalette::ButtonText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_BUTTON_TEXT]));        // 224, 224, 244  #E0E0F4
+      Palette.setColor(QPalette::Light, QColor(Preferences::themeColors[THEME_DARK_PALETTE_LIGHT]));                   // 65, 65, 65     #414141
+      Palette.setColor(QPalette::Midlight, QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));             // 62, 62, 62     #3E3E3E
+      Palette.setColor(QPalette::Dark, QColor(Preferences::themeColors[THEME_DARK_PALETTE_DARK]));                     // 35, 35, 35     #232323
+      Palette.setColor(QPalette::Mid, QColor(Preferences::themeColors[THEME_DARK_PALETTE_MID]));                       // 50, 50, 50     #323232
+      Palette.setColor(QPalette::Shadow, QColor(Preferences::themeColors[THEME_DARK_PALETTE_SHADOW]));                 // 20, 20, 20     #141414
+      Palette.setColor(QPalette::Highlight, QColor( Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT]));            // 41, 128, 185   #2980B9
+      Palette.setColor(QPalette::HighlightedText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT_TEXT]));  // 232, 232, 232  #E8E8E8
+      Palette.setColor(QPalette::Link, QColor(Preferences::themeColors[THEME_DARK_PALETTE_LINK]));                     // 41, 128, 185   #2980B9
 
-      Palette.setColor(QPalette::Disabled, QPalette::Text, QColor(THEME_DARK_PALETTE_DISABLED_TEXT));       // 128, 128, 128 #808080
-      Palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(THEME_DARK_PALETTE_DISABLED_TEXT)); // 128, 128, 128 #808080
-      Palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(THEME_DARK_PALETTE_DISABLED_TEXT)); // 128, 128, 128 #808080
+      Palette.setColor(QPalette::Disabled, QPalette::Text, QColor(Preferences::themeColors[THEME_DARK_PALETTE_DISABLED_TEXT]));       // 128, 128, 128 #808080
+      Palette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_DISABLED_TEXT])); // 128, 128, 128 #808080
+      Palette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(Preferences::themeColors[THEME_DARK_PALETTE_DISABLED_TEXT])); // 128, 128, 128 #808080
 
       QApplication::setPalette(Palette);
 
@@ -356,31 +356,65 @@ void Application::setTheme(bool appStarted)
 
   // Set default scene colours
   if (!Preferences::customSceneBackgroundColor)
-      Preferences::setSceneBackgroundColorPreference(darkTheme ? THEME_SCENE_BGCOLOR_DARK : THEME_SCENE_BGCOLOR_DEFAULT);
+      Preferences::setSceneBackgroundColorPreference(
+                  darkTheme ? Preferences::themeColors[THEME_SCENE_BGCOLOR_DARK] :
+                              Preferences::themeColors[THEME_SCENE_BGCOLOR_DEFAULT]);
   if (!Preferences::customSceneGridColor)
-      Preferences::setSceneGridColorPreference(darkTheme ? THEME_GRID_PEN_DARK : THEME_GRID_PEN_DEFAULT);
+      Preferences::setSceneGridColorPreference(
+                  darkTheme ? Preferences::themeColors[THEME_GRID_PEN_DARK] :
+                              Preferences::themeColors[THEME_GRID_PEN_DEFAULT]);
   if (!Preferences::customSceneRulerTickColor)
-      Preferences::setSceneRulerTickColorPreference(darkTheme ? THEME_RULER_TICK_PEN_DARK : THEME_RULER_TICK_PEN_DEFAULT);
+      Preferences::setSceneRulerTickColorPreference(
+                  darkTheme ? Preferences::themeColors[THEME_RULER_TICK_PEN_DARK] :
+                              Preferences::themeColors[THEME_RULER_TICK_PEN_DEFAULT]);
   if (!Preferences::customSceneRulerTrackingColor)
-      Preferences::setSceneRulerTrackingColorPreference(darkTheme ? THEME_RULER_TRACK_PEN_DARK : THEME_RULER_TRACK_PEN_DEFAULT);
+      Preferences::setSceneRulerTrackingColorPreference(
+                  darkTheme ? Preferences::themeColors[THEME_RULER_TRACK_PEN_DARK] :
+                              Preferences::themeColors[THEME_RULER_TRACK_PEN_DEFAULT]);
   if (!Preferences::customSceneGuideColor)
-      Preferences::setSceneGuideColorPreference(darkTheme ? THEME_GUIDE_PEN_DARK : THEME_GUIDE_PEN_DEFAULT);
+      Preferences::setSceneGuideColorPreference(
+                  darkTheme ? Preferences::themeColors[THEME_GUIDE_PEN_DARK] :
+                              Preferences::themeColors[THEME_GUIDE_PEN_DEFAULT]);
 
-  // Set 3DViewer colours
-  setViewerThemeColor(LC_PROFILE_AXES_COLOR,                 THEME_DARK_AXES_COLOR,              THEME_DEFAULT_AXES_COLOR);
-  setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,              THEME_DARK_OVERLAY_COLOR,           THEME_DEFAULT_OVERLAY_COLOR);
-  setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,          THEME_DARK_ACTIVE_VIEW_COLOR,       THEME_DEFAULT_ACTIVE_VIEW_COLOR);
-  setViewerThemeColor(LC_PROFILE_PREVIEW_ACTIVE_COLOR,       THEME_DARK_ACTIVE_PREVIEW_COLOR,    THEME_DEFAULT_ACTIVE_PREVIEW_COLOR);
-  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,            THEME_DARK_GRID_STUD_COLOR,         THEME_DEFAULT_GRID_STUD_COLOR, 192/*alpha*/);
-  setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,            THEME_DARK_GRID_LINE_COLOR,         THEME_DEFAULT_GRID_LINE_COLOR);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,          THEME_DARK_VIEW_SPHERE_COLOR,       THEME_DEFAULT_VIEW_SPHERE_COLOR);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,  THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR);
-  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
-  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_GRADIENT_COLOR_TOP,    THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP);
-  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM, THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM);
+  // Set 3DViewer interface colours
+  setViewerThemeColor(LC_PROFILE_AXES_COLOR,
+                      Preferences::themeColors[THEME_DARK_AXES_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_AXES_COLOR]);
+  setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,
+                      Preferences::themeColors[THEME_DARK_OVERLAY_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_OVERLAY_COLOR]);
+  setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,
+                      Preferences::themeColors[THEME_DARK_ACTIVE_VIEW_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_ACTIVE_VIEW_COLOR]);
+  setViewerThemeColor(LC_PROFILE_PREVIEW_ACTIVE_COLOR,
+                      Preferences::themeColors[THEME_DARK_ACTIVE_PREVIEW_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_ACTIVE_PREVIEW_COLOR]);
+  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,
+                      Preferences::themeColors[THEME_DARK_GRID_STUD_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_GRID_STUD_COLOR], 192/*alpha*/);
+  setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,
+                      Preferences::themeColors[THEME_DARK_GRID_LINE_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_GRID_LINE_COLOR]);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,
+                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_COLOR]);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,
+                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_TEXT_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR]);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
+                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR]);
+  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,
+                      Preferences::themeColors[THEME_DARK_VIEWER_BACKGROUND_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
+  setViewerThemeColor(LC_PROFILE_GRADIENT_COLOR_TOP,
+                      Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_TOP],
+                      Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP]);
+  setViewerThemeColor(LC_PROFILE_GRADIENT_COLOR_BOTTOM,
+                      Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM],
+                      Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM]);
 
-  // Set 3DViewer colour theme - apply this after interface settings update
+  // Set 3DViewer colour theme - apply after interface colour update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
 }
 
@@ -649,6 +683,7 @@ void Application::initialize()
     Q_ENUMS(SubAttributes)
     Q_ENUMS(NameKeyAttributes)
     Q_ENUMS(SceneObject)
+    Q_ENUMS(ThemeColorType)
 
     // other enum registrations
     Q_ENUMS(Dimensions)
@@ -855,6 +890,7 @@ void Application::initialize()
 
     emit splashMsgSig("15% - Preferences loading...");
 
+    Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
     Preferences::fadestepPreferences();
     Preferences::highlightstepPreferences();

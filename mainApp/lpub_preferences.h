@@ -71,6 +71,7 @@ class Preferences
     static void publishingPreferences();
     static void loggingPreferences();
     static void exportPreferences();
+    static void themePreferences();
     static void userInterfacePreferences();
     static void editorPreferences();
 
@@ -134,6 +135,7 @@ class Preferences
                            bool option = false,
                            bool override = false);
 
+    static QString themeColors[];
     static QString lpub3dAppName;
     static QString ldrawLibPath;
     static QString altLDConfigPath;

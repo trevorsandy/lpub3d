@@ -6597,10 +6597,12 @@ void BlenderRenderDialogGui::getRenderSettings(
         blenderLabel->setText("Blender Version");
         blenderVersionEdit->setText(Preferences::blenderVersion);
     } else {
-        if (Preferences::displayTheme == THEME_DARK)
-            blenderLabel->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
-        else
+        if (Preferences::displayTheme == THEME_DARK) {
+            const QString themeColor = Preferences::themeColors[THEME_HIGHLIGHT_27_DARK];
+            blenderLabel->setStyleSheet("QLabel { color : " + themeColor + "; }");
+        } else {
             blenderLabel->setStyleSheet("QLabel { color : blue; }");
+        }
         blenderLabel->setText("Blender not configured");
         blenderVersionEdit->setVisible(mBlenderConfigured);
     }

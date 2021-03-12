@@ -154,7 +154,7 @@ void EditWindow::setSelectionHighlighter()
     if (Preferences::displayTheme == THEME_DEFAULT)
         highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
     else if (Preferences::displayTheme == THEME_DARK)
-        highlightColor = QColor(THEME_DARK_PALETTE_HILIGHT_TEXT);
+        highlightColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT_TEXT]);
     highlightColor.setAlpha(30);
 
     auto palette = _textEdit->palette();
@@ -1165,7 +1165,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                     if (Preferences::displayTheme == THEME_DEFAULT) {
                         lineColor = QColor(Qt::white);
                     } else if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(THEME_SCENE_BGCOLOR_DARK);
+                        lineColor = QColor(Preferences::themeColors[THEME_SCENE_BGCOLOR_DARK]);
                     }
                 } else {
                     lineColor = QColor(editorSelection ? Qt::cyan : Qt::green).lighter(180);
@@ -1234,16 +1234,16 @@ void EditWindow::highlightCurrentLine()
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
             if (showLineType == LINE_ERROR)
-                lineColor = QColor(THEME_LINE_ERROR_DEFAULT);
+                lineColor = QColor(Preferences::themeColors[THEME_LINE_ERROR_DEFAULT]);
              else
-                lineColor = QColor(THEME_LINE_HIGHLIGHT_DEFAULT);
+                lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DEFAULT]);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
             if (showLineType == LINE_ERROR)
-                lineColor = QColor(THEME_LINE_ERROR_DARK).lighter(180);
+                lineColor = QColor(Preferences::themeColors[THEME_LINE_ERROR_DARK]).lighter(180);
             else
-                lineColor = QColor(THEME_LINE_HIGHLIGHT_DARK);
+                lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DARK]);
         }
 
         selection.format.setBackground(lineColor);
@@ -2455,7 +2455,7 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
       }
     else
       if (Preferences::displayTheme == THEME_DARK) {
-          numAreaColor = QColor(THEME_EDIT_MARGIN_DARK);
+          numAreaColor = QColor(Preferences::themeColors[THEME_EDIT_MARGIN_DARK]);
           col_0 = QColor(Qt::darkGray).darker(150);
       }
 

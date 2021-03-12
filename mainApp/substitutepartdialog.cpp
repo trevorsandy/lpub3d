@@ -191,10 +191,10 @@ void SubstitutePartDialog::initialize()
 
     QPalette readOnlyPalette = QApplication::palette();
     if (Preferences::displayTheme == THEME_DARK)
-        readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DARK_PALETTE_MIDLIGHT));
+        readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
     else
-        readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DEFAULT_PALETTE_LIGHT));
-    readOnlyPalette.setColor(QPalette::Text,QColor(THEME_PALETTE_DISABLED_TEXT));
+        readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+    readOnlyPalette.setColor(QPalette::Text,QColor(Preferences::themeColors[THEME_PALETTE_DISABLED_TEXT]));
     ui->nameEdit->setReadOnly(true);
     ui->nameEdit->setPalette(readOnlyPalette);
     ui->nameEdit->setText(type);
@@ -431,10 +431,12 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->substituteEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as current type.").arg(currentType));
-            if (Preferences::displayTheme == THEME_DARK)
-                ui->messageLbl->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
-            else
+            if (Preferences::displayTheme == THEME_DARK) {
+                const QString themeColor = Preferences::themeColors[THEME_HIGHLIGHT_27_DARK];
+                ui->messageLbl->setStyleSheet("QLabel { color : " + themeColor + "; }");
+            } else {
                 ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            }
             return;
         }
         ui->substitueTitleLbl->setText(Pli::titleDescription(newType));
@@ -458,10 +460,12 @@ void SubstitutePartDialog::typeChanged(Which attribute)
             ui->ldrawEdit->setText(newType);
         } else {
             ui->messageLbl->setText(QString("Part type %1 is the same as substitute type.").arg(currentType));
-            if (Preferences::displayTheme == THEME_DARK)
-                ui->messageLbl->setStyleSheet("QLabel { color : " THEME_HIGHLIGHT_27_DARK "; }");
-            else
+            if (Preferences::displayTheme == THEME_DARK) {
+                const QString themeColor = Preferences::themeColors[THEME_HIGHLIGHT_27_DARK];
+                ui->messageLbl->setStyleSheet("QLabel { color : " + themeColor + "; }");
+            } else {
                 ui->messageLbl->setStyleSheet("QLabel { color : blue; }");
+            }
             return;
         }
         ui->ldrawTitleLbl->setText(Pli::titleDescription(newType));

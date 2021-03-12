@@ -219,7 +219,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mActiveViewColor), LC_RGBA_GREEN(mOptions->Preferences.mActiveViewColor), LC_RGBA_BLUE(mOptions->Preferences.mActiveViewColor)));
 	ui->ActiveViewColorButton->setIcon(pix);
-	
+
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mFadeStepsColor), LC_RGBA_GREEN(mOptions->Preferences.mFadeStepsColor), LC_RGBA_BLUE(mOptions->Preferences.mFadeStepsColor)));
 	ui->FadeStepsColor->setIcon(pix);
 
@@ -1389,10 +1389,10 @@ void lcQPreferencesDialog::on_MouseImportButton_clicked()
 	lcMouseShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/		
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error loading mouse shortcuts file."));
 		return;
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 	}
 
 	mOptions->MouseShortcuts = Shortcuts;
