@@ -101,7 +101,7 @@ public:
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const = 0;
 	virtual void DrawInterface(lcContext* Context, const lcScene& Scene) const = 0;
 	virtual void RemoveKeyFrames() = 0;
-	virtual const char* GetName() const = 0;
+	virtual QString GetName() const = 0;
 
 protected:
 	template<typename T>
@@ -111,7 +111,9 @@ protected:
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{
 			const lcObjectKey<T>& Key = Keys[KeyIdx];
-			Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' '; /*** LPub3D Mod - LPUB meta command ***/
+/*** LPub3D Mod - LPUB meta command ***/			
+			Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' ';
+/*** LPub3D Mod end ***/		
 			for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
 				Stream << ((float*)&Key.Value)[ValueIdx] << ' ';
 			Stream << QLatin1String("\r\n");

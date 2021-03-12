@@ -4,12 +4,11 @@
 #include "piece.h"
 #include "pieceinf.h"
 #include "lc_mainwindow.h"
-
+#include "lc_viewwidget.h"
+#include "lc_previewwidget.h"
 /*** LPub3D Mod - set Timeline top item ***/
 #include "project.h"
 /*** LPub3D Mod end ***/
-#include "lc_qglwidget.h"
-#include "lc_previewwidget.h"
 
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
@@ -611,47 +610,33 @@ void lcTimelineWidget::mousePressEvent(QMouseEvent* Event)
 		QTreeWidget::mousePressEvent(Event);
 }
 
-void lcTimelineWidget::mouseDoubleClickEvent(QMouseEvent *event)
+void lcTimelineWidget::mouseDoubleClickEvent(QMouseEvent* MouseEvent)
 {
-	QTreeWidget::mouseDoubleClickEvent(event);
-	if ( event->button() == Qt::LeftButton )
+	if (MouseEvent->button() == Qt::LeftButton)
 	{
-		lcPreferences& Preferences = lcGetPreferences();
-		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
-		{
-			QTreeWidgetItem* CurrentItem = currentItem();
-			PreviewSelection(CurrentItem);
-		}
+		QTreeWidgetItem* CurrentItem = currentItem();
+		PreviewSelection(CurrentItem);
 	}
+
+	QTreeWidget::mouseDoubleClickEvent(MouseEvent);
 }
 
-void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
+void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* CurrentItem)
 {
-	lcPiece* Piece = (lcPiece*)Current->data(0, Qt::UserRole).value<uintptr_t>();
+	if (!CurrentItem)
+		return;
+
+	lcPiece* Piece = (lcPiece*)CurrentItem->data(0, Qt::UserRole).value<uintptr_t>();
+
 	if (!Piece)
 		return;
 
 	PieceInfo* Info = Piece->mPieceInfo;
+
 	if (!Info)
 		return;
 
-	lcPreviewWidget *Preview = new lcPreviewWidget();
-
-	lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview);
-
-	if (Preview && ViewWidget)
-	{
-/*** LPub3D Mod - preview widget for LPub3D ***/
-		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-/*** LPub3D Mod end ***/
-		if (!Preview->SetCurrentPiece(Info->mFileName, Piece->mColorCode))
-			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for %1 failed.").arg(Info->mFileName));
-		ViewWidget->SetPreviewPosition(rect());
-	}
-	else
-	{
-		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
-	}
+	gMainWindow->PreviewPiece(Info->mFileName, Piece->mColorCode);
 }
 
 void lcTimelineWidget::UpdateModel()

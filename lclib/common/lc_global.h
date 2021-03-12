@@ -46,7 +46,6 @@
 char* strcasestr(const char *s, const char *find);
 #else
 char* strupr(char* string);
-char* strlwr(char* string);
 #endif
 
 // Version number.
@@ -55,7 +54,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "0e9581e"
+#define LC_VERSION_BUILD "aa1d802"
 /*** LPub3D Mod end ***/
 
 
@@ -71,6 +70,7 @@ class PieceInfo;
 typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;
 struct lcModelPartsEntry;
 struct lcMinifig;
+enum class lcViewpoint;
 
 class lcVector2;
 class lcVector3;
@@ -78,13 +78,16 @@ class lcVector4;
 class lcMatrix33;
 class lcMatrix44;
 
+class lcViewWidget;
 class lcGLWidget;
 class lcContext;
 class lcMesh;
 struct lcMeshSection;
 struct lcRenderMesh;
+struct lcObjectSection;
 class lcTexture;
 class lcScene;
+class lcViewSphere;
 enum class lcRenderMeshState : int;
 
 class lcFile;

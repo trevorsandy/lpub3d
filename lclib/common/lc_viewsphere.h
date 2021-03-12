@@ -47,7 +47,7 @@ protected:
 /*** LPub3D Mod end ***/
 
 	int mSize = 1;
-	bool mEnabled = true;
+	bool mEnabled = false;
 	lcViewSphereLocation mLocation = lcViewSphereLocation::TopRight;
 
 	int mMouseDownX = 0;

@@ -21,7 +21,7 @@ lcQAboutDialog::lcQAboutDialog(QWidget *parent) :
 /*** LPub3D Mod end ***/
 #endif
 
-	QGLWidget* Widget = (QGLWidget*)gMainWindow->GetActiveView()->mWidget;
+	QGLWidget* Widget = gMainWindow->GetActiveView()->GetWidget();
 	QGLFormat Format = Widget->context()->format();
 
 	int ColorDepth = Format.redBufferSize() + Format.greenBufferSize() + Format.blueBufferSize() + Format.alphaBufferSize();

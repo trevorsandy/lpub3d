@@ -37,7 +37,7 @@ public:
 	explicit lcLibraryPrimitive(QString&& FileName, const char* Name, lcZipFileType ZipFileType, quint32 ZipFileIndex, bool Stud, bool SubFile)
 		: mFileName(std::move(FileName))
 	{
-		strncpy(mName, Name, sizeof(mName));
+		strncpy(mName, Name, sizeof(mName)-1);
 		mName[sizeof(mName) - 1] = 0;
 
 		mZipFileType = ZipFileType;
@@ -179,7 +179,7 @@ signals:
 
 protected:
 	bool OpenArchive(const QString& FileName, lcZipFileType ZipFileType);
-	bool OpenArchive(lcFile* File, const QString& FileName, lcZipFileType ZipFileType);
+	bool OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType ZipFileType);
 	bool OpenDirectory(const QDir& LibraryDir, bool ShowProgress);
 	void ReadArchiveDescriptions(const QString& OfficialFileName, const QString& UnofficialFileName);
 	void ReadDirectoryDescriptions(const QFileInfoList (&FileLists)[LC_NUM_FOLDERTYPES], bool ShowProgress);
@@ -206,9 +206,7 @@ protected:
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
-	QString mLibraryFileName;
-	QString mUnofficialFileName;
-	lcZipFile* mZipFiles[LC_NUM_ZIPFILES];
+	std::unique_ptr<lcZipFile> mZipFiles[LC_NUM_ZIPFILES];
 	bool mHasUnofficial;
 	bool mCancelLoading;
 };

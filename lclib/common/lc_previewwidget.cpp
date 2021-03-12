@@ -6,14 +6,14 @@
 #include "lc_model.h"
 #include "camera.h"
 #include "lc_library.h"
-
-#include "lc_qglwidget.h"
+#include "lc_viewsphere.h"
+#include "lc_viewwidget.h"
 
 lcPreviewDockWidget::lcPreviewDockWidget(QMainWindow* Parent)
 	: QMainWindow(Parent)
 {
 	mPreview = new lcPreviewWidget();
-	mViewWidget = new lcQGLWidget(nullptr, mPreview);
+	mViewWidget = new lcViewWidget(nullptr, mPreview);
 	setCentralWidget(mViewWidget);
 	setMinimumSize(200, 200);
 
@@ -67,11 +67,19 @@ bool lcPreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode
 
 void lcPreviewDockWidget::UpdatePreview()
 {
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	if (mLockAction->isChecked())
+		return;
+/*** LPub3D Mod end ***/
 	mPreview->UpdatePreview();
 }
 
 void lcPreviewDockWidget::ClearPreview()
 {
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	if (mLockAction->isChecked())
+		return;
+/*** LPub3D Mod end ***/
 	if (mPreview->GetActiveModel()->GetPieces().GetSize())
 		mPreview->ClearPreview();
 	mLabel->setText(QString());
@@ -95,9 +103,10 @@ void lcPreviewDockWidget::SetPreviewLock()
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 lcPreviewWidget::lcPreviewWidget(bool Substitute)
-	: lcGLWidget(nullptr), mLoader(new Project(true/*IsPreview*/)), mViewSphere(this, Substitute), mIsSubstitute(Substitute)
+	: lcGLWidget(lcViewType::Preview, nullptr), mLoader(new Project(true/*IsPreview*/)), mIsSubstitute(Substitute)
 {
 /*** LPub3D Mod end ***/
+	mViewSphere = std::unique_ptr<lcViewSphere>(new lcViewSphere(this, Substitute));
 	mLoader->SetActiveModel(0);
 	mModel = mLoader->GetActiveModel();
 
@@ -210,31 +219,6 @@ void lcPreviewWidget::UpdatePreview()
 		SetCurrentPiece(PartType, ColorCode);
 }
 
-void lcPreviewWidget::SetDefaultCamera()
-{
-	if (!mCamera || !mCamera->IsSimple())
-		mCamera = new lcCamera(true);
-	mCamera->SetViewpoint(LC_VIEWPOINT_HOME);
-}
-
-void lcPreviewWidget::SetCamera(lcCamera* Camera) // called by lcModel::DeleteModel()
-{
-	if (!mCamera || !mCamera->IsSimple())
-		mCamera = new lcCamera(true);
-
-	mCamera->CopyPosition(Camera);
-}
-
-void lcPreviewWidget::ZoomExtents()
-{
-	lcModel* ActiveModel = GetActiveModel();
-	if (ActiveModel)
-	{
-		ActiveModel->ZoomExtents(mCamera, float(mWidth) / float(mHeight));
-		Redraw();
-	}
-}
-
 void lcPreviewWidget::StartOrbitTracking() // called by viewSphere
 {
 	mTrackTool = lcTrackTool::OrbitXY;
@@ -242,23 +226,6 @@ void lcPreviewWidget::StartOrbitTracking() // called by viewSphere
 	UpdateCursor();
 
 	OnButtonDown(lcTrackButton::Left);
-}
-
-void lcPreviewWidget::SetViewpoint(const lcVector3& Position)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	mCamera->SetViewpoint(Position);
-
-	Redraw();
 }
 
 void lcPreviewWidget::StopTracking(bool Accept)
@@ -346,13 +313,14 @@ void lcPreviewWidget::OnDraw()
 	{
 		mContext->SetLineWidth(1.0f);
 /*** LPub3D Mod - preview widget for LPub3D ***/
-		if (Preferences.mDrawPreviewAxis && !mIsSubstitute)
-			DrawAxes();
-/*** LPub3D Mod end ***/
+		if (!mIsSubstitute) 
+		{
+			if (Preferences.mDrawPreviewAxis)
+				DrawAxes();
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
-		if (Preferences.mDrawPreviewViewSphere && !mIsSubstitute)
-			mViewSphere.Draw();
+			if (Preferences.mDrawPreviewViewSphere)
+				mViewSphere->Draw();
+		}
 /*** LPub3D Mod end ***/
 
 		DrawViewport();
@@ -369,7 +337,7 @@ void lcPreviewWidget::OnLeftButtonDown()
 		return;
 	}
 
-	if (mViewSphere.OnLeftButtonDown())
+	if (mViewSphere->OnLeftButtonDown())
 		return;
 
 	lcTrackTool OverrideTool = lcTrackTool::OrbitXY;
@@ -387,7 +355,8 @@ void lcPreviewWidget::OnLeftButtonUp()
 {
 	StopTracking(mTrackButton == lcTrackButton::Left);
 
-	if (mViewSphere.OnLeftButtonUp()) {
+	if (mViewSphere->OnLeftButtonUp())
+	{
 		ZoomExtents();
 		return;
 	}
@@ -459,9 +428,9 @@ void lcPreviewWidget::OnMouseMove()
 
 	if (mTrackButton == lcTrackButton::None)
 	{
-		if (mViewSphere.OnMouseMove())
+		if (mViewSphere->OnMouseMove())
 		{
-			lcTrackTool NewTrackTool = mViewSphere.IsDragging() ? lcTrackTool::OrbitXY : lcTrackTool::None;
+			lcTrackTool NewTrackTool = mViewSphere->IsDragging() ? lcTrackTool::OrbitXY : lcTrackTool::None;
 
 			if (NewTrackTool != mTrackTool)
 			{
@@ -526,10 +495,4 @@ void lcPreviewWidget::OnMouseMove()
 		default:
 			break;
 	}
-}
-
-void lcPreviewWidget::OnMouseWheel(float Direction)
-{
-	mModel->Zoom(mCamera, (int)(((mMouseModifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
-	Redraw();
 }

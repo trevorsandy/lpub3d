@@ -66,7 +66,7 @@ public:
 	lcZipFile& operator=(lcZipFile&&) = delete;
 
 	bool OpenRead(const QString& FileName);
-	bool OpenRead(lcFile* File);
+	bool OpenRead(std::unique_ptr<lcFile> File);
 	bool OpenWrite(const QString& FileName);
 
 	bool ExtractFile(int FileIndex, lcMemFile& File, quint32 MaxLength = 0xffffffff);
@@ -82,7 +82,7 @@ protected:
 	bool CheckFileCoherencyHeader(int FileIndex, quint32* SizeVar, quint64* OffsetLocalExtraField, quint32* SizeLocalExtraField);
 
 	QMutex mMutex;
-	lcFile* mFile;
+	std::unique_ptr<lcFile> mFile;
 
 	bool mModified;
 	bool mZip64;

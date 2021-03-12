@@ -25,21 +25,14 @@ public:
 	bool IndexPage;
 	int StepImagesWidth;
 	int StepImagesHeight;
+	bool PartsListStep;
+	bool PartsListEnd;
 /*** LPub3D Mod - Highlight New Parts ***/
 	bool HighlightNewParts;
 /*** LPub3D Mod end ***/
-	bool PartsListStep;
-	bool PartsListEnd;
 /*** LPub3D Mod - Fade Previous Steps ***/
 	bool FadeSteps;
 /*** LPub3D Mod end ***/
-};
-
-enum LC_MOUSE_TRACK
-{
-	LC_TRACK_NONE,
-	LC_TRACK_LEFT,
-	LC_TRACK_RIGHT
 };
 
 struct lcInstructionsPageLayout;
@@ -146,17 +139,14 @@ public:
 	{
 		mModels.Add(Model);
 	}
-
 	void DeleteAllModels()
 	{
 		mModels.DeleteAll();
 	}
-
 	void SetModified(bool value)
 	{
 		mModified = value;
 	}
-
 	void SetFileName(const QString& FileName); // moved from protected
 /*** LPub3D Mod end ***/
 

@@ -116,17 +116,23 @@ void lcPiece::SaveLDraw(QTextStream& Stream) const
 	QLatin1String LineEnding("\r\n");
 
 	if (mStepHide != LC_STEP_MAX)
+/*** LPub3D Mod - LPUB meta command ***/
 		Stream << QLatin1String("0 !LPUB PIECE STEP_HIDE ") << mStepHide << LineEnding;
+/*** LPub3D Mod end ***/
 
 	if (IsHidden())
+/*** LPub3D Mod - LPUB meta command ***/
 		Stream << QLatin1String("0 !LPUB PIECE HIDDEN") << LineEnding;
+/*** LPub3D Mod end ***/
 
 	if (mState & LC_PIECE_PIVOT_POINT_VALID)
 	{
 		const float* PivotMatrix = mPivotMatrix;
 		float PivotNumbers[12] = { PivotMatrix[12], -PivotMatrix[14], PivotMatrix[13], PivotMatrix[0], -PivotMatrix[8], PivotMatrix[4], -PivotMatrix[2], PivotMatrix[10], -PivotMatrix[6], PivotMatrix[1], -PivotMatrix[9], PivotMatrix[5] };
 
+/*** LPub3D Mod - LPUB meta command ***/
 		Stream << QLatin1String("0 !LPUB PIECE PIVOT ");
+/*** LPub3D Mod end ***/
 
 		for (int NumberIdx = 0; NumberIdx < 12; NumberIdx++)
 			Stream << ' ' << lcFormatValue(PivotNumbers[NumberIdx], NumberIdx < 3 ? 4 : 6);
@@ -921,9 +927,9 @@ void lcPiece::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) c
 	}
 }
 
-const char* lcPiece::GetName() const
+QString lcPiece::GetName() const
 {
-	return mPieceInfo->m_strDescription;
+	return QString::fromLatin1(mPieceInfo->m_strDescription);
 }
 
 bool lcPiece::IsVisible(lcStep Step) const

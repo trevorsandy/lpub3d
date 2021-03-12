@@ -242,8 +242,17 @@ public:
 	bool IsVisible() const
 	{ return (mState & LC_LIGHT_HIDDEN) == 0; }
 
-	const char* GetName() const override
-	{ return m_strName; }
+	QString GetName() const override
+	{
+		return mName;
+	}
+
+/*** LPub3D Mod - enable lights ***/
+	void SetName(const QString& Name)
+	{
+		mName = Name;
+	}
+/*** LPub3D Mod end ***/
 
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
 	void UpdatePosition(lcStep Step);
@@ -293,8 +302,8 @@ public:
 /*** LPub3D Mod end ***/
 	float mSpotCutoff;
 	float mSpotExponent;
-/*** LPub3D Mod - enable lights ***/
-	char m_strName[81];
+/*** LPub3D Mod - enable lights, moved from protected ***/
+	QString mName;
 /*** LPub3D Mod end ***/
 
 protected:
@@ -323,6 +332,7 @@ protected:
 	void DrawPointLight(lcContext* Context) const;
 	void DrawSpotLight(lcContext* Context) const;
 
+/*** LPub3D Mod - enable point lignt, moved mName to public ***/
+//    QString mName;
 	quint32 mState;
-/*** LPub3D Mod - enable point lignt, moved m_strName to public ***/
 };

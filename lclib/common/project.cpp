@@ -75,7 +75,7 @@ Project::Project(bool IsPreview)
 {
 	mModified = false;
 /*** LPub3D Mod - Default Model name for new Project and Preview ***/
-	mActiveModel = new lcModel(tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT), mIsPreview);
+	mActiveModel = new lcModel(tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT), this, mIsPreview);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	mPageWidth = 0;
@@ -311,7 +311,7 @@ lcModel* Project::CreateNewModel(bool ShowModel)
 		return nullptr;
 
 	mModified = true;
-	lcModel* Model = new lcModel(Name);
+	lcModel* Model = new lcModel(Name, this, false);
 	Model->CreatePieceInfo(this);
 	Model->SetSaved();
 	mModels.Add(Model);
@@ -347,11 +347,11 @@ void Project::ShowModelListDialog()
 
 			if (!Source)
 			{
-				Model = new lcModel(Entry.Name);
+				Model = new lcModel(Entry.Name, this, false);
 			}
 			else
 			{
-				Model = new lcModel(Source->GetProperties().mFileName);
+				Model = new lcModel(Source->GetProperties().mFileName, this, false);
 
 				QByteArray File;
 
@@ -548,8 +548,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	SetFileName(FileName);
 	QFileInfo FileInfo(FileName);
 	QString Extension = FileInfo.suffix().toLower();
-/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod end ***/
 	bool LoadDAT;
 
 	if (Extension == QLatin1String("dat") || Extension == QLatin1String("ldr") || Extension == QLatin1String("mpd"))
@@ -567,7 +567,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 		while (!Buffer.atEnd())
 		{
-			lcModel* Model = new lcModel(QString(), mIsPreview);
+			lcModel* Model = new lcModel(QString(), this, mIsPreview);
 			int Pos = Model->SplitMPD(Buffer);
 
 			if (Models.empty() || !Model->GetFileName().isEmpty())
@@ -604,7 +604,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		MemFile.WriteBuffer(FileData.constData(), FileData.size());
 		MemFile.Seek(0, SEEK_SET);
 
-		lcModel* Model = new lcModel(QString(), mIsPreview);
+		lcModel* Model = new lcModel(QString(), this, mIsPreview);
 
 		if (Model->LoadBinary(&MemFile))
 		{
@@ -618,9 +618,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 	if (mModels.IsEmpty())
 	{
-/*** LPub3D Mod - preview widget ***/
-		QMessageBox::critical(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
-/*** LPub3D Mod end ***/
+		QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
 		return false;
 	}
 
@@ -739,7 +737,7 @@ bool Project::ImportLDD(const QString& FileName)
 
 	mModels.DeleteAll();
 	QString ModelName = QFileInfo(FileName).completeBaseName();
-	lcModel* Model = new lcModel(ModelName);
+	lcModel* Model = new lcModel(ModelName, this, false);
 
 	if (Model->LoadLDD(QString::fromUtf8((const char*)XMLFile.mBuffer)))
 	{
@@ -772,7 +770,7 @@ bool Project::ImportInventory(const QByteArray& Inventory, const QString& Name, 
 		return false;
 
 	mModels.DeleteAll();
-	lcModel* Model = new lcModel(Name);
+	lcModel* Model = new lcModel(Name, this, false);
 
 	if (Model->LoadInventory(Inventory))
 	{
@@ -1963,7 +1961,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	char Line[1024];
 
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
+	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN + 1], int>> PieceTable;
 	size_t NumColors = gColorList.size();
 	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
 
@@ -2001,12 +1999,12 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		while (TableFile.ReadLine(Line, sizeof(Line)))
 		{
-			char Src[1024], Dst[1024], Flags[1024];
+			char Src[129], Dst[129], Flags[11];
 
 			if (*Line == ';')
 				continue;
 
-			if (sscanf(Line,"%s%s%s", Src, Dst, Flags) != 3)
+			if (sscanf(Line,"%128s%128s%10s", Src, Dst, Flags) != 3)
 				continue;
 
 			strcat(Src, ".dat");
@@ -2017,21 +2015,21 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 			if (strchr(Flags, 'L'))
 			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
 				Entry.second |= LGEO_PIECE_LGEO;
 				sprintf(Entry.first, "lg_%s", Dst);
 			}
 
 			if (strchr(Flags, 'A'))
 			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
 				Entry.second |= LGEO_PIECE_AR;
 				sprintf(Entry.first, "ar_%s", Dst);
 			}
 
 			if (strchr(Flags, 'S'))
 			{
-				std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+				std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[Info];
 				Entry.second |= LGEO_PIECE_SLOPE;
 				Entry.first[0] = 0;
 			}
@@ -2089,7 +2087,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 			if (!AddedMeshes.insert(Mesh).second)
 				continue;
 
-			const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
+			const std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = Search->second;
 			if (Entry.first[0])
 			{
 				sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
@@ -2128,7 +2126,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (size_t ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
 		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
 
-	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char* Name)
+	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char (&Name)[LC_PIECE_NAME_LEN])
 	{
 		strcpy(Name, ModelPart.Info->mFileName);
 
@@ -2140,7 +2138,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 		{
 			char Suffix[32];
 			sprintf(Suffix, "_%p", ModelPart.Mesh);
-			strcat(Name, Suffix);
+			strncat(Name, Suffix, sizeof(Name) - 1);
+			Name[sizeof(Name) - 1] = 0;
 		}
 	};
 
@@ -2159,8 +2158,10 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!ModelPart.Mesh)
 		{
-			std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelPart.Info];
-			sprintf(Entry.first, "lc_%s", Name);
+			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
+			strcpy(Entry.first, "lc_");
+			strncat(Entry.first, Name, sizeof(Entry.first) - 1);
+			Entry.first[sizeof(Entry.first) - 1] = 0;
 		}
 
 		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
@@ -2220,7 +2221,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!ModelPart.Mesh)
 		{
-			std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelPart.Info];
+			std::pair<char[LC_PIECE_NAME_LEN + 1], int>& Entry = PieceTable[ModelPart.Info];
 
 			if (Entry.second & LGEO_PIECE_SLOPE)
 			{

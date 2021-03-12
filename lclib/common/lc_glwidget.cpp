@@ -8,25 +8,47 @@
 #include "texfont.h"
 #include "lc_model.h"
 #include "lc_scene.h"
+#include "lc_viewsphere.h"
 /*** LPub3D Mod - enable lights ***/
 #include "light.h"
 /*** LPub3D Mod end ***/
 
-lcGLWidget* lcGLWidget::mLastFocusView;
+lcGLWidget* lcGLWidget::mLastFocusedView;
+std::vector<lcGLWidget*> lcGLWidget::mViews;
 
-lcGLWidget::lcGLWidget(lcModel* Model)
-	: mModel(Model), mScene(new lcScene())
+lcGLWidget::lcGLWidget(lcViewType ViewType, lcModel* Model)
+	: mScene(new lcScene()), mModel(Model), mViewType(ViewType)
 {
 	mContext = new lcContext();
+	mViews.push_back(this);
 }
 
 lcGLWidget::~lcGLWidget()
 {
-	if (mLastFocusView == this)
-		mLastFocusView = nullptr;
+	mViews.erase(std::find(mViews.begin(), mViews.end(), this));
+
+	if (mLastFocusedView == this)
+		mLastFocusedView = nullptr;
 
 	if (mDeleteContext)
 		delete mContext;
+}
+
+void lcGLWidget::UpdateProjectViews(const Project* Project)
+{
+	for (lcGLWidget* View : mViews)
+	{
+		const lcModel* ViewModel = View->GetActiveModel();
+
+		if (ViewModel->GetProject() == Project)
+			View->Redraw();
+	}
+}
+
+void lcGLWidget::UpdateAllViews()
+{
+	for (lcGLWidget* View : mViews)
+		View->Redraw();
 }
 
 lcModel* lcGLWidget::GetActiveModel() const
@@ -37,7 +59,11 @@ lcModel* lcGLWidget::GetActiveModel() const
 void lcGLWidget::SetFocus(bool Focus)
 {
 	if (Focus)
-		mLastFocusView = this;
+	{
+		mLastFocusedView = this;
+
+		emit FocusReceived();
+	}
 }
 
 void lcGLWidget::SetMousePosition(int MouseX, int MouseY)
@@ -274,6 +300,179 @@ void lcGLWidget::UnprojectPoints(lcVector3* Points, int NumPoints) const
 	lcUnprojectPoints(Points, NumPoints, mCamera->mWorldView, GetProjectionMatrix(), Viewport);
 }
 
+void lcGLWidget::ZoomExtents()
+{
+	lcModel* ActiveModel = GetActiveModel();
+	if (ActiveModel)
+/*** LPub3D Mod - Update Default Camera ***/
+	{
+		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight);
+		if (mViewType == lcViewType::Preview)
+			Redraw();
+		else
+			ActiveModel->UpdateDefaultCameraProperties(mCamera);
+	}
+/*** LPub3D Mod end ***/
+}
+
+void lcGLWidget::SetViewpoint(lcViewpoint Viewpoint)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetViewpoint(Viewpoint);
+/*** LPub3D Mod - Apply Viewpoint zoom extent ***/
+	lcModel* ActiveModel = GetActiveModel();
+	if (ActiveModel) {
+		if (ActiveModel->ApplyViewpointZoomExtent())
+			ZoomExtents();
+	}
+/*** LPub3D Mod end ***/
+	Redraw();
+
+	emit CameraChanged();
+}
+
+void lcGLWidget::SetViewpoint(const lcVector3& Position)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetViewpoint(Position);
+	ZoomExtents();
+	Redraw();
+
+	emit CameraChanged();
+}
+
+void lcGLWidget::SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetViewpoint(Position, Target, Up);
+	Redraw();
+
+	emit CameraChanged();
+}
+
+void lcGLWidget::SetCameraAngles(float Latitude, float Longitude)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+/*** LPub3D Mod - Camera Globe ***/
+	mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
+/*** LPub3D Mod end ***/
+	ZoomExtents();
+	Redraw();
+}
+
+void lcGLWidget::SetDefaultCamera()
+{
+	if (!mCamera || !mCamera->IsSimple())
+		mCamera = new lcCamera(true);
+
+	mCamera->SetViewpoint(lcViewpoint::Home);
+
+	emit CameraChanged();
+}
+
+void lcGLWidget::SetCamera(lcCamera* Camera, bool ForceCopy)
+{
+	if (Camera->IsSimple() || ForceCopy)
+	{
+		if (!mCamera || !mCamera->IsSimple())
+			mCamera = new lcCamera(true);
+
+		mCamera->CopyPosition(Camera);
+	}
+	else
+	{
+		if (mCamera && mCamera->IsSimple())
+			delete mCamera;
+
+		mCamera = Camera;
+	}
+}
+
+void lcGLWidget::SetCamera(const QString& CameraName)
+{
+	const lcArray<lcCamera*>& Cameras = mModel->GetCameras();
+
+	for (int CameraIdx = 0; CameraIdx < Cameras.GetSize(); CameraIdx++)
+	{
+		if (CameraName.compare(Cameras[CameraIdx]->GetName(), Qt::CaseInsensitive) == 0)
+		{
+			SetCameraIndex(CameraIdx);
+			return;
+		}
+	}
+}
+
+void lcGLWidget::SetCameraIndex(int Index)
+{
+	const lcArray<lcCamera*>& Cameras = mModel->GetCameras();
+
+	if (Index >= Cameras.GetSize())
+		return;
+
+	lcCamera* Camera = Cameras[Index];
+	SetCamera(Camera, false);
+
+	emit CameraChanged();
+	Redraw();
+}
+
+/*** LPub3D Mod - Camera Globe ***/
+void lcGLWidget::SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ApplyZoomExtents)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetAngles(Latitude, Longitude, Distance, Target, GetActiveModel()->GetCurrentStep(), false);
+
+	if (ApplyZoomExtents)
+		ZoomExtents();
+	Redraw();
+}
+/*** LPub3D Mod end ***/
+
 void lcGLWidget::StartTracking(lcTrackButton TrackButton)
 {
 	mTrackButton = TrackButton;
@@ -326,7 +525,7 @@ void lcGLWidget::StartTracking(lcTrackButton TrackButton)
 
 				ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 				if (!Selection.GetSize() && !Focus)
-					ActiveModel->UpdateDefaultCamera(mCamera);
+					ActiveModel->UpdateDefaultCameraProperties(mCamera);
 			}
 		}
 /*** LPub3D Mod end ***/
@@ -386,6 +585,11 @@ lcVector3 lcGLWidget::GetCameraLightInsertPosition() const
 		Center = lcVector3(0.0f, 0.0f, 0.0f);
 
 	return lcRayPointClosestPoint(Center, ClickPoints[0], ClickPoints[1]);
+}
+
+void lcGLWidget::OnMouseWheel(float Direction)
+{
+	mModel->Zoom(mCamera, (int)(((mMouseModifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
 }
 
 void lcGLWidget::DrawBackground() const
@@ -450,7 +654,7 @@ void lcGLWidget::DrawViewport() const
 
 	mContext->SetMaterial(lcMaterialType::UnlitColor);
 
-	if (mLastFocusView == this)
+	if (mLastFocusedView == this)
 		mContext->SetColor(lcVector4FromColor(lcGetPreferences().mActiveViewColor));
 	else
 		mContext->SetColor(lcVector4FromColor(lcGetPreferences().mInactiveViewColor));
@@ -461,9 +665,9 @@ void lcGLWidget::DrawViewport() const
 	mContext->SetVertexFormatPosition(2);
 	mContext->DrawPrimitives(GL_LINE_LOOP, 0, 4);
 
-	const char* CameraName = mCamera->GetName();
+	QString CameraName = mCamera->GetName();
 
-	if (CameraName[0])
+	if (!CameraName.isEmpty())
 	{
 		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -471,7 +675,7 @@ void lcGLWidget::DrawViewport() const
 
 		glEnable(GL_BLEND);
 
-		gTexFont.PrintText(mContext, 3.0f, (float)mHeight - 1.0f - 6.0f, 0.0f, CameraName);
+		gTexFont.PrintText(mContext, 3.0f, (float)mHeight - 1.0f - 6.0f, 0.0f, CameraName.toLatin1().constData());
 
 		glDisable(GL_BLEND);
 	}

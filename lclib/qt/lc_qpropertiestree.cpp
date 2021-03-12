@@ -11,8 +11,7 @@
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "lc_qutils.h"
-
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 
 /*** LPub3D Mod - Camera Globe ***/
@@ -591,7 +590,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 	case PropertyString:
 		{
 			QLineEdit *editor = new QLineEdit(parent);
-			const char *value = (const char*)item->data(0, PropertyValueRole).value<void*>();
+			QString value = item->data(0, PropertyValueRole).toString();
 
 			editor->setText(value);
 
@@ -848,9 +847,8 @@ void lcQPropertiesTree::slotReturnPressed()
 		if (Camera)
 		{
 /*** LPub3D Mod - Camera Globe, camera name ***/
-			const char* Name = "";
-			Name = Camera->GetName();
-			bool isDefault = Name && !Name[0];
+			QString Name = Camera->GetName();
+			bool isDefault = Name.isEmpty();
 /*** LPub3D Mod end ***/
 
 			if (Item == cameraPositionX || Item == cameraPositionY || Item == cameraPositionZ)
@@ -1044,7 +1042,7 @@ void lcQPropertiesTree::slotReturnPressed()
 			{
 				QString Value = Editor->text();
 
-				Model->SetCameraName(Camera, Value.toLocal8Bit().data());
+				Model->SetCameraName(Camera, Value);
 			}
 /*** LPub3D Mod - Camera Globe ***/
 			lcArray<lcObject*> Selection;
@@ -1061,8 +1059,7 @@ void lcQPropertiesTree::slotReturnPressed()
 		{
 			lcLightProps Props = Light->GetLightProps();
 
-			const char* Name = "";
-			Name = Light->GetName();
+			QString Name = Light->GetName();
 
 			if (Item == lightPositionX || Item == lightPositionY || Item == lightPositionZ)
 			{
@@ -1184,7 +1181,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 				if (Focus && Focus->IsPiece())
 					ColorIndex = ((lcPiece*)Focus)->mColorIndex;
 				quint32 ColorCode = lcGetColorCode(ColorIndex);
-				PreviewSelection(Info->mFileName, ColorCode);
+				gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
 			}
 		}
 	}
@@ -1230,7 +1227,7 @@ void lcQPropertiesTree::slotColorButtonClicked()
 /*** LPub3D Mod - enable piece color ***/
 	lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
 	QWidget* Button = (QWidget*)sender();
-	
+
 	if (!Button)
 		return;
 		
@@ -1261,10 +1258,12 @@ void lcQPropertiesTree::slotColorButtonClicked()
 	Popup->setMinimumSize(300, 200);
 
 	if (Popup && Button) {
-		//const QRect desktop = QApplication::desktop()->geometry();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
 		QScreen* Screen = QGuiApplication::screenAt(Button->mapToGlobal(Button->rect().bottomLeft()));
 		const QRect ScreenRect = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
-	
+#else
+		const QRect ScreenRect = QApplication::desktop()->geometry();
+#endif
 
 		QPoint pos = Button->mapToGlobal(Button->rect().bottomLeft());
 		if (pos.x() < ScreenRect.left())
@@ -1482,7 +1481,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 		{
 			quint32 ColorCode = lcGetColorCode(ColorIndex);
-			PreviewSelection(Info->mFileName, ColorCode);
+			gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
 		}
 	}
 	else
@@ -1508,7 +1507,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 				if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 				{
 					quint32 ColorCode = lcGetColorCode(ColorIndex);
-					PreviewSelection(Info->mFileName, ColorCode);
+					gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
 				}
 /*** LPub3D Mod end ***/
 				FirstPiece = false;
@@ -1643,7 +1642,8 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	float FoV = 60.0f;
 	float ZNear = 1.0f;
 	float ZFar = 100.0f;
-	const char* Name = "";
+	QString Name;
+
 	if (Camera)
 	{
 /*** LPub3D Mod - Camera Globe ***/
@@ -1660,7 +1660,7 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		ZFar = Camera->m_zFar;
 		Name = Camera->GetName();
 /*** LPub3D Mod - Camera Globe ***/
-		if (Name && !Name[0])
+		if (Name.isEmpty())
 			Name = "Default";
 		ModelScale      = Camera->GetScale();
 		Resolution      = lcGetActiveProject()->GetResolution();
@@ -1717,7 +1717,7 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraOrtho->setData(0, PropertyValueRole, Ortho);
 
 	cameraName->setText(1, Name);
-	cameraName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Name));
+	cameraName->setData(0, PropertyValueRole, Name);
 
 /*** LPub3D Mod - Camera Globe ***/
 	pictureModelScale->setText(1, lcFormatValueLocalized(ModelScale));
@@ -1741,7 +1741,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 /*** LPub3D Mod - enable lights ***/
 	lcLight* Light = (Focus && Focus->IsLight()) ? (lcLight*)Focus : nullptr;
 
-	const char* Name            = "Light";
+	QString Name                = "Light";
 	const char* FactorALabel    = "FactorA";
 	const char* ExponentLabel   = "Exponent";
 	QString Type                = "";
@@ -1966,7 +1966,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	lightSpecular->setToolTip(1, tr("Specular reflection multiplier factor."));
 
 	lightName->setText(1, Name);
-	lightName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Name));
+	lightName->setData(0, PropertyValueRole, QVariant::fromValue(Name));
 /*** LPub3D Mod end ***/
 }
 
@@ -1987,29 +1987,4 @@ void lcQPropertiesTree::SetMultiple()
 bool lcQPropertiesTree::lastColumn(int column) const
 {
 	return header()->visualIndex(column) == columnCount() - 1;
-}
-
-void lcQPropertiesTree::PreviewSelection(const QString &PartType, int ColorCode)
-{
-	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating)
-	{
-		gMainWindow->PreviewPiece(PartType, ColorCode);
-		return;
-	}
-
-	lcPreviewWidget *Preview = new lcPreviewWidget();
-
-	lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview);
-
-	if (Preview && ViewWidget)
-	{
-		if (!Preview->SetCurrentPiece(PartType, ColorCode))
-			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for %1 failed.").arg(PartType));
-		ViewWidget->SetPreviewPosition(rect());
-	}
-	else
-	{
-		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(PartType));
-	}
 }

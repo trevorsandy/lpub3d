@@ -1,19 +1,18 @@
 #pragma once
 
 #include "lc_glwidget.h"
-#include "camera.h"
-#include "lc_viewsphere.h"
+#include "lc_context.h"
 
 class View : public lcGLWidget
 {
+	Q_OBJECT
+
 public:
-	View(lcModel* Model);
+	View(lcViewType ViewType, lcModel* Model);
 	~View();
 
 	View(const View&) = delete;
-	View(View&&) = delete;
 	View& operator=(const View&) = delete;
-	View& operator=(View&&) = delete;
 
 	void Clear()
 	{
@@ -44,7 +43,6 @@ public:
 	void OnBackButtonUp() override;
 	void OnForwardButtonUp() override;
 	void OnMouseMove() override;
-	void OnMouseWheel(float Direction) override;
 	void BeginDrag(lcDragState DragState) override;
 	void EndDrag(bool Accept) override;
 
@@ -53,22 +51,10 @@ public:
 
 	void SetProjection(bool Ortho);
 	void LookAt();
-	void ZoomExtents();
 	void MoveCamera(const lcVector3& Direction);
 	void Zoom(float Amount);
 
 	void RemoveCamera();
-	void SetCamera(lcCamera* Camera, bool ForceCopy);
-	void SetCamera(const char* CameraName);
-	void SetCameraIndex(int Index);
-	void SetViewpoint(lcViewpoint Viewpoint);
-	void SetViewpoint(const lcVector3& Position);
-	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
-	void SetCameraAngles(float Latitude, float Longitude);
-/*** LPub3D Mod - Camera Globe ***/
-	void SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ZoomExt = false);
-/*** LPub3D Mod end ***/
-	void SetDefaultCamera();
 	void ShowContextMenu() const;
 
 	lcVector3 GetMoveDirection(const lcVector3& Direction) const;
@@ -108,7 +94,6 @@ protected:
 	PieceInfo* mMouseDownPiece;
 	QImage mRenderImage;
 	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
-	lcViewSphere mViewSphere;
 
 	lcVertexBuffer mGridBuffer;
 	int mGridSettings[7];

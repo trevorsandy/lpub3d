@@ -58,8 +58,6 @@ lcPiecesLibrary::lcPiecesLibrary()
 	Dir.mkpath(mCachePath);
 
 	mNumOfficialPieces = 0;
-	mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
-	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
 	mBuffersDirty = false;
 	mHasUnofficial = false;
 	mCancelLoading = false;
@@ -91,9 +89,7 @@ void lcPiecesLibrary::Unload()
 	mTextures.clear();
 
 	mNumOfficialPieces = 0;
-	delete mZipFiles[LC_ZIPFILE_OFFICIAL];
 	mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
-	delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
 	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
 }
 
@@ -274,7 +270,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 		return ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile);
 	};
 
-	if (OpenArchive(QFileInfo(LibraryPath).absoluteFilePath(), LC_ZIPFILE_OFFICIAL))
+	if (OpenArchive(LibraryPath, LC_ZIPFILE_OFFICIAL))
 	{
 		lcMemFile ColorFile;
 
@@ -329,33 +325,20 @@ bool lcPiecesLibrary::OpenArchive(const QString& FileName, lcZipFileType ZipFile
 	lpubAlert->messageSig(LOG_INFO, QString("Loading archive %1...").arg(FileName));
 /*** LPub3D Mod end ***/
 
-	lcDiskFile* File = new lcDiskFile(FileName);
+	std::unique_ptr<lcDiskFile> File(new lcDiskFile(FileName));
 
-	if (!File->Open(QIODevice::ReadOnly) || !OpenArchive(File, FileName, ZipFileType))
-	{
-		delete File;
+	if (!File->Open(QIODevice::ReadOnly))
 		return false;
-	}
 
-	return true;
+	return OpenArchive(std::move(File), ZipFileType);
 }
 
-bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFileType ZipFileType)
+bool lcPiecesLibrary::OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType ZipFileType)
 {
-	lcZipFile* ZipFile = new lcZipFile();
+	std::unique_ptr<lcZipFile> ZipFile(new lcZipFile());
 
-	if (!ZipFile->OpenRead(File))
-	{
-		delete ZipFile;
+	if (!ZipFile->OpenRead(std::move(File)))
 		return false;
-	}
-
-	mZipFiles[ZipFileType] = ZipFile;
-
-	if (ZipFileType == LC_ZIPFILE_OFFICIAL)
-		mLibraryFileName = FileName;
-	else
-		mUnofficialFileName = FileName;
 
 	for (int FileIdx = 0; FileIdx < ZipFile->mFiles.GetSize(); FileIdx++)
 	{
@@ -395,7 +378,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFi
 					mTextures.push_back(Texture);
 
 					*Dst = 0;
-					strncpy(Texture->mName, Name + (ZipFileType == LC_ZIPFILE_OFFICIAL ? 21 : 15), sizeof(Texture->mName));
+					strncpy(Texture->mName, Name + (ZipFileType == LC_ZIPFILE_OFFICIAL ? 21 : 15), sizeof(Texture->mName)-1);
 					Texture->mName[sizeof(Texture->mName) - 1] = 0;
 				}
 			}
@@ -423,7 +406,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFi
 				{
 					Info = new PieceInfo();
 
-					strncpy(Info->mFileName, FileInfo.file_name + (Name - NameBuffer), sizeof(Info->mFileName));
+					strncpy(Info->mFileName, FileInfo.file_name + (Name - NameBuffer), sizeof(Info->mFileName)-1);
 					Info->mFileName[sizeof(Info->mFileName) - 1] = 0;
 /*** LPub3D Mod - part type flag ***/
 					Info->m_iPartType = LC_LIBRARY_PART_TYPE;
@@ -456,6 +439,8 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFi
 				Primitive->SetZipFile(ZipFileType, FileIdx);
 		}
 	}
+
+	mZipFiles[ZipFileType] = std::move(ZipFile);
 
 	return true;
 }
@@ -1395,18 +1380,16 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 		{
 			lcDiskFile IncludeFile;
 
-			auto LoadIncludeFile = [&IncludeFile, PieceName, this](const char* Folder)
+			auto LoadIncludeFile = [&IncludeFile, PieceName, this](const QLatin1String& Folder)
 			{
-				char IncludeFileName[LC_MAXPATH];
-				sprintf(IncludeFileName, Folder, PieceName);
-				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(IncludeFileName)));
+				const QString IncludeFileName = Folder + PieceName;
+				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(IncludeFileName));
 				if (IncludeFile.Open(QIODevice::ReadOnly))
 					return true;
 
 #if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
-				// todo: instead of using strlwr, search the parts/primitive lists and get the file name from there
-				strlwr(IncludeFileName);
-				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(IncludeFileName)));
+				// todo: search the parts/primitive lists and get the file name from there instead of using toLower
+				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(IncludeFileName.toLower()));
 				return IncludeFile.Open(QIODevice::ReadOnly);
 #else
 				return false;
@@ -1415,18 +1398,18 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 
 			if (mHasUnofficial)
 			{
-				Found = LoadIncludeFile("unofficial/parts/%s");
+				Found = LoadIncludeFile(QLatin1String("unofficial/parts/"));
 
 				if (!Found)
-					Found = LoadIncludeFile("unofficial/p/%s");
+					Found = LoadIncludeFile(QLatin1String("unofficial/p/"));
 			}
 
 			if (!Found)
 			{
-				Found = LoadIncludeFile("parts/%s");
+				Found = LoadIncludeFile(QLatin1String("parts/"));
 
 				if (!Found)
-					Found = LoadIncludeFile("p/%s");
+					Found = LoadIncludeFile(QLatin1String("p/"));
 			}
 
 			if (Found)
@@ -1609,28 +1592,24 @@ void lcPiecesLibrary::SetStudLogo(int StudLogo, bool Reload)
 
 bool lcPiecesLibrary::GetStudLogoFile(lcMemFile& PrimFile, int StudLogo, bool OpenStud)
 {
-	// validate logo choice and unofficial lib available
-	if (!StudLogo || (!mZipFiles[LC_ZIPFILE_UNOFFICIAL] && !mHasUnofficial))
+	if (!StudLogo || !SupportsStudLogo())
 		return false;
 
-	// construct logo reference line
-	QString Logo        = QString("%1").arg(StudLogo);
-	QString LogoRefLine = QString("1 16 0 0 0 1 0 0 0 1 0 0 0 1 ");
-	LogoRefLine        += (OpenStud ? QString("stud2-logo%1.dat").arg(StudLogo > 1 ? Logo : ""):
-									  QString("stud-logo%1.dat").arg(StudLogo > 1 ? Logo : ""));
-
-	// construct primitive file
+	const QLatin1String LineEnding("\r\n");
 	QByteArray FileData;
-	QTextStream out(&FileData);
-	out << (OpenStud ? "0 Stud Open" : "0 Stud") << endl;
-	out << (OpenStud ? "0 Name: stud2.dat" : "0 Name: stud.dat") << endl;
-	out << "0 Author: James Jessiman" << endl;
-	out << "0 !LDRAW_ORG Primitive" << endl;
-	out << "0 BFC CERTIFY CCW" << endl;
-	out << LogoRefLine << endl;
+	QTextStream TextStream(&FileData);
+
+	TextStream << (OpenStud ? QLatin1String("0 Stud Open") : QLatin1String("0 Stud")) << LineEnding;
+	TextStream << (OpenStud ? QLatin1String("0 Name: stud2.dat") : QLatin1String("0 Name: stud.dat")) << LineEnding;
+	TextStream << QLatin1String("0 Author: James Jessiman") << LineEnding;
+	TextStream << QLatin1String("0 !LDRAW_ORG Primitive") << LineEnding;
+	TextStream << QLatin1String("0 BFC CERTIFY CCW") << LineEnding;
+	TextStream << QString("1 16 0 0 0 1 0 0 0 1 0 0 0 1 stud%1-logo%2.dat").arg(OpenStud ? "2" : QString(), StudLogo > 1 ? QString::number(StudLogo) : QString()) << LineEnding;
+	TextStream.flush();
 
 	PrimFile.WriteBuffer(FileData.constData(), size_t(FileData.size()));
 	PrimFile.Seek(0, SEEK_SET);
+
 	return true;
 }
 
@@ -1898,14 +1877,11 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	if (!Resource.isValid())
 		return false;
 
-	lcMemFile* File = new lcMemFile();
+	std::unique_ptr<lcMemFile> File(new lcMemFile());
 	File->WriteBuffer(Resource.data(), Resource.size());
 
-	if (!OpenArchive(File, "builtin", LC_ZIPFILE_OFFICIAL))
-	{
-		delete File;
+	if (!OpenArchive(std::move(File), LC_ZIPFILE_OFFICIAL))
 		return false;
-	}
 
 	lcMemFile PieceFile;
 
@@ -1944,15 +1920,14 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 bool lcPiecesLibrary::ReloadUnoffLib()
 {
 	//unload unofficial library content
-	delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
-	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
+	UnloadUnofficialLib();
 
 	//load unofficial library content
-	if (mUnofficialFileName.isEmpty())
-		mUnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
-	if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
-		ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
-	} else
+	QString OfficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawPartsArchive);
+	QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
+	if (OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
+		ReadArchiveDescriptions(OfficialFileName, UnofficialFileName);
+	else
 		return false;
 
 	//load categories
@@ -1963,8 +1938,6 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 
 /*** LPub3D Mod - unload Unofficial library ***/
 void lcPiecesLibrary::UnloadUnofficialLib() {
-	//unload unofficial library content
-	delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
 	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
 }
 /*** LPub3D Mod end ***/
@@ -1972,7 +1945,6 @@ void lcPiecesLibrary::UnloadUnofficialLib() {
 /*** LPub3D Mod - unload Official library reload ***/
 void lcPiecesLibrary::UnloadOfficialLib() {
 	mNumOfficialPieces = 0;
-	delete mZipFiles[LC_ZIPFILE_OFFICIAL];
 	mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
 }
 /*** LPub3D Mod end ***/

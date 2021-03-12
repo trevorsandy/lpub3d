@@ -24,6 +24,7 @@ HEADERS += \
     $$PWD/common/lc_math.h \
     $$PWD/common/lc_mesh.h \
     $$PWD/common/lc_meshloader.h \
+    $$PWD/common/lc_minifigdialog.h \
     $$PWD/common/lc_model.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
@@ -37,6 +38,7 @@ HEADERS += \
     $$PWD/common/lc_texture.h \
     $$PWD/common/lc_timelinewidget.h \
     $$PWD/common/lc_viewsphere.h \
+    $$PWD/common/lc_viewwidget.h \
     $$PWD/common/lc_zipfile.h \
     $$PWD/common/light.h \
     $$PWD/common/minifig.h \
@@ -53,11 +55,9 @@ HEADERS += \
     $$PWD/qt/lc_qcolorpicker.h \
     $$PWD/qt/lc_qeditgroupsdialog.h \
     $$PWD/qt/lc_qfinddialog.h \
-    $$PWD/qt/lc_qglwidget.h \
     $$PWD/qt/lc_qgroupdialog.h \
     $$PWD/qt/lc_qhtmldialog.h \
     $$PWD/qt/lc_qimagedialog.h \
-    $$PWD/qt/lc_qminifigdialog.h \
     $$PWD/qt/lc_qmodellistdialog.h \
     $$PWD/qt/lc_qpreferencesdialog.h \
     $$PWD/qt/lc_qpropertiesdialog.h \
@@ -87,6 +87,7 @@ SOURCES += \
     $$PWD/common/lc_mainwindow.cpp \
     $$PWD/common/lc_mesh.cpp \
     $$PWD/common/lc_meshloader.cpp \
+    $$PWD/common/lc_minifigdialog.cpp \
     $$PWD/common/lc_model.cpp \
     $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
@@ -100,6 +101,7 @@ SOURCES += \
     $$PWD/common/lc_texture.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_viewsphere.cpp \
+    $$PWD/common/lc_viewwidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
     $$PWD/common/light.cpp \
     $$PWD/common/minifig.cpp \
@@ -116,11 +118,9 @@ SOURCES += \
     $$PWD/qt/lc_qcolorpicker.cpp \
     $$PWD/qt/lc_qeditgroupsdialog.cpp \
     $$PWD/qt/lc_qfinddialog.cpp \
-    $$PWD/qt/lc_qglwidget.cpp \
     $$PWD/qt/lc_qgroupdialog.cpp \
     $$PWD/qt/lc_qhtmldialog.cpp \
     $$PWD/qt/lc_qimagedialog.cpp \
-    $$PWD/qt/lc_qminifigdialog.cpp \
     $$PWD/qt/lc_qmodellistdialog.cpp \
     $$PWD/qt/lc_qpreferencesdialog.cpp \
     $$PWD/qt/lc_qpropertiesdialog.cpp \
@@ -134,6 +134,7 @@ SOURCES += \
 
 FORMS += \
     $$PWD/common/lc_partpalettedialog.ui \
+    $$PWD/common/lc_minifigdialog.ui \
     $$PWD/qt/lc_qaboutdialog.ui \
     $$PWD/qt/lc_qarraydialog.ui \
     $$PWD/qt/lc_qcategorydialog.ui \
@@ -142,7 +143,6 @@ FORMS += \
     $$PWD/qt/lc_qgroupdialog.ui \
     $$PWD/qt/lc_qhtmldialog.ui \
     $$PWD/qt/lc_qimagedialog.ui \
-    $$PWD/qt/lc_qminifigdialog.ui \
     $$PWD/qt/lc_qmodellistdialog.ui \
     $$PWD/qt/lc_qpreferencesdialog.ui \
     $$PWD/qt/lc_qpropertiesdialog.ui \

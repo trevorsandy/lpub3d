@@ -2,16 +2,29 @@
 
 #include <QGLWidget>
 
-class lcQGLWidget : public QGLWidget
+class lcViewWidget : public QGLWidget
 {
 public:
-	lcQGLWidget(QWidget* Parent, lcGLWidget* Owner);
-	~lcQGLWidget();
+	lcViewWidget(QWidget* Parent, lcGLWidget* View);
+	~lcViewWidget();
+
+	lcGLWidget* GetView() const
+	{
+		return mView;
+	}
+
+	void SetView(lcGLWidget* View);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint());
+	void SetPreferredSize(const QSize &PreferredSize)
+	{
+		mPreferredSize = PreferredSize;
+	}
+/*** LPub3D Mod end ***/
 
 	QSize sizeHint() const override;
 
-	lcGLWidget* mWidget;
-
+protected:
 	float GetDeviceScale() const
 	{
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -21,15 +34,6 @@ public:
 #endif
 	}
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	void SetPreferredSize(const QSize &PreferredSize)
-	{
-		mPreferredSize = PreferredSize;
-	}
-	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint(), bool UseViewPos = false);
-/*** LPub3D Mod end ***/
-
-protected:
 	void resizeGL(int Width, int Height) override;
 	void paintGL() override;
 	void focusInEvent(QFocusEvent* FocusEvent) override;
@@ -46,6 +50,7 @@ protected:
 	void dragMoveEvent(QDragMoveEvent* DragMoveEvent) override;
 	void dropEvent(QDropEvent* DropEvent) override;
 
+	lcGLWidget* mView;
 	QSize mPreferredSize;
 	int mWheelAccumulator;
 };

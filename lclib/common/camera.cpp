@@ -19,10 +19,10 @@
 #define LC_CAMERA_SAVE_VERSION 7 // LeoCAD 0.80
 
 /*** LPub3D Mod - LPUB meta command ***/
-lcCamera::lcCamera(bool Simple, bool lpubmeta)
+lcCamera::lcCamera(bool Simple, bool LPubMeta)
 	: lcObject(lcObjectType::Camera)
 {
-	mLPubMeta = lpubmeta;
+	mLPubMeta = LPubMeta;
 /*** LPub3D Mod end ***/
 	Initialize();
 
@@ -30,8 +30,10 @@ lcCamera::lcCamera(bool Simple, bool lpubmeta)
 		mState |= LC_CAMERA_SIMPLE;
 	else
 	{
+/*** LPub3D Mod - Update Default Camera ***/		
 		float PP = GetCDP() / GetDDF();
 		mPosition = lcVector3(-PP, -PP, 75.0f);
+/*** LPub3D Mod end ***/		
 		mTargetPosition = lcVector3(0.0f, 0.0f, 0.0f);
 		mUpVector = lcVector3(-0.2357f, -0.2357f, 0.94281f);
 
@@ -75,21 +77,28 @@ lcCamera::~lcCamera()
 
 void lcCamera::Initialize()
 {
-	m_fovy  = gApplication->mPreferences.mCFoV;
+/*** LPub3D Mod - LPUB meta command ***/
+	m_fovy = gApplication->mPreferences.mCFoV;
 	m_zNear = gApplication->mPreferences.mCNear;
-	m_zFar  = gApplication->mPreferences.mCFar;
-	mState  = 0;
-	memset(m_strName, 0, sizeof(m_strName));
+	m_zFar = gApplication->mPreferences.mCFar;
+/*** LPub3D Mod end ***/	
+	mState = 0;
+}
+
+void lcCamera::SetName(const QString& Name)
+{
+	mName = Name;
 }
 
 void lcCamera::CreateName(const lcArray<lcCamera*>& Cameras)
 {
-	if (m_strName[0])
+	if (!mName.isEmpty())
 	{
 		bool Found = false;
-		for (int CameraIdx = 0; CameraIdx < Cameras.GetSize(); CameraIdx++)
+
+		for (const lcCamera* Camera : Cameras)
 		{
-			if (!strcmp(Cameras[CameraIdx]->m_strName, m_strName))
+			if (Camera->GetName() == mName)
 			{
 				Found = true;
 				break;
@@ -100,16 +109,28 @@ void lcCamera::CreateName(const lcArray<lcCamera*>& Cameras)
 			return;
 	}
 
-	int i, max = 0;
-	const char* Prefix = "Camera ";
+	int MaxCameraNumber = 0;
+	const QLatin1String Prefix("Camera ");
 
-	for (int CameraIdx = 0; CameraIdx < Cameras.GetSize(); CameraIdx++)
-		if (strncmp(Cameras[CameraIdx]->m_strName, Prefix, strlen(Prefix)) == 0)
-			if (sscanf(Cameras[CameraIdx]->m_strName + strlen(Prefix), " %d", &i) == 1)
-				if (i > max)
-					max = i;
+	for (const lcCamera* Camera : Cameras)
+	{
+		QString CameraName = Camera->GetName();
 
-	sprintf(m_strName, "%s %d", Prefix, max+1);
+		if (CameraName.startsWith(Prefix))
+		{
+			bool Ok = false;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			int CameraNumber = CameraName.midRef(Prefix.size()).toInt(&Ok);
+#else
+			int CameraNumber = CameraName.mid((int)strlen(Prefix.latin1())).toInt(&Ok);
+#endif
+
+			if (Ok && CameraNumber > MaxCameraNumber)
+				MaxCameraNumber = CameraNumber;
+		}
+	}
+
+	mName = Prefix + QString::number(MaxCameraNumber + 1);
 }
 
 void lcCamera::SaveLDraw(QTextStream& Stream) const
@@ -159,7 +180,7 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 	if (IsOrtho())
 		Stream << QLatin1String("ORTHOGRAPHIC ");
 
-	Stream << QLatin1String("NAME ") << m_strName << LineEnding;
+	Stream << QLatin1String("NAME ") << mName << LineEnding;
 }
 
 bool lcCamera::ParseLDrawLine(QTextStream& Stream)
@@ -241,10 +262,7 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			LoadKeysLDraw(Stream, mUpVectorKeys);
 		else if (Token == QLatin1String("NAME"))
 		{
-			QString Name = Stream.readAll().trimmed();
-			QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
-			strncpy(m_strName, NameUtf.constData(), sizeof(m_strName));
-			m_strName[sizeof(m_strName) - 1] = 0;
+			mName = Stream.readAll().trimmed();
 			return true;
 		}
 	}
@@ -258,6 +276,8 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 
 	return false;
 }
+
+/////////////////////////////////////////////////////////////////////////////
 // Camera save/load
 
 bool lcCamera::FileLoad(lcFile& file)
@@ -305,16 +325,20 @@ bool lcCamera::FileLoad(lcFile& file)
 
 	if (version == 4)
 	{
-		file.ReadBuffer(m_strName, 80);
-		m_strName[80] = 0;
+		char Name[81];
+		file.ReadBuffer(Name, 80);
+		Name[80] = 0;
+		mName = Name;
 	}
 	else
 	{
 		ch = file.ReadU8();
 		if (ch == 0xFF)
 			return false; // don't read CString
-		file.ReadBuffer(m_strName, ch);
-		m_strName[ch] = 0;
+		char Name[81];
+		file.ReadBuffer(Name, ch);
+		Name[ch] = 0;
+		mName = Name;
 	}
 
 	if (version < 3)
@@ -444,7 +468,7 @@ bool lcCamera::FileLoad(lcFile& file)
 		qint32 user;
 
 		file.ReadU32(&show, 1);
-//      if (version > 2)
+//		if (version > 2)
 		file.ReadS32(&user, 1);
 		if (show == 0)
 			mState |= LC_CAMERA_HIDDEN;
@@ -621,7 +645,7 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
 
-	const GLushort Indices[40 + 24 + 24 + 4 + 16] =
+	const GLushort Indices[40 + 24 + 24 + 4 + 16] = 
 	{
 		0, 1, 1, 2, 2, 3, 3, 0,
 		4, 5, 5, 6, 6, 7, 7, 4,
@@ -944,7 +968,9 @@ void lcCamera::Zoom(float Distance, lcStep Step, bool AddKey)
 {
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 	FrontVector.Normalize();
+/*** LPub3D Mod - Update Default Camera ***/	
 	FrontVector *= GetDDF() * Distance;
+/*** LPub3D Mod end ***/	
 
 	// Don't zoom ortho in if it would cross the ortho focal plane.
 	if (IsOrtho())
@@ -996,7 +1022,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 		Z[0] = -Z[0];
 		Z[1] = -Z[1];
 	}
-
+ 
 	lcMatrix44 YRot(lcVector4(Z[0], Z[1], 0.0f, 0.0f), lcVector4(-Z[1], Z[0], 0.0f, 0.0f), lcVector4(0.0f, 0.0f, 1.0f, 0.0f), lcVector4(0.0f, 0.0f, 0.0f, 1.0f));
 	lcMatrix44 transform = lcMul(lcMul(lcMul(lcMatrix44AffineInverse(YRot), lcMatrix44RotationY(DistanceY)), YRot), lcMatrix44RotationZ(-DistanceX));
 
@@ -1035,18 +1061,19 @@ void lcCamera::Center(const lcVector3& NewCenter, lcStep Step, bool AddKey)
 	const lcMatrix44 Inverse = lcMatrix44AffineInverse(mWorldView);
 	const lcVector3 Direction = -lcVector3(Inverse[2]);
 
-	float Yaw, Pitch, Roll;
+//	float Yaw, Pitch, Roll;
+	float Roll;
 
 	if (fabsf(Direction.z) < 0.9999f)
 	{
-		Yaw = atan2f(Direction.y, Direction.x);
-		Pitch = asinf(Direction.z);
+//		Yaw = atan2f(Direction.y, Direction.x);
+//		Pitch = asinf(Direction.z);
 		Roll = atan2f(Inverse[0][2], Inverse[1][2]);
 	}
 	else
 	{
-		Yaw = 0.0f;
-		Pitch = asinf(Direction.z);
+//		Yaw = 0.0f;
+//		Pitch = asinf(Direction.z);
 		Roll = atan2f(Inverse[0][1], Inverse[1][1]);
 	}
 
@@ -1078,13 +1105,13 @@ void lcCamera::SetViewpoint(lcViewpoint Viewpoint)
 {
 	lcVector3 Positions[] =
 	{
-		lcVector3(    0.0f, -GetCDP(),     0.0f), // LC_VIEWPOINT_FRONT
-		lcVector3(    0.0f,  GetCDP(),     0.0f), // LC_VIEWPOINT_BACK
-		lcVector3(    0.0f,     0.0f,  GetCDP()), // LC_VIEWPOINT_TOP
-		lcVector3(    0.0f,     0.0f, -GetCDP()), // LC_VIEWPOINT_BOTTOM
-		lcVector3( GetCDP(),     0.0f,     0.0f), // LC_VIEWPOINT_LEFT
-		lcVector3(-GetCDP(),     0.0f,     0.0f), // LC_VIEWPOINT_RIGHT
-		lcVector3(  375.0f,   -375.0f,   187.5f)  // LC_VIEWPOINT_HOME
+		lcVector3(    0.0f, -GetCDP(),     0.0f), // lcViewpoint::Front     /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3(    0.0f,  GetCDP(),     0.0f), // lcViewpoint::Back      /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3(    0.0f,     0.0f,  GetCDP()), // lcViewpoint::Top       /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3(    0.0f,     0.0f, -GetCDP()), // lcViewpoint::Bottom    /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3( GetCDP(),     0.0f,     0.0f), // lcViewpoint::Left      /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3(-GetCDP(),     0.0f,     0.0f), // lcViewpoint::Right     /*** LPub3D Mod - Update Default Camera ***/
+		lcVector3(  375.0f,   -375.0f,   187.5f)  // lcViewpoint::Home
 	};
 
 	lcVector3 Ups[] =
@@ -1098,9 +1125,9 @@ void lcCamera::SetViewpoint(lcViewpoint Viewpoint)
 		lcVector3(0.2357f, -0.2357f, 0.94281f)
 	};
 
-	mPosition = Positions[Viewpoint];
+	mPosition = Positions[static_cast<int>(Viewpoint)];
 	mTargetPosition = lcVector3(0, 0, 0);
-	mUpVector = Ups[Viewpoint];
+	mUpVector = Ups[static_cast<int>(Viewpoint)];
 
 	ChangeKey(mPositionKeys, mPosition, 1, false);
 	ChangeKey(mTargetPositionKeys, mTargetPosition, 1, false);
@@ -1181,7 +1208,6 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 	// Distance in Standard (LDU) Format - e.g. 3031329
 	float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
 	mPosition = lcMul(mPosition, LatitudeMatrix) * CameraDistance;
-/*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
 	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
@@ -1189,6 +1215,7 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 	ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
 
 	UpdatePosition(Step);
+/*** LPub3D Mod end ***/
 }
 
 void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) const
@@ -1216,12 +1243,12 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 /*** LPub3D Mod end ***/
 }
 
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Camera Globe ***/
 float lcCamera::GetScale()
 {
 	return 1 / (lcLength(mPosition) / GetCDF()) ;
 }
-/*** LPub3D Mod - Camera Globe ***/
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
 float lcCamera::GetCDP() const

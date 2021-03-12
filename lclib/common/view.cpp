@@ -12,6 +12,8 @@
 #include "pieceinf.h"
 #include "lc_synth.h"
 #include "lc_scene.h"
+#include "lc_context.h"
+#include "lc_viewsphere.h"
 
 /*** LPub3D Mod - Rotate Step ***/
 #include "lpub.h"
@@ -20,9 +22,10 @@
 lcVertexBuffer View::mRotateMoveVertexBuffer;
 lcIndexBuffer View::mRotateMoveIndexBuffer;
 
-View::View(lcModel* Model)
-	: lcGLWidget(Model), mViewSphere(this)
+View::View(lcViewType ViewType, lcModel* Model)
+	: lcGLWidget(ViewType, Model)
 {
+	mViewSphere = std::unique_ptr<lcViewSphere>(new lcViewSphere(this));
 	memset(mGridSettings, 0, sizeof(mGridSettings));
 
 	mDragState = lcDragState::None;
@@ -262,164 +265,10 @@ void View::RemoveCamera()
 	if (Camera)
 		mCamera->CopyPosition(Camera);
 	else
-		mCamera->SetViewpoint(LC_VIEWPOINT_HOME);
+		mCamera->SetViewpoint(lcViewpoint::Home);
 
-	gMainWindow->UpdateCurrentCamera(-1);
+	emit CameraChanged();
 	Redraw();
-}
-
-void View::SetCamera(lcCamera* Camera, bool ForceCopy)
-{
-	if (Camera->IsSimple() || ForceCopy)
-	{
-		if (!mCamera || !mCamera->IsSimple())
-			mCamera = new lcCamera(true);
-
-		mCamera->CopyPosition(Camera);
-	}
-	else
-	{
-		if (mCamera && mCamera->IsSimple())
-			delete mCamera;
-
-		mCamera = Camera;
-	}
-}
-
-void View::SetCamera(const char* CameraName)
-{
-	const lcArray<lcCamera*>& Cameras = mModel->GetCameras();
-
-	for (int CameraIdx = 0; CameraIdx < Cameras.GetSize(); CameraIdx++)
-	{
-		if (qstricmp(CameraName, Cameras[CameraIdx]->m_strName) == 0)
-		{
-			SetCameraIndex(CameraIdx);
-			return;
-		}
-	}
-}
-
-void View::SetCameraIndex(int Index)
-{
-	const lcArray<lcCamera*>& Cameras = mModel->GetCameras();
-
-	if (Index >= Cameras.GetSize())
-		return;
-
-	lcCamera* Camera = Cameras[Index];
-	SetCamera(Camera, false);
-
-	gMainWindow->UpdateCurrentCamera(Index);
-	Redraw();
-}
-
-void View::SetViewpoint(lcViewpoint Viewpoint)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	mCamera->SetViewpoint(Viewpoint);
-/*** LPub3D Mod - View point zoom extent ***/
-	if (gMainWindow->viewportZoomExtent())
-		ZoomExtents();
-/*** LPub3D Mod end ***/
-	Redraw();
-
-	gMainWindow->UpdateCurrentCamera(-1);
-}
-
-void View::SetViewpoint(const lcVector3& Position)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	mCamera->SetViewpoint(Position);
-	ZoomExtents();
-	Redraw();
-
-	gMainWindow->UpdateCurrentCamera(-1);
-}
-
-void View::SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	mCamera->SetViewpoint(Position, Target, Up);
-	Redraw();
-
-	gMainWindow->UpdateCurrentCamera(-1);
-}
-
-void View::SetCameraAngles(float Latitude, float Longitude)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-/*** LPub3D Mod - Camera Globe ***/
-	mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
-/*** LPub3D Mod end ***/
-	ZoomExtents();
-	Redraw();
-}
-
-/*** LPub3D Mod - Camera Globe ***/
-void View::SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ZoomExt)
-{
-	if (!mCamera || !mCamera->IsSimple())
-	{
-		lcCamera* OldCamera = mCamera;
-
-		mCamera = new lcCamera(true);
-
-		if (OldCamera)
-			mCamera->CopySettings(OldCamera);
-	}
-
-	mCamera->SetAngles(Latitude, Longitude, Distance, Target, GetActiveModel()->GetCurrentStep(), false);
-
-	if (ZoomExt)
-		ZoomExtents();
-	Redraw();
-}
-/*** LPub3D Mod end ***/
-
-void View::SetDefaultCamera()
-{
-	if (!mCamera || !mCamera->IsSimple())
-		mCamera = new lcCamera(true);
-
-	mCamera->SetViewpoint(LC_VIEWPOINT_HOME);
-
-	gMainWindow->UpdateCurrentCamera(-1);
 }
 
 lcMatrix44 View::GetTileProjectionMatrix(int CurrentRow, int CurrentColumn, int CurrentTileWidth, int CurrentTileHeight) const
@@ -471,10 +320,9 @@ lcMatrix44 View::GetTileProjectionMatrix(int CurrentRow, int CurrentColumn, int 
 
 void View::ShowContextMenu() const
 {
-	QGLWidget* Widget = (QGLWidget*)mWidget;
 	QAction** Actions = gMainWindow->mActions;
 
-	QMenu* Popup = new QMenu(Widget);
+	QMenu* Popup = new QMenu(mWidget);
 
 /*** LPub3D Mod - add context menu edit submodel ***/
 	Popup->addAction(Actions[LC_EDIT_CUT]);
@@ -619,10 +467,23 @@ lcMatrix44 View::GetPieceInsertPosition(bool IgnoreSelected, PieceInfo* Info) co
 			Point = lcMul31(Point, InverseMatrix);
 	}
 
+	const lcBoundingBox& BoundingBox = Info->GetBoundingBox();
 	lcVector3 Intersection;
 
-	const lcBoundingBox& BoundingBox = Info->GetBoundingBox();
 	if (lcLineSegmentPlaneIntersection(&Intersection, ClickPoints[0], ClickPoints[1], lcVector4(0, 0, 1, BoundingBox.Min.z)))
+	{
+		Intersection = ActiveModel->SnapPosition(Intersection);
+		return lcMatrix44Translation(Intersection);
+	}
+
+	lcVector3 Position;
+
+	if (!ActiveModel->GetFocusPosition(Position))
+		Position = ActiveModel->GetSelectionOrModelCenter();
+
+	lcVector3 FrontVector(mCamera->mTargetPosition - mCamera->mPosition);
+
+	if (lcLineSegmentPlaneIntersection(&Intersection, ClickPoints[0], ClickPoints[1], lcVector4(FrontVector, -lcDot(FrontVector, Position))))
 	{
 		Intersection = ActiveModel->SnapPosition(Intersection);
 		return lcMatrix44Translation(Intersection);
@@ -811,7 +672,7 @@ void View::OnDraw()
 		}
 	}
 
-	if (DrawInterface)
+	if (DrawInterface && mViewType == lcViewType::View)
 		mScene->SetPreTranslucentCallback([this]() { DrawGrid(); });
 
 	mScene->End();
@@ -903,29 +764,33 @@ void View::OnDraw()
 
 		mContext->SetLineWidth(1.0f);
 
-		if (Preferences.mDrawAxes)
-			DrawAxes();
-
-		lcTool Tool = gMainWindow->GetTool();
-		lcModel* ActiveModel = GetActiveModel();
-
-		if ((Tool == lcTool::Select || Tool == lcTool::Move) && mTrackButton == lcTrackButton::None && ActiveModel->AnyObjectsSelected())
-			DrawSelectMoveOverlay();
-		else if (GetCurrentTool() == lcTool::Move && mTrackButton != lcTrackButton::None)
-			DrawSelectMoveOverlay();
-		else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->AnyPiecesSelected())
- /*** LPub3D Mod - Rotate step angles ***/
+		if (mViewType == lcViewType::View)
 		{
-			  DrawRotateOverlay();
-			  gMainWindow->GetRotStepMetaAngles();
-		}
-/*** LPub3D Mod end ***/
-		else if ((mTrackTool == lcTrackTool::Select || mTrackTool == lcTrackTool::ZoomRegion) && mTrackButton != lcTrackButton::None)
-			DrawSelectZoomRegionOverlay();
-		else if (Tool == lcTool::RotateView && mTrackButton == lcTrackButton::None)
-			DrawRotateViewOverlay();
+			if (Preferences.mDrawAxes)
+				DrawAxes();
 
-		mViewSphere.Draw();
+			lcTool Tool = gMainWindow->GetTool();
+			lcModel* ActiveModel = GetActiveModel();
+
+			if ((Tool == lcTool::Select || Tool == lcTool::Move) && mTrackButton == lcTrackButton::None && ActiveModel->AnyObjectsSelected())
+				DrawSelectMoveOverlay();
+			else if (GetCurrentTool() == lcTool::Move && mTrackButton != lcTrackButton::None)
+				DrawSelectMoveOverlay();
+			else if ((Tool == lcTool::Rotate || (Tool == lcTool::Select && mTrackButton != lcTrackButton::None && mTrackTool >= lcTrackTool::RotateX && mTrackTool <= lcTrackTool::RotateXYZ)) && ActiveModel->AnyPiecesSelected())
+				DrawRotateOverlay();
+			else if ((mTrackTool == lcTrackTool::Select || mTrackTool == lcTrackTool::ZoomRegion) && mTrackButton != lcTrackButton::None)
+				DrawSelectZoomRegionOverlay();
+			else if (Tool == lcTool::RotateView && mTrackButton == lcTrackButton::None)
+ /*** LPub3D Mod - Rotate step angles ***/
+			{
+				DrawRotateOverlay();
+				gMainWindow->GetRotStepMetaAngles();
+			}
+/*** LPub3D Mod end ***/
+
+			mViewSphere->Draw();
+		}
+
 		DrawViewport();
 	}
 
@@ -1814,10 +1679,10 @@ void View::BeginDrag(lcDragState DragState)
 
 void View::EndDrag(bool Accept)
 {
+	lcModel* ActiveModel = GetActiveModel();
+
 	if (Accept)
 	{
-		lcModel* ActiveModel = GetActiveModel();
-
 		switch (mDragState)
 		{
 		case lcDragState::None:
@@ -1838,7 +1703,7 @@ void View::EndDrag(bool Accept)
 
 	mDragState = lcDragState::None;
 	UpdateTrackTool();
-	gMainWindow->UpdateAllViews();
+	ActiveModel->UpdateAllViews();
 }
 
 void View::SetProjection(bool Ortho)
@@ -1864,18 +1729,7 @@ void View::LookAt()
 /*** LPub3D Mod - Update Default Camera ***/
 	if (ActiveModel) {
 		ActiveModel->LookAt(mCamera);
-		ActiveModel->UpdateDefaultCamera(mCamera);
-	}
-/*** LPub3D Mod end ***/
-}
-
-void View::ZoomExtents()
-{
-	lcModel* ActiveModel = GetActiveModel();
-/*** LPub3D Mod - Update Default Camera ***/
-	if (ActiveModel) {
-		ActiveModel->ZoomExtents(mCamera, float(mWidth) / float(mHeight));
-		ActiveModel->UpdateDefaultCamera(mCamera);
+		ActiveModel->UpdateDefaultCameraProperties(mCamera);
 	}
 /*** LPub3D Mod end ***/
 }
@@ -1896,6 +1750,13 @@ void View::Zoom(float Amount)
 
 void View::UpdateTrackTool()
 {
+	if (mViewType != lcViewType::View)
+	{
+		mTrackTool = lcTrackTool::None;
+		UpdateCursor();
+		return;
+	}
+
 	lcTool CurrentTool = gMainWindow->GetTool();
 	lcTrackTool NewTrackTool = mTrackTool;
 	int x = mMouseX;
@@ -2360,7 +2221,7 @@ void View::UpdateTrackTool()
 	UpdateCursor();
 
 	if (Redraw)
-		gMainWindow->UpdateAllViews();
+		ActiveModel->UpdateAllViews();
 }
 
 bool View::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) const
@@ -2543,7 +2404,7 @@ void View::StopTracking(bool Accept)
 
 	mTrackButton = lcTrackButton::None;
 	UpdateTrackTool();
-	gMainWindow->UpdateAllViews();
+	ActiveModel->UpdateAllViews();
 }
 
 void View::CancelTrackingOrClearSelection()
@@ -2682,9 +2543,7 @@ void View::OnLeftButtonDown()
 		return;
 	}
 
-	gMainWindow->SetActiveView(this);
-
-	if (mViewSphere.OnLeftButtonDown())
+	if (mViewSphere->OnLeftButtonDown())
 		return;
 
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::LeftButton);
@@ -2702,14 +2561,12 @@ void View::OnLeftButtonUp()
 {
 	StopTracking(mTrackButton == lcTrackButton::Left);
 
-	if (mViewSphere.OnLeftButtonUp())
+	if (mViewSphere->OnLeftButtonUp())
 		return;
 }
 
 void View::OnLeftButtonDoubleClick()
 {
-	gMainWindow->SetActiveView(this);
-
 	lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
 	lcModel* ActiveModel = GetActiveModel();
 
@@ -2729,7 +2586,6 @@ void View::OnMiddleButtonDown()
 		return;
 	}
 
-	gMainWindow->SetActiveView(this);
 #if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::MiddleButton);
 
@@ -2754,8 +2610,6 @@ void View::OnRightButtonDown()
 		StopTracking(false);
 		return;
 	}
-
-	gMainWindow->SetActiveView(this);
 
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::RightButton);
 
@@ -2798,9 +2652,9 @@ void View::OnMouseMove()
 
 	if (mTrackButton == lcTrackButton::None)
 	{
-		if (mViewSphere.OnMouseMove())
+		if (mViewSphere->OnMouseMove())
 		{
-			lcTrackTool NewTrackTool = mViewSphere.IsDragging() ? lcTrackTool::OrbitXY : lcTrackTool::None;
+			lcTrackTool NewTrackTool = mViewSphere->IsDragging() ? lcTrackTool::OrbitXY : lcTrackTool::None;
 
 			if (NewTrackTool != mTrackTool)
 			{
@@ -2814,14 +2668,14 @@ void View::OnMouseMove()
 		UpdateTrackTool();
 
 		if (mTrackTool == lcTrackTool::Insert)
-			gMainWindow->UpdateAllViews();
+			ActiveModel->UpdateAllViews();
 
 		return;
 	}
 /*** LPub3D Mod - Update Default Camera ***/
 	else if (mTrackTool != lcTrackTool::ZoomRegion)
 	{
-		ActiveModel->UpdateDefaultCamera(mCamera);
+		ActiveModel->UpdateDefaultCameraProperties(mCamera);
 	}
 /*** LPub3D Mod end ***/
 
@@ -3138,9 +2992,4 @@ void View::OnMouseMove()
 	case lcTrackTool::Count:
 		break;
 	}
-}
-
-void View::OnMouseWheel(float Direction)
-{
-	mModel->Zoom(mCamera, (int)(((mMouseModifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
 }

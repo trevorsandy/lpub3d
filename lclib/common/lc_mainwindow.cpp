@@ -4,7 +4,7 @@
 #include <QPrintPreviewDialog>
 #include "lc_partselectionwidget.h"
 #include "lc_timelinewidget.h"
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_qcolorlist.h"
 #include "lc_qpropertiestree.h"
 #include "lc_qutils.h"
@@ -19,6 +19,7 @@
 #include "view.h"
 #include "project.h"
 #include "piece.h"
+#include "camera.h"
 #include "group.h"
 #include "pieceinf.h"
 #include "lc_library.h"
@@ -66,7 +67,7 @@ void lcModelTabWidget::ResetLayout()
 	QLayout* TabLayout = layout();
 	QWidget* TopWidget = TabLayout->itemAt(0)->widget();
 
-	if (TopWidget->metaObject() == &lcQGLWidget::staticMetaObject)
+	if (TopWidget->metaObject() == &lcViewWidget::staticMetaObject)
 		return;
 
 	QWidget* Widget = GetAnyViewWidget();
@@ -76,7 +77,6 @@ void lcModelTabWidget::ResetLayout()
 	TopWidget->deleteLater();
 
 	Widget->setFocus();
-	SetActiveView((View*)((lcQGLWidget*)Widget)->mWidget);
 }
 
 void lcModelTabWidget::Clear()
@@ -87,9 +87,9 @@ void lcModelTabWidget::Clear()
 		View->Clear();
 	mViews.RemoveAll();
 	mActiveView = nullptr;
-	lcQGLWidget* Widget = (lcQGLWidget*)layout()->itemAt(0)->widget();
-	delete Widget->mWidget;
-	Widget->mWidget = nullptr;
+	lcViewWidget* Widget = (lcViewWidget*)layout()->itemAt(0)->widget();
+	delete Widget->GetView();
+	Widget->SetView(nullptr);
 }
 
 /*** LPub3D Mod - set lcMainWindow parent ***/
@@ -116,7 +116,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 	mSelectionMode = lcSelectionMode::Single;
 	mModelTabWidget = nullptr;
 	mPreviewToolBar = nullptr;
-	mPreviewWidget = nullptr;	
+	mPreviewWidget = nullptr;
 /*** LPub3D Mod - submodel icon ***/
 	mSubmodelIconsLoaded = false;
 /*** LPub3D Mod end ***/
@@ -908,10 +908,10 @@ void lcMainWindow::CreateToolBars()
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 
-	connect(mPropertiesToolBar, SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
-	connect(mTimelineToolBar,   SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
-	connect(mPartsToolBar,      SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
-	connect(mColorsToolBar,     SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+	connect(mPropertiesToolBar, SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mTimelineToolBar,   SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mPartsToolBar,      SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
+	connect(mColorsToolBar,     SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
 
 	mPartsToolBar->raise();
 ***/
@@ -929,14 +929,49 @@ void lcMainWindow::CreateToolBars()
 		}
 	}
 /*** LPub3D Mod end ***/
+
 }
 
-void lcMainWindow::PreviewPiece(const QString &PartType, int ColorCode)
+View* lcMainWindow::CreateView(lcModel* Model)
 {
-	if (mPreviewWidget) {
-		if (!mPreviewWidget->SetCurrentPiece(PartType, ColorCode))
-			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for % failed.").arg(PartType));
+	View* NewView = new View(lcViewType::View, Model);
+
+	connect(NewView, SIGNAL(CameraChanged()), this, SLOT(ViewCameraChanged()));
+	connect(NewView, SIGNAL(FocusReceived()), this, SLOT(ViewFocusReceived()));
+
+	return NewView;
+}
+
+void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode)
+{
+	lcPreferences& Preferences = lcGetPreferences();
+
+	if (!Preferences.mPreviewEnabled)
+		return;
+
+	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+	{
+		if (mPreviewWidget && mPreviewWidget->SetCurrentPiece(PartId, ColorCode))
+			return;
 	}
+	else
+	{
+		lcPreviewWidget* Preview = new lcPreviewWidget();
+		lcViewWidget* ViewWidget = new lcViewWidget(nullptr, Preview);
+
+		if (Preview && ViewWidget)
+		{
+			ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+
+			if (Preview->SetCurrentPiece(PartId, ColorCode))
+			{
+				ViewWidget->SetPreviewPosition(rect());
+				return;
+			}
+		}
+	}
+
+	QMessageBox::information(this, tr("Error"), tr("Part preview for '%1' failed.").arg(PartId));
 }
 
 void lcMainWindow::CreatePreviewWidget()
@@ -946,28 +981,27 @@ void lcMainWindow::CreatePreviewWidget()
 /*** LPub3D Mod - preview widget for LPub3D ***/
 /***
 	mPreviewToolBar = new QDockWidget(tr("Preview"), this);
-	mPreviewToolBar->setWindowTitle(trUtf8("Preview"));
+	mPreviewToolBar->setWindowTitle(tr("Preview"));
 	mPreviewToolBar->setObjectName("PreviewToolBarw");
 	mPreviewToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	mPreviewToolBar->setWidget(mPreviewWidget);
-
 	addDockWidget(Qt::RightDockWidgetArea, mPreviewToolBar);
 
 	tabifyDockWidget(mTimelineToolBar, mPreviewToolBar);
 
-	connect(mPreviewToolBar, SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+	connect(mPreviewToolBar, SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
 ***/
 /*** LPub3D Mod end ***/
 }
 
-void lcMainWindow::TogglePreviewWidget(bool visible)
+void lcMainWindow::TogglePreviewWidget(bool Visible)
 {
 	if (mPreviewToolBar) {
-		if (visible)
+		if (Visible)
 			mPreviewToolBar->show();
 		else
 			mPreviewToolBar->hide();
-	} else if (visible) {
+	} else if (Visible) {
 		CreatePreviewWidget();
 	}
 }
@@ -1233,7 +1267,7 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 
 	if (okToPropagate) {
 		emit SetRotStepMeta();
-		UpdateAllViews();
+		lcGLWidget::UpdateAllViews();
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1440,7 +1474,7 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 			QByteArray TabLayout = GetTabLayout();
 			gApplication->SetProject(NewProject);
 			RestoreTabLayout(TabLayout);
-			UpdateAllViews();
+			lcGLWidget::UpdateAllViews();
 		}
 	}
 	else
@@ -1550,7 +1584,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 					Painter.drawText(TextRect, Qt::AlignTop | Qt::AlignLeft, QString::number(Step));
 				}
 /*
-//              if (print border)
+//				if (print border)
 				{
 					QPen BlackPen(Qt::black, 2);
 					Painter.setPen(BlackPen);
@@ -1649,7 +1683,7 @@ void lcMainWindow::SetShadingMode(lcShadingMode ShadingMode)
 {
 	lcGetPreferences().mShadingMode = ShadingMode;
 	UpdateShadingMode();
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 	if (mPartSelectionWidget)
 		mPartSelectionWidget->Redraw();
 }
@@ -1664,21 +1698,21 @@ void lcMainWindow::ToggleViewSphere()
 {
 	lcGetPreferences().mViewSphereEnabled = !lcGetPreferences().mViewSphereEnabled;
 
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 }
 
 void lcMainWindow::ToggleAxisIcon()
 {
 	lcGetPreferences().mDrawAxes = !lcGetPreferences().mDrawAxes;
 
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 }
 
 void lcMainWindow::ToggleFadePreviousSteps()
 {
 	lcGetPreferences().mFadeSteps = !lcGetPreferences().mFadeSteps;
 
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 }
 
 QByteArray lcMainWindow::GetTabLayout()
@@ -1699,9 +1733,9 @@ QByteArray lcMainWindow::GetTabLayout()
 
 		std::function<void (QWidget*)> SaveWidget = [&DataStream, &SaveWidget, &TabWidget](QWidget* Widget)
 		{
-			if (Widget->metaObject() == &lcQGLWidget::staticMetaObject)
+			if (Widget->metaObject() == &lcViewWidget::staticMetaObject)
 			{
-				View* CurrentView = (View*)((lcQGLWidget*)Widget)->mWidget;
+				View* CurrentView = (View*)((lcViewWidget*)Widget)->GetView();
 
 				DataStream << (qint32)0;
 				DataStream << (qint32)(TabWidget->GetActiveView() == CurrentView ? 1 : 0);
@@ -1721,7 +1755,7 @@ QByteArray lcMainWindow::GetTabLayout()
 				else
 				{
 					DataStream << (qint32)1;
-					DataStream << QByteArray::fromRawData(Camera->m_strName, sizeof(Camera->m_strName));
+					DataStream << Camera->GetName();
 				}
 			}
 			else
@@ -1800,7 +1834,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				View* CurrentView = nullptr;
 
 				if (ParentWidget)
-					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->mWidget;
+					CurrentView = (View*)((lcViewWidget*)ParentWidget)->GetView();
 
 				if (CameraType == 0)
 				{
@@ -1872,10 +1906,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 		LoadWidget(TabWidget ? TabWidget->layout()->itemAt(0)->widget() : nullptr);
 
 		if (ActiveWidget && TabWidget)
-		{
-			View* ActiveView = (View*)((lcQGLWidget*)ActiveWidget)->mWidget;
-			TabWidget->SetActiveView(ActiveView);
-		}
+			ActiveWidget->setFocus();
 	}
 
 	if (!ModelAdded)
@@ -1926,7 +1957,7 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 	}
 
 	lcModelTabWidget* TabWidget;
-	lcQGLWidget* ViewWidget;
+	lcViewWidget* ViewWidget;
 	View* NewView;
 
 	if (!EmptyWidget)
@@ -1937,8 +1968,8 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		QGridLayout* CentralLayout = new QGridLayout(TabWidget);
 		CentralLayout->setContentsMargins(0, 0, 0, 0);
 
-		NewView = new View(Model);
-		ViewWidget = new lcQGLWidget(TabWidget, NewView);
+		NewView = CreateView(Model);
+		ViewWidget = new lcViewWidget(TabWidget, NewView);
 		CentralLayout->addWidget(ViewWidget, 0, 0, 1, 1);
 
 		mModelTabWidget->setCurrentWidget(TabWidget);
@@ -1948,14 +1979,10 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		TabWidget = EmptyWidget;
 		TabWidget->SetModel(Model);
 
-		NewView = new View(Model);
-		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
-		ViewWidget->mWidget = NewView;
-		NewView->mWidget = ViewWidget;
-		float Scale = ViewWidget->GetDeviceScale();
-		NewView->mWidth = ViewWidget->width() * Scale;
-		NewView->mHeight = ViewWidget->height() * Scale;
+		NewView = CreateView(Model);
 		AddView(NewView);
+		ViewWidget = (lcViewWidget*)TabWidget->layout()->itemAt(0)->widget();
+		ViewWidget->SetView(NewView);
 
 		mModelTabWidget->setCurrentWidget(TabWidget);
 	}
@@ -1963,7 +1990,6 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 	ViewWidget->show();
 	ViewWidget->setFocus();
 	NewView->ZoomExtents();
-	SetActiveView(NewView);
 }
 
 void lcMainWindow::ResetCameras()
@@ -1989,8 +2015,6 @@ void lcMainWindow::AddView(View* View)
 		return;
 
 	TabWidget->AddView(View);
-
-	View->MakeCurrent();
 
 	if (!TabWidget->GetActiveView())
 	{
@@ -2024,19 +2048,6 @@ void lcMainWindow::SetActiveView(View* ActiveView)
 	UpdatePerspective();
 }
 
-void lcMainWindow::UpdateAllViews()
-{
-	lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
-
-	if (CurrentTab)
-	{
-		const lcArray<View*>* Views = CurrentTab->GetViews();
-
-		for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
-			(*Views)[ViewIdx]->Redraw();
-	}
-}
-
 void lcMainWindow::SetTool(lcTool Tool)
 {
 	mTool = Tool;
@@ -2046,7 +2057,7 @@ void lcMainWindow::SetTool(lcTool Tool)
 	if (Action)
 		Action->setChecked(true);
 
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 }
 
 void lcMainWindow::SetColorIndex(int ColorIndex)
@@ -2093,7 +2104,7 @@ void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
 {
 	mRelativeTransform = RelativeTransform;
 	UpdateLockSnap();
-	UpdateAllViews();
+	lcGLWidget::UpdateAllViews();
 }
 
 void lcMainWindow::SetLocalTransform(bool SelectionTransform)
@@ -2122,13 +2133,6 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION + TransformIndex]->setChecked(true);
 	mActions[LC_EDIT_TRANSFORM]->setIcon(QIcon(IconNames[TransformIndex]));
 }
-
-/*** LPub3D Mod - View point zoom extent ***/
-bool lcMainWindow::viewportZoomExtent()
-{
-	return lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT);
-}
-/*** LPub3D Mod end ***/
 
 void lcMainWindow::SetCurrentPieceInfo(PieceInfo* Info)
 {
@@ -2174,7 +2178,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 {
 	QWidget* Focus = focusWidget();
 
-	if (Focus->metaObject() != &lcQGLWidget::staticMetaObject)
+	if (Focus->metaObject() != &lcViewWidget::staticMetaObject)
 		return;
 
 	QWidget* Parent = Focus->parentWidget();
@@ -2186,7 +2190,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 		Splitter = new QSplitter(Orientation, Parent);
 		Parent->layout()->addWidget(Splitter);
 		Splitter->addWidget(Focus);
-		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel())));
+		Splitter->addWidget(new lcViewWidget(mModelTabWidget->currentWidget(), CreateView(GetCurrentTabModel())));
 	}
 	else
 	{
@@ -2197,7 +2201,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 		Splitter = new QSplitter(Orientation, Parent);
 		ParentSplitter->insertWidget(FocusIndex, Splitter);
 		Splitter->addWidget(Focus);
-		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel())));
+		Splitter->addWidget(new lcViewWidget(mModelTabWidget->currentWidget(), CreateView(GetCurrentTabModel())));
 
 		ParentSplitter->setSizes(Sizes);
 	}
@@ -2223,7 +2227,7 @@ void lcMainWindow::RemoveActiveView()
 {
 	QWidget* Focus = focusWidget();
 
-	if (Focus->metaObject() != &lcQGLWidget::staticMetaObject)
+	if (Focus->metaObject() != &lcViewWidget::staticMetaObject)
 		return;
 
 	QWidget* Parent = Focus->parentWidget();
@@ -2257,7 +2261,7 @@ void lcMainWindow::RemoveActiveView()
 
 	Parent->deleteLater();
 
-	if (OtherWidget->metaObject() != &lcQGLWidget::staticMetaObject)
+	if (OtherWidget->metaObject() != &lcViewWidget::staticMetaObject)
 	{
 		lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->currentWidget();
 
@@ -2266,7 +2270,6 @@ void lcMainWindow::RemoveActiveView()
 	}
 
 	OtherWidget->setFocus();
-	SetActiveView((View*)((lcQGLWidget*)OtherWidget)->mWidget);
 }
 
 void lcMainWindow::ResetViews()
@@ -2277,7 +2280,7 @@ void lcMainWindow::ResetViews()
 		return;
 
 	TabWidget->ResetLayout();
-	TabWidget->GetActiveView()->SetViewpoint(LC_VIEWPOINT_HOME);
+	TabWidget->GetActiveView()->SetViewpoint(lcViewpoint::Home);
 }
 
 void lcMainWindow::ToggleDockWidget(QWidget* DockWidget)
@@ -2364,7 +2367,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	lcObject* Focus = nullptr;
 
 	lcModel* ActiveModel = GetActiveModel();
-	if (ActiveModel) {
+	if (ActiveModel)
+	{
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 #ifdef QT_DEBUG_MODE
 		const QString TypeNames[] =
@@ -2376,6 +2380,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			"VIEWER_SEL",  // 4
 			"VIEWER_CLR"   // 5
 		};
+		
 		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "Yes" : "No");
 		emit gui->messageSig(LOG_DEBUG, _Message);
 #endif
@@ -2660,12 +2665,41 @@ void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoTe
 /*** LPub3D Mod end ***/
 }
 
+void lcMainWindow::ViewFocusReceived()
+{
+	SetActiveView(dynamic_cast<View*>(sender()));
+}
+
+void lcMainWindow::ViewCameraChanged()
+{
+	lcGLWidget* View = dynamic_cast<lcGLWidget*>(sender());
+
+	if (!View || !View->IsLastFocused())
+		return;
+
+	UpdateCameraMenu();
+}
+
+/*** LPub3D Mod - Update Default Camera ***/
+void lcMainWindow::UpdateDefaultCameraProperties(lcCamera* DefaultCamera)
+{
+	if (!lcGetPreferences().mDefaultCameraProperties ||
+		!lcGetActiveProject()->GetViewerLoaded())
+		return;
+
+	lcArray<lcObject*> Selection;
+	Selection.Add(DefaultCamera);
+
+	mPropertiesWidget->Update(Selection, DefaultCamera);
+}
+/*** LPub3D Mod end ***/
+
 void lcMainWindow::UpdateCameraMenu()
 {
 	const lcArray<lcCamera*>& Cameras = lcGetActiveModel()->GetCameras();
 	View* ActiveView = GetActiveView();
 	const lcCamera* CurrentCamera = ActiveView ? ActiveView->GetCamera() : nullptr;
-	int CurrentIndex = -1;
+	bool CurrentSet = false;
 
 	for (int ActionIdx = LC_VIEW_CAMERA_FIRST; ActionIdx <= LC_VIEW_CAMERA_LAST; ActionIdx++)
 	{
@@ -2675,7 +2709,10 @@ void lcMainWindow::UpdateCameraMenu()
 		if (CameraIdx < Cameras.GetSize())
 		{
 			if (CurrentCamera == Cameras[CameraIdx])
-				CurrentIndex = CameraIdx;
+			{
+				Action->setChecked(true);
+				CurrentSet = true;
+			}
 
 			Action->setText(Cameras[CameraIdx]->GetName());
 			Action->setVisible(true);
@@ -2684,17 +2721,9 @@ void lcMainWindow::UpdateCameraMenu()
 			Action->setVisible(false);
 	}
 
-	UpdateCurrentCamera(CurrentIndex);
-}
+	if (!CurrentSet)
+		mActions[LC_VIEW_CAMERA_NONE]->setChecked(true);
 
-void lcMainWindow::UpdateCurrentCamera(int CameraIndex)
-{
-	int ActionIndex = LC_VIEW_CAMERA_FIRST + CameraIndex;
-
-	if (ActionIndex < LC_VIEW_CAMERA_FIRST || ActionIndex > LC_VIEW_CAMERA_LAST)
-		ActionIndex = LC_VIEW_CAMERA_NONE;
-
-	mActions[ActionIndex]->setChecked(true);
 	UpdatePerspective();
 }
 
@@ -2751,7 +2780,7 @@ void lcMainWindow::UpdateModels()
 		if (ModelIdx < Models.GetSize())
 		{
 			Action->setChecked(CurrentModel == Models[ModelIdx]);
-			Action->setText(QString::fromLatin1("&%1 %2").arg(QString::number(ModelIdx + 1), Models[ModelIdx]->GetProperties().mFileName));
+			Action->setText(QString::fromLatin1("%1%2 %3").arg(ModelIdx < 9 ? QString("&") : QString(), QString::number(ModelIdx + 1), Models[ModelIdx]->GetProperties().mFileName));
 			Action->setVisible(true);
 		}
 		else
@@ -2780,20 +2809,6 @@ void lcMainWindow::UpdateModels()
 		if (Models.FindIndex(mCurrentPieceInfo->GetModel()) == -1)
 			SetCurrentPieceInfo(nullptr);
 }
-
-/*** LPub3D Mod - Update Default Camera ***/
-void lcMainWindow::UpdateDefaultCamera(lcCamera* DefaultCamera)
-{
-	if (!lcGetPreferences().mDefaultCameraProperties ||
-		!lcGetActiveProject()->GetViewerLoaded())
-		return;
-
-	lcArray<lcObject*> Selection;
-	Selection.Add(DefaultCamera);
-
-	mPropertiesWidget->Update(Selection, DefaultCamera);
-}
-/*** LPub3D Mod end ***/
 
 void lcMainWindow::UpdateCategories()
 {
@@ -2887,10 +2902,10 @@ bool lcMainWindow::OpenProjectFile(const QString& FileName)
 	if (NewProject->Load(FileName))
 	{
 		gApplication->SetProject(NewProject);
-/*** LPub3D Mod - suppress menuBar ***/
-/***            AddRecentFile(FileName); ***/
+/*** LPub3D Mod - suppress recent files dropdown ***/
+//		AddRecentFile(FileName);
 /*** LPub3D Mod end ***/
-		UpdateAllViews();
+		lcGLWidget::UpdateProjectViews(NewProject);
 
 		return true;
 	}
@@ -2946,7 +2961,7 @@ void lcMainWindow::ImportLDD()
 	if (NewProject->ImportLDD(LoadFileName))
 	{
 		gApplication->SetProject(NewProject);
-		UpdateAllViews();
+		lcGLWidget::UpdateProjectViews(NewProject);
 	}
 	else
 		delete NewProject;
@@ -2966,7 +2981,7 @@ void lcMainWindow::ImportInventory()
 	if (NewProject->ImportInventory(Dialog.GetSetInventory(), Dialog.GetSetName(), Dialog.GetSetDescription()))
 	{
 		gApplication->SetProject(NewProject);
-		UpdateAllViews();
+		lcGLWidget::UpdateProjectViews(NewProject);
 	}
 	else
 		delete NewProject;
@@ -3012,8 +3027,8 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 	if (!Project->Save(SaveFileName))
 		return false;
 
-/*** LPub3D Mod - suppress menuBar ***/
-/***    AddRecentFile(SaveFileName); ***/
+/*** LPub3D Mod - suppress recent files dropdown ***/
+//    AddRecentFile(SaveFileName);
 /*** LPub3D Mod end ***/
 	UpdateTitle();
 
@@ -3634,37 +3649,37 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_VIEWPOINT_FRONT:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
+			ActiveView->SetViewpoint(lcViewpoint::Front);
 		break;
 
 	case LC_VIEW_VIEWPOINT_BACK:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
+			ActiveView->SetViewpoint(lcViewpoint::Back);
 		break;
 
 	case LC_VIEW_VIEWPOINT_TOP:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
+			ActiveView->SetViewpoint(lcViewpoint::Top);
 		break;
 
 	case LC_VIEW_VIEWPOINT_BOTTOM:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
+			ActiveView->SetViewpoint(lcViewpoint::Bottom);
 		break;
 
 	case LC_VIEW_VIEWPOINT_LEFT:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
+			ActiveView->SetViewpoint(lcViewpoint::Left);
 		break;
 
 	case LC_VIEW_VIEWPOINT_RIGHT:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
+			ActiveView->SetViewpoint(lcViewpoint::Right);
 		break;
 
 	case LC_VIEW_VIEWPOINT_HOME:
 		if (ActiveView)
-			ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
+			ActiveView->SetViewpoint(lcViewpoint::Home);
 		break;
 
 	case LC_VIEW_CAMERA_NONE:
@@ -3732,6 +3747,22 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_MODEL_22:
 	case LC_MODEL_23:
 	case LC_MODEL_24:
+	case LC_MODEL_25:
+	case LC_MODEL_26:
+	case LC_MODEL_27:
+	case LC_MODEL_28:
+	case LC_MODEL_29:
+	case LC_MODEL_30:
+	case LC_MODEL_31:
+	case LC_MODEL_32:
+	case LC_MODEL_33:
+	case LC_MODEL_34:
+	case LC_MODEL_35:
+	case LC_MODEL_36:
+	case LC_MODEL_37:
+	case LC_MODEL_38:
+	case LC_MODEL_39:
+	case LC_MODEL_40:
 		lcGetActiveProject()->SetActiveModel(CommandId - LC_MODEL_01);
 		break;
 

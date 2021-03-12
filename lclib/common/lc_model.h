@@ -57,7 +57,7 @@ public:
 	void LoadDefaults();
 	void SaveDefaults();
 
-	bool operator==(const lcModelProperties& Properties)
+	bool operator==(const lcModelProperties& Properties) const
 	{
 		if (mFileName != Properties.mFileName || mModelName != Properties.mModelName || mAuthor != Properties.mAuthor ||
 			mDescription != Properties.mDescription || mComments != Properties.mComments)
@@ -66,7 +66,7 @@ public:
 		if (mAmbientColor != Properties.mAmbientColor)
 			return false;
 
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 		if (mUnoffPartColorCode != Properties.mUnoffPartColorCode)
 			return false;
 /*** LPub3D Mod end ***/
@@ -86,7 +86,7 @@ public:
 
 	lcVector3 mAmbientColor;
 
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	int mUnoffPartColorCode;
 /*** LPub3D Mod end ***/
 };
@@ -100,13 +100,16 @@ struct lcModelHistoryEntry
 class lcModel
 {
 public:
-	lcModel(const QString& FileName, bool Preview = false);
+	lcModel(const QString& FileName, Project* Project, bool Preview);
 	~lcModel();
 
 	lcModel(const lcModel&) = delete;
-	lcModel(lcModel&&) = delete;
 	lcModel& operator=(const lcModel&) = delete;
-	lcModel& operator=(lcModel&&) = delete;
+
+	Project* GetProject() const
+	{
+		return mProject;
+	}
 
 	bool IsModified() const
 	{
@@ -123,6 +126,7 @@ public:
 	void CreatePieceInfo(Project* Project);
 	void UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels);
 	void UpdateMesh();
+	void UpdateAllViews() const;
 
 	PieceInfo* GetPieceInfo() const
 	{
@@ -224,6 +228,9 @@ public:
 	void ShowSelectedPiecesLater();
 	void SetPieceSteps(const QList<QPair<lcPiece*, lcStep>>& PieceSteps);
 	void RenamePiece(PieceInfo* Info);
+/*** LPub3D Mod - Apply Viewpoint zoom extent ***/
+	bool ApplyViewpointZoomExtent();
+/*** LPub3D Mod end ***/
 
 	void MoveSelectionToModel(lcModel* Model);
 	void InlineSelectedModels();
@@ -390,7 +397,7 @@ public:
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
 	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
-	void UpdateDefaultCamera(lcCamera* DefaultCamera);
+	void UpdateDefaultCameraProperties(lcCamera* DefaultCamera);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
@@ -413,9 +420,9 @@ public:
 	void SetCameraFOV(lcCamera* Camera, float FOV);
 	void SetCameraZNear(lcCamera* Camera, float ZNear);
 	void SetCameraZFar(lcCamera* Camera, float ZFar);
-	void SetCameraName(lcCamera* Camera, const char* Name);
+	void SetCameraName(lcCamera* Camera, const QString& Name);
 /*** LPub3D Mod - enable lights ***/
-	void SetLightName(lcLight* Light, const char* Name);
+	void SetLightName(lcLight* Light, const QString& Name);
 	void UpdateLight(lcLight* Light, const lcLightProps Props, int Property);
 /*** LPub3D Mod end ***/
 
@@ -447,6 +454,7 @@ protected:
 	void InsertPiece(lcPiece* Piece, int Index);
 
 	lcModelProperties mProperties;
+	Project* const mProject;
 	PieceInfo* mPieceInfo;
 
 	bool mIsPreview;

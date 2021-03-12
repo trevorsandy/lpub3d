@@ -16,7 +16,7 @@
 #include "minifig.h"
 #include "lc_qarraydialog.h"
 #include "lc_qselectdialog.h"
-#include "lc_qminifigdialog.h"
+#include "lc_minifigdialog.h"
 #include "lc_qgroupdialog.h"
 #include "lc_qeditgroupsdialog.h"
 #include "lc_selectbycolordialog.h"
@@ -60,7 +60,9 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 	{
 		QStringList Comments = mComments.split('\n');
 		for (const QString& Comment : Comments)
+/*** LPub3D Mod - LPUB meta command ***/		
 			Stream << QLatin1String("0 !LPUB MODEL COMMENT ") << Comment << LineEnding;
+/*** LPub3D Mod end ***/
 	}
 
 //	lcVector3 mAmbientColor;
@@ -118,8 +120,8 @@ void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
 	}
 }
 
-lcModel::lcModel(const QString& FileName, bool Preview)
-	: mIsPreview(Preview)
+lcModel::lcModel(const QString& FileName, Project* Project, bool Preview)
+	: mProject(Project), mIsPreview(Preview)
 {
 	mProperties.mModelName = FileName;
 	mProperties.mFileName = FileName;
@@ -238,6 +240,11 @@ void lcModel::CreatePieceInfo(Project* Project)
 void lcModel::UpdateMesh()
 {
 	mPieceInfo->SetModel(this, true, nullptr, false);
+}
+
+void lcModel::UpdateAllViews() const
+{
+	View::UpdateProjectViews(mProject);
 }
 
 void lcModel::UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels)
@@ -1217,7 +1224,7 @@ void lcModel::Cut()
 		mModAction = IsPiece;
 		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		SaveCheckpoint(tr("Cutting"));
 	}
 }
@@ -1237,7 +1244,7 @@ void lcModel::Paste()
 	if (gApplication->mClipboard.isEmpty())
 		return;
 
-	lcModel* Model = new lcModel(QString());
+	lcModel* Model = new lcModel(QString(), nullptr, false);
 
 	QBuffer Buffer(&gApplication->mClipboard);
 	Buffer.open(QIODevice::ReadOnly);
@@ -1268,7 +1275,7 @@ void lcModel::Paste()
 
 	CalculateStep(mCurrentStep);
 	gMainWindow->UpdateTimeline(false, false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::DuplicateSelectedPieces()
@@ -1389,7 +1396,7 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	if (Zoom)
 		ZoomExtents(Camera, (float)Width / (float)Height);
 
-	View View(this);
+	View View(lcViewType::View, this);
 	View.SetCamera(Camera, false);
 	View.SetContext(Context);
 
@@ -1822,7 +1829,7 @@ void lcModel::LoadCheckPoint(lcModelHistoryEntry* CheckPoint)
 	gMainWindow->UpdateCameraMenu();
 	gMainWindow->UpdateCurrentStep();
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	for (PieceInfo* Info : LoadedInfos)
 		Library->ReleasePieceInfo(Info);
@@ -1867,7 +1874,7 @@ void lcModel::SetCurrentStep(lcStep Step)
 
 	gMainWindow->UpdateTimeline(false, false);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	gMainWindow->UpdateCurrentStep();
 }
 
@@ -2387,9 +2394,32 @@ void lcModel::DeleteAllCameras()
 
 	gMainWindow->UpdateCameraMenu();
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	SaveCheckpoint(tr("Resetting Cameras"));
 }
+
+/*** LPub3D Mod - Camera Globe ***/
+void lcModel::UpdateDefaultCameraProperties(lcCamera* DefaultCamera)
+{
+	gMainWindow->UpdateDefaultCameraProperties(DefaultCamera);
+}
+
+void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
+{
+	if (ObjectDistance.LengthSquared() >= 0.001f)
+	{
+		lcMatrix33 RelativeRotation = lcMatrix33Identity();
+		lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
+
+		Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
+		Camera->UpdatePosition(mCurrentStep);
+
+		UpdateAllViews();
+		SaveCheckpoint(tr("MovingDefaultCamera"));
+		UpdateDefaultCameraProperties(Camera);
+	}
+}
+/*** LPub3D Mod end ***/
 
 void lcModel::DeleteSelectedObjects()
 {
@@ -2404,7 +2434,7 @@ void lcModel::DeleteSelectedObjects()
 			mModAction = IsPiece;
 			gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
-			gMainWindow->UpdateAllViews();
+			UpdateAllViews();
 			SaveCheckpoint(tr("Deleting"));
 		}
 	}
@@ -2416,7 +2446,7 @@ void lcModel::ResetSelectedPiecesPivotPoint()
 		if (Piece->IsSelected())
 			Piece->ResetPivotPoint();
 
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::RemoveSelectedPiecesKeyFrames()
@@ -2433,7 +2463,7 @@ void lcModel::RemoveSelectedPiecesKeyFrames()
 		if (Light->IsSelected())
 			Light->RemoveKeyFrames();
 
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	SaveCheckpoint(tr("Removing Key Frames"));
 }
 
@@ -2453,7 +2483,7 @@ void lcModel::InsertControlPoint()
 	{
 		SaveCheckpoint(tr("Modifying"));
 		gMainWindow->UpdateSelectedObjects(true);
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 	}
 }
 
@@ -2470,7 +2500,7 @@ void lcModel::RemoveFocusedControlPoint()
 	{
 		SaveCheckpoint(tr("Modifying"));
 		gMainWindow->UpdateSelectedObjects(true);
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 	}
 }
 
@@ -2513,7 +2543,7 @@ void lcModel::ShowSelectedPiecesEarlier()
 	SaveCheckpoint(tr("Modifying"));
 	gMainWindow->UpdateTimeline(false, false);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::ShowSelectedPiecesLater()
@@ -2558,7 +2588,7 @@ void lcModel::ShowSelectedPiecesLater()
 	SaveCheckpoint(tr("Modifying"));
 	gMainWindow->UpdateTimeline(false, false);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::SetPieceSteps(const QList<QPair<lcPiece*, lcStep>>& PieceSteps)
@@ -2591,7 +2621,7 @@ void lcModel::SetPieceSteps(const QList<QPair<lcPiece*, lcStep>>& PieceSteps)
 	if (Modified)
 	{
 		SaveCheckpoint(tr("Modifying"));
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
 		gMainWindow->UpdateSelectedObjects(true);
 	}
@@ -2604,35 +2634,13 @@ void lcModel::RenamePiece(PieceInfo* Info)
 			Piece->UpdateID();
 }
 
-/*** LPub3D Mod - Camera Globe ***/
-void lcModel::UpdateDefaultCamera(lcCamera* DefaultCamera)
-{
-	gMainWindow->UpdateDefaultCamera(DefaultCamera);
-}
-
-void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
-{
-	if (ObjectDistance.LengthSquared() >= 0.001f)
-	{
-		lcMatrix33 RelativeRotation = lcMatrix33Identity();
-		lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
-
-		Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
-		Camera->UpdatePosition(mCurrentStep);
-
-		gMainWindow->UpdateAllViews();
-		SaveCheckpoint(tr("MovingDefaultCamera"));
-		UpdateDefaultCamera(Camera);
-	}
-}
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Selected Parts ***/
 void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 {
 	if (!LineTypeIndexes.size())
 		return;
-
+		
+#ifdef QT_DEBUG_MODE
 	const QString PartSourceNames[] =
 	{
 		"VIEWER_NONE",
@@ -2643,12 +2651,10 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 		"VIEWER_CLR"
 	};
 
-	QString Message;
-	if (Preferences::debugLogging) {
-		int Pieces = LineTypeIndexes.size();
-		Message = tr("%1 %2 from Editor selected").arg(Pieces).arg(Pieces == 1 ? "Piece" : "Pieces");
-		gui->statusMessage(LOG_DEBUG, Message);
-	}
+	int Pieces = LineTypeIndexes.size();
+	QString Message = tr("%1 %2 from Editor selected").arg(Pieces).arg(Pieces == 1 ? "Piece" : "Pieces");
+	gui->statusMessage(LOG_DEBUG, Message);
+#endif
 
 	bool Modified           = false;
 	bool SelectionChanged   = false;
@@ -2679,11 +2685,11 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 
 						Modified = true;
 
-						if (Preferences::debugLogging) {
-							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3, Type: %4 (%5)")
-										 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
-							emit gui->messageSig(LOG_DEBUG, Message);
-						}
+#ifdef QT_DEBUG_MODE
+						Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3, Type: %4 (%5)")
+									 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
+						emit gui->messageSig(LOG_DEBUG, Message);
+#endif  
 					}
 				}
 			} else {
@@ -2693,12 +2699,11 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 					Modified         = true;
 					if (!SelectionChanged)
 						SelectionChanged = true;
-
-					if (Preferences::debugLogging) {
-						Message = tr("Unselected Piece: %1 (ID: %2), Type: %3 (%4)")
-									 .arg(Piece->GetName(), Piece->GetID(), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
-						emit gui->messageSig(LOG_DEBUG, Message);
-					}
+#ifdef QT_DEBUG_MODE
+					Message = tr("Unselected Piece: %1 (ID: %2), Type: %3 (%4)")
+								 .arg(Piece->GetName(), Piece->GetID(), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
+					emit gui->messageSig(LOG_DEBUG, Message);
+#endif                   
 				}
 			}
 		}
@@ -2707,7 +2712,7 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 	if (Modified)
 	{
 		SaveCheckpoint(tr("Selected Parts"));
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
 		gMainWindow->UpdateSelectedObjects(SelectionChanged, VIEWER_LINE);
 	}
@@ -2994,7 +2999,7 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 
 	if (Moved && Update)
 	{
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		if (Checkpoint)
 			SaveCheckpoint(tr("Moving"));
 /*** LPub3D Mod - Build Modification ***/
@@ -3115,7 +3120,7 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 
 	if (Rotated && Update)
 	{
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		if (Checkpoint)
 			SaveCheckpoint(tr("Rotating"));
 /*** LPub3D Mod - Build Modification ***/
@@ -3143,7 +3148,7 @@ void lcModel::ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoin
 
 		if (Update)
 		{
-			gMainWindow->UpdateAllViews();
+			UpdateAllViews();
 			if (Checkpoint)
 				SaveCheckpoint(tr("Scaling"));
 			gMainWindow->UpdateSelectedObjects(false);
@@ -3196,7 +3201,7 @@ void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 	{
 		SaveCheckpoint(tr("Painting"));
 		gMainWindow->UpdateSelectedObjects(false);
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, true);
 	}
 }
@@ -3220,7 +3225,7 @@ void lcModel::SetSelectedPiecesPieceInfo(PieceInfo* Info)
 	{
 		SaveCheckpoint(tr("Setting Part"));
 		gMainWindow->UpdateSelectedObjects(false);
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, true);
 	}
 }
@@ -3249,7 +3254,7 @@ void lcModel::SetSelectedPiecesStepShow(lcStep Step)
 	if (Modified)
 	{
 		SaveCheckpoint(tr("Showing Pieces"));
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
 		gMainWindow->UpdateSelectedObjects(SelectionChanged);
 	}
@@ -3279,7 +3284,7 @@ void lcModel::SetSelectedPiecesStepHide(lcStep Step)
 	if (Modified)
 	{
 		SaveCheckpoint(tr("Hiding Pieces"));
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
 		gMainWindow->UpdateSelectedObjects(SelectionChanged);
 	}
@@ -3291,7 +3296,7 @@ void lcModel::UpdateLight(lcLight* Light, const lcLightProps Props, int Property
 	Light->UpdateLight(mCurrentStep, Props, Property);
 
 	SaveCheckpoint(tr("Update Light"));
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	gMainWindow->UpdateSelectedObjects(false);
 }
 /*** LPub3D Mod end ***/
@@ -3305,7 +3310,7 @@ void lcModel::SetCameraOrthographic(lcCamera* Camera, bool Ortho)
 	Camera->UpdatePosition(mCurrentStep);
 
 	SaveCheckpoint(tr("Editing Camera"));
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	gMainWindow->UpdatePerspective();
 }
 
@@ -3318,7 +3323,7 @@ void lcModel::SetCameraFOV(lcCamera* Camera, float FOV)
 	Camera->UpdatePosition(mCurrentStep);
 
 	SaveCheckpoint(tr("Changing FOV"));
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::SetCameraZNear(lcCamera* Camera, float ZNear)
@@ -3330,7 +3335,7 @@ void lcModel::SetCameraZNear(lcCamera* Camera, float ZNear)
 	Camera->UpdatePosition(mCurrentStep);
 
 	SaveCheckpoint(tr("Editing Camera"));
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 /*** LPub3D Mod - Camera Globe ***/
@@ -3349,7 +3354,7 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 	{
 		Camera->SetAngles(Latitude, Longitude, Distance, Camera->mTargetPosition, mCurrentStep, false);
 		SaveCheckpoint(tr("Update Camera Globe"));
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 	}
 }
 /*** LPub3D Mod end ***/
@@ -3363,34 +3368,32 @@ void lcModel::SetCameraZFar(lcCamera* Camera, float ZFar)
 	Camera->UpdatePosition(mCurrentStep);
 
 	SaveCheckpoint(tr("Editing Camera"));
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
-void lcModel::SetCameraName(lcCamera* Camera, const char* Name)
+void lcModel::SetCameraName(lcCamera* Camera, const QString& Name)
 {
-	if (!strcmp(Camera->m_strName, Name))
+	if (Camera->GetName() == Name)
 		return;
 
-	strncpy(Camera->m_strName, Name, sizeof(Camera->m_strName));
-	Camera->m_strName[sizeof(Camera->m_strName) - 1] = 0;
+	Camera->SetName(Name);
 
 	SaveCheckpoint(tr("Renaming Camera"));
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	gMainWindow->UpdateCameraMenu();
 }
 
-void lcModel::SetLightName(lcLight* Light, const char* Name)
+void lcModel::SetLightName(lcLight* Light, const QString &Name)
 {
-	if (!strcmp(Light->m_strName, Name))
+	if (Light->GetName() == Name)
 		return;
 
-	strncpy(Light->m_strName, Name, sizeof(Light->m_strName));
-	Light->m_strName[sizeof(Light->m_strName) - 1] = 0;
+	Light->SetName(Name);
 
 	SaveCheckpoint(tr("Renaming Light"));
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	gMainWindow->UpdateCameraMenu();
 }
 
@@ -3420,6 +3423,7 @@ bool lcModel::AnyObjectsSelected() const
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;
+
 	return false;
 }
 
@@ -3494,7 +3498,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		if (Camera->IsFocused() && Relative)
 		{
 			Center = Camera->GetSectionPosition(Camera->GetFocusSection());
-//          RelativeRotation = Piece->GetRelativeRotation();
+//			RelativeRotation = Piece->GetRelativeRotation();
 			return true;
 		}
 
@@ -3512,7 +3516,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		if (Light->IsFocused() && Relative)
 		{
 			Center = Light->GetSectionPosition(Light->GetFocusSection());
-//          RelativeRotation = Piece->GetRelativeRotation();
+//			RelativeRotation = Piece->GetRelativeRotation();
 			return true;
 		}
 
@@ -3857,7 +3861,7 @@ void lcModel::ClearSelection(bool UpdateInterface)
 	{
 		gMainWindow->UpdateSelectedObjects(true, WasSelected ? VIEWER_CLR : VIEWER_LINE);
 		if (UpdateInterface)
-			gMainWindow->UpdateAllViews();
+			UpdateAllViews();
 /*** LPub3D Mod end ***/
 	}
 }
@@ -3923,7 +3927,7 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 	// here and and have AddToSelection handle returns for multiple selected pieces.
 	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode)
@@ -3933,7 +3937,7 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 	bool IsPiece = false;
 /*** LPub3D Mod end ***/
 
-	if ( Object)
+	if (Object)
 	{
 		Object->SetFocused(Section, true);
 
@@ -3955,7 +3959,7 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 	// and have ClearSelection handle returns for objects that were cleared.
 	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::ClearSelectionAndSetFocus(const lcObjectSection& ObjectSection, bool EnableSelectionMode)
@@ -4021,7 +4025,7 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 	{
 		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 		if (UpdateInterface)
-			gMainWindow->UpdateAllViews();
+			UpdateAllViews();
 /*** LPub3D Mod end ***/
 	}
 }
@@ -4065,7 +4069,7 @@ void lcModel::RemoveFromSelection(const lcArray<lcObject*>& Objects)
 	// We return VIEWER_MOD to ensure remaining pieces are updated, otherwise we return VIEWER_LINE
 	gMainWindow->UpdateSelectedObjects(true, PieceRemoved ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
@@ -4112,7 +4116,7 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 	// We return VIEWER_MOD to ensure remaining pieces are updated, otherwise we return VIEWER_LINE
 	gMainWindow->UpdateSelectedObjects(true, PieceRemoved ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::SelectAllPieces()
@@ -4121,12 +4125,11 @@ void lcModel::SelectAllPieces()
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(true);
 
+	if (!mIsPreview)
 /*** LPub3D Mod - Build Modification - preview widget ***/
-	if (!mIsPreview) {
 		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
-		gMainWindow->UpdateAllViews();
-	}
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod end ***/	
+	UpdateAllViews();
 }
 
 void lcModel::InvertSelection()
@@ -4138,7 +4141,7 @@ void lcModel::InvertSelection()
 /*** LPub3D Mod - Build Modification ***/
 	gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::HideSelectedPieces()
@@ -4160,7 +4163,7 @@ void lcModel::HideSelectedPieces()
 
 	gMainWindow->UpdateTimeline(false, true);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	SaveCheckpoint(tr("Hide"));
 }
@@ -4183,7 +4186,7 @@ void lcModel::HideUnselectedPieces()
 
 	gMainWindow->UpdateTimeline(false, true);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	SaveCheckpoint(tr("Hide"));
 }
@@ -4206,7 +4209,7 @@ void lcModel::UnhideSelectedPieces()
 
 	gMainWindow->UpdateTimeline(false, true);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	SaveCheckpoint(tr("Unhide"));
 }
@@ -4229,7 +4232,7 @@ void lcModel::UnhideAllPieces()
 
 	gMainWindow->UpdateTimeline(false, true);
 	gMainWindow->UpdateSelectedObjects(true);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	SaveCheckpoint(tr("Unhide"));
 }
@@ -4280,7 +4283,7 @@ void lcModel::FindPiece(bool FindFirst, bool SearchForward)
 
 		if ((!SearchOptions.MatchInfo || Current->mPieceInfo == SearchOptions.Info) &&
 			(!SearchOptions.MatchColor || Current->mColorIndex == SearchOptions.ColorIndex) &&
-			(!SearchOptions.MatchName || strcasestr(Current->GetName(), SearchOptions.Name)))
+			(!SearchOptions.MatchName || (Current->GetName().indexOf(SearchOptions.Name, 0, Qt::CaseInsensitive) != -1)))
 		{
 			Focus = Current;
 			break;
@@ -4452,7 +4455,7 @@ void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)
 	mMouseToolDistance = Position;
 
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::BeginCameraTool(const lcVector3& Position, const lcVector3& Target)
@@ -4476,7 +4479,7 @@ void lcModel::UpdateCameraTool(const lcVector3& Position)
 	mMouseToolDistance = Position;
 
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag)
@@ -4490,7 +4493,7 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag
 /*** LPub3D Mod - Build Modification ***/
 	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag)
@@ -4500,7 +4503,7 @@ void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag
 	mMouseToolDistance = Angles;
 
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::UpdateScaleTool(const float Scale)
@@ -4508,7 +4511,7 @@ void lcModel::UpdateScaleTool(const float Scale)
 	ScaleSelectedPieces(Scale, true, false);
 
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 }
 
 void lcModel::EraserToolClicked(lcObject* Object)
@@ -4562,7 +4565,7 @@ void lcModel::EraserToolClicked(lcObject* Object)
 /*** LPub3D Mod - Build Modification ***/
 	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 	SaveCheckpoint(tr("Deleting"));
 }
 
@@ -4584,7 +4587,7 @@ void lcModel::PaintToolClicked(lcObject* Object)
 /*** LPub3D Mod - Build Modification ***/
 		gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateAllViews();
+		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, true);
 	}
 }
@@ -4603,44 +4606,46 @@ void lcModel::UpdateZoomTool(lcCamera* Camera, float Mouse)
 {
 	Camera->Zoom(Mouse - mMouseToolDistance.x, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = Mouse;
-	gMainWindow->UpdateAllViews();
+
+	UpdateAllViews();
 }
 
 void lcModel::UpdatePanTool(lcCamera* Camera, const lcVector3& Distance)
 {
 	Camera->Pan(Distance - mMouseToolDistance, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance = Distance;
-	if (!mIsPreview)
-		gMainWindow->UpdateAllViews();
+
+	UpdateAllViews();
 }
 
 void lcModel::UpdateOrbitTool(lcCamera* Camera, float MouseX, float MouseY)
 {
 	lcVector3 Center;
 	GetSelectionCenter(Center);
+
 	Camera->Orbit(MouseX - mMouseToolDistance.x, MouseY - mMouseToolDistance.y, Center, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = MouseX;
 	mMouseToolDistance.y = MouseY;
-	if (!mIsPreview)
-		gMainWindow->UpdateAllViews();
+
+	UpdateAllViews();
 }
 
 void lcModel::UpdateRollTool(lcCamera* Camera, float Mouse)
 {
 	Camera->Roll(Mouse - mMouseToolDistance.x, mCurrentStep, gMainWindow->GetAddKeys());
 	mMouseToolDistance.x = Mouse;
-	gMainWindow->UpdateAllViews();
+
+	UpdateAllViews();
 }
 
 void lcModel::ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const lcVector3& Position, const lcVector3& TargetPosition, const lcVector3* Corners)
 {
 	Camera->ZoomRegion(AspectRatio, Position, TargetPosition, Corners, mCurrentStep, gMainWindow->GetAddKeys());
 
-/*** LPub3D Mod - Update Default Camera ***/
-//  gMainWindow->UpdateSelectedObjects(false);
-	UpdateDefaultCamera(Camera);
+/*** LPub3D Mod - Update Default Camera ***/ 
+	UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Zoom"));
@@ -4663,7 +4668,7 @@ void lcModel::LookAt(lcCamera* Camera)
 	Camera->Center(Center, mCurrentStep, gMainWindow->GetAddKeys());
 
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Look At"));
@@ -4673,7 +4678,7 @@ void lcModel::MoveCamera(lcCamera* Camera, const lcVector3& Direction)
 {
 	Camera->MoveRelative(Direction, mCurrentStep, gMainWindow->GetAddKeys());
 	gMainWindow->UpdateSelectedObjects(false);
-	gMainWindow->UpdateAllViews();
+	UpdateAllViews();
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Moving Camera"));
@@ -4691,34 +4696,34 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 	lcVector3 Points[8];
 	lcGetBoxCorners(Min, Max, Points);
 
-/*** LPub3D Mod - preview widget ***/
 	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
 
-	if (!mIsPreview) {
+	if (!mIsPreview)
 /*** LPub3D Mod - Update Default Camera ***/
-//        gMainWindow->UpdateSelectedObjects(false);
-		UpdateDefaultCamera(Camera);
+		UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateAllViews();
-	}
-/*** LPub3D Mod end ***/
+	UpdateAllViews();
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Zoom"));
 }
 
+/*** LPub3D Mod - Apply Viewpoint zoom extent ***/
+bool lcModel::ApplyViewpointZoomExtent()
+{
+	return lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT);
+}
+/*** LPub3D Mod end ***/
+
 void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
-/*** LPub3D Mod - preview widget ***/
 	Camera->Zoom(Amount, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
-	if (!mIsPreview) {
-/*** LPub3D Mod - Update Default Camera ***/
-//        gMainWindow->UpdateSelectedObjects(false);
-		UpdateDefaultCamera(Camera);
+
+	if (!mIsPreview)
+/*** LPub3D Mod - Update Default Camera ***/ 
+		UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
-		gMainWindow->UpdateAllViews();
-	}
-/*** LPub3D Mod end ***/
+	UpdateAllViews();
 
 	if (!Camera->IsSimple())
 		SaveCheckpoint(tr("Zoom"));
@@ -4882,7 +4887,7 @@ void lcModel::ShowArrayDialog()
 
 void lcModel::ShowMinifigDialog()
 {
-	lcQMinifigDialog Dialog(gMainWindow);
+	lcMinifigDialog Dialog(gMainWindow);
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
@@ -4891,7 +4896,7 @@ void lcModel::ShowMinifigDialog()
 
 	lcGroup* Group = AddGroup(tr("Minifig #"), nullptr);
 	lcArray<lcObject*> Pieces(LC_MFW_NUMITEMS);
-	lcMinifig& Minifig = Dialog.mMinifigWidget->mMinifig;
+	lcMinifig& Minifig = Dialog.mMinifigWizard->mMinifig;
 
 	for (int PartIdx = 0; PartIdx < LC_MFW_NUMITEMS; PartIdx++)
 	{

@@ -15,7 +15,6 @@ class View;
 class lcPartSelectionWidget;
 class lcPreviewDockWidget;
 class PiecePreview;
-class lcQGLWidget;
 class lcQPartsTree;
 class lcQColorList;
 class lcQPropertiesTree;
@@ -317,10 +316,6 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - View point zoom extent ***/
-	bool viewportZoomExtent();
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - part selection widget state ***/
 	void PartSelectionWidgetLoadState(QSettings &Settings);
 	void PartSelectionWidgetSaveState(QSettings &Settings);
@@ -334,11 +329,9 @@ public:
 	void ResetCameras();
 	void AddView(View* View);
 	void RemoveView(View* View);
-	void SetActiveView(View* ActiveView);
-/***    void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
+
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
 	void SetAngleSnapEnabled(bool Enabled);
@@ -388,7 +381,6 @@ public:
 	void UpdateSnap();
 	void UpdateColor();
 	void UpdateUndoRedo(const QString& UndoText, const QString& RedoText);
-	void UpdateCurrentCamera(int CameraIndex);
 	void UpdatePerspective();
 	void UpdateCameraMenu();
 	void UpdateShadingMode();
@@ -400,7 +392,7 @@ public:
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
 /*** LPub3D Mod - Update Default Camera ***/
-	void UpdateDefaultCamera(lcCamera* DefaultCamera);
+	void UpdateDefaultCameraProperties(lcCamera* DefaultCamera);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
 	bool IsLPub3DSubModel(QString &Piece);
@@ -432,11 +424,10 @@ public:
 
 public slots:
 	void ProjectFileChanged(const QString& Path);
-	void PreviewPiece(const QString &, int);
-	void TogglePreviewWidget(bool);
-/*** LPub3D Mod - relocate update and new project ***/
+	void PreviewPiece(const QString& PartId, int ColorCode);
+	void TogglePreviewWidget(bool Visible);
+/*** LPub3D Mod - relocate new project ***/
 	void NewProject();               // move from public:
-	void UpdateAllViews();           // moved from public:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
@@ -475,7 +466,10 @@ signals:
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	void TogglePreviewWidgetSig(bool);
 /*** LPub3D Mod end ***/
+
 protected slots:
+	void ViewFocusReceived();
+	void ViewCameraChanged();
 	void UpdateDockWidgetActions();
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);
@@ -498,6 +492,8 @@ protected:
 	void CreateMenus();
 	void CreateToolBars();
 	void CreateStatusBar();
+	View* CreateView(lcModel* Model);
+	void SetActiveView(View* ActiveView);
 	void ToggleDockWidget(QWidget* DockWidget);
 	void SplitView(Qt::Orientation Orientation);
 	void ShowSearchDialog();

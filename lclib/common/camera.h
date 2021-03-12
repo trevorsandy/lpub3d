@@ -17,15 +17,15 @@
 #define LC_CAMERA_SELECTION_MASK    (LC_CAMERA_POSITION_SELECTED | LC_CAMERA_TARGET_SELECTED | LC_CAMERA_UPVECTOR_SELECTED)
 #define LC_CAMERA_FOCUS_MASK        (LC_CAMERA_POSITION_FOCUSED | LC_CAMERA_TARGET_FOCUSED | LC_CAMERA_UPVECTOR_FOCUSED)
 
-enum lcViewpoint
+enum class lcViewpoint
 {
-	LC_VIEWPOINT_FRONT,
-	LC_VIEWPOINT_BACK,
-	LC_VIEWPOINT_TOP,
-	LC_VIEWPOINT_BOTTOM,
-	LC_VIEWPOINT_LEFT,
-	LC_VIEWPOINT_RIGHT,
-	LC_VIEWPOINT_HOME
+	Front,
+	Back,
+	Top,
+	Bottom,
+	Left,
+	Right,
+	Home
 };
 
 enum lcCameraSection
@@ -49,11 +49,12 @@ public:
 	lcCamera& operator=(const lcCamera&) = delete;
 	lcCamera& operator=(lcCamera&&) = delete;
 
-	const char* GetName() const override
+	QString GetName() const override
 	{
-		return m_strName;
+		return mName;
 	}
 
+	void SetName(const QString& Name);
 	void CreateName(const lcArray<lcCamera*>& Cameras);
 
 	bool IsSimple() const
@@ -307,8 +308,6 @@ public:
 	bool mLPubMeta;
 /*** LPub3D Mod end ***/
 
-	char m_strName[81];
-
 	float m_fovy;
 	float m_zNear;
 	float m_zFar;
@@ -325,5 +324,6 @@ protected:
 
 	void Initialize();
 
+	QString mName;
 	quint32 mState;
 };

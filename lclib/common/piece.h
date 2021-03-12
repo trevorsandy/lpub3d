@@ -489,7 +489,7 @@ public:
 
 	void UpdateID();
 
-	const char* GetName() const override;
+	QString GetName() const override;
 	bool IsVisible(lcStep Step) const;
 	bool IsVisibleInSubModel() const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;

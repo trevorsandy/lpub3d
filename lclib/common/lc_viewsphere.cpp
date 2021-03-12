@@ -2,7 +2,7 @@
 #include "lc_viewsphere.h"
 #include "view.h"
 #include "lc_previewwidget.h"
-
+#include "camera.h"
 #include "lc_context.h"
 #include "lc_stringcache.h"
 #include "lc_application.h"
@@ -36,14 +36,15 @@ void lcViewSphere::UpdateSettings()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
 
-	if (!mIsPreview)
+	switch (mWidget->GetViewType())
 	{
+	case lcViewType::View:
 		mSize = Preferences.mViewSphereSize;
 		mEnabled = Preferences.mViewSphereEnabled;
 		mLocation = Preferences.mViewSphereLocation;
-	}
-	else
-	{
+		break;
+
+	case lcViewType::Preview:
 /*** LPub3D Mod - preview widget for LPub3D ***/		
 		if (mIsSubstitute && Preferences.mPreviewViewSphereSize != 50)
 			mSize = Preferences.mPreviewViewSphereSize * 0.70;
@@ -52,6 +53,11 @@ void lcViewSphere::UpdateSettings()
 /*** LPub3D Mod end ***/			
 		mEnabled = Preferences.mPreviewViewSphereEnabled;
 		mLocation = Preferences.mPreviewViewSphereLocation;
+		break;
+
+	case lcViewType::Minifig:
+	case lcViewType::Count:
+		break;
 	}
 }
 
@@ -192,8 +198,8 @@ void lcViewSphere::Draw()
 		return;
 
 	lcContext* Context = mWidget->mContext;
-	const int Width = mWidget->mWidth;
-	const int Height = mWidget->mHeight;
+	const int Width = mWidget->GetWidth();
+	const int Height = mWidget->GetHeight();
 	const int ViewportSize = mSize;
 	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
@@ -292,7 +298,7 @@ bool lcViewSphere::OnLeftButtonUp()
 			Position[AxisIdx] = -1250.0f;
 	}
 
-	mIsPreview ? mPreview->SetViewpoint(Position) : mView->SetViewpoint(Position);
+	mWidget->SetViewpoint(Position);
 
 	return true;
 }
@@ -332,8 +338,8 @@ bool lcViewSphere::IsDragging() const
 
 std::bitset<6> lcViewSphere::GetIntersectionFlags(lcVector3& Intersection) const
 {
-	const int Width = mWidget->mWidth;
-	const int Height = mWidget->mHeight;
+	const int Width = mWidget->GetWidth();
+	const int Height = mWidget->GetHeight();
 	const int ViewportSize = mSize;
 	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;

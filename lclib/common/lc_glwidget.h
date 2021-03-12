@@ -86,25 +86,74 @@ enum class lcTrackTool
 	Count
 };
 
-class lcGLWidget
+enum class lcViewType
 {
+	View,
+	Preview,
+	Minifig,
+	Count
+};
+
+class lcGLWidget : public QObject
+{
+	Q_OBJECT
+
 public:
-	lcGLWidget(lcModel* Model);
+	lcGLWidget(lcViewType ViewType, lcModel* Model);
 	virtual ~lcGLWidget();
 
 	lcGLWidget(const lcGLWidget&) = delete;
 	lcGLWidget& operator=(const lcGLWidget&) = delete;
 
+	static void UpdateProjectViews(const Project* Project);
+	static void UpdateAllViews();
+
 	lcModel* GetActiveModel() const;
+
+	lcViewType GetViewType() const
+	{
+		return mViewType;
+	}
 
 	lcCamera* GetCamera() const
 	{
 		return mCamera;
 	}
 
+	bool IsLastFocused() const
+	{
+		return mLastFocusedView == this;
+	}
+
 	bool IsTracking() const
 	{
 		return mTrackButton != lcTrackButton::None;
+	}
+
+	int GetWidth() const
+	{
+		return mWidth;
+	}
+
+	int GetHeight() const
+	{
+		return mHeight;
+	}
+
+	void SetSize(int Width, int Height)
+	{
+		mWidth = Width;
+		mHeight = Height;
+	}
+
+	QGLWidget* GetWidget() const
+	{
+		return mWidget;
+	}
+
+	void SetWidget(QGLWidget* Widget)
+	{
+		mWidget = Widget;
 	}
 
 	int GetMouseX() const
@@ -123,6 +172,9 @@ public:
 		return mTrackTool;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Camera Globe ***/
+	void SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ApplyZoomExtents = false);
+/*** LPub3D Mod end ***/
 
 	void SetFocus(bool Focus);
 	void SetMousePosition(int MouseX, int MouseY);
@@ -136,6 +188,17 @@ public:
 	lcVector3 UnprojectPoint(const lcVector3& Point) const;
 	void UnprojectPoints(lcVector3* Points, int NumPoints) const;
 	lcMatrix44 GetProjectionMatrix() const;
+
+	void ZoomExtents();
+
+	void SetViewpoint(lcViewpoint Viewpoint);
+	void SetViewpoint(const lcVector3& Position);
+	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
+	void SetCameraAngles(float Latitude, float Longitude);
+	void SetDefaultCamera();
+	void SetCamera(lcCamera* Camera, bool ForceCopy);
+	void SetCamera(const QString& CameraName);
+	void SetCameraIndex(int Index);
 
 	void DrawBackground() const;
 	void DrawViewport() const;
@@ -155,14 +218,15 @@ public:
 	virtual void OnForwardButtonDown() { }
 	virtual void OnForwardButtonUp() { }
 	virtual void OnMouseMove() { }
-	virtual void OnMouseWheel(float Direction) { Q_UNUSED(Direction); }
+	void OnMouseWheel(float Direction);
 	virtual void BeginDrag(lcDragState DragState) { Q_UNUSED(DragState); }
 	virtual void EndDrag(bool Accept) { Q_UNUSED(Accept); }
 
-	int mWidth = 1;
-	int mHeight = 1;
-	QGLWidget* mWidget = nullptr;
 	lcContext* mContext = nullptr;
+
+signals:
+	void FocusReceived();
+	void CameraChanged();
 
 protected:
 	lcCursor GetCursor() const;
@@ -182,17 +246,21 @@ protected:
 	lcTrackButton mTrackButton = lcTrackButton::None;
 	lcCursor mCursor = lcCursor::Default;
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	lcModel* mModel = nullptr; // Fix
-/*** LPub3D Mod end ***/
-
 	std::unique_ptr<lcScene> mScene;
+	std::unique_ptr<lcViewSphere> mViewSphere;
 
+	lcModel* mModel = nullptr;
 	lcPiece* mActiveSubmodelInstance = nullptr;
 	lcMatrix44 mActiveSubmodelTransform;
 
 	lcCamera* mCamera = nullptr;
-	bool mDeleteContext = true;
 
-	static lcGLWidget* mLastFocusView;
+	QGLWidget* mWidget = nullptr;
+	int mWidth = 1;
+	int mHeight = 1;
+	bool mDeleteContext = true;
+	lcViewType mViewType;
+
+	static lcGLWidget* mLastFocusedView;
+	static std::vector<lcGLWidget*> mViews;
 };

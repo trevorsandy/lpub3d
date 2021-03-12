@@ -16,7 +16,7 @@
 /*** LPub3D Mod end ***/
 
 // New omni light.
-lcLight::lcLight(float px, float py, float pz, bool lpubmeta)
+lcLight::lcLight(float px, float py, float pz, bool lpubMeta)
 	: lcObject(lcObjectType::Light)
 {
 	mAngleSet      = false;
@@ -24,7 +24,7 @@ lcLight::lcLight(float px, float py, float pz, bool lpubmeta)
 	mSpotCutoffSet = false;
 	mHeightSet     = false;
 /*** LPub3D Mod - LPUB meta command ***/
-	mLPubMeta      = lpubmeta;
+	mLPubMeta      = lpubMeta;
 /*** LPub3D Mod end ***/
 	Initialize(lcVector3(px, py, pz), lcVector3(0.0f, 0.0f, 0.0f), LC_POINTLIGHT);
 	UpdatePosition(1);
@@ -49,6 +49,7 @@ lcLight::lcLight(float px, float py, float pz, float tx, float ty, float tz, int
 void lcLight::SetLightState(int LightType)
 {
 	mState = 0;
+	
 	switch (LightType)
 	{
 	case LC_SPOTLIGHT:
@@ -66,7 +67,7 @@ void lcLight::SetLightState(int LightType)
 void lcLight::Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType)
 {
 	SetLightState(LightType);
-	memset(m_strName, 0, sizeof(m_strName));
+
 	mEnableCutoff   = false;
 	mPosition       = Position;
 	mTargetPosition = TargetPosition;
@@ -104,43 +105,6 @@ void lcLight::Initialize(const lcVector3& Position, const lcVector3& TargetPosit
 
 lcLight::~lcLight()
 {
-}
-
-void lcLight::CreateName(const lcArray<lcLight*>& Lights)
-{
-	if (m_strName[0])
-	{
-		bool Found = false;
-
-		for (lcLight* Light : Lights)
-		{
-			if (!strcmp(Light->m_strName, m_strName))
-			{
-				Found = true;
-				break;
-			}
-		}
-
-		if (!Found)
-			return;
-	}
-
-	int i, max = 0;
-/*** LPub3D Mod - enable lights ***/
-	const char* Prefix = (mLightType == LC_POINTLIGHT ? "Pointlight "
-						: mLightType == LC_SUNLIGHT   ? "Sunlight "
-						: mLightType == LC_SPOTLIGHT  ? "Spotlight "
-						: mLightType == LC_AREALIGHT  ? "Arealight "
-						: "Light");
-
-	for (int LightIdx = 0; LightIdx < Lights.GetSize(); LightIdx++)
-		if (strncmp(Lights[LightIdx]->m_strName, Prefix, strlen(Prefix)) == 0)
-			if (sscanf(Lights[LightIdx]->m_strName + strlen(Prefix), " %d", &i) == 1)
-				if (i > max)
-					max = i;
-
-	sprintf(m_strName, "%s %d", Prefix, max+1);
-/*** LPub3D Mod end ***/
 }
 
 void lcLight::SaveLDraw(QTextStream& Stream) const
@@ -282,9 +246,58 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 			Type = "Area ";
 			break;
 		}
-		Stream << QLatin1String(Type.toLatin1()) << QLatin1String("NAME ") << m_strName << LineEnding;
+		Stream << QLatin1String(Type.toLatin1()) << QLatin1String("NAME ") << mName << LineEnding;
 	}
 /*** LPub3D Mod end ***/
+}
+
+void lcLight::CreateName(const lcArray<lcLight*>& Lights)
+{
+	if (!mName.isEmpty())
+	{
+		bool Found = false;
+
+		for (lcLight* Light : Lights)
+		{
+			if (Light->GetName() == mName)
+			{
+				Found = true;
+				break;
+			}
+		}
+
+		if (!Found)
+			return;
+	}
+
+	int MaxLightNumber = 0;
+/*** LPub3D Mod - enable lights ***/	
+	const QLatin1String Prefix(mLightType == LC_POINTLIGHT ? "Pointlight "
+							 : mLightType == LC_SUNLIGHT   ? "Sunlight "
+							 : mLightType == LC_SPOTLIGHT  ? "Spotlight "
+							 : mLightType == LC_AREALIGHT  ? "Arealight "
+							 : "Light");
+/*** LPub3D Mod end ***/
+
+	for (lcLight* Light : Lights)
+	{
+		QString LightName = Light->GetName();
+
+		if (LightName.startsWith(Prefix))
+		{
+			bool Ok = false;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+			int LightNumber = LightName.midRef(Prefix.size()).toInt(&Ok);
+#else
+			int LightNumber = LightName.mid((int)strlen(Prefix.latin1())).toInt(&Ok);
+#endif
+
+			if (Ok && LightNumber > MaxLightNumber)
+				MaxLightNumber = LightNumber;
+		}
+	}
+
+	mName = Prefix + QString::number(MaxLightNumber + 1);
 }
 
 /*** LPub3D Mod - enable lights ***/
@@ -416,11 +429,8 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			LoadKeysLDraw(Stream, mTargetPositionKeys);
 		else if (Token == QLatin1String("NAME"))
 		{
-			QString Name = Stream.readAll().trimmed();
-			Name.replace("\"", "");
-			QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
-			strncpy(m_strName, NameUtf.constData(), sizeof(m_strName));
-			m_strName[sizeof(m_strName) - 1] = 0;
+			mName = Stream.readAll().trimmed();
+			mName.replace("\"", "");
 
 			// Set default settings per light type
 			if (mLightType == LC_SPOTLIGHT) {
@@ -933,7 +943,7 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = 0.0f;
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 
-	const GLushort Indices[56 + 24 + 2 + 40] =
+	const GLushort Indices[56 + 24 + 2 + 40] = 
 	{
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 		0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 0,
