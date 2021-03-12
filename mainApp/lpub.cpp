@@ -285,7 +285,7 @@ void Gui::insertFinalModelStep() {
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
     int modelStatus = mi->displayModelStepExists();
     if (modelStatus != DM_FINAL_MODEL && modelStatus != DM_DISPLAY_MODEL) {
-      emit messageSig(LOG_INFO, QString("Inserting final model..."));
+      emit messageSig(LOG_INFO, QString("Inserting fade/highlight final model step..."));
       mi->insertFinalModelStep(modelStatus);
     }
   } else {
@@ -297,7 +297,7 @@ void Gui::insertFinalModelStep() {
 
 void Gui::deleteFinalModelStep() {
   if (mi->displayModelStepExists() == DM_FINAL_MODEL) {
-    emit messageSig(LOG_INFO, QString("Removing final model..."));
+    emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
     mi->deleteFinalModelStep();
   }
 }
@@ -5666,7 +5666,6 @@ void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
     if (macroNesting == 0) {
-      emit messageSig(LOG_STATUS, QString("Highlight line %1...").arg(here.lineNumber));
       displayFile(&ldrawFile, here);
       showLineSig(here.lineNumber, type);
     }

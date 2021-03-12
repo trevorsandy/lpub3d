@@ -523,7 +523,7 @@ int Gui::drawPage(
       QFontMetrics currentMetrics(font());
       QString elidedModelName = currentMetrics.elidedText(opts.current.modelName,
                                                           Qt::ElideRight, charWidth * 30/*characters*/);
-      emit messageSig(LOG_INFO_STATUS, QString("Processing %1 draw-page for page %2, step %3, model '%4'...")
+      emit messageSig(LOG_INFO_STATUS, QString("Processing %1 draw-page for page %2, step %3, model '%4'")
                       .arg(multiStep ? "multi-step" : callout ? "called out" : coverPage ? "cover page" : "single-step")
                       .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName));
       QApplication::processEvents();
