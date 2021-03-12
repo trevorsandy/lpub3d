@@ -462,9 +462,13 @@ int Gui::drawPage(
   int  buildModStepIndex = -1;
   bool buildModItems     = false;
   bool buildModIgnore    = false;
-  bool buildModCreate    = false;
+  bool buildModInsert    = false;
+  bool buildModExists    = false;
+  bool buildModChange    = false;
   bool buildModPliIgnore = false;
   bool buildMod[3]       = { false, false, false };
+
+  enum draw_page_stat { begin, end };
 
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
@@ -514,14 +518,19 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  auto drawPageStatus = [this, &opts, &multiStep, &callout, &coverPage] () {
+  auto drawPageStatus = [this, &opts, &multiStep, &coverPage, &topOfStep] (int status) {
       int charWidth = QFontMetrics(font()).averageCharWidth();
       QFontMetrics currentMetrics(font());
       QString elidedModelName = currentMetrics.elidedText(opts.current.modelName,
                                                           Qt::ElideRight, charWidth * 30/*characters*/);
-      emit messageSig(LOG_INFO_STATUS, QString("Processing %1 draw-page for page %2, step %3, model '%4'")
-                      .arg(multiStep ? "multi-step" : callout ? "called out" : coverPage ? "cover page" : "single-step")
-                      .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName));
+      Where where = topOfStep;
+      bool fin = status == end;
+      bool stepGroup = fin ? multiStep : stepContains(where, QRegExp(" MULTI_STEP BEGIN$"));
+      QString message = QString("%1 %2 draw-page for page %3, step %4, model '%5'%6")
+                                .arg(fin ? "Processed" : "Processing").arg(stepGroup ? "multi-step" : opts.calledOut ? "called out" : coverPage ? "cover page" : "single-step")
+                                .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
+      emit messageSig(LOG_STATUS, message);
+      emit messageSig(fin ? LOG_TRACE : LOG_INFO, message);
       QApplication::processEvents();
   };
 
@@ -567,15 +576,6 @@ int Gui::drawPage(
       int  fileNameIndex = topOfStep.modelIndex;
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
-          // Attributes:
-          // 0 BM_BEGIN_LINE_NUM    0
-          // 1 BM_ACTION_LINE_NUM   0
-          // 2 BM_END_LINE_NUM      0
-          // 3 BM_DISPLAY_PAGE_NUM  1
-          // 4 BM_STEP_PIECES       0
-          // 5 BM_MODEL_NAME_INDEX -1
-          // 6 BM_MODEL_LINE_NUM    0
-          // 7 BM_MODEL_STEP_NUM    0
           QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
           modAttributes[index] = here.lineNumber;
           buildModAttributes.insert(buildModLevel, modAttributes);
@@ -596,22 +596,22 @@ int Gui::drawPage(
       int fileNameIndex     = topOfStep.modelIndex;
       int lineNumber        = topOfStep.lineNumber;
       int stepNumber        = opts.stepNum;
+      int buildModStepIndex = getBuildModStepIndex(topOfStep);
+      QString buildModKey   = buildModKeys.value(buildModLevel);
+
+      /* block below may be redundant */
       QStringList stepKeys  = step->viewerStepKey.split(";");
       if (stepKeys.size() < BM_STEP_KEYS) {
           messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
       } else {
           bool ok[3];
-          stepCsiParts      = GetLPubStepPieces();
           fileNameIndex     = stepKeys[BM_STEP_MODEL_KEY].toInt(&ok[0]);
           lineNumber        = stepKeys[BM_STEP_LINE_KEY].toInt(&ok[1]);
           stepNumber        = stepKeys[BM_STEP_NUM_KEY].toInt(&ok[2]);
           if (!ok[0] || !ok[1] || !ok[2])
               messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
       }
-
-      int buildModStepIndex = getBuildModStepIndex(topOfStep);
-
-      QString buildModKey   = buildModKeys.value(buildModLevel);
+      /* block above may be redundant */
 
       QVector<int> modAttributes = { 0, 0, 0, displayPageNum, stepCsiParts, fileNameIndex, lineNumber, stepNumber };
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
@@ -624,9 +624,6 @@ int Gui::drawPage(
           modAttributes[BM_MODEL_STEP_NUM]   = stepNumber;
       }
 
-      insertBuildMod(buildModKey,
-                     modAttributes,
-                     buildModStepIndex);
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
                       "Insert DrawPage BuildMod StepIndex: %1, "
@@ -634,25 +631,56 @@ int Gui::drawPage(
                       "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
                       "ModKey: %10, "
                       "Level: %11")
-                      .arg(buildModStepIndex)
-                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
-                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))
-                      .arg(modAttributes.at(BM_END_LINE_NUM))
-                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))
-                      .arg(modAttributes.at(BM_STEP_PIECES))
-                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))
-                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))
-                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))
+                      .arg(buildModStepIndex)                      // Attribute Default Initial:
+                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                      .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                      .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
+                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
                       .arg(buildModKey)
                       .arg(buildModLevel));
 #endif
+
+      insertBuildMod(buildModKey,
+                     modAttributes,
+                     buildModStepIndex);
   };
 
-  auto updateBuildModification = [this, &step, &buildModKeys] (int buildModLevel)
+#ifdef WRITE_PARTS_DEBUG
+  auto writeDrawPartsFile = [this,&topOfStep, &opts](const QString &insert = QString())
+  {
+      if (opts.csiParts.isEmpty())
+          return;
+      const QString &nameInsert = insert.isEmpty() ? "c_draw_parts" : insert;
+      const QString filePath = QDir::currentPath() + "/" + Paths::tmpDir;
+      const QString outfileName = QString("%1/%2_%3.ldr")
+                   .arg(filePath)
+                   .arg(nameInsert)
+                   .arg(QString("page_%1_step_%2_model_%3_line_%4%5")
+                        .arg(displayPageNum)        // Page Number
+                        .arg(opts.stepNum)          // Step Number
+                        .arg(topOfStep.modelIndex)  // ModelIndex
+                        .arg(topOfStep.lineNumber));// LineNumber
+      QFile file(outfileName);
+      if ( ! file.open(QFile::WriteOnly | QFile::Text))
+          messageSig(LOG_ERROR,QString("Cannot open draw_parts file %1 for writing: %2")
+                                       .arg(outfileName) .arg(file.errorString()));
+      QTextStream out(&file);
+      for (int i = 0; i < opts.csiParts.size(); i++)
+          out << opts.csiParts[i] << endl;
+      file.close();
+  };
+#endif
+
+  // Update buildMod intiialized in setBuildModForNextStep
+  auto updateBuildModification = [this, &step, &opts, &buildModKeys] (int buildModLevel)
   {
       const QString buildModKey = buildModKeys.value(buildModLevel);
       setBuildModStepKey(buildModKey, step->viewerStepKey);
-      setBuildModStepPieces(buildModKey, GetLPubStepPieces());
+      setBuildModStepPieces(buildModKey, opts.csiParts.size());
   };
 
   PartLineAttributes pla(
@@ -664,7 +692,7 @@ int Gui::drawPage(
      buildModIgnore,
      buildModItems);
 
-  drawPageStatus();
+  drawPageStatus(begin);
 
   /*
    * do until end of page
@@ -934,6 +962,11 @@ int Gui::drawPage(
                               true               /*calledOut*/
                               );
                   int drc = drawPage(view, scene, callout, line, calloutOpts);
+                  if (drc == HitBuildModAction) {
+                      // return to init drawPage to rerun findPage to regenerate content
+                      pageProcessRunning = PROC_DISPLAY_PAGE;
+                      return drc;
+                  }
 
                   callout->meta = saveMeta;
 
@@ -947,6 +980,7 @@ int Gui::drawPage(
 
                   if (drc) {
                       steps->placement = steps->meta.LPub.assem.placement;
+                      pageProcessRunning = PROC_FIND_PAGE;
                       return drc;
                     }
                 } else {
@@ -1242,7 +1276,7 @@ int Gui::drawPage(
               /* since we have a part usage, we have a valid step */
               if (opts.calledOut || multiStep) {
                   step = nullptr;
-                  Reserve *reserve = new Reserve(opts.current,steps->meta.LPub);
+                  Reserve *reserve = new Reserve(topOfStep/*opts.current*/,steps->meta.LPub);
                   if (range == nullptr) {
                       range = newRange(steps,opts.calledOut);
                       steps->append(range);
@@ -1909,6 +1943,7 @@ int Gui::drawPage(
                       int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
                       if (rrc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
+                          pageProcessRunning = PROC_FIND_PAGE;
                           return rrc;
                         }
 
@@ -1969,7 +2004,7 @@ int Gui::drawPage(
                   parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                              opts.current,Preferences::BuildModErrors);
               buildModStepIndex = getBuildModStepIndex(topOfStep);
-              buildModKey = page.meta.LPub.buildMod.key();
+              buildModKey = curMeta.LPub.buildMod.key();
               if (buildModContains(buildModKey)) {
                   if (getBuildModAction(buildModKey, buildModStepIndex - 1) == rc)
                       parseError("Redundant build modification meta command - this command can be removed.",
@@ -1978,7 +2013,9 @@ int Gui::drawPage(
                   parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
                              opts.current,Preferences::BuildModErrors);
               }
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
+              if (multiStep || opts.calledOut)
+                  buildModChange = topOfStep != steps->topOfSteps();
+              if (buildModChange) {
                   opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, buildModStepIndex));
                   if (opts.buildModActions.value(opts.buildModLevel) != rc) {
                       // set BuildMod action for current step
@@ -1999,21 +2036,26 @@ int Gui::drawPage(
               if (!Preferences::buildModEnabled)
                   break;
               buildModKey        = curMeta.LPub.buildMod.key();
+              buildModExists     = buildModContains(buildModKey);
               opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
               if (! buildModKeys.contains(opts.buildModLevel))
                   buildModKeys.insert(opts.buildModLevel, buildModKey);
-              // create new buildMod if step-group and not on first group step
-              if ((buildModCreate = (multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut))
+              // insert new or update existing buildMod
+              if (multiStep)
+                  buildModInsert = topOfStep != steps->topOfSteps();
+              if (opts.calledOut)
+                  buildModInsert = !buildModExists;
+              if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
               // set buildModActions
-              if (buildModContains(buildModKey))
+              if (buildModExists)
                   opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
-              else if (buildModCreate)
+              else if (buildModInsert)
                   opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
               else
                   parseError(QString("Expected BuildMod action - Ensure your meta command is well formed."),
                              opts.current,Preferences::BuildModErrors);
-              // set buildMod action
+              // set buildMod ignore
               if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
                   buildModIgnore    = false;
                   buildModPliIgnore = true;
@@ -2033,7 +2075,7 @@ int Gui::drawPage(
                              opts.current,Preferences::BuildModErrors);
               if (!buildMod[BM_BEGIN])
                   parseError(QString("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
+              if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
               // set buildMod action
               if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
@@ -2052,7 +2094,7 @@ int Gui::drawPage(
                   break;
               if (!buildMod[BM_END_MOD])
                   parseError(QString("Required meta BUILD_MOD END_MOD not found"), opts.current, Preferences::BuildModErrors);
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
+              if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               opts.buildModLevel = getLevel(QString(), BM_END);
               if (opts.buildModLevel == BM_BEGIN) {
@@ -2172,365 +2214,382 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
-                } // STEP - special case of no parts added, but BFX load
+              } // STEP - special case of no parts added, but BFX load
 
              /*
-              *  STEP - normal case of parts added, and not NOSTEP
+              *  STEP - case of not NOSTEP and not BuildMod ignore
               */
-              if (partsAdded && ! noStep && ! buildModIgnore) {
+              if (! noStep && ! buildModIgnore) {
+                  /*
+                   * STEP - normal case of parts added
+                   */
+                  if (partsAdded && ! noStep && ! buildModIgnore) {
 
-                  // set step group page meta attributes first step
-                  if (firstStep) {
-                      steps->groupStepMeta = curMeta;
-                      firstStep = false;
-                  }
-
-                  if (pliIgnore) {
-                      parseError("PLI BEGIN then STEP. Expected PLI END",opts.current);
-                      pliIgnore = false;
-                  }
-                  if (partIgnore) {
-                      parseError("PART BEGIN then STEP. Expected PART END",opts.current);
-                      partIgnore = false;
-                  }
-                  if (synthBegin) {
-                      parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",opts.current);
-                      synthBegin = false;
-                  }
-
-                  bool pliPerStep;
-
-                  if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
-                      pliPerStep = true;
-                  } else if (opts.calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
-                      pliPerStep = true;
-                  } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
-                      pliPerStep = true;
-                  } else {
-                      pliPerStep = false;
-                  }
-
-                 /*
-                  * STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
-                  */
-                  if (step) {
-
-                      Page *page = dynamic_cast<Page *>(steps);
-                      if (page) {
-                          page->inserts              = inserts;
-                          page->pagePointers         = pagePointers;
-                          page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                          page->selectedSceneItems   = selectedSceneItems;
+                      // set step group page meta attributes first step
+                      if (firstStep) {
+                          steps->groupStepMeta = curMeta;
+                          firstStep = false;
                       }
 
-                      step->lightList = lightList;
-
-                      PlacementType relativeType = SingleStepType;
-                      if (pliPerStep) { // Pli per Step
-                          if (multiStep) {
-                              relativeType = StepGroupType;
-                          } else if (opts.calledOut) {
-                              relativeType = CalloutType;
-                          } else {
-                              relativeType = SingleStepType;
-                          }
-
-                          step->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->meta);
-                          opts.pliParts.clear();
-                          opts.pliPartGroups.clear();
-
-                          emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
-
-                          step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-
-                          if (step->placeSubModel) { // Place SubModel at Step 1
-                              emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
-
-                              // get the number of submodel instances in the model file
-                              instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                              displayInstanceCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
-                              // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
-                              // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                              // and configurable in Project globals
-                              if (displayInstanceCount) {
-                                  // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
-                                  if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
-                                      instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
-                                  else
-                                  if (countInstances == CountAtStep)
-                                      instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
-                                  else
-                                  if (countInstances > CountFalse && countInstances < CountAtStep)
-                                      instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
-                              }
-
-                              steps->meta.LPub.subModel.instance.setValue(instances);
-                              step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                              step->subModel.displayInstanceCount = displayInstanceCount;
-
-                              if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                  emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                          } // Place SubModel
-                          else
-                          {
-                              step->subModel.clear();
-                          }
-                      } // Pli per Step
-
-                      switch (dividerType){
-                      // for range divider, we set the dividerType for the last STEP of the previous RANGE.
-                      case RangeDivider:
-                          if (steps && steps->list.size() > 1) {
-                              int i = steps->list.size()-2;           // previous range index
-                              Range *previousRange = dynamic_cast<Range *>(steps->list[i]);
-                              if (previousRange){
-                                  i = previousRange->list.size()-1;   // last step index in previous range
-                                  Step *lastStep = dynamic_cast<Step *>(previousRange->list[i]);
-                                  if (lastStep)
-                                      lastStep->dividerType = dividerType;
-                              }
-                          }
-                          break;
-                          // for steps divider, we set the dividerType for the previous STEP
-                      case StepDivider:
-                          if (range && range->list.size() > 1) {
-                              int i = range->list.size()-2;            // previous step index
-                              Step *previousStep = dynamic_cast<Step *>(range->list[i]);
-                              if (previousStep)
-                                  previousStep->dividerType = dividerType;
-                          }
-                          break;
-                          // no divider
-                      default:
-                          step->dividerType = dividerType;
-                          break;
+                      if (pliIgnore) {
+                          parseError("PLI BEGIN then STEP. Expected PLI END",opts.current);
+                          pliIgnore = false;
+                      }
+                      if (partIgnore) {
+                          parseError("PART BEGIN then STEP. Expected PART END",opts.current);
+                          partIgnore = false;
+                      }
+                      if (synthBegin) {
+                          parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",opts.current);
+                          synthBegin = false;
                       }
 
-                      step->placeRotateIcon = rotateIcon;
+                      bool pliPerStep;
 
-                      emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
-                      step->updateViewer = opts.updateViewer;
-                      int crc = step->createCsi(
-                                  opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                  configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
-                                  opts.lineTypeIndexes,
-                                  &step->csiPixmap,
-                                  steps->meta);
-
-                      if (crc) {
-                          emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
-                          return crc;
+                      if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
+                          pliPerStep = true;
+                      } else if (opts.calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
+                          pliPerStep = true;
+                      } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
+                          pliPerStep = true;
+                      } else {
+                          pliPerStep = false;
                       }
 
-                      // BuildMod create and update - performed after createCsi to enable viewerStepKey
-                      if (buildModKeys.size()) {
-                          if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
-                              parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                          Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
-                              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
-                                  insertBuildModification(buildModLevel);
-                              else
-                                  updateBuildModification(buildModLevel);
-                          }
-                          buildModKeys.clear();
-                          buildModAttributes.clear();
-                          buildMod[2] = buildMod[1] = buildMod[0] = false;
-                      }
-
-                      // Set CSI annotations - single step only
-                      if (! exportingObjects() &&  ! multiStep && ! opts.calledOut)
-                          step->setCsiAnnotationMetas(steps->meta);
-
-                      if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
-                          opts.ldrStepFiles << step->ldrName;
-                          opts.csiKeys << step->csiKey;
-                      }
-
-                  } // STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
-
-                  else
-                 /*
-                  * STEP - No step object, e.g. inserted page (no draw graphics)
-                  */
-                  {
-
-                      if (pliPerStep) {
-                          opts.pliParts.clear();
-                          opts.pliPartGroups.clear();
-                      }
-
-                      // Only pages or step can have inserts and pointers... not callouts
-                      if ( ! multiStep && ! opts.calledOut) {
+                     /*
+                      * STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+                      */
+                      if (step) {
 
                           Page *page = dynamic_cast<Page *>(steps);
                           if (page) {
-                              page->inserts            = inserts;
-                              page->pagePointers       = pagePointers;
-                              page->selectedSceneItems = selectedSceneItems;
-                          }
-                      }
-                  } // STEP - No step object, e.g. inserted page (no draw graphics)
-
-                 /*
-                  *  STEP - Simple, not mulitStep, not calledOut (draw graphics)
-                  */
-                  if ( ! multiStep && ! opts.calledOut) {
-
-                      steps->placement = steps->meta.LPub.assem.placement;
-
-                      int  numSteps = ldrawFile.numSteps(opts.current.modelName);
-
-                      bool endOfSubmodel =
-                              numSteps == 0 ||
-                              steps->meta.LPub.contStepNumbers.value() ?
-                                  steps->meta.LPub.contModelStepNum.value() >= numSteps :
-                                  opts.stepNum >= numSteps;
-
-                      // get the number of submodel instances in the model file
-                      int instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                      displayInstanceCount = countInstances && instances > 1;
-                      // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
-                      // the updated countInstances routine's configuration is CountAtModel - this is the default options set
-                      // and configurable in Project globals
-                      if (displayInstanceCount) {
-                          // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
-                          if (steps->meta.LPub.page.countInstanceOverride.value())
-                              instances = steps->meta.LPub.page.countInstanceOverride.value();
-                          else
-                          if (countInstances == CountAtStep)
-                              instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
-                          else
-                          if (countInstances > CountFalse && countInstances < CountAtStep)
-                              instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
-                      }
-
-                      Page *page = dynamic_cast<Page *>(steps);
-                      if (page && instances > 1) {
-                          page->instances            = instances;
-                          page->displayInstanceCount = displayInstanceCount;
-                          page->selectedSceneItems   = selectedSceneItems;
-
-                          if (step) {
+                              page->inserts              = inserts;
+                              page->pagePointers         = pagePointers;
                               page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                              step->lightList = lightList;
+                              page->selectedSceneItems   = selectedSceneItems;
                           }
 
-                          if (! steps->meta.LPub.stepPli.perStep.value()) {
+                          step->lightList = lightList;
 
-                              PlacementType relativeType = SingleStepType;
+                          PlacementType relativeType = SingleStepType;
+                          if (pliPerStep) { // Pli per Step
+                              if (multiStep) {
+                                  relativeType = StepGroupType;
+                              } else if (opts.calledOut) {
+                                  relativeType = CalloutType;
+                              } else {
+                                  relativeType = SingleStepType;
+                              }
 
-                              QStringList instancesPliParts;
-                              if (opts.pliParts.size() > 0) {
-                                  for (int index = 0; index < opts.pliParts.size(); index++) {
-                                      QString pliLine = opts.pliParts[index];
-                                      for (int i = 0; i < instances; i++) {
-                                          instancesPliParts << pliLine;
+                              step->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->meta);
+                              opts.pliParts.clear();
+                              opts.pliPartGroups.clear();
+
+                              emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
+
+                              step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+
+                              if (step->placeSubModel) { // Place SubModel at Step 1
+                                  emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+
+                                  // get the number of submodel instances in the model file
+                                  instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                                  displayInstanceCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
+                                  // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
+                                  // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                                  // and configurable in Project globals
+                                  if (displayInstanceCount) {
+                                      // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                                      if (steps->groupStepMeta.LPub.page.countInstanceOverride.value())
+                                          instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
+                                      else
+                                      if (countInstances == CountAtStep)
+                                          instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                                      else
+                                      if (countInstances > CountFalse && countInstances < CountAtStep)
+                                          instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                                  }
+
+                                  steps->meta.LPub.subModel.instance.setValue(instances);
+                                  step->subModel.setSubModel(opts.current.modelName,steps->meta);
+
+                                  step->subModel.displayInstanceCount = displayInstanceCount;
+
+                                  if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                      emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                              } // Place SubModel
+                              else
+                              {
+                                  step->subModel.clear();
+                              }
+                          } // Pli per Step
+
+                          switch (dividerType){
+                          // for range divider, we set the dividerType for the last STEP of the previous RANGE.
+                          case RangeDivider:
+                              if (steps && steps->list.size() > 1) {
+                                  int i = steps->list.size()-2;           // previous range index
+                                  Range *previousRange = dynamic_cast<Range *>(steps->list[i]);
+                                  if (previousRange){
+                                      i = previousRange->list.size()-1;   // last step index in previous range
+                                      Step *lastStep = dynamic_cast<Step *>(previousRange->list[i]);
+                                      if (lastStep)
+                                          lastStep->dividerType = dividerType;
+                                  }
+                              }
+                              break;
+                              // for steps divider, we set the dividerType for the previous STEP
+                          case StepDivider:
+                              if (range && range->list.size() > 1) {
+                                  int i = range->list.size()-2;            // previous step index
+                                  Step *previousStep = dynamic_cast<Step *>(range->list[i]);
+                                  if (previousStep)
+                                      previousStep->dividerType = dividerType;
+                              }
+                              break;
+                              // no divider
+                          default:
+                              step->dividerType = dividerType;
+                              break;
+                          }
+
+                          step->placeRotateIcon = rotateIcon;
+
+                          emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
+                          step->updateViewer = opts.updateViewer;
+                          int crc = step->createCsi(
+                                      opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                      configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                      opts.lineTypeIndexes,
+                                      &step->csiPixmap,
+                                      steps->meta);
+
+                          if (crc) {
+                              emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
+                              pageProcessRunning = PROC_FIND_PAGE;
+                              return crc;
+                          }
+
+                          // BuildMod create and update - performed after createCsi to enable viewerStepKey
+                          if (buildModKeys.size()) {
+                              if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
+                                  parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
+                              Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
+                                  if (buildModInsert)
+                                      insertBuildModification(buildModLevel);
+                                  else
+                                      updateBuildModification(buildModLevel);
+                              }
+                              buildModKeys.clear();
+                              buildModAttributes.clear();
+                              buildMod[2] = buildMod[1] = buildMod[0] = false;
+                          }
+
+                          // Set CSI annotations - single step only
+                          if (! exportingObjects() &&  ! multiStep && ! opts.calledOut)
+                              step->setCsiAnnotationMetas(steps->meta);
+
+                          if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
+                              opts.ldrStepFiles << step->ldrName;
+                              opts.csiKeys << step->csiKey;
+                          }
+
+                      } // STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+
+                      else
+                     /*
+                      * STEP - No step object, e.g. inserted page (no draw graphics)
+                      */
+                      {
+
+                          if (pliPerStep) {
+                              opts.pliParts.clear();
+                              opts.pliPartGroups.clear();
+                          }
+
+                          // Only pages or step can have inserts and pointers... not callouts
+                          if ( ! multiStep && ! opts.calledOut) {
+
+                              Page *page = dynamic_cast<Page *>(steps);
+                              if (page) {
+                                  page->inserts            = inserts;
+                                  page->pagePointers       = pagePointers;
+                                  page->selectedSceneItems = selectedSceneItems;
+                              }
+                          }
+                      } // STEP - No step object, e.g. inserted page (no draw graphics)
+
+                     /*
+                      *  STEP - Simple, not mulitStep, not calledOut (draw graphics)
+                      */
+                      if ( ! multiStep && ! opts.calledOut) {
+
+                          steps->placement = steps->meta.LPub.assem.placement;
+
+                          int  numSteps = ldrawFile.numSteps(opts.current.modelName);
+
+                          bool endOfSubmodel =
+                                  numSteps == 0 ||
+                                  steps->meta.LPub.contStepNumbers.value() ?
+                                      steps->meta.LPub.contModelStepNum.value() >= numSteps :
+                                      opts.stepNum >= numSteps;
+
+                          // get the number of submodel instances in the model file
+                          int instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                          displayInstanceCount = countInstances && instances > 1;
+                          // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
+                          // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                          // and configurable in Project globals
+                          if (displayInstanceCount) {
+                              // manually override the count instance value using 0 !LPUB SUBMODEL_INSTANCE_COUNT_OVERRIDE
+                              if (steps->meta.LPub.page.countInstanceOverride.value())
+                                  instances = steps->meta.LPub.page.countInstanceOverride.value();
+                              else
+                              if (countInstances == CountAtStep)
+                                  instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                              else
+                              if (countInstances > CountFalse && countInstances < CountAtStep)
+                                  instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                          }
+
+                          Page *page = dynamic_cast<Page *>(steps);
+                          if (page && instances > 1) {
+                              page->instances            = instances;
+                              page->displayInstanceCount = displayInstanceCount;
+                              page->selectedSceneItems   = selectedSceneItems;
+
+                              if (step) {
+                                  page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
+                                  step->lightList = lightList;
+                              }
+
+                              if (! steps->meta.LPub.stepPli.perStep.value()) {
+
+                                  PlacementType relativeType = SingleStepType;
+
+                                  QStringList instancesPliParts;
+                                  if (opts.pliParts.size() > 0) {
+                                      for (int index = 0; index < opts.pliParts.size(); index++) {
+                                          QString pliLine = opts.pliParts[index];
+                                          for (int i = 0; i < instances; i++) {
+                                              instancesPliParts << pliLine;
+                                          }
+                                      }
+                                  }
+
+                                  if (step) {
+                                      // PLI
+                                      step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
+                                      instancesPliParts.clear();
+                                      opts.pliParts.clear();
+                                      opts.pliPartGroups.clear();
+
+                                      emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
+
+                                      step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+
+                                      // SM
+                                      if (step->placeSubModel){
+                                          emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+
+                                          steps->meta.LPub.subModel.instance.setValue(instances);
+                                          step->subModel.setSubModel(opts.current.modelName,steps->meta);
+
+                                          step->subModel.displayInstanceCount = displayInstanceCount;
+
+                                          if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
                                       }
                                   }
                               }
+                          }
 
-                              if (step) {
-                                  // PLI
-                                  step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
-                                  instancesPliParts.clear();
-                                  opts.pliParts.clear();
-                                  opts.pliPartGroups.clear();
+                          emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
-                                  emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
+                          if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
 
-                                  step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+                              QElapsedTimer timer;
+                              timer.start();
+                              QString empty("");
 
-                                  // SM
-                                  if (step->placeSubModel){
-                                      emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                              // LDView renderer parms are added to csiKeys in createCsi()
 
-                                      steps->meta.LPub.subModel.instance.setValue(instances);
-                                      step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                                      step->subModel.displayInstanceCount = displayInstanceCount;
-
-                                      if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                          emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                                  }
+                              // render the partially assembled model
+                              int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
+                              if (rrc != 0) {
+                                  emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
+                                  pageProcessRunning = PROC_FIND_PAGE;
+                                  return rrc;
                               }
-                          }
-                      }
 
-                      emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
-
-                      if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
-
-                          QElapsedTimer timer;
-                          timer.start();
-                          QString empty("");
-
-                          // LDView renderer parms are added to csiKeys in createCsi()
-
-                          // render the partially assembled model
-                          int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
-                          if (rrc != 0) {
-                              emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
-                              return rrc;
+                              emit messageSig(LOG_INFO,
+                                                   QString("%1 CSI (Single Call) render took "
+                                                           "%2 milliseconds to render %3 [Step %4] %5 for %6 "
+                                                           "single step on page %7.")
+                                                           .arg(Render::getRenderer())
+                                                           .arg(timer.elapsed())
+                                                           .arg(opts.ldrStepFiles.size())
+                                                           .arg(opts.stepNum)
+                                                           .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
+                                                           .arg(opts.calledOut ? "called out," : "simple,")
+                                                           .arg(stepPageNum));
                           }
 
-                          emit messageSig(LOG_INFO,
-                                               QString("%1 CSI (Single Call) render took "
-                                                       "%2 milliseconds to render %3 [Step %4] %5 for %6 "
-                                                       "single step on page %7.")
-                                                       .arg(Render::getRenderer())
-                                                       .arg(timer.elapsed())
-                                                       .arg(opts.ldrStepFiles.size())
-                                                       .arg(opts.stepNum)
-                                                       .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
-                                                       .arg(opts.calledOut ? "called out," : "simple,")
-                                                       .arg(stepPageNum));
-                      }
-
-                      // Load the 3DViewer -  callouts and multistep Steps are not loaded
-                      if (!exportingObjects()) {
-                          if (step) {
-                              step->setBottomOfStep(opts.current);
-                              setCurrentStep(step);
-                              if (partsAdded)
-                                  step->loadTheViewer();
+                          // Load the 3DViewer -  callouts and multistep Steps are not loaded
+                          if (!exportingObjects()) {
+                              if (step) {
+                                  step->setBottomOfStep(opts.current);
+                                  setCurrentStep(step);
+                                  if (partsAdded)
+                                      step->loadTheViewer();
+                              }
+                              showLine(topOfStep);
                           }
-                          showLine(topOfStep);
-                      }
 
-                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
+                          addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
 
-                      stepPageNum += ! coverPage;
-                      steps->setBottomOfSteps(opts.current);
-                      drawPageElapsedTime();
-                      return HitEndOfPage;
-                  } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
+                          stepPageNum += ! coverPage;
+                          steps->setBottomOfSteps(opts.current);
+                          drawPageElapsedTime();
+                          return HitEndOfPage;
+                      } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
+#ifdef WRITE_PARTS_DEBUG
+                      writeDrawPartsFile();
+#endif
+                      drawPageStatus(end);
 
-                  drawPageStatus();
+                      lightList.clear();
 
-                  lightList.clear();
+                      dividerType = NoDivider;
 
-                  dividerType = NoDivider;
+                      // increment continuous step number
+                      if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
+                          steps->groupStepMeta.LPub.contModelStepNum.setValue(
+                                      steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
 
-                  // increment continuous step number
-                  if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
-                      steps->groupStepMeta.LPub.contModelStepNum.setValue(
-                                  steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
+                      steps->meta.pop();
+                      steps->meta.LPub.buildMod.clear();
+                      curMeta.LPub.buildMod.clear();
+                      opts.stepNum += partsAdded;
+                      topOfStep     = opts.current;  // set next step
+                      partsAdded    = false;
+                      coverPage     = false;
+                      rotateIcon    = false;
+                      step          = nullptr;
+                      opts.bfxStore2= bfxStore1;
+                      bfxStore1     = false;
+                      bfxLoad       = false;
 
-                  steps->meta.pop();
-                  steps->meta.LPub.buildMod.clear();
-                  curMeta.LPub.buildMod.clear();
-                  opts.stepNum += partsAdded;
-                  topOfStep     = opts.current;  // set next step
-                  partsAdded    = false;
-                  coverPage     = false;
-                  rotateIcon    = false;
-                  step          = nullptr;
-                  opts.bfxStore2= bfxStore1;
-                  bfxStore1     = false;
-                  bfxLoad       = false;
-
-              } // STEP - normal case of parts added, and not NOSTEP
+                  } // STEP - normal case of parts added
+                  else
+                  /*
+                   *  STEP - case no parts added - e.g. model starting with ROTSTEP END
+                   */
+                  {
+                      ;
+//                      topOfStep     = opts.current;  // set next step
+                  }
+              } // STEP - case of not NOSTEP and not BuildMod ignore
 
               if ( ! multiStep) {
                   inserts.clear();
@@ -2656,11 +2715,11 @@ int Gui::findPage(
   bool buildModIgnore     = false;
   bool buildModItems      = false;
 
-  QString       buildModKey;
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
-  // to initialie drawPageOptins.
-  QMap<int,int> emptyBuildModActions;
+  QString       buildModKey;
+
+  QMap<int,int> emptyBuildModActions; // initialize drawPageOptions.
 
   PartLineAttributes pla(
   csiParts,
@@ -2676,6 +2735,36 @@ int Gui::findPage(
   Rc includeFileRc        = EndOfFileRc;
   bool inserted           = false;
   bool resetIncludeRc     = false;
+
+#ifdef WRITE_PARTS_DEBUG
+  auto writeFindPartsFile = [this,&topOfStep, &saveCsiParts, &opts](
+          const QString &insert = QString(),
+          const QStringList &parts = QStringList())
+  {
+      const QStringList &partList = parts.isEmpty() ? saveCsiParts : parts;
+      if (partList.isEmpty())
+          return;
+      const QString nameInsert = insert.isEmpty() ? "a_find_parts" : insert;
+      const QString filePath = QDir::currentPath() + "/" + Paths::tmpDir;
+      const QString outfileName = QString("%1/%2_%3.ldr")
+                    .arg(filePath)
+                    .arg(insert)
+                    .arg(QString("page_%1_step_%2_model_%3_line_%4")
+                         .arg(opts.pageNum)          // Page Number
+                         .arg(opts.stepNumber)       // Step Number
+                         .arg(topOfStep.modelIndex)  // ModelIndex
+                         .arg(topOfStep.lineNumber));// LineNumber
+
+      QFile file(outfileName);
+      if ( ! file.open(QFile::WriteOnly | QFile::Text))
+          messageSig(LOG_ERROR,QString("Cannot open find_parts file %1 for writing: %2")
+                                       .arg(outfileName) .arg(file.errorString()));
+      QTextStream out(&file);
+      for (int i = 0; i < partList.size(); i++)
+          out << partList[i] << endl;
+      file.close();
+  };
+#endif
 
   ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, countInstances);
 
@@ -2938,6 +3027,9 @@ int Gui::findPage(
                       saveBfxLineTypeIndexes = bfxLineTypeIndexes;
                       saveRotStep            = meta.rotStep;
                       bfxParts.clear();
+#ifdef WRITE_PARTS_DEBUG
+                      writeFindPartsFile("a_find_csi_parts", csiParts);
+#endif
                   } else if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
                       // ignored when processing a buildModDisplay
                       savePrevStepPosition = saveCsiParts.size();
@@ -2979,7 +3071,9 @@ int Gui::findPage(
                                   stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/);
-
+#ifdef WRITE_PARTS_DEBUG
+                      writeFindPartsFile("a_find_save_csi_parts");
+#endif
                       if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
                           // return to init drawPage to rerun findPage to regenerate content
                           pageProcessRunning = PROC_DISPLAY_PAGE;
@@ -3021,7 +3115,7 @@ int Gui::findPage(
                   } // Exporting
 
                   ++opts.pageNum;         
-                  topOfPages.append(opts.current);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
+                  topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
                   // if page displayed, save state and end processing
@@ -3057,7 +3151,8 @@ int Gui::findPage(
                     buildModKey        = meta.LPub.buildMod.key();
                     opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
                     if (buildModContains(buildModKey))
-                        opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, getBuildModNextStepIndex()));
+                        opts.buildModActions.insert(opts.buildModLevel,
+                                                    getBuildModAction(buildModKey, getBuildModNextStepIndex()));
                     else
                         opts.buildModActions.insert(opts.buildModLevel, BuildModNoActionRc);
                     if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
@@ -3071,9 +3166,9 @@ int Gui::findPage(
               case BuildModEndModRc:
                 if (!pageDisplayed) {
                     if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
-                        buildModIgnore = false;
-                    else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
                         buildModIgnore = true;
+                    else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
+                        buildModIgnore = false;
                 }
                 break;
 
@@ -3122,6 +3217,9 @@ int Gui::findPage(
                               opts.groupStepNumber += ! coverPage && ! stepPage;
                               saveGroupStepNum      = opts.groupStepNumber;
                           }
+#ifdef WRITE_PARTS_DEBUG
+                          writeFindPartsFile("a_find_csi_parts", csiParts);
+#endif
                         }
                       if (opts.contStepNumber) { // save continuous step number from current model
                           saveContStepNum = opts.contStepNumber;
@@ -3174,7 +3272,9 @@ int Gui::findPage(
                                       opts.printing,
                                       opts.buildModLevel,
                                       bfxStore2);
-
+#ifdef WRITE_PARTS_DEBUG
+                          writeFindPartsFile("b_find_save_csi_parts");
+#endif
                           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
                               // Set opts.current to topOfStep
                               opts.current = pageOptions.current;
@@ -3542,7 +3642,9 @@ int Gui::findPage(
                       opts.printing,
                       opts.buildModLevel,
                       bfxStore2);
-
+#ifdef WRITE_PARTS_DEBUG
+                      writeFindPartsFile("b_find_save_csi_parts");
+#endif
           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
               // Set opts.current to topOfStep
               opts.current = pageOptions.current;
@@ -4116,9 +4218,6 @@ void Gui::drawPage(LGraphicsView  *view,
 
       // Set BuildMod action options for next step
       if (Preferences::buildModEnabled) {
-#ifdef QT_DEBUG_MODE
-          QElapsedTimer t; t.start();
-#endif
           if (adjustTopOfStep) {
               if (!getBuildModStepIndexWhere(nextStepIndex, topOfStep))
                   topOfStep = firstPage ? current : topOfPages[displayPageIndx];
@@ -4126,10 +4225,6 @@ void Gui::drawPage(LGraphicsView  *view,
              setBuildModNextStepIndex(topOfStep);
           }
           setBuildModForNextStep(topOfStep);
-#ifdef QT_DEBUG_MODE
-          emit messageSig(LOG_DEBUG,QString("Build Modifications Check - %1")
-                                            .arg(elapsedTime(t.elapsed())));
-#endif
       }
   }
 
@@ -4241,6 +4336,7 @@ void Gui::drawPage(LGraphicsView  *view,
       } else {
           futureWatcher.setFuture(future);
       }
+      QApplication::processEvents();
 
       QApplication::restoreOverrideCursor();
   }
@@ -4296,7 +4392,6 @@ void Gui::pagesCounted()
             enableActions2();
             enableNavigationActions(true);
             emit enable3DActionsSig();
-            QApplication::processEvents();
         }
 
     } // modeGUI and not exporting
@@ -4460,29 +4555,53 @@ Where &Gui::bottomOfPage()
  * buildModLineTypeIndexes is added to lineTypeIndexes when buildModLevel is false (0).
  */
 
-bool Gui::setBuildModForNextStep(
-        Where topOfNextStep,
+int Gui::setBuildModForNextStep(
+  const Where topOfNextStep,
         Where bottomOfNextStep,
         Where topOfSubmodel,
-        bool  change,
         bool  submodel)
 {
-    int  progressMin           = 0;
-    int  progressMax           = 0;
     int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
     int  startLine             = 0;
+    int numberOfLines          = 0;
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
     bool buildMod[3]           = { false, false, false };                    // validate buildMod meta command set
 
-    auto setBottomOfNextStep = [this, &buildModNextStepIndex, &topOfStep] (Where &bottomOfNextStep) {
+    auto setBottomOfNextStep = [this, &buildModNextStepIndex, &numberOfLines] (Where &bottomOfNextStep) {
         getBuildModStepIndexWhere(buildModNextStepIndex, bottomOfNextStep);  // initialize bottomOfNextStep Where
+        bool atBottom = false;
         int top = bottomOfNextStep.lineNumber;                               // save top line number for later comparison
-        int numLines = gui->subFileSize(bottomOfNextStep.modelName);         // set top model lines count
-        for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
-            QString line = gui->readLine(bottomOfNextStep);                  // count line
+        int numLines = subFileSize(bottomOfNextStep.modelName);              // set top model lines count
+        for (; bottomOfNextStep < numLines && !atBottom; ++bottomOfNextStep) {            // scan to top of next step
+        numberOfLines++;
+            QString line = readLine(bottomOfNextStep);                        // count line
+            QStringList token;
+            split(line,token);
+            if (token.size() == 15) {
+                QString modelName = token[token.size() - 1];
+                if (isSubmodel(modelName)) {
+                    bottomOfNextStep = Where(modelName, getSubmodelIndex(modelName), 0);
+                    skipHeader(bottomOfNextStep);
+                    top = bottomOfNextStep.lineNumber;
+                    numLines = subFileSize(bottomOfNextStep.modelName);
+                    for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
+                        numberOfLines++;
+                        QString line = readLine(bottomOfNextStep);                       // count line
+                        if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
+                            if (bottomOfNextStep.lineNumber == top) {                    // check if top and bottom are on the same line
+                                bottomOfNextStep++;                                      // advance past STEP command
+                            } else {
+                                 atBottom = true;
+                                 break;                                                  // break at bottom of step/top of next step
+                            }
+                        }
+                    }
+
+                }
+            }
             if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
                 if (bottomOfNextStep.lineNumber == top)                      // check if top and bottom are on the same line
                     bottomOfNextStep++;                                      // advance past STEP command
@@ -4492,9 +4611,10 @@ bool Gui::setBuildModForNextStep(
         }
 
 #ifdef QT_DEBUG_MODE
-        int numberOfLines = bottomOfNextStep.lineNumber - topOfStep.lineNumber;
-        emit messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, numberOfLines %2")
-                                           .arg(bottomOfNextStep.lineNumber).arg(numberOfLines));
+        statusMessage(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, model %2, numberOfLines %3")
+                                         .arg(bottomOfNextStep.lineNumber)
+                                         .arg(bottomOfNextStep.modelName)
+                                         .arg(numberOfLines));
 #endif
     };
 
@@ -4507,15 +4627,13 @@ bool Gui::setBuildModForNextStep(
         topOfStep  = topOfSubmodel;
 
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
-                                          .arg(topOfSubmodel.modelName));
+        statusMessage(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
+                                         .arg(topOfSubmodel.modelName));
 #endif
 
     } else {
-        emit messageSig(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
-                                            .arg(topOfStep.modelName));
-
-        buildModSubmodels.clear();
+        statusMessage(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
+                                               .arg(topOfStep.modelName));
 
         buildModNextStepIndex = getBuildModNextStepIndex();                  // set next/'display' step index
 
@@ -4524,12 +4642,12 @@ bool Gui::setBuildModForNextStep(
         setBottomOfNextStep(bottomOfNextStep);                               // set bottom of next step
 
         startLine = topOfStep.lineNumber;                                    // set starting line number
-
+/*
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
                                            .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
 #endif
-
+*/
         if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
             bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
                             pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1
@@ -4545,19 +4663,13 @@ bool Gui::setBuildModForNextStep(
             }
 
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_TRACE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
+            statusMessage(LOG_TRACE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
                                                .arg(backward ? "Backward" : "Forward")
                                                .arg(startModel).arg(startLine)
                                                .arg(bottomOfNextStep.modelName)
                                                .arg(bottomOfNextStep.lineNumber));
 #endif
         }
-
-        progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber; // progress bar max
-        progressMin = 1;
-
-        emit progressBarPermInitSig();
-        emit progressPermRangeSig(progressMin, progressMax);
     }
 
     Rc rc;
@@ -4583,7 +4695,7 @@ bool Gui::setBuildModForNextStep(
     };
 
     auto insertBuildModification =
-            [this,
+           [this,
             &buildModNextStepIndex,
             &buildModAttributes,
             &buildModKeys,
@@ -4600,28 +4712,29 @@ bool Gui::setBuildModForNextStep(
             modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
         }
 
+#ifdef QT_DEBUG_MODE
+      statusMessage(LOG_DEBUG, QString(
+                    "Insert Next-Step BuildMod StepIndex: %1, "
+                    "Action: Apply, "
+                    "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                    "ModKey: %10, "
+                    "Level: %11")
+                    .arg(buildModNextStepIndex)                  // Attribute Default Initial:
+                    .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                    .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                    .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                    .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                    .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                    .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                    .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                    .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                    .arg(buildModKey)
+                    .arg(buildModLevel));
+#endif
+
         insertBuildMod(buildModKey,
                        modAttributes,
                        buildModNextStepIndex);
-#ifdef QT_DEBUG_MODE
-      emit messageSig(LOG_DEBUG, QString(
-                      "Insert Next-Step BuildMod StepIndex: %1, "
-                      "Action: Apply, "
-                      "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
-                      "ModKey: %10, "
-                      "Level: %11")
-                      .arg(buildModNextStepIndex)
-                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
-                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))
-                      .arg(modAttributes.at(BM_END_LINE_NUM))
-                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))
-                      .arg(modAttributes.at(BM_STEP_PIECES))
-                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))
-                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))
-                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))
-                      .arg(buildModKey)
-                      .arg(buildModLevel));
-#endif
     };
 
     Where walk(startModel, getSubmodelIndex(startModel), startLine);
@@ -4630,19 +4743,10 @@ bool Gui::setBuildModForNextStep(
     if (rc == StepRc || rc == RotStepRc)
         walk++;   // Advance past STEP meta
 
-    // next step lines index
-    int lineCount = 0;
-
     // Parse the step lines
     for ( ;
           walk.lineNumber < subFileSize(walk.modelName);
           walk.lineNumber++) {
-
-        if (progressMax && walk.modelIndex == topOfNextStep.modelIndex) {
-            emit progressPermMessageSig(QString("Build modification check %1 of %2...").arg(lineCount).arg(progressMax));
-            emit progressPermSetValueSig(lineCount);
-            lineCount++;
-        }
 
        line = readLine(walk);
 
@@ -4660,9 +4764,9 @@ bool Gui::setBuildModForNextStep(
                     buildModAction = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
                 else
                     parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
-                                        walk,Preferences::ParseErrors);
+                                    walk,Preferences::ParseErrors,false,false);
                 if (buildModAction != rc)
-                    change = setBuildModAction(buildModKey, buildModNextStepIndex, rc);
+                    setBuildModAction(buildModKey, buildModNextStepIndex, rc);
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
@@ -4678,9 +4782,10 @@ bool Gui::setBuildModForNextStep(
             case BuildModEndModRc:
                 if (buildModLevel > 1 && page.meta.LPub.buildMod.key().isEmpty())
                     parseError("Key required for nested build mod meta command",
-                               walk,Preferences::BuildModErrors);
+                               walk,Preferences::BuildModErrors,false,false);
                 if (!buildMod[BM_BEGIN])
-                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD BEGIN not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
                 buildMod[BM_END_MOD] = true;
                 break;
@@ -4688,54 +4793,51 @@ bool Gui::setBuildModForNextStep(
             // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
             case BuildModEndRc:
                 if (!buildMod[BM_END_MOD])
-                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD END_MOD not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildModLevel    = getLevel(QString(), BM_END);
                 buildMod[BM_END] = true;
                 break;
 
-            // Search until next step/rotstep meta
+            // Search until next occurrence of step/rotstep meta or bottom of step
             case RotStepRc:
             case StepRc:
                 if (buildMod[BM_BEGIN] && !buildMod[BM_END])
-                    parseError(QString("Required meta BUILD_MOD END not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD END not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 Q_FOREACH (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
                 buildMod[2] = buildMod[1] = buildMod[0] = false;
-                if (walk == bottomOfNextStep)
-                    return change;
-                break;
+                return HitBottomOfStep;
 
             default:
                 break;
             }
         } else if (line.toLatin1()[0] == '1') {
-            if (walk == bottomOfNextStep)
-                return change;
+            // search until hit buttom of step
+            if (walk == bottomOfNextStep) {
+                return HitBottomOfStep;
+            }
             QStringList token;
             split(line,token);
             if (token.size() == 15) {
                 QString modelName = token[token.size() - 1];
-                submodel = isSubmodel(modelName);
-                if (submodel && !buildModSubmodels.contains(modelName)) {
-                    buildModSubmodels.append(modelName);
+                if ((submodel = isSubmodel(modelName))) {
                     Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
-                    setBuildModForNextStep(topOfStep, bottomOfNextStep, topOfSubmodel, change, submodel);
+                    if (setBuildModForNextStep(topOfStep, bottomOfNextStep, topOfSubmodel, submodel) == HitBottomOfStep) {
+                        return HitBottomOfStep;
+                    }
                 }
             }
         }
     }
 
-    if (progressMax) {
-        emit progressPermSetValueSig(progressMax);
-        emit progressPermStatusRemoveSig();
-    }
-
-    return change;
-}
+    return HitEndOfFile;
+} // Gui::setBuildModForNextStep()
 
 /*
  * This function applies buffer exchange and LPub's remove
@@ -4759,6 +4861,8 @@ void Gui::writeToTmp(const QString &fileName,
                            QMessageBox::tr("Failed to open %1 for writing: %2")
                            .arg(filePath) .arg(file.errorString()));
     } else {
+
+      mWriteToTmpMutex.lock();
 
       Where topOfStep(fileName, getSubmodelIndex(fileName), 0);
       skipHeader(topOfStep);
@@ -4791,8 +4895,6 @@ void Gui::writeToTmp(const QString &fileName,
       for (int i = 0; i < contents.size(); i++) {
           QString line = contents[i];
           QStringList tokens;
-
-          QApplication::processEvents();
 
           split(line,tokens);
           if (tokens.size()) {
@@ -4912,6 +5014,8 @@ void Gui::writeToTmp(const QString &fileName,
 
       ldrawFile.setLineTypeRelativeIndexes(topOfStep.modelIndex,lineTypeIndexes);
 
+      mWriteToTmpMutex.unlock();
+
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
           out << csiParts[i] << endl;
@@ -4923,6 +5027,7 @@ void Gui::writeToTmp(const QString &fileName,
 void Gui::writeToTmp()
 {
   pageProcessRunning = PROC_WRITE_TO_TMP;
+  QList<QFuture<void>> writeToTmpFutures;
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
 
@@ -4933,8 +5038,6 @@ void Gui::writeToTmp()
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
-  QStringList content, configuredContent;
-
   LDrawFile::_currentLevels.clear();
 
   emit progressBarPermInitSig();
@@ -4942,60 +5045,89 @@ void Gui::writeToTmp()
 
   for (int i = 0; i < subFileCount; i++) {
 
-      QString fileName = ldrawFile._subFileOrder[i].toLower();
-
-      emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileName));
-
-      content = ldrawFile.contents(fileName);
+      QString message, fileName = ldrawFile._subFileOrder[i].toLower();
 
       // write normal submodels...
       if (ldrawFile.changedSinceLastWrite(fileName)) {
 
           writtenFiles++;
 
-          emit progressPermMessageSig(QString("Writing submodel %1 of %2 (%3 lines)...")
-                                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
-                                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
-                                      .arg(QStringLiteral("%1").arg(content.size(), 5, 10, QLatin1Char('0'))));
+          message = QString("Writing submodel '%1' to temp folder...").arg(fileName);
+
+          emit messageSig(LOG_INFO_STATUS, message);
+
+          int numberOfLines = ldrawFile.size(fileName);
+          if (gui->mloadingFile) {
+              message = QString("Writing submodel %1 of %2 (%3 lines)...")
+                                .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                                .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                                .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
+          } else {
+              message = QString("Writing submodel %1 (%2 lines)").arg(fileName).arg(numberOfLines);
+          }
+
+          emit progressPermMessageSig(message);
+
           emit progressPermSetValueSig(i + 1);
 
-          writeToTmp(fileName,content);
+          writeToTmpFutures.append(QtConcurrent::run([this, &fileName]() {
+              QString modelName = fileName;
+              QStringList *modelContent = new QStringList;
+              modelContent->append(ldrawFile.contents(modelName));
+              writeToTmp(modelName, *modelContent);
+          }));
 
-          // capture file name extensions
-          QString fileNameStr;
-          QString extension = QFileInfo(fileName).suffix().toLower();
+          QString fileNameStr = fileName;
+          QString extension = QFileInfo(fileNameStr).suffix().toLower();
 
-          // write configured (Fade) submodels
+          // Write faded version of submodels
           if (doFadeStep) {
-             fileNameStr = fileName;
-             if (extension.isEmpty()) {
-               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
-             } else {
-               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-             }
+            if (extension.isEmpty())
+              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
+            else
+              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
 
-            /* Faded version of submodels */
-            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
-            configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
-            insertConfiguredSubFile(fileNameStr,configuredContent);
-            writeToTmp(fileNameStr,configuredContent);
+            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
+
+            writeToTmpFutures.append(QtConcurrent::run([this, &fileName, &fileNameStr, &fadeColor]() {
+                QString modelName = fileName;
+                QString modelNameStr = fileNameStr;
+                QStringList *modelContent = new QStringList;
+                modelContent->append(ldrawFile.contents(modelName));
+                QStringList *configuredContent = new QStringList;
+                configuredContent->append(configureModelSubFile(*modelContent, fadeColor, FADE_PART));
+                insertConfiguredSubFile(modelNameStr, *configuredContent);
+                writeToTmp(modelNameStr, *configuredContent);
+            }));
           }
-          // write configured (Highlight) submodels
+
+          // Write highlighted version of submodels
           if (doHighlightStep) {
-            fileNameStr = fileName;
-            if (extension.isEmpty()) {
+            if (extension.isEmpty())
               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
-            } else {
+            else
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-            }
-            /* Highlighted version of submodels */
-            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
-            configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
-            insertConfiguredSubFile(fileNameStr,configuredContent);
-            writeToTmp(fileNameStr,configuredContent);
+
+            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
+
+            writeToTmpFutures.append(QtConcurrent::run([this, &fileName, &fileNameStr, &fadeColor]() {
+                QString modelName = fileName;
+                QString modelNameStr = fileNameStr;
+                QStringList *modelContent = new QStringList;
+                modelContent->append(ldrawFile.contents(modelName));
+                QStringList *configuredContent = new QStringList;
+                configuredContent->append(configureModelSubFile(*modelContent, fadeColor, HIGHLIGHT_PART));
+                insertConfiguredSubFile(modelNameStr, *configuredContent);
+                writeToTmp(modelNameStr, *configuredContent);
+            }));
           }
       }
   } // Parse _subFileOrder
+
+  for (QFuture<void>& Future : writeToTmpFutures)
+      Future.waitForFinished();
+
+  writeToTmpFutures.clear();
 
   LDrawFile::_currentLevels.clear();
 
@@ -5020,7 +5152,7 @@ void Gui::writeToTmp()
   }
   QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
   emit messageSig(LOG_INFO_STATUS,
-                    QString("%1 submodels written to temp directory. %2")
+                    QString("%1 submodels written to temp folder. %2")
                             .arg(writtenFiles).arg(writeToTmpElapsedTime));
   pageProcessRunning = PROC_NONE;
 }
@@ -5048,6 +5180,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
       QStringList argv;
 
       for (int index = 0; index < contents.size(); index++) {
+
+          mWriteToTmpMutex.lock();
 
           QString contentLine = contents[index];
           split(contentLine, argv);
@@ -5114,19 +5248,26 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                  configuredContents.append(QString("0 !SILHOUETTE"));
               }
           }
+          mWriteToTmpMutex.unlock();
       }
   } else {
     return contents;
   }
+
   // add the color list to the header of the configuredContents
   if (!subfileColourList.isEmpty()){
+       mWriteToTmpMutex.lock();
+
       subfileColourList.toSet().toList();  // remove dupes
       configuredContents.prepend("0");
       for (int i = 0; i < subfileColourList.size(); ++i)
           configuredContents.prepend(subfileColourList.at(i));
       configuredContents.prepend("0 // LPub3D step custom colours");
       configuredContents.prepend("0");
+
+      mWriteToTmpMutex.unlock();
   }
+
   return configuredContents;
 }
 

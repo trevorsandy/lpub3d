@@ -189,7 +189,7 @@ void EditWindow::previewLine()
     int colorCode        = partKeys.at(0).toInt();
     QString partType     = partKeys.at(1);
 
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && !modelFileEdit()) {
         emit previewPieceSig(partType, colorCode);
         return;
     }
@@ -207,6 +207,19 @@ void EditWindow::previewLine()
         emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(partType));
     }
 }
+
+#ifdef QT_DEBUG_MODE
+void EditWindow::previewViewerFile()
+{
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewEnabled && !isIncludeFile) {
+        QString partKey = QString("%1|%2").arg("16").arg(QFileInfo(fileName).fileName());
+        previewLineAct->setData(partKey);
+        previewLineAct->setEnabled(true);
+        emit previewLineAct->triggered();
+    }
+}
+#endif
 
 void EditWindow::updateOpenWithActions()
 {
@@ -355,6 +368,12 @@ void EditWindow::createActions()
     previewLineAct->setStatusTip(tr("Display the part on the highlighted line in a popup 3D viewer"));
     connect(previewLineAct, SIGNAL(triggered()), this, SLOT(previewLine()));
 
+#ifdef QT_DEBUG_MODE
+    previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview 3DViewer file..."), this);
+    previewViewerFileAct->setStatusTip(tr("Display 3DViewer file in a popup 3D viewer"));
+    connect(previewViewerFileAct, SIGNAL(triggered()), this, SLOT(previewViewerFile()));
+#endif
+
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
@@ -435,6 +454,12 @@ void EditWindow::createActions()
     saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
+    saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
+    saveCopyAct->setShortcut(tr("Ctrl+Shift+C"));
+    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name - Ctrl+Shift+C"));
+    saveCopyAct->setEnabled(false);
+    connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveFileCopy()));
+
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
@@ -453,10 +478,10 @@ void EditWindow::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LDraw Editor"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    openFolderActAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
-    openFolderActAct->setShortcut(tr("Alt+Shift+2"));
-    openFolderActAct->setStatusTip(tr("Open file working folder - Alt+Shift+2"));
-    connect(openFolderActAct, SIGNAL(triggered()), this, SLOT(openFolder()));
+    openFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    openFolderAct->setShortcut(tr("Alt+Shift+2"));
+    openFolderAct->setStatusTip(tr("Open file working folder - Alt+Shift+2"));
+    connect(openFolderAct, SIGNAL(triggered()), this, SLOT(openFolder()));
 
     copyFullPathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
     copyFullPathToClipboardAct->setShortcut(tr("Alt+Shift+3"));
@@ -467,6 +492,9 @@ void EditWindow::createActions()
     copyFileNameToClipboardAct->setShortcut(tr("Alt+Shift+0"));
     copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard - Alt+Shift+0"));
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
+    openWithToolbarAct = new QAction(QIcon(":/resources/openwith.png"), tr("Open With..."), this);
+    openWithToolbarAct->setStatusTip(tr("Open model file with selected application"));
 
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
@@ -484,7 +512,9 @@ void EditWindow::disableActions()
 {
     editModelFileAct->setEnabled(false);
     previewLineAct->setEnabled(false);
-
+#ifdef QT_DEBUG_MODE
+    previewViewerFileAct->setEnabled(false);
+#endif
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
@@ -498,13 +528,15 @@ void EditWindow::disableActions()
     bottomAct->setEnabled(false);
     showAllCharsAct->setEnabled(false);
 
-    openFolderActAct->setEnabled(false);
+    openFolderAct->setEnabled(false);
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
     undoAct->setEnabled(false);
     redoAct->setEnabled(false);
     saveAct->setEnabled(false);
+    saveCopyAct->setEnabled(false);
+    openWithToolbarAct->setEnabled(false);
 }
 
 void EditWindow::enableActions()
@@ -515,10 +547,11 @@ void EditWindow::enableActions()
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
     topAct->setEnabled(true);
+    saveCopyAct->setEnabled(true);
     toggleCmmentAct->setEnabled(true);
     bottomAct->setEnabled(true);
     showAllCharsAct->setEnabled(true);
-    openFolderActAct->setEnabled(true);
+    openFolderAct->setEnabled(true);
 }
 
 void EditWindow::clearEditorWindow()
@@ -543,11 +576,38 @@ void EditWindow::createToolBars()
 
         editToolBar->addAction(exitAct);
         editToolBar->addAction(saveAct);
+        editToolBar->addAction(saveCopyAct);
         editToolBar->addSeparator();
         editToolBar->addAction(undoAct);
         editToolBar->addAction(redoAct);
         editToolBar->addSeparator();
+        editToolBar->addAction(preferencesAct);
+        editToolBar->addSeparator();
         editToolBar->addWidget(mpdCombo);
+        editToolBar->addSeparator();
+
+        editToolBar->addSeparator();
+        editToolBar->addAction(openFolderAct);
+#ifndef QT_NO_CLIPBOARD
+        editToolBar->addAction(copyFileNameToClipboardAct);
+        editToolBar->addAction(copyFullPathToClipboardAct);
+#endif
+        editToolBar->addSeparator();
+        editToolBar->addAction(previewLineAct);
+
+#ifdef QT_DEBUG_MODE
+        editToolBar->addSeparator();
+        editToolBar->addAction(previewViewerFileAct);
+#endif
+        QMenu *openWithMenu = new QMenu(tr("Open With Menu"));
+        openWithMenu->setEnabled(false);
+        openWithToolbarAct->setMenu(openWithMenu);
+        if (numOpenWithPrograms) {
+            openWithMenu->setEnabled(true);
+            for (int i = 0; i < numOpenWithPrograms; i++)
+                openWithMenu->addAction(openWithActList.at(i));
+        }
+        editToolBar->addAction(openWithToolbarAct);
         editToolBar->addSeparator();
     }
     editToolBar->addAction(topAct);
@@ -562,37 +622,52 @@ void EditWindow::createToolBars()
     editToolBar->addAction(delAct);
     editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
-    editToolBar->addSeparator();
-    editToolBar->addAction(preferencesAct);
+    if (!modelFileEdit()) {
+        editToolBar->addSeparator();
+        editToolBar->addAction(preferencesAct);
+    }
 }
 
 void EditWindow::setReadOnly(bool enabled)
 {
-    _textEdit->setReadOnly(enabled);
-    if (enabled) {
-        QString title = windowTitle();
-        setWindowTitle(tr("%1 (Read-Only)").arg(title));
-        isReadOnly = enabled;
-        undoAct->setVisible(!enabled);
-        redoAct->setVisible(!enabled);
-        _textEdit->setUndoRedoEnabled(false);
-        toggleCmmentAct->setVisible(!enabled);
-        cutAct->setVisible(!enabled);
-        pasteAct->setVisible(!enabled);
-        delAct->setVisible(!enabled);
-        mpdCombo->setVisible(!enabled);
+    QString title = windowTitle();
+
+    disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+               this,                  SLOT(  contentsChange(int,int,int)));
+
+    isReadOnly = enabled;
+
+    _textEdit->setReadOnly(isReadOnly);
+
+    if (isReadOnly) {
+        title = tr("%1 (Read-Only)").arg(title);
+        updateAct->setVisible(      !isReadOnly);
+        redrawAct->setVisible(      !isReadOnly);
+        saveAct->setVisible(        !isReadOnly);
+        undoAct->setVisible(        !isReadOnly);
+        redoAct->setVisible(        !isReadOnly);
+        toggleCmmentAct->setVisible(!isReadOnly);
+        cutAct->setVisible(         !isReadOnly);
+        pasteAct->setVisible(       !isReadOnly);
+        delAct->setVisible(         !isReadOnly);
     }
+
+    setWindowTitle(title);
 }
 
-bool EditWindow::validPartLine ()
+bool EditWindow::setValidPartLine()
 {
-    QString partType;
+    QString partType, titleType = "file";
     int validCode, colorCode = LDRAW_MATERIAL_COLOUR;
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
     bool colorOk = false;
+
+    previewLineAct->setEnabled(false);
+    copyFullPathToClipboardAct->setEnabled(false);
+    copyFileNameToClipboardAct->setEnabled(false);
 
     if (selection.startsWith("1 ")) {
         list = selection.split(" ", QString::SkipEmptyParts);
@@ -631,9 +706,18 @@ bool EditWindow::validPartLine ()
 
     QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
 
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewEnabled && !isIncludeFile) {
+        previewLineAct->setData(partKey);
+        previewLineAct->setEnabled(true);
+    }
+
     if (_subFileList.contains(partType.toLower())) {
-        previewLineAct->setText(tr("Preview highlighted subfile..."));
-        previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
+        titleType = "subfile";
+        if (Preferences.mPreviewEnabled) {
+            previewLineAct->setText(tr("Preview highlighted subfile..."));
+            previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
+        }
 
         copyFullPathToClipboardAct->setEnabled(true);
         copyFullPathToClipboardAct->setData(partType);
@@ -642,8 +726,8 @@ bool EditWindow::validPartLine ()
     copyFileNameToClipboardAct->setEnabled(true);
     copyFileNameToClipboardAct->setData(partType);
 
-    previewLineAct->setData(partKey);
-    previewLineAct->setEnabled(true);
+    if (numOpenWithPrograms)
+        openWithToolbarAct->setEnabled(true);
 
     return true;
 }
@@ -652,20 +736,15 @@ void EditWindow::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = _textEdit->createStandardContextMenu();
 
-    bool validLine = false;
-    previewLineAct->setEnabled(validLine);
-    copyFullPathToClipboardAct->setEnabled(validLine);
-    copyFileNameToClipboardAct->setEnabled(validLine);
-
     if (!fileName.isEmpty()) {
         if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
                 QApplication::processEvents();
         }
-        validLine = validPartLine();
+        int validLine = setValidPartLine();
         menu->addSeparator();
-        menu->addAction(openFolderActAct);
+        menu->addAction(openFolderAct);
 #ifndef QT_NO_CLIPBOARD
         menu->addAction(copyFileNameToClipboardAct);
         menu->addAction(copyFullPathToClipboardAct);
@@ -673,28 +752,23 @@ void EditWindow::showContextMenu(const QPoint &pt)
         menu->addSeparator();
         menu->addAction(previewLineAct);
 
-        lcPreferences& Preferences = lcGetPreferences();
-        if (Preferences.mPreviewEnabled && !isIncludeFile)
-            previewLineAct->setEnabled(validLine);
-
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
             menu->addAction(editModelFileAct);
         }
 
-        QMenu *openWithMenu;
-        openWithMenu = menu->addMenu(tr("Open With..."));
+        QMenu *openWithMenu = new QMenu(tr("Open With..."));
         openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
-        openWithMenu->setStatusTip(tr("Open model file with selected application"));
-        openWithMenu->setEnabled(false);
+        menu->addMenu(openWithMenu);
         if (numOpenWithPrograms) {
-            openWithMenu->setEnabled(true);
+            openWithMenu->setEnabled(validLine);
             for (int i = 0; i < numOpenWithPrograms; i++)
                 openWithMenu->addAction(openWithActList.at(i));
         }
         menu->addSeparator();
     }
+
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->addAction(toggleCmmentAct);
@@ -713,7 +787,7 @@ void EditWindow::triggerPreviewLine()
             while (_subFileListPending)
                 QApplication::processEvents();
         }
-        if (validPartLine())
+        if (setValidPartLine())
             emit previewLineAct->triggered();
     }
 }
@@ -852,8 +926,10 @@ void EditWindow::openFolderSelect(const QString& absoluteFilePath)
 
 void EditWindow::openFolder() {
     if (!fileName.isEmpty()) {
-        const QString path = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
-        openFolderSelect(path + QDir::separator() + fileName);
+        QString filePath = QDir::fromNativeSeparators(fileName);
+        if (!filePath.count("/"))
+            filePath = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
+        openFolderSelect(filePath);
     }
 }
 
@@ -994,6 +1070,64 @@ bool EditWindow::saveFile()
         if (modelFileEdit() && !fileName.isEmpty())
             fileWatcher.addPath(fileName);
     }
+
+  return rc;
+}
+
+bool EditWindow::saveFileCopy()
+{
+  QFileInfo fileInfo(fileName);
+  QString extension = fileInfo.suffix().toLower();
+  QString fileCopyName = QFileDialog::getSaveFileName(this,
+                                                      tr("Save Copy As"),
+                                                      fileInfo.baseName() + "_copy." + extension,
+                                                      tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+  if (fileCopyName.isEmpty()) {
+    return false;
+  }
+
+  fileInfo.setFile(fileCopyName);
+  extension = fileInfo.suffix().toLower();
+
+  bool rc = false;
+
+  if (extension == "mpd" ||
+      extension == "ldr" ||
+      extension == "dat" ||
+      extension.isEmpty()) {
+
+      QFile file(fileCopyName);
+      if (! file.open(QFile::WriteOnly | QFile::Text)) {
+          QMessageBox::warning(nullptr,
+                               tr("Model File Editor"),
+                               tr("Cannot write file %1:\n%2.")
+                               .arg(fileCopyName)
+                               .arg(file.errorString()));
+          return false;
+      }
+
+      if (showAllCharsAct->isChecked()) {
+          _textEdit->blockSignals(true);
+          _textEdit->showAllCharacters(false);
+      }
+
+      QTextDocumentWriter writer(fileCopyName, "plaintext");
+      writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+      bool rc = writer.write(_textEdit->document());
+
+      if (rc)
+          statusBar()->showMessage(tr("File %1 saved").arg(fileCopyName));
+
+      if (showAllCharsAct->isChecked()) {
+          _textEdit->showAllCharacters(true);
+          _textEdit->blockSignals(false);
+      }
+
+  } else {
+    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                              QMessageBox::tr("Unsupported LDraw file extension %1 specified.  File not saved.")
+                                .arg(extension));
+  }
 
   return rc;
 }
@@ -1173,8 +1307,10 @@ void EditWindow::pageUpDown(
 }
 
 void EditWindow::updateSelectedParts() {
-    if (modelFileEdit())
+    if (modelFileEdit()) {
+        setValidPartLine();
         return;
+    }
 
     if (!gMainWindow->isVisible())
         return;
@@ -1447,12 +1583,15 @@ void EditWindow::displayFile(
     mpdCombo->setMaxCount(1000);
     if (ldrawFile) {
       mpdCombo->addItems(ldrawFile->subFileOrder());
-      if(_saveSubfileIndex) {
-        mpdCombo->setCurrentIndex(_saveSubfileIndex);
-        _saveSubfileIndex = 0;
-      }
+    } else {
+      if (_subFileList.size())
+          mpdCombo->addItems(_subFileList);
     }
-    mpdCombo->setEnabled(!isIncludeFile && ldrawFile);
+    if(_saveSubfileIndex) {
+      mpdCombo->setCurrentIndex(_saveSubfileIndex);
+      _saveSubfileIndex = 0;
+    }
+    mpdCombo->setEnabled(!isIncludeFile && (ldrawFile || _subFileList.size()));
 
     disconnect(_textEdit, SIGNAL(textChanged()),
                this,      SLOT(enableSave()));
@@ -1547,6 +1686,8 @@ void EditWindow::waitingSpinnerStart()
 
 void EditWindow::waitingSpinnerStop()
 {
+  contentLoaded();
+
   if (!Preferences::modeGUI)
       return;
 
@@ -1556,19 +1697,33 @@ void EditWindow::waitingSpinnerStop()
 #ifdef QT_DEBUG_MODE
     emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Stopped"));
 #endif
+  }
+}
 
-      const QString message = tr("%1 File %2: %3, %4 lines - %5")
-              .arg(isIncludeFile ? "Include" : "Model")
-              .arg(reloaded ? "Updated" : "Loaded")
-              .arg(QFileInfo(fileName).fileName())
-              .arg(lineCount)
-              .arg(lpubAlert->elapsedTime(displayTimer.elapsed()));
-    if (modelFileEdit())
-      statusBar()->showMessage(message);
+void EditWindow::contentLoaded()
+{
+    const QString message = tr("%1 File %2: %3, %4 lines - %5")
+            .arg(isIncludeFile ? "Include" : "Model")
+            .arg(reloaded ? "Updated" : "Loaded")
+            .arg(QFileInfo(fileName).fileName())
+            .arg(lineCount)
+            .arg(lpubAlert->elapsedTime(displayTimer.elapsed()));
+
+    if (modelFileEdit() && Preferences::modeGUI) {
+        if (_subFileList.size() && !mpdCombo->count() && !isIncludeFile) {
+            mpdCombo->addItems(_subFileList);
+            mpdCombo->setEnabled(true);
+        }
 #ifdef QT_DEBUG_MODE
+        previewViewerFileAct->setEnabled(true);
+#endif
+        statusBar()->showMessage(message);
+    }
+
+#ifdef QT_DEBUG_MODE
+    previewViewerFileAct->setEnabled(true);
     emit lpubAlert->messageSig(LOG_DEBUG,"5. "+message);
 #endif
-  }
 }
 
 void EditWindow::redraw()
@@ -1630,7 +1785,7 @@ void EditWindow::closeEvent(QCloseEvent *_event)
     mpdCombo->setMaxCount(0);
     mpdCombo->setMaxCount(1000);
 
-    if (maybeSave()) {
+    if (maybeSave() || isReadOnly) {
         _event->accept();
     } else {
         _event->ignore();
@@ -1639,12 +1794,13 @@ void EditWindow::closeEvent(QCloseEvent *_event)
 
 void EditWindow::preferences()
 {
-    QString windowTitle          = QString("Editor Preferences");
-    int editorDecoration         = Preferences::editorDecoration;
-    int editorLinesPerPage       = Preferences::editorLinesPerPage;
-    bool editorBufferedPaging    = Preferences::editorBufferedPaging;
-    bool editorHighlightLines    = Preferences::editorHighlightLines;
-    bool editorLoadSelectionStep = Preferences::editorLoadSelectionStep;
+    QString windowTitle             = QString("Editor Preferences");
+    int editorDecoration            = Preferences::editorDecoration;
+    int editorLinesPerPage          = Preferences::editorLinesPerPage;
+    bool editorBufferedPaging       = Preferences::editorBufferedPaging;
+    bool editorHighlightLines       = Preferences::editorHighlightLines;
+    bool editorLoadSelectionStep    = Preferences::editorLoadSelectionStep;
+    bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
 
     auto showMessage = [&windowTitle] (const QString change) {
         QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1702,11 +1858,12 @@ void EditWindow::preferences()
     // options - selected lines
     QCheckBox *editorHighlightLinesBox = nullptr;
     QCheckBox *editorLoadSelectionStepBox = nullptr;
-    if (!modelFileEdit()) {
+    QCheckBox *editorPreviewOnDoubleClickBox = nullptr;
+
         QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
         form->addWidget(editorSelectedItemsGrpBox);
         QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
-
+    if (!modelFileEdit()) {
         editorHighlightLinesBox = new QCheckBox(tr("Highlight Selected Lines"), dialog);
         editorHighlightLinesBox->setToolTip(tr("Highlight selected line(s) when clicked in Editor"));
         editorHighlightLinesBox->setChecked(editorHighlightLines);
@@ -1716,7 +1873,14 @@ void EditWindow::preferences()
         editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the 3DViewer"));
         editorLoadSelectionStepBox->setChecked(editorLoadSelectionStep);
         editorSelectedItemsSubform->addRow(editorLoadSelectionStepBox);
-    }
+    } // modelFileEdit()
+    else  {
+        editorPreviewOnDoubleClickBox = new QCheckBox(tr("Floating Preview On Double Click"), dialog);
+        editorPreviewOnDoubleClickBox->setToolTip(tr("Launch floating preview window on valid part double click"));
+        editorPreviewOnDoubleClickBox->setChecked(editorHighlightLines);
+        editorSelectedItemsSubform->addRow(editorPreviewOnDoubleClickBox);
+    } // ! modelFileEdit()
+
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -1745,7 +1909,7 @@ void EditWindow::preferences()
             emit lpubAlert->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
         }
 
-        if (!modelFileEdit()) {
+        if (! modelFileEdit()) {
             Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
             if (editorHighlightLines != Preferences::editorHighlightLines) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
@@ -1757,7 +1921,14 @@ void EditWindow::preferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
                 emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
             }
-        }
+        } // ! modelFileEdit()
+        else {
+            Preferences::editorPreviewOnDoubleClick = editorPreviewOnDoubleClickBox->isChecked();
+            if (editorPreviewOnDoubleClick != Preferences::editorPreviewOnDoubleClick) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick"),Preferences::editorPreviewOnDoubleClick);
+                emit lpubAlert->messageSig(LOG_INFO,QString("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
+            }
+        } // modelFileEdit()
     }
 }
 
@@ -1931,7 +2102,7 @@ QTextEditor::QTextEditor(QWidget *parent) :
 void QTextEditor::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QWidget::mouseDoubleClickEvent(event);
-    if ( event->button() == Qt::LeftButton ) {
+    if ( event->button() == Qt::LeftButton && Preferences::editorPreviewOnDoubleClick) {
         emit triggerPreviewLine();
     }
     return;

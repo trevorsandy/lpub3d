@@ -587,6 +587,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   viewCSIFileAction->setWhatsThis("View the current LDraw CSI file in read-only mode");
   viewCSIFileAction->setIcon(QIcon(":/resources/editldraw.png"));
 
+#ifdef QT_DEBUG_MODE
+  QAction *view3DViewerFileAction = menu.addAction(QString("View Step %1 CSI 3DViewer File").arg(step->stepNumber.number));
+  view3DViewerFileAction->setWhatsThis("View the current LDraw 3DViewer file in read-only mode");
+  view3DViewerFileAction->setIcon(QIcon(":/resources/editldraw.png"));
+#endif
+
   Where top, bottom;
   switch (parentRelativeType) {
     case StepGroupType:
@@ -747,6 +753,25 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       gui->getEditModeWindow()->setReadOnly(true);
       gui->getEditModeWindow()->show();
     }
+#ifdef QT_DEBUG_MODE
+    else if (selectedAction == view3DViewerFileAction) {
+      QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
+      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
+      const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
+      QString csiFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+      QStringList Keys    = gui->getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
+      QString csiFile     = QString("%1/viewer_csi_%2.ldr")
+                                    .arg(QFileInfo(csiFilePath).absolutePath())
+                                    .arg(QString("%1_%2_%3")
+                                                 .arg(Keys.at(0))    // Name
+                                                 .arg(Keys.at(1))    // Line Number
+                                                 .arg(Keys.at(2)));  // Step Number
+      gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
+      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
+      gui->getEditModeWindow()->setReadOnly(true);
+      gui->getEditModeWindow()->show();
+    }
+#endif
 }
 
 void CsiItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

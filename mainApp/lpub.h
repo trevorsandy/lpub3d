@@ -372,6 +372,10 @@
 #ifndef SIZE_DEBUG
 //#define SIZE_DEBUG
 #endif
+// Set to enable write parts output file for debugging
+#ifndef WRITE_PARTS_DEBUG
+//#define WRITE_PARTS_DEBUG
+#endif
 
 // PageSize default entry
 #ifndef DEF_SIZE
@@ -454,7 +458,7 @@ class Render;
 class Range;
 class Steps;
 class Where;
-enum traverseRc { HitEndOfPage = 1, HitBuildModAction };
+enum traverseRc { HitEndOfFile, HitEndOfPage = 1, HitBuildModAction, HitBottomOfStep };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_JUMP_BACKWARD, PAGE_NEXT, PAGE_JUMP_FORWARD, DIRECTION_NOT_SET };
@@ -1002,11 +1006,10 @@ public:
 
   bool setBuildModChangeKey();
 
-  bool setBuildModForNextStep(Where topOfNextStep,
-                              Where bottomOfNextStep = Where(),
-                              Where topOfSubmodel    = Where(),
-                              bool change            = false,
-                              bool submodel          = false);
+  int setBuildModForNextStep(Where topOfNextStep,
+                             Where bottomOfNextStep = Where(),
+                             Where topOfSubmodel    = Where(),
+                             bool submodel          = false);
 
   QAction *getApplyBuildModAct()
   {
@@ -1344,7 +1347,7 @@ public slots:
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
-  void parseError(const QString errorMsg,
+  void parseError(const QString &errorMsg,
                   const Where &here,
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
                   bool option = false,
@@ -1367,6 +1370,11 @@ public slots:
     const QStringList &colourEntries,
     const QString &code,
     const PartType partType);
+
+  bool isLDrawColourPart(const QString &fileName)
+  {
+     return ldrawColourParts.isLDrawColourPart(fileName);
+  }
 
   void openDropFile(QString &fileName);
 
@@ -1572,6 +1580,8 @@ protected:
 
   QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
 
+  QMutex                 mWriteToTmpMutex;
+
   int                    mViewerZoomLevel;
   // download components
   QNetworkAccessManager* mHttpManager;
@@ -1607,7 +1617,6 @@ private:
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
-  QStringList            buildModSubmodels;   // submodels implicated when checking for next step build modifications
 
   QString                saveRenderer;
   Where                  current;             // current line being parsed by drawPage

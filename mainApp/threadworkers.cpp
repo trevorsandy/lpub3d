@@ -2051,6 +2051,73 @@ bool ExtractWorker::removeFile(QStringList listFile) {
  * exchange
  */
 
+void WriteToTmpWorker::parseError(const QString &message, const Where &here, Preferences::MsgKey msgKey, bool option/*false*/, bool override/*false*/)
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "parseError",                 // member
+                Qt::QueuedConnection);        // connection type
+                Q_ARG(QString, message),      // val1
+                Q_ARG(Where, here),           // val2
+                Q_ARG(Preferences::MsgKey, msgKey), // val3
+                Q_ARG(bool, option),          // val4
+                Q_ARG(bool, override);        // val5
+}
+
+void WriteToTmpWorker::statusMessage(const LogType logType, const QString &message)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "statusMessage",                // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(LogType, logType),        // val1
+                Q_ARG(QString, message));       // val2
+}
+
+void WriteToTmpWorker::progressBarPermInit()
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "progressBarPermInit",        // member
+                Qt::QueuedConnection);        // connection type
+}
+
+void WriteToTmpWorker::progressPermStatusRemove()
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "progressPermStatusRemove",   // member
+                Qt::QueuedConnection);        // connection type
+}
+
+void WriteToTmpWorker::progressBarPermSetRange(const int min, const int max)
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "progressBarPermSetRange",    // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(int, min),              // val1
+                Q_ARG(int, max));             // val2
+}
+
+void WriteToTmpWorker::progressBarPermSetValue(const int value)
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "progressBarPermSetValue",    // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(int, value));           // val1
+}
+
+void WriteToTmpWorker::progressBarPermSetText(const QString &text)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "progressBarPermSetText",       // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(QString, text));          // val1
+}
+
 void WriteToTmpWorker::writeToTmp(
               LDrawFile *ldrawFile,
               Meta *meta,
@@ -2103,7 +2170,7 @@ void WriteToTmpWorker::writeToTmp(
           QString line = contents[i];
           QStringList tokens;
 
-          QApplication::processEvents();
+//          QApplication::processEvents();
 
           split(line,tokens);
           if (tokens.size()) {
@@ -2134,10 +2201,10 @@ void WriteToTmpWorker::writeToTmp(
                   // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
                   case BuildModBeginRc:
                       if (!Preferences::buildModEnabled) {
-                          gui->parseError("Build Mod meta command encountered but this functionality is currently disabled.<br>"
-                                          "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
-                                          "again' to disable Build Mod meta parse notifications.",
-                                          here,Preferences::BuildModErrors);
+                          parseError("Build Mod meta command encountered but this functionality is currently disabled.<br>"
+                                     "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
+                                     "again' to disable Build Mod meta parse notifications.",
+                                     here,Preferences::BuildModErrors,false,false);
                           break;
                       }
                       buildModBottom = ldrawFile->getBuildModStepLineNumber(ldrawFile->getBuildModNextStepIndex(), true/*bottom*/);
@@ -2159,8 +2226,8 @@ void WriteToTmpWorker::writeToTmp(
                   case BuildModEndModRc:
                      if (buildModApplicable) {
                          if (buildModLevel > 1 && meta->LPub.buildMod.key().isEmpty())
-                                 gui->parseError("Key required for nested build mod meta command",
-                                                 here,Preferences::BuildModErrors);
+                                 parseError("Key required for nested build mod meta command",
+                                            here,Preferences::BuildModErrors,false,false);
                          if (buildModActions.value(buildModLevel) == BuildModApplyRc)
                              buildModIgnore = true;
                          else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)
@@ -2259,8 +2326,7 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
 
   setPageProcessRunning(PROC_WRITE_TO_TMP);
   QList<QFuture<void>> writeToTmpFutures;
-  QElapsedTimer writeToTmpTimer;
-  writeToTmpTimer.start();
+  QElapsedTimer t;t.start();
 
   int writtenFiles = 0;;
   int subFileCount = ldrawFile->_subFileOrder.size();
@@ -2273,14 +2339,12 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
 
   LDrawFile::_currentLevels.clear();
 
-  emit gui->progressBarPermInitSig();
-  emit gui->progressPermRangeSig(1, subFileCount);
+  progressBarPermInit();
+  progressBarPermSetRange(1, subFileCount);
 
   for (int i = 0; i < subFileCount; i++) {
 
-      QString fileName = ldrawFile->_subFileOrder[i].toLower();
-
-      emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileName));
+      QString message, fileName = ldrawFile->_subFileOrder[i].toLower();
 
       content = ldrawFile->contents(fileName);
 
@@ -2289,11 +2353,21 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
 
           writtenFiles++;
 
-          emit gui->progressPermMessageSig(QString("Writing submodel %1 of %2 (%3 lines)...")
-                                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
-                                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
-                                      .arg(QStringLiteral("%1").arg(content.size(), 5, 10, QLatin1Char('0'))));
-          emit gui->progressPermSetValueSig(i + 1);
+          message = QString("Writing submodel %1 '%2' to temp directory...").arg(writtenFiles).arg(fileName);
+
+          statusMessage(LOG_INFO_STATUS, message);
+
+          if (gui->mloadingFile)
+              message = QString("Writing submodel %1 of %2 (%3 lines)...")
+                                .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                                .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                                .arg(QStringLiteral("%1").arg(content.size(), 5, 10, QLatin1Char('0')));
+          else
+              message = QString("Writing submodel %1").arg(fileName);
+
+          progressBarPermSetText(message);
+
+          progressBarPermSetValue(i + 1);
 
           writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileName,&content]() { writeToTmp(ldrawFile, meta, fileName, content); }));
 
@@ -2311,7 +2385,7 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
              }
 
             /* Faded version of submodels */
-            emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
+            statusMessage(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
             configuredContent = configureModelSubFile(ldrawFile, content, fadeColor, FADE_PART);
             ldrawFile->insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileNameStr,&configuredContent]() { writeToTmp(ldrawFile, meta, fileNameStr, configuredContent); }));
@@ -2325,7 +2399,7 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
             }
             /* Highlighted version of submodels */
-            emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
+            statusMessage(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
             configuredContent = configureModelSubFile(ldrawFile, content, fadeColor, HIGHLIGHT_PART);
             ldrawFile->insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileNameStr,&configuredContent]() { writeToTmp(ldrawFile, meta, fileNameStr, configuredContent); }));
@@ -2342,32 +2416,33 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
   if (Preferences::modeGUI && !gui->exporting()) {
       if (gui->GetViewPieceIcons() && !gui->GetSubmodelIconsLoaded()) {
           // complete previous progress
-          emit gui->progressPermSetValueSig(subFileCount);
+          progressBarPermSetValue(subFileCount);
 
           // generate submodel icons...
-          emit gui->messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
+          statusMessage(LOG_INFO_STATUS, "Creating submodel icons...");
           Pli pli;
           if (pli.createSubModelIcons() == 0)
               setSubmodelIconsLoaded(true);
           else
-              emit gui->messageSig(LOG_ERROR, "Could not create submodel icons...");
-          emit gui->progressPermStatusRemoveSig();
+              statusMessage(LOG_ERROR, "Could not create submodel icons...");
+          progressPermStatusRemove();
       } else {
           // complete and close progress
-          emit gui->progressPermSetValueSig(subFileCount);
-          emit gui->progressPermStatusRemoveSig();
+          progressBarPermSetValue(subFileCount);
+          progressPermStatusRemove();
       }
   }
-  QString writeToTmpElapsedTime = gui->elapsedTime(writeToTmpTimer.elapsed());
-  emit gui->messageSig(LOG_INFO_STATUS,
-                    QString("%1 submodels written to temp directory. %2")
-                            .arg(writtenFiles).arg(writeToTmpElapsedTime));
+
+  statusMessage(LOG_INFO_STATUS,
+                QString("%1 submodels written to temp directory. %2")
+                        .arg(writtenFiles).arg(gui->elapsedTime(t.elapsed())));
+
   setPageProcessRunning(PROC_NONE);
 
   mutex.unlock();
 
   return 0;
-}
+} // WriteToTmpWorker::writeToTmp
 
 /*
  * Configure writeToTmp content - make fade or highlight copies of submodel files.
@@ -2431,7 +2506,7 @@ QStringList WriteToTmpWorker::configureModelSubFile(
               QString fileNameStr = QString(argv[argv.size()-1]).toLower();
               QString extension = QFileInfo(fileNameStr).suffix().toLower();
               // static color parts
-              if (gui->ldrawColourParts.isLDrawColourPart(fileNameStr)){
+              if (gui->isLDrawColourPart(fileNameStr)) {
                   if (extension.isEmpty()) {
                     fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
                   } else {
@@ -2476,7 +2551,7 @@ QStringList WriteToTmpWorker::configureModelSubFile(
       configuredContents.prepend("0");
   }
   return configuredContents;
-}
+} // WriteToTmpWorker::configureModelSubfile()
 
 /*
  * For setBuildModForNextStep(), the BuildMod behaviour searches ahead for any BuildMod action meta command in 'next step'.
@@ -2499,9 +2574,32 @@ QStringList WriteToTmpWorker::configureModelSubFile(
  * buildModLineTypeIndexes is added to lineTypeIndexes when buildModLevel is false (0).
  */
 
-QStringList  BuildModWorker::buildModSubmodels;
+/* GET BUILD MOD FOR NEXT STEP */
 
-bool BuildModWorker::setBuildMod(
+void BuildModWorker::parseError(const QString &message, const Where &here, Preferences::MsgKey msgKey, bool option/*false*/, bool override/*false*/)
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "parseError",                 // member
+                Qt::QueuedConnection);        // connection type
+                Q_ARG(QString, message),      // val1
+                Q_ARG(Where, here),           // val2
+                Q_ARG(Preferences::MsgKey, msgKey), // val3
+                Q_ARG(bool, option),          // val4
+                Q_ARG(bool, override);        // val5
+}
+
+void BuildModWorker::statusMessage(const LogType logType, const QString &message)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "statusMessage",                // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(LogType, logType),        // val1
+                Q_ARG(QString, message));       // val2
+}
+
+int BuildModWorker::setBuildMod(
    LDrawFile *ldrawFile,
         Meta *meta,
   const int   pageDirection,
@@ -2509,29 +2607,54 @@ bool BuildModWorker::setBuildMod(
   const Where topOfNextStep,
         Where bottomOfNextStep,
         Where topOfSubmodel,
-        bool  change,
         bool  submodel)
 {
-    int  progressMin           = 0;
-    int  progressMax           = 0;
     int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
     int  startLine             = 0;
+    int numberOfLines          = 0;
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
-    bool buildMod[3]           = { false, false, false };                    // validate buildMod meta command set
+    bool buildMod[3]           = { false, false, false };                      // validate buildMod meta command set
 
-    auto setBottomOfNextStep = [&ldrawFile, &buildModNextStepIndex, &topOfStep] (Where &bottomOfNextStep) {
+    auto setBottomOfNextStep = [&ldrawFile, &buildModNextStepIndex, &numberOfLines] (Where &bottomOfNextStep) {
         ldrawFile->getBuildModStepIndexWhere(buildModNextStepIndex,
                                              bottomOfNextStep.modelName,
                                              bottomOfNextStep.modelIndex,
-                                             bottomOfNextStep.lineNumber);   // initialize bottomOfNextStep Where
-        int top = bottomOfNextStep.lineNumber;                               // save top line number for later comparison
-        int numLines = ldrawFile->size(bottomOfNextStep.modelName);          // set top model lines count
-        for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
+                                             bottomOfNextStep.lineNumber);     // initialize bottomOfNextStep Where
+        bool atBottom = false;
+        int top = bottomOfNextStep.lineNumber;                                 // save top line number for later comparison
+        int numLines = ldrawFile->size(bottomOfNextStep.modelName);            // set top model lines count
+        for (; bottomOfNextStep < numLines && !atBottom; ++bottomOfNextStep) { // scan to top of next step
+            numberOfLines++;
             QString line = ldrawFile->readLine(bottomOfNextStep.modelName,
-                                               bottomOfNextStep.lineNumber);       // count line
+                                               bottomOfNextStep.lineNumber);   // count line
+            QStringList token;
+            split(line,token);
+            if (token.size() == 15) {
+                QString modelName = token[token.size() - 1];
+                if (ldrawFile->isSubmodel(modelName)) {
+                    bottomOfNextStep = Where(modelName, ldrawFile->getSubmodelIndex(modelName), 0);
+                    ldrawFile->skipHeader(bottomOfNextStep.modelName,bottomOfNextStep.lineNumber);
+                    top = bottomOfNextStep.lineNumber;
+                    numLines = ldrawFile->size(bottomOfNextStep.modelName);
+                    for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
+                        numberOfLines++;
+                        QString line = ldrawFile->readLine(bottomOfNextStep.modelName,
+                                                           bottomOfNextStep.lineNumber); // count line
+                        if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
+                            if (bottomOfNextStep.lineNumber == top) {                    // check if top and bottom are on the same line
+                                bottomOfNextStep++;                                      // advance past STEP command
+                            } else {
+                                 atBottom = true;
+                                 break;                                                  // break at bottom of step/top of next step
+                            }
+                        }
+                    }
+
+                }
+            }
             if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
                 if (bottomOfNextStep.lineNumber == top)                      // check if top and bottom are on the same line
                     bottomOfNextStep++;                                      // advance past STEP command
@@ -2539,11 +2662,11 @@ bool BuildModWorker::setBuildMod(
                     break;                                                   // break at bottom of step/top of next step
             }
         }
-
 #ifdef QT_DEBUG_MODE
-        int numberOfLines = bottomOfNextStep.lineNumber - topOfStep.lineNumber;
-        emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, numberOfLines %2")
-                                                .arg(bottomOfNextStep.lineNumber).arg(numberOfLines));
+        statusMessage(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, model %2, numberOfLines %3")
+                                         .arg(bottomOfNextStep.lineNumber)
+                                         .arg(bottomOfNextStep.modelName)
+                                         .arg(numberOfLines));
 #endif
     };
 
@@ -2556,15 +2679,13 @@ bool BuildModWorker::setBuildMod(
         topOfStep  = topOfSubmodel;
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
-                                          .arg(topOfSubmodel.modelName));
+        statusMessage(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
+                                         .arg(topOfSubmodel.modelName));
 #endif
 
     } else {
-        emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
-                                            .arg(topOfStep.modelName));
-
-        buildModSubmodels.clear();
+        statusMessage(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
+                                               .arg(topOfStep.modelName));
 
         buildModNextStepIndex = ldrawFile->getBuildModNextStepIndex();       // set next/'display' step index
 
@@ -2575,7 +2696,7 @@ bool BuildModWorker::setBuildMod(
         startLine = topOfStep.lineNumber;                                    // set starting line number
 /*
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+        statusMessage(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
                                            .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
 #endif
 */
@@ -2599,19 +2720,13 @@ bool BuildModWorker::setBuildMod(
             }
 
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_TRACE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
+            statusMessage(LOG_TRACE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
                                                .arg(backward ? "Backward" : "Forward")
                                                .arg(startModel).arg(startLine)
                                                .arg(bottomOfNextStep.modelName)
                                                .arg(bottomOfNextStep.lineNumber));
 #endif
         }
-
-        progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber; // progress bar max
-        progressMin = 1;
-
-        emit gui->progressBarPermInitSig();
-        emit gui->progressPermRangeSig(progressMin, progressMax);
     }
 
     Rc rc;
@@ -2659,23 +2774,23 @@ bool BuildModWorker::setBuildMod(
                                   modAttributes,
                                   buildModNextStepIndex);
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG, QString(
-                      "Insert Next-Step BuildMod StepIndex: %1, "
-                      "Action: Apply, "
-                      "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
-                      "ModKey: %10, "
-                      "Level: %11")
-                      .arg(buildModNextStepIndex)                  // Attribute Default Initial:
-                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
-                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
-                      .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
-                      .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
-                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
-                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
-                      .arg(buildModKey)
-                      .arg(buildModLevel));
+      statusMessage(LOG_DEBUG, QString(
+                    "Insert Next-Step BuildMod StepIndex: %1, "
+                    "Action: Apply, "
+                    "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                    "ModKey: %10, "
+                    "Level: %11")
+                    .arg(buildModNextStepIndex)                  // Attribute Default Initial:
+                    .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                    .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                    .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                    .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                    .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                    .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                    .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                    .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                    .arg(buildModKey)
+                    .arg(buildModLevel));
 #endif
     };
 
@@ -2685,19 +2800,10 @@ bool BuildModWorker::setBuildMod(
     if (rc == StepRc || rc == RotStepRc)
         walk++;   // Advance past STEP meta
 
-    // next step lines index
-    int lineCount = 0;
-
     // Parse the step lines
     for ( ;
           walk.lineNumber < ldrawFile->size(walk.modelName);
           walk.lineNumber++) {
-
-        if (progressMax && walk.modelIndex == topOfNextStep.modelIndex) {
-            emit gui->progressPermMessageSig(QString("Build modification check %1 of %2...").arg(lineCount).arg(progressMax));
-            emit gui->progressPermSetValueSig(lineCount);
-            lineCount++;
-        }
 
        line = ldrawFile->readLine(walk.modelName,walk.lineNumber);
 
@@ -2714,10 +2820,10 @@ bool BuildModWorker::setBuildMod(
                 if (ldrawFile->buildModContains(buildModKey))
                     buildModAction = Rc(ldrawFile->getBuildModAction(buildModKey, buildModNextStepIndex));
                 else
-                    gui->parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
-                                         walk,Preferences::ParseErrors);
+                    parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
+                                    walk,Preferences::ParseErrors,false,false);
                 if (buildModAction != rc)
-                    change = ldrawFile->setBuildModAction(buildModKey, buildModNextStepIndex, rc);
+                    ldrawFile->setBuildModAction(buildModKey, buildModNextStepIndex, rc);
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
@@ -2732,10 +2838,11 @@ bool BuildModWorker::setBuildMod(
             // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
             case BuildModEndModRc:
                 if (buildModLevel > 1 && meta->LPub.buildMod.key().isEmpty())
-                    gui->parseError("Key required for nested build mod meta command",
-                                    walk,Preferences::BuildModErrors);
+                    parseError("Key required for nested build mod meta command",
+                               walk,Preferences::BuildModErrors,false,false);
                 if (!buildMod[BM_BEGIN])
-                    gui->parseError(QString("Required meta BUILD_MOD BEGIN not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD BEGIN not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
                 buildMod[BM_END_MOD] = true;
                 break;
@@ -2743,63 +2850,81 @@ bool BuildModWorker::setBuildMod(
             // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
             case BuildModEndRc:
                 if (!buildMod[BM_END_MOD])
-                    gui->parseError(QString("Required meta BUILD_MOD END_MOD not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD END_MOD not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildModLevel    = getLevel(QString(), BM_END);
                 buildMod[BM_END] = true;
                 break;
 
-            // Search until next step/rotstep meta
+            // Search until next occurrence of step/rotstep meta or bottom of step
             case RotStepRc:
             case StepRc:
                 if (buildMod[BM_BEGIN] && !buildMod[BM_END])
-                    gui->parseError(QString("Required meta BUILD_MOD END not found"), walk, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD END not found"),
+                               walk, Preferences::BuildModErrors,false,false);
                 Q_FOREACH (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
                 buildMod[2] = buildMod[1] = buildMod[0] = false;
-                if (walk == bottomOfNextStep)
-                    return change;
-                break;
+                return HitBottomOfStep;
 
             default:
                 break;
             }
         } else if (line.toLatin1()[0] == '1') {
-            if (walk == bottomOfNextStep)
-                return change;
+            // search until hit buttom of step
+            if (walk == bottomOfNextStep) {
+                return HitBottomOfStep;
+            }
             QStringList token;
             split(line,token);
             if (token.size() == 15) {
                 QString modelName = token[token.size() - 1];
-                submodel = ldrawFile->isSubmodel(modelName);
-                if (submodel && ! buildModSubmodels.contains(modelName)) {
-                    buildModSubmodels.append(modelName);
+                if ((submodel = ldrawFile->isSubmodel(modelName))) {
                     Where topOfSubmodel(modelName, ldrawFile->getSubmodelIndex(modelName), 0);
-                    setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfStep, bottomOfNextStep, topOfSubmodel, change, submodel);
+                    if (setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfStep, bottomOfNextStep, topOfSubmodel, submodel) == HitBottomOfStep) {
+                        return HitBottomOfStep;
+                    }
                 }
             }
         }
     }
 
-    if (progressMax) {
-        emit gui->progressPermSetValueSig(progressMax);
-        emit gui->progressPermStatusRemoveSig();
-    }
+    return HitEndOfFile;
+} // BuildModWorker::setBuildMod()
 
-    return change;
-}
-
-bool BuildModWorker::setBuildModForNextStep(
+int BuildModWorker::setBuildModForNextStep(
  LDrawFile *ldrawFile,
       Meta *meta,
   const int pageDirection,
   const int displayPageNum,
   const Where topOfNextStep)
 {
-  return setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfNextStep, Where(), Where(), false, false);
+#ifdef QT_DEBUG_MODE
+  QElapsedTimer t; t.start();
+#endif
+  int result = setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfNextStep, Where(), Where(), false);
+#ifdef QT_DEBUG_MODE
+  statusMessage(LOG_NOTICE,QString("Build Modifications Check - %1")
+                                   .arg(gui->elapsedTime(t.elapsed())));
+#endif
+  return result;
+
+} // BuildModWorker::setBuildModForNextStep()
+
+/* GET BUILD MOD FOR NEXT STEP END */
+
+void CountPageWorker::statusMessage(const LogType logType, const QString &message)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "statusMessage",                // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(LogType, logType),        // val1
+                Q_ARG(QString, message));       // val2
 }
 
 void CountPageWorker::insertPageSize(const int i, const PgSizeData &pgSizeData)
@@ -2848,11 +2973,18 @@ int CountPageWorker::countPage(
   auto documentPageCount = [&opts] ()
   {
       if (Preferences::modeGUI && ! gui->exporting()) {
-          emit gui->messageSig(LOG_STATUS, QString("Counting document page %1...")
-                          .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+          statusMessage(LOG_STATUS, QString("Counting document page %1...")
+                                            .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
           QApplication::processEvents();
       }
   };
+
+  if (opts.pageNum == 1 + gui->pa) {
+      if (!opts.stepNumber)
+          opts.stepNumber = 1 + gui->sa;
+      gui->topOfPages.clear();
+      gui->topOfPages.append(opts.current);
+  }
 
   Rc  rc;
   int partsAdded         = 0;
@@ -3066,7 +3198,7 @@ int CountPageWorker::countPage(
                   } // Exporting
 
                   ++opts.pageNum;
-                  gui->topOfPages.append(opts.current);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
+                  gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   gui->saveStepPageNum = ++gui->stepPageNum;
                   documentPageCount();
 
@@ -3316,8 +3448,17 @@ int CountPageWorker::countPage(
   countPageMutex.unlock();
 
   return OkRc;
-}
+} // CountPageWorker::countPage()
 
+void LoadModelWorker::statusMessage(const LogType logType, const QString &message)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "statusMessage",                // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(LogType, logType),        // val1
+                Q_ARG(QString, message));       // val2
+}
 
 void LoadModelWorker::setPlainText(const QString &content)
 {
@@ -3337,6 +3478,15 @@ void LoadModelWorker::setPagedContent(const QStringList &content)
                 Q_ARG(QStringList, content)); // val1
 }
 
+void LoadModelWorker::setSubFiles(const QStringList &subFiles)
+{
+    QMetaObject::invokeMethod(
+                editWindow,                   // obj
+                "setSubFiles",                // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(QStringList, subFiles)); // val1
+}
+
 void LoadModelWorker::setLineCount(const int count)
 {
     QMetaObject::invokeMethod(
@@ -3346,20 +3496,20 @@ void LoadModelWorker::setLineCount(const int count)
                 Q_ARG(int, count));           // val1
 }
 
-
 int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor, bool isUTF8)
 {
     QMutex loadMutex;
     loadMutex.lock();
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG,QString("3.  Editor loading..."));
+    statusMessage(LOG_DEBUG,QString("3.  Editor loading..."));
 #endif
 
     int lineCount    = 0;
     bool useDiscFile = false;
     QString fileName = QDir::fromNativeSeparators(filePath);
     QString content;
+    QStringList contentList;
 
     if (detachedEditor) {
         if ((useDiscFile = fileName.count("/"))) {
@@ -3381,22 +3531,34 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
             content = in.readAll();
 
             file.close();
+
+            if ((useDiscFile = !ldrawFile)) {
+                QStringList subFiles;
+                contentList = content.split("\n");
+                QRegExp sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
+                for (int i = 0; i < contentList.size(); i++) {
+                     if(contentList.at(i).contains(sofRx))
+                         subFiles.append(sofRx.cap(1));
+                }
+                if (subFiles.size())
+                    setSubFiles(subFiles);
+            }
         }
     }
 
     // set line count
     if (useDiscFile)
-        lineCount = content.count(QRegExp("\\r\\n?|\\n")) + 1;
+        lineCount = contentList.size();
     else if (ldrawFile) {
         lineCount = ldrawFile->size(fileName);
     }
     if (lineCount) {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3a. Editor set line count to %1").arg(lineCount));
+        statusMessage(LOG_DEBUG,QString("3a. Editor set line count to %1").arg(lineCount));
 #endif
         setLineCount(lineCount);
     } else {
-        emit gui->messageSig(LOG_ERROR,QString("No lines detected in %1").arg(fileName));
+        statusMessage(LOG_ERROR,QString("No lines detected in %1").arg(fileName));
         loadMutex.unlock();
         return 1;
     }
@@ -3404,15 +3566,15 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
     // set content
     if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load paged text started..."));
+        statusMessage(LOG_DEBUG,QString("3b. Editor load paged text started..."));
 #endif
         if (useDiscFile)
-           setPagedContent(content.split("\n"));
+           setPagedContent(contentList);
         else if (ldrawFile)
             setPagedContent(ldrawFile->contents(fileName));
     } else {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load plain text started..."));
+        statusMessage(LOG_DEBUG,QString("3b. Editor load plain text started..."));
 #endif
         if (ldrawFile && !useDiscFile)
             content = ldrawFile->contents(fileName).join("\n");
@@ -3422,4 +3584,4 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
     loadMutex.unlock();
 
     return 0;
-}
+} // LoadModelWorker::loadModel()

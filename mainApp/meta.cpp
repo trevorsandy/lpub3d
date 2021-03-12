@@ -5557,13 +5557,13 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 QRegExp Meta::groupRx(QString &line, Rc &rc) {
     int rxSize = groupRegExp.size();
     for (int i = 0; i < rxSize; i++) {
-        if (line.contains(groupRegExp[i])) {
+        if (line.contains(groupRegExp.at(i))) {
             rc = i == 0 ? MLCadGroupRc :
                  i == 1 ? LDCadGroupRc :
                  i == 2 ? LeoCadGroupBeginRc :
                           LeoCadGroupEndRc
                           ;
-            return groupRegExp[i];
+            return groupRegExp.at(i);
         }
     }
     rc = OkRc;

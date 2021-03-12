@@ -272,6 +272,7 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorBufferedPaging       = false;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
+bool    Preferences::editorPreviewOnDoubleClick = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -2907,6 +2908,14 @@ void Preferences::editorPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),uValue);
     } else {
         editorLoadSelectionStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep")).toBool();
+    }
+
+    // Launch floating preview window on valid line double click
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick"))) {
+        QVariant uValue(editorPreviewOnDoubleClick);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick"),uValue);
+    } else {
+        editorPreviewOnDoubleClick = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick")).toBool();
     }
 }
 

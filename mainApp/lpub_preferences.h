@@ -336,6 +336,7 @@ class Preferences
     static bool    editorBufferedPaging;
     static bool    editorHighlightLines;
     static bool    editorLoadSelectionStep;
+    static bool    editorPreviewOnDoubleClick;;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;

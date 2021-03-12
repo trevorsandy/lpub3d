@@ -135,6 +135,7 @@ private slots:
     void openWith();
     void contentsChange(int position, int charsRemoved, int charsAdded);
     bool saveFile();
+    bool saveFileCopy();
     bool maybeSave();
     void redraw();
     void update(bool state);
@@ -142,6 +143,9 @@ private slots:
     void highlightCurrentLine();
     void topOfDocument();
     void previewLine();
+#ifdef QT_DEBUG_MODE
+    void previewViewerFile();
+#endif
     void bottomOfDocument();
     void showAllCharacters();
     void mpdComboChanged(int index);
@@ -155,6 +159,7 @@ private slots:
 #endif
     void waitingSpinnerStart();
     void waitingSpinnerStop();
+    void contentLoaded();
 
 protected:
     void createActions();
@@ -171,7 +176,7 @@ protected:
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
-    bool validPartLine();
+    bool setValidPartLine();
     void closeEvent(QCloseEvent*_event);
 
     enum Decor { SIMPLE, STANDARD };
@@ -209,8 +214,12 @@ protected:
 
     QScrollBar *verticalScrollBar;
     QList<QAction *> openWithActList;
-    QAction  *editModelFileAct;
+    QAction  *openWithToolbarAct;
+    QAction  *editModelFileAct;   
     QAction  *previewLineAct;
+#ifdef QT_DEBUG_MODE
+    QAction  *previewViewerFileAct;
+#endif
     QAction  *topAct;
     QAction  *bottomAct;
     QAction  *cutAct;
@@ -224,12 +233,13 @@ protected:
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
     QAction  *preferencesAct;
-    QAction  *openFolderActAct;
+    QAction  *openFolderAct;
     QAction  *copyFullPathToClipboardAct;
     QAction  *copyFileNameToClipboardAct;
 
     QAction  *exitAct;
     QAction  *saveAct;
+    QAction  *saveCopyAct;
     QAction  *undoAct;
     QAction  *redoAct;
 };

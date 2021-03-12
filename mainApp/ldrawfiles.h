@@ -388,8 +388,7 @@ class LDrawFile {
             const QString &fileName,
                   bool     firstStep,
                   bool     isMirrored,
-                  bool     callout = false,
-                  bool     multiStep = false);
+                  bool     callout = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
 

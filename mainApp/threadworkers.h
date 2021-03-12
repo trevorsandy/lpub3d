@@ -334,7 +334,7 @@ class BuildModWorker : public QObject
     Q_OBJECT
 
 public slots:
-    static bool setBuildModForNextStep(
+    static int setBuildModForNextStep(
              LDrawFile *ldrawFile,
              Meta *meta,
        const int pageDirection,
@@ -342,7 +342,7 @@ public slots:
        const Where topOfNextStep);
 
 private:
-    static bool setBuildMod(
+    static int setBuildMod(
             LDrawFile *ldrawFile,
             Meta *meta,
       const int pageDirection,
@@ -350,9 +350,9 @@ private:
       const Where topOfNextStep,
             Where bottomOfNextStep,
             Where topOfSubmodel,
-            bool change,
             bool submodel);
-    static QStringList buildModSubmodels;
+    static void statusMessage(const LogType, const QString &);
+    static void parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool);
 };
 
 class WriteToTmpWorker : public QObject
@@ -375,6 +375,13 @@ protected:
             const QString &fadeColour,
             const PartType partType);
 private:
+    static void progressBarPermInit();
+    static void progressPermStatusRemove();
+    static void progressBarPermSetRange(const int, const int);
+    static void progressBarPermSetValue(const int);
+    static void progressBarPermSetText(const QString &);
+    static void statusMessage(const LogType, const QString &);
+    static void parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool);
     static void setPageProcessRunning(const int p);
     static void setSubmodelIconsLoaded(const bool b);
 };
@@ -391,6 +398,7 @@ public slots:
             QList<ModelStack> &modelStack,
             FindPageOptions &opts);
 private:
+    static void statusMessage(const LogType, const QString &);
     static void insertPageSize(const int i, const PgSizeData &);
     static void removePageSize(const int i);
 };
@@ -407,8 +415,10 @@ public slots:
             bool,
             bool);
 private:
+    static void statusMessage(const LogType, const QString &);
     static void setPlainText(const QString &);
     static void setPagedContent(const QStringList &);
+    static void setSubFiles(const QStringList &);
     static void setLineCount(const int);
 };
 
