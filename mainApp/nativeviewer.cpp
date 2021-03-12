@@ -1288,7 +1288,7 @@ void Gui::enableBuildModActions()
     Rc buildModStep = BuildModNoActionRc;
 
     if (currentStep)
-        buildModStep = getBuildModStep(viewerStepKey,currentStep->topOfStep());
+        buildModStep = Rc(getBuildModStep(viewerStepKey,currentStep->topOfStep()));
 
     int hasMod = buildModsSize();
 
@@ -1777,7 +1777,7 @@ void Gui::createBuildModification()
             int ModEndLineNum     = edit ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
             int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
             int ModelIndex        = edit ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
-            int ModStepIndex      = getBuildModStepIndex(currentStep->top);
+            int ModStepIndex      = getBuildModStepIndex(currentStep->topOfStep());
             int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
             int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
             int ModDisplayPageNum = displayPageNum;
@@ -2526,6 +2526,9 @@ void Gui::createBuildModification()
 
 void Gui::applyBuildModification()
 {
+    if (!currentStep)
+        return;
+
     QStringList buildModKeys;
     if (!buildModsSize()) {
         return;
@@ -2539,14 +2542,17 @@ void Gui::applyBuildModification()
 
     int it = lcGetActiveProject()->GetImageType();
 
+    int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
+    int buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
+
+    QString model = currentStep->topOfStep().modelName;
+    QString line = QString::number(currentStep->topOfStep().lineNumber);
+    QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
-    QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
-    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     if (getBuildModStepKey(buildModKey) == viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
-                "It was automatically applied to the step it was created in.<br><br>No action taken.<br><br>";
+                "It was automatically applied to the step it was created in.<br><br>No action taken.<br>";
         type  = "Apply build modification error";
         title = "Build Modification";
 
@@ -2555,10 +2561,21 @@ void Gui::applyBuildModification()
 
         return;
 
+    } else if (buildModAction == BuildModApplyRc) {
+        text  = "Build modification '" + buildModKey + "' was already applied to step (" + step + "), "
+                "model '" + model + ".<br><br>No action taken.<br>";
+        type  = "Apply build modification error";
+        title = "Build Modification";
+
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already Applied " + model,line).nameToString());
+        Preferences::showMessage(msgID, text, title, type);
+
+        return;
+
     } else if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
         text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
-                "Applying a build modification before it is created is not supported.<br><br>No action taken.<br><br>";
+                "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>";
         type  = "Apply build modification error";
         title = "Build Modification";
 
@@ -2569,7 +2586,7 @@ void Gui::applyBuildModification()
 
     } else {
         text  = "This action will apply build modification '" + buildModKey + "' "
-                "to '" + model + "' at step " + step + ".<br><br>Are you sure ?<br><br>";
+                "beginning at step " + step + ", in model '" + model + "'.<br><br>Are you sure ?<br>";
         type  = "Apply build modification";
         title = "Build Modification";
 
@@ -2592,9 +2609,6 @@ void Gui::applyBuildModification()
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
 
-        int stepIndex = getBuildModStepIndex(currentStep->top);
-        setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
-
         beginMacro("ApplyBuildModContent");
 
         buildModData.action      = QString("APPLY");
@@ -2614,6 +2628,9 @@ void Gui::applyBuildModification()
 
 void Gui::removeBuildModification()
 {
+    if (!currentStep)
+        return;
+
     QStringList buildModKeys;
     if (!buildModsSize()) {
         return;
@@ -2628,12 +2645,14 @@ void Gui::removeBuildModification()
 
     int it = lcGetActiveProject()->GetImageType();
 
-    Where here = currentStep->topOfStep();
+    int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
+    int buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
 
+
+    QString model = currentStep->topOfStep().modelName;
+    QString line = QString::number(currentStep->topOfStep().lineNumber);
+    QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
-    QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
-    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     if (getBuildModStepKey(buildModKey) == viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "in model '" + model + "' at line " + line + ".<br><br>"
@@ -2648,10 +2667,21 @@ void Gui::removeBuildModification()
 
         return;
 
+    } else if (buildModAction == BuildModRemoveRc) {
+        text  = "Build modification '" + buildModKey + "' was already removed from step (" + step + "), "
+                "model '" + model + ".<br><br>No action taken.<br>";
+        type  = "Remove build modification error";
+        title = "Build Modification";
+
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already Removed " + model,line).nameToString());
+        Preferences::showMessage(msgID, text, title, type);
+
+        return;
+
     } else if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
         text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
-                "Removing a build modification before it is created is not supported.<br><br>No action taken.<br><br>";
+                "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
         type  = "Remove build modification error";
         title = "Build Modification";
 
@@ -2660,10 +2690,8 @@ void Gui::removeBuildModification()
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove Before " + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
     } else {
-        keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
-        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
         text  = "This action will remove build modification '" + buildModKey + "' "
-                "from '" + model + "' at step " + step + ".<br><br>Are you sure ?<br><br>";
+                "beginning at step " + step + " in model '" + model + "'.<br><br>Are you sure ?<br>";
         type  = "Remove build modification";
         title = "Build Modification";
 
@@ -2685,9 +2713,6 @@ void Gui::removeBuildModification()
         bool newCommand = false;
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
-
-        int stepIndex = getBuildModStepIndex(currentStep->top);
-        setBuildModAction(buildModKey, stepIndex, BuildModRemoveRc);
 
         beginMacro("RemoveBuildModContent");
 
@@ -2727,7 +2752,7 @@ void Gui::loadBuildModification()
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     QString text  = "This action will load build modification '" + buildModKey + "' "
                      ", step " + step + ", model '" + model + "' into the 3DViewer "
-                    "to allow editing.<br><br>Are you sure ?<br><br>";
+                    "to allow editing.<br><br>Are you sure ?<br>";
     QString type  = "Load build modification";
     QString title = "Build Modification";
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2855,7 +2880,7 @@ void Gui::deleteBuildModification()
                     "from '" + model + "' at step " + step + "' and cannot be completelly undone using the Undo menu action.<br><br>"
                     "The modified CSI image and 3DViewer entry will be parmanently deleted.<br>"
                     "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
-                    "Do you want to continue ?<br><br>";
+                    "Do you want to continue ?<br>";
     QString type  = "Delete build modification";
     QString title = "Build Modification";
 
