@@ -369,6 +369,16 @@ public:
 
 	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved from protected) ***/
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Build Modification ***/
+	bool GetModAction()
+	{
+		return mModAction;
+	}
+	void ResetModAction()
+	{
+		mModAction = false;
+	}
+/*** LPub3D Mod end ***/
 
 	void BeginMouseTool();
 	void EndMouseTool(lcTool Tool, bool Accept);
@@ -463,6 +473,9 @@ protected:
 
 /*** LPub3D Mod - preview widget ***/
 	bool mIsPreview;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Selected Parts ***/
+	bool mModAction;
 /*** LPub3D Mod end ***/
 	bool mActive;
 	lcStep mCurrentStep;

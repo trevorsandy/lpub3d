@@ -2393,8 +2393,21 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	lcObject* Focus = nullptr;
 
 	lcModel* ActiveModel = GetActiveModel();
-	if (ActiveModel)
+	if (ActiveModel) {
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+
+		const QString TypeNames[] =
+		{
+			"VIEWER_NONE", // 0
+			"VIEWER_LINE", // 1
+			"VIEWER_MOD",  // 2
+			"VIEWER_DEL",  // 3
+			"VIEWER_SEL",  // 4
+			"VIEWER_CLR"   // 5
+		};
+		QString _Message = tr("Update Selection Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "True" : "False");
+		emit gui->messageSig(LOG_DEBUG, _Message);
+	}
 
 	lcTool Tool = GetTool();
 	bool BuildModTool = false;
@@ -2458,7 +2471,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
-							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
+							Message = tr("Selected Object: %1 (ID: %2), LineTypeIndex: %3")
 										 .arg(((lcPiece*)SelectedItem)->GetName())
 										 .arg(((lcPiece*)SelectedItem)->GetID())
 										 .arg(LineTypeIndexes.last().lineIndex);
@@ -2475,7 +2488,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 								LineTypeIndexes.append(typeLine);
 
 								if (Preferences::debugLogging) {
-									Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
+									Message = tr("Selected Object: %1 (ID: %2), LineTypeIndex: %3")
 												 .arg(((lcPiece*)SelectedItem)->GetName())
 												 .arg(((lcPiece*)SelectedItem)->GetID())
 												 .arg(LineTypeIndexes.last().lineIndex);
@@ -2485,8 +2498,11 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 						}
 					}
 				}
-				if (SelectionType != VIEWER_LINE)
-					emit SelectedPartLinesSig(LineTypeIndexes, PartSource(SelectionType));
+				if (SelectionType != VIEWER_LINE) {
+					PartSource Selection = ActiveModel->GetModAction() ? PartSource(SelectionType) : VIEWER_SEL;
+					emit SelectedPartLinesSig(LineTypeIndexes, Selection);
+					ActiveModel->ResetModAction();
+				}
 			}
 			/*** LPub3D Mod end ***/
 		}

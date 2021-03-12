@@ -73,7 +73,8 @@ enum PartSource {
     VIEWER_LINE,                               //  1
     VIEWER_MOD,                                //  2
     VIEWER_DEL,                                //  3
-    VIEWER_CLEAR                               //  4
+    VIEWER_SEL,                                //  4
+    VIEWER_CLR                                 //  5
 };
 
 enum BuildModFlags {

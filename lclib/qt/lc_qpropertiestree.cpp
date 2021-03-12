@@ -1461,6 +1461,9 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 /*** LPub3D Mod - Add Model Properties ***/
 	const lcModelProperties& ModelInfo = Model->GetProperties();
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget ***/
+	lcPreferences& Preferences = lcGetPreferences();
+/*** LPub3D Mod end ***/
 
 	if (Piece)
 	{
@@ -1469,9 +1472,30 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		ColorIndex = Piece->mColorIndex;
 		Info = Piece->mPieceInfo;
 /*** LPub3D Mod - preview widget ***/
-		lcPreferences& Preferences = lcGetPreferences();
 		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 		{
+			// Show last selected piece if mulitple pieces selected
+			int LastPieceIdx = -1;
+			for (int ObjectIdx = 0; ObjectIdx < Selection.GetSize(); ObjectIdx++)
+			{
+				lcObject* Object = Selection[ObjectIdx];
+				if (Object->IsPiece())
+					LastPieceIdx = ObjectIdx;
+			}
+			if (LastPieceIdx > -1)
+			{
+				lcPiece* SelectedPiece = (lcPiece*)Selection[LastPieceIdx];
+				if (SelectedPiece)
+				{
+					if (Info != SelectedPiece->mPieceInfo)
+					{
+						Show = SelectedPiece->GetStepShow();
+						Hide = SelectedPiece->GetStepHide();
+						ColorIndex = SelectedPiece->mColorIndex;
+						Info = SelectedPiece->mPieceInfo;
+					}
+				}
+			}
 			quint32 ColorCode = lcGetColorCode(ColorIndex);
 			PreviewSelection(Info->mFileName, ColorCode);
 		}
@@ -1496,7 +1520,13 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 				Hide = SelectedPiece->GetStepHide();
 				ColorIndex = SelectedPiece->mColorIndex;
 				Info = SelectedPiece->mPieceInfo;
-
+/*** LPub3D Mod - preview widget ***/
+				if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+				{
+					quint32 ColorCode = lcGetColorCode(ColorIndex);
+					PreviewSelection(Info->mFileName, ColorCode);
+				}
+/*** LPub3D Mod end ***/
 				FirstPiece = false;
 			}
 			else

@@ -205,6 +205,9 @@ lcModel::lcModel(const QString& FileName, bool isPreview)
 	mCurrentStep = 1;
 	mBackgroundTexture = nullptr;
 	mPieceInfo = nullptr;
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = false;
+/*** LPub3D Mod end ***/
 }
 
 lcModel::~lcModel()
@@ -1297,6 +1300,7 @@ void lcModel::Cut()
 /*** LPub3D Mod - Build Modification ***/
 		int Rc = RemovedPieceRC;
 		bool IsPiece = ((RemoveMask >> Rc) & 1);
+		mModAction = IsPiece;
 		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
@@ -1326,6 +1330,9 @@ void lcModel::Paste()
 	Model->LoadLDraw(Buffer, lcGetActiveProject());
 
 	const lcArray<lcPiece*>& PastedPieces = Model->mPieces;
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = PastedPieces.GetSize();
+/*** LPub3D Mod end ***/
 	lcArray<lcObject*> SelectedObjects;
 	SelectedObjects.AllocGrow(PastedPieces.GetSize());
 
@@ -1409,6 +1416,9 @@ void lcModel::DuplicateSelectedPieces()
 	if (NewPieces.IsEmpty())
 		return;
 
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = NewPieces.GetSize();
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateTimeline(false, false);
 	SetSelectionAndFocus(NewPieces, Focus, LC_PIECE_SECTION_POSITION, false);
 	SaveCheckpoint(tr("Duplicating Pieces"));
@@ -2511,6 +2521,9 @@ void lcModel::AddPiece()
 	Piece->Initialize(WorldMatrix, mCurrentStep);
 	Piece->SetColorIndex(gMainWindow->mColorIndex);
 	AddPiece(Piece);
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = true;
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
 
@@ -2572,6 +2585,7 @@ void lcModel::DeleteSelectedObjects()
 /*** LPub3D Mod - Build Modification ***/
 			int Rc = RemovedPieceRC;
 			bool IsPiece = ((RemoveMask >> Rc) & 1);
+			mModAction = IsPiece;
 			gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
 			gMainWindow->UpdateAllViews();
@@ -2794,20 +2808,29 @@ void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistanc
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/
-void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
-
+void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
+{
 	if (!LineTypeIndexes.size())
 		return;
 
+	const QString PartSourceNames[] =
+	{
+		"VIEWER_NONE",
+		"VIEWER_LINE",
+		"VIEWER_MOD",
+		"VIEWER_DEL",
+		"VIEWER_SEL",
+		"VIEWER_CLR"
+	};
+
 	QString Message;
 	if (Preferences::debugLogging) {
-		Message = tr("%n Editor object(s) selected","", LineTypeIndexes.size());
+		Message = tr("%n Pieces from editor selected","", LineTypeIndexes.size());
 		gui->statusMessage(LOG_DEBUG, Message);
 	}
 
 	bool Modified           = false;
 	bool SelectionChanged   = false;
-	int EmitSelection       = VIEWER_NONE;
 	int SelectedPiecesFound = 0;
 
 	for (lcPiece* Piece : mPieces) {
@@ -2825,40 +2848,36 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 
 					if (LineTypeIndexes.at(i) == LineTypeIndex) {
 						SelectedPiecesFound++;
+						if (!SelectionChanged)
+							SelectionChanged = true;
 
-						if (!Piece->IsSelected()){
+						if (!Piece->IsSelected())
 							Piece->SetSelected(true);
-							SelectionChanged = true;
-						} else {
+						else
 							Piece->SetSelected(false);
-							SelectionChanged = true;
-							EmitSelection    = VIEWER_LINE;
-						}
 
 						Modified = true;
 
 						if (Preferences::debugLogging) {
-							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
-										 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex));
-							gui->statusMessage(LOG_DEBUG, Message);
+							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3, Type: %4 (%5)")
+										 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
+							emit gui->messageSig(LOG_DEBUG, Message);
 						}
 					}
 				}
-
 			} else {
 
 				if (Piece->IsSelected()){
 					Piece->SetSelected(false);
-					SelectionChanged = true;
-					EmitSelection    = VIEWER_LINE;
 					Modified         = true;
+					if (!SelectionChanged)
+						SelectionChanged = true;
 
 					if (Preferences::debugLogging) {
-						Message = tr("Unselected Piece: %1 (ID: %2)")
-									 .arg(Piece->GetName(), Piece->GetID());
-						gui->statusMessage(LOG_DEBUG, Message);
+						Message = tr("Unselected Piece: %1 (ID: %2), Type: %3 (%4)")
+									 .arg(Piece->GetName(), Piece->GetID(), PartSourceNames[VIEWER_LINE], QString::number(VIEWER_LINE));
+						emit gui->messageSig(LOG_DEBUG, Message);
 					}
-
 				}
 			}
 		}
@@ -2869,7 +2888,7 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 		SaveCheckpoint(tr("Selected Parts"));
 		gMainWindow->UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
-		gMainWindow->UpdateSelectedObjects(SelectionChanged, EmitSelection);
+		gMainWindow->UpdateSelectedObjects(SelectionChanged, VIEWER_LINE);
 	}
 }
 /*** LPub3D Mod end ***/
@@ -3071,6 +3090,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 {
 	bool Moved = false;
 	lcMatrix33 RelativeRotation;
+/*** LPub3D Mod - Build Modification ***/
+	bool IsPiece = false;
+/*** LPub3D Mod end ***/
 
 	if (Relative)
 		RelativeRotation = GetRelativeRotation();
@@ -3088,7 +3110,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 				if (Piece->IsFocused())
 				{
 					Piece->MovePivotPoint(TransformedPieceDistance);
-					Moved = true;
+/*** LPub3D Mod - Build Modification ***/
+					Moved = IsPiece = true;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 					Piece->SetPieceModified(Moved);
 /*** LPub3D Mod end ***/
@@ -3107,7 +3131,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 
 					Piece->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
 					Piece->UpdatePosition(mCurrentStep);
-					Moved = true;
+/*** LPub3D Mod - Build Modification ***/
+					Moved = IsPiece = true;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 					Piece->SetPieceModified(Moved);
 /*** LPub3D Mod end ***/
@@ -3141,12 +3167,18 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 		}
 	}
 
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = IsPiece;
+/*** LPub3D Mod end ***/
+
 	if (Moved && Update)
 	{
 		gMainWindow->UpdateAllViews();
 		if (Checkpoint)
 			SaveCheckpoint(tr("Moving"));
-		gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -3157,6 +3189,9 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 
 	lcMatrix33 RotationMatrix = lcMatrix33Identity();
 	bool Rotated = false;
+/*** LPub3D Mod - Build Modification ***/
+	bool IsPiece = false;
+/*** LPub3D Mod end ***/
 
 	if (Angles[0] != 0.0f)
 		RotationMatrix = lcMul(lcMatrix33RotationX(Angles[0] * LC_DTOR), RotationMatrix);
@@ -3174,7 +3209,9 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		if (Focus && Focus->IsPiece())
 		{
 			((lcPiece*)Focus)->RotatePivotPoint(RotationMatrix);
-			Rotated = true;
+/*** LPub3D Mod - Build Modification ***/
+			Rotated = IsPiece = true;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 			((lcPiece*)Focus)->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
@@ -3206,7 +3243,10 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 
 				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
 				Piece->UpdatePosition(mCurrentStep);
-				Rotated = true;
+/*** LPub3D Mod - Build Modification ***/
+				if (!Rotated)
+					Rotated = IsPiece = true;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 				Piece->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
@@ -3237,7 +3277,10 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 
 				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RelativeRotationMatrix, Center, WorldToFocusMatrix);
 				Piece->UpdatePosition(mCurrentStep);
-				Rotated = true;
+/*** LPub3D Mod - Build Modification ***/
+				if (!Rotated)
+					Rotated = IsPiece = true;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 				Piece->SetPieceModified(Rotated);
 /*** LPub3D Mod end ***/
@@ -3245,12 +3288,18 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		}
 	}
 
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = IsPiece;
+/*** LPub3D Mod end ***/
+
 	if (Rotated && Update)
 	{
 		gMainWindow->UpdateAllViews();
 		if (Checkpoint)
 			SaveCheckpoint(tr("Rotating"));
-		gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -3985,7 +4034,7 @@ void lcModel::ClearSelection(bool UpdateInterface)
 /*** LPub3D Mod - Selected Parts ***/
 	if (UpdateInterface || WasSelected)
 	{
-		gMainWindow->UpdateSelectedObjects(true, WasSelected ? VIEWER_CLEAR : VIEWER_LINE);
+		gMainWindow->UpdateSelectedObjects(true, WasSelected ? VIEWER_CLR : VIEWER_LINE);
 		if (UpdateInterface)
 			gMainWindow->UpdateAllViews();
 /*** LPub3D Mod end ***/
@@ -4007,6 +4056,9 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 	lcObject* FocusObject = GetFocusObject();
 	lcObject* Object = ObjectSection.Object;
 	quint32 Section = ObjectSection.Section;
+/*** LPub3D Mod - Selected Parts ***/
+	bool IsPiece = false;
+/*** LPub3D Mod end ***/
 
 	if (Object)
 	{
@@ -4028,8 +4080,10 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 		{
 			lcPiece* Piece = (lcPiece*)Object;
 
-			if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
+/*** LPub3D Mod - Selected Parts ***/
+			if ((IsPiece = gMainWindow->GetSelectionMode() == lcSelectionMode::Single))
 				SelectGroup(Piece->GetTopGroup(), IsSelected);
+/*** LPub3D Mod end ***/            
 			else
 			{
 				lcArray<lcObject*> Pieces = GetSelectionModePieces(Piece);
@@ -4043,23 +4097,26 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 			FocusObject->SetFocused(FocusObject->GetFocusSection(), false);
 	}
 
-	gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Selected Parts ***/
+	// We return VIEWER_MOD here if we have a single selected piece, otherwise we return VIEWER_LINE 
+	// here and and have AddToSelection handle returns for multiple selected pieces.
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
 void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode)
 {
 	ClearSelection(false);
-/*** LPub3D Mod - Build Modification ***/
+/*** LPub3D Mod - Selected Parts ***/
 	bool IsPiece = false;
-	bool IsObject = false;
-
-	if ((IsObject = Object))
-	{
 /*** LPub3D Mod end ***/
+
+	if ( Object)
+	{
 		Object->SetFocused(Section, true);
 
-/*** LPub3D Mod - Build Modification ***/
+/*** LPub3D Mod - Selected Parts ***/
 		if ((IsPiece = Object->IsPiece()))
 		{
 /*** LPub3D Mod end ***/
@@ -4072,10 +4129,10 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 			}
 		}
 	}
-/*** LPub3D Mod - Build Modification ***/
-	// If we have objects we send back viewer mod if we have a piece other wise we return VIEWER_LINE
-	// It no object, we return VIEWER_NONE here and have ClearSelection handle returns for objects that were selected.
-	gMainWindow->UpdateSelectedObjects(true, IsObject ? IsPiece ? VIEWER_MOD : VIEWER_LINE : VIEWER_NONE);
+/*** LPub3D Mod - Selected Parts ***/
+	// We return VIEWER_MOD here if we have a selected piece, otherwise we return VIEWER_LINE 
+	// and have ClearSelection handle returns for objects that were cleared.
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
@@ -4138,9 +4195,10 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 	}
 
 /*** LPub3D Mod - Selected Parts ***/
+	// We return VIEWER_MOD here if we have a selected piece, otherwise we return VIEWER_LINE
 	if (UpdateInterface || IsPiece)
 	{
-		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
 		if (UpdateInterface)
 			gMainWindow->UpdateAllViews();
 /*** LPub3D Mod end ***/
@@ -4149,13 +4207,19 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 
 void lcModel::RemoveFromSelection(const lcArray<lcObject*>& Objects)
 {
+/*** LPub3D Mod - Selected Parts ***/
+	bool PieceRemoved = false;
+/*** LPub3D Mod end ***/
+
 	for (lcObject* SelectedObject : Objects)
 	{
 		bool WasSelected = SelectedObject->IsSelected();
 		SelectedObject->SetSelected(false);
 
-		if (WasSelected && SelectedObject->IsPiece())
+/*** LPub3D Mod - Selected Parts ***/
+		if ((PieceRemoved = WasSelected && SelectedObject->IsPiece()))
 		{
+/*** LPub3D Mod end ***/
 			lcPiece* Piece = (lcPiece*)SelectedObject;
 
 			if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
@@ -4176,7 +4240,10 @@ void lcModel::RemoveFromSelection(const lcArray<lcObject*>& Objects)
 		}
 	}
 
-	gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Selected Parts ***/
+	// We return VIEWER_MOD to ensure remaining pieces are updated, otherwise we return VIEWER_LINE
+	gMainWindow->UpdateSelectedObjects(true, PieceRemoved ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4194,9 +4261,13 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 	else
 		SelectedObject->SetSelected(false);
 
+/*** LPub3D Mod - Selected Parts ***/
+	bool PieceRemoved = false;
 
-	if (SelectedObject->IsPiece() && WasSelected)
+	if ((PieceRemoved = SelectedObject->IsPiece() && WasSelected))
 	{
+/*** LPub3D Mod end ***/
+
 		lcPiece* Piece = (lcPiece*)SelectedObject;
 
 		if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
@@ -4216,7 +4287,10 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 		}
 	}
 
-	gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Selected Parts ***/
+	// We return VIEWER_MOD to ensure remaining pieces are updated, otherwise we return VIEWER_LINE
+	gMainWindow->UpdateSelectedObjects(true, PieceRemoved ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4226,9 +4300,9 @@ void lcModel::SelectAllPieces()
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(true);
 
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - Build Modification - preview widget ***/
 	if (!mIsPreview) {
-		gMainWindow->UpdateSelectedObjects(true);
+		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
 		gMainWindow->UpdateAllViews();
 	}
 /*** LPub3D Mod end ***/
@@ -4240,7 +4314,9 @@ void lcModel::InvertSelection()
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(!Piece->IsSelected());
 
-	gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4526,7 +4602,6 @@ void lcModel::InsertPieceToolClicked(const lcMatrix44& WorldMatrix)
 	Piece->SetColorIndex(gMainWindow->mColorIndex);
 	Piece->UpdatePosition(mCurrentStep);
 	AddPiece(Piece);
-
 	gMainWindow->UpdateTimeline(false, false);
 	ClearSelectionAndSetFocus(Piece, LC_PIECE_SECTION_POSITION, false);
 
@@ -4607,9 +4682,7 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag
 	MoveSelectedObjects(PieceDistance, ObjectDistance, true, AlternateButtonDrag, true, false);
 	mMouseToolDistance = Distance;
 
-/*** LPub3D Mod - Build Modification ***/
 	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
-/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4619,9 +4692,7 @@ void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag
 	RotateSelectedPieces(Delta, true, AlternateButtonDrag, false, false);
 	mMouseToolDistance = Angles;
 
-/*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
-/*** LPub3D Mod end ***/
+	gMainWindow->UpdateSelectedObjects(false);
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4639,7 +4710,7 @@ void lcModel::EraserToolClicked(lcObject* Object)
 		return;
 
 /*** LPub3D Mod - Build Modification ***/
-		bool isPiece = false;
+	bool IsPiece = false;
 /*** LPub3D Mod end ***/
 
 	switch (Object->GetType())
@@ -4648,7 +4719,7 @@ void lcModel::EraserToolClicked(lcObject* Object)
 		mPieces.Remove((lcPiece*)Object);
 		RemoveEmptyGroups();
 /*** LPub3D Mod - Build Modification ***/
-		isPiece = true;
+		IsPiece = true;
 /*** LPub3D Mod end ***/
 		break;
 
@@ -4675,10 +4746,14 @@ void lcModel::EraserToolClicked(lcObject* Object)
 		break;
 	}
 
+/*** LPub3D Mod - Build Modification ***/
+	mModAction = IsPiece;
+/*** LPub3D Mod end ***/
+
 	delete Object;
 	gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
-	gMainWindow->UpdateSelectedObjects(true, isPiece ? VIEWER_DEL : VIEWER_NONE);
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 	SaveCheckpoint(tr("Deleting"));
@@ -4696,7 +4771,12 @@ void lcModel::PaintToolClicked(lcObject* Object)
 		Piece->SetColorIndex(gMainWindow->mColorIndex);
 
 		SaveCheckpoint(tr("Painting"));
-		gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Build Modification ***/
+		mModAction = true;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Build Modification ***/
+		gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
+/*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, true);
 	}

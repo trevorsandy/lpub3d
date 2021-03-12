@@ -3177,10 +3177,25 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         QVector<int> lines;
         bool fromViewer   = source > EDITOR_LINE;
         bool validLine    = false;
+        bool modsEnabled  = false;
         int lineNumber    = 0;
         int lineIndex     = NEW_PART;
         int modelIndex    = NEW_MODEL;
+
         QString modelName = "undefined";
+        if (source > VIEWER_NONE) {
+            const QString SourceNames[] =
+            {
+                "VIEWER_NONE", // 0
+                "VIEWER_LINE", // 1
+                "VIEWER_MOD",  // 2
+                "VIEWER_DEL",  // 3
+                "VIEWER_SEL",  // 4
+                "VIEWER_CLR"   // 5
+            };
+            QString _Message = tr("Selected Part Source: %1 (%2)").arg(SourceNames[source], QString::number(source));
+            emit gui->messageSig(LOG_DEBUG, _Message);
+        }
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
@@ -3190,13 +3205,12 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         }
 
         if (Preferences::debugLogging) {
-            if (modelIndex != NEW_MODEL && source == VIEWER_MOD)
+            if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
                 emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")
                                 .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
         }
 
-        for (int i = 0; i < indexes.size() && source != VIEWER_CLEAR; ++i) {
-
+        for (int i = 0; i < indexes.size() && source < VIEWER_CLR; ++i) {
             lineIndex = indexes.at(i).lineIndex;
             // New part lines are added in createBuildModification() routine
             if (lineIndex != NEW_PART) {
@@ -3206,7 +3220,8 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             }
 
             if (validLine) {
-                if (fromViewer && source == VIEWER_MOD && Preferences::buildModEnabled) {
+                bool buildModChange = source == VIEWER_MOD || source == VIEWER_DEL;
+                if (fromViewer && buildModChange && Preferences::buildModEnabled) {
                     if (mBuildModRange.first()) {
                         if (lineNumber < mBuildModRange.first())
                             mBuildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
@@ -3216,47 +3231,53 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                     } else {
                         mBuildModRange = { lineNumber, lineNumber, modelIndex };
                     }
-                    createBuildModAct->setEnabled(true);
-                    enableBuildModification();
+                    if (!modsEnabled) {
+                        createBuildModAct->setEnabled(true);
+                        updateBuildModAct->setEnabled(buildModsSize());
+                        enableBuildModification();
+                        modsEnabled = true;
+                    }
                 }
             }
 
-            if (Preferences::debugLogging) {
-                QString Message;
-                if (fromViewer) {
-                    if (lineIndex == NEW_PART) {
-                        Message = tr("New viewer part specified at step %1, modelName: [%2]")
-                                     .arg(currentStep->stepNumber.number)
-                                     .arg(modelName);
-                    } else if (validLine) {
-                        Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                     .arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
-                    } else {
-                        Message = tr("%1 part lineNumber [%2] for step line index [%3]")
-                                     .arg(indexes.size() ? "Out of bounds" : "Invalid")
-                                     .arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineNumber));
-                    }
-                } else if (validLine) { // valid and not from viewer
+#ifdef QT_DEBUG_MODE
+            QString Message;
+            if (fromViewer) {
+                if (lineIndex == NEW_PART) {
+                    Message = tr("New viewer part specified at step %1, modelName: [%2]")
+                            .arg(currentStep->stepNumber.number)
+                            .arg(modelName);
+                } else if (validLine) {
                     Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                 .arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
-                } else {                // invalid and not from viewer
-                    Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
-                                 .arg(indexes.size() ? "Out of bounds" : "Invalid")
-                                 .arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineNumber));
+                            .arg(modelName).arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineIndex));
+                } else {
+                    Message = tr("%1 part lineNumber [%2] for step line index [%3]")
+                            .arg(indexes.size() ? "Out of bounds" : "Invalid")
+                            .arg(lineNumber).arg(lineIndex < 0 ? "undefined" : QString::number(lineNumber));
                 }
-                emit messageSig(LOG_TRACE, Message);
+            } else if (validLine) { // valid and not from viewer
+                Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
+                        .arg(modelName).arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineIndex));
+            } else {                // invalid and not from viewer
+                Message = tr("%1 part lineNumber [%2] for step line index [%3]") // index and number flipped
+                        .arg(indexes.size() ? "Out of bounds" : "Invalid")
+                        .arg(lineIndex).arg(lineNumber < 0 ? "undefined" : QString::number(lineNumber));
             }
-        } // indexes present and source is not VIEWER_CLEAR
+            emit messageSig(LOG_TRACE, Message);
+#endif
+        } // indexes present and source is not VIEWER_CLR
 
         if (fromViewer) {
-            bool clear = source == VIEWER_CLEAR;
-            if (editWindow->isVisible() && (source == VIEWER_MOD || clear)) {
-                emit highlightSelectedLinesSig(lines, clear);
+            if (editWindow->isVisible() && (source == VIEWER_SEL || source == VIEWER_MOD || source == VIEWER_CLR)) {
+                emit highlightSelectedLinesSig(lines, source == VIEWER_CLR);
             }
+            // delete action with no selected lines
             if (source == VIEWER_DEL && Preferences::buildModEnabled) {
-                createBuildModAct->setEnabled(true);
-                updateBuildModAct->setEnabled(buildModsSize());
-                enableBuildModification();
+                if (!modsEnabled) {
+                    createBuildModAct->setEnabled(true);
+                    updateBuildModAct->setEnabled(buildModsSize());
+                    enableBuildModification();
+                }
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
                                               .arg(currentStep->stepNumber.number)
                                               .arg(modelName));
