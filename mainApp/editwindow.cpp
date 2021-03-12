@@ -1481,7 +1481,7 @@ void EditWindow::preferences()
     form->addWidget(editorBufferedPagingGrpBox);
     QFormLayout *editorBufferedPagingSubform = new QFormLayout(editorBufferedPagingGrpBox);
 
-    QLabel   *editorLinesPerPageLabel = new QLabel("Lines Per Page:", dialog);
+    QLabel   *editorLinesPerPageLabel = new QLabel("Lines Per Buffered Page:", dialog);
     QSpinBox *editorLinesPerPageSpin  = new QSpinBox(dialog);
     editorLinesPerPageSpin->setRange(EDITOR_MIN_LINES_DEFAULT,EDITOR_MAX_LINES_DEFAULT);
     editorLinesPerPageSpin->setValue(editorLinesPerPage);
