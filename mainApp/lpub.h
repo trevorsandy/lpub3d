@@ -1518,7 +1518,7 @@ private:
 
   int                    numPrograms;
 
-  bool                   writingToTmp;
+  int                    pageProcessRunning;      // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...,
 
   bool                   okToInvokeProgressBar()
   {

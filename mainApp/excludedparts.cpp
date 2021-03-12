@@ -34,7 +34,7 @@ ExcludedParts::ExcludedParts()
     if (excludedParts.size() == 0) {
         bool rxFound = false;
         QString excludedPartsFile = Preferences::excludedPartsFile;
-        QRegExp rx("^(\\b.*\[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {

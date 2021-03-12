@@ -979,12 +979,9 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                         lineColor = QColor(THEME_SCENE_BGCOLOR_DARK);
                     }
                 } else {
-                    if (Preferences::displayTheme == THEME_DEFAULT) {
-                        lineColor = QColor(Qt::yellow).lighter(180);
-                    } else if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(Qt::yellow).lighter(180);
+                    lineColor = QColor(editorSelection ? Qt::cyan : Qt::green).lighter(180);
+                    if (Preferences::displayTheme == THEME_DARK)
                         lineColor.setAlpha(100); // make 60% transparent
-                    }
                 }
             }
 
@@ -1124,9 +1121,11 @@ void EditWindow::updateSelectedParts() {
     if (isIncludeFile)
         return;
 
+    int lineNumber = 0;
     int currentLine = 0;
     int selectedLines = 0;
     bool clearSelection = false;
+    TypeLine typeLine = { -1/*fileOrderIndex*/, 0/*lineNumber*/ };
 
     QVector<TypeLine> lineTypeIndexes;
     QVector<int> toggleLines;
@@ -1169,25 +1168,36 @@ void EditWindow::updateSelectedParts() {
 
     while (currentLine < selectedLines)
     {
-        QString selection = content.at(currentLine);
-        int lineNumber = getSelectedLineNumber();
-        TypeLine typeLine(fileOrderIndex,lineNumber);
-        emit setStepForLineSig(typeLine);
+        if (Preferences::editorLoadSelectionStep)
+        {
+            lineNumber = getSelectedLineNumber();
+            typeLine = { fileOrderIndex, lineNumber };
+            emit setStepForLineSig(typeLine);
+        }
 
         if (content.at(currentLine).startsWith("1") ||
             content.at(currentLine).contains(" PLI BEGIN SUB "))
         {
-            lineTypeIndexes.append(typeLine);
-            if (stepLines.isInScope(lineNumber))
+            if (!Preferences::editorLoadSelectionStep)
             {
-                toggleLines.append(lineNumber);
-                clearSelection = savedSelection.contains(lineNumber);
-                highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
-                if (clearSelection)
-                    savedSelection.removeAll(lineNumber);
-                else
-                    savedSelection.append(lineNumber);
-                toggleLines.clear();
+                lineNumber = getSelectedLineNumber();
+                typeLine = { fileOrderIndex, lineNumber };
+            }
+
+            lineTypeIndexes.append(typeLine);
+
+            if (Preferences::editorHighlightLines) {
+                if (stepLines.isInScope(lineNumber))
+                {
+                    toggleLines.append(lineNumber);
+                    clearSelection = savedSelection.contains(lineNumber);
+                    highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
+                    if (clearSelection)
+                        savedSelection.removeAll(lineNumber);
+                    else
+                        savedSelection.append(lineNumber);
+                    toggleLines.clear();
+                }
             }
         }
         // set next selected line
@@ -1447,10 +1457,12 @@ void EditWindow::closeEvent(QCloseEvent *_event)
 
 void EditWindow::preferences()
 {
-    QString windowTitle       = QString("Editor Preferences");
-    int editorDecoration      = Preferences::editorDecoration;
-    int editorLinesPerPage    = Preferences::editorLinesPerPage;
-    bool editorBufferedPaging = Preferences::editorBufferedPaging;
+    QString windowTitle          = QString("Editor Preferences");
+    int editorDecoration         = Preferences::editorDecoration;
+    int editorLinesPerPage       = Preferences::editorLinesPerPage;
+    bool editorBufferedPaging    = Preferences::editorBufferedPaging;
+    bool editorHighlightLines    = Preferences::editorHighlightLines;
+    bool editorLoadSelectionStep = Preferences::editorLoadSelectionStep;
 
     auto showMessage = [&windowTitle] (const QString change) {
         QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1482,30 +1494,43 @@ void EditWindow::preferences()
     form->addWidget(editorDecorationGrpBox);
     QFormLayout *editorDecorationSubform = new QFormLayout(editorDecorationGrpBox);
 
-    QLabel    *editorDecorationLabel = new QLabel("Text Decoration:", dialog);
+    QLabel    *editorDecorationLabel = new QLabel(tr("Text Decoration:"), dialog);
     QComboBox * editorDecorationCombo = new QComboBox(dialog);
     editorDecorationCombo->addItem(tr("Simple"));
     editorDecorationCombo->addItem(tr("Standard"));
     editorDecorationCombo->setCurrentIndex(editorDecoration);
-    editorDecorationCombo->setToolTip("Set text decoration. Fancy decoration will slow-down loading very large models");
-    editorDecorationCombo->setStatusTip("Use dropdown to select LDraw editor text decoration");
+    editorDecorationCombo->setToolTip(tr("Set text decoration. Fancy decoration will slow-down loading very large models"));
     editorDecorationSubform->addRow(editorDecorationLabel, editorDecorationCombo);
 
     // options - buffered paging
     QGroupBox *editorBufferedPagingGrpBox = new QGroupBox(tr("Buffered paging"));
     editorBufferedPagingGrpBox->setCheckable(true);
     editorBufferedPagingGrpBox->setChecked(editorBufferedPaging);
-    editorBufferedPagingGrpBox->setToolTip("Set buffered paging. Improve the loading times for very large models");
+    editorBufferedPagingGrpBox->setToolTip(tr("Set buffered paging. Improve the loading times for very large models"));
     form->addWidget(editorBufferedPagingGrpBox);
     QFormLayout *editorBufferedPagingSubform = new QFormLayout(editorBufferedPagingGrpBox);
 
-    QLabel   *editorLinesPerPageLabel = new QLabel("Lines Per Buffered Page:", dialog);
+    QLabel   *editorLinesPerPageLabel = new QLabel(tr("Lines Per Buffered Page:"), dialog);
     QSpinBox *editorLinesPerPageSpin  = new QSpinBox(dialog);
     editorLinesPerPageSpin->setRange(EDITOR_MIN_LINES_DEFAULT,EDITOR_MAX_LINES_DEFAULT);
     editorLinesPerPageSpin->setValue(editorLinesPerPage);
-    editorLinesPerPageSpin->setToolTip("Set lines per page to optimize scrolling.");
-    editorLinesPerPageSpin->setStatusTip(QString("Set the desired buffered lines per page between %1 and %2.").arg(EDITOR_MIN_LINES_DEFAULT).arg(EDITOR_MAX_LINES_DEFAULT));
+    editorLinesPerPageSpin->setToolTip(tr("Set lines per page between %1 and %2 to optimize scrolling.").arg(EDITOR_MIN_LINES_DEFAULT).arg(EDITOR_MAX_LINES_DEFAULT));
     editorBufferedPagingSubform->addRow(editorLinesPerPageLabel, editorLinesPerPageSpin);
+
+    // options - selected lines
+    QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
+    form->addWidget(editorSelectedItemsGrpBox);
+    QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
+
+    QCheckBox   *editorHighlightLinesBox = new QCheckBox(tr("Highlight Selected Lines"), dialog);
+    editorHighlightLinesBox->setToolTip(tr("Highlight selected line(s) when clicked in Editor"));
+    editorHighlightLinesBox->setChecked(editorHighlightLines);
+    editorSelectedItemsSubform->addRow(editorHighlightLinesBox);
+
+    QCheckBox   *editorLoadSelectionStepBox = new QCheckBox(tr("Load Selection Step in 3DViewer"), dialog);
+    editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the 3DViewer"));
+    editorLoadSelectionStepBox->setChecked(editorLoadSelectionStep);
+    editorSelectedItemsSubform->addRow(editorLoadSelectionStepBox);
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -1532,6 +1557,18 @@ void EditWindow::preferences()
         if (editorLinesPerPage != Preferences::editorLinesPerPage) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),Preferences::editorLinesPerPage);
             emit lpubAlert->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
+        }
+
+        Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
+        if (editorHighlightLines != Preferences::editorHighlightLines) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
+            emit lpubAlert->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
+        }
+
+        Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
+        if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
+            emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
         }
     }
 }

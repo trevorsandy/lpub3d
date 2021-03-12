@@ -269,6 +269,8 @@ bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
 bool    Preferences::buildModEnabled            = true;
 bool    Preferences::editorBufferedPaging       = true;
+bool    Preferences::editorHighlightLines       = true;
+bool    Preferences::editorLoadSelectionStep    = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -2885,6 +2887,22 @@ void Preferences::editorPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),editorDecoration);
     } else {
         editorDecoration = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorDecoration")).toInt();
+    }
+
+    // Highlight selected lines when clicked in Editor
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"))) {
+        QVariant uValue(editorHighlightLines);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),uValue);
+    } else {
+        editorHighlightLines = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines")).toBool();
+    }
+
+    // Load the first step (on multi-line select) of selected lines in the 3DViewer
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"))) {
+        QVariant uValue(editorLoadSelectionStep);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),uValue);
+    } else {
+        editorLoadSelectionStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep")).toBool();
     }
 }
 

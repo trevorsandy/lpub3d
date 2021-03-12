@@ -4715,7 +4715,7 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-  writingToTmp = true;
+  pageProcessRunning = PROC_WRITE_TO_TMP;
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
 
@@ -4815,7 +4815,7 @@ void Gui::writeToTmp()
   emit messageSig(LOG_INFO_STATUS,
                     QString("%1 submodels written to temp directory. %2")
                             .arg(writtenFiles).arg(writeToTmpElapsedTime));
-  writingToTmp = false;
+  pageProcessRunning = PROC_NONE;
 }
 
 /*

@@ -3315,21 +3315,18 @@ void Gui::setCurrentStep(Step *step)
 
 void Gui::setStepForLine(const TypeLine &here)
 {
-    if (!currentStep || (!currentStep->multiStep && !currentStep->calledOut))
+    if (!currentStep || !gMainWindow->isVisible() || exporting())
         return;
 
-    const Where top    = currentStep->multiStep ? currentStep->topOfSteps() : currentStep->topOfCallout();
-    const Where bottom = currentStep->multiStep ? currentStep->bottomOfSteps() : currentStep->bottomOfCallout();
-    QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), top, bottom);
+    const QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), topOfPage(), bottomOfPage());
+
     if (!stepKey.isEmpty()) {
         if (!currentStep->viewerStepKey.startsWith(&stepKey)) {
             setCurrentStep(stepKey);
             showLine(getCurrentStep()->topOfStep());
             enableBuildModActions();
-            if (gMainWindow->isVisible()) {
-                getCurrentStep()->viewerOptions->ZoomExtents = true;
-                getCurrentStep()->loadTheViewer();
-            }
+            getCurrentStep()->viewerOptions->ZoomExtents = true;
+            getCurrentStep()->loadTheViewer();
         }
     }
 }

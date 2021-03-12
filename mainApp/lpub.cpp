@@ -392,6 +392,7 @@ void Gui::updateClipboard()
 void Gui::displayPage()
 {
   emit messageSig(LOG_STATUS, "Processing page display...");
+  pageProcessRunning = PROC_DISPLAY_PAGE;
   timer.start();
   if (macroNesting == 0) {
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
@@ -405,6 +406,7 @@ void Gui::displayPage()
   if (! ContinuousPage())
     emit messageSig(LOG_STATUS,QString("Page loaded%1.")
                 .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
+  pageProcessRunning = PROC_NONE;
 }
 
 void Gui::nextPage()
@@ -1247,18 +1249,21 @@ void Gui::displayFile(
             int stepNumber = 1;
             Where top(modelName,0);
             Where bottom(modelName,0);
-            if (getCurrentStep()) {
-                top = getCurrentStep()->topOfStep();
-                bottom = getCurrentStep()->bottomOfStep();
-                stepNumber = getCurrentStep()->stepNumber.number;
+            if (!pageProcessRunning && !exporting()) {
+                if (getCurrentStep()) {
+                    top = getCurrentStep()->topOfStep();
+                    bottom = getCurrentStep()->bottomOfStep();
+                    stepNumber = getCurrentStep()->stepNumber.number;
+                }
+                if (!bottom.lineNumber) {
+                    Rc rc = OkRc;
+                    bool partsAdded = false;
+                    while (!partsAdded && rc != EndOfFileRc)
+                        rc = mi->scanForward(bottom, StepMask|StepGroupEndMask, partsAdded);
+                }
             }
-            if (!bottom.lineNumber) {
-                bool partsAdded = false;
-                while (!partsAdded)
-                    mi->scanForward(bottom, StepMask|StepGroupMask, partsAdded);
-            }
-           StepLines lineScope(top.lineNumber, bottom.lineNumber);
-           displayFileSig(ldrawFile, modelName, lineScope);
+            const StepLines lineScope(top.lineNumber, bottom.lineNumber);
+            displayFileSig(ldrawFile, modelName, lineScope);
 #ifdef QT_DEBUG_MODE            
             emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
                             .arg(stepNumber)
@@ -2984,7 +2989,8 @@ Gui::Gui()
     displayPageNum    = 1;
     numPrograms       = 0;
 
-    processOption                   = EXPORT_ALL_PAGES;
+    pageProcessRunning              = PROC_NONE;        // display page process
+    processOption                   = EXPORT_ALL_PAGES; // export process
     exportMode                      = EXPORT_PDF;
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
@@ -2998,7 +3004,7 @@ Gui::Gui()
     previousPageContinuousIsRunning = false;
 
     mBuildModRange    = { 0, 0, -1 };
-    mStepRotation     = {0.0f, 0.0f, 0.0f};
+    mStepRotation     = { 0.0f, 0.0f, 0.0f };
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;
     mRotStepAngleZ    = 0.0f;
@@ -5537,7 +5543,7 @@ void Gui::parseError(const QString message, const Where &here, Preferences::MsgK
             Preferences::MsgID msgID(msgKey,messageLine.indexToString());
             Preferences::showMessage(msgID, parseMessage, keyType[msgKey][0], keyType[msgKey][1], option, override);
         }
-        if (writingToTmp)
+        if (pageProcessRunning == PROC_WRITE_TO_TMP)
             emit progressPermMessageSig(QString("Writing submodel [Parse Error%1")
                                         .arg(okToShowMessage ? "]...          " : " - see log]... " ));
     }

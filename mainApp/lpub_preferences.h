@@ -333,6 +333,8 @@ class Preferences
     static bool    debugLogging;
     static bool    useSystemEditor;
     static bool    editorBufferedPaging;
+    static bool    editorHighlightLines;
+    static bool    editorLoadSelectionStep;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
