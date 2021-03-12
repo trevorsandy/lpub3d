@@ -52,7 +52,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
     ui->StandardOutButton->setEnabled(false);
 
-    mCsiKeyList      = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
+    mCsiKeyList = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
 
     QAction *OutputEditAction = ui->OutputEdit->addAction(QIcon(":/resources/resetlineedit.png"), QLineEdit::TrailingPosition);
     OutputEditAction->setToolTip("Reset");

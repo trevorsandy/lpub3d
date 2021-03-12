@@ -3552,12 +3552,12 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);
 }
 
-void PGraphicsPixmapItem::previewPart(bool previewPartAction) {
+void PGraphicsPixmapItem::previewPart(bool useDockable) {
     if (!part)
         return;
 
     lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewPartAction) {
+    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable) {
         emit gui->previewPieceSig(part->type, part->color.toInt());
         return;
     }
@@ -3569,6 +3569,7 @@ void PGraphicsPixmapItem::previewPart(bool previewPartAction) {
     if (Preview && ViewWidget) {
         if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
             emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
+            delete ViewWidget;
         } else {
             QPointF sceneP;
             switch (Preferences.mPreviewLocation)
@@ -3623,19 +3624,25 @@ void PGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
 void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    lcPreferences& Preferences = lcGetPreferences();
-    if (!Preferences.mPreviewEnabled) {
-        QString type = QFileInfo(part->type).completeBaseName();
-        QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
-        pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
-        pli->viewerOptions->ImageWidth  = part->pixmapWidth;
-        pli->viewerOptions->ImageHeight = part->pixmapHeight;
-        QString viewerPliPartKey        = QString("%1;%2;%3")
-                                                 .arg(type).arg(part->color)
-                                                 .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
-        if (gui->getViewerStepKey() != viewerPliPartKey) {
-            if (gui->saveBuildModification())
-                pli->loadTheViewer();
+    if ( event->button() == Qt::LeftButton ) {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (!Preferences.mPreviewEnabled) {
+            QString type = QFileInfo(part->type).completeBaseName();
+            QString viewerPliPartKey        = QString("%1;%2;%3")
+                    .arg(type).arg(part->color)
+                    .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
+            QString partKey = gui->getViewerStepKey();
+            bool havePartKey = !partKey.isEmpty();
+            QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+            pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+            pli->viewerOptions->ImageWidth  = part->pixmapWidth;
+            pli->viewerOptions->ImageHeight = part->pixmapHeight;
+            if (havePartKey && partKey != viewerPliPartKey) {
+                if (gui->saveBuildModification())
+                    pli->loadTheViewer();
+            }
+        } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+            previewPart(true/*Dockable*/);
         }
     }
 

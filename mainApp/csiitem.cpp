@@ -37,9 +37,14 @@
 #include "callout.h"
 #include "csiitem.h"
 #include "csiannotation.h"
+#include "dependencies.h"
 #include "metaitem.h"
 #include "commonmenus.h"
 #include "pointer.h"
+#include "paths.h"
+
+#include "lc_qglwidget.h"
+#include "previewwidget.h"
 
 CsiItem::CsiItem(
   Step          *_step,
@@ -198,6 +203,94 @@ void CsiItem::placeCsiPartAnnotations()
 void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
 {
   QGraphicsItem::setFlag(flag,value);
+}
+
+void CsiItem::previewCsi(bool useDockable) {
+    const QString stepKey  = gui->getViewerStepKey();
+    if (stepKey.isEmpty())
+        return;
+
+    const int colorCode = LDRAW_MATERIAL_COLOUR;
+    const QString csiFileName = QString("csip_%1.ldr").arg(QString(stepKey).replace(";","_"));
+
+    // Check if CSI file date modified is older than model file (on the stack) date modified
+    bool csiOutOfDate = false;
+    const QString csiFile = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(csiFileName);
+    QFile csi(csiFile);
+    bool csiExist = csi.exists();
+    if (csiExist) {
+        QString parentModelName = step->parent->modelName();
+        QDateTime lastModified = QFileInfo(csiFile).lastModified();
+        QStringList parsedStack = step->submodelStack();
+        parsedStack << parentModelName;
+        if ( ! isOlder(parsedStack,lastModified)) {
+            csiOutOfDate = true;
+            emit gui->messageSig(LOG_DEBUG,QString("CSI file out of date %1.").arg(csiFileName));
+            if (! csi.remove()) {
+                emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI file %1.").arg(csiFileName));
+            }
+        }
+    }
+
+    if (!csiExist || csiOutOfDate) {
+        const QStringList content = gui->getViewerStepRotatedContents(stepKey);
+        if (content.size()) {
+            QFile file(csiFile);
+            if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DPreview file %1 for writing: %2")
+                                     .arg(csiFile) .arg(file.errorString()));
+                return;
+            }
+            QTextStream out(&file);
+            for (int i = 0; i < content.size(); i++) {
+                QString line = content[i];
+                out << line << endl;
+            }
+            file.close();
+        } else {
+            return;
+        }
+    }
+
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable) {
+        emit gui->previewPieceSig(csiFileName, colorCode);
+        return;
+    }
+
+    PreviewWidget *Preview = new PreviewWidget();
+
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+
+    if (Preview && ViewWidget) {
+        if (!Preview->SetCurrentPiece(csiFileName, colorCode)) {
+            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(csiFileName));
+            delete ViewWidget;
+        } else {
+            QPointF sceneP;
+            switch (Preferences.mPreviewLocation)
+            {
+            case lcPreviewLocation::TopRight:
+                sceneP = mapToScene(boundingRect().topRight());
+                break;
+            case lcPreviewLocation::TopLeft:
+                sceneP = mapToScene(boundingRect().topLeft());
+                break;
+            case lcPreviewLocation::BottomRight:
+                sceneP = mapToScene(boundingRect().bottomRight());
+                break;
+            default:
+                sceneP = mapToScene(boundingRect().bottomLeft());
+                break;
+            }
+            QGraphicsView *view = scene()->views().first();
+            QPoint viewP = view->mapFromScene(sceneP);
+            QPoint pos = view->viewport()->mapToGlobal(viewP);
+            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
+        }
+    } else {
+        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(csiFileName));
+    }
 }
 
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -448,6 +541,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                                          : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
+  QAction *previewCsiAction = commonMenus.previewPartMenu(menu,pl);
+  lcPreferences& Preferences = lcGetPreferences();
+  previewCsiAction->setEnabled(Preferences.mPreviewEnabled);
+
   QAction *copyCsiImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
   menu.addSeparator();
@@ -476,7 +573,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       return;
     }
 
-  if (selectedAction == addPrevAction) {
+  if (selectedAction == previewCsiAction) {
+        previewCsi(true /*previewCsiAction*/);
+    } else if (selectedAction == addPrevAction) {
       addPrevMultiStep(topOfSteps,bottomOfSteps);
 
     } else if (selectedAction == addNextAction) {
@@ -611,19 +710,41 @@ void CsiItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     QGraphicsItem::hoverLeaveEvent(event);
 }
 
+void CsiItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem::mouseDoubleClickEvent(event);
+    if ( event->button() == Qt::LeftButton )
+    {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
+        {
+            previewCsi();
+        }
+    }
+}
+
 void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  mouseIsDown = true;
-  QGraphicsItem::mousePressEvent(event);
-  positionChanged = false;
-  //placeGrabbers();
-  position = pos();
-  gui->showLine(step->topOfStep());
-  if (gui->getViewerStepKey() != step->viewerStepKey) {
-      if (gui->saveBuildModification())
-          step->loadTheViewer();
-  }
-//  update();
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    positionChanged = false;
+    //placeGrabbers();
+    position = pos();
+    gui->showLine(step->topOfStep());
+
+    if ( event->button() == Qt::LeftButton ) {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+            QString stepKey = gui->getViewerStepKey();
+            bool haveStepKey = !stepKey.isEmpty();
+            if (haveStepKey && stepKey != step->viewerStepKey) {
+                step->viewerOptions->ZoomExtents = true;
+                if (gui->saveBuildModification())
+                    step->loadTheViewer();
+            }
+        }
+    }
+    //  update();
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

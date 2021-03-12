@@ -82,6 +82,9 @@ public:
 
   virtual void change();
 
+protected:
+  void previewCsi(bool useDockable = false);
+
 private:
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -89,6 +92,7 @@ private:
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
   bool isHovered;
   bool mouseIsDown;

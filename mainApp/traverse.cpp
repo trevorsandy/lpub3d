@@ -1896,7 +1896,6 @@ int Gui::drawPage(
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
 
-                  previewNotPerStep = false;
                   drawPageElapsedTime();
                   return HitEndOfPage;
                 }
@@ -1993,8 +1992,6 @@ int Gui::drawPage(
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
-              messageSig(LOG_DEBUG, QString("DrawPage() - Update Viewer [%1] Step Number  %2")
-                         .arg(opts.updateViewer ? "True" : "False").arg(opts.stepNum));
              /*
               * STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
               */

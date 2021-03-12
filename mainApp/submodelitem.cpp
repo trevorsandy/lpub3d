@@ -1214,6 +1214,7 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
     if (Preview && ViewWidget) {
         if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
             emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
+            delete ViewWidget;
         } else {
             QPointF sceneP;
             switch (Preferences.mPreviewLocation)
@@ -1310,11 +1311,17 @@ void SMGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    lcPreferences& Preferences = lcGetPreferences();
-    if (!Preferences.mPreviewEnabled) {
-        if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey) {
-            if (gui->saveBuildModification())
-                subModel->loadTheViewer();
+    if ( event->button() == Qt::LeftButton ) {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (!Preferences.mPreviewEnabled) {
+            QString modelKey = gui->getViewerStepKey();
+            bool haveModelKey = !modelKey.isEmpty();
+            if (haveModelKey && modelKey !=  subModel->viewerSubmodelKey) {
+                if (gui->saveBuildModification())
+                    subModel->loadTheViewer();
+            }
+        } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+            previewSubModel();
         }
     }
 

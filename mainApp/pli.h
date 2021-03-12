@@ -366,7 +366,7 @@ public:
             QString &type,
             QString &color);
     QString pliToolTip(QString type, QString Color,bool isSub = false);
-    void previewPart(bool previewPartAction = false);
+    void previewPart(bool useDockable = false);
     PliPart *part;
     Pli     *pli;
     PlacementType  parentRelativeType;
