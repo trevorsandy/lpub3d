@@ -2553,10 +2553,10 @@ void Gui::applyBuildModification()
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
                 "It was automatically applied to the step it was created in.<br><br>No action taken.<br>";
-        type  = "Apply build modification error";
+        type  = "apply build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Source " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Source_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -2564,10 +2564,10 @@ void Gui::applyBuildModification()
     } else if (buildModAction == BuildModApplyRc) {
         text  = "Build modification '" + buildModKey + "' was already applied to step (" + step + "), "
                 "model '" + model + ".<br><br>No action taken.<br>";
-        type  = "Apply build modification error";
+        type  = "apply build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already Applied " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already_Applied_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -2576,10 +2576,10 @@ void Gui::applyBuildModification()
         text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
                 "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>";
-        type  = "Apply build modification error";
+        type  = "apply build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Apply Before " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Apply_Before_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -2587,7 +2587,7 @@ void Gui::applyBuildModification()
     } else {
         text  = "This action will apply build modification '" + buildModKey + "' "
                 "beginning at step " + step + ", in model '" + model + "'.<br><br>Are you sure ?<br>";
-        type  = "Apply build modification";
+        type  = "apply build modification message";
         title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2659,10 +2659,10 @@ void Gui::removeBuildModification()
                 "It cannot be removed from the step it was created in.<br><br>"
                 "Select 'Delete Build Modification' to delete from '" + model + "', "
                 "step " + step + " at line " + line;
-        type  = "Remove build modification error";
+        type  = "remove build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Not Applied " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Not_Applied_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -2670,10 +2670,10 @@ void Gui::removeBuildModification()
     } else if (buildModAction == BuildModRemoveRc) {
         text  = "Build modification '" + buildModKey + "' was already removed from step (" + step + "), "
                 "model '" + model + ".<br><br>No action taken.<br>";
-        type  = "Remove build modification error";
+        type  = "remove build modification error message";
         title = "Build Modification";
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already Removed " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Already_Removed_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
@@ -2682,17 +2682,17 @@ void Gui::removeBuildModification()
         text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
                 "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
-        type  = "Remove build modification error";
+        type  = "remove build modification error message";
         title = "Build Modification";
 
         return;
 
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove Before " + model,line).nameToString());
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
     } else {
         text  = "This action will remove build modification '" + buildModKey + "' "
                 "beginning at step " + step + " in model '" + model + "'.<br><br>Are you sure ?<br>";
-        type  = "Remove build modification";
+        type  = "remove build modification message";
         title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2753,7 +2753,7 @@ void Gui::loadBuildModification()
     QString text  = "This action will load build modification '" + buildModKey + "' "
                      ", step " + step + ", model '" + model + "' into the 3DViewer "
                     "to allow editing.<br><br>Are you sure ?<br>";
-    QString type  = "Load build modification";
+    QString type  = "load build modification";
     QString title = "Build Modification";
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
     switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
@@ -2881,7 +2881,7 @@ void Gui::deleteBuildModification()
                     "The modified CSI image and 3DViewer entry will be parmanently deleted.<br>"
                     "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
                     "Do you want to continue ?<br>";
-    QString type  = "Delete build modification";
+    QString type  = "delete build modification";
     QString title = "Build Modification";
 
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2949,7 +2949,8 @@ void Gui::deleteBuildModification()
             QMap<int, int>::iterator i = actionsMap.find(stepIndex);
             if (i.key()) {                                                      // skip first step at index 0 - deleted later
                 if (getBuildModStepIndexHere(i.key(), topOfStep)){
-                    if (! getBuildModStepIndexHere(i.key() + 1, bottomOfStep))  // bottom of step is top of next step                                                    // handle last step
+                    if (! getBuildModStepIndexHere(i.key() + 1, bottomOfStep))  // bottom of step is top of next step
+                        // handle last step
                         bottomOfStep = Where(topOfStep.modelName, subFileSize(topOfStep.modelName));
                     for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
                         here = walk;
