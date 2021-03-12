@@ -392,6 +392,7 @@ class LDrawFile {
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
     int getStepIndex(const QString &modelName, const int &lineNumber);
+    void getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber);
 
     /* Build Modification functions */
 

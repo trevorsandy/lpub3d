@@ -3016,26 +3016,59 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
 
 QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
 {
-    int index = BM_INVALID_INDEX;
+    QVector<QVector<int>> stepIndexes;
     for (QVector<int> &topOfStep : _buildModStepIndexes) {
         if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
+            stepIndexes.append(topOfStep);
+            if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
+                break;
+        }
+    }
+
+    QString stepKey;
+    int index = BM_INVALID_INDEX;
+    for (QVector<int> &topOfStep : stepIndexes) {
+        if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
             if (topOfStep.at(BM_STEP_LINE_KEY) == lineNumber)
-                index = _buildModStepIndexes.indexOf(topOfStep);
+                index = stepIndexes.indexOf(topOfStep);
             else if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
-                index = _buildModStepIndexes.indexOf(topOfStep) - 1;
+                index = stepIndexes.indexOf(topOfStep) - 1;
             if (index > BM_INVALID_INDEX) {
-                int lineNumber = _buildModStepIndexes.at(index).at(BM_STEP_LINE_KEY);
+                int lineNumber = stepIndexes.at(index).at(BM_STEP_LINE_KEY);
+                stepKey = QString("%1;%2;0").arg(modelIndex).arg(lineNumber);
                 QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
                 while (i != _viewerSteps.constEnd()) {
-                    if (i->_viewType == Options::CSI && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber)
-                        return QString("%1;%2;%3").arg(modelIndex).arg(lineNumber).arg(i->_stepKey.stepNum);
+                    if (i->_viewType == Options::CSI && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
+                        if (i->_stepKey.stepNum) {
+                            stepKey.chop(1);
+                            stepKey.append(QString::number(i->_stepKey.stepNum));
+                        }
+                        break;
+                    }
                     ++i;
                 }
+                break;
             }
         }
     }
 
-    return QString();
+    return stepKey;
+}
+
+void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber)
+{
+    const QStringList keys = getViewerStepKeyWhere(getSubmodelIndex(modelName), lineNumber).split(";");
+    bool valid = false;
+    if (keys.size() > 2) {
+        bool ok[2];
+        modelIndex = keys.at(BM_STEP_MODEL_KEY).toInt(&ok[0]);
+        lineNumber = keys.at(BM_STEP_LINE_KEY).toInt(&ok[1]);
+        valid = ok[0] && ok[1];
+    }
+    if (!valid) {
+        modelIndex = -1;
+        lineNumber =  0;
+    }
 }
 
 QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int top, const int bottom)
@@ -3044,8 +3077,6 @@ QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lin
         return getViewerStepKeyWhere(modelIndex, lineNumber);
     return QString();
 }
-
-
 
 /* This function returns the equivalent of the ViewerStepKey */
 

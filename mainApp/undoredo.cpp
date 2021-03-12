@@ -156,9 +156,10 @@ void Gui::cleanChanged(bool cleanState)
 
 void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 {
-  Where walk     = topOfStep + 1;
-  Where lastPos  = topOfStep;
-  int  numLines  = gui->subFileSize(walk.modelName);
+  Where walk    = gui->readLine(topOfStep) == "0 STEP" ? topOfStep + 1 : topOfStep;
+  Where lastPos = topOfStep;
+  int  numLines = gui->subFileSize(walk.modelName);
+  QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 ROTATION");
   if (walk < numLines) {
     QString line = gui->readLine(walk);
     if (line.contains(lineRx) || isHeader(line)) {
@@ -167,7 +168,7 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
         lastPos = line.contains(lineRx) ? walk : lastPos;
         if ( ! line.contains(lineRx) && ! isHeader(line)) {
           topOfStep = lastPos;
-          if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP") || line.startsWith("0 ROTATION")){
+          if (line.contains(endRx)){
             break;
           }
         }
@@ -201,11 +202,12 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx)
   bool found = false;
   Where walk    = topOfStep;
   int  numLines = gui->subFileSize(walk.modelName);
+  QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 NOFILE$|^0 FILE");
   for (; walk < numLines; ++walk) {
     QString line = gui->readLine(walk);
     if ((found = line.contains(lineRx)))
       topOfStep = walk;
-    if (found || line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP"))
+    if (found || line.contains(endRx))
       break;
   }
   topOfStep.setModelIndex(gui->getSubmodelIndex(topOfStep.modelName));

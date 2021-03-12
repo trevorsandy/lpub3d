@@ -756,6 +756,16 @@ public:
       return ldrawFile.getViewerConfigKey(stepKey);
   }
 
+  QString getViewerStepKeyFromRange(const Where &here, const Where &top, const Where &bottom)
+  {
+      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.lineNumber, bottom.lineNumber);
+  }
+
+  QString getViewerStepKeyWhere(const Where &here)
+  {
+      return ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber);
+  }
+
   int getViewerStepPartCount(const QString &stepKey)
   {
       return ldrawFile.getViewerStepPartCount(stepKey);
@@ -995,14 +1005,9 @@ public:
       return ldrawFile.getStepIndex(here.modelName, here.lineNumber);
   }
 
-  QString getViewerStepKeyFromRange(const Where &here, const Where &top, const Where &bottom)
+  void getTopOfStepWhere(Where &here)
   {
-      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.lineNumber, bottom.lineNumber);
-  }
-
-  QString getViewerStepKeyWhere(const Where &here)
-  {
-      return ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber);
+      ldrawFile.getTopOfStepWhere(here.modelName, here.modelIndex, here.lineNumber);
   }
 
   void setExportedFile(const QString &fileName)
