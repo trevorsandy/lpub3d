@@ -4316,31 +4316,6 @@ void Gui::pagesCounted()
 */
 }
 
-void Gui::skipHeader(Where &current)
-{
-    int numLines = ldrawFile.size(current.modelName);
-    for ( ; current.lineNumber < numLines; current.lineNumber++) {
-        QString line = readLine(current);
-        int p;
-        for (p = 0; p < line.size(); ++p) {
-            if (line[p] != ' ') {
-                break;
-            }
-        }
-        if (line[p] >= '1' && line[p] <= '5') {
-            if (current.lineNumber > 0) {
-                --current;
-            }
-            break;
-        } else if ( ! isHeader(line)) {
-            if (current.lineNumber != 0) {
-                --current;
-                break;
-            }
-        }
-    }
-}
-
 int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
 {
     Rc rc;

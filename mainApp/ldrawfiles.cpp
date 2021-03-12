@@ -3100,6 +3100,47 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
   return _buildModStepIndexes.indexOf(topOfStep);
 }
 
+void LDrawFile::skipHeader(const QString &modelName, int &lineNumber)
+{
+    int numLines = size(modelName);
+    for ( ; lineNumber < numLines; lineNumber++) {
+        QString line = readLine(modelName,lineNumber);
+        int p;
+        for (p = 0; p < line.size(); ++p) {
+            if (line[p] != ' ') {
+                break;
+            }
+        }
+        if (line[p] >= '1' && line[p] <= '5') {
+            if (lineNumber > 0) {
+                --lineNumber;
+            }
+            break;
+        } else if ( ! isHeader(line)) {
+            if (lineNumber != 0) {
+                --lineNumber;
+                break;
+            }
+        }
+    }
+}
+
+void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber)
+{
+    const QStringList keys = getViewerStepKeyWhere(getSubmodelIndex(modelName), lineNumber).split(";");
+    bool valid = false;
+    if (keys.size() > 2) {
+        bool ok[2];
+        modelIndex = keys.at(BM_STEP_MODEL_KEY).toInt(&ok[0]);
+        lineNumber = keys.at(BM_STEP_LINE_KEY).toInt(&ok[1]);
+        valid = ok[0] && ok[1];
+    }
+    if (!valid) {
+        modelIndex = -1;
+        lineNumber =  0;
+    }
+}
+
 QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
 {
     QVector<QVector<int>> stepIndexes;
@@ -3139,22 +3180,6 @@ QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNum
     }
 
     return stepKey;
-}
-
-void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber)
-{
-    const QStringList keys = getViewerStepKeyWhere(getSubmodelIndex(modelName), lineNumber).split(";");
-    bool valid = false;
-    if (keys.size() > 2) {
-        bool ok[2];
-        modelIndex = keys.at(BM_STEP_MODEL_KEY).toInt(&ok[0]);
-        lineNumber = keys.at(BM_STEP_LINE_KEY).toInt(&ok[1]);
-        valid = ok[0] && ok[1];
-    }
-    if (!valid) {
-        modelIndex = -1;
-        lineNumber =  0;
-    }
 }
 
 QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int top, const int bottom)

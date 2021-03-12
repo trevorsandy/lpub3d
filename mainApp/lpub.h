@@ -1025,6 +1025,11 @@ public:
 
   /* End Build Modifications */
 
+  void skipHeader(Where &current)
+  {
+      ldrawFile.skipHeader(current.modelName, current.lineNumber);
+  }
+
   int getStepIndex(const Where &here)
   {
       return ldrawFile.getStepIndex(here.modelName, here.lineNumber);
@@ -1079,7 +1084,6 @@ public:
       return KpageScene;
   }
 
-  void skipHeader(Where &current);
   void enableNavigationActions(bool enable);
 
   bool setCurrentStep(const QString &key = "");
