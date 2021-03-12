@@ -750,12 +750,11 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LDCadBodyMetaPatterns;
     LDCadBodyMetaPatterns
-    << "(?<=LDCAD )\\bCONTENT\\b"
-    << "(?<=LDCAD )\\bPATH_CAP\\b"
-    << "(?<=LDCAD )\\bPATH_POINT\\b"
-    << "(?<=LDCAD )\\bPATH_SKIN\\b"
-    << "(?<=LDCAD )\\bSCRIPT\\b"
-    << "(?<=LDCAD )\\bGROUP_NXT\\b"
+    << "\\bCONTENT\\b"
+    << "\\bPATH_CAP\\b"
+    << "\\bPATH_POINT\\b"
+    << "\\bPATH_SKIN\\b"
+    << "\\bSCRIPT\\b"
     ;
 
     Q_FOREACH (QString pattern, LDCadBodyMetaPatterns) {
@@ -771,12 +770,21 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LDCadMetaValueFormat;
     highlightingRules.append(rule);
 
-    // LDCad Meta Group Def Format
-    LDCadMetaGrpDefFormat.setForeground(br29);
-    LDCadMetaGrpDefFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("!?\\bLDCAD GROUP_DEF\\b");
-    rule.format = LDCadMetaGrpDefFormat;
-    highlightingRules.append(rule);
+    // LDCad Meta Group Format
+    LDCadMetaGroupFormat.setForeground(br29);
+    LDCadMetaGroupFormat.setFontWeight(QFont::Bold);
+
+    QStringList LDCadMetaGroupPatterns;
+    LDCadMetaGroupPatterns
+            << "\\bGROUP_DEF\\b"
+            << "\\bGROUP_NXT\\b"
+               ;
+
+    Q_FOREACH (QString pattern, LDCadMetaGroupPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = LDCadMetaGroupFormat;
+        highlightingRules.append(rule);
+    }
 
     // LDCad Value Bracket Format
     LDCadBracketFormat.setForeground(br17);
@@ -798,33 +806,33 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LeoCADBodyMetaPatterns;
     LeoCADBodyMetaPatterns
-    << "(?<=LEOCAD )\\bMODEL NAME\\b"
-    << "(?<=LEOCAD )\\bMODEL AUTHOR\\b"
-    << "(?<=LEOCAD )\\bMODEL DESCRIPTION\\b"
-    << "(?<=LEOCAD )\\bMODEL COMMENT\\b"
-    << "(?<=LEOCAD )\\bMODEL BACKGROUND COLOR\\b"
-    << "(?<=LEOCAD )\\bMODEL BACKGROUND GRADIENT\\b"
-    << "(?<=LEOCAD )\\bMODEL BACKGROUND IMAGE\\b"
-    << "(?<=LEOCAD )\\bNAME\\b"
-    << "(?<=LEOCAD )\\bPIECE STEP_HIDE\\b"
-    << "(?<=LEOCAD )\\bPIECE HIDDEN\\b"
-    << "(?<=LEOCAD )\\bPIECE POSITION_KEY\\b"
-    << "(?<=LEOCAD )\\bPIECE ROTATION_KEY\\b"
-    << "(?<=LEOCAD )\\bPIECE PIVOT\\b"
-    << "(?<=LEOCAD )\\bCAMERA HIDDEN\\b"
-    << "(?<=LEOCAD )\\bCAMERA ORTHOGRAPHIC\\b"
-    << "(?<=LEOCAD )\\bCAMERA FOV\\b"
-    << "(?<=LEOCAD )\\bCAMERA ZNEAR\\b"
-    << "(?<=LEOCAD )\\bCAMERA ZFAR\\b"
-    << "(?<=LEOCAD )\\bCAMERA POSITION\\b"
-    << "(?<=LEOCAD )\\bCAMERA TARGET_POSITION\\b"
-    << "(?<=LEOCAD )\\bCAMERA UP_VECTOR\\b"
-    << "(?<=LEOCAD )\\bCAMERA POSITION_KEY\\b"
-    << "(?<=LEOCAD )\\bCAMERA TARGET_POSITION_KEY\\b"
-    << "(?<=LEOCAD )\\bCAMERA UP_VECTOR_KEY\\b"
-    << "(?<=LEOCAD )\\bCAMERA NAME\\b"
-    << "(?<=LEOCAD )\\bGROUP BEGIN\\b"
-    << "(?<=LEOCAD )\\bGROUP END\\b"
+    << "\\bMODEL NAME\\b"
+    << "\\bMODEL AUTHOR\\b"
+    << "\\bMODEL DESCRIPTION\\b"
+    << "\\bMODEL COMMENT\\b"
+    << "\\bMODEL BACKGROUND COLOR\\b"
+    << "\\bMODEL BACKGROUND GRADIENT\\b"
+    << "\\bMODEL BACKGROUND IMAGE\\b"
+    << "\\bNAME\\b"
+    << "\\bPIECE STEP_HIDE\\b"
+    << "\\bPIECE HIDDEN\\b"
+    << "\\bPIECE POSITION_KEY\\b"
+    << "\\bPIECE ROTATION_KEY\\b"
+    << "\\bPIECE PIVOT\\b"
+    << "\\bCAMERA HIDDEN\\b"
+    << "\\bCAMERA ORTHOGRAPHIC\\b"
+    << "\\bCAMERA FOV\\b"
+    << "\\bCAMERA ZNEAR\\b"
+    << "\\bCAMERA ZFAR\\b"
+    << "\\bCAMERA POSITION\\b"
+    << "\\bCAMERA TARGET_POSITION\\b"
+    << "\\bCAMERA UP_VECTOR\\b"
+    << "\\bCAMERA POSITION_KEY\\b"
+    << "\\bCAMERA TARGET_POSITION_KEY\\b"
+    << "\\bCAMERA UP_VECTOR_KEY\\b"
+    << "\\bCAMERA NAME\\b"
+    << "\\bGROUP BEGIN\\b"
+    << "\\bGROUP END\\b"
     ;
 
     Q_FOREACH (QString pattern, LeoCADBodyMetaPatterns) {

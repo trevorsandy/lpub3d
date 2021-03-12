@@ -113,7 +113,7 @@ private:
     QTextCharFormat LDCadMetaValueFormat;  // b18 - LDCad Value
     QTextCharFormat LDCadBodyMetaFormat;   // b19 - LDCad
     QTextCharFormat LDCadBracketFormat;    // b17 - LDCad Value Bracket
-    QTextCharFormat LDCadMetaGrpDefFormat; // b29 - LDCad Group Define
+    QTextCharFormat LDCadMetaGroupFormat; // b29 - LDCad Group Define
 
     QTextCharFormat MLCadMetaFormat;       // b20 - MLCad
     QTextCharFormat MLCadBodyMetaFormat;   // b21 - MLCad Body
