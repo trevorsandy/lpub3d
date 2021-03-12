@@ -861,7 +861,7 @@ QString Project::GetExportFileName(const QString& FileName, const QString& Defau
 	return QFileDialog::getSaveFileName(gMainWindow, DialogTitle, SaveFileName, DialogFilter);
 }
 
-void Project::Export3DStudio(const QString& FileName)
+bool Project::Export3DStudio(const QString& FileName)
 {
 	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
@@ -870,13 +870,13 @@ void Project::Export3DStudio(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 	QString SaveFileName = GetExportFileName(FileName, "3ds", tr("Export 3D Studio"), tr("3DS Files (*.3ds);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
-		return;
+		return false;
 
 	lcDiskFile File(SaveFileName);
 
@@ -885,7 +885,7 @@ void Project::Export3DStudio(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 	long M3DStart = File.GetPosition();
@@ -1302,9 +1302,13 @@ void Project::Export3DStudio(const QString& FileName)
 	File.Seek(M3DStart + 2, SEEK_SET);
 	File.WriteU32(M3DEnd - M3DStart);
 	File.Seek(M3DEnd, SEEK_SET);
+
+	return true;
 }
 
-void Project::ExportBrickLink()
+/*** LPub3D Mod - export ***/
+bool Project::ExportBrickLink()
+/*** LPub3D Mod end ***/
 {
 	lcPartsList PartsList;
 
@@ -1316,13 +1320,17 @@ void Project::ExportBrickLink()
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
-		return;
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 	}
 
 	QString SaveFileName = GetExportFileName(QString(), "xml", tr("Export BrickLink"), tr("XML Files (*.xml);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
-		return;
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 
 	lcDiskFile BrickLinkFile(SaveFileName);
 	char Line[1024];
@@ -1332,7 +1340,9 @@ void Project::ExportBrickLink()
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-		return;
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 	}
 
 	BrickLinkFile.WriteLine("<INVENTORY>\n");
@@ -1373,9 +1383,13 @@ void Project::ExportBrickLink()
 	}
 
 	BrickLinkFile.WriteLine("</INVENTORY>\n");
+
+/*** LPub3D Mod - export ***/
+	return true;
+/*** LPub3D Mod end ***/
 }
 
-void Project::ExportCOLLADA(const QString& FileName)
+bool Project::ExportCOLLADA(const QString& FileName)
 {
 	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
@@ -1384,13 +1398,13 @@ void Project::ExportCOLLADA(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 	QString SaveFileName = GetExportFileName(FileName, "dae", tr("Export COLLADA"), tr("COLLADA Files (*.dae);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
-		return;
+		return false;
 
 	QFile File(SaveFileName);
 
@@ -1399,7 +1413,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 	QTextStream Stream(&File);
@@ -1649,9 +1663,13 @@ void Project::ExportCOLLADA(const QString& FileName)
 	Stream << "</scene>\r\n";
 
 	Stream << "</COLLADA>\r\n";
+
+	return true;
 }
 
-void Project::ExportCSV()
+/*** LPub3D Mod - export ***/
+bool Project::ExportCSV()
+/*** LPub3D Mod end ***/
 {
 	lcPartsList PartsList;
 
@@ -1660,14 +1678,20 @@ void Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
-		return;
+/*** LPub3D Mod - set 3DViewer label ***/
+		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 	}
 
 	QString SaveFileName = GetExportFileName(QString(), "csv", tr("Export CSV"), tr("CSV Files (*.csv);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
-		return;
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 
 	lcDiskFile CSVFile(SaveFileName);
 	char Line[1024];
@@ -1677,7 +1701,9 @@ void Project::ExportCSV()
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-		return;
+/*** LPub3D Mod - export ***/
+		return false;
+/*** LPub3D Mod end ***/
 	}
 
 	CSVFile.WriteLine("Part Name,Color,Quantity,Part ID,Color Code\n");
@@ -1692,6 +1718,9 @@ void Project::ExportCSV()
 			CSVFile.WriteLine(Line);
 		}
 	}
+/*** LPub3D Mod - export ***/
+	return true;
+/*** LPub3D Mod end ***/
 }
 
 lcInstructions Project::GetInstructions()
@@ -1699,7 +1728,9 @@ lcInstructions Project::GetInstructions()
 	return lcInstructions(this);
 }
 
-void Project::ExportHTML(const lcHTMLExportOptions& Options)
+/*** LPub3D Mod - export ***/
+bool Project::ExportHTML(const lcHTMLExportOptions& Options)
+/*** LPub3D Mod end ***/
 {
 	QDir Dir(Options.PathName);
 	Dir.mkpath(QLatin1String("."));
@@ -1756,7 +1787,10 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 			if (!File.open(QIODevice::WriteOnly))
 			{
 				QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
-				return;
+/*** LPub3D Mod - export ***/
+				return false;
+/*** LPub3D Mod end ***/
+
 			}
 
 			QTextStream Stream(&File);
@@ -1789,7 +1823,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				if (!File.open(QIODevice::WriteOnly))
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
-					return;
+/*** LPub3D Mod - export ***/
+					return false;
+/*** LPub3D Mod end ***/
 				}
 
 				QTextStream Stream(&File);
@@ -1815,7 +1851,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				if (!File.open(QIODevice::WriteOnly))
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
-					return;
+/*** LPub3D Mod - export ***/
+					return false;
+/*** LPub3D Mod end ***/
 				}
 
 				QTextStream Stream(&File);
@@ -1849,7 +1887,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				if (!File.open(QIODevice::WriteOnly))
 				{
 					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
-					return;
+/*** LPub3D Mod - export ***/
+					return false;
+/*** LPub3D Mod end ***/
 				}
 
 				QTextStream Stream(&File);
@@ -1881,7 +1921,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 		if (!File.open(QIODevice::WriteOnly))
 		{
 			QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
-			return;
+/*** LPub3D Mod - export HTML ***/
+			return false;
+/*** LPub3D Mod end ***/
 		}
 
 		QTextStream Stream(&File);
@@ -1921,6 +1963,10 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d/\">LPub3D 3DViewer - by LeoCAD</A></B></I><BR></HTML>\r\n");
 /*** LPub3D Mod end ***/
 	}
+
+/*** LPub3D Mod - export ***/
+	return true;
+/*** LPub3D Mod end ***/
 }
 
 bool Project::ExportPOVRay(const QString& FileName)
@@ -2250,20 +2296,20 @@ bool Project::ExportPOVRay(const QString& FileName)
 	return true;
 }
 
-void Project::ExportWavefront(const QString& FileName)
+bool Project::ExportWavefront(const QString& FileName)
 {
 	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
 	if (ModelParts.empty())
 	{
 		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
-		return;
+		return false;
 	}
 
 	QString SaveFileName = GetExportFileName(FileName, QLatin1String("obj"), tr("Export Wavefront"), tr("Wavefront Files (*.obj);;All Files (*.*)"));
 
 	if (SaveFileName.isEmpty())
-		return;
+		return false;
 
 	lcDiskFile OBJFile(SaveFileName);
 	char Line[1024];
@@ -2273,7 +2319,7 @@ void Project::ExportWavefront(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 	quint32 vert = 1;
@@ -2293,7 +2339,7 @@ void Project::ExportWavefront(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
 /*** LPub3D Mod end ***/
-		return;
+		return false;
 	}
 
 /*** LPub3D Mod - set 3DViewer label ***/
@@ -2362,6 +2408,8 @@ void Project::ExportWavefront(const QString& FileName)
 			vert += Mesh->mNumVertices;
 		}
 	}
+
+	return true;
 }
 
 void Project::SaveImage()
@@ -2370,7 +2418,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-
+	
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())

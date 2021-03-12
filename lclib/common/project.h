@@ -14,6 +14,9 @@ class lcHTMLExportOptions
 {
 public:
 	lcHTMLExportOptions(const Project* Project);
+/*** LPub3D Mod - HTML Export ***/
+	lcHTMLExportOptions() {}
+/*** LPub3D Mod end ***/
 	void SaveDefaults();
 
 	QString PathName;
@@ -168,13 +171,17 @@ public:
 
 	void SaveImage();
 	bool ExportModel(const QString& FileName, lcModel* Model) const;
-	void Export3DStudio(const QString& FileName);
-	void ExportBrickLink();
-	void ExportCOLLADA(const QString& FileName);
-	void ExportCSV();
-	void ExportHTML(const lcHTMLExportOptions& Options);
+	bool Export3DStudio(const QString& FileName);
+/*** LPub3D Mod - export ***/
+	bool ExportBrickLink();
+/*** LPub3D Mod end ***/
+	bool ExportCOLLADA(const QString& FileName);
+/*** LPub3D Mod - export ***/
+	bool ExportCSV();
+	bool ExportHTML(const lcHTMLExportOptions& Options);
+/*** LPub3D Mod end ***/
 	bool ExportPOVRay(const QString& FileName);
-	void ExportWavefront(const QString& FileName);
+	bool ExportWavefront(const QString& FileName);
 
 	void UpdatePieceInfo(PieceInfo* Info) const;
 

@@ -4,6 +4,10 @@
 #include <QMainWindow>
 /*** LPub3D Mod end ***/
 #include "lc_array.h"
+/*** LPub3D Mod - Options moved to application.h ***/
+//#include "lc_math.h"
+#include "application.h"
+/*** LPub3D Mod end ***/
 
 class Project;
 class lcPiecesLibrary;
@@ -124,6 +128,53 @@ public:
 /*** LPub3D Mod end ***/
 };
 
+/*** LPub3D Mod - Options moved to application.h ***/
+/***
+struct lcCommandLineOptions
+{
+	bool ParseOK;
+	bool Exit;
+	bool SaveImage;
+	bool SaveWavefront;
+	bool Save3DS;
+	bool SaveCOLLADA;
+	bool SaveHTML;
+	bool SetCameraAngles;
+	bool SetCameraPosition;
+	bool Orthographic;
+	bool SetFoV;
+	bool SetZPlanes;
+	bool SetFadeStepsColor;
+	bool SetHighlightColor;
+	bool FadeSteps;
+	bool ImageHighlight;
+	int ImageWidth;
+	int ImageHeight;
+	int AASamples;
+//	int StudLogo;
+	int ImageStart;
+	int ImageEnd;
+	lcVector3 CameraPosition[3];
+	lcVector2 CameraLatLon;
+	float FoV;
+	lcVector2 ZPlanes;
+	lcViewpoint Viewpoint;
+	quint32 FadeStepsColor;
+	quint32	HighlightColor;
+	QString ImageName;
+	QString ModelName;
+	QString CameraName;
+	QString ProjectName;
+	QString SaveWavefrontName;
+	QString Save3DSName;
+	QString SaveCOLLADAName;
+	QString SaveHTMLName;
+	QList<QPair<QString, bool>> LibraryPaths;
+	QString Output;
+};
+***/
+/*** LPub3D Mod end ***/
+
 enum class lcStartupMode
 {
 	ShowWindow,
@@ -144,8 +195,9 @@ public:
 	~lcApplication();
 
 	void SetProject(Project* Project);
+	lcCommandLineOptions ParseCommandLineOptions();
 /*** LPub3D Mod - add parent, remove ShowWindow ***/
-	lcStartupMode Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
+	lcStartupMode Initialize(const QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process command line ***/
 	int Process3DViewerCommandLine();
@@ -165,13 +217,13 @@ public:
 	QString LPubFadeColour();
 /*** LPub3D Mod end ***/
 
-	Project* mProject;
-	lcPiecesLibrary* mLibrary;
+	Project* mProject = nullptr;
+	lcPiecesLibrary* mLibrary = nullptr;
 	lcPreferences mPreferences;
 	QByteArray mClipboard;
 
 protected:
-	bool InitializeRenderer(int AASamples);
+	bool InitializeRenderer();
 	void ShutdownRenderer();
 	void UpdateStyle();
 	QString GetTabLayoutKey() const;
