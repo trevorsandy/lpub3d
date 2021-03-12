@@ -476,7 +476,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define PAGE_DISPLAY_PAUSE_DEFAULT              3    // measured in seconds
 #define MAX_OPEN_WITH_PROGRAMS_DEFAULT          3    // maximum open with programs entries
-
+#define MESSAGE_LINE_WIDTH_DEFAULT             80    // default width of message line in characters
 // Internal common material colours
 #define LDRAW_EDGE_MATERIAL_COLOUR              "24"
 #define LDRAW_MAIN_MATERIAL_COLOUR              "16"
