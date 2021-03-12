@@ -92,14 +92,17 @@ CsiItem::CsiItem(
   setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
-void CsiItem::loadTheViewer()
+void CsiItem::loadTheViewer(bool override)
 {
-    if (gui->getViewerStepKey() != step->viewerStepKey) {
-        step->viewerOptions->ZoomExtents = true;
-        gui->setCurrentStep(step);
-        gui->showLine(step->topOfStep());
-        step->loadTheViewer();
+    bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey;
+    if (!stepAlreadySet || override) {
+        if (!stepAlreadySet) {
+            gui->setCurrentStep(step);
+            gui->showLine(step->topOfStep());
+        }
         gui->enableBuildModActions();
+        step->viewerOptions->ZoomExtents = true;
+        step->loadTheViewer();
     }
 }
 
@@ -562,7 +565,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *removeBuildModAction = nullptr;
   QAction *deleteBuildModAction = nullptr;
   if (Preferences::buildModEnabled) {
-      loadTheViewer();
+      loadTheViewer(true/*override viewerKey match*/);
       menu.addSeparator();
       applyBuildModAction  = gui->getApplyBuildModAct();
       menu.addAction(applyBuildModAction);
@@ -764,14 +767,14 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     //placeGrabbers();
     position = pos();
 
-    bool lineShown = false;
     if ( event->button() == Qt::LeftButton ) {
-        if ((lineShown = gui->saveBuildModification())) {
+        bool lineShown = false;
+        if ((lineShown = gui->saveBuildModification()))
             loadTheViewer();
-        }
+        if (!lineShown)
+            gui->showLine(step->topOfStep());
     }
-    if (!lineShown)
-        gui->showLine(step->topOfStep());
+
     //  update();
 }
 
