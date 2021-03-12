@@ -2398,10 +2398,12 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
     int action = BuildModNoActionRc;
     QString modKey = buildModKey.toLower();
     QMap<int, BuildModStep>::iterator i = _buildModSteps.begin();
-    while (i != _buildModSteps.end()) {
+    int hasItems = _buildModSteps.size();
+    while (i != _buildModSteps.end() && hasItems) {
         if (i.value()._buildModKey == modKey) {
-           action = i.value()._buildModAction;
+            action = i.value()._buildModAction;
             _buildModSteps.erase(i);
+            hasItems--;
 
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep Action: %1, ModKey: %2")
@@ -2409,7 +2411,8 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
                                  .arg(modKey));
 #endif
         }
-        ++i;
+        if (hasItems)
+            i++;
     }
 }
 
@@ -2839,7 +2842,7 @@ int LDrawFile::getBuildModPrevStepIndex()
 int LDrawFile::getBuildModNextStepIndex()
 {
 #ifdef QT_DEBUG_MODE
-    LogType logType = LOG_NOTICE;
+    LogType logType = LOG_DEBUG;
     QString message;
 #endif
 

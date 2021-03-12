@@ -3989,7 +3989,7 @@ void Gui::drawPage(LGraphicsView  *view,
           setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
 
 #ifdef QT_DEBUG_MODE
-          emit messageSig(LOG_DEBUG,QString("Build modifications check - %1")
+          emit messageSig(LOG_DEBUG,QString("Build Modifications Check - %1")
                                             .arg(elapsedTime(t.elapsed())));
 #endif
       }
