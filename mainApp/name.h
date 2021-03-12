@@ -454,8 +454,6 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
-#define SPLASH_FONT_COLOUR                      "#aa0000" // LPub3D Maroon
-
 #define PREVIEW_SUBMODEL_SUFFIX                 "Preview"
 
 #define VIEWER_MODEL_DEFAULT                    "LPub3D_PlcHldr.ldr"
@@ -530,13 +528,17 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 // Color picker: https://www.w3schools.com/colors/colors_picker.asp
 
-// Team color supplements
+#define LPUB3D_DEFAULT_COLOUR                  "#aa0000" // LPub3D Maroon
+
+#define SPLASH_FONT_COLOUR                      LPUB3D_DEFAULT_COLOUR
+
+// Theme color supplements
 #define THEME_DEFAULT                          "Default" // Default Theme
 #define THEME_SCENE_BGCOLOR_DEFAULT            "#aeadac" // Qt Light Gray
 #define THEME_GRID_PEN_DEFAULT                 "#1e1b18" // Qt Double Dark Grey
 #define THEME_RULER_TICK_PEN_DEFAULT           "#35322f" // Qt Dark Grey
 #define THEME_RULER_TRACK_PEN_DEFAULT          "#00FF00" // Custom Neon Green
-#define THEME_GUIDE_PEN_DEFAULT                "#aa0000" // LPub3D Maroon
+#define THEME_GUIDE_PEN_DEFAULT                LPUB3D_DEFAULT_COLOUR // LPub3D Maroon
 #define THEME_TRANS_PAGE_BORDER_DEFAULT        "#535559" // Custom Gray
 #define THEME_NML_PEN_DEFAULT                  "#1e1b18" // Qt Double Dark Grey [NOT USED]
 
@@ -579,7 +581,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_22_DEFAULT             "#ff1818" // 22 [LPub3D False]
 #define THEME_HIGHLIGHT_23_DEFAULT             "#008000" // 23 [LPub3D True]
 #define THEME_HIGHLIGHT_24_DEFAULT             "#cc5980" // 24 [LPub3D]
-#define THEME_HIGHLIGHT_25_DEFAULT             "#aa0000" // 25 [LPub3D Body]
+#define THEME_HIGHLIGHT_25_DEFAULT             LPUB3D_DEFAULT_COLOUR // 25 [LPub3D Body]
 #define THEME_HIGHLIGHT_26_DEFAULT             "#545454" // 26 [LDraw Header Value]
 #define THEME_HIGHLIGHT_27_DEFAULT             "#231aff" // 27 [LPub3D Quoted Text]
 #define THEME_HIGHLIGHT_28_DEFAULT             "#000000" // 28 [LDraw Line Type 0 First Character]
@@ -592,7 +594,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define THEME_HIGHLIGHT_E_DEFAULT              "#084575" // br05 Part ID
 #define THEME_HIGHLIGHT_F_DEFAULT              "#9421a6" // br06 Part Control
-#define THEME_HIGHLIGHT_G_DEFAULT              "#aa0000" // br07 Part Description
+#define THEME_HIGHLIGHT_G_DEFAULT              LPUB3D_DEFAULT_COLOUR // br07 Part Description
 
 #define THEME_LINE_HIGHLIGHT_DEFAULT           "#ccccff" // Qt:blue:lighter(180)
 #define THEME_LINE_ERROR_DEFAULT               "#ffcccc" // Qt:Red:lighter(180)
@@ -604,7 +606,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_GRID_PEN_DARK                    "#ffffff" // Qt White
 #define THEME_RULER_TICK_PEN_DARK              "#eff0f1" // Custom Pale Grey
 #define THEME_RULER_TRACK_PEN_DARK             "#00FF00" // Custom Neon Green
-#define THEME_GUIDE_PEN_DARK                   "#aa0000" // LPub3D Maroon
+#define THEME_GUIDE_PEN_DARK                   LPUB3D_DEFAULT_COLOUR // LPub3D Maroon
 #define THEME_EDIT_MARGIN_DARK                 "#ABB2B9" // Custom Gray
 #define THEME_TRANS_PAGE_BORDER_DARK           "#aeadac" // Qt Light Gray
 #define THEME_PALETTE_DISABLED_TEXT            "#808080" // 128, 128, 128
@@ -649,7 +651,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define THEME_HIGHLIGHT_E_DARK                 "#c3f6fe" // br05 Part ID
 #define THEME_HIGHLIGHT_F_DARK                 "#9421a6" // br06 Part Control
-#define THEME_HIGHLIGHT_G_DARK                 "#aa0000" // br07 Part Description
+#define THEME_HIGHLIGHT_G_DARK                 LPUB3D_DEFAULT_COLOUR // br07 Part Description
 
 #define THEME_LINE_HIGHLIGHT_DARK              "#5d5b59" // 06 Qt Medium Gray
 #define THEME_LINE_ERROR_DARK                  "#ff0000" // Red:lighter(180)
