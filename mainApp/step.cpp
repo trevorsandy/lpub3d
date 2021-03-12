@@ -397,7 +397,7 @@ int Step::createCsi(
          }
 
          // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::Mt::CSI)) != 0) {
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::CSI)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              pngName = QString(":/resources/missingimage.png");
@@ -486,7 +486,7 @@ int Step::createCsi(
 
           // header and closing meta
 
-          renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
+          renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
 
           // consolidate subfiles and parts into single file
           if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))

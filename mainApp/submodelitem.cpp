@@ -190,7 +190,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             ldrName,
             step ? step->top.modelName : gui->topOfPage().modelName,
             cameraAngles,
-            false/*ldv*/,Options::Mt::SMP)) != 0) {
+            false/*ldv*/,Options::SMP)) != 0) {
        emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                              .arg(ldrName));
        return false;
@@ -366,7 +366,7 @@ int SubModel::createSubModelImage(
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
           // header and closing meta for 3DViewer
-          renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
+          renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::SMP,false/*displayModel*/);
 
           // consolidate submodel subfiles into single file
           if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))

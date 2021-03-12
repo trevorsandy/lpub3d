@@ -137,11 +137,11 @@ class Step : public AbstractRangeElement
     MetaItem *mi(int which = -1)
     {
         switch(which){
-        case Options::Mt::PLI:
+        case Options::PLI:
             return static_cast<MetaItem *>(pli.background);
-        case Options::Mt::CSI:
+        case Options::CSI:
             return static_cast<MetaItem *>(csiItem);
-        case Options::Mt::SMP:
+        case Options::SMP:
             return static_cast<MetaItem *>(subModel.background);
         default:
            return static_cast<MetaItem *>(csiItem);

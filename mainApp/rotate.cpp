@@ -228,7 +228,7 @@ int Render::rotateParts(
 
   // add ROTSTEP command
   QString rotsComment = getRotstepMeta(rotStep);
-  if (imageType != Options::Mt::MON)
+  if (imageType != Options::MON)
       rotatedParts.prepend(rotsComment);
 
   if (nativeRenderer && ! ldvFunction) {
@@ -238,7 +238,7 @@ int Render::rotateParts(
       // consolidate subfiles and parts into single file
       if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType) != 0))
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native %1 parts")
-                    .arg(imageType == Options::Mt::CSI ? "CSI" : Options::Mt::MON ? "MON" : "SMP"));
+                    .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
   }
 
   // Write parts to file

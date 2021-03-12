@@ -219,7 +219,7 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
 
     QStringList tokens;
     QString baseName = QFileInfo(modelName).completeBaseName().toLower();
-    bool isMPD       = imageType == Options::Mt::SMP || imageType == Options::Mt::MON;  // always MPD if imageType is SMP or MON[o] image
+    bool isMPD       = imageType == Options::SMP || imageType == Options::MON;  // always MPD if imageType is SMP or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
     // Test for MPD
@@ -252,7 +252,7 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
     }
 
     // special case where the modelName will match the line type name so we append '_Preview' to the modelName
-    if (imageType == Options::Mt::SMP) {
+    if (imageType == Options::SMP) {
          baseName = baseName.append("_Preview");
     }
 
@@ -262,7 +262,7 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
     }
 
     // description and name are already added to mono image
-    if (imageType != Options::Mt::MON) {
+    if (imageType != Options::MON) {
         parts.prepend(QString("0 Name: %1").arg(modelName));
         parts.prepend(QString("0 %1").arg(baseName));
     }
@@ -640,7 +640,7 @@ int POVRay::renderCsi(
 
   // RotateParts #2 - 8 parms
   int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
       return rc;
    }
 
@@ -1325,7 +1325,7 @@ int LDGLite::renderCsi(
   ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
   ldrFile = ldrPath + "/" + ldrName;
   // RotateParts #2 - 8 parms
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
      return rc;
   }
 
@@ -1998,7 +1998,7 @@ int LDView::renderCsi(
         getRendererSettings(CA, cg, ldviewParmsArgs);
 
         // RotateParts #2 - 8 parms
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
+        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
             return rc;
         } else
@@ -2705,7 +2705,7 @@ int Native::renderCsi(
 
               // RotateParts #2 - 8 parms, rotate parts for ldvExport - apply camera angles
               int rc;
-              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport,Options::Mt::CSI)) < 0) {
+              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport,Options::CSI)) < 0) {
                   return rc;
               }
 
@@ -3429,7 +3429,7 @@ int Render::createNativeModelFile(QStringList &csiRotatedParts,
                     }
                 }
 
-              if (imageType == Options::Mt::MON) {
+              if (imageType == Options::MON) {
                   if (type.startsWith("mono_"))
                       isCustomSubModel = true;
               }
@@ -3495,7 +3495,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
 
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
-          if (imageType != Options::Mt::MON) {
+          if (imageType != Options::MON) {
               csiSubModelParts << QString("0 %1").arg(modelName);
               csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
               csiSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
@@ -3548,7 +3548,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                         }
                     }
 
-                  if (imageType == Options::Mt::MON) {
+                  if (imageType == Options::MON) {
                       if (type.startsWith("mono_"))
                           isCustomSubModel = true;
                   }

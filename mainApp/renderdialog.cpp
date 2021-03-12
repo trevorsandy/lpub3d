@@ -220,7 +220,7 @@ void RenderDialog::on_RenderButton_clicked()
                 mCsiKeyList.at(K_ROTSTYPE);              // type [REL|ABS]
 
         // RotateParts #1 - 5 parms, rotate parts for ldvExport - apply rotstep and camera angles
-        if ((Render::rotateParts(csiParts, mModelFile, rsKey, caKey, Options::Mt::CSI)) < 0) {
+        if ((Render::rotateParts(csiParts, mModelFile, rsKey, caKey, Options::CSI)) < 0) {
             return ;
         }
 

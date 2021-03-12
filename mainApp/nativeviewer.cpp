@@ -705,13 +705,13 @@ void Gui::ResetViewerZoomSlider()
 
 void Gui::enableApplyLightAction()
 {
-    applyLightAct->setEnabled(lcGetActiveProject()->GetImageType() == Options::Mt::CSI);
+    applyLightAct->setEnabled(lcGetActiveProject()->GetImageType() == Options::CSI);
 }
 
 void Gui::applyLightSettings()
 {
     int it = lcGetActiveProject()->GetImageType();
-    if (it != Options::Mt::CSI)
+    if (it != Options::CSI)
         return;
 
     if (currentStep){
@@ -954,7 +954,7 @@ void Gui::applyCameraSettings()
 
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
-        case Options::Mt::PLI:
+        case Options::PLI:
             cameraMeta.cameraAngles   = currentStep->pli.pliMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->pli.pliMeta.modelScale;
@@ -963,7 +963,7 @@ void Gui::applyCameraSettings()
             cameraMeta.imageSize      = currentStep->pli.pliMeta.imageSize;
             cameraMeta.target         = currentStep->pli.pliMeta.target;
             break;
-        case Options::Mt::SMP:
+        case Options::SMP:
             cameraMeta.cameraAngles   = currentStep->subModel.subModelMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->subModel.subModelMeta.modelScale;
@@ -972,7 +972,7 @@ void Gui::applyCameraSettings()
             cameraMeta.imageSize      = currentStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = currentStep->subModel.subModelMeta.target;
             break;
-        default: /*Options::Mt::CSI:*/
+        default: /*Options::CSI:*/
             cameraMeta                = currentStep->csiStepMeta;
             imageFileName             = currentStep->pngName;
             break;
@@ -1333,7 +1333,7 @@ void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
     if (fileName == VIEWER_MODEL_DEFAULT)
         return;
 
-    if (lcGetActiveProject()->GetImageType() == Options::Mt::CSI
+    if (lcGetActiveProject()->GetImageType() == Options::CSI
             && getCurrentStep()
             && !viewerStepKey.isEmpty()) {
         QString modelName = getSubmodelName(QString(viewerStepKey[0]).toInt());
@@ -1650,7 +1650,7 @@ void Gui::createBuildModification()
     if (!currentStep || !Preferences::buildModEnabled)
         return;
 
-    if (lcGetActiveProject()->GetImageType() == Options::Mt::PLI)
+    if (lcGetActiveProject()->GetImageType() != Options::CSI)
         return;
 
     View* ActiveView = GetActiveView();
@@ -2500,8 +2500,7 @@ void Gui::applyBuildModification()
     }
 
     switch(it) {
-    case Options::Mt::CSI:
-    case Options::Mt::SMP:
+    case Options::CSI:
     {
         QString metaString;
         bool newCommand = false;
@@ -2523,7 +2522,7 @@ void Gui::applyBuildModification()
         endMacro();
     }
         break;
-    default: /*Options::Mt::PLI:*/
+    default: /*Options::PLI:*/
         break;
     }
 }
@@ -2560,8 +2559,7 @@ void Gui::removeBuildModification()
     }
 
     switch(it) {
-    case Options::Mt::CSI:
-    case Options::Mt::SMP:
+    case Options::CSI:
     {
         QString metaString;
         bool newCommand = false;
@@ -2583,7 +2581,7 @@ void Gui::removeBuildModification()
         endMacro();
     }
         break;
-    default: /*Options::Mt::PLI:*/
+    default: /*Options::PLI:*/
         break;
     }
 
@@ -2602,8 +2600,7 @@ void Gui::loadBuildModification()
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
-    case Options::Mt::CSI:
-    case Options::Mt::SMP:
+    case Options::CSI:
     {
 
         buildModChangeKey = "";
@@ -2632,7 +2629,7 @@ void Gui::loadBuildModification()
         }
     }
         break;
-    default: /*Options::Mt::PLI:*/
+    default: /*Options::PLI:*/
         break;
     }
 }
@@ -2644,8 +2641,7 @@ bool Gui::setBuildModChangeKey()
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
-    case Options::Mt::CSI:
-    case Options::Mt::SMP:
+    case Options::CSI:
     {
         Rc rc;
         Where walk = currentStep->top;
@@ -2679,7 +2675,7 @@ bool Gui::setBuildModChangeKey()
         }
     }
         break;
-    default: /*Options::Mt::PLI:*/
+    default: /*Options::PLI:*/
         break;
     }
 
@@ -2730,8 +2726,7 @@ void Gui::deleteBuildModification()
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
-    case Options::Mt::CSI:
-    case Options::Mt::SMP:
+    case Options::CSI:
     {
         QString buildModKey  = buildModKeys.first();
         int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
@@ -2817,7 +2812,7 @@ void Gui::deleteBuildModification()
         endMacro();
     }
         break;
-    default: /*Options::Mt::PLI:*/
+    default: /*Options::PLI:*/
         break;
     }
 
@@ -2838,7 +2833,7 @@ bool Gui::saveBuildModification()
     // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
 
     Project* Project = lcGetActiveProject();
-    if (Project->GetImageType() == Options::Mt::PLI /*&&
+    if (Project->GetImageType() == Options::PLI /*&&
        !Project->IsUnofficialPart()*/)
         return true;     // continue
 
