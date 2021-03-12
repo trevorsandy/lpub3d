@@ -2543,7 +2543,19 @@ void Gui::applyBuildModification()
     QString line = QString::number(currentStep->topOfStep().lineNumber);
     QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
-    if (getBuildModStepKey(buildModKey) == viewerStepKey) {
+    if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
+            text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
+                    "model '" + model + "', at line " + line + ".<br>"
+                    "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>";
+            type  = "apply build modification error message";
+            title = "Build Modification";
+
+            Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Apply_Before_" + model,line).nameToString());
+            Preferences::showMessage(msgID, text, title, type);
+
+            return;
+
+    } else if (getBuildModStepKey(buildModKey) == currentStep->viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
                 "It was automatically applied to the step it was created in.<br><br>No action taken.<br>";
@@ -2566,19 +2578,7 @@ void Gui::applyBuildModification()
 
         return;
 
-    } else if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
-        text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
-                "model '" + model + "', at line " + line + ".<br>"
-                "Applying a build modification before it is created is not supported.<br><br>No action taken.<br>";
-        type  = "apply build modification error message";
-        title = "Build Modification";
-
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Apply_Before_" + model,line).nameToString());
-        Preferences::showMessage(msgID, text, title, type);
-
-        return;
-
-    } /* else {
+    }  /* else {
         text  = "This action will apply build modification '" + buildModKey + "' "
                 "beginning at step " + step + ", in model '" + model + "'.<br><br>Are you sure ?<br>";
         type  = "apply build modification message";
@@ -2654,7 +2654,18 @@ void Gui::removeBuildModification()
     QString line = QString::number(currentStep->topOfStep().lineNumber);
     QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
-    if (getBuildModStepKey(buildModKey) == viewerStepKey) {
+    if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
+            text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
+                    "model '" + model + "', at line " + line + ".<br>"
+                    "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
+            type  = "remove build modification error message";
+            title = "Build Modification";
+
+            return;
+
+            Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
+            Preferences::showMessage(msgID, text, title, type);
+    } else if (getBuildModStepKey(buildModKey) == viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "in model '" + model + "' at line " + line + ".<br><br>"
                 "It cannot be removed from the step it was created in.<br><br>"
@@ -2679,17 +2690,6 @@ void Gui::removeBuildModification()
 
         return;
 
-    } else if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
-        text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
-                "model '" + model + "', at line " + line + ".<br>"
-                "Removing a build modification before it is created is not supported.<br><br>No action taken.<br>";
-        type  = "remove build modification error message";
-        title = "Build Modification";
-
-        return;
-
-        Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
-        Preferences::showMessage(msgID, text, title, type);
     } /* else {
         text  = "This action will remove build modification '" + buildModKey + "' "
                 "beginning at step " + step + " in model '" + model + "'.<br><br>Are you sure ?<br>";
@@ -2916,14 +2916,14 @@ void Gui::deleteBuildModification()
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     QString title = tr("Build Modification Image");
-    QString text = tr("Click 'Modified',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
+    QString text = tr("Click 'Submodel',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
 
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
     box.setText (tr("Select your option to reset the image cache."));
     box.setInformativeText(text);
 
-    QPushButton *clearModifiedButton = box.addButton(tr("Modified"), QMessageBox::AcceptRole);
-    clearModifiedButton->setToolTip(tr("Reset modified submodel images from step %1").arg(step));
+    QPushButton *clearSubmodelButton = box.addButton(tr("Modified"), QMessageBox::AcceptRole);
+    clearSubmodelButton->setToolTip(tr("Reset modified submodel images from step %1").arg(step));
 
     QPushButton *clearPageButton = nullptr;
     if (multiStepPage) {
@@ -2940,13 +2940,13 @@ void Gui::deleteBuildModification()
 
     box.exec();
 
-    bool clearModified = box.clickedButton() == clearModifiedButton;
+    bool clearSubmodel = box.clickedButton() == clearSubmodelButton;
     bool clearPage     = multiStepPage ? box.clickedButton() == clearPageButton : false;
     bool clearStep     = box.clickedButton() == clearStepButton;
     if (box.clickedButton() == cancelButton)
         return;
 
-    QString clearOption = clearModified ? "_cm" : clearPage ? "_cp" : clearStep ? "_cs" : QString();
+    QString clearOption = clearSubmodel ? "_cm" : clearPage ? "_cp" : clearStep ? "_cs" : QString();
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
@@ -3014,7 +3014,7 @@ void Gui::deleteBuildModification()
                 deleteLine(walk);
 
         // delete step image to trigger image regen
-        if (clearModified) {
+        if (clearSubmodel) {
             clearWorkingFiles(getBuildModPathsFromStep(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
