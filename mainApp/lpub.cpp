@@ -1291,7 +1291,7 @@ void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName,
     bool           editModelFile   /*false*/,
-    bool           displayStartPage/*false*/) // doesn't seem like this is used here; only on direct call to displayPage
+    bool           displayStartPage/*false*/)
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE        
@@ -1322,8 +1322,8 @@ void Gui::displayFile(
 #ifdef QT_DEBUG_MODE            
             emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
                             .arg(stepNumber)
-                            .arg(top.lineNumber + 1/*adjust for 0-start index*/)
-                            .arg(bottom.lineNumber /*actually top next step so no adjustment*/)
+                            .arg(top.lineNumber + 1    /*adjust for 0-index*/)
+                            .arg(bottom.lineNumber + 1 /*adjust for 0-index - top next step*/)
                             .arg(elapsedTime(t.elapsed())));
 #endif
             if (curSubFile == modelName)
@@ -1331,33 +1331,25 @@ void Gui::displayFile(
             else
                 curSubFile = modelName;
 
-            if (displayStartPage)
-                countPages();
-
-            // --> this block is suspect
-            int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
-
             if (displayStartPage) {
+               countPages();
+               int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
                if (modelPageNum && displayPageNum != modelPageNum) {
-                   displayPageNum  = modelPageNum;
+                   displayPageNum = modelPageNum;
                    displayPage();
                }
-            } else if (displayPageNum < modelPageNum) {
-                Where topOfSteps(modelName,0);
-                showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
             }
-            // <-- suspect block
 
             int saveIndex = mpdCombo->currentIndex();
-            int currentIndex = 0;
+            int currentIndex = -1;
             for (int i = 0; i < mpdCombo->count(); i++) {
-                if (mpdCombo->itemText(i) == modelName) {
+                if (mpdCombo->itemText(i) == modelName) { // will never equal Include File
                     currentIndex = i;
                     break;
                 }
             }
 
-            if (saveIndex != currentIndex) {
+            if (currentIndex > -1 && currentIndex != saveIndex) {
                 mpdCombo->setCurrentIndex(currentIndex);
                 mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
             }
@@ -1422,40 +1414,43 @@ void Gui::deployExportBanner(bool b)
 
 void Gui::mpdComboChanged(int index)
 {
+
   QString newSubFile = mpdCombo->currentText();
+
   bool isIncludeFile = false;
   if (newSubFile.endsWith("Include File")) {
       newSubFile = mpdCombo->currentData().toString();
       isIncludeFile = ldrawFile.isIncludeFile(newSubFile);
   }
+
   if (curSubFile != newSubFile) {
 
-      bool display = isIncludeFile;
+    bool callDisplayFile = false;
 
-      if (!isIncludeFile) {
-          int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
-          messageSig(LOG_INFO, QString( "SELECT Model: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
-          countPages();
-          if (modelPageNum && displayPageNum != modelPageNum) {
-              if (!saveBuildModification())
-                  return;
-              displayPageNum = modelPageNum;
-              displayPage();
-          } else {
-              display = true;
-          }
+    if (!isIncludeFile) {
+      int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
+      countPages();
+      if (modelPageNum && displayPageNum != modelPageNum) {
+        if (!saveBuildModification())
+          return;
+        messageSig(LOG_INFO, QString( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
+        displayPageNum = modelPageNum;
+        displayPage();
+      } else {
+        callDisplayFile = true;
       }
-
-      if (display) {
-          curSubFile = newSubFile;
-          displayFile(&ldrawFile, curSubFile);
-          showLineSig(0, LINE_HIGHLIGHT);
-      }
-
-      mpdCombo->setCurrentIndex(index);
-      mpdCombo->setToolTip(isIncludeFile ? tr("Include file: %1").arg(newSubFile) :
-                                           tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     }
+
+    if (callDisplayFile) {
+      messageSig(LOG_INFO, QString( "Select subModel: %1").arg(newSubFile));
+      displayFile(&ldrawFile, curSubFile, false/*editModelFile*/, true/*displayStartPage*/);
+      showLineSig(0, LINE_HIGHLIGHT);
+      if (isIncludeFile) {  // Combo will not be set to include file in displayFile call, so set here
+          mpdCombo->setCurrentIndex(index);
+          mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
+      }
+    }
+  }
 }
 
 void  Gui::restartApplication(bool changeLibrary){
@@ -4795,25 +4790,25 @@ void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
 
-  for(int i=1 + pa;i <= maxPages;i++){
-      QApplication::processEvents();
+  for(int i=1 + pa;i <= maxPages;i++) {
       pageNum++;
-      if (frontCoverPageExist && i == 1){
+      if (frontCoverPageExist && i == 1) {
           pageNum--;
           setGoToPageCombo->addItem(QString("Front Cover"));
-        }
-      else if (backCoverPageExist && i == maxPages){
+      }
+      else if (backCoverPageExist && i == maxPages) {
           setGoToPageCombo->addItem(QString("Back Cover"));
-        }
+      }
       else
-        setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
-    }
+          setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
+  }
 
   if (Preferences::modeGUI && ! exporting())
       enableNavigationActions(true);
 
   setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
+  QApplication::processEvents();
 }
 
 void Gui::enableActions()

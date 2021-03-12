@@ -1925,12 +1925,12 @@ int Gui::drawPage(
                   if (lastStep && !lastStep->csiPixmap.isNull()) {
                       emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
                       setCurrentStep(lastStep);
-                      if (! gui->exportingObjects()) {
+                      if (!exportingObjects()) {
                           showLine(lastStep->topOfStep());
                           lastStep->loadTheViewer();
                       }
                   } else {
-                      if (! gui->exportingObjects())
+                      if (!exportingObjects())
                           showLine(steps->topOfSteps());
                   }
 
@@ -2466,7 +2466,7 @@ int Gui::drawPage(
                       }
 
                       // Load the 3DViewer -  callouts and multistep Steps are not loaded
-                      if (!gui->exportingObjects()) {
+                      if (!exportingObjects()) {
                           if (step) {
                               step->setBottomOfStep(opts.current);
                               setCurrentStep(step);
@@ -3930,6 +3930,7 @@ void Gui::countPages()
       emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
       Where current(ldrawFile.topLevelFile(),0,0);
+      ldrawFile.setModelStartPageNumber(current.modelName,1 + pa);
       int savedDpn     =  displayPageNum;
       displayPageNum   =  1 << 31;  // really large number: 2147483648
       firstStepPageNum = -1;
