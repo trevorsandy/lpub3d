@@ -1,10 +1,11 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 03, 2020
+# Last Update February 14, 2021
 #
 # Purpose:
-# This script will 'cutover' a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
+# This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
 # Commit range is processed from oldest to newest using either reset or cherry-pick as specified by user performing cutover.
+# The starting commit 'COMMIT' is exclusive, meaning it is not included in the commits passed to the receiving repository.
 #
 # Setup:
 # For successful execution it and ci_cutover.sh must be placed at the root of the repositories, for example:
@@ -19,14 +20,14 @@
 #   - TAG: Release version [Default=2.4.0']
 #   - TO_REPO: Production or maintenance repository [default=lpub3d]
 #   - FROM_REPO: Development repository [default=lpub3dnext]
-#   - COMMIT: Starting commit [Default=null]
-#   - BRANCH: Working cutover development branch [Default=CUTOVER_NEXT]
+#   - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]
+#   - BRANCH: Working cutover development branch [Default=CUTOVER_CI]
 #   - RELEASE: Create a release commit, preserve build tag, on the last commit [Default=null]
-#   - CLONE: Clone a new instance of TO_REPO at the first commit [Default=null]
+#   - CLONE: Clone a new repository of TO_REPO at the first commit [Default=null]
 #   - CHERRYPICK: Cherry-pick commits as we process the range, otherwise use reset [Default=null]
 #
 # Execution Steps:
-#   
+#
 # Add production remote to development repository
 # Determine version
 # Identify starting commit
@@ -38,24 +39,24 @@
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 BRANCH=CUTOVER_NEXT CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.0 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
 #
 # Useful DEBUG Commands:
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
 # $ COMMIT_LIST=$(git rev-list --reverse $START_COMMIT..HEAD 2>&1 | tee $COMMIT_LIST_FILE)
 # $ COMMIT_LIST=$(git rev-list --reverse $START_COMMIT^..HEAD 2>&1 | tee $COMMIT_LIST_FILE) # includes START_COMMIT
 # $ echo "$COMMIT_LIST" 2>&1 | tee "$COMMIT_LIST_FILE"
-# 
+#
 # $ echo && echo "START COMMIT: $START_COMMIT"
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
 # $ echo "---------------------------"
 # $ [ -z "$COMMIT_LIST" ] && echo "   No commits found" || \
 # $ echo "$COMMIT_LIST" 2>&1 | tee "$COMMIT_LIST_FILE"
-#  
+#
 # $ COMMIT_DESCRIPTION_LIST_FILE="../cutover_commits_descriptions.lst"
 # $ COMMIT_DESCRIPTIONS=$(git log master --reverse --pretty=%B $START_COMMIT..HEAD | sed '/^$/d')
 # $ echo "$COMMIT_DESCRIPTIONS" 2>&1 | tee "$COMMIT_DESCRIPTION_LIST_FILE"
-#  
+#
 # $ echo && echo "START COMMIT: $START_COMMIT"
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
 # $ echo "---------------------------"
@@ -73,7 +74,7 @@ VER_TAG=${TAG:-v2.4.0}
 TO_REPO_NAME=${TO_REPO:-lpub3d-ci}
 FROM_REPO_NAME=${FROM_REPO:-lpub3dnext}
 START_COMMIT=${COMMIT:-}
-START_BRANCH=${BRANCH:-CUTOVER_NEXT}
+START_BRANCH=${BRANCH:-CUTOVER_CI}
 RELEASE_BUILD=${RELEASE:-}
 FRESH_BUILD=${CLONE:-}
 USE_CHERRY_PICK=${CHERRYPICK:-}
@@ -84,14 +85,14 @@ SECONDS=0
 FinishElapsedTime() {
   [ -z "$1" ] && ACTION=Finished || ACTION=$1
   ACTION="$ACTION - $COUNTER of $COMMIT_COUNT commits processed"
-  
+
   # Elapsed execution time
   ELAPSED="Elapsed cutover time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo
   echo "----------------------------------------------------"
   echo "-4 Cutover $ACTION - see $LOG for details."
   echo "-- $ELAPSED"
-  echo "----------------------------------------------------" 
+  echo "----------------------------------------------------"
   echo
 }
 
@@ -102,31 +103,31 @@ function options_status
     echo "--SCRIPT_NAME....$SCRIPT_NAME"
     echo "--REPO_PATH.......$HOME_DIR"
     echo "--VER_TAG.........$VER_TAG"
-    echo "--FROM_REPO_NAME..$FROM_REPO_NAME"    
+    echo "--FROM_REPO_NAME..$FROM_REPO_NAME"
     echo "--TO_REPO_NAME....$TO_REPO_NAME"
     echo "--START_COMMIT....$START_COMMIT"
     echo "--START_BRANCH....$START_BRANCH"
     [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || true
     [ -n "$USE_CHERRY_PICK" ] && echo "--USE_CHERRY_PICK.YES" || true
-    [ -n "$DO_DRY_RUN" ] && echo "--DO_DRY_RUN......YES" || true    
+    [ -n "$DO_DRY_RUN" ] && echo "--DO_DRY_RUN......YES" || true
     [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
-    echo 
+    echo
 }
 
-function get_elided_string() 
-{ 
+function get_elided_string()
+{
     v=$1
     if [[ ${#v} > 40 ]]
-    then 
+    then
         echo "${v:0:33}...${v:(-4)}"
-    else 
+    else
         echo "$v"
-    fi 
+    fi
 }
 
-function get_commit_count() 
-{ 
-    echo $#; 
+function get_commit_count()
+{
+    echo $#;
 }
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -158,7 +159,7 @@ function show_options_status
 }
 
 if [ -z "$START_COMMIT" ]
-then 
+then
     show_options_status "-- No starting commit specified - show options and exit"
 fi
 
@@ -169,7 +170,7 @@ cd $HOME_DIR/$FROM_REPO_NAME
 echo && echo "-1 Checkout $START_BRANCH branch at starting cutover commit $START_COMMIT..."
 if [ -n "$(git status -s)" ]
 then
-    echo && echo "--INFO - Stashing uncommitted $FROM_REPO_NAME changes..."  
+    echo && echo "--INFO - Stashing uncommitted $FROM_REPO_NAME changes..."
     git stash &>> $LOG
 fi
 if [ -n "$(git show-ref refs/heads/$START_BRANCH)" ]
@@ -216,12 +217,12 @@ do
     then
         git checkout $START_BRANCH &>> $LOG
     fi
-    
+
     SHORT_COMMIT=$(cut -c-10 <<< "$commit")
     COMMIT_DESC=$(git show -s --format=%s $commit)
     COMMIT_DESC_ELIDED=$(get_elided_string "$COMMIT_DESC")
-    COUNT=$((COUNTER + 1))  
-    
+    COUNT=$((COUNTER + 1))
+
     if [ -n "$USE_CHERRY_PICK" ]
     then
         echo && echo "   -Cherry-picking commit $COUNT of $COMMIT_COUNT: $SHORT_COMMIT - $COMMIT_DESC_ELIDED..."
@@ -235,18 +236,18 @@ do
     then
         echo
         if [ -n "$USE_CHERRY_PICK" ]
-        then 
+        then
             echo "-- WHOA! Cherry-pick '$SHORT_COMMIT' failed."
-        else 
+        else
             echo "-- WHOA! Reset '$SHORT_COMMIT' failed."
         fi
         echo "-- Return code was $RETURN_CODE - exiting!"
         FinishElapsedTime "Terminated"
         exit 1
     fi
-    
-    cd $HOME_DIR 
-    
+
+    cd $HOME_DIR
+
     if [[ $COUNT = 1 ]]
     then
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 OBS_CFG=yes FRESH=$FRESH_BUILD"
@@ -260,13 +261,13 @@ do
         if [ -z "$DO_DRY_RUN" ]
         then
             env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 OBS_CFG=yes NOSTAT=1 REL=$RELEASE_BUILD ./ci_cutover.sh /dev/null 2>&1
-            echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository" 
+            echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
             cd $HOME_DIR/$FROM_REPO_NAME
             if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
             if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
             git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
             GIT_TAG="$(git tag -l -n $VER_TAG)" && \
-            [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."           
+            [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
         fi
     else
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 OBS_CFG=yes NOSTAT=1"
@@ -285,10 +286,10 @@ do
         FinishElapsedTime "Terminated"
         exit 1
     fi
-    
+
     # Increment counter
     COUNTER=$((COUNTER + 1))
-    
+
     # Last successful commit
     LAST_COMMIT=$commit
 done

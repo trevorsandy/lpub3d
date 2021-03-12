@@ -66,11 +66,11 @@
     <developer_name>Trevor SANDY</developer_name>
     <update_contact>trevor.sandy@gmail.com</update_contact>
     ​<provides>
-        <id>leocad.desktop</id>
+        <id>lpub3d.desktop</id>
         <binary>lpub3d24</binary>
     ​</provides>
     <releases>
-        <release version="2.4.1.2333" date="2021-03-12">
+        <release version="2.4.1.2334" date="2021-03-12">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>
