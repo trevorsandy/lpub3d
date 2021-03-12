@@ -225,9 +225,7 @@ static void lcAdjustStudStyleColors(std::vector<lcColor>& Colors, lcStudStyle St
 	const lcVector4 BlackEdge = lcVector4FromColor(Preferences.mBlackEdgeColor);
 
 	const float ContrastControl = Preferences.mPartEdgeContrast;
-/*** LPub3D Mod - use part color to calculate edge color ***/
-	const float LightDarkControl = Preferences.mAutomateEdgeColor ?	Preferences.mPartColorValueLDIndex : LC_SRGB_TO_LINEAR(Preferences.mPartColorValueLDIndex);
-/*** LPub3D Mod end ***/
+	const float LightDarkControl = Preferences.mAutomateEdgeColor ? Preferences.mPartColorValueLDIndex : LC_SRGB_TO_LINEAR(Preferences.mPartColorValueLDIndex);
 
 	for (lcColor& Color : Colors)
 	{
