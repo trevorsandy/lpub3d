@@ -398,11 +398,11 @@ int SubModel::createSubModelImage(
       viewerOptions->Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();
       viewerOptions->Target         = xyzVector(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
-      viewerOptions->ImageWidth     = pixmap->width();
-      viewerOptions->ImageHeight    = pixmap->height();
   }
 
   pixmap->load(imageName);
+  viewerOptions->ImageWidth  = pixmap->width();
+  viewerOptions->ImageHeight = pixmap->height();
 
   return rc;
 }

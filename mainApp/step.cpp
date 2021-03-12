@@ -519,12 +519,6 @@ int Step::createCsi(
       viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
       viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
-      if (! renderer->useLDViewSCall()) {
-          viewerOptions->ImageWidth  = pixmap->width();
-          viewerOptions->ImageHeight = pixmap->height();
-      }
-
-
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
@@ -546,6 +540,8 @@ int Step::createCsi(
 
 bool Step::loadTheViewer(){
     if (! gui->exporting() && updateViewer) {
+        viewerOptions->ImageWidth  = csiPixmap.width();
+        viewerOptions->ImageHeight = csiPixmap.height();
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerStepKey));
