@@ -918,7 +918,7 @@ int Gui::drawPage(
 
               if (callout->bottom.modelName != thisType) {
 
-                  Where current2(type,getSubmodelIndex(type),0);
+                  Where current2(thisType,getSubmodelIndex(thisType),0);
                   skipHeader(current2);
                   if (calloutMode == CalloutBeginMeta::Assembled) {
                       // In this case, no additional rotation should be applied to the submodel
