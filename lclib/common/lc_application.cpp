@@ -946,7 +946,7 @@ void lcApplication::ShowPreferencesDialog()
 
 /*** LPub3D Mod - preview widget ***/
 	if (previewDockable != Options.Preferences.mPreviewPosition)
-		emit gMainWindow->togglePreviewWidgetSig(Options.Preferences.mPreviewPosition == lcPreviewPosition::Dockable);
+		emit gMainWindow->TogglePreviewWidgetSig(Options.Preferences.mPreviewPosition == lcPreviewPosition::Dockable);
 /*** LPub3D Mod end ***/
 
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);

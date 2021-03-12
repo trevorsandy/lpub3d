@@ -29,6 +29,10 @@ public:
 #endif
 	}
 
+/*** LPub3D Mod - preview widget ***/
+	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint(), bool UseViewPos = false);
+/*** LPub3D Mod end ***/
+
 	QTimer mUpdateTimer;
 
 protected:

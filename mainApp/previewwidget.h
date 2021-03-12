@@ -49,15 +49,19 @@ class PreviewDockWidget : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PreviewDockWidget(QMainWindow *parent = nullptr);
-    bool SetCurrentPiece(const QString &PartType, int ColorCode);
+    explicit PreviewDockWidget(QMainWindow* parent = nullptr);
+    bool SetCurrentPiece(const QString& PartType, int ColorCode);
     void ClearPreview();
 
+protected slots:
+    void SetPreviewLock();
+
 protected:
-    QToolBar        *toolBar;
-    QLabel          *label;
-    PreviewWidget   *Preview;
-    lcQGLWidget     *ViewWidget;
+    QAction* mLockAction;
+    QToolBar* mToolBar;
+    QLabel* mLabel;
+    PreviewWidget* mPreview;
+    lcQGLWidget* mViewWidget;
 };
 
 class PreviewWidget : public lcGLWidget
@@ -97,11 +101,6 @@ public:
         return mDescription;
     }
 
-    bool IsModel() const
-    {
-        return mIsModel;
-    }
-
     lcVector3 UnprojectPoint(const lcVector3& Point) const
     {
         int Viewport[4] = { 0, 0, mWidth, mHeight };
@@ -129,6 +128,11 @@ public:
     bool IsTracking() const
     {
         return mTrackButton != lcTrackButton::None;
+    }
+
+    bool IsModel() const
+    {
+        return mIsModel;
     }
 
     void OnInitialUpdate() override;

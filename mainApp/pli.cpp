@@ -1501,7 +1501,7 @@ int Pli::placePli(
     int   &pliWidth,
     int   &pliHeight)
 {
-  
+
   // Place the first row
   BorderData borderData;
   borderData = pliMeta.border.valuePixels();
@@ -1873,7 +1873,7 @@ void Pli::placeCols(
     }
   part = parts[keys[keys.size()-1]];
   width += int(qMax(part->maxMargin(),borderMargin));
-  
+
   size[0] = width;
   size[1] = int(topMargin + height + botMargin);
 }
@@ -2621,7 +2621,7 @@ int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
 
   parentRelativeType = _parentRelativeType;
   perStep = _perStep;
-  
+
   if (parts.size() == 0) {
       return 1;
     }
@@ -2632,9 +2632,9 @@ int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
   if (rc != 0) {
       return rc;
     }
-  
+
   ConstrainData constrainData = pliMeta.constrain.value();
-  
+
   return resizePli(meta,constrainData);
 }
 
@@ -2643,7 +2643,7 @@ int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
   if (parts.size() == 0) {
       return 1;
     }
-  
+
   if (meta) {
       ConstrainData constrainData;
       constrainData.type = constrain;
@@ -2658,7 +2658,7 @@ int Pli::resizePli(
     Meta *meta,
     ConstrainData &constrainData)
 {
-  
+
   switch (parentRelativeType) {
     case StepGroupType:
       placement = meta->LPub.multiStep.pli.placement;
@@ -3126,7 +3126,7 @@ void PliBackgroundItem::placeGrabbers()
 }
 
 void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{     
+{
   position = pos();
   positionChanged = false;
   // we only want to toggle the grabbers off on second left mouse click
@@ -3135,10 +3135,10 @@ void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   }
   QGraphicsItem::mousePressEvent(event);
   placeGrabbers();
-} 
+}
 
 void PliBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{ 
+{
   positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -3362,11 +3362,11 @@ void PliBackgroundItem::contextMenuEvent(
 void PliBackgroundItem::resize(QPointF grabbed)
 {
   // recalculate corners Y
-  
+
   point = grabbed;
 
   // Figure out desired height of PLI
-  
+
   if (pli && pli->parentRelativeType == CalloutType) {
       QPointF absPos = pos();
       absPos = mapToScene(absPos);
@@ -3387,7 +3387,7 @@ void PliBackgroundItem::resize(QPointF grabbed)
   qreal scaleY = height/size[1];
 
   pli->positionChildren(int(height),scaleX,scaleY);
-  
+
   point = QPoint(int(pos().x()+width/2),int(pos().y()+height));
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 
@@ -3410,7 +3410,7 @@ void PliBackgroundItem::change()
 
   constrainData.type = ConstrainData::PliConstrainHeight;
   constrainData.constraint = int(grabHeight);
-  
+
   pli->pliMeta.constrain.setValue(constrainData);
 
   Where top, bottom;
@@ -3460,7 +3460,7 @@ void AnnotateTextItem::contextMenuEvent(
   if (selectedAction == nullptr) {
       return;
     }
-  
+
   Where top = pli->top;
   Where bottom = pli->bottom;
 
@@ -3516,7 +3516,7 @@ void InstanceTextItem::contextMenuEvent(
   if (selectedAction == nullptr) {
       return;
     }
-  
+
   Where top = pli->top;
   Where bottom = pli->bottom;
 
@@ -3552,76 +3552,47 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);
 }
 
-void PGraphicsPixmapItem::previewPart() {
-    lcPreferences& Preferences = lcGetPreferences();
-    if (!Preferences.mPreviewEnabled)
+void PGraphicsPixmapItem::previewPart(bool previewPartAction) {
+    if (!part)
         return;
 
-    int colorCode        = part->color.toInt();
-    QString partType     = part->type;
-
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
-        emit gui->previewPieceSig(partType, colorCode);
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewPartAction) {
+        emit gui->previewPieceSig(part->type, part->color.toInt());
         return;
     }
 
     PreviewWidget *Preview = new PreviewWidget();
 
-    lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
     if (Preview && ViewWidget) {
-        if (!Preview->SetCurrentPiece(partType, colorCode))
-            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
-
-        QString windowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
-
-        ViewWidget->setWindowTitle(windowTitle);
-        int Size[2] = { 300,200 };
-        if (Preferences.mPreviewSize == 400) {
-            Size[0] = 400; Size[1] = 300;
+        if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
+            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
+        } else {
+            QPointF sceneP;
+            switch (Preferences.mPreviewLocation)
+            {
+            case lcPreviewLocation::TopRight:
+                sceneP = pli->background->mapToScene(pli->background->boundingRect().topRight());
+                break;
+            case lcPreviewLocation::TopLeft:
+                sceneP = pli->background->mapToScene(pli->background->boundingRect().topLeft());
+                break;
+            case lcPreviewLocation::BottomRight:
+                sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomRight());
+                break;
+            default:
+                sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomLeft());
+                break;
+            }
+            QGraphicsView *view = pli->background->scene()->views().first();
+            QPoint viewP = view->mapFromScene(sceneP);
+            QPoint pos = view->viewport()->mapToGlobal(viewP);
+            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
         }
-        ViewWidget->preferredSize = QSize(Size[0], Size[1]);
-        float Scale               = ViewWidget->deviceScale();
-        Preview->mWidth           = ViewWidget->width()  * Scale;
-        Preview->mHeight          = ViewWidget->height() * Scale;
-
-        const QRect desktop = QApplication::desktop()->geometry();
-
-        QGraphicsView *view = pli->background->scene()->views().first();
-        QPointF sceneP;
-        switch (Preferences.mPreviewLocation)
-        {
-        case lcPreviewLocation::TopRight:
-            sceneP = pli->background->mapToScene(pli->background->boundingRect().topRight());
-            break;
-        case lcPreviewLocation::TopLeft:
-            sceneP = pli->background->mapToScene(pli->background->boundingRect().topLeft());
-            break;
-        case lcPreviewLocation::BottomRight:
-            sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomRight());
-            break;
-        default:
-            sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomLeft());
-            break;
-        }
-        QPoint viewP = view->mapFromScene(sceneP);
-        QPoint pos = view->viewport()->mapToGlobal(viewP);
-        if (pos.x() < desktop.left())
-            pos.setX(desktop.left());
-        if (pos.y() < desktop.top())
-            pos.setY(desktop.top());
-
-        if ((pos.x() + ViewWidget->width()) > desktop.width())
-            pos.setX(desktop.width() - ViewWidget->width());
-        if ((pos.y() + ViewWidget->height()) > desktop.bottom())
-            pos.setY(desktop.bottom() - ViewWidget->height());
-        ViewWidget->move(pos);
-
-        ViewWidget->setMinimumSize(100,100);
-        ViewWidget->show();
-        ViewWidget->setFocus();
     } else {
-        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(partType));
+        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(part->type));
     }
 }
 
@@ -3640,25 +3611,32 @@ void PGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void PGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mouseDoubleClickEvent(event);
-    if ( event->button() == Qt::LeftButton ) {
-        previewPart();
+    if ( event->button() == Qt::LeftButton )
+    {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
+        {
+            previewPart();
+        }
     }
 }
 
 void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    QString type = QFileInfo(part->type).completeBaseName();
-    QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
-    pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
-    pli->viewerOptions->ImageWidth  = part->pixmapWidth;
-    pli->viewerOptions->ImageHeight = part->pixmapHeight;
-    QString viewerPliPartKey        = QString("%1;%2;%3")
-                                             .arg(type).arg(part->color)
-                                             .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
-
-    if (gui->getViewerStepKey() != viewerPliPartKey) {
-        if (gui->saveBuildModification())
-            pli->loadTheViewer();
+    lcPreferences& Preferences = lcGetPreferences();
+    if (!Preferences.mPreviewEnabled) {
+        QString type = QFileInfo(part->type).completeBaseName();
+        QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+        pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+        pli->viewerOptions->ImageWidth  = part->pixmapWidth;
+        pli->viewerOptions->ImageHeight = part->pixmapHeight;
+        QString viewerPliPartKey        = QString("%1;%2;%3")
+                                                 .arg(type).arg(part->color)
+                                                 .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
+        if (gui->getViewerStepKey() != viewerPliPartKey) {
+            if (gui->saveBuildModification())
+                pli->loadTheViewer();
+        }
     }
 
     mouseIsDown = true;
@@ -3720,12 +3698,15 @@ void PGraphicsPixmapItem::contextMenuEvent(
   copyPliImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
 #endif
 
+  lcPreferences& Preferences = lcGetPreferences();
+  previewPartAction->setEnabled(Preferences.mPreviewEnabled);
+
 // Manipulate individual PLI images
 //  QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 //  QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
 //  QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
 
-  QAction *selectedAction   = menu.exec(event->screenPos());
+  QAction *selectedAction = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
@@ -3741,7 +3722,7 @@ void PGraphicsPixmapItem::contextMenuEvent(
                     bottom,
                     &pli->pliMeta.part.margin);
     } else if (selectedAction == previewPartAction) {
-      previewPart();
+      previewPart(true /*previewPartAction*/);
     } else if (selectedAction == hideAction) {
       hidePLIParts(this->part->instances);
     } else if (selectedAction == resetPartGroupAction) {

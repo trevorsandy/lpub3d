@@ -359,7 +359,7 @@ public:
     setToolTip(subModelToolTip(type));
   }
   QString subModelToolTip(QString type);
-  void previewSubModel();
+  void previewSubModel(bool previewSubmodelAction = false);
   SubModelPart *part;
   SubModel     *subModel;
   PlacementType parentRelativeType;

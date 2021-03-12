@@ -15,6 +15,9 @@
 #include "lc_texture.h"
 #include "lc_mesh.h"
 #include "lc_profile.h"
+/*** LPub3D Mod - preview widget ***/
+#include "previewwidget.h"
+/*** LPub3D Mod end ***/
 
 static QList<QGLWidget*> gWidgetList;
 
@@ -175,6 +178,67 @@ QSize lcQGLWidget::sizeHint() const
 	else
 		return preferredSize;
 }
+
+/*** LPub3D Mod - preview widget ***/
+void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& ViewPos, bool UseViewPos)
+{
+	lcPreferences& Preferences = lcGetPreferences();
+	PreviewWidget* Preview = reinterpret_cast<PreviewWidget*>(widget);
+
+	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
+
+	int Size[2] = { 300,200 };
+	if (Preferences.mPreviewSize == 400)
+	{
+		Size[0] = 400; Size[1] = 300;
+	}
+	preferredSize = QSize(Size[0], Size[1]);
+
+	float Scale = deviceScale();
+	Preview->mWidth = width()  * Scale;
+	Preview->mHeight = height() * Scale;
+
+	const QRect desktop = QApplication::desktop()->geometry();
+
+	QPoint pos;
+	if (UseViewPos)
+	{
+		pos = ViewPos;
+	}
+	else
+	{
+		switch (Preferences.mPreviewLocation)
+		{
+		case lcPreviewLocation::TopRight:
+			pos = mapToGlobal(ParentRect.topRight());
+			break;
+		case lcPreviewLocation::TopLeft:
+			pos = mapToGlobal(ParentRect.topLeft());
+			break;
+		case lcPreviewLocation::BottomRight:
+			pos = mapToGlobal(ParentRect.bottomRight());
+			break;
+		default:
+			pos = mapToGlobal(ParentRect.bottomLeft());
+			break;
+		}
+	}
+	if (pos.x() < desktop.left())
+		pos.setX(desktop.left());
+	if (pos.y() < desktop.top())
+		pos.setY(desktop.top());
+
+	if ((pos.x() + width()) > desktop.width())
+		pos.setX(desktop.width() - width());
+	if ((pos.y() + height()) > desktop.bottom())
+		pos.setY(desktop.bottom() - height());
+	move(pos);
+
+	setMinimumSize(100,100);
+	show();
+	setFocus();
+}
+/*** LPub3D Mod end ***/
 
 void lcQGLWidget::initializeGL()
 {

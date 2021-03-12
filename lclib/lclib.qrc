@@ -5,7 +5,7 @@
         <file alias="action_delete_16.png">resources/action_delete_16.png</file>
         <file alias="action_insert.png">resources/action_insert.png</file>
         <file alias="action_insert_16.png">resources/action_insert_16.png</file>
-		<file alias="action_color_picker.png">resources/action_color_picker.png</file>
+        <file alias="action_color_picker.png">resources/action_color_picker.png</file>
         <file alias="action_color_picker_16.png">resources/action_color_picker_16.png</file>
         <file alias="action_light.png">resources/action_light.png</file>
         <file alias="action_light_16.png">resources/action_light_16.png</file>
@@ -16,6 +16,8 @@
         <file alias="action_paint_16.png">resources/action_paint_16.png</file>
         <file alias="action_pan.png">resources/action_pan.png</file>
         <file alias="action_pan_16.png">resources/action_pan_16.png</file>
+        <file alias="action_preview_locked.png">resources/action_preview_locked.png</file>
+        <file alias="action_preview_unlocked.png">resources/action_preview_unlocked.png</file>        
         <file alias="action_previous.png">resources/action_previous.png</file>
         <file alias="action_roll.png">resources/action_roll.png</file>
         <file alias="action_rotate.png">resources/action_rotate.png</file>
@@ -36,7 +38,7 @@
         <file alias="application-vnd.leocad.svg">resources/application-vnd.leocad.svg</file>
         <file alias="clear_transform.png">resources/clear_transform.png</file>
         <file alias="cursor_camera.png">resources/cursor_camera.png</file>
-		<file alias="cursor_color_picker.png">resources/cursor_color_picker.png</file>
+        <file alias="cursor_color_picker.png">resources/cursor_color_picker.png</file>
         <file alias="cursor_delete.png">resources/cursor_delete.png</file>
         <file alias="cursor_insert.png">resources/cursor_insert.png</file>
         <file alias="cursor_light.png">resources/cursor_light.png</file>

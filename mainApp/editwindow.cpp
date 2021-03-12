@@ -170,59 +170,14 @@ void EditWindow::previewLine()
 
     PreviewWidget *Preview = new PreviewWidget();
 
-    lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
     if (Preview && ViewWidget) {
         if (!Preview->SetCurrentPiece(partType, colorCode))
             emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
-
-        QString windowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
-
-        ViewWidget->setWindowTitle(windowTitle);
-        int Size[2] = { 300,200 };
-        if (Preferences.mPreviewSize == 400) {
-            Size[0] = 400; Size[1] = 300;
-        }
-        ViewWidget->preferredSize = QSize(Size[0], Size[1]);
-        float Scale               = ViewWidget->deviceScale();
-        Preview->mWidth           = ViewWidget->width()  * Scale;
-        Preview->mHeight          = ViewWidget->height() * Scale;
-
-        const QRect desktop = QApplication::desktop()->geometry();
-
-        QPoint pos;
-        switch (Preferences.mPreviewLocation)
-        {
-        case lcPreviewLocation::TopRight:
-            pos = mapToGlobal(rect().topRight());
-            break;
-        case lcPreviewLocation::TopLeft:
-            pos = mapToGlobal(rect().topLeft());
-            break;
-        case lcPreviewLocation::BottomRight:
-            pos = mapToGlobal(rect().bottomRight());
-            break;
-        default:
-            pos = mapToGlobal(rect().bottomLeft());
-            break;
-        }
-        if (pos.x() < desktop.left())
-            pos.setX(desktop.left());
-        if (pos.y() < desktop.top())
-            pos.setY(desktop.top());
-
-        if ((pos.x() + ViewWidget->width()) > desktop.width())
-            pos.setX(desktop.width() - ViewWidget->width());
-        if ((pos.y() + ViewWidget->height()) > desktop.bottom())
-            pos.setY(desktop.bottom() - ViewWidget->height());
-        ViewWidget->move(pos);
-
-        ViewWidget->setMinimumSize(100,100);
-        ViewWidget->show();
-        ViewWidget->setFocus();
+        ViewWidget->SetPreviewPosition(rect());
     } else {
-        emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.")
-                                   .arg(partType));
+        emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(partType));
     }
 }
 
@@ -629,7 +584,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
         menu->addAction(previewLineAct);
         previewLineAct->setEnabled(false);
 
-        if (!isIncludeFile) {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && !isIncludeFile) {
             _subFileListPending = true;
             emit getSubFileListSig();
             while (_subFileListPending)

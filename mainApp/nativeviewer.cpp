@@ -486,8 +486,8 @@ void Gui::initiaizeNativeViewer()
     connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
     connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
     connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
-    connect(gMainWindow, SIGNAL(previewPieceSig(const QString &,int)),     this,        SLOT(previewPiece(const QString &,int)));
-    connect(gMainWindow, SIGNAL(togglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
+    connect(gMainWindow, SIGNAL(PreviewPieceSig(const QString &,int)),     this,        SLOT(previewPiece(const QString &,int)));
+    connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
 
     emit disable3DActionsSig();
 }
@@ -565,6 +565,7 @@ void Gui::create3DDockWindows()
     if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
         createPreviewWidget();
 
+    // Status Bar and Window Flags
     connect(viewerDockWindow,                    SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
     connect(viewerDockWindow,                    SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
     connect(gMainWindow->GetTimelineToolBar(),   SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));

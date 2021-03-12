@@ -25,6 +25,7 @@
  *
  ***************************************************************************/
 
+#include "QMessageBox"
 #include "lc_global.h"
 #include "previewwidget.h"
 #include "pieceinf.h"
@@ -36,31 +37,45 @@
 #include "lc_library.h"
 
 #include "lc_qglwidget.h"
-
 #include "lpubalert.h"
 #include "paths.h"
 
 PreviewWidget* gPreviewWidget;
 
-PreviewDockWidget::PreviewDockWidget(QMainWindow *parent)
-    :QMainWindow(parent)
+PreviewDockWidget::PreviewDockWidget(QMainWindow* Parent)
+    : QMainWindow(Parent)
 {
-    Preview    = new PreviewWidget();
-    ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
-    setCentralWidget(ViewWidget);
+    mPreview = new PreviewWidget();
+    mViewWidget = new lcQGLWidget(nullptr, mPreview, true/*IsView*/, true/*IsPreview*/);
+    setCentralWidget(mViewWidget);
     setMinimumSize(200, 200);
-    toolBar = addToolBar(tr("PreviewDescription"));
-    toolBar->setObjectName("PreviewDescription");
-    toolBar->setMovable(false);
-    label = new QLabel("");
-    toolBar->addWidget(label);
+
+    mLockAction = new QAction(QIcon(":/resources/action_preview_unlocked.png"),tr("Lock Preview"), this);
+    mLockAction->setCheckable(true);
+    mLockAction->setChecked(false);
+    mLockAction->setShortcut(tr("Ctrl+L"));
+    connect(mLockAction, SIGNAL(triggered()), this, SLOT(SetPreviewLock()));
+    SetPreviewLock();
+
+    mLabel = new QLabel(QString());
+
+    mToolBar = addToolBar(tr("PreviewDescription"));
+    mToolBar->setObjectName("PreviewDescription");
+    mToolBar->setMovable(false);
+    mToolBar->addAction(mLockAction);
+    mToolBar->addSeparator();
+    mToolBar->addWidget(mLabel);
 }
 
-bool PreviewDockWidget::SetCurrentPiece(const QString &PartType, int ColorCode)
+bool PreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
 {
-    label->setText("Loading...");
-    if (Preview->SetCurrentPiece(PartType, ColorCode)) {
-        label->setText(Preview->GetDescription());
+    if (mLockAction->isChecked())
+        return true;
+
+    mLabel->setText(tr("Loading..."));
+    if (mPreview->SetCurrentPiece(PartType, ColorCode))
+    {
+        mLabel->setText(mPreview->GetDescription());
         return true;
     }
     return false;
@@ -68,8 +83,25 @@ bool PreviewDockWidget::SetCurrentPiece(const QString &PartType, int ColorCode)
 
 void PreviewDockWidget::ClearPreview()
 {
-    Preview->ClearPreview();
-    label->setText(QString());
+    if (mPreview->GetActiveModel()->GetPieces().GetSize())
+        mPreview->ClearPreview();
+    mLabel->setText(QString());
+}
+
+void PreviewDockWidget::SetPreviewLock()
+{
+    bool Locked = mLockAction->isChecked();
+    if (Locked && mPreview->GetActiveModel()->GetPieces().IsEmpty())
+    {
+        mLockAction->setChecked(false);
+        return;
+    }
+    QIcon LockIcon(Locked ? ":/resources/action_preview_locked.png" : ":/resources/action_preview_unlocked.png");
+    QString State(Locked ? tr("Unlock") : tr("Lock"));
+    QString StatusTip(tr("%1 the preview display to %2 updates").arg(State).arg(Locked ? "enable" : "disable"));
+    mLockAction->setToolTip(tr("%1 Preview").arg(State));
+    mLockAction->setIcon(LockIcon);
+    mLockAction->setStatusTip(StatusTip);
 }
 
 PreviewWidget::PreviewWidget(bool subPreview)
@@ -94,6 +126,8 @@ PreviewWidget::~PreviewWidget()
         delete mCamera;
 
     delete mLoader;
+
+    gPreviewWidget = nullptr;
 }
 
 bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
@@ -103,9 +137,18 @@ bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
 
     if (Info)
     {
-        mIsModel     = Info->IsModel();
-        mDescription = Info->m_strDescription;
         lcModel* ActiveModel = GetActiveModel();
+        for (lcPiece* ModelPiece : ActiveModel->GetPieces())
+        {
+            if (Info == ModelPiece->mPieceInfo)
+            {
+                int ModelColorCode = ModelPiece->mColorCode;
+                if (ModelColorCode == ColorCode)
+                    return true;
+            }
+        }
+        mIsModel = Info->IsModel();
+        mDescription = Info->m_strDescription;
 
         ActiveModel->SelectAllPieces();
         ActiveModel->DeleteSelectedObjects();
@@ -134,8 +177,6 @@ bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
 
         mLoader->SetActiveModel(0);
         lcGetPiecesLibrary()->RemoveTemporaryPieces();
-        if (ColorCode != LDRAW_MATERIAL_COLOUR)
-            mModel->SetUnoffPartColorCode(ColorCode);
         mModel = mLoader->GetActiveModel();
         if (!mModel->GetProperties().mDescription.isEmpty())
             mDescription = mModel->GetProperties().mDescription;
@@ -151,7 +192,8 @@ bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
 
 void PreviewWidget::ClearPreview()
 {
-    mLoader = new Project(true/*isPreview*/);
+    delete mLoader;
+    mLoader = new Project(true/*IsPreview*/);
     mLoader->SetActiveModel(0);
     mModel = mLoader->GetActiveModel();
     lcGetPiecesLibrary()->UnloadUnusedParts();
@@ -162,7 +204,6 @@ void PreviewWidget::SetDefaultCamera()
 {
     if (!mCamera || !mCamera->IsSimple())
         mCamera = new lcCamera(true);
-
     mCamera->SetViewpoint(LC_VIEWPOINT_HOME);
 }
 
@@ -256,7 +297,7 @@ void PreviewWidget::DrawViewport()
 
 void PreviewWidget::DrawAxes()
 {
-    //	glClear(GL_DEPTH_BUFFER_BIT);
+    //  glClear(GL_DEPTH_BUFFER_BIT);
 
     const float Verts[28 * 3] =
     {
@@ -306,14 +347,12 @@ void PreviewWidget::DrawAxes()
     glEnable(GL_BLEND);
 
     float TextBuffer[6 * 5 * 3];
-/*** Native viewer camera globe mod, switch Y and Z axis with -Y(LC -Z) in the up direction ***/
     lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
     gTexFont.GetGlyphTriangles(PosX.x, PosX.y, PosX.z, 'X', TextBuffer);
     lcVector3 PosY = lcMul30(lcVector3(0.0f, 25.0f, 0.0f), WorldViewMatrix);
     gTexFont.GetGlyphTriangles(PosY.x, PosY.y, PosY.z, 'Z', TextBuffer + 5 * 6);
     lcVector3 PosZ = lcMul30(lcVector3(0.0f, 0.0f, 25.0f), WorldViewMatrix);
     gTexFont.GetGlyphTriangles(PosZ.x, PosZ.y, PosZ.z, 'Y', TextBuffer + 5 * 6 * 2);
-/*** Camera globe mod end ***/
 
     mContext->SetVertexBufferPointer(TextBuffer);
     mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
@@ -567,7 +606,7 @@ void PreviewWidget::OnRightButtonDown()
         OnUpdateCursor();
     }
 
-    OnButtonDown(lcTrackButton::Middle);
+    OnButtonDown(lcTrackButton::Right);
 }
 
 void PreviewWidget::OnRightButtonUp()

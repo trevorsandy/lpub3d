@@ -690,9 +690,10 @@ void lcPartSelectionListView::startDrag(Qt::DropActions SupportedActions)
 void lcPartSelectionListView::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	QAbstractItemView::mouseDoubleClickEvent(event);
-	if ( event->button() == Qt::LeftButton ) {
+	if ( event->button() == Qt::LeftButton )
+	{
 		PreviewSelection(currentIndex().row());
-	 }
+	}
 	return;
 }
 /*** LPub3D Mod end ***/
@@ -709,11 +710,10 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 	if (!Info)
 		return;
 
-	QString PartType  = Info->mFileName;
 	quint32 ColorCode = lcGetColorCode(mListModel->GetColorIndex());
 
 	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
-		emit gMainWindow->previewPieceSig(PartType, ColorCode);
+		emit gMainWindow->PreviewPieceSig(Info->mFileName, ColorCode);
 		return;
 	}
 
@@ -722,56 +722,13 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 	lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
 	if (Preview && ViewWidget) {
-		if (!Preview->SetCurrentPiece(PartType, ColorCode))
-			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(PartType));
-
-		QString WindowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
-
-		ViewWidget->setWindowTitle(WindowTitle);
-		int Size[2] = { 300,200 };
-		if (Preferences.mPreviewSize == 400) {
-			Size[0] = 400; Size[1] = 300;
-		}
-		ViewWidget->preferredSize = QSize(Size[0], Size[1]);
-		float Scale               = ViewWidget->deviceScale();
-		Preview->mWidth           = ViewWidget->width()  * Scale;
-		Preview->mHeight          = ViewWidget->height() * Scale;
-
-		const QRect desktop = QApplication::desktop()->geometry();
-
-		QPoint pos;
-		switch (Preferences.mPreviewLocation)
-		{
-		case lcPreviewLocation::TopRight:
-			pos = mapToGlobal(rect().topRight());
-			break;
-		case lcPreviewLocation::TopLeft:
-			pos = mapToGlobal(rect().topLeft());
-			break;
-		case lcPreviewLocation::BottomRight:
-			pos = mapToGlobal(rect().bottomRight());
-			break;
-		default:
-			pos = mapToGlobal(rect().bottomLeft());
-			break;
-		}
-		if (pos.x() < desktop.left())
-			pos.setX(desktop.left());
-		if (pos.y() < desktop.top())
-			pos.setY(desktop.top());
-
-		if ((pos.x() + ViewWidget->width()) > desktop.width())
-			pos.setX(desktop.width() - ViewWidget->width());
-		if ((pos.y() + ViewWidget->height()) > desktop.bottom())
-			pos.setY(desktop.bottom() - ViewWidget->height());
-		ViewWidget->move(pos);
-
-		ViewWidget->setMinimumSize(100,100);
-		ViewWidget->show();
-		ViewWidget->setFocus();
-	} else {
-		emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.")
-								   .arg(Info->mFileName));
+		if (!Preview->SetCurrentPiece(Info->mFileName, ColorCode))
+			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(Info->mFileName));
+		ViewWidget->SetPreviewPosition(rect());
+	}
+	else
+	{
+		emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(Info->mFileName));
 	}
 }
 /*** LPub3D Mod end ***/

@@ -448,8 +448,8 @@ public slots:
 /*** LPub3D Mod - signals ***/
 signals:
 /*** LPub3D Mod - preview widget ***/
-	void previewPieceSig(const QString &, int);
-	void togglePreviewWidgetSig(bool);
+	void PreviewPieceSig(const QString &, int);
+	void TogglePreviewWidgetSig(bool);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - rotate step signals ***/
 	QVector<float> GetRotStepMeta();   // used to capture step meta angles

@@ -1196,78 +1196,48 @@ QString SMGraphicsPixmapItem::subModelToolTip(QString type)
   return toolTip;
 }
 
-void SMGraphicsPixmapItem::previewSubModel()
+void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
 {
-    lcPreferences& Preferences = lcGetPreferences();
-    if (!Preferences.mPreviewEnabled)
+    if (!part)
         return;
 
-    int colorCode        = part->color.toInt();
-    QString partType     = part->type;
-
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
-        emit gui->previewPieceSig(partType, colorCode);
+    lcPreferences& Preferences = lcGetPreferences();
+    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewSubmodelAction) {
+        emit gui->previewPieceSig(part->type, part->color.toInt());
         return;
     }
 
     PreviewWidget *Preview = new PreviewWidget();
 
-    lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
     if (Preview && ViewWidget) {
-        if (!Preview->SetCurrentPiece(partType, colorCode))
-            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
-
-        QString windowTitle = QString("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part");
-
-        ViewWidget->setWindowTitle(windowTitle);
-        int Size[2] = { 300,200 };
-        if (Preferences.mPreviewSize == 400) {
-            Size[0] = 400; Size[1] = 300;
+        if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
+            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
+        } else {
+            QPointF sceneP;
+            switch (Preferences.mPreviewLocation)
+            {
+            case lcPreviewLocation::TopRight:
+                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topRight());
+                break;
+            case lcPreviewLocation::TopLeft:
+                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topLeft());
+                break;
+            case lcPreviewLocation::BottomRight:
+                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomRight());
+                break;
+            default:
+                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
+                break;
+            }
+            QGraphicsView *view = subModel->background->scene()->views().first();
+            QPoint viewP = view->mapFromScene(sceneP);
+            QPoint pos = view->viewport()->mapToGlobal(viewP);
+            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
         }
-        ViewWidget->preferredSize = QSize(Size[0], Size[1]);
-        float Scale               = ViewWidget->deviceScale();
-        Preview->mWidth           = ViewWidget->width()  * Scale;
-        Preview->mHeight          = ViewWidget->height() * Scale;
-
-        const QRect desktop = QApplication::desktop()->geometry();
-
-        QGraphicsView *view = subModel->background->scene()->views().first();
-        QPointF sceneP;
-        switch (Preferences.mPreviewLocation)
-        {
-        case lcPreviewLocation::TopRight:
-            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topRight());
-            break;
-        case lcPreviewLocation::TopLeft:
-            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topLeft());
-            break;
-        case lcPreviewLocation::BottomRight:
-            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomRight());
-            break;
-        default:
-            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
-            break;
-        }
-        QPoint viewP = view->mapFromScene(sceneP);
-        QPoint pos = view->viewport()->mapToGlobal(viewP);
-        if (pos.x() < desktop.left())
-            pos.setX(desktop.left());
-        if (pos.y() < desktop.top())
-            pos.setY(desktop.top());
-
-        if ((pos.x() + ViewWidget->width()) > desktop.width())
-            pos.setX(desktop.width() - ViewWidget->width());
-        if ((pos.y() + ViewWidget->height()) > desktop.bottom())
-            pos.setY(desktop.bottom() - ViewWidget->height());
-        ViewWidget->move(pos);
-
-        ViewWidget->setMinimumSize(100,100);
-        ViewWidget->show();
-        ViewWidget->setFocus();
     } else {
-        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.")
-                                   .arg(partType));
+        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(part->type));
     }
 }
 
@@ -1284,6 +1254,9 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
   QAction *scaleAction  = commonMenus.scaleMenu(menu,pl);
 
+  lcPreferences& Preferences = lcGetPreferences();
+  previewSubModelAction->setEnabled(Preferences.mPreviewEnabled);
+
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -1294,7 +1267,7 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   Where bottom = subModel->bottom;
 
   if (selectedAction == previewSubModelAction) {
-    previewSubModel();
+    previewSubModel(true /*previewSubmodelAction*/);
   } else if (selectedAction == marginAction) {
     changeMargins(pl+" Margins",
                   top,
@@ -1325,17 +1298,24 @@ void SMGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void SMGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mouseDoubleClickEvent(event);
-    if ( event->button() == Qt::LeftButton ) {
-        previewSubModel();;
+    if ( event->button() == Qt::LeftButton )
+    {
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
+        {
+            previewSubModel();
+        }
     }
-
 }
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey) {
-        if (gui->saveBuildModification())
-            subModel->loadTheViewer();
+    lcPreferences& Preferences = lcGetPreferences();
+    if (!Preferences.mPreviewEnabled) {
+        if (gui->getViewerStepKey() !=  subModel->viewerSubmodelKey) {
+            if (gui->saveBuildModification())
+                subModel->loadTheViewer();
+        }
     }
 
     mouseIsDown = true;
