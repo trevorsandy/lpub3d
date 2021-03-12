@@ -57,6 +57,11 @@
 
 #include "QsLog.h"
 
+// Set to enable write parts output file for debugging // TODO: delete from header
+#ifndef WRITE_PARTS_DEBUG
+#define WRITE_PARTS_DEBUG
+#endif
+
 #define FIRST_STEP 1
 #define FIRST_PAGE 1
 
@@ -518,7 +523,7 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  auto drawPageStatus = [this, &opts, &multiStep, &coverPage, &topOfStep] (int status) {
+  auto drawPageStatus = [this, &opts, &multiStep, &coverPage, &topOfStep] (draw_page_stat status) {
       int charWidth = QFontMetrics(font()).averageCharWidth();
       QFontMetrics currentMetrics(font());
       QString elidedModelName = currentMetrics.elidedText(opts.current.modelName,
@@ -657,7 +662,7 @@ int Gui::drawPage(
       const QString outfileName = QString("%1/%2_%3.ldr")
                    .arg(filePath)
                    .arg(nameInsert)
-                   .arg(QString("page_%1_step_%2_model_%3_line_%4%5")
+                   .arg(QString("page_%1_step_%2_model_%3_line_%4")
                         .arg(displayPageNum)        // Page Number
                         .arg(opts.stepNum)          // Step Number
                         .arg(topOfStep.modelIndex)  // ModelIndex
@@ -775,7 +780,7 @@ int Gui::drawPage(
               color = tokens[1];
             }
 
-          if (! buildModIgnore){
+          if (! buildModIgnore) {
 
               CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
               partsAdded = true;
@@ -820,6 +825,7 @@ int Gui::drawPage(
               if (! isSubmodel(type) || curMeta.LPub.pli.includeSubs.value()) {
 
                   /*  check if alternative part exist and replace */
+
                   if(PliSubstituteParts::hasSubstitutePart(type)) {
 
                       QStringList substituteToken;
@@ -831,12 +837,16 @@ int Gui::drawPage(
                         }
 
                       line = substituteToken.join(" ");
-                    }
+                  }
+
+                  /* remove part from buffer parts if in step group and buffer load */
 
                   if (opts.bfxStore2 && bfxLoad) {
+                      // bool removed = false;
                       for (int i = 0; i < opts.bfxParts.size(); i++) {
                           if (opts.bfxParts[i] == colorType) {
                               opts.bfxParts.removeAt(i);
+                              // removed = true;
                               break;
                             }
                         }
@@ -845,9 +855,9 @@ int Gui::drawPage(
                       // but does not work if two buffers are used one after another in a multi step page.
                       // Better to make the user use the !LPUB PLI BEGIN IGN / END
 
-                      //if ( ! removed )  {
+                      // if ( ! removed )  {
                       opts.pliParts << Pli::partLine(line,opts.current,steps->meta);
-                      //}
+                      // }
                     } else {
 
                       opts.pliParts << Pli::partLine(line,opts.current,steps->meta);
@@ -1612,7 +1622,7 @@ int Gui::drawPage(
               break;
 
             case StepGroupDividerRc:
-              if (range) {
+              if (multiStep && range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
                   dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
                   set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,StepGroupDividerRc);
@@ -3477,7 +3487,7 @@ int Gui::findPage(
       // save continuous step number from current model
       // pass continuous step number to drawPage
       if (opts.contStepNumber) {
-          if (! countInstances && isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
+          if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && ! countInstances &&
              (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) {
               opts.contStepNumber += ! coverPage && ! stepPage;
           }
@@ -3487,7 +3497,7 @@ int Gui::findPage(
           }
           saveContStepNum = opts.contStepNumber;
       }
-      if (opts.groupStepNumber && isPreDisplayPage &&
+      if (isPreDisplayPage && opts.groupStepNumber &&
           meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
           opts.contStepNumber += ! coverPage && ! stepPage;
           saveGroupStepNum     = opts.contStepNumber;
@@ -3570,7 +3580,6 @@ int Gui::getBOMParts(
           Where   current,
     const QString &addLine)
 {
-  QString buildModKey;
   bool partIgnore   = false;
   bool pliIgnore    = false;
   bool synthBegin   = false;
@@ -3779,7 +3788,6 @@ int Gui::getBOMParts(
                */
 
             case BuildModBeginRc:
-              buildModKey    = page.meta.LPub.buildMod.key();
               buildModIgnore = true;
               break;
 

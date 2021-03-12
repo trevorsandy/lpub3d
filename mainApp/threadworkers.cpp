@@ -2987,9 +2987,9 @@ int CountPageWorker::countPage(
   }
 
   Rc  rc;
-  int partsAdded         = 0;
-  int countInstances     = meta.LPub.countInstance.value();
-  bool localSubmodel     = ! opts.current.lineNumber;
+  int partsAdded     = 0;
+  int countInstances = meta.LPub.countInstance.value();
+  bool localSubmodel = ! opts.current.lineNumber;
 
   if (localSubmodel || modelStack.size()) {
       if (localSubmodel)
@@ -3003,16 +3003,18 @@ int CountPageWorker::countPage(
   gui->saveStepPageNum = gui->stepPageNum;
 
   // buffer exchange and part group vars
-  QStringList                  bfxParts;
-  QHash<QString, QStringList>  bfx;
-  QHash<QString, QVector<int>> bfxLineTypeIndexes;
-  QList<PliPartGroupMeta>      emptyPartGroups;
+  QStringList             bfxParts;
+  QList<PliPartGroupMeta> emptyPartGroups;
 
   // include file vars
   Where includeHere;
-  Rc includeFileRc        = EndOfFileRc;
-  bool inserted           = false;
-  bool resetIncludeRc     = false;
+  Rc includeFileRc    = EndOfFileRc;
+  bool inserted       = false;
+  bool resetIncludeRc = false;
+
+  bool buildModIgnore = false;
+  bool buildModValid  = false;
+  QString buildModKey;
 
   int numLines = ldrawFile->size(opts.current.modelName);
 
@@ -3253,7 +3255,7 @@ int CountPageWorker::countPage(
                   bfxStore1 = false;
                   if ( ! bfxStore2) {
                       bfxParts.clear();
-                    } // ! BfxStore2
+                  } // ! BfxStore2
 
                 } // PartsAdded && ! NoStep
 

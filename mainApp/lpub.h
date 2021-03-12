@@ -372,10 +372,6 @@
 #ifndef PAGE_SIZE_DEBUG
 //#define PAGE_SIZE_DEBUG
 #endif
-// Set to enable write parts output file for debugging
-#ifndef WRITE_PARTS_DEBUG
-//#define WRITE_PARTS_DEBUG
-#endif
 
 // PageSize default entry
 #ifndef DEF_SIZE

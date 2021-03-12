@@ -3227,17 +3227,14 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
             if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
             {
-                emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.<br>"
-                                                       "Ensure Field of View (default is 30), ZPlane Near (default is 25), "
-                                                       "ZPlane Far (default is 50000) and Camera Distance Factor are properly "
-                                                       "configured for the Native Renderer - see log for current settings")
+                emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.")
                                      .arg(ImageType)
                                      .arg(O->ExportMode == EXPORT_NONE ?
                                               QString("image") :
                                               QString("%1 object")
                                               .arg(nativeExportNames[gui->exportMode]))
-                        .arg(O->OutputFileName)
-                        .arg(Writer.errorString()));
+                                     .arg(O->OutputFileName)
+                                     .arg(Writer.errorString()));
                 rc = false;
             }
             else
