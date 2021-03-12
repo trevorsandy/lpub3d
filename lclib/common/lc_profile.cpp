@@ -77,7 +77,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "GridLines", 1),                                                // LC_PROFILE_GRID_LINES
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                          // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                        // LC_PROFILE_GRID_LINE_COLOR
-	lcProfileEntry("Settings", "AASamples", 1),                                                // LC_PROFILE_ANTIALIASING_SAMPLES
+	lcProfileEntry("Settings", "AASamples", 4),                                                // LC_PROFILE_ANTIALIASING_SAMPLES                      /*** LPub3D Mod - Set default antialiasing ***/
 	lcProfileEntry("Settings", "ViewSphereEnabled", 1),                                        // LC_PROFILE_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TopRight),     // LC_PROFILE_VIEW_SPHERE_LOCATION
 	lcProfileEntry("Settings", "ViewSphereSize", 100),                                         // LC_PROFILE_VIEW_SPHERE_SIZE

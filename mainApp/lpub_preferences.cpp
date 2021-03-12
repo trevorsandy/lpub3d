@@ -1070,9 +1070,10 @@ void Preferences::loggingPreferences()
 
 }
 
-void Preferences::lpub3dLibPreferences(bool force)
+void Preferences::lpub3dLibPreferences(bool browse)
 {
-    emit Application::instance()->splashMsgSig("5% - Locate LDraw archive libraries...");
+    if (modeGUI && ! lpub3dLoaded)
+        emit Application::instance()->splashMsgSig("5% - Locate LDraw archive libraries...");
 
 #ifdef Q_OS_WIN
     QString filter(QFileDialog::tr("Archive (*.zip *.bin);;All Files (*.*)"));
@@ -1123,7 +1124,7 @@ void Preferences::lpub3dLibPreferences(bool force)
     }
 
     // If we have a valid library archive file, update the 3DViewer parts_library variable, else clear the registry value
-    if (! lpub3dLibFile.isEmpty() && ! force) {
+    if (! lpub3dLibFile.isEmpty() && ! browse) {
         fileInfo.setFile(lpub3dLibFile);
 
         if (fileInfo.exists()) {
@@ -1137,11 +1138,11 @@ void Preferences::lpub3dLibPreferences(bool force)
     }
 
     // Request to open a dialogue to select library path
-    if (! lpub3dLibFile.isEmpty() && force){
+    if (/*! lpub3dLibFile.isEmpty() && */ browse){
 
         QString result = QFileDialog::getOpenFileName(nullptr,
                                                       QFileDialog::tr("Select LDraw Library Archive"),
-                                                      lpub3dLibFile,
+                                                      lpub3dLibFile.isEmpty() ? "." : lpub3dLibFile,
                                                       filter);
         if (! result.isEmpty())
             lpub3dLibFile = QDir::toNativeSeparators(result);
@@ -1353,19 +1354,20 @@ void Preferences::lpub3dLibPreferences(bool force)
     }
 }
 
-void Preferences::ldrawPreferences(bool force)
+void Preferences::ldrawPreferences(bool browse)
 {
-    emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
+    if (modeGUI && ! lpub3dLoaded) 
+        emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
 
     QSettings Settings;
     ldrawLibPath = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey)).toString();
 
     QDir ldrawDir(ldrawLibPath);
-    if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || force) {      // first check
+    if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || browse) {      // first check
 
         QString returnMessage = QString();
 
-        if (! force ) {                                                               // second check - no force
+        if (! browse ) {                                                               // second check - no browse
             ldrawLibPath.clear();
             Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey));
 
@@ -1379,14 +1381,14 @@ void Preferences::ldrawPreferences(bool force)
 
             if (portableDistribution &&
                (ldrawLibPath.isEmpty() ||
-               ! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists())){       // third check - no force
+               ! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists())){       // third check - no browse
                 ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath).arg(validLDrawDir));
                 ldrawDir.setPath(ldrawLibPath);
             }
         }
 
-        if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || force) {  // second check - force
-            if (! force) {                                                            // fourth check - no force
+        if (! QFileInfo(ldrawDir.absolutePath()+validLDrawPart).exists() || browse) {  // fourth check - browse & no browse
+            if (! browse) {                                                            // fourth check - no browse
                 ldrawLibPath.clear();
 
                 /* Path Checks */
@@ -1545,14 +1547,14 @@ void Preferences::ldrawPreferences(bool force)
                 }
             }
 
-            if (! ldrawLibPath.isEmpty() && force && modeGUI) {
+            if (/*! ldrawLibPath.isEmpty() && */ browse && modeGUI) { // fourth check - browse
 #ifdef Q_OS_MAC
-                if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
+                if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
                 QString result = QFileDialog::getExistingDirectory(nullptr,
                                                                    QFileDialog::tr("Select LDraw Directory"),
-                                                                   ldrawLibPath,
+                                                                   ldrawLibPath.isEmpty() ? "." : ldrawLibPath,
                                                                    QFileDialog::ShowDirsOnly |
                                                                    QFileDialog::DontResolveSymlinks);
                 if (! result.isEmpty()) {
@@ -1574,7 +1576,7 @@ void Preferences::ldrawPreferences(bool force)
 
                 if (modeGUI) {
 #ifdef Q_OS_MAC
-                    if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
+                    if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                         Application::instance()->splash->hide();
 #endif
                     QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1636,7 +1638,7 @@ void Preferences::ldrawPreferences(bool force)
 
             if (modeGUI) {
 #ifdef Q_OS_MAC
-                if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isVisible())
+                if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
 #endif
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1670,7 +1672,7 @@ void Preferences::ldrawPreferences(bool force)
 #endif
                     altLDConfigPath = QFileDialog::getOpenFileName(nullptr,
                                                                    QFileDialog::tr("Select LDRaw LDConfig file"),
-                                                                   ldrawLibPath,
+                                                                   ldrawLibPath.isEmpty() ? "." : ldrawLibPath,
                                                                    filter);
 
                     if (! altLDConfigPath.isEmpty()) {
@@ -4042,10 +4044,6 @@ void Preferences::viewerPreferences()
         lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, lpub3dLibFile);
 
     lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
-
-    lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, 8);
-
-    lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, false);
 }
 
 bool Preferences::getPreferences()
