@@ -180,6 +180,7 @@ protected:
     bool               _modelFileEdit;
     bool               _subFileListPending;
     bool               _contentLoaded;
+    bool               _contentLoading;
     QString            _curSubFile;         // currently displayed submodel
     QStringList        _subFileList;
     QStringList        _pageContent;

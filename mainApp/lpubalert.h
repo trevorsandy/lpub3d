@@ -28,6 +28,7 @@ class LPubAlert : public QObject
 public:
   LPubAlert();
   ~LPubAlert();
+  static QString elapsedTime(const qint64 &duration);
 signals:
   void messageSig(LogType logType, QString message);
 private:

@@ -1077,7 +1077,7 @@ void Gui::setHighlightStepFromCommandMeta()
 //  event->accept();
 //}
 
-QString Gui::elapsedTime(const qint64 &duration){
+QString Gui::elapsedTime(const qint64 &duration) {
 
     qint64 elapsed = duration;
     int milliseconds = int(elapsed % 1000);

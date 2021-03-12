@@ -1086,6 +1086,9 @@ void EditWindow::pageUpDown(
   QTextCursor::MoveOperation op,
   QTextCursor::MoveMode      moveMode)
 {
+  disconnect(verticalScrollBar, SIGNAL(valueChanged(int)),
+             this,              SLOT(verticalScrollValueChanged(int)));
+
   QTextCursor cursor = _textEdit->textCursor();
   bool moved = false;
   qreal lastY = _textEdit->cursorRect(cursor).top();
@@ -1109,6 +1112,9 @@ void EditWindow::pageUpDown(
       verticalScrollBar->triggerAction(QAbstractSlider::SliderPageStepSub);
     }
   }
+
+  connect(verticalScrollBar, SIGNAL(valueChanged(int)),
+          this,              SLOT(verticalScrollValueChanged(int)));
 }
 
 void EditWindow::updateSelectedParts() {
@@ -1227,16 +1233,26 @@ void EditWindow::showLine(int lineNumber, int lineType)
   if (Preferences::editorBufferedPaging &&
       showLineNumber > Preferences::editorLinesPerPage &&
       showLineNumber > _pageIndx) {
-      int linesNeeded = (showLineNumber - _pageIndx );
-      int jump = linesNeeded / Preferences::editorLinesPerPage;
-      if (!(linesNeeded % Preferences::editorLinesPerPage))
-          jump++;
-      for (int i = 0; i < jump; i++)
-          loadPagedContent();
+      int linesNeeded = showLineNumber - _pageIndx;
+      int pages = linesNeeded / Preferences::editorLinesPerPage;
+
+      if ((linesNeeded % Preferences::editorLinesPerPage))
+          pages++;
+
+      if (pages) {
+          emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...").arg(linesNeeded));
+          QApplication::processEvents();
+
+          for (int i = 0; i < pages && !_contentLoading; i++)
+              loadPagedContent();
+
+          emit lpubAlert->messageSig(LOG_STATUS,QString());
+          QApplication::processEvents();
 #ifdef QT_DEBUG_MODE
-      emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine jump %1 %2 to line %3 from line %4.")
-                                 .arg(jump).arg(jump == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
+          emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
+                                     .arg(pages).arg(pages == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
 #endif
+      }
   }
 
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
@@ -1292,6 +1308,7 @@ void EditWindow::displayFile(
   fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
   isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
+  _pageIndx      = 0;
   _subFileListPending = true;
   stepLines      = lineScope;
   savedSelection.clear();
@@ -1358,17 +1375,12 @@ void EditWindow::displayFile(
           disconnect(_textEdit, SIGNAL(textChanged()),
                      this,      SLOT(enableSave()));
 
-          int lineCount = 0;
-          if (Preferences::editorBufferedPaging && lineCount >= Preferences::editorLinesPerPage) {
-              _pageIndx = 0;
-              while(!in.atEnd()) {
+          if (Preferences::editorBufferedPaging && ldrawFile->size(fileName) > Preferences::editorLinesPerPage) {
+              _textEdit->document()->clear();
+              while(!in.atEnd())
                   _pageContent.append(in.readLine());
-                  lineCount++;
-              }
               loadPagedContent();
-          }
-          else
-          {
+          } else {
               _textEdit->setPlainText(in.readAll());
           }
 
@@ -1384,11 +1396,17 @@ void EditWindow::displayFile(
                                    .arg(isIncludeFile ? "Include" : "Model").arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
       } else {
           if (Preferences::editorBufferedPaging && ldrawFile->size(fileName) > Preferences::editorLinesPerPage) {
-              _pageIndx    = 0;
+              _textEdit->document()->clear();
               _pageContent = ldrawFile->contents(fileName);
               loadPagedContent();
           } else {
+              QElapsedTimer t; t.start();
              _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
+#ifdef QT_DEBUG_MODE
+             emit lpubAlert->messageSig(LOG_DEBUG,QString("Load editor content %1 lines - %2..")
+                                        .arg(ldrawFile->size(fileName))
+                                        .arg(lpubAlert->elapsedTime(t.elapsed())));
+#endif
           }
       }
   }
@@ -1594,47 +1612,103 @@ void EditWindow::preferences()
 
 void  EditWindow::verticalScrollValueChanged(int value)
 {
-    if (_contentLoaded)
+    if (_contentLoaded || _contentLoading)
         return;
 
-    int scrollMaximum = verticalScrollBar->maximum();
+    if (value > (verticalScrollBar->maximum() * 0.90 /*trigger load at 90% page scroll*/)) {
+        emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...")
+                                   .arg(Preferences::editorLinesPerPage));
+        QApplication::processEvents();
 
-    // we load a new page at 90 percent of the page scroll
-    if (value > (scrollMaximum * 0.90))
         loadPagedContent();
+
+        emit lpubAlert->messageSig(LOG_STATUS,QString());
+        QApplication::processEvents();
+    }
 }
 
 void EditWindow::loadPagedContent()
 {
-   int maxPageLines = _pageIndx + Preferences::editorLinesPerPage;
-   int contentSize  = qMin(maxPageLines, _pageContent.size());
+   _contentLoading = true;
 
-   QString part;
-   for (; _pageIndx < contentSize; _pageIndx++)
-       part.append(_pageContent.at(_pageIndx)+'\n');
+   QElapsedTimer t; t.start();
+#ifdef QT_DEBUG_MODE
+   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load paged content %1 lines - start...")
+                              .arg(_pageContent.size()));
+#endif
+
+   bool initialLoad   = _textEdit->document()->isEmpty();
+   int linesPerPage   = Preferences::editorLinesPerPage - (initialLoad ? 1 : 0);
+   int nextIndx       = qMin(linesPerPage, (_pageContent.size() - _pageIndx) - 1);
+   int maxPageIndx    = _pageIndx + nextIndx;
+   const QString page = _pageContent.mid(_pageIndx, nextIndx).join('\n');
+
+#ifdef QT_DEBUG_MODE
+   int pageLineCount = page.count("\n") + (initialLoad ? 2 : 1);
+   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page line count %1 - %2")
+                              .arg(pageLineCount)
+                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+#endif
 
    if (modelFileEdit() && !fileName.isEmpty())
        fileWatcher.removePath(fileName);
 
-   disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-              this,                  SLOT(  contentsChange(int,int,int)));
-   disconnect(_textEdit, SIGNAL(textChanged()),
-              this,      SLOT(enableSave()));
+   disconnect(_textEdit->document(),SIGNAL(contentsChange(int,int,int)),
+              this,                 SLOT(  contentsChange(int,int,int)));
+   disconnect(_textEdit,            SIGNAL(cursorPositionChanged()),
+              this,                 SLOT(  highlightCurrentLine()));
+   disconnect(_textEdit,            SIGNAL(textChanged()),
+              this,                 SLOT(  enableSave()));
+   disconnect(_textEdit,            SIGNAL(textChanged()),
+              _textEdit,            SLOT(  updateLineNumberArea()));
+   disconnect(_textEdit,            SIGNAL(cursorPositionChanged()),
+              _textEdit,            SLOT(  updateLineNumberArea()));
 
-   _textEdit->insertPlainText(part);
+   verticalScrollBar->setMaximum(verticalScrollBar->maximum() + nextIndx);
 
-   connect(_textEdit,  SIGNAL(textChanged()),
-           this,       SLOT(enableSave()));
-   connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-           this,                  SLOT(  contentsChange(int,int,int)));
+   if (initialLoad) {
+       _textEdit->setPlainText(page);
+#ifdef QT_DEBUG_MODE
+   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page set %1 plain text lines - %2")
+                              .arg(pageLineCount)
+                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+#endif
+   } else {
+       _textEdit->append(page);
+#ifdef QT_DEBUG_MODE
+   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page append %1 text lines - %2")
+                              .arg(pageLineCount)
+                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+#endif
+   }
+
+   _contentLoaded = maxPageIndx >= _pageContent.size() - 1;
+
+   emit lpubAlert->messageSig(LOG_TRACE,QString("Load page of %1 lines from %2 to %3, content lines %4, final page: %5 - %6")
+                              .arg(pageLineCount)
+                              .arg(_pageIndx + 1)
+                              .arg(maxPageIndx + 1)
+                              .arg(_pageContent.size())
+                              .arg(_contentLoaded ? "Yes" : "No")
+                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+
+   _pageIndx = maxPageIndx;
+
+   connect(_textEdit->document(),   SIGNAL(contentsChange(int,int,int)),
+           this,                    SLOT(  contentsChange(int,int,int)));
+   connect(_textEdit,               SIGNAL(cursorPositionChanged()),
+           this,                    SLOT(  highlightCurrentLine()));
+   connect(_textEdit,               SIGNAL(textChanged()),
+           this,                    SLOT(  enableSave()));
+   connect(_textEdit,               SIGNAL(textChanged()),
+           _textEdit,               SLOT(  updateLineNumberArea()));
+   connect(_textEdit,               SIGNAL(cursorPositionChanged()),
+           _textEdit,               SLOT(  updateLineNumberArea()));
 
    if (modelFileEdit() && !fileName.isEmpty())
        fileWatcher.addPath(fileName);
 
-   _contentLoaded = maxPageLines > _pageContent.size();
-
-   emit lpubAlert->messageSig(LOG_TRACE,QString("Paged content at index: [%1], total lines: [%2], max lines: [%3], load completed: [%4]")
-                                                .arg(_pageIndx).arg(_pageContent.size()).arg(maxPageLines).arg(_contentLoaded ? "Yes" : "No"));
+   _contentLoading = false;
 }
 
 /*
