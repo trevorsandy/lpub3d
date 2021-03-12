@@ -488,7 +488,7 @@ int Gui::drawPage(
   page.coverPage = false;
 
   Rc gprc = OkRc;
-  Rc rc;
+  Rc rc   = OkRc;
   int retVal = 0;
 
   // include file vars
@@ -853,6 +853,7 @@ int Gui::drawPage(
                      than their parent's scale, we want to scan ahead and find out the
                      parent's scale and "render" the submodels at the parent's scale */
 
+                  Rc rrc = OkRc;
                   Meta tmpMeta = curMeta;
                   Where walk = opts.current;
                   for (++walk; walk < numLines; ++walk) {
@@ -860,8 +861,8 @@ int Gui::drawPage(
                       QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
                       split(scanLine,tokens);
                       if (tokens.size() > 0 && tokens[0] == "0") {
-                          Rc rc = tmpMeta.parse(scanLine,walk,false);
-                          if (rc == StepRc || rc == RotStepRc) {
+                          rrc = tmpMeta.parse(scanLine,walk,false);
+                          if (rrc == StepRc || rrc == RotStepRc) {
                               break;
                             }
                         }
@@ -922,7 +923,7 @@ int Gui::drawPage(
                               opts.assembledCallout,
                               true               /*calledOut*/
                               );
-                  int rc = drawPage(view, scene, callout, line, calloutOpts);
+                  int drc = drawPage(view, scene, callout, line, calloutOpts);
 
                   callout->meta = saveMeta;
 
@@ -934,9 +935,9 @@ int Gui::drawPage(
                       opts.pliParts += calloutParts;
                     }
 
-                  if (rc != 0) {
+                  if (drc) {
                       steps->placement = steps->meta.LPub.assem.placement;
-                      return rc;
+                      return drc;
                     }
                 } else {
                   callout->instances++;
@@ -1889,10 +1890,10 @@ int Gui::drawPage(
 
                       // renderer parms are added to csiKeys in createCsi()
 
-                      int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
-                      if (rc != 0) {
+                      int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
+                      if (rrc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
-                          return rc;
+                          return rrc;
                         }
 
                       emit messageSig(LOG_INFO,
@@ -2068,8 +2069,8 @@ int Gui::drawPage(
                         // we have a valid part so record part added
                         nsHasParts = true;
                       } else if (nsLine_0) {
-                        Rc rc = nsMeta.parse(nsLine,nsWalkBack,false);
-                        if (rc == StepRc || rc == RotStepRc) {
+                        Rc nsrc = nsMeta.parse(nsLine,nsWalkBack,false);
+                        if (nsrc == StepRc || nsrc == RotStepRc) {
                           // are we in a new step which is in a step group ?
                           if (nsIsStepGroup) {
                             // confirm previous step does not have a NOSTEP command
@@ -2088,13 +2089,13 @@ int Gui::drawPage(
                             // the last step did not have MULTI_STEP_END so break
                             break;
                           }
-                        } else if (rc == NoStepRc) {
+                        } else if (nsrc == NoStepRc) {
                           // NOSTEP encountered so record it and continue to the top of the step group
                           nsHasNoStep = true;
-                        } else if (rc == StepGroupEndRc) {
+                        } else if (nsrc == StepGroupEndRc) {
                           // we are in a step group so proceed
                           nsIsStepGroup = true;
-                        } else if (rc == StepGroupBeginRc) {
+                        } else if (nsrc == StepGroupBeginRc) {
                           // we have reached the top of the step group so break
                           break;
                         }
@@ -2277,16 +2278,16 @@ int Gui::drawPage(
 
                       emit messageSig(LOG_INFO_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
                       step->updateViewer = opts.updateViewer;
-                      int rc = step->createCsi(
+                      int crc = step->createCsi(
                                   opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                   configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
                                   opts.lineTypeIndexes,
                                   &step->csiPixmap,
                                   steps->meta);
 
-                      if (rc) {
+                      if (crc) {
                           emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
-                          return rc;
+                          return crc;
                       }
 
                       // BuildMod create and update - performed after createCsi to enable viewerStepKey
@@ -2439,10 +2440,10 @@ int Gui::drawPage(
                           // LDView renderer parms are added to csiKeys in createCsi()
 
                           // render the partially assembled model
-                          int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
-                          if (rc != 0) {
+                          int rrc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
+                          if (rrc != 0) {
                               emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
-                              return rc;
+                              return rrc;
                           }
 
                           emit messageSig(LOG_INFO,
@@ -2969,7 +2970,7 @@ int Gui::findPage(
               case BuildModBeginRc:
                 if (!Preferences::buildModEnabled)
                     break;
-                if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                if (!pageDisplayed/*isPreDisplayPage/opts.pageNum < displayPageNum*/) {
                      if ((buildModFile = opts.current.lineNumber < getBuildModStepLineNumber(getBuildModNextStepIndex()))) {
                         buildModKey          = meta.LPub.buildMod.key();
                         opts.buildModLevel   = getLevel(buildModKey, BM_BEGIN);
