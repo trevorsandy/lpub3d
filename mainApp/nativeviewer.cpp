@@ -2584,14 +2584,14 @@ void Gui::applyBuildModification()
 
         return;
 
-    } else {
+    } /* else {
         text  = "This action will apply build modification '" + buildModKey + "' "
                 "beginning at step " + step + ", in model '" + model + "'.<br><br>Are you sure ?<br>";
         type  = "apply build modification message";
         title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
-        switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+        switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
         {
         default:
         case QMessageBox::Cancel:
@@ -2599,7 +2599,10 @@ void Gui::applyBuildModification()
         case QMessageBox::Ok:
             break;  // apply changes
         }
-    }
+
+
+    } */
+
 
     switch(it) {
     case Options::CSI:
@@ -2691,14 +2694,14 @@ void Gui::removeBuildModification()
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
-    } else {
+    } /* else {
         text  = "This action will remove build modification '" + buildModKey + "' "
                 "beginning at step " + step + " in model '" + model + "'.<br><br>Are you sure ?<br>";
         type  = "remove build modification message";
         title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
-        switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+        switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
         {
         default:
         case QMessageBox::Cancel:
@@ -2706,7 +2709,7 @@ void Gui::removeBuildModification()
         case QMessageBox::Ok:
             break;
         }
-    }
+    } */
 
     switch(it) {
     case Options::CSI:
@@ -2751,8 +2754,9 @@ void Gui::loadBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
+    /*
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
+    QStringList keys = getViewerStepKeys(true/ *get Name* /, false/ *pliPart* /, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     QString text  = "This action will load build modification '" + buildModKey + "' "
                      ", step " + step + ", model '" + model + "' into the 3DViewer "
@@ -2760,7 +2764,7 @@ void Gui::loadBuildModification()
     QString type  = "load build modification";
     QString title = "Build Modification";
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
-    switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+    switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
     {
     default:
     case QMessageBox::Cancel:
@@ -2768,6 +2772,7 @@ void Gui::loadBuildModification()
     case QMessageBox::Ok:
         break;
     }
+    */
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
@@ -2877,9 +2882,11 @@ void Gui::deleteBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
+
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys  =getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
+    QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+    /*
     QString text  = "This action will permanently delete build modification '" + buildModKey + "' "
                     "from '" + model + "' at step " + step + "' and cannot be completelly undone using the Undo menu action.<br><br>"
                     "The modified CSI image and 3DViewer entry will be parmanently deleted.<br>"
@@ -2889,7 +2896,7 @@ void Gui::deleteBuildModification()
     QString title = "Build Modification";
 
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
-    switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+    switch (Preferences::showMessage(msgID, text, title, type, true / *option* /))
     {
     default:
     case QMessageBox::Cancel:
@@ -2897,18 +2904,19 @@ void Gui::deleteBuildModification()
     case QMessageBox::Ok:
         break;
     }
+    */
 
     bool multiStepPage = isViewerStepMultiStep(viewerStepKey);
 
     // Delete options
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    QMessageBox box;
+    QMessageBoxResizable box;
     box.setWindowIcon(QIcon());
     box.setIconPixmap (_icon);
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    title = tr("Build Modification Image");
-    text = tr("Click 'Modified',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
+    QString title = tr("Build Modification Image");
+    QString text = tr("Click 'Modified',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
 
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
     box.setText (tr("Select your option to reset the image cache."));
@@ -2932,9 +2940,9 @@ void Gui::deleteBuildModification()
 
     box.exec();
 
-    bool cleaModified = box.clickedButton() == cleaModifiedButton;
-    bool clearPage    = multiStepPage ? box.clickedButton() == clearPageButton : false;
-    bool clearStep    = box.clickedButton() == clearStepButton;
+    bool clearModified = box.clickedButton() == clearModifiedButton;
+    bool clearPage     = multiStepPage ? box.clickedButton() == clearPageButton : false;
+    bool clearStep     = box.clickedButton() == clearStepButton;
     if (box.clickedButton() == cancelButton)
         return;
 
