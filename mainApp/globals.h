@@ -349,6 +349,8 @@ class GlobalProjectDialog : public QDialog
 private:
   GlobalProjectPrivate *data;
   ContStepNumGui *childContStepNumbersBox;
+  SpinGui *childStartStepNumberSpin;
+  SpinGui *childStartPageNumberSpin;
 
 public:
 
@@ -360,6 +362,7 @@ public slots:
   void accept();
   void cancel();
   void clearCache(bool);
+  void clearCache(int);
   void checkConflict(bool);
 };
 

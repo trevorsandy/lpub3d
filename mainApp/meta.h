@@ -167,6 +167,9 @@ enum Rc {
          ContStepNumRc,
          CountInstanceRc,
 
+         StartPageNumberRc,
+         StartStepNumberRc,
+
          SceneItemZValueDirectionRc,
 
          IncludeRc,
@@ -3650,6 +3653,8 @@ public:
   CountInstanceMeta    countInstance;
   ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
+  IntMeta              startPageNumber;
+  IntMeta              startStepNumber;
   StepPliMeta          stepPli;
 
   LeoCadGroupMeta      group;

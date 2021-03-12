@@ -627,6 +627,7 @@ public:
   virtual void apply(QString &modelName);
 
   void setEnabled(bool enabled);
+  QSpinBox *getSpinBox() {return spin;}
 
 private:
   IntMeta      *meta;

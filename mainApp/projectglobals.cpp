@@ -62,6 +62,8 @@ GlobalProjectDialog::GlobalProjectDialog(
   setWindowTitle(tr("Project Globals Setup"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
+  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
+
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox("Renderer");
@@ -76,8 +78,8 @@ GlobalProjectDialog::GlobalProjectDialog(
   
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
-  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable Build Modification functionality",&lpubMeta->buildModEnabled,box);
-  box->setToolTip("Use Build Modification meta syntax. This functionality replaces or accompanies the legacy BUFEXCHG functionality.");
+  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable Build Modifications",&lpubMeta->buildModEnabled,box);
+  box->setToolTip("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework.");
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
@@ -94,15 +96,26 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
-  childContStepNumbersBox = new ContStepNumGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
+  box->setLayout(childlayout);
+  childContStepNumbersBox = new ContStepNumGui("Continuous step numbers",&lpubMeta->contStepNumbers/*,box*/);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
+  childlayout->addWidget(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
-  QDialogButtonBox *buttonBox;
+  childStartStepNumberSpin = new SpinGui("Start Step Number", &lpubMeta->startStepNumber,0,10000,1/*,box*/);
+  data->children.append(childStartStepNumberSpin);
+  connect (childStartStepNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
+  childlayout->addWidget(childStartStepNumberSpin);
 
-  buttonBox = new QDialogButtonBox(this);
+  box = new QGroupBox("Page Numbers");
+  layout->addWidget(box);
+  childStartPageNumberSpin = new SpinGui("Start Page Number", &lpubMeta->startPageNumber,0,10000,1,box);
+  data->children.append(childStartPageNumberSpin);
+  connect (childStartPageNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
+
+  QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
@@ -125,6 +138,11 @@ void GlobalProjectDialog::clearCache(bool b)
 {
     if (!data->clearCache)
         data->clearCache = b;
+}
+
+void GlobalProjectDialog::clearCache(int i)
+{
+    clearCache(bool(i++));
 }
 
 void GlobalProjectDialog::checkConflict(bool b)

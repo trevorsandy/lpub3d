@@ -2584,7 +2584,7 @@ int Gui::findPage(
 
   skipHeader(opts.current);
 
-  if (opts.pageNum == 1) {
+  if (opts.pageNum == 1 + pa) {
       topOfPages.clear();
       topOfPages.append(opts.current);
   }
@@ -2595,7 +2595,8 @@ int Gui::findPage(
   QStringList ldrStepFiles;
   QStringList csiKeys;
   int  partsAdded = 0;
-  int  stepNumber = 1;
+  int  stepNumber = 1 + sa;
+  int  saveStepNumber = stepNumber;
 
   QStringList  csiParts;
   QStringList  saveCsiParts;
@@ -2604,7 +2605,6 @@ int Gui::findPage(
   Where        saveCurrent = opts.current;
   Where        topOfStep = opts.current;
   Where        stepGroupCurrent;
-  int          saveStepNumber = 1;
 
   saveStepPageNum = stepPageNum;
 
@@ -2854,8 +2854,8 @@ int Gui::findPage(
               stepGroupCurrent = topOfStep;
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
-                      int showStepNum = opts.contStepNumber == 1 ? stepNumber : opts.contStepNumber;
-                      if (opts.pageNum == 1) {
+                      int showStepNum = opts.contStepNumber == 1 + sa ? stepNumber : opts.contStepNumber;
+                      if (opts.pageNum == 1 + pa) {
                           meta.LPub.subModel.showStepNum.setValue(showStepNum);
                       } else {
                           saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
@@ -2867,7 +2867,7 @@ int Gui::findPage(
                       Where walk(opts.current.modelName);
                       mi->scanForwardStepGroup(walk);
                       if (opts.current.lineNumber > walk.lineNumber) {
-                          opts.groupStepNumber++;
+                          opts.groupStepNumber += 1 + sa;
                           saveGroupStepNum = opts.groupStepNumber;
                       }
                   }
@@ -2896,7 +2896,7 @@ int Gui::findPage(
                       // ignored when processing a buildModDisplay
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
-                      if (opts.pageNum == 1) {
+                      if (opts.pageNum == 1 + pa) {
                           page.meta = meta;
                       } else {
                           page.meta = saveMeta;
@@ -3031,11 +3031,11 @@ int Gui::findPage(
               if (partsAdded && ! noStep && ! buildModIgnore) {
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-                         (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
+                         (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + pa)) { // skip the first step
                           opts.contStepNumber += ! coverPage && ! stepPage;
                       }
-                      if (! stepGroup && stepNumber == 1) {
-                          if (opts.pageNum == 1 && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
+                      if (! stepGroup && stepNumber == 1 + sa) {
+                          if (opts.pageNum == 1 + pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
                               meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                           } else {
                               saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
@@ -3076,7 +3076,7 @@ int Gui::findPage(
                           csiParts.clear();
                           savePrevStepPosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
-                          if (opts.pageNum == 1) {
+                          if (opts.pageNum == 1 + pa) {
                               page.meta = meta;
                           } else {
                               page.meta = saveMeta;
@@ -3316,10 +3316,25 @@ int Gui::findPage(
             case ContStepNumRc:
               if (meta.LPub.contStepNumbers.value()) {
                   if (! opts.contStepNumber)
-                      opts.contStepNumber++;
+                      opts.contStepNumber += 1 + sa;
               } else {
                   opts.contStepNumber = 0;
               }
+              break;
+
+
+            case StartStepNumberRc:
+              if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                   opts.current.modelName != ldrawFile.topLevelFile())
+                  parseError("Start step number must be specified in the top model header.", opts.current);
+              sa = meta.LPub.startStepNumber.value() - 1;
+              break;
+
+            case StartPageNumberRc:
+              if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                   opts.current.modelName != ldrawFile.topLevelFile())
+                  parseError("Start page number must be specified in the top model header.", opts.current);
+              pa = meta.LPub.startPageNumber.value() - 1;
               break;
 
             case BuildModEnableRc:
@@ -3381,7 +3396,7 @@ int Gui::findPage(
       // pass continuous step number to drawPage
       if (opts.contStepNumber) {
           if (! countInstances && isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-             (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
+             (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + pa)) {
               opts.contStepNumber += ! coverPage && ! stepPage;
           }
           if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
@@ -3433,7 +3448,6 @@ int Gui::findPage(
       if (exporting()) {
           pageSizes.remove(opts.pageNum);
           if (pageSizeUpdate) {
-              pageSizeUpdate = false;
               pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
@@ -3912,7 +3926,7 @@ void Gui::attitudeAdjustment()
 
 void Gui::countPages()
 {
-  if (maxPages < 1) {
+  if (maxPages < 1 + pa) {
       emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
       Where current(ldrawFile.topLevelFile(),0,0);
@@ -3920,12 +3934,12 @@ void Gui::countPages()
       displayPageNum   =  1 << 31;  // really large number: 2147483648
       firstStepPageNum = -1;
       lastStepPageNum  = -1;
-      maxPages         =  1;
+      maxPages         =  1 + pa;
+      stepPageNum      = maxPages;
       Meta meta;
       QString empty;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
-      stepPageNum = 1;
       FindPageOptions findOptions(
                   maxPages,
                   current,
@@ -3966,8 +3980,10 @@ void Gui::drawPage(LGraphicsView  *view,
 
   Where current(ldrawFile.topLevelFile(),0,0);
 
-  maxPages    = 1;
-  stepPageNum = 1;
+  maxPages    = 1 + pa;
+  stepPageNum = maxPages;
+
+  qDebug() << QString("MaxPages: %1, StepPageNum: %2").arg(maxPages).arg(stepPageNum);
 
   // if not buildMod action
   if (! buildModActionChange) {
@@ -4021,8 +4037,8 @@ void Gui::drawPage(LGraphicsView  *view,
   firstStepPageNum = -1;
   lastStepPageNum  = -1;
   savePrevStepPosition = 0;
-  saveGroupStepNum = 0;
-  saveContStepNum = 1;
+  saveGroupStepNum = 1 + sa;
+  saveContStepNum = 1 + sa;
 
   enableLineTypeIndexes = true;
 

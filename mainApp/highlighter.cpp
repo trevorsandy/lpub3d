@@ -544,6 +544,8 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSPOT_SIZE_KEY\\b"
     << "\\bSQUARE\\b"
     << "\\bSQUARE_STYLE\\b"
+    << "\\bSTART_PAGE_NUMBER\\b"
+    << "\\bSTART_STEP_NUMBER\\b"
     << "\\bSTEP_HIDE\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"

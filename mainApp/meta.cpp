@@ -5104,9 +5104,14 @@ LPubMeta::LPubMeta() : BranchMeta()
   subModel.placement.setValue(RightTopOutside,StepNumberType);
   stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
-  contModelStepNum.setRange(1,10000);
+  contModelStepNum.setRange(0,10000);
+  contModelStepNum.setValue(0);
   countInstance.setValue(CountAtModel);
   contStepNumbers.setValue(false);
+  startPageNumber.setRange(1,10000);
+  startPageNumber.setValue(1);
+  startStepNumber.setRange(1,10000);
+  startStepNumber.setValue(1);
   // stepNumber - default
 }
 
@@ -5138,6 +5143,8 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");
+  startStepNumber          .init(this,"START_STEP_NUMBER", StartStepNumberRc);
+  startPageNumber          .init(this,"START_PAGE_NUMBER", StartPageNumberRc);
 
   group                    .init(this,"GROUP");
   light                    .init(this,"LIGHT");

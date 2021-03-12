@@ -350,7 +350,7 @@ void Gui::addBom()
 void Gui::removeLPubFormatting()
 {
   mi->removeLPubFormatting();
-  displayPageNum = 1;
+  displayPageNum = 1 + pa;
   displayPage();
 }
 
@@ -509,7 +509,7 @@ void Gui::previousPage()
       inputPageNum = rx.cap(1).toInt(&ok);
       if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
           countPages();
-          if (inputPageNum >= 1 && inputPageNum != displayPageNum) {
+          if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
               if (!saveBuildModification())
                   return;
               displayPageNum = inputPageNum;
@@ -522,7 +522,7 @@ void Gui::previousPage()
           setPageLineEdit->setText(string);
           return;
         } else {						// numbers are same so goto previous page
-          if (displayPageNum > 1) {
+          if (displayPageNum > 1 + pa) {
               if (!saveBuildModification())
                   return;
               displayPageNum--;
@@ -733,7 +733,7 @@ bool Gui::continuousPageDialog(Direction d)
 
       QApplication::setOverrideCursor(Qt::ArrowCursor);
 
-      for (d == PAGE_NEXT ? displayPageNum = 1 : displayPageNum = maxPages ; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
+      for (d == PAGE_NEXT ? displayPageNum = 1 + pa : displayPageNum = maxPages ; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 + pa ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
 
           if (! ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
@@ -936,10 +936,10 @@ bool Gui::processPageRange(const QString &range)
 
 void Gui::firstPage()
 {
-  if (displayPageNum == 1) {
+  if (displayPageNum == 1 + pa) {
     statusBarMsg("You are on the first page");
   } else {
-    displayPageNum = 1;
+    displayPageNum = 1 + pa;
     displayPage();
   }
 }
@@ -1483,7 +1483,7 @@ void Gui::reloadCurrentModelFile(){
 
     int savePage = displayPageNum;
     openFile(curFile);
-    displayPageNum = savePage;
+    displayPageNum = pa ? savePage + pa : savePage;
     displayPage();
     enableActions();
 
@@ -1573,7 +1573,7 @@ void Gui::clearAndRedrawModelFile() {
     //reload current model file
     int savePage = displayPageNum;
     openFile(curFile);
-    displayPageNum = savePage;
+    displayPageNum = pa ? savePage + pa : savePage;
     displayPage();
     enableActions();
 
@@ -1619,7 +1619,7 @@ void Gui::clearAllCaches()
     //reload current model file
     int savePage = displayPageNum;
     openFile(curFile);
-    displayPageNum = savePage;
+    displayPageNum = pa ? savePage + pa : savePage;
     displayPage();
     enableActions();
 
@@ -2984,10 +2984,12 @@ Gui::Gui()
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
+    sa                = 0;
+    pa                = 0;
+    displayPageNum    = 1 + pa;
+    numPrograms       = 0;
     PreviewWidget     = nullptr;
     previewDockWindow = nullptr;
-    displayPageNum    = 1;
-    numPrograms       = 0;
 
     pageProcessRunning              = PROC_NONE;        // display page process
     processOption                   = EXPORT_ALL_PAGES; // export process
@@ -4730,13 +4732,13 @@ void Gui::createActions()
 }
 
 void Gui::loadPages(){
-  int pageNum     = 0;
+  int pageNum     = 0 + pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
   bool frontCoverPage = mi->frontCoverPageExist();
   bool backCoverPage  = mi->backCoverPageExist();
 
-  for(int i=1;i <= maxPages;i++){
+  for(int i=1 + pa;i <= maxPages;i++){
       QApplication::processEvents();
       pageNum++;
       if (frontCoverPage && i == 1){
@@ -4751,7 +4753,7 @@ void Gui::loadPages(){
     }
   mpdCombo->setEnabled(mpdCombo->count());
   setGoToPageCombo->setEnabled(setGoToPageCombo->count());
-  setGoToPageCombo->setCurrentIndex(displayPageNum-1);
+  setGoToPageCombo->setCurrentIndex(displayPageNum-1 - pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
 }
 

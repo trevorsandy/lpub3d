@@ -609,7 +609,6 @@ void Gui::exportAsHtml()
         else
         // if type 1 to 5 line
         if(line.contains(type15LineRx)) {
-            modelFound = true;
             break;
         }
     }
@@ -793,9 +792,9 @@ void Gui::exportAsPdf()
     }
 
   // determine size of output pages, in pixels
-  float pageWidthPx, pageHeightPx;
-  float pageWidthIn, pageHeightIn;
-  int adjPageWidthPx, adjPageHeightPx;
+  float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
+  float pageWidthIn = 0.0f, pageHeightIn = 0.0f;
+  int adjPageWidthPx = 0, adjPageHeightPx = 0;
 
   // create a PDF pdfWriter
   QPdfWriter pdfWriter(fileName);
@@ -847,7 +846,7 @@ void Gui::exportAsPdf()
   if (processOption != EXPORT_PAGE_RANGE) {
 
       if(processOption == EXPORT_ALL_PAGES){
-          _displayPageNum = 1;
+          _displayPageNum = 1 + pa;
           _maxPages = maxPages;
         }
 
@@ -856,7 +855,7 @@ void Gui::exportAsPdf()
           _maxPages       = displayPageNum;
         }
 
-      m_progressDlgProgressBar->setRange(1,_maxPages);
+      m_progressDlgProgressBar->setRange(_displayPageNum,_maxPages);
 
       // set displayPageNum so we can send the correct index to retrieve page size data
       displayPageNum = _displayPageNum;
@@ -1036,7 +1035,7 @@ void Gui::exportAsPdf()
 
       std::sort(printPages.begin(),printPages.end(),lessThan);
 
-       m_progressDlgProgressBar->setRange(1,printPages.count());
+      m_progressDlgProgressBar->setRange(1,printPages.count());
 
       int _pageCount = 0;
 
@@ -1332,8 +1331,8 @@ void Gui::exportAs(const QString &_suffix)
   LGraphicsScene scene;
   LGraphicsView view(&scene);
 
-  float pageWidthPx, pageHeightPx;
-  int adjPageWidthPx, adjPageHeightPx;
+  float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
+  int adjPageWidthPx = 0, adjPageHeightPx = 0;
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -1360,7 +1359,7 @@ void Gui::exportAs(const QString &_suffix)
   if (processOption != EXPORT_PAGE_RANGE){
 
       if(processOption == EXPORT_ALL_PAGES){
-          _displayPageNum = 1;
+          _displayPageNum = 1 + pa;
           _maxPages = maxPages;
         }
 
@@ -1369,7 +1368,7 @@ void Gui::exportAs(const QString &_suffix)
           _maxPages       = displayPageNum;
         }
 
-      m_progressDlgProgressBar->setRange(1,_maxPages);
+      m_progressDlgProgressBar->setRange(_displayPageNum,_maxPages);
 
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
@@ -1650,7 +1649,7 @@ void Gui::Print(QPrinter* Printer)
 
   if (FromPage == 0 && ToPage == 0)
     {
-      FromPage = 1;
+      FromPage = 1 + pa;
       ToPage = PageCount;
     }
 
@@ -1741,7 +1740,7 @@ void Gui::Print(QPrinter* Printer)
               QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
-              float pageWidthPx, pageHeightPx;
+              float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
               getExportPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
@@ -1863,7 +1862,7 @@ void Gui::Print(QPrinter* Printer)
               QApplication::processEvents();
 
               // determine size of output image, in pixels. dimension are inches * pixels per inch
-              float pageWidthPx, pageHeightPx;
+              float pageWidthPx = 0.0f, pageHeightPx = 0.0f;
               getExportPageSize(pageWidthPx, pageHeightPx);
 
               bool  ls = getPageOrientation() == Landscape;
@@ -2008,7 +2007,7 @@ void Gui::ShowPrintDialog()
     int PageCount = maxPages;
 
     QPrinter Printer(QPrinter::HighResolution);
-    Printer.setFromTo(1, PageCount + 1);
+    Printer.setFromTo(1 + pa, PageCount + 1);
 
     QPrintDialog PrintDialog(&Printer, this);
 
@@ -2047,7 +2046,7 @@ void Gui::TogglePrintPreview(ExportMode m)
     QPrinter Printer(QPrinter::ScreenResolution);
 
     //set page parameters
-    Printer.setFromTo(1, PageCount + 1);
+    Printer.setFromTo(1 + pa, PageCount + 1);
 
     QPrintPreviewDialog Preview(&Printer, this);
 

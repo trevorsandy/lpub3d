@@ -76,7 +76,7 @@ void Gui::open()
       emit messageSig(LOG_STATUS, gui->loadAborted() ?
                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
                        QString("File loaded (%1 pages, %2 parts). %3")
-                               .arg(maxPages)
+                               .arg(maxPages - pa)
                                .arg(ldrawFile.getPartCount())
                                .arg(elapsedTime(timer.elapsed())));
       return;
@@ -108,7 +108,7 @@ void Gui::openDropFile(QString &fileName){
           emit messageSig(LOG_STATUS, gui->loadAborted() ?
                               QString("Load LDraw model file %1 aborted.").arg(fileName) :
                               QString("File loaded (%1 pages, %2 parts). %3")
-                                      .arg(maxPages)
+                                      .arg(maxPages - pa)
                                       .arg(ldrawFile.getPartCount())
                                       .arg(elapsedTime(timer.elapsed())));
         } else {
@@ -374,7 +374,7 @@ void Gui::openRecentFile()
     emit messageSig(LOG_STATUS, gui->loadAborted() ?
                         QString("Load LDraw model file %1 aborted.").arg(fileName) :
                         QString("File loaded (%1 pages, %2 parts). %3")
-                                .arg(maxPages)
+                                .arg(maxPages - pa)
                                 .arg(ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
   }
@@ -419,7 +419,7 @@ bool Gui::loadFile(const QString &file)
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :
                             QString("File loaded (%1 pages, %2 parts). %3")
-                                    .arg(maxPages)
+                                    .arg(maxPages - pa)
                                     .arg(ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
         return true;
@@ -691,6 +691,7 @@ bool Gui::saveFile(const QString &fileName)
 // This call performs LPub3D file close operations - does not clear curFile
 void Gui::closeFile()
 {
+  pa = sa = 0;
   ldrawFile.empty();
   editWindow->textEdit()->document()->clear();
   editWindow->textEdit()->document()->setModified(false);
@@ -783,7 +784,7 @@ bool Gui::openFile(QString &fileName)
   setHighlightStepFromCommandMeta();
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
     LDVImageMatte::clearMatteCSIImages();
-  displayPageNum = 1;
+  displayPageNum = 1 + pa;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();

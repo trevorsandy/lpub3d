@@ -1069,6 +1069,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     hdrCategNotFound    = true;
 
     metaBuildModNotFund = true;
+    metaStartPageNumNotFound = true;
+    metaStartStepNumNotFound = true;
+
     unofficialPart      = false;
     topLevelModel       = true;
     descriptionLine     = 0;
@@ -1129,6 +1132,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1, Start Index %2")
                              .arg(stageContents.size()).arg(fileIndx));
 #endif
+        int number;
+        bool validNumber;
+        bool headerFinished = false;
+        bool subFileFound   = false;
+        QString stageSubfileName;
+
         for (; fileIndx < stageContents.size(); fileIndx++) {
 
             QString smLine = stageContents.at(fileIndx);
@@ -1139,20 +1148,21 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of file
 
             // load LDCad groups
-            if (!ldcadGroupsLoaded && smLine.contains(_fileRegExp[LDG_RX])){
-               insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
-               insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
-            } else if (smLine.contains("0 STEP")) {
-               ldcadGroupsLoaded = true;
+            if (!ldcadGroupsLoaded) {
+                if (smLine.contains(_fileRegExp[LDG_RX])){
+                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
+                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
+                } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
+                    ldcadGroupsLoaded = true;
+                }
             }
 
             QStringList tokens;
             split(smLine,tokens);
 
             // subfile check;
-            QString stageSubfileName;
-            bool subFileFound = false;
             if ((subFileFound = tokens.size() == 15 && tokens.at(0) == "1")) {
+                headerFinished = true;
                 stageSubfileName = tokens.at(14).toLower();
             } else if (isSubstitute(smLine,stageSubfileName)) {
                 subFileFound = !stageSubfileName.isEmpty();
@@ -1164,54 +1174,75 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 }
             }
 
-            // One time populate top level file name
-            if (hdrTopFileNotFound) {
-                if (sof){
-                    _file = _fileRegExp[SOF_RX].cap(1).replace(QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
-                    descriptionLine = fileIndx + 1;      //next line should be description
-                    hdrTopFileNotFound = false;
+            if (!headerFinished) {
+
+                // One time populate top level file name
+                if (hdrTopFileNotFound) {
+                    if (sof){
+                        _file = _fileRegExp[SOF_RX].cap(1).replace(QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
+                        descriptionLine = fileIndx + 1;      //next line should be description
+                        hdrTopFileNotFound = false;
+                    }
                 }
-            }
 
-            // One time populate model descriptkon
-            if (hdrDescNotFound && fileIndx == descriptionLine && ! isHeader(smLine)) {
-                if (smLine.contains(_fileRegExp[DES_RX]))
-                    _description = smLine;
-                else
-                    _description = "LDraw model";
-                Preferences::publishDescription = _description;
-                hdrDescNotFound = false;
-            }
-
-            if (hdrNameNotFound) {
-                if (smLine.contains(_fileRegExp[NAM_RX])) {
-                    _name = _fileRegExp[NAM_RX].cap(1).replace(": ","");
-                    hdrNameNotFound = false;
+                // One time populate model descriptkon
+                if (hdrDescNotFound && fileIndx == descriptionLine && ! isHeader(smLine)) {
+                    if (smLine.contains(_fileRegExp[DES_RX]))
+                        _description = smLine;
+                    else
+                        _description = "LDraw model";
+                    Preferences::publishDescription = _description;
+                    hdrDescNotFound = false;
                 }
-            }
 
-            if (hdrAuthorNotFound) {
-                if (smLine.contains(_fileRegExp[AUT_RX])) {
-                    _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
-                    Preferences::defaultAuthor = _author;
-                    hdrAuthorNotFound = false;
+                if (hdrNameNotFound) {
+                    if (smLine.contains(_fileRegExp[NAM_RX])) {
+                        _name = _fileRegExp[NAM_RX].cap(1).replace(": ","");
+                        hdrNameNotFound = false;
+                    }
                 }
-            }
 
-            // One time populate model category
-            if (hdrCategNotFound && subfileName == _file) {
-                if (smLine.contains(_fileRegExp[CAT_RX])) {
+                if (hdrAuthorNotFound) {
+                    if (smLine.contains(_fileRegExp[AUT_RX])) {
+                        _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
+                        Preferences::defaultAuthor = _author;
+                        hdrAuthorNotFound = false;
+                    }
+                }
+
+                // One time populate model category
+                if (hdrCategNotFound && subfileName == _file) {
+                    if (smLine.contains(_fileRegExp[CAT_RX])) {
                         _category = _fileRegExp[CAT_RX].cap(1);
-                    hdrCategNotFound = false;
+                        hdrCategNotFound = false;
+                    }
                 }
-            }
 
-            // Check if BuildMod is disabled
-            if (metaBuildModNotFund) {
-                if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                    bool state = tokens.last() == "FALSE" ? false : true ;
-                    Preferences::buildModEnabled  = state;
-                    metaBuildModNotFund = false;
+                // Check if BuildMod is disabled
+                if (metaBuildModNotFund) {
+                    if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                        bool state = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::buildModEnabled  = state;
+                        metaBuildModNotFund = false;
+                    }
+                }
+
+                // Check if Start Page Number is specified
+                if (metaStartPageNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->pa = validNumber ? number - 1 : 0;
+                        metaStartPageNumNotFound = false;
+                    }
+                }
+
+                // Check if Start Step Number is specified
+                if (metaStartStepNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->sa = validNumber ? number - 1 : 0;
+                        metaStartStepNumNotFound = false;
+                    }
                 }
             }
 
@@ -1251,9 +1282,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 if (sof) {
                     hdrNameNotFound   = true;
                     hdrAuthorNotFound = true;
+
                     subfileName = _fileRegExp[SOF_RX].cap(1).toLower();
-                    if (! alreadyLoaded)
+                    if (! alreadyLoaded) {
+                        headerFinished = false;
                         emit gui->messageSig(LOG_INFO_STATUS, "Loading MPD " + fileType() + " '" + subfileName + "'...");
+                    }
                 } else {
                     subfileName.clear();
                 }
@@ -1383,8 +1417,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 {
     if (_subFiles[fileName]._contents.isEmpty()) {
 
-        bool headerFinished = false;
-
         QString fullName(path + QDir::separator() + fileName);
 
         QFile file(fullName);
@@ -1401,6 +1433,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         QStringList contents;
         QStringList subfiles;
+
+        int number;
+        bool validNumber;
+        bool headerFinished = false;
 
         unofficialPart = false;
 
@@ -1433,6 +1469,8 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             hdrAuthorNotFound   = true;
             hdrCategNotFound    = true;
             metaBuildModNotFund = true;
+            metaStartPageNumNotFound = true;
+            metaStartStepNumNotFound = true;
             descriptionLine     = 0;
         }
 
@@ -1466,37 +1504,56 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             emit gui->progressPermSetValueSig(i + 1);
 
             // load LDCad groups
-            if (!ldcadGroupsLoaded && smLine.contains(_fileRegExp[LDG_RX])){
-               insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
-               insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
-            } else if (smLine.contains("0 STEP")) {
-               ldcadGroupsLoaded = true;
+            if (!ldcadGroupsLoaded) {
+                if(smLine.contains(_fileRegExp[LDG_RX])){
+                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(3),_fileRegExp[LDG_RX].cap(1).toInt());
+                    insertLDCadGroup(_fileRegExp[LDG_RX].cap(2),_fileRegExp[LDG_RX].cap(1).toInt());
+                } else if (smLine.contains("0 STEP") || smLine.contains("0 ROTSTEP")) {
+                    ldcadGroupsLoaded = true;
+                }
             }
 
             QStringList tokens;
             split(smLine,tokens);
 
-            // One time populate top level file name
-            if (hdrTopFileNotFound) {
-                _file = QString(fileName).replace(QFileInfo(fileName).suffix(),"");
-                descriptionLine = i+1;      //next line should be description
-                hdrTopFileNotFound = false;
-            }
-
-            // Check if BuildMod meta is present
-            if (metaBuildModNotFund) {
-                if (smLine.startsWith("0 !LPUB BUILD_MOD")) {
-                    bool enabled = true;
-                    if (smLine.contains("BUILD_MOD_ENABLED"))
-                        enabled = tokens.last() == "FALSE" ? false : true ;
-                    Preferences::buildModEnabled  = enabled;
-                    metaBuildModNotFund = false;
-                }
-            }
 
             if (!headerFinished) {
 
                 headerFinished = tokens.size() && tokens[0] != "0";
+
+                // Check if BuildMod is disabled
+                if (metaBuildModNotFund) {
+                    if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                        bool state = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::buildModEnabled  = state;
+                        metaBuildModNotFund = false;
+                    }
+                }
+
+                // Check if Start Page Number is specified
+                if (metaStartPageNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->pa  = validNumber ? number - 1 : 0;
+                        metaStartPageNumNotFound = false;
+                    }
+                }
+
+                // Check if Start Step Number is specified
+                if (metaStartStepNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->sa  = validNumber ? number - 1 : 0;
+                        metaStartStepNumNotFound = false;
+                    }
+                }
+
+                // One time populate top level file name
+                if (hdrTopFileNotFound) {
+                    _file = QString(fileName).replace(QFileInfo(fileName).suffix(),"");
+                    descriptionLine = i+1;      //next line should be description
+                    hdrTopFileNotFound = false;
+                }
 
                 if (hdrNameNotFound) {
                     if (smLine.contains(_fileRegExp[NAM_RX])) {
@@ -1546,7 +1603,6 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                 QFileInfo subFileInfo = QFileInfo(subfileName);
                 PieceInfo* standardPart = gui->GetPiecesLibrary()->FindPiece(subFileInfo.fileName().toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(subFileInfo.fileName())) {
-                    subFileFound = false;
                     // current path
                     if ((subFileFound = QFileInfo(path + QDir::separator() + subFileInfo.fileName()).isFile())) {
                         subFileInfo = QFileInfo(path + QDir::separator() + subFileInfo.fileName());

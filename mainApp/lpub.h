@@ -518,6 +518,8 @@ public:
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
 
+  int             pa;               // page adjustment
+  int             sa;               // step number adustment
   int             exportMode;       // export Mode
   int             processOption;    // export Option
   int             pageDirection;    // continuous page processing direction

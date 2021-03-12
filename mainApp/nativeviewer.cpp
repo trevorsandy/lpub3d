@@ -1185,14 +1185,12 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     Project* BannerProject = new Project();
     if (!gMainWindow->OpenProject(bannerFile.fileName()))
     {
-        gApplication->SetProject(BannerProject);
-        gui->UpdateAllViews();
-    } else {
         emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
         delete BannerProject;
         return false;
     }
 
+    delete BannerProject;
     return true;
 }
 

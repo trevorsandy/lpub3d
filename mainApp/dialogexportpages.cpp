@@ -58,7 +58,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     ui->checkBoxResetCache->setChecked(false);
 
     if (gui->pageDirection == PAGE_NEXT){
-        ui->labelAllPages->setText(QString("1 to %1").arg(gui->maxPages));
+        ui->labelAllPages->setText(QString("%1 to %2").arg(1 + gui->pa).arg(gui->maxPages));
         ui->lineEditPageRange->setText(QString("%1").arg(linePageRange));
     } else {
         ui->labelAllPages->setText(QString("%1 to 1").arg(gui->maxPages));
