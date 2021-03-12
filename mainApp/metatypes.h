@@ -666,11 +666,13 @@ public:
   bool useLDVSingleCall;
   bool useLDVSnapShotList;
   bool useNativeGenerator;
+  bool usePerspectiveProjection;
   RendererData()
   {
     useLDVSingleCall = false;
     useLDVSnapShotList = false;
     useNativeGenerator = false;
+    usePerspectiveProjection = false;
   }
 };
 

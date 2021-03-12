@@ -1914,6 +1914,7 @@ PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
   _value[0].useLDVSingleCall   = Preferences::enableLDViewSingleCall;
   _value[0].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
   _value[0].useNativeGenerator = Preferences::useNativePovGenerator;
+  _value[0].usePerspectiveProjection = Preferences::perspectiveProjection;
 }
 
 void PreferredRendererMeta::setPreferences(bool reset)
@@ -1927,6 +1928,7 @@ void PreferredRendererMeta::setPreferences(bool reset)
     data.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
     data.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
     data.useNativeGenerator = Preferences::useNativePovGenerator;
+    data.usePerspectiveProjection = Preferences::perspectiveProjection;
     _value[pushed] = data;
   } else {
     if ((displayPreference = Preferences::preferredRenderer != data.renderer || global)) {
@@ -1936,6 +1938,7 @@ void PreferredRendererMeta::setPreferences(bool reset)
     Preferences::enableLDViewSingleCall   = data.useLDVSingleCall ;
     Preferences::enableLDViewSnaphsotList = data.useLDVSnapShotList;
     Preferences::useNativePovGenerator    = data.useNativeGenerator;
+    Preferences::perspectiveProjection    = data.usePerspectiveProjection;
     Preferences::usingNativeRenderer      = data.renderer == RENDERER_NATIVE;
     if (global) {
       Preferences::preferredRendererPreferences(global);
