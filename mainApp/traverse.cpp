@@ -978,13 +978,16 @@ int Gui::drawPage(
 
                   callout->meta = saveMeta;
 
-                  if (callout->meta.LPub.pli.show.value() &&
-                      ! callout->meta.LPub.callout.pli.perStep.value() &&
-                      ! pliIgnore && ! partIgnore && ! buildModPliIgnore && ! synthBegin &&
+                  bool calloutPliPerStep = callout->meta.LPub.pli.show.value() &&
+                                           callout->meta.LPub.callout.pli.perStep.value();
+
+                  buildModPliIgnore = calloutPliPerStep || pliIgnore;
+
+                  if (! calloutPliPerStep && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin &&
                       calloutMode == CalloutBeginMeta::Unassembled) {
 
                       opts.pliParts += calloutParts;
-                    }
+                  }
 
                   if (drc) {
                       steps->placement = steps->meta.LPub.assem.placement;
@@ -1587,7 +1590,7 @@ int Gui::drawPage(
               else
               if (! step) {
                   parseError("CALLOUT does not contain a valid STEP",opts.current);
-               }
+                }
               else
                 {
                   callout->parentStep = step;
