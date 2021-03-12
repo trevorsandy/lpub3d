@@ -1,4 +1,36 @@
-LPub3D 2.4.1.1.2132 (12 03 2021 07:37:05)
+LPub3D 2.4.1.1.2133 (12 03 2021 07:37:46)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Add shortcut to Zoom Extents - Shift+X #470
+- Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
+- Enhancement - Set project start page and start step number for multi-document layouts #477
+- Change - Cover page not displayed in GoToPage drop-down dialogue #479
+- Change - Slow file load when Buffered Page flag is On #464
+- Change - View Next Step takes almost 1.5 minutes #465
+- Fix - Crash adding multiple next step  #459
+- Fix - Empty editor when buffered pages is on and lines per page is less than default #462
+- Fix - Format callout mono images for native renderer #458
+- Fix - Load PLI substitute and excluded part lists on initialisation #471
+- Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
+- Fix - Rounded corners are not round but oval #473
+- Fix - Some settings do not appear to save #457
+- HowTo - Assure LPub3D release integrity with SHA-512 #461
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.0.0.1990 (03 10 2020 08:11:40)
 
 Features, enhancements, fixes and changes
 ------------

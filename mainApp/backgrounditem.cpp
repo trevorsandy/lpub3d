@@ -219,7 +219,9 @@ void BackgroundItem::setBackground(
   painter.setBrush(brushColor);
 
   if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundedRect(prect,int(rx),int(ry));
+// TODO - investigate why drawRoundedRect does not behave as expected
+//      painter.drawRoundedRect(prect,int(rx),int(ry));
+      painter.drawRoundRect(prect,int(rx),int(ry));
     } else {
       painter.drawRect(prect);
     }
