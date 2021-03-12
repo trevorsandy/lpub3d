@@ -64,6 +64,7 @@ public:
 	quint32 mFadeStepsColor;
 	bool mHighlightNewParts;
 	quint32 mHighlightNewPartsColor;
+	bool mGridEnabled = true;
 	bool mDrawGridStuds;
 	quint32 mGridStudColor;
 	bool mDrawGridLines;
@@ -88,7 +89,6 @@ public:
 	lcPreviewPosition mPreviewPosition;
 	int mPreviewSize;
 	int mDrawPreviewAxis;
-	int mDrawPreviewViewSphere;
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	QString mPreviewLoadPath;
 /*** LPub3D Mod end ***/

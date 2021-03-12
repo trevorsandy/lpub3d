@@ -1,19 +1,19 @@
 #pragma once
 
-#include <QGLWidget>
-
 class lcViewWidget : public QGLWidget
 {
+	Q_OBJECT
+
 public:
-	lcViewWidget(QWidget* Parent, lcGLWidget* View);
+	lcViewWidget(QWidget* Parent, lcView* View);
 	~lcViewWidget();
 
-	lcGLWidget* GetView() const
+	lcView* GetView() const
 	{
 		return mView;
 	}
 
-	void SetView(lcGLWidget* View);
+	void SetView(lcView* View);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint());
 	void SetPreferredSize(const QSize &PreferredSize)
@@ -50,7 +50,7 @@ protected:
 	void dragMoveEvent(QDragMoveEvent* DragMoveEvent) override;
 	void dropEvent(QDropEvent* DropEvent) override;
 
-	lcGLWidget* mView;
+	lcView* mView;
 	QSize mPreferredSize;
 	int mWheelAccumulator;
 };

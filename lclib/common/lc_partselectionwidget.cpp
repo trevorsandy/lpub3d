@@ -8,12 +8,14 @@
 #include "lc_model.h"
 #include "project.h"
 #include "pieceinf.h"
-#include "view.h"
+#include "lc_scene.h"
+#include "lc_view.h"
 #include "lc_glextensions.h"
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
+#include "lc_category.h"
 
- Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QList<int>)
 
 void lcPartSelectionItemDelegate::paint(QPainter* Painter, const QStyleOptionViewItem& Option, const QModelIndex& Index) const
 {
@@ -385,7 +387,7 @@ void lcPartSelectionListModel::PartLoaded(PieceInfo* Info)
 
 void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 {
-	View* ActiveView = gMainWindow->GetActiveView();
+	lcView* ActiveView = gMainWindow->GetActiveView();
 	if (!ActiveView)
 		return;
 

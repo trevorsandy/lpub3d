@@ -16,7 +16,7 @@
 #include "lc_renderdialog.h"
 #include "lc_instructionsdialog.h"
 #include "lc_profile.h"
-#include "view.h"
+#include "lc_view.h"
 #include "project.h"
 #include "piece.h"
 #include "camera.h"
@@ -83,7 +83,7 @@ void lcModelTabWidget::Clear()
 {
 	ResetLayout();
 	mModel = nullptr;
-	for (View* View : mViews)
+	for (lcView* View : mViews)
 		View->Clear();
 	mViews.RemoveAll();
 	mActiveView = nullptr;
@@ -932,12 +932,14 @@ void lcMainWindow::CreateToolBars()
 
 }
 
-View* lcMainWindow::CreateView(lcModel* Model)
+lcView* lcMainWindow::CreateView(lcModel* Model)
 {
-	View* NewView = new View(lcViewType::View, Model);
+	lcView* NewView = new lcView(lcViewType::View, Model);
 
 	connect(NewView, SIGNAL(CameraChanged()), this, SLOT(ViewCameraChanged()));
 	connect(NewView, SIGNAL(FocusReceived()), this, SLOT(ViewFocusReceived()));
+
+	AddView(NewView);
 
 	return NewView;
 }
@@ -956,7 +958,7 @@ void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode)
 	}
 	else
 	{
-		lcPreviewWidget* Preview = new lcPreviewWidget();
+		lcPreview* Preview = new lcPreview();
 		lcViewWidget* ViewWidget = new lcViewWidget(nullptr, Preview);
 
 		if (Preview && ViewWidget)
@@ -982,8 +984,7 @@ void lcMainWindow::CreatePreviewWidget()
 /***
 	mPreviewToolBar = new QDockWidget(tr("Preview"), this);
 	mPreviewToolBar->setWindowTitle(tr("Preview"));
-	mPreviewToolBar->setObjectName("PreviewToolBarw");
-	mPreviewToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	mPreviewToolBar->setObjectName("PreviewToolBar");
 	mPreviewToolBar->setWidget(mPreviewWidget);
 	addDockWidget(Qt::RightDockWidgetArea, mPreviewToolBar);
 
@@ -996,20 +997,24 @@ void lcMainWindow::CreatePreviewWidget()
 
 void lcMainWindow::TogglePreviewWidget(bool Visible)
 {
-	if (mPreviewToolBar) {
+	if (mPreviewToolBar)
+	{
 		if (Visible)
 			mPreviewToolBar->show();
 		else
 			mPreviewToolBar->hide();
-	} else if (Visible) {
+	}
+	else if (Visible) 
+	{
 		CreatePreviewWidget();
 	}
 }
 
 void lcMainWindow::EnableWindowFlags(bool Detached)
 {
-	if (Detached) {
-		QDockWidget *DockWidget = qobject_cast<QDockWidget *>(sender());
+	if (Detached)
+	{
+		QDockWidget* DockWidget = qobject_cast<QDockWidget*>(sender());
 		DockWidget->setWindowFlags(Qt::CustomizeWindowHint |
 								   Qt::Window |
 								   Qt::WindowMinimizeButtonHint |
@@ -1110,15 +1115,20 @@ void lcMainWindow::closeEvent(QCloseEvent* Event)
 	{
 		Event->accept();
 /*** LPub3D Mod - suppress set windows state and save tab layout ***/
-//      QSettings Settings;
-//      Settings.beginGroup("MainWindow");
-//      Settings.setValue("Geometry", saveGeometry());
-//      Settings.setValue("State", saveState());
-//      mPartSelectionWidget->SaveState(Settings);
-//      Settings.endGroup();
+/***
+		QSettings Settings;
+		Settings.beginGroup("MainWindow");
+		Settings.setValue("Geometry", saveGeometry());
+		Settings.setValue("State", saveState());
+		mPartSelectionWidget->SaveState(Settings);
+		Settings.endGroup();
 
-//      gApplication->SaveTabLayout();
+		gApplication->SaveTabLayout();
+***/
 /*** LPub3D Mod end ***/
+
+		delete mPreviewWidget;
+		mPreviewWidget = nullptr;
 	}
 	else
 		Event->ignore();
@@ -1195,7 +1205,7 @@ void lcMainWindow::UpdateGamepads()
 	if (!gMainWindow)
 		return;
 
-	View* ActiveView = GetActiveView();
+	lcView* ActiveView = GetActiveView();
 	if (!ActiveView)
 		return;
 
@@ -1267,7 +1277,7 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 
 	if (okToPropagate) {
 		emit SetRotStepMeta();
-		lcGLWidget::UpdateAllViews();
+		lcView::UpdateAllViews();
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1276,7 +1286,7 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 void lcMainWindow::GetRotStepMetaAngles()
 {
 	lcModel* mModel = lcGetActiveModel();
-	View* mView = GetActiveView();
+	lcView* mView = GetActiveView();
 
 	lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
@@ -1474,7 +1484,7 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 			QByteArray TabLayout = GetTabLayout();
 			gApplication->SetProject(NewProject);
 			RestoreTabLayout(TabLayout);
-			lcGLWidget::UpdateAllViews();
+			lcView::UpdateAllViews();
 		}
 	}
 	else
@@ -1682,8 +1692,11 @@ void lcMainWindow::ShowPrintDialog()
 void lcMainWindow::SetShadingMode(lcShadingMode ShadingMode)
 {
 	lcGetPreferences().mShadingMode = ShadingMode;
+
 	UpdateShadingMode();
-	lcGLWidget::UpdateAllViews();
+
+	lcView::UpdateAllViews();
+
 	if (mPartSelectionWidget)
 		mPartSelectionWidget->Redraw();
 }
@@ -1691,6 +1704,7 @@ void lcMainWindow::SetShadingMode(lcShadingMode ShadingMode)
 void lcMainWindow::SetSelectionMode(lcSelectionMode SelectionMode)
 {
 	mSelectionMode = SelectionMode;
+
 	UpdateSelectionMode();
 }
 
@@ -1698,21 +1712,28 @@ void lcMainWindow::ToggleViewSphere()
 {
 	lcGetPreferences().mViewSphereEnabled = !lcGetPreferences().mViewSphereEnabled;
 
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
 }
 
 void lcMainWindow::ToggleAxisIcon()
 {
 	lcGetPreferences().mDrawAxes = !lcGetPreferences().mDrawAxes;
 
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
+}
+
+void lcMainWindow::ToggleGrid()
+{
+	lcGetPreferences().mGridEnabled = !lcGetPreferences().mGridEnabled;
+
+	lcView::UpdateAllViews();
 }
 
 void lcMainWindow::ToggleFadePreviousSteps()
 {
 	lcGetPreferences().mFadeSteps = !lcGetPreferences().mFadeSteps;
 
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
 }
 
 QByteArray lcMainWindow::GetTabLayout()
@@ -1735,7 +1756,7 @@ QByteArray lcMainWindow::GetTabLayout()
 		{
 			if (Widget->metaObject() == &lcViewWidget::staticMetaObject)
 			{
-				View* CurrentView = (View*)((lcViewWidget*)Widget)->GetView();
+				lcView* CurrentView = ((lcViewWidget*)Widget)->GetView();
 
 				DataStream << (qint32)0;
 				DataStream << (qint32)(TabWidget->GetActiveView() == CurrentView ? 1 : 0);
@@ -1831,10 +1852,10 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				qint32 CameraType;
 				DataStream >> CameraType;
 
-				View* CurrentView = nullptr;
+				lcView* CurrentView = nullptr;
 
 				if (ParentWidget)
-					CurrentView = (View*)((lcViewWidget*)ParentWidget)->GetView();
+					CurrentView = ((lcViewWidget*)ParentWidget)->GetView();
 
 				if (CameraType == 0)
 				{
@@ -1958,7 +1979,7 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 
 	lcModelTabWidget* TabWidget;
 	lcViewWidget* ViewWidget;
-	View* NewView;
+	lcView* NewView;
 
 	if (!EmptyWidget)
 	{
@@ -1999,7 +2020,7 @@ void lcMainWindow::ResetCameras()
 	if (!CurrentTab)
 		return;
 
-	const lcArray<View*>* Views = CurrentTab->GetViews();
+	const lcArray<lcView*>* Views = CurrentTab->GetViews();
 
 	for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
 		(*Views)[ViewIdx]->SetDefaultCamera();
@@ -2007,7 +2028,7 @@ void lcMainWindow::ResetCameras()
 	lcGetActiveModel()->DeleteAllCameras();
 }
 
-void lcMainWindow::AddView(View* View)
+void lcMainWindow::AddView(lcView* View)
 {
 	lcModelTabWidget* TabWidget = GetTabWidgetForModel(View->GetModel());
 
@@ -2023,7 +2044,7 @@ void lcMainWindow::AddView(View* View)
 	}
 }
 
-void lcMainWindow::RemoveView(View* View)
+void lcMainWindow::RemoveView(lcView* View)
 {
 	lcModelTabWidget* TabWidget = GetTabForView(View);
 
@@ -2031,10 +2052,10 @@ void lcMainWindow::RemoveView(View* View)
 		TabWidget->RemoveView(View);
 }
 
-void lcMainWindow::SetActiveView(View* ActiveView)
+void lcMainWindow::SetActiveView(lcView* ActiveView)
 {
 	lcModelTabWidget* TabWidget = GetTabForView(ActiveView);
-	View* CurrentActiveView = TabWidget->GetActiveView();
+	lcView* CurrentActiveView = TabWidget->GetActiveView();
 
 	if (!TabWidget || CurrentActiveView == ActiveView)
 		return;
@@ -2057,7 +2078,7 @@ void lcMainWindow::SetTool(lcTool Tool)
 	if (Action)
 		Action->setChecked(true);
 
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
 }
 
 void lcMainWindow::SetColorIndex(int ColorIndex)
@@ -2104,7 +2125,7 @@ void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
 {
 	mRelativeTransform = RelativeTransform;
 	UpdateLockSnap();
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
 }
 
 void lcMainWindow::SetLocalTransform(bool SelectionTransform)
@@ -2380,7 +2401,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			"VIEWER_SEL",  // 4
 			"VIEWER_CLR"   // 5
 		};
-		
+
 		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "Yes" : "No");
 		emit gui->messageSig(LOG_DEBUG, _Message);
 #endif
@@ -2667,12 +2688,12 @@ void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoTe
 
 void lcMainWindow::ViewFocusReceived()
 {
-	SetActiveView(dynamic_cast<View*>(sender()));
+	SetActiveView(qobject_cast<lcView*>(sender()));
 }
 
 void lcMainWindow::ViewCameraChanged()
 {
-	lcGLWidget* View = dynamic_cast<lcGLWidget*>(sender());
+	lcView* View = qobject_cast<lcView*>(sender());
 
 	if (!View || !View->IsLastFocused())
 		return;
@@ -2697,7 +2718,7 @@ void lcMainWindow::UpdateDefaultCameraProperties(lcCamera* DefaultCamera)
 void lcMainWindow::UpdateCameraMenu()
 {
 	const lcArray<lcCamera*>& Cameras = lcGetActiveModel()->GetCameras();
-	View* ActiveView = GetActiveView();
+	lcView* ActiveView = GetActiveView();
 	const lcCamera* CurrentCamera = ActiveView ? ActiveView->GetCamera() : nullptr;
 	bool CurrentSet = false;
 
@@ -2729,7 +2750,7 @@ void lcMainWindow::UpdateCameraMenu()
 
 void lcMainWindow::UpdatePerspective()
 {
-	View* ActiveView = GetActiveView();
+	lcView* ActiveView = GetActiveView();
 
 	if (ActiveView)
 	{
@@ -2905,7 +2926,7 @@ bool lcMainWindow::OpenProjectFile(const QString& FileName)
 /*** LPub3D Mod - suppress recent files dropdown ***/
 //		AddRecentFile(FileName);
 /*** LPub3D Mod end ***/
-		lcGLWidget::UpdateProjectViews(NewProject);
+		lcView::UpdateProjectViews(NewProject);
 
 		return true;
 	}
@@ -2961,7 +2982,7 @@ void lcMainWindow::ImportLDD()
 	if (NewProject->ImportLDD(LoadFileName))
 	{
 		gApplication->SetProject(NewProject);
-		lcGLWidget::UpdateProjectViews(NewProject);
+		lcView::UpdateProjectViews(NewProject);
 	}
 	else
 		delete NewProject;
@@ -2981,7 +3002,7 @@ void lcMainWindow::ImportInventory()
 	if (NewProject->ImportInventory(Dialog.GetSetInventory(), Dialog.GetSetName(), Dialog.GetSetDescription()))
 	{
 		gApplication->SetProject(NewProject);
-		lcGLWidget::UpdateProjectViews(NewProject);
+		lcView::UpdateProjectViews(NewProject);
 	}
 	else
 		delete NewProject;
@@ -3098,13 +3119,13 @@ void lcMainWindow::SetModelFromSelection()
 
 lcModel* lcMainWindow::GetActiveModel() const
 {
-	View* ActiveView = GetActiveView();
+	lcView* ActiveView = GetActiveView();
 	return ActiveView ? ActiveView->GetActiveModel() : nullptr;
 }
 
 void lcMainWindow::HandleCommand(lcCommandId CommandId)
 {
-	View* ActiveView = GetActiveView();
+	lcView* ActiveView = GetActiveView();
 	lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
 
 	switch (CommandId)
@@ -3364,6 +3385,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_TOGGLE_AXIS_ICON:
 		ToggleAxisIcon();
+		break;
+
+	case LC_VIEW_TOGGLE_GRID:
+		ToggleGrid();
 		break;
 
 	case LC_VIEW_FADE_PREVIOUS_STEPS:

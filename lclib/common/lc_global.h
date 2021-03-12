@@ -54,7 +54,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "aa1d802"
+#define LC_VERSION_BUILD "2ccdc85"
 /*** LPub3D Mod end ***/
 
 
@@ -79,7 +79,7 @@ class lcMatrix33;
 class lcMatrix44;
 
 class lcViewWidget;
-class lcGLWidget;
+class lcView;
 class lcContext;
 class lcMesh;
 struct lcMeshSection;

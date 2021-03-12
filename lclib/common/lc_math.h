@@ -675,12 +675,9 @@ inline lcVector3 lcVector3LDrawToLeoCAD(const lcVector3& Vector)
 	return lcVector3(Vector[0], Vector[2], -Vector[1]);
 }
 
-/*** LPub3D Mod - LeoCAD to LDraw conversion ***/
+/*** LPub3D Mod - LeoCAD to LDraw, Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 inline lcVector3 lcVector3LeoCADToLDraw(const lcVector3& Vector)
 {
-/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-	// (Set):   ld_X[lc_X] ld_Y[-lc_Z] ld_Z[ lc_Y]
-	// (Reset): ld_X[lc_X] ld_Y[ lc_Y] ld_Z[-lc_Z]
 	return lcVector3(Vector[0], -Vector[2], Vector[1]);
 }
 /*** LPub3D Mod end ***/

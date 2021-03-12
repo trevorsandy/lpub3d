@@ -68,10 +68,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "HighlightNewParts", 0),                                        // LC_PROFILE_HIGHLIGHT_NEW_PARTS
 	lcProfileEntry("Settings", "HighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),           // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR
 	lcProfileEntry("Settings", "ShadingMode", static_cast<int>(lcShadingMode::DefaultLights)), // LC_PROFILE_SHADING_MODE
-	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT                        /*** LPub3D Mod - set background colour ***/
+	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT
 	lcProfileEntry("Settings", "BackgroundColor", LC_RGB(255, 255, 255)),                      // LC_PROFILE_BACKGROUND_COLOR                           /*** LPub3D Mod - set background colour ***/
-	lcProfileEntry("Settings", "GradientColorTop", LC_RGB(54, 72, 95)),                        // LC_PROFILE_GRADIENT_COLOR_TOP                         /*** LPub3D Mod - set background colour ***/
-	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM                      /*** LPub3D Mod - set background colour ***/
+	lcProfileEntry("Settings", "GradientColorTop", LC_RGB(54, 72, 95)),                        // LC_PROFILE_GRADIENT_COLOR_TOP
+	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
@@ -137,16 +137,18 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("POVRay", "Width", 1280),                                                   // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                   // LC_PROFILE_POVRAY_HEIGHT
 
-	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                 // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED
-	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                   // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE
+	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                    // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED
+	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                      // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE
 	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION
-	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED
-	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE
-	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION
-	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION
-	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                          // LC_PROFILE_PREVIEW_DRAW_AXES
-	lcProfileEntry("Settings", "DrawPreviewViewSphere",1),                                     // LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE
-	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                         // LC_PROFILE_PREVIEW_LOAD_PATH                          /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewEnabled", 1),                                              // LC_PROFILE_PREVIEW_ENABLED
+	lcProfileEntry("Settings", "PreviewSize", 300),                                               // LC_PROFILE_PREVIEW_SIZE
+	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),           // LC_PROFILE_PREVIEW_LOCATION
+	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),              // LC_PROFILE_PREVIEW_POSITION
+	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                             // LC_PROFILE_PREVIEW_DRAW_AXES
+/*** LPub3D Mod - preview widget for LPub3D ***/	
+	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                            // LC_PROFILE_PREVIEW_LOAD_PATH                       /*** LPub3D Mod - preview widget for LPub3D ***/
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Build Modification ***/
 	lcProfileEntry("Settings", "BuildModification", 0),                                        // LC_PROFILE_BUILD_MODIFICATION                         /*** LPub3D Mod - Build Modification ***/
 /*** LPub3D Mod end ***/

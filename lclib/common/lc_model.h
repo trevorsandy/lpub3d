@@ -397,7 +397,6 @@ public:
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
 	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
-	void UpdateDefaultCameraProperties(lcCamera* DefaultCamera);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);

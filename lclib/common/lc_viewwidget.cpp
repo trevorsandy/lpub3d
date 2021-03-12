@@ -1,6 +1,5 @@
 #include "lc_global.h"
 #include "lc_viewwidget.h"
-#include "lc_glwidget.h"
 #include "lc_glextensions.h"
 #include "project.h"
 #include "lc_library.h"
@@ -8,7 +7,7 @@
 #include "lc_mainwindow.h"
 #include "lc_partselectionwidget.h"
 #include "lc_context.h"
-#include "view.h"
+#include "lc_view.h"
 #include "texfont.h"
 #include "lc_viewsphere.h"
 #include "lc_stringcache.h"
@@ -19,7 +18,7 @@
 
 static QList<lcViewWidget*> gWidgetList;
 
-lcViewWidget::lcViewWidget(QWidget* Parent, lcGLWidget* View)
+lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
 	: QGLWidget(Parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
 {
 	mWheelAccumulator = 0;
@@ -36,7 +35,7 @@ lcViewWidget::lcViewWidget(QWidget* Parent, lcGLWidget* View)
 
 		lcInitializeGLExtensions(context());
 		lcContext::CreateResources();
-		View::CreateResources(mView->mContext);
+		lcView::CreateResources(mView->mContext);
 		lcViewSphere::CreateResources(mView->mContext);
 
 		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
@@ -50,8 +49,6 @@ lcViewWidget::lcViewWidget(QWidget* Parent, lcGLWidget* View)
 	}
 
 	gWidgetList.append(this);
-
-	mView->OnInitialUpdate();
 
 	setMouseTracking(true);
 
@@ -72,7 +69,7 @@ lcViewWidget::~lcViewWidget()
 		gTexFont.Reset();
 
 		lcGetPiecesLibrary()->ReleaseBuffers(mView->mContext);
-		View::DestroyResources(mView->mContext);
+		lcView::DestroyResources(mView->mContext);
 		lcContext::DestroyResources();
 		lcViewSphere::DestroyResources(mView->mContext);
 
@@ -88,7 +85,7 @@ QSize lcViewWidget::sizeHint() const
 	return mPreferredSize.isEmpty() ? QGLWidget::sizeHint() : mPreferredSize;
 }
 
-void lcViewWidget::SetView(lcGLWidget* View)
+void lcViewWidget::SetView(lcView* View)
 {
 	mView = View;
 
@@ -108,7 +105,7 @@ void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& Vie
 {
 /*** LPub3D Mod end ***/
 	lcPreferences& Preferences = lcGetPreferences();
-	lcPreviewWidget* Preview = reinterpret_cast<lcPreviewWidget*>(mView);
+	lcPreview* Preview = reinterpret_cast<lcPreview*>(mView);
 
 	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
 

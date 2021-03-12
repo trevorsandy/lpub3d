@@ -3,7 +3,6 @@
 #include "ui_lc_qpreferencesdialog.h"
 #include "lc_qutils.h"
 #include "lc_qcategorydialog.h"
-#include "lc_basewindow.h"
 #include "lc_library.h"
 #include "lc_application.h"
 #include "lc_qutils.h"
@@ -143,7 +142,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	ui->PreviewAxisIconCheckBox->setChecked(mOptions->Preferences.mDrawPreviewAxis);
 
-	ui->PreviewViewSphereCheckBox->setChecked(mOptions->Preferences.mDrawPreviewViewSphere);
+	ui->PreviewViewSphereCheckBox->setChecked(mOptions->Preferences.mPreviewViewSphereEnabled);
 
 	ui->PreviewLocationCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewLocation);
 
@@ -450,8 +449,6 @@ void lcQPreferencesDialog::accept()
 
 	mOptions->Preferences.mDrawPreviewAxis = ui->PreviewAxisIconCheckBox->isChecked();
 
-	mOptions->Preferences.mDrawPreviewViewSphere = ui->PreviewViewSphereCheckBox->isChecked();
-
 	mOptions->Preferences.mPreviewLocation = (lcPreviewLocation)ui->PreviewLocationCombo->currentIndex();
 
 	mOptions->Preferences.mPreviewPosition = (lcPreviewPosition)ui->PreviewPositionCombo->currentIndex();
@@ -485,6 +482,8 @@ void lcQPreferencesDialog::accept()
 	default:
 		break;
 	}
+
+	mOptions->Preferences.mPreviewViewSphereEnabled = ui->PreviewViewSphereCheckBox->isChecked();
 
 /*** LPub3D Mod - Update Default Camera ***/
 	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();

@@ -7,7 +7,7 @@
 #include "lc_application.h"
 #include "pieceinf.h"
 #include "lc_library.h"
-#include "view.h"
+#include "lc_view.h"
 #include "camera.h"
 
 lcMinifigDialog::lcMinifigDialog(QWidget* Parent)
@@ -47,7 +47,7 @@ lcMinifigDialog::lcMinifigDialog(QWidget* Parent)
 	PreviewLayout->setContentsMargins(0, 0, 0, 0);
 
 	mMinifigWizard = new MinifigWizard();
-	mView = new View(lcViewType::Minifig, mMinifigWizard->GetModel());
+	mView = new lcView(lcViewType::Minifig, mMinifigWizard->GetModel());
 
 	lcViewWidget* ViewWidget = new lcViewWidget(nullptr, mView);
 	ViewWidget->setMinimumWidth(100);

@@ -182,6 +182,7 @@ enum lcCommandId
 	LC_VIEW_PROJECTION_LAST = LC_VIEW_PROJECTION_ORTHO,
 	LC_VIEW_TOGGLE_VIEW_SPHERE,
 	LC_VIEW_TOGGLE_AXIS_ICON,
+	LC_VIEW_TOGGLE_GRID,
 	LC_VIEW_FADE_PREVIOUS_STEPS,
 	LC_PIECE_INSERT,
 	LC_PIECE_DELETE,
@@ -292,7 +293,7 @@ enum class lcTool
 	Insert,
 	Light,
 	SunLight,      /*** LPub3D Mod - enable lights ***/
-	AreaLight,     /*** LPub3D Mod - enable lights ***/	
+	AreaLight,     /*** LPub3D Mod - enable lights ***/
 	SpotLight,
 	Camera,
 	Select,

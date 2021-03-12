@@ -4,9 +4,6 @@
 #include "lc_context.h"
 #include <bitset>
 
-class View;
-class lcPreviewWidget;
-
 enum class lcViewSphereLocation
 {
 	TopLeft,
@@ -18,9 +15,8 @@ enum class lcViewSphereLocation
 class lcViewSphere
 {
 public:
-	lcViewSphere(View* View);
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcViewSphere(lcPreviewWidget* Preview, bool Substitute);
+	lcViewSphere(lcView* View, bool SubstituteView = false);
 /*** LPub3D Mod end ***/
 
 	void Draw();
@@ -38,12 +34,9 @@ protected:
 	lcMatrix44 GetProjectionMatrix() const;
 	std::bitset<6> GetIntersectionFlags(lcVector3& Intersection) const;
 
-	lcGLWidget* const mWidget = nullptr;
-	lcPreviewWidget* const mPreview = nullptr;
-	View* const mView = nullptr;
-	bool mIsPreview = false;
+	lcView* const mView = nullptr;
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	bool mIsSubstitute = false;
+	bool mIsSubstituteView;
 /*** LPub3D Mod end ***/
 
 	int mSize = 1;

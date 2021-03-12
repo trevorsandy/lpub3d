@@ -6,7 +6,6 @@ HEADERS += \
     $$PWD/common/image.h \
     $$PWD/common/lc_application.h \
     $$PWD/common/lc_array.h \
-    $$PWD/common/lc_basewindow.h \
     $$PWD/common/lc_category.h \
     $$PWD/common/lc_colors.h \
     $$PWD/common/lc_commands.h \
@@ -15,7 +14,6 @@ HEADERS += \
     $$PWD/common/lc_glext.h \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
-    $$PWD/common/lc_glwidget.h \
     $$PWD/common/lc_http.h \
     $$PWD/common/lc_instructionsdialog.h \
     $$PWD/common/lc_library.h \
@@ -37,6 +35,7 @@ HEADERS += \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
     $$PWD/common/lc_timelinewidget.h \
+    $$PWD/common/lc_view.h \
     $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_viewwidget.h \
     $$PWD/common/lc_zipfile.h \
@@ -47,7 +46,6 @@ HEADERS += \
     $$PWD/common/pieceinf.h \
     $$PWD/common/project.h \
     $$PWD/common/texfont.h \
-    $$PWD/common/view.h \
     $$PWD/qt/lc_qaboutdialog.h \
     $$PWD/qt/lc_qarraydialog.h \
     $$PWD/qt/lc_qcategorydialog.h \
@@ -79,7 +77,6 @@ SOURCES += \
     $$PWD/common/lc_context.cpp \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_glextensions.cpp \
-    $$PWD/common/lc_glwidget.cpp \
     $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_instructionsdialog.cpp \
     $$PWD/common/lc_library.cpp \
@@ -100,6 +97,7 @@ SOURCES += \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
+    $$PWD/common/lc_view.cpp \
     $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_viewwidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
@@ -110,7 +108,6 @@ SOURCES += \
     $$PWD/common/pieceinf.cpp \
     $$PWD/common/project.cpp \
     $$PWD/common/texfont.cpp \
-    $$PWD/common/view.cpp \
     $$PWD/qt/lc_qaboutdialog.cpp \
     $$PWD/qt/lc_qarraydialog.cpp \
     $$PWD/qt/lc_qcategorydialog.cpp \

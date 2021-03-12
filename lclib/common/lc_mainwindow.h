@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lc_basewindow.h"
+#include "lc_application.h"
+#include "lc_shortcuts.h"
 #include "lc_array.h"
 #include "lc_commands.h"
 #include "lc_model.h"
@@ -11,7 +12,6 @@
 #include <name.h>
 /*** LPub3D Mod end ***/
 
-class View;
 class lcPartSelectionWidget;
 class lcPreviewDockWidget;
 class PiecePreview;
@@ -89,22 +89,22 @@ public:
 		return Widget;
 	}
 
-	View* GetActiveView() const
+	lcView* GetActiveView() const
 	{
 		return mActiveView;
 	}
 
-	void SetActiveView(View* ActiveView)
+	void SetActiveView(lcView* ActiveView)
 	{
 		mActiveView = ActiveView;
 	}
 
-	void AddView(View* View)
+	void AddView(lcView* View)
 	{
 		mViews.Add(View);
 	}
 
-	void RemoveView(View* View)
+	void RemoveView(lcView* View)
 	{
 		if (View == mActiveView)
 			mActiveView = nullptr;
@@ -122,15 +122,15 @@ public:
 		mModel = Model;
 	}
 
-	const lcArray<View*>* GetViews() const
+	const lcArray<lcView*>* GetViews() const
 	{
 		return &mViews;
 	}
 
 protected:
 	lcModel* mModel;
-	View* mActiveView;
-	lcArray<View*> mViews;
+	lcView* mActiveView;
+	lcArray<lcView*> mViews;
 };
 
 class lcMainWindow : public QMainWindow
@@ -215,7 +215,7 @@ public:
 		return mCurrentPieceInfo;
 	}
 
-	View* GetActiveView() const
+	lcView* GetActiveView() const
 	{
 		const lcModelTabWidget* const CurrentTab = mModelTabWidget ? (lcModelTabWidget*)mModelTabWidget->currentWidget() : nullptr;
 		return CurrentTab ? CurrentTab->GetActiveView() : nullptr;
@@ -229,13 +229,13 @@ public:
 		return CurrentTab ? CurrentTab->GetModel() : nullptr;
 	}
 
-	const lcArray<View*>* GetViewsForModel(const lcModel* Model) const
+	const lcArray<lcView*>* GetViewsForModel(const lcModel* Model) const
 	{
 		const lcModelTabWidget* const TabWidget = GetTabWidgetForModel(Model);
 		return TabWidget ? TabWidget->GetViews() : nullptr;
 	}
 
-	lcModelTabWidget* GetTabForView(View* View) const
+	lcModelTabWidget* GetTabForView(lcView* View) const
 	{
 		for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
 		{
@@ -327,8 +327,8 @@ public:
 	void CloseCurrentModelTab();
 	void SetCurrentModelTab(lcModel* Model);
 	void ResetCameras();
-	void AddView(View* View);
-	void RemoveView(View* View);
+	void AddView(lcView* View);
+	void RemoveView(lcView* View);
 
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
@@ -345,6 +345,7 @@ public:
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 	void ToggleViewSphere();
 	void ToggleAxisIcon();
+	void ToggleGrid();
 	void ToggleFadePreviousSteps();
 
 /***    void NewProject();                     // LPub3D Mod - moved to public slots ***/
@@ -492,8 +493,8 @@ protected:
 	void CreateMenus();
 	void CreateToolBars();
 	void CreateStatusBar();
-	View* CreateView(lcModel* Model);
-	void SetActiveView(View* ActiveView);
+	lcView* CreateView(lcModel* Model);
+	void SetActiveView(lcView* ActiveView);
 	void ToggleDockWidget(QWidget* DockWidget);
 	void SplitView(Qt::Orientation Orientation);
 	void ShowSearchDialog();

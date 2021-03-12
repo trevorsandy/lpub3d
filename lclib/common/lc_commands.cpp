@@ -836,15 +836,15 @@ const lcCommand gCommands[] =
 	// LC_VIEW_VIEWPOINT_HOME
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Home"),
-		QT_TRANSLATE_NOOP("Menu", "&Home"),                                        /*** LPub3D Mod - LPub3D Menu update ***/
-		QT_TRANSLATE_NOOP("Status", "View model from the default position - H"),             /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Menu", "&Home"),                                                     /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "View model from the default position - H"),                /*** LPub3D Mod - LPub3D Menu update ***/
 		"H"
 	},
 	// LC_VIEW_CAMERA_NONE
 	{
-		QT_TRANSLATE_NOOP("Action", "View.Cameras.None"),
-		QT_TRANSLATE_NOOP("Menu", "None"),
-		QT_TRANSLATE_NOOP("Status", "Do not use a camera"),
+		QT_TRANSLATE_NOOP("Action", "View.Cameras.Default"),                                    /*** LPub3D Mod - Update Default Camera ***/
+		QT_TRANSLATE_NOOP("Menu", "Default"),                                                   /*** LPub3D Mod - Update Default Camera ***/
+		QT_TRANSLATE_NOOP("Status", "Use default camera"),                                      /*** LPub3D Mod - Update Default Camera ***/
 		""
 	},
 	// LC_VIEW_CAMERA1
@@ -1167,6 +1167,13 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "View.ToggleAxisIcon"),
 		QT_TRANSLATE_NOOP("Menu", "Axis Icon"),
 		QT_TRANSLATE_NOOP("Status", "Toggle axis icon"),
+		""
+	},
+	// LC_VIEW_TOGGLE_GRID
+	{
+		QT_TRANSLATE_NOOP("Action", "View.ToggleGrid"),
+		QT_TRANSLATE_NOOP("Menu", "Base Grid"),
+		QT_TRANSLATE_NOOP("Status", "Toggle grid"),
 		""
 	},
 	// LC_VIEW_FADE_PREVIOUS_STEPS
@@ -1808,7 +1815,7 @@ const char* gToolNames[] =
 	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // lcTool::Insert
 	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // lcTool::Light
 	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // lcTool::NewSunLight  /*** LPub3D Mod - enable lights ***/
-	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // lcTool::NewAreaLight /*** LPub3D Mod - enable lights ***/   
+	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // lcTool::NewAreaLight /*** LPub3D Mod - enable lights ***/
 	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // lcTool::SpotLight
 	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),     // lcTool::Camera
 	QT_TRANSLATE_NOOP("Mouse", "Select"),        // lcTool::Select
@@ -1822,7 +1829,7 @@ const char* gToolNames[] =
 	QT_TRANSLATE_NOOP("Mouse", "Orbit"),         // lcTool::RotateView
 	QT_TRANSLATE_NOOP("Mouse", "Roll"),          // lcTool::Roll
 	QT_TRANSLATE_NOOP("Mouse", "ZoomRegion"),    // lcTool::ZoomRegion
-	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/    
+	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // lcTool::RotateStep  /*** LPub3D Mod - Rotate Step Menu ***/
 };
 
 LC_ARRAY_SIZE_CHECK(gToolNames, lcTool::Count);

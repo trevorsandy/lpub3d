@@ -30,10 +30,10 @@ lcCamera::lcCamera(bool Simple, bool LPubMeta)
 		mState |= LC_CAMERA_SIMPLE;
 	else
 	{
-/*** LPub3D Mod - Update Default Camera ***/		
+/*** LPub3D Mod - Update Default Camera ***/
 		float PP = GetCDP() / GetDDF();
 		mPosition = lcVector3(-PP, -PP, 75.0f);
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 		mTargetPosition = lcVector3(0.0f, 0.0f, 0.0f);
 		mUpVector = lcVector3(-0.2357f, -0.2357f, 0.94281f);
 
@@ -81,7 +81,7 @@ void lcCamera::Initialize()
 	m_fovy = gApplication->mPreferences.mCFoV;
 	m_zNear = gApplication->mPreferences.mCNear;
 	m_zFar = gApplication->mPreferences.mCFar;
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 	mState = 0;
 }
 
@@ -645,7 +645,7 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
 
-	const GLushort Indices[40 + 24 + 24 + 4 + 16] = 
+	const GLushort Indices[40 + 24 + 24 + 4 + 16] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 0,
 		4, 5, 5, 6, 6, 7, 7, 4,
@@ -968,9 +968,9 @@ void lcCamera::Zoom(float Distance, lcStep Step, bool AddKey)
 {
 	lcVector3 FrontVector(mPosition - mTargetPosition);
 	FrontVector.Normalize();
-/*** LPub3D Mod - Update Default Camera ***/	
+/*** LPub3D Mod - Update Default Camera ***/
 	FrontVector *= GetDDF() * Distance;
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 
 	// Don't zoom ortho in if it would cross the ortho focal plane.
 	if (IsOrtho())
@@ -1022,7 +1022,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 		Z[0] = -Z[0];
 		Z[1] = -Z[1];
 	}
- 
+
 	lcMatrix44 YRot(lcVector4(Z[0], Z[1], 0.0f, 0.0f), lcVector4(-Z[1], Z[0], 0.0f, 0.0f), lcVector4(0.0f, 0.0f, 1.0f, 0.0f), lcVector4(0.0f, 0.0f, 0.0f, 1.0f));
 	lcMatrix44 transform = lcMul(lcMul(lcMul(lcMatrix44AffineInverse(YRot), lcMatrix44RotationY(DistanceY)), YRot), lcMatrix44RotationZ(-DistanceX));
 

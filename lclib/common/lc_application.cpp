@@ -8,7 +8,7 @@
 #include "lc_qpreferencesdialog.h"
 #include "lc_partselectionwidget.h"
 #include "lc_shortcuts.h"
-#include "view.h"
+#include "lc_view.h"
 #include "camera.h"
 #include "lc_previewwidget.h"
 
@@ -69,7 +69,6 @@ void lcPreferences::LoadDefaults()
 	mPreviewLocation = static_cast<lcPreviewLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_LOCATION));
 	mPreviewPosition = static_cast<lcPreviewPosition>(lcGetProfileInt(LC_PROFILE_PREVIEW_POSITION));
 	mDrawPreviewAxis = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES);
-	mDrawPreviewViewSphere = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	mPreviewLoadPath = lcGetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH);
 /*** LPub3D Mod end ***/
@@ -147,7 +146,6 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_PREVIEW_LOCATION, static_cast<int>(mPreviewLocation));
 	lcSetProfileInt(LC_PROFILE_PREVIEW_POSITION, static_cast<int>(mPreviewPosition));
 	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES, mDrawPreviewAxis);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE, mDrawPreviewViewSphere);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, mPreviewLoadPath);
 /*** LPub3D Mod end ***/
@@ -859,7 +857,7 @@ int lcApplication::Process3DViewerCommandLine()
 		if (!ModelName.isEmpty())
 			mProject->SetActiveModel(ModelName);
 
-		View* ActiveView = gMainWindow->GetActiveView();
+		lcView* ActiveView = gMainWindow->GetActiveView();
 
 		if (!CameraName.isEmpty())
 		{
@@ -1472,7 +1470,7 @@ void lcApplication::ShowPreferencesDialog()
 	*/
 
 	gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
-	lcGLWidget::UpdateAllViews();
+	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
 	if (restartApp) {

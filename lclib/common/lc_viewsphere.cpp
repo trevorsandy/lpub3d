@@ -1,7 +1,6 @@
 #include "lc_global.h"
 #include "lc_viewsphere.h"
-#include "view.h"
-#include "lc_previewwidget.h"
+#include "lc_view.h"
 #include "camera.h"
 #include "lc_context.h"
 #include "lc_stringcache.h"
@@ -17,16 +16,8 @@ const float lcViewSphere::mHighlightRadius = 0.35f;
 const int lcViewSphere::mSubdivisions = 7;
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-lcViewSphere::lcViewSphere(View* View)
-	: mWidget(View), mPreview(nullptr), mView(View), mIsPreview(false), mIsSubstitute(false)
-{
-/*** LPub3D Mod end ***/
-	UpdateSettings();
-}
-
-/*** LPub3D Mod - preview widget for LPub3D ***/
-lcViewSphere::lcViewSphere(lcPreviewWidget* Preview, bool Substitute)
-	: mWidget(Preview), mPreview(Preview), mView(nullptr), mIsPreview(true), mIsSubstitute(Substitute)
+lcViewSphere::lcViewSphere(lcView* View, bool SubstituteView)
+	: mView(View), mIsSubstituteView(SubstituteView)
 {
 /*** LPub3D Mod end ***/
 	UpdateSettings();
@@ -36,7 +27,7 @@ void lcViewSphere::UpdateSettings()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
 
-	switch (mWidget->GetViewType())
+	switch (mView->GetViewType())
 	{
 	case lcViewType::View:
 		mSize = Preferences.mViewSphereSize;
@@ -45,12 +36,12 @@ void lcViewSphere::UpdateSettings()
 		break;
 
 	case lcViewType::Preview:
-/*** LPub3D Mod - preview widget for LPub3D ***/		
-		if (mIsSubstitute && Preferences.mPreviewViewSphereSize != 50)
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		if (mIsSubstituteView && Preferences.mPreviewViewSphereSize != 50)
 			mSize = Preferences.mPreviewViewSphereSize * 0.70;
 		else
 			mSize = Preferences.mPreviewViewSphereSize;
-/*** LPub3D Mod end ***/			
+/*** LPub3D Mod end ***/
 		mEnabled = Preferences.mPreviewViewSphereEnabled;
 		mLocation = Preferences.mPreviewViewSphereLocation;
 		break;
@@ -63,7 +54,7 @@ void lcViewSphere::UpdateSettings()
 
 lcMatrix44 lcViewSphere::GetViewMatrix() const
 {
-	lcMatrix44 ViewMatrix = mWidget->GetCamera()->mWorldView;
+	lcMatrix44 ViewMatrix = mView->GetCamera()->mWorldView;
 	ViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 	return ViewMatrix;
 }
@@ -197,9 +188,9 @@ void lcViewSphere::Draw()
 	if (!mSize || !mEnabled)
 		return;
 
-	lcContext* Context = mWidget->mContext;
-	const int Width = mWidget->GetWidth();
-	const int Height = mWidget->GetHeight();
+	lcContext* Context = mView->mContext;
+	const int Width = mView->GetWidth();
+	const int Height = mView->GetHeight();
 	const int ViewportSize = mSize;
 	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
@@ -268,8 +259,8 @@ bool lcViewSphere::OnLeftButtonDown()
 	if (!mIntersectionFlags.any())
 		return false;
 
-	mMouseDownX = mWidget->GetMouseX();
-	mMouseDownY = mWidget->GetMouseY();
+	mMouseDownX = mView->GetMouseX();
+	mMouseDownY = mView->GetMouseY();
 	mMouseDown = true;
 
 	return true;
@@ -298,7 +289,7 @@ bool lcViewSphere::OnLeftButtonUp()
 			Position[AxisIdx] = -1250.0f;
 	}
 
-	mWidget->SetViewpoint(Position);
+	mView->SetViewpoint(Position);
 
 	return true;
 }
@@ -311,11 +302,11 @@ bool lcViewSphere::OnMouseMove()
 	if (IsDragging())
 	{
 		mIntersectionFlags.reset();
-		mIsPreview ? mPreview->StartOrbitTracking() : mView->StartOrbitTracking();
+		mView->StartOrbitTracking();
 		return true;
 	}
 
-	if (mWidget->IsTracking())
+	if (mView->IsTracking())
 		return false;
 
 	std::bitset<6> IntersectionFlags = GetIntersectionFlags(mIntersection);
@@ -323,7 +314,7 @@ bool lcViewSphere::OnMouseMove()
 	if (IntersectionFlags != mIntersectionFlags)
 	{
 		mIntersectionFlags = IntersectionFlags;
-		mWidget->Redraw();
+		mView->Redraw();
 	}
 
 	return mIntersectionFlags.any();
@@ -331,20 +322,20 @@ bool lcViewSphere::OnMouseMove()
 
 bool lcViewSphere::IsDragging() const
 {
-	int InputStateX = mWidget->GetMouseX();
-	int InputStateY = mWidget->GetMouseY();
+	int InputStateX = mView->GetMouseX();
+	int InputStateY = mView->GetMouseY();
 	return mMouseDown && (qAbs(mMouseDownX - InputStateX) > 3 || qAbs(mMouseDownY - InputStateY) > 3);
 }
 
 std::bitset<6> lcViewSphere::GetIntersectionFlags(lcVector3& Intersection) const
 {
-	const int Width = mWidget->GetWidth();
-	const int Height = mWidget->GetHeight();
+	const int Width = mView->GetWidth();
+	const int Height = mView->GetHeight();
 	const int ViewportSize = mSize;
 	const int Left = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	const int Bottom = (mLocation == lcViewSphereLocation::BottomLeft || mLocation == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
-	const int x = mWidget->GetMouseX() - Left;
-	const int y = mWidget->GetMouseY() - Bottom;
+	const int x = mView->GetMouseX() - Left;
+	const int y = mView->GetMouseY() - Bottom;
 	std::bitset<6> IntersectionFlags;
 
 	if (x < 0 || x > Width || y < 0 || y > Height)
