@@ -3068,7 +3068,9 @@ PliBackgroundItem::PliBackgroundItem(
     int            height,
     PlacementType  _parentRelativeType,
     int            submodelLevel,
-    QGraphicsItem *parent)
+    QGraphicsItem *parent):
+    isHovered(false),
+    mouseIsDown(false)
 {
   pli       = _pli;
   grabHeight = height;
@@ -3130,6 +3132,9 @@ PliBackgroundItem::PliBackgroundItem(
   if (parentRelativeType != SingleStepType && pli->perStep) {
       setFlag(QGraphicsItem::ItemIsMovable,false);
     }
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
 }
 
 void PliBackgroundItem::placeGrabbers()
@@ -3159,6 +3164,7 @@ void PliBackgroundItem::placeGrabbers()
 void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
+  mouseIsDown = true;
   positionChanged = false;
   // we only want to toggle the grabbers off on second left mouse click
   if (event->button() != Qt::LeftButton){
@@ -3179,6 +3185,7 @@ void PliBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -3206,6 +3213,30 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
           changePlacementOffset(here,&placement,pli->parentRelativeType);
         }
     }
+}
+
+void PliBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void PliBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PliBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsPixmapItem::paint(painter,option,widget);
 }
 
 void PliBackgroundItem::contextMenuEvent(
