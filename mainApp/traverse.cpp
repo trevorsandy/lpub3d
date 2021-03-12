@@ -3037,7 +3037,7 @@ int Gui::findPage(
               if (partsAdded && ! noStep && ! buildModIgnore) {
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-                         (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + pa)) { // skip the first step
+                         (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
                           opts.contStepNumber += ! coverPage && ! stepPage;
                       }
                       if (! stepGroup && stepNumber == 1 + sa) {
@@ -3262,8 +3262,8 @@ int Gui::findPage(
             case LeoCadGroupEndRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
-                  partsAdded = true;
                 }
+              partsAdded = true;
               break;
 
               /* remove a group or all instances of a part type */
@@ -3322,26 +3322,35 @@ int Gui::findPage(
               break;
 
             case ContStepNumRc:
-              if (meta.LPub.contStepNumbers.value()) {
-                  if (! opts.contStepNumber)
-                      opts.contStepNumber += 1 + sa;
-              } else {
-                  opts.contStepNumber = 0;
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+              {
+                  if (meta.LPub.contStepNumbers.value()) {
+                      if (! opts.contStepNumber)
+                          opts.contStepNumber += 1 + sa;
+                  } else {
+                      opts.contStepNumber = 0;
+                  }
               }
               break;
 
             case StartStepNumberRc:
-              if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
-                   opts.current.modelName != ldrawFile.topLevelFile())
-                  parseError("Start step number must be specified in the top model header.", opts.current);
-              sa = meta.LPub.startStepNumber.value() - 1;
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+              {
+                  if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                          opts.current.modelName != ldrawFile.topLevelFile())
+                      parseError("Start step number must be specified in the top model header.", opts.current);
+                  sa = meta.LPub.startStepNumber.value() - 1;
+              }
               break;
 
             case StartPageNumberRc:
-              if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
-                   opts.current.modelName != ldrawFile.topLevelFile())
-                  parseError("Start page number must be specified in the top model header.", opts.current);
-              pa = meta.LPub.startPageNumber.value() - 1;
+              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+              {
+                  if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                          opts.current.modelName != ldrawFile.topLevelFile())
+                      parseError("Start page number must be specified in the top model header.", opts.current);
+                  pa = meta.LPub.startPageNumber.value() - 1;
+              }
               break;
 
             case BuildModEnableRc:
@@ -3403,7 +3412,7 @@ int Gui::findPage(
       // pass continuous step number to drawPage
       if (opts.contStepNumber) {
           if (! countInstances && isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-             (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + pa)) {
+             (stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) {
               opts.contStepNumber += ! coverPage && ! stepPage;
           }
           if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
