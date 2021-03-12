@@ -763,35 +763,36 @@ QString Pli::orient(QString &color, QString type)
 
   if ( ! cached) {
       QString filePath(Preferences::pliControlFile);
-      QFile file(filePath);
 
-      if (file.open(QFile::ReadOnly | QFile::Text)) {
-          QTextStream in(&file);
+      if (!filePath.isEmpty()) {
+          QFile file(filePath);
+          if (file.open(QFile::ReadOnly | QFile::Text)) {
+              QTextStream in(&file);
 
-          while ( ! in.atEnd()) {
-              QString line = in.readLine(0);
-              QStringList tokens;
+              while ( ! in.atEnd()) {
+                  QString line = in.readLine(0);
+                  QStringList tokens;
 
-              split(line,tokens);
+                  split(line,tokens);
 
-              if (tokens.size() != 15) {
-                  continue;
-                }
+                  if (tokens.size() != 15) {
+                      continue;
+                  }
 
-              QString token14 = tokens[14].toLower();
+                  QString token14 = tokens[14].toLower();
 
-              if (tokens.size() == 15 && tokens[0] == "1" && token14 == type) {
-                  cached = new QString(line);
-                  orientation.insert(type,cached);
-                  break;
-                }
-            }
-          file.close();
-      } else {
-          emit gui->messageSig(LOG_ERROR, QString("Failed to open PLI control file: %1:<br>%2")
-                               .arg(filePath)
-                               .arg(file.errorString()));
-          return QString();
+                  if (tokens.size() == 15 && tokens[0] == "1" && token14 == type) {
+                      cached = new QString(line);
+                      orientation.insert(type,cached);
+                      break;
+                  }
+              }
+              file.close();
+          } else {
+              emit gui->messageSig(LOG_ERROR, QString("Failed to open PLI control file: %1:<br>%2")
+                                   .arg(filePath)
+                                   .arg(file.errorString()));
+          }
       }
     }
 
