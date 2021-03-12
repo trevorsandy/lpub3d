@@ -246,6 +246,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_HighlightNewParts_toggled();
 	on_gridStuds_toggled();
 	on_gridLines_toggled();
+/*** LPub3D Mod - Enable background colour buttons ***/
+	on_BackgroundSolidRadio_toggled(ui->BackgroundSolidRadio->isChecked());
+	on_BackgroundGradientRadio_toggled(ui->BackgroundGradientRadio->isChecked());
+/*** LPub3D Mod end ***/
 	on_ViewSphereSizeCombo_currentIndexChanged(ui->ViewSphereSizeCombo->currentIndex());
 
 	on_PreviewViewSphereSizeCombo_currentIndexChanged(ui->PreviewViewSphereSizeCombo->currentIndex());
@@ -658,6 +662,22 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	pix.fill(newColor);
 	((QToolButton*)Button)->setIcon(pix);
 }
+
+/*** LPub3D Mod - Enable background colour buttons ***/
+void lcQPreferencesDialog::on_BackgroundSolidRadio_toggled(bool checked)
+{
+	ui->BackgroundGradient1ColorButton->setEnabled(!checked);
+	ui->BackgroundSolidColorButton->setEnabled(checked);
+	ui->BackgroundGradient2ColorButton->setEnabled(!checked);
+}
+
+void lcQPreferencesDialog::on_BackgroundGradientRadio_toggled(bool checked)
+{
+	ui->BackgroundGradient1ColorButton->setEnabled(checked);
+	ui->BackgroundSolidColorButton->setEnabled(!checked);
+	ui->BackgroundGradient2ColorButton->setEnabled(checked);
+}
+/*** LPub3D Mod end ***/
 
 void lcQPreferencesDialog::on_studLogo_toggled()
 {

@@ -81,6 +81,10 @@ public slots:
 	void on_cameraDefaultPosition_valueChanged(double value);
 	void cameraPropertyReset();
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Enable background colour buttons ***/
+	void on_BackgroundSolidRadio_toggled(bool checked);
+	void on_BackgroundGradientRadio_toggled(bool checked);
+/*** LPub3D Mod end ***/
 
 private:
 	Ui::lcQPreferencesDialog *ui;
