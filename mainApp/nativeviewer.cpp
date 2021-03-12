@@ -3154,7 +3154,7 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
           emit messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
           return false;
       } else {
-          here = Where(modelName,lineNumber);
+          here = Where(modelName,getSubmodelIndex(modelName),lineNumber);
       }
 
       stepNumber = 0;
@@ -3191,7 +3191,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
     bool stepMatch  = false;
     auto calledOutStep = [this, &here, &stepNumber, &stepType] (Step* step, bool &stepMatch)
     {
-        if (! (stepMatch = step->stepNumber.number == stepNumber)) {
+        if (! (stepMatch = step->stepNumber.number == stepNumber || step->topOfStep() == here )) {
             for (int k = 0; k < step->list.size(); k++) {
                 if (step->list[k]->relativeType == CalloutType) {
                     Callout *callout = dynamic_cast<Callout *>(step->list[k]);
@@ -3222,7 +3222,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
                     if (stepType == BM_CALLOUT_STEP)
                         calledOutStep(step, stepMatch);
                     else if (step && step->relativeType == StepType)
-                        stepMatch = step->stepNumber.number == stepNumber;
+                        stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
                     if (stepMatch)
                         break;
                 }
@@ -3235,12 +3235,12 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
             if (stepType == BM_CALLOUT_STEP)
                 calledOutStep(step, stepMatch);
             else if (step && step->relativeType == StepType)
-                stepMatch = step->stepNumber.number == stepNumber;
+                stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
         }
     } else if ((step = gStep)) {
         if (stepType == BM_CALLOUT_STEP)
             calledOutStep(step, stepMatch);
-        else if (!(stepMatch = step->stepNumber.number == stepNumber))
+        else if (!(stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here)))
             step = nullptr;
     }
 
@@ -3266,8 +3266,11 @@ bool Gui::setCurrentStep(const QString &key)
 
     extractStepKey(here, stepNumber, key);
 
+    QString stepNumberSpecified;
     if (!stepNumber)
-        return currentStep;
+        stepNumberSpecified = QString("not specified");
+    else
+        stepNumberSpecified = QString::number(stepNumber);
 
     QString stepKey = key.isEmpty() ? viewerStepKey : key;
 
@@ -3281,8 +3284,8 @@ bool Gui::setCurrentStep(const QString &key)
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
     else if (Preferences::debugLogging) {
-        emit messageSig(LOG_ERROR, QString("Could not determine step for %1 at step number %2.")
-                                           .arg(here.modelName).arg(stepNumber));
+        emit messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
+                                           .arg(here.modelName).arg(stepNumberSpecified));
     }
 
 #ifdef QT_DEBUG_MODE
