@@ -425,6 +425,8 @@ void Gui::create3DMenus()
      cameraMenu = new QMenu(tr("Camera Settings"),this);
      cameraMenu->addAction(applyCameraAct);
      cameraMenu->addSeparator();
+     cameraMenu->addMenu(gMainWindow->GetCameraMenu());
+     cameraMenu->addSeparator();
      cameraMenu->addAction(useImageSizeAct);
      cameraMenu->addAction(autoCenterSelectionAct);
      cameraMenu->addAction(defaultCameraPropertiesAct);
