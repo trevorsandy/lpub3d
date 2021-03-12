@@ -3063,7 +3063,7 @@ int CountPageWorker::countPage(
 
                           // check if submodel is in current step build modification
                           bool buildModRendered = (opts.buildMod.ignore2 || ldrawFile->getBuildModRendered(
-                                          (alreadyRendered ? "" : "cp")+opts.buildMod.key, colorType));
+                                          (alreadyRendered ? "" : "cp~")+opts.buildMod.key, colorType));
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3137,8 +3137,8 @@ int CountPageWorker::countPage(
                       if (opts.flags.bfxStore1) {
                           bfxParts << colorType;
                       }
-                      if (contains && buildMod[BM_BEGIN] && ! buildModIgnore) {
-                          ldrawFile->setBuildModRendered(buildModKey, colorType);
+                      if (opts.buildMod.state == BM_BEGIN && ! opts.buildMod.ignore) {
+                          ldrawFile->setBuildModRendered("cp~"+opts.buildMod.key, colorType);
                       }
                   }
               } // ! PartIgnore

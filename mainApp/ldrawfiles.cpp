@@ -313,7 +313,7 @@ int LDrawFile::size(const QString &mcFileName)
 {
   QString fileName = mcFileName.toLower();
   int mySize;
-      
+
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i == _subFiles.end()) {
@@ -486,7 +486,7 @@ QStringList LDrawFile::contents(const QString &mcFileName)
   }
 }
 
-void LDrawFile::setContents(const QString     &mcFileName, 
+void LDrawFile::setContents(const QString     &mcFileName,
                  const QStringList &contents)
 {
   QString fileName = mcFileName.toLower();
@@ -744,7 +744,7 @@ QString LDrawFile::readLine(const QString &mcFileName, int lineNumber)
 }
 
 void LDrawFile::insertLine(const QString &mcFileName, int lineNumber, const QString &line)
-{  
+{
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
@@ -755,7 +755,7 @@ void LDrawFile::insertLine(const QString &mcFileName, int lineNumber, const QStr
     i.value()._changedSinceLastWrite = true;
   }
 }
-  
+
 void LDrawFile::replaceLine(const QString &mcFileName, int lineNumber, const QString &line)
 {
   QString fileName = mcFileName.toLower();
@@ -782,9 +782,9 @@ void LDrawFile::deleteLine(const QString &mcFileName, int lineNumber)
   }
 }
 
-void LDrawFile::changeContents(const QString &mcFileName, 
-                          int      position, 
-                          int      charsRemoved, 
+void LDrawFile::changeContents(const QString &mcFileName,
+                          int      position,
+                          int      charsRemoved,
                     const QString &charsAdded)
 {
   QString fileName = mcFileName.toLower();
@@ -838,7 +838,7 @@ void LDrawFile::setRendered(
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString();
         if (countPage)
-            key.prepend("cp");
+            key.prepend("cp~");
     if (mirrored) {
       i.value()._mirrorRendered = true;
       if (!key.isEmpty() && !i.value()._mirrorRenderedKeys.contains(key)) {
@@ -874,26 +874,26 @@ bool LDrawFile::rendered(const QString &mcFileName,
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString() ;
     if (countPage)
-        key.prepend("cp");
+        key.prepend("cp~");
     if (mirrored) {
-      haveKey = key.isEmpty() || (countPage && key == "cp") ? howCounted == CountAtTop ? true : false :
+      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
                   i.value()._mirrorRenderedKeys.contains(key);
       rendered  = i.value()._mirrorRendered;
     } else {
-      haveKey = key.isEmpty() || (countPage && key == "cp") ? howCounted == CountAtTop ? true : false :
+      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
                   i.value()._renderedKeys.contains(key);
       rendered  = i.value()._rendered;
     }
     return rendered && haveKey;
   }
   return rendered;
-}      
+}
 
 int LDrawFile::instances(const QString &mcFileName, bool mirrored)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  
+
   int instances = 0;
 
   if (i != _subFiles.end()) {
@@ -930,7 +930,7 @@ int LDrawFile::loadFile(const QString &fileName)
     // get rid of what's there before we load up new stuff
 
     empty();
-    
+
     // allow files ldr suffix to allow for MPD
 
     bool mpd = false;
@@ -966,7 +966,7 @@ int LDrawFile::loadFile(const QString &fileName)
       topLevelModel = true;
       loadLDRFile(QDir::toNativeSeparators(fileInfo.absolutePath()),fileInfo.fileName());
     }
-    
+
     QApplication::restoreOverrideCursor();
 
     addCustomColorParts(topLevelFile());
@@ -1076,7 +1076,7 @@ void LDrawFile::showLoadMessages()
 }
 
 void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
-{    
+{
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         emit gui->messageSig(LOG_ERROR, QString("Cannot read mpd file %1<br>%2")
@@ -1275,7 +1275,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                             bool state = tokens.last() == "FALSE" ? false : true ;
                             Preferences::finalModelEnabled = state;
                             metaFinalModelNotFound = false;
-                        }                            
+                        }
                     }
                 }
 
@@ -1596,7 +1596,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                             bool state = tokens.last() == "FALSE" ? false : true ;
                             Preferences::finalModelEnabled  = state;
                             metaFinalModelNotFound = false;
-                        }                            
+                        }
                     }
                 }
 
@@ -1749,7 +1749,7 @@ bool LDrawFile::saveFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
     return rc;
 }
- 
+
 bool LDrawFile::mirrored(
   const QStringList &tokens)
 {
@@ -1759,7 +1759,7 @@ bool LDrawFile::mirrored(
   /* 5  6  7
      8  9 10
     11 12 13 */
-    
+
   float a = tokens[5].toFloat();
   float b = tokens[6].toFloat();
   float c = tokens[7].toFloat();
@@ -1775,7 +1775,7 @@ bool LDrawFile::mirrored(
   float a3 = c*(d*h - e*g);
 
   float det = (a1 - a2 + a3);
-  
+
   return det < 0;
   //return a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g) < 0;
 }
@@ -2792,12 +2792,21 @@ void LDrawFile::clearBuildModRendered(const QString &buildModKey, const QString 
     }
 }
 
-void LDrawFile::clearBuildModRendered()
+void LDrawFile::clearBuildModRendered(bool countPage)
 {
     QString key;
     Q_FOREACH (key,_buildModRendered.keys()) {
+        if (countPage) {
+           QString modelFile;
+           Q_FOREACH (modelFile, _buildModRendered[key]) {
+               if (modelFile.startsWith("cp~")) {
+                   _buildModRendered[key].removeAll(modelFile);
+               }
+           }
+        } else {
+            _buildModRendered[key].clear();
+        }
     }
-        _buildModRendered[key].clear();
 }
 
 int LDrawFile::getBuildModActionPrevIndex(const QString &buildModKey, const int stepIndex, const int action)
