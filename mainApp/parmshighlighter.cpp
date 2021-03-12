@@ -45,25 +45,25 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
     QBrush br07; //
 
     if (Preferences::displayTheme == THEME_DEFAULT) {
-        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_A_DEFAULT]));
-        br02 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_B_DEFAULT]));
-        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_C_DEFAULT]));
-        br04 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_D_DEFAULT]));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_INI_FILE_COMMENT]));
+        br02 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_INI_FILE_HEADER]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_INI_FILE_EQUAL]));
+        br04 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_INI_FILE_VALUE]));
 
-        br05 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_E_DEFAULT]));
-        br06 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_F_DEFAULT]));
-        br07 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_G_DEFAULT]));
+        br05 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_ID]));
+        br06 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_CONTROL]));
+        br07 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION]));
       }
     else
     if (Preferences::displayTheme == THEME_DARK)  {
-        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_A_DARK]));
-        br02 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_B_DARK]));
-        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_C_DARK]));
-        br04 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_D_DARK]));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_COMMENT]));
+        br02 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_HEADER]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_EQUAL]));
+        br04 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_INI_FILE_VALUE]));
 
-        br05 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_E_DARK]));
-        br06 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_F_DARK]));
-        br07 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_G_DARK]));
+        br05 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_PARAMETER_FILE_PART_ID]));
+        br06 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_PARAMETER_FILE_PART_CONTROL]));
+        br07 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_PARAMETER_FILE_PART_DESCRIPTION]));
       }
 
     /* INI file formats */

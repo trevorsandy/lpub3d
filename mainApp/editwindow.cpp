@@ -1165,7 +1165,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                     if (Preferences::displayTheme == THEME_DEFAULT) {
                         lineColor = QColor(Qt::white);
                     } else if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(Preferences::themeColors[THEME_SCENE_BGCOLOR_DARK]);
+                        lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]);
                     }
                 } else {
                     lineColor = QColor(editorSelection ? Qt::cyan : Qt::green).lighter(180);
@@ -1234,16 +1234,16 @@ void EditWindow::highlightCurrentLine()
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
             if (showLineType == LINE_ERROR)
-                lineColor = QColor(Preferences::themeColors[THEME_LINE_ERROR_DEFAULT]);
+                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_ERROR]);
              else
-                lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DEFAULT]);
+                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
             if (showLineType == LINE_ERROR)
-                lineColor = QColor(Preferences::themeColors[THEME_LINE_ERROR_DARK]).lighter(180);
+                lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_ERROR]).lighter(180);
             else
-                lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DARK]);
+                lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
         }
 
         selection.format.setBackground(lineColor);
@@ -2455,7 +2455,7 @@ void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
       }
     else
       if (Preferences::displayTheme == THEME_DARK) {
-          numAreaColor = QColor(Preferences::themeColors[THEME_EDIT_MARGIN_DARK]);
+          numAreaColor = QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]);
           col_0 = QColor(Qt::darkGray).darker(150);
       }
 

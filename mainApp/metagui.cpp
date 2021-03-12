@@ -6598,7 +6598,7 @@ void BlenderRenderDialogGui::getRenderSettings(
         blenderVersionEdit->setText(Preferences::blenderVersion);
     } else {
         if (Preferences::displayTheme == THEME_DARK) {
-            const QString themeColor = Preferences::themeColors[THEME_HIGHLIGHT_27_DARK];
+            const QString themeColor = Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT];
             blenderLabel->setStyleSheet("QLabel { color : " + themeColor + "; }");
         } else {
             blenderLabel->setStyleSheet("QLabel { color : blue; }");

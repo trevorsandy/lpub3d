@@ -357,24 +357,24 @@ void Application::setTheme(bool appStarted)
   // Set default scene colours
   if (!Preferences::customSceneBackgroundColor)
       Preferences::setSceneBackgroundColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_SCENE_BGCOLOR_DARK] :
-                              Preferences::themeColors[THEME_SCENE_BGCOLOR_DEFAULT]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR] :
+                              Preferences::themeColors[THEME_DEFAULT_SCENE_BGCOLOR]);
   if (!Preferences::customSceneGridColor)
       Preferences::setSceneGridColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_GRID_PEN_DARK] :
-                              Preferences::themeColors[THEME_GRID_PEN_DEFAULT]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_GRID_PEN] :
+                              Preferences::themeColors[THEME_DEFAULT_GRID_PEN]);
   if (!Preferences::customSceneRulerTickColor)
       Preferences::setSceneRulerTickColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_RULER_TICK_PEN_DARK] :
-                              Preferences::themeColors[THEME_RULER_TICK_PEN_DEFAULT]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_RULER_TICK_PEN] :
+                              Preferences::themeColors[THEME_DEFAULT_RULER_TICK_PEN]);
   if (!Preferences::customSceneRulerTrackingColor)
       Preferences::setSceneRulerTrackingColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_RULER_TRACK_PEN_DARK] :
-                              Preferences::themeColors[THEME_RULER_TRACK_PEN_DEFAULT]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_RULER_TRACK_PEN] :
+                              Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN]);
   if (!Preferences::customSceneGuideColor)
       Preferences::setSceneGuideColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_GUIDE_PEN_DARK] :
-                              Preferences::themeColors[THEME_GUIDE_PEN_DEFAULT]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_GUIDE_PEN] :
+                              Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN]);
 
   // Set 3DViewer interface colours
   setViewerThemeColor(LC_PROFILE_AXES_COLOR,

@@ -55,6 +55,12 @@ class Preferences
         }
     };
 
+    struct ThemeSettings {
+        QString key;
+        QString color;
+        QString label;
+    };
+
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
@@ -135,6 +141,7 @@ class Preferences
                            bool option = false,
                            bool override = false);
 
+    static ThemeSettings defaultThemeColors[];
     static QString themeColors[];
     static QString lpub3dAppName;
     static QString ldrawLibPath;

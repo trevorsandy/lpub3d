@@ -38,19 +38,19 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     
     QBrush br01,br03,br17,br22,br25;
     if (Application::instance()->getTheme() == THEME_DEFAULT) {
-        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_01_DEFAULT]));
-        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_03_DEFAULT]));
-        br17 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_17_DEFAULT]));
-        br22 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_22_DEFAULT]));
-        br25 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_25_DEFAULT]));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_COMMENTS]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LDRAW_BODY]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LEOCAD]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_FALSE]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_DEFAULT_DECORATE_LPUB3D_BODY]));
     }
     else
     if (Application::instance()->getTheme() == THEME_DARK) {
-        br01 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_01_DARK]));
-        br03 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_03_DARK]));
-        br17 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_17_DARK]));
-        br22 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_22_DARK]));
-        br25 = QBrush(QColor(Preferences::themeColors[THEME_HIGHLIGHT_25_DARK]));
+        br01 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_COMMENTS]));
+        br03 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LDRAW_BODY]));
+        br17 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LEOCAD]));
+        br22 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_FALSE]));
+        br25 = QBrush(QColor(Preferences::themeColors[THEME_DARK_DECORATE_LPUB3D_BODY]));
     }
     
     // LDraw Header Format

@@ -288,7 +288,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		readOnlyPalette.setColor(QPalette::Base,QColor("#3E3E3E")); // THEME_DARK_PALETTE_MIDLIGHT
 	else
 		readOnlyPalette.setColor(QPalette::Base,QColor("#AEADAC")); // THEME_DEFAULT_PALETTE_LIGHT
-	readOnlyPalette.setColor(QPalette::Text,QColor("#808080"));     // THEME_PALETTE_DISABLED_TEXT
+	readOnlyPalette.setColor(QPalette::Text,QColor("#808080"));     // LPUB3D_DISABLED_TEXT_COLOUR
 
 	ui->defaultCameraProperties->setChecked(mOptions->Preferences.mDefaultCameraProperties);
 	ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));

@@ -87,7 +87,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 		readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
 	else
 		readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
-	readOnlyPalette.setColor(QPalette::Text,QColor(Preferences::themeColors[THEME_PALETTE_DISABLED_TEXT]));
+	readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
 
 	QString iniFileMessage;
 	if (TCUserDefaults::isIniFileSet())

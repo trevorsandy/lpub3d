@@ -768,11 +768,11 @@ void TextEditor::highlightCurrentLine()
 
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
-            lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DEFAULT]);
+            lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
-            lineColor = QColor(Preferences::themeColors[THEME_LINE_HIGHLIGHT_DARK]);
+            lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
         }
 
         selection.format.setBackground(lineColor);
