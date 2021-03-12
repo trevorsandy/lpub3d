@@ -297,7 +297,11 @@ class PlacementNum : public Placement {
     }
     void format(char *format)
     {
-      str.asprintf(format,number);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+        str.asprintf(format,number);
+#else
+        str.sprintf(format,number);
+#endif
     }
     void sizeit();
     void sizeit(QString fmt);
