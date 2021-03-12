@@ -958,7 +958,7 @@ int Gui::drawPage(
 
           // Set flag to display submodel at first submodel step
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool topModel       = (topLevelFile() == topOfStep.modelName);
+              bool topModel       = (ldrawFile.topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
               bool showStepOk     = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
               if (showStepOk && !opts.calledOut && (!topModel || showTopModel)){
@@ -3985,6 +3985,28 @@ void Gui::drawPage(LGraphicsView  *view,
 
   // if not buildMod action
   if (! buildModActionChange) {
+
+      // test if next step index is display page index - i.e. refreshing the current page display
+      int displayPageIndx  = -1;
+      int nextStepIndex    = -1;
+      bool firstPage       = true;
+      bool adjustTopOfStep = false;
+      Where topOfStep      = current;
+      if (Preferences::buildModEnabled) {
+          displayPageIndx  = exporting() ? displayPageNum : displayPageNum - 1;
+          firstPage        = !topOfPages.size() || topOfPages.size() < displayPageIndx;
+          if (!firstPage)
+              topOfStep    = topOfPages[displayPageIndx];
+          if (!topOfStep.lineNumber)
+              skipHeader(topOfStep);
+          // on first page, we haven't run countInstances yet, so skip
+          if (!firstPage) {
+              nextStepIndex    = getStepIndex(topOfStep);
+              setBuildModNextStepIndex(topOfStep);
+              adjustTopOfStep  = nextStepIndex == getBuildModNextStepIndex();
+          }
+      }
+
       // initialize ldrawFile registers
       ldrawFile.unrendered();
       ldrawFile.countInstances();
@@ -3992,14 +4014,16 @@ void Gui::drawPage(LGraphicsView  *view,
 
       // Set BuildMod action options for next step
       if (Preferences::buildModEnabled) {
-          int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
-          bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
 #ifdef QT_DEBUG_MODE
           QElapsedTimer t; t.start();
 #endif
-
-          setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
-
+          if (adjustTopOfStep) {
+              if (!getBuildModStepIndexWhere(nextStepIndex, topOfStep))
+                  topOfStep = firstPage ? current : topOfPages[displayPageIndx];
+          } else if (firstPage) {
+             setBuildModNextStepIndex(topOfStep);
+          }
+          setBuildModForNextStep(topOfStep);
 #ifdef QT_DEBUG_MODE
           emit messageSig(LOG_DEBUG,QString("Build Modifications Check - %1")
                                             .arg(elapsedTime(t.elapsed())));
@@ -4371,11 +4395,6 @@ bool Gui::setBuildModForNextStep(
                                             .arg(topOfStep.modelName));
 
         buildModSubmodels.clear();
-
-        if (!topOfStep.lineNumber)
-            skipHeader(topOfStep);                                           // advance past headers
-
-        setBuildModNextStepIndex(topOfStep);                                 // set next step
 
         buildModNextStepIndex = getBuildModNextStepIndex();                  // set next/'display' step index
 
