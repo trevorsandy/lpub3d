@@ -213,6 +213,7 @@ void LDrawFile::empty()
   _buildMods.clear();
   _buildModSteps.clear();
   _buildModStepIndexes.clear();
+  _buildModRendered.clear();
   _includeFileList.clear();
   _buildModList.clear();
   _loadedParts.clear();
@@ -2732,6 +2733,68 @@ int LDrawFile::setBuildModStepPieces(const QString &buildModKey, int pieces)
     return 0;
 }
 
+int LDrawFile::setBuildModRendered(const QString &buildModKey, const QString &renderedModel)
+{
+#ifdef QT_DEBUG_MODE
+    bool entryAdded = true;
+#endif
+    QString  modKey = buildModKey.toLower();
+    QString  subModel = renderedModel.toLower();
+    QMap<QString, QStringList>::iterator i = _buildModRendered.find(modKey);
+    if (i == _buildModRendered.end()) {
+        _buildModRendered.insert(modKey, QStringList() << subModel);
+    } else if (! i.value().contains(subModel)) {
+        i.value().append(subModel);
+    }
+#ifdef QT_DEBUG_MODE
+    else {
+        entryAdded = false;
+    }
+    if (entryAdded)
+        emit gui->messageSig(LOG_DEBUG, QString("Insert BuildMod RenderedModel: %1, ModKey: %2").arg(renderedModel).arg(buildModKey));
+#endif
+    return 0;
+}
+
+bool LDrawFile::getBuildModRendered(const QString &buildModKey, const QString &renderedModel, bool countPage)
+{
+    QString  modKey = countPage ? "cp~"+buildModKey.toLower() : buildModKey.toLower();
+    QMap<QString, QStringList>::iterator i = _buildModRendered.find(modKey);
+    if (i != _buildModRendered.end()) {
+        if (i.value().contains(renderedModel.toLower())) {
+#ifdef QT_DEBUG_MODE
+            emit gui->messageSig(LOG_DEBUG, QString("BuildMod RenderedModel: %1, ModKey: %2")
+                                 .arg(renderedModel).arg((countPage ? "cp~" : "")+buildModKey));
+#endif
+            return true;
+        }
+    }
+    return false;
+}
+
+void LDrawFile::clearBuildModRendered(const QString &buildModKey, const QString &renderedModel)
+{
+    QString modKey = buildModKey.toLower();
+    QString subModel = renderedModel.toLower();
+    QMap<QString, QStringList>::iterator i = _buildModRendered.find(modKey);
+    if (! i.value().contains(subModel)) {
+        int cleared = i.value().removeAll(subModel);
+#ifdef QT_DEBUG_MODE
+        if (cleared)
+            emit gui->messageSig(LOG_DEBUG, QString("Clear BuildMod RenderedModel: %1, Count: %2, ModKey: %3")
+                                 .arg(renderedModel).arg(cleared).arg(buildModKey));
+#endif
+    }
+}
+
+void LDrawFile::clearBuildModRendered()
+{
+    QString key;
+    Q_FOREACH (key,_buildModRendered.keys()) {
+    }
+        _buildModRendered[key].clear();
+}
+
 int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex)
 {
     int lastIndex = BM_INVALID_INDEX;
@@ -3314,6 +3377,7 @@ void LDrawFile::clearBuildModSteps()
 {
     _buildModSteps.clear();
 }
+
 /* 3DViewer routines */
 
 void LDrawFile::insertViewerStep(const QString     &stepKey,

@@ -853,6 +853,11 @@ public:
       ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
   }
 
+  void setBuildModRendered(const QString &buildModKey, const QString &colorModel)
+  {
+      ldrawFile.setBuildModRendered(buildModKey, colorModel);
+  }
+
   bool setBuildModNextStepIndex(const Where &here)
   {
       return ldrawFile.setBuildModNextStepIndex(here.modelName, here.lineNumber);
@@ -871,6 +876,11 @@ public:
   void clearBuildModAction(const QString &buildModKey,const int stepIndex)
   {
       ldrawFile.clearBuildModAction(buildModKey, stepIndex);
+  }
+
+  void clearBuildModRendered(const QString &buildModKey, const QString &colorModel)
+  {
+      ldrawFile.clearBuildModRendered(buildModKey, colorModel);
   }
 
   // This function returns the equivalent of the ViewerStepKey
@@ -902,6 +912,11 @@ public:
   bool getBuildModStepIndexWhere(int stepIndex, Where &here)
   {
       return ldrawFile.getBuildModStepIndexWhere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
+  }
+
+  bool getBuildModRendered(const QString &buildModKey, const QString &colorModel)
+  {
+      return ldrawFile.getBuildModRendered(buildModKey, colorModel);
   }
 
   bool buildModContains(const QString &buildModKey)

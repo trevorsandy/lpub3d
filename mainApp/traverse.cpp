@@ -2750,8 +2750,11 @@ int Gui::findPage(
                           // check if submodel was rendered
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
+                          // check if submodel is in current step build modification
+                          bool buildModRendered = getBuildModRendered(buildModKey, colorType);
+
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
-                          if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+                          if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
                               opts.isMirrored = ldrawFile.mirrored(token);
 
@@ -2841,7 +2844,9 @@ int Gui::findPage(
                      if (bfxStore1) {
                          bfxParts << colorType;
                      }
-
+                     if (contains && ! buildModIgnore) {
+                         setBuildModRendered(buildModKey, colorType);
+                     }
                   } // token.size() == 15
 
               } // ! PartIgnore
@@ -4102,6 +4107,7 @@ void Gui::drawPage(
 
       // Set BuildMod action options for next step
       if (Preferences::buildModEnabled) {
+          ldrawFile.clearBuildModRendered();
           if (adjustTopOfStep) {
               if (!getBuildModStepIndexWhere(nextStepIndex, topOfStep))
                   topOfStep = firstPage ? current : topOfPages[displayPageIndx];
@@ -4220,6 +4226,7 @@ void Gui::drawPage(
       } else {
           futureWatcher.setFuture(future);
       }
+
       QApplication::processEvents();
 
       QApplication::restoreOverrideCursor();

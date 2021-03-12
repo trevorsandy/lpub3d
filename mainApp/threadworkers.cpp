@@ -3066,13 +3066,19 @@ int CountPageWorker::countPage(
                       // if submodel or assembled/rotated callout
                       if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
-                      // check if submodel was rendered
-                      bool rendered = ldrawFile->rendered(type,ldrawFile->mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
+                          // check if submodel was rendered
+                          bool rendered = ldrawFile->rendered(type,ldrawFile->mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
-                      // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
-                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+                          // check if submodel is in current step build modification
+                          bool buildModRendered = ldrawFile->getBuildModRendered("p"+buildModKey, colorType);
 
-                          opts.isMirrored = ldrawFile->mirrored(token);
+                          // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
+                          if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+
+                              if ((localSubmodel || modelStack.size()) && buildMod[BM_BEGIN])
+                                  ldrawFile->setBuildModRendered("p"+buildModKey, colorType);
+
+                              opts.isMirrored = ldrawFile->mirrored(token);
 
                               // add submodel to the model modelStack - it can't be a callout
                               SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
@@ -3136,7 +3142,10 @@ int CountPageWorker::countPage(
                       if (bfxStore1) {
                           bfxParts << colorType;
                       }
-              }
+                      if (contains && ! buildModIgnore) {
+                          ldrawFile->setBuildModRendered(buildModKey, colorType);
+                      }
+                  }
               } // ! PartIgnore
 
         case '2':

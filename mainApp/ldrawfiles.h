@@ -230,6 +230,7 @@ class LDrawFile {
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
     QVector<QVector<int>>       _buildModStepIndexes;
+    QMap<QString, QStringList>  _buildModRendered;
     QMultiMap<int, BuildModStep> _buildModSteps;
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
@@ -267,6 +268,7 @@ class LDrawFile {
       _ldcadGroups.empty();
       _buildMods.empty();
       _buildModStepIndexes.empty();
+      _buildModRendered.empty();
     }
 
     QStringList                 _subFileOrder;
@@ -409,6 +411,7 @@ class LDrawFile {
     int setBuildModAction(const QString  &buildModKey,
                           const int       stepIndex,
                           const int       modAction);
+    int setBuildModRendered(const QString &buildModKey, const QString &renderedModel);
     int getBuildModStep(const QString &modelName, const int &lineNumber);
     int getBuildModStepIndex(const int modelIndex, const int lineNumber); // last application step index
     int getBuildModStepIndex(const QString &buildModKey);                 // creation step index
@@ -428,10 +431,13 @@ class LDrawFile {
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsCount();
+    bool getBuildModRendered(const QString &buildModKey, const QString &renderedModel, bool countPage = false);
     bool getBuildModStepIndexWhere(const int stepIndex, QString &modelName, int &modelIndex, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
+    void clearBuildModRendered();
+    void clearBuildModRendered(const QString &buildModKey, const QString &renderedModel);
     void clearBuildModAction(const QString &buildModKey, const int stepIndex);
     void clearBuildModStep(const QString &buildModKey,const int stepIndex);
     void clearBuildModSteps(const QString &buildModKey);
