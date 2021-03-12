@@ -1159,8 +1159,10 @@ void EditWindow::updateSelectedParts() {
         _cursor.select(QTextCursor::LineUnderCursor);
 
         while(_cursor.positionInBlock()>0) {
-            _cursor.movePosition(QTextCursor::Up);
+            bool atTop = !_cursor.movePosition(QTextCursor::Up);
             lineNumber++;
+            if (atTop)
+                break;
         }
 
         QTextBlock block = _cursor.block().previous();
