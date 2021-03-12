@@ -349,6 +349,25 @@ void View::SetViewpoint(const lcVector3& Position)
 	}
 
 	mCamera->SetViewpoint(Position);
+	ZoomExtents();
+	Redraw();
+
+	gMainWindow->UpdateCurrentCamera(-1);
+}
+
+void View::SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetViewpoint(Position, Target, Up);
 	Redraw();
 
 	gMainWindow->UpdateCurrentCamera(-1);
@@ -1728,45 +1747,6 @@ void View::DrawGrid()
 		mContext->SetVertexFormat(BufferOffset, 3, 0, 0, 0, false);
 		mContext->DrawPrimitives(GL_LINES, 0, NumVerts);
 	}
-}
-
-void View::DrawViewport()
-{
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
-	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
-
-	mContext->SetDepthWrite(false);
-	glDisable(GL_DEPTH_TEST);
-
-	if (gMainWindow->GetActiveView() == this)
-	{
-		mContext->SetMaterial(lcMaterialType::UnlitColor);
-		mContext->SetColor(lcVector4FromColor(lcGetPreferences().mActiveViewColor));
-		float Verts[8] = { 0.0f, 0.0f, mWidth - 1.0f, 0.0f, mWidth - 1.0f, mHeight - 1.0f, 0.0f, mHeight - 1.0f };
-
-		mContext->SetVertexBufferPointer(Verts);
-		mContext->SetVertexFormatPosition(2);
-		mContext->DrawPrimitives(GL_LINE_LOOP, 0, 4);
-	}
-
-	const char* CameraName = mCamera->GetName();
-
-	if (CameraName[0])
-	{
-		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
-		mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
-		mContext->BindTexture2D(gTexFont.GetTexture());
-
-		glEnable(GL_BLEND);
-
-		gTexFont.PrintText(mContext, 3.0f, (float)mHeight - 1.0f - 6.0f, 0.0f, CameraName);
-
-		glDisable(GL_BLEND);
-	}
-
-	mContext->SetDepthWrite(true);
-	glEnable(GL_DEPTH_TEST);
 }
 
 void View::OnInitialUpdate()

@@ -775,6 +775,20 @@
                 </property>
                </widget>
               </item>
+              <item row="2" column="3">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Inactive View:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QToolButton" name="InactiveViewColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -2167,6 +2181,7 @@
   <tabstop>AxesColorButton</tabstop>
   <tabstop>OverlayColorButton</tabstop>
   <tabstop>ActiveViewColorButton</tabstop>
+  <tabstop>InactiveViewColorButton</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridStudColor</tabstop>
   <tabstop>gridLines</tabstop>

@@ -36,6 +36,7 @@ void lcPreferences::LoadDefaults()
 	mAxesColor = lcGetProfileInt(LC_PROFILE_AXES_COLOR);
 	mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
 	mActiveViewColor = lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR);
+	mInactiveViewColor = lcGetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR);
 	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
 	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 	mAllowLOD = lcGetProfileInt(LC_PROFILE_ALLOW_LOD);
@@ -59,7 +60,6 @@ void lcPreferences::LoadDefaults()
 	mRestoreTabLayout = lcGetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT);
 	mColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
 
-	mPreviewActiveColor = lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR);
 	mPreviewViewSphereEnabled = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED);
 	mPreviewViewSphereSize = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE);
 	mPreviewViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION));
@@ -114,6 +114,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM, mBackgroundGradientColorBottom);
 	lcSetProfileInt(LC_PROFILE_OVERLAY_COLOR, mOverlayColor);
 	lcSetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR, mActiveViewColor);
+	lcSetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR, mInactiveViewColor);
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
 	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
 	lcSetProfileInt(LC_PROFILE_ALLOW_LOD, mAllowLOD);
@@ -137,7 +138,6 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT, mRestoreTabLayout);
 	lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(mColorTheme));
 
-	lcSetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR, mPreviewActiveColor);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE, mPreviewViewSphereSize);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION, static_cast<int>(mPreviewViewSphereLocation));
@@ -467,14 +467,26 @@ int lcApplication::Process3DViewerCommandLine()
 	bool SaveCOLLADA = false;
 	bool SaveHTML = false;
 	bool SetCameraAngles = false;
+	bool SetCameraPosition = false;
 	bool Orthographic = false;
+	bool SetFoV = false;
+	bool SetZPlanes = false;
+	bool SetFadeStepsColor = false;
+	bool SetHighlightColor = false;
+	bool FadeSteps = mPreferences.mFadeSteps;
 	bool ImageHighlight = mPreferences.mHighlightNewParts;
 	int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+	int StudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
 	int ImageStart = 0;
 	int ImageEnd = 0;
-	float CameraLatitude = 0.0f;
-	float CameraLongitude = 0.0f;
+	float CameraPosition[9] = {};
+	float CameraLatitude = 0.0f, CameraLongitude = 0.0f;
+	float FoV = 0.0f;
+	float ZNear = 0.0f, ZFar = 0.0f;
+	quint32 FadeStepsColor = mPreferences.mFadeStepsColor;
+	quint32	HighlightColor = mPreferences.mHighlightNewPartsColor;
 	QString ImageName;
 	QString ModelName;
 	QString CameraName;
@@ -485,7 +497,9 @@ int lcApplication::Process3DViewerCommandLine()
 	QString SaveCOLLADAName;
 	QString SaveHTMLName;
 
+/*** LPub3D Mod - process command line ***/
 	QStringList Arguments = Application::instance()->arguments();
+/*** LPub3D Mod end ***/	
 
 	const int NumArguments = Arguments.size();
 	for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
@@ -535,15 +549,20 @@ int lcApplication::Process3DViewerCommandLine()
 			{
 				bool Ok = false;
 				ArgIdx++;
-				int NewValue = Arguments[ArgIdx].toFloat(&Ok);
+				float NewValue = Arguments[ArgIdx].toFloat(&Ok);
 
 				if (Ok)
+				{
 					Value = NewValue;
+					return true;
+				}
 				else
 					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
 			}
 			else
 				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+
+			return false;
 		};
 
 		auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
@@ -561,7 +580,7 @@ int lcApplication::Process3DViewerCommandLine()
 				{
 					Value1 = NewValue1;
 					Value2 = NewValue2;
-					return 1;
+					return true;
 				}
 				else
 					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
@@ -569,7 +588,53 @@ int lcApplication::Process3DViewerCommandLine()
 			else
 				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
 
-			return -1;
+			return false;
+		};
+
+		auto ParseFloatArray = [&ArgIdx, &Arguments, NumArguments](int Count, float* ValueArray)
+		{
+			if (ArgIdx + Count >= NumArguments)
+			{
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+				return false;
+			}
+
+			for (int ParseIndex = 0; ParseIndex < Count; ParseIndex++)
+			{
+				bool Ok = false;
+				float NewValue = Arguments[ArgIdx+ParseIndex+1].toFloat(&Ok);
+
+				if (Ok)
+					*(ValueArray++) = NewValue;
+				else
+				{
+					printf("Invalid value specified for the '%s' argument: '%s'.\n", Arguments[ArgIdx].toLatin1().constData(), Arguments[ArgIdx+ParseIndex+1].toLatin1().constData());
+					ArgIdx += 1 + Count;
+					return false;
+				}
+			}
+
+			ArgIdx += Count;
+			return true;
+		};
+
+		auto ParseColor = [&ArgIdx, &Arguments, NumArguments](quint32& Color)
+		{
+			if (ArgIdx + 1 >= NumArguments)
+			{
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+				return false;
+			}
+
+			QColor ParsedColor = QColor(Arguments[ArgIdx+1]);
+			if (!ParsedColor.isValid())
+			{
+				printf("Invalid value specified for the '%s' argument: '%s'.\n", Arguments[ArgIdx].toLatin1().constData(), Arguments[ArgIdx+1].toLatin1().constData());
+				return false;
+			}
+
+			Color = LC_RGBA(ParsedColor.red(), ParsedColor.green(), ParsedColor.blue(), ParsedColor.alpha());
+			return true;
 		};
 
 		if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
@@ -593,10 +658,38 @@ int lcApplication::Process3DViewerCommandLine()
 			ParseString(ViewpointName, true);
 		else if (Param == QLatin1String("--camera-angles"))
 			SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
+		else if (Param == QLatin1String("--camera-position"))
+			SetCameraPosition = ParseFloatArray(9, CameraPosition);
 		else if (Param == QLatin1String("--orthographic"))
 			Orthographic = true;
+		else if (Param == QLatin1String("--fov"))
+			SetFoV = ParseFloat(FoV);
+		else if (Param == QLatin1String("--zplanes"))
+			SetZPlanes = ParseVector2(ZNear, ZFar);
+		else if (Param == QLatin1String("--fade-steps"))
+			FadeSteps = true;
+		else if (Param == QLatin1String("--no-fade-steps"))
+			FadeSteps = false;
+		else if (Param == QLatin1String("--fade-steps-color"))
+		{
+			if (ParseColor(FadeStepsColor))
+			{
+				SetFadeStepsColor = true;
+				FadeSteps = true;
+			}
+		}
 		else if (Param == QLatin1String("--highlight"))
 			ImageHighlight = true;
+		else if (Param == QLatin1String("--no-highlight"))
+			ImageHighlight = false;
+		else if (Param == QLatin1String("--highlight-color"))
+		{
+			if (ParseColor(HighlightColor))
+			{
+				SetHighlightColor = true;
+				ImageHighlight = true;
+			}
+		}
 		else if (Param == QLatin1String("--shading"))
 		{
 			QString ShadingString;
@@ -613,6 +706,16 @@ int lcApplication::Process3DViewerCommandLine()
 		}
 		else if (Param == QLatin1String("--line-width"))
 			ParseFloat(mPreferences.mLineWidth);
+		else if (Param == QLatin1String("--aa-samples"))
+			ParseInteger(AASamples);
+		else if (Param == QLatin1String("-sl") || Param == QLatin1String("--stud-logo"))
+		{
+			ParseInteger(StudLogo);
+			if (StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO))
+			{
+				lcGetPiecesLibrary()->SetStudLogo(StudLogo, false);
+			}
+		}
 		else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
 		{
 			SaveWavefront = true;
@@ -657,6 +760,9 @@ int lcApplication::Process3DViewerCommandLine()
 
 			if (SetCameraAngles)
 				printf("Warning: --camera-angles is ignored when --camera is set.\n");
+
+			if (SetCameraPosition)
+				printf("Warning: --camera-position is ignored when --camera is set.\n");
 		}
 		else
 		{
@@ -681,11 +787,36 @@ int lcApplication::Process3DViewerCommandLine()
 
 				if (SetCameraAngles)
 					printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+
+				if (SetCameraPosition)
+					printf("Warning: --camera-position is ignored when --viewpoint is set.\n");
 			}
 			else if (SetCameraAngles)
+			{
 				ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
 
+				if (SetCameraPosition)
+					printf("Warning: --camera-position is ignored when --camera-angles is set.\n");
+			}
+			else if (SetCameraPosition)
+			{
+				ActiveView->SetViewpoint(lcVector3(CameraPosition[0], CameraPosition[1], CameraPosition[2]),
+										 lcVector3(CameraPosition[3], CameraPosition[4], CameraPosition[5]),
+										 lcVector3(CameraPosition[6], CameraPosition[7], CameraPosition[8]));
+			}
+
 			ActiveView->SetProjection(Orthographic);
+
+			if (SetFoV)
+				ActiveView->GetCamera()->m_fovy = FoV;
+
+			if (SetZPlanes)
+			{
+				lcCamera* Camera = ActiveView->GetCamera();
+
+				Camera->m_zNear = ZNear;
+				Camera->m_zFar = ZFar;
+			}
 		}
 
 		if (SaveImage)
@@ -728,9 +859,12 @@ int lcApplication::Process3DViewerCommandLine()
 			else
 				Frame = ImageName;
 
+			mPreferences.mFadeSteps = FadeSteps;
+			mPreferences.mFadeStepsColor = FadeStepsColor;
 			mPreferences.mHighlightNewParts = ImageHighlight;
+			mPreferences.mHighlightNewPartsColor = HighlightColor;
 
-			ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+			ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName.isEmpty() && !SetCameraPosition, ImageWidth, ImageHeight, ImageStart, ImageEnd);
 		}
 
 		if (SaveWavefront)
@@ -867,7 +1001,9 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 			fprintf(stderr, "%s", Message.toLatin1().constData());
 	}
 
-	gMainWindow->CreateWidgets();
+	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+
+	gMainWindow->CreateWidgets(AASamples);
 
 	Project* NewProject = new Project();
 	SetProject(NewProject);

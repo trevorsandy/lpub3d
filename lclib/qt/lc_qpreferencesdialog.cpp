@@ -190,6 +190,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	else
 		ui->PreviewViewSphereSizeCombo->setCurrentIndex(0);
 
+	if (!lcGetPiecesLibrary()->SupportsStudLogo())
+	{
+		ui->studLogo->setEnabled(false);
+		ui->studLogoCombo->setEnabled(false);
+	}
+
 	ui->studLogo->setChecked(mOptions->StudLogo);
 	if (ui->studLogo->isChecked())
 		ui->studLogoCombo->setCurrentIndex(mOptions->StudLogo - 1);
@@ -219,6 +225,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mActiveViewColor), LC_RGBA_GREEN(mOptions->Preferences.mActiveViewColor), LC_RGBA_BLUE(mOptions->Preferences.mActiveViewColor)));
 	ui->ActiveViewColorButton->setIcon(pix);
+	
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mInactiveViewColor), LC_RGBA_GREEN(mOptions->Preferences.mInactiveViewColor), LC_RGBA_BLUE(mOptions->Preferences.mInactiveViewColor)));
+	ui->InactiveViewColorButton->setIcon(pix);
 
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mFadeStepsColor), LC_RGBA_GREEN(mOptions->Preferences.mFadeStepsColor), LC_RGBA_BLUE(mOptions->Preferences.mFadeStepsColor)));
 	ui->FadeStepsColor->setIcon(pix);
@@ -576,37 +585,36 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	{
 		Color = &mOptions->Preferences.mBackgroundSolidColor;
 		Title = tr("Select Background Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->BackgroundGradient1ColorButton)
 	{
 		Color = &mOptions->Preferences.mBackgroundGradientColorTop;
 		Title = tr("Select Gradient Top Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->BackgroundGradient2ColorButton)
 	{
 		Color = &mOptions->Preferences.mBackgroundGradientColorBottom;
 		Title = tr("Select Gradient Bottom Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->AxesColorButton)
 	{
 		Color = &mOptions->Preferences.mAxesColor;
 		Title = tr("Select Axes Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->OverlayColorButton)
 	{
 		Color = &mOptions->Preferences.mOverlayColor;
 		Title = tr("Select Overlay Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->ActiveViewColorButton)
 	{
 		Color = &mOptions->Preferences.mActiveViewColor;
 		Title = tr("Select Active View Color");
-		DialogOptions = 0;
+	}
+	else if (Button == ui->InactiveViewColorButton)
+	{
+		Color = &mOptions->Preferences.mInactiveViewColor;
+		Title = tr("Select Inactive View Color");
 	}
 	else if (Button == ui->FadeStepsColor)
 	{
@@ -630,25 +638,21 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	{
 		Color = &mOptions->Preferences.mGridLineColor;
 		Title = tr("Select Grid Line Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->ViewSphereColorButton)
 	{
 		Color = &mOptions->Preferences.mViewSphereColor;
 		Title = tr("Select View Sphere Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->ViewSphereTextColorButton)
 	{
 		Color = &mOptions->Preferences.mViewSphereTextColor;
 		Title = tr("Select View Sphere Text Color");
-		DialogOptions = 0;
 	}
 	else if (Button == ui->ViewSphereHighlightColorButton)
 	{
 		Color = &mOptions->Preferences.mViewSphereHighlightColor;
 		Title = tr("Select View Sphere Highlight Color");
-		DialogOptions = 0;
 	}
 	else
 		return;
@@ -711,7 +715,8 @@ void lcQPreferencesDialog::on_BackgroundGradientRadio_toggled(bool checked)
 
 void lcQPreferencesDialog::on_studLogo_toggled()
 {
-	ui->studLogoCombo->setEnabled(ui->studLogo->isChecked());
+	if (lcGetPiecesLibrary()->SupportsStudLogo())
+	   ui->studLogoCombo->setEnabled(ui->studLogo->isChecked());
 }
 
 void lcQPreferencesDialog::on_antiAliasing_toggled()
@@ -1030,7 +1035,7 @@ void lcQPreferencesDialog::updateCommandList()
 	ui->commandList->clear();
 	QMap<QString, QTreeWidgetItem*> sections;
 
-	for (int actionIdx = 0; actionIdx < LC_NUM_COMMANDS; actionIdx++)
+	for (unsigned int actionIdx = 0; actionIdx < LC_NUM_COMMANDS; actionIdx++)
 	{
 		if (!gCommands[actionIdx].ID[0])
 			continue;
@@ -1156,17 +1161,66 @@ void lcQPreferencesDialog::on_KeyboardFilterEdit_textEdited(const QString& Text)
 
 void lcQPreferencesDialog::on_shortcutAssign_clicked()
 {
-	QTreeWidgetItem *current = ui->commandList->currentItem();
+	QTreeWidgetItem* CurrentItem = ui->commandList->currentItem();
 
-	if (!current || !current->data(0, Qt::UserRole).isValid())
+	if (!CurrentItem || !CurrentItem->data(0, Qt::UserRole).isValid())
 		return;
 
-	int shortcutIndex = qvariant_cast<int>(current->data(0, Qt::UserRole));
-	mOptions->KeyboardShortcuts.mShortcuts[shortcutIndex] = ui->shortcutEdit->text();
+	uint ShortcutIndex = CurrentItem->data(0, Qt::UserRole).toUInt();
+	QString (&Shortcuts)[LC_NUM_COMMANDS] = mOptions->KeyboardShortcuts.mShortcuts;
 
-	current->setText(1, ui->shortcutEdit->text());
+	if (ShortcutIndex >= LC_ARRAY_COUNT(Shortcuts))
+		return;
 
-	setShortcutModified(current, mOptions->KeyboardShortcuts.mShortcuts[shortcutIndex] != gCommands[shortcutIndex].DefaultShortcut);
+	QString NewShortcut = ui->shortcutEdit->text();
+
+	if (!NewShortcut.isEmpty())
+	{
+		for (uint ExistingIndex = 0; ExistingIndex < LC_ARRAY_COUNT(Shortcuts); ExistingIndex++)
+		{
+			if (NewShortcut == Shortcuts[ExistingIndex])
+			{
+				QString QuestionText = tr("The shortcut '%1' is already assigned to '%2'. Do you want to replace it?").arg(NewShortcut, gCommands[ExistingIndex].ID);
+
+				if (QMessageBox::question(this, tr("Duplicate Shortcut"), QuestionText, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+					return;
+
+				mOptions->KeyboardShortcuts.mShortcuts[ExistingIndex].clear();
+
+				std::function<QTreeWidgetItem* (QTreeWidgetItem*)> FindItem = [&FindItem, ExistingIndex](QTreeWidgetItem* ParentItem) -> QTreeWidgetItem*
+				{
+					for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+					{
+						QTreeWidgetItem* ChildItem = ParentItem->child(ChildIdx);
+						uint ChildIndex = ChildItem->data(0, Qt::UserRole).toUInt();
+
+						if (ChildIndex == ExistingIndex)
+							return ChildItem;
+
+						QTreeWidgetItem* ExistingItem = FindItem(ChildItem);
+
+						if (ExistingItem)
+							return ExistingItem;
+					}
+
+					return nullptr;
+				};
+
+				QTreeWidgetItem* ExistingItem = FindItem(ui->commandList->invisibleRootItem());
+
+				if (ExistingItem)
+				{
+					ExistingItem->setText(1, QString());
+					setShortcutModified(ExistingItem, gCommands[ShortcutIndex].DefaultShortcut[0] != 0);
+				}
+			}
+		}
+	}
+
+	mOptions->KeyboardShortcuts.mShortcuts[ShortcutIndex] = NewShortcut;
+	CurrentItem->setText(1, NewShortcut);
+
+	setShortcutModified(CurrentItem, mOptions->KeyboardShortcuts.mShortcuts[ShortcutIndex] != gCommands[ShortcutIndex].DefaultShortcut);
 
 	mOptions->KeyboardShortcutsModified = true;
 	mOptions->KeyboardShortcutsDefault = false;

@@ -73,8 +73,6 @@ public:
 	void OnMouseWheel(float Direction) override;
 
 protected:
-	void DrawViewport();
-
 	void StopTracking(bool Accept);
 	void OnButtonDown(lcTrackButton TrackButton);
 

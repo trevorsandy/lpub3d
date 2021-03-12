@@ -80,21 +80,10 @@ void MinifigWizard::LoadSettings()
 		}
 	}
 
-	QResource Resource(":/resources/minifig.ini");
+	lcDiskFile MinifigFile(":/resources/minifig.ini");
 
-	if (Resource.isValid())
-	{
-		QByteArray Data;
-
-		if (Resource.isCompressed())
-			Data = qUncompress(Resource.data(), Resource.size());
-		else
-			Data = QByteArray::fromRawData((const char*)Resource.data(), Resource.size());
-
-		lcMemFile MemSettings;
-		MemSettings.WriteBuffer(Data.constData(), Data.size());
-		ParseSettings(MemSettings);
-	}
+	if (MinifigFile.Open(QIODevice::ReadOnly))
+		ParseSettings(MinifigFile);
 }
 
 void MinifigWizard::OnInitialUpdate()
@@ -340,29 +329,7 @@ void MinifigWizard::OnDraw()
 
 	DrawBackground();
 
-	// todo: temp viewport drawing code until this is merged with View
-	{
-		mContext->SetWorldMatrix(lcMatrix44Identity());
-		mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
-		mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
-
-		mContext->SetDepthWrite(false);
-		glDisable(GL_DEPTH_TEST);
-
-//		if (gMainWindow->GetActiveView() == this)
-		{
-			mContext->SetMaterial(lcMaterialType::UnlitColor);
-			mContext->SetColor(lcVector4FromColor(lcGetPreferences().mActiveViewColor));
-			float Verts[8] = { 0.0f, 0.0f, mWidth - 1.0f, 0.0f, mWidth - 1.0f, mHeight - 1.0f, 0.0f, mHeight - 1.0f };
-
-			mContext->SetVertexBufferPointer(Verts);
-			mContext->SetVertexFormatPosition(2);
-			mContext->DrawPrimitives(GL_LINE_LOOP, 0, 4);
-		}
-
-		mContext->SetDepthWrite(true);
-		glEnable(GL_DEPTH_TEST);
-	}
+	DrawViewport();
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 

@@ -1227,10 +1227,14 @@ void lcQPropertiesTree::slotSetColorValue(QColor Value)
 
 void lcQPropertiesTree::slotColorButtonClicked()
 {
-	lcModel* Model  = gMainWindow->GetActiveModel();
-	lcObject* Focus = Model->GetFocusObject();
-	QWidget *parent = (QWidget*)sender();
-	QWidget *popup  = nullptr;
+/*** LPub3D Mod - enable piece color ***/
+	lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
+	QWidget* Button = (QWidget*)sender();
+	
+	if (!Button)
+		return;
+		
+	QWidget *Popup  = nullptr;
 
 	if (mWidgetMode == LC_PROPERTY_WIDGET_PIECE)
 	{
@@ -1238,10 +1242,8 @@ void lcQPropertiesTree::slotColorButtonClicked()
 		if (Focus && Focus->IsPiece())
 			ColorIndex = ((lcPiece*)Focus)->mColorIndex;
 
-		popup  = new lcQColorPickerPopup(parent, ColorIndex);
-		connect(popup, SIGNAL(selected(int)), SLOT(slotSetValue(int)));
-
-		popup->setMinimumSize(300, 200);
+		Popup  = new lcQColorPickerPopup(Button, ColorIndex);
+		connect(Popup, SIGNAL(selected(int)), SLOT(slotSetValue(int)));
 
 	}
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
@@ -1252,27 +1254,32 @@ void lcQPropertiesTree::slotColorButtonClicked()
 			Color = ((lcLight*)Focus)->mLightColor;
 
 		qcolor = QColor::fromRgbF(qreal(Color[0]), qreal(Color[1]), qreal(Color[2]));
-		popup  = new QColorDialog(qcolor, parent);
-		connect(popup, SIGNAL(colorSelected(QColor)), SLOT(slotSetColorValue(QColor)));
+		Popup  = new QColorDialog(qcolor, Button);
+		connect(Popup, SIGNAL(colorSelected(QColor)), SLOT(slotSetColorValue(QColor)));
 	}
 
-	if (popup && parent) {
-		const QRect desktop = QApplication::desktop()->geometry();
+	Popup->setMinimumSize(300, 200);
 
-		QPoint pos = parent->mapToGlobal(parent->rect().bottomLeft());
-		if (pos.x() < desktop.left())
-			pos.setX(desktop.left());
-		if (pos.y() < desktop.top())
-			pos.setY(desktop.top());
+	if (Popup && Button) {
+		//const QRect desktop = QApplication::desktop()->geometry();
+		QScreen* Screen = QGuiApplication::screenAt(Button->mapToGlobal(Button->rect().bottomLeft()));
+		const QRect ScreenRect = Screen ? Screen->geometry() : QApplication::desktop()->geometry();
+	
 
-		if ((pos.x() + popup->width()) > desktop.width())
-			pos.setX(desktop.width() - popup->width());
-		if ((pos.y() + popup->height()) > desktop.bottom())
-			pos.setY(desktop.bottom() - popup->height());
-		popup->move(pos);
+		QPoint pos = Button->mapToGlobal(Button->rect().bottomLeft());
+		if (pos.x() < ScreenRect.left())
+			pos.setX(ScreenRect.left());
+		if (pos.y() < ScreenRect.top())
+			pos.setY(ScreenRect.top());
 
-		popup->setFocus();
-		popup->show();
+		if ((pos.x() + Popup->width()) > ScreenRect.right())
+			pos.setX(ScreenRect.right() - Popup->width());
+		if ((pos.y() + Popup->height()) > ScreenRect.bottom())
+			pos.setY(ScreenRect.bottom() - Popup->height());
+		Popup->move(pos);
+
+		Popup->setFocus();
+		Popup->show();
 	}
 }
 /*** LPub3D Mod end ***/

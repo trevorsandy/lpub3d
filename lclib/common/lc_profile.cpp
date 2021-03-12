@@ -76,6 +76,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
 	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR                          /*** LPub3D Mod - Set default colour ***/
+	lcProfileEntry("Settings", "InactiveViewColor", LC_RGBA(69, 69, 69, 255)),                 // LC_PROFILE_INACTIVE_VIEW_COLOR
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                            // LC_PROFILE_DRAW_EDGE_LINES
 	lcProfileEntry("Settings", "GridStuds", 1),                                                // LC_PROFILE_GRID_STUDS
 	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(64, 64, 64, 192)),                     // LC_PROFILE_GRID_STUD_COLOR                            /*** LPub3D Mod - Set default colour ***/
@@ -136,7 +137,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("POVRay", "Width", 1280),                                                   // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                   // LC_PROFILE_POVRAY_HEIGHT
 
-	lcProfileEntry("Settings", "PreviewActiveColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_PREVIEW_ACTIVE_COLOR
 	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                 // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                   // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE
 	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION

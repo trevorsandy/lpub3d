@@ -63,6 +63,7 @@ public:
 	void SetCameraIndex(int Index);
 	void SetViewpoint(lcViewpoint Viewpoint);
 	void SetViewpoint(const lcVector3& Position);
+	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
 	void SetCameraAngles(float Latitude, float Longitude);
 /*** LPub3D Mod - Camera Globe ***/
 	void SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ZoomExt = false);
@@ -92,7 +93,6 @@ protected:
 	void DrawSelectZoomRegionOverlay();
 	void DrawRotateViewOverlay();
 	void DrawGrid();
-	void DrawViewport();
 
 	void UpdateTrackTool();
 	bool IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) const;

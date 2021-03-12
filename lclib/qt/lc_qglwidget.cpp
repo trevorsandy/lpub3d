@@ -154,7 +154,6 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 
 	setMinimumSize(100,100);
 	show();
-	setFocus();
 }
 
 void lcQGLWidget::resizeGL(int Width, int Height)
@@ -166,6 +165,22 @@ void lcQGLWidget::resizeGL(int Width, int Height)
 void lcQGLWidget::paintGL()
 {
 	mWidget->OnDraw();
+}
+
+void lcQGLWidget::focusInEvent(QFocusEvent* FocusEvent)
+{
+	if (mWidget)
+		mWidget->SetFocus(true);
+
+	QGLWidget::focusInEvent(FocusEvent);
+}
+
+void lcQGLWidget::focusOutEvent(QFocusEvent* FocusEvent)
+{
+	if (mWidget)
+		mWidget->SetFocus(false);
+
+	QGLWidget::focusOutEvent(FocusEvent);
 }
 
 void lcQGLWidget::keyPressEvent(QKeyEvent* KeyEvent)
@@ -291,7 +306,11 @@ void lcQGLWidget::mouseMoveEvent(QMouseEvent* MouseEvent)
 
 void lcQGLWidget::wheelEvent(QWheelEvent* WheelEvent)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+	if (WheelEvent->angleDelta().y() == 0)
+#else
 	if ((WheelEvent->orientation() & Qt::Vertical) == 0)
+#endif
 	{
 		WheelEvent->ignore();
 		return;
@@ -299,7 +318,11 @@ void lcQGLWidget::wheelEvent(QWheelEvent* WheelEvent)
 
 	float DeviceScale = GetDeviceScale();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+	mWidget->SetMousePosition(WheelEvent->position().x() * DeviceScale, mWidget->mHeight - WheelEvent->position().y() * DeviceScale - 1);
+#else
 	mWidget->SetMousePosition(WheelEvent->x() * DeviceScale, mWidget->mHeight - WheelEvent->y() * DeviceScale - 1);
+#endif
 	mWidget->SetMouseModifiers(WheelEvent->modifiers());
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))

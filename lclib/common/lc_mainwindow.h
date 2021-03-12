@@ -144,7 +144,7 @@ public:
 /*** LPub3D Mod end ***/
 	~lcMainWindow();
 
-	void CreateWidgets();
+	void CreateWidgets(int AASamples);
 
 	lcTool GetTool() const
 	{

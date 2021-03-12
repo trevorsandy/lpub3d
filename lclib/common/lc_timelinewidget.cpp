@@ -265,7 +265,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			if (Piece->IsHidden()) {
 				QColor Color = PieceItem->textColor(0);
 				Color.setAlpha(128);
-				PieceItem->setTextColor(0,Color);
+				PieceItem->setForeground(0, Color);
 			  }
 /*** LPub3D Mod end ***/
 		}
