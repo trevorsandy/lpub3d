@@ -841,6 +841,11 @@ public:
       return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
+  Rc getBuildModStep(const QString &modStepKey, const Where &here)
+  {
+      return Rc(ldrawFile.getBuildModStep(modStepKey, getSubmodelIndex(here.modelName), here.lineNumber));
+  }
+
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
   {
       ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
@@ -925,6 +930,8 @@ public:
   void resetLastBuildMod(bool clearNextStep = false);
 
   void enableBuildModMenuAndActions();
+
+  void enableBuildModActions();
 
   bool setBuildModChangeKey();
 

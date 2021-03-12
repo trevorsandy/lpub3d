@@ -569,8 +569,8 @@ int Gui::drawPage(
           // 1 BM_ACTION_LINE_NUM   0
           // 2 BM_END_LINE_NUM      0
           // 3 BM_DISPLAY_PAGE_NUM  1
-          // 5 BM_STEP_PIECES       0
-          // 4 BM_MODEL_NAME_INDEX -1
+          // 4 BM_STEP_PIECES       0
+          // 5 BM_MODEL_NAME_INDEX -1
           // 6 BM_MODEL_LINE_NUM    0
           // 7 BM_MODEL_STEP_NUM    0
           QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
@@ -630,7 +630,7 @@ int Gui::drawPage(
                      buildModStepIndex);
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
-                      "DrawPage Insert BuildMod StepIndx: %1, "
+                      "Insert DrawPage BuildMod StepIndex: %1, "
                       "Action: %2, "
                       "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
                       "ModKey: %11, "
@@ -4022,6 +4022,8 @@ void Gui::drawPage(
 
       setCurrentStep();
 
+      enableBuildModActions();
+
       if (Preferences::modeGUI && ! exporting()) {
           QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
           if (! exporting())
@@ -4344,7 +4346,7 @@ bool Gui::setBuildModForNextStep(
                        buildModNextStepIndex);
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
-                      "Set BuildMod Next StepIndx: %1, "
+                      "Insert Next-Step BuildMod StepIndex: %1, "
                       "Action: %2, "
                       "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
                       "ModKey: %11, "

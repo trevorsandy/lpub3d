@@ -142,6 +142,7 @@ enum Rc {
          BuildModApplyRc,
          BuildModRemoveRc,
          BuildModEnableRc,
+         BuildModSourceRc,
 
          PageOrientationRc,
          PageSizeRc,

@@ -1181,9 +1181,12 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     Project* BannerProject = new Project();
     if (!gMainWindow->OpenProject(bannerFile.fileName()))
     {
-      emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
-      delete BannerProject;
-      return false;
+        gApplication->SetProject(BannerProject);
+        gui->UpdateAllViews();
+    } else {
+        emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
+        delete BannerProject;
+        return false;
     }
 
     return true;
@@ -1273,17 +1276,48 @@ void Gui::enableBuildModification()
     gApplication->mPreferences.mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 }
 
+void Gui::enableBuildModActions()
+{
+    if (!createBuildModAct->isEnabled())
+        return;
+
+    Rc buildModStep = BuildModNoActionRc;
+
+    if (currentStep)
+        buildModStep = getBuildModStep(viewerStepKey,currentStep->topOfStep());
+
+    int hasMod = buildModsSize();
+
+    bool appliedMod = false, sourceMod = false;
+
+    switch (buildModStep)
+    {
+        case BuildModSourceRc:
+            sourceMod = true;
+            break;
+        case BuildModApplyRc:
+            appliedMod = true;
+            break;
+        case BuildModRemoveRc:
+        default:
+            break;
+    }
+
+    applyBuildModAct->setEnabled(hasMod && !sourceMod);
+    removeBuildModAct->setEnabled(hasMod && appliedMod && !sourceMod);
+
+    updateBuildModAct->setEnabled(hasMod && sourceMod);
+
+    loadBuildModAct->setEnabled(hasMod && !(sourceMod && hasMod == 1));
+    deleteBuildModAct->setEnabled(hasMod);
+}
+
 void Gui::enableBuildModMenuAndActions()
 {
     if (!curFile.isEmpty()) {
-        bool actionsEnabled = buildModsSize();
         if (Preferences::buildModEnabled)
-            createBuildModAct->setEnabled(mBuildModRange.first() || actionsEnabled);
-        applyBuildModAct->setEnabled(actionsEnabled);
-        removeBuildModAct->setEnabled(actionsEnabled);
-        loadBuildModAct->setEnabled(actionsEnabled);
-        updateBuildModAct->setEnabled(actionsEnabled);
-        deleteBuildModAct->setEnabled(actionsEnabled);
+            createBuildModAct->setEnabled(mBuildModRange.first() || buildModsSize());
+        enableBuildModActions();
     }
     enableBuildModification();
 }
@@ -2451,8 +2485,8 @@ void Gui::createBuildModification()
                 ModActionLineNum,           // 1 BM_ACTION_LINE_NUM
                 ModEndLineNum,              // 2 BM_END_LINE_NUM
                 ModDisplayPageNum,          // 3 BM_DISPLAY_PAGE_NUM
-                ModStepPieces,              // 5 BM_STEP_PIECES
-                ModelIndex,                 // 4 BM_MODEL_NAME_INDEX
+                ModStepPieces,              // 4 BM_STEP_PIECES
+                ModelIndex,                 // 5 BM_MODEL_NAME_INDEX
                 ModStepLineNum,             // 6 BM_MODEL_LINE_NUM
                 ModStepNum                  // 7 BM_MODEL_STEP_NUM
             };
@@ -2463,7 +2497,7 @@ void Gui::createBuildModification()
                            ModStepIndex);   // Unique ID
 
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG, QString("Create BuildMod StepIndx: %1, "
+            emit messageSig(LOG_DEBUG, QString("Create BuildMod StepIndex: %1, "
                                                "Action: %2, "
                                                "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
                                                "ModKey: %11, "
@@ -2581,8 +2615,6 @@ void Gui::removeBuildModification()
     }
 
     int it = lcGetActiveProject()->GetImageType();
-
-    // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
 
     Where here = currentStep->topOfStep();
     bool modInCurrentStep = stepContains(here, buildModKeys.first());
@@ -2971,12 +3003,12 @@ bool Gui::saveBuildModification()
  *
  ********************************************/
 
-void Gui::setViewerStepKey(const QString &stepKey, int notPliPart)
+void Gui::setViewerStepKey(const QString &stepKey, int imageType)
 {
-    Q_UNUSED(notPliPart)
+    Q_UNUSED(imageType)
 
     viewerStepKey = stepKey;
-//    currentStep   = nullptr;
+
     mBuildModRange = { 0, 0, -1 };
 }
 
@@ -3072,10 +3104,6 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
  * current step - called for CSI
  *
  ********************************************/
-void Gui::setCurrentStep(Step *step)
-{
-    currentStep = step;
-}
 
 void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
 {
@@ -3177,6 +3205,11 @@ bool Gui::setCurrentStep(const QString &key)
     }
 
     return currentStep;
+}
+
+void Gui::setCurrentStep(Step *step)
+{
+    currentStep = step;
 }
 
 /*********************************************

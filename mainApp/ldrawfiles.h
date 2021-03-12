@@ -155,6 +155,25 @@ extern int getLevel(const QString& key, int position);
  * build modification
  ********************************************/
 
+class BuildModStep {
+  public:
+    BuildModStep(
+       const QString&  buildModKey,
+       int             buildModAction,
+       int             buildModStepIndex);
+    ~BuildModStep()
+    { }
+    bool operator==(const BuildModStep &other) const
+    {
+        return  _buildModKey == other._buildModKey &&
+                _buildModAction == other._buildModAction &&
+                _buildModStepIndex == other._buildModStepIndex;
+    }
+    QString     _buildModKey;
+    int         _buildModAction;
+    int         _buildModStepIndex;
+};
+
 class BuildMod {
   public:
     QVector<int>  _modAttributes;
@@ -167,8 +186,8 @@ class BuildMod {
        // 1 BM_ACTION_LINE_NUM   0
        // 2 BM_END_LINE_NUM      0
        // 3 BM_DISPLAY_PAGE_NUM -1
-       // 5 BM_STEP_PIECES       0
-       // 4 BM_MODEL_NAME_INDEX -1
+       // 4 BM_STEP_PIECES       0
+       // 5 BM_MODEL_NAME_INDEX -1
        // 6 BM_MODEL_LINE_NUM    0
        // 7 BM_MODEL_STEP_NUM    0
       _modAttributes = { 0, 0, 0, -1, 0, -1, 0, 0 };
@@ -191,6 +210,7 @@ class LDrawFile {
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
     QVector<QVector<int>>       _buildModStepIndexes;
+    QMultiMap<QString, BuildModStep> _buildModSteps;
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
@@ -350,9 +370,15 @@ class LDrawFile {
                         const QVector<int> &modAttributes,
                         int                 action,
                         int                 stepIndex);
+    void insertBuildModStep(const QString  &buildModKey,
+                            int             modAction,
+                            int             stepIndex);
     int setBuildModAction(const QString &buildModKey,
                           int            stepIndex,
                           int            modAction);
+    int getBuildModStep(const QString &modStepKey,
+                        int            modelIndex,
+                        int            lineNumber);
     int getBuildModStepIndex(int modelIndex, int &lineNumber);
     int getBuildModStepIndexHere(int stepIndex, int which);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
