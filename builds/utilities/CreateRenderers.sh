@@ -380,7 +380,7 @@ BuildLDView() {
   case ${platform_id} in
   redhat|fedora|suse)
      case ${platform_ver} in
-     24|25|26|27|28|29|30|1500|1550|150000)
+     24|25|26|27|28|29|30|31|32|1500|1550|150000)
        ApplyLDViewStdlibHack
        ;;
      esac
