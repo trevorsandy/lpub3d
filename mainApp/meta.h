@@ -58,6 +58,7 @@ enum Rc {
          InvalidLDrawLineRc = -3,
          RangeErrorRc = -2,
          FailureRc = -1,
+         EndOfIncludeFileRc = FailureRc,
          OkRc = 0,
          BuildModNoActionRc = OkRc,
 

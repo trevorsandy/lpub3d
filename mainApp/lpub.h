@@ -1082,9 +1082,9 @@ public:
       return pageSizes[i];
   }
 
-  int includePub(Meta &meta, Where &includeHere, bool &inserted)
+  int includePub(Meta &meta, int &lineNumber, bool &includeFileFound)
   {
-      return include(meta, includeHere, inserted);
+      return include(meta, lineNumber, includeFileFound);
   }
 
   EditWindow  *getEditModeWindow()
@@ -1615,7 +1615,7 @@ private:
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
-  int include(Meta &meta, Where &includeHere, bool &inserted);
+  int include(Meta &meta, int &lineNumber, bool &includeFileFound);
 
   int  createLDVieiwCsiImage(
             QPixmap            *pixmap,

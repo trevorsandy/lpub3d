@@ -3156,7 +3156,7 @@ int CountPageWorker::countPage(
 
           // intercept include file flag
 
-          if (opts.flags.includeFileRc != EndOfFileRc) {
+          if (opts.flags.includeFileRc != EndOfIncludeFileRc) {
               if (opts.flags.resetIncludeRc) {
                   rc = IncludeRc;                     // return to IncludeRc to parse another line
               } else {
@@ -3356,8 +3356,8 @@ int CountPageWorker::countPage(
                break;
 
             case IncludeRc:
-              opts.flags.includeFileRc = Rc(gui->includePub(meta,opts.flags.includeHere,opts.flags.inserted)); // includeHere and inserted are include(...) vars
-              if (opts.flags.includeFileRc != EndOfFileRc) {                             // still reading so continue
+              opts.flags.includeFileRc = Rc(gui->includePub(meta,opts.flags.includeLineNum,opts.flags.includeFileFound)); // includeHere and inserted are include(...) vars
+              if (opts.flags.includeFileRc != EndOfIncludeFileRc) {                      // still reading so continue
                   opts.flags.resetIncludeRc = false;                                     // do not reset, allow includeFileRc to execute
                   continue;
               }

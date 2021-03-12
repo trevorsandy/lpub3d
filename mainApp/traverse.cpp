@@ -505,9 +505,9 @@ int Gui::drawPage(
 
   // include file vars
   Where includeHere;
-  Rc    includeFileRc = EndOfFileRc;
-  bool inserted       = false;
-  bool resetIncludeRc = false;
+  Rc    includeFileRc   = EndOfIncludeFileRc;
+  bool includeFileFound = false;
+  bool resetIncludeRc   = false;
 
   // set page header/footer width
   float pW;
@@ -717,7 +717,7 @@ int Gui::drawPage(
 
       // if reading include file, return to current line, do not advance
 
-      if (includeFileRc != EndOfFileRc) {
+      if (includeFileRc != EndOfIncludeFileRc) {
          opts.current.lineNumber--;
       }
 
@@ -1106,7 +1106,7 @@ int Gui::drawPage(
 
               // intercept include file flag
 
-              if (includeFileRc != EndOfFileRc) {
+              if (includeFileRc != EndOfIncludeFileRc) {
                   if (resetIncludeRc) {
                       rc = IncludeRc;                         // return to IncludeRc to parse another line
                   } else {
@@ -1181,8 +1181,8 @@ int Gui::drawPage(
               break;
 
             case IncludeRc:
-              includeFileRc = Rc(include(curMeta,includeHere,inserted)); // includeHere and inserted are include(...) vars
-              if (includeFileRc != EndOfFileRc) {                        // still reading so continue
+              includeFileRc = Rc(include(curMeta,includeHere.lineNumber,includeFileFound)); // includeHere and inserted are include(...) vars
+              if (includeFileRc != EndOfIncludeFileRc) {                        // still reading so continue
                   resetIncludeRc = false;                                // do not reset, allow includeFileRc to execute
                   continue;
               }
@@ -2729,7 +2729,7 @@ int Gui::findPage(
 
       // if reading include file, return to current line, do not advance
 
-      if (opts.flags.includeFileRc != EndOfFileRc) {
+      if (opts.flags.includeFileRc != EndOfIncludeFileRc) {
          opts.current.lineNumber--;
       }
 
@@ -2914,7 +2914,7 @@ int Gui::findPage(
 
           // intercept include file flag
 
-          if (opts.flags.includeFileRc != EndOfFileRc) {
+          if (opts.flags.includeFileRc != EndOfIncludeFileRc) {
               if (opts.flags.resetIncludeRc) {
                   rc = IncludeRc;                    // return to IncludeRc to parse another line
               } else {
@@ -3411,9 +3411,9 @@ int Gui::findPage(
               break;
 
             case IncludeRc:
-              opts.flags.includeFileRc = Rc(include(meta,opts.flags.includeHere,opts.flags.inserted)); // includeHere and inserted are include(...) vars
-              if (opts.flags.includeFileRc != EndOfFileRc) {                     // still reading so continue
-                  opts.flags.resetIncludeRc = false;                             // do not reset, allow includeFileRc to execute
+              opts.flags.includeFileRc = Rc(include(meta,opts.flags.includeLineNum,opts.flags.includeFileFound)); // includeHere and inserted are include(...) vars
+              if (opts.flags.includeFileRc != EndOfIncludeFileRc) {                   // still reading so continue
+                  opts.flags.resetIncludeRc = false;                                  // do not reset, allow includeFileRc to execute
                   continue;
               }
               break;
@@ -4362,29 +4362,32 @@ void Gui::pagesCounted()
 
 }
 
-int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
+int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 {
     Rc rc;
     QString filePath = meta.LPub.include.value();
     QFileInfo fileInfo(filePath);
     QString fileName = fileInfo.fileName();
-    if (includeHere == Where())
-        includeHere = Where(fileName,0);
 
     auto processLine =
             [this,
              &meta,
              &fileName,
-             &includeHere] () {
+             &lineNumber] () {
         Rc prc = InvalidLineRc;
-        QString line = ldrawFile.readLine(fileName,includeHere.lineNumber);
+        Where here(fileName,lineNumber);
+        QString line = readLine(here);
         switch (line.toLatin1()[0]) {
         case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
             parseError(QString("Invalid include line [%1].<br>"
-                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),includeHere,Preferences::IncludeFileErrors);
+                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),here,Preferences::IncludeFileErrors);
             return prc;
         case '0':
-            prc = meta.parse(line,includeHere);
+            prc = meta.parse(line,here);
             switch (prc) {
             // Add unsupported include file meta commands here - i.e. commands that involve type 1-5 lines
             case PliBeginSub1Rc:
@@ -4396,7 +4399,7 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
             case PliBeginSub7Rc:
             case PliBeginSub8Rc:
                 parseError(QString("Substitute part meta commands are not supported in include file: [%1].<br>"
-                                   "Add this command to the model file or to a submodel.").arg(line),includeHere,Preferences::IncludeFileErrors);
+                                   "Add this command to the model file or to a submodel.").arg(line),here,Preferences::IncludeFileErrors);
                 return InvalidLineRc;
             default:
                 break;
@@ -4406,21 +4409,21 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
         return prc;
     };
 
-    if (!inserted) {
-        inserted = ldrawFile.isIncludeFile(fileName);
+    if (!includeFileFound) {
+        includeFileFound = ldrawFile.isIncludeFile(fileName);
     }
-    if (inserted) {
+
+    if (includeFileFound) {
         int numLines = ldrawFile.size(fileName);
-        for (; includeHere < numLines; includeHere++) {
+        for (; lineNumber < numLines; lineNumber++) {
             rc = processLine();
             if (rc != InvalidLineRc)
                 break;
         }
-        if (includeHere.lineNumber < numLines)
-            includeHere++;
+        if (lineNumber < numLines)
+            lineNumber++;
         else
-            rc = EndOfFileRc;
-        return rc;
+            rc = EndOfIncludeFileRc;
     } else {
         QFile file(filePath);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -4461,7 +4464,7 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
 
         emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
 
-        rc = Rc(include(meta,includeHere,inserted));
+        rc = Rc(include(meta,lineNumber,includeFileFound));
     }
     return rc;
 }
