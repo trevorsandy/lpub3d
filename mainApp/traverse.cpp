@@ -1889,7 +1889,7 @@ int Gui::drawPage(
                       }
                   }
 
-                  if (lastStep && lastStep->csiItem) {
+                  if (lastStep && !lastStep->csiPixmap.isNull()) {
                       emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
                       lastStep->loadTheViewer();
                   }
