@@ -24,7 +24,7 @@
    <bool>false</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout_14">
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -34,7 +34,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QTabWidget" name="preferencesTabWidget">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1934,10 +1934,33 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
          <property name="title">
           <string>Themes</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_18">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_10">
-            <item>
+           <layout class="QGridLayout" name="gridLayout_13">
+            <item row="0" column="1">
+             <widget class="QLabel" name="themeLbl">
+              <property name="text">
+               <string>Theme</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="2">
+             <widget class="QComboBox" name="themeCombo"/>
+            </item>
+            <item row="0" column="0">
              <spacer name="horizontalSpacer_5">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -1950,28 +1973,12 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QLabel" name="themeLbl">
+            <item row="0" column="3">
+             <widget class="QPushButton" name="themeColorsButton">
               <property name="text">
-               <string>Theme</string>
+               <string>Theme Colors...</string>
               </property>
              </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="themeCombo"/>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
@@ -2874,6 +2881,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>browsePublishLogo</tabstop>
   <tabstop>publishDescriptionEdit</tabstop>
   <tabstop>themeCombo</tabstop>
+  <tabstop>themeColorsButton</tabstop>
   <tabstop>sceneBackgroundColorButton</tabstop>
   <tabstop>sceneRulerTickColorButton</tabstop>
   <tabstop>sceneGuideColorButton</tabstop>

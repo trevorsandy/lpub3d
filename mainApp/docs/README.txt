@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2206 (12 03 2021 08:27:05)
+LPub3D 2.4.1.1.2207 (12 03 2021 08:27:47)
 
 Features, enhancements, fixes and changes
 ------------
@@ -14,6 +14,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 Revisions:
 
 - Enhancement - Add shortcut to Zoom Extents - Shift+X #470
+- Enhancement - Configurable Theme colors #490
 - Enhancement - Do not save fade steps and/or highlight step final model step #483
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
 - Enhancement - Set project start page and start step number for multi-document layouts #477

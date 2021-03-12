@@ -31,6 +31,7 @@ namespace Ui{
 class PreferencesDialog;
 }
 
+class ThemeColorsDialog;
 class PreferencesDialog : public QDialog
 {
   Q_OBJECT
@@ -57,13 +58,14 @@ class PreferencesDialog : public QDialog
     QString const fadeStepsColour();
     QString const highlightStepColour();
     QString const povFileGenerator();
-    QString const displayTheme();
     QString const sceneBackgroundColor();
     QString const sceneGridColor();
     QString const sceneRulerTickColor();
     QString const sceneRulerTrackingColor();
     QString const sceneGuideColor();
+    QString const displayTheme();
     QStringList const searchDirSettings();
+    QMap<int, QString> const themeColours();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();
@@ -184,6 +186,8 @@ class PreferencesDialog : public QDialog
     void updateChangelog (QString url);
     void checkForUpdates();
 
+    void on_themeColorsButton_clicked();
+
 private:
     Ui::PreferencesDialog ui;
 
@@ -204,6 +208,8 @@ private:
     QLabel      *clearDetailErrorsLbl;
     QDialogButtonBox *messageButtonBox;
 
+    QMap<int, QString> editedThemeColors;
+
     bool mShowLineParseErrors;
     bool mShowInsertErrors;
     bool mShowBuildModErrors;
@@ -222,6 +228,35 @@ private:
     bool resetSceneColorsFlag;
     bool showSaveOnRedrawFlag;
     bool showSaveOnUpdateFlag;
+};
+
+/***********************************************************************
+ *
+ * Theme Colors
+ *
+ **********************************************************************/
+
+class ThemeColorsDialog : public QObject
+{
+    Q_OBJECT
+public:
+    ThemeColorsDialog(){}
+    ~ThemeColorsDialog(){}
+
+    QMap<int, QString> getEditedThemeColors();
+
+public slots:
+    void setThemeColor();
+    void toggleDefaultsTab();
+    void resetThemeColors();
+    void resetThemeColor();
+
+private:
+    QDialog    *dialog;
+    QTabWidget *tabs;
+    QList<QToolButton *> colorButtonList;
+    QList<QToolButton *> resetButtonList;
+    QString mThemeColors[THEME_NUM_COLORS];
 };
 
 #endif

@@ -910,6 +910,12 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
     ui.sceneGuideColorButton->setIcon(pix);
 }
 
+void PreferencesDialog::on_themeColorsButton_clicked()
+{
+    ThemeColorsDialog *themeColorsDialog = new ThemeColorsDialog();
+    editedThemeColors = themeColorsDialog->getEditedThemeColors();
+}
+
 void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 {
     if (ui.povGenNativeRadio->isChecked())
@@ -1385,6 +1391,11 @@ QString const PreferencesDialog::displayTheme()
   return ui.themeCombo->currentText();
 }
 
+QMap<int, QString> const PreferencesDialog::themeColours()
+{
+    return editedThemeColors;
+}
+
 QString const PreferencesDialog::sceneBackgroundColor()
 {
   return sceneBackgroundColorStr;
@@ -1741,4 +1752,292 @@ void PreferencesDialog::accept(){
 
 void PreferencesDialog::cancel(){
   QDialog::reject();
+}
+
+/***********************************************************************
+ *
+ * Theme Colors
+ *
+ **********************************************************************/
+
+QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
+{
+    dialog = new QDialog(nullptr);
+    dialog->setWindowTitle(tr("Edit Theme Colors"));
+
+    // Default Theme Tab
+    tabs = new QTabWidget(dialog);
+    tabs->setMovable(false);
+    QVBoxLayout *layout = new QVBoxLayout();
+
+    dialog->setLayout(layout);
+    layout->addWidget(tabs);
+
+    QWidget *container = new QWidget(tabs);
+    QGridLayout *gridLayout = new QGridLayout(container);
+    gridLayout->setSizeConstraint(QLayout::SetFixedSize);
+    container->setLayout(gridLayout);
+
+    QScrollArea *scrollArea = new QScrollArea(tabs);
+    scrollArea->setWidget(container);
+
+    auto setControls = [this, &gridLayout, &container] (const int begin, const int end)
+    {
+        for (int i = begin; i < end; i++) {
+            mThemeColors[i] = Preferences::themeColors[i];
+            // description label
+            QLabel *label = new QLabel(Preferences::defaultThemeColors[i].label, container);
+            gridLayout->addWidget(label,i,0);
+
+            // color button
+            QToolButton *colorButton = new QToolButton(container);
+            QPixmap pix(12, 12);
+            pix.fill(QColor(mThemeColors[i]));
+            colorButton->setIcon(pix);
+            colorButton->setProperty("index", i);
+            colorButton->setProperty("color", mThemeColors[i]);
+            colorButton->setToolTip("Edit Color");
+            gridLayout->addWidget(colorButton,i,1);
+            connect(colorButton, SIGNAL(clicked()), this, SLOT(setThemeColor()));
+            colorButtonList << colorButton;
+
+            // reset button
+            QToolButton *resetButton = new QToolButton(container);
+            resetButton->setText(tr("..."));
+            resetButton->setProperty("index", i);
+            QString toolTipText = QString("Reset");
+            if (mThemeColors[i] == Preferences::defaultThemeColors[i].color) {
+                resetButton->setEnabled(false);
+            } else {
+                // prepare color icon
+                QImage image(16, 16, QImage::Format_RGB888);
+                image.fill(QColor(Preferences::defaultThemeColors[i].color));
+                QPainter painter(&image);
+                painter.setPen(Qt::darkGray);
+                painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
+                painter.end();
+                QByteArray ba;
+                QBuffer buffer(&ba);
+                buffer.open(QIODevice::WriteOnly);
+                image.save(&buffer, "PNG");
+                buffer.close();
+                const char*  format = "<table><tr><td>Reset To %1</td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
+                toolTipText = QString(format).arg(Preferences::defaultThemeColors[i].color.toUpper(), QString(buffer.data().toBase64()));
+            }
+            resetButton->setToolTip(toolTipText);
+            gridLayout->addWidget(resetButton,i,2);
+            connect(resetButton, SIGNAL(clicked()), this, SLOT(resetThemeColor()));
+            resetButtonList << resetButton;
+        }
+    };
+
+    setControls(THEME_DEFAULT_SCENE_BGCOLOR, THEME_DARK_SCENE_BGCOLOR);
+
+    scrollArea->setMinimumWidth(
+                container->sizeHint().width() +
+                2 * scrollArea->frameWidth() +
+                scrollArea->verticalScrollBar()->sizeHint().width());
+
+    tabs->addTab(scrollArea,"Default Theme");
+
+    // Dark Theme Tab
+    container = new QWidget(tabs);
+    gridLayout = new QGridLayout(container);
+    gridLayout->setSizeConstraint(QLayout::SetFixedSize);
+    container->setLayout(gridLayout);
+
+    scrollArea = new QScrollArea(tabs);
+    scrollArea->setWidget(container);
+
+    setControls(THEME_DARK_SCENE_BGCOLOR, THEME_NUM_COLORS);
+
+    scrollArea->setMinimumWidth(
+                container->sizeHint().width() +
+                2 * scrollArea->frameWidth() +
+                scrollArea->verticalScrollBar()->sizeHint().width());
+
+    tabs->addTab(scrollArea,"Dark Theme");
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    dialog->layout()->addWidget(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+
+    QPushButton *button = new QPushButton(tr("Reset"));
+    button->setToolTip(tr("Reset theme colors to defaults"));
+    buttonBox.addButton(button,QDialogButtonBox::ActionRole);
+    QObject::connect(button,SIGNAL(clicked()), this, SLOT(resetThemeColors()));
+
+    button = new QPushButton(tr("Defaults"));
+    button->setToolTip(tr("Toggle 'Defaults' tab"));
+    buttonBox.addButton(button,QDialogButtonBox::ActionRole);
+    QObject::connect(button,SIGNAL(clicked()), this, SLOT(toggleDefaultsTab()));
+
+    QMap<int, QString> editedColors;
+
+    dialog->setMinimumSize(200,400);
+
+    tabs->setCurrentIndex(Preferences::displayTheme == THEME_DARK ? 1 : 0);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        for (int i = 0; i < THEME_NUM_COLORS; i++) {
+            if (mThemeColors[i] != Preferences::themeColors[i])
+                editedColors.insert(i, mThemeColors[i]);
+        }
+    }
+
+    return editedColors;
+}
+
+void ThemeColorsDialog::resetThemeColors()
+{
+    if (QMessageBox::Yes == QMessageBox::question(dialog, tr("Reset Theme Colors ?"),
+                          "Reset all Theme colors to defaults.<br>Are you sure ?",
+                          QMessageBox::Yes|QMessageBox::No)) {
+        for (int i = 0; i < THEME_NUM_COLORS; i++) {
+            if (mThemeColors[i] == Preferences::defaultThemeColors[i].color)
+                continue;
+            else
+                mThemeColors[i] = Preferences::defaultThemeColors[i].color;
+            QPixmap pix(12, 12);
+            pix.fill(QColor(mThemeColors[i]));
+            colorButtonList[i]->setIcon(pix);
+        }
+    }
+}
+
+void ThemeColorsDialog::resetThemeColor()
+{
+    QObject* button = sender();
+    int index = button->property("index").toInt();
+    if (mThemeColors[index] == Preferences::themeColors[index])
+       return;
+
+    mThemeColors[index] = Preferences::themeColors[index];
+
+    QPixmap pix(12, 12);
+    pix.fill(QColor(mThemeColors[index]));
+    colorButtonList[index]->setIcon(pix);
+
+    if (mThemeColors[index] == Preferences::defaultThemeColors[index].color) {
+        resetButtonList[index]->setToolTip(tr("Reset"));
+        resetButtonList[index]->setEnabled(false);
+    } else {
+        QImage image(16, 16, QImage::Format_RGB888);
+        image.fill(QColor(Preferences::defaultThemeColors[index].color));
+        QPainter painter(&image);
+        painter.setPen(Qt::darkGray);
+        painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
+        painter.end();
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG");
+        buffer.close();
+        const char* format = "<table><tr><td>Reset To %1 </td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
+        QString text = QString(format).arg(Preferences::defaultThemeColors[index].color.toUpper(), QString(buffer.data().toBase64()));
+        resetButtonList[index]->setToolTip(text);
+        resetButtonList[index]->setEnabled(true);
+    }
+}
+
+void ThemeColorsDialog::setThemeColor()
+{
+    QObject* button = sender();
+    QString title = tr("Select Theme Color");
+    QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
+    QColor oldColor  = QColor(button->property("color").toString());
+    QColor newColor  = QColorDialog::getColor(oldColor, dialog, title, dialogOptions);
+
+    if (newColor == oldColor || !newColor.isValid())
+        return;
+
+    int index = button->property("index").toInt();
+
+    mThemeColors[index] = newColor.name();
+
+    QPixmap pix(12, 12);
+    pix.fill(newColor);
+    ((QToolButton*)button)->setIcon(pix);
+
+    QImage image(16, 16, QImage::Format_RGB888);
+    image.fill(oldColor);
+    QPainter painter(&image);
+    painter.setPen(Qt::darkGray);
+    painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
+    painter.end();
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+    buffer.close();
+    const char* format = "<table><tr><td>Reset To %1</td><td style=\"vertical-align:middle\"><img src=\"data:image/png;base64,%2\"/></td></tr></table>";
+    QString text = QString(format).arg(mThemeColors[index].toUpper(), QString(buffer.data().toBase64()));
+    resetButtonList[index]->setToolTip(text);
+    resetButtonList[index]->setEnabled(true);
+}
+
+void ThemeColorsDialog::toggleDefaultsTab()
+{
+    if (tabs->count() < 3) {
+
+        QWidget *container = new QWidget(tabs);
+        QGridLayout *gridLayout = new QGridLayout(container);
+        gridLayout->setSizeConstraint(QLayout::SetFixedSize);
+        container->setLayout(gridLayout);
+
+        QScrollArea *scrollArea = new QScrollArea(tabs);
+        scrollArea->setWidget(container);
+
+        QPalette readOnlyPalette = QApplication::palette();
+        if (Preferences::displayTheme == THEME_DARK)
+            readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
+        else
+            readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+        readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
+        for (int i = THEME_DEFAULT_SCENE_BGCOLOR; i < THEME_NUM_COLORS; i++) {
+            QString labelText = Preferences::defaultThemeColors[i].label;
+            if (i < THEME_DARK_SCENE_BGCOLOR)
+                labelText.prepend("Default ");
+            else
+                labelText.prepend("Dark ");
+            // description label
+            QLabel *label = new QLabel(labelText, container);
+            gridLayout->addWidget(label,i,0);
+
+            // default color label
+            label = new QLabel(container);
+            label->setFixedWidth(16);
+            label->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+            QColor color = QColor(Preferences::defaultThemeColors[i].color);
+            QString styleSheet =
+                    QString("QLabel { background-color: %1; }")
+                    .arg(!color.isValid() ? "transparent" :
+                         QString("rgba(%1, %2, %3, %4)")
+                         .arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha()));
+            label->setAutoFillBackground(true);
+            label->setStyleSheet(styleSheet);
+            gridLayout->addWidget(label,i,1);
+
+            // default color hex (readOnly
+            QLineEdit *readOnlyColor = new QLineEdit(container);
+            readOnlyColor->setPalette(readOnlyPalette);
+            readOnlyColor->setReadOnly(true);
+            readOnlyColor->setText(Preferences::defaultThemeColors[i].color.toUpper());
+            gridLayout->addWidget(readOnlyColor,i,2);
+        }
+
+        scrollArea->setMinimumWidth(
+                    container->sizeHint().width() +
+                    2 * scrollArea->frameWidth() +
+                    scrollArea->verticalScrollBar()->sizeHint().width());
+
+        tabs->addTab(scrollArea,"Defaults");
+        tabs->setCurrentIndex(2);
+    } else {
+        tabs->removeTab(2);
+        tabs->setCurrentIndex(Preferences::displayTheme == THEME_DARK ? 1 : 0);
+    }
+    dialog->adjustSize();
 }
