@@ -59,7 +59,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.01"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_BUILD "4f8252e"
+#define LC_VERSION_BUILD "f033578"
 /*** LPub3D Mod end ***/
 
 
@@ -89,6 +89,8 @@ class lcVector4;
 class lcMatrix33;
 class lcMatrix44;
 
+class lcFindReplaceWidget;
+struct lcFindReplaceParams;
 class lcCollapsibleWidget;
 class lcViewWidget;
 class lcView;

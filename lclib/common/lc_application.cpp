@@ -247,17 +247,13 @@ lcApplication::lcApplication()
 /*** LPub3D Mod - disable leoCAD application vars ***/
 /***
 	setApplicationDisplayName(QLatin1String("LeoCAD"));
-	setOrganizationDomain(QLatin1String("leocad.org"));
-	setOrganizationName(QLatin1String("LeoCAD Software"));
-	setApplicationName(QLatin1String("LeoCAD"));
-	setApplicationVersion(QLatin1String(LC_VERSION_TEXT));
 ***/
 /*** LPub3D Mod end ***/
 
 	gApplication = this;
 /*** LPub3D Mod - Initialize default style, not used ***/
 /***
-	mDefaultStyle = QApplication::style()->objectName();
+	mDefaultStyle = style()->objectName();
 ***/
 /*** LPub3D Mod end ***/
 	mPreferences.LoadDefaults();
@@ -483,6 +479,9 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 
 lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 {
+	lcPreferences Preferences;
+	Preferences.LoadDefaults();
+
 	lcCommandLineOptions Options;
 
 	Options.ParseOK = true;
@@ -499,10 +498,12 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.SetZPlanes = false;
 	Options.SetFadeStepsColor = false;
 	Options.SetHighlightColor = false;
-	Options.FadeSteps = mPreferences.mFadeSteps;
-	Options.ImageHighlight = mPreferences.mHighlightNewParts;
+	Options.FadeSteps = Preferences.mFadeSteps;
+	Options.ImageHighlight = Preferences.mHighlightNewParts;
 	Options.ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	Options.ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+	Options.ShadingMode = Preferences.mShadingMode;
+	Options.LineWidth = Preferences.mLineWidth;
 	Options.AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
 	Options.StudStyle = static_cast<lcStudStyle>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
 	Options.ImageStart = 0;
@@ -514,15 +515,15 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.FoV = 0.0f;
 	Options.ZPlanes = lcVector2(0.0f, 0.0f);
 	Options.Viewpoint = lcViewpoint::Count;
-	Options.FadeStepsColor = mPreferences.mFadeStepsColor;
-	Options.HighlightColor = mPreferences.mHighlightNewPartsColor;
-	Options.StudCylinderColor = mPreferences.mStudCylinderColor;
-	Options.PartEdgeColor = mPreferences.mPartEdgeColor;
-	Options.BlackEdgeColor = mPreferences.mBlackEdgeColor;
-	Options.DarkEdgeColor = mPreferences.mDarkEdgeColor;
-	Options.PartEdgeContrast = mPreferences.mPartEdgeContrast;
-	Options.PartColorValueLDIndex = mPreferences.mPartColorValueLDIndex;
-	Options.AutomateEdgeColor = mPreferences.mAutomateEdgeColor;
+	Options.FadeStepsColor = Preferences.mFadeStepsColor;
+	Options.HighlightColor = Preferences.mHighlightNewPartsColor;
+	Options.StudCylinderColor = Preferences.mStudCylinderColor;
+	Options.PartEdgeColor = Preferences.mPartEdgeColor;
+	Options.BlackEdgeColor = Preferences.mBlackEdgeColor;
+	Options.DarkEdgeColor = Preferences.mDarkEdgeColor;
+	Options.PartEdgeContrast = Preferences.mPartEdgeContrast;
+	Options.PartColorValueLDIndex = Preferences.mPartColorValueLDIndex;
+	Options.AutomateEdgeColor = Preferences.mAutomateEdgeColor;
 
 /*** LPub3D Mod - process command line ***/
 	QStringList Arguments = Application::instance()->arguments();
@@ -881,13 +882,13 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			if (ParseString(ShadingString, true))
 			{
 				if (ShadingString == QLatin1String("wireframe"))
-					mPreferences.mShadingMode = lcShadingMode::Wireframe;
+					Options.ShadingMode = lcShadingMode::Wireframe;
 				else if (ShadingString == QLatin1String("flat"))
-					mPreferences.mShadingMode = lcShadingMode::Flat;
+					Options.ShadingMode = lcShadingMode::Flat;
 				else if (ShadingString == QLatin1String("default"))
-					mPreferences.mShadingMode = lcShadingMode::DefaultLights;
+					Options.ShadingMode = lcShadingMode::DefaultLights;
 				else if (ShadingString == QLatin1String("full"))
-					mPreferences.mShadingMode = lcShadingMode::Full;
+					Options.ShadingMode = lcShadingMode::Full;
 				else
 				{
 					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, ShadingString);
@@ -896,7 +897,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			}
 		}
 		else if (Option == QLatin1String("--line-width"))
-			ParseFloat(mPreferences.mLineWidth, 0.0f, 10.0f);
+			ParseFloat(Options.LineWidth, 0.0f, 10.0f);
 		else if (Option == QLatin1String("--aa-samples"))
 		{
 			if (ParseInteger(Options.AASamples, 1, 8) && Options.AASamples != 1 && Options.AASamples != 2 && Options.AASamples != 4 && Options.AASamples != 8)
@@ -1118,7 +1119,11 @@ int lcApplication::Process3DViewerCommandLine()
 			StdErr.flush();
 		}
 	}
+	***/
 
+	mPreferences.mShadingMode = Options.ShadingMode;
+	mPreferences.mLineWidth = Options.LineWidth;
+	/***
 	mPreferences.mStudCylinderColor = Options.StudCylinderColor;
 	mPreferences.mPartEdgeColor = Options.PartEdgeColor;
 	mPreferences.mBlackEdgeColor = Options.BlackEdgeColor;

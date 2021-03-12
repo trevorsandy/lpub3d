@@ -96,6 +96,15 @@ enum class lcViewType
 	Count
 };
 
+struct lcFindReplaceParams
+{
+	PieceInfo* FindInfo = nullptr;
+	QString FindString;
+	int FindColorIndex = 0;
+	PieceInfo* ReplacePieceInfo = nullptr;
+	int ReplaceColorIndex = 0;
+};
+
 class lcView : public QObject
 {
 	Q_OBJECT
@@ -108,6 +117,11 @@ public:
 
 	lcView(const lcView&) = delete;
 	lcView& operator=(const lcView&) = delete;
+
+	static lcFindReplaceParams& GetFindReplaceParams()
+	{
+		return mFindReplaceParams;
+	}
 
 	void Clear()
 	{
@@ -249,6 +263,8 @@ public:
 
 	void RemoveCamera();
 	void ShowContextMenu() const;
+	bool CloseFindReplaceDialog();
+	void ShowFindReplaceWidget(bool Replace);
 
 	lcVector3 GetMoveDirection(const lcVector3& Direction) const;
 	lcMatrix44 GetPieceInsertPosition(bool IgnoreSelected, PieceInfo* Info) const;
@@ -341,6 +357,9 @@ protected:
 
 	lcVertexBuffer mGridBuffer;
 	int mGridSettings[7];
+
+	static lcFindReplaceWidget* mFindWidget;
+	static lcFindReplaceParams mFindReplaceParams;
 
 	static lcView* mLastFocusedView;
 	static std::vector<lcView*> mViews;

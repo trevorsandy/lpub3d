@@ -316,7 +316,7 @@ public:
 	void UnhideSelectedPieces();
 	void UnhideAllPieces();
 
-	void FindPiece(bool FindFirst, bool SearchForward);
+	void FindReplacePiece(bool SearchForward, bool FindAll);
 
 	void UndoAction();
 	void RedoAction();
@@ -418,7 +418,6 @@ public:
 
 	void ShowPropertiesDialog();
 	void ShowSelectByNameDialog();
-	void ShowSelectByColorDialog();
 	void ShowArrayDialog();
 	void ShowMinifigDialog();
 	void UpdateInterface();

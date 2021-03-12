@@ -20,11 +20,11 @@
 #include "lc_minifigdialog.h"
 #include "lc_qgroupdialog.h"
 #include "lc_qeditgroupsdialog.h"
-#include "lc_selectbycolordialog.h"
 #include "lc_qpropertiesdialog.h"
 #include "lc_qutils.h"
 #include "lc_lxf.h"
 #include "lc_previewwidget.h"
+#include "lc_findreplacewidget.h"
 
 /*** LPub3D Mod - includes ***/
 #include "lpub.h"
@@ -2888,7 +2888,7 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 			{
 				if (Piece->IsSelected())
 				{
-					if (gMainWindow->GetLocalTransform())
+					if (gMainWindow->GetSeparateTransform())
 						TransformedPieceDistance = lcMul(PieceDistance, Piece->GetRelativeRotation());
 
 					Piece->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
@@ -2981,7 +2981,7 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 	}
 	else
 	{
-		if (!gMainWindow->GetLocalTransform())
+		if (!gMainWindow->GetSeparateTransform())
 		{
 			lcVector3 Center;
 			lcMatrix33 RelativeRotation;
@@ -3168,11 +3168,13 @@ void lcModel::SetSelectedPiecesPieceInfo(PieceInfo* Info)
 
 void lcModel::SetSelectedPiecesStepShow(lcStep Step)
 {
-	bool Modified = false;
+	lcArray<lcPiece*> MovedPieces;
 	bool SelectionChanged = false;
 
-	for (lcPiece* Piece : mPieces)
+	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); )
 	{
+		lcPiece* Piece = mPieces[PieceIdx];
+
 		if (Piece->IsSelected() && Piece->GetStepShow() != Step)
 		{
 			Piece->SetStepShow(Step);
@@ -3183,17 +3185,28 @@ void lcModel::SetSelectedPiecesStepShow(lcStep Step)
 				SelectionChanged = true;
 			}
 
-			Modified = true;
+			MovedPieces.Add(Piece);
+			mPieces.RemoveIndex(PieceIdx);
+			continue;
 		}
+
+		PieceIdx++;
 	}
 
-	if (Modified)
+	if (MovedPieces.IsEmpty())
+		return;
+
+	for (int PieceIdx = 0; PieceIdx < MovedPieces.GetSize(); PieceIdx++)
 	{
-		SaveCheckpoint(tr("Showing Pieces"));
-		UpdateAllViews();
-		gMainWindow->UpdateTimeline(false, false);
-		gMainWindow->UpdateSelectedObjects(SelectionChanged);
+		lcPiece* Piece = MovedPieces[PieceIdx];
+		Piece->SetFileLine(-1);
+		AddPiece(Piece);
 	}
+
+	SaveCheckpoint(tr("Showing Pieces"));
+	UpdateAllViews();
+	gMainWindow->UpdateTimeline(false, false);
+	gMainWindow->UpdateSelectedObjects(SelectionChanged);
 }
 
 void lcModel::SetSelectedPiecesStepHide(lcStep Step)
@@ -4184,29 +4197,60 @@ void lcModel::UnhideAllPieces()
 	SaveCheckpoint(tr("Unhide"));
 }
 
-void lcModel::FindPiece(bool FindFirst, bool SearchForward)
+void lcModel::FindReplacePiece(bool SearchForward, bool FindAll)
 {
 	if (mPieces.IsEmpty())
 		return;
 
-	int StartIdx = mPieces.GetSize() - 1;
-	if (!FindFirst)
+	auto PieceMatches = [](const lcPiece* Piece)
 	{
-		for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		{
-			lcPiece* Piece = mPieces[PieceIdx];
+		const lcFindReplaceParams& Params = lcView::GetFindReplaceParams();
 
-			if (Piece->IsFocused() && Piece->IsVisible(mCurrentStep))
+		if (Params.FindInfo && Params.FindInfo != Piece->mPieceInfo)
+			return false;
+
+		if (!Params.FindString.isEmpty() && !strcasestr(Piece->mPieceInfo->m_strDescription, Params.FindString.toLatin1()))
+			return false;
+
+		return (lcGetColorCode(Params.FindColorIndex) == LC_COLOR_NOCOLOR) || (Piece->GetColorIndex() == Params.FindColorIndex);
+	};
+
+	const lcFindReplaceParams& Params = lcView::GetFindReplaceParams();
+	int StartIdx = mPieces.GetSize() - 1;
+
+	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	{
+		lcPiece* Piece = mPieces[PieceIdx];
+
+		if (Piece->IsFocused() && Piece->IsVisible(mCurrentStep))
+		{
+			if (PieceMatches(Piece))
 			{
-				StartIdx = PieceIdx;
-				break;
+				const bool ReplaceColor = lcGetColorCode(Params.FindColorIndex) != LC_COLOR_NOCOLOR;
+
+				if (ReplaceColor)
+					Piece->SetColorIndex(Params.ReplaceColorIndex);
+
+				if (Params.ReplacePieceInfo)
+					Piece->SetPieceInfo(Params.ReplacePieceInfo, QString(), true);
+
+				if (ReplaceColor || Params.ReplacePieceInfo)
+				{
+					SaveCheckpoint(tr("Replacing Part"));
+					gMainWindow->UpdateSelectedObjects(false);
+					UpdateAllViews();
+					gMainWindow->UpdateTimeline(false, true);
+				}
 			}
+
+			StartIdx = PieceIdx;
+			break;
 		}
 	}
 
 	int CurrentIdx = StartIdx;
-	lcObject* Focus = nullptr;
-	const lcSearchOptions& SearchOptions = gMainWindow->mSearchOptions;
+	lcPiece* Focus = nullptr;
+	lcArray<lcObject*> Selection;
 
 	for (;;)
 	{
@@ -4220,24 +4264,30 @@ void lcModel::FindPiece(bool FindFirst, bool SearchForward)
 		else if (CurrentIdx >= mPieces.GetSize())
 			CurrentIdx = 0;
 
-		if (CurrentIdx == StartIdx)
-			break;
-
 		lcPiece* Current = mPieces[CurrentIdx];
 
 		if (!Current->IsVisible(mCurrentStep))
 			continue;
 
-		if ((!SearchOptions.MatchInfo || Current->mPieceInfo == SearchOptions.Info) &&
-			(!SearchOptions.MatchColor || Current->GetColorIndex() == SearchOptions.ColorIndex) &&
-			(!SearchOptions.MatchName || (Current->GetName().indexOf(SearchOptions.Name, 0, Qt::CaseInsensitive) != -1)))
+		if (PieceMatches(Current))
 		{
-			Focus = Current;
-			break;
+			if (FindAll)
+				Selection.Add(Current);
+			else
+			{
+				Focus = Current;
+				break;
+			}
 		}
+
+		if (CurrentIdx == StartIdx)
+			break;
 	}
 
-	ClearSelectionAndSetFocus(Focus, LC_PIECE_SECTION_POSITION, false);
+	if (FindAll)
+		SetSelectionAndFocus(Selection, nullptr, 0, false);
+	else
+		ClearSelectionAndSetFocus(Focus, LC_PIECE_SECTION_POSITION, false);
 }
 
 void lcModel::UndoAction()
@@ -4722,38 +4772,6 @@ void lcModel::ShowSelectByNameDialog()
 		return;
 
 	SetSelectionAndFocus(Dialog.mObjects, nullptr, 0, false);
-}
-
-void lcModel::ShowSelectByColorDialog()
-{
-	if (mPieces.IsEmpty())
-	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
-/*** LPub3D Mod end ***/
-		return;
-	}
-
-	int ColorIndex = gMainWindow->mColorIndex;
-
-	lcObject* Focus = GetFocusObject();
-
-	if (Focus && Focus->IsPiece())
-		ColorIndex = ((lcPiece*)Focus)->GetColorIndex();
-
-	lcSelectByColorDialog Dialog(gMainWindow, ColorIndex);
-
-	if (Dialog.exec() != QDialog::Accepted)
-		return;
-
-	ColorIndex = Dialog.mColorIndex;
-	lcArray<lcObject*> Selection;
-
-	for (lcPiece* Piece : mPieces)
-		if (Piece->IsVisible(mCurrentStep) && Piece->GetColorIndex() == ColorIndex)
-			Selection.Add(Piece);
-
-	SetSelectionAndFocus(Selection, nullptr, 0, false);
 }
 
 void lcModel::ShowArrayDialog()

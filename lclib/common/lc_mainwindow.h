@@ -26,17 +26,6 @@ class QPrinter;
 
 #define LC_MAX_RECENT_FILES 4
 
-struct lcSearchOptions
-{
-	bool SearchValid;
-	bool MatchInfo;
-	bool MatchColor;
-	bool MatchName;
-	PieceInfo* Info;
-	int ColorIndex;
-	char Name[256];
-};
-
 class lcTabBar : public QTabBar
 {
 public:
@@ -187,7 +176,7 @@ public:
 		return mRelativeTransform;
 	}
 
-	bool GetLocalTransform() const
+	bool GetSeparateTransform() const
 	{
 		return mLocalTransform;
 	}
@@ -326,7 +315,7 @@ public:
 	void SetMoveZSnapIndex(int Index);
 	void SetAngleSnapIndex(int Index);
 	void SetRelativeTransform(bool RelativeTransform);
-	void SetLocalTransform(bool SelectionTransform);
+	void SetSeparateTransform(bool SelectionTransform);
 	void SetCurrentPieceInfo(PieceInfo* Info);
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
@@ -399,7 +388,6 @@ public:
 
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
-	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
 /*** LPub3D Mod - Timeline part icons ***/
 	bool mSubmodelIconsLoaded;
@@ -484,7 +472,6 @@ protected:
 	void SetActiveView(lcView* ActiveView);
 	void ToggleDockWidget(QWidget* DockWidget);
 	void SplitView(Qt::Orientation Orientation);
-	void ShowSearchDialog();
 	void ShowUpdatesDialog();
 	void ShowAboutDialog();
 	void ShowHTMLDialog();
@@ -561,6 +548,7 @@ protected:
 	//QLabel* mStatusTimeLabel;
 /*** LPub3D Mod end ***/
 
+	QMenu* mTransformMenu;
 	QMenu* mToolsMenu;
 	QMenu* mViewpointMenu;
 	QMenu* mCameraMenu;

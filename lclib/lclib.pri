@@ -11,7 +11,9 @@ HEADERS += \
     $$PWD/common/lc_colors.h \
     $$PWD/common/lc_commands.h \
     $$PWD/common/lc_context.h \
+    $$PWD/common/lc_edgecolordialog.h \
     $$PWD/common/lc_file.h \
+    $$PWD/common/lc_findreplacewidget.h \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
     $$PWD/common/lc_http.h \
@@ -31,7 +33,6 @@ HEADERS += \
     $$PWD/common/lc_previewwidget.h \
     $$PWD/common/lc_profile.h \
     $$PWD/common/lc_scene.h \
-    $$PWD/common/lc_selectbycolordialog.h \
     $$PWD/common/lc_shortcuts.h \
     $$PWD/common/lc_stringcache.h \
     $$PWD/common/lc_synth.h \
@@ -54,7 +55,6 @@ HEADERS += \
     $$PWD/qt/lc_qcolorlist.h \
     $$PWD/qt/lc_qcolorpicker.h \
     $$PWD/qt/lc_qeditgroupsdialog.h \
-    $$PWD/qt/lc_qfinddialog.h \
     $$PWD/qt/lc_qgroupdialog.h \
     $$PWD/qt/lc_qhtmldialog.h \
     $$PWD/qt/lc_qimagedialog.h \
@@ -78,7 +78,9 @@ SOURCES += \
     $$PWD/common/lc_colors.cpp \
     $$PWD/common/lc_commands.cpp \
     $$PWD/common/lc_context.cpp \
+    $$PWD/common/lc_edgecolordialog.cpp \
     $$PWD/common/lc_file.cpp \
+    $$PWD/common/lc_findreplacewidget.cpp \
     $$PWD/common/lc_glextensions.cpp \
     $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_instructions.cpp \
@@ -96,7 +98,6 @@ SOURCES += \
     $$PWD/common/lc_previewwidget.cpp \
     $$PWD/common/lc_profile.cpp \
     $$PWD/common/lc_scene.cpp \
-    $$PWD/common/lc_selectbycolordialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
@@ -119,7 +120,6 @@ SOURCES += \
     $$PWD/qt/lc_qcolorlist.cpp \
     $$PWD/qt/lc_qcolorpicker.cpp \
     $$PWD/qt/lc_qeditgroupsdialog.cpp \
-    $$PWD/qt/lc_qfinddialog.cpp \
     $$PWD/qt/lc_qgroupdialog.cpp \
     $$PWD/qt/lc_qhtmldialog.cpp \
     $$PWD/qt/lc_qimagedialog.cpp \
@@ -142,7 +142,6 @@ FORMS += \
     $$PWD/qt/lc_qarraydialog.ui \
     $$PWD/qt/lc_qcategorydialog.ui \
     $$PWD/qt/lc_qeditgroupsdialog.ui \
-    $$PWD/qt/lc_qfinddialog.ui \
     $$PWD/qt/lc_qgroupdialog.ui \
     $$PWD/qt/lc_qhtmldialog.ui \
     $$PWD/qt/lc_qimagedialog.ui \

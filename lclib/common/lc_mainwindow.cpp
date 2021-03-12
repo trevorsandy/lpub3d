@@ -8,7 +8,6 @@
 #include "lc_qcolorlist.h"
 #include "lc_qpropertiestree.h"
 #include "lc_qutils.h"
-#include "lc_qfinddialog.h"
 #include "lc_qupdatedialog.h"
 #include "lc_qaboutdialog.h"
 #include "lc_setsdatabasedialog.h"
@@ -24,7 +23,6 @@
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "lc_colors.h"
-
 #include "lc_previewwidget.h"
 
 #if LC_ENABLE_GAMEPAD
@@ -109,8 +107,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 /*** LPub3D Mod - submodel icon ***/
 	mSubmodelIconsLoaded = false;
 /*** LPub3D Mod end ***/
-
-	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
 /*** LPub3D Mod - disabled ***/
 /***
@@ -358,7 +354,9 @@ void lcMainWindow::CreateActions()
 	mActions[LC_EDIT_ACTION_ROLL]->setIcon(QIcon(":/resources/action_roll.png"));
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setIcon(QIcon(":/resources/action_zoom_region.png"));
 	mActions[LC_EDIT_FIND]->setIcon(QIcon(":/resources/edit_find.png"));
-	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+	mActions[LC_EDIT_FIND_NEXT]->setIcon(QIcon(":/resources/edit_find_next.png"));
+	mActions[LC_EDIT_FIND_PREVIOUS]->setIcon(QIcon(":/resources/edit_find_previous.png"));
+	mActions[LC_EDIT_FIND_ALL]->setIcon(QIcon(":/resources/edit_find_all.png"));
 	mActions[LC_PIECE_SHOW_EARLIER]->setIcon(QIcon(":/resources/piece_show_earlier.png"));
 	mActions[LC_PIECE_SHOW_LATER]->setIcon(QIcon(":/resources/piece_show_later.png"));
 	mActions[LC_VIEW_SPLIT_HORIZONTAL]->setIcon(QIcon(":/resources/view_split_horizontal.png"));
@@ -381,7 +379,6 @@ void lcMainWindow::CreateActions()
 	mActions[LC_HELP_ABOUT]->setIcon(QIcon(":/resources/leocad32.png"));
 /*** LPub3D Mod end ***/
 
-	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setCheckable(true);
 	mActions[LC_EDIT_SNAP_MOVE_TOGGLE]->setCheckable(true);
 	mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setCheckable(true);
 	mActions[LC_VIEW_CAMERA_NONE]->setCheckable(true);
@@ -389,6 +386,20 @@ void lcMainWindow::CreateActions()
 
 	for (int ActionIndex = LC_VIEW_TOOLBAR_FIRST; ActionIndex <= LC_VIEW_TOOLBAR_LAST; ActionIndex++)
 		mActions[ActionIndex]->setCheckable(true);
+
+	QActionGroup* ActionRelativeGroup = new QActionGroup(this);
+	for (int ActionIdx = LC_EDIT_TRANSFORM_RELATIVE; ActionIdx <= LC_EDIT_TRANSFORM_ABSOLUTE; ActionIdx++)
+	{
+		mActions[ActionIdx]->setCheckable(true);
+		ActionRelativeGroup->addAction(mActions[ActionIdx]);
+	}
+
+	QActionGroup* ActionSeparateGroup = new QActionGroup(this);
+	for (int ActionIdx = LC_EDIT_TRANSFORM_SEPARATELY; ActionIdx <= LC_EDIT_TRANSFORM_TOGETHER; ActionIdx++)
+	{
+		mActions[ActionIdx]->setCheckable(true);
+		ActionSeparateGroup->addAction(mActions[ActionIdx]);
+	}
 
 	QActionGroup* ActionSnapXYGroup = new QActionGroup(this);
 	for (int ActionIdx = LC_EDIT_SNAP_MOVE_XY0; ActionIdx <= LC_EDIT_SNAP_MOVE_XY9; ActionIdx++)
@@ -580,17 +591,18 @@ void lcMainWindow::CreateMenus()
 	EditMenu->addAction(mActions[LC_EDIT_PASTE]);
 	EditMenu->addSeparator();
 	EditMenu->addAction(mActions[LC_EDIT_FIND]);
-
 	EditMenu->addAction(mActions[LC_EDIT_FIND_NEXT]);
 	EditMenu->addAction(mActions[LC_EDIT_FIND_PREVIOUS]);
+	EditMenu->addAction(mActions[LC_EDIT_REPLACE]);
+	EditMenu->addAction(mActions[LC_EDIT_REPLACE_NEXT]);
 	EditMenu->addSeparator();
 	EditMenu->addAction(mActions[LC_EDIT_SELECT_ALL]);
 	EditMenu->addAction(mActions[LC_EDIT_SELECT_NONE]);
 	EditMenu->addAction(mActions[LC_EDIT_SELECT_INVERT]);
 	EditMenu->addAction(mActions[LC_EDIT_SELECT_BY_NAME]);
-	EditMenu->addAction(mActions[LC_EDIT_SELECT_BY_COLOR]);
 	EditMenu->addMenu(mSelectionModeMenu);
 	EditMenu->addSeparator();
+	EditMenu->addMenu(mTransformMenu);
 	EditMenu->addMenu(mToolsMenu);
 
 	QMenu* ViewMenu = menuBar()->addMenu(tr("&View"));
@@ -689,6 +701,18 @@ void lcMainWindow::CreateToolBars()
 	SelectionModeAction->setIcon(QIcon(":/resources/action_select.png"));
 	SelectionModeAction->setMenu(mSelectionModeMenu);
 
+	mTransformMenu = new QMenu(tr("Transform"), this);
+	mTransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE]);
+	mTransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE]);
+	mTransformMenu->addSeparator();
+	mTransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_TOGETHER]);
+	mTransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_SEPARATELY]);
+
+	QAction* TransformAction = new QAction(tr("Transform"), this);
+	TransformAction->setStatusTip(tr("Transform Options"));
+	TransformAction->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+	TransformAction->setMenu(mTransformMenu);
+
 	QMenu* SnapXYMenu = new QMenu(tr("Snap XY"), this);
 	for (int actionIdx = LC_EDIT_SNAP_MOVE_XY0; actionIdx <= LC_EDIT_SNAP_MOVE_XY9; actionIdx++)
 		SnapXYMenu->addAction(mActions[actionIdx]);
@@ -731,10 +755,11 @@ void lcMainWindow::CreateToolBars()
 	mStandardToolBar->addAction(mActions[LC_EDIT_REDO]);
 	mStandardToolBar->addSeparator();
 	mStandardToolBar->addAction(SelectionModeAction);
-	mStandardToolBar->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE]);
+	mStandardToolBar->addAction(TransformAction);
 	mStandardToolBar->addAction(MoveAction);
 	mStandardToolBar->addAction(AngleAction);
 	((QToolButton*)mStandardToolBar->widgetForAction(SelectionModeAction))->setPopupMode(QToolButton::InstantPopup);
+	((QToolButton*)mStandardToolBar->widgetForAction(TransformAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)mStandardToolBar->widgetForAction(MoveAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)mStandardToolBar->widgetForAction(AngleAction))->setPopupMode(QToolButton::InstantPopup);
 ***/
@@ -1615,22 +1640,6 @@ void lcMainWindow::Print(QPrinter* Printer)
 #endif
 }
 
-void lcMainWindow::ShowSearchDialog()
-{
-	lcModel* Model = GetActiveModel();
-
-	if (!mSearchOptions.SearchValid)
-	{
-		lcObject* Focus = Model->GetFocusObject();
-		if (Focus && Focus->IsPiece())
-			mSearchOptions.Info = ((lcPiece*)Focus)->mPieceInfo;
-	}
-
-	lcQFindDialog Dialog(this, &mSearchOptions, Model);
-	if (Dialog.exec() == QDialog::Accepted)
-		Model->FindPiece(true, true);
-}
-
 void lcMainWindow::ShowUpdatesDialog()
 {
 	lcQUpdateDialog Dialog(this, false);
@@ -1981,12 +1990,12 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		TabWidget = new lcModelTabWidget(Model);
 		mModelTabWidget->addTab(TabWidget, Model->GetProperties().mFileName);
 
-		QGridLayout* CentralLayout = new QGridLayout(TabWidget);
+		QVBoxLayout* CentralLayout = new QVBoxLayout(TabWidget);
 		CentralLayout->setContentsMargins(0, 0, 0, 0);
 
 		NewView = CreateView(Model);
 		ViewWidget = new lcViewWidget(TabWidget, NewView);
-		CentralLayout->addWidget(ViewWidget, 0, 0, 1, 1);
+		CentralLayout->addWidget(ViewWidget);
 
 		mModelTabWidget->setCurrentWidget(TabWidget);
 	}
@@ -2050,9 +2059,13 @@ void lcMainWindow::RemoveView(lcView* View)
 void lcMainWindow::SetActiveView(lcView* ActiveView)
 {
 	lcModelTabWidget* TabWidget = GetTabForView(ActiveView);
+
+	if (!TabWidget)
+		return;
+
 	lcView* CurrentActiveView = TabWidget->GetActiveView();
 
-	if (!TabWidget || CurrentActiveView == ActiveView)
+	if (CurrentActiveView == ActiveView)
 		return;
 
 	if (CurrentActiveView)
@@ -2119,13 +2132,16 @@ void lcMainWindow::SetAngleSnapIndex(int Index)
 void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
 {
 	mRelativeTransform = RelativeTransform;
+
 	UpdateLockSnap();
 	lcView::UpdateAllViews();
 }
 
-void lcMainWindow::SetLocalTransform(bool SelectionTransform)
+void lcMainWindow::SetSeparateTransform(bool SelectionTransform)
 {
 	mLocalTransform = SelectionTransform;
+
+	UpdateLockSnap();
 }
 
 void lcMainWindow::SetTransformType(lcTransformType TransformType)
@@ -2514,9 +2530,12 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 		mActions[LC_EDIT_FIND]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
 		mActions[LC_EDIT_FIND_NEXT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
 		mActions[LC_EDIT_FIND_PREVIOUS]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_FIND_ALL]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_REPLACE]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_REPLACE_NEXT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
+		mActions[LC_EDIT_REPLACE_ALL]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
 		mActions[LC_EDIT_SELECT_INVERT]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
 		mActions[LC_EDIT_SELECT_BY_NAME]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
-		mActions[LC_EDIT_SELECT_BY_COLOR]->setEnabled((Flags & LC_SEL_NO_PIECES) == 0);
 		mActions[LC_EDIT_SELECT_NONE]->setEnabled(Flags & LC_SEL_SELECTED);
 		mActions[LC_EDIT_SELECT_ALL]->setEnabled(Flags & LC_SEL_UNSELECTED);
 
@@ -2629,7 +2648,17 @@ void lcMainWindow::SetAddKeys(bool AddKeys)
 
 void lcMainWindow::UpdateLockSnap()
 {
-	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setChecked(GetRelativeTransform());
+	if (GetRelativeTransform())
+		mActions[LC_EDIT_TRANSFORM_RELATIVE]->setChecked(true);
+	else
+		mActions[LC_EDIT_TRANSFORM_ABSOLUTE]->setChecked(true);
+
+	if (GetSeparateTransform())
+		mActions[LC_EDIT_TRANSFORM_SEPARATELY]->setChecked(true);
+	else
+		mActions[LC_EDIT_TRANSFORM_TOGETHER]->setChecked(true);
+
+	UpdateSnap();
 }
 
 void lcMainWindow::UpdateSnap()
@@ -2639,8 +2668,10 @@ void lcMainWindow::UpdateSnap()
 	mActions[LC_EDIT_SNAP_MOVE_XY0 + mMoveXYSnapIndex]->setChecked(true);
 	mActions[LC_EDIT_SNAP_MOVE_Z0 + mMoveZSnapIndex]->setChecked(true);
 	mActions[LC_EDIT_SNAP_ANGLE0 + mAngleSnapIndex]->setChecked(true);
+
 /*** LPub3D Mod - suppress mStatusSnapLabel ***/
-	//mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText()));
+//   QString Relative = mRelativeTransform ? tr("Rel") : tr("Abs");
+//   mStatusSnapLabel->setText(QString(tr(" M: %1 %2 R: %3 %4 ")).arg(GetMoveXYSnapText(), GetMoveZSnapText(), GetAngleSnapText(), Relative));
 /*** LPub3D Mod end ***/
 }
 
@@ -3244,17 +3275,38 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_FIND:
-		ShowSearchDialog();
+		if (ActiveView)
+			ActiveView->ShowFindReplaceWidget(false);
 		break;
 
 	case LC_EDIT_FIND_NEXT:
 		if (ActiveModel)
-			ActiveModel->FindPiece(false, true);
+			ActiveModel->FindReplacePiece(true, false);
 		break;
 
 	case LC_EDIT_FIND_PREVIOUS:
 		if (ActiveModel)
-			ActiveModel->FindPiece(false, false);
+			ActiveModel->FindReplacePiece(false, false);
+		break;
+
+	case LC_EDIT_FIND_ALL:
+		if (ActiveModel)
+			ActiveModel->FindReplacePiece(true, true);
+		break;
+
+	case LC_EDIT_REPLACE:
+		if (ActiveView)
+			ActiveView->ShowFindReplaceWidget(true);
+		break;
+
+	case LC_EDIT_REPLACE_ALL:
+		if (ActiveModel)
+			ActiveModel->FindReplacePiece(true, true);
+		break;
+
+	case LC_EDIT_REPLACE_NEXT:
+		if (ActiveModel)
+			ActiveModel->FindReplacePiece(true, false);
 		break;
 
 	case LC_EDIT_SELECT_ALL:
@@ -3275,11 +3327,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_SELECT_BY_NAME:
 		if (ActiveModel)
 			ActiveModel->ShowSelectByNameDialog();
-		break;
-
-	case LC_EDIT_SELECT_BY_COLOR:
-		if (ActiveModel)
-			ActiveModel->ShowSelectByColorDialog();
 		break;
 
 	case LC_EDIT_SELECTION_SINGLE:
@@ -3818,11 +3865,27 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_TRANSFORM_RELATIVE:
+		SetRelativeTransform(true);
+		break;
+
+	case LC_EDIT_TRANSFORM_ABSOLUTE:
+		SetRelativeTransform(false);
+		break;
+
+	case LC_EDIT_TRANSFORM_TOGGLE_RELATIVE:
 		SetRelativeTransform(!GetRelativeTransform());
 		break;
 
-	case LC_EDIT_TRANSFORM_LOCAL:
-		SetLocalTransform(!GetLocalTransform());
+	case LC_EDIT_TRANSFORM_SEPARATELY:
+		SetSeparateTransform(true);
+		break;
+
+	case LC_EDIT_TRANSFORM_TOGETHER:
+		SetSeparateTransform(false);
+		break;
+
+	case LC_EDIT_TRANSFORM_TOGGLE_SEPARATE:
+		SetSeparateTransform(!GetSeparateTransform());
 		break;
 
 	case LC_EDIT_SNAP_MOVE_TOGGLE:
@@ -3983,7 +4046,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 /*** LPub3D Mod end ***/
 	case LC_EDIT_CANCEL:
-		if (ActiveView)
+		if (ActiveView && !ActiveView->CloseFindReplaceDialog())
 			ActiveView->CancelTrackingOrClearSelection();
 		break;
 

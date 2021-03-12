@@ -425,7 +425,7 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update)
 
 /*** LPub3D Mod - load color entry ***/
 	bool Found = Update ? true : false;
-	bool FoundMain = Found, FoundEdge = Found, FoundStud = Found;
+	bool FoundMain = Found, FoundEdge = Found, FoundStud = Found, FoundNoColor = Found;;
 /*** LPub3D Mod end ***/
 
 	for (const lcColor& Color : Colors)
@@ -442,6 +442,10 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update)
 
 			case 4242:
 				FoundStud = true;
+				break;
+
+			case LC_COLOR_NOCOLOR:
+				FoundNoColor = true;
 				break;
 		}
 	}
@@ -504,6 +508,27 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update)
 		Colors.push_back(StudCylinderColor);
 	}
 
+	if (!FoundNoColor)
+	{
+		lcColor NoColor;
+
+		NoColor.Code = LC_COLOR_NOCOLOR;
+		NoColor.Translucent = false;
+		NoColor.Group = LC_NUM_COLORGROUPS;
+		NoColor.Value[0] = 0.5f;
+		NoColor.Value[1] = 0.5f;
+		NoColor.Value[2] = 0.5f;
+		NoColor.Value[3] = 1.0f;
+		NoColor.Edge[0] = 0.2f;
+		NoColor.Edge[1] = 0.2f;
+		NoColor.Edge[2] = 0.2f;
+		NoColor.Edge[3] = 1.0f;
+		strcpy(NoColor.Name, "No Color");
+		strcpy(NoColor.SafeName, "No_Color");
+
+		Colors.push_back(NoColor);
+	}
+	
 /*** LPub3D Mod - load color entry ***/	
 	if (!Update)
 	{

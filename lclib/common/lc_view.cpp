@@ -15,6 +15,10 @@
 #include "lc_scene.h"
 #include "lc_context.h"
 #include "lc_viewsphere.h"
+#include "lc_findreplacewidget.h"
+
+lcFindReplaceParams lcView::mFindReplaceParams;
+lcFindReplaceWidget* lcView::mFindWidget;
 
 /*** LPub3D Mod - Rotate Step ***/
 #include "lpub.h"
@@ -106,7 +110,13 @@ void lcView::SetFocus(bool Focus)
 {
 	if (Focus)
 	{
-		mLastFocusedView = this;
+		if (mLastFocusedView != this)
+		{
+			delete mFindWidget;
+			mFindWidget = nullptr;
+
+			mLastFocusedView = this;
+		}
 
 		emit FocusReceived();
 	}
@@ -502,6 +512,26 @@ void lcView::ShowContextMenu() const
 
 	Popup->exec(QCursor::pos());
 	delete Popup;
+}
+
+bool lcView::CloseFindReplaceDialog()
+{
+	if (mFindWidget && (mWidget->hasFocus() || mFindWidget->focusWidget()))
+	{
+		delete mFindWidget;
+		mFindWidget = nullptr;
+
+		return true;
+	}
+
+	return false;
+}
+
+void lcView::ShowFindReplaceWidget(bool Replace)
+{
+	delete mFindWidget;
+	mFindReplaceParams = lcFindReplaceParams();
+	mFindWidget = new lcFindReplaceWidget(mWidget, GetActiveModel(), Replace);
 }
 
 lcVector3 lcView::GetMoveDirection(const lcVector3& Direction) const

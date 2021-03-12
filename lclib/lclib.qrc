@@ -63,6 +63,9 @@
         <file alias="edit_cut.png">resources/edit_cut.png</file>
         <file alias="edit_cut_16.png">resources/edit_cut_16.png</file>
         <file alias="edit_find.png">resources/edit_find.png</file>
+        <file alias="edit_find_next.png">resources/edit_find_next.png</file>
+        <file alias="edit_find_previous.png">resources/edit_find_previous.png</file>
+        <file alias="edit_find_all.png">resources/edit_find_all.png</file>        
         <file alias="edit_paste.png">resources/edit_paste.png</file>
         <file alias="edit_paste_16.png">resources/edit_paste_16.png</file>
         <file alias="edit_redo.png">resources/edit_redo.png</file>

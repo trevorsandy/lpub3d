@@ -162,6 +162,8 @@ struct lcCommandLineOptions
 	int ImageWidth;
 	int ImageHeight;
 	int AASamples;
+	lcShadingMode ShadingMode;
+	float LineWidth;
 	lcStudStyle StudStyle;
 	lcStep ImageStart;
 	lcStep ImageEnd;
@@ -213,7 +215,7 @@ public:
 	~lcApplication();
 
 	void SetProject(Project* Project);
-	lcCommandLineOptions ParseCommandLineOptions();
+	static lcCommandLineOptions ParseCommandLineOptions();
 /*** LPub3D Mod - add parent, remove ShowWindow ***/
 	lcStartupMode Initialize(const QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
 /*** LPub3D Mod end ***/
