@@ -1638,14 +1638,16 @@ void Gui::clearPLICache()
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
-        if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(fileInfo.absoluteFilePath()));
-        } else {
+        if (file.exists()) {
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                .arg(fileInfo.absoluteFilePath()));
+            } else {
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
-            count++;
+                count++;
+            }
         }
     }
     emit messageSig(LOG_INFO_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
@@ -1666,14 +1668,16 @@ void Gui::clearCSICache()
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
-        if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(fileInfo.absoluteFilePath()));
-        } else {
+        if (file.exists()) {
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                .arg(fileInfo.absoluteFilePath()));
+            } else {
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
-            count++;
+                count++;
+            }
         }
     }
 
@@ -1696,17 +1700,19 @@ void Gui::clearSubmodelCache(const QString &key)
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
         bool deleteSpecificFile = fileInfo.absoluteFilePath().contains(key);
-        if (key.isEmpty() || deleteSpecificFile){
-            if (!file.remove()) {
-                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                .arg(fileInfo.absoluteFilePath()));
-            } else {
+        if (key.isEmpty() || deleteSpecificFile) {
+            if (file.exists()) {
+                if (!file.remove()) {
+                    emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                    .arg(fileInfo.absoluteFilePath()));
+                } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
-                count++;
-                if (deleteSpecificFile)
-                    break;
+                    count++;
+                    if (deleteSpecificFile)
+                        break;
+                }
             }
         }
     }
@@ -1729,16 +1735,18 @@ void Gui::clearTempCache()
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
-        if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                              .arg(fileInfo.absoluteFilePath()));
-          } else {
+        if (file.exists()) {
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                .arg(fileInfo.absoluteFilePath()));
+            } else {
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
-            count1++;
+                count1++;
+            }
         }
-      }
+    }
 
     ldrawFile.tempCacheCleared();
 
@@ -1777,29 +1785,27 @@ bool Gui::removeDir(int &count, const QString & dirName)
 }
 
 void Gui::clearStepCSICache(QString &pngName) {
-  QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
-  QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
-  QFileInfo fileInfo(pngName);
-  QFile file(assemDirName + "/" + fileInfo.fileName());
-  if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                        .arg(assemDirName + "/" + fileInfo.fileName()));
+    QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
+    QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
+    QString ldrName      = tmpDirName + "/csi.ldr";
+    QFileInfo fileInfo(pngName);
+    QFile file(assemDirName + "/" + fileInfo.fileName());
+    if (file.exists()) {
+        if (!file.remove())
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                            .arg(assemDirName + "/" + fileInfo.fileName()));
     }
-  QString ldrName;
-  if (renderer->useLDViewSCall()){
-      ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-    } else {
-      ldrName = tmpDirName + "/csi.ldr";
+    if (renderer->useLDViewSCall())
+        ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
+    file.setFileName(ldrName);
+    if (file.exists()) {
+        if (!file.remove())
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(ldrName));
     }
-  file.setFileName(ldrName);
-  if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                        .arg(ldrName));
-    }
-  if (Preferences::enableFadeSteps) {
-      clearPrevStepPositions();
-    }
-  displayPage();
+    if (Preferences::enableFadeSteps)
+        clearPrevStepPositions();
+
+    displayPage();
 }
 
 void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
@@ -1835,54 +1841,44 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
 /*
  * Clear step image graphics items
  * This function recurses the step's model to clear images and associated model files.
- * Call only if using LDView Single Call (useLDViewSCall=true)
  */
 void Gui::clearPageCSIGraphicsItems(Step *step) {
-  // Capture ldr and image names
-  QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
-  QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
-  QString ldrName;
-  bool itemsCleared = false;
-  // process step's image(s)
-  QFileInfo fileInfo(step->pngName);
-  QFile file(assemDirName + "/" + fileInfo.fileName());
-  if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+    // Capture ldr and image names
+    QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
+    QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
+    QString ldrName      = tmpDirName + "/csi.ldr";
+    // process step's image(s)
+    QFileInfo fileInfo(step->pngName);
+    QFile file(assemDirName + "/" + fileInfo.fileName());
+    if (file.exists()) {
+        if (!file.remove())
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
-  }
-  if (renderer->useLDViewSCall()){
-      ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-      file.setFileName(ldrName);
-      if (!file.remove()) {
-         emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                           .arg(ldrName));
-      }
-  } else if (! itemsCleared){
-      ldrName = tmpDirName + "/csi.ldr";
-      file.setFileName(ldrName);
-      if (!file.remove()) {
-          emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                            .arg(ldrName));
-      }
-      itemsCleared = true;
-  }
-  // process callout step(s) image(s)
-  for (int k = 0; k < step->list.size(); k++) {
-      if (step->list[k]->relativeType == CalloutType) {
-          Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-          for (int l = 0; l < callout->list.size(); l++){
-              Range *range = dynamic_cast<Range *>(callout->list[l]);
-              for (int m = 0; m < range->list.size(); m++){
-                  if (range->relativeType == RangeType) {
-                      Step *step = dynamic_cast<Step *>(range->list[m]);
-                      if (step && step->relativeType == StepType) {
-                          clearPageCSIGraphicsItems(step);
-                      } // 1.6 validate if Step relativeType is StepType - to clear image, check for Callout
-                  } // 1.5 validate if Range relativeType is RangeType - to cast as Step
-              } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
-          } // 1.3 for each Range list-item within a Callout...=>list[AbstractStepsElement]->RangeType
-      } // 1.2 validate if relativeType is CalloutType - to cast as Callout...
-  } // 1.1 for each Callout list-item within a Step...=>list[Steps]->CalloutType
+    }
+    if (renderer->useLDViewSCall())
+        ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
+    file.setFileName(ldrName);
+    if (file.exists()) {
+        if (!file.remove())
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(ldrName));
+    }
+    // process callout step(s) image(s)
+    for (int k = 0; k < step->list.size(); k++) {
+        if (step->list[k]->relativeType == CalloutType) {
+            Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+            for (int l = 0; l < callout->list.size(); l++){
+                Range *range = dynamic_cast<Range *>(callout->list[l]);
+                for (int m = 0; m < range->list.size(); m++){
+                    if (range->relativeType == RangeType) {
+                        Step *step = dynamic_cast<Step *>(range->list[m]);
+                        if (step && step->relativeType == StepType) {
+                            clearPageCSIGraphicsItems(step);
+                        } // 1.6 validate if Step relativeType is StepType - to clear image, check for Callout
+                    } // 1.5 validate if Range relativeType is RangeType - to cast as Step
+                } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
+            } // 1.3 for each Range list-item within a Callout...=>list[AbstractStepsElement]->RangeType
+        } // 1.2 validate if relativeType is CalloutType - to cast as Callout...
+    } // 1.1 for each Callout list-item within a Step...=>list[Steps]->CalloutType
 }
 
 /***************************************************************************
