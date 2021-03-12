@@ -1176,7 +1176,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 				int ColorIndex = gDefaultColor;
 				lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
 				if (Focus && Focus->IsPiece())
-					ColorIndex = ((lcPiece*)Focus)->mColorIndex;
+					ColorIndex = ((lcPiece*)Focus)->GetColorIndex();
 				quint32 ColorCode = lcGetColorCode(ColorIndex);
 				gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 /*** LPub3D Mod - preview widget for LPub3D ***/
@@ -1236,7 +1236,7 @@ void lcQPropertiesTree::slotColorButtonClicked()
 	{
 		int ColorIndex = gDefaultColor;
 		if (Focus && Focus->IsPiece())
-			ColorIndex = ((lcPiece*)Focus)->mColorIndex;
+			ColorIndex = ((lcPiece*)Focus)->GetColorIndex();
 
 		Popup  = new lcQColorPickerPopup(Button, ColorIndex);
 		connect(Popup, SIGNAL(selected(int)), SLOT(slotSetValue(int)));
@@ -1476,7 +1476,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	{
 		Show = Piece->GetStepShow();
 		Hide = Piece->GetStepHide();
-		ColorIndex = Piece->mColorIndex;
+		ColorIndex = Piece->GetColorIndex();
 		Info = Piece->mPieceInfo;
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
@@ -1505,7 +1505,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 			{
 				Show = SelectedPiece->GetStepShow();
 				Hide = SelectedPiece->GetStepHide();
-				ColorIndex = SelectedPiece->mColorIndex;
+				ColorIndex = SelectedPiece->GetColorIndex();
 				Info = SelectedPiece->mPieceInfo;
 /*** LPub3D Mod - preview widget for LPub3D ***/
 				if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
@@ -1524,7 +1524,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 				if (SelectedPiece->GetStepHide() != Hide)
 					Hide = 0;
 
-				if (SelectedPiece->mColorIndex != ColorIndex)
+				if (SelectedPiece->GetColorIndex() != ColorIndex)
 					ColorIndex = gDefaultColor;
 
 				if (SelectedPiece->mPieceInfo != Info)

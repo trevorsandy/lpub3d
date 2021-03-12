@@ -561,10 +561,20 @@ public:
 			mStepHide = mStepShow + 1;
 	}
 
+	quint32 GetColorCode() const
+	{
+		return mColorCode;
+	}
+
 	void SetColorCode(quint32 ColorCode)
 	{
 		mColorCode = ColorCode;
 		mColorIndex = lcGetColorIndex(ColorCode);
+	}
+
+	int GetColorIndex() const
+	{
+		return mColorIndex;
 	}
 
 	void SetColorIndex(int ColorIndex)
@@ -642,9 +652,6 @@ public:
 public:
 	PieceInfo* mPieceInfo;
 
-	int mColorIndex;
-	quint32 mColorCode;
-
 	lcMatrix44 mModelWorld;
 	lcMatrix44 mPivotMatrix;
 
@@ -677,6 +684,9 @@ protected:
 	QString mID;
 
 	lcGroup* mGroup;
+
+	int mColorIndex;
+	quint32 mColorCode;
 
 	lcStep mStepShow;
 	lcStep mStepHide;
