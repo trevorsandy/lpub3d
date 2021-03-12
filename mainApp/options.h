@@ -156,6 +156,28 @@ class Where;
 class PgSizeData;
 class PliPartGroupMeta;
 
+class ModelStack
+{
+public:
+  QString modelName;
+      int lineNumber;
+      int stepNumber;
+  ModelStack()
+  {
+    modelName = "undefined";
+    lineNumber = 0;
+    stepNumber = 0;
+  }
+  ModelStack(QString _modelName,
+                int _lineNumber,
+                int _stepNumber)
+  {
+    modelName  = _modelName;
+    lineNumber = _lineNumber;
+    stepNumber = _stepNumber;
+  }
+};
+
 class FindPageOptions
 {
 
@@ -192,7 +214,7 @@ public:
     int           &pageNum;
     Where         &current;
     PgSizeData    &pageSize;
-    QMap<int,int>  &buildModActions;
+    QMap<int,int> &buildModActions;
 
     bool           updateViewer;
     bool           isMirrored;

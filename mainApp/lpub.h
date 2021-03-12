@@ -517,6 +517,7 @@ public:
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
   QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
   QList<Where>    parsedMessages;   // previously parsed messages within the current session
+  QList<ModelStack> modelStack;   // stack of saved positions of the submodel in its parent model, if not top model
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
@@ -530,7 +531,7 @@ public:
   qreal           exportPixelRatio; // export resolution pixel density
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
-  bool            resetCache;       // reset model, fade and highlight parts
+  bool            resetCache;        // reset model, fade and highlight parts
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
 

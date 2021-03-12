@@ -25,6 +25,7 @@
 
 #include "lpub_preferences.h"
 #include "ldrawfiles.h"
+#include "options.h"
 #include "archiveparts.h"
 #include "version.h"
 #include "ldsearchdirs.h"
@@ -328,8 +329,10 @@ class CountPageWorker : public QObject
 
 public slots:
     static int countPage(
-            Meta             meta,
-            FindPageOptions &opts);
+            Meta              ,
+            LDrawFile        *,
+            QList<ModelStack>&,
+            FindPageOptions  &);
 };
 
 class LDrawFile;
@@ -338,7 +341,11 @@ class LoadModelWorker : public QObject
     Q_OBJECT
 
 public slots:
-    static int loadModel(LDrawFile *, const QString &, bool, bool);
+    static int loadModel(
+            LDrawFile *,
+      const QString &,
+            bool,
+            bool);
 private:
     static void setPlainText(const QString &);
     static void setPagedContent(const QStringList &);

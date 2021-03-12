@@ -2042,11 +2042,15 @@ bool ExtractWorker::removeFile(QStringList listFile) {
 
 int CountPageWorker::countPage(
     Meta             meta,
+    LDrawFile       *ldrawFile,
+    QList<ModelStack>&modelStack,
     FindPageOptions &opts)
 {
 
   QMutex countPageMutex;
   countPageMutex.lock();
+
+  gui->pageProcessRunning = PROC_COUNT_PAGE;
 
   bool stepGroup  = false; // opts.multiStep
   bool partIgnore = false;
@@ -2069,29 +2073,28 @@ int CountPageWorker::countPage(
       }
   };
 
+  Rc  rc;
+  int partsAdded         = 0;
+  int countInstances     = meta.LPub.countInstance.value();
+  bool useModelStack     = modelStack.size();
+  bool localSubmodel     = ! opts.current.lineNumber;
 
-  gui->skipHeader(opts.current);
+  if (localSubmodel || useModelStack) {
+      if (localSubmodel)
+          gui->skipHeader(opts.current);
+      ldrawFile->setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, countInstances);
+  }
 
-  Rc rc;
-  QStringList bfxParts;
-  int  partsAdded = 0;
-  int  stepNumber = 1;
-
-  Where saveCurrent = opts.current;
   Where topOfStep = opts.current;
   Where stepGroupCurrent;
 
   gui->saveStepPageNum = gui->stepPageNum;
 
+  // buffer exchange and part group vars
+  QStringList                  bfxParts;
   QHash<QString, QStringList>  bfx;
   QHash<QString, QVector<int>> bfxLineTypeIndexes;
   QList<PliPartGroupMeta>      emptyPartGroups;
-
-  int numLines = gui->subFileSize(opts.current.modelName);
-
-  int  countInstances = meta.LPub.countInstance.value();
-
-  RotStepMeta saveRotStep = meta.rotStep;
 
   // include file vars
   Where includeHere;
@@ -2099,7 +2102,7 @@ int CountPageWorker::countPage(
   bool inserted           = false;
   bool resetIncludeRc     = false;
 
-  gui->getLDrawFile().setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, stepNumber/*opts.groupStepNumber*/, countInstances);
+  int numLines = ldrawFile->size(opts.current.modelName);
 
   for ( ;
         opts.current.lineNumber < numLines;
@@ -2148,19 +2151,19 @@ int CountPageWorker::countPage(
                   if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                       // check if submodel was rendered
-                      bool rendered = gui->getLDrawFile().rendered(type,gui->getLDrawFile().mirrored(token),opts.current.modelName,stepNumber,countInstances);
+                      bool rendered = ldrawFile->rendered(type,ldrawFile->mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
                       // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                       if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                          opts.isMirrored = gui->getLDrawFile().mirrored(token);
+                          opts.isMirrored = ldrawFile->mirrored(token);
 
-                          // add submodel to the model stack - it can't be a callout
-                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
+                          // add submodel to the model modelStack - it can't be a callout
+                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                           meta.submodelStack << tos;
-                          Where current2(type,0);
+                          Where current2(type,ldrawFile->getSubmodelIndex(type),0);
 
-                          gui->getLDrawFile().setModelStartPageNumber(current2.modelName,opts.pageNum);
+                          ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
                           // save rotStep, clear it, and restore it afterwards
                           // since rotsteps don't affect submodels
@@ -2191,10 +2194,11 @@ int CountPageWorker::countPage(
                                       opts.isMirrored,
                                       opts.printing,
                                       opts.buildModLevel,
+                                      opts.stepNumber,
                                       opts.contStepNumber,
                                       opts.groupStepNumber,
                                       opts.current.modelName /*renderParentModel*/);
-                          countPage(meta, submodelOpts);
+                          countPage(meta, ldrawFile, modelStack, submodelOpts);
 
                           gui->saveStepPageNum = gui->stepPageNum;
                           meta.submodelStack.pop_back();
@@ -2217,7 +2221,7 @@ int CountPageWorker::countPage(
                       bfxParts << colorType;
                   }
               }
-          } // ! partIgnore
+          } // ! PartIgnore
 
         case '2':
         case '3':
@@ -2279,14 +2283,14 @@ int CountPageWorker::countPage(
                                      << "Model:" << opts.current.modelName;
 #endif
                       }
-                  } // exporting
+                  } // Exporting
 
                   ++opts.pageNum;
-                  gui->topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
+                  gui->topOfPages.append(opts.current);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   gui->saveStepPageNum = ++gui->stepPageNum;
                   documentPageCount();
 
-                } // StepGroup
+                } // StepGroup && ! NoStep2
               noStep2 = false;
               break;
 
@@ -2294,7 +2298,7 @@ int CountPageWorker::countPage(
             case StepRc:
               if (partsAdded && ! noStep) {
 
-                  stepNumber  += ! coverPage && ! stepPage;
+                  opts.stepNumber  += ! coverPage && ! stepPage;
                   gui->stepPageNum += ! coverPage && ! stepGroup;
 
                   if ( ! stepGroup) {
@@ -2320,7 +2324,7 @@ int CountPageWorker::countPage(
                                          << "Model:" << opts.current.modelName;
 #endif
                             }
-                        } // exporting
+                        } // Exporting
 
                       ++opts.pageNum;
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
@@ -2337,11 +2341,10 @@ int CountPageWorker::countPage(
                   bfxStore1 = false;
                   if ( ! bfxStore2) {
                       bfxParts.clear();
-                    }
-                } else if ( ! stepGroup) {
-                  saveCurrent = opts.current;  // so that draw page doesn't have to
-                  // deal with steps that are not steps
-                }
+                    } // ! BfxStore2
+
+                } // PartsAdded && ! NoStep
+
               noStep2 = noStep;
               noStep = false;
               break;
@@ -2467,10 +2470,12 @@ int CountPageWorker::countPage(
               break;
             default:
               break;
-            } // switch
+            } // Switch Rc
+
           break;
-        }
-    } // for every line
+        } // Switch First Character of Line
+
+    } // For Every Line
 
   // last step in submodel
   if (partsAdded && ! noStep) {
@@ -2496,7 +2501,7 @@ int CountPageWorker::countPage(
                          << "Model:" << opts.current.modelName;
 #endif
             }
-      } // exporting
+      } // Exporting
 
       ++opts.pageNum;
       ++gui->stepPageNum;
@@ -2505,9 +2510,28 @@ int CountPageWorker::countPage(
 
     }  // Last Step in Submodel
 
+  // Set current, stepNumber and renderParentModel to where we stopped in the parent model
+  if (opts.current.lineNumber == numLines && useModelStack) {
+      int newStepNumber = modelStack.first().stepNumber;
+      Where newCurrent(modelStack.first().modelName,
+                       gui->getSubmodelIndex(modelStack.first().modelName),
+                       modelStack.first().lineNumber);
+
+      // remove first modelStack item
+      modelStack.pop_front();
+
+      // set renderParentModel from 2nd modelStack entry, stepNumber and current
+      opts.renderParentModel = modelStack.size() ? modelStack.first().modelName : QString();
+      opts.stepNumber = newStepNumber;
+      opts.current = newCurrent;
+
+      // call countPage
+      countPage(meta, ldrawFile, modelStack, opts);
+    }
+
   countPageMutex.unlock();
 
-  return 0;
+  return OkRc;
 }
 
 void LoadModelWorker::setPlainText(const QString &content)
