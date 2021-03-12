@@ -75,35 +75,41 @@ class ViewerOptions
 {
 public:
   ViewerOptions()
-  {
-    ImageType      = Options::CSI;
-    CameraName     = QString();
-    IsOrtho        = false;
-    ZoomExtents    = false;
-    StudStyle       = 0;
-    ImageWidth     = 800 ;
-    ImageHeight    = 600;
-    PageWidth      = 800;
-    PageHeight     = 600;
-    Resolution     = 150.0f;
-    ModelScale     = 1.0f;
-    CameraDistance = 0.0f;
-    FoV            = 0.0f;
-    ZNear          = 0.0f;
-    ZFar           = 0.0f;
-    Latitude       = 0.0f;
-    Longitude      = 0.0f;
-    RotStep        = Vector3(0, 0, 0);
-    Target         = Vector3(0, 0, 0);
-    Position       = Vector3(0, 0, 0);
-    UpVector       = Vector3(0, 0, 0);
-  }
+      :ImageType         (Options::CSI),
+       ImageWidth        (800 ),
+       ImageHeight       (600),
+       PageWidth         (800),
+       PageHeight        (600),
+       StudStyle         (0 /*Plain*/),
+       Resolution        (150.0f),
+       ModelScale        (1.0f),
+       CameraDistance    (0.0f),
+       FoV               (0.0f),
+       ZNear             (0.0f),
+       ZFar              (0.0f),
+       Latitude          (0.0f),
+       Longitude         (0.0f),
+       EdgeContrast      (0.0f),
+       EdgeSaturation    (0.0f),
+       LightDarkIndex    (0.0f),
+       IsOrtho           (false),
+       ZoomExtents       (false),
+       AutoEdgeColor     (false),
+       StudCylinderColor (0),
+       PartEdgeColor     (0),
+       BlackEdgeColor    (0),
+       DarkEdgeColor     (0),
+       RotStep           (Vector3(0, 0, 0)),
+       Target            (Vector3(0, 0, 0)),
+       Position          (Vector3(0, 0, 0)),
+       UpVector          (Vector3(0, 0, 0))
+  { }
 //  virtual ~ViewerOptions(){}
   QString ViewerStepKey;
-  Options::Mt ImageType;
   QString ImageFileName;
   QString RotStepType;
   QString CameraName;
+  Options::Mt ImageType;
   int ImageWidth;
   int ImageHeight;
   int PageWidth;
@@ -117,8 +123,16 @@ public:
   float ZFar;
   float Latitude;
   float Longitude;
+  float EdgeContrast;
+  float EdgeSaturation;
+  float LightDarkIndex;
   bool IsOrtho;
   bool ZoomExtents;
+  bool AutoEdgeColor;
+  quint32 StudCylinderColor;
+  quint32 PartEdgeColor;
+  quint32 BlackEdgeColor;
+  quint32 DarkEdgeColor;
   Vector3 RotStep;
   Vector3 Target;
   Vector3 Position;
@@ -129,22 +143,21 @@ class NativeOptions : public ViewerOptions
 {
 public:
   NativeOptions(const ViewerOptions &rhs)
-      : ViewerOptions(rhs),
-        IniFlag(-1),
-        ExportMode(-1 /*EXPORT_NONE*/),
-        LineWidth(1.0),
-        TransBackground(true),
-        HighlightNewParts(false)
+      : ViewerOptions     (rhs),
+        IniFlag           (-1 /*NONE*/),
+        ExportMode        (-1 /*EXPORT_NONE*/),
+        LineWidth         (1.0f),
+        TransBackground   (true),
+        HighlightNewParts (false)
   { }
   NativeOptions()
-      : ViewerOptions()
-  {
-    TransBackground   = true;
-    HighlightNewParts = false;
-    LineWidth         = 1.0;
-    ExportMode        = -1; //NONE
-    IniFlag           = -1; //NONE
-  }
+      : ViewerOptions(),
+        IniFlag           (-1 /*NONE*/),
+        ExportMode        (-1 /*EXPORT_NONE*/),
+        LineWidth         (1.0f),
+        TransBackground   (true),
+        HighlightNewParts (false)
+  { }
 //  virtual ~NativeOptions(){}
   QStringList ExportArgs;
   QString InputFileName;

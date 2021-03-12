@@ -507,6 +507,9 @@ int Step::createCsi(
       }
 
       // for now, we always set viewer display options
+      StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
+      AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
+      HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
       viewerOptions                 = new ViewerOptions();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
@@ -522,7 +525,15 @@ int Step::createCsi(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = meta.rotStep.value().type;
-      viewerOptions->StudStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : csiStepMeta.studStyle.value();
+      viewerOptions->AutoEdgeColor  = aecm->enable.value();
+      viewerOptions->EdgeContrast   = aecm->contrast.value();
+      viewerOptions->EdgeSaturation = aecm->saturation.value();
+      viewerOptions->StudStyle      = ssm->value();
+      viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+      viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+      viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+      viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+      viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
       viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerStepKey;

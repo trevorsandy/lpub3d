@@ -617,6 +617,12 @@ enum ThemeColorType {
 #define NEXT                                    1
 #define PREVIOUS                                2
 
+#define HIGH_CONTRAST_STUD_CYLINDER_DEFAULT     "27,42,52,255"
+#define HIGH_CONTRAST_PART_EDGE_DEFAULT         "0,0,0,255"
+#define HIGH_CONTRAST_BLACK_EDGE_DEFAULT        "255,255,255,255"
+#define HIGH_CONTRAST_DARK_EDGE_DEFAULT         "27,42,52,255"
+#define LIGHT_DARK_INDEX_DEFAULT                0.5f
+#define EDGE_COLOR_CONTRAST_DEFAULT             0.5f
 
 #define RENDER_IMAGE_MAX_SIZE                   32768 // pixels
 #define PLACEHOLDER_IMAGE_WIDTH                 68    // pixels

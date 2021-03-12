@@ -382,6 +382,9 @@ int SubModel::createSubModelImage(
       }
 
       // set viewer display options
+      StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &subModelMeta.studStyle;
+      AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &subModelMeta.autoEdgeColor;
+      HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &subModelMeta.highContrast;
       viewerOptions                 = new ViewerOptions();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
@@ -397,7 +400,15 @@ int SubModel::createSubModelImage(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
-      viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : subModelMeta.studStyle.value();
+      viewerOptions->AutoEdgeColor  = aecm->enable.value();
+      viewerOptions->EdgeContrast   = aecm->contrast.value();
+      viewerOptions->EdgeSaturation = aecm->saturation.value();
+      viewerOptions->StudStyle      = ssm->value();
+      viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+      viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+      viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+      viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+      viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
       viewerOptions->Target         = Vector3(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
       viewerOptions->UpVector       = Vector3(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;

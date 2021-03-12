@@ -154,7 +154,7 @@ void Gui::create3DActions()
     defaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
     defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
     defaultCameraPropertiesAct->setCheckable(true);
-    defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
+    defaultCameraPropertiesAct->setChecked(GetPreferences().mDefaultCameraProperties);
     connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
 
     TransformAction = new QAction(tr("Transform"), this);
@@ -654,8 +654,7 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(viewerDockWindow, gMainWindow->GetTimelineToolBar());
 
     // Preview
-    lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+    if (GetPreferences().mPreviewPosition == lcPreviewPosition::Dockable)
         createPreviewWidget();
 
     // Status Bar and Window Flags
@@ -1523,7 +1522,7 @@ void Gui::enableBuildModMenuAndActions()
 
 void Gui::showDefaultCameraProperties()
 {
-  lcGetPreferences().mDefaultCameraProperties = defaultCameraPropertiesAct->isChecked();
+  gApplication->mPreferences.mDefaultCameraProperties = defaultCameraPropertiesAct->isChecked();
   lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, defaultCameraPropertiesAct->isChecked());
 }
 
@@ -1833,7 +1832,7 @@ void Gui::reloadViewer(){
 
  bool Gui::GetViewPieceIcons()
  {
-     return lcGetPreferences().mViewPieceIcons;
+     return GetPreferences().mViewPieceIcons;
  }
 
  bool Gui::GetSubmodelIconsLoaded()
@@ -1858,12 +1857,86 @@ void Gui::reloadViewer(){
 
  int Gui::GetStudStyle()
  {
-     return static_cast<int>(lcGetPiecesLibrary()->GetStudStyle());
+     if (gApplication)
+         return static_cast<int>(lcGetPiecesLibrary()->GetStudStyle());
+     else
+         return lcGetProfileInt(LC_PROFILE_STUD_STYLE);
  }
 
- void Gui::SetStudStyle(int Style, bool value)
+ bool Gui::GetAutomateEdgeColor()
  {
-     lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(Style), value);
+     if (gApplication)
+         return GetPreferences().mAutomateEdgeColor;
+     else
+         return lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+ }
+
+ quint32 Gui::GetStudCylinderColor()
+ {
+     if (gApplication)
+         return GetPreferences().mStudCylinderColor;
+     else
+         return lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
+ }
+
+ quint32 Gui::GetPartEdgeColor()
+ {
+     if (gApplication)
+         return GetPreferences().mPartEdgeColor;
+     else
+         return lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
+ }
+
+ quint32 Gui::GetBlackEdgeColor()
+ {
+     if (gApplication)
+         return GetPreferences().mBlackEdgeColor;
+     else
+         return lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
+ }
+
+ quint32 Gui::GetDarkEdgeColor()
+ {
+     if (gApplication)
+         return GetPreferences().mDarkEdgeColor;
+     else
+         return lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
+ }
+
+ float Gui::GetPartEdgeContrast()
+ {
+     if (gApplication)
+         return GetPreferences().mPartEdgeContrast;
+     else
+         return lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
+ }
+
+ float Gui::GetPartColorLightDarkIndex()
+ {
+     if (gApplication)
+         return GetPreferences().mPartColorValueLDIndex;
+     else
+         return lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
+ }
+
+ void Gui::SetStudStyle(const NativeOptions* Options, bool value)
+ {
+     gApplication->mPreferences.mPartColorValueLDIndex = Options->LightDarkIndex;
+     gApplication->mPreferences.mStudCylinderColor = Options->StudCylinderColor;
+     gApplication->mPreferences.mPartEdgeColor = Options->PartEdgeColor;
+     gApplication->mPreferences.mBlackEdgeColor = Options->BlackEdgeColor;
+     gApplication->mPreferences.mDarkEdgeColor = Options->DarkEdgeColor;
+
+     lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(Options->StudStyle), value);
+ }
+
+ void Gui::SetAutomateEdgeColor(const NativeOptions* Options)
+ {
+     gApplication->mPreferences.mAutomateEdgeColor = Options->AutoEdgeColor;
+     gApplication->mPreferences.mPartEdgeContrast = Options->EdgeContrast;
+     gApplication->mPreferences.mPartColorValueLDIndex = Options->EdgeSaturation;
+
+     lcGetPiecesLibrary()->LoadColors();
  }
 
  void Gui::UpdateAllViews()

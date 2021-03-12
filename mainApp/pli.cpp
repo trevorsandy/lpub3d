@@ -1114,6 +1114,9 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
 
         // Set 3DViewer PLI part entry
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
+            StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
+            AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
+            HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;
             // set viewer display options
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
@@ -1131,7 +1134,15 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             viewerOptions->Resolution     = nameKeys.at(3).toFloat();
             viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
             viewerOptions->RotStepType    = rotate.at(3);
-            viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : pliMeta.studStyle.value();
+            viewerOptions->AutoEdgeColor  = aecm->enable.value();
+            viewerOptions->EdgeContrast   = aecm->contrast.value();
+            viewerOptions->EdgeSaturation = aecm->saturation.value();
+            viewerOptions->StudStyle      = ssm->value();
+            viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+            viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+            viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+            viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+            viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
             viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
             viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
             viewerOptions->ViewerStepKey  = viewerPliPartKey;
@@ -2558,6 +2569,9 @@ int Pli::partSizeLDViewSCall() {
 
                 // Set 3DViewer PLI part entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
+                    StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
+                    AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
+                    HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;
                     // set viewer display options
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
@@ -2575,7 +2589,15 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->Resolution     = nameKeys.at(3).toFloat();
                     viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
                     viewerOptions->RotStepType    = rotate.at(3);
-                    viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : pliMeta.studStyle.value();
+                    viewerOptions->AutoEdgeColor  = aecm->enable.value();
+                    viewerOptions->EdgeContrast   = aecm->contrast.value();
+                    viewerOptions->EdgeSaturation = aecm->saturation.value();
+                    viewerOptions->StudStyle      = ssm->value();
+                    viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+                    viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+                    viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+                    viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+                    viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
                     viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
                     viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
                     viewerOptions->ViewerStepKey  = viewerPliPartKey;

@@ -1226,10 +1226,18 @@ public slots:
   QMenu*                 GetShadingMenu();
   bool                   GetViewPieceIcons();
   bool                   GetSubmodelIconsLoaded();
+  bool                   GetAutomateEdgeColor();
   int                    GetLPubStepPieces();
   int                    GetStudStyle();
+  float                  GetPartEdgeContrast();
+  float                  GetPartColorLightDarkIndex();
+  quint32                GetStudCylinderColor();
+  quint32                GetPartEdgeColor();
+  quint32                GetBlackEdgeColor();
+  quint32                GetDarkEdgeColor();
 
-  void                   SetStudStyle(int, bool);
+  void                   SetStudStyle(const NativeOptions*, bool);
+  void                   SetAutomateEdgeColor(const NativeOptions*);
   void                   SetSubmodelIconsLoaded(bool);
 
   int                    Process3DViewerCommandLine();

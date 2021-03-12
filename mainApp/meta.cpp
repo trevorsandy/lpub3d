@@ -3181,11 +3181,11 @@ AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
 {
   contrast.setRange(0.0f,1.0f);
   contrast.setFormats(1,2,"#9.99");
-  contrast.setValue(0.5f);
+  contrast.setValue(gui->GetPartEdgeContrast());
   saturation.setRange(0.0f,1.0f);
   saturation.setFormats(1,2,"#9.99");
-  saturation.setValue(0.5f);
-  enable.setValue(false);
+  saturation.setValue(gui->GetPartColorLightDarkIndex());
+  enable.setValue(gui->GetAutomateEdgeColor());
 }
 
 void AutoEdgeColorMeta::init(BranchMeta *parent, QString name)
@@ -3202,7 +3202,11 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
 {
   lightDarkIndex.setRange(0.0f,1.0f);
   lightDarkIndex.setFormats(1,2,"#9.99");
-  lightDarkIndex.setValue(0.5f);
+  lightDarkIndex.setValue(gui->GetPartColorLightDarkIndex());
+  studCylinderColor.setValue(gui->GetStudCylinderColor());
+  partEdgeColor.setValue(gui->GetPartEdgeColor());
+  blackEdgeColor.setValue(gui->GetBlackEdgeColor());
+  darkEdgeColor.setValue(gui->GetDarkEdgeColor());
 }
 
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)

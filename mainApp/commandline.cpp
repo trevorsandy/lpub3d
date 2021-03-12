@@ -67,14 +67,14 @@ int Gui::processCommandLine()
     << "-html" << "--export-html"
     ;
 
-  const lcPreferences& Preferences = lcGetPreferences();
-  quint32 StudCylinderColor     = Preferences.mStudCylinderColor;
-  quint32 PartEdgeColor         = Preferences.mPartEdgeColor;
-  quint32 BlackEdgeColor        = Preferences.mBlackEdgeColor;
-  quint32 DarkEdgeColor         = Preferences.mDarkEdgeColor;
-  float   PartEdgeContrast      = Preferences.mPartEdgeContrast;
-  float   PartColorValueLDIndex = Preferences.mPartColorValueLDIndex;
-  bool    AutomateEdgeColor     = Preferences.mAutomateEdgeColor;
+  quint32 ColorValue            = 0;
+  quint32 StudCylinderColor     = gui->GetStudCylinderColor();
+  quint32 PartEdgeColor         = gui->GetPartEdgeColor();
+  quint32 BlackEdgeColor        = gui->GetBlackEdgeColor();
+  quint32 DarkEdgeColor         = gui->GetDarkEdgeColor();
+  float   PartEdgeContrast      = gui->GetPartEdgeContrast();
+  float   PartColorValueLDIndex = gui->GetPartColorLightDarkIndex();
+  bool    AutomateEdgeColor     = gui->GetAutomateEdgeColor();
 
    int StudStyle             = GetStudStyle();
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
@@ -89,6 +89,8 @@ int Gui::processCommandLine()
   bool useLDVSnapShotList    = false;
   bool useNativeRenderer     = false;
   bool coloursChanged        = false;
+  bool studStyleChanged      = false;
+  bool autoEdgeColorChanged  = false;
 
   QString generator          = RENDERER_NATIVE;
 
@@ -251,50 +253,57 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-ss") || Param == QLatin1String("--stud-style"))
       {
-        if (!ParseInteger(StudStyle, 0, 7))
+        int Value;
+        if (!ParseInteger(Value, 0, 7))
             InvalidParse(QString("Invalid value specified, valid values range from 0 to 7 for the"), true);
+        else if ((studStyleChanged = Value != StudStyle))
+            StudStyle = Value;
       }
       else if (Param == QLatin1String("-scc") || Param == QLatin1String("--stud-cylinder-color"))
       {
-          if (ParseColor32(StudCylinderColor))
+          if (ParseColor32(ColorValue))
           {
-              coloursChanged = true;
               if (StudStyle < 6)
                   InvalidParse(QString("High contrast stud style is required for the"), true);
+              else if ((coloursChanged = ColorValue != StudCylinderColor))
+                  StudCylinderColor = ColorValue;
           }
       }
       else if (Param == QLatin1String("-ec") || Param == QLatin1String("--edge-color"))
       {
           if (ParseColor32(PartEdgeColor))
           {
-              coloursChanged = true;
               if (StudStyle < 6)
                   InvalidParse(QString("High contrast stud style is required for the"), true);
+              else if ((coloursChanged = ColorValue != PartEdgeColor))
+                  PartEdgeColor = ColorValue;
           }
       }
       else if (Param == QLatin1String("-bec") || Param == QLatin1String("--black-edge-color"))
       {
           if (ParseColor32(BlackEdgeColor))
           {
-              coloursChanged = true;
               if (StudStyle < 6)
                   InvalidParse(QString("High contrast stud style is required for the"), true);
+              else if ((coloursChanged = ColorValue != BlackEdgeColor))
+                  BlackEdgeColor = ColorValue;
           }
       }
       else if (Param == QLatin1String("-dec") || Param == QLatin1String("--dark-edge-color"))
       {
           if (ParseColor32(DarkEdgeColor))
           {
-              coloursChanged = true;
               if (StudStyle < 6)
                   InvalidParse(QString("High contrast stud style is required for the"), true);
+              else if ((coloursChanged = ColorValue != DarkEdgeColor))
+                  DarkEdgeColor = ColorValue;
           }
       }
       else
       if (Param == QLatin1String("-aec") || Param == QLatin1String("--automate-edge-color"))
       {
           if (!AutomateEdgeColor)
-              coloursChanged = true;
+              autoEdgeColorChanged = true;
           AutomateEdgeColor = true;
       }
       else
@@ -581,21 +590,32 @@ int Gui::processCommandLine()
       partWorkerLDSearchDirs.resetSearchDirSettings();
     }
 
-  gApplication->mPreferences.mStudCylinderColor = StudCylinderColor;
-  gApplication->mPreferences.mPartEdgeColor = PartEdgeColor;
-  gApplication->mPreferences.mBlackEdgeColor = BlackEdgeColor;
-  gApplication->mPreferences.mDarkEdgeColor = DarkEdgeColor;
-  gApplication->mPreferences.mPartEdgeContrast = PartEdgeContrast;
-  gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
-  gApplication->mPreferences.mAutomateEdgeColor = AutomateEdgeColor;
-
   if (!colourConfigFile.isEmpty())
       Preferences::altLDConfigPath = colourConfigFile;
 
-  if (StudStyle != GetStudStyle())
-      SetStudStyle(StudStyle, false);
-  else if (coloursChanged || AutomateEdgeColor)
+  if (studStyleChanged || autoEdgeColorChanged) {
+      NativeOptions* viewerOptions = new NativeOptions;
+      if (studStyleChanged) {
+          viewerOptions->StudStyle         = StudStyle;
+          viewerOptions->LightDarkIndex    = PartColorValueLDIndex;
+          viewerOptions->StudCylinderColor = StudCylinderColor;
+          viewerOptions->PartEdgeColor     = PartEdgeColor;
+          viewerOptions->BlackEdgeColor    = BlackEdgeColor;
+          viewerOptions->DarkEdgeColor     = DarkEdgeColor;
+          SetStudStyle(viewerOptions, false);
+      } else if (autoEdgeColorChanged) {
+          if (AutomateEdgeColor && StudStyle > 5) {
+              message = tr("High contrast stud and edge color settings are ignored when -aec or --automate-edge-color is set.");
+              emit messageSig(LOG_NOTICE,message);
+          }
+          viewerOptions->AutoEdgeColor     = AutomateEdgeColor;
+          viewerOptions->EdgeContrast      = PartEdgeContrast;
+          viewerOptions->EdgeSaturation    = PartColorValueLDIndex;
+          SetAutomateEdgeColor(viewerOptions);
+      }
+  } else if (coloursChanged) {
       LoadColors();
+  }
 
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {

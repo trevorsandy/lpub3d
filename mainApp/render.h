@@ -43,6 +43,9 @@ class FloatPairMeta;
 class NativeOptions;
 class ViewerOptions;
 class Project;
+class StudStyleMeta;
+class AutoEdgeColorMeta;
+class HighContrastColorMeta;
 
 class Render
 {
@@ -71,11 +74,13 @@ public:
   static bool            RenderNativeView(const NativeOptions *, bool RenderImage = false);
   static bool            LoadViewer(const ViewerOptions *);
   static QStringList const getImageAttributes(const QString &);
-  static bool            compareImageAttributes(const QStringList &,
-                                                const QString &,
-                                                bool pare = true);
-  static bool            createSnapshotsList(const QStringList &,
-                                            const QString &);
+  static bool            compareImageAttributes(const QStringList &, const QString &, bool pare = true);
+  static void            getStudStyleAndAutoEdgeSettings(StudStyleMeta *ssm,
+                                      HighContrastColorMeta *hccm, AutoEdgeColorMeta *acm,
+                                      QString &ss, QString &ae, QString &ac, QString &ai,
+                                      QString &hs, QString &hp, QString &hb, QString &hd);
+
+  static bool            createSnapshotsList(const QStringList &, const QString &);
   static void            addArgument(QStringList &arguments,
                                      const QString &arg,
                                      const QString &argChk = QString(),
