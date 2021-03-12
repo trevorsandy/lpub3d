@@ -48,6 +48,9 @@
 #define LC_MAXPATH 1024
 #define LC_MAXNAME 1000
 
+typedef quint32 lcStep;
+#define LC_STEP_MAX 0xffffffff
+
 #ifdef Q_OS_WIN
 char* strcasestr(const char *s, const char *find);
 #else
@@ -60,7 +63,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "98411ec"
+#define LC_VERSION_BUILD "1abc81e"
 /*** LPub3D Mod end ***/
 
 
@@ -77,6 +80,9 @@ typedef std::map<const PieceInfo*, std::map<int, int>> lcPartsList;
 struct lcModelPartsEntry;
 struct lcMinifig;
 enum class lcViewpoint;
+class lcInstructions;
+struct lcObjectRayTest;
+struct lcObjectBoxTest;
 
 class lcVector2;
 class lcVector3;
@@ -84,6 +90,7 @@ class lcVector4;
 class lcMatrix33;
 class lcMatrix44;
 
+class lcCollapsibleWidget;
 class lcViewWidget;
 class lcView;
 class lcContext;

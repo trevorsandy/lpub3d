@@ -56,6 +56,8 @@ public:
 	bool mDrawAxes;
 	quint32 mAxesColor;
 	quint32 mTextColor;
+	quint32 mMarqueeBorderColor;
+	quint32 mMarqueeFillColor;
 	quint32 mOverlayColor;
 	quint32 mActiveViewColor;
 	quint32 mInactiveViewColor;
@@ -122,6 +124,13 @@ public:
 /*** LPub3D Mod end ***/
 };
 
+enum class lcStartupMode
+{
+	ShowWindow,
+	Success,
+	Error
+};
+
 /*** LPub3D Mod - change QApplication to QObject ***/
 class lcApplication : public QObject
 /*** LPub3D Mod end ***/
@@ -136,7 +145,7 @@ public:
 
 	void SetProject(Project* Project);
 /*** LPub3D Mod - add parent, remove ShowWindow ***/
-	bool Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
+	lcStartupMode Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent = 0);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process command line ***/
 	int Process3DViewerCommandLine();
@@ -162,6 +171,8 @@ public:
 	QByteArray mClipboard;
 
 protected:
+	bool InitializeRenderer(int AASamples);
+	void ShutdownRenderer();
 	void UpdateStyle();
 	QString GetTabLayoutKey() const;
 

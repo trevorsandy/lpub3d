@@ -7,6 +7,7 @@ HEADERS += \
     $$PWD/common/lc_application.h \
     $$PWD/common/lc_array.h \
     $$PWD/common/lc_category.h \
+	$$PWD/common/lc_collapsiblewidget.h \
     $$PWD/common/lc_colors.h \
     $$PWD/common/lc_commands.h \
     $$PWD/common/lc_context.h \
@@ -15,6 +16,7 @@ HEADERS += \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
     $$PWD/common/lc_http.h \
+    $$PWD/common/lc_instructions.h \
     $$PWD/common/lc_instructionsdialog.h \
     $$PWD/common/lc_library.h \
     $$PWD/common/lc_lxf.h \
@@ -72,12 +74,14 @@ SOURCES += \
     $$PWD/common/image.cpp \
     $$PWD/common/lc_application.cpp \
     $$PWD/common/lc_category.cpp \
+    $$PWD/common/lc_collapsiblewidget.cpp \
     $$PWD/common/lc_colors.cpp \
     $$PWD/common/lc_commands.cpp \
     $$PWD/common/lc_context.cpp \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_glextensions.cpp \
     $$PWD/common/lc_http.cpp \
+    $$PWD/common/lc_instructions.cpp \
     $$PWD/common/lc_instructionsdialog.cpp \
     $$PWD/common/lc_library.cpp \
     $$PWD/common/lc_lxf.cpp \

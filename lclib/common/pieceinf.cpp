@@ -44,9 +44,9 @@ void PieceInfo::SetMesh(lcMesh* Mesh)
 
 void PieceInfo::SetPlaceholder()
 {
-	mBoundingBox.Min = lcVector3(-10.0f, -10.0f, -24.0f);
-	mBoundingBox.Max = lcVector3(10.0f, 10.0f, 4.0f);
-	ReleaseMesh();
+	lcMesh* Mesh = new lcMesh;
+	Mesh->CreateBox();
+	SetMesh(Mesh);
 
 	mType = lcPieceInfoType::Placeholder;
 	mModel = nullptr;
@@ -59,6 +59,8 @@ void PieceInfo::SetModel(lcModel* Model, bool UpdateMesh, Project* CurrentProjec
 	{
 		mType = lcPieceInfoType::Model;
 		mModel = Model;
+		delete mMesh;
+		mMesh = nullptr;
 	}
 
 	strncpy(mFileName, Model->GetProperties().mFileName.toLatin1().data(), sizeof(mFileName) - 1);
@@ -147,8 +149,6 @@ void PieceInfo::Load()
 		{
 			if (lcGetPiecesLibrary()->LoadPieceData(this))
 				mType = lcPieceInfoType::Part;
-			else
-				mBoundingBox = gPlaceholderMesh->mBoundingBox;
 		}
 		else
 			lcGetPiecesLibrary()->LoadPieceData(this);
@@ -266,9 +266,6 @@ bool PieceInfo::BoxTest(const lcMatrix44& WorldMatrix, const lcVector4 WorldPlan
 	if (OutcodesOR == 0)
 		return true;
 
-	if (IsPlaceholder())
-		return gPlaceholderMesh->IntersectsPlanes(LocalPlanes);
-
 	if (mMesh && mMesh->IntersectsPlanes(LocalPlanes))
 		return true;
 
@@ -311,7 +308,7 @@ void PieceInfo::AddRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, i
 {
 	if (mMesh || IsPlaceholder())
 /*** LPub3D Mod - true fade ***/	
-		Scene->AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
+		Scene->AddMesh(mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
 /*** LPub3D Mod end ***/
 
 	if (IsModel())
@@ -388,6 +385,26 @@ void PieceInfo::CompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min
 	else
 	{
 		mModel->SubModelCompareBoundingBox(WorldMatrix, Min, Max);
+	}
+}
+
+void PieceInfo::AddSubModelBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::vector<lcVector3>& Points) const
+{
+	if (!IsModel())
+	{
+		lcVector3 BoxPoints[8];
+
+		if (!mMesh)
+			lcGetBoxCorners(GetBoundingBox(), BoxPoints);
+		else
+			lcGetBoxCorners(mMesh->mBoundingBox, BoxPoints);
+
+		for (int i = 0; i < 8; i++)
+			Points.emplace_back(lcMul31(BoxPoints[i], WorldMatrix));
+	}
+	else
+	{
+		mModel->SubModelAddBoundingBoxPoints(WorldMatrix, Points);
 	}
 }
 

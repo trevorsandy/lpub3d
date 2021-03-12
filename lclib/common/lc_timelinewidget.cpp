@@ -636,7 +636,7 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* CurrentItem)
 	if (!Info)
 		return;
 
-	gMainWindow->PreviewPiece(Info->mFileName, Piece->mColorCode);
+	gMainWindow->PreviewPiece(Info->mFileName, Piece->mColorCode, false);
 }
 
 void lcTimelineWidget::UpdateModel()

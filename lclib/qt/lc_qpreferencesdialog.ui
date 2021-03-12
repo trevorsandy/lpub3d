@@ -720,32 +720,19 @@
               <string>Interface</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_6">
-              <item row="0" column="6">
-               <widget class="QToolButton" name="TextColorButton">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Active View:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="7">
+               <widget class="QToolButton" name="MarqueeBorderColorButton">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QToolButton" name="OverlayColorButton">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="7" rowspan="2">
-               <spacer name="horizontalSpacer_9">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item row="2" column="4">
                <widget class="QToolButton" name="InactiveViewColorButton">
@@ -754,17 +741,10 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="2" rowspan="2">
-               <widget class="QToolButton" name="AxesColorButton">
+              <item row="2" column="2">
+               <widget class="QToolButton" name="ActiveViewColorButton">
                 <property name="text">
                  <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="label_28">
-                <property name="text">
-                 <string>Active View:</string>
                 </property>
                </widget>
               </item>
@@ -782,12 +762,32 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="2">
-               <widget class="QToolButton" name="ActiveViewColorButton">
+              <item row="2" column="6">
+               <widget class="QLabel" name="label_36">
+                <property name="text">
+                 <string>Camera Name:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2" rowspan="2">
+               <widget class="QToolButton" name="AxesColorButton">
                 <property name="text">
                  <string/>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="10" rowspan="2">
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
               <item row="0" column="0">
                <widget class="QCheckBox" name="AxisIconCheckBox">
@@ -796,10 +796,38 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="5">
-               <widget class="QLabel" name="label_36">
+              <item row="0" column="6">
+               <widget class="QLabel" name="label_37">
                 <property name="text">
-                 <string>Text Color:</string>
+                 <string>Marquee Border:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QToolButton" name="OverlayColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="8">
+               <widget class="QLabel" name="label_38">
+                <property name="text">
+                 <string>Marquee Fill:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="7">
+               <widget class="QToolButton" name="TextColorButton">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="9">
+               <widget class="QToolButton" name="MarqueeFillColorButton">
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -2187,9 +2215,11 @@
   <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>AxesColorButton</tabstop>
   <tabstop>OverlayColorButton</tabstop>
-  <tabstop>TextColorButton</tabstop>
+  <tabstop>MarqueeBorderColorButton</tabstop>
+  <tabstop>MarqueeFillColorButton</tabstop>
   <tabstop>ActiveViewColorButton</tabstop>
   <tabstop>InactiveViewColorButton</tabstop>
+  <tabstop>TextColorButton</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridStudColor</tabstop>
   <tabstop>gridLines</tabstop>

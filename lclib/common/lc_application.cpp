@@ -36,6 +36,8 @@ void lcPreferences::LoadDefaults()
 	mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
 	mAxesColor = lcGetProfileInt(LC_PROFILE_AXES_COLOR);
 	mTextColor = lcGetProfileInt(LC_PROFILE_TEXT_COLOR);
+	mMarqueeBorderColor = lcGetProfileInt(LC_PROFILE_MARQUEE_BORDER_COLOR);
+	mMarqueeFillColor = lcGetProfileInt(LC_PROFILE_MARQUEE_FILL_COLOR);
 	mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
 	mActiveViewColor = lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR);
 	mInactiveViewColor = lcGetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR);
@@ -65,7 +67,7 @@ void lcPreferences::LoadDefaults()
 	mPreviewViewSphereSize = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE);
 	mPreviewViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION));
 	mDrawPreviewAxis = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES);
-/*** LPub3D Mod - preview widget for LPub3D ***/	
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	mPreviewEnabled  = lcGetProfileInt(LC_PROFILE_PREVIEW_ENABLED);
 	mPreviewSize     = lcGetProfileInt(LC_PROFILE_PREVIEW_SIZE);
 	mPreviewLocation = static_cast<lcPreviewLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_LOCATION));
@@ -113,6 +115,8 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_BACKGROUND_COLOR, mBackgroundSolidColor);
 	lcSetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP, mBackgroundGradientColorTop);
 	lcSetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM, mBackgroundGradientColorBottom);
+	lcSetProfileInt(LC_PROFILE_MARQUEE_BORDER_COLOR, mMarqueeBorderColor);
+	lcSetProfileInt(LC_PROFILE_MARQUEE_FILL_COLOR, mMarqueeFillColor);
 	lcSetProfileInt(LC_PROFILE_OVERLAY_COLOR, mOverlayColor);
 	lcSetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR, mActiveViewColor);
 	lcSetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR, mInactiveViewColor);
@@ -141,7 +145,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE, mPreviewViewSphereSize);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION, static_cast<int>(mPreviewViewSphereLocation));
 	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES, mDrawPreviewAxis);
-	
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewEnabled);
@@ -190,6 +194,9 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mBackgroundGradientColorBottom = LC_RGB(255, 255, 255);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		mOverlayColor = LC_RGBA(224, 224, 224, 255);
+		mMarqueeBorderColor = LC_RGBA(64, 64, 255, 255);
+		mMarqueeFillColor = LC_RGBA(64, 64, 255, 64);
+		mInactiveViewColor = LC_RGBA(69, 69, 69, 255);
 /*** LPub3D Mod end ***/
 		mActiveViewColor = LC_RGBA(41, 128, 185, 255);
 		mGridStudColor = LC_RGBA(24, 24, 24, 192);
@@ -206,6 +213,11 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mBackgroundGradientColorTop = LC_RGB(54, 72, 95);
 		mBackgroundGradientColorBottom = LC_RGB(49, 52, 55);
 		mOverlayColor = LC_RGBA(0, 0, 0, 255);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		mMarqueeBorderColor = LC_RGBA(64, 64, 255, 255);
+		mMarqueeFillColor = LC_RGBA(64, 64, 255, 64);
+		mInactiveViewColor = LC_RGBA(69, 69, 69, 255);
+/*** LPub3D Mod end ***/
 		mActiveViewColor = LC_RGBA(255, 0, 0, 255);
 		mGridStudColor = LC_RGBA(64, 64, 64, 192);
 		mGridLineColor = LC_RGBA(0, 0, 0, 255);
@@ -359,10 +371,13 @@ void lcApplication::SetProject(Project* Project)
 {
 	SaveTabLayout();
 
-	gMainWindow->RemoveAllModelTabs();
+	if (gMainWindow)
+	{
+		gMainWindow->RemoveAllModelTabs();
 
-	if (gMainWindow->GetPreviewWidget())
-		 gMainWindow->GetPreviewWidget()->ClearPreview();
+		if (gMainWindow->GetPreviewWidget())
+			gMainWindow->GetPreviewWidget()->ClearPreview();
+	}
 
 	delete mProject;
 	mProject = Project;
@@ -375,7 +390,8 @@ void lcApplication::SetProject(Project* Project)
 		QSettings Settings;
 		QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();
 
-		gMainWindow->RestoreTabLayout(TabLayout);
+		if (gMainWindow)
+			gMainWindow->RestoreTabLayout(TabLayout);
 	}
 }
 
@@ -461,7 +477,9 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 /*** LPub3D Mod - process command line ***/
 int lcApplication::Process3DViewerCommandLine()
 {
-/*** LPub3D Mod end ***/
+	/***
+	bool OnlyUseLibraryPaths = false;
+	***/
 	bool SaveImage = false;
 	bool SaveWavefront = false;
 	bool Save3DS = false;
@@ -479,28 +497,28 @@ int lcApplication::Process3DViewerCommandLine()
 	int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
-//	int StudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+	/***
+	int StudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+	***/
 	int ImageStart = 0;
 	int ImageEnd = 0;
 	lcVector3 CameraPosition[3] = {};
 	float CameraLatLon[2] = {0.0f, 0.0f};
 	float FoV = 0.0f;
 	float ZPlanes[2] = {0.0f, 0.0f};
+	lcViewpoint Viewpoint = lcViewpoint::Count;
 	quint32 FadeStepsColor = mPreferences.mFadeStepsColor;
 	quint32	HighlightColor = mPreferences.mHighlightNewPartsColor;
 	QString ImageName;
 	QString ModelName;
 	QString CameraName;
-	QString ViewpointName;
 	QString ProjectName;
 	QString SaveWavefrontName;
 	QString Save3DSName;
 	QString SaveCOLLADAName;
 	QString SaveHTMLName;
 
-/*** LPub3D Mod - process command line ***/
 	QStringList Arguments = Application::instance()->arguments();
-/*** LPub3D Mod end ***/	
 	const int NumArguments = Arguments.size();
 	bool ParseOK = true;
 
@@ -639,7 +657,7 @@ int lcApplication::Process3DViewerCommandLine()
 			return false;
 		};
 
-		/*
+		/***
 		if (Param == QLatin1String("-l") || Param == QLatin1String("--libpath"))
 		{
 			QString LibPath;
@@ -651,7 +669,8 @@ int lcApplication::Process3DViewerCommandLine()
 				OnlyUseLibraryPaths = true;
 			}
 		}
-		else */
+		else
+		***/
 		if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
 		{
 			SaveImage = true;
@@ -695,18 +714,17 @@ int lcApplication::Process3DViewerCommandLine()
 			ParseString(CameraName, true);
 		else if (Param == QLatin1String("--viewpoint"))
 		{
-			if (ParseString(ViewpointName, true)
-				// TODO: move the string checks into view or camera
-				&& ViewpointName != QLatin1String("front")
-				&& ViewpointName != QLatin1String("back")
-				&& ViewpointName != QLatin1String("top")
-				&& ViewpointName != QLatin1String("bottom")
-				&& ViewpointName != QLatin1String("left")
-				&& ViewpointName != QLatin1String("right")
-				&& ViewpointName != QLatin1String("home"))
+			QString ViewpointName;
+
+			if (ParseString(ViewpointName, true))
 			{
-				printf("Invalid parameter value specified for the '%s' option: '%s'.\n", Param.toLatin1().constData(), Arguments[ArgIdx].toLatin1().constData());
-				ParseOK = false;
+				Viewpoint = lcCamera::GetViewpoint(ViewpointName);
+
+				if (Viewpoint == lcViewpoint::Count)
+				{
+					printf("Invalid parameter value specified for the '%s' option: '%s'.\n", Param.toLatin1().constData(), Arguments[ArgIdx].toLatin1().constData());
+					ParseOK = false;
+				}
 			}
 		}
 		else if (Param == QLatin1String("--camera-angles"))
@@ -807,7 +825,8 @@ int lcApplication::Process3DViewerCommandLine()
 				printf("Invalid parameter value specified for the '%s' option: '%s'.\n", Param.toLatin1().constData(), Arguments[ArgIdx].toLatin1().constData());
 				ParseOK = false;
 			}
-		} /*
+		}
+		/***
 		else if (Param == QLatin1String("-sl") || Param == QLatin1String("--stud-logo"))
 		{
 			ParseInteger(StudLogo);
@@ -815,7 +834,8 @@ int lcApplication::Process3DViewerCommandLine()
 			{
 				lcGetPiecesLibrary()->SetStudLogo(StudLogo, false);
 			}
-		} */
+		}
+		***/
 		else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
 		{
 			SaveWavefront = true;
@@ -836,105 +856,235 @@ int lcApplication::Process3DViewerCommandLine()
 			SaveHTML = true;
 			ParseString(SaveHTMLName, false);
 		}
-		/*
+		/***
+		else if (Param == QLatin1String("-v") || Param == QLatin1String("--version"))
+		{
+#ifdef LC_CONTINUOUS_BUILD
+			printf("LeoCAD Continuous Build " QT_STRINGIFY(LC_CONTINUOUS_BUILD) "\n");
+#else
+			printf("LeoCAD Version " LC_VERSION_TEXT "\n");
+#endif
+			printf("Compiled " __DATE__ "\n");
+
+			return lcStartupMode::Success;
+		}
+		else if (Param == QLatin1String("-?") || Param == QLatin1String("--help"))
+		{
+			printf("Usage: leocad [options] [file]\n");
+			printf("  [options] can be:\n");
+			printf("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+			printf("  -i, --image <outfile.ext>: Save a picture in the format specified by ext and exit.\n");
+			printf("  -w, --width <width>: Set the picture width.\n");
+			printf("  -h, --height <height>: Set the picture height.\n");
+			printf("  -f, --from <step>: Set the first step to save pictures.\n");
+			printf("  -t, --to <step>: Set the last step to save pictures.\n");
+			printf("  -s, --submodel <submodel>: Set the active submodel.\n");
+			printf("  -c, --camera <camera>: Set the active camera.\n");
+			printf("  -sl, --stud-logo <type>: Set the stud logo type 0 - 5, 0 is no logo.\n");
+			printf("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+			printf("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+			printf("  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
+			printf("  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n");
+			printf("  --orthographic: Render images using an orthographic projection.\n");
+			printf("  --fov <degrees>: Set the vertical field of view used to render images (< 180).\n");
+			printf("  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n");
+			printf("  --fade-steps: Render parts from prior steps faded.\n");
+			printf("  --no-fade-steps: Do not render parts from prior steps faded.\n");
+			printf("  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n");
+			printf("  --highlight: Highlight parts in the steps they appear.\n");
+			printf("  --no-highlight: Do not highlight parts in the steps they appear.\n");
+			printf("  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
+			printf("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
+			printf("  --line-width <width>: Set the with of the edge lines.\n");
+			printf("  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
+			printf("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+			printf("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+			printf("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+			printf("  -html, --export-html <folder>: Create an HTML page for the model.\n");
+			printf("  -v, --version: Output version information and exit.\n");
+			printf("  -?, --help: Display this help message and exit.\n");
+			printf("  \n");
+
+			return lcStartupMode::Success;
+		}
 		else
 		{
-			printf("Unknown 3DViewer option: '%s'\n", Param.toLatin1().constData());
+			printf("Unknown option: '%s'\n", Param.toLatin1().constData());
 			ParseOK = false;
 		}
-		*/
+		***/
 	}
 
 	if (!ParseOK)
+		return -1;
+
+	const bool SaveAndExit = (SaveImage || SaveWavefront || Save3DS || SaveCOLLADA || SaveHTML);
+
+	if (SaveAndExit && ProjectName.isEmpty())
 	{
+		printf("No file name specified.\n");
 		return -1;
 	}
 
-	if (SaveImage || SaveWavefront || Save3DS || SaveCOLLADA || SaveHTML)
+	/***
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!InitializeRenderer(AASamples))
+		return lcStartupMode::Error;
+#endif
+
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!SaveAndExit)
+#endif
 	{
-		if (ProjectName.isEmpty())
-		{
-			printf("No file name specified.\n");
-			return -1;
-		}
+		gMainWindow = new lcMainWindow();
+		lcLoadDefaultKeyboardShortcuts();
+		lcLoadDefaultMouseShortcuts();
 	}
+
+	if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, !SaveAndExit))
+	{
+		QString Message;
+
+		if (mLibrary->LoadBuiltinPieces())
+			Message = tr("LeoCAD could not find a compatible Parts Library so only a small number of parts will be available.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
+		else
+			Message = tr("LeoCAD could not load Parts Library.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
+
+		if (!SaveAndExit)
+			QMessageBox::information(gMainWindow, tr("LeoCAD"), Message);
+		else
+			fprintf(stderr, "%s", Message.toLatin1().constData());
+	}
+
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!SaveAndExit)
+#endif
+	{
+		gMainWindow->CreateWidgets();
+	}
+	***/
+
 	Project* NewProject = new Project();
 	SetProject(NewProject);
 
-	if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
+	/***
+	if (!SaveAndExit && ProjectName.isEmpty() && lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT))
+		ProjectName = lcGetProfileString(LC_PROFILE_RECENT_FILE1);
+	***/
+
+	bool ProjectLoaded = false;
+
+	if (!ProjectName.isEmpty())
+	{
+		if (gMainWindow)
+			gMainWindow->OpenProject(ProjectName);
+		else
+		{
+			Project* LoadedProject = new Project();
+
+			if (LoadedProject->Load(ProjectName))
+			{
+				SetProject(LoadedProject);
+				ProjectLoaded = true;
+			}
+			else
+			{
+				delete LoadedProject;
+			}
+		}
+	}
+
+	if (ProjectLoaded)
 	{
 		if (!ModelName.isEmpty())
 			mProject->SetActiveModel(ModelName);
 
-		lcView* ActiveView = gMainWindow->GetActiveView();
+#ifdef LC_USE_QOPENGLWIDGET
+		std::unique_ptr<lcView> ActiveView;
 
-		if (!CameraName.isEmpty())
+		if (SaveImage)
 		{
-			ActiveView->SetCamera(CameraName);
+			lcModel* Model;
 
-			if (!ViewpointName.isEmpty())
-				printf("Warning: --viewpoint is ignored when --camera is set.\n");
-
-			if (Orthographic)
-				printf("Warning: --orthographic is ignored when --camera is set.\n");
-
-			if (SetCameraAngles)
-				printf("Warning: --camera-angles is ignored when --camera is set.\n");
-
-			if (SetCameraPosition)
-				printf("Warning: --camera-position is ignored when --camera is set.\n");
-		}
-		else
-		{
-			ActiveView->SetProjection(Orthographic);
-
-			if (SetFoV)
-				ActiveView->GetCamera()->m_fovy = FoV;
-
-			if (SetZPlanes)
+			if (!ModelName.isEmpty())
 			{
-				lcCamera* Camera = ActiveView->GetCamera();
+				Model = mProject->GetModel(ModelName);
 
-				Camera->m_zNear = ZPlanes[0];
-				Camera->m_zFar = ZPlanes[1];
+				if (!Model)
+				{
+					printf("Error: model '%s' does not exist.\n", ModelName.toLatin1().constData());
+					return -1;
+				}
 			}
+			else
+				Model = mProject->GetMainModel();
 
-			if (!ViewpointName.isEmpty())
+			ActiveView = std::unique_ptr<lcView>(new lcView(lcViewType::View, Model));
+
+			ActiveView->SetOffscreenContext();
+			ActiveView->MakeCurrent();
+		}
+#else
+		lcView* ActiveView = gMainWindow->GetActiveView();
+#endif
+
+		if (SaveImage)
+			ActiveView->SetSize(ImageWidth, ImageHeight);
+
+		if (ActiveView)
+		{
+			if (!CameraName.isEmpty())
 			{
-				if (ViewpointName == QLatin1String("front"))
-					ActiveView->SetViewpoint(lcViewpoint::Front);
-				else if (ViewpointName == QLatin1String("back"))
-					ActiveView->SetViewpoint(lcViewpoint::Back);
-				else if (ViewpointName == QLatin1String("top"))
-					ActiveView->SetViewpoint(lcViewpoint::Top);
-				else if (ViewpointName == QLatin1String("bottom"))
-					ActiveView->SetViewpoint(lcViewpoint::Bottom);
-				else if (ViewpointName == QLatin1String("left"))
-					ActiveView->SetViewpoint(lcViewpoint::Left);
-				else if (ViewpointName == QLatin1String("right"))
-					ActiveView->SetViewpoint(lcViewpoint::Right);
-				else if (ViewpointName == QLatin1String("home"))
-					ActiveView->SetViewpoint(lcViewpoint::Home);
-				else
-					printf("Warning: unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
-				// TODO: move the above into view or camera
+				ActiveView->SetCamera(CameraName);
+
+				if (Viewpoint != lcViewpoint::Count)
+					printf("Warning: --viewpoint is ignored when --camera is set.\n");
+
+				if (Orthographic)
+					printf("Warning: --orthographic is ignored when --camera is set.\n");
 
 				if (SetCameraAngles)
-					printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+					printf("Warning: --camera-angles is ignored when --camera is set.\n");
 
 				if (SetCameraPosition)
-					printf("Warning: --camera-position is ignored when --viewpoint is set.\n");
+					printf("Warning: --camera-position is ignored when --camera is set.\n");
 			}
-			else if (SetCameraAngles)
+			else
 			{
-				ActiveView->SetCameraAngles(CameraLatLon[0], CameraLatLon[1]);
+				ActiveView->SetProjection(Orthographic);
 
-				if (SetCameraPosition)
-					printf("Warning: --camera-position is ignored when --camera-angles is set.\n");
-			}
-			else if (SetCameraPosition)
-			{
-				ActiveView->SetViewpoint(CameraPosition[0], CameraPosition[1], CameraPosition[2]);
+				if (SetFoV)
+					ActiveView->GetCamera()->m_fovy = FoV;
+
+				if (SetZPlanes)
+				{
+					lcCamera* Camera = ActiveView->GetCamera();
+
+					Camera->m_zNear = ZPlanes[0];
+					Camera->m_zFar = ZPlanes[1];
+				}
+
+				if (Viewpoint != lcViewpoint::Count)
+				{
+					ActiveView->SetViewpoint(Viewpoint);
+
+					if (SetCameraAngles)
+						printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+
+					if (SetCameraPosition)
+						printf("Warning: --camera-position is ignored when --viewpoint is set.\n");
+				}
+				else if (SetCameraAngles)
+				{
+					ActiveView->SetCameraAngles(CameraLatLon[0], CameraLatLon[1]);
+
+					if (SetCameraPosition)
+						printf("Warning: --camera-position is ignored when --camera-angles is set.\n");
+				}
+				else if (SetCameraPosition)
+				{
+					ActiveView->SetViewpoint(CameraPosition[0], CameraPosition[1], CameraPosition[2]);
+				}
 			}
 		}
 
@@ -942,10 +1092,14 @@ int lcApplication::Process3DViewerCommandLine()
 		{
 			lcModel* ActiveModel;
 
+#ifdef LC_USE_QOPENGLWIDGET
+			ActiveModel = ActiveView->GetModel();
+#else
 			if (ModelName.isEmpty())
 				ActiveModel = mProject->GetMainModel();
 			else
 				ActiveModel = mProject->GetActiveModel();
+#endif
 
 			if (ImageName.isEmpty())
 				ImageName = mProject->GetImageFileName(true);
@@ -985,7 +1139,14 @@ int lcApplication::Process3DViewerCommandLine()
 			if (SetHighlightColor)
 				mPreferences.mHighlightNewPartsColor = HighlightColor;
 
+#ifdef LC_USE_QOPENGLWIDGET
+			if (CameraName.isEmpty() && !SetCameraPosition)
+				ActiveView->ZoomExtents();
+
+			ActiveView->SaveStepImages(Frame, ImageStart != ImageEnd, ImageStart, ImageEnd);
+#else
 			ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName.isEmpty() && !SetCameraPosition, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+#endif
 		}
 
 		if (SaveWavefront)
@@ -1078,72 +1239,113 @@ int lcApplication::Process3DViewerCommandLine()
 }
 /*** LPub3D Mod end ***/
 
-bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent)
+/*** LPub3D Mod - initialize mainwindow with LPub3D parent ***/
+lcStartupMode lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent)
 {
-/*** LPub3D Mod - move ShowWindow from application ***/
-	bool ShowWindow = Application::instance()->modeGUI();
-/*** LPub3D Mod end ***/
+	bool SaveAndExit = !Application::instance()->modeGUI();
+
 	bool OnlyUseLibraryPaths = false;
 
-/*** LPub3D Mod - Splash message 3D Viewer ***/
 	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
-/*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - initialize mainwindow with LPub3D parent ***/
-	gMainWindow = new lcMainWindow(parent);
-/*** LPub3D Mod end ***/
+	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
 
-	lcLoadDefaultKeyboardShortcuts();
-	lcLoadDefaultMouseShortcuts();
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!InitializeRenderer(AASamples))
+		return lcStartupMode::Error;
+#endif
 
-	if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, ShowWindow))
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!SaveAndExit)
+#endif
+	{
+		gMainWindow = new lcMainWindow(parent);
+		lcLoadDefaultKeyboardShortcuts();
+		lcLoadDefaultMouseShortcuts();
+	}
+
+	if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, !SaveAndExit))
 	{
 		QString Message;
 
 		if (mLibrary->LoadBuiltinPieces())
-		{
-/*** LPub3D Mod - modify initial load KO message ***/
 			Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n");
-/*** LPub3D Mod end ***/
-		}
 		else
-		{
-/*** LPub3D Mod - modify initial load KO message ***/
 			Message = tr("3DViewer could not load Parts Library.\n");
-/*** LPub3D Mod end ***/
-		}
-		if (ShowWindow)
+
+		if (!SaveAndExit)
 			QMessageBox::information(gMainWindow, tr("3DViewer"), Message);
 		else
 			fprintf(stderr, "%s", Message.toLatin1().constData());
 	}
 
-	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
-
-	gMainWindow->CreateWidgets(AASamples);
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!SaveAndExit)
+#endif
+	{
+		gMainWindow->CreateWidgets();
+	}
 
 	Project* NewProject = new Project();
 	SetProject(NewProject);
 
-	if (ShowWindow)
+	if (!SaveAndExit)
 	{
 		gMainWindow->SetColorIndex(lcGetColorIndex(7));
-/*** LPub3D Mod - moved to Render::LoadViewer(const ViewerOptions &Options) ***/
-//		  gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - suppress recent files and mainwindow show ***/
-//		  gMainWindow->UpdateRecentFiles();
-//		  gMainWindow->show();
-/*** LPub3D Mod end ***/
+/***
+		gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+		gMainWindow->UpdateRecentFiles();
+		gMainWindow->show();
+***/
 	}
+
+	return SaveAndExit ? lcStartupMode::Success : lcStartupMode::ShowWindow;
+}
+/*** LPub3D Mod end ***/
+
+void lcApplication::Shutdown()
+{
+	delete gMainWindow;
+	gMainWindow = nullptr;
+
+	delete mProject;
+	mProject = nullptr;
+
+	delete mLibrary;
+	mLibrary = nullptr;
+
+	ShutdownRenderer();
+}
+
+bool lcApplication::InitializeRenderer(int AASamples)
+{
+	if (AASamples > 1)
+	{
+#ifdef LC_USE_QOPENGLWIDGET
+		QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+		Format.setSamples(AASamples);
+		QSurfaceFormat::setDefaultFormat(Format);
+#else
+		QGLFormat Format;
+		Format.setSampleBuffers(true);
+		Format.setSamples(AASamples);
+		QGLFormat::setDefaultFormat(Format);
+#endif
+	}
+
+#ifdef LC_USE_QOPENGLWIDGET
+	if (!lcContext::CreateOffscreenContext())
+		return false;
+#endif
 
 	return true;
 }
 
-void lcApplication::Shutdown()
+void lcApplication::ShutdownRenderer()
 {
-	delete mLibrary;
-	mLibrary = nullptr;
+#ifdef LC_USE_QOPENGLWIDGET
+	lcContext::DestroyOffscreenContext();
+#endif
 }
 
 void lcApplication::ShowPreferencesDialog()

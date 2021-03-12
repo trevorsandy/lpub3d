@@ -42,7 +42,8 @@ lcView::lcView(lcViewType ViewType, lcModel* Model, bool SubstituteView)
 	mDragState = lcDragState::None;
 	mTrackToolFromOverlay = false;
 
-	lcView* ActiveView = gMainWindow->GetActiveView();
+	lcView* ActiveView = gMainWindow ? gMainWindow->GetActiveView() : nullptr;
+
 	if (ActiveView)
 		SetCamera(ActiveView->mCamera, false);
 	else
@@ -87,12 +88,7 @@ void lcView::UpdateAllViews()
 
 void lcView::MakeCurrent()
 {
-	if (mWidget)
-		mWidget->makeCurrent();
-#ifdef LC_USE_QOPENGLWIDGET
-	else if (mOffscreenContext)
-		mOffscreenContext->makeCurrent(mOffscreenSurface.get());
-#endif
+	mContext->MakeCurrent();
 }
 
 void lcView::Redraw()
@@ -100,6 +96,15 @@ void lcView::Redraw()
 	if (mWidget)
 		mWidget->update();
 }
+
+#ifdef LC_USE_QOPENGLWIDGET
+
+void lcView::SetOffscreenContext()
+{
+	mContext->SetOffscreenContext();
+}
+
+#else
 
 void lcView::SetContext(lcContext* Context)
 {
@@ -109,6 +114,8 @@ void lcView::SetContext(lcContext* Context)
 	mContext = Context;
 	mDeleteContext = false;
 }
+
+#endif
 
 void lcView::SetFocus(bool Focus)
 {
@@ -762,38 +769,69 @@ lcArray<lcObject*> lcView::FindObjectsInBox(float x1, float y1, float x2, float 
 	return ObjectBoxTest.Objects;
 }
 
-bool lcView::BeginRenderToImage(int Width, int Height)
-{
 #ifdef LC_USE_QOPENGLWIDGET
-	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
 
-	if (!OffscreenContext)
-		return false;
+std::vector<QImage> lcView::GetStepImages(lcStep Start, lcStep End)
+{
+	std::vector<QImage> Images;
 
-	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
+	if (!BeginRenderToImage(mWidth, mHeight))
+	{
+		QMessageBox::warning(gMainWindow, tr("LeoCAD"), tr("Error creating images."));
+		return Images;
+	}
 
-	if (!OffscreenContext->create() || !OffscreenContext->isValid())
-		return false;
+	const lcStep CurrentStep = mModel->GetCurrentStep();
 
-	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
+	for (lcStep Step = Start; Step <= End; Step++)
+	{
+		mModel->SetTemporaryStep(Step);
 
-	if (!OffscreenSurface)
-		return false;
+		OnDraw();
 
-	OffscreenSurface->create();
+		Images.emplace_back(GetRenderImage());
+	}
 
-	if (!OffscreenSurface->isValid())
-		return false;
+	EndRenderToImage();
 
-	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
-		return false;
+	mModel->SetTemporaryStep(CurrentStep);
 
-	mContext->SetGLContext(OffscreenContext.get());
+	if (!mModel->IsActive())
+		mModel->CalculateStep(LC_STEP_MAX);
 
-	mOffscreenContext = std::move(OffscreenContext);
-	mOffscreenSurface = std::move(OffscreenSurface);
+	return Images;
+}
+
+void lcView::SaveStepImages(const QString& BaseName, bool AddStepSuffix, lcStep Start, lcStep End)
+{
+	std::vector<QImage> Images = GetStepImages(Start, End);
+
+	for (lcStep Step = Start; Step <= End; Step++)
+	{
+		QString FileName;
+
+		if (AddStepSuffix)
+			FileName = BaseName.arg(Step, 2, 10, QLatin1Char('0'));
+		else
+			FileName = BaseName;
+
+		QImageWriter Writer(FileName);
+
+		if (Writer.format().isEmpty())
+			Writer.setFormat("png");
+
+		if (!Writer.write(Images[Step - Start]))
+		{
+			QMessageBox::information(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, Writer.errorString()));
+			break;
+		}
+	}
+}
+
 #endif
 
+bool lcView::BeginRenderToImage(int Width, int Height)
+{
 	GLint MaxTexture;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MaxTexture);
 
@@ -834,8 +872,6 @@ bool lcView::BeginRenderToImage(int Width, int Height)
 void lcView::EndRenderToImage()
 {
 #ifdef LC_USE_QOPENGLWIDGET
-	mOffscreenContext.reset();
-	mOffscreenSurface.reset();
 	mRenderFramebuffer.reset();
 #else
 	mRenderImage = QImage();
@@ -851,13 +887,19 @@ QImage lcView::GetRenderImage() const
 
 #ifdef LC_USE_QOPENGLWIDGET
 
-QImage lcView::GetRenderFramebufferImage() const
+void lcView::BindRenderFramebuffer()
+{
+	mRenderFramebuffer->bind();
+}
+
+void lcView::UnbindRenderFramebuffer()
 {
 	mRenderFramebuffer->release();
-	QImage Image = mRenderFramebuffer->toImage();
-	mRenderFramebuffer->bind();
+}
 
-	return Image;
+QImage lcView::GetRenderFramebufferImage() const
+{
+	return mRenderFramebuffer->toImage();
 }
 
 #endif
@@ -957,7 +999,9 @@ void lcView::OnDraw()
 			if (!mRenderImage.isNull())
 			{
 #ifdef LC_USE_QOPENGLWIDGET
+				UnbindRenderFramebuffer();
 				QImage TileImage = GetRenderFramebufferImage();
+				BindRenderFramebuffer();
 				quint8* Buffer = TileImage.bits();
 #else
 				quint8* Buffer = (quint8*)malloc(mWidth * mHeight * 4);
@@ -1772,18 +1816,22 @@ void lcView::DrawSelectZoomRegionOverlay()
 		{ Right - BorderX, Top - BorderY },
 	};
 
-	glEnable(GL_BLEND);
-
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	mContext->SetColor(0.25f, 0.25f, 1.0f, 1.0f);
+	const lcPreferences& Preferences = lcGetPreferences();
+
+	mContext->SetColor(lcVector4FromColor(Preferences.mMarqueeBorderColor));
 	mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 10);
 
-	mContext->SetColor(0.25f, 0.25f, 1.0f, 0.25f);
-	mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 10, 4);
+	if (LC_RGBA_ALPHA(Preferences.mMarqueeFillColor))
+	{
+		glEnable(GL_BLEND);
+		mContext->SetColor(lcVector4FromColor(Preferences.mMarqueeFillColor));
+		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 10, 4);
+		glDisable(GL_BLEND);
+	}
 
-	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -2290,7 +2338,8 @@ void lcView::SetProjection(bool Ortho)
 		mCamera->SetOrtho(Ortho);
 		Redraw();
 
-		gMainWindow->UpdatePerspective();
+		if (gMainWindow)
+			gMainWindow->UpdatePerspective();
 	}
 	else
 	{
@@ -2307,7 +2356,8 @@ void lcView::LookAt()
 	if (ActiveModel)
 	{
 		ActiveModel->LookAt(mCamera);
-		gMainWindow->UpdateDefaultCameraProperties(mCamera);
+		if (gMainWindow)
+			gMainWindow->UpdateDefaultCameraProperties(mCamera);
 	}
 /*** LPub3D Mod end ***/
 }
@@ -2335,7 +2385,7 @@ void lcView::ZoomExtents()
 		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight);
 		if (mViewType == lcViewType::Preview)
 			Redraw();
-		else
+		else if (gMainWindow)
 			gMainWindow->UpdateDefaultCameraProperties(mCamera);
 	}
 /*** LPub3D Mod end ***/

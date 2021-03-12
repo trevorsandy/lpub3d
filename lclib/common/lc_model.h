@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lc_math.h"
-#include "object.h"
 #include "lc_commands.h"
+#include "lc_array.h"
 
 #define LC_SEL_NO_PIECES                0x0001 // No pieces in model
 #define LC_SEL_PIECE                    0x0002 // At last 1 piece selected
@@ -18,20 +18,12 @@
 #define LC_SEL_CAN_ADD_CONTROL_POINT    0x0800 // Can add control points to focused piece
 #define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
 
-class lcGLWidget;
-
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
 class lcLightProps;
 /*** LPub3D Mod end ***/
-
-struct lcInstructionsPageLayout
-{
-	lcModel* Model;
-	lcStep Step;
-};
 
 enum class lcSelectionMode
 {
@@ -116,7 +108,12 @@ public:
 		return mSavedHistory != mUndoHistory[0];
 	}
 
-	bool IsPreview()
+	bool IsActive() const
+	{
+		return mActive;
+	}
+
+	bool IsPreview() const
 	{
 		return mIsPreview;
 	}
@@ -280,13 +277,13 @@ public:
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
 	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, int Width, int Height, lcStep Start, lcStep End);
-	std::vector<lcInstructionsPageLayout> GetPageLayouts(std::vector<const lcModel*>& AddedModels);
 
 	void RayTest(lcObjectRayTest& ObjectRayTest) const;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const;
 	bool SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const;
 	bool SubModelBoxTest(const lcVector4 Planes[6]) const;
 	void SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const;
+	void SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::vector<lcVector3>& Points) const;
 
 	bool HasPieces() const
 	{
@@ -304,6 +301,7 @@ public:
 	lcObject* GetFocusObject() const;
 	bool GetSelectionCenter(lcVector3& Center) const;
 	bool GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const;
+	std::vector<lcVector3> GetPiecesBoundingBoxPoints() const;
 	void GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const;
 	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;

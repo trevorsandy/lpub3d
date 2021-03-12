@@ -75,6 +75,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "TextColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_TEXT_COLOR
+	lcProfileEntry("Settings", "MarqueeBorderColor", LC_RGBA(64, 64, 255, 255)),               // LC_PROFILE_MARQUEE_BORDER_COLOR
+	lcProfileEntry("Settings", "MarqueeFillColor", LC_RGBA(64, 64, 255, 64)),                  // LC_PROFILE_MARQUEE_FILL_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
 	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR                          /*** LPub3D Mod - Set default colour ***/
 	lcProfileEntry("Settings", "InactiveViewColor", LC_RGBA(69, 69, 69, 255)),                 // LC_PROFILE_INACTIVE_VIEW_COLOR
@@ -159,7 +161,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraProperties", 1),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultDistanceFactor", 10.0f),                                //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultDistanceFactor", 8.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraPosition", 1250.0f),                              //LC_PROFILE_CAMERA_DEFAULT_POSITION                     /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraFieldOfView", 30.0f),                             //LC_PROFILE_CAMERA_FOV                                  /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraNearPlane", 25.0f),                               //LC_PROFILE_CAMERA_NEAR_PLANE                           /*** LPub3D Mod - Update Default Camera ***/

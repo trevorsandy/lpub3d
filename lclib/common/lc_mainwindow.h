@@ -143,7 +143,7 @@ public:
 /*** LPub3D Mod end ***/
 	~lcMainWindow();
 
-	void CreateWidgets(int AASamples);
+	void CreateWidgets();
 
 	lcTool GetTool() const
 	{
@@ -425,7 +425,7 @@ public:
 
 public slots:
 	void ProjectFileChanged(const QString& Path);
-	void PreviewPiece(const QString& PartId, int ColorCode);
+	void PreviewPiece(const QString& PartId, int ColorCode, bool ShowPreview);
 	void TogglePreviewWidget(bool Visible);
 /*** LPub3D Mod - relocate new project ***/
 	void NewProject();               // move from public:

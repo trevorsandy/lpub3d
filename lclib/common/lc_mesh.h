@@ -116,5 +116,3 @@ public:
 	int mNumTexturedVertices;
 	int mIndexType;
 };
-
-extern lcMesh* gPlaceholderMesh;

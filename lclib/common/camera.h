@@ -25,7 +25,8 @@ enum class lcViewpoint
 	Bottom,
 	Left,
 	Right,
-	Home
+	Home,
+	Count
 };
 
 enum lcCameraSection
@@ -45,9 +46,9 @@ public:
 	~lcCamera();
 
 	lcCamera(const lcCamera&) = delete;
-	lcCamera(lcCamera&&) = delete;
 	lcCamera& operator=(const lcCamera&) = delete;
-	lcCamera& operator=(lcCamera&&) = delete;
+
+	static lcViewpoint GetViewpoint(const QString& ViewpointName);
 
 	QString GetName() const override
 	{
@@ -243,17 +244,17 @@ public:
 
 	void SetPosition(const lcVector3& Position, lcStep Step, bool AddKey)
 	{
-		ChangeKey(mPositionKeys, Position, Step, AddKey);
+		mPositionKeys.ChangeKey(Position, Step, AddKey);
 	}
 
 	void SetTargetPosition(const lcVector3& TargetPosition, lcStep Step, bool AddKey)
 	{
-		ChangeKey(mTargetPositionKeys, TargetPosition, Step, AddKey);
+		mTargetPositionKeys.ChangeKey(TargetPosition, Step, AddKey);
 	}
 
 	void SetUpVector(const lcVector3& UpVector, lcStep Step, bool AddKey)
 	{
-		ChangeKey(mPositionKeys, UpVector, Step, AddKey);
+		mPositionKeys.ChangeKey(UpVector, Step, AddKey);
 	}
 
 	float GetOrthoHeight() const
@@ -275,14 +276,14 @@ public:
 	void InsertTime(lcStep Start, lcStep Time);
 	void RemoveTime(lcStep Start, lcStep Time);
 
-	bool FileLoad(lcFile& file);
+	static bool FileLoad(lcFile& file);
 
 	void CompareBoundingBox(lcVector3& Min, lcVector3& Max);
 	void UpdatePosition(lcStep Step);
 	void CopyPosition(const lcCamera* Camera);
 	void CopySettings(const lcCamera* Camera);
 
-	void ZoomExtents(float AspectRatio, const lcVector3& Center, const lcVector3* Points, int NumPoints, lcStep Step, bool AddKey);
+	void ZoomExtents(float AspectRatio, const lcVector3& Center, const std::vector<lcVector3>& Points, lcStep Step, bool AddKey);
 	void ZoomRegion(float AspectRatio, const lcVector3& Position, const lcVector3& TargetPosition, const lcVector3* Corners, lcStep Step, bool AddKey);
 	void Zoom(float Distance, lcStep Step, bool AddKey);
 	void Pan(const lcVector3& Distance, lcStep Step, bool AddKey);
@@ -318,9 +319,9 @@ public:
 	lcVector3 mUpVector;
 
 protected:
-	lcArray<lcObjectKey<lcVector3>> mPositionKeys;
-	lcArray<lcObjectKey<lcVector3>> mTargetPositionKeys;
-	lcArray<lcObjectKey<lcVector3>> mUpVectorKeys;
+	lcObjectKeyArray<lcVector3> mPositionKeys;
+	lcObjectKeyArray<lcVector3> mTargetPositionKeys;
+	lcObjectKeyArray<lcVector3> mUpVectorKeys;
 
 	void Initialize();
 

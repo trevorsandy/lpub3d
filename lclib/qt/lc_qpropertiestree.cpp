@@ -1183,7 +1183,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 				if (Focus && Focus->IsPiece())
 					ColorIndex = ((lcPiece*)Focus)->mColorIndex;
 				quint32 ColorCode = lcGetColorCode(ColorIndex);
-				gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
+				gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 			}
 /*** LPub3D Mod end ***/			
@@ -1484,11 +1484,11 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		ColorIndex = Piece->mColorIndex;
 		Info = Piece->mPieceInfo;
 /*** LPub3D Mod - preview widget for LPub3D ***/
-		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		{
 /*** LPub3D Mod end ***/
 			quint32 ColorCode = lcGetColorCode(ColorIndex);
-			gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
+			gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		}
 /*** LPub3D Mod end ***/		
@@ -1516,7 +1516,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 				if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 				{
 					quint32 ColorCode = lcGetColorCode(ColorIndex);
-					gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
+					gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 				}
 /*** LPub3D Mod end ***/
 				FirstPiece = false;

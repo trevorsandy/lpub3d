@@ -1,16 +1,40 @@
 #pragma once
 
-//struct lcInstructionsPageLayout;
-#include "lc_model.h"
+#include "lc_instructions.h"
 
 class lcInstructionsPageWidget : public QGraphicsView
 {
 	Q_OBJECT
 
 public:
-	lcInstructionsPageWidget(QWidget* Parent, Project* Project);
+	lcInstructionsPageWidget(QWidget* Parent);
 
-	void SetCurrentPage(lcInstructionsPageLayout* PageLayout);
+	void SetCurrentPage(const lcInstructionsPage* Page);
+};
+
+class lcInstructionsPageListWidget : public QDockWidget
+{
+	Q_OBJECT
+
+public:
+	lcInstructionsPageListWidget(QWidget* Parent);
+
+//protected:
+	QComboBox* mSizeComboBox = nullptr;
+	QLineEdit* mWidthEdit = nullptr;
+	QLineEdit* mHeightEdit = nullptr;
+
+	QRadioButton* mPortraitButton = nullptr;
+	QRadioButton* mLandscapeButton = nullptr;
+
+	QLineEdit* mLeftMarginEdit = nullptr;
+	QLineEdit* mRightMarginEdit = nullptr;
+	QLineEdit* mTopMarginEdit = nullptr;
+	QLineEdit* mBottomMarginEdit = nullptr;
+
+	QComboBox* mUnitsComboBox = nullptr;
+
+	QListWidget* mThumbnailsWidget = nullptr;
 };
 
 class lcInstructionsDialog : public QMainWindow
@@ -21,14 +45,21 @@ public:
 	lcInstructionsDialog(QWidget* Parent, Project* Project);
 
 protected slots:
+	void UpdatePageSettings();
 	void CurrentThumbnailChanged(int Index);
 
 protected:
-	Project* mProject;
+	Project* mProject = nullptr;
 
 	int mCurrentPageNumber;
-	std::vector<lcInstructionsPageLayout> mPageLayouts;
+	lcInstructions mInstructions;
 
-	QListWidget* mThumbnailsWidget;
-	lcInstructionsPageWidget* mPageWidget;
+	lcInstructionsPageWidget* mPageWidget = nullptr;
+	lcInstructionsPageListWidget* mPageListWidget = nullptr;
+
+	QToolBar* mPageSettingsToolBar = nullptr;
+	QAction* mVerticalPageAction = nullptr;
+	QAction* mHorizontalPageAction = nullptr;
+	QSpinBox* mRowsSpinBox = nullptr;
+	QSpinBox* mColumnsSpinBox = nullptr;
 };

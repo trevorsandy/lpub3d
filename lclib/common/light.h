@@ -307,22 +307,22 @@ public:
 /*** LPub3D Mod end ***/
 
 protected:
-	lcArray<lcObjectKey<lcVector3>> mPositionKeys;
-	lcArray<lcObjectKey<lcVector3>> mTargetPositionKeys;
-	lcArray<lcObjectKey<lcVector4>> mAmbientColorKeys;
-	lcArray<lcObjectKey<lcVector4>> mDiffuseColorKeys;
-	lcArray<lcObjectKey<lcVector4>> mSpecularColorKeys;
-	lcArray<lcObjectKey<lcVector3>> mAttenuationKeys;
+	lcObjectKeyArray<lcVector3> mPositionKeys;
+	lcObjectKeyArray<lcVector3> mTargetPositionKeys;
+	lcObjectKeyArray<lcVector4> mAmbientColorKeys;
+	lcObjectKeyArray<lcVector4> mDiffuseColorKeys;
+	lcObjectKeyArray<lcVector4> mSpecularColorKeys;
+	lcObjectKeyArray<lcVector3> mAttenuationKeys;
 /*** LPub3D Mod - enable lights ***/
-	lcArray<lcObjectKey<lcVector3>> mLightColorKeys;
-	lcArray<lcObjectKey<lcVector2>> mLightFactorKeys;
-	lcArray<lcObjectKey<int>> mLightTypeKeys;
-	lcArray<lcObjectKey<int>> mLightShapeKeys;
-	lcArray<lcObjectKey<float>> mLightSpecularKeys;
-	lcArray<lcObjectKey<float>> mLightSpotSizeKeys;
+	lcObjectKeyArray<lcVector3> mLightColorKeys;
+	lcObjectKeyArray<lcVector2> mLightFactorKeys;
+	lcObjectKeyArray<int> mLightTypeKeys;
+	lcObjectKeyArray<int> mLightShapeKeys;
+	lcObjectKeyArray<float> mLightSpecularKeys;
+	lcObjectKeyArray<float> mLightSpotSizeKeys;
 /*** LPub3D Mod end ***/
-	lcArray<lcObjectKey<float>> mSpotCutoffKeys;
-	lcArray<lcObjectKey<float>> mSpotExponentKeys;
+	lcObjectKeyArray<float> mSpotCutoffKeys;
+	lcObjectKeyArray<float> mSpotExponentKeys;
 
 /*** LPub3D Mod - enable lights ***/
 	void SetLightState(int LightType);

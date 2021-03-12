@@ -985,21 +985,9 @@ bool lcModel::LoadBinary(lcFile* file)
 			file->Seek(2, SEEK_CUR);
 
 		file->ReadS32(&count, 1);
-		for (i = 0; i < count; i++)
-			mCameras.Add(new lcCamera(false));
 
-		if (count < 7)
-		{
-			lcCamera* pCam = new lcCamera(false);
-			for (i = 0; i < count; i++)
-				pCam->FileLoad(*file);
-			delete pCam;
-		}
-		else
-		{
-			for (lcCamera* Camera : mCameras)
-				Camera->FileLoad(*file);
-		}
+		for (i = 0; i < count; i++)
+			lcCamera::FileLoad(*file);
 	}
 
 	if (fv >= 0.7f)
@@ -1397,9 +1385,12 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	lcCamera* Camera = ActiveView->GetCamera();
 
 	lcView View(lcViewType::View, this);
-	View.SetCamera(Camera, false);
+	View.SetCamera(Camera, true);
 
-#ifndef LC_USE_QOPENGLWIDGET
+#ifdef LC_USE_QOPENGLWIDGET
+	View.SetOffscreenContext();
+	View.MakeCurrent();
+#else
 	ActiveView->MakeCurrent();
 	lcContext* Context = ActiveView->mContext;
 	View.SetContext(Context);
@@ -1681,48 +1672,6 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 	}
 }
 
-std::vector<lcInstructionsPageLayout> lcModel::GetPageLayouts(std::vector<const lcModel*>& AddedModels)
-{
-	std::vector<lcInstructionsPageLayout> PageLayouts;
-
-	if (std::find(AddedModels.begin(), AddedModels.end(), this) != AddedModels.end())
-		return PageLayouts;
-
-	AddedModels.push_back(this);
-
-	std::map<lcStep, std::vector<lcPiece*>> StepPieces;
-
-	for (lcPiece* Piece : mPieces)
-		if (!Piece->IsHidden())
-			StepPieces[Piece->GetStepShow()].push_back(Piece);
-
-	lcStep CurrentStep = 1;
-
-	for (const std::pair<lcStep, std::vector<lcPiece*>>& StepIt : StepPieces)
-	{
-		while (StepIt.first > CurrentStep)
-		{
-			PageLayouts.emplace_back(lcInstructionsPageLayout{ this, CurrentStep });
-			CurrentStep++;
-		}
-
-		for (lcPiece* Piece : StepIt.second)
-		{
-			if (Piece->mPieceInfo->IsModel())
-			{
-				lcModel* SubModel = Piece->mPieceInfo->GetModel();
-				std::vector<lcInstructionsPageLayout> SubModelLayouts = SubModel->GetPageLayouts(AddedModels);
-				PageLayouts.insert(PageLayouts.end(), std::make_move_iterator(SubModelLayouts.begin()), std::make_move_iterator(SubModelLayouts.end()));
-			}
-		}
-
-		PageLayouts.emplace_back(lcInstructionsPageLayout{ this, CurrentStep });
-		CurrentStep++;
-	}
-
-	return PageLayouts;
-}
-
 void lcModel::RayTest(lcObjectRayTest& ObjectRayTest) const
 {
 	for (lcPiece* Piece : mPieces)
@@ -1786,7 +1735,14 @@ void lcModel::SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector
 {
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
-			Piece->SubmodelCompareBoundingBox(WorldMatrix, Min, Max);
+			Piece->SubModelCompareBoundingBox(WorldMatrix, Min, Max);
+}
+
+void lcModel::SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::vector<lcVector3>& Points) const
+{
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsVisibleInSubModel())
+			Piece->SubModelAddBoundingBoxPoints(WorldMatrix, Points);
 }
 
 void lcModel::SaveCheckpoint(const QString& Description)
@@ -2387,7 +2343,7 @@ void lcModel::InsertPiece(lcPiece* Piece, int Index)
 
 	if (!Info->IsModel())
 	{
-		lcMesh* Mesh = Info->IsTemporary() ? gPlaceholderMesh : Info->GetMesh();
+		lcMesh* Mesh = Info->GetMesh();
 
 		if (Mesh && Mesh->mVertexCacheOffset == -1)
 			lcGetPiecesLibrary()->mBuffersDirty = true;
@@ -3678,6 +3634,17 @@ bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 	return Valid;
 }
 
+std::vector<lcVector3> lcModel::GetPiecesBoundingBoxPoints() const
+{
+	std::vector<lcVector3> Points;
+
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsVisible(mCurrentStep))
+			Piece->SubModelAddBoundingBoxPoints(lcMatrix44Identity(), Points);
+
+	return Points;
+}
+
 void lcModel::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const
 {
 	for (lcPiece* Piece : mPieces)
@@ -4693,19 +4660,24 @@ void lcModel::MoveCamera(lcCamera* Camera, const lcVector3& Direction)
 
 void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 {
+	std::vector<lcVector3> Points = GetPiecesBoundingBoxPoints();
+
+	if (Points.empty())
+		return;
+
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	if (!GetPiecesBoundingBox(Min, Max))
-		return;
+	for (const lcVector3& Point : Points)
+	{
+		Min = lcMin(Point, Min);
+		Max = lcMax(Point, Max);
+	}
 
 	lcVector3 Center = (Min + Max) / 2.0f;
 
-	lcVector3 Points[8];
-	lcGetBoxCorners(Min, Max, Points);
+	Camera->ZoomExtents(Aspect, Center, Points, mCurrentStep, gMainWindow ? gMainWindow->GetAddKeys() : false);
 
-	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
-
-	if (!mIsPreview)
+	if (!mIsPreview && gMainWindow)
 /*** LPub3D Mod - Update Default Camera ***/
 		gMainWindow->UpdateDefaultCameraProperties(Camera); // gMainWindow->UpdateSelectedObjects(false);
 /*** LPub3D Mod end ***/
@@ -4950,6 +4922,9 @@ void lcModel::SetMinifig(const lcMinifig& Minifig)
 
 void lcModel::UpdateInterface()
 {
+	if (!gMainWindow)
+		return;
+
 	gMainWindow->UpdateTimeline(true, false);
 	gMainWindow->UpdateUndoRedo(mUndoHistory.size() > 1 ? mUndoHistory[0]->Description : nullptr, !mRedoHistory.empty() ? mRedoHistory[0]->Description : nullptr);
 	gMainWindow->UpdatePaste(!gApplication->mClipboard.isEmpty());

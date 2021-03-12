@@ -153,27 +153,13 @@ lcMainWindow::~lcMainWindow()
 	gMainWindow = nullptr;
 }
 
-void lcMainWindow::CreateWidgets(int AASamples)
+void lcMainWindow::CreateWidgets()
 {
 	setAcceptDrops(true);
 /*** LPub3D Mod - set LPub3D icon ***/
 	setWindowIcon(QIcon(":../resources/lpub3d.png"));
 /*** LPub3D Mod end ***/
 	setWindowFilePath(QString());
-
-	if (AASamples > 1)
-	{
-#ifdef LC_USE_QOPENGLWIDGET
-		QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
-		Format.setSamples(AASamples);
-		QSurfaceFormat::setDefaultFormat(Format);
-#else
-		QGLFormat Format;
-		Format.setSampleBuffers(true);
-		Format.setSamples(AASamples);
-		QGLFormat::setDefaultFormat(Format);
-#endif
-	}
 
 	CreateActions();
 	CreateToolBars();
@@ -967,9 +953,14 @@ lcView* lcMainWindow::CreateView(lcModel* Model)
 	return NewView;
 }
 
-void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode)
+void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode, bool ShowPreview)
 {
 /*** LPub3D Mod - preview widget for LPub3D ***/
+Q_UNUSED(ShowPreview)
+
+//	if (ShowPreview)
+//		mPreviewToolBar->show();
+		
 	lcPreferences& Preferences = lcGetPreferences();
 
 	if (!Preferences.mPreviewEnabled)
@@ -1040,12 +1031,11 @@ void lcMainWindow::EnableWindowFlags(bool Detached)
 	if (Detached)
 	{
 		QDockWidget* DockWidget = qobject_cast<QDockWidget*>(sender());
-		DockWidget->setWindowFlags(Qt::CustomizeWindowHint |
-								   Qt::Window |
-								   Qt::WindowMinimizeButtonHint |
-								   Qt::WindowMaximizeButtonHint |
-								   Qt::WindowCloseButtonHint);
-		DockWidget->show();
+
+		DockWidget->setWindowFlags(Qt::CustomizeWindowHint | Qt::Window | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+
+		if (isVisible())
+			DockWidget->show();
 	}
 }
 
@@ -1534,8 +1524,8 @@ void lcMainWindow::Print(QPrinter* Printer)
 	int DocCopies;
 	int PageCopies;
 
-	std::vector<lcInstructionsPageLayout> PageLayouts = lcGetActiveProject()->GetPageLayouts();
-	const int PageCount = static_cast<int>(PageLayouts.size());
+	lcInstructions Instructions = lcGetActiveProject()->GetInstructions();
+	const int PageCount = static_cast<int>(Instructions.mPages.size());
 
 	if (Printer->collateCopies())
 	{
@@ -1604,8 +1594,9 @@ void lcMainWindow::Print(QPrinter* Printer)
 				int StepWidth = MarginRect.width();
 				int StepHeight = MarginRect.height();
 
-				lcModel* Model = PageLayouts[Page - 1].Model;
-				lcStep Step = PageLayouts[Page - 1].Step;
+				const lcInstructionsPage& PageLayout = Instructions.mPages[Page - 1];
+				lcModel* Model = PageLayout.Steps[0].Model;
+				lcStep Step = PageLayout.Steps[0].Step;
 				QImage Image = Model->GetStepImage(false, StepWidth, StepHeight, Step);
 
 				Painter.drawImage(MarginRect.left(), MarginRect.top(), Image);
@@ -1709,7 +1700,7 @@ void lcMainWindow::ShowInstructionsDialog()
 void lcMainWindow::ShowPrintDialog()
 {
 #ifndef QT_NO_PRINTER
-	int PageCount = static_cast<int>(lcGetActiveProject()->GetPageLayouts().size());
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions().mPages.size());
 
 	QPrinter Printer(QPrinter::HighResolution);
 	Printer.setFromTo(1, PageCount + 1);
@@ -2349,7 +2340,7 @@ void lcMainWindow::TogglePrintPreview()
 #ifndef QT_NO_PRINTER
 	// todo: print preview inside main window
 
-	int PageCount = static_cast<int>(lcGetActiveProject()->GetPageLayouts().size());
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions().mPages.size());
 
 	QPrinter Printer(QPrinter::ScreenResolution);
 	Printer.setFromTo(1, PageCount + 1);
