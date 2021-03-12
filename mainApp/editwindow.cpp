@@ -1125,6 +1125,8 @@ void EditWindow::updateSelectedParts() {
     int currentLine = 0;
     int selectedLines = 0;
     bool clearSelection = false;
+    bool selectionStep = Preferences::editorLoadSelectionStep;
+    bool highlightLines = Preferences::editorHighlightLines;
     TypeLine typeLine = { -1/*fileOrderIndex*/, 0/*lineNumber*/ };
 
     QVector<TypeLine> lineTypeIndexes;
@@ -1168,17 +1170,21 @@ void EditWindow::updateSelectedParts() {
 
     while (currentLine < selectedLines)
     {
-        if (Preferences::editorLoadSelectionStep)
+        if (selectionStep)
         {
             lineNumber = getSelectedLineNumber();
             typeLine = { fileOrderIndex, lineNumber };
-            emit setStepForLineSig(typeLine);
+            if (!stepLines.isInScope(lineNumber) && highlightLines)
+            {
+                emit setStepForLineSig(typeLine);
+                QApplication::processEvents();
+            }
         }
 
         if (content.at(currentLine).startsWith("1") ||
             content.at(currentLine).contains(" PLI BEGIN SUB "))
         {
-            if (!Preferences::editorLoadSelectionStep)
+            if (!selectionStep)
             {
                 lineNumber = getSelectedLineNumber();
                 typeLine = { fileOrderIndex, lineNumber };
@@ -1186,7 +1192,7 @@ void EditWindow::updateSelectedParts() {
 
             lineTypeIndexes.append(typeLine);
 
-            if (Preferences::editorHighlightLines) {
+            if (highlightLines) {
                 if (stepLines.isInScope(lineNumber))
                 {
                     toggleLines.append(lineNumber);
@@ -1227,8 +1233,10 @@ void EditWindow::showLine(int lineNumber, int lineType)
           jump++;
       for (int i = 0; i < jump; i++)
           loadPagedContent();
+#ifdef QT_DEBUG_MODE
       emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine jump %1 %2 to line %3 from line %4.")
                                  .arg(jump).arg(jump == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
+#endif
   }
 
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
@@ -1259,6 +1267,11 @@ void EditWindow::updateDisabled(bool state){
 void EditWindow::setSubFiles(const QStringList& subFiles){
     _subFileList = subFiles;
     _subFileListPending = false;
+}
+
+void EditWindow::setLineScope(const StepLines& lineScope)
+{
+    stepLines = lineScope;
 }
 
 void EditWindow::displayFile(

@@ -106,6 +106,7 @@ signals:
 public slots:
     void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);
     void displayFile(LDrawFile *, const QString &fileName);
+    void setLineScope(const StepLines& lineScope);
     void setSubFiles(const QStringList& subFiles);
     void modelFileChanged(const QString &fileName);
     void showLine(int, int);

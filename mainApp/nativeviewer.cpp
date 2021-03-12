@@ -3316,12 +3316,19 @@ void Gui::setStepForLine(const TypeLine &here)
     if (!currentStep || !gMainWindow->isVisible() || exporting())
         return;
 
+    // limit the scope to the current page
     const QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), topOfPage(), bottomOfPage());
 
     if (!stepKey.isEmpty()) {
         if (!currentStep->viewerStepKey.startsWith(&stepKey)) {
             setCurrentStep(stepKey);
-            showLine(getCurrentStep()->topOfStep());
+            setLineScopeSig(StepLines(getCurrentStep()->topOfStep().lineNumber, getCurrentStep()->bottomOfStep().lineNumber));
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_DEBUG,tr("Editor step %1 loaded line scope %2-%3")
+                            .arg(currentStep->stepNumber.number)
+                            .arg(getCurrentStep()->topOfStep().lineNumber + 1/*adjust for 0-start index*/)
+                            .arg(getCurrentStep()->bottomOfStep().lineNumber /*actually top next step so no adjustment*/));
+#endif
             enableBuildModActions();
             getCurrentStep()->viewerOptions->ZoomExtents = true;
             getCurrentStep()->loadTheViewer();

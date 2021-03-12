@@ -3127,6 +3127,9 @@ Gui::Gui()
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
             editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
 
+    connect(this,           SIGNAL(setLineScopeSig(const StepLines &)),
+            editWindow,     SLOT(  setLineScope(   const StepLines &)));
+
     connect(this,           SIGNAL(showLineSig(int, int)),
             editWindow,     SLOT(  showLine(   int, int)));
 

@@ -1410,6 +1410,7 @@ signals:
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);
+  void setLineScopeSig(const StepLines& lineScope);
   void previewPieceSig(const QString &, int);
   void clearEditorWindowSig();
   void setTextEditHighlighterSig();
