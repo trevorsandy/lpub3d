@@ -806,9 +806,14 @@ public:
       return ldrawFile.getBuildModEndLineNumber(buildModKey);
   }
 
-  int getBuildModAction(const QString &buildModKey, int stepIndex)
+  int getBuildModAction(const QString &buildModKey, const int stepIndex)
   {
       return ldrawFile.getBuildModAction(buildModKey, stepIndex);
+  }
+
+  int getBuildModAction(const QString &buildModKey, const int stepIndex, int &lastIndex)
+  {
+      return ldrawFile.getBuildModAction(buildModKey, stepIndex, lastIndex);
   }
 
   int setBuildModAction(const QString &buildModKey, int stepIndex, int modAction)

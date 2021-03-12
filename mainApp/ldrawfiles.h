@@ -395,14 +395,15 @@ class LDrawFile {
                           const int       stepIndex,
                           const int       modAction);
     int getBuildModStep(const QString &modelName, const int &lineNumber);
-    int getBuildModStepIndex(const int modelIndex, const int lineNumber);
-    int getBuildModStepIndex(const QString &buildModKey);
+    int getBuildModStepIndex(const int modelIndex, const int lineNumber); // last application step index
+    int getBuildModStepIndex(const QString &buildModKey);                 // creation step index
     int getBuildModStepIndexHere(int stepIndex, int which);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
-    int getBuildModAction(const QString &buildModKey, int stepIndex);
+    int getBuildModAction(const QString &buildModKey, const int stepIndex, int &lastIndex);
+    int getBuildModAction(const QString &buildModKey, const int stepIndex);
     int getBuildModDisplayPageNumber(const QString &buildModKey);
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     int getBuildModStepPieces(const QString &buildModKey);

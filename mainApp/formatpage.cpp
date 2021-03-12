@@ -83,7 +83,6 @@ void Gui::clearPage(
     }
     scene->clear();
   }
-  ldrawFile.clearBuildModSteps();
   currentStep = nullptr;
 }
 

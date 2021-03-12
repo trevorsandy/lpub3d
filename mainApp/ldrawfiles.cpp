@@ -2478,30 +2478,38 @@ int LDrawFile::setBuildModStepPieces(const QString &buildModKey, int pieces)
     return 0;
 }
 
-int LDrawFile::getBuildModAction(const QString &buildModKey, int stepIndex)
+int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex)
+{
+    int lastIndex = -1;
+    return getBuildModAction(buildModKey, stepIndex, lastIndex);
+}
+
+int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex, int &lastIndex)
 {
   bool lastAction = stepIndex == BM_LAST_ACTION ;
   QString insert  = QString("Get BuildMod");
   QString modKey  = buildModKey.toLower();
   int action      = 0;
+  lastIndex       = -1;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
       int numActions = i.value()._modActions.size();
       if (lastAction) {
           insert.append(" Last");
           action = i.value()._modActions.last();
-          stepIndex = i.value()._modActions.lastKey();
+          lastIndex = i.value()._modActions.lastKey();
       } else {
           QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
           if (a != i.value()._modActions.end()) {
               action = i.value()._modActions.value(stepIndex);
+              lastIndex = stepIndex;
           } else if (numActions) {
               // iterate backward to get the last action before the specified stepIndex
               int keyIndex = stepIndex;
               for (; keyIndex > 0; keyIndex--){
                   if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX){
                       action = i.value()._modActions.value(keyIndex);
-                      stepIndex = keyIndex;
+                      lastIndex = keyIndex;
                       break;
                   }
               }
@@ -2518,15 +2526,17 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, int stepIndex)
 
 #ifdef QT_DEBUG_MODE
   if (!action)
-      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod (INVALID)%1 Action StepIndex: %2, BuildModKey: %3")
+      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod (INVALID)%1 Action StepIndex: %2, LastIndex: %3, BuildModKey: %4")
                                               .arg(lastAction ? " Last" : "")
                                               .arg(stepIndex)
+                                              .arg(lastIndex)
                                               .arg(modKey));
   else
-      emit gui->messageSig(LOG_TRACE, QString("%1 Action: %2, StepIndex: %3, BuildModKey: %4")
+      emit gui->messageSig(LOG_TRACE, QString("%1 Action: %2, StepIndex: %3, LastIndex: %4, BuildModKey: %5")
                                               .arg(insert)
                                               .arg(action == BuildModApplyRc ? "Apply" : "Remove")
                                               .arg(stepIndex)
+                                              .arg(lastIndex)
                                               .arg(modKey));
 #endif
 
