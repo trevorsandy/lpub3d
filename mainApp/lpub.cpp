@@ -1244,18 +1244,26 @@ void Gui::displayFile(
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
-            Where bottom;
+            int stepNumber = 1;
+            Where top(modelName,0);
+            Where bottom(modelName,0);
             if (getCurrentStep()) {
+                top = getCurrentStep()->topOfStep();
                 bottom = getCurrentStep()->bottomOfStep();
+                stepNumber = getCurrentStep()->stepNumber.number;
             } else {
                 bool partsAdded = false;
-                while (!partsAdded)
-                    mi->scanForward(bottom,StepMask|StepGroupMask,partsAdded);
+//                while (!partsAdded)
+                    mi->scanForward(bottom, StepMask|StepGroupMask, partsAdded);
             }
-           StepLines lineScope(0, bottom.lineNumber);
+           StepLines lineScope(top.lineNumber, bottom.lineNumber);
            displayFileSig(ldrawFile, modelName, lineScope);
 #ifdef QT_DEBUG_MODE            
-            emit messageSig(LOG_DEBUG,tr("Editor loaded - %1").arg(elapsedTime(t.elapsed())));
+            emit messageSig(LOG_DEBUG,tr("Editor loaded (step %1, lines %2-%3) - %4")
+                            .arg(stepNumber)
+                            .arg(top.lineNumber + 1/*adjust for 0-start index*/)
+                            .arg(bottom.lineNumber /*actually top next step so no adjustment*/)
+                            .arg(elapsedTime(t.elapsed())));
 #endif
             if (curSubFile == modelName)
                 return;
@@ -1361,7 +1369,7 @@ void Gui::mpdComboChanged(int index)
   }
   if (curSubFile != newSubFile) {
 
-      bool displayFile = isIncludeFile;
+      bool display = isIncludeFile;
 
       if (!isIncludeFile) {
           int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
@@ -1370,21 +1378,16 @@ void Gui::mpdComboChanged(int index)
           if (modelPageNum && displayPageNum != modelPageNum) {
               if (!saveBuildModification())
                   return;
-              displayPageNum  = modelPageNum;
+              displayPageNum = modelPageNum;
               displayPage();
           } else {
-              displayFile = true;
+              display = true;
           }
       }
 
-      if (displayFile) {
-          Where bottom;
-          bool partsAdded = false;
-          while (!partsAdded)
-              mi->scanForward(bottom,StepMask|StepGroupMask,partsAdded);
-          StepLines lineScope(0, bottom.lineNumber);
-          displayFileSig(&ldrawFile, curSubFile, lineScope);
+      if (display) {
           curSubFile = newSubFile;
+          displayFile(&ldrawFile, curSubFile);
           showLineSig(0, LINE_HIGHLIGHT);
       }
 

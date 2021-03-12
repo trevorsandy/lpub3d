@@ -1863,8 +1863,6 @@ int Gui::drawPage(
                   steps->meta.LPub.page.background = steps->groupStepMeta.LPub.page.background;
                   steps->meta.LPub.multiStep.placement = steps->groupStepMeta.LPub.multiStep.placement;
 
-                  showLine(steps->topOfSteps());
-
                   bool endOfSubmodel =
                           /*steps->meta*/steps->groupStepMeta.LPub.contStepNumbers.value() ?
                               /*steps->meta*/steps->groupStepMeta.LPub.contModelStepNum.value() >= ldrawFile.numSteps(opts.current.modelName) :
@@ -1925,7 +1923,14 @@ int Gui::drawPage(
 
                   if (lastStep && !lastStep->csiPixmap.isNull()) {
                       emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
-                      lastStep->loadTheViewer();
+                      setCurrentStep(lastStep);
+                      if (! gui->exportingObjects()) {
+                          showLine(lastStep->topOfStep());
+                          lastStep->loadTheViewer();
+                      }
+                  } else {
+                      if (! gui->exportingObjects())
+                          showLine(steps->topOfSteps());
                   }
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
@@ -1965,7 +1970,7 @@ int Gui::drawPage(
                       // set the stepKey to clear the image cache
                       buildModClearStepKey = QString("%1;%2;%3").arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
                       // clear viewerStepKey for previous step to not trigger viewerUpdate in createCsi()
-                      viewerStepKey.clear();
+                      //viewerStepKey.clear();
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       return HitBuildModAction;
                   }
@@ -2461,6 +2466,17 @@ int Gui::drawPage(
                                                .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
                                                .arg(opts.calledOut ? "called out," : "simple,")
                                                .arg(stepPageNum));
+                      }
+
+                      // Load the 3DViewer -  callouts and multistep Steps are not loaded
+                      if (! gui->exportingObjects()) {
+                          if (step) {
+                              setCurrentStep(step);
+                              if (partsAdded && ! gui->exportingObjects()) {
+                                  showLine(step->topOfStep());
+                                  step->loadTheViewer();
+                              }
+                          }
                       }
 
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
@@ -4052,8 +4068,6 @@ void Gui::drawPage(LGraphicsView  *view,
 */
 
       maxPages--;
-
-      setCurrentStep();
 
       enableBuildModActions();
 

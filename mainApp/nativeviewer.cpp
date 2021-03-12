@@ -3301,12 +3301,23 @@ bool Gui::setCurrentStep(const QString &key)
                                            .arg(here.modelName).arg(stepNumber));
     }
 
+#ifdef QT_DEBUG_MODE
+    if (currentStep)
+        emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
+                        .arg(currentStep->stepNumber.number));
+#endif
+
     return currentStep;
 }
 
 void Gui::setCurrentStep(Step *step)
 {
+    viewerStepKey = step->viewerStepKey;
     currentStep = step;
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
+                    .arg(currentStep->stepNumber.number));
+#endif
 }
 
 /*********************************************
@@ -3412,7 +3423,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
         } else if (!viewerStepKey.isEmpty()) {
-            modelName  = getSubmodelName(QString(viewerStepKey[0]).toInt());
+            modelName  = currentStep->topOfStep().modelName;//getSubmodelName(QString(viewerStepKey[0]).toInt());
             modelIndex = getSubmodelIndex(modelName);
         }
 
