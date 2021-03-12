@@ -74,6 +74,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
+	lcProfileEntry("Settings", "TextColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_TEXT_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
 	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR                          /*** LPub3D Mod - Set default colour ***/
 	lcProfileEntry("Settings", "InactiveViewColor", LC_RGBA(69, 69, 69, 255)),                 // LC_PROFILE_INACTIVE_VIEW_COLOR
@@ -129,23 +130,21 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "ImageWidth", 640),                                                 // LC_PROFILE_HTML_IMAGE_WIDTH
 	lcProfileEntry("HTML", "ImageHeight", 480),                                                // LC_PROFILE_HTML_IMAGE_HEIGHT
 
-/*** LPub3D Mod - modified POVRay path ***/
 	lcProfileEntry("POVRay", "POVRayPath", ""),                                                // LC_PROFILE_POVRAY_PATH                                /*** LPub3D Mod - POV-ray remove default path ***/
-/*** LPub3D Mod end ***/
-
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                                  // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Width", 1280),                                                   // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                   // LC_PROFILE_POVRAY_HEIGHT
 
-	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                    // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED
+	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                    // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED             /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                      // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE
 	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION
-	lcProfileEntry("Settings", "PreviewEnabled", 1),                                              // LC_PROFILE_PREVIEW_ENABLED
-	lcProfileEntry("Settings", "PreviewSize", 300),                                               // LC_PROFILE_PREVIEW_SIZE
-	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),           // LC_PROFILE_PREVIEW_LOCATION
-	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),              // LC_PROFILE_PREVIEW_POSITION
 	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                             // LC_PROFILE_PREVIEW_DRAW_AXES
-/*** LPub3D Mod - preview widget for LPub3D ***/	
+
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewEnabled", 1),                                              // LC_PROFILE_PREVIEW_ENABLED                         /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewSize", 300),                                               // LC_PROFILE_PREVIEW_SIZE                            /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),           // LC_PROFILE_PREVIEW_LOCATION                        /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),              // LC_PROFILE_PREVIEW_POSITION	                    /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                            // LC_PROFILE_PREVIEW_LOAD_PATH                       /*** LPub3D Mod - preview widget for LPub3D ***/
 /*** LPub3D Mod end ***/
 

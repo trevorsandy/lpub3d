@@ -480,6 +480,7 @@ protected slots:
 	void ClipboardChanged();
 	void ActionTriggered();
 	void ColorChanged(int ColorIndex);
+	void ColorButtonClicked();
 	void Print(QPrinter* Printer);
 	void EnableWindowFlags(bool);
 
@@ -559,6 +560,7 @@ protected:
 
 	lcPartSelectionWidget* mPartSelectionWidget;
 	lcQColorList* mColorList;
+	QToolButton* mColorButton;
 	lcQPropertiesTree* mPropertiesWidget;
 	lcTimelineWidget* mTimelineWidget;
 	QLineEdit* mTransformXEdit;

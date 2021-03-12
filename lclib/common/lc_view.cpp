@@ -1,5 +1,6 @@
 #include "lc_global.h"
 #include "lc_view.h"
+#include "lc_viewwidget.h"
 #include <stdlib.h>
 #include "lc_mainwindow.h"
 #include "camera.h"
@@ -73,7 +74,7 @@ void lcView::UpdateProjectViews(const Project* Project)
 	{
 		const lcModel* ViewModel = View->GetActiveModel();
 
-		if (ViewModel->GetProject() == Project)
+		if (ViewModel && ViewModel->GetProject() == Project)
 			View->Redraw();
 	}
 }
@@ -86,12 +87,18 @@ void lcView::UpdateAllViews()
 
 void lcView::MakeCurrent()
 {
-	mWidget->makeCurrent();
+	if (mWidget)
+		mWidget->makeCurrent();
+#ifdef LC_USE_QOPENGLWIDGET
+	else if (mOffscreenContext)
+		mOffscreenContext->makeCurrent(mOffscreenSurface.get());
+#endif
 }
 
 void lcView::Redraw()
 {
-	mWidget->update();
+	if (mWidget)
+		mWidget->update();
 }
 
 void lcView::SetContext(lcContext* Context)
@@ -448,6 +455,7 @@ void lcView::ShowContextMenu() const
 
 	Popup->addSeparator();
 
+	Popup->addAction(Actions[LC_PIECE_PAINT_SELECTED]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
 
@@ -756,11 +764,47 @@ lcArray<lcObject*> lcView::FindObjectsInBox(float x1, float y1, float x2, float 
 
 bool lcView::BeginRenderToImage(int Width, int Height)
 {
+#ifdef LC_USE_QOPENGLWIDGET
+	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
+
+	if (!OffscreenContext)
+		return false;
+
+	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
+
+	if (!OffscreenContext->create() || !OffscreenContext->isValid())
+		return false;
+
+	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
+
+	if (!OffscreenSurface)
+		return false;
+
+	OffscreenSurface->create();
+
+	if (!OffscreenSurface->isValid())
+		return false;
+
+	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
+		return false;
+
+	mContext->SetGLContext(OffscreenContext.get());
+
+	mOffscreenContext = std::move(OffscreenContext);
+	mOffscreenSurface = std::move(OffscreenSurface);
+#endif
+
 	GLint MaxTexture;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MaxTexture);
 
 	MaxTexture = qMin(MaxTexture, 2048);
+#ifdef LC_USE_QOPENGLWIDGET
+	const int Samples = QSurfaceFormat::defaultFormat().samples();
+	if (Samples > 1)
+		MaxTexture /= Samples;
+#else
 	MaxTexture /= QGLFormat::defaultFormat().sampleBuffers() ? QGLFormat::defaultFormat().samples() : 1;
+#endif
 
 	int TileWidth = qMin(Width, MaxTexture);
 	int TileHeight = qMin(Height, MaxTexture);
@@ -769,17 +813,54 @@ bool lcView::BeginRenderToImage(int Width, int Height)
 	mHeight = TileHeight;
 	mRenderImage = QImage(Width, Height, QImage::Format_ARGB32);
 
+#ifdef LC_USE_QOPENGLWIDGET
+	QOpenGLFramebufferObjectFormat Format;
+	Format.setAttachment(QOpenGLFramebufferObject::Depth);
+
+	if (QSurfaceFormat::defaultFormat().samples() > 1)
+		Format.setSamples(QSurfaceFormat::defaultFormat().samples());
+
+	mRenderFramebuffer = std::unique_ptr<QOpenGLFramebufferObject>(new QOpenGLFramebufferObject(QSize(TileWidth, TileHeight), Format));
+
+	return mRenderFramebuffer->bind();
+#else
 	mRenderFramebuffer = mContext->CreateRenderFramebuffer(TileWidth, TileHeight);
 	mContext->BindFramebuffer(mRenderFramebuffer.first);
+
 	return mRenderFramebuffer.first.IsValid();
+#endif
 }
 
 void lcView::EndRenderToImage()
 {
+#ifdef LC_USE_QOPENGLWIDGET
+	mOffscreenContext.reset();
+	mOffscreenSurface.reset();
+	mRenderFramebuffer.reset();
+#else
 	mRenderImage = QImage();
 	mContext->DestroyRenderFramebuffer(mRenderFramebuffer);
 	mContext->ClearFramebuffer();
+#endif
 }
+
+QImage lcView::GetRenderImage() const
+{
+	return mRenderImage;
+}
+
+#ifdef LC_USE_QOPENGLWIDGET
+
+QImage lcView::GetRenderFramebufferImage() const
+{
+	mRenderFramebuffer->release();
+	QImage Image = mRenderFramebuffer->toImage();
+	mRenderFramebuffer->bind();
+
+	return Image;
+}
+
+#endif
 
 void lcView::OnDraw()
 {
@@ -875,10 +956,14 @@ void lcView::OnDraw()
 
 			if (!mRenderImage.isNull())
 			{
+#ifdef LC_USE_QOPENGLWIDGET
+				QImage TileImage = GetRenderFramebufferImage();
+				quint8* Buffer = TileImage.bits();
+#else
 				quint8* Buffer = (quint8*)malloc(mWidth * mHeight * 4);
-				uchar* ImageBuffer = mRenderImage.bits();
-
 				mContext->GetRenderFramebufferImage(mRenderFramebuffer, Buffer);
+#endif
+				uchar* ImageBuffer = mRenderImage.bits();
 
 				quint32 TileY = 0, SrcY = 0;
 				if (CurrentTileRow != TotalTileRows - 1)
@@ -896,7 +981,9 @@ void lcView::OnDraw()
 					memcpy(dst, src, CurrentTileWidth * 4);
 				}
 
+#ifndef LC_USE_QOPENGLWIDGET
 				free(Buffer);
+#endif
 			}
 		}
 	}
@@ -948,13 +1035,12 @@ void lcView::DrawBackground() const
 
 	if (!Preferences.mBackgroundGradient)
 	{
-		lcVector3 BackgroundColor = lcVector3FromColor(Preferences.mBackgroundSolidColor);
-		glClearColor(BackgroundColor[0], BackgroundColor[1], BackgroundColor[2], 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		lcVector4 BackgroundColor(lcVector3FromColor(Preferences.mBackgroundSolidColor), 0.0f);
+		mContext->ClearColorAndDepth(BackgroundColor);
 		return;
 	}
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	mContext->ClearDepth();
 
 	mContext->SetDepthWrite(false);
 	glDisable(GL_DEPTH_TEST);
@@ -1022,7 +1108,7 @@ void lcView::DrawViewport() const
 	if (!CameraName.isEmpty())
 	{
 		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
-		mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
+		mContext->SetColor(lcVector4FromColor(lcGetPreferences().mTextColor));
 		mContext->BindTexture2D(gTexFont.GetTexture());
 
 		glEnable(GL_BLEND);
@@ -1055,11 +1141,12 @@ void lcView::DrawAxes() const
 			break;
 
 		case lcViewType::Minifig:
+		case lcViewType::PartsList:
 		case lcViewType::Count:
 			return;
 	}
 
-//	glClear(GL_DEPTH_BUFFER_BIT);
+//	mContext->ClearDepth();
 
 	struct lcAxisVertex
 	{
@@ -3190,6 +3277,7 @@ void lcView::CancelTrackingOrClearSelection()
 void lcView::OnButtonDown(lcTrackButton TrackButton)
 {
 	lcModel* ActiveModel = GetActiveModel();
+	mToolClicked = false;
 
 	switch (mTrackTool)
 	{
@@ -3208,6 +3296,7 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 			if ((mMouseModifiers & Qt::ControlModifier) == 0)
 				gMainWindow->SetTool(lcTool::Select);
 
+			mToolClicked = true;
 			UpdateTrackTool();
 		}
 		break;
@@ -3219,6 +3308,7 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 			if ((mMouseModifiers & Qt::ControlModifier) == 0)
 				gMainWindow->SetTool(lcTool::Select);
 
+			mToolClicked = true;
 			UpdateTrackTool();
 		}
 		break;
@@ -3278,14 +3368,17 @@ void lcView::OnButtonDown(lcTrackButton TrackButton)
 
 	case lcTrackTool::Eraser:
 		ActiveModel->EraserToolClicked(FindObjectUnderPointer(false, false).Object);
+		mToolClicked = true;
 		break;
 
 	case lcTrackTool::Paint:
 		ActiveModel->PaintToolClicked(FindObjectUnderPointer(true, false).Object);
+		mToolClicked = true;
 		break;
 
 	case lcTrackTool::ColorPicker:
 		ActiveModel->ColorPickerToolClicked(FindObjectUnderPointer(true, false).Object);
+		mToolClicked = true;
 		break;
 
 	case lcTrackTool::Zoom:
@@ -3427,7 +3520,7 @@ void lcView::OnRightButtonDown()
 
 void lcView::OnRightButtonUp()
 {
-	bool ShowMenu = mTrackButton == lcTrackButton::None || !mTrackUpdated;
+	bool ShowMenu = !mToolClicked && (mTrackButton == lcTrackButton::None || !mTrackUpdated);
 
 	if (mTrackButton != lcTrackButton::None)
 		StopTracking(mTrackButton == lcTrackButton::Right);

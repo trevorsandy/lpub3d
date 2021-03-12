@@ -5,12 +5,8 @@
 #include "lc_library.h"
 #include "lc_application.h"
 #include "lc_mainwindow.h"
-#include "lc_partselectionwidget.h"
 #include "lc_context.h"
 #include "lc_view.h"
-#include "texfont.h"
-#include "lc_viewsphere.h"
-#include "lc_stringcache.h"
 #include "lc_texture.h"
 #include "lc_mesh.h"
 #include "lc_profile.h"
@@ -18,35 +14,17 @@
 
 static QList<lcViewWidget*> gWidgetList;
 
+#ifdef LC_USE_QOPENGLWIDGET
 lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
-	: QGLWidget(Parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
+	: lcViewWidgetParent(Parent)
+#else
+lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
+	: lcViewWidgetParent(Parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
+#endif
 {
 	mWheelAccumulator = 0;
 	mView = View;
 	mView->SetWidget(this);
-
-	makeCurrent();
-
-	if (gWidgetList.isEmpty())
-	{
-		// TODO: Find a better place for the grid texture and font
-		gStringCache.Initialize(mView->mContext);
-		gTexFont.Initialize(mView->mContext);
-
-		lcInitializeGLExtensions(context());
-		lcContext::CreateResources();
-		lcView::CreateResources(mView->mContext);
-		lcViewSphere::CreateResources(mView->mContext);
-
-		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
-			lcGetPreferences().mShadingMode = lcShadingMode::Flat;
-
-		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)
-			gMainWindow->GetPartSelectionWidget()->DisableIconMode();
-
-		gPlaceholderMesh = new lcMesh;
-		gPlaceholderMesh->CreateBox();
-	}
 
 	gWidgetList.append(this);
 
@@ -63,34 +41,24 @@ lcViewWidget::~lcViewWidget()
 {
 	gWidgetList.removeOne(this);
 
-	if (gWidgetList.isEmpty())
-	{
-		gStringCache.Reset();
-		gTexFont.Reset();
-
-		lcGetPiecesLibrary()->ReleaseBuffers(mView->mContext);
-		lcView::DestroyResources(mView->mContext);
-		lcContext::DestroyResources();
-		lcViewSphere::DestroyResources(mView->mContext);
-
-		delete gPlaceholderMesh;
-		gPlaceholderMesh = nullptr;
-	}
-
 	delete mView;
 }
 
 QSize lcViewWidget::sizeHint() const
 {
-	return mPreferredSize.isEmpty() ? QGLWidget::sizeHint() : mPreferredSize;
+	return mPreferredSize.isEmpty() ? lcViewWidgetParent::sizeHint() : mPreferredSize;
 }
 
 void lcViewWidget::SetView(lcView* View)
 {
-	mView = View;
-
 	if (View)
 	{
+		if (context())
+		{
+			makeCurrent();
+			View->mContext->SetGLContext(context());
+		}
+
 		View->SetWidget(this);
 		const float Scale = GetDeviceScale();
 		View->SetSize(width() * Scale, height() * Scale);
@@ -98,18 +66,19 @@ void lcViewWidget::SetView(lcView* View)
 		if (hasFocus())
 			View->SetFocus(true);
 	}
+
+	delete mView;
+	mView = View;
 }
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& ViewPos)
 {
-/*** LPub3D Mod end ***/
 	lcPreferences& Preferences = lcGetPreferences();
 	lcPreview* Preview = reinterpret_cast<lcPreview*>(mView);
 
 	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
 
-/*** LPub3D Mod - preview widget for LPub3D ***/
 	if (mPreferredSize.isEmpty())
 	{
 		int Size[2] = { 300,200 };
@@ -119,10 +88,8 @@ void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& Vie
 		}
 		mPreferredSize = QSize(Size[0], Size[1]);
 	}
-/*** LPub3D Mod end ***/
 
 	QPoint pos;
-/*** LPub3D Mod - preview widget for LPub3D ***/
 	if (ViewPos.isNull())
 	{
 		switch (Preferences.mPreviewLocation)
@@ -152,7 +119,6 @@ void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& Vie
 #else
 	const QRect desktop = QApplication::desktop()->geometry();
 #endif
-/*** LPub3D Mod end ***/
 
 	if (pos.x() < desktop.left())
 		pos.setX(desktop.left());
@@ -167,6 +133,12 @@ void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& Vie
 
 	setMinimumSize(100,100);
 	show();
+}
+/*** LPub3D Mod end ***/
+
+void lcViewWidget::initializeGL()
+{
+	mView->mContext->SetGLContext(context());
 }
 
 void lcViewWidget::resizeGL(int Width, int Height)
@@ -184,7 +156,7 @@ void lcViewWidget::focusInEvent(QFocusEvent* FocusEvent)
 	if (mView)
 		mView->SetFocus(true);
 
-	QGLWidget::focusInEvent(FocusEvent);
+	lcViewWidgetParent::focusInEvent(FocusEvent);
 }
 
 void lcViewWidget::focusOutEvent(QFocusEvent* FocusEvent)
@@ -192,7 +164,7 @@ void lcViewWidget::focusOutEvent(QFocusEvent* FocusEvent)
 	if (mView)
 		mView->SetFocus(false);
 
-	QGLWidget::focusOutEvent(FocusEvent);
+	lcViewWidgetParent::focusOutEvent(FocusEvent);
 }
 
 void lcViewWidget::keyPressEvent(QKeyEvent* KeyEvent)
@@ -203,7 +175,7 @@ void lcViewWidget::keyPressEvent(QKeyEvent* KeyEvent)
 		mView->UpdateCursor();
 	}
 
-	QGLWidget::keyPressEvent(KeyEvent);
+	lcViewWidgetParent::keyPressEvent(KeyEvent);
 }
 
 void lcViewWidget::keyReleaseEvent(QKeyEvent* KeyEvent)
@@ -214,7 +186,7 @@ void lcViewWidget::keyReleaseEvent(QKeyEvent* KeyEvent)
 		mView->UpdateCursor();
 	}
 
-	QGLWidget::keyReleaseEvent(KeyEvent);
+	lcViewWidgetParent::keyReleaseEvent(KeyEvent);
 }
 
 void lcViewWidget::mousePressEvent(QMouseEvent* MouseEvent)
@@ -396,7 +368,7 @@ void lcViewWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 		return;
 	}
 
-	QGLWidget::dragMoveEvent(DragMoveEvent);
+	lcViewWidgetParent::dragMoveEvent(DragMoveEvent);
 }
 
 void lcViewWidget::dropEvent(QDropEvent* DropEvent)
@@ -412,5 +384,5 @@ void lcViewWidget::dropEvent(QDropEvent* DropEvent)
 		return;
 	}
 
-	QGLWidget::dropEvent(DropEvent);
+	lcViewWidgetParent::dropEvent(DropEvent);
 }

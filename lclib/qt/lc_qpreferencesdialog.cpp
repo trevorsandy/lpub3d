@@ -35,6 +35,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	connect(ui->BackgroundGradient1ColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->BackgroundGradient2ColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->AxesColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+	connect(ui->TextColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->OverlayColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->FadeStepsColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->HighlightNewPartsColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
@@ -84,7 +85,14 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 
-#ifndef LC_OPENGLES
+#ifdef LC_USE_QOPENGLWIDGET
+	if (QSurfaceFormat::defaultFormat().samples() > 1)
+	{
+		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
+		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
+	}
+	else
+#elif !defined(LC_OPENGLES)
 	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
 	{
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
@@ -142,8 +150,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	ui->PreviewAxisIconCheckBox->setChecked(mOptions->Preferences.mDrawPreviewAxis);
 
-	ui->PreviewViewSphereCheckBox->setChecked(mOptions->Preferences.mPreviewViewSphereEnabled);
-
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	ui->PreviewLocationCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewLocation);
 
 	ui->PreviewPositionCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewPosition);
@@ -165,6 +172,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	}
 	else
 		ui->PreviewSizeCombo->setCurrentIndex(0);
+/*** LPub3D Mod end ***/
 
 	ui->PreviewViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mPreviewViewSphereLocation);
 
@@ -219,6 +227,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mAxesColor), LC_RGBA_GREEN(mOptions->Preferences.mAxesColor), LC_RGBA_BLUE(mOptions->Preferences.mAxesColor)));
 	ui->AxesColorButton->setIcon(pix);
 
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mTextColor), LC_RGBA_GREEN(mOptions->Preferences.mTextColor), LC_RGBA_BLUE(mOptions->Preferences.mTextColor)));
+	ui->TextColorButton->setIcon(pix);
+
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mOverlayColor), LC_RGBA_GREEN(mOptions->Preferences.mOverlayColor), LC_RGBA_BLUE(mOptions->Preferences.mOverlayColor)));
 	ui->OverlayColorButton->setIcon(pix);
 
@@ -265,11 +276,13 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_ViewSphereSizeCombo_currentIndexChanged(ui->ViewSphereSizeCombo->currentIndex());
 
 	on_PreviewViewSphereSizeCombo_currentIndexChanged(ui->PreviewViewSphereSizeCombo->currentIndex());
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	on_PreviewSizeCombo_currentIndexChanged(ui->PreviewSizeCombo->currentIndex());
 	on_PreviewPositionCombo_currentIndexChanged(ui->PreviewPositionCombo->currentIndex());
 	ui->PreviewLocationCombo->setEnabled(
 				ui->PreviewSizeCombo->currentIndex() != 0 &&
 				ui->PreviewPositionCombo->currentIndex() != 0);
+/*** LPub3D Mod end ***/
 
 	updateCategories();
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
@@ -422,6 +435,7 @@ void lcQPreferencesDialog::accept()
 
 	mOptions->Preferences.mBackgroundGradient = ui->BackgroundGradientRadio->isChecked();
 	mOptions->Preferences.mDrawAxes = ui->AxisIconCheckBox->isChecked();
+	mOptions->Preferences.mViewSphereEnabled = ui->ViewSphereSizeCombo->currentIndex() > 0;
 	mOptions->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
 
 	switch (ui->ViewSphereSizeCombo->currentIndex())
@@ -435,9 +449,6 @@ void lcQPreferencesDialog::accept()
 	case 1:
 		mOptions->Preferences.mViewSphereSize = 50;
 		break;
-	default:
-		mOptions->Preferences.mViewSphereEnabled = 0;
-		break;
 	}
 
 	mOptions->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
@@ -448,7 +459,12 @@ void lcQPreferencesDialog::accept()
 		mOptions->StudLogo = 0;
 
 	mOptions->Preferences.mDrawPreviewAxis = ui->PreviewAxisIconCheckBox->isChecked();
+	mOptions->Preferences.mPreviewViewSphereEnabled = ui->PreviewViewSphereSizeCombo->currentIndex() > 0;
+	mOptions->Preferences.mPreviewViewSphereLocation = (lcViewSphereLocation)ui->PreviewViewSphereLocationCombo->currentIndex();
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	mOptions->Preferences.mPreviewEnabled = ui->PreviewSizeCombo->currentIndex() > 0;
+	
 	mOptions->Preferences.mPreviewLocation = (lcPreviewLocation)ui->PreviewLocationCombo->currentIndex();
 
 	mOptions->Preferences.mPreviewPosition = (lcPreviewPosition)ui->PreviewPositionCombo->currentIndex();
@@ -461,12 +477,8 @@ void lcQPreferencesDialog::accept()
 	case 1:
 		mOptions->Preferences.mPreviewSize = 300;
 		break;
-	default:
-		mOptions->Preferences.mPreviewEnabled = 0;
-		break;
 	}
-
-	mOptions->Preferences.mPreviewViewSphereLocation = (lcViewSphereLocation)ui->PreviewViewSphereLocationCombo->currentIndex();
+/*** LPub3D Mod end ***/	
 
 	switch (ui->PreviewViewSphereSizeCombo->currentIndex())
 	{
@@ -479,11 +491,7 @@ void lcQPreferencesDialog::accept()
 	case 1:
 		mOptions->Preferences.mPreviewViewSphereSize = 50;
 		break;
-	default:
-		break;
 	}
-
-	mOptions->Preferences.mPreviewViewSphereEnabled = ui->PreviewViewSphereCheckBox->isChecked();
 
 /*** LPub3D Mod - Update Default Camera ***/
 	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();
@@ -599,6 +607,11 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	{
 		Color = &mOptions->Preferences.mAxesColor;
 		Title = tr("Select Axes Color");
+	}
+	else if (Button == ui->TextColorButton)
+	{
+		Color = &mOptions->Preferences.mTextColor;
+		Title = tr("Select Text Color");
 	}
 	else if (Button == ui->OverlayColorButton)
 	{
@@ -773,6 +786,7 @@ void lcQPreferencesDialog::on_PreviewViewSphereSizeCombo_currentIndexChanged(int
 	ui->PreviewViewSphereLocationCombo->setEnabled(Index != 0);
 }
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
 {
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
@@ -781,13 +795,17 @@ void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
 	ui->PreviewAxisIconCheckBox->setEnabled(Index != 0);
 	ui->PreviewViewSphereCheckBox->setEnabled(Index != 0);
 }
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQPreferencesDialog::on_PreviewPositionCombo_currentIndexChanged(int Index)
 {
 	ui->PreviewSizeCombo->setEnabled(Index != 0);
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
 }
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
 {
 	bool Enabled = Index != 0;
@@ -797,6 +815,7 @@ void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
 	ui->ViewSphereTextColorButton->setEnabled(Enabled);
 	ui->ViewSphereHighlightColorButton->setEnabled(Enabled);
 }
+/*** LPub3D Mod end ***/
 
 void lcQPreferencesDialog::updateCategories()
 {
@@ -1396,6 +1415,8 @@ void lcQPreferencesDialog::on_mouseAssign_clicked()
 				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 = mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2;
 				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
 				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
+
+				UpdateMouseTreeItem(ToolIdx);
 			}
 		}
 	}

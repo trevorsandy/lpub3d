@@ -271,6 +271,7 @@ public:
 	void Copy();
 	void Paste();
 	void DuplicateSelectedPieces();
+	void PaintSelectedPieces();
 
 	void GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
 /*** LPub3D Mod - true fade ***/	

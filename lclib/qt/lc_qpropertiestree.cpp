@@ -1172,17 +1172,21 @@ void lcQPropertiesTree::slotSetValue(int Value)
 
 			PieceInfo* Info = (PieceInfo*)editor->itemData(Value).value<void*>();
 			Model->SetSelectedPiecesPieceInfo(Info);
-
+			
+/*** LPub3D Mod - preview widget for LPub3D ***/
 			lcPreferences& Preferences = lcGetPreferences();
 			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 			{
+/*** LPub3D Mod end ***/				
 				int ColorIndex = gDefaultColor;
 				lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
 				if (Focus && Focus->IsPiece())
 					ColorIndex = ((lcPiece*)Focus)->mColorIndex;
 				quint32 ColorCode = lcGetColorCode(ColorIndex);
 				gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
+/*** LPub3D Mod - preview widget for LPub3D ***/
 			}
+/*** LPub3D Mod end ***/			
 		}
 	}
 /*** LPub3D Mod - enable lights ***/	
@@ -1255,7 +1259,7 @@ void lcQPropertiesTree::slotColorButtonClicked()
 		connect(Popup, SIGNAL(colorSelected(QColor)), SLOT(slotSetColorValue(QColor)));
 	}
 
-	Popup->setMinimumSize(300, 200);
+	Popup->setMinimumSize(qMax(300, width()), qMax(200, static_cast<int>(width() * 2 / 3)));
 
 	if (Popup && Button) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
@@ -1265,20 +1269,22 @@ void lcQPropertiesTree::slotColorButtonClicked()
 		const QRect ScreenRect = QApplication::desktop()->geometry();
 #endif
 
-		QPoint pos = Button->mapToGlobal(Button->rect().bottomLeft());
-		if (pos.x() < ScreenRect.left())
-			pos.setX(ScreenRect.left());
-		if (pos.y() < ScreenRect.top())
-			pos.setY(ScreenRect.top());
+		int x = mapToGlobal(QPoint(0, 0)).x();
+		int y = Button->mapToGlobal(Button->rect().bottomLeft()).y();
 
-		if ((pos.x() + Popup->width()) > ScreenRect.right())
-			pos.setX(ScreenRect.right() - Popup->width());
-		if ((pos.y() + Popup->height()) > ScreenRect.bottom())
-			pos.setY(ScreenRect.bottom() - Popup->height());
-		Popup->move(pos);
+		if (x < ScreenRect.left())
+			x = ScreenRect.left();
+		if (y < ScreenRect.top())
+			y = ScreenRect.top();
 
-		Popup->setFocus();
-		Popup->show();
+		if (x + Popup->width() > ScreenRect.right())
+			x = ScreenRect.right() - Popup->width();
+		if (y + Popup->height() > ScreenRect.bottom())
+			y = ScreenRect.bottom() - Popup->height();
+
+	Popup->move(QPoint(x, y));
+	Popup->setFocus();
+	Popup->show();
 	}
 }
 /*** LPub3D Mod end ***/
@@ -1477,12 +1483,15 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		Hide = Piece->GetStepHide();
 		ColorIndex = Piece->mColorIndex;
 		Info = Piece->mPieceInfo;
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 		{
+/*** LPub3D Mod end ***/
 			quint32 ColorCode = lcGetColorCode(ColorIndex);
 			gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
+/*** LPub3D Mod - preview widget for LPub3D ***/
 		}
+/*** LPub3D Mod end ***/		
 	}
 	else
 	{

@@ -1346,6 +1346,11 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
+void lcModel::PaintSelectedPieces()
+{
+	SetSelectedPiecesColorIndex(gMainWindow->mColorIndex);
+}
+
 void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
 {
 	if (mPieceInfo)
@@ -1388,18 +1393,17 @@ void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMat
 QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 {
 	lcView* ActiveView = gMainWindow->GetActiveView();
-	ActiveView->MakeCurrent();
-	lcContext* Context = ActiveView->mContext;
-
-	lcStep CurrentStep = mCurrentStep;
-
+	const lcStep CurrentStep = mCurrentStep;
 	lcCamera* Camera = ActiveView->GetCamera();
-	if (Zoom)
-		ZoomExtents(Camera, (float)Width / (float)Height);
 
 	lcView View(lcViewType::View, this);
 	View.SetCamera(Camera, false);
+
+#ifndef LC_USE_QOPENGLWIDGET
+	ActiveView->MakeCurrent();
+	lcContext* Context = ActiveView->mContext;
 	View.SetContext(Context);
+#endif
 
 	if (!View.BeginRenderToImage(Width, Height))
 	{
@@ -1410,12 +1414,19 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	}
 
 	SetTemporaryStep(Step);
+
+	if (Zoom)
+		ZoomExtents(Camera, (float)Width / (float)Height);
+
 	View.OnDraw();
 
 	QImage Image = View.GetRenderImage();
 
-	View.EndRenderToImage();
+#ifndef LC_USE_QOPENGLWIDGET
 	Context->ClearResources();
+#endif
+
+	View.EndRenderToImage();
 
 	SetTemporaryStep(CurrentStep);
 
@@ -1527,8 +1538,7 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 	for (lcPartsListImage& Image : Images)
 	{
-		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Context->ClearColorAndDepth(lcVector4(1.0f, 1.0f, 1.0f, 0.0f));
 
 		lcScene Scene;
 		Scene.SetAllowWireframe(false);
@@ -4743,9 +4753,11 @@ void lcModel::ShowPropertiesDialog()
 
 	mProperties = Options.Properties;
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 		gMainWindow->GetPreviewWidget()->UpdatePreview();
+/*** LPub3D Mod end ***/
 
 	SaveCheckpoint(tr("Changing Properties"));
 }

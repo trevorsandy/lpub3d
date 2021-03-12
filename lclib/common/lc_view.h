@@ -92,6 +92,7 @@ enum class lcViewType
 	View,
 	Preview,
 	Minifig,
+	PartsList,
 	Count
 };
 
@@ -155,12 +156,12 @@ public:
 		mHeight = Height;
 	}
 
-	QGLWidget* GetWidget() const
+	lcViewWidget* GetWidget() const
 	{
 		return mWidget;
 	}
 
-	void SetWidget(QGLWidget* Widget)
+	void SetWidget(lcViewWidget* Widget)
 	{
 		mWidget = Widget;
 	}
@@ -251,11 +252,10 @@ public:
 
 	bool BeginRenderToImage(int Width, int Height);
 	void EndRenderToImage();
-
-	QImage GetRenderImage() const
-	{
-		return mRenderImage;
-	}
+	QImage GetRenderImage() const;
+#ifdef LC_USE_QOPENGLWIDGET
+	QImage GetRenderFramebufferImage() const;
+#endif
 
 	lcContext* mContext = nullptr;
 
@@ -293,7 +293,7 @@ protected:
 	void StopTracking(bool Accept);
 	void OnButtonDown(lcTrackButton TrackButton);
 
-	QGLWidget* mWidget = nullptr;
+	lcViewWidget* mWidget = nullptr;
 	int mWidth = 1;
 	int mHeight = 1;
 	bool mDeleteContext = true;
@@ -306,6 +306,7 @@ protected:
 	Qt::KeyboardModifiers mMouseModifiers = Qt::NoModifier;
 
 	bool mTrackUpdated = false;
+	bool mToolClicked = false;
 	lcTrackTool mTrackTool = lcTrackTool::None;
 	lcTrackButton mTrackButton = lcTrackButton::None;
 	lcCursor mCursor = lcCursor::Default;
@@ -314,8 +315,15 @@ protected:
 	bool mTrackToolFromOverlay;
 	lcVector3 mMouseDownPosition;
 	PieceInfo* mMouseDownPiece;
+
 	QImage mRenderImage;
+#ifdef LC_USE_QOPENGLWIDGET
+	std::unique_ptr<QOpenGLContext> mOffscreenContext;
+	std::unique_ptr<QOffscreenSurface> mOffscreenSurface;
+	std::unique_ptr<QOpenGLFramebufferObject> mRenderFramebuffer;
+#else
 	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
+#endif
 
 	std::unique_ptr<lcScene> mScene;
 	std::unique_ptr<lcViewSphere> mViewSphere;

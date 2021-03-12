@@ -87,9 +87,6 @@ void lcModelTabWidget::Clear()
 		View->Clear();
 	mViews.RemoveAll();
 	mActiveView = nullptr;
-	lcViewWidget* Widget = (lcViewWidget*)layout()->itemAt(0)->widget();
-	delete Widget->GetView();
-	Widget->SetView(nullptr);
 }
 
 /*** LPub3D Mod - set lcMainWindow parent ***/
@@ -166,10 +163,16 @@ void lcMainWindow::CreateWidgets(int AASamples)
 
 	if (AASamples > 1)
 	{
-		QGLFormat format;
-		format.setSampleBuffers(true);
-		format.setSamples(AASamples);
-		QGLFormat::setDefaultFormat(format);
+#ifdef LC_USE_QOPENGLWIDGET
+		QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+		Format.setSamples(AASamples);
+		QSurfaceFormat::setDefaultFormat(Format);
+#else
+		QGLFormat Format;
+		Format.setSampleBuffers(true);
+		Format.setSamples(AASamples);
+		QGLFormat::setDefaultFormat(Format);
+#endif
 	}
 
 	CreateActions();
@@ -653,9 +656,7 @@ void lcMainWindow::CreateMenus()
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
-	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
-		ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
 	ToolBarsMenu->addSeparator();
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
@@ -666,6 +667,7 @@ void lcMainWindow::CreateMenus()
 	PieceMenu->addAction(mActions[LC_PIECE_INSERT]);
 	PieceMenu->addAction(mActions[LC_PIECE_DELETE]);
 	PieceMenu->addAction(mActions[LC_PIECE_DUPLICATE]);
+	PieceMenu->addAction(mActions[LC_PIECE_PAINT_SELECTED]);
 	PieceMenu->addAction(mActions[LC_PIECE_ARRAY]);
 	PieceMenu->addAction(mActions[LC_PIECE_MINIFIG_WIZARD]);
 	PieceMenu->addAction(mActions[LC_PIECE_RESET_PIVOT_POINT]);
@@ -827,7 +829,26 @@ void lcMainWindow::CreateToolBars()
 	mColorList = new lcQColorList();
 	connect(mColorList, SIGNAL(colorChanged(int)), this, SLOT(ColorChanged(int)));
 
-	mColorsToolBar->setWidget(mColorList);
+	QWidget* ColorWidget = new QWidget(mColorsToolBar);
+
+	QVBoxLayout* ColorLayout = new QVBoxLayout(ColorWidget);
+	ColorLayout->setContentsMargins(0, 0, 0, 0);
+
+	QHBoxLayout* ColorButtonLayout = new QHBoxLayout();
+	ColorButtonLayout->setContentsMargins(0, 0, 0, 0);
+	ColorLayout->addLayout(ColorButtonLayout);
+
+	mColorButton = new QToolButton(ColorWidget);
+	mColorButton->setAutoRaise(true);
+	mColorButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	mColorButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
+	ColorButtonLayout->addWidget(mColorButton);
+
+	connect(mColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+
+	ColorLayout->addWidget(mColorList);
+
+	mColorsToolBar->setWidget(ColorWidget);
 /*** LPub3D Mod - hide mColorsToolBar ***/
 //	addDockWidget(Qt::RightDockWidgetArea, mColorsToolBar);
 /*** LPub3D Mod end ***/
@@ -836,6 +857,7 @@ void lcMainWindow::CreateToolBars()
 
 	QWidget* PropertiesWidget = new QWidget(mPropertiesToolBar);
 	QVBoxLayout* PropertiesLayout = new QVBoxLayout(PropertiesWidget);
+	PropertiesLayout->setContentsMargins(0, 0, 0, 0);
 
 	mPropertiesWidget = new lcQPropertiesTree(PropertiesWidget);
 	PropertiesLayout->addWidget(mPropertiesWidget);
@@ -898,10 +920,11 @@ void lcMainWindow::CreateToolBars()
 ***/
 /*** LPub3D Mod end ***/
 
-	// Preview
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	const lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		CreatePreviewWidget();
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - do not tabify toolbars here ***/
 /***
@@ -946,6 +969,7 @@ lcView* lcMainWindow::CreateView(lcModel* Model)
 
 void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode)
 {
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreferences& Preferences = lcGetPreferences();
 
 	if (!Preferences.mPreviewEnabled)
@@ -974,6 +998,7 @@ void lcMainWindow::PreviewPiece(const QString& PartId, int ColorCode)
 	}
 
 	QMessageBox::information(this, tr("Error"), tr("Part preview for '%1' failed.").arg(PartId));
+/*** LPub3D Mod end ***/
 }
 
 void lcMainWindow::CreatePreviewWidget()
@@ -1126,9 +1151,6 @@ void lcMainWindow::closeEvent(QCloseEvent* Event)
 		gApplication->SaveTabLayout();
 ***/
 /*** LPub3D Mod end ***/
-
-		delete mPreviewWidget;
-		mPreviewWidget = nullptr;
 	}
 	else
 		Event->ignore();
@@ -1159,9 +1181,11 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
+/*** LPub3D Mod - preview widget for LPub3D ***/	
 	lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		Menu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
+/*** LPub3D Mod end ***/
 	Menu->addSeparator();
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
@@ -1187,9 +1211,9 @@ void lcMainWindow::UpdateDockWidgetActions()
 	mActions[LC_VIEW_TOOLBAR_STANDARD]->setChecked(mStandardToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_TOOLS]->setChecked(mToolsToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
-/*** LPub3D Mod - preview widget for LPub3D ***/
 		mActions[LC_VIEW_TOOLBAR_PREVIEW]->setChecked(/*mPreviewToolBar*/
 													  gui->getPreviewDockWindow()->isVisible());
 /*** LPub3D Mod end ***/
@@ -1445,6 +1469,14 @@ void lcMainWindow::ActionTriggered()
 void lcMainWindow::ColorChanged(int ColorIndex)
 {
 	SetColorIndex(ColorIndex);
+}
+
+void lcMainWindow::ColorButtonClicked()
+{
+	lcModel* ActiveModel = GetActiveModel();
+
+	if (ActiveModel)
+		ActiveModel->PaintSelectedPieces();
 }
 
 void lcMainWindow::ProjectFileChanged(const QString& Path)
@@ -2527,6 +2559,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 
 		mActions[LC_PIECE_DELETE]->setEnabled(Flags & LC_SEL_SELECTED);
 		mActions[LC_PIECE_DUPLICATE]->setEnabled(Flags & LC_SEL_SELECTED);
+		mActions[LC_PIECE_PAINT_SELECTED]->setEnabled(Flags & LC_SEL_PIECE);
 		mActions[LC_PIECE_RESET_PIVOT_POINT]->setEnabled(Flags & LC_SEL_SELECTED);
 		mActions[LC_PIECE_REMOVE_KEY_FRAMES]->setEnabled(Flags & LC_SEL_SELECTED);
 		mActions[LC_PIECE_ARRAY]->setEnabled(Flags & LC_SEL_PIECE);
@@ -2650,6 +2683,11 @@ void lcMainWindow::UpdateSnap()
 
 void lcMainWindow::UpdateColor()
 {
+	QPixmap Pixmap(14, 14);
+	Pixmap.fill(QColor::fromRgbF(gColorList[mColorIndex].Value[0], gColorList[mColorIndex].Value[1], gColorList[mColorIndex].Value[2]));
+
+	mColorButton->setIcon(Pixmap);
+	mColorButton->setText(QString("  ") + gColorList[mColorIndex].Name);
 	mColorList->setCurrentColor(mColorIndex);
 }
 
@@ -3408,6 +3446,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_PIECE_DUPLICATE:
 		if (ActiveModel)
 			ActiveModel->DuplicateSelectedPieces();
+		break;
+
+	case LC_PIECE_PAINT_SELECTED:
+		if (ActiveModel)
+			ActiveModel->PaintSelectedPieces();
 		break;
 
 	case LC_PIECE_RESET_PIVOT_POINT:

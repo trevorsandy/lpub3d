@@ -107,22 +107,33 @@ enum class lcPolygonOffset
 	Translucent
 };
 
+#ifdef LC_USE_QOPENGLWIDGET
+class lcContext : protected QOpenGLFunctions
+#else
 class lcContext
+#endif
 {
 public:
 	lcContext();
 	~lcContext();
 
 	lcContext(const lcContext&) = delete;
-	lcContext(lcContext&&) = delete;
 	lcContext& operator=(const lcContext&) = delete;
-	lcContext& operator=(lcContext&&) = delete;
 
-	static void CreateResources();
-	static void DestroyResources();
+	void CreateResources();
+	void DestroyResources();
 
 	void SetDefaultState();
 	void ClearResources();
+
+#ifdef LC_USE_QOPENGLWIDGET
+	void SetGLContext(QOpenGLContext* GLContext);
+#else
+	void SetGLContext(const QGLContext* GLContext);
+#endif
+
+	void ClearColorAndDepth(const lcVector4& ClearColor);
+	void ClearDepth();
 
 	void SetWorldMatrix(const lcMatrix44& WorldMatrix)
 	{
@@ -219,8 +230,13 @@ public:
 	void BindMesh(const lcMesh* Mesh);
 
 protected:
-	static void CreateShaderPrograms();
+	void CreateShaderPrograms();
 	void FlushState();
+
+#ifdef LC_USE_QOPENGLWIDGET
+	QOpenGLContext* mGLContext = nullptr;
+#endif
+	bool mValid = false;
 
 	GLuint mVertexBufferObject;
 	GLuint mIndexBufferObject;
@@ -258,6 +274,7 @@ protected:
 	GLuint mFramebufferObject;
 
 	static lcProgram mPrograms[static_cast<int>(lcMaterialType::Count)];
+	static int mValidContexts;
 
 	Q_DECLARE_TR_FUNCTIONS(lcContext);
 };

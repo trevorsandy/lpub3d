@@ -77,6 +77,9 @@ public slots:
 	void on_gridStuds_toggled();
 	void on_gridLines_toggled();
 	void on_ViewSphereSizeCombo_currentIndexChanged(int Index);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+//	void on_PreviewViewSphereSizeCombo_currentIndexChanged(int Index);
+/*** LPub3D Mod end ***/
 	void updateParts();
 	void on_newCategory_clicked();
 	void on_editCategory_clicked();
