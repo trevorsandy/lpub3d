@@ -793,7 +793,6 @@ void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
 	if (ui->PreviewPositionCombo->currentIndex() != 0)
 		ui->PreviewPositionCombo->setEnabled(Index != 0);
 	ui->PreviewAxisIconCheckBox->setEnabled(Index != 0);
-	ui->PreviewViewSphereCheckBox->setEnabled(Index != 0);
 }
 /*** LPub3D Mod end ***/
 

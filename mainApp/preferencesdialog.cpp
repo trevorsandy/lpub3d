@@ -1906,6 +1906,8 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_GRID_STUD_COLOR;
                     else if (i == THEME_DARK_GRID_LINE_COLOR)
                         key = LC_PROFILE_GRID_LINE_COLOR;
+                    else if (i == THEME_DARK_TEXT_COLOR)
+                        key = LC_PROFILE_TEXT_COLOR;
                     else if (i == THEME_DARK_VIEW_SPHERE_COLOR)
                         key = LC_PROFILE_VIEW_SPHERE_COLOR;
                     else if (i == THEME_DARK_VIEW_SPHERE_TEXT_COLOR)
@@ -1929,6 +1931,8 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_GRID_STUD_COLOR;
                     else if (i == THEME_DEFAULT_GRID_LINE_COLOR)
                         key = LC_PROFILE_GRID_LINE_COLOR;
+                    else if (i == THEME_DEFAULT_TEXT_COLOR)
+                        key = LC_PROFILE_TEXT_COLOR;
                     else if (i == THEME_DEFAULT_VIEW_SPHERE_COLOR)
                         key = LC_PROFILE_VIEW_SPHERE_COLOR;
                     else if (i == THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR)

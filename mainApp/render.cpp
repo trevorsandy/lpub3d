@@ -3062,23 +3062,23 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     if (RenderImage) {
 
         const bool UseImageSize = O->ImageWidth != O->PageWidth || O->ImageHeight != O->PageHeight;
-        const int ImageWidth  = int(O->PageWidth);
-        const int ImageHeight = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
-        QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+        const int  ImageWidth   = int(O->PageWidth);
+        const int  ImageHeight  = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
+        QString    ImageType    = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
 
-        lcStep ImageStep      = ActiveModel->GetLastStep();
-        lcStep CurrentStep    = ActiveModel->GetCurrentStep();
+        const lcStep CurrentStep = ActiveModel->GetCurrentStep();
+        const lcStep ImageStep         = ActiveModel->GetLastStep();
 
-        if (ZoomExtents)
-            ActiveModel->ZoomExtents(Camera, float(ImageWidth) / float(ImageHeight));
+        lcView View(lcViewType::View, ActiveModel);
+        View.SetCamera(Camera, false);
 
+#ifndef LC_USE_QOPENGLWIDGET
         ActiveView->MakeCurrent();
         lcContext* Context = ActiveView->mContext;
-        lcView lcView(ActiveView->GetViewType(), ActiveModel);
-        lcView.SetCamera(Camera, false);
-        lcView.SetContext(Context);
+        View.SetContext(Context);
+#endif
 
-        if ((rc = lcView.BeginRenderToImage(ImageWidth, ImageHeight))) {
+        if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
             struct NativeImage
             {
@@ -3089,13 +3089,18 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
             ActiveModel->SetTemporaryStep(ImageStep);
 
-            lcView.OnDraw();
+            if (ZoomExtents)
+                ActiveModel->ZoomExtents(Camera, float(ImageWidth) / float(ImageHeight));
 
-            Image.RenderedImage = lcView.GetRenderImage();
+            View.OnDraw();
 
-            lcView.EndRenderToImage();
+            Image.RenderedImage = View.GetRenderImage();
 
+            View.EndRenderToImage();
+
+#ifndef LC_USE_QOPENGLWIDGET
             Context->ClearResources();
+#endif
 
             ActiveModel->SetTemporaryStep(CurrentStep);
 

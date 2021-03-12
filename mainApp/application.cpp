@@ -181,6 +181,10 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
+#ifdef LC_USE_QOPENGLWIDGET
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+#endif
+
     //QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
@@ -266,6 +270,9 @@ void Application::setTheme(bool appStarted)
                   lcGetPreferences().mGridStudColor = tc;
                   break;
               case LC_PROFILE_GRID_LINE_COLOR:
+                  lcGetPreferences().mGridLineColor = tc;
+                  break;
+              case LC_PROFILE_TEXT_COLOR:
                   lcGetPreferences().mGridLineColor = tc;
                   break;
               case LC_PROFILE_VIEW_SPHERE_COLOR:
@@ -392,6 +399,9 @@ void Application::setTheme(bool appStarted)
   setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,
                       Preferences::themeColors[THEME_DARK_GRID_LINE_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_GRID_LINE_COLOR]);
+  setViewerThemeColor(LC_PROFILE_TEXT_COLOR,
+                      Preferences::themeColors[THEME_DARK_TEXT_COLOR],
+                      Preferences::themeColors[THEME_DEFAULT_TEXT_COLOR]);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,
                       Preferences::themeColors[THEME_DARK_VIEW_SPHERE_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_COLOR]);

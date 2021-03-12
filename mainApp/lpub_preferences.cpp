@@ -82,6 +82,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultActiveViewColor",                      "#FF0000", "Viewer Active View"                        }, // THEME_DEFAULT_ACTIVE_VIEW_COLOR                            255,   0,   0, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDefaultGridStudColor",                        "#404040", "Viewer Grid Stud"                          }, // THEME_DEFAULT_GRID_STUD_COLOR                               64,  64,  64, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDefaultGridLineColor",                        "#000000", "Viewer Grid Line"                          }, // THEME_DEFAULT_GRID_LINE_COLOR                                0,   0,   0, 255 LC_PROFILE_GRID_LINE_COLOR
+    {"ThemeDefaultTextColor",                            "#000000", "Viewer Text"                               }, // THEME_DEFAULT_TEXT_COLOR                                     0,   0,   0, 255 LC_PROFILE_TEXT_COLOR
     {"ThemeDefaultViewSphereColor",                      "#FFFFFF", "Viewer View Sphere"                        }, // THEME_DEFAULT_VIEW_SPHERE_COLOR                            255, 255, 255, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDefaultViewSphereTextColor",                  "#646464", "Viewer View Sphere Text"                   }, // THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR                       100, 100, 100, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
     {"ThemeDefaultViewSphereHlightColor",                "#FF0000", "Viewer View Sphere Hlight"                 }, // THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR                     255,   0,   0, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
@@ -215,11 +216,12 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkViewerBackgroundColor",                   "#313437", "Viewer Background"                         }, // THEME_DARK_VIEWER_BACKGROUND_COLOR                          49,  52,  55, 255 LC_PROFILE_BACKGROUND_COLOR
     {"ThemeDarkViewerGradientColorTop",                  "#0000BF", "Viewer Gradient Top"                       }, // THEME_DARK_VIEWER_GRADIENT_COLOR_TOP                         0,   0, 191, 255 LC_PROFILE_GRADIENT_COLOR_TOP
     {"ThemeDarkViewerGradientColorBottom",               "#FFFFFF", "Viewer Gradient Bottom"                    }, // THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM                    255, 255, 255, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
-    {"ThemeDarkAxesColor",                               "#E0E0E0", "Viewer Axes"                               }, // THEME_DARK_AXES_COLOR                                      224, 224, 224, 255 LC_PROFILE_AXES_COLOR
+    {"ThemeDarkAxesColor",                               "#A0A0A0", "Viewer Axes"                               }, // THEME_DARK_AXES_COLOR                                      160, 160, 160, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDarkOverlayColor",                            "#E0E0E0", "Viewer Overlay"                            }, // THEME_DARK_OVERLAY_COLOR                                   224, 224, 224, 255 LC_PROFILE_OVERLAY_COLOR
     {"ThemeDarkActiveViewColor",                         "#2980B9", "Viewer Active View"                        }, // THEME_DARK_ACTIVE_VIEW_COLOR                                41, 128, 185, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDarkGridStudColor",                           "#181818", "Viewer Grid Stud (192 alpha)"              }, // THEME_DARK_GRID_STUD_COLOR                                  24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDarkGridLineColor",                           "#181818", "Viewer Grid Line"                          }, // THEME_DARK_GRID_LINE_COLOR                                  24,  24,  24, 255 LC_PROFILE_GRID_LINE_COLOR
+    {"ThemeDarkTextColor",                               "#A0A0A0", "Viewer Text"                               }, // THEME_DARK_TEXT_COLOR                                      160, 160, 160, 255 LC_PROFILE_TEXT_COLOR
     {"ThemeDarkViewSphereColor",                         "#232629", "Viewer View Sphere"                        }, // THEME_DARK_VIEW_SPHERE_COLOR                                35,  38,  41, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDarkViewSphereTextColor",                     "#E0E0E0", "Viewer View Sphere Text"                   }, // THEME_DARK_VIEW_SPHERE_TEXT_COLOR                          224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
     {"ThemeDarkViewSphereHlightColor",                   "#2980B9", "Viewer View Sphere Hlight"                 }, // THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR                         41, 128, 185, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
@@ -3471,6 +3473,7 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DARK_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
         setInterfaceColor(THEME_DARK_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
         setInterfaceColor(THEME_DARK_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
+        setInterfaceColor(THEME_DARK_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_TEXT_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
@@ -3483,6 +3486,7 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DEFAULT_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
         setInterfaceColor(THEME_DEFAULT_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
         setInterfaceColor(THEME_DEFAULT_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
+        setInterfaceColor(THEME_DEFAULT_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_TEXT_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
