@@ -2472,31 +2472,50 @@ void Gui::createBuildModification()
 void Gui::applyBuildModification()
 {
     QStringList buildModKeys;
-    BuildModDialogGui *buildModDialogGui =
-            new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
-
-    if (!buildModKeys.size())
+    if (!buildModsSize()) {
         return;
+    } else if (buildModsSize() == 1) {
+        buildModKeys = getBuildModsList();
+    } else {
+        BuildModDialogGui *buildModDialogGui =
+                new BuildModDialogGui();
+        buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
+    }
 
     int it = lcGetActiveProject()->GetImageType();
 
     // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
 
+    QString text, type, title;
+    QString model = "undefined", line = "undefined", step = "undefined";
+    QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
-        QString model = "undefined", line = "undefined", step = "undefined";
-        QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
-        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-        QString text  = "The selected build modification was created in this step."
-                        "It cannot be applied to the step it was created in.<br>"
-                        "Model: " + model + ", Line: " + line + ", Step: " + step;
-        QString type  = "Apply build modification errors";
-        QString title = "Build Modification";
+        text  = "Build modification '" + buildModKeys.first() + "' was created in this step (" + step + "), "
+                "model '" + model + "', at line " + line + ".<br>"
+                "It was automatically applied to the step it was created in. No action taken.";
+        type  = "Apply build modification error";
+        title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
+    } else {
+        text  = "This action will apply build modification '" + buildModKeys.first() + "' "
+                "to '" + model + "' at step " + step + ".<br><br>Are you sure ?";
+        type  = "Apply build modification";
+        title = "Build Modification";
+
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+        {
+        default:
+        case QMessageBox::Cancel:
+            return; // cancel request
+        case QMessageBox::Ok:
+            break;  // apply changes
+        }
     }
 
     switch(it) {
@@ -2530,32 +2549,60 @@ void Gui::applyBuildModification()
 void Gui::removeBuildModification()
 {
     QStringList buildModKeys;
-    BuildModDialogGui *buildModDialogGui =
-            new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
-
-    if (!buildModKeys.size())
+    if (!buildModsSize()) {
         return;
+    } else if (buildModsSize() == 1) {
+        buildModKeys = getBuildModsList();
+    } else {
+        BuildModDialogGui *buildModDialogGui =
+                new BuildModDialogGui();
+        buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
+    }
 
     int it = lcGetActiveProject()->GetImageType();
 
     // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
 
-    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
-        QString model = "undefined", line = "undefined", step = "undefined";
-        QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
-        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-        QString text  = "The selected build modification was created in this step."
-                        "It cannot be removed from the step it was created in.<br>"
-                        "Select 'Delete Build Modification to delete.<br>"
-                        "Model: " + model + ", Line: " + line + ", Step: " + step;
-        QString type  = "Remove build modification errors";
-        QString title = "Build Modification";
+    Where here = currentStep->topOfStep();
+    bool modInCurrentStep = stepContains(here, buildModKeys.first());
+
+    QString text, type, title;
+    QString model = "undefined", line = "undefined", step = "undefined";
+    QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey || !modInCurrentStep) {
+        text  = !modInCurrentStep ?
+                "Build modification '" + buildModKeys.first() + "' was not applied in '" + model + "' step " + step + ".<br>"
+                "Consult prior steps to locate this build modification 'apply' command." :
+                "Build modification '" + buildModKeys.first() + "' was created in this step (" + step + "), "
+                "in model '" + model + "' at line " + line + ".<br>"
+                "It cannot be removed from the step it was created in.<br>"
+                "Select 'Delete Build Modification' to delete from '" + model + "', "
+                "step " + step + " at line " + line;
+        type  = "Remove build modification error";
+        title = "Build Modification";
 
         Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
         Preferences::showMessage(msgID, text, title, type);
 
         return;
+    } else {
+        keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
+        if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+        text  = "This action will remove build modification '" + buildModKeys.first() + "' "
+                "from '" + model + "' at step " + step + ".<br><br>Are you sure ?";
+        type  = "Remove build modification";
+        title = "Build Modification";
+
+        Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+        switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+        {
+        default:
+        case QMessageBox::Cancel:
+            return;
+        case QMessageBox::Ok:
+            break;
+        }
     }
 
     switch(it) {
@@ -2591,12 +2638,32 @@ void Gui::removeBuildModification()
 void Gui::loadBuildModification()
 {
     QStringList buildModKeys;
-    BuildModDialogGui *buildModDialogGui =
-            new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
-
-    if (!buildModKeys.size())
+    if (!buildModsSize()) {
         return;
+    } else if (buildModsSize() == 1) {
+        buildModKeys = getBuildModsList();
+    } else {
+        BuildModDialogGui *buildModDialogGui =
+                new BuildModDialogGui();
+        buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
+    }
+
+    QString model = "undefined", line = "undefined", step = "undefined";
+    QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
+    if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
+    QString text  = "This action will load build modification '" + buildModKeys.first() + "' from '" + model + "' "
+                    "at step " + buildModKeys.first() + " to allow editing.<br><br>Are you sure ?";
+    QString type  = "Load build modification";
+    QString title = "Build Modification";
+    Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
+    switch (Preferences::showMessage(msgID, text, title, type, true /*option*/))
+    {
+    default:
+    case QMessageBox::Cancel:
+        return;
+    case QMessageBox::Ok:
+        break;
+    }
 
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
@@ -2695,22 +2762,25 @@ void Gui::updateBuildModification()
 void Gui::deleteBuildModification()
 {
     QStringList buildModKeys;
-    BuildModDialogGui *buildModDialogGui =
-            new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
-
-    if (!buildModKeys.size())
+    if (!buildModsSize()) {
         return;
+    } else if (buildModsSize() == 1) {
+        buildModKeys = getBuildModsList();
+    } else {
+        BuildModDialogGui *buildModDialogGui =
+                new BuildModDialogGui();
+        buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
+    }
 
     QString model = "undefined", line = "undefined", step = "undefined";
     QStringList keys  =getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-    QString text  = "This action cannot be completelly undone by the Undo button. "
-                    "The BuildMod related image and viewer entry content will be parmanently deleted.<br>"
-                    "Model: " + model + ", Line: " + line + ", Step: " + step + "<br>"
-                    "You can use reload to regenerate the deleted image.<br><br>"
+    QString text  = "This action will permanently delete build modification '" + buildModKeys.first() + "' "
+                    "from '" + model + "' at step " + step + "' and cannot be completelly undone using the Undo menu action.<br><br>"
+                    "The modified CSI image and 3DViewer entry will be parmanently deleted.<br>"
+                    "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
                     "Do you want to continue ?";
-    QString type  = "delete warning";
+    QString type  = "Delete build modification";
     QString title = "Build Modification";
 
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2718,10 +2788,9 @@ void Gui::deleteBuildModification()
     {
     default:
     case QMessageBox::Cancel:
-        return; // cancel request
-
+        return;
     case QMessageBox::Ok:
-        break;  // apply changes
+        break;
     }
 
     int it = lcGetActiveProject()->GetImageType();
@@ -2735,7 +2804,8 @@ void Gui::deleteBuildModification()
         QString modelName    = getBuildModModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
-            emit messageSig(LOG_ERROR, QString("There was a problem receiving buld mod attributes for key [%1]").arg(buildModKey));
+            emit messageSig(LOG_ERROR, QString("There was a problem receiving build mod attributes for key [%1]<br>"
+                                               "Delete build modification cannot continue.").arg(buildModKey));
             return;
         }
 
@@ -2807,7 +2877,7 @@ void Gui::deleteBuildModification()
 
         // delete BuildMod
         if (!deleteBuildMod(buildModKey))
-            emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
+            emit messageSig(LOG_ERROR,QString("Failed to delete build modification for key %1.").arg(buildModKey));
 
         endMacro();
     }

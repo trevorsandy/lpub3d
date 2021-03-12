@@ -179,7 +179,7 @@ bool Gui::stepContains(Where &here, const QRegExp &lineRx, QString &result, int 
 // general case string
 bool Gui::stepContains(Where &topOfStep, const QString value)
 {
-    QRegExp lineRx(value);
+    QRegExp lineRx(value, Qt::CaseInsensitive);
     return stepContains(topOfStep, lineRx);
 }
 
