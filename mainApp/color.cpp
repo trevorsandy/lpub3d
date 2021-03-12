@@ -118,6 +118,7 @@ QString LDrawColor::value(QString code, bool hex /*false*/)
 {
 //  logTrace() << QString("RECEIVED Color CODE [%1] for VALUE").arg(code);
   if (color2value.contains(code)) {
+//      logTrace() << QString("RETURNED Color VALUE [%1] for CODE %2").arg(QString("#"+color2value[code])).arg(code);
       if (hex)
           return QString("#"+color2value[code]);
     return color2value[code];
@@ -134,8 +135,10 @@ QString LDrawColor::value(QString code, bool hex /*false*/)
  */
 int LDrawColor::code(QString value){
 //    logTrace() << QString("RECEIVED Color VALUE [%1] for CODE").arg(value);
-    if (value2code.contains(value))
+    if (value2code.contains(value)) {
+//      logTrace() << QString("RETURNED Color CODE %1 for Color VALUE [%2]").arg(QString(value2code[value])).arg(value);
       return value2code[value];
+    }
     return 0;
 }
 

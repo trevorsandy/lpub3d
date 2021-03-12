@@ -37,17 +37,23 @@ class LDrawColorDialog : public QDialog
   Q_OBJECT
 public:
     explicit LDrawColorDialog(
-    const QColor &initial,
+    const int &initial,
     QWidget *parent = nullptr);
 
     ~LDrawColorDialog();
 
     static QColor getLDrawColor(
-        const QColor &initial,
-        QWidget *parent = nullptr);
+        const int &initial,
+          QWidget *parent = nullptr);
+
+    static QColor getLDrawColor(
+        const int &initial,
+              int &colorIndex,
+          QWidget *parent = nullptr);
 
     bool mModified;
     int mInitialIndex;
+    int mSelectedIndex;
     QColor mLDrawColor;
 
 public slots:

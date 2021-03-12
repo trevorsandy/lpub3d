@@ -30,7 +30,7 @@
 #include "color.h"
 
 LDrawColorDialog::LDrawColorDialog(
-    const QColor &initial,
+    const int &initial,
     QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LDrawColorDialog)
@@ -46,10 +46,12 @@ LDrawColorDialog::LDrawColorDialog(
      ColorLayout->addWidget(ColorList);
      connect(ColorList, SIGNAL(colorChanged(int)), this, SLOT(colorChanged(int)));
 
-     mInitialIndex = lcGetColorIndex(quint32(LDrawColor::code(initial.name())));
+     mInitialIndex = lcGetColorIndex(quint32(initial));
      ColorList->setCurrentColor(mInitialIndex);
 
+     mSelectedIndex = -1;
      mModified = false;
+
      setMinimumSize(40, 40);
 }
 
@@ -59,16 +61,27 @@ LDrawColorDialog::~LDrawColorDialog()
 }
 
 QColor LDrawColorDialog::getLDrawColor(
-        const QColor &initial,
+  const int &initial,
+        int &colorIndex,
         QWidget *parent)  {
 
     LDrawColorDialog *dialog = new LDrawColorDialog(initial,parent);
     bool ok;
     ok = dialog->exec() == QDialog::Accepted;
     if (ok) {
+      colorIndex = dialog->mSelectedIndex;
       return dialog->mLDrawColor;
     }
+    colorIndex = lcGetColorIndex(initial);
     return initial;
+}
+
+QColor LDrawColorDialog::getLDrawColor(
+    const int &initial,
+      QWidget *parent)
+{
+    int unusedIndex;
+    return getLDrawColor(initial, unusedIndex, parent);
 }
 
 void LDrawColorDialog::colorChanged(int colorIndex)
@@ -78,6 +91,7 @@ void LDrawColorDialog::colorChanged(int colorIndex)
         lcColor* color = &gColorList[colorIndex];
         QColor rgb(color->Value[0] * 255, color->Value[1] * 255, color->Value[2] * 255);
         mLDrawColor = rgb;
+        mSelectedIndex = colorIndex;
     }
 }
 

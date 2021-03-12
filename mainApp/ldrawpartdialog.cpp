@@ -50,7 +50,7 @@ LDrawPartDialog::LDrawPartDialog(
      PartSelectorLayout->setContentsMargins(0, 0, 0, 0);
 
      mPartSelectionWidget = new lcPartSelectionWidget(this);
-     mPartSelectionWidget->SetColorIndex(color);
+     mPartSelectionWidget->SetColorIndex(lcGetColorIndex(color));
      PartSelectorLayout->addWidget(mPartSelectionWidget);
 
      PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(partType.toLatin1().constData(), nullptr, false, false);

@@ -219,7 +219,8 @@ void SubstitutePartDialog::initialize()
        ui->ldrawTitleLbl->setText(Pli::titleDescription(mLdrawType));
     }
 
-    QColor partColor = LDrawColor::color(LDrawColor::value(mAttributes.at(sColorCode),true));
+    QString colorName = QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0'));
+    QColor partColor(colorName);
     if(partColor.isValid() ) {
       ui->colorLbl->setAutoFillBackground(true);
       QString styleSheet =
@@ -231,7 +232,7 @@ void SubstitutePartDialog::initialize()
       ui->colorLbl->setToolTip(QString("%1 (%2) %3")
                                .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
                                .arg(mAttributes.at(sColorCode))
-                               .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
+                               .arg(QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0')).toUpper()));
     }
 
     // Extended settings
@@ -487,9 +488,8 @@ void SubstitutePartDialog::typeChanged(Which attribute)
 
 void SubstitutePartDialog::colorChanged(const QString &colorName)
 {
-  QColor newColor = LDrawColor::color(colorName);
+  QColor newColor(colorName);
   if(newColor.isValid() ) {
-      mAttributes[sColorCode] = QString::number(LDrawColor::code(colorName));
       ui->colorLbl->setAutoFillBackground(true);
       QString styleSheet =
           QString("QLabel { background-color: rgb(%1, %2, %3); }")
@@ -500,7 +500,7 @@ void SubstitutePartDialog::colorChanged(const QString &colorName)
       ui->colorLbl->setToolTip(QString("%1 (%2) %3")
                                .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
                                .arg(mAttributes.at(sColorCode))
-                               .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
+                               .arg(QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0')).toUpper()));
 
       showPartPreview(PartColor);
 
@@ -591,9 +591,12 @@ void SubstitutePartDialog::browseType(bool clicked)
 void SubstitutePartDialog::browseColor(bool clicked)
 {
   Q_UNUSED(clicked);
-  QColor qcolor = LDrawColor::value(mAttributes.at(sColorCode),true);
-  QColor newColor = LDrawColorDialog::getLDrawColor(qcolor,this);
+  QString colorName = QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0'));
+  QColor qcolor = QColor(colorName);
+  int newColorIndex = -1;
+  QColor newColor = LDrawColorDialog::getLDrawColor(mAttributes.at(sColorCode).toInt(),newColorIndex,this);
   if (newColor.isValid() && qcolor != newColor) {
+      mAttributes[sColorCode] = QString::number(newColorIndex);
       colorChanged(newColor.name());
   }
 }
