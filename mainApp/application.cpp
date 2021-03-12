@@ -119,6 +119,7 @@
   #include <tchar.h>
 
   static TCHAR gMinidumpPath[_MAX_PATH];
+  static BOOL  gConsoleMode = false;
 
   LONG WINAPI Application::lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
   {
@@ -158,7 +159,15 @@
           lstrcat(message, gMinidumpPath);
           lstrcat(message, TEXT("', please send it to the developer for debugging."));
 
-          MessageBox(nullptr, message, TEXT(VER_PRODUCTNAME_STR), MB_OK);
+          if (gConsoleMode)
+          {
+              fprintf(stdout, "%ls\n",message);
+              fflush(stdout);
+          }
+          else
+          {
+              MessageBox(nullptr, message, TEXT(VER_PRODUCTNAME_STR), MB_OK);
+          }
       }
 
       return EXCEPTION_EXECUTE_HANDLER;
@@ -964,6 +973,7 @@ void Application::initialize()
     QList<QPair<QString, bool>> LibraryPaths;
 
 #ifdef Q_OS_WIN
+    gConsoleMode = !modeGUI();
     lcSehInit();
 #endif
 
