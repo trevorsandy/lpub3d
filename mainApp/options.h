@@ -79,6 +79,7 @@ public:
     ImageType      = Options::CSI;
     CameraName     = QString();
     IsOrtho        = false;
+    ZoomExtents    = false;
     StudLogo       = 0;
     ImageWidth     = 800 ;
     ImageHeight    = 600;
@@ -111,6 +112,7 @@ public:
   float Latitude;
   float Longitude;
   bool IsOrtho;
+  bool ZoomExtents;
   xyzVector RotStep;
   xyzVector Target;
 };

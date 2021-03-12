@@ -2644,6 +2644,7 @@ int Native::renderCsi(
   Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth         = lineThickness;
   Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+  Options->ZoomExtents       = false;
 
   // Set CSI project
   Project* CsiImageProject = new Project();
@@ -2827,6 +2828,7 @@ int Native::renderPli(
   Options->ModelScale     = modelScale;
   Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  Options->ZoomExtents    = false;
 
   // Set PLI project
   Project* PliImageProject = new Project();
@@ -2889,7 +2891,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
-    bool ZoomExtents    = false; // TODO - Set as menu item? (!RenderImage && IsOrtho);
+    bool ZoomExtents    = O->ZoomExtents; // was !RenderImage && IsOrtho;
     bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
 
     if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
@@ -3265,6 +3267,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
     }
     else
     {
+        delete NativeExportProject;
         return doLDVCommand(Options->ExportArgs, Options->ExportMode);
     }
 
