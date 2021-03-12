@@ -471,6 +471,7 @@ int Gui::drawPage(
   bool     buildModExists    = false;
   bool     buildModChange    = false;
   bool     buildModPliIgnore = false;
+  bool     buildModTypeIgnore= false;
   bool     buildMod[3]= { false, false, false };
 
   enum draw_page_stat { begin, end };
@@ -652,6 +653,16 @@ int Gui::drawPage(
                      buildModStepIndex);
   };
 
+  auto buildModIgnoreOverride = [&multiStep, &buildMod] (bool &buildModIgnore, bool &buildModTypeIgnore)
+  {
+      if (buildModIgnore) {
+          buildModIgnore = (multiStep && ! buildMod[BM_BEGIN]);
+          // if ignore override, set flag to ignore CSI parts
+          buildModTypeIgnore = ! buildModIgnore;
+      }
+      return ! buildModIgnore;
+  };
+
 #ifdef WRITE_PARTS_DEBUG
   auto writeDrawPartsFile = [this,&topOfStep, &opts](const QString &insert = QString())
   {
@@ -782,8 +793,14 @@ int Gui::drawPage(
 
           if (! buildModIgnore) {
 
-              CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
-              partsAdded = true;
+              /* for multistep build mod case where we are processing a callout
+                 and we are overriding the last action, buildModTypeIgnore is set
+                 so we do render overridden types */
+
+              if (! buildModTypeIgnore) {
+                  CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+                  partsAdded = true;
+              }
 
               // STEP - Allocate STEP
 
@@ -1031,8 +1048,14 @@ int Gui::drawPage(
 
           if (! buildModIgnore) {
 
-            CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
-            partsAdded = true;
+            /* for multistep build mod case where we are processing a callout
+               and we are overriding the last action, buildModTypeIgnore is set
+               so we do render overridden types */
+
+            if (! buildModTypeIgnore) {
+              CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+              partsAdded = true;
+            }
 
             if (step == nullptr && ! noStep) {
               if (range == nullptr) {
@@ -1534,6 +1557,8 @@ int Gui::drawPage(
             case CalloutBeginRc:
               if (callout) {
                   parseError("Nested CALLOUT not allowed within the same file",opts.current);
+                } else if (! buildModIgnoreOverride(buildModIgnore, buildModTypeIgnore)) {
+                  parseError("Failed to process previous BUILD_MOD action for CALLOUT.",opts.current);
                 } else {
                   callout = new Callout(curMeta,view);
                   callout->setTopOfCallout(opts.current);
@@ -1615,13 +1640,14 @@ int Gui::drawPage(
             case StepGroupBeginRc:
               if (opts.calledOut) {
                   parseError("MULTI_STEP not allowed inside callout models",opts.current);
+              } else if (multiStep) {
+                  parseError("Nested MULTI_STEP not allowed",opts.current);
+              } else if (! (multiStep = buildModIgnoreOverride(buildModIgnore, buildModTypeIgnore))) {
+                  parseError("Failed to process previous BUILD_MOD action for MULTI_STEP.",opts.current);
               } else {
-                  if (multiStep) {
-                      parseError("Nested MULTI_STEP not allowed",opts.current);
-                  }
-                  multiStep = true;
+                steps->relativeType = StepGroupType;
               }
-              steps->relativeType = StepGroupType;
+
               break;
 
             case StepGroupDividerRc:
@@ -1978,6 +2004,7 @@ int Gui::drawPage(
                   buildModIgnore    = false;
                   buildModPliIgnore = true;
               }
+              buildModTypeIgnore = false;
               buildMod[BM_BEGIN] = false;
               buildMod[BM_END_MOD] = true;
               break;
@@ -2492,6 +2519,7 @@ int Gui::drawPage(
               }
 
               steps->setBottomOfSteps(opts.current);
+              buildModTypeIgnore = false;
               buildMod[BM_END] = false;
               noStep = false;
               break;
