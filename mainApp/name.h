@@ -70,9 +70,33 @@ enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum DisplayModelType { DM_FINAL_MODEL = -1, DM_DISPLAY_MODEL = - 2 };
 enum ShowLineType { PS_POS, LINE_HIGHLIGHT = PS_POS, PS_LAST_POS, LINE_ERROR = PS_LAST_POS, PS_STEP_NUM };
 enum ProcessType { PROC_NONE, PROC_WRITE_TO_TMP, PROC_FIND_PAGE, PROC_DRAW_PAGE, PROC_DISPLAY_PAGE, PROC_COUNT_PAGE };
+enum TraverseRc { HitEndOfFile, HitEndOfPage = 1, HitBuildModAction, HitBottomOfStep };
+enum Dimensions {Pixels = 0, Inches };
+enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
+enum Direction { PAGE_PREVIOUS, PAGE_JUMP_BACKWARD, PAGE_NEXT, PAGE_JUMP_FORWARD, DIRECTION_NOT_SET };
+enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
-
-
+enum ExportMode { PRINT_FILE   = -2,       //-2
+                  EXPORT_NONE  = -1,       //-1
+                  PAGE_PROCESS =  0,       // 0
+                  EXPORT_PDF,              // 1
+                  EXPORT_PNG,              // 2
+                  EXPORT_JPG,              // 3
+                  EXPORT_BMP,              // 4
+                  EXPORT_3DS_MAX,          // 5
+                  EXPORT_COLLADA,          // 6
+                  EXPORT_WAVEFRONT,        // 7
+                  EXPORT_STL,              // 8
+                  EXPORT_POVRAY,           // 9
+                  EXPORT_BRICKLINK,        // 10
+                  EXPORT_CSV,              // 11
+                  EXPORT_ELEMENT,          // 12
+                  EXPORT_HTML_PARTS,       // 13
+                  EXPORT_HTML_STEPS,       // 14
+                  POVRAY_RENDER,           // 15
+                  BLENDER_RENDER,          // 16
+                  BLENDER_IMPORT           // 17
+};
 enum PartSource {
     NOT_FOUND          = -1,               //  -1
     OUT_OF_BOUNDS      = NOT_FOUND,        //  -1
@@ -86,7 +110,6 @@ enum PartSource {
     VIEWER_SEL,                            //   4
     VIEWER_CLR                             //   5
 };
-
 enum BuildModFlags {
     BM_LAST_ACTION      = -1,              //  -1
     BM_INVALID_INDEX    = BM_LAST_ACTION,  //  -1
@@ -115,7 +138,6 @@ enum BuildModFlags {
     BM_CHANGE,                             //  11
     BM_DELETE                              //  12
 };
-
 enum GridStepSize {
     GRID_SIZE_FIRST,
     SCENE_GRID_SIZE_S1 = GRID_SIZE_FIRST,
@@ -201,11 +223,6 @@ enum NameKeyAttributes2{
     K_ROTSZ,          // 13
     K_ROTSTYPE        // 14
 };
-
-const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
-
-extern ActionAttributes sgCommands[NUM_GRID_SIZES];
-
 /*
  * Scene Objects
  *
@@ -217,7 +234,6 @@ extern ActionAttributes sgCommands[NUM_GRID_SIZES];
  * traverse.cpp   - case SceneItemZValueDirectionRc
  * formatpage.cpp - bool Gui::getSceneObject(()
  */
-
 enum SceneObject {
     UndefinedObj             = -1,
     AssemAnnotationObj       = 36, //  0 CsiAnnotationItem             / CsiAnnotationType
@@ -322,6 +338,10 @@ static const SceneObject PliPartGroupSceneObjects[] =
     PartsListAnnotationObj, // 20
     PartsListInstanceObj    // 21
 };
+
+const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+
+extern ActionAttributes sgCommands[NUM_GRID_SIZES];
 
 // Theme colours
 

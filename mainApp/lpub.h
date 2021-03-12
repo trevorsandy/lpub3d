@@ -457,53 +457,6 @@ class Render;
 class Range;
 class Steps;
 class Where;
-enum traverseRc { HitEndOfFile, HitEndOfPage = 1, HitBuildModAction, HitBottomOfStep };
-enum Dimensions {Pixels = 0, Inches };
-enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
-enum Direction { PAGE_PREVIOUS, PAGE_JUMP_BACKWARD, PAGE_NEXT, PAGE_JUMP_FORWARD, DIRECTION_NOT_SET };
-enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum ExportMode { PRINT_FILE   = -2,//-2
-                  EXPORT_NONE  = -1,//-1
-                  PAGE_PROCESS =  0,// 0
-                  EXPORT_PDF,       // 1
-                  EXPORT_PNG,       // 2
-                  EXPORT_JPG,       // 3
-                  EXPORT_BMP,       // 4
-                  EXPORT_3DS_MAX,   // 5
-                  EXPORT_COLLADA,   // 6
-                  EXPORT_WAVEFRONT, // 7
-                  EXPORT_STL,       // 8
-                  EXPORT_POVRAY,    // 9
-                  EXPORT_BRICKLINK, // 10
-                  EXPORT_CSV,       // 11
-                  EXPORT_ELEMENT,   // 12
-                  EXPORT_HTML_PARTS,// 13
-                  EXPORT_HTML_STEPS,// 14
-                  POVRAY_RENDER,    // 15
-                  BLENDER_RENDER,   // 16
-                  BLENDER_IMPORT    // 17
-                  };
-
-const QString nativeExportNames[] =
-{
-  "",              // 0  PAGE_PROCESS
-  "PDF",           // 1  EXPORT_PDF
-  "PNG",           // 2  EXPORT_PNG
-  "JPG",           // 3  EXPORT_JPG
-  "BMP",           // 4  EXPORT_BMP
-  "3DS MAX",       // 5  EXPORT_3DS_MAX
-  "COLLADA",       // 6  EXPORT_COLLADA
-  "WAVEFRONT",     // 7  EXPORT_WAVEFRONT
-  "STL",           // 8  EXPORT_STL
-  "POVRAY",        // 9  EXPORT_POVRAY
-  "BRICKLINK",     // 10 EXPORT_BRICKLINK
-  "CSV",           // 11 EXPORT_CSV
-  "ELEMENT",       // 12 EXPORT_ELEMENT
-  "HTML PARTS",    // 13 EXPORT_HTML_PARTS
-  "HTML STEPS",    // 14 EXPORT_HTML_STEPS
-  "POV-RAY RENDER",// 15 RENDER_POVRAY
-  "BLENDER RENDER" // 16 BLENDER_RENDER
-};
 
 class Gui : public QMainWindow
 {
@@ -1148,43 +1101,17 @@ public:
       QStringList  &out,    // newCSIParts
       QVector<int> &tiout); // newCSIParts
 
-  /***********************************************************************
-   * set Native renderer for fast processing
-   **********************************************************************/
 
-  void setPreferredRenderer(const QString &renderer = QString()){
-      if (!Preferences::usingNativeRenderer || !renderer.isEmpty()) {
-          saveRenderer   = Preferences::preferredRenderer;
-          saveProjection = Preferences::perspectiveProjection;
-          saveSingleCall = Preferences::enableLDViewSingleCall;
-          if (renderer.isEmpty()) {
-             Preferences::preferredRenderer   = RENDERER_NATIVE;
-             Preferences::usingNativeRenderer = true;
-          } else {
-             Preferences::preferredRenderer   = renderer;
-          }
-          Preferences::perspectiveProjection  = true;
-          Preferences::enableLDViewSingleCall = false;
-          Render::setRenderer(Preferences::preferredRenderer);
-      }
-  }
-
-  void restorePreferredRenderer(){
-      if (!saveRenderer.isEmpty()) {
-          Preferences::preferredRenderer      = saveRenderer;
-          Preferences::perspectiveProjection  = saveProjection;
-          Preferences::enableLDViewSingleCall = saveSingleCall;
-          Preferences::usingNativeRenderer    = saveRenderer == RENDERER_NATIVE;
-          Render::setRenderer(Preferences::preferredRenderer);
-          saveRenderer = QString();
-      }
-  }
 
   float getDefaultCameraFoV() const;
   float getDefaultFOVMinRange() const;
   float getDefaultFOVMaxRange() const;
   float getDefaultCameraZNear() const;
   float getDefaultCameraZFar() const;
+
+  void restorePreferredRenderer();
+
+  void setPreferredRenderer(const QString &renderer = QString());
 
   bool compareVersionStr(const QString &first, const QString &second);
 
@@ -1251,58 +1178,22 @@ public slots:
       return viewerStepKey;
   }
 
-  QString GetPliIconsPath(QString& key)
-  {
-      if (mPliIconsPath.contains(key))
-          return mPliIconsPath.value(key);
+  QString GetPliIconsPath(QString& key);
 
-      return QString();
-  }
-
-  void setPliIconPath(QString& key, QString& value)
-  {
-      if (!mPliIconsPath.contains(key)) {
-          mPliIconsPath.insert(key,value);
-          emit messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
-                                              .arg(key).arg(value));
-          return;
-      }
-//      emit messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
-//                                         .arg(key).arg(value));
-  }
+  void setPliIconPath(QString& key, QString& value);
 
   QVector<float> GetRotStepMeta() const
   {
       return mStepRotation;
   }
 
-  void SetRotStepAngleX(float AngleX, bool display)
-  {
-      mRotStepAngleX = AngleX;
-      if (display)
-          ShowStepRotationStatus();
-  }
+  void SetRotStepAngleX(float AngleX, bool display);
 
-  void SetRotStepAngleY(float AngleY, bool display)
-  {
-      mRotStepAngleY = AngleY;
-      if (display)
-          ShowStepRotationStatus();
-  }
+  void SetRotStepAngleY(float AngleY, bool display);
 
-  void SetRotStepAngleZ(float AngleZ, bool display)
-  {
-      mRotStepAngleZ = AngleZ;
-      if (display)
-          ShowStepRotationStatus();
-  }
+  void SetRotStepAngleZ(float AngleZ, bool display);
 
-  void SetRotStepTransform(QString& Transform, bool display)
-  {
-      mRotStepTransform = Transform;
-      if (display)
-          ShowStepRotationStatus();
-  }
+  void SetRotStepTransform(QString& Transform, bool display);
 
   int GetImageWidth();
   int GetImageHeight();

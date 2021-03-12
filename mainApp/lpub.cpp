@@ -95,6 +95,18 @@ const char * ConvertWideCharToUTF8(const wchar_t * wstr) {
 
 Gui *gui;
 
+// Compare two variants - less than.
+bool lt(const int &v1, const int &v2){ return v1 < v2; }
+// Compare two variants - greater than.
+bool gt(const int &v1, const int &v2){ return v1 > v2; }
+
+// Sleeper
+class secSleeper : public QThread
+{
+public:
+    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
+};
+
 void clearPliCache()
 {
   gui->clearPLICache();
@@ -227,6 +239,87 @@ void Gui::httpDownloadFinished()
     mHttpManager = nullptr;
 }
 
+/***********************************************************************
+ * set Native renderer for fast processing
+ **********************************************************************/
+
+void Gui::setPreferredRenderer(const QString &renderer) {
+    if (!Preferences::usingNativeRenderer || !renderer.isEmpty()) {
+        saveRenderer   = Preferences::preferredRenderer;
+        saveProjection = Preferences::perspectiveProjection;
+        saveSingleCall = Preferences::enableLDViewSingleCall;
+        if (renderer.isEmpty()) {
+           Preferences::preferredRenderer   = RENDERER_NATIVE;
+           Preferences::usingNativeRenderer = true;
+        } else {
+           Preferences::preferredRenderer   = renderer;
+        }
+        Preferences::perspectiveProjection  = true;
+        Preferences::enableLDViewSingleCall = false;
+        Render::setRenderer(Preferences::preferredRenderer);
+    }
+}
+
+void Gui::restorePreferredRenderer() {
+    if (!saveRenderer.isEmpty()) {
+        Preferences::preferredRenderer      = saveRenderer;
+        Preferences::perspectiveProjection  = saveProjection;
+        Preferences::enableLDViewSingleCall = saveSingleCall;
+        Preferences::usingNativeRenderer    = saveRenderer == RENDERER_NATIVE;
+        Render::setRenderer(Preferences::preferredRenderer);
+        saveRenderer = QString();
+    }
+}
+
+QString Gui::GetPliIconsPath(QString& key)
+{
+    if (mPliIconsPath.contains(key))
+        return mPliIconsPath.value(key);
+
+    return QString();
+}
+
+void Gui::setPliIconPath(QString& key, QString& value)
+{
+    if (!mPliIconsPath.contains(key)) {
+        mPliIconsPath.insert(key,value);
+        emit messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
+                                            .arg(key).arg(value));
+        return;
+    }
+//      emit messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
+//                                         .arg(key).arg(value));
+}
+
+void Gui::SetRotStepAngleX(float AngleX, bool display)
+{
+    mRotStepAngleX = AngleX;
+    if (display)
+        ShowStepRotationStatus();
+}
+
+void Gui::SetRotStepAngleY(float AngleY, bool display)
+{
+    mRotStepAngleY = AngleY;
+    if (display)
+        ShowStepRotationStatus();
+}
+
+void Gui::SetRotStepAngleZ(float AngleZ, bool display)
+{
+    mRotStepAngleZ = AngleZ;
+    if (display)
+        ShowStepRotationStatus();
+}
+
+void Gui::SetRotStepTransform(QString& Transform, bool display)
+{
+    mRotStepTransform = Transform;
+    if (display)
+        ShowStepRotationStatus();
+}
+
+
 /****************************************************************************
  *
  * The Gui constructor and destructor are at the bottom of the file with
@@ -244,18 +337,6 @@ int Gui::pageSize(PageMeta &meta, int which){
     }
   return meta.size.valuePixels(_which);
 }
-
-// Compare two variants - less than.
-bool lt(const int &v1, const int &v2){ return v1 < v2; }
-// Compare two variants - greater than.
-bool gt(const int &v1, const int &v2){ return v1 > v2; }
-
-// Sleeper
-class secSleeper : public QThread
-{
-public:
-    static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
-};
 
 void Gui::insertCoverPage()
 {

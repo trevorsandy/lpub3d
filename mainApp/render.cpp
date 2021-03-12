@@ -70,6 +70,27 @@ LDView  ldview;
 POVRay  povray;
 Native  native;
 
+const QString nativeExportNames[] =
+{
+  "",              // 0  PAGE_PROCESS
+  "PDF",           // 1  EXPORT_PDF
+  "PNG",           // 2  EXPORT_PNG
+  "JPG",           // 3  EXPORT_JPG
+  "BMP",           // 4  EXPORT_BMP
+  "3DS MAX",       // 5  EXPORT_3DS_MAX
+  "COLLADA",       // 6  EXPORT_COLLADA
+  "WAVEFRONT",     // 7  EXPORT_WAVEFRONT
+  "STL",           // 8  EXPORT_STL
+  "POVRAY",        // 9  EXPORT_POVRAY
+  "BRICKLINK",     // 10 EXPORT_BRICKLINK
+  "CSV",           // 11 EXPORT_CSV
+  "ELEMENT",       // 12 EXPORT_ELEMENT
+  "HTML PARTS",    // 13 EXPORT_HTML_PARTS
+  "HTML STEPS",    // 14 EXPORT_HTML_STEPS
+  "POV-RAY RENDER",// 15 RENDER_POVRAY
+  "BLENDER RENDER" // 16 BLENDER_RENDER
+};
+
 //#define LduDistance 5729.57
 //#define _CA "-ca0.01"
 #define LP3D_CA 0.01
