@@ -1292,7 +1292,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                     subfileName.clear();
                 }
 
-            } else if ( ! subfileName.isEmpty() && smLine != "") {
+            } else if ( ! subfileName.isEmpty() && !smLine.isEmpty()) {
                 /* - after start of file - subfileName not empty
                  * - if line contains unofficial part/subpart/shortcut/primitive/alias tag set unofficial part = true
                  * - add line to contents
@@ -1454,7 +1454,8 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                 loadMPDFile(fileInfo.absoluteFilePath(),datetime);
                 return;
             } else {
-                contents << line.trimmed();
+                if (!line.isEmpty())
+                    contents << line.trimmed();
                 if (isHeader(line) && ! unofficialPart) {
                     unofficialPart = getUnofficialFileType(line);
                 }
@@ -1775,11 +1776,11 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
   }
 }
 
-void LDrawFile::countInstances(
-        const QString &mcFileName,
-        bool firstStep,
-        bool isMirrored,
-        bool callout)
+void LDrawFile::countInstances(const QString &mcFileName,
+        bool     firstStep,
+        bool     isMirrored,
+        bool     callout,
+        bool     multiStep)
 {
   //logTrace() << QString("countInstances, File: %1, Mirrored: %2, Callout: %3").arg(mcFileName,(isMirrored?"Yes":"No"),(callout?"Yes":"No"));
 
@@ -1838,23 +1839,27 @@ void LDrawFile::countInstances(
 
         //lpub3d ignore part - so set ignore step
       if (tokens.size() == 5 && tokens[0] == "0" &&
-         (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-         (tokens[2] == "PART"  || tokens[2] == "PLI") &&
-          tokens[3] == "BEGIN"  &&
-          tokens[4] == "IGN") {
+                  (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                  (tokens[2] == "PART"  || tokens[2] == "PLI") &&
+                  tokens[3] == "BEGIN"  &&
+                  tokens[4] == "IGN") {
         stepIgnore = true;
-
+        // we have a meta command...
       } else if (tokens.size() == 4 && tokens[0] == "0" &&
                 (tokens[1] == "!LPUB" || tokens[1] == "LPUB")) {
         // lpub3d part - so set include step
         if ((tokens[2] == "PART" || tokens[2] == "PLI") &&
              tokens[3] == "END") {
           stepIgnore = false;
-          // multi-step page lineNumber (bottom of steps)
+          // multi-step page begin (top of steps)
+        } else if (tokens[2] == "MULTI_STEP" && tokens[3] == "BEGIN") {
+          multiStep = true;
+          // multi-step page end lineNumber (bottom of steps)
         } else if (tokens[2] == "MULTI_STEP" && tokens[3] == "END") {
           // set step index for multiStep bottomOfStep line number
           stepIndex = { modelIndex, i };
           _buildModStepIndexes.append(stepIndex);
+          multiStep = false;
           // called out
           /* Sorry, but models that are callouts are not counted as instances */
         } else if (tokens[2] == "CALLOUT" &&
@@ -1866,12 +1871,13 @@ void LDrawFile::countInstances(
             split(f->_contents[i],tokens);
             if (tokens.size() == 15 && tokens[0] == "1") {
               if (contains(tokens[14]) && ! stepIgnore && ! buildModIgnore) {
-                countInstances(tokens[14], firstStep, mirrored(tokens), callout);
+                countInstances(tokens[14], firstStep, mirrored(tokens), callout, multiStep);
               }
             } else if (tokens.size() == 4 && tokens[0] == "0" &&
                       (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                        tokens[2] == "CALLOUT" &&
                        tokens[3] == "END") {
+              callout = false;
               break;
             }
           }
@@ -1896,23 +1902,26 @@ void LDrawFile::countInstances(
         // LDraw step or rotstep - so check if parts added
       } else if (tokens.size() >= 2 && tokens[0] == "0" &&
                 (tokens[1] == "STEP" || tokens[1] == "ROTSTEP")) {
-        if (partsAdded && ! noStep) {
-          // parts added - increment step
-          int incr = (isMirrored && f->_mirrorInstances == 0) ||
-                     (! isMirrored && f->_instances == 0);
-          f->_numSteps += incr;
-          // set step index for STEP meta command
-          stepIndex = { modelIndex, i };
-          _buildModStepIndexes.append(stepIndex);
+        if (! noStep) {
+          if (partsAdded) {
+            // parts added - increment step
+            int incr = (isMirrored && f->_mirrorInstances == 0) ||
+                       (! isMirrored && f->_instances == 0);
+            f->_numSteps += incr;
+          }
+          // set step index for STEP meta command on 'parts added' or multi-step page boundry
+          if (partsAdded || !multiStep) {
+              stepIndex = { modelIndex, i };
+              _buildModStepIndexes.append(stepIndex);
+          }
         }
-        // reset partsAdded and noStep
+        // reset partsAdded, noStep and emptyLines
         partsAdded = false;
         noStep = false;
         // check if subfile and process
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
-        bool containsSubFile = contains(tokens[14]);
-        if (containsSubFile && ! stepIgnore && ! buildModIgnore) {
-          countInstances(tokens[14], false, mirrored(tokens), false);
+        if (contains(tokens[14]) && ! stepIgnore && ! buildModIgnore) {
+            countInstances(tokens[14], firstStep, mirrored(tokens), callout, multiStep);
         }
         partsAdded = true;
       }
@@ -1950,10 +1959,11 @@ void LDrawFile::countInstances()
     it->_mirrorInstances = 0;
     it->_beenCounted = false;
   }
-/*
+// *
 #ifdef QT_DEBUG_MODE
   QElapsedTimer timer;
   timer.start();
+/*
 #endif
 */
 
@@ -1970,7 +1980,7 @@ void LDrawFile::countInstances()
 
 /*
 #ifdef QT_DEBUG_MODE
-
+  emit gui->messageSig(LOG_DEBUG, QString("CountInstances Step Indexes:"));
   QVector<int> key;
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
   {
@@ -1981,11 +1991,13 @@ void LDrawFile::countInstances()
                                               .arg(key.at(1))                    // lineNumber
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
+*/
+// *
   emit gui->messageSig(LOG_DEBUG, QString("Count Instances BuildMod StepIndex - %1")
                                           .arg(gui->elapsedTime(timer.elapsed())));
 
 #endif
-*/
+// */
 }
 
 bool LDrawFile::saveMPDFile(const QString &fileName)

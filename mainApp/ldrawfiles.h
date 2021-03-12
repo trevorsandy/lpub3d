@@ -380,7 +380,12 @@ class LDrawFile {
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();
-    void countInstances(const QString &fileName, bool firstStep, bool isMirrored, const bool callout = false);
+    void countInstances(
+            const QString &fileName,
+                  bool     firstStep,
+                  bool     isMirrored,
+                  bool     callout = false,
+                  bool     multiStep = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
 
