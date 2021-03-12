@@ -42,9 +42,7 @@ fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
-    brew install grep;
     echo "On Travis macOS, upgrade to latest version of Qt..."
-    brew upgrade qt;
     echo "Force linking to 'keg-only' instance of Qt..."
     brew link --force qt5;
     echo "Downloading archive libraries...";

@@ -754,7 +754,11 @@ if [ "$OS_NAME" = "Darwin" ]; then
       FinishElapsedTime
       exit 1
     fi
-    brew update > $depsLog 2>&1
+    if [ "${TRAVIS}" = "true" ]; then
+     Info  "--- Skipped brew update on Travis-ci to save time!"
+    else
+     brew update > $depsLog 2>&1
+    fi
     Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
     brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
     Info  "--- Install depenencies..."
