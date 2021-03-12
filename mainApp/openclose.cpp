@@ -1082,8 +1082,9 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
   QString message;
   QString renderer;
   QString command = preferredRenderer.toLower();
-  if ((useNativeRenderer = command == "native")) {
+  if (command == "native") {
     renderer = RENDERER_NATIVE;
+    useNativeRenderer = true;
   } else if (command == "ldview") {
     renderer = RENDERER_LDVIEW;
   } else if ((useLDVSingleCall = command == "ldview-sc")) {

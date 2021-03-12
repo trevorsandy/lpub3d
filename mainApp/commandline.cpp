@@ -68,13 +68,13 @@ int Gui::processCommandLine()
     ;
 
   quint32 ColorValue            = 0;
-  quint32 StudCylinderColor     = gui->GetStudCylinderColor();
-  quint32 PartEdgeColor         = gui->GetPartEdgeColor();
-  quint32 BlackEdgeColor        = gui->GetBlackEdgeColor();
-  quint32 DarkEdgeColor         = gui->GetDarkEdgeColor();
-  float   PartEdgeContrast      = gui->GetPartEdgeContrast();
-  float   PartColorValueLDIndex = gui->GetPartColorLightDarkIndex();
-  bool    AutomateEdgeColor     = gui->GetAutomateEdgeColor();
+  quint32 StudCylinderColor     = GetStudCylinderColor();
+  quint32 PartEdgeColor         = GetPartEdgeColor();
+  quint32 BlackEdgeColor        = GetBlackEdgeColor();
+  quint32 DarkEdgeColor         = GetDarkEdgeColor();
+  float   PartEdgeContrast      = GetPartEdgeContrast();
+  float   PartColorValueLDIndex = GetPartColorLightDarkIndex();
+  bool    AutomateEdgeColor     = GetAutomateEdgeColor();
 
    int StudStyle             = GetStudStyle();
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
@@ -88,9 +88,6 @@ int Gui::processCommandLine()
   bool coloursChanged        = false;
   bool studStyleChanged      = false;
   bool autoEdgeColorChanged  = false;
-
-
-
   QString pageRange, exportOption, colourConfigFile,
           commandlineFile, preferredRenderer, projection,
           fadeStepsColour, highlightStepColour, message;
@@ -365,17 +362,23 @@ int Gui::processCommandLine()
                 colourConfigFile = QString();
             }
         }
-      }
-      else
-        InvalidParse(QString("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
     }
+    else
+      InvalidParse(QString("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
+  }
     
-  if (!ParseOK)
+  if (! ParseOK)
   {
+      emit messageSig(LOG_ERROR,QString("Parse command line failed: %1.").arg(Arguments.join(" ")));
       return 1;
   }
 
-  if (!preferredRenderer.isEmpty()){
+  if (! QFileInfo(commandlineFile).exists()) {
+      emit messageSig(LOG_ERROR,QString("Specified model file was not found: %1.").arg(commandlineFile));
+      return 1;
+  }
+
+  if (! preferredRenderer.isEmpty()){
      if (! setPreferredRendererFromCommand(preferredRenderer))
          return 1;
   }
