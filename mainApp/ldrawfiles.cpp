@@ -2486,7 +2486,7 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
 #ifdef QT_DEBUG_MODE
     int action = modAction ? modAction : newModStep._buildModAction;
     emit gui->messageSig(LOG_DEBUG, QString("Insert BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
-                         .arg(stepIndex).arg(action == BuildModApplyRc ? "Apply" : "Remove").arg(modKey));
+                         .arg(stepIndex).arg(action == BuildModApplyRc ? "Apply" : "Remove").arg(buildModKey));
 #endif
 }
 
@@ -2546,7 +2546,7 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
     emit gui->messageSig(LOG_DEBUG, QString("Remove BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
                          .arg(stepIndex)
                          .arg(action == BuildModApplyRc ? "Apply" : action == BuildModRemoveRc ? "Remove" : action == BuildModSourceRc ? "Source" : "None")
-                         .arg(modKey));
+                         .arg(buildModKey));
 #endif
 }
 
@@ -2603,7 +2603,7 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
         clearBuildModSteps(modKey);
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Removed BuildMod ModKey: %1").arg(modKey));
+        emit gui->messageSig(LOG_DEBUG, QString("Removed BuildMod ModKey: %1").arg(buildModKey));
 #endif
         return true;
     }
@@ -2630,7 +2630,7 @@ void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &mo
                              .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM))
                              .arg(i.value()._modStepIndex)
                              .arg(action ? action == BuildModApplyRc ? "Apply" : "Remove" : "NoActon")
-                             .arg(modKey));
+                             .arg(buildModKey));
 #endif
     }
 }
@@ -2689,7 +2689,7 @@ int LDrawFile::setBuildModDisplayPageNumber(const QString &buildModKey, int disp
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod DisplayPageNumber: %1, BuildModKey: %2")
                                                 .arg(i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM))
-                                                .arg(modKey));
+                                                .arg(buildModKey));
 #endif
 
         return i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM);
@@ -2724,7 +2724,7 @@ int LDrawFile::setBuildModStepPieces(const QString &buildModKey, int pieces)
                                                 .arg(i.value()._modAttributes.at(BM_STEP_PIECES))
                                                 .arg(i.value()._modStepIndex)
                                                 .arg(action ? action == BuildModApplyRc ? "Apply" : "Remove" : "NoActon")
-                                                .arg(modKey));
+                                                .arg(buildModKey));
 #endif
         return i.value()._modAttributes.at(BM_STEP_PIECES);
     }
