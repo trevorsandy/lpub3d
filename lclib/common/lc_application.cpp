@@ -22,7 +22,7 @@ lcApplication* gApplication;
 void lcPreferences::LoadDefaults()
 {
 /*** LPub3D Mod - Splash message viewer defaults ***/
-	emit Application::instance()->splashMsgSig("25% - Viewer defaults loading...");
+	emit Application::instance()->splashMsgSig("25% - 3D Viewer defaults loading...");
 /*** LPub3D Mod end ***/
 
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
@@ -236,10 +236,7 @@ lcApplication::lcApplication()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - initialize set 3DViewer profile defaults ***/
-	lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
-	lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
-	lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
-	lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
+	Preferences::viewerPreferences();
 /*** LPub3D Mod end ***/
 
 	mPreferences.LoadDefaults();

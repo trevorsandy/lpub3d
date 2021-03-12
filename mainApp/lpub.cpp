@@ -3111,7 +3111,6 @@ Gui::Gui()
 
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
-    Preferences::viewerPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 

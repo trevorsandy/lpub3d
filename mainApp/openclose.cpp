@@ -30,6 +30,7 @@
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
 #include "metagui.h"
+#include "lc_profile.h"
 #include "lc_previewwidget.h"
 #include "waitingspinnerwidget.h"
 
@@ -806,6 +807,8 @@ bool Gui::openFile(QString &fileName)
       QApplication::processEvents();
       processFadeColourParts(overwriteCustomParts);
   }
+  QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
+  lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
   emit messageSig(LOG_INFO, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->clear();

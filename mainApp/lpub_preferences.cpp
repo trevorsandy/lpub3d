@@ -4261,7 +4261,13 @@ void Preferences::viewerPreferences()
 
     lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
 
-    lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
+    lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
+
+    lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
+
+    lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
+
+    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
 }
 
 bool Preferences::getPreferences()

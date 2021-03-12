@@ -974,7 +974,7 @@ void Application::initialize()
     // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
     gui->getRequireds();
 
-    emit splashMsgSig("30% - 3D Viewer window loading...");
+    emit splashMsgSig("30% - 3D Viewer loading...");
 
     gApplication = new lcApplication();
 
