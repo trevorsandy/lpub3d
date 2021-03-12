@@ -22,6 +22,7 @@
 #include "lpub.h"
 #include "meta.h"
 #include "application.h"
+#include "editwindow.h"
 
 #ifdef WIN32
 #include <clocale>
@@ -2507,4 +2508,89 @@ int CountPageWorker::countPage(
   countPageMutex.unlock();
 
   return 0;
+}
+
+void LoadModelWorker::setPlainText(const QString &content)
+{
+#ifdef QT_DEBUG_MODE
+          emit gui->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
+#endif
+    QMetaObject::invokeMethod(
+                editWindow,               // obj
+                "setPlainText",           // member
+                Qt::QueuedConnection,     // connection type
+                Q_ARG(QString, content)); // val1
+}
+
+void LoadModelWorker::setPagedContent(const QStringList &content)
+{
+#ifdef QT_DEBUG_MODE
+          emit gui->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
+#endif
+
+    QMetaObject::invokeMethod(
+                editWindow,                   // obj
+                "setPagedContent",            // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(QStringList, content)); // val1
+}
+
+int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor, bool isUTF8)
+{
+    QMutex loadMutex;
+    loadMutex.lock();
+
+    QString fileName = filePath;
+    QString content;
+
+    if (detachedEditor) {
+        // open file for read
+        QFile file(fileName);
+        if (!file.open(QFile::ReadOnly | QFile::Text)) {
+            QMessageBox::critical(nullptr,
+                                 QMessageBox::tr("Detached LDraw Editor"),
+                                 QMessageBox::tr("Cannot read editor display file %1:\n%2.")
+                                 .arg(file.fileName())
+                                 .arg(file.errorString()));
+            return 1;
+        }
+
+        // get content and set codec
+        QTextStream in(&file);
+        in.setCodec(isUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+        content = in.readAll();
+
+        file.close();
+
+    } else {
+        fileName = QFileInfo(fileName).fileName();
+    }
+
+    // count lines
+    int lineCount = 0;
+    if (ldrawFile)
+        lineCount = ldrawFile->size(fileName);
+    else
+        lineCount = content.count(QRegExp("\\r\\n?|\\n")) + 1;
+
+    // set line count
+    editWindow->setLineCount(lineCount);
+
+    // set content
+    if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
+        if (!detachedEditor)   // Docked Editor
+            setPagedContent(ldrawFile->contents(fileName));
+        else                   // Floating Editor
+            setPagedContent(content.split("\n"));
+        editWindow->loadPagedContent();
+
+    } else {
+        if (!detachedEditor)   // Docked Editor
+            content = ldrawFile->contents(fileName).join("\n");
+        setPlainText(content); // Floating Editor
+    }
+
+    loadMutex.unlock();
+
+    return 0;
 }

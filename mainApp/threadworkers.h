@@ -332,6 +332,18 @@ public slots:
             FindPageOptions &opts);
 };
 
+class LDrawFile;
+class LoadModelWorker : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    static int loadModel(LDrawFile *, const QString &, bool, bool);
+private:
+    static void setPlainText(const QString &);
+    static void setPagedContent(const QStringList &);
+};
+
 #include "quazip.h"
 #include "quazipfile.h"
 #include "quazipdir.h"
