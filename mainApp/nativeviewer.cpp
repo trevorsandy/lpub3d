@@ -2890,7 +2890,7 @@ void Gui::setViewerStepKey(const QString &stepKey, int notPliPart)
     Q_UNUSED(notPliPart)
 
     viewerStepKey = stepKey;
-    currentStep   = nullptr;
+//    currentStep   = nullptr;
     mBuildModRange = { 0, 0, -1 };
 }
 
@@ -2983,9 +2983,13 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
 
 /*********************************************
  *
- * current step - called for CSI and SMP only
+ * current step - called for CSI
  *
  ********************************************/
+void Gui::setCurrentStep(Step *step)
+{
+    currentStep = step;
+}
 
 void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
 {
@@ -3081,9 +3085,14 @@ bool Gui::setCurrentStep(const QString &key)
 
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
-    else if (Preferences::debugLogging)
-        emit messageSig(LOG_DEBUG, QString("Could not determine step for %1 at step number %2.")
+    else if (Preferences::debugLogging) {
+        LogType logType = LOG_DEBUG;
+#ifdef QT_DEBUG_MODE
+        logType = LOG_ERROR;
+#endif
+        emit messageSig(logType, QString("Could not determine step for %1 at step number %2.")
                                            .arg(here.modelName).arg(stepNumber));
+    }
 
     return currentStep;
 }

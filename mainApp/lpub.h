@@ -972,7 +972,7 @@ public:
 
   bool setCurrentStep(const QString &key = "");
   void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);
-
+  void setCurrentStep(Step *step);
   Step *getCurrentStep()
   {
       return currentStep;
