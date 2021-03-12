@@ -93,10 +93,6 @@ public:
     {
         return fileName;
     }
-    void setLineCount(int count)
-    {
-        lineCount = count;
-    }
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
@@ -126,15 +122,14 @@ public slots:
     void clearEditorWindow();
     void setTextEditHighlighter();
     void setSelectionHighlighter();
-    void pageUpDown(
-      QTextCursor::MoveOperation op,
-      QTextCursor::MoveMode      moveMode);
+    void pageUpDown(QTextCursor::MoveOperation op, QTextCursor::MoveMode moveMode);
     void setReadOnly(bool enabled);
     void setSubmodel(int index);
-    void loadContentBlocks(const QStringList &, bool);
+    void loadContentBlocks(const QStringList &, bool); /* NOT USED FOR THE MOMENT */
     void loadPagedContent();
     void setPagedContent(const QStringList &);
     void setPlainText(const QString &);
+    void setLineCount(int);
 
 private slots:
     void openWith();
@@ -190,6 +185,7 @@ protected:
     QComboBox         *mpdCombo;
     QFutureWatcher<int> futureWatcher;
     QFileSystemWatcher fileWatcher;
+    QElapsedTimer      displayTimer;
     StepLines          stepLines;
     QVector<int>       savedSelection;
     QString            fileName;            // of model file currently being displayed
@@ -200,6 +196,7 @@ protected:
     QAtomicInt         lineCount;
     bool               isIncludeFile;
     bool               isReadOnly;
+    bool               reloaded;
     bool               _modelFileEdit;
     bool               _subFileListPending;
     bool               _contentLoaded;

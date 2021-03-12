@@ -288,17 +288,15 @@ void Gui::insertFinalModelStep() {
       emit messageSig(LOG_INFO, QString("Inserting fade/highlight final model step..."));
       mi->insertFinalModelStep(modelStatus);
     }
-  } else {
-    if (! Preferences::enableFadeSteps && ! Preferences::enableHighlightStep) {
-      deleteFinalModelStep();
-    }
   }
 }
 
 void Gui::deleteFinalModelStep() {
-  if (mi->displayModelStepExists() == DM_FINAL_MODEL) {
-    emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
-    mi->deleteFinalModelStep();
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+    if (mi->displayModelStepExists() == DM_FINAL_MODEL) {
+      emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
+      mi->deleteFinalModelStep();
+    }
   }
 }
 
@@ -1374,10 +1372,10 @@ void Gui::refreshModelFile()
 
 void Gui::editModelFile()
 {
-    editModelFile(/*saveBefore*/true);
+    editModelFile(/*saveBefore*/true, sender() == editWindow);
 }
 
-void Gui::editModelFile(bool saveBefore)
+void Gui::editModelFile(bool saveBefore, bool subModel)
 {
     if (getCurFile().isEmpty())
         return;
@@ -1386,9 +1384,13 @@ void Gui::editModelFile(bool saveBefore)
     QString file = getCurFile();
     if (ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
+    else if (subModel) {
+        file = editWindow->getCurrentFile();
+        writeToTmp(file, ldrawFile.contents(file));
+    }
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
-    editModeWindow->show();
     displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
+    editModeWindow->show();
 }
 
 

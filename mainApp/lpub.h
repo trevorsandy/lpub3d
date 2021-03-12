@@ -1464,7 +1464,7 @@ public slots:
   void TogglePrintToFilePreview();
   void TogglePrintPreview(ExportMode m);
 
-  void editModelFile(bool saveBefore);
+  void editModelFile(bool saveBefore, bool subModel = false);
 
 signals:
 

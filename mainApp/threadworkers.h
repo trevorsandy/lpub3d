@@ -349,6 +349,7 @@ public slots:
 private:
     static void setPlainText(const QString &);
     static void setPagedContent(const QStringList &);
+    static void setLineCount(const int);
 };
 
 #include "quazip.h"

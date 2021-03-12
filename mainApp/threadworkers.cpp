@@ -2537,11 +2537,9 @@ int CountPageWorker::countPage(
   return OkRc;
 }
 
+
 void LoadModelWorker::setPlainText(const QString &content)
 {
-#ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
-#endif
     QMetaObject::invokeMethod(
                 editWindow,               // obj
                 "setPlainText",           // member
@@ -2551,10 +2549,6 @@ void LoadModelWorker::setPlainText(const QString &content)
 
 void LoadModelWorker::setPagedContent(const QStringList &content)
 {
-#ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
-#endif
-
     QMetaObject::invokeMethod(
                 editWindow,                   // obj
                 "setPagedContent",            // member
@@ -2562,59 +2556,86 @@ void LoadModelWorker::setPagedContent(const QStringList &content)
                 Q_ARG(QStringList, content)); // val1
 }
 
+void LoadModelWorker::setLineCount(const int count)
+{
+    QMetaObject::invokeMethod(
+                editWindow,                   // obj
+                "setLineCount",               // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(int, count));           // val1
+}
+
+
 int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor, bool isUTF8)
 {
     QMutex loadMutex;
     loadMutex.lock();
 
-    QString fileName = filePath;
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG,QString("3.  Editor loading..."));
+#endif
+
+    int lineCount    = 0;
+    bool useDiscFile = false;
+    QString fileName = QDir::fromNativeSeparators(filePath);
     QString content;
 
     if (detachedEditor) {
-        // open file for read
-        QFile file(fileName);
-        if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::critical(nullptr,
-                                 QMessageBox::tr("Detached LDraw Editor"),
-                                 QMessageBox::tr("Cannot read editor display file %1:\n%2.")
-                                 .arg(file.fileName())
-                                 .arg(file.errorString()));
-            return 1;
+        if ((useDiscFile = fileName.count("/"))) {
+            // open file for read
+            QFile file(fileName);
+            if (!file.open(QFile::ReadOnly | QFile::Text)) {
+                QMessageBox::critical(nullptr,
+                                      QMessageBox::tr("Detached LDraw Editor"),
+                                      QMessageBox::tr("Cannot read editor display file %1:\n%2.")
+                                      .arg(file.fileName())
+                                      .arg(file.errorString()));
+                loadMutex.unlock();
+                return 1;
+            }
+
+            // get content and set codec
+            QTextStream in(&file);
+            in.setCodec(isUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+            content = in.readAll();
+
+            file.close();
         }
-
-        // get content and set codec
-        QTextStream in(&file);
-        in.setCodec(isUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
-        content = in.readAll();
-
-        file.close();
-
-    } else {
-        fileName = QFileInfo(fileName).fileName();
     }
 
-    // count lines
-    int lineCount = 0;
-    if (ldrawFile)
-        lineCount = ldrawFile->size(fileName);
-    else
-        lineCount = content.count(QRegExp("\\r\\n?|\\n")) + 1;
-
     // set line count
-    editWindow->setLineCount(lineCount);
+    if (useDiscFile)
+        lineCount = content.count(QRegExp("\\r\\n?|\\n")) + 1;
+    else if (ldrawFile) {
+        lineCount = ldrawFile->size(fileName);
+    }
+    if (lineCount) {
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG,QString("3a. Editor set line count to %1").arg(lineCount));
+#endif
+        setLineCount(lineCount);
+    } else {
+        emit gui->messageSig(LOG_ERROR,QString("No lines detected in %1").arg(fileName));
+        loadMutex.unlock();
+        return 1;
+    }
 
     // set content
     if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
-        if (!detachedEditor)   // Docked Editor
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load paged text started..."));
+#endif
+        if (useDiscFile)
+           setPagedContent(content.split("\n"));
+        else if (ldrawFile)
             setPagedContent(ldrawFile->contents(fileName));
-        else                   // Floating Editor
-            setPagedContent(content.split("\n"));
-        editWindow->loadPagedContent();
-
     } else {
-        if (!detachedEditor)   // Docked Editor
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG,QString("3b. Editor load plain text started..."));
+#endif
+        if (ldrawFile && !useDiscFile)
             content = ldrawFile->contents(fileName).join("\n");
-        setPlainText(content); // Floating Editor
+        setPlainText(content);
     }
 
     loadMutex.unlock();
