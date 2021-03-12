@@ -3165,7 +3165,7 @@ int CountPageWorker::countPage(
         case '5':
             ++partsAdded;
 
-          } // ! BuildModIgnore
+          } // ! BuildModIgnore, for each line
             break;
 
         case '0':
@@ -3195,7 +3195,7 @@ int CountPageWorker::countPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2 && ! opts.buildMod.ignore) {
+              if (stepGroup && ! noStep2) {
                   stepGroup = false;
 
                   // ignored when processing buildMod display
@@ -3228,7 +3228,7 @@ int CountPageWorker::countPage(
                   gui->saveStepPageNum = ++gui->stepPageNum;
                   documentPageCount();
 
-                } // StepGroup && ! NoStep2 && ! BuildModIgnore
+                } // StepGroup && ! NoStep2
               noStep2 = false;
               break;
 
@@ -3259,7 +3259,7 @@ int CountPageWorker::countPage(
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
+              if (partsAdded && ! noStep) {
 
                   opts.stepNumber  += ! coverPage && ! stepPage;
                   gui->stepPageNum += ! coverPage && ! stepGroup;
@@ -3306,7 +3306,7 @@ int CountPageWorker::countPage(
                       bfxParts.clear();
                   } // ! BfxStore2
 
-                } // PartsAdded && ! NoStep && ! BuildModIgnore
+                } // PartsAdded && ! NoStep
 
               buildModActions.clear();
               meta.LPub.buildMod.clear();
@@ -3444,7 +3444,7 @@ int CountPageWorker::countPage(
     } // For Every Line
 
   // last step in submodel
-  if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
+  if (partsAdded && ! noStep) {
       if (gui->exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (pageSizeUpdate) {

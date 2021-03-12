@@ -2921,7 +2921,7 @@ int Gui::findPage(
             ++partsAdded;
             CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
 
-          } // ! opts.buildMod.ignore
+          } // ! BuildModIgnore, for each linee
             break;
 
         case '0':
@@ -2971,8 +2971,8 @@ int Gui::findPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2 && ! opts.buildMod.ignore) {
-                  stepGroup = false;
+              if (opts.flags.stepGroup && ! opts.flags.noStep2) {
+                  opts.flags.stepGroup = false;
                   if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                       saveLineTypeIndexes    = lineTypeIndexes;
                       saveCsiParts           = csiParts;
@@ -3095,7 +3095,7 @@ int Gui::findPage(
                       return OkRc;
                   }
 
-                } // StepGroup && ! NoStep2 && ! BuildModIgnore
+                } // StepGroup && ! NoStep2
 
               //buildModActions.clear();
               noStep2 = false;
@@ -3144,7 +3144,7 @@ int Gui::findPage(
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
+              if (opts.flags.partsAdded && ! opts.flags.noStep) {
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
                          (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
@@ -3189,8 +3189,8 @@ int Gui::findPage(
                       saveRotStep = meta.rotStep;
                     } // isPreDisplayPage/*opts.pageNum < displayPageNum*/
 
-                  if ( ! stepGroup) {
-                      if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
+                  if ( ! opts.flags.stepGroup) {
+                      if (isDisplayPage && ! opts.buildMod.ignore) {
                           lineTypeIndexes.clear();
                           csiParts.clear();
                           savePrevStepPosition = saveCsiParts.size();
@@ -3315,8 +3315,8 @@ int Gui::findPage(
                       bfxParts.clear();
                     } // ! BfxStore2
 
-                } // PartsAdded && ! NoStep && ! BuildModIgnore
-              else if ( ! stepGroup)
+                } // PartsAdded && ! NoStep
+              else if ( ! opts.flags.stepGroup)
                 {
                   // Adjust current so that draw page doesn't have to deal with
                   // no PartsAdded, NoStep or BuildModIgnore Steps
@@ -3558,7 +3558,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
+  if (opts.flags.partsAdded && ! opts.flags.noStep) {
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
