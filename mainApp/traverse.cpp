@@ -59,7 +59,7 @@
 
 // Set to enable write parts output file for debugging // TODO: delete from header
 #ifndef WRITE_PARTS_DEBUG
-#define WRITE_PARTS_DEBUG
+//#define WRITE_PARTS_DEBUG
 #endif
 
 #define FIRST_STEP 1
