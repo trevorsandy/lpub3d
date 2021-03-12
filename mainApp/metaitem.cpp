@@ -5082,3 +5082,53 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
     }
 }
 
+void MetaItem::setLoadingFileFlag(bool b)
+{
+    gui->mloadingFile = b;
+}
+
+void MetaItem::reloadModelFile(bool global)
+{
+    gui->clearAllCaches(global);
+}
+
+void MetaItem::clearCache(bool global)
+{
+    gui->clearAndReloadModelFile(global);
+}
+
+void MetaItem::clearPliCache()
+{
+    gui->clearPLICache();
+}
+
+void MetaItem::clearCsiCache()
+{
+    gui->clearCSICache();
+}
+
+void MetaItem::clearSubmodelCache()
+{
+    gui->clearSubmodelCache();
+}
+
+void MetaItem::clearTempCache()
+{
+    gui->clearTempCache();
+}
+
+void MetaItem::clearCustomPartCache()
+{
+    gui->clearCustomPartCache(true/*silent*/);
+}
+
+void MetaItem::reloadCurrentPage()
+{
+    gui->reloadCurrentPage();
+}
+
+void MetaItem::restartApplication()
+{
+    gui->restartApplication();
+}
+

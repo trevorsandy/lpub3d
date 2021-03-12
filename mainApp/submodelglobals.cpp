@@ -288,20 +288,22 @@ void GlobalSubModelDialog::instanceCountClicked(bool checked)
 
 void GlobalSubModelDialog::accept()
 {
-  if (data->clearCache) {
-      clearSubmodelCache();
-  }
-
   MetaItem mi;
 
-  mi.beginMacro("Global Submodel");
+  mi.beginMacro("GlobalSubmodel");
 
   MetaGui *child;
 
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
+
+  if (data->clearCache) {
+      mi.clearSubmodelCache();
+  }
+
   mi.endMacro();
+
   QDialog::accept();
 }
 

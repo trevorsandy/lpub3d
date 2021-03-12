@@ -257,11 +257,6 @@ void GlobalCalloutDialog::accept()
 {
   MetaItem mi;
 
-  if (data->clearCache) {
-    clearCsiCache();
-    clearTempCache();
-  }
-
   mi.beginMacro("Global Callout");
 
   MetaGui *child;
@@ -269,7 +264,14 @@ void GlobalCalloutDialog::accept()
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
+
+  if (data->clearCache) {
+    mi.clearCsiCache();
+    mi.clearTempCache();
+  }
+
   mi.endMacro();
+
   QDialog::accept();
 }
 

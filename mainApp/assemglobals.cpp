@@ -205,11 +205,6 @@ void GlobalAssemDialog::accept()
 {
   MetaItem mi;
 
-  if (data->clearCache) {
-    clearCsiCache();
-    clearTempCache();
-  }
-
   mi.beginMacro("Global Assem");
 
   MetaGui *child;
@@ -217,6 +212,12 @@ void GlobalAssemDialog::accept()
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
+
+  if (data->clearCache) {
+    mi.clearCsiCache();
+    mi.clearTempCache();
+  }
+
   mi.endMacro();
 
   QDialog::accept();

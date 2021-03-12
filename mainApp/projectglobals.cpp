@@ -33,12 +33,14 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool     clearCache;
+  bool     reloadFile;
 
   GlobalProjectPrivate(const QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
-    meta = _meta;
+    meta         = _meta;
     clearCache   = false;
+    reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -88,9 +90,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
   childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
-  connect (childStudStyle->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
-  connect (childStudStyle->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
-  connect (childStudStyle, SIGNAL(settingsChanged(int)), this, SLOT(clearCache(int)));
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
 
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
@@ -104,16 +104,13 @@ GlobalProjectDialog::GlobalProjectDialog(
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
   box->setToolTip("Consolidate submodel instances on first occurrence");
   data->children.append(childCountInstance);
-  connect (childCountInstance->getTopRadio(),   SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
-  connect (childCountInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
-  connect (childCountInstance->getStepRadio(),  SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Continuous Step Numbers");
   layout->addWidget(box);
   childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
-  connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
   box = new QGroupBox("Start Numbers");
@@ -124,12 +121,10 @@ GlobalProjectDialog::GlobalProjectDialog(
   childStartStepNumberSpin = new SpinGui("Step number", &lpubMeta->startStepNumber,0,10000,1);
   data->children.append(childStartStepNumberSpin);
   boxGrid->addWidget(childStartStepNumberSpin,0,0);
-  connect (childStartStepNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
 
   childStartPageNumberSpin = new SpinGui("Page number", &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
   boxGrid->addWidget(childStartPageNumberSpin,0,1);
-  connect (childStartPageNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);
@@ -150,15 +145,18 @@ void GlobalProjectDialog::getProjectGlobals(
   dialog->exec();
 }
 
-void GlobalProjectDialog::clearCache(bool b)
+void GlobalProjectDialog::reloadModelFile(bool b)
 {
-    if (!data->clearCache)
-        data->clearCache = b;
+    if (!data->reloadFile)
+        data->reloadFile = b;
+    if (data->clearCache)
+        data->clearCache = !data->reloadFile;
 }
 
-void GlobalProjectDialog::clearCache(int i)
+void GlobalProjectDialog::clearCache(bool b)
 {
-    clearCache(bool(i++));
+    if (!data->clearCache && !data->reloadFile)
+        data->clearCache = b;
 }
 
 void GlobalProjectDialog::checkConflict(bool b)
@@ -192,11 +190,17 @@ void GlobalProjectDialog::accept()
     child->apply(data->topLevelFile);
   }
 
+  mi.setLoadingFileFlag(data->reloadFile);
+
   if (data->clearCache) {
-      clearAndReloadModelFile(true);
+      mi.clearCache(true);
   }
 
   mi.endMacro();
+
+  if (data->reloadFile) {
+    mi.reloadModelFile(true);
+  }
 
   QDialog::accept();
 }

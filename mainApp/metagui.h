@@ -292,7 +292,7 @@ private:
   bool    autoEdgeModified;
 
 signals:
-  void settingsChanged(int);
+  void settingsChanged(bool);
 
 public slots:
   void comboChanged(int);
@@ -778,6 +778,8 @@ private:
   QRadioButton       *modelRadio;
   QRadioButton       *stepRadio;
 
+signals:
+  void settingsChanged(bool);
 public slots:
   void radioChanged(bool checked);
   void valueChanged(bool checked);

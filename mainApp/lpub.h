@@ -2177,7 +2177,6 @@ public:
     }
 };
 
-
 extern QHash<SceneObject, QString> soMap;
 extern class Gui *gui;
 
@@ -2190,10 +2189,5 @@ inline PartWorker& partWorkerLDSearchDirs()
 {
     return gui->partWorkerLDSearchDirs;
 }
-
-void clearPliCache();
-void clearCsiCache();
-void clearTempCache();
-void clearSubmodelCache();
 
 #endif

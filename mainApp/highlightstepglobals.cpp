@@ -45,13 +45,11 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool  reloadFile;
-  bool  clearCache;
 
   GlobalHighlightStepPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
-    clearCache   = false;
     reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
@@ -143,8 +141,8 @@ void GlobalHighlightStepDialog::enableControls(bool b)
 
 void GlobalHighlightStepDialog::reloadModelFile(bool b)
 {
-    if (!data->clearCache)
-        data->clearCache = b;
+    if (!data->reloadFile)
+        data->reloadFile = b;
 }
 
 void GlobalHighlightStepDialog::getHighlightStepGlobals(
@@ -166,11 +164,13 @@ void GlobalHighlightStepDialog::accept()
     child->apply(data->topLevelFile);
   }
 
-  if (data->clearCache) {
-      clearAndReloadModelFile(true);
-  }
+  mi.setLoadingFileFlag(data->reloadFile);
 
   mi.endMacro();
+
+  if (data->reloadFile) {
+    mi.reloadModelFile(true);
+  }
 
   QDialog::accept();
 }

@@ -1089,14 +1089,10 @@ int Application::run()
   return ExecReturn;
 }
 
+// the next four calls are used by the 3DViewer
 void clearAndReloadModelFile(bool global)
 {
     gui->clearAndReloadModelFile(global);
-}
-
-void clearCustomPartCache(bool silent)
-{
-    gui->clearCustomPartCache(silent);
 }
 
 void reloadCurrentPage()

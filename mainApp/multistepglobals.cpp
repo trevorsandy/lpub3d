@@ -276,21 +276,23 @@ void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state){
 
 void GlobalMultiStepDialog::accept()
 {
-  if (data->clearCache) {
-    clearCsiCache();
-    clearTempCache();
-  }
-
   MetaItem mi;
 
-  mi.beginMacro("Global MultiStep");
+  mi.beginMacro("GlobalMultiStep");
 
   MetaGui *child;
 
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
+
+  if (data->clearCache) {
+    mi.clearCsiCache();
+    mi.clearTempCache();
+  }
+
   mi.endMacro();
+
   QDialog::accept();
 }
 void GlobalMultiStepDialog::cancel()

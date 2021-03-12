@@ -206,7 +206,6 @@ private:
 #endif
 };
 
-void clearCustomPartCache(bool silent = false);
 void clearAndReloadModelFile(bool global = false);
 void reloadCurrentPage();
 void restartApplication();

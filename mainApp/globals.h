@@ -372,15 +372,7 @@ public slots:
   void accept();
   void cancel();
   void clearCache(bool);
-  void clearCache(int);
+  void reloadModelFile(bool);
   void checkConflict(bool);
 };
-
-// These are defined in application.cpp
-void clearAndReloadModelFile(bool);
-void clearCsiCache();
-void clearSubmodelCache();
-void clearPliCache();
-void clearTempCache();
-
 #endif

@@ -163,11 +163,13 @@ void GlobalFadeStepDialog::accept()
     child->apply(data->topLevelFile);
   }
 
-  if (data->reloadFile) {
-      clearAndReloadModelFile(true);
-  }
+  mi.setLoadingFileFlag(data->reloadFile);
 
   mi.endMacro();
+
+  if (data->reloadFile) {
+    mi.reloadModelFile(true);
+  }
 
   QDialog::accept();
 }

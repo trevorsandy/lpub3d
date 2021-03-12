@@ -555,6 +555,17 @@ public:
   Rc   scanBackwardStepGroup(Where &here);
 
   int  numSteps(QString modelName);
+
+  void setLoadingFileFlag(bool);
+  void reloadModelFile(bool = false);
+  void clearCache(bool = false);
+  void clearCustomPartCache();
+  void clearCsiCache();
+  void clearSubmodelCache();
+  void clearPliCache();
+  void clearTempCache();
+  void reloadCurrentPage();
+  void restartApplication();
 };
 
 #endif

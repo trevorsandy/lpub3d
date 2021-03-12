@@ -909,6 +909,7 @@ void StudStyleGui::checkBoxChanged(bool value)
         QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
         autoEdgeMeta->enable.setValue(value);
         modified = true;
+        emit settingsChanged(modified);
       } else {
         checkbox->setChecked(!value);
         autoEdgeMeta->enable.setValue(!value);
@@ -931,6 +932,7 @@ void StudStyleGui::comboChanged(int value)
     }
     studStyleMeta->setValue(value);
     modified = true;
+    emit settingsChanged(modified);
   }
 }
 
@@ -941,38 +943,32 @@ void StudStyleGui::processToolButtonClick()
     if (sender() == studStyleButton) {
       if ((lightDarkIndexModified = Dialog.mPartColorValueLDIndex != highContrastMeta->lightDarkIndex.value())) {
         highContrastMeta->lightDarkIndex.setValue(Dialog.mPartColorValueLDIndex);
-        emit settingsChanged(1);
       }
       if ((studCylinderColorModified = Dialog.mStudCylinderColor != highContrastMeta->studCylinderColor.value())) {
         highContrastMeta->studCylinderColor.setValue(Dialog.mStudCylinderColor);
-        emit settingsChanged(1);
       }
       if ((partEdgeColorModified = Dialog.mPartEdgeColor != highContrastMeta->partEdgeColor.value())) {
         highContrastMeta->partEdgeColor.setValue(Dialog.mPartEdgeColor);
-        emit settingsChanged(1);
       }
       if ((blackEdgeColorModified = Dialog.mBlackEdgeColor != highContrastMeta->blackEdgeColor.value())) {
         highContrastMeta->blackEdgeColor.setValue(Dialog.mBlackEdgeColor);
-        emit settingsChanged(1);
       }
       if ((darkEdgeColorModified = Dialog.mDarkEdgeColor != highContrastMeta->darkEdgeColor.value())) {
         highContrastMeta->darkEdgeColor.setValue(Dialog.mDarkEdgeColor);
-        emit settingsChanged(1);
       }
     } else {
       if ((contrastModified = Dialog.mPartEdgeContrast != autoEdgeMeta->contrast.value())) {
         autoEdgeMeta->contrast.setValue(Dialog.mPartEdgeContrast);
-        emit settingsChanged(1);
       }
       if ((saturationModified = Dialog.mPartColorValueLDIndex != autoEdgeMeta->saturation.value())) {
         autoEdgeMeta->saturation.setValue(Dialog.mPartColorValueLDIndex);
-        emit settingsChanged(1);
       }
     }
     modified = (lightDarkIndexModified || studCylinderColorModified ||
                 partEdgeColorModified || blackEdgeColorModified ||
                 darkEdgeColorModified || contrastModified ||
                 saturationModified);
+    emit settingsChanged(modified);
   }
 }
 
@@ -2379,7 +2375,7 @@ CountInstanceGui::CountInstanceGui(
 void CountInstanceGui::radioChanged(bool checked)
 {
   Q_UNUSED(checked)
-
+  int state = meta->value();
   if (sender() == topRadio) {
       meta->setValue(CountAtTop);
   } else
@@ -2389,13 +2385,18 @@ void CountInstanceGui::radioChanged(bool checked)
   if (sender() == stepRadio) {
       meta->setValue(CountAtStep);
   }
-  modified = true;
+  if (!modified)
+      modified = meta->value() != state;
+   emit settingsChanged(modified);
 }
 
 void CountInstanceGui::valueChanged(bool checked)
 {
+  int state = meta->value();
   meta->setValue(checked ? CountTrue : CountFalse);
-  modified = true;
+  if (!modified)
+      modified = meta->value() != state;
+   emit settingsChanged(modified);
 }
 
 void CountInstanceGui::apply(QString &modelName)

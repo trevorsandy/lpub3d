@@ -651,10 +651,6 @@ void GlobalPliDialog::enableElementStyleChanged(bool b) {
 
 void GlobalPliDialog::accept()
 {
-  if (data->clearCache) {
-    clearPliCache();
-  }
-
   MetaItem mi;
 
   mi.beginMacro("Global Pli");
@@ -664,7 +660,13 @@ void GlobalPliDialog::accept()
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
+
+  if (data->clearCache) {
+    mi.clearPliCache();
+  }
+
   mi.endMacro();
+
   QDialog::accept();
 }
 

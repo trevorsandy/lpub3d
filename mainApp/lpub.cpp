@@ -107,26 +107,6 @@ public:
     static void secSleep(unsigned long Secs){ QThread::sleep(Secs); }
 };
 
-void clearPliCache()
-{
-  gui->clearPLICache();
-}
-
-void clearCsiCache()
-{
-  gui->clearCSICache();
-}
-
-void clearSubmodelCache()
-{
-  gui->clearSubmodelCache();
-}
-
-void clearTempCache()
-{
-  gui->clearTempCache();
-}
-
 QHash<SceneObject, QString> soMap;
 
 /****************************************************************************
