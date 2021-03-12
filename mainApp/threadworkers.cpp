@@ -2989,12 +2989,18 @@ int CountPageWorker::countPage(
   Rc  rc;
   int partsAdded     = 0;
   int countInstances = meta.LPub.countInstance.value();
-  bool localSubmodel = ! opts.current.lineNumber;
+  bool localSubmodel = opts.current.lineNumber == 0;
+  bool alreadyRendered = !(localSubmodel || modelStack.size());
 
-  if (localSubmodel || modelStack.size()) {
+  if (! alreadyRendered) {
       if (localSubmodel)
           gui->skipHeader(opts.current);
-      ldrawFile->setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber, countInstances);
+      ldrawFile->setRendered(opts.current.modelName,
+                             opts.isMirrored,
+                             opts.renderParentModel,
+                             opts.stepNumber,
+                             countInstances,
+                             true/*countPage*/);
   }
 
   Where topOfStep = opts.current;
@@ -3066,16 +3072,22 @@ int CountPageWorker::countPage(
                       if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                           // check if submodel was rendered
-                          bool rendered = ldrawFile->rendered(type,ldrawFile->mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
+                          bool rendered = ldrawFile->rendered(type,
+                                                             ldrawFile->mirrored(token),
+                                                             opts.current.modelName,
+                                                             opts.stepNumber,
+                                                             countInstances,
+                                                             (alreadyRendered ? false : true /*countPage*/));
 
                           // check if submodel is in current step build modification
-                          bool buildModRendered = ldrawFile->getBuildModRendered("p"+buildModKey, colorType);
+                          bool buildModRendered = ldrawFile->getBuildModRendered(
+                                          (alreadyRendered ? "" : "cp")+opts.buildMod.key, colorType);
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if ((localSubmodel || modelStack.size()) && opts.buildMod.begin)
-                                  ldrawFile->setBuildModRendered("p"+buildModKey, colorType);
+                              if (opts.buildMod.state == BM_BEGIN)
+                                  ldrawFile->setBuildModRendered("cp"+opts.buildMod.key, colorType);
 
                               opts.isMirrored = ldrawFile->mirrored(token);
 

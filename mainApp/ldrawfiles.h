@@ -375,13 +375,15 @@ class LDrawFile {
             bool           mirrored,
             const QString &renderParentModel,
             int            renderStepNumber,
-            int            howCounted);
+            int            howCounted,
+            bool           countPage = false);
     bool rendered(
             const QString &fileName,
             bool           mirrored,
             const QString &renderParentModel,
             int            renderStepNumber,
-            int            howCounted);
+            int            howCounted,
+            bool           countPage = false);
     void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);

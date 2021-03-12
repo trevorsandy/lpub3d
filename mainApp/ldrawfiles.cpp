@@ -826,7 +826,8 @@ void LDrawFile::setRendered(
         bool           mirrored,
         const QString &renderParentModel,
         int            renderStepNumber,
-        int            howCounted)
+        int            howCounted,
+        bool           countPage)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
@@ -836,6 +837,8 @@ void LDrawFile::setRendered(
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString();
+        if (countPage)
+            key.prepend("cp");
     if (mirrored) {
       i.value()._mirrorRendered = true;
       if (!key.isEmpty() && !i.value()._mirrorRenderedKeys.contains(key)) {
@@ -850,12 +853,12 @@ void LDrawFile::setRendered(
   }
 }
 
-bool LDrawFile::rendered(
-        const QString &mcFileName,
+bool LDrawFile::rendered(const QString &mcFileName,
         bool           mirrored,
         const QString &renderParentModel,
         int            renderStepNumber,
-        int            howCounted)
+        int            howCounted,
+        bool           countPage)
 {
   bool rendered = false;
   if (howCounted == CountFalse)
@@ -870,12 +873,14 @@ bool LDrawFile::rendered(
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString() ;
+    if (countPage)
+        key.prepend("cp");
     if (mirrored) {
-      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false :
+      haveKey = key.isEmpty() || (countPage && key == "cp") ? howCounted == CountAtTop ? true : false :
                   i.value()._mirrorRenderedKeys.contains(key);
       rendered  = i.value()._mirrorRendered;
     } else {
-      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false :
+      haveKey = key.isEmpty() || (countPage && key == "cp") ? howCounted == CountAtTop ? true : false :
                   i.value()._renderedKeys.contains(key);
       rendered  = i.value()._rendered;
     }
