@@ -69,6 +69,7 @@
 
 #include "csiitem.h"
 
+enum AppendType { AppendNoOption, AppendAtModel, AppendAtPage, AppendAtSubmodel };
 enum MonoColors { Blue, TransWhite, NumColors };
 const QString monoColor[NumColors]     = { "blue", "transwhite" };
 const QString monoColorCode[NumColors] = { "1", "11015"};
@@ -2644,7 +2645,8 @@ void MetaItem::insertNumberedPage()
 void MetaItem::appendNumberedPage()
 {
   QString meta = "0 !LPUB INSERT PAGE";
-  appendPage(meta);
+  Where dummy;
+  appendPage(meta, dummy);
 }
 
 void MetaItem::insertPage(QString &meta)
@@ -2668,41 +2670,77 @@ void MetaItem::insertPage(QString &meta)
   endMacro();
 }
 
-void MetaItem::appendPage(QString &metaCommand)
+bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
 {
   Rc rc;
   QString line;
   Meta mi;
-  Where bottomOfStep(gui->topOfPages[gui->displayPageNum]);  //start at the bottom of the page's last step
+  Where bottomOfStep;
+  bool appendStepMeta = false;
+  bool insertStepMeta = false;
+  bool askAfterCoverPage = option != AppendAtModel;
 
-  bool addStepMeta = false;
+  if (option) {
+      bottomOfStep    = where;                                //stat at the specified bottom of page step
+  } else {
+      bottomOfStep    = gui->topOfPages[gui->displayPageNum]; //start at the bottom of the page's last step
+      QString title   = QString("%1 - Append Page").arg(VER_PRODUCTNAME_STR);
+      QString options = QString("At end of main model ?|At current page ?%1")
+                                .arg(where.modelIndex ? QString("|At end of current model ?") : QString());
+      if ((option = OptionDialog::getOption(title, options,nullptr)) == AppendNoOption)
+          return false;
+
+      if (option == AppendAtSubmodel)                         //start at the bottom of the model's last step
+         bottomOfStep = Where(bottomOfStep.modelName, gui->subFileSize(bottomOfStep.modelName));
+      else if (option == AppendAtModel)                       //start at the bottom of the main model's last step
+         bottomOfStep = Where(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile()));
+  }
+
   Where here = bottomOfStep;
+
   int numLines = gui->subFileSize(here.modelName);
 
-  for ( ; here > 0; --here) {                                //scan from bottom to top of file
+  for ( ; here > 0; --here) {                                 //scan from bottom to top of file
     line = gui->readLine(here);
     rc = mi.parse(line,here);
     if (rc == StepRc || rc == RotStepRc ||
-        rc == StepGroupEndRc || rc == CalloutEndRc) {         //we are on a boundary command so advance one line and break
-        here++;
+      rc == StepGroupEndRc || rc == CalloutEndRc) {           //we are on a boundary command so advance one line and break
+      here++;
       break;
     }
 
     QStringList tokens;
     split(line,tokens);
-    bool token_1_5 = tokens.size() &&                        //no boundary command so check for valid step content
+    bool token_1_5 = tokens.size() &&                         //no boundary command so check for valid step content
          tokens[0].size() == 1 &&
          tokens[0] >= "1" && tokens[0] <= "5";
-    if (token_1_5 || isHeader(line) ||
-       (tokens.size() == 4 &&
-        tokens[2] == "INSERT" &&
-        tokens[3] == "COVER_PAGE")) {
-      addStepMeta = true;
+    if (token_1_5 || isHeader(line)) {
+      appendStepMeta = true;
+      break;
+    } else if (tokens.size() >= 4 &&
+               tokens[2] == "INSERT" &&
+               tokens[3] == "COVER_PAGE") {
+      bool afterCoverPage = false;
+      if (askAfterCoverPage) {
+        afterCoverPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Append after cover page ?", nullptr);
+      }
+      if (afterCoverPage) {
+        appendStepMeta = true;
+      } else {                                                //insert before cover page
+        for ( ; here > 0; --here) {
+          line = gui->readLine(here);
+          rc = mi.parse(line,here);
+          if (rc == StepRc || rc == RotStepRc )
+            break;
+        }
+        bottomOfStep = here;
+        insertStepMeta = true;
+      }
       break;
     }
   }
 
-  if ( ! addStepMeta) {
+  if ( ! appendStepMeta && ! insertStepMeta) {
     for ( ; here < numLines; ++here) {
       QString line = gui->readLine(here);
       QStringList tokens;
@@ -2710,21 +2748,28 @@ void MetaItem::appendPage(QString &metaCommand)
       bool token_1_5 = tokens.size() &&
                        tokens[0].size() == 1 &&
                        tokens[0] >= "1" &&
-                       tokens[0] <= "5";                      //non-zeor line detected
-      if (token_1_5 || (tokens.size() >= 4  && tokens[2].contains(QRegExp("^INSERT$")))) {
-        addStepMeta = true;
+                       tokens[0] <= "5";                      //non-zero line detected
+      if (token_1_5) {
+        appendStepMeta = true;
         break;
       }
     }
   }
 
   beginMacro("appendPage");
-  appendMeta(bottomOfStep,metaCommand);
-  if (addStepMeta) {
-    bottomOfStep++;
+  if (appendStepMeta) {
     appendMeta(bottomOfStep,"0 STEP");
+    bottomOfStep++;
+  } else if (insertStepMeta) {
+    insertMeta(bottomOfStep, "0 STEP");
   }
+  appendMeta(bottomOfStep,metaCommand);
+  bottomOfStep++;
   endMacro();
+
+  where = bottomOfStep;
+
+  return appendStepMeta || insertStepMeta;
 }
 
 void MetaItem::deletePage()

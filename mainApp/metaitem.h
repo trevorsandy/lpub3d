@@ -491,7 +491,7 @@ public:
   void appendNumberedPage();
 
   void insertPage(QString &meta);
-  void appendPage(QString &meta);
+  bool appendPage(QString &meta, Where &where, int = 0/*option*/);
   void insertFinalModelStep(int atLine);
   void insertDisplayModelStep(Where &here, bool = false);
   bool deleteFinalModelStep();

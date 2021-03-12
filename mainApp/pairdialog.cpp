@@ -30,6 +30,7 @@
 #include <QGridLayout>
 #include <QDialogButtonBox>
 #include <QDoubleValidator>
+#include "version.h"
 
 FloatDialog::FloatDialog(
   QString  title,
@@ -281,5 +282,83 @@ bool LocalDialog::getLocal(
     return true;
   } else {
     return false;
+  }
+}
+
+
+OptionDialog::OptionDialog(
+  QString  titles,
+  QString  options,
+  QWidget *parent)
+{
+  setParent(parent);
+
+  QStringList titleList   = titles.split("|");
+  QStringList optionsList = options.split("|");
+
+  QVBoxLayout *vLayout = new QVBoxLayout(this);
+
+  setWindowTitle(titleList.first());
+
+  int numOptions = optionsList.size();
+  bool multiChoice = numOptions > 1;
+
+  if (multiChoice) {
+    QString groupTitle = titleList.size() > 1 ? titleList.last() :
+                                             titles.replace(QString("%1 - ")
+                                                           .arg(VER_PRODUCTNAME_STR),QString());
+    QGroupBox *groupBox = new QGroupBox(tr("%1 Options").arg(groupTitle), this);
+    QVBoxLayout *boxLayout = new QVBoxLayout(groupBox);
+    groupBox->setLayout(boxLayout);
+    for (int i = 0; i < numOptions; ++i) {
+       QRadioButton  *optionsRadio = new QRadioButton(optionsList.at(i),groupBox);
+       optionsRadio->setChecked(!i);
+       boxLayout->addWidget(optionsRadio);
+       buttonList.append(optionsRadio);
+    }
+    vLayout->addWidget(groupBox);
+  } else {
+    QLabel *label = new QLabel(options,this);
+    vLayout->addWidget(label);
+  }
+
+  QDialogButtonBox *buttonBox;
+
+  buttonBox = new QDialogButtonBox(this);
+  buttonBox->addButton(multiChoice ? QDialogButtonBox::Ok : QDialogButtonBox::Yes);
+  connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
+  buttonBox->addButton(multiChoice ? QDialogButtonBox::Cancel : QDialogButtonBox::No);
+  connect(buttonBox,SIGNAL(rejected()), SLOT(reject()));
+
+  vLayout->addWidget(buttonBox);
+
+  setLayout(vLayout);
+
+  setModal(true);
+  setMinimumSize(40,20);
+}
+
+OptionDialog::~OptionDialog()
+{
+}
+
+int OptionDialog::getOption(
+  QString  titles,
+  QString  options,
+  QWidget *parent)
+{
+  OptionDialog *dialog = new OptionDialog(titles,options,parent);
+  if (dialog->exec() == QDialog::Accepted) {
+    if (dialog->buttonList.size()) {
+        for (int i = 0; i < dialog->buttonList.size(); i++) {
+            if (dialog->buttonList.at(i)->isChecked())
+                return i + 1;
+        }
+        return 0;
+    } else {
+       return 0;
+    }
+  } else {
+    return 0;
   }
 }

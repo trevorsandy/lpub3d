@@ -111,6 +111,7 @@ public slots:
 #include <QLabel>
 #include <QGridLayout>
 #include <QDialogButtonBox>
+#include <QRadioButton>
 #include "meta.h"
 
 class FloatDialog : public QDialog
@@ -151,6 +152,25 @@ public:
                 QString  question,
                 QWidget *parent);
 private:
+};
+
+class OptionDialog : public QDialog
+{
+
+  Q_OBJECT
+
+public:
+  OptionDialog(
+              QString  titles,
+              QString  options,
+              QWidget *parent);
+ ~OptionDialog();
+  static int getOption(
+                QString  titles,
+                QString  options,
+                QWidget *parent);
+private:
+    QList<QRadioButton*> buttonList;
 };
 
 #endif
