@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: September 13, 2020
+#  Last Update: November 22, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -75,6 +75,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     sudo mv docker-compose /usr/local/bin;
     docker-compose version;
   fi;
+# AppImage setup, download LDraw library archive files, and setup build directory
   if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     echo "Download AppImage archive libraries...";
     if [ ! -d "${LP3D_DIST_DIR_BASE}/bionic" ]; then

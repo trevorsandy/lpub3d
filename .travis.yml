@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 05, 2020
+# Last Update: November 22, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 language: cpp
@@ -114,6 +114,7 @@ jobs:
   - stage: Build and Package
     env: LP3D_BUILD_MACOS=true
     os: osx
+    osx_image: xcode11
     compiler: clang
   - stage: Compile Source
     env: LP3D_COMPILE_SOURCE=true
@@ -122,6 +123,7 @@ jobs:
   - stage: Compile Source
     env: LP3D_COMPILE_SOURCE=true
     os: osx
+    osx_image: xcode11
     compiler: clang
   - stage: GitHub and Sourceforge Deploy
     env: LP3D_DEPLOY_PACKAGES=true
