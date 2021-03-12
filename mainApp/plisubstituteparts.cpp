@@ -37,8 +37,7 @@ PliSubstituteParts::PliSubstituteParts()
             QFile file(substitutePartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 logError() << QMessageBox::tr("Failed to open PLI substitute parts file: %1: %2")
-                              .arg(substitutePartsFile)
-                              .arg(file.errorString());
+                              .arg(substitutePartsFile,file.errorString());
                 return;
             }
             QTextStream in(&file);
@@ -179,8 +178,7 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
     else
     {
         QString message = QString("Failed to open PLI substitute parts file: %1:<br>%2")
-                                  .arg(file.fileName())
-                                  .arg(file.errorString());
+                                  .arg(file.fileName(),file.errorString());
         if (Preferences::modeGUI){
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {

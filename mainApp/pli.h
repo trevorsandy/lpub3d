@@ -49,6 +49,8 @@
 #include "name.h"
 #include "resize.h"
 #include "annotations.h"
+#include "excludedparts.h"
+#include "plisubstituteparts.h"
 #include "render.h"
 
 #include "QsLog.h"
@@ -167,7 +169,9 @@ class Pli : public Placement {
     QHash<QString, PliPart*> tempParts;          // temp list used to devide the BOM
     QHash<QString, PliPart*> parts;
     QList<QString>           sortedKeys;
-    Annotations              annotations;        // this is an internal list of title and custom part annotations
+    Annotations              annotations;        // this is a list of title and custom part annotations
+    ExcludedParts            excludedParts;      // this is a list of excluded parts;
+    PliSubstituteParts       substituteParts;    // this is a list of substitute parts;
 
     int pageSizeP(Meta *, int which);
 

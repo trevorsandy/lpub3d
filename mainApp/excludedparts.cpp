@@ -34,14 +34,13 @@ ExcludedParts::ExcludedParts()
     if (excludedParts.size() == 0) {
         bool rxFound = false;
         QString excludedPartsFile = Preferences::excludedPartsFile;
-        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        QRegExp rx("^(\\b.*\[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),
                                      QMessageBox::tr("Failed to open excluded parts file: %1:\n%2")
-                                     .arg(excludedPartsFile)
-                                     .arg(file.errorString()));
+                                     .arg(excludedPartsFile),file.errorString());
                 return;
             }
             QTextStream in(&file);
@@ -88,8 +87,8 @@ ExcludedParts::ExcludedParts()
             QTextStream instream(Buffer);
             for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
             {
-                int Equals = sLine.indexOf('=');
-                if (Equals == -1)
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
                     continue;
                 if (sLine.contains(rx)) {
                     QString excludedPartID = rx.cap(1);
@@ -239,7 +238,7 @@ bool ExcludedParts::exportExcludedParts(){
         outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
         outstream << "# " << endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\b)(?:\\s)\\s+(.*)$" << endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << endl;
         outstream << "#" << endl;
         outstream << "#" << endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
@@ -272,8 +271,7 @@ bool ExcludedParts::exportExcludedParts(){
     else
     {
         QString message = QString("Failed to open excluded parts file: %1:\n%2")
-                                  .arg(file.fileName())
-                                  .arg(file.errorString());
+                                  .arg(file.fileName(),file.errorString());
         if (Preferences::modeGUI){
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
         } else {
