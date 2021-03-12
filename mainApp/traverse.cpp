@@ -1057,7 +1057,7 @@ int Gui::drawPage(
               opts.csiParts = opts.bfx[curMeta.bfx.value()];
               opts.lineTypeIndexes = opts.bfxLineTypeIndexes[curMeta.bfx.value()];
               if (!partsAdded) {
-                  ldrawFile.setPrevStepPosition(opts.current.modelName,opts.csiParts.size());
+                  ldrawFile.setPrevStepPosition(opts.current.modelName,opts.stepNum,opts.csiParts.size());
                   //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
               }
               bfxLoad = true;
@@ -5057,15 +5057,22 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
       // retrieve the previous step position
-      int prevStepPosition = ldrawFile.getPrevStepPosition(current.modelName);
+      int prevStepPosition = ldrawFile.getPrevStepPosition(current.modelName,stepNum);
       if (prevStepPosition == 0 && savePrevStepPosition > 0)
           prevStepPosition = savePrevStepPosition;
 
       // save the current step position
-      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
+      ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
 
-      //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", PrevStep Get Previous Step Position:" << prevStepPosition
-      //         << ", CSI Size:" << csiParts.size() << ", Model Size:"  << ldrawFile.size(current.modelName);
+#ifdef QT_DEBUG_MODE
+      emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
+                      .arg(stepNum)
+                      .arg(prevStepPosition)
+                      .arg(csiParts.size())
+                      .arg(ldrawFile.size(current.modelName))
+                      .arg(current.modelName));
+#endif
+
       QStringList argv;
 
       for (int index = 0; index < csiParts.size(); index++) {
@@ -5209,7 +5216,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
         }
     } else {
       // save the current step position
-      ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
+      ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
       return csiParts;
     }
 

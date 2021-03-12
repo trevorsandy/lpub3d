@@ -533,6 +533,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSHOW_INSTANCE_COUNT\\b"
     << "\\bSHOW_STEP_NUMBER\\b"
     << "\\bSHOW_TOP_MODEL\\b"
+    << "\\bSILHOUETTE\\b"
     << "\\bSIZE\\b"
     << "\\bSIZE_KEY\\b"
     << "\\bSPACING\\b"

@@ -144,9 +144,9 @@ LDrawSubFile::LDrawSubFile(
   _unofficialPart = unofficialPart;
   _generated = generated;
   _includeFile = includeFile;
-  _prevStepPosition = 0;
   _startPageNumber = 0;
   _lineTypeIndexes.clear();
+  _prevStepPosition = { 0,0,0 };
 }
 
 /* Only used to store fade or highlight content */
@@ -536,43 +536,55 @@ QStringList LDrawFile::getSubFilePaths()
   return subFilesPaths;
 }
 
-void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
-                 const int &startPageNumber)
+void LDrawFile::setModelStartPageNumber(
+        const QString &mcFileName,
+        const int     &startPageNumber)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
     i.value()._modified = true;
-    //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._startPageNumber = startPageNumber;
+    //i.value()._datetime = QDateTime::currentDateTime();
     //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
   }
 }
 
 /* return the last fade position value */
 
-int LDrawFile::getPrevStepPosition(const QString &mcFileName)
+int LDrawFile::getPrevStepPosition(
+        const QString &mcFileName,
+        const int     &mcStepNumber)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-    return i.value()._prevStepPosition;
+      if (mcStepNumber == i.value()._prevStepPosition.at(PS_STEP_NUM))
+          return i.value()._prevStepPosition.at(PS_LAST_POS);
+      else
+          return i.value()._prevStepPosition.at(PS_POS);
   }
   return 0;
 }
 
-void LDrawFile::setPrevStepPosition(const QString     &mcFileName,
-                 const int &prevStepPosition)
+void LDrawFile::setPrevStepPosition(
+        const QString &mcFileName,
+        const int     &mcStepNumber,
+        const int     &prevStepPosition)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
-    i.value()._modified = true;
-    //i.value()._datetime = QDateTime::currentDateTime();
-    i.value()._prevStepPosition = prevStepPosition;
-    //i.value()._changedSinceLastWrite = true;  // remarked on build 491 28/12/2015
+    int lastStepPosition  = i.value()._prevStepPosition.at(PS_POS);
+    if (lastStepPosition != prevStepPosition) {
+        i.value()._modified = true;
+        QVector<int> stepPositions = { prevStepPosition, lastStepPosition ,mcStepNumber };
+        i.value()._prevStepPosition = stepPositions;
+        //i.value()._datetime = QDateTime::currentDateTime();
+        //i.value()._changedSinceLastWrite = true;  // remarked on build 491 28/12/2015
+    }
   }
 }
 
@@ -582,7 +594,7 @@ void LDrawFile::clearPrevStepPositions()
 {
   QString key;
   Q_FOREACH (key,_subFiles.keys()) {
-    _subFiles[key]._prevStepPosition = 0;
+    _subFiles[key]._prevStepPosition.clear();
   }
 }
 

@@ -55,6 +55,7 @@ class LDrawSubFile {
     QStringList  _renderedKeys;
     QStringList  _mirrorRenderedKeys;
     QVector<int> _lineTypeIndexes;
+    QVector<int> _prevStepPosition;
     int          _numSteps;
     bool         _beenCounted;
     int          _instances;
@@ -64,7 +65,6 @@ class LDrawSubFile {
     bool         _changedSinceLastWrite;
     bool         _generated;
     bool         _includeFile;
-    int          _prevStepPosition;
     int          _startPageNumber;
     int          _unofficialPart;
 
@@ -316,8 +316,10 @@ class LDrawFile {
     void setContents(const QString     &fileName, 
                      const QStringList &contents);
     void setPrevStepPosition(const QString &mcFileName,
-                         const int     &prevStepPosition);
-    int getPrevStepPosition(const QString &mcFileName);
+                             const int &mcStepNumber,
+                             const int &prevStepPosition);
+    int getPrevStepPosition(const QString &mcFileName,
+                            const int &mcStepNumber);
     void clearPrevStepPositions();
     void setModelStartPageNumber(const QString &mcFileName,
                          const int     &startPageNumber);
