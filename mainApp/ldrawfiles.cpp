@@ -2573,13 +2573,15 @@ QMap<int, int>LDrawFile::getBuildModActions(const QString &buildModKey)
     return empty;
 }
 
-int LDrawFile::getBuildModStepIndex(int modelIndex, int &lineNumber)
+int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber)
 {
 #ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString insert = QString("Get BuildMod");
 #endif
 
+    int modelIndex = _modelIndex;
+    int lineNumber = _lineNumber;
     int stepIndex = BM_INVALID_INDEX;
     if (modelIndex > BM_INVALID_INDEX) {
         if (!lineNumber && !modelIndex) {
@@ -2604,8 +2606,8 @@ int LDrawFile::getBuildModStepIndex(int modelIndex, int &lineNumber)
                                            .arg(insert)
                                            .arg(stepIndex)
                                            .arg(modelIndex)
-                                            .arg(lineNumber)
-                                            .arg(getSubmodelName(modelIndex)));
+                                           .arg(lineNumber)
+                                           .arg(getSubmodelName(modelIndex)));
 #endif
 
     return stepIndex;

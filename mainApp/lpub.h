@@ -839,14 +839,14 @@ public:
       return ldrawFile.getBuildModStepPieces(buildModKey);
   }
 
-  int getBuildModStepIndex(Where &here)
+  int getBuildModStepIndex(const Where &here)
   {
       return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
-  Rc getBuildModStep(const QString &modStepKey, const Where &here)
+  int getBuildModStep(const QString &modStepKey, const Where &here)
   {
-      return Rc(ldrawFile.getBuildModStep(modStepKey, getSubmodelIndex(here.modelName), here.lineNumber));
+      return ldrawFile.getBuildModStep(modStepKey, getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
