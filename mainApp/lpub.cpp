@@ -1835,10 +1835,12 @@ void Gui::clearCustomPartCache(bool silent)
   }
 
   // regenerate custom parts
-  bool overwriteCustomParts = true;
-  processFadeColourParts(overwriteCustomParts);       // (re)generate and archive fade parts based on the loaded model file
-  processHighlightColourParts(overwriteCustomParts);  // (re)generate and archive highlight parts based on the loaded model file
-
+  bool overwrite = true;
+  bool setup = false;
+  if (Preferences::enableFadeSteps)
+      processFadeColourParts(overwrite, setup);       // (re)generate and archive fade parts based on the loaded model file
+  if (Preferences::enableHighlightStep)
+      processHighlightColourParts(overwrite, setup);  // (re)generate and archive highlight parts based on the loaded model file
   if (!getCurFile().isEmpty() && Preferences::modeGUI){
       displayPage();
   }
@@ -3730,7 +3732,7 @@ void Gui::ldrawColorPartsLoad()
 {
     if (!ldrawColourParts.ldrawColorPartsIsLoaded()) {
         QString result;
-        if (!LDrawColourParts::LDrawColorPartsLoad(result)){
+        if (!LDrawColourParts::LDrawColorPartsLoad(result)) {
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
                     .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
             emit messageSig(LOG_NOTICE, message);
@@ -3758,7 +3760,7 @@ void Gui::ldrawColorPartsLoad()
                 generateCustomColourPartsList(prompt); /* false */
             }
         } else {
-            messageSig(LOG_INFO, QString("Loaded LDraw color parts file [%2]").arg(Preferences::ldrawColourPartsFile));
+            messageSig(LOG_INFO_STATUS, QString("Loaded LDraw color parts file [%2]").arg(Preferences::ldrawColourPartsFile));
         }
     }
 }
@@ -3846,57 +3848,54 @@ void Gui::generateCustomColourPartsList(bool prompt)
     }
 }
 
-void Gui::processFadeColourParts(bool overwriteCustomParts)
+void Gui::processFadeColourParts(bool overwrite, bool setup)
 {
-  if (Preferences::enableFadeSteps) {
+    partWorkerCustomColour = new PartWorker();
 
-      partWorkerCustomColour = new PartWorker();
+    connect(this,                   SIGNAL(operateFadeParts(bool, bool)),
+            partWorkerCustomColour, SLOT(processFadeColourParts(bool, bool)));
 
-      connect(this,                   SIGNAL(operateFadeParts(bool)),    partWorkerCustomColour, SLOT(processFadeColourParts(bool)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
+            this,                   SLOT( progressBarInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
+            this,                   SLOT( progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
+            this,                   SLOT( progressBarSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
+            this,                   SLOT( progressBarSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
+            this,                   SLOT( progressBarReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
+            this,                   SLOT( progressStatusRemove()));
 
-      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-              this,                   SLOT( progressBarInit()));
-      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-              this,                   SLOT( progressBarSetText(const QString &)));
-      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-              this,                   SLOT( progressBarSetRange(int,int)));
-      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-              this,                   SLOT( progressBarSetValue(int)));
-      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-              this,                   SLOT( progressBarReset()));
-      connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-              this,                   SLOT( progressStatusRemove()));
-
-      //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
-      emit operateFadeParts(overwriteCustomParts);
-    }
+    //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwrite ? "True" : "False"));
+    partWorkerCustomColour->setDoFadeStep(setup);
+    emit operateFadeParts(overwrite, setup);
 }
 
-void Gui::processHighlightColourParts(bool overwriteCustomParts)
+void Gui::processHighlightColourParts(bool overwrite, bool setup)
 {
-  if (Preferences::enableHighlightStep) {
+    partWorkerCustomColour = new PartWorker();
 
-      partWorkerCustomColour = new PartWorker();
+    connect(this,                   SIGNAL(operateHighlightParts(bool, bool)),
+            partWorkerCustomColour, SLOT(  processHighlightColourParts(bool, bool)));
 
-      connect(this,                   SIGNAL(operateHighlightParts(bool)),
-              partWorkerCustomColour, SLOT(  processHighlightColourParts(bool)));
+    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
+            this,                   SLOT(  progressBarInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
+            this,                   SLOT(  progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
+            this,                   SLOT(  progressBarSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
+            this,                   SLOT(  progressBarSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
+            this,                   SLOT(  progressBarReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
+            this,                   SLOT(  progressStatusRemove()));
 
-      connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-              this,                   SLOT(  progressBarInit()));
-      connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-              this,                   SLOT(  progressBarSetText(const QString &)));
-      connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-              this,                   SLOT(  progressBarSetRange(int,int)));
-      connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-              this,                   SLOT(  progressBarSetValue(int)));
-      connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-              this,                   SLOT(  progressBarReset()));
-      connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-              this,                   SLOT(  progressStatusRemove()));
-
-      //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
-      emit operateHighlightParts(overwriteCustomParts);
-    }
+    //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+    partWorkerCustomColour->setDoHighlightStep(setup);
+    emit operateHighlightParts(overwrite, setup);
 }
 
 // Update parts archive from LDSearch directories

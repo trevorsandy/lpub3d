@@ -455,7 +455,7 @@ int Gui::drawPage(
   bool     coverPage       = false;
   bool     bfxStore1       = false;
   bool     bfxLoad         = false;
-  bool     firstStep       = true;
+  bool     firstGroupStep  = true;
   bool     noStep          = false;
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
@@ -754,7 +754,7 @@ int Gui::drawPage(
        * When the buildModLevel flag is false (0), pli and csi lines are processed normally
        */
 
-      Meta   &curMeta = callout ? callout->meta : steps->meta;
+      Meta &curMeta = callout ? callout->meta : steps->meta;
 
       QStringList tokens;
 
@@ -1136,6 +1136,20 @@ int Gui::drawPage(
 
             case PreferredRendererAssemRc:
               curMeta.LPub.assem.preferredRenderer.setPreferences();
+              if (step)
+                  step->csiStepMeta.preferredRenderer = curMeta.LPub.assem.preferredRenderer;
+              break;
+
+            case PreferredRendererCalloutAssemRc:
+              curMeta.LPub.callout.csi.preferredRenderer.setPreferences();
+              if (step)
+                  step->csiStepMeta.preferredRenderer = curMeta.LPub.callout.csi.preferredRenderer;
+              break;
+
+            case PreferredRendererGroupAssemRc:
+              curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences();
+              if (step)
+                  step->csiStepMeta.preferredRenderer = curMeta.LPub.multiStep.csi.preferredRenderer;
               break;
 
             case PreferredRendererSubModelRc:
@@ -1150,26 +1164,56 @@ int Gui::drawPage(
               curMeta.LPub.bom.preferredRenderer.setPreferences();
               break;
 
-            case EnableFadeStepsRc:
+            case EnableFadeStepsCalloutAssemRc:
+            case EnableFadeStepsGroupAssemRc:
             case EnableFadeStepsAssemRc:
-              if ((!Preferences::enableFadeSteps && !curMeta.LPub.fadeStep.setup.value()) &&
-                  (rc == EnableFadeStepsRc ? curMeta.LPub.fadeStep.enable.value() : curMeta.LPub.assem.fadeStep.enable.value()))
-                      parseError("Fade previous steps command ignored. FADE_STEP ENABLED or FADE_STEP SETUP (in the first STEP of the main model) must be set to TRUE.",opts.current);
-              else if (rc == EnableFadeStepsRc)
-                  curMeta.LPub.fadeStep.setPreferences();
-              else
+            case EnableFadeStepsRc:
+              if ((rc == EnableFadeStepsCalloutAssemRc ? curMeta.LPub.callout.csi.fadeStep.enable.value() :
+                   rc == EnableFadeStepsGroupAssemRc ? curMeta.LPub.multiStep.csi.fadeStep.enable.value() :
+                   rc == EnableFadeStepsAssemRc ? curMeta.LPub.assem.fadeStep.enable.value() :
+                         curMeta.LPub.fadeStep.enable.value()) && !setupFadeSteps) {
+                      parseError(tr("Fade previous steps command ignored. %1 must be set to TRUE.").arg(curMeta.LPub.fadeStep.enable.value() ? "FADE_STEP ENABLED" : "FADE_STEP SETUP (in the first step of the main model)"),opts.current);
+              } else if (rc == EnableFadeStepsCalloutAssemRc) {
+                  curMeta.LPub.callout.csi.fadeStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.fadeStep = curMeta.LPub.callout.csi.fadeStep;
+              } else if (rc == EnableFadeStepsGroupAssemRc) {
+                  curMeta.LPub.multiStep.csi.fadeStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.fadeStep = curMeta.LPub.multiStep.csi.fadeStep;
+              } else if (rc == EnableFadeStepsAssemRc) {
                   curMeta.LPub.assem.fadeStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.fadeStep = curMeta.LPub.assem.fadeStep;
+              } else {
+                  curMeta.LPub.fadeStep.setPreferences();
+              }
               break;
 
-            case EnableHighlightStepRc:
+            case EnableHighlightStepCalloutAssemRc:
+            case EnableHighlightStepGroupAssemRc:
             case EnableHighlightStepAssemRc:
-              if ((!Preferences::enableHighlightStep && !curMeta.LPub.highlightStep.setup.value()) &&
-                  (rc == EnableHighlightStepRc ? curMeta.LPub.highlightStep.enable.value() : curMeta.LPub.assem.highlightStep.enable.value() ))
-                  parseError("Highlight current step command ignored. HIGHLIGHT_STEP ENABLED or HIGHLIGHT_STEP SETUP (in the first STEP of the main model) must be set to TRUE.",opts.current);
-              else if (rc == EnableHighlightStepRc)
-                  curMeta.LPub.highlightStep.setPreferences();
-              else
+            case EnableHighlightStepRc:
+              if ((rc == EnableHighlightStepCalloutAssemRc ? curMeta.LPub.callout.csi.highlightStep.enable.value() :
+                   rc == EnableHighlightStepGroupAssemRc ? curMeta.LPub.multiStep.csi.highlightStep.enable.value() :
+                   rc == EnableHighlightStepAssemRc ? curMeta.LPub.assem.highlightStep.enable.value() :
+                         curMeta.LPub.highlightStep.enable.value()) && !setupHighlightStep) {
+                  parseError(tr("Highlight current step command ignored. %1 must be set to TRUE.").arg(curMeta.LPub.highlightStep.enable.value() ? "HIGHLIGHT_STEP ENABLED" : "HIGHLIGHT_STEP SETUP (in the first STEP of the main model)"),opts.current);
+              } else if (rc == EnableHighlightStepCalloutAssemRc) {
+                  curMeta.LPub.callout.csi.highlightStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.highlightStep = curMeta.LPub.callout.csi.highlightStep;
+              } else if (rc == EnableHighlightStepGroupAssemRc) {
+                  curMeta.LPub.multiStep.csi.highlightStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.highlightStep = curMeta.LPub.multiStep.csi.highlightStep;
+              } else if (rc == EnableHighlightStepAssemRc) {
                   curMeta.LPub.assem.highlightStep.setPreferences();
+                  if (step)
+                      step->csiStepMeta.highlightStep = curMeta.LPub.assem.highlightStep;
+              } else {
+                  curMeta.LPub.highlightStep.setPreferences();
+              }
               break;
 
               /* Buffer exchange */
@@ -1734,10 +1778,10 @@ int Gui::drawPage(
                   * Consider setting steps->meta to current meta here. This way we pass the latest settings
                   * to formatPage processing - this is particularly helpful if we want to capture step group
                   * metas that are set in steps beyond the first group step by the editor.
-                  * be updated after the first step in the step group (when the groupStepMeta is set).
+                  * Steps can be updated after the first step group step (when the groupStepMeta is set).
                   * Populating the groupStepMeta at the first group step is necessary to capture any
                   * step group specific settings as there is no reasonable way to know when the step group
-                  * ends and capturing the curMeta afte is too late as it is popped at the end of every step
+                  * ends and capturing the curMeta after is too late as it is popped at the end of every step.
                   * steps->meta = curMeta
                   */
 
@@ -2212,9 +2256,9 @@ int Gui::drawPage(
                   if (partsAdded) {
 
                       // set step group page meta attributes first step
-                      if (firstStep) {
+                      if (firstGroupStep) {
                           steps->groupStepMeta = curMeta;
-                          firstStep = false;
+                          firstGroupStep = false;
                       }
 
                       if (pliIgnore) {
@@ -2553,24 +2597,36 @@ int Gui::drawPage(
                                       steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
 
                       // reset local fade previous steps
-                      int local = 1; int reset = 1;
-                      if (curMeta.LPub.assem.fadeStep.enable.pushed == local)
+                      int local = 1; bool reset = true;
+                      if (curMeta.LPub.callout.csi.fadeStep.enable.pushed == local)
+                          curMeta.LPub.callout.csi.fadeStep.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.fadeStep.enable.pushed == local)
+                          curMeta.LPub.multiStep.csi.fadeStep.setPreferences(reset);
+                      else if (curMeta.LPub.assem.fadeStep.enable.pushed == local)
                           curMeta.LPub.assem.fadeStep.setPreferences(reset);
                       // reset local highlight current step
-                      if (curMeta.LPub.assem.highlightStep.enable.pushed)
+                      if (curMeta.LPub.callout.csi.highlightStep.enable.pushed)
+                          curMeta.LPub.callout.csi.highlightStep.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.highlightStep.enable.pushed)
+                          curMeta.LPub.multiStep.csi.highlightStep.setPreferences(reset);
+                      else if (curMeta.LPub.assem.highlightStep.enable.pushed)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
                       // reset local preferred renderer
-                      if (curMeta.LPub.assem.preferredRenderer.pushed == local)
+                      if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local)
+                          curMeta.LPub.callout.csi.preferredRenderer.setPreferences(reset);
+                      else if (curMeta.LPub.multiStep.csi.preferredRenderer.pushed == local)
+                          curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences(reset);
+                      else if (curMeta.LPub.assem.preferredRenderer.pushed == local)
                           curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.subModel.preferredRenderer.pushed == local)
+                      else if (curMeta.LPub.subModel.preferredRenderer.pushed == local)
                           curMeta.LPub.subModel.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.pli.preferredRenderer.pushed == local)
+                      else if (curMeta.LPub.pli.preferredRenderer.pushed == local)
                           curMeta.LPub.pli.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.bom.preferredRenderer.pushed == local)
+                      else if (curMeta.LPub.bom.preferredRenderer.pushed == local)
                           curMeta.LPub.bom.preferredRenderer.setPreferences(reset);
 
                       steps->meta.pop();
-                      steps->meta.LPub.buildMod.clear();
+//                      steps->meta.LPub.buildMod.clear();
                       curMeta.LPub.buildMod.clear();
                       opts.stepNum  += partsAdded;
                       topOfStep      = opts.current;  // set next step

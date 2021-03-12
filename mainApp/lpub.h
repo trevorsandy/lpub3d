@@ -1422,8 +1422,8 @@ public slots:
 
   void fileChanged(const QString &path);
 
-  void processFadeColourParts(bool overwriteCustomParts);
-  void processHighlightColourParts(bool overwriteCustomParts);
+  void processFadeColourParts(bool overwrite, bool setup);
+  void processHighlightColourParts(bool overwrite, bool setup);
   void loadLDSearchDirParts();
   bool loadFile(const QString &file);
   int processCommandLine();
@@ -1480,8 +1480,8 @@ signals:
   void loadFileSig(const QString &file);
   void processCommandLineSig();
 
-  void operateHighlightParts(bool overwriteCustomParts);
-  void operateFadeParts(bool overwriteCustomParts);
+  void operateHighlightParts(bool, bool);
+  void operateFadeParts(bool, bool);
   void setPliIconPathSig(QString &,QString &);
 
 public:
@@ -1554,6 +1554,8 @@ private:
   bool                   saveSingleCall;
   bool                   saveSnapShotList;
   bool                   saveNativeGenerator;
+  bool                   setupFadeSteps;
+  bool                   setupHighlightStep;
 
   int                    m_workerJobResult;
 

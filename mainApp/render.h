@@ -50,7 +50,7 @@ class HighContrastColorMeta;
 class Render
 {
 public:
-  Render() {}
+  Render(){}
   virtual ~Render() {}
   static QString const   getRenderer();
   static bool            useLDViewSCall();

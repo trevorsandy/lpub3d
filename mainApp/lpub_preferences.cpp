@@ -1987,7 +1987,123 @@ void Preferences::lgeoPreferences()
     }
 }
 
-void Preferences::preferredRendererPreferences()
+void Preferences::fadestepPreferences(bool persist)
+{
+    QSettings Settings;
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps")) || persist) {
+        QVariant eValue(enableFadeSteps);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),eValue);
+    } else {
+        enableFadeSteps = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps")).toBool();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour")) || persist) {
+        QVariant eValue(fadeStepsUseColour);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),eValue);
+    } else {
+        fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour")).toBool();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)) || persist) {
+        QVariant cValue(validFadeStepsColour);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),cValue);
+    } else {
+        validFadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")) || persist) {
+        QVariant cValue(fadeStepsOpacity);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),cValue);
+    } else {
+        fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")).toInt();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")) || persist) {
+        if (! persist)
+            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
+        QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
+        if (! ldrawColorFileInfo.exists()) {
+            ldrawColourPartsFile.clear();
+        } else {
+            QVariant cValue(ldrawColourPartsFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
+        }
+    } else {
+        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
+        QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
+        if (! ldrawColorFileInfo.exists()) {
+            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
+            ldrawColorFileInfo.setFile(ldrawColourPartsFile);
+            if (! ldrawColorFileInfo.exists()) {
+               ldrawColourPartsFile.clear();
+               Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"));
+            } else {
+               QVariant cValue(ldrawColourPartsFile);
+               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
+            }
+        }
+    }
+}
+
+void Preferences::highlightstepPreferences(bool persist)
+{
+    QSettings Settings;
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep")) || persist) {
+        QVariant eValue(enableHighlightStep);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"),eValue);
+    } else {
+        enableHighlightStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep")).toBool();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightStepColor")) || persist) {
+        QVariant cValue(highlightStepColour);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"),cValue);
+    } else {
+        highlightStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepColor")).toString();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")) || persist) {
+        QVariant uValue(highlightStepLineWidth);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),uValue);
+    } else {
+        highlightStepLineWidth = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep")) || persist) {
+        QVariant eValue(highlightFirstStep);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"),eValue);
+    } else {
+        highlightFirstStep = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep")).toBool();
+    }
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")) || persist) {
+        if (! persist)
+            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
+        QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
+        if (! ldrawColorFileInfo.exists()) {
+            ldrawColourPartsFile.clear();
+        } else {
+            QVariant cValue(ldrawColourPartsFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
+        }
+    } else {
+        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile")).toString();
+        QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
+        if (! ldrawColorFileInfo.exists()) {
+            ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
+            ldrawColorFileInfo.setFile(ldrawColourPartsFile);
+            if (! ldrawColorFileInfo.exists()) {
+               ldrawColourPartsFile.clear();
+               Settings.remove(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"));
+            } else {
+               QVariant cValue(ldrawColourPartsFile);
+               Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
+            }
+        }
+    }
+}
+
+void Preferences::preferredRendererPreferences(bool persist)
 {
     QSettings Settings;
 
@@ -1996,62 +2112,56 @@ void Preferences::preferredRendererPreferences()
     // Get preferred renderer from Registry
     QString const preferredRendererKey("PreferredRenderer");
 
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
-        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
-        if (preferredRenderer == RENDERER_LDGLITE) {
-            if ( ! ldgliteInstalled)  {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == RENDERER_LDVIEW) {
-            if ( ! ldviewInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == RENDERER_POVRAY) {
-            if ( ! povRayInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        }
-
-    } else { // No Registry setting so set default preferred renderer to native
-
-        preferredRenderer = RENDERER_NATIVE;
-
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
-    }
-
-    // using native Renderer flag
-    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
-
-    // LDView multiple files single call rendering
-
-    QString const enableLDViewSingleCallKey("EnableLDViewSingleCall");
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey))) {
-        QVariant eValue(enableLDViewSingleCall);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey),eValue);
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey)) || persist) {
+        if (! persist)
+            preferredRenderer = RENDERER_NATIVE; // No persisted setting so set renderer to Native
+        QVariant cValue(preferredRenderer);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),cValue);
     } else {
-        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey)).toBool();
+        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
+        bool clearPreferredRenderer = false;
+        if (preferredRenderer == RENDERER_LDGLITE) {
+            clearPreferredRenderer = !ldgliteInstalled;
+        } else if (preferredRenderer == RENDERER_LDVIEW) {
+            clearPreferredRenderer = !ldviewInstalled;
+        } else if (preferredRenderer == RENDERER_POVRAY) {
+            clearPreferredRenderer = !povRayInstalled;
+        }
+        if (clearPreferredRenderer) {
+            preferredRenderer.clear();
+            Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+        }
     }
+
+    // set using native Renderer flag
+    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
 
     // Default projection
     QString const perspectiveProjectionKey("PerspectiveProjection");
 
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)) || persist) {
         QVariant uValue(perspectiveProjection);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
     } else {
         perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
     }
 
+    // LDView multiple files single call rendering
+    QString const enableLDViewSingleCallKey("EnableLDViewSingleCall");
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey)) || persist) {
+        QVariant eValue(enableLDViewSingleCall);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey),eValue);
+    } else {
+        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey)).toBool();
+    }
+
     //  LDView single call snapshot list
     QString const enableLDViewSnapshotsListKey("EnableLDViewSnapshotsList");
 
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey))) {
-        QVariant uValue(enableLDViewSnaphsotList);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey),uValue);
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey)) || persist) {
+        QVariant eValue(enableLDViewSnaphsotList);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey),eValue);
     } else {
         enableLDViewSnaphsotList = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey)).toBool();
     }
@@ -2059,11 +2169,20 @@ void Preferences::preferredRendererPreferences()
     // povray generation renderer
     QString const useNativePovGeneratorKey("UseNativePovGenerator");
 
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey))) {
-        QVariant cValue(useNativePovGenerator);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey),cValue);
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey)) || persist) {
+        QVariant eValue(useNativePovGenerator);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey),eValue);
     } else {
         useNativePovGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey)).toBool();
+    }
+
+    // Apply latitude and longitude camera angles locally
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
+        applyCALocally = !(perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
+        QVariant uValue(applyCALocally);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),uValue);
+    } else {
+        applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();
     }
 
     // set LDView ini
@@ -2372,15 +2491,6 @@ void Preferences::rendererPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey),uValue);
     } else {
         povrayAutoCrop = Settings.value(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey)).toBool();
-    }
-
-    // Apply latitude and longitude camera angles locally
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
-        applyCALocally = !(perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
-        QVariant uValue(applyCALocally);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),uValue);
-    } else {
-        applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();
     }
 
     // Image matting [future use]
@@ -4105,91 +4215,6 @@ void Preferences::pliPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,pliControlKey),pliControlFile);
         else
             pliControlFile.clear();
-    }
-}
-
-void Preferences::fadestepPreferences()
-{
-    QSettings Settings;
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"))) {
-        QVariant eValue(false);
-        enableFadeSteps = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),eValue);
-    } else {
-        enableFadeSteps = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps")).toBool();
-    }
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"))) {
-        QVariant eValue(false);
-        fadeStepsUseColour = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),eValue);
-    } else {
-        fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour")).toBool();
-    }
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey))) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),validFadeStepsColour);
-    } else {
-        validFadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
-    }
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"))) {
-        QVariant cValue(FADE_OPACITY_DEFAULT);
-        fadeStepsOpacity = FADE_OPACITY_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),cValue);
-    } else {
-        fadeStepsOpacity = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")).toInt();
-    }
-
-    QString const LDrawColourPartsKey("LDrawColourPartsFile");
-    ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)))
-        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)).toString();
-    QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
-    if (!ldrawColorFileInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey));
-        ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
-    }
-    ldrawColorFileInfo.setFile(ldrawColourPartsFile);
-    if (ldrawColorFileInfo.exists())
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey),ldrawColourPartsFile);
-    else
-        ldrawColourPartsFile.clear();
-}
-
-void Preferences::highlightstepPreferences()
-{
-    QSettings Settings;
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"))) {
-        QVariant eValue(false);
-        enableHighlightStep = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"),eValue);
-    } else {
-        enableHighlightStep = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep")).toBool();
-    }
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"))) {
-        QVariant cValue(HIGHLIGHT_COLOUR_DEFAULT);
-        highlightStepColour = HIGHLIGHT_COLOUR_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"),cValue);
-    } else {
-        highlightStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepColor")).toString();
-    }
-
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"))) {
-        QVariant cValue(HIGHLIGHT_LINE_WIDTH_DEFAULT);
-        highlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),cValue);
-    } else {
-        highlightStepLineWidth = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")).toInt();
-    }
-
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"))) {
-        QVariant uValue(false);
-        highlightFirstStep = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"),uValue);
-    } else {
-        highlightFirstStep = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep")).toBool();
     }
 }
 

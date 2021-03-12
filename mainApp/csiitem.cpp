@@ -704,18 +704,18 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       changePreferredRenderer(pl+" Preferred Renderer",
                               topOfStep,
                               bottomOfStep,
-                              &meta->LPub.assem.preferredRenderer);
+                              &step->csiStepMeta.preferredRenderer);
     } else if (selectedAction == setFadeStepsAction) {
       setFadeSteps("Fade Previous "+pl+" Steps",
                     topOfStep,
                     bottomOfStep,
-                    &meta->LPub.assem.fadeStep);
+                    &step->csiStepMeta.fadeStep);
     } else if (selectedAction == setHighlightStepAction) {
       setHighlightStep("Highlight Current "+pl+" Step",
                        topOfStep,
                        bottomOfStep,
-                       &meta->LPub.assem.highlightStep);
-    } else if (selectedAction == scaleAction){
+                       &step->csiStepMeta.highlightStep);
+    } else if (selectedAction == scaleAction) {
         changeFloatSpin(pl+" Scale",
                         "Model Size",
                         topOfStep,

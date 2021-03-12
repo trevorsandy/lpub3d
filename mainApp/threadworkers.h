@@ -133,9 +133,9 @@ public:
     QStringList                _partList;
 
 public slots:
-     void processFadeColourParts(bool overwriteCustomParts);      // scan LDraw library files for static colored parts and create fade copy
+     void processFadeColourParts(bool overwrite, bool setup);      // scan LDraw library files for static colored parts and create fade copy
 
-     void processHighlightColourParts(bool overwriteCustomParts); // scan LDraw library files for static colored parts and create highlight copy
+     void processHighlightColourParts(bool overwrite, bool setup); // scan LDraw library files for static colored parts and create highlight copy
 
      void processLDSearchDirParts();
 
@@ -174,7 +174,8 @@ signals:
 
 private:
     void processCustomColourParts(PartType partType,
-                                  bool     overwriteCustomParts = false);
+                                  bool     overwrite = false,
+                                  bool     setup = false);
 
     bool endThreadNotRequested(){ return ! _endThreadNowRequested; }
 

@@ -144,8 +144,10 @@ Step::Step(
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
 
+      csiStepMeta.fadeStep         = _meta.LPub.assem.fadeStep;
+      csiStepMeta.highlightStep    = _meta.LPub.assem.highlightStep;
+      csiStepMeta.preferredRenderer= _meta.LPub.assem.preferredRenderer;
       csiStepMeta.studStyle        = _meta.LPub.assem.studStyle;
-
       csiStepMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
       csiStepMeta.modelScale       = _meta.LPub.assem.modelScale;
       csiStepMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
@@ -248,7 +250,7 @@ int Step::createCsi(
   }
 
   QString nameExtension = modelDisplayOnlyStep ? "_dm" : bfxLoad ? "_bfx" : buildModAction ? "_bm" : QString();
-  QString csi_Name      = QString("%1%2").arg(csiName(), nameExtension);
+  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameExtension, Preferences::preferredRenderer.left(3).toLower());
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;

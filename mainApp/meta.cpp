@@ -1916,20 +1916,20 @@ PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
   _value[0].useNativeGenerator = Preferences::useNativePovGenerator;
 }
 
-void PreferredRendererMeta::setPreferences(int reset)
+void PreferredRendererMeta::setPreferences(bool reset)
 {
   RendererData data      = _value[pushed];
-  bool preferenceChanged = false;
+  bool displayPreference = false;
   if (reset) {
     Preferences::preferredRendererPreferences();
-    preferenceChanged = Preferences::preferredRenderer != data.renderer;
+    displayPreference = Preferences::preferredRenderer != data.renderer;
     data.renderer           = Preferences::preferredRenderer;
     data.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
     data.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
     data.useNativeGenerator = Preferences::useNativePovGenerator;
     _value[pushed] = data;
   } else {
-    if ((preferenceChanged = Preferences::preferredRenderer != data.renderer)) {
+    if ((displayPreference = Preferences::preferredRenderer != data.renderer || global)) {
       Preferences::preferredRenderer      = data.renderer;
       Render::setRenderer(Preferences::preferredRenderer);
     }
@@ -1937,11 +1937,16 @@ void PreferredRendererMeta::setPreferences(int reset)
     Preferences::enableLDViewSnaphsotList = data.useLDVSnapShotList;
     Preferences::useNativePovGenerator    = data.useNativeGenerator;
     Preferences::usingNativeRenderer      = data.renderer == RENDERER_NATIVE;
+    if (global) {
+      Preferences::preferredRendererPreferences(global);
+      if (Preferences::preferredRenderer != data.renderer)
+        gui->clearAndReloadModelFile(global);
+    }
   }
   Preferences::updatePOVRayConfigFiles();
-  if (preferenceChanged)
-    emit gui->messageSig(LOG_INFO,QMessageBox::tr("Renderer %1 to %2%3.")
-                                                  .arg(reset ? "reset" : "changed")
+  if (displayPreference)
+    emit gui->messageSig(LOG_INFO,QMessageBox::tr("Renderer %1 %2%3.")
+                                                  .arg(reset ? "reset to" : global ? "save as" : "changed to")
                                                   .arg(Preferences::preferredRenderer)
                                                   .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
                                                                                                                    .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
@@ -1982,9 +1987,11 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
   }
   if (rc == OkRc) {
     _here[pushed] = here;
-    if (argv[1] == "PREFERRED_RENDERER")
-      rc = PreferredRendererRc;
-    else if (argv[1] == "ASSEM")
+    if (argv[1] == "CALLOUT") {
+      rc = PreferredRendererCalloutAssemRc;
+    } else if (argv[1] == "MULTI_STEP") {
+      rc = PreferredRendererGroupAssemRc;
+    } else if (argv[1] == "ASSEM")
       rc = PreferredRendererAssemRc;
     else if (argv[1] == "SUBMODEL_DISPLAY")
       rc = PreferredRendererSubModelRc;
@@ -1992,6 +1999,8 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
       rc = PreferredRendererPliRc;
     else if (argv[1] == "BOM")
       rc = PreferredRendererBomRc;
+    else if (argv[1] == "PREFERRED_RENDERER")
+      rc = PreferredRendererRc;
   } else if (reportErrors) {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
@@ -3385,6 +3394,9 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   studStyle.init        (this,"STUD_STYLE");  
   highContrast.init     (this,"HIGH_CONTRAST");
   autoEdgeColor.init    (this,"AUTOMATE_EDGE_COLOR");
+  fadeStep.init         (this,"FADE_STEP");
+  highlightStep.init    (this,"HIGHLIGHT_STEP");
+  preferredRenderer.init(this,"PREFERRED_RENDERER");
 
   // assem image scale
   modelScale.init       (this,"MODEL_SCALE");
@@ -3693,15 +3705,29 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
     _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
-    if (argv[1] == "FADE_STEP")
+    if (argv[1] == "FADE_STEP") {
       rc = EnableFadeStepsRc;
-    else if (argv[1] == "HIGHLIGHT_STEP")
+    } else if (argv[1] == "HIGHLIGHT_STEP") {
       rc = EnableHighlightStepRc;
-    else if (argv[1] == "ASSEM") {
+    } else if (argv[1] == "ASSEM") {
       if (argv[2] == "FADE_STEP")
         rc = EnableFadeStepsAssemRc;
       else if (argv[2] == "HIGHLIGHT_STEP")
         rc = EnableHighlightStepAssemRc;
+    } else if (argv[1] == "MULTI_STEP") {
+      if (argv[2] == "ASSEM") {
+        if (argv[3] == "FADE_STEP")
+          rc = EnableFadeStepsGroupAssemRc;
+        else if (argv[3] == "HIGHLIGHT_STEP")
+          rc = EnableHighlightStepGroupAssemRc;
+      }
+    } else if (argv[1] == "CALLOUT") {
+      if (argv[2] == "ASSEM") {
+        if (argv[3] == "FADE_STEP")
+          rc = EnableFadeStepsCalloutAssemRc;
+        else if (argv[3] == "HIGHLIGHT_STEP")
+          rc = EnableHighlightStepCalloutAssemRc;
+      }
     }
   }
 
@@ -3782,28 +3808,33 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
   opacity.setValue(Preferences::fadeStepsOpacity);
 }
 
-void FadeStepMeta::setPreferences(int reset)
+void FadeStepMeta::setPreferences(bool reset)
 {
    FadeColorData fdata = color.value();
-   bool preferenceChanged = false;
+   bool displayPreference = false;
    if (reset) {
      Preferences::fadestepPreferences();
-     preferenceChanged = Preferences::enableFadeSteps != enable.value();
+     displayPreference = Preferences::enableFadeSteps != enable.value();
      enable.setValue(Preferences::enableFadeSteps);
      fdata.color = Preferences::validFadeStepsColour;
      fdata.useColor = Preferences::fadeStepsUseColour;
      color.setValue(fdata);
      opacity.setValue(Preferences::fadeStepsOpacity);
    } else {
-     if ((preferenceChanged = Preferences::enableFadeSteps != enable.value()))
+     if ((displayPreference = Preferences::enableFadeSteps != enable.value() || enable.global))
        Preferences::enableFadeSteps    = enable.value();
      Preferences::validFadeStepsColour = fdata.color;
      Preferences::fadeStepsUseColour   = fdata.useColor;
      Preferences::fadeStepsOpacity     = opacity.value();
+     if (enable.global) {
+       Preferences::fadestepPreferences(enable.global);
+       if (Preferences::enableFadeSteps != enable.value())
+         gui->clearCSICache();
+     }
    }
-   if (preferenceChanged)
-     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 to %2%3.")
-                                                   .arg(reset ? "reset" : "changed")
+   if (displayPreference)
+     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 %2%3.")
+                                                   .arg(reset ? "reset to" : enable.global ? "save as" : "changed to")
                                                    .arg(Preferences::enableFadeSteps ? "ON" : "OFF")
                                                    .arg(Preferences::enableFadeSteps ? QString(" Opacity %1").arg(Preferences::fadeStepsOpacity) : QString())
                                                    .arg(Preferences::enableFadeSteps &&
@@ -3834,24 +3865,29 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
   lineWidth.setValue(Preferences::highlightStepLineWidth);
 }
 
-void HighlightStepMeta::setPreferences(int reset)
+void HighlightStepMeta::setPreferences(bool reset)
 {
-   bool preferenceChanged = false;
+   bool displayPreference = false;
    if (reset) {
      Preferences::highlightstepPreferences();
-     preferenceChanged = Preferences::enableHighlightStep != enable.value();
+     displayPreference = Preferences::enableHighlightStep != enable.value();
      enable.setValue(Preferences::enableHighlightStep);
      color.setValue(Preferences::highlightStepColour);
      lineWidth.setValue(Preferences::highlightStepLineWidth);
    } else {
-     if ((preferenceChanged = Preferences::enableHighlightStep != enable.value()))
+     if ((displayPreference = Preferences::enableHighlightStep != enable.value() || enable.global))
        Preferences::enableHighlightStep  = enable.value();
      Preferences::highlightStepColour    = color.value();
      Preferences::highlightStepLineWidth = lineWidth.value();
+     if (enable.global) {
+       Preferences::highlightstepPreferences(enable.global);
+       if (Preferences::enableFadeSteps != enable.value())
+         gui->clearCSICache();
+     }
    }
-   if (preferenceChanged)
-     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Highlight current step %1 to %2%3.")
-                                                   .arg(reset ? "reset" : "changed")
+   if (displayPreference)
+     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Highlight current step %1 %2%3.")
+                                                   .arg(reset ? "reset to" : enable.global ? "save as" : "changed to")
                                                    .arg(Preferences::enableHighlightStep ? "ON" : "OFF")
                                                    .arg(Preferences::enableHighlightStep &&
                                                         Preferences::highlightStepColour.isEmpty() ? QString() :

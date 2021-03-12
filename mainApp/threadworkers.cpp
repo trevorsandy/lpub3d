@@ -544,25 +544,27 @@ void PartWorker::processLDSearchDirParts(){
 /*
  * scan LDraw library files for static colored parts and create fade copy
  */
-void PartWorker::processFadeColourParts(bool overwriteCustomParts)
+void PartWorker::processFadeColourParts(bool overwrite, bool setup)
 {
   //qDebug() << QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False");
   if (doFadeStep())
-    processCustomColourParts(FADE_PART, overwriteCustomParts);
+    processCustomColourParts(FADE_PART, overwrite, setup);
 }
 
 /*
  * scan LDraw library files for static colored parts and create highlight copy
  */
-void PartWorker::processHighlightColourParts(bool overwriteCustomParts)
+void PartWorker::processHighlightColourParts(bool overwrite, bool setup)
 {
   //qDebug() << QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False");
   if (doHighlightStep())
-    processCustomColourParts(HIGHLIGHT_PART, overwriteCustomParts);
+    processCustomColourParts(HIGHLIGHT_PART, overwrite, setup);
 }
 
-void PartWorker::processCustomColourParts(PartType partType, bool overwriteCustomParts)
+void PartWorker::processCustomColourParts(PartType partType, bool overwrite, bool setup)
 {
+  Q_UNUSED(setup)
+
   QString nameMod;
   if (partType == FADE_PART)
     nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
@@ -655,7 +657,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                       }
                   }
                   // add part entry to list
-                  if (!entryExists || overwriteCustomParts) {
+                  if (!entryExists || overwrite) {
                       colourPartList << fileString;
                       logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileString.replace(":::", " ") << " Line: " << i ;
                   } else {
@@ -693,14 +695,14 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       if (_customParts > 0 && customPartsDirs.size() > 0) {
           // transfer to ldSearchDirs
           bool updateLDGLiteSearchDirs = false;
-          Q_FOREACH (QString customPartDir, customPartsDirs){
+          Q_FOREACH (QString customPartDir, customPartsDirs) {
               bool customDirsIncluded = false;
               QString customDir = QDir::toNativeSeparators(customPartDir.toLower());
               // check if custom directories included
               Q_FOREACH (QString ldSearchDir, Preferences::ldSearchDirs ) {
                   QString searchDir = QDir::toNativeSeparators(ldSearchDir.toLower());
                   if (customDirsIncluded)
-                    break;
+                      break;
                   customDirsIncluded = (searchDir == customDir);
               }
               // If not included add custom directories and update registry and LDView and LDGLite extra search directories
@@ -713,13 +715,12 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
+                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
+                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
-                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
-                  if (!updateLDGLiteSearchDirs)
-                      updateLDGLiteSearchDirs = true;
+                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
+                  updateLDGLiteSearchDirs = Preferences::preferredRenderer == RENDERER_LDGLITE;
               }
           }
           if (updateLDGLiteSearchDirs)
@@ -728,10 +729,10 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   }
 
   // Archive custom parts
-  if (colourPartList.size() > 0 || (existingCustomParts > 0 && overwriteCustomParts)){
+  if (colourPartList.size() > 0 || (existingCustomParts > 0 && overwrite)){
       // Process archive files
       QString comment = QString("color %1").arg(nameMod);
-      if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
+      if (!processPartsArchive(customPartsDirs, comment, overwrite)){
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
           emit gui->messageSig(LOG_ERROR,error);
           //emit progressStatusRemoveSig();

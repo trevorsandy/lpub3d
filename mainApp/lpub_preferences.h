@@ -69,12 +69,12 @@ class Preferences
     static void viewerPreferences();
     static void lgeoPreferences();
     static void rendererPreferences();
-    static void preferredRendererPreferences();
+    static void preferredRendererPreferences(bool = false);
+    static void fadestepPreferences(bool = false);
+    static void highlightstepPreferences(bool = false);
     static void pliPreferences();
     static void unitsPreferences();
     static void annotationPreferences();
-    static void fadestepPreferences();
-    static void highlightstepPreferences();
     static void publishingPreferences();
     static void loggingPreferences();
     static void exportPreferences();

@@ -3253,12 +3253,20 @@ void MetaItem::changePreferredRenderer(
   bool ok;
   ok = PreferredRendererDialog::getPreferredRenderer(_meta,title,gui);
 
-  if (ok) {
+  if (ok && _meta.value().renderer != meta->value().renderer) {
+//    bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
     bool useTop = !gui->stepContains(here,calloutRx);
+//    beginMacro("PreferredRenderer");
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
+//    reloadFile = true;
+//    setLoadingFileFlag(true);
+//    endMacro();
+//    if (reloadFile) {
+//      reloadModelFile(true);
+//    }
   }
 }
 
@@ -3279,6 +3287,7 @@ QString         title,
   ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
 
   if (ok) {
+    bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
     bool useTop = !gui->stepContains(here,calloutRx);
@@ -3286,6 +3295,8 @@ QString         title,
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
       setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
+      reloadFile = meta->enable.value();
+      setLoadingFileFlag(reloadFile);
     }
     if(_meta.color.value().color != meta->color.value().color ||
        _meta.color.value().useColor != meta->color.value().useColor) {
@@ -3297,6 +3308,11 @@ QString         title,
       setMeta(topOfStep,bottomOfStep,&meta->opacity,useTop,append,local,askLocal);
     }
     endMacro();
+    if (reloadFile) {
+      reloadModelFile(true);
+    } else {
+      clearCsiCache();
+    }
   }
 }
 
@@ -3317,13 +3333,16 @@ void MetaItem::setHighlightStep(
   ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
 
   if (ok) {
+    bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = !gui->stepContains(here,calloutRx);
+    bool useTop = append = !gui->stepContains(here,calloutRx);
     beginMacro("SetHighlightStep");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
       setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
+      reloadFile = meta->enable.value();
+      setLoadingFileFlag(reloadFile);
     }
     if(_meta.color.value() != meta->color.value()) {
       meta->color.setValue(_meta.color.value());
@@ -3334,6 +3353,11 @@ void MetaItem::setHighlightStep(
       setMeta(topOfStep,bottomOfStep,&meta->lineWidth,useTop,append,local,askLocal);
     }
     endMacro();
+    if (reloadFile) {
+      reloadModelFile(true);
+    } else {
+      clearCsiCache();
+    }
   }
 }
 
