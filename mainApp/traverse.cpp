@@ -2413,14 +2413,14 @@ int Gui::drawPage(
                           }
 
                           // Load the 3DViewer -  callouts and multistep Steps are not loaded
-                          if (!exportingObjects()) {
-                              if (step) {
-                                  step->setBottomOfStep(opts.current);
+                          if (step) {
+                              step->setBottomOfStep(opts.current);
+                              if (!exportingObjects()) {
                                   setCurrentStep(step);
                                   if (partsAdded)
                                       step->loadTheViewer();
+                                  showLine(topOfStep);
                               }
-                              showLine(topOfStep);
                           }
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);

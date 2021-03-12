@@ -702,6 +702,11 @@ int Gui::addGraphicsPageItems(
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
                               step->subModel.placeRelative(&step->pli);
+                          } else {
+                              // Redirect Pli relative to PageHeader
+                              step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                              pageHeader->appendRelativeTo(&step->pli);
+                              pageHeader->placeRelative(&step->pli);
                           }
                       }
                   }

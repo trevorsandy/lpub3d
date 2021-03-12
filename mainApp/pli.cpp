@@ -3205,19 +3205,13 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       if (newPosition.x() || newPosition.y()) {
           positionChanged = true;
           PlacementData placementData = placement.value();
-          placementData.offsets[0] += newPosition.x()/pli->relativeToSize[0];
-          placementData.offsets[1] += newPosition.y()/pli->relativeToSize[1];
+          placementData.offsets[XX] += newPosition.x()/pli->relativeToSize[XX];
+          placementData.offsets[YY] += newPosition.y()/pli->relativeToSize[YY];
           placement.setValue(placementData);
 
-          Where here, top, bottom;
-          bool useBot;
-
-          useBot = pli->autoRange(top,bottom);
-
-          here = top;
-          if (useBot) {
+          Where here, bottom;
+          if (pli->autoRange(here, bottom))
               here = bottom;
-          }
           changePlacementOffset(here,&placement,pli->parentRelativeType);
         }
     }
