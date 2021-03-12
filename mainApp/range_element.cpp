@@ -58,6 +58,8 @@ const Where &AbstractRangeElement::topOfStep()
     
 const Where &AbstractRangeElement::bottomOfStep()
 {
+  if (bottom != Where())
+      return bottom;
   return parent->bottomOfStep(this);
 }
 
