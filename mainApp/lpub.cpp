@@ -3628,6 +3628,8 @@ void Gui::initialize()
           this, SLOT(UpdateAllViews()));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
+  connect(this, SIGNAL(parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool)),
+          this, SLOT(  parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool)));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)

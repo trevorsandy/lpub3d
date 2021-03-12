@@ -1248,10 +1248,11 @@ public slots:
   void canUndoChanged(bool);
   void cleanChanged(bool);
 
-  /* The edit window sends us these */
+  /* The edit window sends us this */
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
+  /* This must be called from the Gui thread */
   void parseError(const QString &errorMsg,
                   const Where &here,
                   Preferences::MsgKey msgKey = Preferences::ParseErrors,
@@ -1409,10 +1410,9 @@ public slots:
   void editModelFile(bool saveBefore, bool subModel = false);
 
 signals:
-
   /* tell the editor to display this file */
-
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
+  void parseErrorSig(const QString &, const Where &, Preferences::MsgKey, bool, bool);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);

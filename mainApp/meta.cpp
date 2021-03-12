@@ -2714,7 +2714,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           gui->getTopOfStepWhere(topOfStep);
           if (gui->stepContains(topOfStep, partTypeLineRx)) {
               here.setModelIndex(gui->getSubmodelIndex(here.modelName));
-              gui->parseError(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
+              gui->parseErrorSig(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
                               .arg(argv[index]).arg(topOfStep.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
           }
       }
@@ -3473,7 +3473,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
              QString message = QString("Invalid substitute meta command.<br>"
                                        "No valid parts between %1 and PLI END.<br>Got %2.")
                      .arg(argv.join(" ")).arg(originalTypeLine);
-             emit gui->parseError(message,here);
+             emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
          }
      }
   }
@@ -5691,7 +5691,7 @@ void Meta::processSpecialCases(QString &line, Where &here){
                                           "This command will be ignored. %2")
                                           .arg(typesRx.cap(1))
                                           .arg(line);
-                gui->parseError(message,here);
+                gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
                 line = "0 // IGNORED";
             }
         }

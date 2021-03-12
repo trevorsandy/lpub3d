@@ -4800,10 +4800,10 @@ void Gui::writeToTmp(const QString &fileName,
                   // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
                   case BuildModBeginRc:
                       if (!Preferences::buildModEnabled) {
-                          parseError("Build Mod meta command encountered but this functionality is currently disabled.<br>"
-                                     "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
-                                     "again' to disable Build Mod meta parse notifications.",
-                                     here,Preferences::BuildModErrors);
+                          emit parseErrorSig("Build Mod meta command encountered but this functionality is currently disabled.<br>"
+                                             "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
+                                             "again' to disable Build Mod meta parse notifications.",
+                                             here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
                           break;
                       }
                       buildModBottom = getBuildModStepLineNumber(getBuildModNextStepIndex());
@@ -4825,8 +4825,8 @@ void Gui::writeToTmp(const QString &fileName,
                   case BuildModEndModRc:
                      if (buildModApplicable) {
                          if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
-                                 parseError("Key required for nested build mod meta command",
-                                            here,Preferences::BuildModErrors);
+                                 emit parseErrorSig("Key required for nested build mod meta command",
+                                                     here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
                          if (buildModActions.value(buildModLevel) == BuildModApplyRc)
                              buildModIgnore = true;
                          else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)

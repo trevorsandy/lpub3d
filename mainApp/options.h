@@ -300,6 +300,7 @@ public:
 
 class PartLineAttributes
 {
+
 public:
     PartLineAttributes(
             QStringList           &_csiParts,
