@@ -67,23 +67,27 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "HighlightNewParts", 0),                                        // LC_PROFILE_HIGHLIGHT_NEW_PARTS
 	lcProfileEntry("Settings", "HighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),           // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR
 	lcProfileEntry("Settings", "ShadingMode", static_cast<int>(lcShadingMode::DefaultLights)), // LC_PROFILE_SHADING_MODE
+	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT
+	lcProfileEntry("Settings", "BackgroundColor", LC_RGB(49, 52, 55)),                         // LC_PROFILE_BACKGROUND_COLOR
+	lcProfileEntry("Settings", "GradientColorTop", LC_RGB(54, 72, 95)),                        // LC_PROFILE_GRADIENT_COLOR_TOP
+	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR
-	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR
+	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR                          /*** LPub3D Mod - Set default colour ***/
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                            // LC_PROFILE_DRAW_EDGE_LINES
 	lcProfileEntry("Settings", "GridStuds", 1),                                                // LC_PROFILE_GRID_STUDS
-	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(64, 64, 64, 192)),                     // LC_PROFILE_GRID_STUD_COLOR
+	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(64, 64, 64, 192)),                     // LC_PROFILE_GRID_STUD_COLOR                            /*** LPub3D Mod - Set default colour ***/
 	lcProfileEntry("Settings", "GridLines", 1),                                                // LC_PROFILE_GRID_LINES
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                          // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                        // LC_PROFILE_GRID_LINE_COLOR
-	lcProfileEntry("Settings", "AASamples", 4),                                                // LC_PROFILE_ANTIALIASING_SAMPLES                      /*** LPub3D Mod - Set default antialiasing ***/
+	lcProfileEntry("Settings", "AASamples", 4),                                                // LC_PROFILE_ANTIALIASING_SAMPLES                       /*** LPub3D Mod - Set default antialiasing ***/
 	lcProfileEntry("Settings", "ViewSphereEnabled", 1),                                        // LC_PROFILE_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TopRight),     // LC_PROFILE_VIEW_SPHERE_LOCATION
 	lcProfileEntry("Settings", "ViewSphereSize", 100),                                         // LC_PROFILE_VIEW_SPHERE_SIZE
-	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(255, 255, 255, 255)),                // LC_PROFILE_VIEW_SPHERE_COLOR
-	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(100, 100, 100, 255)),            // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
-	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(255, 0, 0, 255)),           // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(255, 255, 255, 255)),                // LC_PROFILE_VIEW_SPHERE_COLOR                          /*** LPub3D Mod - Set default colour ***/
+	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(100, 100, 100, 255)),            // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR                     /*** LPub3D Mod - Set default colour ***/
+	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(255, 0, 0, 255)),           // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR                /*** LPub3D Mod - Set default colour ***/
 
 	lcProfileEntry("Settings", "Language", ""),                                                // LC_PROFILE_LANGUAGE
 	lcProfileEntry("Settings", "ColorTheme", static_cast<int>(lcColorTheme::System)),          // LC_PROFILE_COLOR_THEME                                /*** LPub3D Mod - Set default colour theme to System ***/
@@ -117,12 +121,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 	lcProfileEntry("Defaults", "Author", ""),                                                  // LC_PROFILE_DEFAULT_AUTHOR_NAME
 	lcProfileEntry("Defaults", "AmbientColor", LC_RGB(75, 75, 75)),                            // LC_PROFILE_DEFAULT_AMBIENT_COLOR
-	lcProfileEntry("Defaults", "BackgroundType", LC_BACKGROUND_SOLID),                         // LC_PROFILE_DEFAULT_BACKGROUND_TYPE
-	lcProfileEntry("Defaults", "BackgroundColor", LC_RGB(255, 255, 255)),                      // LC_PROFILE_DEFAULT_BACKGROUND_COLOR
-	lcProfileEntry("Defaults", "GradientColor1", LC_RGB(0, 0, 191)),                           // LC_PROFILE_DEFAULT_GRADIENT_COLOR1
-	lcProfileEntry("Defaults", "GradientColor2", LC_RGB(255, 255, 255)),                       // LC_PROFILE_DEFAULT_GRADIENT_COLOR2
-	lcProfileEntry("Defaults", "BackgroundTexture", ""),                                       // LC_PROFILE_DEFAULT_BACKGROUND_TEXTURE
-	lcProfileEntry("Defaults", "BackgroundTile", 0),                                           // LC_PROFILE_DEFAULT_BACKGROUND_TILE
 
 	lcProfileEntry("HTML", "Options", LC_HTML_SINGLEPAGE),                                     // LC_PROFILE_HTML_OPTIONS
 	lcProfileEntry("HTML", "ImageOptions", LC_IMAGE_TRANSPARENT),                              // LC_PROFILE_HTML_IMAGE_OPTIONS
@@ -137,6 +135,17 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("POVRay", "Width", 1280),                                                   // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                   // LC_PROFILE_POVRAY_HEIGHT
 
+	lcProfileEntry("Settings", "PreviewActiveColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_PREVIEW_ACTIVE_COLOR
+	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                 // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED
+	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                   // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE
+	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION
+	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED
+	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE
+	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION
+	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION
+	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                          // LC_PROFILE_PREVIEW_DRAW_AXES
+	lcProfileEntry("Settings", "DrawPreviewViewSphere",1),                                     // LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE
+	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                         // LC_PROFILE_PREVIEW_LOAD_PATH                          /*** LPub3D Mod - preview widget for LPub3D ***/
 /*** LPub3D Mod - Build Modification ***/
 	lcProfileEntry("Settings", "BuildModification", 0),                                        // LC_PROFILE_BUILD_MODIFICATION                         /*** LPub3D Mod - Build Modification ***/
 /*** LPub3D Mod end ***/
@@ -173,18 +182,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "ConditionalLines", 0),                                         // LC_PROFILE_CONDITIONAL_LINES                         /*** LPub3D Mod - true fade ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewActiveColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_PREVIEW_ACTIVE_COLOR                      /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settgins", "PreviewViewSphereEnabled", 1),                                 // LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED               /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewViewSphereSize", 75),                                   // LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE                  /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewViewSphereLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION           /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED                           /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE                              /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION                          /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION                          /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "DrawPreviewAxis", 0),                                          // LC_PROFILE_PREVIEW_DRAW_AXES                         /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "DrawPreviewViewSphere",1)                                      // LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE                  /*** LPub3D Mod - preview widget ***/
-/*** LPub3D Mod end ***/
 };
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)

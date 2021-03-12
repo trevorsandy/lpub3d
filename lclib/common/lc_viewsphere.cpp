@@ -1,9 +1,7 @@
 #include "lc_global.h"
 #include "lc_viewsphere.h"
 #include "view.h"
-/*** LPub3D Mod - preview widget ***/
-#include "previewwidget.h"
-/*** LPub3D Mod end ***/
+#include "lc_previewwidget.h"
 
 #include "lc_context.h"
 #include "lc_stringcache.h"
@@ -18,18 +16,16 @@ const float lcViewSphere::mRadius = 1.0f;
 const float lcViewSphere::mHighlightRadius = 0.35f;
 const int lcViewSphere::mSubdivisions = 7;
 
-/*** LPub3D Mod - preview widget ***/
 lcViewSphere::lcViewSphere(View* View)
 	: mPreview(nullptr),
 	  mView(View),
 	  mIsPreview(false)
 {
-/*** LPub3D Mod end ***/
 	mMouseDown = false;
 }
 
-/*** LPub3D Mod - preview widget ***/
-lcViewSphere::lcViewSphere(PreviewWidget* Preview, bool subPreview)
+/*** LPub3D Mod - preview widget for LPub3D ***/
+lcViewSphere::lcViewSphere(lcPreviewWidget* Preview, bool SubstitutePreview)
 	: mPreview(Preview),
 	  mView(nullptr),
 	  mIsPreview(true)
@@ -37,7 +33,7 @@ lcViewSphere::lcViewSphere(PreviewWidget* Preview, bool subPreview)
 	mMouseDown = false;
 
 	// set size small for substitue part dialogue preview
-	if (subPreview && lcGetPreferences().mPreviewViewSphereSize != 50)
+	if (SubstitutePreview && lcGetPreferences().mPreviewViewSphereSize != 50)
 		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize * 0.70;
 	else
 		mViewSphereSize = lcGetPreferences().mPreviewViewSphereSize;
@@ -46,9 +42,7 @@ lcViewSphere::lcViewSphere(PreviewWidget* Preview, bool subPreview)
 
 lcMatrix44 lcViewSphere::GetViewMatrix() const
 {
-/*** LPub3D Mod - preview widget ***/
 	lcMatrix44 ViewMatrix = mIsPreview ? mPreview->GetCamera()->mWorldView : mView->mCamera->mWorldView;
-/*** LPub3D Mod end ***/
 	ViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 	return ViewMatrix;
 }
@@ -178,19 +172,15 @@ void lcViewSphere::DestroyResources(lcContext* Context)
 void lcViewSphere::Draw()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - preview widget ***/
 	int ViewportSize = mIsPreview ? mViewSphereSize : Preferences.mViewSphereSize;
-/*** LPub3D Mod end ***/
 
 	if (ViewportSize == 0 || !Preferences.mViewSphereEnabled)
 		return;
 
-/*** LPub3D Mod - preview widget ***/
 	lcContext* Context = mIsPreview ? mPreview->mContext : mView->mContext;
 	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
 	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;
 	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
-/*** LPub3D Mod end ***/
 
 	int Left = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	int Bottom = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
@@ -251,20 +241,16 @@ void lcViewSphere::Draw()
 bool lcViewSphere::OnLeftButtonDown()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - preview widget ***/
 	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
 		return false;
-/*** LPub3D Mod end ***/
 
 	mIntersectionFlags = GetIntersectionFlags(mIntersection);
 
 	if (!mIntersectionFlags.any())
 		return false;
 
-/*** LPub3D Mod - preview widget ***/
 	mMouseDownX = mIsPreview ? mPreview->mInputState.x : mView->mInputState.x;
 	mMouseDownY = mIsPreview ? mPreview->mInputState.y : mView->mInputState.y;
-/*** LPub3D Mod end ***/
 	mMouseDown = true;
 
 	return true;
@@ -273,10 +259,8 @@ bool lcViewSphere::OnLeftButtonDown()
 bool lcViewSphere::OnLeftButtonUp()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - preview widget ***/
 	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
 		return false;
-/*** LPub3D Mod end ***/
 
 	if (!mMouseDown)
 		return false;
@@ -296,9 +280,7 @@ bool lcViewSphere::OnLeftButtonUp()
 			Position[AxisIdx] = -1250.0f;
 	}
 
-/*** LPub3D Mod - preview widget ***/
 	mIsPreview ? mPreview->SetViewpoint(Position) : mView->SetViewpoint(Position);
-/*** LPub3D Mod end ***/
 
 	return true;
 }
@@ -306,33 +288,25 @@ bool lcViewSphere::OnLeftButtonUp()
 bool lcViewSphere::OnMouseMove()
 {
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - preview widget ***/
 	if ((mIsPreview ? !mViewSphereSize : !Preferences.mViewSphereSize) || !Preferences.mViewSphereEnabled)
 		return false;
-/*** LPub3D Mod end ***/
 
 	if (IsDragging())
 	{
-/*** LPub3D Mod - preview widget ***/
 		mIntersectionFlags.reset();
 		mIsPreview ? mPreview->StartOrbitTracking() : mView->StartOrbitTracking();
 		return true;
-/*** LPub3D Mod end ***/
 	}
 
-/*** LPub3D Mod - preview widget ***/
 	if (mIsPreview ? mPreview->IsTracking() : mView->IsTracking())
 		return false;
-/*** LPub3D Mod end ***/
 
 	std::bitset<6> IntersectionFlags = GetIntersectionFlags(mIntersection);
 
 	if (IntersectionFlags != mIntersectionFlags)
 	{
 		mIntersectionFlags = IntersectionFlags;
-/*** LPub3D Mod - preview widget ***/
 		mIsPreview ? mPreview->Redraw() : mView->Redraw();
-/*** LPub3D Mod end ***/
 	}
 
 	return mIntersectionFlags.any();
@@ -340,29 +314,23 @@ bool lcViewSphere::OnMouseMove()
 
 bool lcViewSphere::IsDragging() const
 {
-/*** LPub3D Mod - preview widget ***/
 	int InputStateX = mIsPreview ? mPreview->mInputState.x : mView->mInputState.x;
 	int InputStateY = mIsPreview ? mPreview->mInputState.y : mView->mInputState.y;
 	return mMouseDown && (qAbs(mMouseDownX - InputStateX) > 3 || qAbs(mMouseDownY - InputStateY) > 3);
-/*** LPub3D Mod end ***/
 }
 
 std::bitset<6> lcViewSphere::GetIntersectionFlags(lcVector3& Intersection) const
 {
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - preview widget ***/
 	lcViewSphereLocation Location = mIsPreview ? Preferences.mPreviewViewSphereLocation : Preferences.mViewSphereLocation;
 
 	int Width = mIsPreview ? mPreview->mWidth : mView->mWidth;
 	int Height = mIsPreview ? mPreview->mHeight : mView->mHeight;
 	int ViewportSize = mIsPreview ? mViewSphereSize : Preferences.mViewSphereSize;
-/*** LPub3D Mod end ***/
 	int Left = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::TopLeft) ? 0 : Width - ViewportSize;
 	int Bottom = (Location == lcViewSphereLocation::BottomLeft || Location == lcViewSphereLocation::BottomRight) ? 0 : Height - ViewportSize;
-/*** LPub3D Mod - preview widget ***/
 	int x = (mIsPreview ? mPreview->mInputState.x : mView->mInputState.x) - Left;
 	int y = (mIsPreview ? mPreview->mInputState.y : mView->mInputState.y) - Bottom;
-/*** LPub3D Mod end ***/
 	std::bitset<6> IntersectionFlags;
 
 	if (x < 0 || x > Width || y < 0 || y > Height)

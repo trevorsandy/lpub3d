@@ -24,6 +24,8 @@
 #include "lc_library.h"
 #include "lc_colors.h"
 
+#include "lc_previewwidget.h"
+
 #if LC_ENABLE_GAMEPAD
 #include <QtGamepad/QGamepad>
 #endif
@@ -113,6 +115,8 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::Single;
 	mModelTabWidget = nullptr;
+	mPreviewToolBar = nullptr;
+	mPreviewWidget = nullptr;	
 /*** LPub3D Mod - submodel icon ***/
 	mSubmodelIconsLoaded = false;
 /*** LPub3D Mod end ***/
@@ -186,10 +190,10 @@ void lcMainWindow::CreateWidgets()
 	connect(mModelTabWidget->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ModelTabContextMenuRequested(const QPoint&)));
 #else
 /*** LPub3D Mod - hide tab bar (Qt < 5) ***/
-		mModelTabWidget->hide();
+	mModelTabWidget->hide();
 /*** LPub3D Mod end ***/
-		mModelTabWidget->setMovable(true);
-		mModelTabWidget->setTabsClosable(true);
+	mModelTabWidget->setMovable(true);
+	mModelTabWidget->setTabsClosable(true);
 	connect(mModelTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(ModelTabClosed(int)));
 #endif
 	setCentralWidget(mModelTabWidget);
@@ -646,6 +650,9 @@ void lcMainWindow::CreateMenus()
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
+	lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+		ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
 	ToolBarsMenu->addSeparator();
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
@@ -698,7 +705,6 @@ void lcMainWindow::CreateMenus()
 ***/
 /*** LPub3D Mod end ***/
 }
-
 
 void lcMainWindow::CreateToolBars()
 {
@@ -886,9 +892,23 @@ void lcMainWindow::CreateToolBars()
 /*** LPub3D Mod - hide mTimelineToolBar ***/
 /***
 	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
-
+***/
+/*** LPub3D Mod end ***/
+	// Preview
+	const lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+		CreatePreviewWidget();
+		
+/*** LPub3D Mod - hide tabify and raise DockWidgets ***/
+/***
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
+
+	connect(mPropertiesToolBar, SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+	connect(mTimelineToolBar,   SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+	connect(mPartsToolBar,      SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+	connect(mColorsToolBar,     SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+
 	mPartsToolBar->raise();
 ***/
 /*** LPub3D Mod end ***/
@@ -905,6 +925,58 @@ void lcMainWindow::CreateToolBars()
 		}
 	}
 /*** LPub3D Mod end ***/
+}
+
+void lcMainWindow::PreviewPiece(const QString &PartType, int ColorCode)
+{
+	if (mPreviewWidget) {
+		if (!mPreviewWidget->SetCurrentPiece(PartType, ColorCode))
+			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for % failed.").arg(PartType));
+	}
+}
+
+void lcMainWindow::CreatePreviewWidget()
+{
+	mPreviewWidget  = new lcPreviewDockWidget();
+
+	mPreviewToolBar = new QDockWidget(tr("Preview"), this);
+	mPreviewToolBar->setWindowTitle(trUtf8("Preview"));
+	mPreviewToolBar->setObjectName("PreviewToolBarw");
+	mPreviewToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	mPreviewToolBar->setWidget(mPreviewWidget);
+
+	addDockWidget(Qt::RightDockWidgetArea, mPreviewToolBar);
+
+	tabifyDockWidget(mTimelineToolBar, mPreviewToolBar);
+
+	connect(mPreviewToolBar, SIGNAL (topLevelChanged(bool)), this, SLOT (EnableWindowFlags(bool)));
+***/
+/*** LPub3D Mod end ***/
+}
+
+void lcMainWindow::TogglePreviewWidget(bool visible)
+{
+	if (mPreviewToolBar) {
+		if (visible)
+			mPreviewToolBar->show();
+		else
+			mPreviewToolBar->hide();
+	} else if (visible) {
+		CreatePreviewWidget();
+	}
+}
+
+void lcMainWindow::EnableWindowFlags(bool Detached)
+{
+	if (Detached) {
+		QDockWidget *DockWidget = qobject_cast<QDockWidget *>(sender());
+		DockWidget->setWindowFlags(Qt::CustomizeWindowHint |
+								   Qt::Window |
+								   Qt::WindowMinimizeButtonHint |
+								   Qt::WindowMaximizeButtonHint |
+								   Qt::WindowCloseButtonHint);
+		DockWidget->show();
+	}
 }
 
 class lcElidedLabel : public QFrame
@@ -1037,6 +1109,9 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
+	lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+		Menu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
 	Menu->addSeparator();
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
@@ -1062,6 +1137,9 @@ void lcMainWindow::UpdateDockWidgetActions()
 	mActions[LC_VIEW_TOOLBAR_STANDARD]->setChecked(mStandardToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_TOOLS]->setChecked(mToolsToolBar->isVisible());
 	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
+	lcPreferences& Preferences = lcGetPreferences();
+	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+		mActions[LC_VIEW_TOOLBAR_PREVIEW]->setChecked(mPreviewToolBar->isVisible());
 }
 
 void lcMainWindow::UpdateGamepads()
@@ -1705,6 +1783,13 @@ void lcMainWindow::ToggleViewSphere()
 	UpdateAllViews();
 }
 
+void lcMainWindow::ToggleAxisIcon()
+{
+	lcGetPreferences().mDrawAxes = !lcGetPreferences().mDrawAxes;
+
+	UpdateAllViews();
+}
+
 void lcMainWindow::ToggleFadePreviousSteps()
 {
 	lcGetPreferences().mFadeSteps = !lcGetPreferences().mFadeSteps;
@@ -1969,7 +2054,7 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		CentralLayout->setContentsMargins(0, 0, 0, 0);
 
 		NewView = new View(Model);
-		ViewWidget = new lcQGLWidget(TabWidget, NewView, true);
+		ViewWidget = new lcQGLWidget(TabWidget, NewView);
 		CentralLayout->addWidget(ViewWidget, 0, 0, 1, 1);
 
 		mModelTabWidget->setCurrentWidget(TabWidget);
@@ -2215,7 +2300,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 		Splitter = new QSplitter(Orientation, Parent);
 		Parent->layout()->addWidget(Splitter);
 		Splitter->addWidget(Focus);
-		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel()), true));
+		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel())));
 	}
 	else
 	{
@@ -2226,7 +2311,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 		Splitter = new QSplitter(Orientation, Parent);
 		ParentSplitter->insertWidget(FocusIndex, Splitter);
 		Splitter->addWidget(Focus);
-		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel()), true));
+		Splitter->addWidget(new lcQGLWidget(mModelTabWidget->currentWidget(), new View(GetCurrentTabModel())));
 
 		ParentSplitter->setSizes(Sizes);
 	}
@@ -3335,6 +3420,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		ToggleDockWidget(mTimelineToolBar);
 		break;
 
+	case LC_VIEW_TOOLBAR_PREVIEW:
+		ToggleDockWidget(mPreviewToolBar);
+		break;
+
 	case LC_VIEW_FULLSCREEN:
 		ToggleFullScreen();
 		break;
@@ -3367,6 +3456,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_TOGGLE_VIEW_SPHERE:
 		ToggleViewSphere();
+		break;
+
+	case LC_VIEW_TOGGLE_AXIS_ICON:
+		ToggleAxisIcon();
 		break;
 
 	case LC_VIEW_FADE_PREVIOUS_STEPS:

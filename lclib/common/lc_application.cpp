@@ -9,6 +9,7 @@
 #include "lc_partselectionwidget.h"
 #include "lc_shortcuts.h"
 #include "view.h"
+#include "lc_previewwidget.h"
 
 /*** LPub3D Mod - includes ***/
 #include "name.h"
@@ -27,6 +28,10 @@ void lcPreferences::LoadDefaults()
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
 	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
 	mShadingMode = static_cast<lcShadingMode>(lcGetProfileInt(LC_PROFILE_SHADING_MODE));
+	mBackgroundGradient = lcGetProfileInt(LC_PROFILE_BACKGROUND_GRADIENT);
+	mBackgroundSolidColor = lcGetProfileInt(LC_PROFILE_BACKGROUND_COLOR);
+	mBackgroundGradientColorTop = lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP);
+	mBackgroundGradientColorBottom = lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM);
 	mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
 	mAxesColor = lcGetProfileInt(LC_PROFILE_AXES_COLOR);
 	mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
@@ -53,6 +58,21 @@ void lcPreferences::LoadDefaults()
 	mAutoLoadMostRecent = lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT);
 	mRestoreTabLayout = lcGetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT);
 	mColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
+
+	mPreviewActiveColor = lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR);
+	mPreviewViewSphereEnabled = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED);
+	mPreviewViewSphereSize = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE);
+	mPreviewViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION));
+	mPreviewEnabled  = lcGetProfileInt(LC_PROFILE_PREVIEW_ENABLED);
+	mPreviewSize     = lcGetProfileInt(LC_PROFILE_PREVIEW_SIZE);
+	mPreviewLocation = static_cast<lcPreviewLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_LOCATION));
+	mPreviewPosition = static_cast<lcPreviewPosition>(lcGetProfileInt(LC_PROFILE_PREVIEW_POSITION));
+	mDrawPreviewAxis = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES);
+	mDrawPreviewViewSphere = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	mPreviewLoadPath = lcGetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 	mDefaultCameraProperties = lcGetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES);
 	mDDF = lcGetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR);
@@ -76,22 +96,6 @@ void lcPreferences::LoadDefaults()
 	mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - add background colour to preferences ***/
-	mBackgroundSolidColor = lcGetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - preview widget ***/
-	mPreviewActiveColor = lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR);
-	mPreviewViewSphereEnabled = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_ENABLED);
-	mPreviewViewSphereSize = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE);
-	mPreviewViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION));
-	mPreviewEnabled  = lcGetProfileInt(LC_PROFILE_PREVIEW_ENABLED);
-	mPreviewSize     = lcGetProfileInt(LC_PROFILE_PREVIEW_SIZE);
-	mPreviewLocation = static_cast<lcPreviewLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_LOCATION));
-	mPreviewPosition = static_cast<lcPreviewPosition>(lcGetProfileInt(LC_PROFILE_PREVIEW_POSITION));
-	mDrawPreviewAxis = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES);
-	mDrawPreviewViewSphere = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 /*** LPub3D Mod end ***/
@@ -104,6 +108,10 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_SHADING_MODE, static_cast<int>(mShadingMode));
 	lcSetProfileInt(LC_PROFILE_DRAW_AXES, mDrawAxes);
 	lcSetProfileInt(LC_PROFILE_AXES_COLOR, mAxesColor);
+	lcSetProfileInt(LC_PROFILE_BACKGROUND_GRADIENT, mBackgroundGradient);
+	lcSetProfileInt(LC_PROFILE_BACKGROUND_COLOR, mBackgroundSolidColor);
+	lcSetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP, mBackgroundGradientColorTop);
+	lcSetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM, mBackgroundGradientColorBottom);
 	lcSetProfileInt(LC_PROFILE_OVERLAY_COLOR, mOverlayColor);
 	lcSetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR, mActiveViewColor);
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
@@ -129,6 +137,20 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT, mRestoreTabLayout);
 	lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(mColorTheme));
 
+	lcSetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR, mPreviewActiveColor);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE, mPreviewViewSphereSize);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION, static_cast<int>(mPreviewViewSphereLocation));
+	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewEnabled);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_SIZE, mPreviewSize);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_LOCATION, static_cast<int>(mPreviewLocation));
+	lcSetProfileInt(LC_PROFILE_PREVIEW_POSITION, static_cast<int>(mPreviewPosition));
+	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES, mDrawPreviewAxis);
+	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE, mDrawPreviewViewSphere);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, mPreviewLoadPath);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 	lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, mDefaultCameraProperties);
 	lcSetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR, mDDF);
@@ -152,22 +174,6 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_CONDITIONAL_LINES, mConditionalLines);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - add background colour to preferences ***/
-	lcSetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR, mBackgroundSolidColor);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - preview widget ***/
-	lcSetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR, mPreviewActiveColor);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE, mPreviewViewSphereSize);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION, static_cast<int>(mPreviewViewSphereLocation));
-	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewEnabled);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_SIZE, mPreviewSize);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_LOCATION, static_cast<int>(mPreviewLocation));
-	lcSetProfileInt(LC_PROFILE_PREVIEW_POSITION, static_cast<int>(mPreviewPosition));
-	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES, mDrawPreviewAxis);
-	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_VIEW_SPHERE, mDrawPreviewViewSphere);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, mBuildMofificationEnabled);
 /*** LPub3D Mod end ***/
@@ -178,6 +184,11 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 	if (ColorTheme == lcColorTheme::Dark)
 	{
 		mAxesColor = LC_RGBA(0, 0, 0, 255);
+/*** LPub3D Mod - set default background colour ***/
+		mBackgroundSolidColor = LC_RGB(49, 52, 55);
+/*** LPub3D Mod end ***/
+		mBackgroundGradientColorTop = LC_RGB(0, 0, 191);
+		mBackgroundGradientColorBottom = LC_RGB(255, 255, 255);
 		mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
 		mActiveViewColor = LC_RGBA(41, 128, 185, 255);
 		mGridStudColor = LC_RGBA(24, 24, 24, 192);
@@ -185,13 +196,13 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(35, 38, 41, 255);
 		mViewSphereTextColor = LC_RGBA(224, 224, 224, 255);
 		mViewSphereHighlightColor = LC_RGBA(41, 128, 185, 255);
-/*** LPub3D Mod - add background colour to preferences ***/
-		mBackgroundSolidColor = LC_RGBA(128, 139, 150, 255);
-/*** LPub3D Mod end ***/
 	}
 	else
 	{
 		mAxesColor = LC_RGBA(0, 0, 0, 255);
+		mBackgroundSolidColor = LC_RGB(255, 255, 255);
+		mBackgroundGradientColorTop = LC_RGB(54, 72, 95);
+		mBackgroundGradientColorBottom = LC_RGB(49, 52, 55);
 		mOverlayColor = LC_RGBA(0, 0, 0, 255);
 		mActiveViewColor = LC_RGBA(255, 0, 0, 255);
 		mGridStudColor = LC_RGBA(64, 64, 64, 192);
@@ -199,9 +210,6 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(255, 255, 255, 255);
 		mViewSphereTextColor = LC_RGBA(0, 0, 0, 255);
 		mViewSphereHighlightColor = LC_RGBA(255, 0, 0, 255);
-/*** LPub3D Mod - add background colour to preferences ***/
-		mBackgroundSolidColor = LC_RGBA(255, 255, 255, 255);
-/*** LPub3D Mod end ***/
 	}
 }
 
@@ -353,6 +361,9 @@ void lcApplication::SetProject(Project* Project)
 	SaveTabLayout();
 
 	gMainWindow->RemoveAllModelTabs();
+
+	if (gMainWindow->GetPreviewWidget())
+		 gMainWindow->GetPreviewWidget()->ClearPreview();
 
 	delete mProject;
 	mProject = Project;
@@ -914,9 +925,8 @@ void lcApplication::ShowPreferencesDialog()
 	Options.MouseShortcutsModified = false;
 	Options.MouseShortcutsDefault = false;
 
-/*** LPub3D Mod - preview widget ***/
-	lcPreviewPosition previewDockable = Options.Preferences.mPreviewPosition;
-/*** LPub3D Mod end ***/
+	lcPreviewPosition PreviewDockable = Options.Preferences.mPreviewPosition;
+
 /*** LPub3D Mod - preference refresh ***/
 	if (Preferences::usingNativeRenderer)
 	{
@@ -943,11 +953,6 @@ void lcApplication::ShowPreferencesDialog()
 	lcQPreferencesDialog Dialog(gMainWindow, &Options);
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-
-/*** LPub3D Mod - preview widget ***/
-	if (previewDockable != Options.Preferences.mPreviewPosition)
-		emit gMainWindow->TogglePreviewWidgetSig(Options.Preferences.mPreviewPosition == lcPreviewPosition::Dockable);
-/*** LPub3D Mod end ***/
 
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);
 	bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
@@ -1014,6 +1019,11 @@ void lcApplication::ShowPreferencesDialog()
 	lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
 	lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 	lcSetProfileInt(LC_PROFILE_STUD_LOGO, Options.StudLogo);
+
+	lcPreviewPosition Dockable = Options.Preferences.mPreviewPosition;
+	if (PreviewDockable != Dockable)
+		gMainWindow->TogglePreviewWidget(
+			Dockable == lcPreviewPosition::Dockable);
 
 /*** LPub3D Mod - preference refresh ***/
 

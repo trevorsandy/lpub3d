@@ -47,9 +47,7 @@ struct lcInstructionsPageLayout;
 class Project
 {
 public:
-/*** LPub3D Mod - preview widget ***/
-	Project(bool isPreview = false);
-/*** LPub3D Mod end ***/
+	Project(bool IsPreview = false);
 	~Project();
 
 	Project(const Project&) = delete;
@@ -208,6 +206,7 @@ protected:
 	std::vector<lcModelPartsEntry> GetModelParts();
 //	void SetFileName(const QString& FileName);   /*** LPub3D Mod - viewer interface (moved to public) ***/
 
+	bool mIsPreview;
 	bool mModified;
 	QString mFileName;
 	QFileSystemWatcher mFileWatcher;
@@ -228,9 +227,6 @@ protected:
 /*** LPub3D Mod - set Timeline title ***/
 	QString mLPubModelName;
 	int mLPubStepNumber;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-	bool mIsPreview;
 /*** LPub3D Mod end ***/
 };
 

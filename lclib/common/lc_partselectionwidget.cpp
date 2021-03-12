@@ -11,11 +11,8 @@
 #include "view.h"
 #include "lc_glextensions.h"
 
-/*** LPub3D Mod - Part selection preview ***/
 #include "lc_qglwidget.h"
-#include "previewwidget.h"
-#include "lpubalert.h"
-/*** LPub3D Mod end ***/
+#include "lc_previewwidget.h"
 
  Q_DECLARE_METATYPE(QList<int>)
 
@@ -418,7 +415,7 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 	lcMatrix44 ProjectionMatrix, ViewMatrix;
 
 	Info->ZoomExtents(20.0f, Aspect, ProjectionMatrix, ViewMatrix);
@@ -686,7 +683,6 @@ void lcPartSelectionListView::startDrag(Qt::DropActions SupportedActions)
 	Drag->exec(Qt::CopyAction);
 }
 
-/*** LPub3D Mod - Part selection preview ***/
 void lcPartSelectionListView::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	QAbstractItemView::mouseDoubleClickEvent(event);
@@ -694,12 +690,8 @@ void lcPartSelectionListView::mouseDoubleClickEvent(QMouseEvent *event)
 	{
 		PreviewSelection(currentIndex().row());
 	}
-	return;
 }
-/*** LPub3D Mod end ***/
 
-
-/*** LPub3D Mod - Part selection preview ***/
 void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 {
 	lcPreferences& Preferences = lcGetPreferences();
@@ -712,27 +704,28 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 
 	quint32 ColorCode = lcGetColorCode(mListModel->GetColorIndex());
 
-	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
-		emit gMainWindow->PreviewPieceSig(Info->mFileName, ColorCode);
+	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+	{
+		gMainWindow->PreviewPiece(Info->mFileName, ColorCode);
 		return;
 	}
 
-	PreviewWidget *Preview = new PreviewWidget();
+	lcPreviewWidget* Preview = new lcPreviewWidget();
 
-	lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+	lcQGLWidget* ViewWidget = new lcQGLWidget(nullptr, Preview);
 
-	if (Preview && ViewWidget) {
+	if (Preview && ViewWidget)
+	{
 		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (!Preview->SetCurrentPiece(Info->mFileName, ColorCode))
-			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(Info->mFileName));
+			QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
 		ViewWidget->SetPreviewPosition(rect());
 	}
 	else
 	{
-		emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(Info->mFileName));
+		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
 	}
 }
-/*** LPub3D Mod end ***/
 
 lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	: QWidget(Parent), mFilterAction(nullptr)

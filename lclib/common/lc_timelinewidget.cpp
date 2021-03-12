@@ -8,11 +8,8 @@
 /*** LPub3D Mod - set Timeline title ***/
 #include "project.h"
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Part selection preview ***/
 #include "lc_qglwidget.h"
-#include "previewwidget.h"
-#include "lpubalert.h"
-/*** LPub3D Mod end ***/
+#include "lc_previewwidget.h"
 
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
@@ -617,7 +614,6 @@ void lcTimelineWidget::mousePressEvent(QMouseEvent* Event)
 		QTreeWidget::mousePressEvent(Event);
 }
 
-/*** LPub3D Mod - Part selection preview ***/
 void lcTimelineWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	QTreeWidget::mouseDoubleClickEvent(event);
@@ -642,23 +638,24 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
 	if (!Info)
 		return;
 
-	PreviewWidget *Preview = new PreviewWidget();
+	lcPreviewWidget *Preview = new lcPreviewWidget();
 
-	lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+	lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview);
 
 	if (Preview && ViewWidget)
 	{
+/*** LPub3D Mod - preview widget for LPub3D ***/
 		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+/*** LPub3D Mod end ***/
 		if (!Preview->SetCurrentPiece(Info->mFileName, Piece->mColorCode))
-			lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(Info->mFileName));
+			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for %1 failed.").arg(Info->mFileName));
 		ViewWidget->SetPreviewPosition(rect());
 	}
 	else
 	{
-		emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(Info->mFileName));
+		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(Info->mFileName));
 	}
 }
-/*** LPub3D Mod end ***/
 
 void lcTimelineWidget::UpdateModel()
 {

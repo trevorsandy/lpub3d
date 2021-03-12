@@ -235,12 +235,10 @@ void lcContext::DestroyResources()
 
 void lcContext::SetDefaultState()
 {
-/*** LPub3D Mod - OpenGL ES 2.0+ ***/
 #ifndef LC_OPENGLES
 	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
 		glEnable(GL_LINE_SMOOTH);
 #endif
-/*** LPub3D Mod end ***/
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

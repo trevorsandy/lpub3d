@@ -1099,6 +1099,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Toggle the Timeline Toolbar"),
 		""
 	},
+	// LC_VIEW_TOOLBAR_PREVIEW
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Preview"),
+		QT_TRANSLATE_NOOP("Menu", "Preview"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Preview Toolbar"),
+		""
+	},
 	// LC_VIEW_FULLSCREEN
 	{
 		QT_TRANSLATE_NOOP("Action", "View.FullScreen"),
@@ -1153,6 +1160,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "View.ToggleViewSphere"),
 		QT_TRANSLATE_NOOP("Menu", "View Sphere"),
 		QT_TRANSLATE_NOOP("Status", "Toggle the view sphere"),
+		""
+	},
+	// LC_VIEW_TOGGLE_AXIS_ICON
+	{
+		QT_TRANSLATE_NOOP("Action", "View.ToggleAxisIcon"),
+		QT_TRANSLATE_NOOP("Menu", "Axis Icon"),
+		QT_TRANSLATE_NOOP("Status", "Toggle axis icon"),
 		""
 	},
 	// LC_VIEW_FADE_PREVIOUS_STEPS

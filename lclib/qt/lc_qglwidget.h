@@ -6,19 +6,12 @@ class lcGLWidget;
 class lcQGLWidget : public QGLWidget
 {
 public:
-/*** LPub3D Mod - preview widget ***/
-	lcQGLWidget(QWidget* Parent, lcGLWidget* Owner, bool isView, bool isPreview = false);
-/*** LPub3D Mod end ***/
+	lcQGLWidget(QWidget* Parent, lcGLWidget* Owner);
 	~lcQGLWidget();
 
 	QSize sizeHint() const override;
 
-	lcGLWidget *widget;
-	QSize preferredSize;
-	bool mIsView;
-/*** LPub3D Mod - preview widget ***/
-	bool mIsPreview;
-/*** LPub3D Mod end ***/
+	lcGLWidget* widget;
 
 	float deviceScale()
 	{
@@ -29,14 +22,11 @@ public:
 #endif
 	}
 
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint(), bool UseViewPos = false);
 /*** LPub3D Mod end ***/
 
-	QTimer mUpdateTimer;
-
 protected:
-	void initializeGL() override;
 	void resizeGL(int Width, int Height) override;
 	void paintGL() override;
 	void keyPressEvent(QKeyEvent* KeyEvent) override;
@@ -51,5 +41,6 @@ protected:
 	void dragMoveEvent(QDragMoveEvent* DragMoveEvent) override;
 	void dropEvent(QDropEvent* DropEvent) override;
 
+	QSize mPreferredSize;
 	int mWheelAccumulator;
 };

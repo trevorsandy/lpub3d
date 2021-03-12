@@ -11,14 +11,15 @@
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "lc_qutils.h"
+
+#include "lc_qglwidget.h"
+#include "lc_previewwidget.h"
+
 /*** LPub3D Mod - Camera Globe ***/
 #include "project.h"
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-#include "lc_qglwidget.h"
-#include "previewwidget.h"
-/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Axis overlay ***/
 enum axis
 {
  X = 0,
@@ -1172,12 +1173,11 @@ void lcQPropertiesTree::slotSetValue(int Value)
 		{
 			QComboBox *editor = (QComboBox*)sender();
 
-/*** LPub3D Mod - preview widget ***/
 			PieceInfo* Info = (PieceInfo*)editor->itemData(Value).value<void*>();
 			Model->SetSelectedPiecesPieceInfo(Info);
 
 			lcPreferences& Preferences = lcGetPreferences();
-			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 			{
 				int ColorIndex = gDefaultColor;
 				lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
@@ -1186,9 +1186,9 @@ void lcQPropertiesTree::slotSetValue(int Value)
 				quint32 ColorCode = lcGetColorCode(ColorIndex);
 				PreviewSelection(Info->mFileName, ColorCode);
 			}
-/*** LPub3D Mod end ***/
 		}
 	}
+/*** LPub3D Mod - enable lights ***/	
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
 	{
 		lcObject* Focus = Model->GetFocusObject();
@@ -1203,6 +1203,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 		}
 	}
 }
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - enable lights ***/
 void lcQPropertiesTree::slotSetColorValue(QColor Value)
@@ -1461,9 +1462,8 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 /*** LPub3D Mod - Add Model Properties ***/
 	const lcModelProperties& ModelInfo = Model->GetProperties();
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod end ***/
 
 	if (Piece)
 	{
@@ -1471,13 +1471,12 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		Hide = Piece->GetStepHide();
 		ColorIndex = Piece->mColorIndex;
 		Info = Piece->mPieceInfo;
-/*** LPub3D Mod - preview widget ***/
-		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+/*** LPub3D Mod end ***/
+		if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 		{
 			quint32 ColorCode = lcGetColorCode(ColorIndex);
 			PreviewSelection(Info->mFileName, ColorCode);
 		}
-/*** LPub3D Mod end ***/
 	}
 	else
 	{
@@ -1498,7 +1497,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 				Hide = SelectedPiece->GetStepHide();
 				ColorIndex = SelectedPiece->mColorIndex;
 				Info = SelectedPiece->mPieceInfo;
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 				if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 				{
 					quint32 ColorCode = lcGetColorCode(ColorIndex);
@@ -1983,23 +1982,21 @@ bool lcQPropertiesTree::lastColumn(int column) const
 	return header()->visualIndex(column) == columnCount() - 1;
 }
 
-/*** LPub3D Mod - preview widget ***/
 void lcQPropertiesTree::PreviewSelection(const QString &PartType, int ColorCode)
 {
 	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
+	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 	{
-		emit gMainWindow->PreviewPieceSig(PartType, ColorCode);
+		gMainWindow->PreviewPiece(PartType, ColorCode);
 		return;
 	}
 
-	PreviewWidget *Preview = new PreviewWidget();
+	lcPreviewWidget *Preview = new lcPreviewWidget();
 
-	lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+	lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview);
 
 	if (Preview && ViewWidget)
 	{
-		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (!Preview->SetCurrentPiece(PartType, ColorCode))
 			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for %1 failed.").arg(PartType));
 		ViewWidget->SetPreviewPosition(rect());
@@ -2009,4 +2006,3 @@ void lcQPropertiesTree::PreviewSelection(const QString &PartType, int ColorCode)
 		QMessageBox::critical(gMainWindow, tr("Error"), tr("Preview %1 failed.").arg(PartType));
 	}
 }
-/*** LPub3D Mod end ***/

@@ -1,8 +1,15 @@
-/*
-   Trevor SANDY
-   Last Update Sep 25, 2020
-   Copyright (c) 2020 by Trevor SANDY
-*/
+QToolTip {
+    color: rgb(58, 58, 58);
+    background-color: rgb(224, 224, 224);
+    border: 0px;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: rgb(80, 80, 80);
+    margin-left: 10px;
+    margin-right: 5px;
+}
 
 QToolBar {
     border: none;
@@ -93,23 +100,9 @@ QTabBar::close-button:pressed {
     background-color: rgba(255, 255, 255, 40);
 }
 
-/*** LPub3D Mod - Format for dark mode ***/
-QToolTip {
-    color: #3A3A3A; background-color: #E0E0F4; border: 0px;
-}
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - observe specified drop-down size ***/
 QComboBox {
     combobox-popup: 0;
 }
 /*** LPub3D Mod end ***/ 
 
-/*** LPub3D Mod - Format for dark mode ***/
-QMenu::separator {
-    height: 1px;
-    background: #737373;
-    margin-left: 10px;
-    margin-right: 5px;
-}
-/*** LPub3D Mod end ***/

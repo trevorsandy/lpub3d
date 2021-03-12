@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
@@ -599,9 +599,101 @@
          </property>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
-           <string>Overlays, Base Grid</string>
+           <string>Background, Overlays, Base Grid</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QGroupBox" name="groupBox_9">
+             <property name="title">
+              <string>Background</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
+                <item>
+                 <widget class="QToolButton" name="BackgroundSolidColorButton">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_13">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="BackgroundSolidRadio">
+                <property name="text">
+                 <string>So&amp;lid Color</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
+                <item>
+                 <widget class="QLabel" name="label_34">
+                  <property name="text">
+                   <string>Top Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="BackgroundGradient1ColorButton">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_35">
+                  <property name="text">
+                   <string>Bottom Color</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="BackgroundGradient2ColorButton">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_14">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <widget class="QRadioButton" name="BackgroundGradientRadio">
+                <property name="text">
+                 <string>&amp;Gradient</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QGroupBox" name="groupBox_8">
              <property name="title">
@@ -660,20 +752,6 @@
                <widget class="QLabel" name="label_27">
                 <property name="text">
                  <string>Overlay Color:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="4">
-               <widget class="QToolButton" name="BackgroundColorButton">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="3">
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>View Background Color:</string>
                 </property>
                </widget>
               </item>
@@ -2058,11 +2136,15 @@
   <tabstop>resetDefaultPosition</tabstop>
   <tabstop>cameraDistanceFactor</tabstop>
   <tabstop>tabWidget_2</tabstop>
+  <tabstop>BackgroundSolidRadio</tabstop>
+  <tabstop>BackgroundSolidColorButton</tabstop>
+  <tabstop>BackgroundGradientRadio</tabstop>
+  <tabstop>BackgroundGradient1ColorButton</tabstop>
+  <tabstop>BackgroundGradient2ColorButton</tabstop>
   <tabstop>AxisIconCheckBox</tabstop>
   <tabstop>AxesColorButton</tabstop>
   <tabstop>OverlayColorButton</tabstop>
   <tabstop>ActiveViewColorButton</tabstop>
-  <tabstop>BackgroundColorButton</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridStudColor</tabstop>
   <tabstop>gridLines</tabstop>
@@ -2098,10 +2180,10 @@
   <tabstop>authorName</tabstop>
   <tabstop>mouseSensitivity</tabstop>
   <tabstop>viewPieceIconsRadio</tabstop>
+  <tabstop>viewColorIconsRadio</tabstop>
   <tabstop>fixedDirectionKeys</tabstop>
   <tabstop>autoLoadMostRecent</tabstop>
   <tabstop>RestoreTabLayout</tabstop>
-  <tabstop>viewColorIconsRadio</tabstop>
   <tabstop>categoriesTree</tabstop>
   <tabstop>partsTree</tabstop>
   <tabstop>importCategories</tabstop>
@@ -2140,8 +2222,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>261</x>
-     <y>440</y>
+     <x>270</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2156,8 +2238,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>329</x>
-     <y>440</y>
+     <x>338</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>

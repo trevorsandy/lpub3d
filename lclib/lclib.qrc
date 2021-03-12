@@ -97,9 +97,8 @@
         <file alias="ldraw.xml">resources/ldraw.xml</file>
         <file alias="leocad.icns">resources/leocad.icns</file>
         <file alias="leocad.ico">resources/leocad.ico</file>
-        <file alias="leocad.png">resources/leocad.png</file>
-        <file alias="leocad32.png">resources/leocad32.png</file>
-        <file alias="leocad.svg">resources/leocad.svg</file>
+        <file alias="leocad32.png">resources/icon/32x32/apps/leocad.png</file>
+        <file alias="leocad.svg">resources/icon/scalable/apps/leocad.svg</file>
         <file alias="leocad_de.ts">resources/leocad_de.ts</file>
         <file alias="leocad_document.icns">resources/leocad_document.icns</file>
         <file alias="leocad_fr.qm">resources/leocad_fr.qm</file>
@@ -134,6 +133,7 @@
         <file alias="time_next.png">resources/time_next.png</file>
         <file alias="time_previous.png">resources/time_previous.png</file>
         <file alias="time_stop.png">resources/time_stop.png</file>
+        <file alias="leocad.png">resources/icon/64x64/apps/leocad.png</file>
         <file alias="view_preferences.png">resources/view_preferences.png</file>
         <file alias="view_split_horizontal.png">resources/view_split_horizontal.png</file>
         <file alias="view_split_vertical.png">resources/view_split_vertical.png</file>

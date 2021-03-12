@@ -70,9 +70,8 @@ void lcHTMLExportOptions::SaveDefaults()
 /*** LPub3D Mod end ***/
 }
 
-/*** LPub3D Mod - preview widget ***/
-Project::Project(bool isPreview)
-	: mIsPreview(isPreview)
+Project::Project(bool IsPreview)
+	: mIsPreview(IsPreview)
 {
 /*** LPub3D Mod - preview widget ***/
 	mModified = false;
@@ -94,10 +93,8 @@ Project::Project(bool isPreview)
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
 
-/*** LPub3D Mod - preview widget ***/
 	if (!mIsPreview)
 		QObject::connect(&mFileWatcher, SIGNAL(fileChanged(const QString&)), gMainWindow, SLOT(ProjectFileChanged(const QString&)));
-/*** LPub3D Mod end ***/
 }
 
 Project::~Project()
@@ -221,12 +218,10 @@ void Project::SetActiveModel(int ModelIndex)
 		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
 
 	mActiveModel = mModels[ModelIndex];
-/*** LPub3D Mod - preview widget ***/
 	if (!mIsPreview) {
 		gMainWindow->SetCurrentModelTab(mActiveModel);
 		mActiveModel->UpdateInterface();
 	}
-/*** LPub3D Mod end ***/
 }
 
 void Project::SetActiveModel(const QString& FileName)
@@ -419,21 +414,19 @@ void Project::ShowModelListDialog()
 
 void Project::SetFileName(const QString& FileName)
 {
-/*** LPub3D Mod - ignore fileWatcher ***/
 	if (mFileName == FileName)
 		return;
+/*** LPub3D Mod - ignore fileWatcher ***/
 	else
 		mFileName = FileName;
 	return;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - preview widget ***/
 	if (!mIsPreview && !mFileName.isEmpty())
 		mFileWatcher.removePath(mFileName);
 
 	if (!mIsPreview && !FileName.isEmpty())
 		mFileWatcher.addPath(FileName);
-/*** LPub3D Mod end ***/
 
 	mFileName = FileName;
 }
@@ -576,14 +569,23 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		while (!Buffer.atEnd())
 		{
 			lcModel* Model = new lcModel(QString(), mIsPreview);
-
 			int Pos = Model->SplitMPD(Buffer);
 
 			if (Models.empty() || !Model->GetFileName().isEmpty())
 			{
-				mModels.Add(Model);
-				Models.emplace_back(std::make_pair(Pos, Model));
-				Model->CreatePieceInfo(this);
+				auto ModelCompare = [Model](const std::pair<int, lcModel*>& ModelIt)
+				{
+					return ModelIt.second->GetFileName() == Model->GetFileName();
+				};
+
+				if (std::find_if(Models.begin(), Models.end(), ModelCompare) == Models.end())
+				{
+					mModels.Add(Model);
+					Models.emplace_back(std::make_pair(Pos, Model));
+					Model->CreatePieceInfo(this);
+				}
+				else
+					delete Model;
 			}
 			else
 				delete Model;
@@ -603,9 +605,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		MemFile.WriteBuffer(FileData.constData(), FileData.size());
 		MemFile.Seek(0, SEEK_SET);
 
-/*** LPub3D Mod - preview widget ***/
 		lcModel* Model = new lcModel(QString(), mIsPreview);
-/*** LPub3D Mod end ***/
 
 		if (Model->LoadBinary(&MemFile))
 		{
@@ -1096,17 +1096,15 @@ void Project::Export3DStudio(const QString& FileName)
 	File.WriteU16(0x0010); // CHK_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundSolidColor, 3);
+	const lcPreferences& Preferences = lcGetPreferences();
+	lcVector3 BackgroundSolidColor = lcVector3FromColor(Preferences.mBackgroundSolidColor);
+
+	File.WriteFloats(BackgroundSolidColor, 3);
 
 	File.WriteU16(0x0013); // CHK_LIN_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundSolidColor, 3);
-
-	File.WriteU16(0x1100); // CHK_BIT_MAP
-	QByteArray BackgroundImage = Properties.mBackgroundImage.toLatin1();
-	File.WriteU32(6 + 1 + (quint32)strlen(BackgroundImage.constData()));
-	File.WriteBuffer(BackgroundImage.constData(), strlen(BackgroundImage.constData()) + 1);
+	File.WriteFloats(BackgroundSolidColor, 3);
 
 	File.WriteU16(0x1300); // CHK_V_GRADIENT
 	File.WriteU32(118);
@@ -1116,41 +1114,39 @@ void Project::Export3DStudio(const QString& FileName)
 	File.WriteU16(0x0010); // CHK_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundGradientColor1, 3);
+	const lcVector3 BackgroundGradientColor1 = lcVector3FromColor(Preferences.mBackgroundGradientColorTop);
+	const lcVector3 BackgroundGradientColor2 = lcVector3FromColor(Preferences.mBackgroundGradientColorBottom);
+
+	File.WriteFloats(BackgroundGradientColor1, 3);
 
 	File.WriteU16(0x0013); // CHK_LIN_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundGradientColor1, 3);
+	File.WriteFloats(BackgroundGradientColor1, 3);
 
 	File.WriteU16(0x0010); // CHK_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats((Properties.mBackgroundGradientColor1 + Properties.mBackgroundGradientColor2) / 2.0f, 3);
+	File.WriteFloats((BackgroundGradientColor1 + BackgroundGradientColor2) / 2.0f, 3);
 
 	File.WriteU16(0x0013); // CHK_LIN_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats((Properties.mBackgroundGradientColor1 + Properties.mBackgroundGradientColor2) / 2.0f, 3);
+	File.WriteFloats((BackgroundGradientColor1 + BackgroundGradientColor2) / 2.0f, 3);
 
 	File.WriteU16(0x0010); // CHK_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundGradientColor2, 3);
+	File.WriteFloats(BackgroundGradientColor2, 3);
 
 	File.WriteU16(0x0013); // CHK_LIN_COLOR_F
 	File.WriteU32(18);
 
-	File.WriteFloats(Properties.mBackgroundGradientColor2, 3);
+	File.WriteFloats(BackgroundGradientColor2, 3);
 
-	if (Properties.mBackgroundType == LC_BACKGROUND_GRADIENT)
+	if (Preferences.mBackgroundGradient)
 	{
 		File.WriteU16(0x1301); // LIB3DS_USE_V_GRADIENT
-		File.WriteU32(6);
-	}
-	else if (Properties.mBackgroundType == LC_BACKGROUND_IMAGE)
-	{
-		File.WriteU16(0x1101); // LIB3DS_USE_BIT_MAP
 		File.WriteU32(6);
 	}
 	else
@@ -2178,12 +2174,12 @@ bool Project::ExportPOVRay(const QString& FileName)
 	const lcVector3& Position = Camera->mPosition;
 	const lcVector3& Target = Camera->mTargetPosition;
 	const lcVector3& Up = Camera->mUpVector;
-	const lcModelProperties& Properties = mModels[0]->GetProperties();
 
 	sprintf(Line, "camera {\n  perspective\n  right x * image_width / image_height\n  sky<%1g,%1g,%1g>\n  location <%1g, %1g, %1g>\n  look_at <%1g, %1g, %1g>\n  angle %.0f * image_width / image_height\n}\n\n",
 			Up[1], Up[0], Up[2], Position[1] / 25.0f, Position[0] / 25.0f, Position[2] / 25.0f, Target[1] / 25.0f, Target[0] / 25.0f, Target[2] / 25.0f, Camera->m_fovy);
 	POVFile.WriteLine(Line);
-	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", Properties.mBackgroundSolidColor[0], Properties.mBackgroundSolidColor[1], Properties.mBackgroundSolidColor[2]);
+	lcVector3 BackgroundColor = lcVector3FromColor(lcGetPreferences().mBackgroundSolidColor);
+	sprintf(Line, "background { color rgb <%1g, %1g, %1g> }\n\n", BackgroundColor[0], BackgroundColor[1], BackgroundColor[2]);
 	POVFile.WriteLine(Line);
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -2192,7 +2188,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-
+		
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)

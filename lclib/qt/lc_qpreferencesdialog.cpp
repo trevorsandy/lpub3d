@@ -32,6 +32,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 ***/
 /*** LPub3D Mod end ***/
 
+	connect(ui->BackgroundSolidColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+	connect(ui->BackgroundGradient1ColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+	connect(ui->BackgroundGradient2ColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->AxesColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->OverlayColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->FadeStepsColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
@@ -45,9 +48,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
 	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
-/*** LPub3D Mod - add background colour to preferences ***/
-	connect(ui->BackgroundColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
-/*** LPub3D Mod end ***/
 
 	ui->partsLibrary->setText(mOptions->LibraryPath);
 	ui->ColorConfigEdit->setText(mOptions->ColorConfigPath);
@@ -81,15 +81,14 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 
-/*** LPub3D Mod - OpenGL ES 2.0+ ***/
 #ifndef LC_OPENGLES
 	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
 	{
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
-		
 	}
 	else
+#endif
 	{
 		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
 		mLineWidthGranularity = 1.0f;
@@ -97,15 +96,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / mLineWidthGranularity);
 	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
-#else
-	ui->LineWidthSlider->setDisabled(true);
-	ui->LineWidthSlider->setToolTip("Disabled for OpenGLES");
-
-	mLineWidthRange[0]    = 0.0f;
-	mLineWidthRange[1]    = 1.0f;
-	mLineWidthGranularity = 0.5f;
-#endif
-/*** LPub3D Mod end ***/
 
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
 
@@ -118,6 +108,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->gridLines->setChecked(mOptions->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(mOptions->Preferences.mGridLineSpacing));
 	ui->AxisIconCheckBox->setChecked(mOptions->Preferences.mDrawAxes);
+
+	if (!mOptions->Preferences.mBackgroundGradient)
+		ui->BackgroundSolidRadio->setChecked(true);
+	else
+		ui->BackgroundGradientRadio->setChecked(true);
 
 	ui->ViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSphereLocation);
 
@@ -141,8 +136,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	}
 	else
 		ui->ViewSphereSizeCombo->setCurrentIndex(0);
-	
-/*** LPub3D Mod - preview widget ***/
+
 	ui->PreviewAxisIconCheckBox->setChecked(mOptions->Preferences.mDrawPreviewAxis);
 
 	ui->PreviewViewSphereCheckBox->setChecked(mOptions->Preferences.mDrawPreviewViewSphere);
@@ -191,7 +185,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	}
 	else
 		ui->PreviewViewSphereSizeCombo->setCurrentIndex(0);
-/*** LPub3D Mod end ***/
 
 	ui->studLogo->setChecked(mOptions->StudLogo);
 	if (ui->studLogo->isChecked())
@@ -204,6 +197,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->ShadingMode->setCurrentIndex(static_cast<int>(mOptions->Preferences.mShadingMode));
 
 	QPixmap pix(12, 12);
+
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_GREEN(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_BLUE(mOptions->Preferences.mBackgroundSolidColor)));
+	ui->BackgroundSolidColorButton->setIcon(pix);
+
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mBackgroundGradientColorTop), LC_RGBA_GREEN(mOptions->Preferences.mBackgroundGradientColorTop), LC_RGBA_BLUE(mOptions->Preferences.mBackgroundGradientColorTop)));
+	ui->BackgroundGradient1ColorButton->setIcon(pix);
+
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mBackgroundGradientColorBottom), LC_RGBA_GREEN(mOptions->Preferences.mBackgroundGradientColorBottom), LC_RGBA_BLUE(mOptions->Preferences.mBackgroundGradientColorBottom)));
+	ui->BackgroundGradient2ColorButton->setIcon(pix);
 
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mAxesColor), LC_RGBA_GREEN(mOptions->Preferences.mAxesColor), LC_RGBA_BLUE(mOptions->Preferences.mAxesColor)));
 	ui->AxesColorButton->setIcon(pix);
@@ -235,11 +237,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_GREEN(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_BLUE(mOptions->Preferences.mViewSphereHighlightColor)));
 	ui->ViewSphereHighlightColorButton->setIcon(pix);
 
-/*** LPub3D Mod - add background colour to preferences ***/
-	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_GREEN(mOptions->Preferences.mBackgroundSolidColor), LC_RGBA_BLUE(mOptions->Preferences.mBackgroundSolidColor)));
-	ui->BackgroundColorButton->setIcon(pix);
-/*** LPub3D Mod end ***/
-
 	on_studLogo_toggled();
 	on_antiAliasing_toggled();
 	on_edgeLines_toggled();
@@ -250,14 +247,13 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_gridStuds_toggled();
 	on_gridLines_toggled();
 	on_ViewSphereSizeCombo_currentIndexChanged(ui->ViewSphereSizeCombo->currentIndex());
-/*** LPub3D Mod - preview widget ***/
+
 	on_PreviewViewSphereSizeCombo_currentIndexChanged(ui->PreviewViewSphereSizeCombo->currentIndex());
 	on_PreviewSizeCombo_currentIndexChanged(ui->PreviewSizeCombo->currentIndex());
 	on_PreviewPositionCombo_currentIndexChanged(ui->PreviewPositionCombo->currentIndex());
 	ui->PreviewLocationCombo->setEnabled(
 				ui->PreviewSizeCombo->currentIndex() != 0 &&
 				ui->PreviewPositionCombo->currentIndex() != 0);
-/*** LPub3D Mod end ***/    
 
 	updateCategories();
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
@@ -408,6 +404,7 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mDrawGridLines = ui->gridLines->isChecked();
 	mOptions->Preferences.mGridLineSpacing = gridLineSpacing;
 
+	mOptions->Preferences.mBackgroundGradient = ui->BackgroundGradientRadio->isChecked();
 	mOptions->Preferences.mDrawAxes = ui->AxisIconCheckBox->isChecked();
 	mOptions->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
 
@@ -434,7 +431,6 @@ void lcQPreferencesDialog::accept()
 	else
 		mOptions->StudLogo = 0;
 
-/*** LPub3D Mod - preview widget ***/   
 	mOptions->Preferences.mDrawPreviewAxis = ui->PreviewAxisIconCheckBox->isChecked();
 
 	mOptions->Preferences.mDrawPreviewViewSphere = ui->PreviewViewSphereCheckBox->isChecked();
@@ -472,7 +468,6 @@ void lcQPreferencesDialog::accept()
 	default:
 		break;
 	}
-/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
 	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();
@@ -569,7 +564,25 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	quint32* Color = nullptr;
 	QColorDialog::ColorDialogOptions DialogOptions;
 
-	if (Button == ui->AxesColorButton)
+	if (Button == ui->BackgroundSolidColorButton)
+	{
+		Color = &mOptions->Preferences.mBackgroundSolidColor;
+		Title = tr("Select Background Color");
+		DialogOptions = 0;
+	}
+	else if (Button == ui->BackgroundGradient1ColorButton)
+	{
+		Color = &mOptions->Preferences.mBackgroundGradientColorTop;
+		Title = tr("Select Gradient Top Color");
+		DialogOptions = 0;
+	}
+	else if (Button == ui->BackgroundGradient2ColorButton)
+	{
+		Color = &mOptions->Preferences.mBackgroundGradientColorBottom;
+		Title = tr("Select Gradient Bottom Color");
+		DialogOptions = 0;
+	}
+	else if (Button == ui->AxesColorButton)
 	{
 		Color = &mOptions->Preferences.mAxesColor;
 		Title = tr("Select Axes Color");
@@ -629,14 +642,6 @@ void lcQPreferencesDialog::ColorButtonClicked()
 		Title = tr("Select View Sphere Highlight Color");
 		DialogOptions = 0;
 	}
-/*** LPub3D Mod - add background colour to preferences ***/
-	else if (Button == ui->BackgroundColorButton)
-	{
-		Color = &mOptions->Preferences.mBackgroundSolidColor;
-		Title = tr("Select Background Color");
-		DialogOptions = 0;
-	}
-/*** LPub3D Mod end ***/
 	else
 		return;
 
@@ -703,7 +708,6 @@ void lcQPreferencesDialog::on_gridLines_toggled()
 	ui->gridLineSpacing->setEnabled(ui->gridLines->isChecked());
 }
 
-/*** LPub3D Mod - preview widget ***/
 void lcQPreferencesDialog::on_PreviewViewSphereSizeCombo_currentIndexChanged(int Index)
 {
 	ui->PreviewViewSphereLocationCombo->setEnabled(Index != 0);
@@ -723,7 +727,6 @@ void lcQPreferencesDialog::on_PreviewPositionCombo_currentIndexChanged(int Index
 	ui->PreviewSizeCombo->setEnabled(Index != 0);
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
 }
-/*** LPub3D Mod end ***/  
 
 void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
 {

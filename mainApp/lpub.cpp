@@ -3120,7 +3120,6 @@ Gui::Gui()
     saveDisplayPageNum = 0;
     displayPageNum     = 1 + pa;
     numPrograms        = 0;
-    PreviewWidget      = nullptr;
     previewDockWindow  = nullptr;
 
     pageProcessRunning              = PROC_NONE;        // display page process

@@ -15,94 +15,18 @@
 #include "lc_texture.h"
 #include "lc_mesh.h"
 #include "lc_profile.h"
-/*** LPub3D Mod - preview widget ***/
-#include "previewwidget.h"
-/*** LPub3D Mod end ***/
+#include "lc_previewwidget.h"
 
 static QList<QGLWidget*> gWidgetList;
 
-void lcGLWidget::MakeCurrent()
+lcQGLWidget::lcQGLWidget(QWidget* Parent, lcGLWidget* Owner)
+	: QGLWidget(Parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
 {
-	QGLWidget* Widget = (QGLWidget*)mWidget;
-
-	Widget->makeCurrent();
-}
-
-void lcGLWidget::Redraw()
-{
-	lcQGLWidget* Widget = (lcQGLWidget*)mWidget;
-
-	Widget->mUpdateTimer.start(0);
-}
-
-void lcGLWidget::SetCursor(lcCursor CursorType)
-{
-	if (mCursor == CursorType)
-		return;
-
-	struct lcCursorInfo
-	{
-		int x, y;
-		const char* Name;
-	};
-
-	const lcCursorInfo Cursors[] =
-	{
-		{  0,  0, "" },                                 // lcCursor::Default
-		{  8,  3, ":/resources/cursor_insert" },        // lcCursor::Brick
-		{ 15, 15, ":/resources/cursor_light" },         // lcCursor::Light
-		{ 15, 15, ":/resources/cursor_sunlight" },      // lcCursor::Sunlight   /*** LPub3D Mod - enable lights ***/
-		{ 15, 15, ":/resources/cursor_arealight" },     // lcCursor::Arealight  /*** LPub3D Mod - enable lights ***/
-		{  7, 10, ":/resources/cursor_spotlight" },     // lcCursor::Spotlight
-		{ 15,  9, ":/resources/cursor_camera" },        // lcCursor::Camera
-		{  0,  2, ":/resources/cursor_select" },        // lcCursor::Select
-		{  0,  2, ":/resources/cursor_select_add" },    // lcCursor::SelectAdd
-		{  0,  2, ":/resources/cursor_select_remove" }, // lcCursor::SelectRemove
-		{ 15, 15, ":/resources/cursor_move" },          // lcCursor::Move
-		{ 15, 15, ":/resources/cursor_rotate" },        // lcCursor::Rotate
-		{ 15, 15, ":/resources/cursor_rotatex" },       // lcCursor::RotateX
-		{ 15, 15, ":/resources/cursor_rotatey" },       // lcCursor::RotateY
-		{  0, 10, ":/resources/cursor_delete" },        // lcCursor::Delete
-		{ 14, 14, ":/resources/cursor_paint" },         // lcCursor::Paint
-		{  1, 13, ":/resources/cursor_color_picker" },  // lcCursor::ColorPicker
-		{ 15, 15, ":/resources/cursor_zoom" },          // lcCursor::Zoom
-		{  9,  9, ":/resources/cursor_zoom_region" },   // lcCursor::ZoomRegion
-		{ 15, 15, ":/resources/cursor_pan" },           // lcCursor::Pan
-		{ 15, 15, ":/resources/cursor_roll" },          // lcCursor::Roll
-		{ 15, 15, ":/resources/cursor_rotate_view" },   // lcCursor::RotateView
-		{ 15, 15, ":/resources/cursor_select" }         // lcCursor::RotateStep    /*** LPub3D Mod - rotate step ***/
-	};
-
-	static_assert(LC_ARRAY_COUNT(Cursors) == static_cast<int>(lcCursor::Count), "Array size mismatch");
-
-	QGLWidget* widget = (QGLWidget*)mWidget;
-
-	if (CursorType != lcCursor::Default && CursorType < lcCursor::Count)
-	{
-		const lcCursorInfo& Cursor = Cursors[static_cast<int>(CursorType)];
-		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));
-		mCursor = CursorType;
-	}
-	else
-	{
-		widget->unsetCursor();
-		mCursor = lcCursor::Default;
-	}
-}
-
-/*** LPub3D Mod - preview widget ***/
-lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool isView, bool isPreview)
-	: QGLWidget(parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first()), mIsPreview(isPreview)
-{
-/*** LPub3D Mod end ***/
 	mWheelAccumulator = 0;
-	widget = owner;
+	widget = Owner;
 	widget->mWidget = this;
 
-	mUpdateTimer.setSingleShot(true);
-	connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
-
-	widget->MakeCurrent();
+	makeCurrent();
 
 	if (gWidgetList.isEmpty())
 	{
@@ -118,12 +42,8 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool isView, bool i
 		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
 			lcGetPreferences().mShadingMode = lcShadingMode::Flat;
 
-/*** LPub3D Mod - preview widget ***/
-		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)  {
-			if (!mIsPreview)
-				gMainWindow->GetPartSelectionWidget()->DisableIconMode();
-		}
-/*** LPub3D Mod end ***/
+		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)
+			gMainWindow->GetPartSelectionWidget()->DisableIconMode();
 
 		gPlaceholderMesh = new lcMesh;
 		gPlaceholderMesh->CreateBox();
@@ -133,17 +53,12 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool isView, bool i
 
 	widget->OnInitialUpdate();
 
-	preferredSize = QSize(0, 0);
 	setMouseTracking(true);
 
-/*** LPub3D Mod - preview widget ***/
-	mIsView = isView;
-	if (mIsView)
+	if (dynamic_cast<View*>(Owner))
 	{
 		setFocusPolicy(Qt::StrongFocus);
-		if (!mIsPreview)
-			setAcceptDrops(true);
-/*** LPub3D Mod end ***/
+		setAcceptDrops(true);
 	}
 }
 
@@ -157,10 +72,7 @@ lcQGLWidget::~lcQGLWidget()
 		gTexFont.Reset();
 
 		lcGetPiecesLibrary()->ReleaseBuffers(widget->mContext);
-/*** LPub3D Mod - preview widget ***/
-		if (!mIsPreview)
-			View::DestroyResources(widget->mContext);
-/*** LPub3D Mod end ***/
+		View::DestroyResources(widget->mContext);
 		lcContext::DestroyResources();
 		lcViewSphere::DestroyResources(widget->mContext);
 
@@ -173,17 +85,15 @@ lcQGLWidget::~lcQGLWidget()
 
 QSize lcQGLWidget::sizeHint() const
 {
-	if (preferredSize.isEmpty())
-		return QGLWidget::sizeHint();
-	else
-		return preferredSize;
+	return mPreferredSize.isNull() ? QGLWidget::sizeHint() : mPreferredSize;
 }
 
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& ViewPos, bool UseViewPos)
 {
+/*** LPub3D Mod end ***/
 	lcPreferences& Preferences = lcGetPreferences();
-	PreviewWidget* Preview = reinterpret_cast<PreviewWidget*>(widget);
+	lcPreviewWidget* Preview = reinterpret_cast<lcPreviewWidget*>(widget);
 
 	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
 
@@ -192,7 +102,7 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 	{
 		Size[0] = 400; Size[1] = 300;
 	}
-	preferredSize = QSize(Size[0], Size[1]);
+	mPreferredSize = QSize(Size[0], Size[1]);
 
 	float Scale = deviceScale();
 	Preview->mWidth = width()  * Scale;
@@ -201,6 +111,7 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 	const QRect desktop = QApplication::desktop()->geometry();
 
 	QPoint pos;
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	if (UseViewPos)
 	{
 		pos = ViewPos;
@@ -223,6 +134,8 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 			break;
 		}
 	}
+/*** LPub3D Mod end ***/
+
 	if (pos.x() < desktop.left())
 		pos.setX(desktop.left());
 	if (pos.y() < desktop.top())
@@ -238,18 +151,11 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 	show();
 	setFocus();
 }
-/*** LPub3D Mod end ***/
 
-void lcQGLWidget::initializeGL()
+void lcQGLWidget::resizeGL(int Width, int Height)
 {
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-}
-
-void lcQGLWidget::resizeGL(int width, int height)
-{
-	widget->mWidth = width;
-	widget->mHeight = height;
+	widget->mWidth = Width;
+	widget->mHeight = Height;
 }
 
 void lcQGLWidget::paintGL()
@@ -257,41 +163,37 @@ void lcQGLWidget::paintGL()
 	widget->OnDraw();
 }
 
-void lcQGLWidget::keyPressEvent(QKeyEvent *event)
+void lcQGLWidget::keyPressEvent(QKeyEvent* KeyEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview && mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
+	if (KeyEvent->key() == Qt::Key_Control || KeyEvent->key() == Qt::Key_Shift)
 	{
-/*** LPub3D Mod end ***/
-		widget->mInputState.Modifiers = event->modifiers();
+		widget->mInputState.Modifiers = KeyEvent->modifiers();
 		widget->OnUpdateCursor();
 	}
 
-	QGLWidget::keyPressEvent(event);
+	QGLWidget::keyPressEvent(KeyEvent);
 }
 
-void lcQGLWidget::keyReleaseEvent(QKeyEvent *event)
+void lcQGLWidget::keyReleaseEvent(QKeyEvent* KeyEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview && mIsView && (event->key() == Qt::Key_Control || event->key() == Qt::Key_Shift))
+	if (KeyEvent->key() == Qt::Key_Control || KeyEvent->key() == Qt::Key_Shift)
 	{
-/*** LPub3D Mod end ***/
-		widget->mInputState.Modifiers = event->modifiers();
+		widget->mInputState.Modifiers = KeyEvent->modifiers();
 		widget->OnUpdateCursor();
 	}
 
-	QGLWidget::keyReleaseEvent(event);
+	QGLWidget::keyReleaseEvent(KeyEvent);
 }
 
-void lcQGLWidget::mousePressEvent(QMouseEvent *event)
+void lcQGLWidget::mousePressEvent(QMouseEvent* MouseEvent)
 {
 	float scale = deviceScale();
 
-	widget->mInputState.x = event->x() * scale;
-	widget->mInputState.y = widget->mHeight - event->y() * scale - 1;
-	widget->mInputState.Modifiers = event->modifiers();
+	widget->mInputState.x = MouseEvent->x() * scale;
+	widget->mInputState.y = widget->mHeight - MouseEvent->y() * scale - 1;
+	widget->mInputState.Modifiers = MouseEvent->modifiers();
 
-	switch (event->button())
+	switch (MouseEvent->button())
 	{
 	case Qt::LeftButton:
 		widget->OnLeftButtonDown();
@@ -320,15 +222,15 @@ void lcQGLWidget::mousePressEvent(QMouseEvent *event)
 	}
 }
 
-void lcQGLWidget::mouseReleaseEvent(QMouseEvent *event)
+void lcQGLWidget::mouseReleaseEvent(QMouseEvent* MouseEvent)
 {
 	float scale = deviceScale();
 
-	widget->mInputState.x = event->x() * scale;
-	widget->mInputState.y = widget->mHeight - event->y() * scale - 1;
-	widget->mInputState.Modifiers = event->modifiers();
+	widget->mInputState.x = MouseEvent->x() * scale;
+	widget->mInputState.y = widget->mHeight - MouseEvent->y() * scale - 1;
+	widget->mInputState.Modifiers = MouseEvent->modifiers();
 
-	switch (event->button())
+	switch (MouseEvent->button())
 	{
 	case Qt::LeftButton:
 		widget->OnLeftButtonUp();
@@ -357,15 +259,15 @@ void lcQGLWidget::mouseReleaseEvent(QMouseEvent *event)
 	}
 }
 
-void lcQGLWidget::mouseDoubleClickEvent(QMouseEvent *event)
+void lcQGLWidget::mouseDoubleClickEvent(QMouseEvent* MouseEvent)
 {
 	float scale = deviceScale();
 
-	widget->mInputState.x = event->x() * scale;
-	widget->mInputState.y = widget->mHeight - event->y() * scale - 1;
-	widget->mInputState.Modifiers = event->modifiers();
+	widget->mInputState.x = MouseEvent->x() * scale;
+	widget->mInputState.y = widget->mHeight - MouseEvent->y() * scale - 1;
+	widget->mInputState.Modifiers = MouseEvent->modifiers();
 
-	switch (event->button())
+	switch (MouseEvent->button())
 	{
 	case Qt::LeftButton:
 		widget->OnLeftButtonDoubleClick();
@@ -375,35 +277,35 @@ void lcQGLWidget::mouseDoubleClickEvent(QMouseEvent *event)
 	}
 }
 
-void lcQGLWidget::mouseMoveEvent(QMouseEvent *event)
+void lcQGLWidget::mouseMoveEvent(QMouseEvent* MouseEvent)
 {
 	float scale = deviceScale();
 
-	widget->mInputState.x = event->x() * scale;
-	widget->mInputState.y = widget->mHeight - event->y() * scale - 1;
-	widget->mInputState.Modifiers = event->modifiers();
+	widget->mInputState.x = MouseEvent->x() * scale;
+	widget->mInputState.y = widget->mHeight - MouseEvent->y() * scale - 1;
+	widget->mInputState.Modifiers = MouseEvent->modifiers();
 
 	widget->OnMouseMove();
 }
 
-void lcQGLWidget::wheelEvent(QWheelEvent *event)
+void lcQGLWidget::wheelEvent(QWheelEvent* WheelEvent)
 {
-	if ((event->orientation() & Qt::Vertical) == 0)
+	if ((WheelEvent->orientation() & Qt::Vertical) == 0)
 	{
-		event->ignore();
+		WheelEvent->ignore();
 		return;
 	}
 
 	float scale = deviceScale();
 
-	widget->mInputState.x = event->x() * scale;
-	widget->mInputState.y = widget->mHeight - event->y() * scale - 1;
-	widget->mInputState.Modifiers = event->modifiers();
+	widget->mInputState.x = WheelEvent->x() * scale;
+	widget->mInputState.y = widget->mHeight - WheelEvent->y() * scale - 1;
+	widget->mInputState.Modifiers = WheelEvent->modifiers();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
-	mWheelAccumulator += event->angleDelta().y() / 8;
+	mWheelAccumulator += WheelEvent->angleDelta().y() / 8;
 #else
-	mWheelAccumulator += event->delta() / 8;
+	mWheelAccumulator += WheelEvent->delta() / 8;
 #endif
 	int numSteps = mWheelAccumulator / 15;
 
@@ -413,65 +315,51 @@ void lcQGLWidget::wheelEvent(QWheelEvent *event)
 		mWheelAccumulator -= numSteps * 15;
 	}
 
-	event->accept();
+	WheelEvent->accept();
 }
 
 void lcQGLWidget::dragEnterEvent(QDragEnterEvent* DragEnterEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview && mIsView)
-	{
-/*** LPub3D Mod end ***/
-		const QMimeData* MimeData = DragEnterEvent->mimeData();
+	const QMimeData* MimeData = DragEnterEvent->mimeData();
 
-		if (MimeData->hasFormat("application/vnd.leocad-part"))
-		{
-			DragEnterEvent->acceptProposedAction();
-			((View*)widget)->BeginDrag(lcDragState::Piece);
-		}
-		else if (MimeData->hasFormat("application/vnd.leocad-color"))
-		{
-			DragEnterEvent->acceptProposedAction();
-			((View*)widget)->BeginDrag(lcDragState::Color);
-		}
+	if (MimeData->hasFormat("application/vnd.leocad-part"))
+	{
+		DragEnterEvent->acceptProposedAction();
+		widget->BeginDrag(lcDragState::Piece);
+		return;
 	}
-	else
-		DragEnterEvent->ignore();
+	else if (MimeData->hasFormat("application/vnd.leocad-color"))
+	{
+		DragEnterEvent->acceptProposedAction();
+		widget->BeginDrag(lcDragState::Color);
+		return;
+	}
+
+	DragEnterEvent->ignore();
 }
 
-void lcQGLWidget::dragLeaveEvent(QDragLeaveEvent *event)
+void lcQGLWidget::dragLeaveEvent(QDragLeaveEvent* DragLeaveEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsView || mIsPreview)
-		return;
-/*** LPub3D Mod end ***/
-
-	((View*)widget)->EndDrag(false);
-
-	event->accept();
+	widget->EndDrag(false);
+	DragLeaveEvent->accept();
 }
 
 void lcQGLWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview && mIsView)
+	const QMimeData* MimeData = DragMoveEvent->mimeData();
+
+	if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))
 	{
-/*** LPub3D Mod end ***/
-		const QMimeData* MimeData = DragMoveEvent->mimeData();
+		float scale = deviceScale();
 
-		if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))
-		{
-			float scale = deviceScale();
+		widget->mInputState.x = DragMoveEvent->pos().x() * scale;
+		widget->mInputState.y = widget->mHeight - DragMoveEvent->pos().y() * scale - 1;
+		widget->mInputState.Modifiers = DragMoveEvent->keyboardModifiers();
 
-			widget->mInputState.x = DragMoveEvent->pos().x() * scale;
-			widget->mInputState.y = widget->mHeight - DragMoveEvent->pos().y() * scale - 1;
-			widget->mInputState.Modifiers = DragMoveEvent->keyboardModifiers();
+		widget->OnMouseMove();
 
-			widget->OnMouseMove();
-
-			DragMoveEvent->accept();
-			return;
-		}
+		DragMoveEvent->accept();
+		return;
 	}
 
 	QGLWidget::dragMoveEvent(DragMoveEvent);
@@ -479,20 +367,15 @@ void lcQGLWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 
 void lcQGLWidget::dropEvent(QDropEvent* DropEvent)
 {
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview && mIsView)
+	const QMimeData* MimeData = DropEvent->mimeData();
+
+	if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))
 	{
-/*** LPub3D Mod end ***/
-		const QMimeData* MimeData = DropEvent->mimeData();
+		widget->EndDrag(true);
+		setFocus(Qt::MouseFocusReason);
 
-		if (MimeData->hasFormat("application/vnd.leocad-part") || MimeData->hasFormat("application/vnd.leocad-color"))
-		{
-			((View*)widget)->EndDrag(true);
-			setFocus(Qt::MouseFocusReason);
-
-			DropEvent->accept();
-			return;
-		}
+		DropEvent->accept();
+		return;
 	}
 
 	QGLWidget::dropEvent(DropEvent);

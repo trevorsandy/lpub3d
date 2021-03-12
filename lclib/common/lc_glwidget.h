@@ -2,6 +2,13 @@
 
 #include "lc_context.h"
 
+enum class lcDragState
+{
+	None,
+	Piece,
+	Color
+};
+
 enum class lcCursor
 {
 	Default,
@@ -71,6 +78,7 @@ public:
 	void MakeCurrent();
 	void Redraw();
 	void SetCursor(lcCursor Cursor);
+	void DrawBackground() const;
 
 	virtual void OnDraw() { }
 	virtual void OnInitialUpdate() { }
@@ -88,12 +96,15 @@ public:
 	virtual void OnForwardButtonUp() { }
 	virtual void OnMouseMove() { }
 	virtual void OnMouseWheel(float Direction) { Q_UNUSED(Direction); }
+	virtual void BeginDrag(lcDragState DragState) { Q_UNUSED(DragState); };
+	virtual void EndDrag(bool Accept) { Q_UNUSED(Accept); };
+
 
 	lcInputState mInputState;
 	int mWidth;
 	int mHeight;
 	lcCursor mCursor;
-	void* mWidget;
+	QGLWidget* mWidget;
 	lcContext* mContext;
 	bool mDeleteContext;
 };

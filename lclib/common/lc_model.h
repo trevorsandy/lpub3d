@@ -51,13 +51,6 @@ enum class lcTransformType
 	Count
 };
 
-enum lcBackgroundType
-{
-	LC_BACKGROUND_SOLID,
-	LC_BACKGROUND_GRADIENT,
-	LC_BACKGROUND_IMAGE
-};
-
 class lcModelProperties
 {
 public:
@@ -68,11 +61,6 @@ public:
 	{
 		if (mFileName != Properties.mFileName || mModelName != Properties.mModelName || mAuthor != Properties.mAuthor ||
 			mDescription != Properties.mDescription || mComments != Properties.mComments)
-			return false;
-
-		if (mBackgroundType != Properties.mBackgroundType || mBackgroundSolidColor != Properties.mBackgroundSolidColor ||
-			mBackgroundGradientColor1 != Properties.mBackgroundGradientColor1 || mBackgroundGradientColor2 != Properties.mBackgroundGradientColor2 ||
-			mBackgroundImage != Properties.mBackgroundImage || mBackgroundImageTile != Properties.mBackgroundImageTile)
 			return false;
 
 		if (mAmbientColor != Properties.mAmbientColor)
@@ -96,13 +84,6 @@ public:
 	QString mAuthor;
 	QString mComments;
 
-	lcBackgroundType mBackgroundType;
-	lcVector3 mBackgroundSolidColor;
-	lcVector3 mBackgroundGradientColor1;
-	lcVector3 mBackgroundGradientColor2;
-	QString mBackgroundImage;
-	bool mBackgroundImageTile;
-
 	lcVector3 mAmbientColor;
 
 /*** LPub3D Mod - preview widget ***/
@@ -119,9 +100,7 @@ struct lcModelHistoryEntry
 class lcModel
 {
 public:
-/*** LPub3D Mod - preview widget ***/
-	lcModel(const QString& FileName, bool isPreview = false);
-/*** LPub3D Mod end ***/
+	lcModel(const QString& FileName, bool Preview = false);
 	~lcModel();
 
 	lcModel(const lcModel&) = delete;
@@ -134,12 +113,10 @@ public:
 		return mSavedHistory != mUndoHistory[0];
 	}
 
-/*** LPub3D Mod - preview widget ***/
 	bool IsPreview()
 	{
 		return mIsPreview;
 	}
-/*** LPub3D Mod end ***/
 
 	bool GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const;
 	bool IncludesModel(const lcModel* Model) const;
@@ -272,10 +249,13 @@ public:
 	{
 		if (mUndoHistory.empty())
 			SaveCheckpoint(QString());
-/*** LPub3D Mod - preview widget ***/
-	if (!mIsPreview)
-		mSavedHistory = mUndoHistory[0];
-/*** LPub3D Mod end ***/
+		if (!mIsPreview)
+			mSavedHistory = mUndoHistory[0];
+	}
+
+	void SetPreviewPiece(lcPiece* Piece)
+	{
+		AddPiece(Piece);
 	}
 
 	void Cut();
@@ -286,8 +266,7 @@ public:
 	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
 /*** LPub3D Mod - true fade ***/	
 	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const;
-/*** LPub3D Mod end ***/	
-	void DrawBackground(lcGLWidget* Widget);
+/*** LPub3D Mod end ***/
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
 	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, int Width, int Height, lcStep Start, lcStep End);
@@ -461,8 +440,6 @@ protected:
 	bool mLPubFade;
 /*** LPub3D Mod end ***/
 
-	void UpdateBackgroundTexture();
-
 	void SelectGroup(lcGroup* TopGroup, bool Select);
 
 //	void AddPiece(lcPiece* Piece); /*** LPub3D Mod - viewer interface (moved to public) ***/
@@ -471,16 +448,13 @@ protected:
 	lcModelProperties mProperties;
 	PieceInfo* mPieceInfo;
 
-/*** LPub3D Mod - preview widget ***/
 	bool mIsPreview;
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	bool mModAction;
 /*** LPub3D Mod end ***/
 	bool mActive;
 	lcStep mCurrentStep;
 	lcVector3 mMouseToolDistance;
-	lcTexture* mBackgroundTexture;
 
 	lcArray<lcPiece*> mPieces;
 	lcArray<lcCamera*> mCameras;

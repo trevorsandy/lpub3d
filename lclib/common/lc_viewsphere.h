@@ -5,16 +5,14 @@
 #include <bitset>
 
 class View;
-/*** LPub3D Mod - preview widget ***/
-class PreviewWidget;
-/*** LPub3D Mod end ***/
+class lcPreviewWidget;
 
 class lcViewSphere
 {
 public:
 	lcViewSphere(View *View);
-/*** LPub3D Mod - preview widget ***/
-	lcViewSphere(PreviewWidget* Preview, bool subPreview);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	lcViewSphere(lcPreviewWidget* Preview, bool SubstitutePreview);
 /*** LPub3D Mod end ***/
 
 	void Draw();
@@ -31,15 +29,11 @@ protected:
 	lcMatrix44 GetProjectionMatrix() const;
 	std::bitset<6> GetIntersectionFlags(lcVector3& Intersection) const;
 
-/*** LPub3D Mod - preview widget ***/
-	PreviewWidget* mPreview;
-/*** LPub3D Mod end ***/
-	View* mView;   
+	lcPreviewWidget* mPreview;
+	View* mView;
 	lcVector3 mIntersection;
 	std::bitset<6> mIntersectionFlags;
-/*** LPub3D Mod - preview widget ***/
 	int mViewSphereSize;
-/*** LPub3D Mod end ***/
 	int mMouseDownX;
 	int mMouseDownY;
 	bool mMouseDown;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
-    <id>org.trevorsandy.lpub3d.desktop</id>
+<component type="desktop-application">
+    <id>org.trevorsandy.lpub3d.LPub3D</id>
+	<content_rating type="oars-1.1" />   
     <name>LPub3D</name>
     <summary>LPub3D - An LDraw Building Instruction Editor</summary>
     <summary xml:lang="fr">LPub3D - Un éditeur d'instruction de construction LDraw</summary>
@@ -30,7 +31,7 @@
         <keyword>brick</keyword>
         <keyword>model</keyword>
     </keywords>
-    <metadata_license>CC-BY-SA-4.0</metadata_license>
+    <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0+</project_license>
     <url type="bugtracker">https://github.com/trevorsandy/lpub3d/issues/new</url>
     <url type="help">https://trevorsandy.github.io/lpub3d/</url>
@@ -65,10 +66,11 @@
     <developer_name>Trevor SANDY</developer_name>
     <update_contact>trevor.sandy@gmail.com</update_contact>
     ​<provides>
+        <id>leocad.desktop</id>
         <binary>lpub3d24</binary>
     ​</provides>
     <releases>
-        <release version="2.4.1.2200" date="2021-03-12">
+        <release version="2.4.1.2201" date="2021-03-12">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

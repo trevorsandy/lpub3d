@@ -27,6 +27,7 @@ HEADERS += \
     $$PWD/common/lc_model.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
+    $$PWD/common/lc_previewwidget.h \
     $$PWD/common/lc_profile.h \
     $$PWD/common/lc_scene.h \
     $$PWD/common/lc_selectbycolordialog.h \
@@ -34,8 +35,8 @@ HEADERS += \
     $$PWD/common/lc_stringcache.h \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
-    $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_timelinewidget.h \
+    $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_zipfile.h \
     $$PWD/common/light.h \
     $$PWD/common/minifig.h \
@@ -67,7 +68,7 @@ HEADERS += \
     $$PWD/qt/lc_renderdialog.h \
     $$PWD/qt/lc_setsdatabasedialog.h
 
-SOURCES +=  \
+SOURCES += \
     $$PWD/common/camera.cpp \
     $$PWD/common/group.cpp \
     $$PWD/common/image.cpp \
@@ -78,6 +79,7 @@ SOURCES +=  \
     $$PWD/common/lc_context.cpp \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_glextensions.cpp \
+    $$PWD/common/lc_glwidget.cpp \
     $$PWD/common/lc_http.cpp \
     $$PWD/common/lc_instructionsdialog.cpp \
     $$PWD/common/lc_library.cpp \
@@ -86,17 +88,18 @@ SOURCES +=  \
     $$PWD/common/lc_mesh.cpp \
     $$PWD/common/lc_meshloader.cpp \
     $$PWD/common/lc_model.cpp \
+    $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
+    $$PWD/common/lc_previewwidget.cpp \
     $$PWD/common/lc_profile.cpp \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_selectbycolordialog.cpp \
-    $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
-    $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
+    $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_zipfile.cpp \
     $$PWD/common/light.cpp \
     $$PWD/common/minifig.cpp \
@@ -130,6 +133,7 @@ SOURCES +=  \
     $$PWD/qt/system.cpp
 
 FORMS += \
+    $$PWD/common/lc_partpalettedialog.ui \
     $$PWD/qt/lc_qaboutdialog.ui \
     $$PWD/qt/lc_qarraydialog.ui \
     $$PWD/qt/lc_qcategorydialog.ui \
@@ -139,14 +143,13 @@ FORMS += \
     $$PWD/qt/lc_qhtmldialog.ui \
     $$PWD/qt/lc_qimagedialog.ui \
     $$PWD/qt/lc_qminifigdialog.ui \
-    $$PWD/qt/lc_qmodellistdialog.ui \ 
+    $$PWD/qt/lc_qmodellistdialog.ui \
     $$PWD/qt/lc_qpreferencesdialog.ui \
     $$PWD/qt/lc_qpropertiesdialog.ui \
     $$PWD/qt/lc_qselectdialog.ui \
     $$PWD/qt/lc_qupdatedialog.ui \
     $$PWD/qt/lc_renderdialog.ui \
-    $$PWD/qt/lc_setsdatabasedialog.ui \
-    $$PWD/common/lc_partpalettedialog.ui
+    $$PWD/qt/lc_setsdatabasedialog.ui
 
 RESOURCES += \
     $$PWD/lclib.qrc

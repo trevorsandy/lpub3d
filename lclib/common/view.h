@@ -52,13 +52,6 @@ enum lcTrackTool
 	LC_TRACKTOOL_COUNT	
 };
 
-enum class lcDragState
-{
-	None,
-	Piece,
-	Color
-};
-
 class View : public lcGLWidget
 {
 public:
@@ -102,6 +95,8 @@ public:
 	void OnForwardButtonUp() override;
 	void OnMouseMove() override;
 	void OnMouseWheel(float Direction) override;
+	void BeginDrag(lcDragState DragState) override;
+	void EndDrag(bool Accept) override;
 
 	bool IsTracking() const
 	{
@@ -110,8 +105,6 @@ public:
 
 	void StartOrbitTracking();
 	void CancelTrackingOrClearSelection();
-	void BeginDrag(lcDragState DragState);
-	void EndDrag(bool Accept);
 
 	void SetProjection(bool Ortho);
 	void LookAt();

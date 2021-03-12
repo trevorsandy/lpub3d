@@ -95,9 +95,7 @@ protected:
 
 	void getPartProperties(lcPartProperties *properties);
 
-/*** LPub3D Mod - preview widget ***/
 	void PreviewSelection(const QString& PartType, int ColorCode);
-/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - LPub3D properties ***/
 	bool FirstHit;

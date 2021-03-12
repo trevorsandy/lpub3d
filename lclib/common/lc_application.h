@@ -24,7 +24,6 @@ enum class lcViewSphereLocation
 	BottomRight
 };
 
-/*** LPub3D Mod - preview widget ***/
 enum class lcPreviewLocation
 {
 	TopLeft,
@@ -37,9 +36,8 @@ enum class lcPreviewPosition
 {
 	Dockable,
 	Floating,
-	Viewport
+	Viewport     // not implemented
 };
-/*** LPub3D Mod end ***/
 
 enum class lcColorTheme
 {
@@ -56,6 +54,10 @@ public:
 
 	int mMouseSensitivity;
 	lcShadingMode mShadingMode;
+	bool mBackgroundGradient;
+	quint32 mBackgroundSolidColor;
+	quint32 mBackgroundGradientColorTop;
+	quint32 mBackgroundGradientColorBottom;
 	bool mDrawAxes;
 	quint32 mAxesColor;
 	quint32 mOverlayColor;
@@ -83,6 +85,21 @@ public:
 	bool mAutoLoadMostRecent;
 	bool mRestoreTabLayout;
 	lcColorTheme mColorTheme;
+
+	int mPreviewEnabled;
+	quint32 mPreviewActiveColor;
+	int mPreviewViewSphereEnabled;
+	int mPreviewViewSphereSize;
+	lcViewSphereLocation mPreviewViewSphereLocation;
+	lcPreviewLocation mPreviewLocation;
+	lcPreviewPosition mPreviewPosition;
+	int mPreviewSize;
+	int mDrawPreviewAxis;
+	int mDrawPreviewViewSphere;
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	QString mPreviewLoadPath;
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 	bool mDefaultCameraProperties;
 	float mDDF;
@@ -103,21 +120,6 @@ public:
 /*** LPub3D Mod - true fade ***/
 	bool mLPubTrueFade;
 	bool mConditionalLines;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - add background colour to preferences ***/
-	quint32 mBackgroundSolidColor;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - preview widget ***/
-	int mPreviewEnabled;
-	quint32 mPreviewActiveColor;
-	int mPreviewViewSphereEnabled;
-	int mPreviewViewSphereSize;
-	lcViewSphereLocation mPreviewViewSphereLocation;
-	lcPreviewLocation mPreviewLocation;
-	lcPreviewPosition mPreviewPosition;
-	int mPreviewSize;
-	int mDrawPreviewAxis;
-	int mDrawPreviewViewSphere;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
 	bool mBuildMofificationEnabled;

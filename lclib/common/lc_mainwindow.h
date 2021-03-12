@@ -13,6 +13,7 @@
 
 class View;
 class lcPartSelectionWidget;
+class lcPreviewDockWidget;
 class PiecePreview;
 class lcQGLWidget;
 class lcQPartsTree;
@@ -254,6 +255,11 @@ public:
 		return mPartSelectionWidget;
 	}
 
+	lcPreviewDockWidget* GetPreviewWidget() const
+	{
+		return mPreviewWidget;
+	}
+
 	QMenu* GetToolsMenu() const
 	{
 		return mToolsMenu;
@@ -345,6 +351,7 @@ public:
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 	void ToggleViewSphere();
+	void ToggleAxisIcon();
 	void ToggleFadePreviousSteps();
 
 /***    void NewProject();                     // LPub3D Mod - moved to public slots ***/
@@ -425,6 +432,8 @@ public:
 
 public slots:
 	void ProjectFileChanged(const QString& Path);
+	void PreviewPiece(const QString &, int);
+	void TogglePreviewWidget(bool);
 /*** LPub3D Mod - relocate update and new project ***/
 	void NewProject();               // move from public:
 	void UpdateAllViews();           // moved from public:
@@ -447,7 +456,7 @@ public slots:
 
 /*** LPub3D Mod - signals ***/
 signals:
-/*** LPub3D Mod - preview widget ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	void PreviewPieceSig(const QString &, int);
 	void TogglePreviewWidgetSig(bool);
 /*** LPub3D Mod end ***/
@@ -480,6 +489,7 @@ protected slots:
 	void ActionTriggered();
 	void ColorChanged(int ColorIndex);
 	void Print(QPrinter* Printer);
+	void EnableWindowFlags(bool);
 
 protected:
 	void closeEvent(QCloseEvent *event) override;
@@ -500,6 +510,7 @@ protected:
 	void ShowRenderDialog();
 	void ShowInstructionsDialog();
 	void ShowPrintDialog();
+	void CreatePreviewWidget();
 
 	bool OpenProjectFile(const QString& FileName);
 
@@ -544,6 +555,7 @@ protected:
 /*** LPub3D Mod end ***/
 
 	QToolBar* mTimeToolBar;
+	QDockWidget* mPreviewToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mColorsToolBar;
 	QDockWidget* mPropertiesToolBar;
@@ -556,6 +568,7 @@ protected:
 	QLineEdit* mTransformXEdit;
 	QLineEdit* mTransformYEdit;
 	QLineEdit* mTransformZEdit;
+	lcPreviewDockWidget* mPreviewWidget;
 
 	lcElidedLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;

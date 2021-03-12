@@ -59,7 +59,7 @@ unix:!macx {
     isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
 
     isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
-    isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/pixmaps
+    isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/icons
     isEmpty(APPDATA_DIR):APPDATA_DIR       = $$SHARE_DIR/metainfo
     isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
     isEmpty(DESKTOP_DIR):DESKTOP_DIR       = $$SHARE_DIR/applications
@@ -84,9 +84,17 @@ unix:!macx {
         appstream_appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
         appstream_appdata.path = $$APPDATA_DIR
     }
-
-    icon.files += $$_PRO_FILE_PWD_/resources/$$join(DIST_TARGET,,,.png)
-    icon.path = $$ICON_DIR
+    
+    icons.path   = $$ICON_DIR/hicolor
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/128x128
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/16x16
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/24x24
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/256x256
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/32x32
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/48x48
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/512x512
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/64x64
+	icons.files += $$_PRO_FILE_PWD_/resources/icon/scalable
 
     mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
@@ -144,7 +152,7 @@ unix:!macx {
     docs \
     man \
     desktop \
-    icon\
+    icons\
     mime\
     mime_ldraw_icon \
     mime_multi_part_ldraw_icon \
