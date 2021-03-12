@@ -951,6 +951,15 @@ public:
                               bool change            = false,
                               bool submodel          = false);
 
+  QAction *getApplyBuildModAct()
+  {
+      return applyBuildModAct;
+  }
+
+  QAction *getRemoveBuildModAct()
+  {
+      return removeBuildModAct;
+  }
   /* End Build Modifications */
 
   void setExportedFile(const QString &fileName)

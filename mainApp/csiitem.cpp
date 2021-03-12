@@ -546,6 +546,17 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   lcPreferences& Preferences = lcGetPreferences();
   previewCsiAction->setEnabled(Preferences.mPreviewEnabled);
 
+  // Build modification actions
+  QAction * applyBuildModAction = nullptr;
+  QAction * removeBuildModAction = nullptr;
+  if (Preferences::buildModEnabled) {
+      menu.addSeparator();
+      applyBuildModAction = gui->getApplyBuildModAct();
+      menu.addAction(applyBuildModAction);
+      removeBuildModAction = gui->getRemoveBuildModAct();
+      menu.addAction(removeBuildModAction);
+  }
+
   QAction *copyCsiImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
   menu.addSeparator();
@@ -696,7 +707,15 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       QObject::connect(copyCsiImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
       copyCsiImagePathAction->setData(step->pngName);
       emit copyCsiImagePathAction->triggered();
-  }
+    } else if (selectedAction == applyBuildModAction) {
+
+      gui->applyBuildModification();
+
+    } else if (selectedAction == removeBuildModAction) {
+
+      gui->removeBuildModification();
+
+    }
 }
 
 void CsiItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
