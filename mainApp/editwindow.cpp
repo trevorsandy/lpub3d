@@ -97,6 +97,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     isReadOnly      = false;
 
     createActions();
+    updateOpenWithActions();
     createToolBars();
     highlightCurrentLine();
 
@@ -112,8 +113,6 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     connect(_textEdit, SIGNAL(triggerPreviewLine()),  this,  SLOT(triggerPreviewLine()));
 
     setCentralWidget(_textEdit);
-
-    updateOpenWithActions();
 
     if (modelFileEdit()) {
         _saveSubfileIndex = 0;
