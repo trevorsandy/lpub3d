@@ -674,12 +674,13 @@ int LDrawFile::getLineTypeIndex(int submodelIndx, int relativeTypeIndx) {
 
 // This function returns a pointer to the submodel Line Type Index vector
 QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
-    QVector<int> *lineTypeIndexes = new QVector<int>;
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+
+    QString fileName = getSubmodelName(submodelIndx).toLower();
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
     if (f != _subFiles.end() && f.value()._lineTypeIndexes.size()) {
-        lineTypeIndexes = &f.value()._lineTypeIndexes;
+        return &f.value()._lineTypeIndexes;
     }
-    return lineTypeIndexes;
+    return nullptr;
 }
 
 // This function resets the Line Type Indexes vector
