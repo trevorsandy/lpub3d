@@ -2731,7 +2731,8 @@ public:
     _value.rots[1] = 0;
     _value.rots[2] = 0;
   }
-  RotStepMeta() { 
+  RotStepMeta()
+  {
     _value.type.clear();
     _value.populated = false;
   }
@@ -3237,12 +3238,12 @@ public:
   FloatPairMeta        cameraAngles;
   FloatMeta            cameraDistance;
   BoolMeta             isOrtho;
+
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
 
   RotStepMeta          rotStep;
-  BoolMeta             showTopModel;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
@@ -3273,6 +3274,7 @@ class SubModelMeta  : public PliMeta
 public:
   IntMeta    showStepNum; // Used to indicate the 'first' step number of a step group when continuous step numbers flag is On
   BoolMeta   showInstanceCount;
+  BoolMeta   showTopModel;
   void setPreferences()
   {
       Preferences::showSubmodels         = show.value();

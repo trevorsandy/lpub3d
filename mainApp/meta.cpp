@@ -3613,9 +3613,9 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
           _value.populated = !(_value.rots[0] == 0.0 && _value.rots[1] == 0.0 && _value.rots[2] == 0.0);
           _here[0] = here;
           _here[1] = here;
-          return RotStepRc;
+          return index == 1 ? RotStepRc : OkRc;
         }
-    } else if (argv.size()-index == 1 && argv[index] == "END") {
+    } else if (argv.size() - index == 1 && argv[index] == "END") {
       _value.type.clear();
       _value.rots[0] = 0;
       _value.rots[1] = 0;
@@ -4597,6 +4597,8 @@ void PliMeta::init(BranchMeta *parent, QString name)
   povrayParms     .init(this,"POVRAY_PARMS");
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
+  subModelFont    .init(this,"SUBMODEL_FONT");
+  subModelFontColor.init(this,"SUBMODEL_FONT_COLOR");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
   studLogo        .init(this,"STUD_LOGO");
@@ -4610,7 +4612,9 @@ void PliMeta::init(BranchMeta *parent, QString name)
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
+  elementStyle    .init(this,"ELEMENT_STYLE");
   imageSize       .init(this,"IMAGE_SIZE");
+  rotStep         .init(this,"PART_ROTATION");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
