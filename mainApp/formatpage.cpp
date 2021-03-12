@@ -330,7 +330,7 @@ int Gui::addGraphicsPageItems(
 
   // set page type (SingleStep, MultiStep)
 
-  bool SingleStepPage = page->relativeType == SingleStepType && page->list.size();
+  bool singleStepPage = page->relativeType == SingleStepType && page->list.size();
 
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
@@ -535,7 +535,7 @@ int Gui::addGraphicsPageItems(
                 if (textItem) {
 
                     textItem->relativeType       = insert.relativeType;
-                    if (SingleStepPage) {
+                    if (singleStepPage) {
                         textItem->parentRelativeType = PageType;
                     } else {
                         textItem->parentRelativeType = StepGroupType;
@@ -628,7 +628,7 @@ int Gui::addGraphicsPageItems(
     }
 
   // If the page contains a single step then process it here
-  if (SingleStepPage) {
+  if (singleStepPage) {
       if (page->list.size()) {
           Range *range = dynamic_cast<Range *>(page->list[0]);
           if (range->relativeType == RangeType) {
@@ -759,7 +759,7 @@ int Gui::addGraphicsPageItems(
 
                   // Place the step relative to the page.
 
-                  plPage.relativeTo(step, true/*ignoreCallouts*/);      // place everything - calculate placement for all page objects
+                  plPage.relativeTo(step, singleStepPage);      // place everything - calculate placement for all page objects
 
                   // center the csi's bounding box relative to the page
                   plPage.placeRelativeBounding(step->csiItem);

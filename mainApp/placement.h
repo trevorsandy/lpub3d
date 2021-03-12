@@ -237,7 +237,7 @@ class Placement {
 
     int  relativeTo(
       Step      *step,
-      bool       ignoreCallouts = false);
+      bool       isSingleStepPage = false);
 
     int relativeToSg(
       Steps    *steps);

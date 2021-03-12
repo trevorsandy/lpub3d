@@ -131,8 +131,8 @@ void Placement::appendRelativeTo(Placement *element)
  * of things that are relative to them.
  */
 int Placement::relativeTo(
-  Step *step,
-  bool ignoreCallouts)
+       Step *step,
+  bool isSingleStepPage)
 {
   int rc = 0;
 
@@ -188,21 +188,26 @@ int Placement::relativeTo(
       appendRelativeTo(&step->plPageFooter);
     }
     /* callouts */
-    // Ignore callouts falg is basically a hack to suppress
-    // repositioning the csiItem on a single-step pages when
-    // callouts are dragged. The placeRelative(Placement *them) call
-    // will recalculate it's size based on the deminsions of the callout
-    // thus causing the csiItem to be 'moved' which is almost never
-    // expectecd or appreciated.
-    if (!ignoreCallouts) {
-      for (int i = 0; i < step->list.size(); i++) {
-        if (step->list[i]->relativeType == CalloutType) {
-          Callout *callout = step->list[i];
-          stepRelativeTo = callout->placement.value().relativeTo;
-          if (stepRelativeTo == relativeType) {
-            placeRelative(callout);
-            appendRelativeTo(callout);
-          }
+    bool isRelaiveToCsi = false;
+    bool isDragged = false;
+    for (int i = 0; i < step->list.size(); i++) {
+      if (step->list[i]->relativeType == CalloutType) {
+        Callout *callout = step->list[i];
+        // Skip placement is basically a hack to suppress
+        // repositioning the csiItem on a single-step pages when
+        // callouts are dragged. So under this condition, we do not want
+        // to call placeRelative because the placeRelative(Placement *them) call
+        // will recalculate the csiItem size based on the deminsions of the callout
+        // thus causing the csiItem to be 'moved' which is almost never expectecd or appreciated.
+        if ((isRelaiveToCsi = callout->placement.value().relativeTo == CsiType))
+            isDragged = callout->placement.value().offsets[XX] ||
+                        callout->placement.value().offsets[YY];
+        if (isSingleStepPage && isDragged && isRelaiveToCsi)
+            continue;
+        stepRelativeTo = callout->placement.value().relativeTo;
+        if (stepRelativeTo == relativeType) {
+          placeRelative(callout);
+          appendRelativeTo(callout);
         }
       }
     } // callouts
@@ -239,7 +244,7 @@ int Placement::relativeTo(
 
   int limit = relativeToList.size();
   for (int i = 0; i < limit; i++) {
-    rc = relativeToList[i]->relativeTo(step, ignoreCallouts);
+    rc = relativeToList[i]->relativeTo(step, isSingleStepPage);
     if (rc) {
       break;
     }
