@@ -1910,21 +1910,19 @@ void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
 
 PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
 {
-  _value[0].reset              = false;
   _value[0].renderer           = Preferences::preferredRenderer;
   _value[0].useLDVSingleCall   = Preferences::enableLDViewSingleCall;
   _value[0].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
   _value[0].useNativeGenerator = Preferences::useNativePovGenerator;
 }
 
-void PreferredRendererMeta::setPreferences(bool reset)
+void PreferredRendererMeta::setPreferences(int reset)
 {
   RendererData data      = _value[pushed];
   bool preferenceChanged = false;
   if (reset) {
     Preferences::preferredRendererPreferences();
     preferenceChanged = Preferences::preferredRenderer != data.renderer;
-    data.reset              = false;
     data.renderer           = Preferences::preferredRenderer;
     data.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
     data.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
@@ -1980,12 +1978,6 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
         if (argv[index] == "LDVIEW_POV_GENERATOR")
           _value[pushed].useNativeGenerator = false;
       }
-      if (argv[index] == "RESET")
-        _value[pushed].reset = true;
-    }
-    index++;
-    if (argv.size() - index == 3 && argv[index] == "RESET") {
-        _value[pushed].reset = true;
     }
   }
   if (rc == OkRc) {
@@ -2019,14 +2011,12 @@ QString PreferredRendererMeta::format(bool local, bool global)
     if (! _value[pushed].useNativeGenerator)
       foo.append(" LDVIEW_POV_GENERATOR");
   }
-  if (_value[pushed].reset)
-    foo.append(" RESET");
   return LeafMeta::format(local,global,foo);
 }
 
 void PreferredRendererMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET)";
+  out << preamble + " NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]";
 }
 
 /* ------------------ */ 
@@ -3792,7 +3782,7 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
   opacity.setValue(Preferences::fadeStepsOpacity);
 }
 
-void FadeStepMeta::setPreferences(bool reset)
+void FadeStepMeta::setPreferences(int reset)
 {
    FadeColorData fdata = color.value();
    bool preferenceChanged = false;
@@ -3844,7 +3834,7 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
   lineWidth.setValue(Preferences::highlightStepLineWidth);
 }
 
-void HighlightStepMeta::setPreferences(bool reset)
+void HighlightStepMeta::setPreferences(int reset)
 {
    bool preferenceChanged = false;
    if (reset) {

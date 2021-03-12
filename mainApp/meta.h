@@ -1652,7 +1652,7 @@ public:
   {
     _value[pushed] = data;
   }
-  void setPreferences(bool = false);
+  void setPreferences(int = 0);
   PreferredRendererMeta();
   PreferredRendererMeta(const PreferredRendererMeta &rhs) : LeafMeta(rhs)
   {
@@ -2693,7 +2693,7 @@ public:
   BoolMeta      setup;
   FadeColorMeta color;
   IntMeta       opacity;
-  void setPreferences(bool = false);
+  void setPreferences(int = 0);
   FadeStepMeta();
   FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -2716,7 +2716,7 @@ public:
   BoolMeta   setup;
   StringMeta color;
   IntMeta    lineWidth;
-  void setPreferences(bool = false);
+  void setPreferences(int = 0);
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
   {

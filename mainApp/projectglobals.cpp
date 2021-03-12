@@ -70,7 +70,7 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer, true/*global*/, box);
+  PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
   connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
   data->children.append(rendererChild);
 

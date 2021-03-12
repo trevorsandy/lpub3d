@@ -666,10 +666,8 @@ public:
   bool useLDVSingleCall;
   bool useLDVSnapShotList;
   bool useNativeGenerator;
-  bool reset;
   RendererData()
   {
-    reset = false;
     useLDVSingleCall = false;
     useLDVSnapShotList = false;
     useNativeGenerator = false;

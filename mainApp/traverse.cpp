@@ -2552,21 +2552,21 @@ int Gui::drawPage(
                           steps->groupStepMeta.LPub.contModelStepNum.setValue(
                                       steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
 
-                      // reset fade previous steps
-                      bool reset = true;
-                      if (curMeta.LPub.assem.fadeStep.enable.value())
+                      // reset local fade previous steps
+                      int local = 1; int reset = 1;
+                      if (curMeta.LPub.assem.fadeStep.enable.pushed == local)
                           curMeta.LPub.assem.fadeStep.setPreferences(reset);
-                      // reset highlight current step
-                      if (curMeta.LPub.assem.highlightStep.enable.value())
+                      // reset local highlight current step
+                      if (curMeta.LPub.assem.highlightStep.enable.pushed)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
-                      // reset preferred renderer
-                      if (curMeta.LPub.assem.preferredRenderer.value().reset)
+                      // reset local preferred renderer
+                      if (curMeta.LPub.assem.preferredRenderer.pushed == local)
                           curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.subModel.preferredRenderer.value().reset)
+                      if (curMeta.LPub.subModel.preferredRenderer.pushed == local)
                           curMeta.LPub.subModel.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.pli.preferredRenderer.value().reset)
+                      if (curMeta.LPub.pli.preferredRenderer.pushed == local)
                           curMeta.LPub.pli.preferredRenderer.setPreferences(reset);
-                      if (curMeta.LPub.bom.preferredRenderer.value().reset)
+                      if (curMeta.LPub.bom.preferredRenderer.pushed == local)
                           curMeta.LPub.bom.preferredRenderer.setPreferences(reset);
 
                       steps->meta.pop();

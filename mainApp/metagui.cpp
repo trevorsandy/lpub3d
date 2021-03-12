@@ -3677,7 +3677,6 @@ void ResolutionGui::apply(QString &modelName)
 
 PreferredRendererGui::PreferredRendererGui(
         PreferredRendererMeta *_meta,
-        bool                   _global,
         QGroupBox             *parent)
 {
   QGridLayout *grid = new QGridLayout(parent);
@@ -3690,7 +3689,6 @@ PreferredRendererGui::PreferredRendererGui(
   }
 
   meta = _meta;
-  global = _global;
 
   combo = new QComboBox(parent);
   combo->addItem(RENDERER_NATIVE);
@@ -3749,18 +3747,6 @@ PreferredRendererGui::PreferredRendererGui(
 
   hLayout->addWidget(ldvButton);
 
-  // renderer reset row
-  if (! global) {
-    rendererResetBox = new QCheckBox(tr("Reset after this image render"), parent);
-    rendererResetBox->setToolTip(tr("Reset the renderer to the global preference."));
-    rendererResetBox->setChecked(meta->value().reset);
-
-    connect(rendererResetBox,SIGNAL(stateChanged(int)),
-            this,              SLOT(valueChanged(int)));
-
-    grid->addWidget(rendererResetBox,3,0,1,2);
-  }
-
   ldvSingleCallBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW);
   ldvSnapshotListBox->setEnabled(ldvSingleCallBox->isChecked());
   povFileGeneratorGrpBox->setEnabled(meta->value().renderer == RENDERER_POVRAY);
@@ -3792,11 +3778,6 @@ void PreferredRendererGui::valueChanged(int state)
     if (!modified)
       modified = data.useLDVSingleCall != checked;
     data.useLDVSingleCall = checked;
-  } else if (sender() == rendererResetBox) {
-    checked = isChecked();
-    if (!modified)
-      modified = data.reset != checked;
-    data.reset = checked;
   }
   meta->setValue(data);
   emit settingsChanged(modified);

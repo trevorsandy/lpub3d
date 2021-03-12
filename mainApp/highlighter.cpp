@@ -530,7 +530,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bRECTANGLE_STYLE\\b"
     << "\\bREMOVE\\b"
     << "\\bRESERVE\\b"
-    << "\\bRESET\\b"
     << "\\bRESOLUTION\\b"
     << "\\bRICH_TEXT\\b"
     << "\\bRIGHT\\b"

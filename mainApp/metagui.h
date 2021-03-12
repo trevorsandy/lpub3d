@@ -1123,7 +1123,6 @@ public:
 
     PreferredRendererGui(
             PreferredRendererMeta *meta,
-            bool global = false,
             QGroupBox *parent = nullptr);
   ~PreferredRendererGui() {}
 
@@ -1137,12 +1136,9 @@ private:
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
   QCheckBox    *ldvSnapshotListBox;
-  QCheckBox    *rendererResetBox;
   QGroupBox    *povFileGeneratorGrpBox;
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
-
-  bool global;
 
 signals:
   void settingsChanged(bool);

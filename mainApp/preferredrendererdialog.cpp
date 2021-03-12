@@ -46,7 +46,7 @@ PreferredRendererDialog::PreferredRendererDialog(
 
   QGroupBox *box = new QGroupBox("Renderer",this);
   layout->addWidget(box);
-  preferredRenderer = new PreferredRendererGui(&meta,false/*global*/,box);
+  preferredRenderer = new PreferredRendererGui(&meta,box);
 
   QDialogButtonBox *buttonBox;
 
@@ -69,8 +69,8 @@ PreferredRendererDialog::~PreferredRendererDialog()
 
 bool PreferredRendererDialog::getPreferredRenderer(
   PreferredRendererMeta &goods,
-  QString         name,
-  QWidget        *parent)
+  QString                name,
+  QWidget               *parent)
 {
   PreferredRendererDialog *dialog = new PreferredRendererDialog(goods,name,parent);
 
