@@ -416,7 +416,7 @@ class LDrawFile {
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsCount();
-    bool getBuildModStepIndexHere(const int stepIndex, QString &modelName, int &modelIndex, int &lineNumber);
+    bool getBuildModStepIndexWhere(const int stepIndex, QString &modelName, int &modelIndex, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
@@ -445,8 +445,13 @@ class LDrawFile {
     void updateViewerStep(const QString     &fileName,
                           const QStringList &contents,
                           bool rotated = true);
+    QString getViewerStepKeyFromRange(const int modelIndex,
+                                      const int lineNumber,
+                                      const int top,
+                                      const int bottom);
     QStringList getViewerStepRotatedContents(const QString &stepKey);
     QStringList getViewerStepUnrotatedContents(const QString &stepKey);
+    QString     getViewerStepKeyWhere(const int modelIndex, const int lineNumber);
     QString     getViewerStepFilePath(const QString &stepKey);
     QString     getViewerStepImagePath(const QString &stepKey);
     QString     getViewerConfigKey(const QString &stepKey);

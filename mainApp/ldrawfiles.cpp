@@ -2450,14 +2450,14 @@ void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &mo
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
         QStringList stepKeys = modStepKey.split(";");
-        i.value()._modAttributes[BM_MODEL_NAME_INDEX] = stepKeys[BM_STEP_MODEL_KEY].toInt();
-        i.value()._modAttributes[BM_MODEL_LINE_NUM]   = stepKeys[BM_STEP_LINE_KEY].toInt();
-        i.value()._modAttributes[BM_MODEL_STEP_NUM]   = stepKeys[BM_STEP_NUM_KEY].toInt();
+        i.value()._modAttributes[BM_MODEL_NAME_INDEX] = stepKeys.at(BM_STEP_MODEL_KEY).toInt();
+        i.value()._modAttributes[BM_MODEL_LINE_NUM]   = stepKeys.at(BM_STEP_LINE_KEY).toInt();
+        i.value()._modAttributes[BM_MODEL_STEP_NUM]   = stepKeys.at(BM_STEP_NUM_KEY).toInt();
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod StepKey: %1;%2;%3, ModKey: %4")
-                                                .arg(i.value()._modAttributes[BM_MODEL_NAME_INDEX])
-                                                .arg(i.value()._modAttributes[BM_MODEL_LINE_NUM])
-                                                .arg(i.value()._modAttributes[BM_MODEL_STEP_NUM])
+                                                .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
+                                                .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
+                                                .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM))
                                                 .arg(modKey));
 #endif
     }
@@ -2803,7 +2803,7 @@ int LDrawFile::getBuildModStepIndex(const QString &buildModKey)
     return -1;
 }
 
-bool LDrawFile::getBuildModStepIndexHere(const int stepIndex, QString &modelName,int &modelIndex, int &lineNumber)
+bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelName,int &modelIndex, int &lineNumber)
 {
 #ifdef QT_DEBUG_MODE
   LogType logType = LOG_DEBUG;
@@ -2940,6 +2940,37 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
     return _buildModStepIndexes.indexOf(topOfStep);
 }
 
+QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int top, const int bottom)
+{
+    QString stepKey;
+    if (lineNumber >= top && lineNumber <= bottom) {
+        int index = -1;
+        for (QVector<int> &topOfStep : _buildModStepIndexes) {
+            if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
+                if (topOfStep.at(BM_STEP_LINE_KEY) == lineNumber)
+                    index = _buildModStepIndexes.indexOf(topOfStep);
+                else if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
+                    index = _buildModStepIndexes.indexOf(topOfStep) - 1;
+                if (index > -1) {
+                    int lineNumber = _buildModStepIndexes.at(index).at(BM_STEP_LINE_KEY);
+                    QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
+                    while (i != _viewerSteps.constEnd()) {
+                        if (i->_viewType == Options::CSI && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber)
+                            return stepKey = QString("%1;%2;%3").arg(modelIndex).arg(lineNumber).arg(i->_stepKey.stepNum);
+                        ++i;
+                    }
+                }
+            }
+        }
+    }
+    return stepKey;
+}
+
+QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
+{
+    return getViewerStepKeyFromRange(modelIndex, lineNumber, lineNumber, lineNumber);
+}
+
 /* This function returns the equivalent of the ViewerStepKey */
 
 QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
@@ -2948,9 +2979,9 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
     QString stepKey = QString("%1;%2;%3")
-                              .arg(i.value()._modAttributes[BM_MODEL_NAME_INDEX])
-                              .arg(i.value()._modAttributes[BM_MODEL_LINE_NUM])
-                              .arg(i.value()._modAttributes[BM_MODEL_STEP_NUM]);
+                              .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
+                              .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
+                              .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM));
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod StepKey: %1").arg(stepKey));
 #endif

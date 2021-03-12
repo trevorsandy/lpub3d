@@ -4278,7 +4278,7 @@ bool Gui::setBuildModForNextStep(
     D_Step stepDirection       = D_NEXT_STEP;
 
     auto setBottomOfNextStep = [this, &buildModNextStepIndex] (Where &bottomOfNextStep) {
-        getBuildModStepIndexHere(buildModNextStepIndex, bottomOfNextStep);   // initialize bottomOfNextStep Where
+        getBuildModStepIndexWhere(buildModNextStepIndex, bottomOfNextStep);  // initialize bottomOfNextStep Where
         int top = bottomOfNextStep.lineNumber;                               // save top line number for later comparison
         Rc rc = mi->scanForward(bottomOfNextStep,StepMask);                  // scan to top of next step
         if (rc == StepRc && bottomOfNextStep.lineNumber == top) {            // check if on a STEP command
@@ -4316,7 +4316,7 @@ bool Gui::setBuildModForNextStep(
         if ((buildModNextStepIndex - buildModPrevStepIndex) > 1) {           // if jump forward, modify BuildMod processing start...
             stepDirection = D_JUMP_FORWARD;
             Where topOfFromStep;
-            getBuildModStepIndexHere(buildModPrevStepIndex, topOfFromStep);  // set start Where to previous step index
+            getBuildModStepIndexWhere(buildModPrevStepIndex, topOfFromStep); // set start Where to previous step index
             startLine  = getBuildModStepLineNumber(buildModPrevStepIndex);   // set start Where lineNumber to bottom of previous step
             startModel = topOfFromStep.modelName;
             progressMax = 0;

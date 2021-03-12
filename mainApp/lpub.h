@@ -907,9 +907,9 @@ public:
       return ldrawFile.getBuildModStepKeyModelIndex(buildModKey);
   }
 
-  bool getBuildModStepIndexHere(int stepIndex, Where &here)
+  bool getBuildModStepIndexWhere(int stepIndex, Where &here)
   {
-      return ldrawFile.getBuildModStepIndexHere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
+      return ldrawFile.getBuildModStepIndexWhere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
   }
 
   bool buildModContains(const QString &buildModKey)
@@ -984,6 +984,21 @@ public:
   }
 
   /* End Build Modifications */
+
+  int getStepIndex(const Where &here)
+  {
+      return ldrawFile.getStepIndex(here.modelName, here.lineNumber);
+  }
+
+  QString getViewerStepKeyFromRange(const Where &here, const Where &top, const Where &bottom)
+  {
+      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.lineNumber, bottom.lineNumber);
+  }
+
+  QString getViewerStepKeyWhere(const Where &here)
+  {
+      return ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber);
+  }
 
   void setExportedFile(const QString &fileName)
   {
