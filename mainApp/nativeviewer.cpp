@@ -1292,7 +1292,11 @@ void Gui::enableBuildModActions()
 
     int hasMod = buildModsSize();
 
+    bool oneMod = hasMod == 1;
+
     bool appliedMod = false, sourceMod = false, removedMod = false;
+
+    bool dlgTitle = applyBuildModAct->text().endsWith("...");
 
     switch (buildModStep)
     {
@@ -1310,12 +1314,26 @@ void Gui::enableBuildModActions()
             break;
     }
 
+    if (oneMod || !dlgTitle) {
+        QList<QAction*> modActions; modActions
+                << applyBuildModAct
+                << removeBuildModAct
+                << loadBuildModAct
+                << deleteBuildModAct;
+        Q_FOREACH(QAction* action, modActions) {
+            QString text = action->text();
+            if (oneMod && dlgTitle)
+                text.chop(3);
+            if (!oneMod && !dlgTitle)
+                text.append("...");
+            action->setText(text);
+        }
+    }
+
     applyBuildModAct->setEnabled(hasMod && (!appliedMod || removedMod) && !sourceMod);
     removeBuildModAct->setEnabled(hasMod && (appliedMod || !removedMod) && !sourceMod);
-
     updateBuildModAct->setEnabled(hasMod && sourceMod);
-
-    loadBuildModAct->setEnabled(hasMod && !(sourceMod && hasMod == 1));
+    loadBuildModAct->setEnabled(hasMod && !(sourceMod && oneMod));
     deleteBuildModAct->setEnabled(hasMod);
 }
 
