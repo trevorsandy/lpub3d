@@ -170,6 +170,7 @@ public:
             bool             _isMirrored,
             bool             _printing,
             int              _buildModLevel,
+            int              _stepNumber,
             int              _contStepNumber,
             int              _groupStepNumber = 0,
             QString          _renderParentModel = "")
@@ -183,6 +184,7 @@ public:
           isMirrored        (_isMirrored),
           printing          (_printing),
           buildModLevel     (_buildModLevel),
+          stepNumber        (_stepNumber),
           contStepNumber    (_contStepNumber),
           groupStepNumber   (_groupStepNumber),
           renderParentModel (_renderParentModel)
@@ -196,6 +198,7 @@ public:
     bool           isMirrored;
     bool           printing;
     int            buildModLevel;
+    int            stepNumber;
     int            contStepNumber;
     int            groupStepNumber;
     QString        renderParentModel;
