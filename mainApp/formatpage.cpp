@@ -57,6 +57,7 @@
 #include "dividerpointeritem.h"
 #include "calloutpointeritem.h"
 #include "pagepointeritem.h"
+#include "waitingspinnerwidget.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -145,7 +146,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *restoreCountAction  = nullptr;
   if (page->meta.LPub.page.countInstanceOverride.value()) {
     restoreCountAction         = commonMenus.restoreCountMenu(menu,name);
-  } 
+  }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -1094,6 +1095,9 @@ int Gui::addGraphicsPageItems(
   }
 
   page->relativeType = SingleStepType;
+
+  if (waitingSpinner->isSpinning())
+      waitingSpinner->stop();
 
   statusBarMsg("");
 
