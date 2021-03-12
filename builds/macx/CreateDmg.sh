@@ -404,6 +404,7 @@ cat <<EOF >makedmg
 --add-file Readme README 512 128 \\
 --app-drop-link 448 344 \\
 --eula .COPYING \\
+--skip-jenkins \\
 "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" \\
 DMGSRC/
 EOF
