@@ -1551,19 +1551,23 @@ void EditWindow::preferences()
     editorBufferedPagingSubform->addRow(editorLinesPerPageLabel, editorLinesPerPageSpin);
 
     // options - selected lines
-    QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
-    form->addWidget(editorSelectedItemsGrpBox);
-    QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
+    QCheckBox *editorHighlightLinesBox = nullptr;
+    QCheckBox *editorLoadSelectionStepBox = nullptr;
+    if (!modelFileEdit()) {
+        QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
+        form->addWidget(editorSelectedItemsGrpBox);
+        QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
 
-    QCheckBox   *editorHighlightLinesBox = new QCheckBox(tr("Highlight Selected Lines"), dialog);
-    editorHighlightLinesBox->setToolTip(tr("Highlight selected line(s) when clicked in Editor"));
-    editorHighlightLinesBox->setChecked(editorHighlightLines);
-    editorSelectedItemsSubform->addRow(editorHighlightLinesBox);
+        editorHighlightLinesBox = new QCheckBox(tr("Highlight Selected Lines"), dialog);
+        editorHighlightLinesBox->setToolTip(tr("Highlight selected line(s) when clicked in Editor"));
+        editorHighlightLinesBox->setChecked(editorHighlightLines);
+        editorSelectedItemsSubform->addRow(editorHighlightLinesBox);
 
-    QCheckBox   *editorLoadSelectionStepBox = new QCheckBox(tr("Load Selection Step in 3DViewer"), dialog);
-    editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the 3DViewer"));
-    editorLoadSelectionStepBox->setChecked(editorLoadSelectionStep);
-    editorSelectedItemsSubform->addRow(editorLoadSelectionStepBox);
+        editorLoadSelectionStepBox = new QCheckBox(tr("Load Selection Step in 3DViewer"), dialog);
+        editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the 3DViewer"));
+        editorLoadSelectionStepBox->setChecked(editorLoadSelectionStep);
+        editorSelectedItemsSubform->addRow(editorLoadSelectionStepBox);
+    }
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -1592,9 +1596,10 @@ void EditWindow::preferences()
             emit lpubAlert->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
         }
 
-        Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
-        if (editorHighlightLines != Preferences::editorHighlightLines) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
+        if (!modelFileEdit()) {
+            Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
+            if (editorHighlightLines != Preferences::editorHighlightLines) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
             emit lpubAlert->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
         }
 
@@ -1602,6 +1607,7 @@ void EditWindow::preferences()
         if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
             emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
+            }
         }
     }
 }
