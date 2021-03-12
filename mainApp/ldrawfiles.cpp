@@ -462,6 +462,15 @@ bool LDrawFile::modified(const QString &mcFileName)
   }
 }
 
+void LDrawFile::setModified(const QString &mcFileName, bool modified)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    i.value()._modified = modified;
+  }
+}
+
 QStringList LDrawFile::contents(const QString &mcFileName)
 {
   QString fileName = mcFileName.toLower();
@@ -544,7 +553,7 @@ void LDrawFile::setModelStartPageNumber(
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
-    i.value()._modified = true;
+    //i.value()._modified = true;
     i.value()._startPageNumber = startPageNumber;
     //i.value()._datetime = QDateTime::currentDateTime();
     //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
@@ -579,7 +588,7 @@ void LDrawFile::setPrevStepPosition(
   if (i != _subFiles.end()) {
     int lastStepPosition  = i.value()._prevStepPosition.at(PS_POS);
     if (lastStepPosition != prevStepPosition) {
-        i.value()._modified = true;
+        //i.value()._modified = true;
         QVector<int> stepPositions = { prevStepPosition, lastStepPosition ,mcStepNumber };
         i.value()._prevStepPosition = stepPositions;
         //i.value()._datetime = QDateTime::currentDateTime();

@@ -366,6 +366,7 @@ class LDrawFile {
     bool older(const QString &fileName,
                const QDateTime &lastModified);
     static bool mirrored(const QStringList &tokens);
+    void setModified(const QString &fileName, bool modified);
     void unrendered();
     void setRendered(
             const QString &fileName,

@@ -1294,6 +1294,15 @@ void Gui::displayFile(
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
+
+            if (!displayStartPage) {
+                const QString loadedFile = editWindow->getCurrentFile().toLower();
+                if( loadedFile == modelName.toLower()) {
+                    if (!ldrawFile->modified(modelName))
+                        return;
+                }
+            }
+
             int stepNumber = 1;
             Where top = here;
             Where bottom = here;
@@ -1346,6 +1355,8 @@ void Gui::displayFile(
                 mpdCombo->setCurrentIndex(currentIndex);
                 mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
             }
+
+            ldrawFile->setModified(modelName, false);
         }
     }
 }
