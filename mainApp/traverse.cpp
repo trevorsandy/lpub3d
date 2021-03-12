@@ -4536,6 +4536,7 @@ int Gui::setBuildModForNextStep(
 {
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
+    int  buildModStepIndex     = 0;
     int  startLine             = 0;
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
@@ -4549,12 +4550,12 @@ int Gui::setBuildModForNextStep(
         topOfStep  = topOfSubmodel;
 
 #ifdef QT_DEBUG_MODE
-        statusMessage(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
+        statusMessage(LOG_DEBUG, QString("Build Modifications Check - Submodel: '%1'...")
                                          .arg(topOfSubmodel.modelName));
 #endif
 
     } else {
-        statusMessage(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
+        statusMessage(LOG_INFO_STATUS, QString("Build Modifications Check - Model: '%1'...")
                                                .arg(topOfStep.modelName));
 
         buildModNextStepIndex = getBuildModNextStepIndex();                  // set next/'display' step index
@@ -4564,7 +4565,7 @@ int Gui::setBuildModForNextStep(
         startLine = topOfStep.lineNumber;                                    // set starting line number
 
 #ifdef QT_DEBUG_MODE
-        statusMessage(LOG_TRACE, QString("BuildMod StartStep - Index %1, - ModelName: %2, LineNumber: %3")
+        statusMessage(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
                                          .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
 
@@ -4582,9 +4583,10 @@ int Gui::setBuildModForNextStep(
             }
 
 #ifdef QT_DEBUG_MODE
-            statusMessage(LOG_TRACE, QString("BuildMod StartStep Jump %1 - ModelName: %2, LineNumber: %3")
-                                               .arg(backward ? "Backward" : "Forward")
-                                               .arg(startModel).arg(startLine));
+            statusMessage(LOG_TRACE, QString("BuildMod Jump %1 - Steps: %2, ModelName: %3, LineNumber: %4")
+                                             .arg(backward ? "Backward" : "Forward")
+                                             .arg(qAbs(buildModNextStepIndex - buildModPrevStepIndex))
+                                             .arg(startModel).arg(startLine));
 #endif
         }
     }
@@ -4593,6 +4595,15 @@ int Gui::setBuildModForNextStep(
     BuildModFlags           buildMod;
     QMap<int, QString>      buildModKeys;
     QMap<int, QVector<int>> buildModAttributes;
+
+    auto buildModNextStep =
+            [&buildModStepIndex,
+             &buildModNextStepIndex,
+             &buildMod,
+             &buildModKeys] ()
+    {
+        return (buildModStepIndex == buildModNextStepIndex && ! (buildModKeys.size() && buildMod.state != BM_END));
+    };
 
     auto insertAttribute =
             [&buildMod,
@@ -4612,7 +4623,7 @@ int Gui::setBuildModForNextStep(
 
     auto insertBuildModification =
            [this,
-            &buildModNextStepIndex,
+            &buildModStepIndex,
             &buildModAttributes,
             &buildModKeys,
             &topOfStep] (int buildModLevel)
@@ -4635,7 +4646,7 @@ int Gui::setBuildModForNextStep(
                     "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
                     "ModKey: %10, "
                     "Level: %11")
-                    .arg(buildModNextStepIndex)                  // Attribute Default Initial:
+                    .arg(buildModStepIndex)                      // Attribute Default Initial:
                     .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
                     .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                     .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
@@ -4650,7 +4661,7 @@ int Gui::setBuildModForNextStep(
 
         insertBuildMod(buildModKey,
                        modAttributes,
-                       buildModNextStepIndex);
+                       buildModStepIndex);
     };
 
     Where walk(startModel, getSubmodelIndex(startModel), startLine);
@@ -4675,14 +4686,15 @@ int Gui::setBuildModForNextStep(
             // Populate BuildMod action and begin, mod_end and end line numbers for 'current' step
             case BuildModApplyRc:
             case BuildModRemoveRc:
+                buildModStepIndex = buildModStepIndex + 1; // Adjust to top of next step, so plus 1 to align with LDrawFile indexes
                 buildMod.key = page.meta.LPub.buildMod.key();
                 if (buildModContains(buildMod.key))
-                    buildMod.action = getBuildModAction(buildMod.key, buildModNextStepIndex);
+                    buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 else
                     parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
                                     walk,Preferences::ParseErrors,false,false);
                 if ((Rc)buildMod.action != rc)
-                    setBuildModAction(buildMod.key, buildModNextStepIndex, rc);
+                    setBuildModAction(buildMod.key, buildModStepIndex, rc);
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
@@ -4719,31 +4731,37 @@ int Gui::setBuildModForNextStep(
             // Search until next occurrence of step/rotstep meta or bottom of step
             case RotStepRc:
             case StepRc:
-                if (buildModKeys.size() && buildMod.state != BM_END)
-                    parseError(QString("Required meta BUILD_MOD END not found"),
-                               walk, Preferences::BuildModErrors,false,false);
-#ifdef QT_DEBUG_MODE
-            statusMessage(LOG_TRACE, QString("BuildMod EndStep - ModelName %1, LineNumber %2")
-                                               .arg(walk.modelName)
-                                               .arg(walk.lineNumber));
-#endif
-                Q_FOREACH (int buildModLevel, buildModKeys.keys())
-                    insertBuildModification(buildModLevel);
+                buildModStepIndex = getStepIndex(walk) - 1; // Top of next step, so minus 1 to adjust to current step
+                if (buildModKeys.size()) {
+                    if (buildMod.state != BM_END)
+                        parseError(QString("Required meta BUILD_MOD END not found"),
+                                   walk, Preferences::BuildModErrors,false,false);
+                    Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                        insertBuildModification(buildModLevel);
+                }
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
                 buildMod.state = BM_NONE;
-                return HitBottomOfStep;
+                if (buildModStepIndex == buildModNextStepIndex) {
+#ifdef QT_DEBUG_MODE
+                    statusMessage(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
+                                  .arg(buildModStepIndex)
+                                  .arg(walk.modelName)
+                                  .arg(walk.lineNumber));
+#endif
+                    return HitBottomOfStep;
+                }
             default:
                 break;
             }
-        } else if (! (buildModKeys.size() && buildMod.state != BM_END) && line.toLatin1()[0] == '1') {
+        } else if (! buildModNextStep() && line.toLatin1()[0] == '1') {
             // search until hit buttom of step
             QStringList token;
             split(line,token);
             if (token.size() == 15) {
                 QString modelName = token[token.size() - 1];
-                if ((submodel = isSubmodel(modelName))) {
+                if (buildMod.state != BM_END_MOD && (submodel = isSubmodel(modelName))) {
                     Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
                     if (setBuildModForNextStep(topOfStep, topOfSubmodel, submodel) == HitBottomOfStep) {
                         return HitBottomOfStep;
@@ -4751,7 +4769,7 @@ int Gui::setBuildModForNextStep(
                 }
             }
         }
-    }
+    } // For every line
 
     return HitEndOfFile;
 } // Gui::setBuildModForNextStep()
