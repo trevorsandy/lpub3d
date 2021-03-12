@@ -378,7 +378,7 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerSubmodelKey,rotatedSubmodel,subModel,ldrNames.first(),imageName,stepKey,multistep,callout);
+          gui->insertViewerStep(viewerSubmodelKey,rotatedSubmodel,subModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMP);
       }
 
       // set viewer display options

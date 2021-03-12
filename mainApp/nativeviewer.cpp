@@ -2619,6 +2619,8 @@ void Gui::applyBuildModification()
         currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
         endMacro();
+
+        clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
     }
         break;
     default: /*Options::PLI:*/
@@ -2724,6 +2726,8 @@ void Gui::removeBuildModification()
         currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
         endMacro();
+
+        clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
     }
         break;
     default: /*Options::PLI:*/
@@ -2894,6 +2898,8 @@ void Gui::deleteBuildModification()
         break;
     }
 
+    bool multiStepPage = isViewerStepMultiStep(viewerStepKey);
+
     // Delete options
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBox box;
@@ -2902,22 +2908,33 @@ void Gui::deleteBuildModification()
     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     title = tr("Build Modification Image");
-    text = tr("Click 'Step', 'Page', or 'Assembly' to reset the respective image cache.");
+    text = tr("Click 'Modified',%1 or 'Step' to reset the respective image cache.").arg(multiStepPage? " 'Page',": "");
 
     box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
     box.setText (tr("Select your option to reset the image cache."));
     box.setInformativeText(text);
 
+    QPushButton *cleaModifiedButton = box.addButton(tr("Modified"), QMessageBox::AcceptRole);
+    cleaModifiedButton->setToolTip(tr("Reset modified submodel images from step %1").arg(step));
+
+    QPushButton *clearPageButton = nullptr;
+    if (multiStepPage) {
+        int pageNum = getBuildModDisplayPageNumber(buildModKey);
+        QPushButton *clearPageButton = box.addButton(tr("Page %1").arg(pageNum), QMessageBox::AcceptRole);
+        clearPageButton->setToolTip(tr("Reset page %1 step group images").arg(pageNum));
+    }
+
     QPushButton *clearStepButton = box.addButton(tr("Step %1").arg(step), QMessageBox::AcceptRole);
-    QPushButton *clearPageButton  = box.addButton(tr("Page %1").arg(getBuildModDisplayPageNumber(buildModKey)), QMessageBox::AcceptRole);
-    QPushButton *clearAssemblyButton = box.addButton(tr("Assembly"), QMessageBox::AcceptRole);
+    clearStepButton->setToolTip(tr("Reset step %1 image only").arg(step));
+
     QPushButton *cancelButton = box.addButton(QMessageBox::Cancel);
+    cancelButton->setDefault(true);
 
     box.exec();
 
-    bool clearStep = box.clickedButton() == clearStepButton;
-    bool clearPage = box.clickedButton() == clearPageButton;
-    bool clearAssembly = box.clickedButton() == clearAssemblyButton;
+    bool cleaModified = box.clickedButton() == cleaModifiedButton;
+    bool clearPage    = multiStepPage ? box.clickedButton() == clearPageButton : false;
+    bool clearStep    = box.clickedButton() == clearStepButton;
     if (box.clickedButton() == cancelButton)
         return;
 
@@ -2990,18 +3007,17 @@ void Gui::deleteBuildModification()
         QString viewerStepKey = getBuildModStepKey(buildModKey);
         if (!viewerStepKey.isEmpty()) {
             // delete step image to trigger image regen
-            if (clearStep) {
+            if (cleaModified) {
+                clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
+            } else if (clearPage) {
+                PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
+                clearPageCSICache(relativeType, &page);
+            } else if (clearStep) {
                 QString csiPngName = getViewerStepImagePath(viewerStepKey);
                 clearStepCSICache(csiPngName);
                 // delete viewer step to trigger viewer update
                 if (!deleteViewerStep(viewerStepKey))
                     emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
-            } else if (clearPage) {
-                PlacementType relativeType = isViewerStepMultiStep(viewerStepKey) ? StepGroupType : SingleStepType;
-                clearPageCSICache(relativeType, &page);
-            } else if (clearAssembly) {
-                clearCSICache();
-                clearTempCache();
             }
         } else {
             emit messageSig(LOG_ERROR, QString("Failed to receive the step key using BuildMod key [%1]").arg(buildModKey));

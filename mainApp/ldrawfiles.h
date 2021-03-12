@@ -101,28 +101,37 @@ class CfgSubFile {
 
 class ViewerStep {
   public:
+    struct StepKey {
+       int modIndex;
+       int lineNum;
+       int stepNum;
+    };
     QStringList _rotatedContents;
     QStringList _unrotatedContents;
     QString   	_filePath;
     QString     _imagePath;
     QString     _csiKey;
+    StepKey     _stepKey;
     int         _partCount;
     bool        _modified;
     bool        _multiStep;
     bool        _calledOut;
+    int         _viewType;
 
     ViewerStep()
     {
       _modified = false;
     }
     ViewerStep(
+      const QStringList &stepKey,
       const QStringList &rotatedContents,
       const QStringList &unrotatedContents,
       const QString     &filePath,
       const QString     &imagePath,
       const QString     &csiKey,
       bool               multiStep,
-      bool               calledOut);
+      bool               calledOut,
+      int                viewType);
     ~ViewerStep()
     {
       _rotatedContents.clear();
@@ -411,9 +420,11 @@ class LDrawFile {
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
+    QVector<int> getBuildModStepKeyVector(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
+    QStringList getBuildModPathsFromStep(const QString &buildModKey, const int image = 1/*ldr=0*/);
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,
@@ -423,7 +434,8 @@ class LDrawFile {
                           const QString     &imagePath,
                           const QString     &csiKey,
                           bool               multiStep,
-                          bool               calledOut);
+                          bool               calledOut,
+                          int                viewType);
     void updateViewerStep(const QString     &fileName,
                           const QStringList &contents,
                           bool rotated = true);

@@ -1469,6 +1469,32 @@ void Gui::reloadCurrentModelFile(){
                     .arg(elapsedTime(timer.elapsed())));
 }
 
+void Gui::clearWorkingFiles(const QStringList &filePaths)
+{
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,"A model must be open to clean its parts cache - no action taken.");
+        return;
+    }
+
+    int count = 0;
+    for (int i = 0; i < filePaths.size(); i++) {
+        QFileInfo fileInfo(filePaths.at(i));
+        QFile     file(filePaths.at(i));
+        if (file.exists()) {
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                .arg(filePaths.at(i)));
+            } else {
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(filePaths.at(i)));
+#endif
+                count++;
+            }
+        }
+    }
+    emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+}
+
 void Gui::resetModelCache(QString file)
 {
     if (resetCache && !file.isEmpty()) {

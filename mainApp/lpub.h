@@ -712,7 +712,8 @@ public:
                         const QString     &imagePath,
                         const QString     &csiKey,
                         bool               multiStep,
-                        bool               calledOut)
+                        bool               calledOut,
+                        int                viewType)
   {
       ldrawFile.insertViewerStep(stepKey,
                                  rotatedContents,
@@ -721,7 +722,8 @@ public:
                                  imagePath,
                                  csiKey,
                                  multiStep,
-                                 calledOut);
+                                 calledOut,
+                                 viewType);
   }
 
   QStringList getViewerStepRotatedContents(const QString &stepKey)
@@ -920,6 +922,11 @@ public:
       return ldrawFile.getBuildModsList();
   }
 
+  QStringList getBuildModPathsFromStep(const QString &buildModKey, const int image = 1/*ldr=0*/)
+  {
+      return ldrawFile.getBuildModPathsFromStep(buildModKey, image);
+  }
+
   bool buildModsSize()
   {
       return ldrawFile.buildModsSize();
@@ -1022,6 +1029,7 @@ public:
   }
 
   bool extractStepKey(Where &here, int &stepNumber, const QString &key = "");
+  void clearWorkingFiles(const QStringList &filePaths);
 
   /***********************************************************************
    * set Native renderer for fast processing

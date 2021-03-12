@@ -179,15 +179,17 @@ BuildModStep::BuildModStep(const int      buildModStepIndex,
 }
 
 /* initialize viewer step*/
-ViewerStep::ViewerStep(const QStringList &rotatedContents,
+ViewerStep::ViewerStep(const QStringList &stepKey,
+                       const QStringList &rotatedContents,
                        const QStringList &unrotatedContents,
                        const QString     &filePath,
                        const QString     &imagePath,
                        const QString     &csiKey,
                        bool               multiStep,
-                       bool               calledOut)
+                       bool               calledOut,
+                       int                viewType)
 {
-    _rotatedContents << rotatedContents;
+    _rotatedContents   << rotatedContents;
     _unrotatedContents << unrotatedContents;
     _partCount = 0;
     _filePath  = filePath;
@@ -196,6 +198,8 @@ ViewerStep::ViewerStep(const QStringList &rotatedContents,
     _modified  = false;
     _multiStep = multiStep;
     _calledOut = calledOut;
+    _viewType= viewType;
+    _stepKey   = { stepKey[BM_STEP_MODEL_KEY].toInt(), stepKey[BM_STEP_LINE_KEY].toInt(), stepKey[BM_STEP_NUM_KEY].toInt() };
 }
 
 void LDrawFile::empty()
@@ -2316,7 +2320,7 @@ int LDrawFile::getBuildModStep(const QString &modelName,
     int modAction = BuildModNoActionRc;
     int modelIndex = getSubmodelIndex(modelName);
     int modStepIndex = getBuildModStepIndex(modelIndex, lineNumber);
-    int modSourceStepIndex = modStepIndex;
+    int modSourceStepIndex = -1;
 
     QMap<int, BuildModStep>::const_iterator i = _buildModSteps.find(modStepIndex);
     if (i != _buildModSteps.end()) {
@@ -2847,7 +2851,8 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
     return _buildModStepIndexes.indexOf(topOfStep);
 }
 
-// This function returns the equivalent of the ViewerStepKey
+/* This function returns the equivalent of the ViewerStepKey */
+
 QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
 {
   QString modKey = buildModKey.toLower();
@@ -2865,6 +2870,51 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
 
   return QString();
 }
+
+QVector<int> LDrawFile::getBuildModStepKeyVector(const QString &buildModKey)
+{
+  QVector<int> kv = { -1, 0, 0 };
+  QString modKey = buildModKey.toLower();
+  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+  if (i != _buildMods.end()) {
+           kv[BM_STEP_MODEL_KEY] = i.value()._modAttributes[BM_MODEL_NAME_INDEX];
+           kv[BM_STEP_LINE_KEY] = i.value()._modAttributes[BM_MODEL_LINE_NUM];
+           kv[BM_STEP_NUM_KEY] = i.value()._modAttributes[BM_MODEL_STEP_NUM];
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod StepKeyVector: %1;%2;%3").arg(kv[BM_STEP_MODEL_KEY], kv[BM_STEP_LINE_KEY], kv[BM_STEP_NUM_KEY]));
+#endif
+  }
+  return kv;
+}
+
+/* this call gets the paths from the specified submodel step to the end of the submodel */
+
+QStringList LDrawFile::getBuildModPathsFromStep(const QString &buildModKey, const int image)
+{
+  QStringList pathList;
+  QString modKey = buildModKey.toLower();
+  QVector<int> kv = getBuildModStepKeyVector(modKey);
+  ViewerStep::StepKey stepKey = { kv[BM_STEP_MODEL_KEY], kv[BM_STEP_LINE_KEY], kv[BM_STEP_NUM_KEY] };
+  QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
+  while (i != _viewerSteps.constEnd()) {
+    if (stepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
+      if (stepKey.stepNum <= i->_stepKey.stepNum)
+        pathList.append(image ? i->_imagePath : i->_filePath);
+    }
+    ++i;
+  }
+
+  pathList.removeDuplicates();
+
+//#ifdef QT_DEBUG_MODE
+//  emit gui->messageSig(LOG_DEBUG, QString("BuildMod Paths From Step: %1").arg(stepKey.stepNum));
+//  Q_FOREACH (const QString item, pathList)
+//      emit gui->messageSig(LOG_DEBUG, QString("BuildMod Path: %1").arg(item));
+//#endif
+
+  return pathList;
+}
+
 
 QString LDrawFile::getBuildModStepKeyModelName(const QString &buildModKey)
 {
@@ -2941,18 +2991,18 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  const QString     &imagePath,
                                  const QString     &csiKey,
                                  bool               multiStep,
-                                 bool               calledOut)
+                                 bool               calledOut,
+                                 int                viewType)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
-  ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut);
+  ViewerStep viewerStep(stepKey.split(";"),rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
   Q_FOREACH(QString line, rotatedContents)
     if (line[0] == '1')
       viewerStep._partCount++;
-  _viewerSteps.insert(mStepKey,viewerStep);
+  _viewerSteps.insert(stepKey,viewerStep);
 }
 
 /* Viewer Step Exist */
