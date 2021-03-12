@@ -475,8 +475,6 @@ int Gui::drawPage(
   bool     buildModTypeIgnore= false;  
   bool     buildMod[3]= { false, false, false };
 
-  enum draw_page_stat { begin, end };
-
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
   QString       buildModKey;
@@ -495,6 +493,8 @@ int Gui::drawPage(
   QStringList calloutParts;
 
   Where topOfStep = opts.current;
+
+  enum draw_page_stat { begin, end };
 
   steps->setTopOfSteps(topOfStep/*opts.current*/);
   steps->isMirrored = opts.isMirrored;
@@ -777,7 +777,10 @@ int Gui::drawPage(
         }
 
       // STEP - Process part type
+
       if (tokens.size() == 15 && tokens[0] == "1") {
+
+          // STEP - Create partType
 
           QString color = tokens[1];
           QString type  = tokens[tokens.size()-1];
@@ -792,6 +795,8 @@ int Gui::drawPage(
               color = tokens[1];
             }
 
+          // STEP - Allocate step for type
+
           if (! buildModIgnore) {
 
               /* for multistep build mod case where we are processing a callout
@@ -802,8 +807,6 @@ int Gui::drawPage(
                   CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
                   partsAdded = true;
               }
-
-              // STEP - Allocate STEP
 
               /* since we have a part usage, we have a valid STEP */
 
@@ -822,9 +825,9 @@ int Gui::drawPage(
 
                   range->append(step);
               }
-          }
+          } // Allocate step for type
 
-          // STEP - Allocate PLI
+          // STEP - Allocate PLI part
 
           /* check if part is on excludedPart.lst and set pliIgnore*/
 
@@ -882,14 +885,17 @@ int Gui::drawPage(
                     }
                 }
 
-              // bfxStore1 goes true when we've seen BFX STORE the first time
-              // in a sequence of steps.  This used to be commented out which
-              // means it didn't work in some cases, but we need it in step
-              // group cases, so.... bfxStore1 && multiStep (was just bfxStore1)
+              /* bfxStore1 goes true when we've seen BFX STORE the first time
+                 in a sequence of steps.  This used to be commented out which
+                 means it didn't work in some cases, but we need it in step
+                 group cases, so.... bfxStore1 && multiStep (was just bfxStore1) */
+
               if (bfxStore1 && (multiStep || opts.calledOut)) {
                   opts.bfxParts << colorType;
-                }
-            } // STEP - Process shown PLI parts
+              }
+          } // Allocate PLI part
+
+          // STEP - Process callout
 
           /* if it is a called out sub-model, then process it */
 
@@ -900,12 +906,13 @@ int Gui::drawPage(
 //              logDebug() << "CALLOUT MODE: " << (calloutMode == CalloutBeginMeta::Unassembled ? "Unassembled" :
 //                                                 calloutMode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
 
-              /* we are a callout, so gather all the steps within the callout */
-              /* start with new meta, but no rotation step */
+              /* we are a callout, so gather all the steps within the callout
+                 start with new meta, but no rotation step */
 
               QString thisType = type;
 
-             /* t.s. Rotated or assembled callout here (treated like a submodel) */
+              // STEP - Process rotated or assembled callout
+
               if ((opts.assembledCallout = calloutMode != CalloutBeginMeta::Unassembled)) {
 
                   /* So, we process these callouts in-line, not when we finally hit the STEP or
@@ -940,7 +947,10 @@ int Gui::drawPage(
                   callout->meta.LPub.assem.modelScale = tmpMeta.LPub.assem.modelScale;
                   // The next command applies the rotation due to line, but not due to callout->meta.rotStep
                   thisType = callout->wholeSubmodel(callout->meta,type,line,0);
-                }
+
+              } // Process rotated or assembled callout
+
+              // STEP - Set callout in parent step
 
               if (callout->bottom.modelName != thisType) {
 
@@ -1011,20 +1021,22 @@ int Gui::drawPage(
                       steps->placement = steps->meta.LPub.assem.placement;
                       pageProcessRunning = PROC_FIND_PAGE;
                       return drc;
-                    }
-                } else {
-                  callout->instances++;
-                  if (calloutMode == CalloutBeginMeta::Unassembled) {
-                      opts.pliParts += calloutParts;
-                    }
-                }
+                  }
+              } else {
+                callout->instances++;
+                if (calloutMode == CalloutBeginMeta::Unassembled) {
+                    opts.pliParts += calloutParts;
+                  }
+              } // Set callout in parent step
 
               /* remind user what file we're working on */
+
               emit messageSig(LOG_STATUS, "Processing " + opts.current.modelName + "...");
 
-            } // STEP - Process called out submodel
+          } // Process called out submodel
 
-          // Set flag to display submodel at first submodel step
+          // STEP - Set display submodel at first submodel step
+
           if (step && steps->meta.LPub.subModel.show.value()) {
               bool topModel       = (ldrawFile.topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
@@ -1036,16 +1048,19 @@ int Gui::drawPage(
                       step->placeSubModel = true;
                   }
               }
-          }
-      }
-      // STEP - Process line, triangle, or polygon type
-      else if ((tokens.size() == 8  && tokens[0] == "2") ||
-               (tokens.size() == 11 && tokens[0] == "3") ||
-               (tokens.size() == 14 && tokens[0] == "4") ||
-               (tokens.size() == 14 && tokens[0] == "5")) {
+          } // Set display submodel at first submodel step
+      } // Process part type
 
-          /* we've got a line, triangle or polygon, so add it to the list */
-          /* and make sure we know we have a step */
+      // STEP - Process line, triangle, or polygon type
+
+      else if ((tokens.size() == 8  &&  tokens[0] == "2") ||
+               (tokens.size() == 11 &&  tokens[0] == "3") ||
+               (tokens.size() == 14 && (tokens[0] == "4"  || tokens[0] == "5"))) {
+
+          // STEP - Allocate step for type
+
+          /* we've got a line, triangle or polygon, so add it to the list
+             and make sure we know we have a step */
 
           if (! buildModIgnore) {
 
@@ -1062,7 +1077,7 @@ int Gui::drawPage(
               if (range == nullptr) {
                   range = newRange(steps,opts.calledOut);
                   steps->append(range);
-                }
+              }
 
               step = new Step(topOfStep,
                               range,
@@ -1072,10 +1087,12 @@ int Gui::drawPage(
                               multiStep);
 
               range->append(step);
-            }
-          } // ! buildModIgnore
-        }
+          }
+        } // Allocate step for type
+      } // Process line, triangle, or polygon type
+
       // STEP - Process meta command
+
       else if ( (tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
 
           /* must be meta-command (or comment) */
@@ -1956,6 +1973,7 @@ int Gui::drawPage(
               buildModKey        = curMeta.LPub.buildMod.key();
               buildModExists     = buildModContains(buildModKey);
               opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
+              // assign buildMod key
               if (! buildModKeys.contains(opts.buildModLevel))
                   buildModKeys.insert(opts.buildModLevel, buildModKey);
               // insert new or update existing buildMod
@@ -1965,18 +1983,18 @@ int Gui::drawPage(
                   buildModInsert = !buildModExists;
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
-              // set buildModActions
+              // set buildModAction
               if (buildModExists)
-                  if (multiStep || opts.calledOut)
-                      opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
-                  else
-                      opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep), BM_LAST_ACTION)));
+                  if (multiStep || opts.calledOut) // always take the last action
+                      opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, BM_LAST_ACTION));
+                  else // take the for the current step if exists or last action
+                      opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
               else if (buildModInsert)
                   opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
               else
                   parseError(QString("Expected BuildMod action - Ensure your meta command is well formed."),
                              opts.current,Preferences::BuildModErrors);
-              // set buildMod ignore
+              // set buildMod and buildModPli ignore
               if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
                   buildModIgnore    = false;
                   buildModPliIgnore = true;
@@ -1998,7 +2016,7 @@ int Gui::drawPage(
                   parseError(QString("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
-              // set buildMod action
+              // set buildMod and buildModPli ignore
               if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
                   buildModIgnore    = true;
                   buildModPliIgnore = pliIgnore;
