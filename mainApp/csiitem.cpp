@@ -739,11 +739,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       ; // triggered from gui
     } else if (selectedAction == viewCSIFileAction) {
       QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
-      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, 20);
+      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
       const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
       QString csiFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr");
       gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
-      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1 (Read-Only)").arg(modelName));
+      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
       gui->getEditModeWindow()->setReadOnly(true);
       gui->getEditModeWindow()->show();
     }

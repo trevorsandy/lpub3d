@@ -1375,9 +1375,9 @@ void Gui::editModelFile(bool saveBefore)
     QString file = getCurFile();
     if (ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
-    displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
     editModeWindow->show();
+    displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
 }
 
 

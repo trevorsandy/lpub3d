@@ -36,6 +36,7 @@
 #include <QTextEdit>
 #include <QTextCursor>
 #include <QFileSystemWatcher>
+#include <QFutureWatcher>
 
 #include "lc_global.h"
 #include "lc_math.h"
@@ -67,7 +68,9 @@ class QComboBox;
 class QAbstractItemModel;
 class QCompleter;
 class QProgressBar;
+
 class WaitingSpinnerWidget;
+class LoadModelWorker;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,9 +89,13 @@ public:
     {
         return _modelFileEdit;
     }
-    QString& getCurrentFile()
+    QString &getCurrentFile()
     {
         return fileName;
+    }
+    void setLineCount(int count)
+    {
+        lineCount = count;
     }
 
 signals:
@@ -104,6 +111,7 @@ signals:
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
     void previewPieceSig(const QString &, int);
     void setStepForLineSig(const TypeLine &);
+    void waitingSpinnerStopSig();
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);
@@ -121,6 +129,10 @@ public slots:
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
     void setReadOnly(bool enabled);
+    void setSubmodel(int index);
+    void loadPagedContent();
+    void setPagedContent(const QStringList &);
+    void setPlainText(const QString &);
 
 private slots:
     void openWith();
@@ -144,6 +156,8 @@ private slots:
 #ifndef QT_NO_CLIPBOARD
     void updateClipboard();
 #endif
+    void waitingSpinnerStarted();
+    void waitingSpinnerFinished();
 
 protected:
     void createActions();
@@ -161,17 +175,18 @@ protected:
     void disableActions();
     void enableActions();
     bool validPartLine();
-    void loadPagedContent();
     void closeEvent(QCloseEvent*_event);
 
     enum Decor { SIMPLE, STANDARD };
 
-    WaitingSpinnerWidget *waitingSpinner;
+    WaitingSpinnerWidget *_waitingSpinner;
     QTextEditor       *_textEdit;
+    LoadModelWorker   *loadModelWorker;
     QCompleter        *completer;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
+    QFutureWatcher<int> futureWatcher;
     QFileSystemWatcher fileWatcher;
     StepLines          stepLines;
     QVector<int>       savedSelection;
@@ -180,7 +195,10 @@ protected:
     int                showLineType;
     int                showLineNumber;
     int                fileOrderIndex;
+    QAtomicInt         lineCount;
     bool               isIncludeFile;
+    bool               isReadOnly;
+    bool               _spinnerStarted;
     bool               _modelFileEdit;
     bool               _subFileListPending;
     bool               _contentLoaded;
@@ -277,7 +295,7 @@ private:
     int         completion_minchars;
     int         completion_max;
     QString     completion_prefix;
-    bool        _fileIsUTF8;
+    std::atomic<bool> _fileIsUTF8;
     QWidget    *lineNumberArea;
 };
 
