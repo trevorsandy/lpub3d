@@ -398,10 +398,10 @@ void Gui::displayPage()
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
-    if (Preferences::modeGUI && ! exporting()) {
-      enableActions2();
-      emit enable3DActionsSig();
-    }
+//    if (Preferences::modeGUI && ! exporting()) {
+//      enableActions2();
+//      emit enable3DActionsSig();
+//    }
   }
   if (! ContinuousPage())
     emit messageSig(LOG_STATUS,QString("Page loaded%1.")
@@ -426,8 +426,6 @@ void Gui::enableNavigationActions(bool enable)
         nextPageContinuousAct->setEnabled(enable);
         previousPageContinuousAct->setEnabled(enable);
     }
-
-    QApplication::processEvents();
 }
 
 void Gui::nextPage()
@@ -4806,8 +4804,8 @@ void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
           setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
   }
 
-  if (Preferences::modeGUI && ! exporting())
-      enableNavigationActions(true);
+//  if (Preferences::modeGUI && ! exporting())
+//      enableNavigationActions(true);
 
   setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
@@ -4868,16 +4866,18 @@ void Gui::enableActions()
   if (!Preferences::pliControlFile.isEmpty())
       editPliControlFileAct->setEnabled(true);
   openWorkingFolderAct->setEnabled(true);
-  setPageLineEdit->setEnabled(true);
 
-  firstPageAct->setEnabled(true);
-  lastPageAct->setEnabled(true);
-  nextPageAct->setEnabled(true);
-  previousPageAct->setEnabled(true);
-  nextPageComboAct->setEnabled(true);
-  previousPageComboAct->setEnabled(true);
-  nextPageContinuousAct->setEnabled(true);
-  previousPageContinuousAct->setEnabled(true);
+//  setPageLineEdit->setEnabled(true);
+
+//  firstPageAct->setEnabled(true);
+//  lastPageAct->setEnabled(true);
+
+//  nextPageAct->setEnabled(true);
+//  previousPageAct->setEnabled(true);
+//  nextPageComboAct->setEnabled(true);
+//  previousPageComboAct->setEnabled(true);
+//  nextPageContinuousAct->setEnabled(true);
+//  previousPageContinuousAct->setEnabled(true);
 
   fitWidthAct->setEnabled(true);
   fitVisibleAct->setEnabled(true);

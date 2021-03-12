@@ -550,7 +550,6 @@ int Gui::drawPage(
                                  .arg(QString("%1%2").arg(displayPageNum).arg(coverPage ? " (Cover Page)" : ""))
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
-    emit messageSig(LOG_INFO_STATUS, QString("Counting document pages..."));
     setPageLineEdit->setText(QString("Counting pages..."));
     pageProcessRunning = PROC_COUNT_PAGE;
     QCoreApplication::processEvents();
@@ -4145,7 +4144,7 @@ void Gui::pagesCounted()
             if (mloadingFile) {
                 emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                                     QString("LDraw model file %1 aborted.").arg(getCurFile()) :
-                                    QString("Model file loaded (%1 pages, %2 parts). %3")
+                                    QString("Model loaded (%1 pages, %2 parts). %3")
                                     .arg(maxPages)
                                     .arg(ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
@@ -4155,6 +4154,9 @@ void Gui::pagesCounted()
                                 .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
             }
         }
+        enableActions2();
+        enableNavigationActions(true);
+        emit enable3DActionsSig();
     } // modeGUI and not exporting
 }
 

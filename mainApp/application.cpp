@@ -982,7 +982,7 @@ int Application::run()
   {
       mainApp();
 
-      emit gui->messageSig(LOG_INFO, QString("Run: Application ready."));
+//      emit gui->messageSig(LOG_INFO, QString("Run: Application ready."));
 
       if (modeGUI())
           ExecReturn = m_application.exec();

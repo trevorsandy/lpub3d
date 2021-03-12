@@ -75,8 +75,7 @@ void Gui::open()
       ldrawFile.showLoadMessages();
       emit messageSig(LOG_STATUS, gui->loadAborted() ?
                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                       QString("File loaded (%1 pages, %2 parts). %3")
-                               .arg(maxPages - pa)
+                       QString("File loaded (%1 parts). %2")
                                .arg(ldrawFile.getPartCount())
                                .arg(elapsedTime(timer.elapsed())));
       return;
@@ -107,8 +106,7 @@ void Gui::openDropFile(QString &fileName){
           ldrawFile.showLoadMessages();
           emit messageSig(LOG_STATUS, gui->loadAborted() ?
                               QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                              QString("File loaded (%1 pages, %2 parts). %3")
-                                      .arg(maxPages - pa)
+                              QString("File loaded (%1 parts). %2")
                                       .arg(ldrawFile.getPartCount())
                                       .arg(elapsedTime(timer.elapsed())));
         } else {
@@ -373,8 +371,7 @@ void Gui::openRecentFile()
     ldrawFile.showLoadMessages();
     emit messageSig(LOG_STATUS, gui->loadAborted() ?
                         QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                        QString("File loaded (%1 pages, %2 parts). %3")
-                                .arg(maxPages - pa)
+                        QString("File loaded (%1 parts). %2")
                                 .arg(ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
   }
@@ -418,8 +415,7 @@ bool Gui::loadFile(const QString &file)
         ldrawFile.showLoadMessages();
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :
-                            QString("File loaded (%1 pages, %2 parts). %3")
-                                    .arg(maxPages - pa)
+                            QString("File loaded (%1 parts). %2")
                                     .arg(ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
         return true;
