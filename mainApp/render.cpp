@@ -2908,8 +2908,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-    lcCamera* Camera =  ActiveView->GetCamera();
-
     // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
     lcVector3 Target = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
 
@@ -2918,13 +2916,30 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     bool ZoomExtents    = O->ZoomExtents; // was !RenderImage && IsOrtho;
     bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
 
+    lcCamera* Camera = nullptr;
+
+    if (DefaultCamera) {
+
+      Camera = ActiveView->GetCamera();
+
+    }
+
     if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
         ActiveView->SetViewpoint(lcViewpoint(gui->GetPreferences().mNativeViewpoint));
 
     } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
 
-        Camera->m_fovy  = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
+        Camera->m_fovy = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
+
+        // Get the created camera name and set the camera
+        if (!DefaultCamera) {
+            Camera = new lcCamera(false);
+            Camera->CreateName(ActiveModel->GetCameras());
+            Camera->SetSelected(true);
+            ActiveModel->AddCamera(Camera);
+            ActiveView->SetCamera(QString("Camera %1").arg(ActiveModel->GetCameras().GetSize()));
+        }
 
         ActiveView->SetProjection(IsOrtho);
         ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Target, ZoomExtents);
