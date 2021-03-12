@@ -204,7 +204,6 @@ void MinifigWizard::DeleteTemplate(const QString& TemplateName)
 
 void MinifigWizard::AddTemplatesJson(const QByteArray& TemplateData)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QJsonDocument Document = QJsonDocument::fromJson(TemplateData);
 	QJsonObject RootObject = Document.object();
 
@@ -241,17 +240,10 @@ void MinifigWizard::AddTemplatesJson(const QByteArray& TemplateData)
 
 		mTemplates.emplace(ElementIt.key(), std::move(Template));
 	}
-#endif
 }
 
 QByteArray MinifigWizard::GetTemplatesJson() const
 {
-	QByteArray TemplateData;
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QJsonObject RootObject;
-
-	RootObject["Version"] = 1;
 	QJsonObject TemplatesObject;
 
 	for (const auto& TemplateEntry : mTemplates)
@@ -273,11 +265,11 @@ QByteArray MinifigWizard::GetTemplatesJson() const
 		TemplatesObject[TemplateEntry.first] = TemplateObject;
 	}
 
+	QJsonObject RootObject;
 	RootObject["Templates"] = TemplatesObject;
-	TemplateData = QJsonDocument(RootObject).toJson();
-#endif
+	RootObject["Version"] = 1;
 
-	return TemplateData;
+	return QJsonDocument(RootObject).toJson();
 }
 
 void MinifigWizard::LoadTemplates()
@@ -293,11 +285,9 @@ void MinifigWizard::LoadTemplates()
 
 void MinifigWizard::SaveTemplates()
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QSettings Settings;
 	Settings.beginGroup("Minifig");
 	Settings.setValue("Templates", GetTemplatesJson());
-#endif
 }
 
 void MinifigWizard::Calculate()

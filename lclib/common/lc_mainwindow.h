@@ -52,19 +52,6 @@ protected:
 	int mMousePressTab;
 };
 
-class lcTabWidget : public QTabWidget
-{
-public:
-	lcTabWidget();
-
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-	QTabBar* tabBar()
-	{
-		return QTabWidget::tabBar();
-	}
-#endif
-};
-
 class lcModelTabWidget : public QWidget
 {
 	Q_OBJECT
@@ -398,7 +385,6 @@ public:
 /*** LPub3D Mod - Timeline part icons ***/
 	bool IsLPub3DSubModel(QString &Piece);
 	const QString GetPliIconsPath(QString &key);
-	const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/
  /*** LPub3D Mod - Rotate step angles ***/
 	void GetRotStepMetaAngles();
@@ -543,7 +529,7 @@ protected:
 
 	QAction* mActionFileRecentSeparator;
 
-	lcTabWidget* mModelTabWidget;
+	QTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 	QToolBar* mToolsToolBar;
 /*** LPub3D Mod - rotate step ***/

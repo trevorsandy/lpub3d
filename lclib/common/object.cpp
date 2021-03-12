@@ -1,6 +1,5 @@
 #include "lc_global.h"
 #include "object.h"
-#include "lc_file.h"
 
 lcObject::lcObject(lcObjectType ObjectType)
 	: mObjectType(ObjectType)
@@ -62,7 +61,7 @@ void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName
 
 	for (const lcObjectKey<T>& Key : mKeys)
 	{
-/*** LPub3D Mod - LPUB meta command ***/			
+/*** LPub3D Mod - LPUB meta command ***/
 		Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' ';
 /*** LPub3D Mod end ***/	
 

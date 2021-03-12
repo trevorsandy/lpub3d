@@ -5660,7 +5660,7 @@
 	<!--  Electric Power Functions IR Remote Control Direction Switch 58136 18  -->
 	<Transformation ldraw="58136.dat" tx="0" ty="0" tz="0" ax="0" ay="1" az="0" angle="3.141593"/>	
 
-	<!--  Electric Mindstorms NXT Color Sensor / Color Lamp 64892 18 -->
+	<!--  Electric Mindstorms NXT Colour Sensor / Colour Lamp 64892 18 -->
 	<Transformation ldraw="64892.dat" tx="0" ty="0" tz="0" ax="0" ay="1" az="0" angle="3.141593"/>							
 
 	<!--  55205 18  -->

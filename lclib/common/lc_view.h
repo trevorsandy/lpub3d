@@ -176,6 +176,12 @@ public:
 		return mMouseY;
 	}
 
+	void SetBackgroundColorOverride(quint32 BackgroundColor)
+	{
+		mOverrideBackgroundColor = true;
+		mBackgroundColor = BackgroundColor;
+	}
+	
 /*** LPub3D Mod - Rotate step angles ***/
 	lcTrackTool GetTrackTool() const
 	{
@@ -195,11 +201,7 @@ public:
 	void MakeCurrent();
 	void Redraw();
 
-#ifdef LC_USE_QOPENGLWIDGET
 	void SetOffscreenContext();
-#else
-	void SetContext(lcContext* Context);
-#endif
 
 	void SetFocus(bool Focus);
 	void SetMousePosition(int MouseX, int MouseY);
@@ -258,13 +260,11 @@ public:
 	bool BeginRenderToImage(int Width, int Height);
 	void EndRenderToImage();
 	QImage GetRenderImage() const;
-#ifdef LC_USE_QOPENGLWIDGET
 	void BindRenderFramebuffer();
 	void UnbindRenderFramebuffer();
 	QImage GetRenderFramebufferImage() const;
 	std::vector<QImage> GetStepImages(lcStep Start, lcStep End);
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, lcStep Start, lcStep End);
-#endif
 
 	lcContext* mContext = nullptr;
 
@@ -326,11 +326,9 @@ protected:
 	PieceInfo* mMouseDownPiece;
 
 	QImage mRenderImage;
-#ifdef LC_USE_QOPENGLWIDGET
 	std::unique_ptr<QOpenGLFramebufferObject> mRenderFramebuffer;
-#else
-	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
-#endif
+	bool mOverrideBackgroundColor = false;
+	quint32 mBackgroundColor = 0;
 
 	std::unique_ptr<lcScene> mScene;
 	std::unique_ptr<lcViewSphere> mViewSphere;

@@ -97,25 +97,10 @@ void lcView::Redraw()
 		mWidget->update();
 }
 
-#ifdef LC_USE_QOPENGLWIDGET
-
 void lcView::SetOffscreenContext()
 {
 	mContext->SetOffscreenContext();
 }
-
-#else
-
-void lcView::SetContext(lcContext* Context)
-{
-	if (mDeleteContext)
-		delete mContext;
-
-	mContext = Context;
-	mDeleteContext = false;
-}
-
-#endif
 
 void lcView::SetFocus(bool Focus)
 {
@@ -769,8 +754,6 @@ lcArray<lcObject*> lcView::FindObjectsInBox(float x1, float y1, float x2, float 
 	return ObjectBoxTest.Objects;
 }
 
-#ifdef LC_USE_QOPENGLWIDGET
-
 std::vector<QImage> lcView::GetStepImages(lcStep Start, lcStep End)
 {
 	std::vector<QImage> Images;
@@ -828,21 +811,16 @@ void lcView::SaveStepImages(const QString& BaseName, bool AddStepSuffix, lcStep 
 	}
 }
 
-#endif
-
 bool lcView::BeginRenderToImage(int Width, int Height)
 {
 	GLint MaxTexture;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &MaxTexture);
 
 	MaxTexture = qMin(MaxTexture, 2048);
-#ifdef LC_USE_QOPENGLWIDGET
+
 	const int Samples = QSurfaceFormat::defaultFormat().samples();
 	if (Samples > 1)
 		MaxTexture /= Samples;
-#else
-	MaxTexture /= QGLFormat::defaultFormat().sampleBuffers() ? QGLFormat::defaultFormat().samples() : 1;
-#endif
 
 	int TileWidth = qMin(Width, MaxTexture);
 	int TileHeight = qMin(Height, MaxTexture);
@@ -851,7 +829,6 @@ bool lcView::BeginRenderToImage(int Width, int Height)
 	mHeight = TileHeight;
 	mRenderImage = QImage(Width, Height, QImage::Format_ARGB32);
 
-#ifdef LC_USE_QOPENGLWIDGET
 	QOpenGLFramebufferObjectFormat Format;
 	Format.setAttachment(QOpenGLFramebufferObject::Depth);
 
@@ -861,31 +838,17 @@ bool lcView::BeginRenderToImage(int Width, int Height)
 	mRenderFramebuffer = std::unique_ptr<QOpenGLFramebufferObject>(new QOpenGLFramebufferObject(QSize(TileWidth, TileHeight), Format));
 
 	return mRenderFramebuffer->bind();
-#else
-	mRenderFramebuffer = mContext->CreateRenderFramebuffer(TileWidth, TileHeight);
-	mContext->BindFramebuffer(mRenderFramebuffer.first);
-
-	return mRenderFramebuffer.first.IsValid();
-#endif
 }
 
 void lcView::EndRenderToImage()
 {
-#ifdef LC_USE_QOPENGLWIDGET
 	mRenderFramebuffer.reset();
-#else
-	mRenderImage = QImage();
-	mContext->DestroyRenderFramebuffer(mRenderFramebuffer);
-	mContext->ClearFramebuffer();
-#endif
 }
 
 QImage lcView::GetRenderImage() const
 {
 	return mRenderImage;
 }
-
-#ifdef LC_USE_QOPENGLWIDGET
 
 void lcView::BindRenderFramebuffer()
 {
@@ -902,8 +865,6 @@ QImage lcView::GetRenderFramebufferImage() const
 	return mRenderFramebuffer->toImage();
 }
 
-#endif
-
 void lcView::OnDraw()
 {
 	if (!mModel)
@@ -913,6 +874,11 @@ void lcView::OnDraw()
 	const bool DrawOverlays = mWidget != nullptr;
 	const bool DrawInterface = mWidget != nullptr && mViewType == lcViewType::View;
 
+	lcShadingMode ShadingMode = Preferences.mShadingMode;
+	if (ShadingMode == lcShadingMode::Wireframe && !mWidget)
+		ShadingMode = lcShadingMode::Flat;
+
+	mScene->SetShadingMode(ShadingMode);
 	mScene->SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
 	mScene->SetLODDistance(Preferences.mMeshLODDistance);
 
@@ -998,15 +964,10 @@ void lcView::OnDraw()
 
 			if (!mRenderImage.isNull())
 			{
-#ifdef LC_USE_QOPENGLWIDGET
 				UnbindRenderFramebuffer();
 				QImage TileImage = GetRenderFramebufferImage();
 				BindRenderFramebuffer();
 				quint8* Buffer = TileImage.bits();
-#else
-				quint8* Buffer = (quint8*)malloc(mWidth * mHeight * 4);
-				mContext->GetRenderFramebufferImage(mRenderFramebuffer, Buffer);
-#endif
 				uchar* ImageBuffer = mRenderImage.bits();
 
 				quint32 TileY = 0, SrcY = 0;
@@ -1024,10 +985,6 @@ void lcView::OnDraw()
 
 					memcpy(dst, src, CurrentTileWidth * 4);
 				}
-
-#ifndef LC_USE_QOPENGLWIDGET
-				free(Buffer);
-#endif
 			}
 		}
 	}
@@ -1075,6 +1032,13 @@ void lcView::OnDraw()
 
 void lcView::DrawBackground() const
 {
+	if (mOverrideBackgroundColor)
+	{
+		lcVector4 BackgroundColor(lcVector4FromColor(mBackgroundColor));
+		mContext->ClearColorAndDepth(BackgroundColor);
+		return;
+	}
+
 	const lcPreferences& Preferences = lcGetPreferences();
 
 	if (!Preferences.mBackgroundGradient)
@@ -3522,7 +3486,6 @@ void lcView::OnMiddleButtonDown()
 		return;
 	}
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::MiddleButton);
 
 	if (OverrideTool != lcTrackTool::None)
@@ -3530,7 +3493,7 @@ void lcView::OnMiddleButtonDown()
 		mTrackTool = OverrideTool;
 		UpdateCursor();
 	}
-#endif
+
 	OnButtonDown(lcTrackButton::Middle);
 }
 

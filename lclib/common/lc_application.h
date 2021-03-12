@@ -90,7 +90,7 @@ public:
 	int mPreviewViewSphereSize;
 	lcViewSphereLocation mPreviewViewSphereLocation;
 	int mDrawPreviewAxis;
-/*** LPub3D Mod - preview widget for LPub3D ***/	
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreviewLocation mPreviewLocation;
 	lcPreviewPosition mPreviewPosition;
 	int mPreviewSize;

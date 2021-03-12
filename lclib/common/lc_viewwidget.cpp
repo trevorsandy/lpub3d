@@ -14,13 +14,8 @@
 
 static QList<lcViewWidget*> gWidgetList;
 
-#ifdef LC_USE_QOPENGLWIDGET
 lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
-	: lcViewWidgetParent(Parent)
-#else
-lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
-	: lcViewWidgetParent(Parent, gWidgetList.isEmpty() ? nullptr : gWidgetList.first())
-#endif
+	: QOpenGLWidget(Parent)
 {
 	mWheelAccumulator = 0;
 	mView = View;
@@ -46,7 +41,7 @@ lcViewWidget::~lcViewWidget()
 
 QSize lcViewWidget::sizeHint() const
 {
-	return mPreferredSize.isEmpty() ? lcViewWidgetParent::sizeHint() : mPreferredSize;
+	return mPreferredSize.isEmpty() ? QOpenGLWidget::sizeHint() : mPreferredSize;
 }
 
 void lcViewWidget::SetView(lcView* View)
@@ -156,7 +151,7 @@ void lcViewWidget::focusInEvent(QFocusEvent* FocusEvent)
 	if (mView)
 		mView->SetFocus(true);
 
-	lcViewWidgetParent::focusInEvent(FocusEvent);
+	QOpenGLWidget::focusInEvent(FocusEvent);
 }
 
 void lcViewWidget::focusOutEvent(QFocusEvent* FocusEvent)
@@ -164,7 +159,7 @@ void lcViewWidget::focusOutEvent(QFocusEvent* FocusEvent)
 	if (mView)
 		mView->SetFocus(false);
 
-	lcViewWidgetParent::focusOutEvent(FocusEvent);
+	QOpenGLWidget::focusOutEvent(FocusEvent);
 }
 
 void lcViewWidget::keyPressEvent(QKeyEvent* KeyEvent)
@@ -175,7 +170,7 @@ void lcViewWidget::keyPressEvent(QKeyEvent* KeyEvent)
 		mView->UpdateCursor();
 	}
 
-	lcViewWidgetParent::keyPressEvent(KeyEvent);
+	QOpenGLWidget::keyPressEvent(KeyEvent);
 }
 
 void lcViewWidget::keyReleaseEvent(QKeyEvent* KeyEvent)
@@ -186,7 +181,7 @@ void lcViewWidget::keyReleaseEvent(QKeyEvent* KeyEvent)
 		mView->UpdateCursor();
 	}
 
-	lcViewWidgetParent::keyReleaseEvent(KeyEvent);
+	QOpenGLWidget::keyReleaseEvent(KeyEvent);
 }
 
 void lcViewWidget::mousePressEvent(QMouseEvent* MouseEvent)
@@ -210,7 +205,6 @@ void lcViewWidget::mousePressEvent(QMouseEvent* MouseEvent)
 		mView->OnRightButtonDown();
 		break;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	case Qt::BackButton:
 		mView->OnBackButtonDown();
 		break;
@@ -218,7 +212,6 @@ void lcViewWidget::mousePressEvent(QMouseEvent* MouseEvent)
 	case Qt::ForwardButton:
 		mView->OnForwardButtonDown();
 		break;
-#endif
 
 	default:
 		break;
@@ -246,7 +239,6 @@ void lcViewWidget::mouseReleaseEvent(QMouseEvent* MouseEvent)
 		mView->OnRightButtonUp();
 		break;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	case Qt::BackButton:
 		mView->OnBackButtonUp();
 		break;
@@ -254,7 +246,6 @@ void lcViewWidget::mouseReleaseEvent(QMouseEvent* MouseEvent)
 	case Qt::ForwardButton:
 		mView->OnForwardButtonUp();
 		break;
-#endif
 
 	default:
 		break;
@@ -273,6 +264,7 @@ void lcViewWidget::mouseDoubleClickEvent(QMouseEvent* MouseEvent)
 	case Qt::LeftButton:
 		mView->OnLeftButtonDoubleClick();
 		break;
+
 	default:
 		break;
 	}
@@ -290,11 +282,7 @@ void lcViewWidget::mouseMoveEvent(QMouseEvent* MouseEvent)
 
 void lcViewWidget::wheelEvent(QWheelEvent* WheelEvent)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	if (WheelEvent->angleDelta().y() == 0)
-#else
-	if ((WheelEvent->orientation() & Qt::Vertical) == 0)
-#endif
 	{
 		WheelEvent->ignore();
 		return;
@@ -309,11 +297,7 @@ void lcViewWidget::wheelEvent(QWheelEvent* WheelEvent)
 #endif
 	mView->SetMouseModifiers(WheelEvent->modifiers());
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	mWheelAccumulator += WheelEvent->angleDelta().y() / 8;
-#else
-	mWheelAccumulator += WheelEvent->delta() / 8;
-#endif
 	int numSteps = mWheelAccumulator / 15;
 
 	if (numSteps)
@@ -368,7 +352,7 @@ void lcViewWidget::dragMoveEvent(QDragMoveEvent* DragMoveEvent)
 		return;
 	}
 
-	lcViewWidgetParent::dragMoveEvent(DragMoveEvent);
+	QOpenGLWidget::dragMoveEvent(DragMoveEvent);
 }
 
 void lcViewWidget::dropEvent(QDropEvent* DropEvent)
@@ -384,5 +368,5 @@ void lcViewWidget::dropEvent(QDropEvent* DropEvent)
 		return;
 	}
 
-	lcViewWidgetParent::dropEvent(DropEvent);
+	QOpenGLWidget::dropEvent(DropEvent);
 }

@@ -4,22 +4,17 @@ QT      += gui
 QT      += opengl
 QT      += network
 QT      += xml
+QT      += concurrent
+QT      *= printsupport
 CONFIG  += staticlib
 CONFIG  += warn_on
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT *= printsupport
-    QT += concurrent
-}
-
 win32:macx: \
 GAMEPAD {
-    equals(QT_MAJOR_VERSION, 5) {
-        qtHaveModule(gamepad) {
-            QT += gamepad
-            DEFINES += LC_ENABLE_GAMEPAD
-        }
-    }
+	qtHaveModule(gamepad) {
+		QT += gamepad
+		DEFINES += LC_ENABLE_GAMEPAD
+	}
 }
 
 TARGET +=
@@ -34,9 +29,9 @@ INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 
 # The ABI version.
 VER_MAJ = 1
-VER_MIN = 8
+VER_MIN = 9
 VER_PAT = 0
-VER_BLD = 2
+VER_BLD = 7
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 

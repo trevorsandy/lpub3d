@@ -12,7 +12,6 @@ HEADERS += \
     $$PWD/common/lc_commands.h \
     $$PWD/common/lc_context.h \
     $$PWD/common/lc_file.h \
-    $$PWD/common/lc_glext.h \
     $$PWD/common/lc_glextensions.h \
     $$PWD/common/lc_global.h \
     $$PWD/common/lc_http.h \
@@ -26,6 +25,7 @@ HEADERS += \
     $$PWD/common/lc_meshloader.h \
     $$PWD/common/lc_minifigdialog.h \
     $$PWD/common/lc_model.h \
+    $$PWD/common/lc_pagesetupdialog.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
     $$PWD/common/lc_previewwidget.h \
@@ -90,6 +90,7 @@ SOURCES += \
     $$PWD/common/lc_meshloader.cpp \
     $$PWD/common/lc_minifigdialog.cpp \
     $$PWD/common/lc_model.cpp \
+    $$PWD/common/lc_pagesetupdialog.cpp \
     $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
     $$PWD/common/lc_previewwidget.cpp \
@@ -134,6 +135,7 @@ SOURCES += \
     $$PWD/qt/system.cpp
 
 FORMS += \
+    $$PWD/common/lc_pagesetupdialog.ui \
     $$PWD/common/lc_partpalettedialog.ui \
     $$PWD/common/lc_minifigdialog.ui \
     $$PWD/qt/lc_qaboutdialog.ui \

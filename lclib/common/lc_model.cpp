@@ -25,9 +25,6 @@
 #include "lc_qutils.h"
 #include "lc_lxf.h"
 #include "lc_previewwidget.h"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QtConcurrent>
-#endif
 
 /*** LPub3D Mod - includes ***/
 #include "lpub.h"
@@ -566,7 +563,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 				LineStream >> Token;
 /*** LPub3D Mod - preview widget ***/
-				if (!mIsPreview && Token == QLatin1String("ROTSTEP"))
+				if (!mIsPreview && gMainWindow && Token == QLatin1String("ROTSTEP"))
 					gMainWindow->ParseAndSetRotStep(LineStream);
 			}
 /*** LPub3D Mod end ***/
@@ -1075,7 +1072,6 @@ bool lcModel::LoadLDD(const QString& FileData)
 
 bool lcModel::LoadInventory(const QByteArray& Inventory)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QJsonDocument Document = QJsonDocument::fromJson(Inventory);
 	QJsonObject Root = Document.object();
 	QJsonArray Parts = Root["results"].toArray();
@@ -1149,9 +1145,6 @@ bool lcModel::LoadInventory(const QByteArray& Inventory)
 	CalculateStep(mCurrentStep);
 
 	return true;
-#else
-	return false;
-#endif
 }
 
 void lcModel::Merge(lcModel* Other)
@@ -1386,15 +1379,8 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 
 	lcView View(lcViewType::View, this);
 	View.SetCamera(Camera, true);
-
-#ifdef LC_USE_QOPENGLWIDGET
 	View.SetOffscreenContext();
 	View.MakeCurrent();
-#else
-	ActiveView->MakeCurrent();
-	lcContext* Context = ActiveView->mContext;
-	View.SetContext(Context);
-#endif
 
 	if (!View.BeginRenderToImage(Width, Height))
 	{
@@ -1412,10 +1398,6 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	View.OnDraw();
 
 	QImage Image = View.GetRenderImage();
-
-#ifndef LC_USE_QOPENGLWIDGET
-	Context->ClearResources();
-#endif
 
 	View.EndRenderToImage();
 
@@ -1532,7 +1514,13 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 		Context->ClearColorAndDepth(lcVector4(1.0f, 1.0f, 1.0f, 0.0f));
 
 		lcScene Scene;
-		Scene.SetAllowWireframe(false);
+
+		const lcPreferences& Preferences = lcGetPreferences();
+		lcShadingMode ShadingMode = Preferences.mShadingMode;
+		if (ShadingMode == lcShadingMode::Wireframe)
+			ShadingMode = lcShadingMode::Flat;
+
+		Scene.SetShadingMode(ShadingMode);
 		Scene.SetAllowLOD(false);
 		Scene.Begin(ViewMatrix);
 
@@ -1807,7 +1795,7 @@ void lcModel::SetActive(bool Active)
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
 /*** LPub3D Mod - Selected Parts ***/
-	if (!mIsPreview)
+	if (!mIsPreview && gMainWindow)
 		emit gMainWindow->SetActiveModelSig(mProperties.mFileName,Active);
 /*** LPub3D Mod end ***/
 }
@@ -4918,6 +4906,18 @@ void lcModel::SetMinifig(const lcMinifig& Minifig)
 	}
 
 	SetSelectionAndFocus(Pieces, nullptr, 0, false);
+}
+
+void lcModel::SetPreviewPieceInfo(PieceInfo* Info, int ColorIndex)
+{
+	DeleteModel();
+
+	lcPiece* Piece = new lcPiece(Info);
+
+	Piece->Initialize(lcMatrix44Identity(), 1);
+	Piece->SetColorIndex(ColorIndex);
+	AddPiece(Piece);
+	Piece->UpdatePosition(1);
 }
 
 void lcModel::UpdateInterface()

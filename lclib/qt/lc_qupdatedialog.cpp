@@ -20,11 +20,7 @@ void lcDoInitialUpdateCheck()
 	{
 		QDateTime NextCheckTime = CheckTime.addDays(updateFrequency == 1 ? 1 : 7);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		if (NextCheckTime > QDateTime::currentDateTimeUtc())
-#else
-		if (NextCheckTime > QDateTime::currentDateTime())
-#endif
 			return;
 	}
 
@@ -108,10 +104,12 @@ void lcQUpdateDialog::DownloadFinished(lcHttpReply *reply)
 				}
 			}
 
+/*** LPub3D Mod - set 3DViewer label ***/
 			if (updateAvailable)
 				status = QString(tr("<p>There's a newer version of 3DViewer available for download (%1.%2.%3).</p>")).arg(QString::number(majorVersion), QString::number(minorVersion), QString::number(patchVersion));
 			else
 				status = tr("<p>You are using the latest 3DViewer version.</p>");
+/*** LPub3D Mod end ***/
 
 			lcPiecesLibrary* library = lcGetPiecesLibrary();
 
@@ -136,11 +134,7 @@ void lcQUpdateDialog::DownloadFinished(lcHttpReply *reply)
 		else
 			ui->status->setText(tr("Error parsing update information."));
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
-#else
-		settings.setValue("Updates/LastCheck", QDateTime::currentDateTime());
-#endif
 	}
 	else
 		ui->status->setText(tr("Error connecting to the update server."));

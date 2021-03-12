@@ -1,12 +1,6 @@
 #pragma once
 
-#ifdef LC_USE_QOPENGLWIDGET
-typedef QOpenGLWidget lcViewWidgetParent;
-#else
-typedef QGLWidget lcViewWidgetParent;
-#endif
-
-class lcViewWidget : public lcViewWidgetParent
+class lcViewWidget : public QOpenGLWidget
 {
 	Q_OBJECT
 
@@ -33,12 +27,10 @@ public:
 protected:
 	float GetDeviceScale() const
 	{
-#ifdef LC_USE_QOPENGLWIDGET
-		return devicePixelRatio();
-#elif (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-		return windowHandle()->devicePixelRatio();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+		return devicePixelRatioF();
 #else
-		return 1.0f;
+		return devicePixelRatio();
 #endif
 	}
 

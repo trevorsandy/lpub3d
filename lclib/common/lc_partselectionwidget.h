@@ -136,11 +136,8 @@ protected:
 	bool mShowDecoratedParts;
 	bool mShowPartAliases;
 	QByteArray mFilter;
-#ifdef LC_USE_QOPENGLWIDGET
 	std::unique_ptr<lcView> mView;
-#else
-	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
-#endif
+	std::unique_ptr<lcModel> mModel;
 };
 
 class lcPartSelectionListView : public QListView

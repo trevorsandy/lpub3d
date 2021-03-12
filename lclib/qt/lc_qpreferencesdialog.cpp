@@ -87,21 +87,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (QSurfaceFormat::defaultFormat().samples() > 1)
 	{
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
 	}
 	else
-#elif !defined(LC_OPENGLES)
-	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
-	{
-		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
-		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
-	}
-	else
-#endif
 	{
 		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
 		mLineWidthGranularity = 1.0f;
@@ -273,15 +264,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	commandChanged(nullptr);
 
 	UpdateMouseTree();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	ui->mouseTree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 	ui->mouseTree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 	ui->mouseTree->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
-#else
-	ui->mouseTree->header()->setResizeMode(0, QHeaderView::Stretch);
-	ui->mouseTree->header()->setResizeMode(1, QHeaderView::ResizeToContents);
-	ui->mouseTree->header()->setResizeMode(2, QHeaderView::ResizeToContents);
-#endif
 	MouseTreeItemChanged(nullptr);
 
 /*** LPub3D Mod - Update Default Camera ***/
@@ -1316,11 +1301,9 @@ void lcQPreferencesDialog::UpdateMouseTreeItem(int ItemIndex)
 			Shortcut += tr("Left Button");
 			break;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		case Qt::MiddleButton:
 			Shortcut += tr("Middle Button");
 			break;
-#endif
 
 		case Qt::RightButton:
 			Shortcut += tr("Right Button");
@@ -1365,11 +1348,9 @@ void lcQPreferencesDialog::on_mouseAssign_clicked()
 			Button = Qt::LeftButton;
 			break;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		case 2:
 			Button = Qt::MiddleButton;
 			break;
-#endif
 
 		case 3:
 			Button = Qt::RightButton;
@@ -1514,11 +1495,9 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 		ui->mouseButton->setCurrentIndex(1);
 		break;
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	case Qt::MiddleButton:
 		ui->mouseButton->setCurrentIndex(2);
 		break;
-#endif
 
 	case Qt::RightButton:
 		ui->mouseButton->setCurrentIndex(3);

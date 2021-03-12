@@ -16,9 +16,7 @@
 #include <ctype.h>
 #include <locale.h>
 #include <zlib.h>
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
-#endif
 /*** LPub3D Mod - Includes ***/
 #include "lpubalert.h"
 #include "lpub_preferences.h"
@@ -41,16 +39,13 @@ lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
 /*** LPub3D Mod - portable cache ***/
-		if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
-				mCachePath = Preferences::lpub3dPath + "/cache";
-		} else {
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-	mCachePath = cachePathList.first();
-#else
-	mCachePath  = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-#endif
+	if (QDir(Preferences::lpub3dPath + "/extras").exists()) 
+	{
+		// we have a portable distribution
+		mCachePath = Preferences::lpub3dPath + "/cache";
+	} else {
+		QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+		mCachePath = cachePathList.first();
 	}
 /*** LPub3D Mod end ***/
 
@@ -451,19 +446,12 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 	QFileInfo UnofficialInfo(UnofficialFileName);
 
 	mArchiveCheckSum[0] = OfficialInfo.size();
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 	mArchiveCheckSum[1] = OfficialInfo.lastModified().toMSecsSinceEpoch();
-#else
-	mArchiveCheckSum[1] = OfficialInfo.lastModified().toTime_t();
-#endif
+
 	if (!UnofficialFileName.isEmpty())
 	{
 		mArchiveCheckSum[2] = UnofficialInfo.size();
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		mArchiveCheckSum[3] = UnofficialInfo.lastModified().toMSecsSinceEpoch();
-#else
-		mArchiveCheckSum[3] = UnofficialInfo.lastModified().toTime_t();
-#endif
 	}
 	else
 	{
@@ -720,11 +708,7 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 				const char* Description = FileName + strlen(FileName) + 1;
 				const uint64_t CachedFileTime = *(uint64_t*)(Description + strlen(Description) + 1 + 4 + 1);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 				quint64 FileTime = FileLists[Info->mFolderType][Info->mFolderIndex].lastModified().toMSecsSinceEpoch();
-#else
-				quint64 FileTime = FileLists[Info->mFolderType][Info->mFolderIndex].lastModified().toTime_t();
-#endif
 
 				if (FileTime == CachedFileTime)
 				{
@@ -774,19 +758,11 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 
 	while (!LoadFuture.isFinished())
 	{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0) || QT_VERSION < QT_VERSION_CHECK(5, 0, 0) )
 		ProgressDialog->setValue(FilesLoaded);
-#else
-		ProgressDialog->setValue(FilesLoaded.load());
-#endif
 		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 	}
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 3, 0) || QT_VERSION < QT_VERSION_CHECK(5, 0, 0) )
 	ProgressDialog->setValue(FilesLoaded);
-#else
-	ProgressDialog->setValue(FilesLoaded.load());
-#endif
 	QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
 	ProgressDialog->deleteLater();
@@ -821,11 +797,7 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 
 			NewIndexFile.WriteU8(Info->mFolderType);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 			quint64 FileTime = FileLists[Info->mFolderType][Info->mFolderIndex].lastModified().toMSecsSinceEpoch();
-#else
-			quint64 FileTime = FileLists[Info->mFolderType][Info->mFolderIndex].lastModified().toTime_t();
-#endif
 
 			NewIndexFile.WriteU64(FileTime);
 		}

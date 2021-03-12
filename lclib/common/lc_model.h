@@ -259,10 +259,7 @@ public:
 	}
 
 	void SetMinifig(const lcMinifig& Minifig);
-	void SetPreviewPiece(lcPiece* Piece)
-	{
-		AddPiece(Piece);
-	}
+	void SetPreviewPieceInfo(PieceInfo* Info, int ColorIndex);
 
 	void Cut();
 	void Copy();

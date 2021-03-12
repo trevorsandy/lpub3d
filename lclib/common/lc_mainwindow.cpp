@@ -54,14 +54,6 @@ void lcTabBar::mouseReleaseEvent(QMouseEvent* Event)
 		QTabBar::mouseReleaseEvent(Event);
 }
 
-lcTabWidget::lcTabWidget()
-	: QTabWidget()
-{
-	lcTabBar* TabBar = new lcTabBar(this);
-	setTabBar(TabBar);
-	TabBar->setDrawBase(false);
-}
-
 void lcModelTabWidget::ResetLayout()
 {
 	QLayout* TabLayout = layout();
@@ -166,8 +158,7 @@ void lcMainWindow::CreateWidgets()
 	CreateMenus();
 	CreateStatusBar();
 
-	mModelTabWidget = new lcTabWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	mModelTabWidget = new QTabWidget();
 /*** LPub3D Mod - hide tab bar (Qt >= 5) ***/
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
 	mModelTabWidget->tabBar()->setAutoHide(true);
@@ -178,17 +169,10 @@ void lcMainWindow::CreateWidgets()
 	mModelTabWidget->tabBar()->setMovable(true);
 	mModelTabWidget->tabBar()->setTabsClosable(true);
 	mModelTabWidget->tabBar()->setContextMenuPolicy(Qt::CustomContextMenu);
+	setCentralWidget(mModelTabWidget);
+
 	connect(mModelTabWidget->tabBar(), SIGNAL(tabCloseRequested(int)), this, SLOT(ModelTabClosed(int)));
 	connect(mModelTabWidget->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ModelTabContextMenuRequested(const QPoint&)));
-#else
-/*** LPub3D Mod - hide tab bar (Qt < 5) ***/
-	mModelTabWidget->hide();
-/*** LPub3D Mod end ***/
-	mModelTabWidget->setMovable(true);
-	mModelTabWidget->setTabsClosable(true);
-	connect(mModelTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(ModelTabClosed(int)));
-#endif
-	setCentralWidget(mModelTabWidget);
 	connect(mModelTabWidget, SIGNAL(currentChanged(int)), this, SLOT(ModelTabChanged(int)));
 /*** LPub3D Mod - gamepad connection moved here from constructor ***/
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0) && _GAMEPAD)
@@ -565,9 +549,7 @@ void lcMainWindow::CreateMenus()
 	FileMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
 	QMenu* ImportMenu = FileMenu->addMenu(tr("&Import"));
 	ImportMenu->addAction(mActions[LC_FILE_IMPORT_LDD]);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	ImportMenu->addAction(mActions[LC_FILE_IMPORT_INVENTORY]);
-#endif
 	QMenu* ExportMenu = FileMenu->addMenu(tr("&Export"));
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_3DS]);
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_BRICKLINK]);
@@ -581,7 +563,6 @@ void lcMainWindow::CreateMenus()
 	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
-//	FileMenu->addAction(mActions[LC_FILE_PRINT_BOM]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RECENT1]);
 	FileMenu->addAction(mActions[LC_FILE_RECENT2]);
@@ -960,7 +941,7 @@ Q_UNUSED(ShowPreview)
 
 //	if (ShowPreview)
 //		mPreviewToolBar->show();
-		
+
 	lcPreferences& Preferences = lcGetPreferences();
 
 	if (!Preferences.mPreviewEnabled)
@@ -1020,7 +1001,7 @@ void lcMainWindow::TogglePreviewWidget(bool Visible)
 		else
 			mPreviewToolBar->hide();
 	}
-	else if (Visible) 
+	else if (Visible)
 	{
 		CreatePreviewWidget();
 	}
@@ -1171,7 +1152,7 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
 	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
-/*** LPub3D Mod - preview widget for LPub3D ***/	
+/*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		Menu->addAction(mActions[LC_VIEW_TOOLBAR_PREVIEW]);
@@ -1244,10 +1225,6 @@ bool lcMainWindow::IsLPub3DSubModel(QString &Piece){
 const QString lcMainWindow::GetPliIconsPath(QString &key)
 {
 	return gui->GetPliIconsPath(key);
-}
-const QString lcMainWindow::GetFadeStepsColor()
-{
-	return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
 }
 /*** LPub3D Mod end ***/
 
@@ -1530,15 +1507,11 @@ void lcMainWindow::Print(QPrinter* Printer)
 	if (Printer->collateCopies())
 	{
 		DocCopies = 1;
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		PageCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
-#endif
 	}
 	else
 	{
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
 		DocCopies = Printer->supportsMultipleCopies() ? 1 : Printer->copyCount();
-#endif
 		PageCopies = 1;
 	}
 
@@ -3233,10 +3206,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_FILE_PRINT:
 		ShowPrintDialog();
-		break;
-
-	// TODO: printing
-	case LC_FILE_PRINT_BOM:
 		break;
 
 	case LC_FILE_RECENT1:

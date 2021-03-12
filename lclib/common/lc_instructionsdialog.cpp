@@ -1,45 +1,68 @@
 #include "lc_global.h"
 #include "lc_instructionsdialog.h"
-#include "lc_collapsiblewidget.h"
+#include "lc_pagesetupdialog.h"
 #include "project.h"
 #include "lc_model.h"
-#include "lc_qutils.h"
+#include "lc_view.h"
 
-lcInstructionsPageWidget::lcInstructionsPageWidget(QWidget* Parent)
-	: QGraphicsView(Parent)
+lcInstructionsPageWidget::lcInstructionsPageWidget(QWidget* Parent, lcInstructions* Instructions)
+	: QGraphicsView(Parent), mInstructions(Instructions)
 {
 }
 
 void lcInstructionsPageWidget::SetCurrentPage(const lcInstructionsPage* Page)
 {
-	QGraphicsScene* Scene = new QGraphicsScene(this);
+	QGraphicsScene* Scene = new QGraphicsScene();
 	setScene(Scene);
-	Scene->setSceneRect(0, 0, 1000, 1000);
-//	Scene->setBackgroundBrush(Qt::black);
 
-	if (Page)
+	if (!Page)
+		return;
+
+	const lcInstructionsPageSetup& PageSetup = mInstructions->mPageSetup;
+//	Scene->setSceneRect(0, 0, mInstructions->mPageSetup.Width, mInstructions->mPageSetup.Height);
+
+	QGraphicsRectItem* PageItem = Scene->addRect(QRectF(0.0f, 0.0f, PageSetup.Width, PageSetup.Height), QPen(Qt::black), QBrush(Qt::white));
+	PageItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
+
+	QRectF MarginsRect(PageSetup.MarginLeft, PageSetup.MarginTop, PageSetup.Width - PageSetup.MarginLeft - PageSetup.MarginRight, PageSetup.Height - PageSetup.MarginTop - PageSetup.MarginBottom);
+
+	for (const lcInstructionsStep& Step : Page->Steps)
 	{
-		for (const lcInstructionsStep& Step : Page->Steps)
-		{
-			QImage StepImage = Step.Model->GetStepImage(false, 500, 500, Step.Step);
-			QGraphicsPixmapItem* StepImageItem = Scene->addPixmap(QPixmap::fromImage(StepImage));
-			StepImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
-			StepImageItem->setPos(1000.0 * Step.Rect.x(), 1000.0 * Step.Rect.y());
+		const float StepWidth = MarginsRect.width() * Step.Rect.width();
+		const float StepHeight = MarginsRect.height() * Step.Rect.height();
 
-			QGraphicsSimpleTextItem* StepNumberItem = Scene->addSimpleText(QString::number(Step.Step), QFont("Helvetica", 96));
-			StepNumberItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
-			StepNumberItem->setPos(1000.0 * Step.Rect.x(), 1000.0 * Step.Rect.y());
+		lcView View(lcViewType::View, Step.Model);
 
-			QImage PartsImage = Step.Model->GetPartsListImage(300, Step.Step);
-			QGraphicsPixmapItem* PartsImageItem = Scene->addPixmap(QPixmap::fromImage(PartsImage));
-			PartsImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
-			PartsImageItem->setPos(StepNumberItem->pos() + QPointF(StepNumberItem->sceneBoundingRect().width(), 0));
-		}
+		View.SetOffscreenContext();
+		View.MakeCurrent();
+//		View.SetBackgroundColorOverride(LC_RGBA(255, 255, 0, 255));
+		View.SetSize(StepWidth, StepHeight);
+
+		std::vector<QImage> Images = View.GetStepImages(Step.Step, Step.Step);
+
+		if (Images.empty())
+			continue;
+
+		QImage& StepImage = Images.front();
+
+		QGraphicsPixmapItem* StepImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(StepImage), PageItem);
+		StepImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+		StepImageItem->setPos(MarginsRect.left() + MarginsRect.width() * Step.Rect.x(), MarginsRect.top() + MarginsRect.height() * Step.Rect.y());
+
+		QGraphicsSimpleTextItem* StepNumberItem = new QGraphicsSimpleTextItem(QString::number(Step.Step), StepImageItem);
+		StepNumberItem->setFont(QFont("Helvetica", 96));
+		StepNumberItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+
+		QImage PartsImage = Step.Model->GetPartsListImage(300, Step.Step);
+
+		QGraphicsPixmapItem* PartsImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(PartsImage), StepImageItem);
+		PartsImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+		PartsImageItem->setPos(StepNumberItem->boundingRect().topRight());
 	}
 }
 
-lcInstructionsPageListWidget::lcInstructionsPageListWidget(QWidget* Parent)
-	: QDockWidget(Parent)
+lcInstructionsPageListWidget::lcInstructionsPageListWidget(QWidget* Parent, lcInstructions* Instructions)
+	: QDockWidget(Parent), mInstructions(Instructions)
 {
 	QWidget* CentralWidget = new QWidget(this);
 	setWidget(CentralWidget);
@@ -48,20 +71,36 @@ lcInstructionsPageListWidget::lcInstructionsPageListWidget(QWidget* Parent)
 	QVBoxLayout* Layout = new QVBoxLayout(CentralWidget);
 	Layout->setContentsMargins(0, 0, 0, 0);
 
+	QHBoxLayout* ButtonsLayout = new QHBoxLayout();
+	ButtonsLayout->setContentsMargins(0, 0, 0, 0);
+	Layout->addLayout(ButtonsLayout);
+
+	QToolButton* PageSetupButton = new QToolButton();
+	PageSetupButton->setText("Page Setup");
+	ButtonsLayout->addWidget(PageSetupButton);
+
+	connect(PageSetupButton, SIGNAL(clicked()), this, SLOT(ShowPageSetupDialog()));
+
+	ButtonsLayout->addStretch(1);
+
+	/*
 	lcCollapsibleWidget* SetupWidget = new lcCollapsibleWidget(tr("Page Setup"), CentralWidget);
 	Layout->addWidget(SetupWidget);
 
-	QVBoxLayout* SetupLayout = new QVBoxLayout();
+//	QVBoxLayout* SetupLayout = new QVBoxLayout();
+//	SetupWidget->SetChildLayout(SetupLayout);
+
+	QGridLayout* SetupLayout = new QGridLayout();
 	SetupWidget->SetChildLayout(SetupLayout);
 
-	lcCollapsibleWidget* SizeWidget = new lcCollapsibleWidget(tr("Size"));
+//	lcCollapsibleWidget* SizeWidget = new lcCollapsibleWidget(tr("Size"));
+	QGroupBox* SizeWidget = new QGroupBox(tr("Size"));
+
 	SetupLayout->addWidget(SizeWidget);
 
 	QGridLayout* SizeLayout = new QGridLayout();
-	SizeWidget->SetChildLayout(SizeLayout);
-
-	mSizeComboBox = new QComboBox();
-	SizeLayout->addWidget(mSizeComboBox, 0, 0, 1, -1);
+//	SizeWidget->SetChildLayout(SizeLayout);
+	SizeWidget->setLayout(SizeLayout);
 
 	mWidthEdit = new lcSmallLineEdit();
 	SizeLayout->addWidget(new QLabel(tr("Width:")), 1, 0);
@@ -71,53 +110,69 @@ lcInstructionsPageListWidget::lcInstructionsPageListWidget(QWidget* Parent)
 	SizeLayout->addWidget(new QLabel(tr("Height:")), 1, 2);
 	SizeLayout->addWidget(mHeightEdit, 1, 3);
 
-	lcCollapsibleWidget* OrientationWidget = new lcCollapsibleWidget(tr("Orientation"));
-	SetupLayout->addWidget(OrientationWidget);
+	mUnitsComboBox = new QComboBox();
+	mUnitsComboBox->addItems(QStringList() << tr("Pixels") << tr("Centimeters") << tr("Inches"));
+	SizeLayout->addWidget(new QLabel(tr("Units:")), 4, 0);
+	SizeLayout->addWidget(mUnitsComboBox, 4, 1, 1, -1);
 
-	QVBoxLayout* OrientationLayout = new QVBoxLayout();
-	OrientationWidget->SetChildLayout(OrientationLayout);
+	mSizeComboBox = new QComboBox();
+	SizeLayout->addWidget(new QLabel(tr("Preset:")), 5, 0);
+	SizeLayout->addWidget(mSizeComboBox, 5, 1, 1, -1);
 
-	mPortraitButton = new QRadioButton(tr("Portrait"));
-	OrientationLayout->addWidget(mPortraitButton);
-	mLandscapeButton = new QRadioButton(tr("Landscape"));
-	OrientationLayout->addWidget(mLandscapeButton);
 
-	lcCollapsibleWidget* MarginsWidget = new lcCollapsibleWidget(tr("Margins"));
+//	lcCollapsibleWidget* OrientationWidget = new lcCollapsibleWidget(tr("Orientation"));
+//	SetupLayout->addWidget(OrientationWidget);
+//
+//	QVBoxLayout* OrientationLayout = new QVBoxLayout();
+//	OrientationWidget->SetChildLayout(OrientationLayout);
+//
+//	mPortraitButton = new QRadioButton(tr("Portrait"));
+//	OrientationLayout->addWidget(mPortraitButton);
+//	mLandscapeButton = new QRadioButton(tr("Landscape"));
+//	OrientationLayout->addWidget(mLandscapeButton);
+
+	QGroupBox* MarginsWidget = new QGroupBox(tr("Margins"));
+//	lcCollapsibleWidget* MarginsWidget = new lcCollapsibleWidget(tr("Margins"));
 	SetupLayout->addWidget(MarginsWidget);
 
 	QGridLayout* MarginsLayout = new QGridLayout();
-	MarginsWidget->SetChildLayout(MarginsLayout);
+//	MarginsWidget->SetChildLayout(MarginsLayout);
+	MarginsWidget->setLayout(MarginsLayout);
 
 	mLeftMarginEdit = new lcSmallLineEdit();
-	MarginsLayout->addWidget(new QLabel(tr("Left:")), 0, 0);
-	MarginsLayout->addWidget(mLeftMarginEdit, 0, 1);
+	MarginsLayout->addWidget(new QLabel(tr("Left:")), 2, 0);
+	MarginsLayout->addWidget(mLeftMarginEdit, 2, 1);
 
 	mRightMarginEdit = new lcSmallLineEdit();
-	MarginsLayout->addWidget(new QLabel(tr("Right:")), 0, 2);
-	MarginsLayout->addWidget(mRightMarginEdit, 0, 3);
+	MarginsLayout->addWidget(new QLabel(tr("Right:")), 2, 2);
+	MarginsLayout->addWidget(mRightMarginEdit, 2, 3);
 
 	mTopMarginEdit = new lcSmallLineEdit();
-	MarginsLayout->addWidget(new QLabel(tr("Top:")), 1, 0);
-	MarginsLayout->addWidget(mTopMarginEdit, 1, 1);
+	MarginsLayout->addWidget(new QLabel(tr("Top:")), 3, 0);
+	MarginsLayout->addWidget(mTopMarginEdit, 3, 1);
 
 	mBottomMarginEdit = new lcSmallLineEdit();
-	MarginsLayout->addWidget(new QLabel(tr("Bottom:")), 1, 2);
-	MarginsLayout->addWidget(mBottomMarginEdit, 1, 3);
+	MarginsLayout->addWidget(new QLabel(tr("Bottom:")), 3, 2);
+	MarginsLayout->addWidget(mBottomMarginEdit, 3, 3);
 
-	lcCollapsibleWidget* UnitsWidget = new lcCollapsibleWidget(tr("Units"));
-	SetupLayout->addWidget(UnitsWidget);
+//	lcCollapsibleWidget* UnitsWidget = new lcCollapsibleWidget(tr("Units"));
+//	SetupLayout->addWidget(UnitsWidget);
+//
+//	QVBoxLayout* UnitsLayout = new QVBoxLayout();
+//	UnitsWidget->SetChildLayout(UnitsLayout);
 
-	QVBoxLayout* UnitsLayout = new QVBoxLayout();
-	UnitsWidget->SetChildLayout(UnitsLayout);
-
-	mUnitsComboBox = new QComboBox();
-	mUnitsComboBox->addItems(QStringList() << tr("Pixels") << tr("Centimeters") << tr("Inches"));
-	UnitsLayout->addWidget(mUnitsComboBox);
-
-	SetupWidget->Collapse();
-
+//	SetupWidget->Collapse();
+*/
 	mThumbnailsWidget = new QListWidget(CentralWidget);
 	Layout->addWidget(mThumbnailsWidget);
+}
+
+void lcInstructionsPageListWidget::ShowPageSetupDialog()
+{
+	lcPageSetupDialog Dialog(this, &mInstructions->mPageSetup);
+
+	if (Dialog.exec() != QDialog::Accepted)
+		return;
 }
 
 lcInstructionsDialog::lcInstructionsDialog(QWidget* Parent, Project* Project)
@@ -125,14 +180,14 @@ lcInstructionsDialog::lcInstructionsDialog(QWidget* Parent, Project* Project)
 {
 	setWindowTitle(tr("Instructions"));
 
-	mPageWidget = new lcInstructionsPageWidget(this);
+	mInstructions = mProject->GetInstructions();
+
+	mPageWidget = new lcInstructionsPageWidget(this, &mInstructions);
 	setCentralWidget(mPageWidget);
 
-	mPageListWidget = new lcInstructionsPageListWidget(this);
+	mPageListWidget = new lcInstructionsPageListWidget(this, &mInstructions);
 	mPageListWidget->setObjectName("PageList");
 	addDockWidget(Qt::LeftDockWidgetArea, mPageListWidget);
-
-	mInstructions = mProject->GetInstructions();
 
 	mPageSettingsToolBar = addToolBar(tr("Page Settings"));
 	mPageSettingsToolBar->setObjectName("PageSettings");

@@ -8,11 +8,10 @@
 #include "lc_model.h"
 #include "project.h"
 #include "pieceinf.h"
+#include "camera.h"
 #include "lc_scene.h"
 #include "lc_view.h"
 #include "lc_glextensions.h"
-#include "lc_viewwidget.h"
-#include "lc_previewwidget.h"
 #include "lc_category.h"
 
 Q_DECLARE_METATYPE(QList<int>)
@@ -67,6 +66,9 @@ lcPartSelectionListModel::lcPartSelectionListModel(QObject* Parent)
 lcPartSelectionListModel::~lcPartSelectionListModel()
 {
 	ClearRequests();
+
+	mView.reset();
+	mModel.reset();
 }
 
 void lcPartSelectionListModel::ClearRequests()
@@ -390,16 +392,18 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 	const int Width = mIconSize * 2;
 	const int Height = mIconSize * 2;
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (mView && (mView->GetWidth() != Width || mView->GetHeight() != Height))
 		mView.reset();
 
 	if (!mView)
 	{
-		mView = std::unique_ptr<lcView>(new lcView(lcViewType::PartsList, nullptr));
+		if (!mModel)
+			mModel = std::unique_ptr<lcModel>(new lcModel(QString(), nullptr, true));
+		mView = std::unique_ptr<lcView>(new lcView(lcViewType::PartsList, mModel.get()));
 
 		mView->SetOffscreenContext();
 		mView->MakeCurrent();
+		mView->SetSize(Width, Height);
 
 		if (!mView->BeginRenderToImage(Width, Height))
 		{
@@ -411,75 +415,30 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 	mView->MakeCurrent();
 	mView->BindRenderFramebuffer();
 
-	lcContext* Context = mView->mContext;
-#else
-	lcView* ActiveView = gMainWindow->GetActiveView();
-	if (!ActiveView)
-		return;
+	const uint BackgroundColor = mListView->palette().color(QPalette::Base).rgba();
+	mView->SetBackgroundColorOverride(LC_RGBA(qRed(BackgroundColor), qGreen(BackgroundColor), qBlue(BackgroundColor), 0));
 
-	ActiveView->MakeCurrent();
-	lcContext* Context = ActiveView->mContext;
-
-	if (mRenderFramebuffer.first.mWidth != Width || mRenderFramebuffer.first.mHeight != Height)
-	{
-		Context->DestroyRenderFramebuffer(mRenderFramebuffer);
-		mRenderFramebuffer = Context->CreateRenderFramebuffer(Width, Height);
-	}
-
-	if (!mRenderFramebuffer.first.IsValid())
-		return;
-
-	Context->BindFramebuffer(mRenderFramebuffer.first);
-#endif
-
-	const float Aspect = (float)Width / (float)Height;
-	Context->SetViewport(0, 0, Width, Height);
-
-	Context->SetDefaultState();
-
-	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	PieceInfo* Info = mParts[InfoIndex].first;
+	mModel->SetPreviewPieceInfo(Info, mColorIndex);
 
-	Context->ClearColorAndDepth(lcVector4(1.0f, 1.0f, 1.0f, 0.0f));
+	const lcVector3 Center = (Info->GetBoundingBox().Min + Info->GetBoundingBox().Max) / 2.0f;
+	const lcVector3 Position = Center + lcVector3(100.0f, -100.0f, 75.0f);
 
-	lcMatrix44 ProjectionMatrix, ViewMatrix;
+	mView->GetCamera()->SetViewpoint(Position, Center, lcVector3(0, 0, 1));
+	mView->GetCamera()->m_fovy = 20.0f;
+	mView->ZoomExtents();
 
-	Info->ZoomExtents(20.0f, Aspect, ProjectionMatrix, ViewMatrix);
+	mView->OnDraw();
 
-	Context->SetProjectionMatrix(ProjectionMatrix);
-
-	lcScene Scene;
-	Scene.SetAllowWireframe(false);
-	Scene.SetAllowLOD(false);
-	Scene.Begin(ViewMatrix);
-
-	Info->AddRenderMeshes(&Scene, lcMatrix44Identity(), mColorIndex, lcRenderMeshState::Default, false);
-
-	Scene.End();
-
-	Scene.Draw(Context);
-
-#ifdef LC_USE_QOPENGLWIDGET
 	mView->UnbindRenderFramebuffer();
+
 	QImage Image = mView->GetRenderFramebufferImage().convertToFormat(QImage::Format_ARGB32);
-#else
-	QImage Image = Context->GetRenderFramebufferImage(mRenderFramebuffer);
-	Context->ClearFramebuffer();
-#endif
 
 	mParts[InfoIndex].second = QPixmap::fromImage(Image).scaled(mIconSize, mIconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-	Library->ReleasePieceInfo(Info);
+	lcGetPiecesLibrary()->ReleasePieceInfo(Info);
 
-	Context->ClearResources();
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
-	QVector<int> Roles;
-	Roles.append(Qt::DecorationRole);
-	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0), Roles);
-#else
-	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0));
-#endif
+	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0), QVector<int>() << Qt::DecorationRole);
 }
 
 void lcPartSelectionListModel::SetShowDecoratedParts(bool Show)
@@ -550,9 +509,7 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent, lcPartSelectio
 	lcPartSelectionItemDelegate* ItemDelegate = new lcPartSelectionItemDelegate(this, mListModel);
 	setItemDelegate(ItemDelegate);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(CustomContextMenuRequested(QPoint)));
-#endif
 
 	SetIconSize(lcGetProfileInt(LC_PROFILE_PARTS_LIST_ICONS));
 }
@@ -760,10 +717,8 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 
 	mFilterWidget = new QLineEdit(PartsGroupWidget);
 	mFilterWidget->setPlaceholderText(tr("Search Parts"));
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	mFilterAction = mFilterWidget->addAction(QIcon(":/resources/parts_search.png"), QLineEdit::TrailingPosition);
 	connect(mFilterAction, SIGNAL(triggered()), this, SLOT(FilterTriggered()));
-#endif
 	SearchLayout->addWidget(mFilterWidget);
 
 	QToolButton* OptionsButton = new QToolButton();
@@ -1017,7 +972,6 @@ void lcPartSelectionWidget::SetDefaultPart()
 
 void lcPartSelectionWidget::LoadPartPalettes()
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QByteArray Buffer = lcGetProfileBuffer(LC_PROFILE_PART_PALETTES);
 	QJsonDocument Document = QJsonDocument::fromJson(Buffer);
 
@@ -1048,12 +1002,10 @@ void lcPartSelectionWidget::LoadPartPalettes()
 
 		mPartPalettes.emplace_back(std::move(Palette));
 	}
-#endif
 }
 
 void lcPartSelectionWidget::SavePartPalettes()
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QJsonObject RootObject;
 
 	RootObject["Version"] = 1;
@@ -1073,7 +1025,6 @@ void lcPartSelectionWidget::SavePartPalettes()
 
 	QByteArray Buffer = QJsonDocument(RootObject).toJson();
 	lcSetProfileBuffer(LC_PROFILE_PART_PALETTES, Buffer);
-#endif
 }
 
 void lcPartSelectionWidget::AddToPalette()

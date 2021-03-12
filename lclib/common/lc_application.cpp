@@ -14,6 +14,7 @@
 
 /*** LPub3D Mod - includes ***/
 #include "name.h"
+#include "color.h"
 #include "application.h"
 #include "threadworkers.h"
 /*** LPub3D Mod end ***/
@@ -231,16 +232,13 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 lcApplication::lcApplication()
 /*** LPub3D Mod end ***/
 {
-
 /*** LPub3D Mod - disable leoCAD application vars ***/
 /***
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	setApplicationDisplayName("LeoCAD");
-#endif
-  setOrganizationDomain("leocad.org");
-  setOrganizationName("LeoCAD Software");
-  setApplicationName("LeoCAD");
-  setApplicationVersion(LC_VERSION_TEXT);
+	setOrganizationDomain("leocad.org");
+	setOrganizationName("LeoCAD Software");
+	setApplicationName("LeoCAD");
+	setApplicationVersion(LC_VERSION_TEXT);
 ***/
 /*** LPub3D Mod end ***/
 
@@ -264,11 +262,15 @@ lcApplication::lcApplication()
 bool lcApplication::LPubFadeSteps(){
 	return Preferences::enableFadeSteps;
 }
-bool lcApplication::UseLPubFadeColour(){
+
+bool lcApplication::UseLPubFadeColour()
+{
 	return Preferences::fadeStepsUseColour;
 }
-QString lcApplication::LPubFadeColour(){
-	return gMainWindow->GetFadeStepsColor();
+
+QString lcApplication::LPubFadeColour()
+{
+	return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
 }
 /*** LPub3D Mod end ***/
 
@@ -927,14 +929,10 @@ int lcApplication::Process3DViewerCommandLine()
 	}
 
 	/***
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!InitializeRenderer(AASamples))
 		return lcStartupMode::Error;
-#endif
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!SaveAndExit)
-#endif
 	{
 		gMainWindow = new lcMainWindow();
 		lcLoadDefaultKeyboardShortcuts();
@@ -956,12 +954,8 @@ int lcApplication::Process3DViewerCommandLine()
 			fprintf(stderr, "%s", Message.toLatin1().constData());
 	}
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!SaveAndExit)
-#endif
-	{
 		gMainWindow->CreateWidgets();
-	}
 	***/
 
 	Project* NewProject = new Project();
@@ -999,7 +993,6 @@ int lcApplication::Process3DViewerCommandLine()
 		if (!ModelName.isEmpty())
 			mProject->SetActiveModel(ModelName);
 
-#ifdef LC_USE_QOPENGLWIDGET
 		std::unique_ptr<lcView> ActiveView;
 
 		if (SaveImage)
@@ -1024,9 +1017,6 @@ int lcApplication::Process3DViewerCommandLine()
 			ActiveView->SetOffscreenContext();
 			ActiveView->MakeCurrent();
 		}
-#else
-		lcView* ActiveView = gMainWindow->GetActiveView();
-#endif
 
 		if (SaveImage)
 			ActiveView->SetSize(ImageWidth, ImageHeight);
@@ -1090,16 +1080,7 @@ int lcApplication::Process3DViewerCommandLine()
 
 		if (SaveImage)
 		{
-			lcModel* ActiveModel;
-
-#ifdef LC_USE_QOPENGLWIDGET
-			ActiveModel = ActiveView->GetModel();
-#else
-			if (ModelName.isEmpty())
-				ActiveModel = mProject->GetMainModel();
-			else
-				ActiveModel = mProject->GetActiveModel();
-#endif
+			lcModel* ActiveModel = ActiveView->GetModel();
 
 			if (ImageName.isEmpty())
 				ImageName = mProject->GetImageFileName(true);
@@ -1139,14 +1120,10 @@ int lcApplication::Process3DViewerCommandLine()
 			if (SetHighlightColor)
 				mPreferences.mHighlightNewPartsColor = HighlightColor;
 
-#ifdef LC_USE_QOPENGLWIDGET
 			if (CameraName.isEmpty() && !SetCameraPosition)
 				ActiveView->ZoomExtents();
 
 			ActiveView->SaveStepImages(Frame, ImageStart != ImageEnd, ImageStart, ImageEnd);
-#else
-			ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName.isEmpty() && !SetCameraPosition, ImageWidth, ImageHeight, ImageStart, ImageEnd);
-#endif
 		}
 
 		if (SaveWavefront)
@@ -1250,14 +1227,10 @@ lcStartupMode lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPath
 
 	int AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!InitializeRenderer(AASamples))
 		return lcStartupMode::Error;
-#endif
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!SaveAndExit)
-#endif
 	{
 		gMainWindow = new lcMainWindow(parent);
 		lcLoadDefaultKeyboardShortcuts();
@@ -1279,9 +1252,7 @@ lcStartupMode lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPath
 			fprintf(stderr, "%s", Message.toLatin1().constData());
 	}
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!SaveAndExit)
-#endif
 	{
 		gMainWindow->CreateWidgets();
 	}
@@ -1321,31 +1292,20 @@ bool lcApplication::InitializeRenderer(int AASamples)
 {
 	if (AASamples > 1)
 	{
-#ifdef LC_USE_QOPENGLWIDGET
 		QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
 		Format.setSamples(AASamples);
 		QSurfaceFormat::setDefaultFormat(Format);
-#else
-		QGLFormat Format;
-		Format.setSampleBuffers(true);
-		Format.setSamples(AASamples);
-		QGLFormat::setDefaultFormat(Format);
-#endif
 	}
 
-#ifdef LC_USE_QOPENGLWIDGET
 	if (!lcContext::CreateOffscreenContext())
 		return false;
-#endif
 
 	return true;
 }
 
 void lcApplication::ShutdownRenderer()
 {
-#ifdef LC_USE_QOPENGLWIDGET
 	lcContext::DestroyOffscreenContext();
-#endif
 }
 
 void lcApplication::ShowPreferencesDialog()
