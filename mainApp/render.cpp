@@ -3461,11 +3461,10 @@ int Render::createNativeModelFile(
       {
           return QString(s).replace(s.indexOf(s.at(0)),1,s.at(0).toUpper());
       };
-
-      if (imageType == Options::PLI) {
-          QRegExp mpdRx = QRegExp("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
-          if (nativeParts.at(0).contains(mpdRx)) {
-              QFileInfo fi(mpdRx.cap(1));
+      QRegExp mpdRx = QRegExp("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+      if (nativeParts.at(0).contains(mpdRx)) {
+          QFileInfo fi(mpdRx.cap(1));
+          if (nativeSubModels.contains(fi.fileName())) {
               QString baseName  = fi.completeBaseName();
               QString modelName = QString(fi.fileName()).replace(baseName, QString("%1-main").arg(baseName));
               nativeParts[0]    = QString("0 FILE %1").arg(modelName);
