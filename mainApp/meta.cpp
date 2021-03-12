@@ -2800,10 +2800,14 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       ++index;
 
     } else if (argv[index] == "BOM") {
+      if (argv.size() - index >= 2) {
+          insertData.bomToEndOfSubmodel = argv[index + 1] == "FOR_SUBMODEL";
+          index++;
+        }
       insertData.type = InsertData::InsertBom;
       insertData.where.modelName = here.modelName;
       insertData.where.lineNumber = here.lineNumber;
-      ++index;
+      ++index; // move index to end for next block
     }
 
   if (rc == OkRc) {

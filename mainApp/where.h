@@ -196,6 +196,13 @@ class Where
         modelIndex = where;
     }
 
+    Where operator+=(const int value)
+    {
+        Where foo = *this;
+        lineNumber += value;
+        return foo;
+    }
+
     const Where operator+(const int &where) const
     {
       Where foo = *this;

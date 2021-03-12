@@ -387,6 +387,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bFIXED_ANNOTATIONS\\b"
     << "\\bFONT\\b"
     << "\\bFONT_COLOR\\b"
+    << "\\bFOR_SUBMODEL\\b"
     << "\\bFOV\\b"
     << "\\bFREEFORM\\b"
     << "\\bFRONT\\b"

@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2235 (12 03 2021 21:57:03)
+LPub3D 2.4.1.1.2236 (12 03 2021 21:57:44)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add shortcut to Zoom Extents - Shift+X #470
 - Enhancement - Append page options #491
+- Enhancement - Bill of materials options #492
 - Enhancement - Configurable Theme colors #490
 - Enhancement - Do not save fade steps and/or highlight step final model step #483
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460

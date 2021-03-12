@@ -62,6 +62,7 @@
 #include "texteditdialog.h"
 #include "rotstepdialog.h"
 #include "substitutepartdialog.h"
+#include "bomoptionsdialog.h"
 #include "paths.h"
 #include "render.h"
 #include "messageboxresizable.h"
@@ -2681,18 +2682,18 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
   bool askAfterCoverPage = option != AppendAtModel;
 
   if (option) {
-      bottomOfStep    = where;                                //stat at the specified bottom of page step
+      bottomOfStep    = where;                               //stat at the specified bottom of page step
   } else {
-      bottomOfStep    = gui->topOfPages[gui->displayPageNum]; //start at the bottom of the page's last step
+      bottomOfStep    = gui->topOfPages[gui->displayPageNum];//start at the bottom of the page's last step
       QString title   = QString("%1 - Append Page").arg(VER_PRODUCTNAME_STR);
       QString options = QString("At end of main model ?|At current page ?%1")
                                 .arg(where.modelIndex ? QString("|At end of current model ?") : QString());
       if ((option = OptionDialog::getOption(title, options,nullptr)) == AppendNoOption)
           return false;
 
-      if (option == AppendAtSubmodel)                         //start at the bottom of the model's last step
+      if (option == AppendAtSubmodel)                        //start at the bottom of the model's last step
          bottomOfStep = Where(bottomOfStep.modelName, gui->subFileSize(bottomOfStep.modelName));
-      else if (option == AppendAtModel)                       //start at the bottom of the main model's last step
+      else if (option == AppendAtModel)                      //start at the bottom of the main model's last step
          bottomOfStep = Where(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile()));
   }
 
@@ -2700,18 +2701,18 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
 
   int numLines = gui->subFileSize(here.modelName);
 
-  for ( ; here > 0; --here) {                                 //scan from bottom to top of file
+  for ( ; here > 0; --here) {                                //scan from bottom to top of file
     line = gui->readLine(here);
     rc = mi.parse(line,here);
     if (rc == StepRc || rc == RotStepRc ||
-      rc == StepGroupEndRc || rc == CalloutEndRc) {           //we are on a boundary command so advance one line and break
+      rc == StepGroupEndRc || rc == CalloutEndRc) {          //we are on a boundary command so advance one line and break
       here++;
       break;
     }
 
     QStringList tokens;
     split(line,tokens);
-    bool token_1_5 = tokens.size() &&                         //no boundary command so check for valid step content
+    bool token_1_5 = tokens.size() &&                        //no boundary command so check for valid step content
          tokens[0].size() == 1 &&
          tokens[0] >= "1" && tokens[0] <= "5";
     if (token_1_5 || isHeader(line)) {
@@ -2726,7 +2727,7 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
       }
       if (afterCoverPage) {
         appendStepMeta = true;
-      } else {                                                //insert before cover page
+      } else {                                               //insert before cover page
         for ( ; here > 0; --here) {
           line = gui->readLine(here);
           rc = mi.parse(line,here);
@@ -2748,7 +2749,7 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
       bool token_1_5 = tokens.size() &&
                        tokens[0].size() == 1 &&
                        tokens[0] >= "1" &&
-                       tokens[0] <= "5";                      //non-zero line detected
+                       tokens[0] <= "5";                     //non-zero line detected
       if (token_1_5) {
         appendStepMeta = true;
         break;
@@ -3034,9 +3035,38 @@ void MetaItem::insertText()
 void MetaItem::insertBOM()
 {
   QString meta = QString("0 !LPUB INSERT BOM");
-  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];   //start at the bottom of the page's last step
-  scanPastGlobal(bottomOfPage);
-  insertMeta(bottomOfPage,meta);
+
+  Where bottomOfPage = gui->topOfPages[gui->displayPageNum]; //start at the bottom of the page's last step
+
+  bool forModel;
+  int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, nullptr);
+
+  if (option == AppendNoOption)
+    return;
+
+  if (!forModel)
+      meta.append(" FOR_SUBMODEL");
+
+  if (option == AppendAtPage) {
+    if (gui->page.coverPage) {
+        emit gui->messageSig(LOG_ERROR, QString("Adding a bill of materials to a cover page is not allowed."));
+        return;
+    }
+    scanPastGlobal(bottomOfPage);
+    insertMeta(bottomOfPage,meta);
+  } else if (option && option != AppendAtPage) {
+    if (option == AppendAtSubmodel)                          //start at the bottom of the model's last step
+     bottomOfPage = Where(bottomOfPage.modelName, gui->subFileSize(bottomOfPage.modelName));
+    else if (option == AppendAtModel)                        //start at the bottom of the main model's last step
+     bottomOfPage = Where(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile()));
+
+    QString pageMeta = "0 !LPUB INSERT PAGE";
+
+    beginMacro("insertBOM");
+    appendPage(pageMeta, bottomOfPage, option);              // bottomOfPage adjusted
+    insertMeta(bottomOfPage, meta);
+    endMacro();
+  }
 }
 
 int MetaItem::displayModelStepExists()
@@ -3441,26 +3471,8 @@ Rc MetaItem::scanBackward(
     QString line = gui->readLine(here);
     QStringList tokens;
 
-//#ifdef QT_DEBUG_MODE
-//    logNotice() << "\n==SCAN BACKWARD READLINE==: "
-//              << " \nMask:StepRc = (1 << StepRc)|(1 << RotStepRc): "  << mask
-//              << " \nHere LINE:          " << here.lineNumber
-//              << " \nHere Model:         " << here.modelName
-//              << " \nLine:               " << line
-//              << " \nIs Header:          " << isHeader(line)
-//              << " \nParts Added:        " << partsAdded
-//                   ;
-//#endif
-
     if (isHeader(line)) {
       scanPastGlobal(here);
-
-//#ifdef QT_DEBUG_MODE
-//      logNotice() << "\nIN SCAN BACKWARD AT HEADER: "
-//                << " \nScanPastGlobal"
-//                << " \nRETURN EndOfFileRc at line:"  << here.lineNumber
-//                   ;
-//#endif
 
       return EndOfFileRc;
     }
@@ -3474,58 +3486,32 @@ Rc MetaItem::scanBackward(
     } else {
       Rc rc = tmpMeta.parse(line,here);
 
+// TODO - InsertPageRc and InsertCoverPageRc if blocks are hacks
+//        to allow the scan to terminate on these metas if no parts are added
+//        I'm not sure of the impact on reversing it as it was done so long
+//        ago. But it should be refersed.
+
       if (rc == InsertPageRc /*&& ((mask >> rc) & 1)*/) {
 
-//#ifdef QT_DEBUG_MODE
-//          logNotice() << "\nIN SCAN BACKWARD AT INSERT PAGE: "
-//                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
-//                       ;
-//#endif
+         return rc;
+      } else if (rc == InsertCoverPageRc /*&& ((mask >> rc) & 1)*/) {
 
          return rc;
-
-      } else if (rc == InsertCoverPageRc /* && ((mask >> rc) & 1)*/) {
-
-//#ifdef QT_DEBUG_MODE
-//          logNotice() << "\nIN SCAN BACKWARD AT INSERT COVER PAGE: "
-//                    << " \nRETURN InsertRc at Line:"  << here.lineNumber
-//                       ;
-//#endif
-
-         return rc;
-
       } else if (rc == StepRc || rc == RotStepRc) {
 
-//#ifdef QT_DEBUG_MODE
-//          logNotice() << "\nIN SCAN BACKWARD AT STEP: "
-//                    << " \nRc == StepRc || RotStep at Line:"  << here.lineNumber
-//                       ;
-//#endif
-
-          if (((mask >> rc) & 1) && partsAdded) {
-
-//#ifdef QT_DEBUG_MODE
-//              logNotice() << "\nIN SCAN BACKWARD AT STEP WITH PARTS: "
-//                        << " \nParts Added: " << partsAdded
-//                        << " \nRETURN StepRc|RotStepRc at Line:"  << here.lineNumber
-//                         ;
-//#endif
+        if (((mask >> rc) & 1) && partsAdded) {
 
           return rc;
          }
+
         partsAdded = false;
       } else if (rc < ClearRc && ((mask >> rc) & 1)) {
-
-//#ifdef QT_DEBUG_MODE
-//          logNotice() << "\nIN SCAN BACKWARD AT CLEAR: "
-//                     << " \nRETURN ClearRc at Line:"  << here.lineNumber
-//                       ;
-//#endif
 
         return rc;
       }
     }
   }
+
   return EndOfFileRc;
 }
 

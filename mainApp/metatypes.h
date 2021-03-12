@@ -500,6 +500,7 @@ public:
   PlacementType  parentRelativeType;
   bool           defaultPlacement;
   bool           placementCommand;
+  bool           bomToEndOfSubmodel;
   InsertData()
   {
     picScale           = 1.0;
@@ -510,6 +511,7 @@ public:
     textColor          = "Black";
     defaultPlacement   = true;
     placementCommand   = false;
+    bomToEndOfSubmodel = false;
     rectPlacement      = TopLeftInsideCorner;
     relativeType       = TextType;
     relativeTo         = PageType;

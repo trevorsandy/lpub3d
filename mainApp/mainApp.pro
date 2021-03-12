@@ -381,6 +381,7 @@ HEADERS += \
     archiveparts.h \
     backgrounddialog.h \
     backgrounditem.h \
+    bomoptionsdialog.h \
     borderdialog.h \
     borderedlineitem.h \
     callout.h \
@@ -484,6 +485,7 @@ SOURCES += \
     assemglobals.cpp \
     backgrounddialog.cpp \
     backgrounditem.cpp \
+    bomoptionsdialog.cpp \
     borderdialog.cpp \
     borderedlineitem.cpp \
     callout.cpp \
