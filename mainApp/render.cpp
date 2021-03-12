@@ -215,7 +215,7 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
+int Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
 
     QStringList tokens;
     QString baseName = QFileInfo(modelName).completeBaseName().toLower();
@@ -271,6 +271,8 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
         parts.prepend(QString("0 FILE %1").arg(modelName));
         parts.append("0 NOFILE");
     }
+
+    return isMPD;
 }
 
 bool Render::useLDViewSCall(){
@@ -3366,31 +3368,32 @@ const QString Render::getRenderModelFile(int renderType) {
 }
 
 // create Native version of the CSI/PLI file - consolidate subfiles and parts into single file
-int Render::createNativeModelFile(QStringList &csiRotatedParts,
+int Render::createNativeModelFile(
+    QStringList &rotatedParts,
     bool         doFadeStep,
     bool         doHighlightStep,
     int          imageType)
 {
-  QStringList csiSubModels;
-  QStringList csiSubModelParts;
-  QStringList csiParts = csiRotatedParts;
+  QStringList nativeSubModels;
+  QStringList nativeSubModelParts;
+  QStringList nativeParts = rotatedParts;
 
   QStringList argv;
   int         rc;
 
-  if (csiRotatedParts.size()) {
+  if (rotatedParts.size()) {
       /* Parse the rotated parts looking for subModels,
-       * renaming fade and highlight step parts (not sure this is used here)
-       * merging and formatting submodels by calling mergeNativeCSISubModels and
+       * renaming fade and highlight step parts - so we can test - and
+       * merging and formatting submodels by calling mergeNativeSubModels and
        * returning all parts by reference
       */
-      for (int index = 0; index < csiRotatedParts.size(); index++) {
+      for (int index = 0; index < rotatedParts.size(); index++) {
 
-          QString csiLine = csiRotatedParts[index];
-          split(csiLine, argv);
+          QString nativeLine = rotatedParts[index];
+          split(nativeLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
 
-              /* process subfiles in csiRotatedParts */
+              /* process subfiles in nativeRotatedParts */
               QString type = argv[argv.size()-1];
 
               bool isCustomSubModel = false;
@@ -3429,87 +3432,105 @@ int Render::createNativeModelFile(QStringList &csiRotatedParts,
 
               if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
-                  if (!csiSubModels.contains(type.toLower()))
-                       csiSubModels << type.toLower();
+                  if (!nativeSubModels.contains(type.toLower()))
+                       nativeSubModels << type.toLower();
                 }
             }
         } //end for
 
       /* process extracted submodels and unofficial files */
-      if (csiSubModels.size()){
-          csiSubModels.removeDuplicates();
-          if ((rc = mergeNativeCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
-              emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer CSI submodels"));
+      if (nativeSubModels.size()){
+          nativeSubModels.removeDuplicates();
+          if ((rc = mergeNativeSubModels(nativeSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
+              emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer submodels"));
               return rc;
             }
         }
 
-      /* add sub model content to csiRotatedParts file */
-      if (! csiSubModelParts.empty())
+      /* add sub model content to nativeRotatedParts file */
+      if (! nativeSubModelParts.empty())
         {
-          for (int i = 0; i < csiSubModelParts.size(); i++) {
-              QString smLine = csiSubModelParts[i];
-              csiParts << smLine;
+          for (int i = 0; i < nativeSubModelParts.size(); i++) {
+              QString smLine = nativeSubModelParts[i];
+              nativeParts << smLine;
+            }
+        }
+
+      /* remove scenario where main model and submodel share the same name*/
+      auto tc = [] (const QString &s)
+      {
+          return QString(s).replace(s.indexOf(s.at(0)),1,s.at(0).toUpper());
+      };
+
+      if (imageType == Options::PLI) {
+          QRegExp mpdRx = QRegExp("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+          if (nativeParts.at(0).contains(mpdRx)) {
+              QFileInfo fi(mpdRx.cap(1));
+              QString baseName  = fi.completeBaseName();
+              QString modelName = QString(fi.fileName()).replace(baseName, QString("%1-main").arg(baseName));
+              nativeParts[0]    = QString("0 FILE %1").arg(modelName);
+              nativeParts[1]    = QString("0 %1").arg(tc(modelName));
+              nativeParts[2]    = QString("0 Name: %1").arg(modelName);
             }
         }
 
       /* return rotated parts by reference */
-      csiRotatedParts = csiParts;
+      rotatedParts = nativeParts;
     }
 
   return 0;
 }
 
-int Render::mergeNativeCSISubModels(QStringList &subModels,
+int Render::mergeNativeSubModels(QStringList &subModels,
                                   QStringList &subModelParts,
                                   bool doFadeStep,
                                   bool doHighlightStep,
                                   int imageType)
 {
-  QStringList csiSubModels        = subModels;
-  QStringList csiSubModelParts    = subModelParts;
+  QStringList nativeSubModels        = subModels;
+  QStringList nativeSubModelParts    = subModelParts;
   QStringList newSubModels;
 
   QStringList argv;
   int         rc;
 
-  if (csiSubModels.size()) {
+  if (nativeSubModels.size()) {
 
       /* read in all detected sub model file content */
-      for (int index = 0; index < csiSubModels.size(); index++) {
+      for (int index = 0; index < nativeSubModels.size(); index++) {
 
           QString ldrName(QDir::currentPath() + "/" +
                           Paths::tmpDir + "/" +
-                          csiSubModels[index]);
+                          nativeSubModels[index]);
 
           /* initialize the working submodel file - define header. */
-          QString modelName = QFileInfo(csiSubModels[index]).completeBaseName().toLower();
+          QString modelName = QFileInfo(nativeSubModels[index]).completeBaseName().toLower();
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
 
-          csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
+          nativeSubModelParts << QString("0 FILE %1").arg(nativeSubModels[index]);
           if (imageType != Options::MON) {
-              csiSubModelParts << QString("0 %1").arg(modelName);
-              csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
-              csiSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
+              nativeSubModelParts << QString("0 %1").arg(modelName);
+              nativeSubModelParts << QString("0 Name: %1").arg(nativeSubModels[index]);
+//              nativeSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
           }
 
           /* read the actual submodel file */
           QFile ldrfile(ldrName);
           if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
-              emit gui->messageSig(LOG_ERROR,QString("Could not read CSI submodel file %1: %2")
+              emit gui->messageSig(LOG_ERROR,QString("Could not read submodel file %1: %2")
                                    .arg(ldrName)
                                    .arg(ldrfile.errorString()));
               return -1;
             }
-          /* populate file contents into working submodel csi parts */
+          /* populate file contents into working submodel native parts */
           QTextStream in(&ldrfile);
           while ( ! in.atEnd()) {
-              QString csiLine = in.readLine(0);
-              split(csiLine, argv);
+              QString nativeLine = in.readLine(0);
+              split(nativeLine, argv);
 
               if (argv.size() == 15 && argv[0] == "1") {
-                  /* check and process any subfiles in csiRotatedParts */
+                  /* check and process any subfiles in nativeRotatedParts */
                   QString type = argv[argv.size()-1];
 
                   bool isCustomSubModel = false;
@@ -3552,23 +3573,23 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                               newSubModels << type.toLower();
                     }
                 }
-              if (isGhost(csiLine))
+              if (isGhost(nativeLine))
                   argv.prepend(GHOST_META);
-              csiLine = argv.join(" ");
-              csiSubModelParts << csiLine;
+              nativeLine = argv.join(" ");
+              nativeSubModelParts << nativeLine;
             }
-          csiSubModelParts << "0 NOFILE";
+          nativeSubModelParts << "0 NOFILE";
         }
 
       /* recurse and process any identified submodel files */
       if (newSubModels.size() > 0){
           newSubModels.removeDuplicates();
-          if ((rc = mergeNativeCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
-              emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer CSI submodels"));
+          if ((rc = mergeNativeSubModels(newSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
+              emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer submodels"));
               return rc;
             }
         }
-      subModelParts = csiSubModelParts;
+      subModelParts = nativeSubModelParts;
     }
   return 0;
 }

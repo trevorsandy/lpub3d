@@ -1063,12 +1063,12 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             // add ROTSTEP command
             pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
-            // header and closing meta
-            renderer->setLDrawHeaderAndFooterMeta(pliFile,type,Options::PLI);
-
-            // consolidate subfiles and parts into single file
-            if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+            // header and closing meta - this call returns isMPD
+            if (renderer->setLDrawHeaderAndFooterMeta(pliFile,type,Options::PLI)) {
+                // consolidate pli part and MPD subfile(s) into single file
+                if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+            }
 
             // unrotated part
             QStringList pliFileU = QStringList()
@@ -2513,13 +2513,12 @@ int Pli::partSizeLDViewSCall() {
                     // add ROTSTEP command
                     pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
-
-                    // header and closing meta
-                    renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI);
-
-                    // consolidate subfiles and parts into single file
-                    if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+                    // header and closing meta - this call returns isMPD
+                    if (renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI)) {
+                        // consolidate pli part and MPD subfile(s) into single file
+                        if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                            emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI parts"));
+                    }
 
                     // unrotated part
                     QStringList pliFileU = QStringList()

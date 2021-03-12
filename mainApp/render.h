@@ -84,16 +84,16 @@ public:
   static bool            doLDVCommand(const QStringList &args,
                                     int = -1 /*EXPORT_NONE*/,
                                     int = 6 /*NumIniFiles*/);
-  static int             createNativeModelFile(QStringList &csiParts,
+  static int             createNativeModelFile(QStringList &rotatedParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
-  static int             mergeNativeCSISubModels(QStringList &subModels,
+  static int             mergeNativeSubModels(QStringList &subModels,
                                      QStringList &subModelParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
-  static void            setLDrawHeaderAndFooterMeta(QStringList &parts,
+  static int            setLDrawHeaderAndFooterMeta(QStringList &parts,
                                      const QString &modelName,
                                      int imageType,
                                      bool displayOnly = false);
