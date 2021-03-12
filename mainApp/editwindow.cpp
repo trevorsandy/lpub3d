@@ -65,9 +65,10 @@
 #include "ldrawpartdialog.h"
 #include "ldrawcolordialog.h"
 
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 #include "pieceinf.h"
+#include "lc_colors.h"
 
 EditWindow *editWindow;
 
@@ -194,22 +195,40 @@ void EditWindow::previewLine()
     QString partType     = partKeys.at(1);
 
     if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && !modelFileEdit()) {
-        emit previewPieceSig(partType, colorCode);
+        gMainWindow->PreviewPiece(partType, colorCode);
         return;
-    }
-
-    lcPreviewWidget *Preview = new lcPreviewWidget();
-
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
-
-    if (Preview && ViewWidget) {
-        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        if (!Preview->SetCurrentPiece(partType, colorCode))
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
-        ViewWidget->SetPreviewPosition(rect());
     } else {
-        emit lpubAlert->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(partType));
+        lcPreviewWidget *Preview = new lcPreviewWidget();
+        lcViewWidget *ViewWidget = new lcViewWidget(nullptr/*parent*/, Preview/*owner*/);
+
+        if (Preview && ViewWidget) {
+            QPoint position;
+            switch (Preferences.mPreviewLocation)
+            {
+            case lcPreviewLocation::TopRight:
+                position = mapToGlobal(rect().topRight());
+                break;
+            case lcPreviewLocation::TopLeft:
+                position = mapToGlobal(rect().topLeft());
+                break;
+            case lcPreviewLocation::BottomRight:
+                position = mapToGlobal(rect().bottomRight());
+                break;
+            default:
+                position = mapToGlobal(rect().bottomLeft());
+                break;
+            }
+
+            ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+
+            if (Preview->SetCurrentPiece(partType, colorCode))  {
+                ViewWidget->SetPreviewPosition(rect(), position);
+                return;
+            }
+        }
     }
+
+    emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
 }
 
 #ifdef QT_DEBUG_MODE

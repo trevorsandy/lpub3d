@@ -109,7 +109,6 @@ signals:
     void updateDisabledSig(bool);
     void editModelFileSig();
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
-    void previewPieceSig(const QString &, int);
     void setStepForLineSig(const TypeLine &);
     void waitingSpinnerStopSig();
 

@@ -37,8 +37,8 @@
 #include "color.h"
 
 #include "pieceinf.h"
-
-#include "lc_qglwidget.h"
+#include "lc_colors.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 
 SubstitutePartDialog::SubstitutePartDialog(
@@ -543,7 +543,7 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
 
         Preview    = new lcPreviewWidget(true/*substitute preview*/);
 
-        ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
+        ViewWidget = new lcViewWidget(nullptr/*parent*/, Preview/*owner*/);
 
         if (Preview && ViewWidget) {
             ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -551,9 +551,6 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
                 emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
             previewLayout->addWidget(ViewWidget);
             ViewWidget->SetPreferredSize(ui->previewFrame->size());
-            float Scale               = ViewWidget->GetDeviceScale();
-            Preview->mWidth           = ViewWidget->width()  * Scale;
-            Preview->mHeight          = ViewWidget->height() * Scale;
             mViewWidgetEnabled        = true;
         } else {
             emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));

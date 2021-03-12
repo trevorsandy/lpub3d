@@ -25,16 +25,15 @@ int Gui::processCommandLine()
   if (viewerJob < 0)
      return 1;
   else
-  if (viewerJob > 0)
+  if (viewerJob)
     return 0;
-
+    
   // Declarations
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
    int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
    int StudLogo              = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
   bool processExport         = false;
   bool processFile           = false;
-  bool perspectiveProjection = false;
   bool fadeSteps             = false;
   bool highlightStep         = false;
 // bool imageMatting          = false;
@@ -42,17 +41,19 @@ int Gui::processCommandLine()
   bool useLDVSingleCall      = false;
   bool useLDVSnapShotList    = false;
   bool useNativeRenderer     = false;
-
+  
   QString generator          = RENDERER_NATIVE;
 
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer, projection,
           fadeStepsColour, highlightStepColour, message;
 
-  // Process parameters
+  // Parse parameters
   QStringList Arguments = Application::instance()->arguments();
 
+  bool ParseOK = true;
   const int NumArguments = Arguments.size();
+  
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
       const QString& Param = Arguments[ArgIdx];
@@ -76,7 +77,18 @@ int Gui::processCommandLine()
           continue;
       }
 
-      auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
+      auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair)
+      {
+          QString message = Text.isEmpty() ? QString("Invalid value specified") : Text;
+          if (Pair)
+              emit messageSig(LOG_ERROR, message.append(QString(" for the '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
+          else
+              emit messageSig(LOG_ERROR, message.append(QString(" for the '%1' option.").arg(Param)));
+
+          ParseOK = false;
+      };
+
+      auto ParseString = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -84,10 +96,15 @@ int Gui::processCommandLine()
               Value = Arguments[ArgIdx];
           }
           else if (Required)
-              printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+          {
+              InvalidParse(QString("Not enough parameters"), false);
+              return false;
+          }
+
+          return true;
       };
 
-      auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
+      auto ParseInteger = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](int& Value)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -96,29 +113,17 @@ int Gui::processCommandLine()
               int NewValue = Arguments[ArgIdx].toInt(&Ok);
 
               if (Ok)
+              {
                   Value = NewValue;
+                  return true;
+              }
               else
-                  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+                  InvalidParse(QString("Invalid parameter value specified"), true);
           }
           else
-              printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-      };
+              InvalidParse(QString("Not enough parameters"), false);
 
-      auto ParseFloat = [&ArgIdx, &Arguments, NumArguments](float& Value)
-      {
-          if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-          {
-              bool Ok = false;
-              ArgIdx++;
-              int NewValue = Arguments[ArgIdx].toFloat(&Ok);
-
-              if (Ok)
-                  Value = NewValue;
-              else
-                  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
-          }
-          else
-              printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+          return false;
       };
 
       if (Param == QLatin1String("-pf") || Param == QLatin1String("--process-file"))
@@ -131,23 +136,33 @@ int Gui::processCommandLine()
         fadeSteps = true;
       else
       if (Param == QLatin1String("-fo") || Param == QLatin1String("--fade-step-opacity"))
-        ParseInteger(fadeStepsOpacity);
+      {
+         if (ParseInteger(fadeStepsOpacity))
+           fadeSteps = true;
+      }
       else
       if (Param == QLatin1String("-fc") || Param == QLatin1String("--fade-steps-color"))
-        ParseString(fadeStepsColour, false);
+      {
+          if (ParseString(fadeStepsColour, true))
+            fadeSteps = true;
+      }
       else
       if (Param == QLatin1String("-hs") || Param == QLatin1String("--highlight-step"))
         highlightStep = true;
       else
       if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-color"))
-        ParseString(highlightStepColour, false);
+      {
+        if (ParseString(highlightStepColour, true))
+            highlightStep = true;
+      }
       else
       if (Param == QLatin1String("-sl") || Param == QLatin1String("--stud-logo"))
       {
-        ParseInteger(StudLogo);
-        if (StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO))
-        {
-            SetStudLogo(StudLogo, false);
+        if (ParseInteger(StudLogo) && StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO)) {
+            if (StudLogo < 0 || StudLogo > 5)
+               InvalidParse(QString("Invalid value specified, valid values range from 0 to 5"), true);
+            else
+                SetStudLogo(StudLogo, false);
         }
       } else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
@@ -177,11 +192,19 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, true);
       else
-      if (Param == QLatin1String("--line-width"))
-        ParseInteger(highlightLineWidth);
+      if (Param == QLatin1String("-hw") || Param == QLatin1String("--highlight-line-width"))
+      {
+        if (ParseInteger(highlightLineWidth) && (highlightLineWidth < 1 || highlightLineWidth > 10))
+            InvalidParse(QString("Invalid value specified, valid values range from 1 to 10"), true);
+      }
       else
-        emit messageSig(LOG_INFO,QString("Unknown command line parameter: '%1'.").arg(Param));
+        InvalidParse(QString("Unknown %1 command line parameter").arg(VER_PRODUCTNAME_STR), false);
     }
+    
+  if (!ParseOK)
+  {
+      return 1;
+  }
 
   if (!preferredRenderer.isEmpty()){
       //QSettings Settings;
@@ -264,7 +287,7 @@ int Gui::processCommandLine()
       }
   }
 
-  if (projection.toLower() == "p" || projection.toLower() == "projection") {
+  if (projection.toLower() == "p" || projection.toLower() == "perspective") {
       bool applyCARenderer = Preferences::preferredRenderer == RENDERER_LDVIEW;
       message = QString("Camera projection set to Perspective.%1")
                         .arg(applyCARenderer ?
@@ -444,11 +467,12 @@ int Gui::processCommandLine()
           } else {
             continuousPageDialog(PAGE_NEXT);
           }
-    } else
-    return 1;
+    } else {
+       return 1;
+    }
 
   emit messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
-                          .arg(QFileInfo(commandlineFile).fileName())
-                          .arg(gui->elapsedTime(commandTimer.elapsed())));
+                  .arg(QFileInfo(commandlineFile).fileName())
+                  .arg(gui->elapsedTime(commandTimer.elapsed())));
   return 0;
 }

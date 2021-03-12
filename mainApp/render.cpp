@@ -54,6 +54,7 @@
 #include "pieceinf.h"
 #include "lc_model.h"
 #include "view.h"
+#include "camera.h"
 #include "lc_qhtmldialog.h"
 #include "lc_partselectionwidget.h"
 
@@ -2996,7 +2997,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
         ActiveView->MakeCurrent();
         lcContext* Context = ActiveView->mContext;
-        View View(ActiveModel);
+        View View(ActiveView->GetViewType(), ActiveModel);
         View.SetCamera(Camera, false);
         View.SetContext(Context);
 
@@ -3125,7 +3126,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
     if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType))
     {
         gApplication->SetProject(Loader);
-        gui->UpdateAllViews();
+        lcGLWidget::UpdateAllViews();
     }
     else
     {

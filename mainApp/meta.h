@@ -3509,8 +3509,8 @@ public:
 /*------------------------*/
 struct LightData
 {
-  StringMeta    lightName;     // char      m_strName;
-  StringMeta    lightType;     // QString   mLightType; (Light NAME (m_strName) written on TYPE line)
+  StringMeta    lightName;     // QString   mName;
+  StringMeta    lightType;     // QString   mLightType; (Light NAME (mName) written on TYPE line)
   StringMeta    lightShape;    // QString   mLightShape;
 
   FloatMeta     lightSpecular; // float     mLightSpecular;
@@ -3534,8 +3534,8 @@ struct LightData
 class LightMeta : public BranchMeta
 {
 public:
-  StringMeta    lightName;     // char      m_strName;
-  StringMeta    lightType;     // QString   mLightType; (Light NAME (m_strName) written on TYPE line)
+  StringMeta    lightName;     // QString   mName;
+  StringMeta    lightType;     // QString   mLightType; (Light NAME (mName) written on TYPE line)
   StringMeta    lightShape;    // QString   mLightShape;
 
   FloatMeta     lightSpecular; // float     mLightSpecular;

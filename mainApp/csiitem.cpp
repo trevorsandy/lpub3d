@@ -44,7 +44,7 @@
 #include "paths.h"
 #include "editwindow.h"
 
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 
 CsiItem::CsiItem(
@@ -268,45 +268,31 @@ void CsiItem::previewCsi(bool useDockable) {
     }
 
     lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable) {
-        emit gui->previewPieceSig(csiFileName, colorCode);
-        return;
-    }
-
-    lcPreviewWidget *Preview = new lcPreviewWidget();
-
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
-
-    if (Preview && ViewWidget) {
-        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        if (!Preview->SetCurrentPiece(csiFileName, colorCode)) {
-            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(csiFileName));
-            delete ViewWidget;
-        } else {
-            QPointF sceneP;
-            switch (Preferences.mPreviewLocation)
-            {
-            case lcPreviewLocation::TopRight:
-                sceneP = mapToScene(boundingRect().topRight());
-                break;
-            case lcPreviewLocation::TopLeft:
-                sceneP = mapToScene(boundingRect().topLeft());
-                break;
-            case lcPreviewLocation::BottomRight:
-                sceneP = mapToScene(boundingRect().bottomRight());
-                break;
-            default:
-                sceneP = mapToScene(boundingRect().bottomLeft());
-                break;
-            }
-            QGraphicsView *view = scene()->views().first();
-            QPoint viewP = view->mapFromScene(sceneP);
-            QPoint pos = view->viewport()->mapToGlobal(viewP);
-            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
+    bool dockable = Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable;
+    QPoint position;
+    if (!dockable) {
+        QPointF sceneP;
+        switch (Preferences.mPreviewLocation)
+        {
+        case lcPreviewLocation::TopRight:
+            sceneP = mapToScene(boundingRect().topRight());
+            break;
+        case lcPreviewLocation::TopLeft:
+            sceneP = mapToScene(boundingRect().topLeft());
+            break;
+        case lcPreviewLocation::BottomRight:
+            sceneP = mapToScene(boundingRect().bottomRight());
+            break;
+        default:
+            sceneP = mapToScene(boundingRect().bottomLeft());
+            break;
         }
-    } else {
-        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(csiFileName));
+        QGraphicsView *view = scene()->views().first();
+        QPoint viewP = view->mapFromScene(sceneP);
+        position = view->viewport()->mapToGlobal(viewP);
     }
+
+    gui->previewPiece(csiFileName, colorCode, dockable, QRect(), position);
 }
 
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)

@@ -43,7 +43,7 @@
 #include "range_element.h"
 #include "dependencies.h"
 
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 
 const Where &SubModel::topOfStep()
@@ -1202,45 +1202,31 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
         return;
 
     lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewSubmodelAction) {
-        emit gui->previewPieceSig(part->type, part->color.toInt());
-        return;
-    }
-
-    lcPreviewWidget *Preview = new lcPreviewWidget();
-
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
-
-    if (Preview && ViewWidget) {
-        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
-            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
-            delete ViewWidget;
-        } else {
-            QPointF sceneP;
-            switch (Preferences.mPreviewLocation)
-            {
-            case lcPreviewLocation::TopRight:
-                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topRight());
-                break;
-            case lcPreviewLocation::TopLeft:
-                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topLeft());
-                break;
-            case lcPreviewLocation::BottomRight:
-                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomRight());
-                break;
-            default:
-                sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
-                break;
-            }
-            QGraphicsView *view = subModel->background->scene()->views().first();
-            QPoint viewP = view->mapFromScene(sceneP);
-            QPoint pos = view->viewport()->mapToGlobal(viewP);
-            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
+    bool dockable = Preferences.mPreviewPosition != lcPreviewPosition::Floating && previewSubmodelAction;
+    QPoint position;
+    if (!dockable) {
+        QPointF sceneP;
+        switch (Preferences.mPreviewLocation)
+        {
+        case lcPreviewLocation::TopRight:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topRight());
+            break;
+        case lcPreviewLocation::TopLeft:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().topLeft());
+            break;
+        case lcPreviewLocation::BottomRight:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomRight());
+            break;
+        default:
+            sceneP = subModel->background->mapToScene(subModel->background->boundingRect().bottomLeft());
+            break;
         }
-    } else {
-        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(part->type));
+        QGraphicsView *view = subModel->background->scene()->views().first();
+        QPoint viewP = view->mapFromScene(sceneP);
+        position = view->viewport()->mapToGlobal(viewP);
     }
+
+    gui->previewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
 }
 
 void SMGraphicsPixmapItem::contextMenuEvent(

@@ -37,7 +37,7 @@ class PieceInfo;
 class lcPreviewWidget;
 class Project;
 class lcModel;
-class lcQGLWidget;
+class lcViewWidget;
 
 class SubstitutePartDialog : public QDialog
 {
@@ -99,7 +99,7 @@ private:
 
   QGridLayout              *previewLayout;
   lcPreviewWidget          *Preview;
-  lcQGLWidget              *ViewWidget;
+  lcViewWidget             *ViewWidget;
 };
 
 #endif // SUBSTITUTEPARTDIALOG_H

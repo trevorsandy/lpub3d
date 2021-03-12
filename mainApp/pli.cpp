@@ -53,7 +53,7 @@
 #include "range_element.h"
 #include "dependencies.h"
 
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_library.h"
 #include "pieceinf.h"
 #include "lc_previewwidget.h"
@@ -3619,45 +3619,31 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
         return;
 
     lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable) {
-        emit gui->previewPieceSig(part->type, part->color.toInt());
-        return;
-    }
-
-    lcPreviewWidget *Preview = new lcPreviewWidget();
-
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
-
-    if (Preview && ViewWidget) {
-        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-        if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
-            emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
-            delete ViewWidget;
-        } else {
-            QPointF sceneP;
-            switch (Preferences.mPreviewLocation)
-            {
-            case lcPreviewLocation::TopRight:
-                sceneP = pli->background->mapToScene(pli->background->boundingRect().topRight());
-                break;
-            case lcPreviewLocation::TopLeft:
-                sceneP = pli->background->mapToScene(pli->background->boundingRect().topLeft());
-                break;
-            case lcPreviewLocation::BottomRight:
-                sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomRight());
-                break;
-            default:
-                sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomLeft());
-                break;
-            }
-            QGraphicsView *view = pli->background->scene()->views().first();
-            QPoint viewP = view->mapFromScene(sceneP);
-            QPoint pos = view->viewport()->mapToGlobal(viewP);
-            ViewWidget->SetPreviewPosition(QRect(), pos, true/*use pos*/);
+    bool dockable = Preferences.mPreviewPosition == lcPreviewPosition::Dockable && useDockable;
+    QPoint position;
+    if (!dockable) {
+        QPointF sceneP;
+        switch (Preferences.mPreviewLocation)
+        {
+        case lcPreviewLocation::TopRight:
+            sceneP = pli->background->mapToScene(pli->background->boundingRect().topRight());
+            break;
+        case lcPreviewLocation::TopLeft:
+            sceneP = pli->background->mapToScene(pli->background->boundingRect().topLeft());
+            break;
+        case lcPreviewLocation::BottomRight:
+            sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomRight());
+            break;
+        default:
+            sceneP = pli->background->mapToScene(pli->background->boundingRect().bottomLeft());
+            break;
         }
-    } else {
-        emit gui->messageSig(LOG_ERROR, QString("Preview %1 failed.").arg(part->type));
+        QGraphicsView *view = pli->background->scene()->views().first();
+        QPoint viewP = view->mapFromScene(sceneP);
+        position = view->viewport()->mapToGlobal(viewP);
     }
+
+    gui->previewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
 }
 
 void PGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

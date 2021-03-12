@@ -3394,18 +3394,11 @@ Gui::Gui()
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));
 
-    connect(this,           SIGNAL(previewPieceSig(const QString &,int)),
-            this,           SLOT(previewPiece(const QString &,int)));
-
-
     // Gui - ParmsWindow
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
     // Gui - EditWindow
-    connect(editWindow,     SIGNAL(previewPieceSig(const QString &,int)),
-            this,           SLOT(previewPiece(const QString &,int)));
-
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
             editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
 
@@ -3590,6 +3583,8 @@ void Gui::initialize()
           this, SLOT(  deployExportBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(halt3DViewer(bool)));
+  connect(this, SIGNAL(updateAllViewsSig()),
+          this, SLOT(UpdateAllViews()));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
 
@@ -5726,7 +5721,6 @@ void Gui::createToolBars()
     editParamsToolBar->setVisible(visible);
     connect (editParamsToolBar, SIGNAL (visibilityChanged(bool)),
                           this, SLOT (editParamsToolBarVisibilityChanged(bool)));
-
 
     previousPageComboAct->setMenu(previousPageContinuousMenu);
     nextPageComboAct->setMenu(nextPageContinuousMenu);

@@ -31,7 +31,7 @@
 #include "metagui.h"
 #include "paths.h"
 
-#include "lc_qglwidget.h"
+#include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 #include "pieceinf.h"
 #include "lc_library.h"
@@ -474,7 +474,6 @@ void Gui::create3DToolBars()
 
 void Gui::initiaizeNativeViewer()
 {
-    connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
     connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
     connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
 
@@ -680,12 +679,28 @@ bool Gui::createPreviewWidget()
     return false;
 }
 
-void Gui::previewPiece(const QString &partType, int colorCode)
+void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QRect parentRect, QPoint position)
 {
-    if (gMainWindow->GetPreviewWidget()) {
-        if (!gMainWindow->GetPreviewWidget()->SetCurrentPiece(partType, colorCode))
-            messageSig(LOG_ERROR, QString("Part preview for % failed.").arg(partType));
+    if (dockable) {
+        gMainWindow->PreviewPiece(partType, colorCode);
+        return;
+    } else {
+        lcPreviewWidget* Preview = new lcPreviewWidget();
+        lcViewWidget* ViewWidget = new lcViewWidget(nullptr, Preview);
+
+        if (Preview && ViewWidget)
+        {
+            ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+
+            if (Preview->SetCurrentPiece(partType, colorCode))
+            {
+                ViewWidget->SetPreviewPosition(parentRect, position);
+                return;
+            }
+        }
     }
+
+    QMessageBox::information(this, tr("Error"), tr("Part preview for '%1' failed.").arg(partType));
 }
 
 void Gui::togglePreviewWidget(bool visible)
@@ -832,7 +847,7 @@ void Gui::applyLightSettings()
 
         for (lcLight* Light : ActiveModel->GetLights()) {
 
-            emit messageSig(LOG_INFO, QString("Setting Light [%1]").arg(Light->m_strName));
+            emit messageSig(LOG_INFO, QString("Setting Light [%1]").arg(Light->mName));
 
             QString Type = "Undefined";
             switch(Light->mLightType)
@@ -852,14 +867,14 @@ void Gui::applyLightSettings()
             }
 
             // Populate existing settings
-            QString lightKey = QString("%1 %2").arg(Type).arg(Light->m_strName);
+            QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
             if (currentStep->lightList.contains(lightKey))
                 lightMeta.setValue(currentStep->lightList[lightKey]);
 
             // Type and Name
             lightMeta.lightType.setValue(Type);
             metaString = lightMeta.lightType.format(false,false);
-            metaString.append(QString(" NAME \"%1\"").arg(Light->m_strName));
+            metaString.append(QString(" NAME \"%1\"").arg(Light->mName));
             currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
             // Position
@@ -1036,7 +1051,7 @@ void Gui::applyCameraSettings()
             return qAbs(v1 - v2) > 0.1f;
         };
 
-        emit messageSig(LOG_INFO, QString("Setting %1 Camera").arg(Camera->m_strName[0] == '\0' ? "Default" : Camera->m_strName));
+        emit messageSig(LOG_INFO, QString("Setting %1 Camera").arg(Camera->GetName().isEmpty() ? "Default" : Camera->GetName()));
 
         QString imageFileName;
 
@@ -1149,8 +1164,8 @@ void Gui::applyCameraSettings()
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.isOrtho.here(), metaString, newCommand);
         }
 
-        if (Camera->m_strName[0]) {
-            cameraMeta.cameraName.setValue(Camera->m_strName);
+        if (!Camera->GetName().isEmpty()) {
+            cameraMeta.cameraName.setValue(Camera->GetName());
             metaString = cameraMeta.cameraName.format(true,false);
             newCommand = cameraMeta.cameraName.here() == undefined;
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraName.here(), metaString, newCommand);
@@ -1509,19 +1524,17 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     if (ActiveModel){
-        // Create a copy of the current camera and add it cameras
+        // Create a copy of the current camera and add it to cameras
         lcCamera* Camera = ActiveView->GetCamera();
         Camera->CreateName(ActiveModel->GetCameras());
         Camera->SetSelected(true);
         ActiveModel->AddCamera(ActiveView->GetCamera());
 
         // Get the created camera name
-        char cameraName[81];
-        const char* Prefix = "Camera ";
-        sprintf(cameraName, "%s %d", Prefix, ActiveModel->GetCameras().GetSize());
+        const QString cameraName = QString("Camera %1").arg(ActiveModel->GetCameras().GetSize());
 
         // Set the created camera
-        ActiveView->SetCamera(cameraName/*cameraName.toLatin1().constData()*/);
+        ActiveView->SetCamera(cameraName);
 
         // Save the current model
         if (!lcGetActiveProject()->Save(modelFile))
@@ -1531,7 +1544,8 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         bool RemovedCamera = false;
         for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
         {
-            if (!strcmp(ActiveModel->GetCameras()[CameraIdx]->m_strName, cameraName))
+            QString Name = Camera->GetName();
+            if (Name == cameraName)
             {
                 RemovedCamera = true;
                 ActiveModel->RemoveCameraIndex(CameraIdx);
@@ -1541,7 +1555,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         }
 
         ActiveView->SetCamera(Camera, true);
-        strcpy(ActiveView->GetCamera()->m_strName, "");
+        ActiveView->GetCamera()->SetName(QString());
 
         if (RemovedCamera)
             gMainWindow->UpdateCameraMenu();
@@ -1686,6 +1700,11 @@ void Gui::reloadViewer(){
      return gMainWindow->GetActiveView();
  }
 
+ void Gui::UpdateAllViews()
+ {
+     lcGLWidget::UpdateAllViews();
+ }
+
  lcModel* Gui::GetActiveModel()
  {
      return GetActiveView()->GetActiveModel();
@@ -1756,11 +1775,6 @@ void Gui::reloadViewer(){
  void Gui::LoadDefaults()
  {
      gApplication->mPreferences.LoadDefaults();
- }
-
- void Gui::UpdateAllViews()
- {
-     gMainWindow->UpdateAllViews();
  }
 
  bool Gui::OpenProject(const QString& FileName)

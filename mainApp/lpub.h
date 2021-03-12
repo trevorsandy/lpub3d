@@ -1146,7 +1146,7 @@ public slots:
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
-  void previewPiece(const QString &type, int colorCode);
+  void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
   QDockWidget *getPreviewDockWindow()
@@ -1420,7 +1420,6 @@ signals:
   void showLineSig(int lineNumber, int type);
   void setSubFilesSig(const QStringList &subFiles);
   void setLineScopeSig(const StepLines& lineScope);
-  void previewPieceSig(const QString &, int);
   void clearEditorWindowSig();
   void setTextEditHighlighterSig();
   void updateAllViewsSig();
