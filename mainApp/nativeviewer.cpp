@@ -2090,8 +2090,8 @@ void Gui::createBuildModification()
                          LPubModContents, ViewerModContents,
                          ModStepKeys;
 
-            bool FadeStep         = page.meta.LPub.fadeStep.fadeStep.value();
-            bool HighlightStep    = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+            bool FadeStep         = Preferences::enableFadeSteps;
+            bool HighlightStep    = Preferences::enableHighlightStep && !suppressColourMeta();
 
             int AddedPieces       = 0;
             int CurrentStep       = 1;

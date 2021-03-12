@@ -393,6 +393,7 @@ HEADERS += \
     dividerpointeritem.h \
     editwindow.h \
     excludedparts.h \
+    fadehighlightdialog.h \
     globals.h \
     gradients.h \
     highlighter.h \
@@ -443,6 +444,7 @@ HEADERS += \
     pointeritem.h \
     pointerplacementdialog.h \
     preferencesdialog.h \
+    preferredrendererdialog.h \
     range.h \
     range_element.h \
     ranges.h \
@@ -499,6 +501,7 @@ SOURCES += \
     dividerpointeritem.cpp \
     editwindow.cpp \
     excludedparts.cpp \
+    fadehighlightdialog.cpp \
     fadestepglobals.cpp \
     formatpage.cpp \
     gradients.cpp \
@@ -552,6 +555,7 @@ SOURCES += \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
     preferencesdialog.cpp \
+    preferredrendererdialog.cpp \
     printfile.cpp \
     projectglobals.cpp \
     range.cpp \

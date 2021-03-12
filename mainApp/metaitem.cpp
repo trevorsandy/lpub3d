@@ -59,6 +59,8 @@
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
 #include "pointerattribdialog.h"
+#include "fadehighlightdialog.h"
+#include "preferredrendererdialog.h"
 #include "texteditdialog.h"
 #include "rotstepdialog.h"
 #include "substitutepartdialog.h"
@@ -2583,7 +2585,6 @@ void MetaItem::insertCoverPage()
   endMacro();
 }
 
-
 bool MetaItem::frontCoverPageExist()
 {
   QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
@@ -3235,6 +3236,100 @@ bool MetaItem::deleteFinalModelStep(){
     }
   }
   return foundFinalModel;
+}
+
+void MetaItem::changePreferredRenderer(
+  QString title,
+  const Where &topOfStep,
+  const Where &bottomOfStep,
+  PreferredRendererMeta *meta,
+  bool        local,
+  int         append,
+  bool        useTop)
+{
+  PreferredRendererMeta _meta;
+  _meta.setValue(meta->value());
+
+  bool ok;
+  ok = PreferredRendererDialog::getPreferredRenderer(_meta,title,gui);
+
+  if (ok) {
+    meta->setValue(_meta.value());
+    setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
+  }
+}
+
+void MetaItem::setFadeSteps(
+  QString            title,
+  const Where       &topOfStep,
+  const Where       &bottomOfStep,
+  FadeStepMeta      *meta,
+  int                append,
+  bool               local)
+{
+  FadeStepMeta _meta;
+  _meta.fade         = meta->fade;
+  _meta.fadeColor    = meta->fadeColor;
+  _meta.fadeUseColor = meta->fadeUseColor;
+  _meta.fadeOpacity  = meta->fadeOpacity;
+  bool ok;
+  ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
+
+  if (ok) {
+    beginMacro("SetFadeSteps");
+    if(_meta.fade.value().value != meta->fade.value().value ||
+       _meta.fade.value().reset != meta->fade.value().reset) {
+      meta->fade.setValue(_meta.fade.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->fade,append,local,true);
+    }
+    if(_meta.fadeColor.value() != meta->fadeColor.value()) {
+      meta->fadeColor.setValue(_meta.fadeColor.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeColor,append,local,true);
+    }
+    if(_meta.fadeUseColor.value() != meta->fadeUseColor.value()) {
+      meta->fadeUseColor.setValue(_meta.fadeUseColor.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeUseColor,append,local,true);
+    }
+    if(_meta.fadeOpacity.value() != meta->fadeOpacity.value()) {
+      meta->fadeOpacity.setValue(_meta.fadeOpacity.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeOpacity,append,local,true);
+    }
+    endMacro();
+  }
+}
+
+void MetaItem::setHighlightStep(
+  QString            title,
+  const Where       &topOfStep,
+  const Where       &bottomOfStep,
+  HighlightStepMeta *meta,
+  int                append,
+  bool               local)
+{
+  HighlightStepMeta _meta;
+  _meta.highlight          = meta->highlight;
+  _meta.highlightColor     = meta->highlightColor;
+  _meta.highlightLineWidth = meta->highlightLineWidth;
+  bool ok;
+  ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
+
+  if (ok) {
+    beginMacro("SetHighlightStep");
+    if(_meta.highlight.value().value != meta->highlight.value().value ||
+       _meta.highlight.value().reset != meta->highlight.value().reset) {
+      meta->highlight.setValue(_meta.highlight.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlight,append,local,true);
+    }
+    if(_meta.highlightColor.value() != meta->highlightColor.value()) {
+      meta->highlightColor.setValue(_meta.highlightColor.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlightColor,append,local,true);
+    }
+    if(_meta.highlightLineWidth.value() != meta->highlightLineWidth.value()) {
+      meta->highlightLineWidth.setValue(_meta.highlightLineWidth.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlightLineWidth,append,local,true);
+    }
+    endMacro();
+  }
 }
 
 void MetaItem::insertSplitBOM()

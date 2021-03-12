@@ -180,8 +180,8 @@ Step::Step(
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;
   updateViewer              = true;    // this is set to false on csiItem mouseReleaseEvent and countPages
-  fadeSteps                 = _meta.LPub.fadeStep.fadeStep.value();
-  highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+  fadeSteps                 = Preferences::enableFadeSteps;
+  highlightStep             = Preferences::enableHighlightStep;
   gStep = this;
 }
 

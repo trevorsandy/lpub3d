@@ -786,27 +786,24 @@ bool Gui::openFile(QString &fileName)
       closeModelFile();
       return false;
   }
-  setFadeStepsFromCommandMeta();
-  setHighlightStepFromCommandMeta();
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
-    LDVImageMatte::clearMatteCSIImages();
+  bool setupFadeSteps = setFadeStepsFromCommand();
+  bool setupHighlightStep = setHighlightStepFromCommand();
   displayPageNum = 1 + pa;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-      emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
-      QApplication::processEvents();
-      writeGeneratedColorPartsToTemp();
-      bool overwriteCustomParts = false;
-      emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
-      QApplication::processEvents();
-      processHighlightColourParts(overwriteCustomParts);
-      emit messageSig(LOG_INFO_STATUS, "Loading fade color parts...");
-      QApplication::processEvents();
-      processFadeColourParts(overwriteCustomParts);
+  if (setupFadeSteps || setupHighlightStep) {
+    if (setupFadeSteps && Preferences::enableImageMatting)
+      LDVImageMatte::clearMatteCSIImages();
+    emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
+    writeGeneratedColorPartsToTemp();
+    bool overwriteCustomParts = false;
+    emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
+    processHighlightColourParts(overwriteCustomParts);
+    emit messageSig(LOG_INFO_STATUS, "Loading fade color parts...");
+    processFadeColourParts(overwriteCustomParts);
   }
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
@@ -821,10 +818,10 @@ bool Gui::openFile(QString &fileName)
   undoStack->setClean();
   curFile = fileName;
   for (int i = 0; i < numPrograms; i++) {
-      QFileInfo fileInfo(programEntries.at(i).split("|").last());
-      openWithActList[i]->setStatusTip(QString("Open %1 with %2")
-                                    .arg(QFileInfo(curFile).fileName())
-                                    .arg(fileInfo.fileName()));
+    QFileInfo fileInfo(programEntries.at(i).split("|").last());
+    openWithActList[i]->setStatusTip(QString("Open %1 with %2")
+                                  .arg(QFileInfo(curFile).fileName())
+                                  .arg(fileInfo.fileName()));
   }
 
   insertFinalModelStep();    //insert final fully coloured model if fadeStep turned on
@@ -953,10 +950,10 @@ void Gui::fileChanged(const QString &path)
     int goToPage = displayPageNum;
     QString fileName = path;
     if (ldrawFile.isIncludeFile(QFileInfo(path).fileName()))
-        fileName = curFile;
+      fileName = curFile;
     if (!openFile(fileName)) {
-        emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
-        return;
+      emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+      return;
     }
     displayPageNum = goToPage;
     displayPage();
@@ -977,75 +974,202 @@ void Gui::writeGeneratedColorPartsToTemp(){
   LDrawFile::_currentLevels.clear();
 }
 
-void Gui::setFadeStepsFromCommandMeta()
+bool Gui::setFadeStepsFromCommand()
 {
-    if (!Preferences::enableFadeSteps){
-        Where fileHeader(gui->topLevelFile(),0);
-        QRegExp lineRx = QRegExp("\\bFADE TRUE\\b");
-        Preferences::enableFadeSteps = stepContains(fileHeader,lineRx);
-        if (Preferences::enableFadeSteps){
-            messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
-            ldrawColorPartsLoad();
-            QString result;
-            if (!Preferences::fadeStepsUseColour) {
-                lineRx.setPattern("\\bUSE_FADE_COLOR TRUE\\b");
-                Preferences::fadeStepsUseColour = stepContains(fileHeader,lineRx);
-                messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
-            }
+  if (!Preferences::enableFadeSteps) {
+    Where topLevelModel(gui->topLevelFile(),0);
+    QRegExp fadeRx = QRegExp("FADE\\s*(?:GLOBAL)?\\s*TRUE");
+    Preferences::enableFadeSteps = stepContains(topLevelModel,fadeRx);
+    bool setupFadeSteps = false;
+    QString fadeMessage = "is OFF";
 
-            int fadeStepsOpacityCompare  = Preferences::fadeStepsOpacity;
-            result.clear();
-            lineRx.setPattern("FADE_OPACITY\\s(\\d+)");
-            stepContains(fileHeader,lineRx,result,1);
-            bool ok = result.toInt(&ok);
-            Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
-            bool fadeStepsOpacityChanged  = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
-            if (fadeStepsOpacityChanged)
-                messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
-                           .arg(fadeStepsOpacityCompare)
-                           .arg(Preferences::fadeStepsOpacity));
-
-            QString fadeStepsColourCompare  = Preferences::validFadeStepsColour;
-            result.clear();
-            lineRx.setPattern("\\bFADE_COLOR\\b\\s\"(\\w+)\"");
-            stepContains(fileHeader,lineRx,result,1);
-            Preferences::validFadeStepsColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
-            bool fadeStepsColourChanged       = QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower();
-            if (fadeStepsColourChanged)
-                messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
-                                            .arg(fadeStepsColourCompare.replace("_"," "))
-                                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
-
-            gui->partWorkerLDSearchDirs.setDoFadeStep(true);
-            gui->partWorkerLDSearchDirs.addCustomDirs();
-        }
+    if (!Preferences::enableFadeSteps) {
+      QRegExp fadeSetupRx = QRegExp("FADE_STEP_SETUP\\s*(?:GLOBAL)?\\s*TRUE");
+      setupFadeSteps = stepContains(topLevelModel,fadeSetupRx);
+    } else {
+      fadeMessage = "is ON";
     }
+
+    if (Preferences::enableFadeSteps || setupFadeSteps) {
+      messageSig(LOG_INFO,QString("Fade Previous Steps %1.")
+                                 .arg(setupFadeSteps ? "setup is enabled" : fadeMessage));
+
+      ldrawColorPartsLoad();
+
+      if (!Preferences::fadeStepsUseColour) {
+        fadeRx.setPattern("USE_FADE_COLOR\\s*(?:GLOBAL)?\\s*TRUE");
+        Preferences::fadeStepsUseColour = stepContains(topLevelModel,fadeRx);
+        messageSig(LOG_INFO,QString("Use Global Fade Color is %1")
+                                    .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
+      }
+
+       QString result;
+      fadeRx.setPattern("FADE_OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
+      stepContains(topLevelModel,fadeRx,result,1);
+      if (!result.isEmpty()) {
+        bool ok = result.toInt(&ok);
+        int fadeStepsOpacityCompare = Preferences::fadeStepsOpacity;
+        Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
+        bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
+        if (fadeStepsOpacityChanged)
+            messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
+                                        .arg(fadeStepsOpacityCompare)
+                                        .arg(Preferences::fadeStepsOpacity));
+      }
+
+      result.clear();
+      fadeRx.setPattern("FADE_COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
+      stepContains(topLevelModel,fadeRx,result,1);
+      if (!result.isEmpty()) {
+        QColor ParsedColor = LDrawColor::color(result);
+        QString fadeStepsColourCompare  = Preferences::validFadeStepsColour;
+        Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
+        if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
+            messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
+                                        .arg(fadeStepsColourCompare.replace("_"," "))
+                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
+      }
+
+      partWorkerLDSearchDirs.setDoFadeStep(true);
+      partWorkerLDSearchDirs.addCustomDirs();
+    }
+  }
+  return Preferences::enableFadeSteps;
 }
 
-void Gui::setHighlightStepFromCommandMeta()
+bool Gui::setHighlightStepFromCommand()
 {
-    if (!Preferences::enableHighlightStep) {
-        Where fileHeader(gui->topLevelFile(),0);
-        QRegExp lineRx = QRegExp("\\bHIGHLIGHT TRUE\\b");
-        Preferences::enableHighlightStep = stepContains(fileHeader,lineRx);
-        if (Preferences::enableHighlightStep) {
-            messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
-            ldrawColorPartsLoad();
-            QString highlightStepColourCompare  = Preferences::highlightStepColour;
-            QString result;
-            lineRx.setPattern("\\HIGHLIGHT_COLOR\\b\\s\"(#[A-Fa-f0-9]{6}|\\w+)\"");
-            stepContains(fileHeader,lineRx,result,1);
-            Preferences::highlightStepColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
-            bool highlightStepColorChanged   = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
-            if (highlightStepColorChanged)
-                messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
-                                            .arg(highlightStepColourCompare)
-                                            .arg(Preferences::highlightStepColour));
+  if (!Preferences::enableHighlightStep) {
+    Where topLevelModel(gui->topLevelFile(),0);
+    QRegExp highlightRx = QRegExp("HIGHLIGHT\\s*(?:GLOBAL)?\\s*TRUE");
+    Preferences::enableHighlightStep = stepContains(topLevelModel,highlightRx);
+    bool setupHighlightStep = false;
+    QString highlightMessage = "is OFF";
 
-            gui->partWorkerLDSearchDirs.setDoHighlightStep(true);
-            gui->partWorkerLDSearchDirs.addCustomDirs();
-        }
+    if (!Preferences::enableHighlightStep) {
+      QRegExp highlightSetupRx = QRegExp("HIGHLIGHT_STEP_SETUP\\s*(?:GLOBAL)?\\s*TRUE");
+      setupHighlightStep = stepContains(topLevelModel,highlightSetupRx);
+    } else {
+      highlightMessage = "is ON";
     }
+
+    if (Preferences::enableHighlightStep || setupHighlightStep) {
+      messageSig(LOG_INFO,QString("Highlight Current Step %1.")
+                                  .arg(setupHighlightStep ? "setup is enabled" : highlightMessage));
+
+      ldrawColorPartsLoad();
+
+      QString result;
+      highlightRx.setPattern("HIGHLIGHT_COLOR\\s*(?:GLOBAL)?\\s*\"(#[A-Fa-f0-9]{6}|\\w+)\"");
+      stepContains(topLevelModel,highlightRx,result,1);
+      if (!result.isEmpty()) {
+        QColor ParsedColor = QColor(result);
+        QString highlightStepColourCompare = Preferences::highlightStepColour;
+        Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
+        bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
+        if (highlightStepColorChanged)
+          messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
+                                      .arg(highlightStepColourCompare)
+                                      .arg(Preferences::highlightStepColour));
+      }
+
+      partWorkerLDSearchDirs.setDoHighlightStep(true);
+      partWorkerLDSearchDirs.addCustomDirs();
+    }
+  }
+  return Preferences::enableHighlightStep;
+}
+
+bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
+{
+  if (preferredRenderer.isEmpty())
+      return false;
+
+  bool useLDVSingleCall = false;
+  bool useLDVSnapShotList = false;
+  bool useNativeRenderer = false;
+  bool useNativeGenerator = true;
+  bool rendererChanged = false;
+  bool renderFlagChanged = false;
+
+  QString message;
+  QString renderer;
+  QString command = preferredRenderer.toLower();
+  if ((useNativeRenderer = command == "native")) {
+    renderer = RENDERER_NATIVE;
+  } else if (command == "ldview") {
+    renderer = RENDERER_LDVIEW;
+  } else if ((useLDVSingleCall = command == "ldview-sc")) {
+    renderer = RENDERER_LDVIEW;
+  } else if ((useLDVSnapShotList = command == "ldview-scsl")) {
+    renderer = RENDERER_LDVIEW;
+  } else if (command == "ldglite") {
+    renderer = RENDERER_LDGLITE;
+  } else if (command == "povray") {
+    renderer = RENDERER_POVRAY;
+  } else if (command == "povray-ldv") {
+    renderer = RENDERER_POVRAY;
+    useNativeGenerator = false;
+  } else {
+    emit messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
+    return false;
+  }
+
+  rendererChanged = Preferences::preferredRenderer != renderer;
+
+  if (renderer == RENDERER_LDVIEW) {
+    if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
+      message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
+                        .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
+                        .arg(useLDVSingleCall ? "Yes" : "No");
+      emit messageSig(LOG_INFO,message);
+      Preferences::enableLDViewSingleCall = useLDVSingleCall;
+      renderFlagChanged = true;
+    }
+    if (Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
+      message = QString("Renderer preference use LDView Snapshot List changed from %1 to %2.")
+                        .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
+                        .arg(useLDVSingleCall ? "Yes" : "No");
+      emit messageSig(LOG_INFO,message);
+      Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
+      if (useLDVSnapShotList)
+          Preferences::enableLDViewSingleCall = true;
+      if (!renderFlagChanged)
+        renderFlagChanged = true;
+    }
+  } else if (renderer == RENDERER_POVRAY) {
+    if (Preferences::useNativePovGenerator != useNativeGenerator) {
+      message = QString("Renderer preference POV file generator changed from %1 to %2.")
+                        .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW)
+                        .arg(useNativeGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW);
+      emit messageSig(LOG_INFO,message);
+      Preferences::useNativePovGenerator = useNativeGenerator;
+      if (!renderFlagChanged)
+        renderFlagChanged = true;
+    }
+  }
+
+  if (rendererChanged || renderFlagChanged) {
+    message = QString("Renderer preference changed from %1 to %2%3.")
+                      .arg(Preferences::preferredRenderer)
+                      .arg(renderer)
+                      .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                                                                 .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                           renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
+                                                         useLDVSnapShotList ? QString(" (Single Call using Export File List)") :
+                                                                              QString(" (Single Call)") :
+                                                                              QString() : QString());
+    emit messageSig(LOG_INFO,message);
+  }
+
+  if (rendererChanged) {
+    Preferences::preferredRenderer   = renderer;
+    Preferences::usingNativeRenderer = useNativeRenderer;
+    Render::setRenderer(Preferences::preferredRenderer);
+    Preferences::updatePOVRayConfigFiles();
+  }
+
+  return true;
 }
 
 //void Gui::dropEvent(QDropEvent* event)
@@ -1093,28 +1217,28 @@ void Gui::setHighlightStepFromCommandMeta()
 
 QString Gui::elapsedTime(const qint64 &duration) {
 
-    qint64 elapsed = duration;
-    int milliseconds = int(elapsed % 1000);
-    elapsed /= 1000;
-    int seconds = int(elapsed % 60);
-    elapsed /= 60;
-    int minutes = int(elapsed % 60);
-    elapsed /= 60;
-    int hours = int(elapsed % 24);
+  qint64 elapsed = duration;
+  int milliseconds = int(elapsed % 1000);
+  elapsed /= 1000;
+  int seconds = int(elapsed % 60);
+  elapsed /= 60;
+  int minutes = int(elapsed % 60);
+  elapsed /= 60;
+  int hours = int(elapsed % 24);
 
-    return QString("Elapsed time: %1%2%3")
-                   .arg(hours >   0 ?
-                                  QString("%1 %2 ")
-                                          .arg(hours)
-                                          .arg(hours > 1 ? "hours" : "hour")
-                                  : QString())
-                   .arg(minutes > 0 ?
-                                  QString("%1 %2 ")
-                                          .arg(minutes)
-                                          .arg(minutes > 1 ? "minutes" : "minute")
-                                  : QString())
-                   .arg(QString("%1.%2 %3")
-                                .arg(seconds)
-                                .arg(milliseconds,3,10,QLatin1Char('0'))
-                                .arg(seconds > 1 ? "seconds" : "second"));
+  return QString("Elapsed time: %1%2%3")
+                 .arg(hours >   0 ?
+                                QString("%1 %2 ")
+                                        .arg(hours)
+                                        .arg(hours > 1 ? "hours" : "hour")
+                                : QString())
+                 .arg(minutes > 0 ?
+                                QString("%1 %2 ")
+                                        .arg(minutes)
+                                        .arg(minutes > 1 ? "minutes" : "minute")
+                                : QString())
+                 .arg(QString("%1.%2 %3")
+                              .arg(seconds)
+                              .arg(milliseconds,3,10,QLatin1Char('0'))
+                              .arg(seconds > 1 ? "seconds" : "second"));
 }

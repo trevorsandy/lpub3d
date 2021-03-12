@@ -904,6 +904,7 @@ void Application::initialize()
 
     Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
+    Preferences::rendererPreferences();
     Preferences::fadestepPreferences();
     Preferences::highlightstepPreferences();
     Preferences::unitsPreferences();

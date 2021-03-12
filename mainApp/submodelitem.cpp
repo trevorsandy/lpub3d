@@ -1531,6 +1531,7 @@ void SubModelBackgroundItem::contextMenuEvent(
     QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
     QAction *rotStepAction       = commonMenus.rotStepMenu(menu,pl);
     QAction *hideAction          = commonMenus.hideMenu(menu,pl);
+    QAction *rendererAction      = commonMenus.preferredRendererMenu(menu,pl);
 
     QAction *povrayRendererArgumentsAction = nullptr;
     QAction *rendererArgumentsAction = nullptr;
@@ -1587,6 +1588,11 @@ void SubModelBackgroundItem::contextMenuEvent(
                             bottom,
                             &subModel->placement,true,1,0,false);
         }
+    } else if (selectedAction == rendererAction) {
+        changePreferredRenderer(pl+" Preferred Renderer",
+                                top,
+                                bottom,
+                                &subModel->meta->LPub.assem.preferredRenderer);
     } else if (selectedAction == marginAction) {
       changeMargins(pl+" Margins",
                     top,

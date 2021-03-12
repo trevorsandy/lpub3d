@@ -512,6 +512,26 @@ public:
                   int,
                   bool,
                   bool = false);
+  void changePreferredRenderer(
+                  QString,
+                  const Where &,
+                  const Where &,
+                  PreferredRendererMeta *,
+                  bool useTop = true,
+                  int  append = 1,
+                  bool local = true);
+  void setFadeSteps(QString,
+                    const Where &,
+                    const Where &,
+                    FadeStepMeta *,
+                    int  append = 1,
+                    bool local = true);
+  void setHighlightStep(QString,
+                    const Where &,
+                    const Where &,
+                    HighlightStepMeta *,
+                    int  append = 1,
+                    bool local = true);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
 

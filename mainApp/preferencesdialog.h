@@ -57,7 +57,6 @@ class PreferencesDialog : public QDialog
     QString const logLevelCombo();
     QString const fadeStepsColour();
     QString const highlightStepColour();
-    QString const povFileGenerator();
     QString const sceneBackgroundColor();
     QString const sceneGridColor();
     QString const sceneRulerTickColor();
@@ -66,6 +65,7 @@ class PreferencesDialog : public QDialog
     QString const displayTheme();
     QStringList const searchDirSettings();
     QMap<int, QString> const themeColours();
+    bool          useNativePovGenerator();
     bool          displayAllAttributes();
     bool          generateCoverPages();
     bool          printDocumentTOC();

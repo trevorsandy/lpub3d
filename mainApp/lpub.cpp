@@ -1755,7 +1755,7 @@ void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
         clearAllCaches();
 }
 
-void Gui::clearAllCaches()
+void Gui::clearAllCaches(bool global)
 {
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
@@ -1763,7 +1763,7 @@ void Gui::clearAllCaches()
     }
 
     bool disableSaveOnRedraw = false;
-    if (sender() == clearAllCachesAct) {
+    if (sender() == clearAllCachesAct || global) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2820,13 +2820,13 @@ void Gui::preferences()
     bool extendedSubfileSearchCompare      = Preferences::extendedSubfileSearch;
     bool povrayAutoCropCompare             = Preferences::povrayAutoCrop;
     bool showDownloadRedirectsCompare      = Preferences::showDownloadRedirects;
+    bool povFileGeneratorCompare           = Preferences::useNativePovGenerator;
     int povrayRenderQualityCompare         = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare          = Preferences::ldrawFilesLoadMsgs;
     bool lineParseErrorsCompare            = Preferences::lineParseErrors;
     bool showInsertErrorsCompare           = Preferences::showInsertErrors;
     bool showAnnotationErrorsCompare       = Preferences::showAnnotationErrors;
     QString altLDConfigPathCompare         = Preferences::altLDConfigPath;
-    QString povFileGeneratorCompare        = Preferences::povFileGenerator;
     QString fadeStepsColourCompare         = Preferences::validFadeStepsColour;
     QString highlightStepColourCompare     = Preferences::highlightStepColour;
     QString ldrawPathCompare               = Preferences::ldrawLibPath;
@@ -2840,9 +2840,9 @@ void Gui::preferences()
     QString sceneGuideColorCompare         = Preferences::sceneGuideColor;
     QStringList ldSearchDirsCompare        = Preferences::ldSearchDirs;
 
-    // Native POV file generation settings
+    // 'LDView INI settings
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
-        if (Preferences::povFileGenerator == RENDERER_NATIVE )
+        if (Preferences::useNativePovGenerator)
             TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
         else
             TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
@@ -2882,7 +2882,7 @@ void Gui::preferences()
         bool generateCoverPagesChanged     = Preferences::generateCoverPages                     != generateCoverPagesCompare;
         bool pageDisplayPauseChanged       = Preferences::pageDisplayPause                       != pageDisplayPauseCompare;
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
-        bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
+        bool povFileGeneratorChanged       = Preferences::useNativePovGenerator                  != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
         bool addLSynthSearchDirChanged     = Preferences::addLSynthSearchDir                     != addLSynthSearchDirCompare;
         bool archiveLSynthPartsChanged     = Preferences::archiveLSynthParts                     != archiveLSynthPartsCompare;
@@ -3102,11 +3102,15 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Enable LDView Snapshots List is %1").arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF"));
 
         if (rendererChanged) {
-            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2%3")
                             .arg(preferredRendererCompare)
-                            .arg(QString("%1%2").arg(Preferences::preferredRenderer)
-                                                .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
-                                                     Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "")));
+                            .arg(Preferences::preferredRenderer)
+                            .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                                                                                             .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                                 Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ?
+                                                                                     Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
+                                                                                                                             QString(" (Single Call)") :
+                                                                                                                             QString() : QString()));
 
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -3115,8 +3119,8 @@ void Gui::preferences()
 
         if (povFileGeneratorChanged)
             emit messageSig(LOG_INFO,QString("POV file generation renderer changed from %1 to %2")
-                            .arg(povFileGeneratorCompare)
-                            .arg(Preferences::povFileGenerator));
+                                             .arg(povFileGeneratorCompare ? RENDERER_NATIVE : RENDERER_LDVIEW)
+                                             .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW));
 
         if (altLDConfigPathChanged) {
             emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
@@ -3339,7 +3343,6 @@ Gui::Gui()
     qRegisterMetaType<TypeLine>("TypeLine");
 
     Preferences::lgeoPreferences();
-    Preferences::rendererPreferences(SkipExisting);
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
 
@@ -3863,7 +3866,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
 void Gui::processFadeColourParts(bool overwriteCustomParts)
 {
-  if (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeSteps) {
+  if (Preferences::enableFadeSteps) {
 
       partWorkerCustomColour = new PartWorker();
 
@@ -3889,7 +3892,7 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
 
 void Gui::processHighlightColourParts(bool overwriteCustomParts)
 {
-  if (gui->page.meta.LPub.highlightStep.highlightStep.value() || Preferences::enableHighlightStep) {
+  if (Preferences::enableHighlightStep) {
 
       partWorkerCustomColour = new PartWorker();
 

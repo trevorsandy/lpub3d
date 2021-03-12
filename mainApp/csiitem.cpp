@@ -515,6 +515,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   addPagePointerAction->setWhatsThis("Add pointer from the page to this CSI image");
   addPagePointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
+  QAction *setHighlightStepAction = commonMenus.highlightStepMenu(menu,pl);
+  QAction *setFadeStepsAction = commonMenus.fadeStepsMenu(menu,pl);
+  QAction *rendererAction = commonMenus.preferredRendererMenu(menu,pl);
+  setHighlightStepAction->setEnabled(meta->LPub.highlightStepSetup.value());
+  setFadeStepsAction->setEnabled(meta->LPub.fadeStepSetup.value());
+
   if (dividerDetected) {
       addDividerPointerAction = menu.addAction("Place Divider Pointer");
       addDividerPointerAction->setWhatsThis("Add pointer from the step divider to this CSI image");
@@ -694,6 +700,21 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         topOfStep,
                         bottomOfStep,
                         &step->csiPlacement.placement);
+    } else if (selectedAction == rendererAction) {
+      changePreferredRenderer(pl+" Preferred Renderer",
+                              topOfStep,
+                              bottomOfStep,
+                              &meta->LPub.assem.preferredRenderer);
+    } else if (selectedAction == setFadeStepsAction) {
+      setFadeSteps("Fade Previous "+pl+" Steps",
+                    topOfStep,
+                    bottomOfStep,
+                    &meta->LPub.assem.fadeStep);
+    } else if (selectedAction == setHighlightStepAction) {
+      setHighlightStep("Highlight Current "+pl+" Step",
+                       topOfStep,
+                       bottomOfStep,
+                       &meta->LPub.assem.highlightStep);
     } else if (selectedAction == scaleAction){
         changeFloatSpin(pl+" Scale",
                         "Model Size",

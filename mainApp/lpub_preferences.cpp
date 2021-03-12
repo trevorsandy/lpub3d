@@ -264,7 +264,7 @@ QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
-QString Preferences::preferredRenderer;
+QString Preferences::preferredRenderer          = RENDERER_NATIVE;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
@@ -273,8 +273,6 @@ QString Preferences::ldgliteSearchDirs;
 QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
-QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
-
 QString Preferences::systemEditor;
 
 QString Preferences::blenderVersion;
@@ -351,15 +349,42 @@ QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAU
 QString Preferences::sceneGuideColor            = defaultThemeColors[THEME_DEFAULT_GUIDE_PEN].color;
 
 bool    Preferences::usingDefaultLibrary        = true;
-bool    Preferences::portableDistribution       = false;
 bool    Preferences::perspectiveProjection      = true;
 bool    Preferences::saveOnRedraw               = true;
 bool    Preferences::saveOnUpdate               = true;
+bool    Preferences::useNativePovGenerator      = true;
 
+bool    Preferences::applyCALocally             = true;
+bool    Preferences::modeGUI                    = true;
+bool    Preferences::showAllNotifications       = true;
+bool    Preferences::showUpdateNotifications    = true;
+bool    Preferences::enableDownloader           = true;
+
+bool    Preferences::lineParseErrors            = true;
+bool    Preferences::showInsertErrors           = true;
+bool    Preferences::showBuildModErrors         = true;
+bool    Preferences::showIncludeFileErrors      = true;
+bool    Preferences::showAnnotationErrors       = true;
+
+bool    Preferences::showSaveOnRedraw           = true;
+bool    Preferences::showSaveOnUpdate           = true;
+bool    Preferences::blenderIs28OrLater         = true;
+bool    Preferences::buildModEnabled            = true;
+bool    Preferences::finalModelEnabled          = true;
+bool    Preferences::editorHighlightLines       = true;
+bool    Preferences::editorLoadSelectionStep    = true;
+bool    Preferences::editorPreviewOnDoubleClick = true;
+
+bool    Preferences::ldgliteInstalled           = false;
+bool    Preferences::ldviewInstalled            = false;
+bool    Preferences::povRayInstalled            = false;
+bool    Preferences::blenderInstalled           = false;
+
+bool    Preferences::portableDistribution       = false;
 bool    Preferences::lgeoStlLib                 = false;
 bool    Preferences::lpub3dLoaded               = false;
 bool    Preferences::enableDocumentLogo         = false;
-bool    Preferences::enableLDViewSingleCall     = true;
+bool    Preferences::enableLDViewSingleCall     = false;
 bool    Preferences::enableLDViewSnaphsotList   = false;
 bool    Preferences::displayAllAttributes       = false;
 bool    Preferences::generateCoverPages         = false;
@@ -400,17 +425,12 @@ bool    Preferences::logLevel                   = false;   // logging level (com
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
-bool    Preferences::applyCALocally             = true;
 bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
-bool    Preferences::showAllNotifications       = true;
-bool    Preferences::showUpdateNotifications    = true;
-bool    Preferences::enableDownloader           = true;
 bool    Preferences::showDownloadRedirects      = false;
 bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::povrayAutoCrop             = false;
 bool    Preferences::isAppImagePayload          = false;
-bool    Preferences::modeGUI                    = true;
 
 bool    Preferences::enableFadeSteps            = false;
 bool    Preferences::fadeStepsUseColour         = false;
@@ -423,13 +443,6 @@ bool    Preferences::snapToGrid                 = false;
 bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
-bool    Preferences::lineParseErrors            = true;
-bool    Preferences::showInsertErrors           = true;
-bool    Preferences::showBuildModErrors         = true;
-bool    Preferences::showIncludeFileErrors      = true;
-bool    Preferences::showAnnotationErrors       = true;
-bool    Preferences::showSaveOnRedraw           = true;
-bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::archivePartsOnLaunch       = false;
 bool    Preferences::highlightFirstStep         = false;
@@ -439,18 +452,12 @@ bool    Preferences::customSceneGridColor       = false;
 bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
+
 bool    Preferences::debugLogging               = false;
-bool    Preferences::blenderIs28OrLater         = true;
+
 bool    Preferences::defaultBlendFile           = false;
-
 bool    Preferences::useSystemEditor            = false;
-bool    Preferences::buildModEnabled            = true;
-bool    Preferences::finalModelEnabled          = true;
-
 bool    Preferences::editorBufferedPaging       = false;
-bool    Preferences::editorHighlightLines       = true;
-bool    Preferences::editorLoadSelectionStep    = true;
-bool    Preferences::editorPreviewOnDoubleClick = true;
 
 bool    Preferences::displayThemeColorsChanged  = false;
 bool    Preferences::textDecorationColorChanged = false;
@@ -1980,7 +1987,87 @@ void Preferences::lgeoPreferences()
     }
 }
 
-void Preferences::rendererPreferences(UpdateFlag updateFlag)
+void Preferences::preferredRendererPreferences()
+{
+    QSettings Settings;
+
+    /* Do we have a valid preferred renderer */
+
+    // Get preferred renderer from Registry
+    QString const preferredRendererKey("PreferredRenderer");
+
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
+        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
+        if (preferredRenderer == RENDERER_LDGLITE) {
+            if ( ! ldgliteInstalled)  {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        } else if (preferredRenderer == RENDERER_LDVIEW) {
+            if ( ! ldviewInstalled) {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        } else if (preferredRenderer == RENDERER_POVRAY) {
+            if ( ! povRayInstalled) {
+                preferredRenderer.clear();
+                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
+            }
+        }
+
+    } else { // No Registry setting so set default preferred renderer to native
+
+        preferredRenderer = RENDERER_NATIVE;
+
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
+    }
+
+    // using native Renderer flag
+    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
+
+    // LDView multiple files single call rendering
+
+    QString const enableLDViewSingleCallKey("EnableLDViewSingleCall");
+
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey))) {
+        QVariant eValue(enableLDViewSingleCall);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey),eValue);
+    } else {
+        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey)).toBool();
+    }
+
+    //  LDView single call snapshot list
+    QString const enableLDViewSnapshotsListKey("EnableLDViewSnapshotsList");
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey))) {
+        QVariant uValue(enableLDViewSnaphsotList);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey),uValue);
+    } else {
+        enableLDViewSnaphsotList = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSnapshotsListKey)).toBool();
+    }
+
+    // povray generation renderer
+    QString const useNativePovGeneratorKey("UseNativePovGenerator");
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey))) {
+        QVariant cValue(useNativePovGenerator);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey),cValue);
+    } else {
+        useNativePovGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,useNativePovGeneratorKey)).toBool();
+    }
+
+    // set LDView ini
+    if (Preferences::preferredRenderer == RENDERER_POVRAY) {
+        if (Preferences::useNativePovGenerator)
+            TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
+        else
+            TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
+    } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
+        TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
+    }
+}
+
+void Preferences::rendererPreferences()
 {
     QSettings Settings;
 
@@ -2017,11 +2104,6 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 #endif
 
     /* 3rd Party application installation status */
-
-    bool    ldgliteInstalled = false;
-    bool    ldviewInstalled = false;
-    bool    povRayInstalled = false;
-    bool    blenderInstalled = false;
 
     // LDGLite EXE
     if (ldgliteInfo.exists()) {
@@ -2234,60 +2316,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         logError() << QString("POVRay  : %1 not found").arg(povrayInfo.absoluteFilePath());
     }
 
-    /* Find out if we have a valid preferred renderer */
-
-    QString const preferredRendererKey("PreferredRenderer");
-
-    // Get preferred renderer from Registry
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey))) {
-        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
-        if (preferredRenderer == RENDERER_LDGLITE) {
-            if ( ! ldgliteInstalled)  {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == RENDERER_LDVIEW) {
-            if ( ! ldviewInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        } else if (preferredRenderer == RENDERER_POVRAY) {
-            if ( ! povRayInstalled) {
-                preferredRenderer.clear();
-                Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
-            }
-        }
-
-    } else { // No Registry setting so set preferred renderer if installed...
-
-        preferredRenderer = RENDERER_NATIVE;
-
-// -- previous setting default
-//#ifdef Q_OS_MAC
-//        if (!missingRendererLibs)
-//          preferredRenderer = RENDERER_LDVIEW;
-//#else
-//        preferredRenderer = RENDERER_LDVIEW;
-//#endif
-
-// -- old setting default
-//        if (ldgliteInstalled && povRayInstalled) {
-//            preferredRenderer = ldviewInstalled  ? RENDERER_LDVIEW : RENDERER_LDGLITE;
-//        } else if (povRayInstalled) {
-//            preferredRenderer = RENDERER_POVRAY;
-//        } else if (ldviewInstalled) {
-//            preferredRenderer = RENDERER_LDVIEW;
-//        } else if (ldgliteInstalled) {
-//            preferredRenderer = RENDERER_LDGLITE;
-//        }
-
-        if (!preferredRenderer.isEmpty()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
-        }
-    }
-
-    // using native Renderer flag
-    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
+    // Set valid preferred renderer preferences
+    preferredRendererPreferences();
 
     // Default projection
     QString const perspectiveProjectionKey("PerspectiveProjection");
@@ -2297,28 +2327,6 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
     } else {
         perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
-    }
-
-    // LDView multiple files single call rendering
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
-        QVariant eValue(false);
-        if (preferredRenderer == RENDERER_LDVIEW) {
-            enableLDViewSingleCall = true;
-        } else {
-            enableLDViewSingleCall = false;
-        }
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),eValue);
-    } else {
-        enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
-    }
-
-    //  LDView single call snapshot list
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"))) {
-        QVariant uValue(enableLDViewSnaphsotList);
-        enableLDViewSnaphsotList = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),uValue);
-    } else {
-        enableLDViewSnaphsotList = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList")).toBool();
     }
 
     // Renderer timeout
@@ -2332,18 +2340,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     // Native camera fov adjustment for image generation
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"))) {
         nativeImageCameraFoVAdjust = NATIVE_IMAGE_CAMERA_FOV_ADJUST;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"),rendererTimeout);
     } else {
         nativeImageCameraFoVAdjust = Settings.value(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust")).toInt();
-    }
-
-    // povray generation renderer
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"))) {
-        QVariant cValue(RENDERER_NATIVE);
-        povFileGenerator = RENDERER_NATIVE;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),cValue);
-    } else {
-        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"POVFileGenerator")).toString();
     }
 
     // Display povray image during rendering [experimental]
@@ -2387,25 +2386,24 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     // Image matting [future use]
     QString const enableImageMattingKey("EnableImageMatting");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {
-        QVariant uValue(false);
-        enableImageMatting = false;
+        QVariant uValue(enableImageMatting);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,enableImageMattingKey),uValue);
     } else {
         enableImageMatting = Settings.value(QString("%1/%2").arg(SETTINGS,enableImageMattingKey)).toBool();
-    }  
-
+    }
 
     // Write config files
     logInfo() << QString("Processing renderer configuration files...");
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     lpub3dLDVConfigDir      = QString("%1/ldv").arg(lpubDataPath);
+
     setLDGLiteIniParams();
-    updateLDVExportIniFile(updateFlag);
-    updateLDViewIniFile(updateFlag);
-    updateLDViewPOVIniFile(updateFlag);
-    updatePOVRayConfFile(updateFlag);
-    updatePOVRayIniFile(updateFlag);
+    updateLDVExportIniFile(SkipExisting);
+    updateLDViewIniFile(SkipExisting);
+    updateLDViewPOVIniFile(SkipExisting);
+    updatePOVRayConfFile(SkipExisting);
+    updatePOVRayIniFile(SkipExisting);
 
     // Blender config files
     QString const blenderConfigDir = QString("%1/Blender/config").arg(lpub3d3rdPartyConfigDir);
@@ -2488,14 +2486,14 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povrayScenePath = resourceFile.absolutePath();
     logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
 
-    logInfo() << QString("Renderer is %1 %2")
+    logInfo() << QString("Renderer is %1%2.")
                          .arg(preferredRenderer)
-                         .arg(preferredRenderer == RENDERER_POVRAY ?
-                                  QString("(%1 POV file generator)").arg(povFileGenerator) :
-                              preferredRenderer == RENDERER_LDVIEW ?
-                              enableLDViewSingleCall ?
-                                  QString("(Single Call%1)")
-                                          .arg(enableLDViewSnaphsotList ? " - SnapshotsList" : "") : "" : "");
+                         .arg(preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                                                                             .arg(useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                              preferredRenderer == RENDERER_LDVIEW ? enableLDViewSingleCall ?
+                                                                     enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
+                                                                                                QString(" (Single Call)") :
+                                                                                                QString() : QString());
 }
 
 void Preferences::setLDGLiteIniParams()
@@ -2978,6 +2976,8 @@ void Preferences::updatePOVRayConfigFiles(){
 
         }
     }
+#else
+    return;
 #endif
 }
 
@@ -4413,10 +4413,10 @@ bool Preferences::getPreferences()
             updatePOVRayConfFile(UpdateExisting);          //lgeo path changed
         }
 
-        if (povFileGenerator != dialog->povFileGenerator())
+        if (useNativePovGenerator != dialog->useNativePovGenerator())
         {
-            povFileGenerator = dialog->povFileGenerator();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),povFileGenerator);
+            useNativePovGenerator = dialog->useNativePovGenerator();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"UseNativePovGenerator"),useNativePovGenerator);
         }
 
         if (povrayDisplay != dialog->povrayDisplay())

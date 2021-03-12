@@ -723,6 +723,52 @@ QAction* CommonMenus::hidePliPartMenu(
   return action;
 }
 
+QAction* CommonMenus::preferredRendererMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Change %1 Renderer") .arg(name);
+
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/preferredrenderer.png"));
+
+  action->setWhatsThis("Select the image renderer and settings from available renderers");
+
+  return action;
+}
+
+QAction* CommonMenus::fadeStepsMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Fade Previous %1 Steps") .arg(name);
+
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/fadesteps.png"));
+
+  action->setWhatsThis("Turn on or off fade previous steps for this CSI image");
+
+  return action;
+}
+
+QAction* CommonMenus::highlightStepMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Highlight Current %1 Step") .arg(name);
+
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/highlightstep.png"));
+
+  action->setWhatsThis("Turn on or off highlight current step for this CSI image");
+
+  return action;
+}
+
+
 QAction* CommonMenus::renderParmsMenu(
         QMenu   &menu,
   const QString  name)
@@ -737,7 +783,6 @@ QAction* CommonMenus::renderParmsMenu(
 
   return action;
 }
-
 
 QString placement2english(PlacementEnc placement)
 

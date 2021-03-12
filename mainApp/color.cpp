@@ -154,8 +154,14 @@ QString LDrawColor::edge(const QString& code)
 QString LDrawColor::name(const QString &code)
 {
 //  logTrace() << QString("RECEIVED Color CODE  [%1] for NAME").arg(code);
-  if (color2name.contains(code))
-    return color2name[code];
+    QString name(code.toLower());
+    if (name2QColor.contains(name))
+        return code;
+
+    QRegExp hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$",Qt::CaseInsensitive);
+    if (color2name.contains(code))
+        return color2name[code];
+
   return QString();
 }
 

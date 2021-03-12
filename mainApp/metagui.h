@@ -296,7 +296,7 @@ signals:
 
 public slots:
   void comboChanged(int);
-  void checkboxChanged(bool);
+  void checkBoxChanged(bool);
   void processToolButtonClick();
   void enableStudStyleButton(int index);
   void enableAutoEdgeButton();
@@ -513,23 +513,35 @@ class FadeStepGui : public MetaGui
 public:
 
   FadeStepGui(
-    QString const &heading,
     FadeStepMeta *meta,
+    bool global = false,
     QGroupBox  *parent = nullptr);
   ~FadeStepGui() {}
+
+  QCheckBox *getCheckBox() { return fadeCheck; }
 
   virtual void apply(QString &modelName);
 
 private:
   FadeStepMeta  *meta;
 
-  QLabel      *colorLabel;
+  QCheckBox   *fadeCheck;
+  QCheckBox   *useColorCheck;
+  QCheckBox   *fadeResetCheck;
+  QSpinBox    *fadeOpacitySpin;
   QLabel      *colorExample;
-  QLabel      *readOnlyLabel;
   QComboBox   *colorCombo;
+
+  bool global;
+
+  bool colorModified;
+  bool fadeModified;
+  bool useColorModified;
+  bool opacityModified;
 
 public slots:
   void colorChange(QString const &colorName);
+  void valueChanged(int state);
 };
 
 /***********************************************************************
@@ -545,23 +557,33 @@ class HighlightStepGui : public MetaGui
 public:
 
   HighlightStepGui(
-    QString const &heading,
     HighlightStepMeta *meta,
+    bool global = false,
     QGroupBox  *parent = nullptr);
   ~HighlightStepGui() {}
 
   virtual void apply(QString &modelName);
 
+  QCheckBox *getCheckBox() { return highlightCheck; }
+
 private:
   HighlightStepMeta  *meta;
 
-  QLabel      *colorLabel;
+  QCheckBox   *highlightCheck;
+  QCheckBox   *highlightResetCheck;
   QLabel      *colorExample;
-  QLabel      *readOnlyLabel;
   QPushButton *colorButton;
+  QSpinBox    *lineWidthSpin;
+
+  bool global;
+
+  bool colorModified;
+  bool highlightModified;
+  bool lineWidthModified;
 
 public slots:
   void colorChange(bool clicked);
+  void valueChanged(int state);
 };
 
 /***********************************************************************
@@ -650,8 +672,8 @@ public:
   QSpinBox *getSpinBox() {return spin;}
 
 private:
-  IntMeta      *meta;
-  QLabel         *label;
+  IntMeta  *meta;
+  QLabel   *label;
   QSpinBox *spin;
 
 public slots:
@@ -813,8 +835,6 @@ public:
   ~FinalModelEnabledGui() {}
 
   QCheckBox *getCheckBox() {return check;}
-
-  void setEnabled(bool enabled);
 
   virtual void apply(QString &modelName);
 
@@ -1096,43 +1116,44 @@ public slots:
 
 /***********************************************************************
  *
- * Renderer
+ * Preferred Renderer
  *
  **********************************************************************/
 
-class RendererGui : public MetaGui
+class PreferredRendererGui : public MetaGui
 {
   Q_OBJECT
 public:
-  bool          clearCaches;
 
-  RendererGui(QGroupBox *parent = nullptr);
-  ~RendererGui() {}
+    PreferredRendererGui(
+            PreferredRendererMeta *meta,
+            bool global = false,
+            QGroupBox *parent = nullptr);
+  ~PreferredRendererGui() {}
 
   virtual void apply(QString &topLevelFile);
 
+  QComboBox *getComboBox() {return combo;}
+
 private:
+  PreferredRendererMeta *meta;
+
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
   QCheckBox    *ldvSnapshotListBox;
+  QCheckBox    *rendererResetBox;
   QGroupBox    *povFileGeneratorGrpBox;
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
 
-  QString       pick;
-  QString       povFileGenChoice;
+  bool global;
 
-  bool          rendererModified;
-  bool          singleCallModified;
-  bool          snapshotListModified;
-  bool          povFileGenModified;
+signals:
+  void settingsChanged(bool);
 
 public slots:
-  void typeChange(QString const &);
-  void singleCallChange(bool checked);
-  void snapshotListChange(bool checked);
-  void povFileGenNativeChange(bool checked);
-  void povFileGenLDViewChange(bool checked);
+  void valueChanged(int state);
+  void buttonChanged(bool checked);
 };
 
 /***********************************************************************

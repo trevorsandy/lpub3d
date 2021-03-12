@@ -68,14 +68,16 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  MetaGui *child =new RendererGui(box);
-  data->children.append(child);
+  PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer, true/*global*/, box);
+  connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
+  data->children.append(rendererChild);
 
   box = new QGroupBox("Resolution");
   layout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
-  child = new ResolutionGui(&lpubMeta->resolution);
+
+  MetaGui *child = new ResolutionGui(&lpubMeta->resolution);
   boxGrid->addWidget(child,0,0);
   boxGrid->setColumnStretch(0,1);
   boxGrid->setColumnStretch(1,1);
@@ -86,8 +88,8 @@ GlobalProjectDialog::GlobalProjectDialog(
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
   childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
-  connect (childStudStyle->getCheckBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
-  connect (childStudStyle->getComboBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childStudStyle->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childStudStyle->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
   connect (childStudStyle, SIGNAL(settingsChanged(int)), this, SLOT(clearCache(int)));
 
   box = new QGroupBox("Build Modifications");

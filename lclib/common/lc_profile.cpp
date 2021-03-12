@@ -60,10 +60,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "LineWidth", 1.0f),                                             // LC_PROFILE_LINE_WIDTH
 	lcProfileEntry("Settings", "AllowLOD", true),                                              // LC_PROFILE_ALLOW_LOD
 	lcProfileEntry("Settings", "LODDistance", 750.0f),                                         // LC_PROFILE_LOD_DISTANCE
-	lcProfileEntry("Settings", "FadeSteps", false),                                            // LC_PROFILE_FADE_STEPS
-	lcProfileEntry("Settings", "FadeStepsColor", LC_RGBA(128, 128, 128, 128)),                 // LC_PROFILE_FADE_STEPS_COLOR
-	lcProfileEntry("Settings", "HighlightNewParts", 0),                                        // LC_PROFILE_HIGHLIGHT_NEW_PARTS
-	lcProfileEntry("Settings", "HighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),           // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR
+	lcProfileEntry("Settings", "ViewerFadeSteps", false),                                      // LC_PROFILE_FADE_STEPS                                 /*** LPub3D Mod - designate viewer setting ***/
+	lcProfileEntry("Settings", "ViewerFadeStepsColor", LC_RGBA(128, 128, 128, 128)),           // LC_PROFILE_FADE_STEPS_COLOR                           /*** LPub3D Mod - designate viewer colour ***/
+	lcProfileEntry("Settings", "ViewerHighlightNewParts", 0),                                  // LC_PROFILE_HIGHLIGHT_NEW_PARTS                        /*** LPub3D Mod - designate viewer setting ***/
+	lcProfileEntry("Settings", "ViewerHighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),     // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR                  /*** LPub3D Mod - designate viewer colour ***/
 	lcProfileEntry("Settings", "ShadingMode", static_cast<int>(lcShadingMode::DefaultLights)), // LC_PROFILE_SHADING_MODE
 	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT
 	lcProfileEntry("Settings", "BackgroundColor", LC_RGB(255, 255, 255)),                      // LC_PROFILE_BACKGROUND_COLOR                           /*** LPub3D Mod - set background colour ***/

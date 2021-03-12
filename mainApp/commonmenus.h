@@ -212,6 +212,18 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *preferredRendererMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *fadeStepsMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *highlightStepMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
 private:
   QString englishPlacement(
     PlacementType  type,

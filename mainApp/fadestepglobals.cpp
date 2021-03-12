@@ -76,69 +76,47 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   QGridLayout   *grid;
   QGridLayout   *boxGrid;
   QGroupBox     *box;
-  MetaGui       *child;
-  QLabel        *label;
 
   grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Fade Previous Step(s) (read only)");
+  box = new QGroupBox("Fade Previous Steps");
   grid->addWidget(box,0,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  child = new FadeStepGui("Fade Color",fadeStepMeta);
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
+  fadeStepChild = new FadeStepGui(fadeStepMeta, true/*global*/);
+  data->children.append(fadeStepChild);
+  connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
+  connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(fadeStepChild,0,0);
 
-  box = new QGroupBox("Final Model Step");
+  box = new QGroupBox("Fade Previous Steps Setup");
   grid->addWidget(box,1,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
-  box->setToolTip("Automatically, append an un-faded and/or un-highlighted final step "
-                  "to the top level model file. This step will not be saved.");
 
-  FinalModelEnabledGui *finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
-  data->children.append(child);
-  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
-  boxGrid->addWidget(finalModelEnabledChild,0,0);
+  fadeStepSetupChild = new CheckBoxGui("Setup Fade Previous Steps",&lpubMeta->fadeStepSetup);
+  fadeStepSetupChild->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
+  data->children.append(fadeStepSetupChild);
+  connect (fadeStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(fadeStepSetupChild,0,0);
 
-  box = new QGroupBox("Fade Settings (read only)");
+  box = new QGroupBox("Final Model Step");
   grid->addWidget(box,2,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
+  box->setToolTip("Automatically, append an un-faded final step to the top level model file.");
 
-  child = new CheckBoxGui("Enabled",&fadeStepMeta->fadeStep);
-  child->setDisabled(true);
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
+  finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
+  data->children.append(finalModelEnabledChild);
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(finalModelEnabledChild,0,0);
 
-  label = new QLabel();
-  label->setText("Set from Preferences dialog");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,0,1);
-
-  child = new CheckBoxGui("Use Fade Color", &fadeStepMeta->fadeUseColor);
-  child->setDisabled(true);
-  boxGrid->addWidget(child,1,0);
-
-  label = new QLabel();
-  label->setText("Set from Preferences dialog");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,1,1);
-
-  label = new QLabel();
-  label->setText(tr("   Fade Opacity: %1 %").arg(fadeStepMeta->fadeOpacity.value()));
-  label->setDisabled(true);
-  boxGrid->addWidget(label,2,0);
-
-  label = new QLabel();
-  label->setText("Set from Preferences dialog");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,2,1);
+  emit fadeStepChild->getCheckBox()->clicked(fadeStepChild->getCheckBox()->isChecked());
 
   QDialogButtonBox *buttonBox;
 
@@ -152,6 +130,12 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
 
   setModal(true);
   setMinimumSize(40,20);
+}
+
+void GlobalFadeStepDialog::enableControls(bool b)
+{
+    fadeStepSetupChild->setEnabled(!b);
+    finalModelEnabledChild->setEnabled(b);
 }
 
 void GlobalFadeStepDialog::reloadModelFile(bool b)

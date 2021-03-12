@@ -1130,6 +1130,24 @@ int Gui::drawPage(
               // in step group.
               break;
 
+            case EnableFadeStepsRc:
+              if (Preferences::enableFadeSteps)
+                  break;
+              if (! curMeta.LPub.fadeStepSetup.value())
+                  parseError("Fade previous step cannot run. FADE_STEP_SETUP was not detected in the first step of the main model file.",opts.current);
+              else
+                  curMeta.LPub.fadeStep.setPreferences();
+              break;
+
+            case EnableHighlightStepRc:
+              if (Preferences::enableHighlightStep)
+                  break;
+              if (! curMeta.LPub.highlightStepSetup.value())
+                  parseError("Fade previous step cannot run. HIGHLIGHT_STEP_SETUP was not detected in the first step of the main model file.",opts.current);
+              else
+                  curMeta.LPub.highlightStep.setPreferences();
+              break;
+
               /* Buffer exchange */
             case BufferStoreRc:
               opts.bfx[curMeta.bfx.value()] = opts.csiParts;
@@ -1358,7 +1376,7 @@ int Gui::drawPage(
                     top = getTopOfPreviousStep();
                     message = QString("INSERT MODEL meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
 
-                    proceed = curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value();
+                    proceed = Preferences::enableFadeSteps || Preferences::enableHighlightStep;
                 } else { /*InsertDisplayModelRc*/
                     top = opts.current;
                     message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 [ROT]STEP before part (type 1) at line");
@@ -2509,6 +2527,23 @@ int Gui::drawPage(
                       if (multiStep && steps->groupStepMeta.LPub.contStepNumbers.value())
                           steps->groupStepMeta.LPub.contModelStepNum.setValue(
                                       steps->groupStepMeta.LPub.contModelStepNum.value() + partsAdded);
+
+                      // reset fade previous steps
+                      bool reset = true;
+                      if (curMeta.LPub.assem.fadeStep.fade.value().reset)
+                          curMeta.LPub.assem.fadeStep.setPreferences(reset);
+                      // reset highlight current step
+                      if (curMeta.LPub.assem.highlightStep.highlight.value().reset)
+                          curMeta.LPub.assem.highlightStep.setPreferences(reset);
+                      // reset preferred renderer
+                      if (curMeta.LPub.assem.preferredRenderer.value().reset)
+                          curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
+                      if (curMeta.LPub.subModel.preferredRenderer.value().reset)
+                          curMeta.LPub.subModel.preferredRenderer.setPreferences(reset);
+                      if (curMeta.LPub.pli.preferredRenderer.value().reset)
+                          curMeta.LPub.pli.preferredRenderer.setPreferences(reset);
+                      if (curMeta.LPub.bom.preferredRenderer.value().reset)
+                          curMeta.LPub.bom.preferredRenderer.setPreferences(reset);
 
                       steps->meta.pop();
                       steps->meta.LPub.buildMod.clear();
@@ -4968,8 +5003,8 @@ void Gui::writeToTmp()
 
   int writtenFiles = 0;;
   int subFileCount = ldrawFile._subFileOrder.size();
-  bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+  bool doFadeStep  = Preferences::enableFadeSteps;
+  bool doHighlightStep = Preferences::enableHighlightStep && !suppressColourMeta();
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
@@ -5210,8 +5245,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
 QStringList Gui::configureModelStep(const QStringList &csiParts, const int &stepNum,  Where &current) {
 
   QStringList configuredCsiParts, stepColourList;
-  bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+  bool doFadeStep  = Preferences::enableFadeSteps;
+  bool doHighlightStep = Preferences::enableHighlightStep && !suppressColourMeta();
   bool doHighlightFirstStep = Preferences::highlightFirstStep;
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;

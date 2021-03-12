@@ -659,6 +659,39 @@ class PointerAttribData
     }
 };
 
+class RendererData
+{
+public:
+  QString renderer;
+  bool useLDVSingleCall;
+  bool useLDVSnapShotList;
+  bool useNativeGenerator;
+  bool initialized;
+  bool reset;
+  RendererData()
+  {
+    initialized = false;
+    reset = false;
+    useLDVSingleCall = false;
+    useLDVSnapShotList = false;
+    useNativeGenerator = false;
+  }
+};
+
+class BoolAndResetData
+{
+public:
+  bool value;
+  bool reset;
+  bool initialized;
+  BoolAndResetData()
+  {
+    initialized = false;
+    value = false;
+    reset = false;
+  }
+};
+
 class SubData
 {
 public:

@@ -66,10 +66,8 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
  */
 void PartWorker::ldsearchDirPreferences(){
 
-  bool fadeStep = (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeSteps);
-  bool highlightStep = (gui->page.meta.LPub.highlightStep.highlightStep.value() || Preferences::enableHighlightStep);
-  setDoFadeStep(fadeStep);
-  setDoHighlightStep(highlightStep && !gui->suppressColourMeta());
+  setDoFadeStep(Preferences::enableFadeSteps);
+  setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
 
   if (!_resetSearchDirSettings && !Preferences::lpub3dLoaded) {
       emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
@@ -214,7 +212,7 @@ bool PartWorker::loadLDrawSearchDirs(){
       emit gui->messageSig(LOG_INFO,"Reset - search directories loading...");
     }
 
-  setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
+  setDoFadeStep(Preferences::enableFadeSteps);
   StringList  ldrawSearchDirs;
   if (ldPartsDirs.loadLDrawSearchDirs("")){
       ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
@@ -2330,10 +2328,10 @@ int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
 
   int writtenFiles = 0;;
   int subFileCount = ldrawFile->_subFileOrder.size();
-  bool doFadeStep  = meta->LPub.fadeStep.fadeStep.value();
-  bool doHighlightStep = meta->LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+  bool doFadeStep  = Preferences::enableFadeSteps;
+  bool doHighlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
 
-  QString fadeColor = LDrawColor::ldColorCode(meta->LPub.fadeStep.fadeColor.value());
+  QString fadeColor = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
 
   QStringList content, configuredContent;
 

@@ -3291,6 +3291,7 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
       QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
       QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
+      QAction *rendererAction      = commonMenus.preferredRendererMenu(menu,pl);
 
         QAction *splitBomAction  = nullptr;
         QAction *deleteBomAction = nullptr;
@@ -3401,7 +3402,7 @@ void PliBackgroundItem::contextMenuEvent(
                        top,
                        bottom,
                        &pli->pliMeta.border);
-        } else if (selectedAction == scaleAction){
+        } else if (selectedAction == scaleAction) {
             changeFloatSpin(pl+" Scale",
                             "Model Size",
                             top,
@@ -3418,6 +3419,18 @@ void PliBackgroundItem::contextMenuEvent(
                                top,
                                bottom,
                                &pli->pliMeta.cameraAngles);
+        }  else if (selectedAction == rendererAction) {
+            if (pli->bom) {
+                changePreferredRenderer(me+" Preferred Renderer",
+                                        top,
+                                        bottom,
+                                        &pli->meta->LPub.bom.preferredRenderer);
+            } else {
+                changePreferredRenderer(me+" Preferred Renderer",
+                                        top,
+                                        bottom,
+                                        &pli->meta->LPub.pli.preferredRenderer);
+            }
         } else if (selectedAction == deleteBomAction) {
             deleteBOM();
         } else if (selectedAction == splitBomAction){

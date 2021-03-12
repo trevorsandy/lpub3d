@@ -118,6 +118,7 @@
         <file alias="exportbmp.png">resources/exportbmp.png</file>
         <file alias="exportjpeg.png">resources/exportjpeg.png</file>
         <file alias="exportpng.png">resources/exportpng.png</file>
+        <file alias="fadesteps.png">resources/fadesteps.png</file>
         <file alias="fadestepsetup.png">resources/fadestepsetup.png</file>
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
@@ -131,6 +132,7 @@
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gplv3.png">resources/gplv3.png</file>
         <file alias="hidepartannotation.png">resources/hidepartannotation.png</file>
+        <file alias="highlightstep.png">resources/highlightstep.png</file>
         <file alias="highlightstepsetup.png">resources/highlightstepsetup.png</file>
         <file alias="html32.png">resources/html32.png</file>
         <file alias="htmlsteps32.png">resources/htmlsteps32.png</file>
@@ -184,6 +186,7 @@
         <file alias="plus.png">resources/plus.png</file>
         <file alias="povray32.png">resources/povray32.png</file>
         <file alias="preferences.png">resources/preferences.png</file>
+        <file alias="preferredrenderer.png">resources/preferredrenderer.png</file>
         <file alias="prev.png">resources/prev.png</file>
         <file alias="previewpart.png">resources/previewpart.png</file>
         <file alias="previousstep.png">resources/previousstep.png</file>

@@ -302,6 +302,9 @@ class GlobalFadeStepDialog : public QDialog
   Q_OBJECT
 private:
   GlobalFadeStepPrivate *data;
+  FadeStepGui           *fadeStepChild;
+  CheckBoxGui           *fadeStepSetupChild;
+  FinalModelEnabledGui  *finalModelEnabledChild;
 
 public:
   GlobalFadeStepDialog(QString &topLevelFile, Meta &meta);
@@ -311,6 +314,7 @@ public:
 public slots:
   void accept();
   void cancel();
+  void enableControls(bool);
   void reloadModelFile(bool);
 };
 
@@ -326,6 +330,9 @@ class GlobalHighlightStepDialog : public QDialog
   Q_OBJECT
 private:
   GlobalHighlightStepPrivate *data;
+  HighlightStepGui           *highlightStepChild;
+  CheckBoxGui                *highlightStepSetupChild;
+  FinalModelEnabledGui       *finalModelEnabledChild;
 
 public:
   GlobalHighlightStepDialog(QString &topLevelFile, Meta &meta);
@@ -336,6 +343,7 @@ public slots:
   void accept();
   void cancel();
   void reloadModelFile(bool);
+  void enableControls(bool);
 };
 
 /*****************************************************************

@@ -297,14 +297,13 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.applyCALocallyRadio->setChecked(applyCALocally);
   ui.applyCARendererRadio->setChecked(! applyCALocally);
 
-  bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
-  bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
+  bool renderPOVRay = Preferences::preferredRenderer == RENDERER_POVRAY;
   ui.povNativeGenBox->setEnabled(renderPOVRay);
   ui.ldvPOVSettingsBox->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenOptBtn->setEnabled(renderPOVRay);
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
-  ui.povGenNativeRadio->setChecked(nativePovFileGen);
-  ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
+  ui.povGenNativeRadio->setChecked(Preferences::useNativePovGenerator);
+  ui.povGenLDViewRadio->setChecked(!Preferences::useNativePovGenerator);
   if (ui.povGenNativeRadio->isChecked()) {
       ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
       ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
@@ -1227,12 +1226,9 @@ QString const PreferencesDialog::preferredRenderer()
   return "";
 }
 
-QString const PreferencesDialog::povFileGenerator()
+bool PreferencesDialog::useNativePovGenerator()
 {
-    if (ui.povGenNativeRadio->isChecked())
-      return RENDERER_NATIVE;
-    else
-      return RENDERER_LDVIEW;
+    return ui.povGenNativeRadio->isChecked();
 }
 
 bool PreferencesDialog::perspectiveProjection()

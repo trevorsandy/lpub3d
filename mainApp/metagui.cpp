@@ -861,7 +861,7 @@ StudStyleGui::StudStyleGui(
   gridLayout->addWidget(studStyleButton, 1, 2);
 
   connect(checkbox,SIGNAL(toggled(bool)),
-          this, SLOT  (checkboxChanged()));
+          this, SLOT  (checkBoxChanged(bool)));
 
   connect(combo,SIGNAL(currentIndexChanged(int)),
           this, SLOT  (comboChanged(int)));
@@ -898,7 +898,7 @@ void StudStyleGui::enableAutoEdgeButton()
   autoEdgeButton->setEnabled(checkbox->isChecked());
 }
 
-void StudStyleGui::checkboxChanged(bool value)
+void StudStyleGui::checkBoxChanged(bool value)
 {
   if ((autoEdgeModified = value != autoEdgeMeta->enable.value())) {
     if (value && combo->currentIndex() > 5) {
@@ -1732,68 +1732,160 @@ void HeaderFooterHeightGui::apply(QString &modelName)
  **********************************************************************/
 
 FadeStepGui::FadeStepGui(
-        QString const &heading,
         FadeStepMeta *_meta,
+        bool        _global,
         QGroupBox  *parent)
 {
+  meta = _meta;
+  global = _global;
+  BoolAndResetData data = _meta->fade.value();
 
-    meta = _meta;
+  QGridLayout *grid;
 
-    QGridLayout *grid;
+  grid = new QGridLayout(parent);
 
-    grid = new QGridLayout(parent);
+  // enable fade step row
 
-    colorLabel = new QLabel(heading,parent);
-    colorLabel->setEnabled(false);
+  fadeCheck = new QCheckBox(tr("Enable fade previous steps"), parent);
+  fadeCheck->setChecked(data.value);
+  fadeCheck->setToolTip(tr("Turn on global fade previous steps."));
 
-    grid->addWidget(colorLabel,0,0);
+  connect(fadeCheck,SIGNAL(stateChanged(int)),
+                this, SLOT(valueChanged(int)));
 
-    readOnlyLabel = new QLabel("       Set from Preferences dialog");
-    readOnlyLabel->setEnabled(false);
+  grid->addWidget(fadeCheck,0,0,1,2);
 
-    grid->addWidget(readOnlyLabel,0,1);
+  // color button row
 
-    colorExample = new QLabel(parent);
-    colorExample->setFixedSize(50,50);
-    colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-    QColor c = QColor(LDrawColor::color(meta->fadeColor.value()));
-    QString styleSheet =
-        QString("QLabel { background-color: rgb(%1, %2, %3); }").
-        arg(c.red()).arg(c.green()).arg(c.blue());
-    colorExample->setAutoFillBackground(true);
-    colorExample->setStyleSheet(styleSheet);
+  colorExample = new QLabel(parent);
+  colorExample->setFixedSize(50,20);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  QColor c = QColor(LDrawColor::color(meta->fadeColor.value()));
+  QString styleSheet =
+    QString("QLabel { background-color: rgb(%1, %2, %3); }").
+    arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
 
-    grid->addWidget(colorExample,1,0);
+  grid->addWidget(colorExample,1,0);
 
-    colorCombo = new QComboBox(parent);
-    colorCombo->addItems(LDrawColor::names());
-    colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
-    if (! Preferences::enableFadeSteps)
-        colorCombo->setDisabled(true);
-    connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
-                   this, SLOT(colorChange(        QString const &)));
+  colorCombo = new QComboBox(parent);
+  colorCombo->addItems(LDrawColor::names());
+  colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
+  colorCombo->setDisabled(true);
 
-    grid->addWidget(colorCombo,1,1);
+  connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
+                 this, SLOT(colorChange(        QString const &)));
 
-    if (parent) {
-        parent->setLayout(grid);
-    } else {
-        setLayout(grid);
-    }
+  grid->addWidget(colorCombo,1,1);
+
+  // use color row
+
+  useColorCheck = new QCheckBox(tr("Use fade color"), parent);
+  useColorCheck->setToolTip(tr("Use specified fade color (versus part colour"));
+  useColorCheck->setChecked(meta->fadeUseColor.value());
+
+  connect(useColorCheck,SIGNAL(stateChanged(int)),
+                    this, SLOT(valueChanged(int)));
+
+  grid->addWidget(useColorCheck,2,0,1,2);
+
+  // fade opacity row
+
+  QLabel *fadeOpacityLabel = new QLabel(tr("Fade opacity"));
+  grid->addWidget(fadeOpacityLabel,3,0);
+
+  fadeOpacitySpin = new QSpinBox(parent);
+  fadeOpacitySpin->setToolTip(tr("Set the fade color opaqueness beteen 0 and 100."));
+  fadeOpacitySpin->setRange(0,100);
+  fadeOpacitySpin->setValue(_meta->fadeOpacity.value());
+
+  connect(fadeOpacitySpin,SIGNAL(valueChanged(int)),
+                       this,SLOT(valueChanged(int)));
+
+  grid->addWidget(fadeOpacitySpin,3,1);
+
+  // fade step reset row
+
+  if (! global) {
+    fadeResetCheck = new QCheckBox(tr("Reset after this image render."), parent);
+    fadeResetCheck->setToolTip(tr("Reset settings to the global fade steps preference."));
+    fadeResetCheck->setChecked(data.reset);
+
+    connect(fadeResetCheck,SIGNAL(stateChanged(int)),
+            this,            SLOT(valueChanged(int)));
+
+    grid->addWidget(fadeResetCheck,4,0,1,2);
+  }
+
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
+
+  emit fadeCheck->stateChanged(fadeCheck->isChecked());
+
+  colorModified = false;
+  fadeModified = false;
+  useColorModified = false;
+  opacityModified = false;
 }
 
 void FadeStepGui::colorChange(QString const &colorName)
 {
-  QColor newColor = LDrawColor::color(colorName);
-  if (newColor.isValid()) {
-      colorExample->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
-      colorExample->setStyleSheet(styleSheet);
-      meta->fadeColor.setValue(LDrawColor::name(newColor.name()));
-      modified = true;
-    }
+  QColor oldFadeColour = colorExample->palette().background().color();
+  QColor fadeColor = LDrawColor::color(colorName);
+  if (fadeColor.isValid()) {
+    colorExample->setAutoFillBackground(true);
+    QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }")
+              .arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
+    colorExample->setStyleSheet(styleSheet);
+    meta->fadeColor.setValue(LDrawColor::name(fadeColor.name()));
+    modified = colorModified = oldFadeColour != fadeColor;
+  }
+}
+
+void FadeStepGui::valueChanged(int state)
+{
+  auto isChecked = [&state] ()
+  {
+    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
+  };
+
+  bool checked;
+  if (sender() == fadeCheck) {
+    checked = isChecked();
+    useColorCheck->setEnabled(checked);
+    fadeOpacitySpin->setEnabled(checked);
+    colorCombo->setEnabled(checked);
+    BoolAndResetData data = meta->fade.value();
+    fadeModified = data.value != checked;
+    if (!modified)
+      modified = fadeModified;
+    data.value = checked;
+    meta->fade.setValue(data);
+  } else if (sender() == fadeResetCheck) {
+    checked = isChecked();
+    BoolAndResetData data = meta->fade.value();
+    fadeModified = data.reset != checked;
+    if (!modified)
+      modified = fadeModified;
+    data.reset = checked;
+    meta->fade.setValue(data);
+  } else if (sender() == useColorCheck) {
+    checked = isChecked();
+    useColorModified = meta->fadeUseColor.value() != checked;
+    if (!modified)
+      modified = useColorModified;
+    meta->fadeUseColor.setValue(checked);
+  } else if (sender() == fadeOpacitySpin) {
+    opacityModified = meta->fadeOpacity.value() != state;
+    if (!modified)
+      modified = opacityModified;
+    meta->fadeOpacity.setValue(state);
+  }
 }
 
 void FadeStepGui::apply(
@@ -1801,7 +1893,16 @@ void FadeStepGui::apply(
 {
   if (modified) {
     MetaItem mi;
-    mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
+    mi.beginMacro("FadeStep");
+    if (fadeModified)
+      mi.setGlobalMeta(topLevelFile,&meta->fade);
+    if (colorModified)
+      mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
+    if (useColorModified)
+      mi.setGlobalMeta(topLevelFile,&meta->fadeUseColor);
+    if (opacityModified)
+      mi.setGlobalMeta(topLevelFile,&meta->fadeOpacity);
+    mi.endMacro();
   }
 }
 
@@ -1812,69 +1913,143 @@ void FadeStepGui::apply(
  **********************************************************************/
 
 HighlightStepGui::HighlightStepGui(
-        QString const &heading,
         HighlightStepMeta *_meta,
+        bool        _global,
         QGroupBox  *parent)
 {
+  meta = _meta;
+  global = _global;
+  BoolAndResetData data = _meta->highlight.value();
 
-    meta = _meta;
+  QGridLayout *grid;
 
-    QGridLayout *grid;
+  grid = new QGridLayout(parent);
 
-    grid = new QGridLayout(parent);
+  // enable highlight row
 
-    colorLabel = new QLabel(heading,parent);
-    colorLabel->setEnabled(false);
+  highlightCheck = new QCheckBox(tr("Enable Highlight Current Step"), parent);
+  highlightCheck->setChecked(data.value);
+  highlightCheck->setToolTip(tr("Turn on global highlight current step."));
 
-    grid->addWidget(colorLabel,0,0);
+  connect(highlightCheck,SIGNAL(stateChanged(int)),
+                    this, SLOT(  valueChanged(int)));
 
-    readOnlyLabel = new QLabel("       Set from Preferences dialog");
-    readOnlyLabel->setEnabled(false);
+  grid->addWidget(highlightCheck,0,0,1,2);
 
-    grid->addWidget(readOnlyLabel,0,1);
+  // colour button row
 
-    colorExample = new QLabel(parent);
-    colorExample->setFixedSize(50,50);
-    colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-    colorExample->setAutoFillBackground(true);
-    QColor c = QColor(meta->highlightColor.value());
-    QString styleSheet =
-        QString("QLabel { background-color: rgb(%1, %2, %3); }").
-        arg(c.red()).arg(c.green()).arg(c.blue());
-    colorExample->setStyleSheet(styleSheet);
+  colorExample = new QLabel(parent);
+  colorExample->setFixedSize(50,20);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  colorExample->setAutoFillBackground(true);
+  QColor c = QColor(meta->highlightColor.value());
+  QString styleSheet =
+    QString("QLabel { background-color: rgb(%1, %2, %3); }").
+    arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setStyleSheet(styleSheet);
 
-    grid->addWidget(colorExample,1,0);
+  grid->addWidget(colorExample,1,0);
 
-    colorButton = new QPushButton(parent);
-    colorButton->setText("Highlight Color...");
+  colorButton = new QPushButton(parent);
+  colorButton->setText("Highlight Color...");
 
-    if (! Preferences::enableHighlightStep)
-        colorButton->setDisabled(true);
-    connect(colorButton,SIGNAL(clicked(bool)),
-                   this, SLOT(colorChange(bool)));
+  connect(colorButton,SIGNAL(clicked(bool)),
+                 this, SLOT(colorChange(bool)));
 
-    grid->addWidget(colorButton,1,1);
+  grid->addWidget(colorButton,1,1);
 
-    if (parent) {
-        parent->setLayout(grid);
-    } else {
-        setLayout(grid);
-    }
+  // optional line width row
+
+  int row = 2;
+  if (Preferences::preferredRenderer == RENDERER_LDGLITE) {
+    row = 3;
+
+    QLabel *lineWidthLabel = new QLabel(tr("Line Width"));
+    grid->addWidget(lineWidthLabel,2,0);
+
+    lineWidthSpin = new QSpinBox(parent);
+    lineWidthSpin->setRange(0,10);
+    lineWidthSpin->setValue(_meta->highlightLineWidth.value());
+
+    connect(lineWidthSpin,SIGNAL(valueChanged(int)),
+                       this,SLOT(valueChanged(int)));
+
+    grid->addWidget(lineWidthSpin,2,1);
+  }
+
+  // highlight step reset row
+
+  if (! global) {
+    highlightResetCheck = new QCheckBox(tr("Reset after this image render"), parent);
+    highlightResetCheck->setToolTip(tr("Reset settings to the global highlight step preference."));
+    highlightResetCheck->setChecked(data.reset);
+
+    connect(highlightResetCheck,SIGNAL(stateChanged(int)),
+            this,                 SLOT(valueChanged(int)));
+
+    grid->addWidget(highlightResetCheck,row,0,1,2);
+  }
+
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
+
+  emit highlightCheck->stateChanged(highlightCheck->isChecked());
+
+  colorModified = false;
+  highlightModified = false;
+  lineWidthModified = false;
 }
 
 void HighlightStepGui::colorChange(bool clicked)
 {
   Q_UNUSED(clicked);
-  QColor highlightColour = QColorDialog::getColor(colorExample->palette().background().color(), this );
+  QColor oldHighlightColour = colorExample->palette().background().color();
+  QColor highlightColour = QColorDialog::getColor(oldHighlightColour, this);
   if (highlightColour.isValid()) {
-      colorExample->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(highlightColour.red()).arg(highlightColour.green()).arg(highlightColour.blue());
-      colorExample->setStyleSheet(styleSheet);
-      meta->highlightColor.setValue(highlightColour.name());
-      modified = true;
-    }
+    colorExample->setAutoFillBackground(true);
+    QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }")
+              .arg(highlightColour.red()).arg(highlightColour.green()).arg(highlightColour.blue());
+    colorExample->setStyleSheet(styleSheet);
+    meta->highlightColor.setValue(highlightColour.name());
+    modified = colorModified = oldHighlightColour != highlightColour;
+  }
+}
+
+void HighlightStepGui::valueChanged(int state)
+{
+  auto isChecked = [&state] ()
+  {
+    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
+  };
+
+  bool checked;
+  if (sender() == highlightCheck) {
+    checked = isChecked();
+    colorButton->setEnabled(checked);
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+      lineWidthSpin->setEnabled(checked);
+    BoolAndResetData data = meta->highlight.value();
+    highlightModified = data.value != checked;
+    if (!modified)
+      modified = highlightModified;
+    data.value = checked;
+    meta->highlight.setValue(data);
+  } else if (sender() == highlightResetCheck) {
+      checked = isChecked();
+      BoolAndResetData data = meta->highlight.value();
+      highlightModified = data.reset != checked;
+      if (!modified)
+        modified = highlightModified;
+      data.reset = checked;
+      meta->highlight.setValue(data);
+  } else if (sender() == lineWidthSpin) {
+    modified = lineWidthModified = meta->highlightLineWidth.value() != state;
+    meta->highlightLineWidth.setValue(state);
+  }
 }
 
 void HighlightStepGui::apply(
@@ -1882,7 +2057,14 @@ void HighlightStepGui::apply(
 {
   if (modified) {
     MetaItem mi;
-    mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
+    mi.beginMacro("HighlightStep");
+    if (highlightModified)
+      mi.setGlobalMeta(topLevelFile,&meta->highlight);
+    if (colorModified)
+      mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
+    if (lineWidthModified)
+      mi.setGlobalMeta(topLevelFile,&meta->highlightLineWidth);
+    mi.endMacro();
   }
 }
 
@@ -3537,11 +3719,14 @@ void ResolutionGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * Renderer
+ * Preferred Renderer
  *
  **********************************************************************/
 
-RendererGui::RendererGui(QGroupBox     *parent)
+PreferredRendererGui::PreferredRendererGui(
+        PreferredRendererMeta *_meta,
+        bool                   _global,
+        QGroupBox             *parent)
 {
   QGridLayout *grid = new QGridLayout(parent);
   QHBoxLayout *hLayout = new QHBoxLayout();
@@ -3552,154 +3737,135 @@ RendererGui::RendererGui(QGroupBox     *parent)
     setLayout(grid);
   }
 
-  combo = new QComboBox(parent);
-  if (Preferences::ldgliteExe != "") {
-    combo->addItem(RENDERER_LDGLITE);
-  }
-  if (Preferences::ldviewExe != "") {
-    combo->addItem(RENDERER_LDVIEW);
-  }
-  if (Preferences::povrayExe != "") {
-    combo->addItem(RENDERER_POVRAY);
-  }
-  combo->addItem(RENDERER_NATIVE);
+  meta = _meta;
+  global = _global;
 
-  QString renderer = Render::getRenderer();
-  combo->setCurrentIndex(int(combo->findText(renderer)));
-  connect(combo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typeChange(         QString const &)));
+  combo = new QComboBox(parent);
+  combo->addItem(RENDERER_NATIVE);
+  if (Preferences::ldgliteExe != "")
+    combo->addItem(RENDERER_LDGLITE);
+  if (Preferences::ldviewExe != "")
+    combo->addItem(RENDERER_LDVIEW);
+  if (Preferences::povrayExe != "")
+    combo->addItem(RENDERER_POVRAY);
+  combo->setCurrentIndex(int(combo->findText(meta->value().renderer)));
+
+  connect(combo,SIGNAL(currentIndexChanged(int)),
+          this,   SLOT(       valueChanged(int)));
+
   grid->addWidget(combo,0,0,2,1);
 
   ldvSingleCallBox = new QCheckBox("Use LDView Single Call",parent);
   ldvSingleCallBox->setToolTip("Process a page's part or assembly images in a single renderer call");
-  ldvSingleCallBox->setChecked(Preferences::enableLDViewSingleCall);
-  ldvSingleCallBox->setEnabled(renderer == RENDERER_LDVIEW);
-  connect(ldvSingleCallBox,SIGNAL(clicked(bool)),
-          this,            SLOT(singleCallChange(bool)));
-  grid->addWidget(ldvSingleCallBox,0,1);
+  ldvSingleCallBox->setChecked(meta->value().useLDVSingleCall);
+  ldvSingleCallBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW);
 
+  connect(ldvSingleCallBox,SIGNAL(stateChanged(int)),
+          this,              SLOT(valueChanged(int)));
+
+  grid->addWidget(ldvSingleCallBox,0,1);
 
   ldvSnapshotListBox = new QCheckBox("Use LDView Snapshot List",parent);
   ldvSnapshotListBox->setToolTip("Capture Single Call images in a single list file");
-  ldvSnapshotListBox->setChecked(Preferences::enableLDViewSnaphsotList);
-  ldvSnapshotListBox->setEnabled(renderer == RENDERER_LDVIEW &&
-                                 (Preferences::enableLDViewSingleCall ||
-                                  ldvSingleCallBox->isChecked()));
-  connect(ldvSnapshotListBox,SIGNAL(clicked(bool)),
-          this,              SLOT(snapshotListChange(bool)));
+  ldvSnapshotListBox->setChecked(meta->value().useLDVSnapShotList);
+  ldvSnapshotListBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW && meta->value().useLDVSingleCall);
+
+  connect(ldvSnapshotListBox,SIGNAL(stateChanged(int)),
+          this,                SLOT(valueChanged(int)));
+
   grid->addWidget(ldvSnapshotListBox,1,1);
 
   povFileGeneratorGrpBox = new QGroupBox("POV File Generation Renderer",parent);
-  povFileGeneratorGrpBox->setEnabled(renderer == RENDERER_POVRAY);
+  povFileGeneratorGrpBox->setEnabled(meta->value().renderer == RENDERER_POVRAY);
   povFileGeneratorGrpBox->setLayout(hLayout);
+
   grid->addWidget(povFileGeneratorGrpBox,2,0,1,2);
 
   nativeButton = new QRadioButton("Native",povFileGeneratorGrpBox);
-  nativeButton->setChecked(Preferences::povFileGenerator == RENDERER_NATIVE);
+  nativeButton->setChecked(meta->value().useNativeGenerator);
+
   connect(nativeButton,SIGNAL(clicked(bool)),
-          this,        SLOT(povFileGenNativeChange(bool)));
+          this,        SLOT(buttonChanged(bool)));
+
   hLayout->addWidget(nativeButton);
 
   ldvButton = new QRadioButton("LDView",povFileGeneratorGrpBox);
-  ldvButton->setChecked(Preferences::povFileGenerator == RENDERER_LDVIEW);
+  ldvButton->setChecked(!meta->value().useNativeGenerator);
+
   connect(ldvButton,SIGNAL(clicked(bool)),
-          this,     SLOT(povFileGenLDViewChange(bool)));
+          this,     SLOT(buttonChanged(bool)));
+
   hLayout->addWidget(ldvButton);
 
-  clearCaches              = false;
-  rendererModified         = false;
-  singleCallModified       = false;
-  snapshotListModified     = false;
-  povFileGenModified       = false;
+  // renderer reset row
+  if (! global) {
+    rendererResetBox = new QCheckBox(tr("Reset after this image render"), parent);
+    rendererResetBox->setToolTip(tr("Reset the renderer to the global preference."));
+    rendererResetBox->setChecked(meta->value().reset);
+
+    connect(rendererResetBox,SIGNAL(stateChanged(int)),
+            this,              SLOT(valueChanged(int)));
+
+    grid->addWidget(rendererResetBox,3,0,1,2);
+  }
+
+  ldvSingleCallBox->setEnabled(meta->value().renderer == RENDERER_LDVIEW);
+  ldvSnapshotListBox->setEnabled(ldvSingleCallBox->isChecked());
+  povFileGeneratorGrpBox->setEnabled(meta->value().renderer == RENDERER_POVRAY);
 }
 
-void RendererGui::povFileGenNativeChange(bool checked)
+void PreferredRendererGui::valueChanged(int state)
 {
-  povFileGenChoice = (checked ? RENDERER_NATIVE : RENDERER_LDVIEW);
-  if (Preferences::povFileGenerator != povFileGenChoice){
-       clearCaches = povFileGenModified = true;
-    }
+  auto isChecked = [&state] ()
+  {
+    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
+  };
+
+  bool checked;
+  RendererData data = meta->value();
+  if (sender() == combo) {
+    QString pick = combo->currentText();
+    ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
+    povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
+    if (!modified)
+      modified = data.renderer != pick;
+  } else if (sender() == ldvSnapshotListBox) {
+    checked = isChecked();
+    if (!modified)
+      modified = data.useLDVSnapShotList != checked;
+    data.useLDVSnapShotList = checked;
+  } else if (sender() == ldvSingleCallBox) {
+    checked = isChecked();
+    ldvSnapshotListBox->setEnabled(checked);
+    if (!modified)
+      modified = data.useLDVSingleCall != checked;
+    data.useLDVSingleCall = checked;
+  } else if (sender() == rendererResetBox) {
+    checked = isChecked();
+    if (!modified)
+      modified = data.reset != checked;
+    data.reset = checked;
+  }
+  meta->setValue(data);
+  emit settingsChanged(modified);
 }
 
-void RendererGui::povFileGenLDViewChange(bool checked)
+void PreferredRendererGui::buttonChanged(bool checked)
 {
-  povFileGenChoice = (checked ? RENDERER_LDVIEW : RENDERER_NATIVE );
-  if (Preferences::povFileGenerator != povFileGenChoice){
-       povFileGenModified = true;
-    }
+    RendererData data = meta->value();
+    if (!modified)
+      modified = data.useNativeGenerator != checked;
+    data.useNativeGenerator = checked;
+    meta->setValue(data);
+    emit settingsChanged(modified);
 }
 
-void RendererGui::singleCallChange(bool checked)
+void PreferredRendererGui::apply(QString &topLevelFile)
 {
-  if (Preferences::enableLDViewSingleCall != checked) {
-       modified = singleCallModified = true;
-    }
-  ldvSnapshotListBox->setEnabled(checked);
-}
-
-void RendererGui::snapshotListChange(bool checked)
-{
-  if (Preferences::enableLDViewSnaphsotList != checked) {
-       modified = snapshotListModified = true;
-    }
-}
-
-void RendererGui::typeChange(QString const &type)
-{
-  pick = type;
-  ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
-  povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
-  if (pick != Preferences::preferredRenderer) {
-      modified = rendererModified = true;
-   }
-}
-
-void RendererGui::apply(QString &topLevelFile)
-{
-  Q_UNUSED(topLevelFile)
-  QSettings Settings;
-  if (rendererModified) {
-      changeMessage = QString("Renderer preference changed from %1 to %2 %3")
-                     .arg(Preferences::preferredRenderer)
-                     .arg(pick)
-                     .arg(pick == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
-                          pick == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::preferredRenderer = pick;
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),pick);
-      Render::setRenderer(pick);
-    }
-  if (singleCallModified) {
-      changeMessage = QString("Use LDView Single Call is %1")
-                      .arg(Preferences::enableLDViewSingleCall ? "ON" : "OFF");
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::enableLDViewSingleCall = ldvSingleCallBox->isChecked();
-      QVariant uValue(ldvSingleCallBox->isChecked());
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),uValue);
-    }
-  if (snapshotListModified) {
-      changeMessage = QString("Use LDView Snapshot List is %1")
-                      .arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF");
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::enableLDViewSnaphsotList = ldvSnapshotListBox->isChecked();
-      QVariant uValue(ldvSnapshotListBox->isChecked());
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),uValue);
-    }
-  if (povFileGenModified) {
-      changeMessage = QString("POV file generation renderer changed from %1 to %2")
-                      .arg(Preferences::povFileGenerator)
-                      .arg(povFileGenChoice);
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::povFileGenerator = povFileGenChoice;
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),povFileGenChoice);
-    }
-
-  if (!modified && clearCaches){
-      clearPliCache();
-      clearCsiCache();
-      clearSubmodelCache();
-      clearTempCache();
-    }
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,meta);
+  }
 }
 
 /***********************************************************************

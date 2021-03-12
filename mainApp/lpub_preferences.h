@@ -68,7 +68,8 @@ class Preferences
     static void lpub3dUpdatePreferences();
     static void viewerPreferences();
     static void lgeoPreferences();
-    static void rendererPreferences(UpdateFlag);
+    static void rendererPreferences();
+    static void preferredRendererPreferences();
     static void pliPreferences();
     static void unitsPreferences();
     static void annotationPreferences();
@@ -188,7 +189,6 @@ class Preferences
     static QString povrayIncPath;
     static QString povrayScenePath;
     static QString dataLocation;
-    static QString povFileGenerator;
     static QString displayTheme;
     static QString ldvLights;
     static QString xmlMapPath;
@@ -275,6 +275,12 @@ class Preferences
     static bool    loadLastOpenedFile;
     static bool    extendedSubfileSearch;
 
+    static bool    ldgliteInstalled;
+    static bool    ldviewInstalled;
+    static bool    povRayInstalled;
+    static bool    blenderInstalled;
+
+    static bool    useNativePovGenerator;
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;
 

@@ -1906,6 +1906,122 @@ void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
                     " <partSizeX(px)> <partSizeY(px)> <part color> <part baseName>";
 }
 
+/* ------------------ */
+
+PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
+{
+  _value[0].reset              = false;
+  _value[0].initialized        = true;
+  _value[0].renderer           = Preferences::preferredRenderer;
+  _value[0].useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+  _value[0].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+  _value[0].useNativeGenerator = Preferences::useNativePovGenerator;
+}
+
+void PreferredRendererMeta::setPreferences(bool reset)
+{
+  RendererData data      = _value[pushed];
+  bool preferenceChanged = false;
+  if (reset) {
+    Preferences::preferredRendererPreferences();
+    preferenceChanged = data.initialized && Preferences::preferredRenderer != data.renderer;
+    data.reset              = false;
+    data.initialized        = true;
+    data.renderer           = Preferences::preferredRenderer;
+    data.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+    data.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+    data.useNativeGenerator = Preferences::useNativePovGenerator;
+    _value[pushed] = data;
+  } else {
+    if ((preferenceChanged = Preferences::preferredRenderer != data.renderer)) {
+      Preferences::preferredRenderer      = data.renderer;
+      Render::setRenderer(Preferences::preferredRenderer);
+    }
+    Preferences::enableLDViewSingleCall   = data.useLDVSingleCall ;
+    Preferences::enableLDViewSnaphsotList = data.useLDVSnapShotList;
+    Preferences::useNativePovGenerator    = data.useNativeGenerator;
+    Preferences::usingNativeRenderer      = data.renderer == RENDERER_NATIVE;
+  }
+  Preferences::updatePOVRayConfigFiles();
+  if (preferenceChanged)
+    emit gui->messageSig(LOG_INFO,QMessageBox::tr("Renderer %1 to %2%3.")
+                                                  .arg(reset ? "reset" : "changed")
+                                                  .arg(Preferences::preferredRenderer)
+                                                  .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                                                                                                                   .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                                                       Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ?
+                                                                                                           Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
+                                                                                                                                                   QString(" (Single Call)") :
+                                                                                                                                                   QString() : QString()));
+
+}
+
+Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc = OkRc;
+
+  if (argv.size() - index >= 1) {
+    if (argv[index] == "NATIVE")
+      _value[pushed].renderer = RENDERER_NATIVE;
+    else if (argv[index] == "LDVIEW")
+      _value[pushed].renderer = RENDERER_LDVIEW;
+    else if (argv[index] == "LDGLITE")
+      _value[pushed].renderer = RENDERER_LDGLITE;
+    else if (argv[index] == "POVRAY")
+      _value[pushed].renderer = RENDERER_POVRAY;
+    else
+      rc = FailureRc;
+    if (argv.size() - index > 1) {
+      index++;
+      if (_value[pushed].renderer == "LDVIEW") {
+        if (argv[index] == "SINGLE_CALL")
+          _value[pushed].useLDVSingleCall = true;
+        else if (argv[index] == "SINGLE_CALL_EXPORT_LIST")
+          _value[pushed].useLDVSnapShotList = _value[pushed].useLDVSingleCall = true;
+      } else if (_value[pushed].renderer == "POVRAY") {
+        if (argv[index] == "LDVIEW_POV_GENERATOR")
+          _value[pushed].useNativeGenerator = false;
+      }
+      if (argv[index] == "RESET")
+        _value[pushed].reset = true;
+    }
+    index++;
+    if (argv.size() - index == 3 && argv[index] == "RESET") {
+        _value[pushed].reset = true;
+    }
+  }
+  if (rc == OkRc) {
+    setPreferences();
+    _here[pushed] = here;
+  } else if (reportErrors) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+  }
+  return rc;
+}
+
+QString PreferredRendererMeta::format(bool local, bool global)
+{
+  QString foo;
+  foo = _value[pushed].renderer.toUpper();
+  if (_value[pushed].renderer == RENDERER_LDVIEW) {
+    if (_value[pushed].useLDVSingleCall)
+      foo.append(" SINGLE_CALL");
+    else if (_value[pushed].useLDVSnapShotList)
+      foo.append(" SINGLE_CALL_EXPORT_LIST");
+  } else if (_value[pushed].renderer == RENDERER_POVRAY) {
+    if (! _value[pushed].useNativeGenerator)
+      foo.append(" LDVIEW_POV_GENERATOR");
+  }
+  if (_value[pushed].reset)
+    foo.append(" RESET");
+  return LeafMeta::format(local,global,foo);
+}
+
+void PreferredRendererMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET)";
+}
+
 /* ------------------ */ 
 
 FreeFormMeta::FreeFormMeta() : LeafMeta()
@@ -3572,13 +3688,85 @@ void SceneItemMeta::init(
 
 /* ------------------ */
 
+Rc BoolAndResetMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(TRUE|FALSE)$");
+  if (argv.size() - index >= 1 && argv[index].contains(rx)) {
+      _value[pushed].value = argv[index] == "TRUE";
+      _value[pushed].reset = false;
+      rx.setPattern("^(RESET)$");
+      if (argv.size() - index > 1) {
+        _value[pushed].reset = argv[index + 1].contains(rx);
+      }
+      _here[pushed] = here;
+      return OkRc;
+    }
+
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE and optionally RESET, got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+
+  return FailureRc;
+}
+
+QString BoolAndResetMeta::format(bool local, bool global)
+{
+  QString foo (_value[pushed].value ? "TRUE" : "FALSE");
+  if (_value[pushed].reset)
+    foo += " RESET";
+  return LeafMeta::format(local,global,foo);
+}
+
+void BoolAndResetMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " <TRUE|FALSE> [<RESET>]";
+}
+
+/* ------------------ */
+
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
-  fadeStep.setValue(Preferences::enableFadeSteps);                   // inherited from properties
-  fadeColor.setValue(Preferences::validFadeStepsColour);             // inherited from properties
-  fadeUseColor.setValue(Preferences::fadeStepsUseColour);            // inherited from properties
   fadeOpacity.setRange(0,100);
-  fadeOpacity.setValue(Preferences::fadeStepsOpacity);               // inherited from properties
+  BoolAndResetData data = fade.value();
+  data.value       = Preferences::enableFadeSteps;
+  data.reset       = false;
+  data.initialized = true;
+  fade.setValue(data);
+  fadeColor.setValue(Preferences::validFadeStepsColour);
+  fadeUseColor.setValue(Preferences::fadeStepsUseColour);
+  fadeOpacity.setValue(Preferences::fadeStepsOpacity);
+}
+
+void FadeStepMeta::setPreferences(bool reset)
+{
+   BoolAndResetData data  = fade.value();
+   bool preferenceChanged = false;
+   if (reset) {
+     Preferences::preferredRendererPreferences();
+     preferenceChanged = data.initialized && Preferences::enableFadeSteps != data.value;
+     data.value       = Preferences::enableFadeSteps;
+     data.reset       = false;
+     data.initialized = true;
+     fade.setValue(data);
+     fadeColor.setValue(Preferences::validFadeStepsColour);
+     fadeUseColor.setValue(Preferences::fadeStepsUseColour);
+     fadeOpacity.setValue(Preferences::fadeStepsOpacity);
+   } else {
+     if ((preferenceChanged = Preferences::enableFadeSteps != data.value))
+       Preferences::enableFadeSteps    = data.value;
+     Preferences::validFadeStepsColour = fadeColor.value();
+     Preferences::fadeStepsUseColour   = fadeUseColor.value();
+     Preferences::fadeStepsOpacity     = fadeOpacity.value();
+   }
+   if (preferenceChanged)
+     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 to %2%3.")
+                                                   .arg(reset ? "reset" : "changed")
+                                                   .arg(Preferences::enableFadeSteps ? "ON" : "OFF")
+                                                   .arg(Preferences::enableFadeSteps ? QString(" Opacity %1").arg(Preferences::fadeStepsOpacity) : QString())
+                                                   .arg(Preferences::enableFadeSteps &&
+                                                        Preferences::fadeStepsUseColour &&
+                                                        Preferences::validFadeStepsColour.isEmpty() ? QString() :
+                                                                                                      QString(" Fade Color %1").arg(Preferences::validFadeStepsColour)));
 }
 
 void FadeStepMeta::init(
@@ -3586,20 +3774,52 @@ void FadeStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
+  fade.init               (this, "FADE", EnableFadeStepsRc);
   fadeColor.init          (this, "FADE_COLOR");
   fadeUseColor.init       (this, "USE_FADE_COLOR");
   fadeOpacity.init        (this, "FADE_OPACITY");
-  fadeStep.init           (this, "FADE");
 }
 
 /* ------------------ */
 
 HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 {
-  highlightStep.setValue(Preferences::enableHighlightStep);         // inherited from properties
-  highlightColor.setValue(Preferences::highlightStepColour);        // inherited from properties
   highlightLineWidth.setRange(0,10);
-  highlightLineWidth.setValue(Preferences::highlightStepLineWidth); // inherited from properties
+  BoolAndResetData data  = highlight.value();
+  data.value       = Preferences::enableHighlightStep;
+  data.reset       = false;
+  data.initialized = true;
+  highlight.setValue(data);
+  highlightColor.setValue(Preferences::highlightStepColour);
+  highlightLineWidth.setValue(Preferences::highlightStepLineWidth);
+}
+
+void HighlightStepMeta::setPreferences(bool reset)
+{
+   BoolAndResetData data  = highlight.value();
+   bool preferenceChanged = false;
+   if (reset) {
+     Preferences::preferredRendererPreferences();
+     preferenceChanged = data.initialized && Preferences::enableHighlightStep != data.value;
+     data.value       = Preferences::enableHighlightStep;
+     data.reset       = false;
+     data.initialized = true;
+     highlight.setValue(data);
+     highlightColor.setValue(Preferences::highlightStepColour);
+     highlightLineWidth.setValue(Preferences::highlightStepLineWidth);
+   } else {
+     if ((preferenceChanged = Preferences::enableHighlightStep != data.value))
+       Preferences::enableHighlightStep  = data.value;
+     Preferences::highlightStepColour    = highlightColor.value();
+     Preferences::highlightStepLineWidth = highlightLineWidth.value();
+   }
+   if (preferenceChanged)
+     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Highlight current step %1 to %2%3.")
+                                                   .arg(reset ? "reset" : "changed")
+                                                   .arg(Preferences::enableHighlightStep ? "ON" : "OFF")
+                                                   .arg(Preferences::enableHighlightStep &&
+                                                        Preferences::highlightStepColour.isEmpty() ? QString() :
+                                                                                                     QString(" Highlight Color %1").arg(Preferences::highlightStepColour)));
 }
 
 void HighlightStepMeta::init(
@@ -3607,8 +3827,8 @@ void HighlightStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
+  highlight.init          (this, "HIGHLIGHT", EnableHighlightStepRc);
   highlightColor.init     (this, "HIGHLIGHT_COLOR");
-  highlightStep.init      (this, "HIGHLIGHT");
   highlightLineWidth.init (this, "HIGHLIGHT_LINE_WIDTH");
 }
 
@@ -3657,9 +3877,7 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
          bool subEnd     = false;
          bool newStep    = false;
          bool configured = false;
-         bool fade       = gui->page.meta.LPub.fadeStep.fadeStep.value();
-         bool highlight  = gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
-         if (fade || highlight) {
+         if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
              QFileInfo modelInfo(here.modelName);
              configured = modelInfo.completeBaseName().endsWith(FADE_SFX) ||
                           modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
@@ -4392,6 +4610,7 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   target               .init(this,"CAMERA_TARGET");
   position             .init(this,"CAMERA_POSITION");
   upvector             .init(this,"CAMERA_UPVECTOR");
+  preferredRenderer    .init(this,"PREFERRED_RENDERER");
 }
 
 /* ------------------ */
@@ -4797,6 +5016,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   studStyle.init      (this,"STUD_STYLE");
   highContrast.init   (this,"HIGH_CONTRAST");
   autoEdgeColor.init  (this,"AUTOMATE_EDGE_COLOR");
+  fadeStep.init       (this,"FADE_STEP");
+  highlightStep.init  (this,"HIGHLIGHT_STEP");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
   imageSize.init      (this,"IMAGE_SIZE");
@@ -4810,6 +5031,7 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   target.init         (this,"CAMERA_TARGET");
   position.init       (this,"CAMERA_POSITION");
   upvector.init       (this,"CAMERA_UPVECTOR");
+  preferredRenderer.init(this,"PREFERRED_RENDERER");
 }
 
 /* ------------------ */
@@ -4944,6 +5166,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   cameraDistance  .init(this,"CAMERA_DISTANCE");
   isOrtho         .init(this,"CAMERA_ORTHOGRAPHIC");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
+  preferredRenderer .init(this,"PREFERRED_RENDERER");
 }
 
 /* ------------------ */ 
@@ -5081,6 +5304,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   position        .init(this,"CAMERA_POSITION");
   upvector        .init(this,"CAMERA_UPVECTOR");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
+  preferredRenderer .init(this,"PREFERRED_RENDERER");
 }
 
 /* ------------------ */ 
@@ -5475,8 +5699,11 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   insert                   .init(this,"INSERT");
   include                  .init(this,"INCLUDE", IncludeRc);
   nostep                   .init(this,"NOSTEP", NoStepRc);
+  fadeStepSetup            .init(this,"FADE_STEP_SETUP");
   fadeStep                 .init(this,"FADE_STEP");
+  highlightStepSetup       .init(this,"HIGHLIGHT_STEP_SETUP");
   highlightStep            .init(this,"HIGHLIGHT_STEP");
+  preferredRenderer        .init(this,"PREFERRED_RENDERER");
   subModel                 .init(this,"SUBMODEL_DISPLAY");
   rotateIcon               .init(this,"ROTATE_ICON");
   studStyle                .init(this,"STUD_STYLE");

@@ -497,7 +497,6 @@ public:
 
   bool             m_partListCSIFile;   // processing part list CSI file
   bool             mloadingFile;        // when true, the endMacro() call will not call displayPage()
-
   void            *noData;
 
   MetaItem        *mi;                  // utility functions for meta commands
@@ -1404,7 +1403,7 @@ public slots:
   void clearCSICache();
   void clearTempCache();
   void clearSubmodelCache(const QString &key = QString());
-  void clearAllCaches();
+  void clearAllCaches(bool global = false);
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
@@ -1838,8 +1837,10 @@ private slots:
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);
     void editParamsToolBarVisibilityChanged(bool);
-    void setFadeStepsFromCommandMeta();
-    void setHighlightStepFromCommandMeta();
+
+    bool setFadeStepsFromCommand();
+    bool setHighlightStepFromCommand();
+    bool setPreferredRendererFromCommand(const QString &);
 
     void getSubFileList();
 

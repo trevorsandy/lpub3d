@@ -855,9 +855,34 @@ int POVRay::renderCsi(
      addArgument(arguments, altldc, "-LDConfig", 0, parmsArgs.size());
   }
 
-  // LDView block begin
-  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+  // Native (LDV) POV Generator block
+  if (Preferences::useNativePovGenerator) {
 
+      QString workingDirectory = QDir::currentPath();
+
+      arguments << QDir::toNativeSeparators(ldrName);
+
+      removeEmptyStrings(arguments);
+
+      emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
+
+      bool retError = false;
+      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
+      if (! ldvWidget->doCommand(arguments))  {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+          return -1;
+  }
+  else // LDView  POV generator block
+  {
       addArgument(arguments, o, "-HaveStdOut", 0, parmsArgs.size());
       addArgument(arguments, v, "-vv", 0, parmsArgs.size());
 
@@ -899,33 +924,6 @@ int POVRay::renderCsi(
               return -1;
           }
       }
-  }
-  else
-  // Native POV Generator block
-  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-
-      QString workingDirectory = QDir::currentPath();
-
-      arguments << QDir::toNativeSeparators(ldrName);
-
-      removeEmptyStrings(arguments);
-
-      emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
-
-      bool retError = false;
-      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
-      if (! ldvWidget->doCommand(arguments))  {
-          emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
-          retError = true;
-      }
-
-      // ldvWidget changes the Working directory so we must reset
-      if (! QDir::setCurrent(workingDirectory)) {
-          emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI POV working directory %1").arg(workingDirectory));
-          retError = true;
-      }
-      if (retError)
-          return -1;
   }
 
   QStringList povArguments;
@@ -1212,9 +1210,33 @@ int POVRay::renderPli(
      addArgument(arguments, altldc, "-LDConfig", 0, parmsArgs.size());
   }
 
-  // LDView block begin
-  if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
+  // Native (LDV) POV generator block begin
+  if (Preferences::useNativePovGenerator) {
+      QString workingDirectory = QDir::currentPath();
 
+      arguments << QDir::toNativeSeparators(ldrNames.first());
+
+      removeEmptyStrings(arguments);
+
+      emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
+
+      bool retError = false;
+      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
+      if (! ldvWidget->doCommand(arguments)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
+          retError = true;
+      }
+
+      // ldvWidget changes the Working directory so we must reset
+      if (! QDir::setCurrent(workingDirectory)) {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to restore PLI POV working directory %1").arg(workingDirectory));
+          retError = true;
+      }
+      if (retError)
+        return -1;
+  }
+  else // LDView POV generator block
+  {
       addArgument(arguments, o, "-HaveStdOut", 0, parmsArgs.size());
       addArgument(arguments, v, "-vv", 0, parmsArgs.size());
 
@@ -1253,33 +1275,6 @@ int POVRay::renderPli(
               return -1;
           }
       }
-  }
-  else
-  // Native POV Generator block
-  if (Preferences::povFileGenerator == RENDERER_NATIVE) {
-
-      QString workingDirectory = QDir::currentPath();
-
-      arguments << QDir::toNativeSeparators(ldrNames.first());
-
-      removeEmptyStrings(arguments);
-
-      emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
-
-      bool retError = false;
-      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
-      if (! ldvWidget->doCommand(arguments)) {
-          emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
-          retError = true;
-      }
-
-      // ldvWidget changes the Working directory so we must reset
-      if (! QDir::setCurrent(workingDirectory)) {
-          emit gui->messageSig(LOG_ERROR, QString("Failed to restore PLI POV working directory %1").arg(workingDirectory));
-          retError = true;
-      }
-      if (retError)
-        return -1;
   }
 
   QStringList povArguments;

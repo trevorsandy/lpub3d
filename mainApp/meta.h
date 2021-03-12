@@ -147,6 +147,9 @@ enum Rc {
 
          FinalModelEnableRc,
 
+         EnableFadeStepsRc,
+         EnableHighlightStepRc,
+
          PageOrientationRc,
          PageSizeRc,
 
@@ -1344,7 +1347,7 @@ public:
 class PointerAttribMeta  : public LeafMeta
 {
 private:
-  PointerAttribData _value[2];  // some of this is in units
+  PointerAttribData _value[2];      // some of this is in units
   PointerAttribData _result;
 public:
 
@@ -1619,6 +1622,35 @@ public:
     _result   = rhs._result;
   }
 //  virtual ~PointerMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
+ * This class detects preferred renderer keywords */
+
+class PreferredRendererMeta : public LeafMeta
+{
+private:
+  RendererData _value[2];
+public:
+  RendererData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(RendererData &data)
+  {
+    _value[pushed] = data;
+  }
+  void setPreferences(bool = false);
+  PreferredRendererMeta();
+  PreferredRendererMeta(const PreferredRendererMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~PreferredRendererMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2587,6 +2619,34 @@ public:
                    QString name);
 };
 
+/* This leaf is to catch booleans (TRUE or FALSE) and optional RESET flag*/
+
+class BoolAndResetMeta : public RcMeta {
+private:
+  BoolAndResetData _value[2];
+public:
+  BoolAndResetData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(BoolAndResetData &value)
+  {
+    _value[pushed] = value;
+  }
+  BoolAndResetMeta ()
+  {
+  }
+  BoolAndResetMeta(const BoolAndResetMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~BoolAndResetMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
 /*------------------------*/
 /*
  * Fade Step Meta
@@ -2594,17 +2654,11 @@ public:
 class FadeStepMeta : public BranchMeta
 {
 public:
-  StringMeta  fadeColor;
-  BoolMeta    fadeStep;
-  BoolMeta    fadeUseColor;
-  IntMeta     fadeOpacity;
-  void setPreferences()
-  {
-     Preferences::enableFadeSteps      = fadeStep.value();
-     Preferences::validFadeStepsColour = fadeColor.value();
-     Preferences::fadeStepsUseColour   = fadeUseColor.value();
-     Preferences::fadeStepsOpacity     = fadeOpacity.value();
-  }
+  BoolAndResetMeta  fade;
+  StringMeta        fadeColor;
+  BoolMeta          fadeUseColor;
+  IntMeta           fadeOpacity;
+  void setPreferences(bool = false);
   FadeStepMeta();
   FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -2623,16 +2677,10 @@ public:
 class HighlightStepMeta : public BranchMeta
 {
 public:
-
-  StringMeta  highlightColor;
-  BoolMeta    highlightStep;
-  IntMeta     highlightLineWidth;
-  void setPreferences()
-  {
-     Preferences::enableHighlightStep    = highlightStep.value();
-     Preferences::highlightStepColour    = highlightColor.value();
-     Preferences::highlightStepLineWidth = highlightLineWidth.value();
-  }
+  BoolAndResetMeta highlight;
+  StringMeta       highlightColor;
+  IntMeta          highlightLineWidth;
+  void setPreferences(bool = false);
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -3392,6 +3440,7 @@ public:
   StudStyleMeta        studStyle;
   AutoEdgeColorMeta    autoEdgeColor;
   HighContrastColorMeta highContrast;
+  PreferredRendererMeta preferredRenderer;
 
   // pli/smp camera settings
   FloatMeta            cameraFoV;
@@ -3471,6 +3520,9 @@ public:
   StudStyleMeta         studStyle;
   AutoEdgeColorMeta     autoEdgeColor;
   HighContrastColorMeta highContrast;
+  FadeStepMeta          fadeStep;
+  HighlightStepMeta     highlightStep;
+  PreferredRendererMeta preferredRenderer;
 
   // assem camera settings
   FloatMeta            cameraDistance;
@@ -3818,8 +3870,11 @@ public:
   InsertMeta           insert;
   StringMeta           include;
   NoStepMeta           nostep;
+  BoolMeta             fadeStepSetup;
   FadeStepMeta         fadeStep;
+  BoolMeta             highlightStepSetup;
   HighlightStepMeta    highlightStep;
+  PreferredRendererMeta preferredRenderer;
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
   CountInstanceMeta    countInstance;

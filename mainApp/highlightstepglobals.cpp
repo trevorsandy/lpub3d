@@ -45,11 +45,13 @@ public:
   QString    topLevelFile;
   QList<MetaGui *> children;
   bool  reloadFile;
+  bool  clearCache;
 
   GlobalHighlightStepPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
     meta         = _meta;
+    clearCache   = false;
     reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
@@ -76,69 +78,48 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   QGridLayout   *grid;
   QGridLayout   *boxGrid;
   QGroupBox     *box;
-  MetaGui       *child;
-  QLabel        *label;
-  QSpinBox      *spinbox;
 
   grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Highlight Current Step (read only)");
+  box = new QGroupBox("Highlight Current Step");
   grid->addWidget(box,0,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  child = new HighlightStepGui("Highlight Color",highlightStepMeta);
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
+  highlightStepChild = new HighlightStepGui(highlightStepMeta, true/*global*/);
+  data->children.append(highlightStepChild);
+  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
+  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(highlightStepChild,0,0);
+
+  box = new QGroupBox("Highlight Current Step Setup");
+  grid->addWidget(box,1,0);
+
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  highlightStepSetupChild = new CheckBoxGui("Setup Highlight Current Step",&lpubMeta->highlightStepSetup);
+  highlightStepSetupChild->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
+  data->children.append(highlightStepSetupChild);
+  connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(highlightStepSetupChild,0,0);
 
   box = new QGroupBox("Final Model Step");
-  grid->addWidget(box,1,0);
+  grid->addWidget(box,2,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
   box->setToolTip("Automatically, append an un-faded and/or un-highlighted final step "
                   "to the top level model file. This step will not be saved.");
 
-  FinalModelEnabledGui *finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
-  data->children.append(child);
+  finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
+  data->children.append(finalModelEnabledChild);
   connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
   boxGrid->addWidget(finalModelEnabledChild,0,0);
 
-  box = new QGroupBox("Highlight Settings (read only)");
-  grid->addWidget(box,2,0);
-
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
-
-  child = new CheckBoxGui("Enabled",&highlightStepMeta->highlightStep);
-  child->setDisabled(true);
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
-
-  label = new QLabel();
-  boxGrid->addWidget(label,0,1);
-
-  label = new QLabel();
-  label->setText("Set from Preferences dialog");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,0,2);
-
-  spinbox = new QSpinBox();
-  spinbox->setValue(highlightStepMeta->highlightLineWidth.value());
-  spinbox->setDisabled(true);
-  boxGrid->addWidget(spinbox,1,0);
-
-  label = new QLabel();
-  label->setText("Line width");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,1,1);
-
-  label = new QLabel();
-  label->setText("Set from Preferences dialog");
-  label->setDisabled(true);
-  boxGrid->addWidget(label,1,2);
+  emit highlightStepChild->getCheckBox()->clicked(highlightStepChild->getCheckBox()->isChecked());
 
   QDialogButtonBox *buttonBox;
 
@@ -151,13 +132,19 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   grid->addWidget(buttonBox);
 
   setModal(true);
-  setMinimumSize(40,20);
+  setMinimumSize(300,20);
+}
+
+void GlobalHighlightStepDialog::enableControls(bool b)
+{
+    highlightStepSetupChild->setEnabled(!b);
+    finalModelEnabledChild->setEnabled(b);
 }
 
 void GlobalHighlightStepDialog::reloadModelFile(bool b)
 {
-    if (!data->reloadFile)
-        data->reloadFile = b;
+    if (!data->clearCache)
+        data->clearCache = b;
 }
 
 void GlobalHighlightStepDialog::getHighlightStepGlobals(
@@ -179,7 +166,7 @@ void GlobalHighlightStepDialog::accept()
     child->apply(data->topLevelFile);
   }
 
-  if (data->reloadFile) {
+  if (data->clearCache) {
       clearAndReloadModelFile(true);
   }
 
