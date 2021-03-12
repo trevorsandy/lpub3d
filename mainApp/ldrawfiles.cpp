@@ -1959,13 +1959,11 @@ void LDrawFile::countInstances()
     it->_mirrorInstances = 0;
     it->_beenCounted = false;
   }
-// *
+
 #ifdef QT_DEBUG_MODE
   QElapsedTimer timer;
   timer.start();
-/*
 #endif
-*/
 
   emit gui->messageSig(LOG_STATUS, "Counting model steps and instances...");
   QApplication::processEvents();
@@ -1981,7 +1979,7 @@ void LDrawFile::countInstances()
   QVector<int> stepIndex = { 0/*SubmodelIndex*/, size(topLevelFile()) };
   _buildModStepIndexes.append(stepIndex);
 
-/*
+// *
 #ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("CountInstances Step Indexes:"));
   QVector<int> key;
@@ -1994,13 +1992,14 @@ void LDrawFile::countInstances()
                                               .arg(key.at(1))                    // lineNumber
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
-*/
-// *
+#endif
+// */
+#ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
                                           .arg(gui->elapsedTime(timer.elapsed())));
 
 #endif
-// */
+
 }
 
 bool LDrawFile::saveMPDFile(const QString &fileName)
@@ -2918,20 +2917,21 @@ int LDrawFile::getBuildModNextStepIndex()
 #ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString message;
+    bool validIndex = false;
+    bool firstIndex = false;
 #endif
 
     int stepIndex   = 0;
-    bool firstIndex = false;
-    bool validIndex = false;
 
     if (_buildModNextStepIndex > BM_INVALID_INDEX && _buildModStepIndexes.size() > _buildModNextStepIndex) {
 
-        firstIndex = _buildModNextStepIndex == BM_FIRST_INDEX;
-
         stepIndex  = _buildModNextStepIndex;
 
-        validIndex = true;
+#ifdef QT_DEBUG_MODE
+        firstIndex = _buildModNextStepIndex == BM_FIRST_INDEX;
 
+        validIndex = true;
+#endif
     } else {
 
         stepIndex = BM_INVALID_INDEX;
@@ -3010,8 +3010,8 @@ bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &li
 
 int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
 {
-    QVector<int> topOfStep = { getSubmodelIndex(modelName), lineNumber };
-    return _buildModStepIndexes.indexOf(topOfStep);
+  QVector<int> topOfStep = { getSubmodelIndex(modelName), lineNumber };
+  return _buildModStepIndexes.indexOf(topOfStep);
 }
 
 QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
