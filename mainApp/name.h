@@ -226,15 +226,19 @@ enum NameKeyAttributes2{
 /*
  * Scene Objects
  *
- * Synchronization:
- * Meta.h         - class SceneItemMeta
- * Meta.cpp       - SceneItemMeta::SceneItemMeta(), SceneItemMeta::init()
- * lpub.cpp       - void Gui::initialize() soMap
- * name.h         - SceneObject enum, ZValue defines, IncludedSceneObjects[]
- * traverse.cpp   - case SceneItemZValueDirectionRc
- * formatpage.cpp - bool Gui::getSceneObject(()
+ * Purpose: Set ZValue
+ *
+ * Dependencies:
+ * 1. name.h           - Define SceneObject static values - enum ZValue defines, IncludedSceneObjects[]
+ * 2. lpub.cpp         - Define object map - void Gui::initialize() soMap
+ * 3. Meta.h           - Define meta class - SceneItemMeta
+ * 4. Meta.cpp         - Construct and initialize meta class - SceneItemMeta::SceneItemMeta(), SceneItemMeta::init()
+ * 5. traverse.cpp     - Parse meta and set object position - case SceneItemZValueDirectionRc
+ * 6. formatpage.cpp   - Set object ZValue - bool Gui::getSceneObject(()
+ * 7. <BackgroundItem> - GraphicsItem - the entity the ZValue is set for
  */
 enum SceneObject {
+  //Object                     ID, //    GraphicsItem                  / Type Identifier
     UndefinedObj             = -1,
     AssemAnnotationObj       = 36, //  0 CsiAnnotationItem             / CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 PlacementCsiPart              / CsiPartType
@@ -267,13 +271,14 @@ enum SceneObject {
     PointerSecondSegObj      = 24, // 29 BorderedLineItem              /
     PointerThirdSegObj       = 28, // 30 BorderedLineItem              /
     RotateIconBackgroundObj  = 26, // 31 RotateIconItem                / RotateIconType
-    StepNumberObj            =  3, // 32 StepNumberItem                / StepNumberType
-    SubModelBackgroundObj    = 25, // 33 SubModelType                  /
-    SubModelInstanceObj      = 16, // 34 SMInstanceTextItem            /
-    SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCount         / SubmodelInstanceCountType
-    PartsListPixmapObj       = 44, // 36 PGraphicsPixmapItem           /
-    PartsListGroupObj        = 45, // 37 PartGroupItem                 /
-    StepBackgroundObj        = 46  // 38 MultiStepStepBackgroundItem   / StepType
+    ReserveBackgroundObj     = 35, // 32 ReserveBackgroundItem         / ReserveType
+    StepNumberObj            =  3, // 33 StepNumberItem                / StepNumberType
+    SubModelBackgroundObj    = 25, // 34 SubModelBackgroundItem        / SubModelType
+    SubModelInstanceObj      = 16, // 35 SMInstanceTextItem            /
+    SubmodelInstanceCountObj = 18, // 36 SubmodelInstanceCount         / SubmodelInstanceCountType
+    PartsListPixmapObj       = 44, // 37 PGraphicsPixmapItem           /
+    PartsListGroupObj        = 45, // 38 PartGroupItem                 /
+    StepBackgroundObj        = 46  // 39 MultiStepStepBackgroundItem   / StepType
 };
 
 static const SceneObject IncludedSceneObjects[] =
@@ -310,6 +315,7 @@ static const SceneObject IncludedSceneObjects[] =
     PointerSecondSegObj,
     PointerThirdSegObj,
     RotateIconBackgroundObj,
+    ReserveBackgroundObj,
     StepBackgroundObj,
     StepNumberObj,
     SubModelBackgroundObj,
@@ -563,13 +569,13 @@ enum ThemeColorType {
 #define POINTERTHIRDSEG_ZVALUE_DEFAULT            -4.0
 #define POINTERHEAD_ZVALUE_DEFAULT                -5.0
 #define ROTATEICONBACKGROUND_ZVALUE_DEFAULT      101.0
+#define RESERVE_BACKGROUND_ZVALUE_DEFAULT          Z_VALUE_DEFAULT
 #define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
 #define STEPNUMBER_ZVALUE_DEFAULT                  Z_VALUE_DEFAULT
 #define SUBMODELBACKGROUND_ZVALUE_DEFAULT          Z_VALUE_DEFAULT
 #define SUBMODELGRABBER_ZVALUE_DEFAULT             GRABBER_ZVALUE_DEFAULT
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            Z_VALUE_DEFAULT
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
-#define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
 
 #define GLOBAL_META_RX                              "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
 

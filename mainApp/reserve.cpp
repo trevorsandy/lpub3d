@@ -86,4 +86,6 @@ ReserveBackgroundItem::ReserveBackgroundItem(
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
   setFlag(QGraphicsItem::ItemIsMovable,false);
+  setData(ObjectId, StepBackgroundObj);
+  setZValue(RESERVE_BACKGROUND_ZVALUE_DEFAULT);
 }

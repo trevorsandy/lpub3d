@@ -3297,13 +3297,14 @@ SceneItemMeta::SceneItemMeta() : BranchMeta()
     pointerSecondSeg     .setItemObj(PointerSecondSegObj);     // 29
     pointerThirdSeg      .setItemObj(PointerThirdSegObj);      // 30
     rotateIconBackground .setItemObj(RotateIconBackgroundObj); // 31
-    stepNumber           .setItemObj(StepNumberObj);           // 32
-    subModelBackground   .setItemObj(SubModelBackgroundObj);   // 33
-    subModelInstance     .setItemObj(SubModelInstanceObj);     // 34
-    submodelInstanceCount.setItemObj(SubmodelInstanceCountObj);// 35
-    partsListPixmap      .setItemObj(PartsListPixmapObj);      // 36
-    partsListGroup       .setItemObj(PartsListGroupObj);       // 37
-    stepBackground       .setItemObj(StepBackgroundObj);       // 38
+    reserveBackground    .setItemObj(ReserveBackgroundObj);    // 32
+    stepNumber           .setItemObj(StepNumberObj);           // 33
+    subModelBackground   .setItemObj(SubModelBackgroundObj);   // 34
+    subModelInstance     .setItemObj(SubModelInstanceObj);     // 35
+    submodelInstanceCount.setItemObj(SubmodelInstanceCountObj);// 36
+    partsListPixmap      .setItemObj(PartsListPixmapObj);      // 37
+    partsListGroup       .setItemObj(PartsListGroupObj);       // 38
+    stepBackground       .setItemObj(StepBackgroundObj);       // 39
 }
 
 void SceneItemMeta::init(
@@ -3342,13 +3343,14 @@ void SceneItemMeta::init(
    pointerSecondSeg     .init(this, "POINTER_SEG_SECOND");   // 29
    pointerThirdSeg      .init(this, "POINTER_SEG_THIRD");    // 30
    rotateIconBackground .init(this, "ROTATE_ICON");          // 31 RotateIconType
-   stepNumber           .init(this, "STEP_NUMBER");          // 32 StepNumberType
-   subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 33 SubModelType
-   subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 34
-   submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
-   partsListPixmap      .init(this, "PLI_PART");             // 36
-   partsListGroup       .init(this, "PLI_PART_GROUP");       // 37
-   stepBackground       .init(this, "STEP_RECTANGLE");       // 38 [StepType]
+   reserveBackground    .init(this, "RESERVE");              // 32 ReserveType
+   stepNumber           .init(this, "STEP_NUMBER");          // 33 StepNumberType
+   subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 34 SubModelType
+   subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 35
+   submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 36 SubmodelInstanceCountType
+   partsListPixmap      .init(this, "PLI_PART");             // 37
+   partsListGroup       .init(this, "PLI_PART_GROUP");       // 38
+   stepBackground       .init(this, "STEP_RECTANGLE");       // 39 [StepType]
 }
 
 /* ------------------ */

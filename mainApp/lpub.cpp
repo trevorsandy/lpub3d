@@ -3589,13 +3589,14 @@ void Gui::initialize()
       soMap[PointerSecondSegObj]      = QString("POINTER_SEG_SECOND");   // 29
       soMap[PointerThirdSegObj]       = QString("POINTER_SEG_THIRD");    // 30
       soMap[RotateIconBackgroundObj]  = QString("ROTATE_ICON");          // 31 RotateIconType
-      soMap[StepNumberObj]            = QString("STEP_NUMBER");          // 32 StepNumberType
-      soMap[SubModelBackgroundObj]    = QString("SUBMODEL_DISPLAY");     // 33 SubModelType
-      soMap[SubModelInstanceObj]      = QString("SUBMODEL_INSTANCE");    // 34
-      soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
-      soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
-      soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
-      soMap[StepBackgroundObj]        = QString("STEP_RECTANGLE");       // 38 [StepType]
+      soMap[ReserveBackgroundObj]     = QString("RESERVE");              // 32 ReserveType
+      soMap[StepNumberObj]            = QString("STEP_NUMBER");          // 33 StepNumberType
+      soMap[SubModelBackgroundObj]    = QString("SUBMODEL_DISPLAY");     // 34 SubModelType
+      soMap[SubModelInstanceObj]      = QString("SUBMODEL_INSTANCE");    // 35
+      soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 36 SubmodelInstanceCountType
+      soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 37
+      soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 38
+      soMap[StepBackgroundObj]        = QString("STEP_RECTANGLE");       // 39 [StepType]
   }
 }
 

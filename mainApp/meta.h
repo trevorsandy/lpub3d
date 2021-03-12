@@ -2443,6 +2443,7 @@ public:
  SceneObjectMeta     pointerSecondSeg;      //
  SceneObjectMeta     pointerThirdSeg;       //
  SceneObjectMeta     rotateIconBackground;  // RotateIconType
+ SceneObjectMeta     reserveBackground;     // ReserveType
  SceneObjectMeta     stepNumber;            // StepNumberType
  SceneObjectMeta     subModelBackground;    // SubModelType
  SceneObjectMeta     subModelInstance;      //

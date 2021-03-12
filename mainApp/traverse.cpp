@@ -5480,6 +5480,9 @@ void Gui::setSceneItemZValueDirection(
    else if (line.contains(curMeta.LPub.page.scene.rotateIconBackground.preamble))
        insertItem(curMeta.LPub.page.scene.rotateIconBackground.here(),
                   curMeta.LPub.page.scene.rotateIconBackground.value());
+   else if (line.contains(curMeta.LPub.page.scene.reserveBackground.preamble))
+          insertItem(curMeta.LPub.page.scene.reserveBackground.here(),
+                  curMeta.LPub.page.scene.reserveBackground.value());
    else if (line.contains(curMeta.LPub.page.scene.stepNumber.preamble))
        insertItem(curMeta.LPub.page.scene.stepNumber.here(),
                   curMeta.LPub.page.scene.stepNumber.value());

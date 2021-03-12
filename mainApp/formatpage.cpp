@@ -50,6 +50,7 @@
 #include "paths.h"
 #include "pagepointer.h"
 #include "lgraphicsscene.h"
+#include "reserve.h"
 #include "name.h"
 
 #include "ranges_item.h"
@@ -1499,6 +1500,15 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         if (partGroupItem){
             itemTop = partGroupItem->top;
             stepNumber = partGroupItem->stepNumber;
+        }
+    }
+        break;
+    // Reserve item does not define a step number as it is not a step
+    case ReserveBackgroundObj:
+    {
+        ReserveBackgroundItem *reserveBackgroundItem = dynamic_cast<ReserveBackgroundItem *>(selectedItem);
+        if (reserveBackgroundItem){
+            itemTop = reserveBackgroundItem->top;
         }
     }
         break;
