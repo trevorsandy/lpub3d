@@ -1251,9 +1251,10 @@ void Gui::displayFile(
                 top = getCurrentStep()->topOfStep();
                 bottom = getCurrentStep()->bottomOfStep();
                 stepNumber = getCurrentStep()->stepNumber.number;
-            } else {
+            }
+            if (!bottom.lineNumber) {
                 bool partsAdded = false;
-//                while (!partsAdded)
+                while (!partsAdded)
                     mi->scanForward(bottom, StepMask|StepGroupMask, partsAdded);
             }
            StepLines lineScope(top.lineNumber, bottom.lineNumber);

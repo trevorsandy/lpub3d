@@ -902,14 +902,9 @@ public:
       return ldrawFile.getBuildModStepKeyModelIndex(buildModKey);
   }
 
-//  int getBuildModStepIndexHere(int stepIndex,int which)
-//  {
-//      return ldrawFile.getBuildModStepIndexHere(stepIndex, which);
-//  }
-
   bool getBuildModStepIndexHere(int stepIndex, Where &here)
   {
-      return ldrawFile.getBuildModStepIndexHere(stepIndex, here.modelName, here.lineNumber);
+      return ldrawFile.getBuildModStepIndexHere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
   }
 
   bool buildModContains(const QString &buildModKey)

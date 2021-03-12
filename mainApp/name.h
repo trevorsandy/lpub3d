@@ -89,6 +89,7 @@ enum BuildModFlags {
     BM_LAST_ACTION      = -1,              //  -1
     BM_INVALID_INDEX    = BM_LAST_ACTION,  //  -1
     BM_BEGIN,                              //   0 MOD LEVEL BEGIN
+    BM_FIRST_INDEX      = BM_BEGIN,        //   0
     BM_MODEL_NAME       = BM_BEGIN,        //   0
     BM_STEP_MODEL_KEY   = BM_BEGIN,        //   0
     BM_BEGIN_LINE_NUM   = BM_BEGIN,        //   0 BUILD_MOD BEGIN   BuildModRange[0] Attributes[0]
