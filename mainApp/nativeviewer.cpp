@@ -2391,7 +2391,7 @@ void Gui::createBuildModification()
 
             // BuildMod meta command lines are written in a bottom up manner
 
-            // Set ModBeginLineNum to top of step parts plus the number of parts replacec by BuildMod
+            // Set ModBeginLineNum to top of step parts plus the number of parts replaced by BuildMod
             // This is the position for BUILD_MOD END
             ModBeginLineNum += SaveModPieces;
 

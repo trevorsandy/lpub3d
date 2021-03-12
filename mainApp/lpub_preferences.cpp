@@ -3265,7 +3265,7 @@ int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, 
 {
     foreach (QString messageNotShown, messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
-            return 1;
+            return QMessageBox::Ok;
 
     QString msgTitle = title.isEmpty() ? msgKeyTypes[msgID.msgKey][0] : title;
     QString msgType  = type.isEmpty()  ? msgKeyTypes[msgID.msgKey][1] : type;
