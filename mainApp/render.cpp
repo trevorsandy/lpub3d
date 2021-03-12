@@ -3098,9 +3098,10 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
-    Project* StepProject = new Project();
-    if (LoadStepProject(StepProject, Options)){
-        gApplication->SetProject(StepProject);
+    Project* Loader = new Project();
+    if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType))
+    {
+        gApplication->SetProject(Loader);
         gui->UpdateAllViews();
     }
     else
@@ -3108,7 +3109,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
                              .arg(Options->ViewerStepKey));
         gui->setViewerStepKey(QString(),0);
-        delete StepProject;
+        delete Loader;
         return false;
     }
 
@@ -3117,138 +3118,6 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         return ExecuteViewer(derived);
     else
         return false;
-}
-
-bool Render::LoadStepProject(Project* StepProject, const ViewerOptions *O)
-{
-    QString FileName = gui->getViewerStepFilePath(O->ViewerStepKey);
-
-    if (FileName.isEmpty())
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI path for %1.").arg(FileName));
-        return false;
-    }
-
-    QStringList Content = gui->getViewerStepRotatedContents(O->ViewerStepKey);
-    if (Content.isEmpty())
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
-        return false;
-    }
-
-    auto TitleCase = [] (const string& _s)
-    {
-        string s = _s;
-        bool cap = true;
-        for(unsigned int i = 0; i <= s.length(); i++) {
-            if (isalpha(s[i]) && cap == true) {
-                s[i] = toupper(s[i]);
-                cap = false;
-            }
-            else if (isspace(s[i])) {
-                cap = true;
-            }
-        }
-        return s;
-    };
-    // viewerStepKey - 3 elements:
-    // CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
-    // SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-    // PLI: 0=partName,  1=colourNumber, 2=stepNumber
-    QStringList Keys = gui->getViewerStepKeys(true/*get Name*/, O->ImageType == Options::PLI, O->ViewerStepKey);
-    if (Keys.size() > 2)
-        StepProject->SetTimelineTitle(QString::fromStdString(TitleCase(Keys.at(0).toStdString())), Keys.at(2).toInt());
-
-#ifdef QT_DEBUG_MODE
-    QFileInfo outFileInfo(FileName);
-    QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
-    QString outfileName = QString("%1/viewer_%2_%3.ldr")
-                                  .arg(outFileInfo.absolutePath())
-                                  .arg(imageType)
-                                  .arg(QString("%1_%2_%3")
-                                               .arg(Keys.at(0))
-                                               .arg(Keys.at(1))
-                                               .arg(Keys.at(2)));
-    QFile file(outfileName);
-    if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")
-                             .arg(outfileName) .arg(file.errorString()));
-    }
-    QTextStream out(&file);
-    for (int i = 0; i < Content.size(); i++) {
-        QString line = Content[i];
-        out << line << endl;
-    }
-    file.close();
-#endif
-
-    StepProject->DeleteAllModels();
-    StepProject->SetFileName(FileName);
-
-    QByteArray QBA;
-    foreach(QString line, Content){
-        QBA.append(line);
-        QBA.append(QString("\n"));
-    }
-
-    if (StepProject->GetFileName().isEmpty())
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
-        return false;
-    }
-    QFileInfo FileInfo(StepProject->GetFileName());
-
-    QBuffer Buffer(&QBA);
-    Buffer.open(QIODevice::ReadOnly);
-
-    while (!Buffer.atEnd())
-    {
-        lcModel* Model = new lcModel(QString());
-        Model->SplitMPD(Buffer);
-
-        if (StepProject->GetModels().IsEmpty() || !Model->GetProperties().mFileName.isEmpty())
-        {
-            StepProject->AddModel(Model);
-            Model->CreatePieceInfo(StepProject);
-        }
-        else
-            delete Model;
-    }
-
-    Buffer.seek(0);
-
-    for (int ModelIdx = 0; ModelIdx < StepProject->GetModels().GetSize(); ModelIdx++)
-    {
-        lcModel* Model = StepProject->GetModels()[ModelIdx];
-        Model->LoadLDraw(Buffer, StepProject);
-        Model->SetSaved();
-    }
-
-    if (StepProject->GetModels().IsEmpty())
-        return false;  
-
-    if (StepProject->GetModels().GetSize() == 1)
-    {
-        lcModel* Model = StepProject->GetModels()[0];
-
-        if (Model->GetProperties().mFileName.isEmpty())
-        {
-            Model->SetFileName(FileInfo.fileName());
-            lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
-        }
-    }
-
-    std::vector<lcModel*> UpdatedModels;
-
-    for (lcModel* Model : StepProject->GetModels())
-    {
-        Model->UpdateMesh();
-        Model->UpdatePieceInfo(UpdatedModels);
-    }
-
-    StepProject->SetModified(false);
-
-    return true;
 }
 
 int Render::getViewerPieces()
