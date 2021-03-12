@@ -3094,7 +3094,7 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
     return ExecuteViewer(Options,true/*exportImage*/);
 }
 
-bool Render::LoadViewer(const ViewerOptions *Options){
+bool Render::LoadViewer(const ViewerOptions *Options) {
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
@@ -3136,22 +3136,39 @@ bool Render::LoadStepProject(Project* StepProject, const ViewerOptions *O)
         return false;
     }
 
-#ifdef QT_DEBUG_MODE
+    auto TitleCase = [] (const string& _s)
+    {
+        string s = _s;
+        bool cap = true;
+        for(unsigned int i = 0; i <= s.length(); i++) {
+            if (isalpha(s[i]) && cap == true) {
+                s[i] = toupper(s[i]);
+                cap = false;
+            }
+            else if (isspace(s[i])) {
+                cap = true;
+            }
+        }
+        return s;
+    };
     // viewerStepKey - 3 elements:
     // CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
     // SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
     // PLI: 0=partName,  1=colourNumber, 2=stepNumber
+    QStringList Keys = gui->getViewerStepKeys(true/*get Name*/, O->ImageType == Options::PLI, O->ViewerStepKey);
+    if (Keys.size() > 2)
+        StepProject->SetTimelineTitle(QString::fromStdString(TitleCase(Keys.at(0).toStdString())), Keys.at(2).toInt());
+
+#ifdef QT_DEBUG_MODE
     QFileInfo outFileInfo(FileName);
     QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
-    bool pliPart        = imageType.toLower() == "pli";
-    QStringList keys    = gui->getViewerStepKeys(true/*get Name*/, pliPart);
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
                                   .arg(outFileInfo.absolutePath())
                                   .arg(imageType)
                                   .arg(QString("%1_%2_%3")
-                                               .arg(keys[0])
-                                               .arg(keys[1])
-                                               .arg(keys[2]));
+                                               .arg(Keys.at(0))
+                                               .arg(Keys.at(1))
+                                               .arg(Keys.at(2)));
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")

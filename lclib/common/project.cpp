@@ -86,6 +86,10 @@ Project::Project(bool isPreview)
 	mResolution = 150.0f;
 	mViewerLoaded = false;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - set Timeline title ***/
+	mLPubModelName   = "Model Pieces";
+	mLPubStepNumber = 0;
+/*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
