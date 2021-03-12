@@ -2952,6 +2952,9 @@ int CountPageWorker::countPage(
     QList<ModelStack>&modelStack,
     FindPageOptions  &opts)
 {
+  if (opts.current.modelName == ldrawFile->topLevelFile() &&
+      opts.current.lineNumber == ldrawFile->size(opts.current.modelName))
+      return OkRc;
 
   QMutex countPageMutex;
   countPageMutex.lock();
@@ -2981,7 +2984,6 @@ int CountPageWorker::countPage(
   bool alreadyRendered = !(localSubmodel || modelStack.size());
 
   if (! alreadyRendered) {
-      opts.flags.numLines = ldrawFile->size(opts.current.modelName);
       if (localSubmodel)
           gui->skipHeader(opts.current);
       ldrawFile->setRendered(opts.current.modelName,
@@ -3001,9 +3003,7 @@ int CountPageWorker::countPage(
   QStringList             bfxParts;
   QList<PliPartGroupMeta> emptyPartGroups;
 
-  QMap<int,int> buildModActions;
-  if (opts.buildMod.state != BM_NONE)
-      buildModActions.insert(opts.buildMod.level, opts.buildMod.action);
+  opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;
@@ -3220,14 +3220,14 @@ int CountPageWorker::countPage(
               if (!Preferences::buildModEnabled)
                   break;
               opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
-              buildModActions.insert(opts.buildMod.level, BuildModApplyRc);
+              opts.buildMod.action = BuildModApplyRc;
               opts.buildMod.ignore = false;
               opts.buildMod.state = BM_BEGIN;
               break;
 
             case BuildModEndModRc:
               if (opts.buildMod.state == BM_BEGIN)
-                  if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
+                  if (opts.buildMod.action == BuildModApplyRc)
                       opts.buildMod.ignore = true;
               opts.buildMod.state = BM_END_MOD;
               break;
@@ -3292,8 +3292,8 @@ int CountPageWorker::countPage(
 
                 } // PartsAdded && ! NoStep
 
-              buildModActions.clear();
               meta.LPub.buildMod.clear();
+              opts.buildMod.action = BuildModNoActionRc;
               opts.buildMod.state = BM_NONE;
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
@@ -3481,7 +3481,7 @@ int CountPageWorker::countPage(
 
       // let's go
       countPage(meta, ldrawFile, modelStack, opts);
-    }
+  }
 
   countPageMutex.unlock();
 
