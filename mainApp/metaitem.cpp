@@ -3732,7 +3732,7 @@ void MetaItem::addCalloutMetas(
   bool  assembled)
 {
   /* Scan the file and remove any multi-step stuff from the file
-     we're converting to callout*/
+     we're converting to callout - starting from the bottom up*/
 
   int   numLines;
   Where walk(modelName,0);
@@ -4212,7 +4212,7 @@ bool MetaItem::offsetPoint(
       ldrNames << ldrName;
       csiKeys << title + "Mono";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
@@ -4220,7 +4220,7 @@ bool MetaItem::offsetPoint(
       if (Preferences::usingNativeRenderer){
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           // RotateParts #2 - 8 parms
-          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
+          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
@@ -4454,7 +4454,8 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  *
  */
 
-QString MetaItem::makeMonoName(const QString &fileName,
+QString MetaItem::makeMonoName(
+   const QString &fileName,
    const QString &color)
 {
   QString mono = "mono_";
@@ -4474,7 +4475,8 @@ int MetaItem::monoColorSubmodel(
   const QString &monoOutName,
   const QString &color)
 {
-  MonoColors colorCode = (color == monoColor[TransWhite] ? TransWhite : Blue);
+  bool whiteModel = color == monoColor[TransWhite];
+  MonoColors colorCode = (whiteModel ? TransWhite : Blue);
 
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -4484,16 +4486,43 @@ int MetaItem::monoColorSubmodel(
     return -1;
   }
 
-  QTextStream out(&outFile);
-  out << "0 // LPub3D part custom color" << endl;
-  out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
-  out << "0" << endl;
-
   int numLines = gui->subFileSize(modelName);
 
+ /*
+  * scan past header
+  */
   Where walk(modelName,0);
+  Where here = walk;
+  if (whiteModel) {
+    bool header = true;
+    bool firstLine = true;
+    for ( ; here < numLines; here++)
+    {
+      QString line = gui->readLine(here);
+      if (here > 0) {
+        if (header) {
+          header &= (isHeader(line) || firstLine);
+          firstLine = false;
+          if ( ! header) {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  bool monoColorAdded = false;
+
+  QTextStream out(&outFile);
 
   for ( ; walk < numLines; walk++) {
+    if (whiteModel && !monoColorAdded && walk.lineNumber == here.lineNumber) {
+      out << "0 // LPub3D part custom color" << endl;
+      out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
+      out << "0" << endl;
+      monoColorAdded = true;
+    }
+
     QString line = gui->readLine(walk);
     QStringList argv;
 
@@ -4588,6 +4617,7 @@ QPointF MetaItem::defaultPointerTip(
         }
       }
     }
+#ifdef QT_DEBUG_MODE
     else
     {
       // get the last ROTSTEP...
@@ -4595,17 +4625,19 @@ QPointF MetaItem::defaultPointerTip(
         Where here(modelName,i);
         Rc rc = meta.parse(line,here,false);
         if (rc == RotStepRc) {
-#ifdef QT_DEBUG_MODE
+
           gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
                           .arg(subModel)
                           .arg(renderer->getRotstepMeta(meta.rotStep)));
-#endif
         }
       }
     }
-
+#endif
     csiParts << line;
   }
+
+  /* we've reached the end of the model file */
+
   if (i == numLines) {
     return centerOffset;
   }
@@ -4623,7 +4655,7 @@ QPointF MetaItem::defaultPointerTip(
   argv[14] = info.fileName();
 
   /*
-   * Add blue submodel to csiParts
+   * Append blue submodel to csiParts
    */
 
   csiParts << argv.join(" ");
@@ -4663,7 +4695,7 @@ QPointF MetaItem::defaultPointerTip(
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
   } else {
       ok[0] = true;
@@ -4671,7 +4703,7 @@ QPointF MetaItem::defaultPointerTip(
       if (Preferences::usingNativeRenderer){
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
          // RotateParts #2 - 8 parms
-         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
+         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
   }

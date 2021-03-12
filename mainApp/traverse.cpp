@@ -429,7 +429,7 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
-  emit messageSig(LOG_INFO_STATUS, QString("Processing draw %1, model [%2]...")
+  emit messageSig(LOG_INFO_STATUS, QString("Processing draw %1, model '%2'...")
                   .arg(stepContains(opts.current,"MULTI_STEP BEGIN") ?
                            QString("multi-step page %1").arg(displayPageNum) :
                            QString("single-step page %1, step %2").arg(displayPageNum).arg(opts.stepNum))

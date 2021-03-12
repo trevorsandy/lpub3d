@@ -89,11 +89,13 @@ public:
                                      const ViewerOptions *);
   static int             createNativeModelFile(QStringList &csiParts,
                                      bool doFadeStep,
-                                     bool doHighlightStep);
+                                     bool doHighlightStep,
+                                     int imageType = 0);
   static int             mergeNativeCSISubModels(QStringList &subModels,
                                      QStringList &subModelParts,
                                      bool doFadeStep,
-                                     bool doHighlightStep);
+                                     bool doHighlightStep,
+                                     int imageType = 0);
   static void            setLDrawHeaderAndFooterMeta(QStringList &parts,
                                      const QString &modelName,
                                      int imageType,

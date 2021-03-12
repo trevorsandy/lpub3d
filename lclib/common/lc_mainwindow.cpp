@@ -1322,40 +1322,36 @@ void lcMainWindow::GetRotStepMetaAngles()
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/
 void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 {
-// Note: parts are rotated (i.e. ROTSTEP angles applied to rotation) in
-// LPub3D Step (createCsi) and Submodel (createSubModelImage) routines.
-// Here we are only setting the ROTSTEP angles and transform variables
-// mExistingRotStep and mRotStepTransform for consumption when parts
-// are manually user-rotated from the 3DViewer
-  while (!LineStream.atEnd())
-  {
-	  mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
-	  mRotStepTransform = QString();
-	  QString Token;
-	  LineStream >> Token;
+	// Note: parts are rotated (i.e. ROTSTEP angles applied to rotation) in
+	// LPub3D Step (createCsi) and Submodel (createSubModelImage) routines.
+	// Here we are only setting the ROTSTEP angles and transform variables
+	// mExistingRotStep and mRotStepTransform for consumption when parts
+	// are manually user-rotated from the 3DViewer
+	while (!LineStream.atEnd())
+	{
+		mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
+		mRotStepTransform = QString();
+		QString Token;
 
-	  if (Token == QLatin1String("ROTSTEP")) {
+		LineStream >> Token;
 
-		  LineStream >> Token;
+		if(Token == QLatin1String("REL")) {
+			SetTransformType(lcTransformType::RelativeRotation);
+			mRotStepTransform = Token;
+		} else
+			if(Token == QLatin1String("ABS")) {
+				SetTransformType(lcTransformType::AbsoluteRotation);
+				mRotStepTransform = Token;
+			}
 
-		  if(Token == QLatin1String("REL")) {
-			  SetTransformType(lcTransformType::RelativeRotation);
-			  mRotStepTransform = Token;
-		  } else
-		  if(Token == QLatin1String("ABS")) {
-			  SetTransformType(lcTransformType::AbsoluteRotation);
-			  mRotStepTransform = Token;
-		  }
+		LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
 
-		  LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
-
-		  emit SetRotStepAngleX(mExistingRotStep.x);
-		  emit SetRotStepAngleY(mExistingRotStep.y);
-		  emit SetRotStepAngleZ(mExistingRotStep.z);
-		  emit SetRotStepTransform(mRotStepTransform);
-		  break;
-	  }
-   }
+		emit SetRotStepAngleX(mExistingRotStep.x);
+		emit SetRotStepAngleY(mExistingRotStep.y);
+		emit SetRotStepAngleZ(mExistingRotStep.z);
+		emit SetRotStepTransform(mRotStepTransform);
+		break;
+	}
 }
 /*** LPub3D Mod end ***/
 

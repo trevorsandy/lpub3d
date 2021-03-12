@@ -155,7 +155,7 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
         lastPos = line.contains(lineRx) ? walk : lastPos;
         if ( ! line.contains(lineRx) && ! isHeader(line)) {
           topOfStep = lastPos;
-          if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")){
+          if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP") || line.startsWith("0 ROTATION")){
             break;
           }
         }

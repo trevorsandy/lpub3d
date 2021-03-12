@@ -642,11 +642,12 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 /*** LPub3D Mod - parse rotstep line ***/
 			if (Token == QLatin1String("//"))
-			 {
+			{
+				LineStream >> Token;
 /*** LPub3D Mod - preview widget ***/
-				if (!mIsPreview)
+				if (!mIsPreview && Token == QLatin1String("ROTSTEP"))
 					gMainWindow->ParseAndSetRotStep(LineStream);
-			 }
+			}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process color entry ***/
 			else if (Token == QLatin1String("!COLOUR"))

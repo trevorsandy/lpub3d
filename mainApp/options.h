@@ -32,7 +32,7 @@
 
 namespace Options
 {
-    enum Mt { PLI, CSI ,SMP};
+    enum Mt { PLI, CSI ,SMP ,MON };
 }
 
 class xyzVector

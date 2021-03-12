@@ -195,7 +195,8 @@ int Render::rotateParts(
 }
 
 // RotateParts #2 - 8 parms (never called by pli type)
-int Render::rotateParts(const QString     &addLine,
+int Render::rotateParts(
+          const QString     &addLine,
           RotStepMeta       &rotStep,
           const QStringList &parts,
           QString           &ldrName,
@@ -227,16 +228,17 @@ int Render::rotateParts(const QString     &addLine,
 
   // add ROTSTEP command
   QString rotsComment = getRotstepMeta(rotStep);
-  rotatedParts.prepend(rotsComment);
+  if (imageType != Options::Mt::MON)
+      rotatedParts.prepend(rotsComment);
 
   if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
       setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
       // consolidate subfiles and parts into single file
-      if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep) != 0))
+      if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType) != 0))
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native %1 parts")
-                               .arg(imageType == Options::Mt::CSI ? "CSI" : "SMP"));
+                    .arg(imageType == Options::Mt::CSI ? "CSI" : Options::Mt::MON ? "MON" : "SMP"));
   }
 
   // Write parts to file
@@ -595,11 +597,10 @@ int Render::splitIMParts(const QStringList &rotatedParts,
       colourList,
       headerList;
 
-  bool enableIM = false,
-      isCurrStep = false,
-      isPrevSteps = false,
-      isPrevEnd = false,
-      isCustColour = false,
+  bool isCurrStep = false,
+       isPrevSteps = false,
+       isPrevEnd = false,
+       isCustColour = false,
       isFileHeader = false,
       isFadeMeta = false,
       isHeaderMeta = false,

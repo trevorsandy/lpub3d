@@ -219,7 +219,7 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
 
     QStringList tokens;
     QString baseName = QFileInfo(modelName).completeBaseName().toLower();
-    bool isMPD       = imageType == Options::Mt::SMP;  // always MPD if imageType is SMP
+    bool isMPD       = imageType == Options::Mt::SMP || imageType == Options::Mt::MON;  // always MPD if imageType is SMP or MON[o] image
     baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
     // Test for MPD
@@ -227,8 +227,26 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
         for (int i = 0; i < parts.size(); i++) {
             QString line = parts.at(i);
             split(line, tokens);
-            if ((isMPD = tokens[0] == "1" && tokens.size() == 15 && gui->isSubmodel(tokens[14]))) {
-                break;
+            if (tokens[0] == "1" && tokens.size() == 15) {
+                QString type = tokens[tokens.size()-1];
+                if (Preferences::enableFadeSteps) {
+                    QString fadeSfx = QString("%1.").arg(FADE_SFX);
+                    if (type.contains(fadeSfx)) {
+                        type = type.replace(fadeSfx,".");
+                        if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                            break;
+                    }
+                }
+                if (Preferences::enableHighlightStep) {
+                    QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
+                    if (type.contains(highlightSfx)) {
+                        type = type.replace(highlightSfx,".");
+                        if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                            break;
+                    }
+                }
+                if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                    break;
             }
         }
     }
@@ -243,8 +261,11 @@ void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &mode
         baseName = baseName.append("_Display_Model");
     }
 
-    parts.prepend(QString("0 Name: %1").arg(modelName));
-    parts.prepend(QString("0 %1").arg(baseName));
+    // description and name are already added to mono image
+    if (imageType != Options::Mt::MON) {
+        parts.prepend(QString("0 Name: %1").arg(modelName));
+        parts.prepend(QString("0 %1").arg(baseName));
+    }
 
     if (isMPD) {
         parts.prepend(QString("0 FILE %1").arg(modelName));
@@ -2942,7 +2963,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         const int ImageHeight = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
         QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
 
-        lcStep ImageStep      = 1;
+        lcStep ImageStep      = ActiveModel->GetLastStep();
         lcStep CurrentStep    = ActiveModel->GetCurrentStep();
 
         if (ZoomExtents)
@@ -3463,10 +3484,10 @@ const QString Render::getRenderModelFile(int renderType) {
 }
 
 // create Native version of the CSI/PLI file - consolidate subfiles and parts into single file
-int Render::createNativeModelFile(
-    QStringList &csiRotatedParts,
+int Render::createNativeModelFile(QStringList &csiRotatedParts,
     bool         doFadeStep,
-    bool         doHighlightStep)
+    bool         doHighlightStep,
+    int          imageType)
 {
   QStringList csiSubModels;
   QStringList csiSubModelParts;
@@ -3475,8 +3496,7 @@ int Render::createNativeModelFile(
   QStringList argv;
   int         rc;
 
-  if (csiRotatedParts.size() > 0) {
-
+  if (csiRotatedParts.size()) {
       /* Parse the rotated parts looking for subModels,
        * renaming fade and highlight step parts (not sure this is used here)
        * merging and formatting submodels by calling mergeNativeCSISubModels and
@@ -3520,6 +3540,11 @@ int Render::createNativeModelFile(
                     }
                 }
 
+              if (imageType == Options::Mt::MON) {
+                  if (type.startsWith("mono_"))
+                      isCustomSubModel = true;
+              }
+
               if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
                   if (!csiSubModels.contains(type.toLower()))
@@ -3529,10 +3554,9 @@ int Render::createNativeModelFile(
         } //end for
 
       /* process extracted submodels and unofficial files */
-      if (csiSubModels.size() > 0){
-          if (csiSubModels.size() > 2)
-              csiSubModels.removeDuplicates();
-          if ((rc = mergeNativeCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+      if (csiSubModels.size()){
+          csiSubModels.removeDuplicates();
+          if ((rc = mergeNativeCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer CSI submodels"));
               return rc;
             }
@@ -3557,7 +3581,8 @@ int Render::createNativeModelFile(
 int Render::mergeNativeCSISubModels(QStringList &subModels,
                                   QStringList &subModelParts,
                                   bool doFadeStep,
-                                  bool doHighlightStep)
+                                  bool doHighlightStep,
+                                  int imageType)
 {
   QStringList csiSubModels        = subModels;
   QStringList csiSubModelParts    = subModelParts;
@@ -3566,7 +3591,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
   QStringList argv;
   int         rc;
 
-  if (csiSubModels.size() > 0) {
+  if (csiSubModels.size()) {
 
       /* read in all detected sub model file content */
       for (int index = 0; index < csiSubModels.size(); index++) {
@@ -3581,9 +3606,11 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
 
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
-          csiSubModelParts << QString("0 %1").arg(modelName);
-          csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
-          csiSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
+          if (imageType != Options::Mt::MON) {
+              csiSubModelParts << QString("0 %1").arg(modelName);
+              csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
+              csiSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
+          }
 
           /* read the actual submodel file */
           QFile ldrfile(ldrName);
@@ -3632,6 +3659,11 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                         }
                     }
 
+                  if (imageType == Options::Mt::MON) {
+                      if (type.startsWith("mono_"))
+                          isCustomSubModel = true;
+                  }
+
                   if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
                       if (!newSubModels.contains(type.toLower()))
@@ -3648,9 +3680,8 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
 
       /* recurse and process any identified submodel files */
       if (newSubModels.size() > 0){
-          if (newSubModels.size() > 2)
-              newSubModels.removeDuplicates();
-          if ((rc = mergeNativeCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+          newSubModels.removeDuplicates();
+          if ((rc = mergeNativeCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer CSI submodels"));
               return rc;
             }
