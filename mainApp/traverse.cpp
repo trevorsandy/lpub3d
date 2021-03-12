@@ -487,15 +487,15 @@ int Gui::drawPage(
   steps->isMirrored = opts.isMirrored;
   page.coverPage = false;
 
-  Rc gprc = OkRc;
-  Rc rc   = OkRc;
+  Rc gprc    = OkRc;
+  Rc rc      = OkRc;
   int retVal = 0;
 
   // include file vars
   Where includeHere;
-  Rc includeFileRc        = EndOfFileRc;
-  bool inserted           = false;
-  bool resetIncludeRc     = false;
+  Rc    includeFileRc = EndOfFileRc;
+  bool inserted       = false;
+  bool resetIncludeRc = false;
 
   // set page header/footer width
   float pW;
