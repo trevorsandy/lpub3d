@@ -42,6 +42,15 @@ Callout *AbstractRangeElement::callout()
   return dynamic_cast<Callout *>(grandparent());
 }
 
+void AbstractRangeElement::setTopOfStep(const Where &tos)
+{
+  top = tos;
+}
+void AbstractRangeElement::setBottomOfStep(const Where &bos)
+{
+  bottom = bos;
+}
+
 const Where &AbstractRangeElement::topOfStep()
 {
   return top;

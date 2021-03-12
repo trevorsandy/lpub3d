@@ -46,6 +46,7 @@ class AbstractRangeElement : public Placement {
   public:
     AbstractStepsElement *parent;
     Where   top;
+    Where   bottom;
 
     AbstractRangeElement()
     {
@@ -53,8 +54,9 @@ class AbstractRangeElement : public Placement {
 
     virtual ~AbstractRangeElement() {};
 
+    void         setTopOfStep(const Where &);
+    void         setBottomOfStep(const Where &);
     const Where &topOfStep();
-    void         setTopOfStep(Where &);
     const Where &bottomOfStep();
     const Where &topOfRange();
     const Where &bottomOfRange();
