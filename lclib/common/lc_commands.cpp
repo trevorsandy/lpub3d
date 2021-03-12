@@ -718,7 +718,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Preferences"),
 		QT_TRANSLATE_NOOP("Menu", "P&references..."),
-		QT_TRANSLATE_NOOP("Status", "Change program settings"),
+		QT_TRANSLATE_NOOP("Status", "Set your preferences for the 3DViewer, 3DPreview and Parts displays"), /*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_VIEW_ZOOM_IN
