@@ -190,7 +190,10 @@ Application::Application(int &argc, char **argv)
 {
   QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
   QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
-
+#ifdef Q_OS_WIN
+  // Set distribution type
+  Preferences::setDistribution();
+#endif
   m_instance = this;
 }
 
@@ -448,8 +451,6 @@ void Application::initialize()
     // process arguments
     bool headerPrinted = false;
 #ifdef Q_OS_WIN
-    // Set distribution type
-    Preferences::setDistribution();
     // Request console redirect
     bool consoleRedirectTreated = false;
 #endif

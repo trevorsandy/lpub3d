@@ -54,7 +54,7 @@ struct lcCommandLineOptions
     int ImageWidth;
     int ImageHeight;
     int AASamples;
-//	int StudLogo; /*** LPub3D Mod - process command line ***/
+    int StudLogo;
     int ImageStart;
     int ImageEnd;
     lcVector3 CameraPosition[3];
@@ -73,7 +73,8 @@ struct lcCommandLineOptions
     QString SaveCOLLADAName;
     QString SaveHTMLName;
     QList<QPair<QString, bool>> LibraryPaths;
-    QString Output;
+    QString StdOut;
+    QString StdErr;
 };
 /*** Mod end ***/
 
