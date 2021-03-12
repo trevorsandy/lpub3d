@@ -1876,10 +1876,10 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
 
 void QTextEditor::mouseReleaseEvent(QMouseEvent *event)
 {
+  QWidget::mouseReleaseEvent(event);
   if (event->button() == Qt::LeftButton) {
      emit updateSelectedParts();
   }
-  QWidget::mouseReleaseEvent(event);
 }
 
 void QTextEditor::toggleComment(){
