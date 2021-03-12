@@ -1505,7 +1505,7 @@ void Gui::reloadCurrentPage(){
 
 }
 
-void Gui::reloadCurrentModelFile(){
+void Gui::reloadCurrentModelFile(){ // EditModeWindow Update
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"No model file to reopen.");
         return;
@@ -1582,7 +1582,7 @@ void Gui::resetModelCache(QString file)
     }
 }
 
-void Gui::clearAndRedrawModelFile() {
+void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
 
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
@@ -1628,13 +1628,13 @@ void Gui::clearAndRedrawModelFile() {
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndReloadModelFile(bool fromProjectSetup) {
+void Gui::clearAndReloadModelFile(bool fromProjectSetup) { // EditWindow Redraw
     if (sender() == editWindow || fromProjectSetup) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
         } else {
-            _continue = maybeSave(true, SaveOnRedraw);
+            _continue = maybeSave(true, editWindow ? SaveOnRedraw : SaveOnNone);
         }
         if (!_continue)
             return;
@@ -1649,6 +1649,23 @@ void Gui::clearAllCaches()
         return;
     }
 
+    bool disableSaveOnRedraw = false;
+    if (sender() == clearAllCachesAct) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+            if (_continue) {
+                // Suppress promots in the following calls
+                disableSaveOnRedraw = true;
+                Preferences::saveOnRedraw = true;
+            }
+        }
+        if (!_continue)
+            return;
+    }
+
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
@@ -1659,6 +1676,10 @@ void Gui::clearAllCaches()
     clearCSICache();
     clearSubmodelCache();
     clearTempCache();
+
+    if (disableSaveOnRedraw) {
+        Preferences::saveOnRedraw = false;
+    }
 
     //reload current model file
     int savePage = displayPageNum;
@@ -1677,6 +1698,17 @@ void Gui::clearCustomPartCache(bool silent)
 {
   if (Paths::customDir.isEmpty())
       return;
+
+  if (sender() == clearCustomPartCacheAct) {
+      bool _continue;
+      if (Preferences::saveOnRedraw) {
+          _continue = maybeSave(false); // No prompt
+      } else {
+          _continue = maybeSave(true);
+      }
+      if (!_continue)
+          return;
+  }
 
   QMessageBox::StandardButton ret = QMessageBox::Ok;
   QString message = QString("Fade and highlight parts in %1 will be deleted. The current model parts will be regenerated. "
@@ -1724,6 +1756,17 @@ void Gui::clearPLICache()
         return;
     }
 
+    if (sender() == clearPLICacheAct) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+        }
+        if (!_continue)
+            return;
+    }
+
     QDir dir(QDir::currentPath() + "/" + Paths::partsDir);
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
@@ -1752,6 +1795,17 @@ void Gui::clearCSICache()
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to clean its assembly cache - no action taken.");
         return;
+    }
+
+    if (sender() == clearCSICacheAct) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+        }
+        if (!_continue)
+            return;
     }
 
     QDir dir(QDir::currentPath() + "/" + Paths::assemDir);
@@ -1783,6 +1837,17 @@ void Gui::clearSubmodelCache(const QString &key)
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to clean its Submodel cache - no action taken.");
         return;
+    }
+
+    if (sender() == clearSubmodelCacheAct) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+        }
+        if (!_continue)
+            return;
     }
 
     QDir dir(QDir::currentPath() + "/" + Paths::submodelDir);
@@ -1819,6 +1884,17 @@ void Gui::clearTempCache()
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,QString("A model must be open to clean its 3D cache - no action taken."));
         return;
+    }
+
+    if (sender() == clearTempCacheAct) {
+        bool _continue;
+        if (Preferences::saveOnRedraw) {
+            _continue = maybeSave(false); // No prompt
+        } else {
+            _continue = maybeSave(true);
+        }
+        if (!_continue)
+            return;
     }
 
     QDir tmpDir(QDir::currentPath() + "/" + Paths::tmpDir);
