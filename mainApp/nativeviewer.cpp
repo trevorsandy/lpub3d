@@ -1115,6 +1115,7 @@ void Gui::applyCameraSettings()
         }
 
         if (useImageSizeAct->isChecked()) {
+            cameraMeta.imageSize.setFormats(3,0,"###9");
             cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
                                            lcGetActiveProject()->GetImageHeight());
             metaString = cameraMeta.imageSize.format(true,false);
@@ -1142,6 +1143,7 @@ void Gui::applyCameraSettings()
         if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
             notEqual(qRound(Longitude),cameraMeta.cameraAngles.value(1))) {
             clearStepCache = true;
+            cameraMeta.cameraAngles.setFormats(5,2,"###9");
             cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
             metaString = cameraMeta.cameraAngles.format(true,false);
             newCommand = cameraMeta.cameraAngles.here() == undefined;
