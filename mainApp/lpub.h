@@ -782,12 +782,10 @@ public:
 
   void insertBuildMod(const QString      &buildModKey,
                       const QVector<int> &modAttributes,
-                      int                 modAction,
                       int                 stepIndex)
   {
       ldrawFile.insertBuildMod(buildModKey,
                                modAttributes,
-                               modAction,
                                stepIndex);
   }
 

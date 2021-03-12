@@ -587,7 +587,6 @@ int Gui::drawPage(
           &step,
           &buildModAttributes,
           &buildModKeys,
-          &buildModActions,
           &topOfStep] (int buildModLevel)
   {
       int stepCsiParts      = opts.csiParts.size();
@@ -609,8 +608,6 @@ int Gui::drawPage(
 
       int buildModStepIndex = getBuildModStepIndex(topOfStep);
 
-      int modAction         = buildModActions.value(buildModLevel);
-
       QString buildModKey   = buildModKeys.value(buildModLevel);
 
       QVector<int> modAttributes = { 0, 0, 0, displayPageNum, stepCsiParts, fileNameIndex, lineNumber, stepNumber };
@@ -626,17 +623,15 @@ int Gui::drawPage(
 
       insertBuildMod(buildModKey,
                      modAttributes,
-                     modAction,
                      buildModStepIndex);
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
                       "Insert DrawPage BuildMod StepIndex: %1, "
-                      "Action: %2, "
-                      "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
-                      "ModKey: %11, "
-                      "Level: %12")
+                      "Action: Apply, "
+                      "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
+                      "ModKey: %10, "
+                      "Level: %11")
                       .arg(buildModStepIndex)
-                      .arg(modAction == BuildModApplyRc ? "Apply" : "Remove")
                       .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
                       .arg(modAttributes.at(BM_ACTION_LINE_NUM))
                       .arg(modAttributes.at(BM_END_LINE_NUM))
@@ -1981,10 +1976,8 @@ int Gui::drawPage(
               if (! buildModKeys.contains(opts.buildModLevel))
                   buildModKeys.insert(opts.buildModLevel, buildModKey);
               // create this buildMod
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
+              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
-                  buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
-              }
               buildModIgnore     = false;
               buildModPliIgnore  = true;
               buildMod[BM_BEGIN] = true;
@@ -4323,11 +4316,9 @@ bool Gui::setBuildModForNextStep(
             &buildModNextStepIndex,
             &buildModAttributes,
             &buildModKeys,
-            &buildModActions,
             &topOfStep] (int buildModLevel)
     {
         int fileNameIndex   = getSubmodelIndex(topOfStep.modelName);
-        int modAction       = buildModActions.value(buildModLevel);
         int lineNumber      = topOfStep.lineNumber;
         QString buildModKey = buildModKeys.value(buildModLevel);
 
@@ -4342,17 +4333,15 @@ bool Gui::setBuildModForNextStep(
 
         insertBuildMod(buildModKey,
                        modAttributes,
-                       modAction,
                        buildModNextStepIndex);
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
                       "Insert Next-Step BuildMod StepIndex: %1, "
-                      "Action: %2, "
-                      "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
-                      "ModKey: %11, "
-                      "Level: %12")
+                      "Action: Apply, "
+                      "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
+                      "ModKey: %10, "
+                      "Level: %11")
                       .arg(buildModNextStepIndex)
-                      .arg(modAction == BuildModApplyRc ? "Apply" : "Remove")
                       .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
                       .arg(modAttributes.at(BM_ACTION_LINE_NUM))
                       .arg(modAttributes.at(BM_END_LINE_NUM))

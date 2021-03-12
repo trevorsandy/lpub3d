@@ -195,7 +195,6 @@ class BuildMod {
     }
     BuildMod(
       const QVector<int>       &modAttributes,
-      int                       modAction,
       int                       stepIndex);
     ~BuildMod()
     {
@@ -369,11 +368,10 @@ class LDrawFile {
     /* Build Modification functions */
     void insertBuildMod(const QString      &buildModKey,
                         const QVector<int> &modAttributes,
-                        int                 action,
                         int                 stepIndex);
     void insertBuildModStep(const QString  &buildModKey,
-                            int             modAction,
-                            int             stepIndex);
+                            int             stepIndex,
+                            int             modAction = 0);
     int setBuildModAction(const QString &buildModKey,
                           int            stepIndex,
                           int            modAction);
