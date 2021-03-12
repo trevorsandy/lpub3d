@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.1992 (12 03 2021 06:05:17)
+LPub3D 2.4.1.1.1993 (12 03 2021 06:05:50)
 
 Features, enhancements, fixes and changes
 ------------
@@ -45,7 +45,6 @@ Revisions:
 - Enhancement - Insert display model at any step #415
 - Enhancement - Integrate 3DViewer and native renderer camera #412
 - Enhancement - LDraw editor load paging for very large model files #442
-- Enhancement - Menu option to turn on or off part archiving on startup #437
 - Enhancement - Move helper part category to top of search list #428
 - Enhancement - Multi step PLI per step with step number and submodel preview #382
 - Enhancement - Open parameter files in designated system editor #429
@@ -60,6 +59,7 @@ Revisions:
 - Enhancement - Use relative path for images #400
 - Change - Add OpenSSL v1.0 libraries to Windows distribution #393
 - Change - Enable rotate icon placement on single step page #348
+- Change - Menu option to turn on or off part archiving on startup #437
 - Change - OFFSET inconsistently uses relative and pixel values #383
 - Change - PNG Export - transparent background exports as black background #380
 - Change - Redesign ldrawFile load and parse checks #398
