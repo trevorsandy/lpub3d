@@ -50,6 +50,7 @@
 
 const QStringList BuildModChangeTriggers = QStringList()
         << "Deleting" << "Adding Piece"
+        << "Move"     << "Rotate"
         << "Moving"   << "Rotating"
         << "Painting" << "New Model"
         << "Cutting"  << "Pasting"
@@ -2960,11 +2961,8 @@ bool Gui::saveBuildModification()
     if (!Preferences::buildModEnabled)
         return true;     // continue
 
-    // TODO - Enable for Unofficial PLI part - i.e. Custom, Substitute or Generated parts
-
     Project* Project = lcGetActiveProject();
-    if (Project->GetImageType() == Options::PLI /*&&
-       !Project->IsUnofficialPart()*/)
+    if (Project->GetImageType() != Options::CSI)
         return true;     // continue
 
     QString change = undoAct->data().toString();

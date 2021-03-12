@@ -3152,7 +3152,7 @@ void Gui::closeEvent(QCloseEvent *event)
   if (parmsWindow->isVisible())
     parmsWindow->close();
 
-  if (maybeSave()) {
+  if (maybeSave() && saveBuildModification()) {
       event->accept();
     } else {
       event->ignore();
