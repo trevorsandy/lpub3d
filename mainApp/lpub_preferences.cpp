@@ -63,19 +63,19 @@ const QString msgKeyTypes [][2] = {
 };
 
 Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
-{   //Key                                                Color      Label                                       // THEME_DEFAULT
-    {"ThemeDefaultSceneBgcolor",                         "#aeadac", "Scene Background"                          }, // THEME_DEFAULT_SCENE_BGCOLOR
-    {"ThemeDefaultGridPen",                              "#1e1b18", "Grid Pen"                                  }, // THEME_DEFAULT_GRID_PEN
-    {"ThemeDefaultRulerTickPen",                         "#35322f", "Ruler Tick Pen"                            }, // THEME_DEFAULT_RULER_TICK_PEN
+{   //KEY                                                COLOR      LABEL                                          // THEME_DEFAULT
+    {"ThemeDefaultSceneBgcolor",                         "#AEADAC", "Scene Background"                          }, // THEME_DEFAULT_SCENE_BGCOLOR
+    {"ThemeDefaultGridPen",                              "#1E1B18", "Grid Pen"                                  }, // THEME_DEFAULT_GRID_PEN
+    {"ThemeDefaultRulerPen",                             "#1E1B18", "Ruler Pen (uses Grid Pen)"                 }, // THEME_DEFAULT_RULER_PEN [NOT USED]
+    {"ThemeDefaultRulerTickPen",                         "#35322F", "Ruler Tick Pen"                            }, // THEME_DEFAULT_RULER_TICK_PEN
     {"ThemeDefaultRulerTrackPen",                        "#00FF00", "Ruler Track Pen"                           }, // THEME_DEFAULT_RULER_TRACK_PEN
-    {"ThemeDefaultGuidePen",                             "#aa0000", "Guide Pen"                                 }, // THEME_DEFAULT_GUIDE_PEN
+    {"ThemeDefaultGuidePen",                             "#AA0000", "Guide Pen"                                 }, // THEME_DEFAULT_GUIDE_PEN
     {"ThemeDefaultTransPageBorder",                      "#535559", "Page Hidden Background Border"             }, // THEME_DEFAULT_TRANS_PAGE_BORDER
-    {"ThemeDefaultRulerPen",                               "#1e1b18", "Ruler Pen (uses Grid Pen)"               }, // THEME_DEFAULT_NML_PEN [NOT USED]
 
-    {"ThemeDefaultPaletteLight",                         "#aeadac", "Palette Light"                             }, // THEME_DEFAULT_PALETTE_LIGHT
+    {"ThemeDefaultPaletteLight",                         "#AEADAC", "Palette Light"                             }, // THEME_DEFAULT_PALETTE_LIGHT
 
     {"ThemeDefaultViewerBackgroundColor",                "#FFFFFF", "Viewer Background"                         }, // THEME_DEFAULT_VIEWER_BACKGROUND_COLOR                      255, 255, 255, 255 LC_PROFILE_BACKGROUND_COLOR
-    {"ThemeDefaultViewerGradientColorTop",               "#36485f", "Viewer Gradient Top"                       }, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP                     54,  72,  95, 255 LC_PROFILE_GRADIENT_COLOR_TOP
+    {"ThemeDefaultViewerGradientColorTop",               "#36485F", "Viewer Gradient Top"                       }, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP                     54,  72,  95, 255 LC_PROFILE_GRADIENT_COLOR_TOP
     {"ThemeDefaultViewerGradientColorBottom",            "#313437", "Viewer Gradient Bottom"                    }, // THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM                  49,  52,  55, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
     {"ThemeDefaultAxesColor",                            "#000000", "Viewer Axes"                               }, // THEME_DEFAULT_AXES_COLOR                                     0,   0,   0, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDefaultOverlayColor",                         "#000000", "Viewer Overlay"                            }, // THEME_DEFAULT_OVERLAY_COLOR                                  0,   0,   0, 255 LC_PROFILE_OVERLAY_COLOR
@@ -88,102 +88,104 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultViewSphereHlightColor",                "#FF0000", "Viewer View Sphere Hlight"                 }, // THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR                     255,   0,   0, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 
     {"ThemeDefaultDecorateLDrawComments",                "#006325", "Decorate LDraw Comments"                   }, // THEME_DEFAULT_DECORATE_LDRAW_COMMENTS                     br01
-    {"ThemeDefaultDecorateLDrawHeader",                  "#4f97ba", "Decorate LDraw Header"                     }, // THEME_DEFAULT_DECORATE_LDRAW_HEADER                       br02
-    {"ThemeDefaultDecorateLDrawBody",                    "#005af6", "Decorate LDraw Body"                       }, // THEME_DEFAULT_DECORATE_LDRAW_BODY                         br03
-    {"ThemeDefaultDecorateLPub3DLocal",                  "#609cff", "Decorate LPub3D Local"                     }, // THEME_DEFAULT_DECORATE_LPUB3D_LOCAL                       br04
-    {"ThemeDefaultDecorateLPub3DGlobal",                 "#57649b", "Decorate LPub3D Global"                    }, // THEME_DEFAULT_DECORATE_LPUB3D_GLOBAL                      br05
+    {"ThemeDefaultDecorateLDrawHeader",                  "#4F97BA", "Decorate LDraw Header"                     }, // THEME_DEFAULT_DECORATE_LDRAW_HEADER                       br02
+    {"ThemeDefaultDecorateLDrawBody",                    "#005AF6", "Decorate LDraw Body"                       }, // THEME_DEFAULT_DECORATE_LDRAW_BODY                         br03
+    {"ThemeDefaultDecorateLPub3DLocal",                  "#609CFF", "Decorate LPub3D Local"                     }, // THEME_DEFAULT_DECORATE_LPUB3D_LOCAL                       br04
+    {"ThemeDefaultDecorateLPub3DGlobal",                 "#57649B", "Decorate LPub3D Global"                    }, // THEME_DEFAULT_DECORATE_LPUB3D_GLOBAL                      br05
 
     {"ThemeDefaultDecorateLDrawLineType1",               "#816288", "Decorate LDraw Line Type 1"                }, // THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_1                  br06
-    {"ThemeDefaultDecorateLDrawColourCode",              "#f46105", "Decorate LDraw Colour Code"                }, // THEME_DEFAULT_DECORATE_LDRAW_COLOUR_CODE                  br07
-    {"ThemeDefaultDecorateLDrawPartPosition",            "#ed3d63", "Decorate LDraw Part Position"              }, // THEME_DEFAULT_DECORATE_LDRAW_PART_POSITION                br08
-    {"ThemeDefaultDecorateLDrawPartTransform1",          "#8bc3f6", "Decorate LDraw Part Transform 1"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_1             br09
-    {"ThemeDefaultDecorateLDrawPartTransform2",          "#51acff", "Decorate LDraw Part Transform 2"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_2             br10
-    {"ThemeDefaultDecorateLDrawPartTransform3",          "#2f86ff", "Decorate LDraw Part Transform 3"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_3             br11
+    {"ThemeDefaultDecorateLDrawColourCode",              "#F46105", "Decorate LDraw Colour Code"                }, // THEME_DEFAULT_DECORATE_LDRAW_COLOUR_CODE                  br07
+    {"ThemeDefaultDecorateLDrawPartPosition",            "#ED3D63", "Decorate LDraw Part Position"              }, // THEME_DEFAULT_DECORATE_LDRAW_PART_POSITION                br08
+    {"ThemeDefaultDecorateLDrawPartTransform1",          "#8BC3F6", "Decorate LDraw Part Transform 1"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_1             br09
+    {"ThemeDefaultDecorateLDrawPartTransform2",          "#51ACFF", "Decorate LDraw Part Transform 2"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_2             br10
+    {"ThemeDefaultDecorateLDrawPartTransform3",          "#2F86FF", "Decorate LDraw Part Transform 3"           }, // THEME_DEFAULT_DECORATE_LDRAW_PART_TRANSFORM_3             br11
     {"ThemeDefaultDecorateLDrawPartFile",                "#084575", "Decorate LDraw Part File"                  }, // THEME_DEFAULT_DECORATE_LDRAW_PART_FILE                    br12
-    {"ThemeDefaultDecorateLDrawLineTypes2To5",           "#7d5e18", "Decorate LDraw Line Types 2 To 5"          }, // THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPES_2_TO_5            br13
-    {"ThemeDefaultDecorateLPub3DNumber",                 "#fc9b14", "Decorate LPub3D Number"                    }, // THEME_DEFAULT_DECORATE_LPUB3D_NUMBER                      br14
-    {"ThemeDefaultDecorateLPub3DHexNumber",              "#b87620", "Decorate LPub3D Hex Number"                }, // THEME_DEFAULT_DECORATE_LPUB3D_HEX_NUMBER                  br15
-    {"ThemeDefaultDecorateLPub3DPageSize",               "#c15317", "Decorate LPub3D Page Size"                 }, // THEME_DEFAULT_DECORATE_LPUB3D_PAGE_SIZE                   br16
+    {"ThemeDefaultDecorateLDrawLineTypes2To5",           "#7D5E18", "Decorate LDraw Line Types 2 To 5"          }, // THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPES_2_TO_5            br13
+    {"ThemeDefaultDecorateLPub3DNumber",                 "#FC9B14", "Decorate LPub3D Number"                    }, // THEME_DEFAULT_DECORATE_LPUB3D_NUMBER                      br14
+    {"ThemeDefaultDecorateLPub3DHexNumber",              "#B87620", "Decorate LPub3D Hex Number"                }, // THEME_DEFAULT_DECORATE_LPUB3D_HEX_NUMBER                  br15
+    {"ThemeDefaultDecorateLPub3DPageSize",               "#C15317", "Decorate LPub3D Page Size"                 }, // THEME_DEFAULT_DECORATE_LPUB3D_PAGE_SIZE                   br16
 
-    {"ThemeDefaultDecorateLeoCAD",                       "#14148c", "Decorate LeoCAD"                           }, // THEME_DEFAULT_DECORATE_LEOCAD                             br17
-    {"ThemeDefaultDecorateLSynth",                       "#d882f6", "Decorate LSynth"                           }, // THEME_DEFAULT_DECORATE_LSYNTH                             br18
-    {"ThemeDefaultDecorateLDCad",                        "#ff9900", "Decorate LDCad"                            }, // THEME_DEFAULT_DECORATE_LDCAD                              br19
-    {"ThemeDefaultDecorateMLCad",                        "#0079cf", "Decorate MLCad"                            }, // THEME_DEFAULT_DECORATE_MLCAD                              br20
-    {"ThemeDefaultDecorateMLCadBody",                    "#9421a6", "Decorate MLCad Body"                       }, // THEME_DEFAULT_DECORATE_MLCAD_BODY                         br21
-    {"ThemeDefaultDecorateLPub3DFalse",                  "#ff1818", "Decorate LPub3D False"                     }, // THEME_DEFAULT_DECORATE_LPUB3D_FALSE                       br22
+    {"ThemeDefaultDecorateLeoCAD",                       "#14148C", "Decorate LeoCAD"                           }, // THEME_DEFAULT_DECORATE_LEOCAD                             br17
+    {"ThemeDefaultDecorateLSynth",                       "#D882F6", "Decorate LSynth"                           }, // THEME_DEFAULT_DECORATE_LSYNTH                             br18
+    {"ThemeDefaultDecorateLDCad",                        "#FF9900", "Decorate LDCad"                            }, // THEME_DEFAULT_DECORATE_LDCAD                              br19
+    {"ThemeDefaultDecorateMLCad",                        "#0079CF", "Decorate MLCad"                            }, // THEME_DEFAULT_DECORATE_MLCAD                              br20
+    {"ThemeDefaultDecorateMLCadBody",                    "#9421A6", "Decorate MLCad Body"                       }, // THEME_DEFAULT_DECORATE_MLCAD_BODY                         br21
+    {"ThemeDefaultDecorateLPub3DFalse",                  "#FF1818", "Decorate LPub3D False"                     }, // THEME_DEFAULT_DECORATE_LPUB3D_FALSE                       br22
     {"ThemeDefaultDecorateLPub3DTrue",                   "#008000", "Decorate LPub3D True"                      }, // THEME_DEFAULT_DECORATE_LPUB3D_TRUE                        br23
-    {"ThemeDefaultDecorateLPub3D",                       "#cc5980", "Decorate LPub3D"                           }, // THEME_DEFAULT_DECORATE_LPUB3D                             br24
-    {"ThemeDefaultDecorateLPub3DBody",                   "#aa0000", "Decorate LPub3D Body"                      }, // THEME_DEFAULT_DECORATE_LPUB3D_BODY                        br25
+    {"ThemeDefaultDecorateLPub3D",                       "#CC5980", "Decorate LPub3D"                           }, // THEME_DEFAULT_DECORATE_LPUB3D                             br24
+    {"ThemeDefaultDecorateLPub3DBody",                   "#AA0000", "Decorate LPub3D Body"                      }, // THEME_DEFAULT_DECORATE_LPUB3D_BODY                        br25
     {"ThemeDefaultDecorateLDrawHeaderValue",             "#545454", "Decorate LDraw Header Value"               }, // THEME_DEFAULT_DECORATE_LDRAW_HEADER_VALUE                 br26
-    {"ThemeDefaultDecorateLPub3DQuotedText",             "#231aff", "Decorate LPub3D Quoted Text"               }, // THEME_DEFAULT_DECORATE_LPUB3D_QUOTED_TEXT                 br27
+    {"ThemeDefaultDecorateLPub3DQuotedText",             "#231AFF", "Decorate LPub3D Quoted Text"               }, // THEME_DEFAULT_DECORATE_LPUB3D_QUOTED_TEXT                 br27
     {"ThemeDefaultDecorateLDrawLineType0FirstCharacter", "#000000", "Decorate LDraw Line Type 0 First Character"}, // THEME_DEFAULT_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER  br28
-    {"ThemeDefaultDecorateLDCadGroupDefine",             "#bd4900", "Decorate LDCad Group Define"               }, // THEME_DEFAULT_DECORATE_LDCAD_GROUP_DEFINE                 br29
+    {"ThemeDefaultDecorateLDCadGroupDefine",             "#BD4900", "Decorate LDCad Group Define"               }, // THEME_DEFAULT_DECORATE_LDCAD_GROUP_DEFINE                 br29
 
     {"ThemeDefaultDecorateIniFileComment",               "#006325", "Decorate Ini File Comment"                 }, // THEME_DEFAULT_DECORATE_INI_FILE_COMMENT                   br01
-    {"ThemeDefaultDecorateIniFileHeader",                "#14148c", "Decorate Ini File Header"                  }, // THEME_DEFAULT_DECORATE_INI_FILE_HEADER                    br02
-    {"ThemeDefaultDecorateIniFileEqual",                 "#0057ff", "Decorate Ini File Equal"                   }, // THEME_DEFAULT_DECORATE_INI_FILE_EQUAL                     br03
-    {"ThemeDefaultDecorateIniFileValue",                 "#b25a2f", "Decorate Ini File Value"                   }, // THEME_DEFAULT_DECORATE_INI_FILE_VALUE                     br04
+    {"ThemeDefaultDecorateIniFileHeader",                "#14148C", "Decorate Ini File Header"                  }, // THEME_DEFAULT_DECORATE_INI_FILE_HEADER                    br02
+    {"ThemeDefaultDecorateIniFileEqual",                 "#0057FF", "Decorate Ini File Equal"                   }, // THEME_DEFAULT_DECORATE_INI_FILE_EQUAL                     br03
+    {"ThemeDefaultDecorateIniFileValue",                 "#B25A2F", "Decorate Ini File Value"                   }, // THEME_DEFAULT_DECORATE_INI_FILE_VALUE                     br04
 
     {"ThemeDefaultDecorateParameterFilePartId",          "#084575", "Decorate Parameter File Part Id"           }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_ID             br05
-    {"ThemeDefaultDecorateParameterFilePartControl",     "#9421a6", "Decorate Parameter File Part Control"      }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_CONTROL        br06
-    {"ThemeDefaultDecorateParameterFilePartDescription", "#aa0000", "Decorate Parameter File Part Description"  }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION    br07
+    {"ThemeDefaultDecorateParameterFilePartControl",     "#9421A6", "Decorate Parameter File Part Control"      }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_CONTROL        br06
+    {"ThemeDefaultDecorateParameterFilePartDescription", "#AA0000", "Decorate Parameter File Part Description"  }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION    br07
 
-    {"ThemeDefaultLineHighlight",                        "#ccccff", "Editor Line Highlight"                     }, // THEME_DEFAULT_LINE_HIGHLIGHT (.70 alpha)                   Qt:blue:lighter(180)
-    {"ThemeDefaultLineError",                            "#ffcccc", "Editor Line Error"                         }, // THEME_DEFAULT_LINE_ERROR (.70 alpha)                       Qt:Red:lighter(180)
+    {"ThemeDefaultLineSelect",                           "#AA0000", "Editor Line Select"                        }, // THEME_DEFAULT_LINE_SELECT (30 alpha range of 0-255)
+    {"ThemeDefaultLineHighlight",                        "#CCCCFF", "Editor Line Highlight"                     }, // THEME_DEFAULT_LINE_HIGHLIGHT (.70 alpha)                   Qt:blue:lighter(180)
+    {"ThemeDefaultLineError",                            "#FFCCCC", "Editor Line Error"                         }, // THEME_DEFAULT_LINE_ERROR (.70 alpha)                       Qt:Red:lighter(180)
 
-    //Key                                                Color      Label                                         // THEME_DARK
-    {"ThemeDarkSceneBgcolor",                            "#31363b", "Scene Background"                          }, // THEME_DARK_SCENE_BGCOLOR
-    {"ThemeDarkGridPen",                                 "#ffffff", "Grid Pen"                                  }, // THEME_DARK_GRID_PEN
-    {"ThemeDarkRulerTickPen",                            "#eff0f1", "Ruler Tick Pen"                            }, // THEME_DARK_RULER_TICK_PEN
+    //KEY                                                COLOR      LABEL                                          // THEME_DARK
+    {"ThemeDarkSceneBgcolor",                            "#31363B", "Scene Background"                          }, // THEME_DARK_SCENE_BGCOLOR
+    {"ThemeDarkGridPen",                                 "#FFFFFF", "Grid Pen"                                  }, // THEME_DARK_GRID_PEN
+    {"ThemeDarkRulerPen",                                "#FFFFFF", "Ruler Pen (uses Grid Pen)"                 }, // THEME_DARK_RULER_PEN [NOT USED]
+    {"ThemeDarkRulerTickPen",                            "#EFF0F1", "Ruler Tick Pen"                            }, // THEME_DARK_RULER_TICK_PEN
     {"ThemeDarkRulerTrackPen",                           "#00FF00", "Ruler Track Pen"                           }, // THEME_DARK_RULER_TRACK_PEN
-    {"ThemeDarkGuidePen",                                "#aa0000", "Guide Pen"                                 }, // THEME_DARK_GUIDE_PEN
-    {"ThemeDarkTransPageBorder",                         "#aeadac", "Page Hidden Background Border"             }, // THEME_DARK_TRANS_PAGE_BORDER
-    {"ThemeDarkRulerPen",                                "#ffffff", "Ruler Pen (uses Grid Pen)"                 }, // THEME_DARK_RULER_PEN [NOT USED]
+    {"ThemeDarkGuidePen",                                "#AA0000", "Guide Pen"                                 }, // THEME_DARK_GUIDE_PEN
+    {"ThemeDarkTransPageBorder",                         "#AEADAC", "Page Hidden Background Border"             }, // THEME_DARK_TRANS_PAGE_BORDER
     {"ThemeDarkEditMargin",                              "#ABB2B9", "Edit Margin"                               }, // THEME_DARK_EDIT_MARGIN
 
-    {"ThemeDarkDecorateLDrawComments",                   "#17c723", "Decorate LDraw Comments"                   }, // THEME_DARK_DECORATE_LDRAW_COMMENTS                        br01
-    {"ThemeDarkDecorateLDrawHeader",                     "#fb743e", "Decorate LDraw Header"                     }, // THEME_DARK_DECORATE_LDRAW_HEADER                          br02
-    {"ThemeDarkDecorateLDrawBody",                       "#14aaff", "Decorate LDraw Body"                       }, // THEME_DARK_DECORATE_LDRAW_BODY                            br03
-    {"ThemeDarkDecorateLPub3DLocal",                     "#609cff", "Decorate LPub3D Local"                     }, // THEME_DARK_DECORATE_LPUB3D_LOCAL                          br04
-    {"ThemeDarkDecorateLPub3DGlobal",                    "#a0b2e2", "Decorate LPub3D Global"                    }, // THEME_DARK_DECORATE_LPUB3D_GLOBAL                         br05
+    {"ThemeDarkDecorateLDrawComments",                   "#17C723", "Decorate LDraw Comments"                   }, // THEME_DARK_DECORATE_LDRAW_COMMENTS                        br01
+    {"ThemeDarkDecorateLDrawHeader",                     "#FB743E", "Decorate LDraw Header"                     }, // THEME_DARK_DECORATE_LDRAW_HEADER                          br02
+    {"ThemeDarkDecorateLDrawBody",                       "#14AAFF", "Decorate LDraw Body"                       }, // THEME_DARK_DECORATE_LDRAW_BODY                            br03
+    {"ThemeDarkDecorateLPub3DLocal",                     "#609CFF", "Decorate LPub3D Local"                     }, // THEME_DARK_DECORATE_LPUB3D_LOCAL                          br04
+    {"ThemeDarkDecorateLPub3DGlobal",                    "#A0B2E2", "Decorate LPub3D Global"                    }, // THEME_DARK_DECORATE_LPUB3D_GLOBAL                         br05
 
-    {"ThemeDarkDecorateLDrawLineType1",                  "#c2a4c0", "Decorate LDraw Line Type 1"                }, // THEME_DARK_DECORATE_LDRAW_LINE_TYPE_1                     br06
-    {"ThemeDarkDecorateLDrawColourCode",                 "#f46105", "Decorate LDraw Colour Code"                }, // THEME_DARK_DECORATE_LDRAW_COLOUR_CODE                     br07
-    {"ThemeDarkDecorateLDrawPartPosition",               "#46b5d1", "Decorate LDraw Part Position"              }, // THEME_DARK_DECORATE_LDRAW_PART_POSITION                   br08
-    {"ThemeDarkDecorateLDrawPartTransform1",             "#ddffef", "Decorate LDraw Part Transform 1"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_1                br09
-    {"ThemeDarkDecorateLDrawPartTransform2",             "#a2ffd2", "Decorate LDraw Part Transform 2"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_2                br10
-    {"ThemeDarkDecorateLDrawPartTransform3",             "#5cffb0", "Decorate LDraw Part Transform 3"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_3                br11
-    {"ThemeDarkDecorateLDrawPartFile",                   "#c3f6fe", "Decorate LDraw Part File"                  }, // THEME_DARK_DECORATE_LDRAW_PART_FILE                       br12
-    {"ThemeDarkDecorateLDrawLineTypes2To5",              "#7d5e18", "Decorate LDraw Line Types 2 To 5"          }, // THEME_DARK_DECORATE_LDRAW_LINE_TYPES_2_TO_5               br13
-    {"ThemeDarkDecorateLPub3DNumber",                    "#fc9b14", "Decorate LPub3D Number"                    }, // THEME_DARK_DECORATE_LPUB3D_NUMBER                         br14
-    {"ThemeDarkDecorateLPub3DHexNumber",                 "#b87620", "Decorate LPub3D Hex Number"                }, // THEME_DARK_DECORATE_LPUB3D_HEX_NUMBER                     br15
-    {"ThemeDarkDecorateLPub3DPageSize",                  "#c15317", "Decorate LPub3D Page Size"                 }, // THEME_DARK_DECORATE_LPUB3D_PAGE_SIZE                      br16
+    {"ThemeDarkDecorateLDrawLineType1",                  "#C2A4C0", "Decorate LDraw Line Type 1"                }, // THEME_DARK_DECORATE_LDRAW_LINE_TYPE_1                     br06
+    {"ThemeDarkDecorateLDrawColourCode",                 "#F46105", "Decorate LDraw Colour Code"                }, // THEME_DARK_DECORATE_LDRAW_COLOUR_CODE                     br07
+    {"ThemeDarkDecorateLDrawPartPosition",               "#46B5D1", "Decorate LDraw Part Position"              }, // THEME_DARK_DECORATE_LDRAW_PART_POSITION                   br08
+    {"ThemeDarkDecorateLDrawPartTransform1",             "#DDFFEF", "Decorate LDraw Part Transform 1"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_1                br09
+    {"ThemeDarkDecorateLDrawPartTransform2",             "#A2FFD2", "Decorate LDraw Part Transform 2"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_2                br10
+    {"ThemeDarkDecorateLDrawPartTransform3",             "#5CFFB0", "Decorate LDraw Part Transform 3"           }, // THEME_DARK_DECORATE_LDRAW_PART_TRANSFORM_3                br11
+    {"ThemeDarkDecorateLDrawPartFile",                   "#C3F6FE", "Decorate LDraw Part File"                  }, // THEME_DARK_DECORATE_LDRAW_PART_FILE                       br12
+    {"ThemeDarkDecorateLDrawLineTypes2To5",              "#7D5E18", "Decorate LDraw Line Types 2 To 5"          }, // THEME_DARK_DECORATE_LDRAW_LINE_TYPES_2_TO_5               br13
+    {"ThemeDarkDecorateLPub3DNumber",                    "#FC9B14", "Decorate LPub3D Number"                    }, // THEME_DARK_DECORATE_LPUB3D_NUMBER                         br14
+    {"ThemeDarkDecorateLPub3DHexNumber",                 "#B87620", "Decorate LPub3D Hex Number"                }, // THEME_DARK_DECORATE_LPUB3D_HEX_NUMBER                     br15
+    {"ThemeDarkDecorateLPub3DPageSize",                  "#C15317", "Decorate LPub3D Page Size"                 }, // THEME_DARK_DECORATE_LPUB3D_PAGE_SIZE                      br16
 
-    {"ThemeDarkDecorateLeoCAD",                          "#0079cf", "Decorate LeoCAD"                           }, // THEME_DARK_DECORATE_LEOCAD                                br17
-    {"ThemeDarkDecorateLSynth",                          "#ff9900", "Decorate LSynth"                           }, // THEME_DARK_DECORATE_LSYNTH                                br18
-    {"ThemeDarkDecorateLDCad",                           "#ff9900", "Decorate LDCad"                            }, // THEME_DARK_DECORATE_LDCAD                                 br19
-    {"ThemeDarkDecorateMLCad",                           "#0079cf", "Decorate MLCad"                            }, // THEME_DARK_DECORATE_MLCAD                                 br20
-    {"ThemeDarkDecorateMLCadBody",                       "#9421a6", "Decorate MLCad Body"                       }, // THEME_DARK_DECORATE_MLCAD_BODY                            br21
-    {"ThemeDarkDecorateLPub3DFalse",                     "#ff8080", "Decorate LPub3D False"                     }, // THEME_DARK_DECORATE_LPUB3D_FALSE                          br22
-    {"ThemeDarkDecorateLPub3DTrue",                      "#adff2f", "Decorate LPub3D True"                      }, // THEME_DARK_DECORATE_LPUB3D_TRUE                           br23
-    {"ThemeDarkDecorateLPub3D",                          "#f638dc", "Decorate LPub3D"                           }, // THEME_DARK_DECORATE_LPUB3D                                br24
-    {"ThemeDarkDecorateLPub3DBody",                      "#ff3366", "Decorate LPub3D Body"                      }, // THEME_DARK_DECORATE_LPUB3D_BODY                           br25
-    {"ThemeDarkDecorateLDrawHeaderValue",                "#aeaeae", "Decorate LDraw Header Value"               }, // THEME_DARK_DECORATE_LDRAW_HEADER_VALUE                    br26
-    {"ThemeDarkDecorateLPub3DQuotedText",                "#81d4fa", "Decorate LPub3D Quoted Text"               }, // THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT                    br27
+    {"ThemeDarkDecorateLeoCAD",                          "#0079CF", "Decorate LeoCAD"                           }, // THEME_DARK_DECORATE_LEOCAD                                br17
+    {"ThemeDarkDecorateLSynth",                          "#FF9900", "Decorate LSynth"                           }, // THEME_DARK_DECORATE_LSYNTH                                br18
+    {"ThemeDarkDecorateLDCad",                           "#FF9900", "Decorate LDCad"                            }, // THEME_DARK_DECORATE_LDCAD                                 br19
+    {"ThemeDarkDecorateMLCad",                           "#0079CF", "Decorate MLCad"                            }, // THEME_DARK_DECORATE_MLCAD                                 br20
+    {"ThemeDarkDecorateMLCadBody",                       "#9421A6", "Decorate MLCad Body"                       }, // THEME_DARK_DECORATE_MLCAD_BODY                            br21
+    {"ThemeDarkDecorateLPub3DFalse",                     "#FF8080", "Decorate LPub3D False"                     }, // THEME_DARK_DECORATE_LPUB3D_FALSE                          br22
+    {"ThemeDarkDecorateLPub3DTrue",                      "#ADFF2F", "Decorate LPub3D True"                      }, // THEME_DARK_DECORATE_LPUB3D_TRUE                           br23
+    {"ThemeDarkDecorateLPub3D",                          "#F638DC", "Decorate LPub3D"                           }, // THEME_DARK_DECORATE_LPUB3D                                br24
+    {"ThemeDarkDecorateLPub3DBody",                      "#FF3366", "Decorate LPub3D Body"                      }, // THEME_DARK_DECORATE_LPUB3D_BODY                           br25
+    {"ThemeDarkDecorateLDrawHeaderValue",                "#AEAEAE", "Decorate LDraw Header Value"               }, // THEME_DARK_DECORATE_LDRAW_HEADER_VALUE                    br26
+    {"ThemeDarkDecorateLPub3DQuotedText",                "#81D4FA", "Decorate LPub3D Quoted Text"               }, // THEME_DARK_DECORATE_LPUB3D_QUOTED_TEXT                    br27
     {"ThemeDarkDecorateLDrawLineType0FirstCharacter",    "#FFFFFF", "Decorate LDraw Line Type 0 First Character"}, // THEME_DARK_DECORATE_LDRAW_LINE_TYPE_0_FIRST_CHARACTER     br28
-    {"ThemeDarkDecorateLDCadGroupDefine",                "#bd4900", "Decorate LDCad Group Define"               }, // THEME_DARK_DECORATE_LDCAD_GROUP_DEFINE                    br29
+    {"ThemeDarkDecorateLDCadGroupDefine",                "#BD4900", "Decorate LDCad Group Define"               }, // THEME_DARK_DECORATE_LDCAD_GROUP_DEFINE                    br29
 
-    {"ThemeDarkDecorateIniFileComment",                  "#17c723", "Decorate Ini File Comment"                 }, // THEME_DARK_DECORATE_INI_FILE_COMMENT                      br01
-    {"ThemeDarkDecorateIniFileHeader",                   "#0079cf", "Decorate Ini File Header"                  }, // THEME_DARK_DECORATE_INI_FILE_HEADER                       br02
-    {"ThemeDarkDecorateIniFileEqual",                    "#ff5227", "Decorate Ini File Equal"                   }, // THEME_DARK_DECORATE_INI_FILE_EQUAL                        br03
-    {"ThemeDarkDecorateIniFileValue",                    "#bbbfff", "Decorate Ini File Value"                   }, // THEME_DARK_DECORATE_INI_FILE_VALUE                        br04
+    {"ThemeDarkDecorateIniFileComment",                  "#17C723", "Decorate Ini File Comment"                 }, // THEME_DARK_DECORATE_INI_FILE_COMMENT                      br01
+    {"ThemeDarkDecorateIniFileHeader",                   "#0079CF", "Decorate Ini File Header"                  }, // THEME_DARK_DECORATE_INI_FILE_HEADER                       br02
+    {"ThemeDarkDecorateIniFileEqual",                    "#FF5227", "Decorate Ini File Equal"                   }, // THEME_DARK_DECORATE_INI_FILE_EQUAL                        br03
+    {"ThemeDarkDecorateIniFileValue",                    "#BBBFFF", "Decorate Ini File Value"                   }, // THEME_DARK_DECORATE_INI_FILE_VALUE                        br04
 
-    {"ThemeDarkDecorateParameterFilePartId",             "#c3f6fe", "Decorate Parameter File Part Id"           }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_ID                br05
-    {"ThemeDarkDecorateParameterFilePartControl",        "#9421a6", "Decorate Parameter File Part Control"      }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_CONTROL           br06
-    {"ThemeDarkDecorateParameterFilePartDescription",    "#aa0000", "Decorate Parameter File Part Description"  }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_DESCRIPTION       br07
+    {"ThemeDarkDecorateParameterFilePartId",             "#C3F6FE", "Decorate Parameter File Part Id"           }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_ID                br05
+    {"ThemeDarkDecorateParameterFilePartControl",        "#9421A6", "Decorate Parameter File Part Control"      }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_CONTROL           br06
+    {"ThemeDarkDecorateParameterFilePartDescription",    "#AA0000", "Decorate Parameter File Part Description"  }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_DESCRIPTION       br07
 
-    {"ThemeDarkLineHighlight",                           "#5d5b59", "Editor Line Highlight"                     }, // THEME_DARK_LINE_HIGHLIGHT                                  Qt Medium Gray
-    {"ThemeDarkLineError",                               "#ff0000", "Editor Line Error"                         }, // THEME_DARK_LINE_ERROR (.70 alpha)                          Red:lighter(180)
+    {"ThemeDarkLineSelect",                              "#E8E8E8", "Editor Line Select"                        }, // THEME_DARK_LINE_SELECT (30 alpha range of 0-255)
+    {"ThemeDarkLineHighlight",                           "#5D5B59", "Editor Line Highlight"                     }, // THEME_DARK_LINE_HIGHLIGHT                                  Qt Medium Gray
+    {"ThemeDarkLineError",                               "#FF0000", "Editor Line Error"                         }, // THEME_DARK_LINE_ERROR (.70 alpha)                          Red:lighter(180)
 
     {"ThemeDarkPaletteWindow",                           "#313437", "Palette Window"                            }, // THEME_DARK_PALETTE_WINDOW                                   49,  52,  55, 255
     {"ThemeDarkPaletteWindowText",                       "#F0F0F0", "Palette Window Text"                       }, // THEME_DARK_PALETTE_WINDOW_TEXT                             240, 240, 240, 255
@@ -208,7 +210,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkPaletteDisabledText",                     "#808080", "Palette Disabled Text"                     }, // THEME_DARK_PALETTE_DISABLED_TEXT                           128, 128, 128, 255
 
     {"ThemeDarkViewerBackgroundColor",                   "#313437", "Viewer Background"                         }, // THEME_DARK_VIEWER_BACKGROUND_COLOR                          49,  52,  55, 255 LC_PROFILE_BACKGROUND_COLOR
-    {"ThemeDarkViewerGradientColorTop",                  "#0000bf", "Viewer Gradient Top"                       }, // THEME_DARK_VIEWER_GRADIENT_COLOR_TOP                         0,   0, 191, 255 LC_PROFILE_GRADIENT_COLOR_TOP
+    {"ThemeDarkViewerGradientColorTop",                  "#0000BF", "Viewer Gradient Top"                       }, // THEME_DARK_VIEWER_GRADIENT_COLOR_TOP                         0,   0, 191, 255 LC_PROFILE_GRADIENT_COLOR_TOP
     {"ThemeDarkViewerGradientColorBottom",               "#FFFFFF", "Viewer Gradient Bottom"                    }, // THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM                    255, 255, 255, 255 LC_PROFILE_GRADIENT_COLOR_BOTTOM
     {"ThemeDarkAxesColor",                               "#E0E0E0", "Viewer Axes"                               }, // THEME_DARK_AXES_COLOR                                      224, 224, 224, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDarkOverlayColor",                            "#E0E0E0", "Viewer Overlay"                            }, // THEME_DARK_OVERLAY_COLOR                                   224, 224, 224, 255 LC_PROFILE_OVERLAY_COLOR
@@ -221,7 +223,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkViewSphereHlightColor",                   "#2980B9", "Viewer View Sphere Hlight"                 }, // THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR                         41, 128, 185, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 
     {"ThemeDarkGraphicsviewBorderColor",                 "#999999", "Graphicsview Border"                       }  // THEME_DARK_GRAPHICSVIEW_BORDER_COLOR                       153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
-                                                                                                                  // THEME_NUM_COLORS
+                                                                                                                   // THEME_NUM_COLORS
 };
 
 QString Preferences::themeColors[THEME_NUM_COLORS];

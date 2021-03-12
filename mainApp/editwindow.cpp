@@ -151,9 +151,9 @@ void EditWindow::setSelectionHighlighter()
 {
     QColor highlightColor;
     if (Preferences::displayTheme == THEME_DEFAULT)
-        highlightColor = QColor(LPUB3D_DEFAULT_COLOUR);
+        highlightColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_SELECT]);
     else if (Preferences::displayTheme == THEME_DARK)
-        highlightColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_HILIGHT_TEXT]);
+        highlightColor = QColor(Preferences::themeColors[THEME_DARK_LINE_SELECT]);
     highlightColor.setAlpha(30);
 
     auto palette = _textEdit->palette();
