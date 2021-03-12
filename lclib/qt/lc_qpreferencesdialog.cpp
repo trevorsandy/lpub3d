@@ -81,10 +81,13 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 
+/*** LPub3D Mod - OpenGL ES 2.0+ ***/
+#ifndef LC_OPENGLES
 	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
 	{
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
 		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
+		
 	}
 	else
 	{
@@ -94,6 +97,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / mLineWidthGranularity);
 	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
+#else
+	ui->LineWidthSlider->setDisabled(true);
+	ui->LineWidthSlider->setToolTip("Disabled for OpenGLES");
+
+	mLineWidthRange[0]    = 0.0f;
+	mLineWidthRange[1]    = 1.0f;
+	mLineWidthGranularity = 0.5f;
+#endif
+/*** LPub3D Mod end ***/
 
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
 
