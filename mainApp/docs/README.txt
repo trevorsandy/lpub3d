@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2133 (12 03 2021 07:37:46)
+LPub3D 2.4.1.1.2134 (12 03 2021 07:38:25)
 
 Features, enhancements, fixes and changes
 ------------
@@ -26,6 +26,7 @@ Revisions:
 - Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
 - Fix - Rounded corners are not round but oval #473
 - Fix - Some settings do not appear to save #457
+- Fix - Treat as part substitution causes crash #478
 - HowTo - Assure LPub3D release integrity with SHA-512 #461
 
 --------------------------------------------------------------------------------------------------

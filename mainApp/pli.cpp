@@ -943,6 +943,12 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
     // create name key list
     QStringList nameKeys = nameKey.split("_");
 
+    // treat parts with '_' in the name
+    if (nameKeys.at(nType).count(";")) {
+        nameKeys[nType].replace(";", "_");
+        nameKey.replace(";", "_");
+    }
+
     // populate rotStep string from nameKeys - if exist
     bool hr;
     QString rotStep;
@@ -2056,7 +2062,7 @@ int Pli::sortPli()
     // populate part size
     partSize();
 
-    if (parts.size() < 1) {
+    if (! parts.size()) {
         emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("No valid parts were found for this PLI instance"));
         return 1;
     }
@@ -2106,7 +2112,18 @@ int Pli::partSize()
                   return -1;
                 }
 
-              if (createPartImage(part->nameKey,part->type,part->color,pixmap,part->subType)) {
+              // treat parts with '_' in the name
+              QString nameKey = part->nameKey;
+              if (key.count("_") > 1) {
+                  QString rep = key;
+                  QString code = rep.right(rep.size() - rep.lastIndexOf("_"));
+                  rep.chop(code.size());
+                  rep.replace("_", ";");
+                  rep.append(code);
+                  nameKey.replace(key,rep);
+              }
+
+              if (createPartImage(nameKey,part->type,part->color,pixmap,part->subType)) {
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part for key %1")
                                        .arg(part->nameKey));
               }
@@ -2332,7 +2349,16 @@ int Pli::partSizeLDViewSCall() {
 
             bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
 
+            // treat parts with '_' in the name
             QString nameKey = pliPart->nameKey;
+            if (key.count("_") > 1) {
+                QString rep = key;
+                QString code = rep.right(rep.size() - rep.lastIndexOf("_"));
+                rep.chop(code.size());
+                rep.replace("_", ";");
+                rep.append(code);
+                nameKey.replace(key,rep);
+            }
 
             // set key substitute flag when there is a namekey change
             int keySub = 0;
@@ -2345,6 +2371,12 @@ int Pli::partSizeLDViewSCall() {
 
             // create name key list
             QStringList nameKeys = nameKey.split("_");
+
+            // treat parts with '_' in the name
+            if (nameKeys.at(nType).count(";")) {
+                nameKeys[nType].replace(";", "_");
+                nameKey.replace(";", "_");
+            }
 
             // populate rotStep string from nameKeys - if exist
             bool hr;
