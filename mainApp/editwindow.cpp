@@ -1505,8 +1505,8 @@ void EditWindow::displayFile(
 
   if (modelFileEdit() && fileExists)
     fileWatcher.addPath(fileName);
-  else
 #ifdef QT_DEBUG_MODE
+  else
     emit lpubAlert->messageSig(LOG_DEBUG,QString("6. %1 Document loaded with %2 lines")
                                                  .arg(QFileInfo(fileName).baseName())
                                                  .arg(_textEdit->document()->lineCount()));
