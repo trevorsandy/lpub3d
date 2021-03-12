@@ -535,6 +535,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSHOW_TOP_MODEL\\b"
     << "\\bSIZE\\b"
     << "\\bSIZE_KEY\\b"
+    << "\\bSPACING\\b"
     << "\\bSORT\\b"
     << "\\bSORT_BY\\b"
     << "\\bSORT_OPTION\\b"
