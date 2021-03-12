@@ -2797,39 +2797,58 @@ void LDrawFile::clearBuildModRendered()
 
 int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex)
 {
-    int lastIndex = BM_INVALID_INDEX;
-    return getBuildModAction(buildModKey, stepIndex, lastIndex);
+    int unusedIndex;
+    return getBuildModAction(buildModKey, stepIndex, BM_LAST_ACTION, unusedIndex);
 }
 
-int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex, int &lastIndex)
+int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex)
 {
-  bool lastAction = stepIndex == BM_LAST_ACTION ;
-  QString insert  = QString("Get BuildMod");
-  QString modKey  = buildModKey.toLower();
-  int action      = BuildModNoActionRc;
+    int unusedIndex;
+    return getBuildModAction(buildModKey, stepIndex, defaultIndex, unusedIndex);
+}
+
+int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex, int &actionStepIndex)
+{
+  QString insert = QString();
+  QString modKey = buildModKey.toLower();
+  int action = BuildModNoActionRc;
+  actionStepIndex = stepIndex;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
-      int numActions = i.value()._modActions.size();
-      if (lastAction) {
-          insert.append(" Last");
+      if (stepIndex == BM_LAST_ACTION) {
           action = i.value()._modActions.last();
-          lastIndex = i.value()._modActions.lastKey();
+          actionStepIndex = i.value()._modActions.lastKey();
+          insert = " Last";
       } else {
           QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
           if (a != i.value()._modActions.end()) {
               action = i.value()._modActions.value(stepIndex);
-              lastIndex = stepIndex;
-          } else if (numActions) {
-              // iterate backward to get the last action before the specified stepIndex
+          } else if (i.value()._modActions.size()) {
               int keyIndex = stepIndex;
-              insert.append(" Last");
-              for (; keyIndex > 0; keyIndex--){
-                  if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX){
-                      action = i.value()._modActions.value(keyIndex);
-                      lastIndex = keyIndex;
-                      break;
+              if (defaultIndex == BM_LAST_ACTION) {
+                  action = i.value()._modActions.last();
+                  keyIndex = i.value()._modActions.lastKey();
+                  insert = " Last";
+              } else if (defaultIndex == BM_PREVIOUS_ACTION) {
+                  // iterate backward to get the last action index before the specified step index (account for action index gap)
+                  for (; keyIndex > 0; keyIndex--) {
+                      if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX) {
+                          action = i.value()._modActions.value(keyIndex);
+                          insert = " Previous";
+                          break;
+                      }
+                  }
+              } else if (defaultIndex == BM_NEXT_ACTION) {
+                  // iterate forward to get the next action index after the specified step index
+                  for (; keyIndex < i.value()._modActions.size(); keyIndex++) {
+                      if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX) {
+                          action = i.value()._modActions.value(keyIndex);
+                          insert = " Next";
+                          break;
+                      }
                   }
               }
+              actionStepIndex = keyIndex;
           }
       }
   }
@@ -2837,24 +2856,24 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   if (!action) {
      action = setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
 #ifdef QT_DEBUG_MODE
-     QString insert = QString("Get BuildMod Default");
+     insert = " Default";
 #endif
   }
 
 #ifdef QT_DEBUG_MODE
   if (!action)
-      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod (INVALID)%1 Action StepIndex: %2, ActionStepIndex: %3, BuildModKey: %4")
-                                              .arg(lastAction ? " Last" : "")
-                                              .arg(lastAction ? "unspecified" : QString::number(stepIndex))
-                                              .arg(lastIndex)
-                                              .arg(modKey));
+      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod%1 Action: (INVALID), StepIndex: %2, ActionStepIndex: %3, BuildModKey: %4")
+                                              .arg(insert)
+                                              .arg(stepIndex)
+                                              .arg(actionStepIndex)
+                                              .arg(buildModKey));
   else
-      emit gui->messageSig(LOG_TRACE, QString("%1 Action: %2, StepIndex: %3, ActionStepIndex: %4, BuildModKey: %5")
+      emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, StepIndex: %3, ActionStepIndex: %4, BuildModKey: %5")
                                               .arg(insert)
                                               .arg(action == BuildModApplyRc ? "Apply" : "Remove")
-                                              .arg(lastAction ? "unspecified" : QString::number(stepIndex))
-                                              .arg(lastIndex)
-                                              .arg(modKey));
+                                              .arg(stepIndex)
+                                              .arg(actionStepIndex)
+                                              .arg(buildModKey));
 #endif
 
   return action;

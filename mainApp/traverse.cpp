@@ -1936,7 +1936,10 @@ int Gui::drawPage(
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
               // set buildModActions
               if (buildModExists)
-                  opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
+                  if (multiStep || opts.calledOut)
+                      opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
+                  else
+                      opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep), BM_LAST_ACTION)));
               else if (buildModInsert)
                   opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
               else
@@ -4488,8 +4491,7 @@ int Gui::setBuildModForNextStep(
 #endif
 
         if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
-            bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
-                            pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1
+            bool backward = pageDirection >= PAGE_BACKWARD;                      // step backward by 1 or jump backward by more than 1
             if (backward) {                                                      // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
                 startLine  = topOfStep.lineNumber;                               // set step start lineNumber to topOfStep.lineNumber
                 startModel = topOfStep.modelName;                                // set step start modelName to topOfStep.modelName

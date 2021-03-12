@@ -803,9 +803,9 @@ public:
       return ldrawFile.getBuildModAction(buildModKey, stepIndex);
   }
 
-  int getBuildModAction(const QString &buildModKey, const int stepIndex, int &lastIndex)
+  int getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex)
   {
-      return ldrawFile.getBuildModAction(buildModKey, stepIndex, lastIndex);
+      return ldrawFile.getBuildModAction(buildModKey, stepIndex, defaultIndex);
   }
 
   int setBuildModAction(const QString &buildModKey, int stepIndex, int modAction)
