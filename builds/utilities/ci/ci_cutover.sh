@@ -325,7 +325,7 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     projFileName="LPub3D.pro"
     newProjFileName="LPub3DNext.pro"
 fi
-if [[ -f $projFileName && -z $newProjFileName && ($projFileName != $newProjFileName)]]; then
+if [[ -f $projFileName && -n $newProjFileName && ($projFileName != $newProjFileName)]]; then
     mv -f "$projFileName" "$newProjFileName"
     [ -f "$newProjFileName" ] && echo " -file changed: $newProjFileName." || echo " -Error - $newProjFileName was not renamed." 
 fi
