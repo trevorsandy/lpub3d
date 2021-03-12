@@ -34,6 +34,9 @@ public slots:
 	void on_lgeoPathBrowse_clicked();
 	void on_ColorTheme_currentIndexChanged(int Index);
 	void ColorButtonClicked();
+/*** LPub3D Mod - Set default colour ***/
+	void ResetFadeHighlightColor();
+/*** LPub3D Mod end ***/
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();
 	void on_LineWidthSlider_valueChanged();

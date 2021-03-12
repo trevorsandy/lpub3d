@@ -48,6 +48,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
 	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
+/*** LPub3D Mod - Reset fade/highlight default colours ***/
+	connect(ui->ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
+	connect(ui->ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
+/*** LPub3D Mod end ***/
 
 	ui->partsLibrary->setText(mOptions->LibraryPath);
 	ui->ColorConfigEdit->setText(mOptions->ColorConfigPath);
@@ -663,25 +667,51 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	((QToolButton*)Button)->setIcon(pix);
 }
 
+/*** LPub3D Mod - Reset fade/highlight default colours ***/
+void lcQPreferencesDialog::ResetFadeHighlightColor()
+{
+	quint32* Color = nullptr;
+	QPixmap pix(12, 12);
+	QColor resetColor;
+
+	if (sender() == ui->ResetFadeStepsButton)
+	{
+		Color = &mOptions->Preferences.mFadeStepsColor;
+	   *Color = LC_RGBA(128, 128, 128, 128);
+		resetColor = QColor(LC_RGBA_RED(*Color), LC_RGBA_GREEN(*Color), LC_RGBA_BLUE(*Color), LC_RGBA_ALPHA(*Color));
+		pix.fill(resetColor);
+		ui->FadeStepsColor->setIcon(pix);
+	}
+	else if (sender() == ui->ResetHighlightNewPartsButton)
+	{
+		Color = &mOptions->Preferences.mHighlightNewPartsColor;
+	   *Color = LC_RGBA(255, 242, 0, 192);
+		resetColor = QColor(LC_RGBA_RED(*Color), LC_RGBA_GREEN(*Color), LC_RGBA_BLUE(*Color), LC_RGBA_ALPHA(*Color));
+		pix.fill(resetColor);
+		ui->HighlightNewPartsColor->setIcon(pix);
+	}
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Enable background colour buttons ***/
 void lcQPreferencesDialog::on_BackgroundSolidRadio_toggled(bool checked)
 {
-	ui->BackgroundGradient1ColorButton->setEnabled(!checked);
 	ui->BackgroundSolidColorButton->setEnabled(checked);
+	ui->BackgroundGradient1ColorButton->setEnabled(!checked);
 	ui->BackgroundGradient2ColorButton->setEnabled(!checked);
 }
 
 void lcQPreferencesDialog::on_BackgroundGradientRadio_toggled(bool checked)
 {
 	ui->BackgroundGradient1ColorButton->setEnabled(checked);
-	ui->BackgroundSolidColorButton->setEnabled(!checked);
 	ui->BackgroundGradient2ColorButton->setEnabled(checked);
+	ui->BackgroundSolidColorButton->setEnabled(!checked);
 }
 /*** LPub3D Mod end ***/
 
 void lcQPreferencesDialog::on_studLogo_toggled()
 {
-   ui->studLogoCombo->setEnabled(ui->studLogo->isChecked());
+	ui->studLogoCombo->setEnabled(ui->studLogo->isChecked());
 }
 
 void lcQPreferencesDialog::on_antiAliasing_toggled()
@@ -710,11 +740,17 @@ void lcQPreferencesDialog::on_MeshLODSlider_valueChanged()
 void lcQPreferencesDialog::on_FadeSteps_toggled()
 {
 	ui->FadeStepsColor->setEnabled(ui->FadeSteps->isChecked());
+/*** LPub3D Mod - Reset fade default colours ***/
+	ui->ResetFadeStepsButton->setEnabled(ui->FadeSteps->isChecked());
+/*** LPub3D Mod end ***/
 }
 
 void lcQPreferencesDialog::on_HighlightNewParts_toggled()
 {
 	ui->HighlightNewPartsColor->setEnabled(ui->HighlightNewParts->isChecked());
+/*** LPub3D Mod - Reset highlight default colours ***/
+	ui->ResetHighlightNewPartsButton->setEnabled(ui->HighlightNewParts->isChecked());
+/*** LPub3D Mod end ***/
 }
 
 void lcQPreferencesDialog::on_gridStuds_toggled()
