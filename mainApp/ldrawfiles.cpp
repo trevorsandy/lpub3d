@@ -185,9 +185,11 @@ ViewerStep::ViewerStep(const QStringList &rotatedContents,
                        const QString     &imagePath,
                        const QString     &csiKey,
                        bool               multiStep,
-                       bool               calledOut){
+                       bool               calledOut)
+{
     _rotatedContents << rotatedContents;
     _unrotatedContents << unrotatedContents;
+    _partCount = 0;
     _filePath  = filePath;
     _imagePath = imagePath;
     _csiKey    = csiKey;
@@ -2901,13 +2903,15 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  bool               multiStep,
                                  bool               calledOut)
 {
-  QString    mStepKey = stepKey.toLower();
+  QString mStepKey = stepKey.toLower();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
-
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
   ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut);
+  Q_FOREACH(QString line, rotatedContents)
+    if (line[0] == '1')
+      viewerStep._partCount++;
   _viewerSteps.insert(mStepKey,viewerStep);
 }
 
@@ -2923,6 +2927,10 @@ void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &cont
       i.value()._rotatedContents = contents;
     else
       i.value()._unrotatedContents = contents;
+    i.value()._partCount = 0;
+    Q_FOREACH(QString line, contents)
+      if (line[0] == '1')
+        i.value()._partCount++;
     i.value()._modified = true;
   }
 }
@@ -2985,6 +2993,18 @@ QString LDrawFile::getViewerConfigKey(const QString &stepKey)
     return i.value()._csiKey;
   }
   return _emptyString;
+}
+
+/* return viewer step part count */
+
+int LDrawFile::getViewerStepPartCount(const QString &stepKey)
+{
+    QString mStepKey = stepKey.toLower();
+    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+    if (i != _viewerSteps.end()) {
+      return i.value()._partCount;
+    }
+    return 0;
 }
 
 /* Viewer Step Exist */

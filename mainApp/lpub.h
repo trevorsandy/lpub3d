@@ -749,6 +749,11 @@ public:
       return ldrawFile.getViewerConfigKey(stepKey);
   }
 
+  int getViewerStepPartCount(const QString &stepKey)
+  {
+      return ldrawFile.getViewerStepPartCount(stepKey);
+  }
+
   bool isViewerStepMultiStep(const QString &stepKey)
   {
       return ldrawFile.isViewerStepMultiStep(stepKey);

@@ -1910,29 +1910,6 @@ void Gui::createBuildModification()
                 InsertPiece(mLPubPieces, Piece, mLPubPieces.GetSize());
             };
 
-            auto GetAddedPieces = [this, &mViewerPieces]()
-            {
-                Rc rc;
-                Where walk = currentStep->top;
-                QString line = readLine(walk);
-                rc =  page.meta.parse(line, walk, false);
-                if (rc == StepRc || rc == RotStepRc)
-                    walk++;   // Advance past STEP meta
-                int stepParts = 0;
-                for ( ;
-                      walk.lineNumber < subFileSize(walk.modelName);
-                      walk.lineNumber++) {
-                    line = readLine(walk);
-                    rc =  page.meta.parse(line, walk, false);
-                    if (line.toLatin1()[0] == '1')
-                        stepParts++;
-                    if (rc == StepRc || rc == RotStepRc)
-                        break;
-                }
-                int result = mViewerPieces.GetSize() - stepParts;
-                return result;
-            };
-
             // load LPub content
             QByteArray ByteArray;
             for (int i = 0; i < ldrawFile.contents(ModelName).size(); i++){
@@ -2154,7 +2131,7 @@ void Gui::createBuildModification()
             // Do we have a difference between the number of LPub pieces and Viewer pieces ?
             // If pieces have been added or removed, we capture the delta in PieceAdjustment
             // and AddedPieces.
-            PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : GetAddedPieces();
+            PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : mViewerPieces.GetSize() - getViewerStepPartCount(ModStepKey);
 
             // Adjust EndModLineNum to accomodate removed pieces
             if (PieceAdjustment < 0)
@@ -2175,10 +2152,8 @@ void Gui::createBuildModification()
                 NewPiece   = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
 
                 // If PieceInserted, we must increment the 'original' line number for the next piece
-                // and set PieceInserted to false.
                 if (PieceInserted) {
                     LineNumber   += PieceInserted;
-                    PieceInserted = false;
                 }
 
                 // Added pieces have a line number of 0 so we must reset the LineNumber to EndModLineNum
@@ -2194,7 +2169,7 @@ void Gui::createBuildModification()
 
 #ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_DEBUG, QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
-                                                   .arg(LineIndex < 0 ? "Added Piece #"+QString::number(AddedPieces) : QString::number(LineIndex))
+                                                   .arg(LineIndex < 0 ? QString::number(LineIndex) + "], Added Piece [#"+QString::number(AddedPieces) : QString::number(LineIndex))
                                                    .arg(Piece->GetID())
                                                    .arg(Piece->GetName())
                                                    .arg(LineNumber)
@@ -2391,7 +2366,7 @@ void Gui::createBuildModification()
 
             // BuildMod meta command lines are written in a bottom up manner
 
-            // Set ModBeginLineNum to top of step parts plus the number of parts replaced by BuildMod
+            // Set ModBeginLineNum to the top of the BuildMod step plus the number of 'AddedPieces' introduced by the BuildMod command
             // This is the position for BUILD_MOD END
             ModBeginLineNum += SaveModPieces;
 

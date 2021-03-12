@@ -106,6 +106,7 @@ class ViewerStep {
     QString   	_filePath;
     QString     _imagePath;
     QString     _csiKey;
+    int         _partCount;
     bool        _modified;
     bool        _multiStep;
     bool        _calledOut;
@@ -422,6 +423,7 @@ class LDrawFile {
     QString     getViewerStepFilePath(const QString &stepKey);
     QString     getViewerStepImagePath(const QString &stepKey);
     QString     getViewerConfigKey(const QString &stepKey);
+    int         getViewerStepPartCount(const QString &stepKey);
     bool        isViewerStepMultiStep(const QString &stepKey);
     bool        isViewerStepCalledOut(const QString &stepKey);
     bool        viewerStepContentExist(const QString &stepKey);
