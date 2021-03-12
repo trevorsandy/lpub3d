@@ -2133,6 +2133,8 @@ CountInstanceGui::CountInstanceGui(
 {
   meta = _meta;
 
+  QGridLayout *grid = new QGridLayout(parent);
+
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
   if (parent) {
@@ -2141,19 +2143,29 @@ CountInstanceGui::CountInstanceGui(
     setLayout(layout);
   }
 
+  countCheck = new QCheckBox(tr("Consolidate Submodel Instances"), parent);
+  countCheck->setChecked(meta->value());
+  countCheck->setToolTip("Consolidate submodel instances on first occurrence");
+  connect(countCheck,SIGNAL(clicked(bool)),
+          this,        SLOT(valueChanged(bool)));
+
+  grid->addWidget(countCheck,0,0,1,3);
+
   topRadio    = new QRadioButton("At Top",parent);
   topRadio->setChecked(meta->value() == CountAtTop);
   topRadio->setToolTip("Consolidate instances and display count at last step page of first occurrence in the entire model file.");
-  layout->addWidget(topRadio);
   connect(topRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
+  grid->addWidget(topRadio,1,0);
+
   modelRadio = new QRadioButton("At Model (default)",parent);
   modelRadio->setChecked(meta->value() > CountFalse && meta->value() < CountAtStep);
-  modelRadio->setToolTip("Consolidate instances and display count at last step page of first occurrence in the parent model.");
-  layout->addWidget(modelRadio);
+  modelRadio->setToolTip("Enable consolidate instances and display count at last step page of first occurrence in the parent model.");
   connect(modelRadio,SIGNAL(clicked(bool)),
           this,      SLOT(  radioChanged(bool)));
+
+  grid->addWidget(modelRadio,1,1);
 
   stepRadio    = new QRadioButton("At Step",parent);
   stepRadio->setChecked(meta->value() == CountAtStep);
@@ -2162,8 +2174,7 @@ CountInstanceGui::CountInstanceGui(
   connect(stepRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
-  connect(parent,SIGNAL(clicked(bool)),
-          this, SLOT(groupBoxChanged(bool)));
+  grid->addWidget(stepRadio,1,2);
 }
 
 void CountInstanceGui::radioChanged(bool checked)
@@ -2182,7 +2193,7 @@ void CountInstanceGui::radioChanged(bool checked)
   modified = true;
 }
 
-void CountInstanceGui::groupBoxChanged(bool checked)
+void CountInstanceGui::valueChanged(bool checked)
 {
   meta->setValue(checked ? CountTrue : CountFalse);
   modified = true;
@@ -3445,7 +3456,12 @@ ResolutionGui::ResolutionGui(
   connect(valueEdit,SIGNAL(textEdited( QString const &)),
           this,     SLOT(  valueChange(QString const &)));
   grid->addWidget(valueEdit,0,2);
-  parent->setLayout(grid);
+
+  if (parent) {
+    parent->setLayout(grid);
+  } else {
+    setLayout(grid);
+  }
 }
 
 void ResolutionGui::unitsChange(QString const &units)

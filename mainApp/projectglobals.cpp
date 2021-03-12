@@ -66,13 +66,20 @@ GlobalProjectDialog::GlobalProjectDialog(
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox("Renderer");
+  QGridLayout *boxGrid = new QGridLayout();
   layout->addWidget(box);
   MetaGui *child =new RendererGui(box);
   data->children.append(child);
 
   box = new QGroupBox("Resolution");
   layout->addWidget(box);
-  child = new ResolutionGui(&lpubMeta->resolution,box);
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  child = new ResolutionGui(&lpubMeta->resolution);
+  boxGrid->addWidget(child,0,0);
+  boxGrid->setColumnStretch(0,1);
+  boxGrid->setColumnStretch(1,1);
   data->children.append(child);
 
   box = new QGroupBox("Stud Style and Automate Edge Color");
@@ -91,9 +98,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
-  box = new QGroupBox("Consolidate Submodel Instances");
-  box->setCheckable(true);
-  box->setChecked(lpubMeta->countInstance.value());
+  box = new QGroupBox("Submodel Instances");
   layout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
   box->setToolTip("Consolidate submodel instances on first occurrence");
@@ -104,25 +109,25 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox("Continuous Step Numbers");
   layout->addWidget(box);
-  //box->setLayout(childlayout);
   childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers, box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
-  //childlayout->addWidget(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
-  box = new QGroupBox("Start Step Number");
+  box = new QGroupBox("Start Numbers");
   layout->addWidget(box);
-  childStartStepNumberSpin = new SpinGui("Set start step number", &lpubMeta->startStepNumber,0,10000,1,box);
-  data->children.append(childStartStepNumberSpin);
-  connect (childStartStepNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
-  //childlayout->addWidget(childStartStepNumberSpin);
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
 
-  box = new QGroupBox("Page Numbers");
-  layout->addWidget(box);
-  childStartPageNumberSpin = new SpinGui("Set start page number", &lpubMeta->startPageNumber,0,10000,1,box);
+  childStartStepNumberSpin = new SpinGui("Step number", &lpubMeta->startStepNumber,0,10000,1);
+  data->children.append(childStartStepNumberSpin);
+  boxGrid->addWidget(childStartStepNumberSpin,0,0);
+  connect (childStartStepNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
+
+  childStartPageNumberSpin = new SpinGui("Page number", &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
+  boxGrid->addWidget(childStartPageNumberSpin,0,1);
   connect (childStartPageNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);

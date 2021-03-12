@@ -740,6 +740,7 @@ public:
     QGroupBox         *parent = nullptr);
   ~CountInstanceGui() {}
 
+  QCheckBox    *getCheckBox() {return countCheck;}
   QRadioButton *getTopRadio() {return topRadio;}
   QRadioButton *getModelRadio() {return modelRadio;}
   QRadioButton *getStepRadio() {return stepRadio;}
@@ -750,13 +751,14 @@ public:
 
 private:
   CountInstanceMeta  *meta;
+  QCheckBox          *countCheck;
   QRadioButton       *topRadio;
   QRadioButton       *modelRadio;
   QRadioButton       *stepRadio;
 
 public slots:
   void radioChanged(bool checked);
-  void groupBoxChanged(bool checked);
+  void valueChanged(bool checked);
 };
 
 /***********************************************************************
