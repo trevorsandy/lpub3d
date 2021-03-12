@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 16, 2020
+# Last Update: October 27, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -238,7 +238,7 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
-# - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
+ - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'
