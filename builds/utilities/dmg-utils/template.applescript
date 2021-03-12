@@ -29,22 +29,17 @@ on run (volumeName)
 			end tell
 			BACKGROUND_CLAUSE
 
-			-- Application icon positioning
-			ICON_POSITION_CLAUSE
+			-- Positioning
+			POSITION_CLAUSE
 
-			-- Application extension hiding
+			-- Hiding
 			HIDING_CLAUSE
 
-			-- Applications link
+			-- Application and QL Link Clauses
 			APPLICATION_CLAUSE
-
-			-- Custom icon positioning
-			ICON_CUSTOM_POSITION_CLAUSE
-
-      close
-      open
-
-			update without registering applications
+			QL_CLAUSE
+			close
+			open
 			-- Force saving of the size
 			delay 1
 
@@ -52,8 +47,6 @@ on run (volumeName)
 				set statusbar visible to false
 				set the bounds to {theXOrigin, theYOrigin, theBottomRightX - 10, theBottomRightY - 10}
 			end tell
-
-			update without registering applications
 		end tell
 
 		delay 1
@@ -63,8 +56,6 @@ on run (volumeName)
 				set statusbar visible to false
 				set the bounds to {theXOrigin, theYOrigin, theBottomRightX, theBottomRightY}
 			end tell
-
-			update without registering applications
 		end tell
 
 		--give the finder some time to write the .DS_Store file
@@ -75,7 +66,7 @@ on run (volumeName)
 		repeat while ejectMe is false
 			delay 1
 			set waitTime to waitTime + 1
-
+			
 			if (do shell script "[ -f " & dsStore & " ]; echo $?") = "0" then set ejectMe to true
 		end repeat
 		log "waited " & waitTime & " seconds for .DS_STORE to be created."

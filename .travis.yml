@@ -114,6 +114,7 @@ jobs:
   - stage: Build and Package
     env: LP3D_BUILD_MACOS=true
     os: osx
+    osx_image: xcode11.3
     compiler: clang
     addons:
       homebrew:
@@ -127,6 +128,7 @@ jobs:
   - stage: Compile Source
     env: LP3D_COMPILE_SOURCE=true
     os: osx
+    osx_image: xcode11.3
     compiler: clang
     addons:
       homebrew:

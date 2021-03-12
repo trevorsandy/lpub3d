@@ -3354,7 +3354,6 @@ Gui::~Gui()
   delete editWindow;
   delete parmsWindow;
   delete editModeWindow;
-  delete waitingSpinner;
   delete undoStack;
   delete mi;
 

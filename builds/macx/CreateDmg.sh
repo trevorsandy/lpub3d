@@ -269,7 +269,7 @@ cp -f ../../mainApp/docs/COPYING_BRIEF .COPYING
 
 echo "- set scrpt permissions..."
 chmod +x ../utilities/create-dmg
-chmod +x ../utilities/dmg-utils/dmg-license.py
+chmod +x ../utilities/dmg-utils/licenseDMG.py
 
 echo "- install library links..."
 /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
@@ -391,7 +391,7 @@ echo "- generate makedmg script..."
 cat <<EOF >makedmg
 #!/bin/bash
 ../utilities/create-dmg \\
---volname "LPub3D Installer" \\
+--volname "LPub3D-Installer" \\
 --volicon "setup.icns" \\
 --dmgicon "setup.png" \\
 --background "lpub3dbkg.png" \\
@@ -401,14 +401,15 @@ cat <<EOF >makedmg
 --window-size 640 480 \\
 --icon LPub3D.app 192 344 \\
 --hide-extension LPub3D.app \\
---custom-icon Readme README 512 128 \\
+--add-file Readme README 512 128 \\
 --app-drop-link 448 344 \\
 --eula .COPYING \\
 "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" \\
 DMGSRC/
 EOF
 
-echo "- create dmg packages in $(realpath $DMGDIR/)..."
+echo "- create dmg package in $(realpath $DMGDIR/)..."
+[[ -f LPub3D-Installer.dmg ]] && rm LPub3D-Installer.dmg
 if [ -d DMGSRC/LPub3D.app ]; then
    chmod +x makedmg && ./makedmg
 else

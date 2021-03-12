@@ -755,7 +755,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
       exit 1
     fi
     if [ "${TRAVIS}" = "true" ]; then
-     Info  "--- Skipped brew update on Travis-ci to save time!"
+     Info  "--- Skipped brew update to save time"
     else
      brew update > $depsLog 2>&1
     fi
