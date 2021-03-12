@@ -614,6 +614,7 @@ enum ThemeColorType {
 #define HIGHLIGHT_SFX                           "-highlight"
 #define SAVE_DISPLAY_PAGE_NUM_KEY               "SaveDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY             "SaveSkipPartsArchive"
+#define VIEW_IMPORT_TOOLBAR_KEY                 "ViewImportToolbar"
 #define VIEW_EXPORT_TOOLBAR_KEY                 "ViewExportToolbar"
 #define VIEW_CACHE_TOOLBAR_KEY                  "ViewCacheToolbar"
 #define VIEW_SETUP_TOOLBAR_KEY                  "ViewSetupToolbar"

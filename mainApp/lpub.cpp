@@ -2921,7 +2921,7 @@ void Gui::preferences()
         }
 
         if (ldrawFilesLoadMsgsChanged     )
-                    emit messageSig(LOG_INFO,QString("LdrawFiles Load message dialogue set to %1").arg(
+                    emit messageSig(LOG_INFO,QString("LDraw file load status dialogue set to %1").arg(
                         Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
                         Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
                         Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
@@ -4425,6 +4425,16 @@ void Gui::createActions()
     printToFileAct->setEnabled(false);
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
+    importLDDAct = new QAction(QIcon(":/resources/importldd.png"),tr("LEGO Digital Designer File..."), this);
+    importLDDAct->setShortcut(tr("Alt+Shift+L"));
+    importLDDAct->setStatusTip(tr("Import LEGO Digital Designer File - Alt+Shift+L"));
+    connect(importLDDAct, SIGNAL(triggered()), this, SLOT(importLDD()));
+
+    importSetInventoryAct = new QAction(QIcon(":/resources/importsetinventory.png"),tr("Set Inventory File..."), this);
+    importSetInventoryAct->setShortcut(tr("Alt+Shift+S"));
+    importSetInventoryAct->setStatusTip(tr("Import Rebrickable Set Inventory File - Alt+Shift+S"));
+    connect(importSetInventoryAct, SIGNAL(triggered()), this, SLOT(importInventory()));
+
     exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
     exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
     exportAsPdfPreviewAct->setStatusTip(tr("Preview the current pdf document to be exported - Alt+P"));
@@ -5399,6 +5409,13 @@ void Gui::createMenus()
     fileMenu->addAction(saveCopyAct);
     fileMenu->addAction(closeFileAct);
 
+    importMenu = fileMenu->addMenu("Import...");
+    importMenu->setIcon(QIcon(":/resources/import.png"));
+    importMenu->setStatusTip(tr("Import LEGO Digital Designer files and set inventory lists"));
+    importMenu->addAction(importLDDAct);
+    importMenu->addAction(importSetInventoryAct);
+    importMenu->addSeparator();
+
     exportMenu = fileMenu->addMenu("Export As...");
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));
     exportMenu->setStatusTip(tr("Export model file images, objects or part lists"));
@@ -5643,6 +5660,18 @@ void Gui::createToolBars()
     fileToolBar->addAction(exportAsPdfPreviewAct);
     fileToolBar->addAction(exportAsPdfAct);
 
+    importToolBar = addToolBar(tr("Import Toolbar"));
+    importToolBar->setObjectName("ImportToolbar");
+    importToolBar->addAction(importLDDAct);
+    importToolBar->addAction(importSetInventoryAct);
+    bool visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_IMPORT_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_IMPORT_TOOLBAR_KEY)).toBool();
+    importMenu->addAction(importToolBar->toggleViewAction());
+    importToolBar->setVisible(visible);
+    connect (importToolBar, SIGNAL (visibilityChanged(bool)),
+                      this, SLOT (importToolBarVisibilityChanged(bool)));
+
     exportToolBar = addToolBar(tr("Export Toolbar"));
     exportToolBar->setObjectName("ExportToolbar");
     exportToolBar->addAction(exportPngAct);
@@ -5660,7 +5689,7 @@ void Gui::createToolBars()
     exportToolBar->addAction(exportHtmlStepsAct);
     exportToolBar->addAction(exportBricklinkAct);
     exportToolBar->addAction(exportCsvAct);
-    bool visible = false;
+    visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)).toBool();
     exportMenu->addAction(exportToolBar->toggleViewAction());
@@ -5856,6 +5885,12 @@ void Gui::createDockWindows()
 //#else
 //    viewerDockWindow->raise();
 //#endif
+}
+
+void Gui::importToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_IMPORT_TOOLBAR_KEY),visible);
 }
 
 void Gui::exportToolBarVisibilityChanged(bool visible)

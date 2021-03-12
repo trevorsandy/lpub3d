@@ -706,13 +706,15 @@ void Gui::closeFile()
   pageDirection = PAGE_NEXT;
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
+  Preferences::preferredRendererPreferences();
+  Preferences::fadestepPreferences();
+  Preferences::highlightstepPreferences();
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = false;
   SetSubmodelIconsLoaded(submodelIconsLoaded);
-  if (!curFile.isEmpty()) {
+  if (!curFile.isEmpty())
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
-  }
 }
 
 // This call definitively closes and clears from curFile, the current model file

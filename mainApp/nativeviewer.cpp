@@ -47,6 +47,7 @@
 #include "lc_view.h"
 #include "application.h"
 #include "lc_partselectionwidget.h"
+#include "lc_setsdatabasedialog.h"
 
 const QStringList BuildModChangeTriggers = QStringList()
         << "Deleting" << "Adding Piece"
@@ -3876,4 +3877,104 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                 emit setSelectedPiecesSig(lines);
         }
     } // not exporting
+}
+
+void Gui::importLDD()
+{
+    if (!maybeSave() || !saveBuildModification())
+        return;
+
+    QString LoadFileName = QFileDialog::getOpenFileName(this, tr("Import"), QString(), tr("LEGO Diginal Designer Files (*.lxf);;All Files (*.*)"));
+    if (LoadFileName.isEmpty())
+        return;
+
+    Project* Importer = new Project();
+
+    if (Importer->ImportLDD(LoadFileName))
+    {
+        QString FileName = QFileDialog::getSaveFileName(this,tr("Save Diginal Designer File As"),
+                                                        tr("%1.%2.mpd").arg(QFileInfo(LoadFileName).completeBaseName()),
+                                                        tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+        if (FileName.isEmpty()) {
+            QTemporaryDir tempDir;
+            if (tempDir.isValid())
+                FileName =  QString("%1/%2.%3.mpd").arg(tempDir.path(),QFileInfo(LoadFileName).completeBaseName());
+        }
+        saveImport(FileName, Importer);
+    }
+    else
+        delete Importer;
+}
+
+void Gui::importInventory()
+{
+    if (!maybeSave() || !saveBuildModification())
+        return;
+
+    lcSetsDatabaseDialog Dialog(this);
+    if (Dialog.exec() != QDialog::Accepted)
+        return;
+
+    Project* Importer = new Project();
+
+    if (Importer->ImportInventory(Dialog.GetSetInventory(), Dialog.GetSetName(), Dialog.GetSetDescription()))
+    {
+        QString FileName = QFileDialog::getSaveFileName(this,tr("Save Inventory File As"),
+                                                        tr("%1.%2.mpd").arg(Dialog.GetSetName()),
+                                                        tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+        if (FileName.isEmpty()) {
+            QTemporaryDir tempDir;
+            if (tempDir.isValid())
+                FileName =  QString("%1/%2.%3.mpd").arg(tempDir.path(),Dialog.GetSetName());
+        }
+        saveImport(FileName, Importer);
+    }
+    else
+        delete Importer;
+}
+
+bool Gui::saveImport(const QString& FileName, Project *Importer)
+{
+    QFile File(FileName);
+
+    if (!File.open(QIODevice::WriteOnly))
+    {
+        emit messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
+        return false;
+    }
+
+    QTextStream Stream(&File);
+    bool firstStep = true;
+    QLatin1String LineEnding("\r\n");
+    QLatin1String Extension(".ldr");
+    for (lcModel* Model : Importer->GetModels())
+    {
+        if (firstStep) {
+            firstStep = false;
+            Stream << QLatin1String("0 FILE Import-") << Model->GetProperties().mFileName << Extension << LineEnding;
+            Stream << QLatin1String("0 ") << Model->GetProperties().mDescription << LineEnding;
+            Stream << QLatin1String("0 Name: Import-") << Model->GetProperties().mModelName << LineEnding;
+            Stream << QLatin1String("0 Author: ") << Model->GetProperties().mAuthor << LineEnding;
+            Stream << QLatin1String("0 !LPUB INSERT TEXT \"This page is intentionally left blank\\nto avoid loading the imported parts at the first step.\" \"Arial,36,-1,255,75,0,0,0,0,0\" \"Black\" OFFSET 0.0219 0.4814\r\n");
+            Stream << QLatin1String("0 !LPUB INSERT PAGE\r\n");
+            Stream << QLatin1String("0 STEP\r\n");
+            Stream << QLatin1String("1 16 0 0 0 1 0 0 0 1 0 0 0 1 ") << Model->GetProperties().mFileName << Extension << LineEnding;
+            Stream << QLatin1String("0 NOFILE\r\n");
+        }
+        Stream << QLatin1String("0 FILE ") << Model->GetProperties().mFileName << Extension << LineEnding;
+        Model->SaveLDraw(Stream, false);
+        Model->SetSaved();
+        Stream << QLatin1String("0 NOFILE\r\n");
+    }
+    File.close();
+
+    int saveLoadMessageFlag = Preferences::ldrawFilesLoadMsgs;
+    Preferences::ldrawFilesLoadMsgs = SHOW_WARNING;
+    if (!loadFile(FileName)) {
+        Preferences::ldrawFilesLoadMsgs = saveLoadMessageFlag;
+        return false;
+    }
+    Preferences::ldrawFilesLoadMsgs = saveLoadMessageFlag;
+
+    return true;
 }

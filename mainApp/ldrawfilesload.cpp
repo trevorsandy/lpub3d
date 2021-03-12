@@ -56,7 +56,7 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setWindowTitle("LDrawfiles load");
+    setWindowTitle(tr("LDraw File Load Status"));
 
     QStringList _loadedParts = stringList;
 

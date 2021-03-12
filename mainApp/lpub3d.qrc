@@ -137,6 +137,9 @@
         <file alias="html32.png">resources/html32.png</file>
         <file alias="htmlsteps32.png">resources/htmlsteps32.png</file>
         <file alias="ignoresubmodel.png">resources/ignoresubmodel.png</file>
+        <file alias="import.png">resources/import.png</file>
+        <file alias="importldd.png">resources/importldd.png</file>
+        <file alias="importsetinventory.png">resources/importsetinventory.png</file>        
         <file alias="insertcoverpage.png">resources/insertcoverpage.png</file>
         <file alias="insertpage.png">resources/insertpage.png</file>
         <file alias="instructionsetup.png">resources/instructionsetup.png</file>

@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2359 (12 03 2021 23:36:18)
+LPub3D 2.4.1.1.2360 (12 03 2021 23:37:07)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,8 @@ Revisions:
 - Enhancement - Bill of materials options #492
 - Enhancement - Configurable Theme colors #490
 - Enhancement - Do not save fade steps and/or highlight step final model step #483
+- Enhancement - Enable LEGO Digital Designer and set inventory import #506
+- Enhancement - Execute fade, highlight, and preferred renderer locally #505
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
 - Enhancement - Make generate arrows optional when converting to callout #501
 - Enhancement - Set project start page and start step number for multi-document layouts #477

@@ -1792,6 +1792,10 @@ private slots:
     void ShowPrintDialog();
     void Print(QPrinter* Printer);
 
+    void importLDD();
+    void importInventory();
+    bool saveImport(const QString& FileName, Project *Importer);
+
     void exportAs(const QString &);
     void exportAsHtml();
     void exportAsHtmlSteps();
@@ -1831,6 +1835,7 @@ private slots:
     void disableActions();
     void disableActions2();
 
+    void importToolBarVisibilityChanged(bool);
     void exportToolBarVisibilityChanged(bool);
     void cacheToolBarVisibilityChanged(bool);
     void setupToolBarVisibilityChanged(bool);
@@ -1892,6 +1897,7 @@ private:
 
   QMenu    *editorMenu;
   QMenu    *cacheMenu;
+  QMenu    *importMenu;
   QMenu    *exportMenu;
   QMenu    *recentMenu;
   QMenu    *setupMenu;
@@ -1917,6 +1923,7 @@ private:
   // toolbars
   QToolBar *fileToolBar;
   QToolBar *undoredoToolBar;
+  QToolBar *importToolBar;
   QToolBar *exportToolBar;
   QToolBar *editToolBar;
   QToolBar *cacheToolBar;
@@ -1933,6 +1940,8 @@ private:
   QAction  *closeFileAct;
   QAction  *printToFileAct;
   QAction  *printToFilePreviewAct;
+  QAction  *importLDDAct;
+  QAction  *importSetInventoryAct;
   QAction  *exportAsPdfAct;
   QAction  *exportAsPdfPreviewAct;
   QAction  *exportPngAct;

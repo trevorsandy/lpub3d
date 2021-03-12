@@ -301,7 +301,7 @@ class Where
 
     ~Where()
     {
-      modelName.clear();
+//      modelName.clear();
     }
 
 };
