@@ -4945,7 +4945,7 @@ void MetaItem::removeLPubFormatting()
   endMacro();
 }
 
-void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool newCommand)
+void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool newCommand, bool remove)
 {
     Where itemTopOf = itemTop;
     if (newCommand){
@@ -4957,6 +4957,8 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
             insertMeta(itemTopOf, metaString);
         else
             appendMeta(itemTopOf, metaString);
+    } else if (remove) {
+        deleteMeta(itemTopOf);
     } else {
         replaceMeta(itemTopOf, metaString);
     }

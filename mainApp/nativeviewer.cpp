@@ -2534,10 +2534,13 @@ void Gui::applyBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
-    int it = lcGetActiveProject()->GetImageType();
-
+    // get the last action for this build mod
     int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
-    int buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
+    Rc buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
+    // was the last action defined in this step ?
+    Rc buildModStep =  Rc(getBuildModStep(currentStep->topOfStep()));
+    // set flag to remove the last action command if it is not 'Apply'
+    bool removeCommand = buildModStep == buildModAction;
 
     QString model = currentStep->topOfStep().modelName;
     QString line = QString::number(currentStep->topOfStep().lineNumber);
@@ -2597,7 +2600,7 @@ void Gui::applyBuildModification()
 
     } */
 
-
+    int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::CSI:
     {
@@ -2613,7 +2616,7 @@ void Gui::applyBuildModification()
         currentStep->buildMod.setValue(buildModData);
         metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
         newCommand = currentStep->buildMod.here() ==  Where();
-        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
+        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand, removeCommand);
 
         clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
@@ -2642,11 +2645,13 @@ void Gui::removeBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
-    int it = lcGetActiveProject()->GetImageType();
-
+    // get the last action for this build mod
     int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
-    int buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
-
+    Rc buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
+    // was the last action defined in this step ?
+    Rc buildModStep =  Rc(getBuildModStep(currentStep->topOfStep()));
+    // set flag to remove the last action command if it is not 'Remove'
+    bool removeCommand = buildModStep == buildModAction;
 
     QString model = currentStep->topOfStep().modelName;
     QString line = QString::number(currentStep->topOfStep().lineNumber);
@@ -2705,6 +2710,7 @@ void Gui::removeBuildModification()
         }
     } */
 
+    int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::CSI:
     {
@@ -2720,7 +2726,7 @@ void Gui::removeBuildModification()
         currentStep->buildMod.setValue(buildModData);
         metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
         newCommand = currentStep->buildMod.here() == Where();
-        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
+        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand, removeCommand);
 
         clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
