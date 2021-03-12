@@ -204,7 +204,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
 
   box = new QGroupBox("Assembly Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&calloutMeta->csi.margin,box);
+  child = new UnitsGui("L/R|T/B",&calloutMeta->margin,box);
   data->children.append(child);
 
   //spacer

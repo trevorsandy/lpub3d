@@ -171,7 +171,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->csi.margin);
+  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->margin);
   data->children.append(child);
   boxGrid->addWidget(child);
 

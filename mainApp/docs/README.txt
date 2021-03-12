@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2156 (12 03 2021 07:52:57)
+LPub3D 2.4.1.1.2157 (12 03 2021 07:53:37)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,7 @@ Revisions:
 - Change - View Next Step takes almost 1.5 minutes #465
 - Fix - Change Assembly Camera Angles removes highlighting #468
 - Fix - Crash adding multiple next step  #459
+- Fix - Double Assembly Margins in callout/step-group settings #482
 - Fix - Empty editor when buffered pages is on and lines per page is less than default #462
 - Fix - Format callout mono images for native renderer #458
 - Fix - Load PLI substitute and excluded part lists on initialisation #471
