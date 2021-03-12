@@ -617,6 +617,18 @@ void PointerItem::drawTip(QPoint delta, int type)
   autoLocFromTip();
   if (source){
     points[Base] -= delta;
+//    switch (segments()) {
+//    case TwoSegments:
+//        points[MidBase] += delta;
+//        autoLocFromMidBase();
+//        break;
+//    case ThreeSegments:
+//        points[MidBase] += delta;
+//        autoLocFromMidBase();
+//        points[MidTip] -= delta;
+//        autoMidBaseFromMidTip();
+//        break;
+//    }
     points[Tip] = tip;
   }
   drawPointerPoly();

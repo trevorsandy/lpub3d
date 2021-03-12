@@ -269,10 +269,9 @@ void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (delta.x() || delta.y()) {
 
       QPoint deltaI(int(delta.x()+0.5),int(delta.y()+0.5));
-      for (int i = 0; i < callout->graphicsCalloutPointerList.size(); i++) {
-        CalloutPointerItem *pointer = callout->graphicsCalloutPointerList[i];
-        pointer->updatePointer(deltaI);
-      }
+
+//      callout->updatePointers(deltaI); // Updates performed at mouseMoveEvent
+
       PlacementData placementData = placement.value();
 
       float w = delta.x()/gui->pageSize(callout->meta.LPub.page, 0);
