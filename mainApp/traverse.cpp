@@ -2943,6 +2943,8 @@ int Gui::findPage(
                                       // Set buildMod action
                                       if (opts.buildMod.state != BM_NONE)
                                           opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                                      // set partsAdded so countPage will properly trigger 
+                                      opts.flags.partsAdded++; 
                                       // advance one line so we don't process this line again in the countPage block
                                       opts.current++;
                                       // set processing state
@@ -3624,6 +3626,8 @@ int Gui::findPage(
 
   // last step in submodel
   if (opts.flags.partsAdded && ! opts.flags.noStep) {
+      isPreDisplayPage = opts.pageNum < displayPageNum;
+      isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
@@ -3709,6 +3713,9 @@ int Gui::findPage(
       topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
 
     }  // Last Step in Submodel
+
+  // Clear parts added so we dont count again in countPage;
+  opts.flags.partsAdded = 0;
 
   // Set buildMod action
   if (opts.buildMod.state != BM_NONE)

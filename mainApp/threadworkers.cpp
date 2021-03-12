@@ -2961,10 +2961,6 @@ int CountPageWorker::countPage(
     QList<ModelStack>&modelStack,
     FindPageOptions  &opts)
 {
-  if (opts.current.modelName == ldrawFile->topLevelFile() &&
-      opts.current.lineNumber == ldrawFile->size(opts.current.modelName))
-      return OkRc;
-
   QMutex countPageMutex;
   countPageMutex.lock();
 
