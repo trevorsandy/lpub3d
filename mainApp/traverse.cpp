@@ -2880,7 +2880,7 @@ int Gui::findPage(
                                   // Set buildMod action
                                   if (opts.buildMod.state != BM_NONE)
                                       opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                                  // advance one line so we don't process this line in the countPage block
+                                  // advance one line so we don't process this line again in the countPage block
                                   opts.current++;
                                   // set processing state
                                   pageProcessRunning = PROC_DISPLAY_PAGE;
@@ -3076,6 +3076,8 @@ int Gui::findPage(
                       // Set buildMod action
                       if (opts.buildMod.state != BM_NONE)
                           opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                      // advance one line so we don't process this line again in the countPage block
+                      opts.current++;
                       // set processing state
                       pageProcessRunning = PROC_DISPLAY_PAGE;
                       return OkRc;
@@ -3282,6 +3284,8 @@ int Gui::findPage(
                           // Set buildMod action
                           if (opts.buildMod.state != BM_NONE)
                               opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                          // advance one line so we don't process this line again in the countPage block
+                          opts.current++;
                           // set processing state
                           pageProcessRunning = PROC_DISPLAY_PAGE;
                           return OkRc;
