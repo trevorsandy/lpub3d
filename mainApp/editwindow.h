@@ -147,6 +147,7 @@ protected:
     void readSettings();
     void writeSettings();
     void openFolderSelect(const QString& absoluteFilePath);
+    void highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection);
 
     QAbstractItemModel *modelFromFile(const QString& fileName);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
@@ -165,6 +166,7 @@ protected:
     HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
     QFileSystemWatcher fileWatcher;
+    QVector<int>       savedSelection;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;

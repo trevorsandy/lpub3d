@@ -945,63 +945,90 @@ bool EditWindow::saveFile()
 
 void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 {
-    disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-               this,                  SLOT(  contentsChange(int,int,int)));
+    highlightSelectedLines(lines, clear, false/*editorSelection*/);
+}
 
-    QTextCursor highlightCursor(_textEdit->document());
+void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection)
+{
+    emit lpubAlert->messageSig(LOG_TRACE, QString("HighlightSelectedLines Sender: %1")
+                               .arg(sender()->metaObject()->className()));
 
-    QTextCursor textCursor(_textEdit->document());
-
-    textCursor.beginEditBlock();
-
-    if (!_textEdit->isReadOnly()) {
-
-        QColor lineColor = QColor(Qt::transparent);
-        bool applyFormat = lines.size();
-        if (applyFormat) {
-            if (clear) {
-                if (Preferences::displayTheme == THEME_DEFAULT) {
-                    lineColor = QColor(Qt::white);
-                } else if (Preferences::displayTheme == THEME_DARK) {
-                    lineColor = QColor(THEME_SCENE_BGCOLOR_DARK);
-                }
-            } else {
-                if (Preferences::displayTheme == THEME_DEFAULT) {
-                    lineColor = QColor(Qt::yellow).lighter(180);
-                } else if (Preferences::displayTheme == THEME_DARK) {
-                    lineColor = QColor(Qt::yellow).lighter(180);
-                    lineColor.setAlpha(100); // make 60% transparent
-                }
-            }
-        }
-        QTextCharFormat plainFormat(highlightCursor.charFormat());
-        QTextCharFormat colorFormat = plainFormat;
-        colorFormat.setBackground(lineColor);
-
-        if (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-            if (applyFormat) {
-                for (int i = 0; i < lines.size(); ++i) {
-                    QTextBlock block = _textEdit->document()->findBlockByLineNumber(lines.at(i));
-                    int blockPos     = block.position();
-                    highlightCursor.setPosition(blockPos);
-
-                    if (!highlightCursor.isNull()) {
-                        highlightCursor.select(QTextCursor::LineUnderCursor);
-                        highlightCursor.mergeCharFormat(colorFormat);
-                    }
-                }
-            } else {
-                highlightCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-                highlightCursor.mergeCharFormat(colorFormat);
-            }
+    // Remove duplicate editor (saved) lines and viewer lines
+    if (!editorSelection && savedSelection.size()) {
+        for (int line : lines) {
+            if (savedSelection.contains(line))
+                savedSelection.removeAll(line);
         }
     }
 
-    textCursor.endEditBlock();
+    auto highlightLines = [this, &editorSelection] (QVector<int> &linesToFormat, bool clear)
+    {
+        QTextCursor highlightCursor(_textEdit->document());
+
+        QTextCursor textCursor(_textEdit->document());
+
+        textCursor.beginEditBlock();
+
+        if (!_textEdit->isReadOnly()) {
+
+            QColor lineColor = QColor(Qt::transparent);
+
+            bool applyFormat = linesToFormat.size() || (editorSelection && savedSelection.size());
+            if (applyFormat) {
+                if (clear) {
+                    if (Preferences::displayTheme == THEME_DEFAULT) {
+                        lineColor = QColor(Qt::white);
+                    } else if (Preferences::displayTheme == THEME_DARK) {
+                        lineColor = QColor(THEME_SCENE_BGCOLOR_DARK);
+                    }
+                } else {
+                    if (Preferences::displayTheme == THEME_DEFAULT) {
+                        lineColor = QColor(Qt::yellow).lighter(180);
+                    } else if (Preferences::displayTheme == THEME_DARK) {
+                        lineColor = QColor(Qt::yellow).lighter(180);
+                        lineColor.setAlpha(100); // make 60% transparent
+                    }
+                }
+            }
+
+            QTextCharFormat plainFormat(highlightCursor.charFormat());
+            QTextCharFormat colorFormat = plainFormat;
+            colorFormat.setBackground(lineColor);
+
+            if (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+                if (applyFormat) {
+                    for (int i = 0; i < linesToFormat.size(); ++i) {
+                        QTextBlock block = _textEdit->document()->findBlockByLineNumber(linesToFormat.at(i));
+                        int blockPos     = block.position();
+                        highlightCursor.setPosition(blockPos);
+
+                        if (!highlightCursor.isNull()) {
+                            highlightCursor.select(QTextCursor::LineUnderCursor);
+                            highlightCursor.mergeCharFormat(colorFormat);
+                        }
+                    }
+                } else {
+                    highlightCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                    highlightCursor.mergeCharFormat(colorFormat);
+                }
+            }
+        }
+
+        textCursor.endEditBlock();
+    };
+
+    disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+               this,                  SLOT(  contentsChange(int,int,int)));
+
+    // apply previously selected lines if any
+    if (savedSelection.size())
+        highlightLines(savedSelection, false/*clear*/);
+
+    // apply highlighting, toggle on from editor or selection from viewer
+    highlightLines(lines, clear);
 
     connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
             this,                  SLOT(  contentsChange(int,int,int)));
-
 }
 
 void EditWindow::highlightCurrentLine()
@@ -1099,34 +1126,36 @@ void EditWindow::updateSelectedParts() {
 
     int currentLine = 0;
     int selectedLines = 0;
-    bool hasSelection = false;
+    bool clearSelection = false;
+
     QVector<TypeLine> lineTypeIndexes;
+    QVector<int> toggleLines;
 
     QTextCursor cursor = _textEdit->textCursor();
 
     QTextCursor saveCursor = cursor;
 
-    if(!(hasSelection = cursor.hasSelection()))
+    if(!cursor.hasSelection())
         cursor.select(QTextCursor::LineUnderCursor);
 
     QString content = cursor.selection().toPlainText();
     selectedLines   = content.count("\n")+1;
 
     auto getSelectedLineNumber = [&cursor] () {
-        int lines = 0;
+        int lineNumber = 0;
 
         while(cursor.positionInBlock()>0) {
             cursor.movePosition(QTextCursor::Up);
-            lines++;
+            lineNumber++;
         }
 
         QTextBlock block = cursor.block().previous();
 
         while(block.isValid()) {
-            lines += block.lineCount();
+            lineNumber += block.lineCount();
             block = block.previous();
         }
-        return lines;
+        return lineNumber;
     };
 
     cursor.beginEditBlock();
@@ -1139,9 +1168,18 @@ void EditWindow::updateSelectedParts() {
 
         if (!selection.isEmpty())
         {
-            if (selection.startsWith("1")) {
-                TypeLine typeLine(fileOrderIndex,getSelectedLineNumber());
+            if (selection.startsWith("1") || selection.contains(" PLI BEGIN SUB ")) {
+                int lineNumber = getSelectedLineNumber();
+                TypeLine typeLine(fileOrderIndex,lineNumber);
                 lineTypeIndexes.append(typeLine);
+                toggleLines.append(lineNumber);
+                clearSelection = savedSelection.contains(lineNumber);
+                highlightSelectedLines(toggleLines, clearSelection); // toggle On/Off
+                toggleLines.clear();
+                if (clearSelection)
+                    savedSelection.removeAll(lineNumber);
+                else
+                    savedSelection.append(lineNumber);
             }
 
             // go to next selected line
@@ -1219,6 +1257,7 @@ void EditWindow::displayFile(
   isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
   _subFileListPending = true;
+  savedSelection.clear();
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
