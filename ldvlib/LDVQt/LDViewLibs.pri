@@ -51,9 +51,13 @@ contains(LOAD_LDV_HEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-    if (contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
-        !contains(DEFINES,_OPENSUSE_1320_ARM):system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h) )
-        message("~~~ $$upper($$QT_ARCH) build - skip LDVQt local GL headers ~~~")
+    
+    if (contains(ARM_BUILD_ARCH,True)) {
+        if(!contains(DEFINES,ARM_SKIP_GL_HEADERS)) {
+            system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h ) )
+            message("~~~ $$upper($$QT_ARCH) build - copy local GL header glext.h ~~~")
+        }
+        message("~~~ $$upper($$QT_ARCH) build - skip copy local GL headers ~~~")
     } else {
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/GL/*.h) $$system_path( $${LDVINCLUDE}/GL/ ) )
         message("~~~ lib$${TARGET} local GL headers copied to $${LDVINCLUDE}/GL/ ~~~")

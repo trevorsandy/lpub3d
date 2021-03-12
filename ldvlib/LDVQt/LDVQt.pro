@@ -30,14 +30,16 @@ DEFINES += QT_THREAD_SUPPORT
 !freebsd: \
 DEFINES += EXPORT_3DS
 
-# platform switch
-HOST_VERSION   = $$(PLATFORM_VER)
-BUILD_TARGET   = $$(TARGET_VENDOR)
-BUILD_ARCH     = $$(TARGET_CPU)
-!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
-contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += _OPENSUSE_1320_ARM
-if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
+unix: !macx: TARGET = ldvqt
+else:        TARGET = LDVQt
+
+# platform architecture
+# get CPU arch - QT_ARCH returns x86_64, arm64 for aarch64, and arm for arm7l
+!contains(QT_ARCH,unknown): BUILD_ARCH = $$QT_ARCH       # Target CPU
+else:                       BUILD_ARCH = $$(TARGET_CPU) 
+isEmpty(BUILD_ARCH):        BUILD_ARCH = UNKNOWN ARCH
+
+if (contains(BUILD_ARCH,x86_64)|contains(BUILD_ARCH,arm64)) {
     ARCH  = 64
     LIB_ARCH = 64
 } else {
@@ -45,8 +47,29 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     LIB_ARCH =
 }
 
-unix: !macx: TARGET = ldvqt
-else:        TARGET = LDVQt
+# platform name and version
+BUILD_TARGET   = $$(TARGET_VENDOR)  # Platform ID
+HOST_VERSION   = $$(PLATFORM_VER)   # Platform Version
+
+# platform name and version fallback
+unix:!macx:isEmpty(BUILD_TARGET):BUILD_TARGET = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo $ID || echo 'undefined')
+unix:!macx:isEmpty(HOST_VERSION):HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo $VERSION_ID || echo 'undefined')
+
+# specify define for OBS ARM platforms that need to use OpenGL headers
+contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
+ARM_BUILD_ARCH = True
+
+# specify define for OBS ARM platforms that need to suppress local glext.h header
+contains(BUILD_TARGET,suse): \
+ARM_BUILD_TARGET = True
+contains(HOST_VERSION,1320): \
+ARM_HOST_VERSION = True
+contains(ARM_BUILD_TARGET,True):contains(ARM_HOST_VERSION,True) {
+    DEFINES += ARM_SKIP_GL_HEADERS
+    message("~~~ $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define ARM_SKIP_GL_HEADERS ~~~")
+} else {
+    message("~~~ $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+}
 
 # The ABI version.
 VER_MAJ = 4

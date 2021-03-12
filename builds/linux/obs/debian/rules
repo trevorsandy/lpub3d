@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Last Update March 06, 2019
+# Last Update October 10, 2020
 # Copyright 2017-2020 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -12,8 +12,26 @@ export QT_SELECT=qt5
 # for 3rd party apps install
 export LP3D_BUILD_PKG=yes
 
-# get target arch
-LP3D_TARGET_ARCH=`uname -m`
+# get CPU arch - DEB_BUILD_ARCH returns amd64 for x86_64, arm for armv7l or arm64 for aarch64
+export TARGET_CPU=${DEB_BUILD_ARCH}
+
+# get OS name
+export TARGET_VENDOR := $(shell . /etc/os-release 2>/dev/null; [ -n "$${ID}" ] && echo "$${ID}" || echo 'undefined')
+
+# get OS version
+export PLATFORM_VER := $(shell . /etc/os-release 2>/dev/null; [ -n "$${VERSION_ID}" ] && echo "$${VERSION_ID}" || echo 'undefined')
+
+# get app version suffix
+LP3D_VER_SUFFIX := $(shell cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
+
+# get release directory name
+LP3D_RELEASE_DIR := $(shell [ ${TARGET_CPU} = amd64 ] || [ ${TARGET_CPU} = x86_64 ] || [ ${TARGET_CPU} = aarch64 ] || [ ${TARGET_CPU} = arm64 ] && echo "64bit_release" || echo "32bit_release")
+
+# get lpub3d executable path
+LP3D_VALID_EXE := $(shell echo "mainApp/${LP3D_RELEASE_DIR}/lpub3d${LP3D_VER_SUFFIX}")
+
+# set compatibility level - KO, building renderers twice and failing after
+# export DH_COMPAT := $(shell [ ${PLATFORM_VER} = 10 ] && echo 10 || echo 9)
 
 %:
 	dh $@
@@ -56,7 +74,7 @@ configure-stamp:
 	BINARY_FILE_PATH=$$(readlink -e ../)
 	BINARY_FILE_LIST=builds/linux/obs/debian/source/include-binaries; \
 	sed -i -e "s/__path__/$${BINARY_FILE_PATH}/g" "$${BINARY_FILE_LIST}" \
-		   -e "s/__arch__/${LP3D_TARGET_ARCH}/g" "$${BINARY_FILE_LIST}"; \
+		   -e "s/__arch__/${TARGET_CPU}/g" "$${BINARY_FILE_LIST}"; \
 	echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
 	# build 3rd-party renderers
 	export WD=$$(readlink -e ../); \
@@ -64,12 +82,11 @@ configure-stamp:
 override_dh_auto_configure:
 	# LDraw directory - for build check
 	export LDRAWDIR=${HOME}/ldraw; \
-	if [ "${LP3D_TARGET_ARCH}" = "x86_64" ]; then \
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -v; \
-		/usr/lib/x86_64-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb; \
+	if which qmake >/dev/null 2>/dev/null ; then \
+		qmake -v; \
+		qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb; \
 	else \
-		/usr/lib/i386-linux-gnu/qt5/bin/qmake -v; \
-		/usr/lib/i386-linux-gnu/qt5/bin/qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb; \
+		echo "ERROR - qmake not found"; \
 	fi
 	# End custom configuration commands
 	touch configure-stamp
@@ -77,12 +94,8 @@ override_dh_auto_configure:
 build: configure-stamp
 override_dh_auto_test:
 	# Start custom test commands
-	if [ -f "mainApp/64bit_release/lpub3d23" ]; then \
-		echo "LDD check mainApp/64bit_release/lpub3d23..."; \
-		ldd mainApp/64bit_release/lpub3d23 2>/dev/null; \
-	else \
-		echo "ERROR - LDD check failed for $$(realpath mainApp/64bit_release/lpub3d23)"; \
-	fi
+	[ -f "${LP3D_VALID_EXE}" ] && echo "LDD check lpub3d${LP3D_VER_SUFFIX}..." && ldd ${LP3D_VALID_EXE} 2>/dev/null || \
+	echo "ERROR - LDD check failed for $$(realpath ${LP3D_VALID_EXE})"
 	# End custom test commands
 	dh_auto_test
 
