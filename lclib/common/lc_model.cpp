@@ -610,6 +610,8 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Token == QLatin1String("STEP"))
 			{
+				delete Piece;
+				Piece = nullptr;
 				CurrentStep++;
 				mFileLines.append(OriginalLine);
 				continue;
@@ -806,6 +808,9 @@ bool lcModel::LoadBinary(lcFile* file)
 	file->Seek(0, SEEK_SET);
 	file->ReadBuffer(id, 32);
 	sscanf(&id[7], "%f", &fv);
+
+	if (memcmp(id, "LeoCAD ", 7))
+		return false;
 
 	if (fv == 0.0f)
 	{
