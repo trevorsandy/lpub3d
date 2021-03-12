@@ -68,6 +68,9 @@ public slots:
 /*** LPub3D Mod - Set default colour ***/
 	void ResetFadeHighlightColor();
 /*** LPub3D Mod end ***/
+	void AutomateEdgeColor();
+	void on_AutomateEdgeColor_toggled();
+	void on_studStyleCombo_currentIndexChanged(int index);
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();
 	void on_LineWidthSlider_valueChanged();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>587</width>
-    <height>520</height>
+    <width>589</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -614,8 +614,28 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="4">
+           <widget class="QToolButton" name="AutomateEdgeColorButton">
+            <property name="toolTip">
+             <string>Automate edge color settings</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="3">
+           <widget class="QCheckBox" name="AutomateEdgeColor">
+            <property name="text">
+             <string>Automate Edge Color:</string>
+            </property>
+           </widget>
+          </item>
           <item row="4" column="2">
-           <widget class="QToolButton" name="styleColorConfigButton">
+           <widget class="QToolButton" name="HighContrastButton">
+            <property name="toolTip">
+             <string>High contrast stud and edge color settings</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1663,25 +1683,36 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="fixedDirectionKeys">
-         <property name="text">
-          <string>Fixed direction keys</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="autoLoadMostRecent">
-         <property name="text">
-          <string>Open most recent file on startup</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="RestoreTabLayout">
-         <property name="text">
-          <string>Restore tab layout</string>
-         </property>
-        </widget>
+        <layout class="QGridLayout" name="gridLayout_11">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="fixedDirectionKeys">
+           <property name="text">
+            <string>Fixed direction keys</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="RestoreTabLayout">
+           <property name="text">
+            <string>Restore tab layout</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="autoLoadMostRecent">
+           <property name="text">
+            <string>Open most recent file on startup</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="PromptRedrawLPubPage">
+           <property name="text">
+            <string>Prompt on redraw LPub page</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_2">
@@ -2209,7 +2240,7 @@
   <tabstop>MeshLODSlider</tabstop>
   <tabstop>ShadingMode</tabstop>
   <tabstop>studStyleCombo</tabstop>
-  <tabstop>styleColorConfigButton</tabstop>
+  <tabstop>HighContrastButton</tabstop>
   <tabstop>LPubTrueFade</tabstop>
   <tabstop>ConditionalLines</tabstop>
   <tabstop>FadeSteps</tabstop>
@@ -2218,6 +2249,8 @@
   <tabstop>HighlightNewParts</tabstop>
   <tabstop>HighlightNewPartsColor</tabstop>
   <tabstop>ResetHighlightNewPartsButton</tabstop>
+  <tabstop>AutomateEdgeColor</tabstop>
+  <tabstop>AutomateEdgeColorButton</tabstop>
   <tabstop>ViewpointsCombo</tabstop>
   <tabstop>ProjectionCombo</tabstop>
   <tabstop>defaultCameraProperties</tabstop>
@@ -2283,6 +2316,7 @@
   <tabstop>viewPieceIconsRadio</tabstop>
   <tabstop>viewColorIconsRadio</tabstop>
   <tabstop>fixedDirectionKeys</tabstop>
+  <tabstop>PromptRedrawLPubPage</tabstop>
   <tabstop>autoLoadMostRecent</tabstop>
   <tabstop>RestoreTabLayout</tabstop>
   <tabstop>categoriesTree</tabstop>

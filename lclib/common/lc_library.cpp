@@ -622,7 +622,7 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 				Source->Primitives[Name] = new lcLibraryPrimitive(std::move(FileName), strchr(FileString, '/') + 1, lcZipFileType::Count, 0, !SubFile && IsStudPrimitive(Name), IsStudStylePrimitive(Name), SubFile);
 			}
 		}
-		
+
 		mSources.push_back(std::move(Source));
 	}
 
@@ -1904,7 +1904,7 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 {
 	std::unique_ptr<lcDiskFile> File(new lcDiskFile(":/resources/library.zip"));
 
-	if (!OpenArchive(std::move(File), lcZipFileType::Official))
+	if (!File->Open(QIODevice::ReadOnly) || !OpenArchive(std::move(File), lcZipFileType::Official))
 		return false;
 
 	lcMemFile PieceFile;

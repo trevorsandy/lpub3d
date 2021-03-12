@@ -65,6 +65,13 @@ void lcPreferences::LoadDefaults()
 	mPreviewViewSphereSize = lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE);
 	mPreviewViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION));
 	mDrawPreviewAxis = lcGetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES);
+	mStudCylinderColor = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
+	mPartEdgeColor = lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
+	mBlackEdgeColor = lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
+	mDarkEdgeColor = lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
+	mPartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
+	mPartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
+	mAutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	mPreviewEnabled  = lcGetProfileInt(LC_PROFILE_PREVIEW_ENABLED);
 	mPreviewSize     = lcGetProfileInt(LC_PROFILE_PREVIEW_SIZE);
@@ -144,6 +151,13 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_SIZE, mPreviewViewSphereSize);
 	lcSetProfileInt(LC_PROFILE_PREVIEW_VIEW_SPHERE_LOCATION, static_cast<int>(mPreviewViewSphereLocation));
 	lcSetProfileInt(LC_PROFILE_PREVIEW_DRAW_AXES, mDrawPreviewAxis);
+	lcSetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR, mStudCylinderColor);
+	lcSetProfileInt(LC_PROFILE_PART_EDGE_COLOR, mPartEdgeColor);
+	lcSetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR, mBlackEdgeColor);
+	lcSetProfileInt(LC_PROFILE_DARK_EDGE_COLOR, mDarkEdgeColor);
+	lcSetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST, mPartEdgeContrast);
+	lcSetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX, mPartColorValueLDIndex);
+	lcSetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR, mAutomateEdgeColor);
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
@@ -502,6 +516,13 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.Viewpoint = lcViewpoint::Count;
 	Options.FadeStepsColor = mPreferences.mFadeStepsColor;
 	Options.HighlightColor = mPreferences.mHighlightNewPartsColor;
+	Options.StudCylinderColor = mPreferences.mStudCylinderColor;
+	Options.PartEdgeColor = mPreferences.mPartEdgeColor;
+	Options.BlackEdgeColor = mPreferences.mBlackEdgeColor;
+	Options.DarkEdgeColor = mPreferences.mDarkEdgeColor;
+	Options.PartEdgeContrast = mPreferences.mPartEdgeContrast;
+	Options.PartColorValueLDIndex = mPreferences.mPartColorValueLDIndex;
+	Options.AutomateEdgeColor = mPreferences.mAutomateEdgeColor;
 
 /*** LPub3D Mod - process command line ***/
 	QStringList Arguments = Application::instance()->arguments();
@@ -755,6 +776,80 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 				Options.ParseOK = false;
 			}
 		}
+/*** LPub3D Mod - process command line ***/
+		/***
+		else if (Option == QLatin1String("-scc") || Option == QLatin1String("--stud-cylinder-color"))
+		{
+			if (ParseColor(Options.StudCylinderColor))
+			{
+				if (!lcIsHighContrast(Options.StudStyle))
+				{
+					Options.StdErr += tr("High contrast stud style is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		else if (Option == QLatin1String("-ec") || Option == QLatin1String("--edge-color"))
+		{
+			if (ParseColor(Options.PartEdgeColor))
+			{
+				if (!lcIsHighContrast(Options.StudStyle))
+				{
+					Options.StdErr += tr("High contrast stud style is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		else if (Option == QLatin1String("-bec") || Option == QLatin1String("--black-edge-color"))
+		{
+			if (ParseColor(Options.BlackEdgeColor))
+			{
+				if (!lcIsHighContrast(Options.StudStyle))
+				{
+					Options.StdErr += tr("High contrast stud style is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		else if (Option == QLatin1String("-dec") || Option == QLatin1String("--dark-edge-color"))
+		{
+			if (ParseColor(Options.DarkEdgeColor))
+			{
+				if (!lcIsHighContrast(Options.StudStyle))
+				{
+					Options.StdErr += tr("High contrast stud style is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		else if (Option == QLatin1String("-aec") || Option == QLatin1String("--automate-edge-color"))
+		{
+			Options.AutomateEdgeColor = true;
+		}
+		else if (Option == QLatin1String("-cc") || Option == QLatin1String("--color-contrast"))
+		{
+			if (ParseFloat(Options.PartEdgeContrast, 0.0f, 1.0f))
+			{
+				if (!Options.AutomateEdgeColor)
+				{
+					Options.StdErr += tr("Automate edge color is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		else if (Option == QLatin1String("-ldv") || Option == QLatin1String("--light-dark-value"))
+		{
+			if (ParseFloat(Options.PartColorValueLDIndex, 0.0f, 1.0f))
+			{
+				if (!Options.AutomateEdgeColor)
+				{
+					Options.StdErr += tr("Automate edge color is required for the '%1' option but is not enabled.\n").arg(Option);
+					Options.ParseOK = false;
+				}
+			}
+		}
+		***/
+/*** LPub3D Mod end ***/
 		else if (Option == QLatin1String("--fade-steps"))
 			Options.FadeSteps = true;
 		else if (Option == QLatin1String("--no-fade-steps"))
@@ -882,6 +977,13 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			Options.StdOut += tr("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
 			Options.StdOut += tr("  --line-width <width>: Set the with of the edge lines.\n");
 			Options.StdOut += tr("  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
+			Options.StdOut += tr("  -scc, --stud-cylinder-color <#AARRGGBB>: High contrast stud cylinder color.\n");
+			Options.StdOut += tr("  -ec, --edge-color <#AARRGGBB>: High contrast edge color.\n");
+			Options.StdOut += tr("  -bec, --black-edge-color <#AARRGGBB>: High contrast edge color for black parts.\n");
+			Options.StdOut += tr("  -dec, --dark-edge-color <#AARRGGBB>: High contrast edge color for dark color parts.\n");
+			Options.StdOut += tr("  -aec, --automate-edge-color: Enable automatically adjusted edge colors.\n");
+			Options.StdOut += tr("  -cc, --color-contrast <float>: Color contrast value between 0.0 and 1.0.\n");
+			Options.StdOut += tr("  -ldv, --light-dark-value <float>: Light/Dark color value between 0.0 and 1.0.\n");
 			Options.StdOut += tr("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
 			Options.StdOut += tr("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
 			Options.StdOut += tr("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
@@ -900,6 +1002,16 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 /*** LPub3D Mod end ***/
 
 	}
+
+/*** LPub3D Mod - process command line ***/
+		/***
+	if (Options.AutomateEdgeColor && lcIsHighContrast(Options.StudStyle))
+	{
+		Options.StdErr += tr("Automate edge color and high contrast stud style cannot be enabled at the same time.\n");
+		Options.ParseOK = false;
+	}
+		***/
+/*** LPub3D Mod end ***/
 
 	if (!Options.CameraName.isEmpty())
 	{
@@ -1006,6 +1118,14 @@ int lcApplication::Process3DViewerCommandLine()
 			StdErr.flush();
 		}
 	}
+
+	mPreferences.mStudCylinderColor = Options.StudCylinderColor;
+	mPreferences.mPartEdgeColor = Options.PartEdgeColor;
+	mPreferences.mBlackEdgeColor = Options.BlackEdgeColor;
+	mPreferences.mDarkEdgeColor = Options.DarkEdgeColor;
+	mPreferences.mPartEdgeContrast = Options.PartEdgeContrast;
+	mPreferences.mPartColorValueLDIndex = Options.PartColorValueLDIndex;
+	mPreferences.mAutomateEdgeColor = Options.AutomateEdgeColor;
 
 	lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, false);
 
@@ -1376,12 +1496,9 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preference refresh ***/
-	if (Preferences::usingNativeRenderer)
-	{
-		Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-		Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-		Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-	}
+	Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+	Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+	Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
@@ -1407,49 +1524,40 @@ void lcApplication::ShowPreferencesDialog()
 	bool ColorsChanged = Options.ColorConfigPath != lcGetProfileString(LC_PROFILE_COLOR_CONFIG);
 	bool AAChanged = CurrentAASamples != Options.AASamples;
 	bool StudStyleChanged = CurrentStudStyle != Options.StudStyle;
+	bool AutomateEdgeColorChanged = Options.Preferences.mAutomateEdgeColor != mPreferences.mAutomateEdgeColor;
+	AutomateEdgeColorChanged |= Options.Preferences.mStudCylinderColor != mPreferences.mStudCylinderColor;
+	AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeColor != mPreferences.mPartEdgeColor;
+	AutomateEdgeColorChanged |= Options.Preferences.mBlackEdgeColor != mPreferences.mBlackEdgeColor;
+	AutomateEdgeColorChanged |= Options.Preferences.mDarkEdgeColor != mPreferences.mDarkEdgeColor;
+	AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeContrast != mPreferences.mPartEdgeContrast;
+	AutomateEdgeColorChanged |= Options.Preferences.mPartColorValueLDIndex != mPreferences.mPartColorValueLDIndex;
 
 /*** LPub3D Mod - preference refresh ***/
-	bool drawEdgeLinesChanged = false;
-	bool shadingModeChanged = false;
-	bool lineWidthChanged = false;
-	if (Preferences::usingNativeRenderer)
-	{
-		float mLineWidth  = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-		bool mDrawEdgeLInes	  = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-		lcShadingMode mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-
-		drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
-		shadingModeChanged = Options.Preferences.mShadingMode	  != mShadingMode;
-		lineWidthChanged = Options.Preferences.mLineWidth		  != mLineWidth;
-	}
+	bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mPreferences.mDrawEdgeLines;
+	bool shadingModeChanged = Options.Preferences.mShadingMode != mPreferences.mShadingMode;
+	bool lineWidthChanged = Options.Preferences.mLineWidth != mPreferences.mLineWidth;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
-	bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-	bool NativeProjectionChanged = Options.Preferences.mNativeProjection != lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+	bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != mPreferences.mNativeViewpoint;
+	bool NativeProjectionChanged = Options.Preferences.mNativeProjection != mPreferences.mNativeProjection;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-	bool mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
-	bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mViewPieceIcons;
+	bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mPreferences.mViewPieceIcons;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
-	bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != bool(lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE));
-	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != bool(lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES));
+	bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != mPreferences.mLPubTrueFade;
+	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != mPreferences.mConditionalLines;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
-	bool DefaultDistanceFactorChanged = Options.Preferences.mDDF != lcGetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR);
-	bool DefaultPositionChanged = Options.Preferences.mCDP != lcGetProfileFloat(LC_PROFILE_CAMERA_DEFAULT_POSITION);
-	bool FieldOfViewChanged = Options.Preferences.mCFoV != lcGetProfileFloat(LC_PROFILE_CAMERA_FOV);
-	bool NearPlaneChanged = Options.Preferences.mCNear != lcGetProfileFloat(LC_PROFILE_CAMERA_NEAR_PLANE);
-	bool FarPlaneChanged = Options.Preferences.mCFar != lcGetProfileFloat(LC_PROFILE_CAMERA_FAR_PLANE);
-	bool DefaultCameraChanged = (DefaultDistanceFactorChanged ||
-								 DefaultPositionChanged       ||
-								 FieldOfViewChanged           ||
-								 NearPlaneChanged             ||
-								 FarPlaneChanged);
+	bool DefaultCameraChanged = Options.Preferences.mDDF != mPreferences.mDDF;
+	DefaultCameraChanged |= Options.Preferences.mCDP != mPreferences.mCDP;
+	DefaultCameraChanged |= Options.Preferences.mCFoV != mPreferences.mCFoV;
+	DefaultCameraChanged |= Options.Preferences.mCNear != mPreferences.mCNear;
+	DefaultCameraChanged |= Options.Preferences.mCFar != mPreferences.mCFar;
 /*** LPub3D Mod end ***/
 
 	mPreferences = Options.Preferences;
@@ -1664,9 +1772,10 @@ void lcApplication::ShowPreferencesDialog()
 		lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
 		lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true);
 	}
-	else if (ColorsChanged)
+	else if (ColorsChanged || AutomateEdgeColorChanged)
 	{
-		lcSetProfileString(LC_PROFILE_COLOR_CONFIG, Options.ColorConfigPath);
+		if (ColorsChanged)
+			lcSetProfileString(LC_PROFILE_COLOR_CONFIG, Options.ColorConfigPath);
 		lcGetPiecesLibrary()->LoadColors();
 	}
 

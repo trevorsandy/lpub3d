@@ -8,6 +8,7 @@
 #include "lc_qutils.h"
 #include "lc_glextensions.h"
 #include "pieceinf.h"
+#include "lc_edgecolordialog.h"
 
 static const char* gLanguageLocales[] =
 {
@@ -50,6 +51,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
 	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
+	connect(ui->HighContrastButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
+	connect(ui->AutomateEdgeColorButton, SIGNAL(clicked()), this, SLOT(AutomateEdgeColor()));
 /*** LPub3D Mod - Reset fade/highlight default colours ***/
 	connect(ui->ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 	connect(ui->ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
@@ -77,6 +80,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->fixedDirectionKeys->setChecked(mOptions->Preferences.mFixedAxes);
 	ui->autoLoadMostRecent->setChecked(mOptions->Preferences.mAutoLoadMostRecent);
 	ui->RestoreTabLayout->setChecked(mOptions->Preferences.mRestoreTabLayout);
+	ui->AutomateEdgeColor->setChecked(mOptions->Preferences.mAutomateEdgeColor);
 
 	ui->antiAliasing->setChecked(mOptions->AASamples != 1);
 	if (mOptions->AASamples == 8)
@@ -228,7 +232,9 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	SetButtonPixmap(mOptions->Preferences.mViewSphereTextColor, ui->ViewSphereTextColorButton);
 	SetButtonPixmap(mOptions->Preferences.mViewSphereHighlightColor, ui->ViewSphereHighlightColorButton);
 
+	on_studStyleCombo_currentIndexChanged(ui->studStyleCombo->currentIndex());
 	on_antiAliasing_toggled();
+	on_AutomateEdgeColor_toggled();
 	on_edgeLines_toggled();
 	on_LineWidthSlider_valueChanged();
 	on_MeshLODSlider_valueChanged();
@@ -363,6 +369,7 @@ void lcQPreferencesDialog::accept()
 	mOptions->DefaultAuthor = ui->authorName->text();
 	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 	mOptions->Preferences.mColorTheme = static_cast<lcColorTheme>(ui->ColorTheme->currentIndex());
+	mOptions->Preferences.mAutomateEdgeColor = ui->AutomateEdgeColor->isChecked();
 
 	int Language = ui->Language->currentIndex();
 	if (Language < 0 || Language > static_cast<int>(LC_ARRAY_COUNT(gLanguageLocales)))
@@ -752,6 +759,42 @@ void lcQPreferencesDialog::on_PreviewViewSphereSizeCombo_currentIndexChanged(int
 }
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
+void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
+{
+	bool Enabled = Index != 0;
+
+	ui->ViewSphereLocationCombo->setEnabled(Enabled);
+	ui->ViewSphereColorButton->setEnabled(Enabled);
+	ui->ViewSphereTextColorButton->setEnabled(Enabled);
+	ui->ViewSphereHighlightColorButton->setEnabled(Enabled);
+}
+/*** LPub3D Mod end ***/
+
+void lcQPreferencesDialog::on_AutomateEdgeColor_toggled()
+{
+	ui->AutomateEdgeColorButton->setEnabled(ui->AutomateEdgeColor->isChecked());
+}
+
+void lcQPreferencesDialog::on_studStyleCombo_currentIndexChanged(int index)
+{
+	ui->HighContrastButton->setEnabled(lcIsHighContrast(static_cast<lcStudStyle>(index)));
+}
+
+void lcQPreferencesDialog::AutomateEdgeColor()
+{
+	lcAutomateEdgeColorDialog Dialog(this, sender() == ui->HighContrastButton);
+	if (Dialog.exec() == QDialog::Accepted)
+	{
+		mOptions->Preferences.mStudCylinderColor = Dialog.mStudCylinderColor;
+		mOptions->Preferences.mPartEdgeColor = Dialog.mPartEdgeColor;
+		mOptions->Preferences.mBlackEdgeColor = Dialog.mBlackEdgeColor;
+		mOptions->Preferences.mDarkEdgeColor = Dialog.mDarkEdgeColor;
+		mOptions->Preferences.mPartEdgeContrast = Dialog.mPartEdgeContrast;
+		mOptions->Preferences.mPartColorValueLDIndex = Dialog.mPartColorValueLDIndex;
+	}
+}
+
+/*** LPub3D Mod - preview widget for LPub3D ***/
 void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
 {
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
@@ -766,18 +809,6 @@ void lcQPreferencesDialog::on_PreviewPositionCombo_currentIndexChanged(int Index
 {
 	ui->PreviewSizeCombo->setEnabled(Index != 0);
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
-}
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - preview widget for LPub3D ***/
-void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
-{
-	bool Enabled = Index != 0;
-
-	ui->ViewSphereLocationCombo->setEnabled(Enabled);
-	ui->ViewSphereColorButton->setEnabled(Enabled);
-	ui->ViewSphereTextColorButton->setEnabled(Enabled);
-	ui->ViewSphereHighlightColorButton->setEnabled(Enabled);
 }
 /*** LPub3D Mod end ***/
 
