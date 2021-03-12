@@ -1618,7 +1618,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         bool RemovedCamera = false;
         for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
         {
-            QString Name = Camera->GetName();
+            QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
             if (Name == cameraName)
             {
                 RemovedCamera = true;
