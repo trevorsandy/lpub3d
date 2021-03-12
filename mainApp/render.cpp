@@ -3028,14 +3028,8 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         lcView View(lcViewType::View, ActiveModel);
         View.SetCamera(Camera, true);
 
-#ifdef LC_USE_QOPENGLWIDGET
         View.SetOffscreenContext();
         View.MakeCurrent();
-#else
-        ActiveView->MakeCurrent();
-        lcContext* Context = ActiveView->mContext;
-        View.SetContext(Context);
-#endif
 
         if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
@@ -3054,10 +3048,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             View.OnDraw();
 
             Image.RenderedImage = View.GetRenderImage();
-
-#ifndef LC_USE_QOPENGLWIDGET
-            Context->ClearResources();
-#endif
 
             View.EndRenderToImage();
 
@@ -3217,6 +3207,9 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
 }
 
 bool Render::LoadViewer(const ViewerOptions *Options) {
+
+    if (!Preferences::modeGUI)
+        return true;
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 

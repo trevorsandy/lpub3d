@@ -1082,11 +1082,10 @@ int Application::run()
 
   if (!m_print_output)
   {
-    gApplication->Shutdown();
-
     delete gui;
     gui = nullptr;
 
+    gApplication->Shutdown();
     delete gApplication;
     gApplication = nullptr;
 
@@ -1129,9 +1128,7 @@ void messageSig(LogType logType, QString message){
 
 int main(int argc, char** argv)
 {
-#ifdef LC_USE_QOPENGLWIDGET
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-#endif
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

@@ -4,20 +4,15 @@ QT     += gui
 QT     += opengl
 QT     += network
 QT     += xml
+QT     += concurrent
+QT     *= printsupport
 CONFIG += warn_on
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT *= printsupport
-    QT += concurrent
-}
 
 win32:macx: \
 GAMEPAD {
-    equals(QT_MAJOR_VERSION, 5) {
-        qtHaveModule(gamepad) {
-            QT += gamepad
-            DEFINES += LC_ENABLE_GAMEPAD
-        }
+    qtHaveModule(gamepad) {
+        QT += gamepad
+        DEFINES += LC_ENABLE_GAMEPAD
     }
 }
 
@@ -172,7 +167,7 @@ CONFIG(debug, debug|release) {
     win32 {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd07
-        LC_LIB = LCd18
+        LC_LIB = LCd19
         LDVQT_LIB = LDVQtd44
         WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
@@ -216,7 +211,7 @@ CONFIG(debug, debug|release) {
     win32 {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP07
-        LC_LIB = LC18
+        LC_LIB = LC19
         LDVQT_LIB = LDVQt44
         WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10
