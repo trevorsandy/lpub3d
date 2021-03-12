@@ -43,6 +43,7 @@ class Reserve : public AbstractRangeElement {
       LPubMeta &meta)
     {
       top  = _here;
+      top.setModelIndex(gui->getSubmodelIndex(_here.modelName));
 
       float space;
       space = meta.reserve.value();

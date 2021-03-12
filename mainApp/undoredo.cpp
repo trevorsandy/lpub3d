@@ -208,6 +208,7 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx)
     if (found || line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP"))
       break;
   }
+  topOfStep.setModelIndex(gui->getSubmodelIndex(topOfStep.modelName));
   return found;
 }
 

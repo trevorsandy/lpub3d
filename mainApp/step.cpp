@@ -64,6 +64,7 @@ Step::Step(
   , multiStep(multiStep)
 {
   top                       =  topOfStep;
+  top.modelIndex            =  gui->getSubmodelIndex(topOfStep.modelName);
   parent                    = _parent;
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
