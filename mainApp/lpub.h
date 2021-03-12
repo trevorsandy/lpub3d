@@ -480,9 +480,6 @@ public:
   QList<Where>    parsedMessages;   // previously parsed messages within the current session
   QList<ModelStack> modelStack;   // stack of saved positions of the submodel in its parent model, if not top model
 
-  int             boms;            // the number of pli BOMs in the document
-  int             bomOccurrence;   // the actual occurrence of each pli BOM
-
   int             pa;               // page adjustment
   int             sa;               // step number adustment
   int             exportMode;       // export Mode
@@ -1101,8 +1098,6 @@ public:
       QStringList  &out,    // newCSIParts
       QVector<int> &tiout); // newCSIParts
 
-
-
   float getDefaultCameraFoV() const;
   float getDefaultFOVMinRange() const;
   float getDefaultFOVMaxRange() const;
@@ -1176,6 +1171,16 @@ public slots:
   QString getViewerStepKey()
   {
       return viewerStepKey;
+  }
+
+  int GetBOMs()
+  {
+      return boms;
+  }
+
+  int GetBOMOccurrence()
+  {
+      return bomOccurrence;
   }
 
   QString GetPliIconsPath(QString& key);
@@ -1528,6 +1533,12 @@ private:
 
   int                    numPrograms;
 
+  int                     boms;            // the number of pli BOMs in the document
+  int                     bomOccurrence;   // the actual occurrence of each pli BOM
+  QStringList             bomParts;        // list of part strings configured for BOM setup
+  QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
+
+
   bool                   okToInvokeProgressBar()
   {
     return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !exporting());
@@ -1624,9 +1635,7 @@ private:
 
   int getBOMParts(
     Where                    current,
-    QString                 &addLine,
-    QStringList             &csiParts,
-    QList<PliPartGroupMeta> &bomPartGroups);
+    const QString           &addLine);
 
   int getBOMOccurrence(
           Where  current);

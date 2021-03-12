@@ -3567,10 +3567,8 @@ int Gui::findPage(
 }
 
 int Gui::getBOMParts(
-    Where        current,
-    QString     &addLine,
-    QStringList &pliParts,
-    QList<PliPartGroupMeta> &bomPartGroups)
+          Where   current,
+    const QString &addLine)
 {
   QString buildModKey;
   bool partIgnore   = false;
@@ -3585,8 +3583,6 @@ int Gui::getBOMParts(
   bool buildModIgnore = false;
 
   QStringList bfxParts;
-
-  Meta meta;
 
   skipHeader(current);
 
@@ -3655,7 +3651,7 @@ int Gui::getBOMParts(
 
                       Where current2(type,0);
 
-                      getBOMParts(current2,line,pliParts,bomPartGroups);
+                      getBOMParts(current2,line);
 
                     } else {
 
@@ -3672,9 +3668,9 @@ int Gui::getBOMParts(
                           line = substituteToken.join(" ");
                         }
 
-                      QString newLine = Pli::partLine(line,current,meta);
+                      QString newLine = Pli::partLine(line,current,page.meta);
 
-                      pliParts << newLine;
+                      bomParts << newLine;
                     }
                 }
 
@@ -3686,7 +3682,7 @@ int Gui::getBOMParts(
             }
           break;
         case '0':
-          rc = meta.parse(line,current);
+          rc = page.meta.parse(line,current);
 
           /* substitute part/parts with this */
 
@@ -3704,9 +3700,9 @@ int Gui::getBOMParts(
                   ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
-                                            .arg(meta.LPub.pli.begin.sub.value().color)
-                                            .arg(meta.LPub.pli.begin.sub.value().part);
-                  pliParts << Pli::partLine(addPart,current,meta);
+                                            .arg(page.meta.LPub.pli.begin.sub.value().color)
+                                            .arg(page.meta.LPub.pli.begin.sub.value().part);
+                  bomParts << Pli::partLine(addPart,current,page.meta);
                   pliIgnore = true;
                 }
               break;
@@ -3717,7 +3713,7 @@ int Gui::getBOMParts(
 
             case PliEndRc:
               pliIgnore = false;
-              meta.LPub.pli.begin.sub.clearAttributes();
+              page.meta.LPub.pli.begin.sub.clearAttributes();
               break;
 
             case PartBeginIgnRc:
@@ -3741,20 +3737,22 @@ int Gui::getBOMParts(
               bfxStore1 = true;
               bfxParts.clear();
               break;
+
             case BufferLoadRc:
               bfxLoad = true;
               break;
+
             case BomPartGroupRc:
-              meta.LPub.bom.pliPartGroup.setWhere(current);
-              meta.LPub.bom.pliPartGroup.setBomPart(true);
-              bomPartGroups.append(meta.LPub.bom.pliPartGroup);
+              page.meta.LPub.bom.pliPartGroup.setWhere(current);
+              page.meta.LPub.bom.pliPartGroup.setBomPart(true);
+              bomPartGroups.append(page.meta.LPub.bom.pliPartGroup);
               break;
 
               // Any of the metas that can change pliParts needs
               // to be processed here
 
             case ClearRc:
-              pliParts.empty();
+              bomParts.empty();
               break;
 
               /*
@@ -3781,7 +3779,7 @@ int Gui::getBOMParts(
                */
 
             case BuildModBeginRc:
-              buildModKey    = meta.LPub.buildMod.key();
+              buildModKey    = page.meta.LPub.buildMod.key();
               buildModIgnore = true;
               break;
 
@@ -3796,7 +3794,7 @@ int Gui::getBOMParts(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              pliParts << Pli::partLine(line,current,meta);
+              bomParts << Pli::partLine(line,current,page.meta);
               break;
 
               /* remove a group or all instances of a part type */
@@ -3804,16 +3802,16 @@ int Gui::getBOMParts(
             case RemovePartTypeRc:
             case RemovePartNameRc:
               if (! buildModIgnore) {
-                  QStringList newPLIParts;
+                  QStringList newBOMParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
-                      remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,&meta);
+                      remove_group(bomParts,dummy,page.meta.LPub.remove.group.value(),newBOMParts,dummy,&page.meta);
                   } else if (rc == RemovePartTypeRc) {
-                      remove_parttype(pliParts,dummy,meta.LPub.remove.parttype.value(),newPLIParts,dummy);
+                      remove_parttype(bomParts,dummy,page.meta.LPub.remove.parttype.value(),newBOMParts,dummy);
                   } else {
-                      remove_partname(pliParts,dummy,meta.LPub.remove.partname.value(),newPLIParts,dummy);
+                      remove_partname(bomParts,dummy,page.meta.LPub.remove.partname.value(),newBOMParts,dummy);
                   }
-                  pliParts = newPLIParts;
+                  bomParts = newBOMParts;
               }
               break;
 
@@ -3844,7 +3842,6 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
   // traverse content to find the number and location of BOM pages
   // key=modelName_LineNumber, value=occurrence
   QHash<QString, int> bom_Occurrence;
-  Meta meta;
 
   skipHeader(current);
 
@@ -3859,79 +3856,80 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
 
       QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
       switch (line.toLatin1()[0]) {
-        case '1':
+          case '1':
           {
-            QStringList token;
-            split(line,token);
-            QString type = token[token.size()-1];
+              QStringList token;
+              split(line,token);
+              QString type = token[token.size()-1];
 
-            if (ldrawFile.isSubmodel(type)) {
-                Where current2(type,0);
-                getBOMOccurrence(current2);
+              if (ldrawFile.isSubmodel(type)) {
+                  Where current2(type,0);
+                  getBOMOccurrence(current2);
               }
-            break;
+              break;
           }
-        case '0':
+          case '0':
           {
-            rc = meta.parse(line,current);
-            switch (rc) {
-              case InsertRc:
-                {
-                  InsertData insertData = meta.LPub.insert.value();
-                  if (insertData.type == InsertData::InsertBom){
+              rc = page.meta.parse(line,current);
+              switch (rc) {
+                  case InsertRc:
+                  {
+                      InsertData insertData = page.meta.LPub.insert.value();
+                      if (insertData.type == InsertData::InsertBom){
 
-                      QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
-                      occurrenceNum++;
-                      bom_Occurrence[uniqueID] = occurrenceNum;
-                    }
-                }
-                break;
-              default:
-                break;
+                          QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
+                          occurrenceNum++;
+                          bom_Occurrence[uniqueID] = occurrenceNum;
+                      }
+                  }
+                      break;
+                  default:
+                      break;
               } // switch metas
-            break;
+              break;
           }  // switch line type
-        }
-    } // for every line
+      }
+  } // for every line
 
   if (occurrenceNum > 1) {
       // now set the bom occurrance based on our current position
       Where here = topOfPages[displayPageNum-1];
       for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
           QString line = readLine(here);
-          Meta meta;
-          Rc rc;
-
-          rc = meta.parse(line,here);
+          rc = page.meta.parse(line,here);
           if (rc == InsertRc) {
-
-              InsertData insertData = meta.LPub.insert.value();
+              InsertData insertData = page.meta.LPub.insert.value();
               if (insertData.type == InsertData::InsertBom) {
-
                   QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
                   bomOccurrence   = bom_Occurrence[bomID];
                   boms            = bom_Occurrence.size();
                   break;
-                }
-            }
-        }
-    }
+              }
+          }
+      }
+  }
   return 0;
 }
 
 bool Gui::generateBOMPartsFile(const QString &bomFileName){
     QString addLine;
-    QStringList tempParts, bomParts;
-    QList<PliPartGroupMeta> bomPartGroups;
     Where current(ldrawFile.topLevelFile(),0);
-    getBOMParts(current,addLine,tempParts,bomPartGroups);
-
-    if (! tempParts.size()) {
+    QFuture<void> future = QtConcurrent::run([this, current]() {
+        bomParts.clear();
+        bomPartGroups.clear();
+        getBOMParts(current, QString());
+    });
+    future.waitForFinished();
+    if (! bomParts.size()) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("No BOM parts were detected."));
         return false;
     }
 
-    Q_FOREACH (QString bomPartsString, tempParts){
+    QStringList tempParts = bomParts;
+
+    bomParts.clear();
+
+    Q_FOREACH (QString bomPartsString, tempParts) {
         if (bomPartsString.startsWith("1")) {
             QStringList partComponents = bomPartsString.split(";");
             bomParts << partComponents.at(0);

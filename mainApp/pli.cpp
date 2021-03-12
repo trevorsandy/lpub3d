@@ -628,17 +628,17 @@ void Pli::setParts(
 
       sortParts(tempParts, true);
 
-      int quotient    = tempParts.size() / gui->boms;
-      int remainder   = tempParts.size() % gui->boms;
+      int quotient    = tempParts.size() / gui->GetBOMs();
+      int remainder   = tempParts.size() % gui->GetBOMs();
       int maxParts    = 0;
       int startIndex  = 0;
       int partIndex   = 0;   // using 0-based index
 
-      if (gui->bomOccurrence == gui->boms){
-          maxParts = gui->bomOccurrence * quotient + remainder;
+      if (gui->GetBOMOccurrence() == gui->GetBOMs()){
+          maxParts = gui->GetBOMOccurrence() * quotient + remainder;
           startIndex = maxParts - quotient - remainder;
         } else {
-          maxParts = gui->bomOccurrence * quotient;
+          maxParts = gui->GetBOMOccurrence() * quotient;
           startIndex = maxParts - quotient;
         }
 

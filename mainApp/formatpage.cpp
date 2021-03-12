@@ -58,6 +58,9 @@
 #include "calloutpointeritem.h"
 #include "pagepointeritem.h"
 #include "waitingspinnerwidget.h"
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QtConcurrent>
+#endif
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -600,14 +603,18 @@ int Gui::addGraphicsPageItems(
               {
                 Where where(insert.where.modelName, insert.where.lineNumber);
                 Where current(ldrawFile.topLevelFile(),0);
-                QList<PliPartGroupMeta> bomPartGroups;
-                QStringList bomParts;
-                QString addLine;
-                getBOMParts(current,addLine,bomParts,bomPartGroups);
+                QFuture<void> future = QtConcurrent::run([this, current]() {
+                    bomParts.clear();
+                    bomPartGroups.clear();
+                    getBOMParts(current, QString());
+                });
+                future.waitForFinished();
                 page->pli.steps = steps;
-                getBOMOccurrence(current);
+                future = QtConcurrent::run([this, current]() {
+                    getBOMOccurrence(current);
+                });
+                future.waitForFinished();
                 page->pli.setParts(bomParts,bomPartGroups,page->meta,true,(boms > 1/*Split BOM Parts*/));
-                bomParts.clear();
                 page->pli.sizePli(&page->meta,page->relativeType,false);
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
