@@ -22,6 +22,7 @@
 #include <QRegExp>
 #include <QElapsedTimer>
 #include <QThread>
+#include <QFuture>
 
 #include "lpub_preferences.h"
 #include "ldrawfiles.h"
@@ -322,6 +323,12 @@ private:
                            const QString &heading = "");
 };
 
+/*
+ *
+ * PAGE DISPLAY WORKERS
+ *
+ */
+
 class BuildModWorker : public QObject
 {
     Q_OBJECT
@@ -346,6 +353,30 @@ private:
             bool change,
             bool submodel);
     static QStringList buildModSubmodels;
+};
+
+class WriteToTmpWorker : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    static int writeToTmp(
+                  LDrawFile *ldrawFile,
+                  Meta *meta);
+    static void writeToTmp(
+                  LDrawFile *ldrawFile,
+                  Meta *meta,
+            const QString &fileName,
+            const QStringList &);
+protected:
+    static QStringList configureModelSubFile(
+                  LDrawFile *ldrawFile,
+            const QStringList &contents,
+            const QString &fadeColour,
+            const PartType partType);
+private:
+    static void setPageProcessRunning(const int p);
+    static void setSubmodelIconsLoaded(const bool b);
 };
 
 class FindPageOptions;

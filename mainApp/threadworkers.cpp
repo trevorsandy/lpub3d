@@ -23,6 +23,9 @@
 #include "meta.h"
 #include "application.h"
 #include "editwindow.h"
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QtConcurrent>
+#endif
 
 #ifdef WIN32
 #include <clocale>
@@ -2036,9 +2039,444 @@ bool ExtractWorker::removeFile(QStringList listFile) {
 
 /*
  *
- * NEW WORKERS
+ * PAGE DISPLAY WORKERS
  *
  */
+
+/*
+ * This function applies buffer exchange and LPub's remove
+ * meta commands before writing them out for the renderers to use.
+ * Fade, Highlight and COLOUR meta commands are preserved.
+ * This eliminates the need for ghosting parts removed by buffer
+ * exchange
+ */
+
+void WriteToTmpWorker::writeToTmp(
+              LDrawFile *ldrawFile,
+              Meta *meta,
+        const QString &fileName,
+        const QStringList &contents)
+{
+  QMutex mutex;
+  mutex.lock();
+
+  QString filePath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
+  QFileInfo fileInfo(filePath);
+  if(!fileInfo.dir().exists()) {
+     fileInfo.dir().mkpath(".");
+    }
+  QFile file(filePath);
+  if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
+      QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
+                           QMessageBox::tr("Failed to open %1 for writing: %2")
+                           .arg(filePath) .arg(file.errorString()));
+    } else {
+
+      Where topOfStep(fileName, ldrawFile->getSubmodelIndex(fileName), 0);
+      ldrawFile->skipHeader(topOfStep.modelName, topOfStep.lineNumber);
+
+      int  buildModLevel      = 0;
+      int  buildModBottom     = 0;
+      bool buildModIgnore     = false;
+      bool buildModItems      = false;
+      bool buildModApplicable = false;
+
+      QString                 buildModKey;
+      QMap<int, int>          buildModActions;
+      QMap<int, QVector<int>> buildModAttributes;
+
+      QVector<int> lineTypeIndexes, buildModLineTypeIndexes;
+      QStringList  csiParts, buildModCsiParts;
+      QHash<QString, QStringList> bfx;
+
+      PartLineAttributes pla(
+         csiParts,
+         lineTypeIndexes,
+         buildModCsiParts,
+         buildModLineTypeIndexes,
+         buildModLevel,
+         buildModIgnore,
+         buildModItems);
+
+      Rc    rc;
+      for (int i = 0; i < contents.size(); i++) {
+          QString line = contents[i];
+          QStringList tokens;
+
+          QApplication::processEvents();
+
+          split(line,tokens);
+          if (tokens.size()) {
+              if (tokens[0] != "0") {
+                  if (! buildModIgnore)
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,OkRc);
+              } else {
+
+                  Where here(fileName,i);
+                  rc =  meta->parse(line,here,false);
+
+                  switch (rc) {
+                  case FadeRc:
+                  case SilhouetteRc:
+                  case ColourRc:
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
+                      break;
+
+                      /* Buffer exchange */
+                  case BufferStoreRc:
+                      bfx[meta->bfx.value()] = csiParts;
+                      break;
+
+                  case BufferLoadRc:
+                      csiParts = bfx[meta->bfx.value()];
+                      break;
+
+                  // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
+                  case BuildModBeginRc:
+                      if (!Preferences::buildModEnabled) {
+                          gui->parseError("Build Mod meta command encountered but this functionality is currently disabled.<br>"
+                                          "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
+                                          "again' to disable Build Mod meta parse notifications.",
+                                          here,Preferences::BuildModErrors);
+                          break;
+                      }
+                      buildModBottom = ldrawFile->getBuildModStepLineNumber(ldrawFile->getBuildModNextStepIndex(), true/*bottom*/);
+                      if ((buildModApplicable = i < buildModBottom)) {
+                          buildModKey   = meta->LPub.buildMod.key();
+                          buildModLevel = getLevel(buildModKey, BM_BEGIN);
+                          if (! ldrawFile->buildModContains(buildModKey))
+                              buildModActions.insert(buildModLevel, BuildModNoActionRc);
+                          else
+                              buildModActions.insert(buildModLevel, ldrawFile->getBuildModAction(buildModKey, ldrawFile->getBuildModNextStepIndex()));
+                          if (buildModActions.value(buildModLevel) == BuildModApplyRc)
+                              buildModIgnore = false;
+                          else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)
+                              buildModIgnore = true;
+                      }
+                      break;
+
+                  // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
+                  case BuildModEndModRc:
+                     if (buildModApplicable) {
+                         if (buildModLevel > 1 && meta->LPub.buildMod.key().isEmpty())
+                                 gui->parseError("Key required for nested build mod meta command",
+                                                 here,Preferences::BuildModErrors);
+                         if (buildModActions.value(buildModLevel) == BuildModApplyRc)
+                             buildModIgnore = true;
+                         else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)
+                             buildModIgnore = false;
+                     }
+                     break;
+
+                  // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
+                  case BuildModEndRc:
+                    if (buildModApplicable) {
+                        buildModLevel      = getLevel(QString(), BM_END);
+                        if (buildModLevel == BM_BEGIN) {
+                            buildModIgnore     = false;
+                            buildModApplicable = false;
+                        }
+                    }
+                    break;
+
+                  case PartNameRc:
+                  case PartTypeRc:
+                  case MLCadGroupRc:
+                  case LDCadGroupRc:
+                  case LeoCadModelRc:
+                  case LeoCadPieceRc:
+                  case LeoCadCameraRc:
+                  case LeoCadLightRc:
+                  case LeoCadLightWidthRc:
+                  case LeoCadLightTypeRc:
+                  case LeoCadSynthRc:
+                  case LeoCadGroupBeginRc:
+                  case LeoCadGroupEndRc:
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
+                      break;
+
+                      /* remove a group or all instances of a part type */
+                  case RemoveGroupRc:
+                  case RemovePartTypeRc:
+                  case RemovePartNameRc:
+                      if (! buildModIgnore) {
+                          QStringList newCSIParts;
+                          QVector<int> newLineTypeIndexes;
+                          if (rc == RemoveGroupRc) {
+                              gui->remove_group(csiParts,lineTypeIndexes,meta->LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                          } else if (rc == RemovePartTypeRc) {
+                              gui->remove_parttype(csiParts,lineTypeIndexes,meta->LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                          } else {
+                              gui->remove_partname(csiParts,lineTypeIndexes,meta->LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                          }
+                          csiParts = newCSIParts;
+                          lineTypeIndexes = newLineTypeIndexes;
+                      }
+                      break;
+
+                  default:
+                      break;
+                  }
+              }
+          }
+      }
+
+      ldrawFile->setLineTypeRelativeIndexes(topOfStep.modelIndex,lineTypeIndexes);
+
+      QTextStream out(&file);
+      for (int i = 0; i < csiParts.size(); i++) {
+          out << csiParts[i] << endl;
+        }
+      file.close();
+    }
+
+    mutex.unlock();
+}
+
+void WriteToTmpWorker::setPageProcessRunning(const int p)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "setPageProcessRunning",        // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(int, p));                 // val1
+}
+
+void WriteToTmpWorker::setSubmodelIconsLoaded(const bool b)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "SetSubmodelIconsLoaded",       // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(bool, b));                // val1
+}
+
+int WriteToTmpWorker::writeToTmp(LDrawFile *ldrawFile,
+                                 Meta *meta)
+{
+  QMutex mutex;
+  mutex.lock();
+
+  setPageProcessRunning(PROC_WRITE_TO_TMP);
+  QList<QFuture<void>> writeToTmpFutures;
+  QElapsedTimer writeToTmpTimer;
+  writeToTmpTimer.start();
+
+  int writtenFiles = 0;;
+  int subFileCount = ldrawFile->_subFileOrder.size();
+  bool doFadeStep  = meta->LPub.fadeStep.fadeStep.value();
+  bool doHighlightStep = meta->LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+
+  QString fadeColor = LDrawColor::ldColorCode(meta->LPub.fadeStep.fadeColor.value());
+
+  QStringList content, configuredContent;
+
+  LDrawFile::_currentLevels.clear();
+
+  emit gui->progressBarPermInitSig();
+  emit gui->progressPermRangeSig(1, subFileCount);
+
+  for (int i = 0; i < subFileCount; i++) {
+
+      QString fileName = ldrawFile->_subFileOrder[i].toLower();
+
+      emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileName));
+
+      content = ldrawFile->contents(fileName);
+
+      // write normal submodels...
+      if (ldrawFile->changedSinceLastWrite(fileName)) {
+
+          writtenFiles++;
+
+          emit gui->progressPermMessageSig(QString("Writing submodel %1 of %2 (%3 lines)...")
+                                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                                      .arg(QStringLiteral("%1").arg(content.size(), 5, 10, QLatin1Char('0'))));
+          emit gui->progressPermSetValueSig(i + 1);
+
+          writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileName,&content]() { writeToTmp(ldrawFile, meta, fileName, content); }));
+
+          // capture file name extensions
+          QString fileNameStr;
+          QString extension = QFileInfo(fileName).suffix().toLower();
+
+          // write configured (Fade) submodels
+          if (doFadeStep) {
+             fileNameStr = fileName;
+             if (extension.isEmpty()) {
+               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
+             } else {
+               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+             }
+
+            /* Faded version of submodels */
+            emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
+            configuredContent = configureModelSubFile(ldrawFile, content, fadeColor, FADE_PART);
+            ldrawFile->insertConfiguredSubFile(fileNameStr,configuredContent);
+            writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileNameStr,&configuredContent]() { writeToTmp(ldrawFile, meta, fileNameStr, configuredContent); }));
+          }
+          // write configured (Highlight) submodels
+          if (doHighlightStep) {
+            fileNameStr = fileName;
+            if (extension.isEmpty()) {
+              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
+            } else {
+              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+            }
+            /* Highlighted version of submodels */
+            emit gui->messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
+            configuredContent = configureModelSubFile(ldrawFile, content, fadeColor, HIGHLIGHT_PART);
+            ldrawFile->insertConfiguredSubFile(fileNameStr,configuredContent);
+            writeToTmpFutures.append(QtConcurrent::run([&ldrawFile,&meta,&fileNameStr,&configuredContent]() { writeToTmp(ldrawFile, meta, fileNameStr, configuredContent); }));
+          }
+      }
+  } // Parse _subFileOrder
+
+  for (QFuture<void>& Future : writeToTmpFutures)
+      Future.waitForFinished();
+  writeToTmpFutures.clear();
+
+  ldrawFile->_currentLevels.clear();
+
+  if (Preferences::modeGUI && !gui->exporting()) {
+      if (gui->GetViewPieceIcons() && !gui->GetSubmodelIconsLoaded()) {
+          // complete previous progress
+          emit gui->progressPermSetValueSig(subFileCount);
+
+          // generate submodel icons...
+          emit gui->messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
+          Pli pli;
+          if (pli.createSubModelIcons() == 0)
+              setSubmodelIconsLoaded(true);
+          else
+              emit gui->messageSig(LOG_ERROR, "Could not create submodel icons...");
+          emit gui->progressPermStatusRemoveSig();
+      } else {
+          // complete and close progress
+          emit gui->progressPermSetValueSig(subFileCount);
+          emit gui->progressPermStatusRemoveSig();
+      }
+  }
+  QString writeToTmpElapsedTime = gui->elapsedTime(writeToTmpTimer.elapsed());
+  emit gui->messageSig(LOG_INFO_STATUS,
+                    QString("%1 submodels written to temp directory. %2")
+                            .arg(writtenFiles).arg(writeToTmpElapsedTime));
+  setPageProcessRunning(PROC_NONE);
+
+  mutex.unlock();
+
+  return 0;
+}
+
+/*
+ * Configure writeToTmp content - make fade or highlight copies of submodel files.
+ */
+QStringList WriteToTmpWorker::configureModelSubFile(
+        LDrawFile *ldrawFile,
+  const QStringList &contents,
+  const QString &fadeColour,
+  const PartType partType)
+{
+  QString nameMod, colourPrefix;
+  if (partType == FADE_PART){
+    nameMod = FADE_SFX;
+    colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+  } else if (partType == HIGHLIGHT_PART) {
+    nameMod = HIGHLIGHT_SFX;
+    colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+  }
+
+  QStringList configuredContents, subfileColourList;
+  bool FadeMetaAdded = false;
+  bool SilhouetteMetaAdded = false;
+
+  if (contents.size() > 0) {
+
+      QStringList argv;
+
+      for (int index = 0; index < contents.size(); index++) {
+
+          QString contentLine = contents[index];
+          split(contentLine, argv);
+          if (argv.size() == 15 && argv[0] == "1") {
+              // Insert opening fade meta
+              if (!FadeMetaAdded && Preferences::enableFadeSteps && partType == FADE_PART){
+                 configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
+                 FadeMetaAdded = true;
+              }
+              // Insert opening silhouette meta
+              if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
+                 configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
+                                                         .arg(Preferences::highlightStepLineWidth)
+                                                         .arg(Preferences::highlightStepColour));
+                 SilhouetteMetaAdded = true;
+              }
+              if (argv[1] != LDRAW_EDGE_MATERIAL_COLOUR &&
+                  argv[1] != LDRAW_MAIN_MATERIAL_COLOUR) {
+                  QString colourCode;
+                  // Insert color code for fade part
+                  if (partType == FADE_PART)
+                      colourCode = Preferences::fadeStepsUseColour ? fadeColour : argv[1];
+                  // Insert color code for silhouette part
+                  if (partType == HIGHLIGHT_PART)
+                      colourCode = argv[1];
+                  // generate fade color entry
+                  if (!gui->colourEntryExist(subfileColourList,argv[1], partType))
+                      subfileColourList << gui->createColourEntry(colourCode, partType);
+                  // set color code - fade, highlight or both
+                  argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
+              }
+              // process file naming
+              QString fileNameStr = QString(argv[argv.size()-1]).toLower();
+              QString extension = QFileInfo(fileNameStr).suffix().toLower();
+              // static color parts
+              if (gui->ldrawColourParts.isLDrawColourPart(fileNameStr)){
+                  if (extension.isEmpty()) {
+                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
+                  } else {
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                  }
+                }
+              // subfiles
+              if (ldrawFile->isSubmodel(fileNameStr)) {
+                  if (extension.isEmpty()) {
+                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
+                  } else {
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                  }
+                }
+              argv[argv.size()-1] = fileNameStr;
+            }
+          if (isGhost(contentLine))
+              argv.prepend(GHOST_META);
+          contentLine = argv.join(" ");
+          configuredContents  << contentLine;
+
+          // Insert closing fade and silhouette metas
+          if (index+1 == contents.size()){
+              if (FadeMetaAdded){
+                 configuredContents.append(QString("0 !FADE"));
+              }
+              if (SilhouetteMetaAdded){
+                 configuredContents.append(QString("0 !SILHOUETTE"));
+              }
+          }
+      }
+  } else {
+    return contents;
+  }
+  // add the color list to the header of the configuredContents
+  if (!subfileColourList.isEmpty()){
+      subfileColourList.toSet().toList();  // remove dupes
+      configuredContents.prepend("0");
+      for (int i = 0; i < subfileColourList.size(); ++i)
+          configuredContents.prepend(subfileColourList.at(i));
+      configuredContents.prepend("0 // LPub3D step custom colours");
+      configuredContents.prepend("0");
+  }
+  return configuredContents;
+}
 
 /*
  * For setBuildModForNextStep(), the BuildMod behaviour searches ahead for any BuildMod action meta command in 'next step'.
@@ -2277,7 +2715,7 @@ bool BuildModWorker::setBuildMod(
                     buildModAction = Rc(ldrawFile->getBuildModAction(buildModKey, buildModNextStepIndex));
                 else
                     gui->parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
-                                        walk,Preferences::ParseErrors);
+                                         walk,Preferences::ParseErrors);
                 if (buildModAction != rc)
                     change = ldrawFile->setBuildModAction(buildModKey, buildModNextStepIndex, rc);
                 break;
@@ -2295,7 +2733,7 @@ bool BuildModWorker::setBuildMod(
             case BuildModEndModRc:
                 if (buildModLevel > 1 && meta->LPub.buildMod.key().isEmpty())
                     gui->parseError("Key required for nested build mod meta command",
-                               walk,Preferences::BuildModErrors);
+                                    walk,Preferences::BuildModErrors);
                 if (!buildMod[BM_BEGIN])
                     gui->parseError(QString("Required meta BUILD_MOD BEGIN not found"), walk, Preferences::BuildModErrors);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
