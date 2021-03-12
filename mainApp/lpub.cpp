@@ -391,15 +391,15 @@ void Gui::updateClipboard()
 
 void Gui::displayPage()
 {
-  pageProcessRunning = PROC_DISPLAY_PAGE;
-  emit messageSig(LOG_STATUS, "Processing page display...");
-  timer.start();
   if (macroNesting == 0) {
+    pageProcessRunning = PROC_DISPLAY_PAGE;
+    emit messageSig(LOG_STATUS, "Display page...");
+    timer.start();
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
+    pageProcessRunning = PROC_NONE;
   }
-  pageProcessRunning = PROC_NONE;
 }
 
 void Gui::enableNavigationActions(bool enable)
@@ -5573,8 +5573,11 @@ void Gui::writeSettings()
 void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
-    displayFile(&ldrawFile, here);
-    showLineSig(here.lineNumber, type);
+    if (macroNesting == 0) {
+      emit messageSig(LOG_STATUS, QString("Highlight line %1...").arg(here.lineNumber));
+      displayFile(&ldrawFile, here);
+      showLineSig(here.lineNumber, type);
+    }
   }
 }
 
