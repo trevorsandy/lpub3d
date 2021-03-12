@@ -398,14 +398,7 @@ void Gui::displayPage()
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
-//    if (Preferences::modeGUI && ! exporting()) {
-//      enableActions2();
-//      emit enable3DActionsSig();
-//    }
   }
-  if (! ContinuousPage())
-    emit messageSig(LOG_STATUS,QString("Page loaded%1.")
-                .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
   pageProcessRunning = PROC_NONE;
 }
 
@@ -3028,6 +3021,12 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
+    qRegisterMetaType<TypeLine>("TypeLine");
+    qRegisterMetaType<StepLines>("StepLines");
+    qRegisterMetaType<LogType>("LogType");
+    qRegisterMetaType<Preferences::MsgKey>("MsgKey");
+    qRegisterMetaType<Preferences::MsgID>("MsgID");
+
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
     Preferences::viewerPreferences();
@@ -3112,6 +3111,8 @@ Gui::Gui()
     if (Preferences::systemEditor.isEmpty())
         Preferences::systemEditor = QString("");
 #endif
+
+    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
 
     connect(lpubAlert,      SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
@@ -4804,12 +4805,8 @@ void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
           setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
   }
 
-//  if (Preferences::modeGUI && ! exporting())
-//      enableNavigationActions(true);
-
   setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
-  QApplication::processEvents();
 }
 
 void Gui::enableActions()
@@ -5010,7 +5007,6 @@ void Gui::enableActions2()
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
-
 }
 
 void Gui::disableActions2()

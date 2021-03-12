@@ -20,6 +20,7 @@
 #include "step.h"
 #include "paths.h"
 #include "lpub.h"
+#include "meta.h"
 #include "application.h"
 
 #ifdef WIN32
@@ -2025,13 +2026,478 @@ bool ExtractWorker::removeFile(QStringList listFile) {
     return ret;
 }
 
+/*
+ *
+ * NEW WORKERS
+ *
+ */
+
+int CountPageWorker::countPage(
+    Meta             meta,
+    FindPageOptions &opts)
+{
+
+  QMutex countPageMutex;
+  countPageMutex.lock();
+
+  bool stepGroup  = false; // opts.multiStep
+  bool partIgnore = false;
+  bool coverPage  = false;
+  bool stepPage   = false;
+  bool bfxStore1  = false;
+  bool bfxStore2  = false;
+  bool callout    = false;
+  bool noStep     = false;
+  bool noStep2    = false;
+  bool stepGroupBfxStore2 = false;
+  bool pageSizeUpdate     = false;
+
+  auto documentPageCount = [&opts] ()
+  {
+      if (Preferences::modeGUI && ! gui->exporting()) {
+          emit gui->messageSig(LOG_STATUS, QString("Counting document page %1...")
+                          .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+          QApplication::processEvents();
+      }
+  };
 
 
+  gui->skipHeader(opts.current);
 
+  Rc rc;
+  QStringList bfxParts;
+  int  partsAdded = 0;
+  int  stepNumber = 1;
 
+  Where saveCurrent = opts.current;
+  Where topOfStep = opts.current;
+  Where stepGroupCurrent;
 
+  gui->saveStepPageNum = gui->stepPageNum;
 
+  QHash<QString, QStringList>  bfx;
+  QHash<QString, QVector<int>> bfxLineTypeIndexes;
+  QList<PliPartGroupMeta>      emptyPartGroups;
 
+  int numLines = gui->subFileSize(opts.current.modelName);
 
+  int  countInstances = meta.LPub.countInstance.value();
 
+  RotStepMeta saveRotStep = meta.rotStep;
 
+  // include file vars
+  Where includeHere;
+  Rc includeFileRc        = EndOfFileRc;
+  bool inserted           = false;
+  bool resetIncludeRc     = false;
+
+  gui->getLDrawFile().setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, stepNumber/*opts.groupStepNumber*/, countInstances);
+
+  for ( ;
+        opts.current.lineNumber < numLines;
+        opts.current.lineNumber++) {
+
+      // if reading include file, return to current line, do not advance
+
+      if (includeFileRc != EndOfFileRc) {
+         opts.current.lineNumber--;
+      }
+
+      // scan through the model counting pages. do as little as possible
+
+      QString line = gui->readLine(opts.current).trimmed();
+
+      if (line.startsWith("0 GHOST ")) {
+          line = line.mid(8).trimmed();
+      }
+
+      QStringList tokens, addTokens;
+
+      switch (line.toLatin1()[0]) {
+      case '1':
+
+          // process submodel...
+          if (! partIgnore) {
+
+              if (gui->firstStepPageNum == -1) {
+                  gui->firstStepPageNum = opts.pageNum;
+              }
+              gui->lastStepPageNum = opts.pageNum;
+
+              QStringList token;
+
+              split(line,token);
+
+              if (token.size() == 15) {
+
+                  QString type = token[token.size()-1];
+                  QString colorType = token[1]+type;
+
+                  bool contains   = gui->isSubmodel(type);
+                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+
+                  // if submodel or assembled/rotated callout
+                  if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+
+                      // check if submodel was rendered
+                      bool rendered = gui->getLDrawFile().rendered(type,gui->getLDrawFile().mirrored(token),opts.current.modelName,stepNumber,countInstances);
+
+                      // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
+                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+
+                          opts.isMirrored = gui->getLDrawFile().mirrored(token);
+
+                          // add submodel to the model stack - it can't be a callout
+                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
+                          meta.submodelStack << tos;
+                          Where current2(type,0);
+
+                          gui->getLDrawFile().setModelStartPageNumber(current2.modelName,opts.pageNum);
+
+                          // save rotStep, clear it, and restore it afterwards
+                          // since rotsteps don't affect submodels
+                          RotStepMeta saveRotStep2 = meta.rotStep;
+                          meta.rotStep.clear();
+
+                          // save Default pageSize information
+                          PgSizeData pageSize2;
+                          if (gui->exporting()) {
+                              pageSize2       = gui->getPageSizes()[DEF_SIZE];
+                              pageSizeUpdate  = false;
+#ifdef SIZE_DEBUG
+                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                                         << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                         << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << pageSize2.sizeID
+                                         << "Model:" << opts.current.modelName;
+#endif
+                          }
+
+                          // set the step number and parent model where the submodel will be rendered
+                          FindPageOptions submodelOpts(
+                                      opts.pageNum,
+                                      current2,
+                                      opts.pageSize,
+                                      opts.buildModActions,
+                                      opts.updateViewer,
+                                      opts.isMirrored,
+                                      opts.printing,
+                                      opts.buildModLevel,
+                                      opts.contStepNumber,
+                                      opts.groupStepNumber,
+                                      opts.current.modelName /*renderParentModel*/);
+                          countPage(meta, submodelOpts);
+
+                          gui->saveStepPageNum = gui->stepPageNum;
+                          meta.submodelStack.pop_back();
+                          meta.rotStep = saveRotStep2;            // restore old rotstep
+
+                          if (gui->exporting()) {
+                              gui->getPageSizes().remove(DEF_SIZE);
+                              gui->getPageSizes().insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
+#ifdef SIZE_DEBUG
+                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
+                                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                         << "Model:" << opts.current.modelName;
+#endif
+                          }
+                      }
+                  }
+                  if (bfxStore1) {
+                      bfxParts << colorType;
+                  }
+              }
+          } // ! partIgnore
+
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+            ++partsAdded;
+            break;
+
+        case '0':
+
+          // intercept include file flag
+
+          if (includeFileRc != EndOfFileRc) {
+              if (resetIncludeRc) {
+                  rc = IncludeRc;                 // return to IncludeRc to parse another line
+              } else {
+                  rc = includeFileRc;             // execute the Rc returned by include(...)
+                  resetIncludeRc = true;          // reset to run include(...) to parse another line
+              }
+          } else {
+              rc = meta.parse(line,opts.current); // continue
+          }
+
+          switch (rc) {
+            case StepGroupBeginRc:
+              stepGroup = true;
+              stepGroupCurrent = topOfStep;
+
+              // Steps within step group modify bfxStore2 as they progress
+              // so we must save bfxStore2 and use the saved copy when
+              // we call drawPage for a step group.
+              stepGroupBfxStore2 = bfxStore2;
+              break;
+
+            case StepGroupEndRc:
+              if (stepGroup && ! noStep2) {
+                  stepGroup = false;
+
+                  // ignored when processing buildMod display
+                  if (gui->exporting()) {
+                      gui->getPageSizes().remove(opts.pageNum);
+                      if (pageSizeUpdate) {
+                          pageSizeUpdate = false;
+                          gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+#ifdef SIZE_DEBUG
+                          logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                                     << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                                     << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << opts.pageSize.sizeID
+                                     << "Model:" << opts.current.modelName;
+#endif
+                      } else {
+                          gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+#ifdef SIZE_DEBUG
+                          logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                                     << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
+                                     << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                     << "Model:" << opts.current.modelName;
+#endif
+                      }
+                  } // exporting
+
+                  ++opts.pageNum;
+                  gui->topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
+                  gui->saveStepPageNum = ++gui->stepPageNum;
+                  documentPageCount();
+
+                } // StepGroup
+              noStep2 = false;
+              break;
+
+            case RotStepRc:
+            case StepRc:
+              if (partsAdded && ! noStep) {
+
+                  stepNumber  += ! coverPage && ! stepPage;
+                  gui->stepPageNum += ! coverPage && ! stepGroup;
+
+                  if ( ! stepGroup) {
+                      if (gui->exporting()) {
+                          gui->getPageSizes().remove(opts.pageNum);
+                          if (pageSizeUpdate) {
+                              pageSizeUpdate = false;
+                              gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+#ifdef SIZE_DEBUG
+                              logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << opts.pageSize.sizeID
+                                         << "Model:" << opts.current.modelName;
+#endif
+                            } else {
+                              gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+#ifdef SIZE_DEBUG
+                              logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
+                                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                         << "Model:" << opts.current.modelName;
+#endif
+                            }
+                        } // exporting
+
+                      ++opts.pageNum;
+                      gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
+                      documentPageCount();
+
+                    } // ! StepGroup
+
+                  topOfStep = opts.current;
+                  partsAdded = 0;
+                  meta.pop();
+                  coverPage = false;
+                  stepPage = false;
+                  bfxStore2 = bfxStore1;
+                  bfxStore1 = false;
+                  if ( ! bfxStore2) {
+                      bfxParts.clear();
+                    }
+                } else if ( ! stepGroup) {
+                  saveCurrent = opts.current;  // so that draw page doesn't have to
+                  // deal with steps that are not steps
+                }
+              noStep2 = noStep;
+              noStep = false;
+              break;
+
+            case CalloutBeginRc:
+              callout = true;
+              break;
+
+            case CalloutEndRc:
+              callout = false;
+              meta.LPub.callout.placement.clear();
+              break;
+
+            case InsertCoverPageRc:
+              coverPage  = true;
+              partsAdded = true;
+              break;
+
+            case InsertPageRc:
+              stepPage   = true;
+              partsAdded = true;
+              break;
+
+            case PartBeginIgnRc:
+              partIgnore = true;
+              break;
+
+            case PartEndRc:
+              partIgnore = false;
+              break;
+
+              // Any of the metas that can change csiParts needs
+              // to be processed here
+
+              /* Buffer exchange */
+            case BufferStoreRc:
+              bfxStore1 = true;
+              bfxParts.clear();
+              break;
+
+            case BufferLoadRc:
+              partsAdded = true;
+              break;
+
+            case PartNameRc:
+            case PartTypeRc:
+            case MLCadGroupRc:
+            case LDCadGroupRc:
+            case LeoCadModelRc:
+            case LeoCadPieceRc:
+            case LeoCadCameraRc:
+            case LeoCadLightRc:
+            case LeoCadLightWidthRc:
+            case LeoCadLightTypeRc:
+            case LeoCadSynthRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
+               partsAdded = true;
+               break;
+
+            case IncludeRc:
+              includeFileRc = Rc(gui->includePub(meta,includeHere,inserted)); // includeHere and inserted are include(...) vars
+              if (includeFileRc != EndOfFileRc) {                             // still reading so continue
+                  resetIncludeRc = false;                                     // do not reset, allow includeFileRc to execute
+                  continue;
+              }
+              break;
+
+            case PageSizeRc:
+              {
+                if (gui->exporting()) {
+                    pageSizeUpdate  = true;
+
+                    opts.pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
+                    opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
+                    opts.pageSize.sizeID = meta.LPub.page.size.valueSizeID();
+
+                    gui->getPageSizes().remove(DEF_SIZE);
+                    gui->getPageSizes().insert(DEF_SIZE,opts.pageSize);
+#ifdef SIZE_DEBUG
+                    logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
+                               << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                               << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                               << "ID:" << opts.pageSize.sizeID
+                               << "Model:" << opts.current.modelName;
+#endif
+                  }
+              }
+              break;
+
+            case CountInstanceRc:
+              countInstances = meta.LPub.countInstance.value();
+              break;
+
+            case PageOrientationRc:
+              {
+                if (gui->exporting()){
+                    pageSizeUpdate      = true;
+
+                    if (opts.pageSize.sizeW == 0.0f)
+                      opts.pageSize.sizeW    = gui->getPageSizes()[DEF_SIZE].sizeW;
+                    if (opts.pageSize.sizeH == 0.0f)
+                      opts.pageSize.sizeH    = gui->getPageSizes()[DEF_SIZE].sizeH;
+                    if (opts.pageSize.sizeID.isEmpty())
+                      opts.pageSize.sizeID   = gui->getPageSizes()[DEF_SIZE].sizeID;
+                    opts.pageSize.orientation= meta.LPub.page.orientation.value();
+
+                    gui->getPageSizes().remove(DEF_SIZE);
+                    gui->getPageSizes().insert(DEF_SIZE,opts.pageSize);
+#ifdef SIZE_DEBUG
+                    logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
+                               << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                               << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                               << "ID:" << opts.pageSize.sizeID
+                               << "Model:" << opts.current.modelName;
+#endif
+                  }
+              }
+              break;
+
+            case NoStepRc:
+              noStep = true;
+              break;
+            default:
+              break;
+            } // switch
+          break;
+        }
+    } // for every line
+
+  // last step in submodel
+  if (partsAdded && ! noStep) {
+      if (gui->exporting()) {
+          gui->getPageSizes().remove(opts.pageNum);
+          if (pageSizeUpdate) {
+              pageSizeUpdate = false;
+              gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+#ifdef SIZE_DEBUG
+              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:"   << opts.pageSize.sizeID
+                         << "Model:" << opts.current.modelName;
+#endif
+            } else {
+              gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+#ifdef SIZE_DEBUG
+              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
+                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                         << "Model:" << opts.current.modelName;
+#endif
+            }
+      } // exporting
+
+      ++opts.pageNum;
+      ++gui->stepPageNum;
+      gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)
+      documentPageCount();
+
+    }  // Last Step in Submodel
+
+  countPageMutex.unlock();
+
+  return 0;
+}

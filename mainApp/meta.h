@@ -3847,11 +3847,14 @@ public:
   {
     QString empty;
     init(nullptr,empty);
-    LPub    = rhs.LPub;
-    step    = rhs.step;
-    clear   = rhs.clear;
-    rotStep = rhs.rotStep;
-    LSynth  = rhs.LSynth;
+    LPub          = rhs.LPub;
+    step          = rhs.step;
+    clear         = rhs.clear;
+    fade          = rhs.fade;
+    silhouette    = rhs.silhouette;
+    colour        = rhs.colour;
+    rotStep       = rhs.rotStep;
+    LSynth        = rhs.LSynth;
     submodelStack = rhs.submodelStack;
   }
 

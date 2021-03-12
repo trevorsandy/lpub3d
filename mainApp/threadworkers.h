@@ -21,6 +21,7 @@
 #include <QObject>
 #include <QRegExp>
 #include <QElapsedTimer>
+#include <QThread>
 
 #include "lpub_preferences.h"
 #include "ldrawfiles.h"
@@ -28,6 +29,8 @@
 #include "version.h"
 #include "ldsearchdirs.h"
 #include "name.h"
+#include "where.h"
+#include "meta.h"
 
 #include "QsLog.h"
 
@@ -316,6 +319,17 @@ private:
                              const bool       isUnOffLib);
     void fileSectionHeader(const int &option,
                            const QString &heading = "");
+};
+
+class FindPageOptions;
+class CountPageWorker : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    static int countPage(
+            Meta             meta,
+            FindPageOptions &opts);
 };
 
 #include "quazip.h"

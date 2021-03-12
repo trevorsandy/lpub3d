@@ -48,7 +48,13 @@
  */
 
 QHash<QString, int> tokenMap;
-QList<QRegExp> groupRegExp;
+QList<QRegExp> groupRegExp =
+{
+    QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$"),
+    QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$"),
+    QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive),
+    QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$")
+};
 
 bool AbstractMeta::reportErrors = false;
 
@@ -5500,15 +5506,6 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["JUSTIFY_CENTER_HORIZONTAL"] = JustifyCenterHorizontal;
       tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
       tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
-    }
-
-    {
-      groupRegExp
-        << QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$")
-        << QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$")
-        << QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
-        << QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$")
-        ;
     }
 }
 
