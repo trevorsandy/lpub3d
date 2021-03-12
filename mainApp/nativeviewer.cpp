@@ -2704,8 +2704,9 @@ void Gui::loadBuildModification()
     QString model = "undefined", line = "undefined", step = "undefined";
     QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-    QString text  = "This action will load build modification '" + buildModKeys.first() + "' from '" + model + "' "
-                    "at step " + buildModKeys.first() + " to allow editing.<br><br>Are you sure ?";
+    QString text  = "This action will load build modification '" + buildModKeys.first() + "' "
+                     ", step " + step + ", model '" + model + "' into the 3DViewer "
+                    "to allow editing.<br><br>Are you sure ?";
     QString type  = "Load build modification";
     QString title = "Build Modification";
     Preferences::MsgID msgID(Preferences::BuildModErrors, Where(model,line).nameToString());
@@ -2846,6 +2847,33 @@ void Gui::deleteBuildModification()
         break;
     }
 
+    // Delete options
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QMessageBox box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+    title = tr("Build Modification Image");
+    text = tr("Click 'Step', 'Page', or 'Assembly' to reset the respective image cache.");
+
+    box.setWindowTitle(QString("%1 %2").arg(VER_PRODUCTNAME_STR).arg(title));
+    box.setText (tr("Select your option to reset the image cache."));
+    box.setInformativeText(text);
+
+    QPushButton *clearStepButton = box.addButton(tr("Step %1").arg(step), QMessageBox::AcceptRole);
+    QPushButton *clearPageButton  = box.addButton(tr("Page"), QMessageBox::AcceptRole);
+    QPushButton *clearAssemblyButton = box.addButton(tr("Assembly"), QMessageBox::AcceptRole);
+    QPushButton *cancelButton = box.addButton(QMessageBox::Cancel);
+
+    box.exec();
+
+    bool clearStep = box.clickedButton() == clearStepButton;
+    bool clearPage = box.clickedButton() == clearPageButton;
+    bool clearAssembly = box.clickedButton() == clearAssemblyButton;
+    if (box.clickedButton() == cancelButton)
+        return;
+
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::CSI:
@@ -2915,15 +2943,19 @@ void Gui::deleteBuildModification()
         QString viewerStepKey = getBuildModStepKey(buildModKey);
         if (!viewerStepKey.isEmpty()) {
             // delete step image to trigger image regen
-            QString csiFile = getViewerStepImagePath(viewerStepKey);
-            QFile file(csiFile);
-            if (file.exists()) {
-                if (! file.remove())
-                    emit messageSig(LOG_ERROR,QString("Failed to remove BuildMod step image file %1.").arg(QFileInfo(csiFile).fileName()));
+            if (clearStep) {
+                QString csiPngName = getViewerStepImagePath(viewerStepKey);
+                clearStepCSICache(csiPngName);
+                // delete viewer step to trigger viewer update
+                if (!deleteViewerStep(viewerStepKey))
+                    emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
+            } else if (clearPage) {
+                PlacementType relativeType = isViewerStepMultiStep(viewerStepKey) ? StepGroupType : SingleStepType;
+                clearPageCSICache(relativeType, &page);
+            } else if (clearAssembly) {
+                clearCSICache();
+                clearTempCache();
             }
-            // delete viewer step to trigger viewer update
-            if (!deleteViewerStep(viewerStepKey))
-                emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
         } else {
             emit messageSig(LOG_ERROR, QString("Failed to receive the step key using BuildMod key [%1]").arg(buildModKey));
         }
