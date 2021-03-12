@@ -277,7 +277,7 @@ after_build:
                   $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
                   $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
                   write-host "`n  Creating Hash File: ${Asset}.sha512..."
-                  C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > $Asset.sha512 2>&1"
+                  C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > ${Asset}.sha512 2>&1"
               }
           }
           write-host "`n"
