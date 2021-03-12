@@ -387,6 +387,7 @@ class SeparatorComboBox;
 class QNetworkReply;
 class QNetworkAccessManager;
 
+class WaitingSpinnerWidget;
 class MpdComboDelegate;
 
 class EditWindow;
@@ -1548,6 +1549,7 @@ protected:
 private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
   LGraphicsView         *KpageView;          // the visual representation of the scene
+  WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
   QString                curFile;            // the file name for MPD, or top level file
   QString                exportedFile;       // the print preview produced pdf file

@@ -1045,6 +1045,7 @@ int Gui::addGraphicsPageItems(
       delete view->pageBackgroundItem;
       view->pageBackgroundItem = nullptr;
   }
+
   scene->clear();
 
   // Moved from beginning of GraphicsPageItems() to reduce page update lag

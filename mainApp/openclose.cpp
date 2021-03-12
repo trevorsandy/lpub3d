@@ -31,6 +31,7 @@
 #include "separatorcombobox.h"
 #include "metagui.h"
 #include "previewwidget.h"
+#include "waitingspinnerwidget.h"
 
 #include <LDVQt/LDVImageMatte.h>
 
@@ -762,6 +763,9 @@ void Gui::closeModelFile(){
 
 bool Gui::openFile(QString &fileName)
 {
+
+  waitingSpinner->start();
+
   disableWatcher();
 
   pageDirection = PAGE_NEXT;

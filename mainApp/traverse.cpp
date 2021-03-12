@@ -53,6 +53,7 @@
 #include "pagepointer.h"
 #include "ranges_item.h"
 #include "separatorcombobox.h"
+#include "waitingspinnerwidget.h"
 
 #include "QsLog.h"
 
@@ -1948,6 +1949,9 @@ int Gui::drawPage(
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
 
+                  if (waitingSpinner->isSpinning())
+                      waitingSpinner->stop();
+
                   drawPageElapsedTime();
                   return HitEndOfPage;
                 }
@@ -2497,6 +2501,10 @@ int Gui::drawPage(
                       }
 
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
+
+                      if (waitingSpinner->isSpinning())
+                          waitingSpinner->stop();
+
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(opts.current);
                       drawPageElapsedTime();
