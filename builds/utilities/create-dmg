@@ -2,7 +2,7 @@
 
 # Create a read-only disk image of the contents of a folder
 # Trevor SANDY
-# Last Update December 12 2017
+# Last Update November 22 2020
 
 set -e
 
@@ -171,12 +171,12 @@ echo "    __DMG_TEMP_NAME...................: ${DMG_TEMP_NAME}"
 echo "    __SRC_FOLDER......................: ${SRC_FOLDER}"
 echo "    __AUX_PATH........................: ${AUX_PATH}"
 
-# Create the image
+# Create the image - Note: On Travis, VMs running macOS 10.13 use file system HFS+, VMs running macOS 10.14 and newer use APFS.
 echo "Creating disk image..."
 test -f "${DMG_TEMP_NAME}" && rm -f "${DMG_TEMP_NAME}"
 ACTUAL_SIZE=`du -sm "$SRC_FOLDER" | sed -e 's/[[:space:]].*//g'`
 DISK_IMAGE_SIZE=$(expr $ACTUAL_SIZE + 20)
-hdiutil create -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${DISK_IMAGE_SIZE}m "${DMG_TEMP_NAME}"
+hdiutil create -srcfolder "$SRC_FOLDER" -volname "${VOLUME_NAME}" -fs APFS -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${DISK_IMAGE_SIZE}m "${DMG_TEMP_NAME}"
 
 # mount it
 echo "Mounting disk image..."
