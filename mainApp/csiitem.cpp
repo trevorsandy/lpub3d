@@ -708,13 +708,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       copyCsiImagePathAction->setData(step->pngName);
       emit copyCsiImagePathAction->triggered();
     } else if (selectedAction == applyBuildModAction) {
-
-      gui->applyBuildModification();
-
+      ; // triggered in gui
     } else if (selectedAction == removeBuildModAction) {
-
-      gui->removeBuildModification();
-
+      ; // triggered in gui
     }
 }
 
