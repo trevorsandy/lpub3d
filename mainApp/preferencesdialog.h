@@ -251,6 +251,10 @@ public slots:
     void resetThemeColors();
     void resetThemeColor();
 
+protected:
+    QColor getColor(const int index,
+                    const QString &name);
+
 private:
     QDialog    *dialog;
     QTabWidget *tabs;

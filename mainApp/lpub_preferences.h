@@ -88,6 +88,7 @@ class Preferences
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
     static void setDistribution();
+    static void updateViewerInterfaceColors();
     static void updateLDVExportIniFile(UpdateFlag);
     static void updateLDViewIniFile(UpdateFlag);
     static void updateLDViewPOVIniFile(UpdateFlag);

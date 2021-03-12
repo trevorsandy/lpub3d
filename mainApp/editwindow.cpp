@@ -1167,9 +1167,16 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                         lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]);
                     }
                 } else {
-                    lineColor = QColor(editorSelection ? Qt::cyan : Qt::green).lighter(180);
-                    if (Preferences::displayTheme == THEME_DARK)
+                    if (Preferences::displayTheme == THEME_DARK) {
+                        lineColor = QColor(editorSelection ?
+                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
+                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
                         lineColor.setAlpha(100); // make 60% transparent
+                    } else {
+                        lineColor = QColor(editorSelection ?
+                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
+                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
+                    }
                 }
             }
 
@@ -1231,18 +1238,16 @@ void EditWindow::highlightCurrentLine()
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor;
-        if (Preferences::displayTheme == THEME_DEFAULT) {
-            if (showLineType == LINE_ERROR)
-                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_ERROR]);
-             else
-                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
-          }
-        else
         if (Preferences::displayTheme == THEME_DARK) {
             if (showLineType == LINE_ERROR)
                 lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_ERROR]).lighter(180);
             else
                 lineColor = QColor(Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT]);
+        } else {
+            if (showLineType == LINE_ERROR)
+                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_ERROR]);
+            else
+                lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT]);
         }
 
         selection.format.setBackground(lineColor);

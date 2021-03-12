@@ -2803,11 +2803,15 @@ void Gui::preferences()
         bool displayThemeColorsChanged     = Preferences::displayThemeColorsChanged;
         bool textDecorationColorChanged    = Preferences::textDecorationColorChanged;
 
-        if (displayThemeColorsChanged)
+        if (displayThemeColorsChanged) {
+            Preferences::displayThemeColorsChanged = false;
             emit messageSig(LOG_INFO,QString("Display theme colors have changed"));
+        }
 
-        if (textDecorationColorChanged)
+        if (textDecorationColorChanged) {
+            Preferences::textDecorationColorChanged = false;
             emit messageSig(LOG_INFO,QString("Text Decoration color have changed"));
+        }
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));

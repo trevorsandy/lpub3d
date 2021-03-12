@@ -81,7 +81,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultOverlayColor",                         "#000000", "Viewer Overlay"                            }, // THEME_DEFAULT_OVERLAY_COLOR                                  0,   0,   0, 255 LC_PROFILE_OVERLAY_COLOR
     {"ThemeDefaultActiveViewColor",                      "#FF0000", "Viewer Active View"                        }, // THEME_DEFAULT_ACTIVE_VIEW_COLOR                            255,   0,   0, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDefaultActivePreviewColor",                   "#454545", "Viewer Active Preview"                     }, // THEME_DEFAULT_ACTIVE_PREVIEW_COLOR                          69,  69,  69, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
-    {"ThemeDefaultGridStudColor",                        "#404040", "Viewer Grid Stud"                          }, // THEME_DEFAULT_GRID_STUD_COLOR                               64,  64,  64, 192 LC_PROFILE_GRID_STUD_COLOR (.75 alpha)
+    {"ThemeDefaultGridStudColor",                        "#404040", "Viewer Grid Stud"                          }, // THEME_DEFAULT_GRID_STUD_COLOR                               64,  64,  64, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDefaultGridLineColor",                        "#000000", "Viewer Grid Line"                          }, // THEME_DEFAULT_GRID_LINE_COLOR                                0,   0,   0, 255 LC_PROFILE_GRID_LINE_COLOR
     {"ThemeDefaultViewSphereColor",                      "#FFFFFF", "Viewer View Sphere"                        }, // THEME_DEFAULT_VIEW_SPHERE_COLOR                            255, 255, 255, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDefaultViewSphereTextColor",                  "#646464", "Viewer View Sphere Text"                   }, // THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR                       100, 100, 100, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
@@ -128,9 +128,11 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultDecorateParameterFilePartControl",     "#9421A6", "Decorate Parameter File Part Control"      }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_CONTROL        br06
     {"ThemeDefaultDecorateParameterFilePartDescription", "#AA0000", "Decorate Parameter File Part Description"  }, // THEME_DEFAULT_DECORATE_PARAMETER_FILE_PART_DESCRIPTION    br07
 
-    {"ThemeDefaultLineSelect",                           "#AA0000", "Editor Line Select"                        }, // THEME_DEFAULT_LINE_SELECT (30 alpha range of 0-255)
-    {"ThemeDefaultLineHighlight",                        "#CCCCFF", "Editor Line Highlight"                     }, // THEME_DEFAULT_LINE_HIGHLIGHT (.70 alpha)                   Qt:blue:lighter(180)
-    {"ThemeDefaultLineError",                            "#FFCCCC", "Editor Line Error"                         }, // THEME_DEFAULT_LINE_ERROR (.70 alpha)                       Qt:Red:lighter(180)
+    {"ThemeDefaultLineSelect",                           "#AA0000", "Editor Line Text Select"                   }, // THEME_DEFAULT_LINE_SELECT                                 alpha(30)
+    {"ThemeDefaultLineHighlight",                        "#CCCCFF", "Editor Line Highlight"                     }, // THEME_DEFAULT_LINE_HIGHLIGHT
+    {"ThemeDefaultLineError",                            "#FFCCCC", "Editor Line Error"                         }, // THEME_DEFAULT_LINE_ERROR
+    {"ThemeDefaultLineHighlightEditorSelect",            "#00FFFF", "Editor Line Highlight Editor Select"       }, // THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT                lighter(180) alpha(100)
+    {"ThemeDefaultLineHighlightViewerSelect",            "#00FF00", "Editor Line Highlight Viewer Select"       }, // THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT (180 alpha)    lighter(180) alpha(100)
 
     //KEY                                                COLOR      LABEL                                          // THEME_DARK
     {"ThemeDarkSceneBgcolor",                            "#31363B", "Scene Background"                          }, // THEME_DARK_SCENE_BGCOLOR
@@ -183,9 +185,11 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkDecorateParameterFilePartControl",        "#9421A6", "Decorate Parameter File Part Control"      }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_CONTROL           br06
     {"ThemeDarkDecorateParameterFilePartDescription",    "#AA0000", "Decorate Parameter File Part Description"  }, // THEME_DARK_DECORATE_PARAMETER_FILE_PART_DESCRIPTION       br07
 
-    {"ThemeDarkLineSelect",                              "#E8E8E8", "Editor Line Select"                        }, // THEME_DARK_LINE_SELECT (30 alpha range of 0-255)
-    {"ThemeDarkLineHighlight",                           "#5D5B59", "Editor Line Highlight"                     }, // THEME_DARK_LINE_HIGHLIGHT                                  Qt Medium Gray
-    {"ThemeDarkLineError",                               "#FF0000", "Editor Line Error"                         }, // THEME_DARK_LINE_ERROR (.70 alpha)                          Red:lighter(180)
+    {"ThemeDarkLineSelect",                              "#E8E8E8", "Editor Line Select"                        }, // THEME_DARK_LINE_SELECT                                    alpha(30)
+    {"ThemeDarkLineHighlight",                           "#5D5B59", "Editor Line Highlight"                     }, // THEME_DARK_LINE_HIGHLIGHT
+    {"ThemeDarkLineError",                               "#FF0000", "Editor Line Error"                         }, // THEME_DARK_LINE_ERROR                                     lighter(180)
+    {"ThemeDarkLineHighlightEditorSelect",               "#00FFFF", "Editor Line Highlight Editor Select"       }, // THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT                   lighter(180) alpha(100)
+    {"ThemeDarkLineHighlightViewerSelect",               "#00FF00", "Editor Line Highlight Viewer Select"       }, // THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT (180 alpha)       lighter(180) alpha(100)
 
     {"ThemeDarkPaletteWindow",                           "#313437", "Palette Window"                            }, // THEME_DARK_PALETTE_WINDOW                                   49,  52,  55, 255
     {"ThemeDarkPaletteWindowText",                       "#F0F0F0", "Palette Window Text"                       }, // THEME_DARK_PALETTE_WINDOW_TEXT                             240, 240, 240, 255
@@ -216,7 +220,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkOverlayColor",                            "#E0E0E0", "Viewer Overlay"                            }, // THEME_DARK_OVERLAY_COLOR                                   224, 224, 224, 255 LC_PROFILE_OVERLAY_COLOR
     {"ThemeDarkActiveViewColor",                         "#2980B9", "Viewer Active View"                        }, // THEME_DARK_ACTIVE_VIEW_COLOR                                41, 128, 185, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
     {"ThemeDarkActivePreviewColor",                      "#999999", "Viewer Active Preview"                     }, // THEME_DARK_ACTIVE_PREVIEW_COLOR                            153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
-    {"ThemeDarkGridStudColor",                           "#181818", "Viewer Grid Stud"                          }, // THEME_DARK_GRID_STUD_COLOR                                  24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR (.75 alpha)
+    {"ThemeDarkGridStudColor",                           "#181818", "Viewer Grid Stud (192 alpha)"              }, // THEME_DARK_GRID_STUD_COLOR                                  24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDarkGridLineColor",                           "#181818", "Viewer Grid Line"                          }, // THEME_DARK_GRID_LINE_COLOR                                  24,  24,  24, 255 LC_PROFILE_GRID_LINE_COLOR
     {"ThemeDarkViewSphereColor",                         "#232629", "Viewer View Sphere"                        }, // THEME_DARK_VIEW_SPHERE_COLOR                                35,  38,  41, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDarkViewSphereTextColor",                     "#E0E0E0", "Viewer View Sphere Text"                   }, // THEME_DARK_VIEW_SPHERE_TEXT_COLOR                          224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
@@ -3106,7 +3110,7 @@ void Preferences::themePreferences()
             themeColors[i] = defaultThemeColors[i].color;
             Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[i]);
         } else {
-            themeColors[i] = Settings.value(QString("%1/%2").arg(THEMECOLORS,themeKey)).toString();
+            themeColors[i] = Settings.value(QString("%1/%2").arg(THEMECOLORS,themeKey)).toString().toUpper();
         }
     }
 }
@@ -3208,7 +3212,7 @@ void Preferences::userInterfacePreferences()
                   sceneBackgroundColor = themeColors[THEME_DEFAULT_SCENE_BGCOLOR];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
   } else {
-          sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString();
+          sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString().toUpper();
   }
 
   QString const sceneGridColorKey("SceneGridColor");
@@ -3218,7 +3222,7 @@ void Preferences::userInterfacePreferences()
                   sceneGridColor = themeColors[THEME_DEFAULT_GRID_PEN];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
   } else {
-          sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString();
+          sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString().toUpper();
   }
 
   QString const sceneRulerTickColorKey("SceneRulerTickColor");
@@ -3228,7 +3232,7 @@ void Preferences::userInterfacePreferences()
                   sceneRulerTickColor = themeColors[THEME_DEFAULT_RULER_TICK_PEN];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
   } else {
-          sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString();
+          sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString().toUpper();
   }
 
   QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
@@ -3238,7 +3242,7 @@ void Preferences::userInterfacePreferences()
                   sceneRulerTrackingColor = themeColors[THEME_DEFAULT_RULER_TRACK_PEN];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
   } else {
-          sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString();
+          sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString().toUpper();
   }
 
   QString const sceneGuideColorKey("SceneGuideColor");
@@ -3248,7 +3252,7 @@ void Preferences::userInterfacePreferences()
                   sceneGuideColor = themeColors[THEME_DEFAULT_GUIDE_PEN];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
   } else {
-          sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString();
+          sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString().toUpper();
   }
 
   QString const snapToGridKey("SnapToGrid");
@@ -3440,6 +3444,50 @@ void Preferences::userInterfacePreferences()
       systemEditor.clear();
       Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
   }
+}
+
+void Preferences::updateViewerInterfaceColors()
+{
+#define LC_RGBA_RED(rgba)   ((quint8)(((rgba) >>  0) & 0xff))
+#define LC_RGBA_GREEN(rgba) ((quint8)(((rgba) >>  8) & 0xff))
+#define LC_RGBA_BLUE(rgba)  ((quint8)(((rgba) >> 16) & 0xff))
+#define LC_RGBA_ALPHA(rgba) ((quint8)(((rgba) >> 24) & 0xff))
+
+    auto setInterfaceColor = [] (const ThemeColorType t, const quint32 & color)
+    {
+        QSettings Settings;
+        themeColors[t] = QColor(LC_RGBA_RED(color), LC_RGBA_GREEN(color), LC_RGBA_BLUE(color), LC_RGBA_ALPHA(color)).name().toUpper();
+        const QString themeKey(defaultThemeColors[t].key);
+        Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[t]);
+    };
+
+    if (displayTheme == THEME_DARK) {
+        setInterfaceColor(THEME_DARK_VIEWER_BACKGROUND_COLOR, lcGetProfileInt(LC_PROFILE_BACKGROUND_COLOR));
+        setInterfaceColor(THEME_DARK_VIEWER_GRADIENT_COLOR_TOP, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP));
+        setInterfaceColor(THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM));
+        setInterfaceColor(THEME_DARK_AXES_COLOR, lcGetProfileInt(LC_PROFILE_AXES_COLOR));
+        setInterfaceColor(THEME_DARK_OVERLAY_COLOR, lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR));
+        setInterfaceColor(THEME_DARK_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
+        setInterfaceColor(THEME_DARK_ACTIVE_PREVIEW_COLOR, lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR));
+        setInterfaceColor(THEME_DARK_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
+        setInterfaceColor(THEME_DARK_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
+        setInterfaceColor(THEME_DARK_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
+        setInterfaceColor(THEME_DARK_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
+        setInterfaceColor(THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
+    } else {
+        setInterfaceColor(THEME_DEFAULT_VIEWER_BACKGROUND_COLOR, lcGetProfileInt(LC_PROFILE_BACKGROUND_COLOR));
+        setInterfaceColor(THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP));
+        setInterfaceColor(THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_BOTTOM));
+        setInterfaceColor(THEME_DEFAULT_AXES_COLOR, lcGetProfileInt(LC_PROFILE_AXES_COLOR));
+        setInterfaceColor(THEME_DEFAULT_OVERLAY_COLOR, lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR));
+        setInterfaceColor(THEME_DEFAULT_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
+        setInterfaceColor(THEME_DEFAULT_ACTIVE_PREVIEW_COLOR, lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR));
+        setInterfaceColor(THEME_DEFAULT_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
+        setInterfaceColor(THEME_DEFAULT_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
+        setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
+        setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
+        setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
+    }
 }
 
 bool Preferences::getShowMessagePreference(MsgKey key)
@@ -4666,15 +4714,16 @@ bool Preferences::getPreferences()
 
         if (dialog->themeColours().size()) {
             displayThemeColorsChanged = true;
-            QMap<int, QString>::ConstIterator i = dialog->themeColours().begin();
-            while (i != dialog->themeColours().end()) {
+            QMap<int, QString>::ConstIterator i = dialog->themeColours().constBegin();
+            while (i != dialog->themeColours().constEnd()) {
                 if (!textDecorationColorChanged)
                     if ((darkTheme && i.key() >= THEME_DEFAULT_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_SCENE_BGCOLOR) ||
                                      (i.key() >= THEME_DARK_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_PALETTE_WINDOW))
                         textDecorationColorChanged = true;
-                themeColors[i.key()] = i.value();
+                themeColors[i.key()] = i.value().toUpper();
                 const QString themeKey(defaultThemeColors[i.key()].key);
                 Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[i.key()]);
+                ++i;
             }
         }
 

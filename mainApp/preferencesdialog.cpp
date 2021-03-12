@@ -32,6 +32,8 @@
 #include "meta.h"
 #include "lpub.h"
 #include "version.h"
+#include "lc_profile.h"
+#include "lc_application.h"
 
 //QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
@@ -1792,7 +1794,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             // color button
             QToolButton *colorButton = new QToolButton(container);
             QPixmap pix(12, 12);
-            pix.fill(QColor(mThemeColors[i]));
+            pix.fill(getColor(i, mThemeColors[i]));
             colorButton->setIcon(pix);
             colorButton->setProperty("index", i);
             colorButton->setProperty("color", mThemeColors[i]);
@@ -1811,7 +1813,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             } else {
                 // prepare color icon
                 QImage image(16, 16, QImage::Format_RGB888);
-                image.fill(QColor(Preferences::defaultThemeColors[i].color));
+                image.fill(getColor(i, Preferences::defaultThemeColors[i].color));
                 QPainter painter(&image);
                 painter.setPen(Qt::darkGray);
                 painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
@@ -1874,16 +1876,80 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     buttonBox.addButton(button,QDialogButtonBox::ActionRole);
     QObject::connect(button,SIGNAL(clicked()), this, SLOT(toggleDefaultsTab()));
 
+    bool themeDark = Preferences::displayTheme == THEME_DARK ;
+
     QMap<int, QString> editedColors;
 
     dialog->setMinimumSize(200,400);
 
-    tabs->setCurrentIndex(Preferences::displayTheme == THEME_DARK ? 1 : 0);
+    tabs->setCurrentIndex(themeDark ? 1 : 0);
 
     if (dialog->exec() == QDialog::Accepted) {
         for (int i = 0; i < THEME_NUM_COLORS; i++) {
-            if (mThemeColors[i] != Preferences::themeColors[i])
-                editedColors.insert(i, mThemeColors[i]);
+            if (mThemeColors[i] != Preferences::themeColors[i]) {
+                editedColors.insert(i, mThemeColors[i].toUpper());
+                LC_PROFILE_KEY key = LC_PROFILE_KEY(-1);
+                if (themeDark) {
+                    if (i ==THEME_DARK_VIEWER_BACKGROUND_COLOR)
+                        key = LC_PROFILE_BACKGROUND_COLOR;
+                    else if (i == THEME_DARK_VIEWER_GRADIENT_COLOR_TOP)
+                        key = LC_PROFILE_GRADIENT_COLOR_TOP;
+                    else if (i == THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM)
+                        key = LC_PROFILE_GRADIENT_COLOR_BOTTOM;
+                    else if (i == THEME_DARK_AXES_COLOR)
+                        key = LC_PROFILE_AXES_COLOR;
+                    else if (i == THEME_DARK_OVERLAY_COLOR)
+                        key = LC_PROFILE_OVERLAY_COLOR;
+                    else if (i == THEME_DARK_ACTIVE_VIEW_COLOR)
+                        key = LC_PROFILE_ACTIVE_VIEW_COLOR;
+                    else if (i == THEME_DARK_ACTIVE_PREVIEW_COLOR)
+                        key = LC_PROFILE_PREVIEW_ACTIVE_COLOR;
+                    else if (i == THEME_DARK_GRID_STUD_COLOR)
+                        key = LC_PROFILE_GRID_STUD_COLOR;
+                    else if (i == THEME_DARK_GRID_LINE_COLOR)
+                        key = LC_PROFILE_GRID_LINE_COLOR;
+                    else if (i == THEME_DARK_VIEW_SPHERE_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_COLOR;
+                    else if (i == THEME_DARK_VIEW_SPHERE_TEXT_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_TEXT_COLOR;
+                    else if (i == THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR;
+                } else {
+                    if (i == THEME_DEFAULT_VIEWER_BACKGROUND_COLOR)
+                        key = LC_PROFILE_BACKGROUND_COLOR;
+                    else if (i == THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP)
+                        key = LC_PROFILE_GRADIENT_COLOR_TOP;
+                    else if (i == THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM)
+                        key = LC_PROFILE_GRADIENT_COLOR_BOTTOM;
+                    else if (i == THEME_DEFAULT_AXES_COLOR)
+                        key = LC_PROFILE_AXES_COLOR;
+                    else if (i == THEME_DEFAULT_OVERLAY_COLOR)
+                        key = LC_PROFILE_OVERLAY_COLOR;
+                    else if (i == THEME_DEFAULT_ACTIVE_VIEW_COLOR)
+                        key = LC_PROFILE_ACTIVE_VIEW_COLOR;
+                    else if (i == THEME_DEFAULT_ACTIVE_PREVIEW_COLOR)
+                        key = LC_PROFILE_PREVIEW_ACTIVE_COLOR;
+                    else if (i == THEME_DEFAULT_GRID_STUD_COLOR)
+                        key = LC_PROFILE_GRID_STUD_COLOR;
+                    else if (i == THEME_DEFAULT_GRID_LINE_COLOR)
+                        key = LC_PROFILE_GRID_LINE_COLOR;
+                    else if (i == THEME_DEFAULT_VIEW_SPHERE_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_COLOR;
+                    else if (i == THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_TEXT_COLOR;
+                    else if (i == THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR)
+                        key = LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR;
+                }
+                if (key > LC_PROFILE_KEY(-1)) {
+                    int alpha     = key == LC_PROFILE_GRID_STUD_COLOR  ? 192 : 255;
+                    QColor tc     = QColor(mThemeColors[i]);
+                    quint32 color = qint32(LC_RGBA(tc.red(), tc.green(), tc.blue(), alpha));
+                    lcSetProfileInt(LC_PROFILE_KEY(key), color);
+#ifdef QT_DEBUG_MODE
+                    emit gui->messageSig(LOG_DEBUG, QString("Display theme color set LC_PROFILE_KEY(%1): %2").arg(key).arg(color));
+#endif
+                }
+            }
         }
     }
 
@@ -1901,7 +1967,7 @@ void ThemeColorsDialog::resetThemeColors()
             else
                 mThemeColors[i] = Preferences::defaultThemeColors[i].color;
             QPixmap pix(12, 12);
-            pix.fill(QColor(mThemeColors[i]));
+            pix.fill(getColor(i, mThemeColors[i]));
             colorButtonList[i]->setIcon(pix);
         }
     }
@@ -1917,7 +1983,7 @@ void ThemeColorsDialog::resetThemeColor()
     mThemeColors[index] = Preferences::themeColors[index];
 
     QPixmap pix(12, 12);
-    pix.fill(QColor(mThemeColors[index]));
+    pix.fill(getColor(index, (mThemeColors[index])));
     colorButtonList[index]->setIcon(pix);
 
     if (mThemeColors[index] == Preferences::defaultThemeColors[index].color) {
@@ -1925,7 +1991,7 @@ void ThemeColorsDialog::resetThemeColor()
         resetButtonList[index]->setEnabled(false);
     } else {
         QImage image(16, 16, QImage::Format_RGB888);
-        image.fill(QColor(Preferences::defaultThemeColors[index].color));
+        image.fill(getColor(index, Preferences::defaultThemeColors[index].color));
         QPainter painter(&image);
         painter.setPen(Qt::darkGray);
         painter.drawRect(0, 0, image.width() - 1, image.height() - 1);
@@ -1946,16 +2012,17 @@ void ThemeColorsDialog::setThemeColor()
 {
     QObject* button = sender();
     QString title = tr("Select Theme Color");
+
+    int index = button->property("index").toInt();
+
     QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
-    QColor oldColor  = QColor(button->property("color").toString());
-    QColor newColor  = QColorDialog::getColor(oldColor, dialog, title, dialogOptions);
+    QColor oldColor  = getColor(index, button->property("color").toString());
+    QColor newColor  = getColor(index, QColorDialog::getColor(oldColor, dialog, title, dialogOptions).name());
 
     if (newColor == oldColor || !newColor.isValid())
         return;
 
-    int index = button->property("index").toInt();
-
-    mThemeColors[index] = newColor.name();
+    mThemeColors[index] = newColor.name().toUpper();
 
     QPixmap pix(12, 12);
     pix.fill(newColor);
@@ -1976,6 +2043,33 @@ void ThemeColorsDialog::setThemeColor()
     QString text = QString(format).arg(mThemeColors[index].toUpper(), QString(buffer.data().toBase64()));
     resetButtonList[index]->setToolTip(text);
     resetButtonList[index]->setEnabled(true);
+}
+
+QColor ThemeColorsDialog::getColor(const int index, const QString &name)
+{
+    QColor color(name);
+    if (Preferences::displayTheme == THEME_DARK) {
+        if (index == THEME_DARK_GRID_STUD_COLOR)
+            color.setAlpha(192);
+        else if (index == THEME_DARK_LINE_SELECT)
+            color.setAlpha(30);
+        else if (index == THEME_DARK_LINE_ERROR)
+            color.lighter(180);
+        else if (index == THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT)
+            color.lighter(180).setAlpha(100);
+        else if (index == THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT)
+            color.lighter(180).setAlpha(100);
+    } else {
+        if (index == THEME_DEFAULT_GRID_STUD_COLOR)
+            color.setAlpha(192);
+        else if (index == THEME_DEFAULT_LINE_SELECT)
+            color.setAlpha(30);
+        else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT)
+            color.lighter(180);
+        else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT)
+            color.lighter(180);
+    }
+    return color;
 }
 
 void ThemeColorsDialog::toggleDefaultsTab()
@@ -2010,7 +2104,7 @@ void ThemeColorsDialog::toggleDefaultsTab()
             label = new QLabel(container);
             label->setFixedWidth(16);
             label->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-            QColor color = QColor(Preferences::defaultThemeColors[i].color);
+            QColor color = getColor(i, Preferences::defaultThemeColors[i].color);
             QString styleSheet =
                     QString("QLabel { background-color: %1; }")
                     .arg(!color.isValid() ? "transparent" :

@@ -1027,6 +1027,8 @@ void lcApplication::ShowPreferencesDialog()
 		//gMainWindow->TogglePreviewWidget(
 		//	Dockable == lcPreviewPosition::Dockable);
 
+	Preferences::updateViewerInterfaceColors();
+
 	gMainWindow->GetPreviewWidget()->UpdatePreview();
 /*** LPub3D Mod end ***/
 
