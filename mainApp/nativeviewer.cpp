@@ -379,7 +379,7 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->GetToolsMenu()->addAction(viewpointGroupAct);
-//     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
@@ -456,7 +456,7 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
     gMainWindow->GetToolsToolBar()->addAction(viewpointGroupAct);
-//    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
