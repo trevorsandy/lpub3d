@@ -211,7 +211,7 @@ enum PlacementType {          // placement dialogue codes:
   NumRelatives                //38
 };
 
-enum pageType{
+enum PageTypeEnc{
     ContentPage = 0,
     FrontCoverPage,
     BackCoverPage,
@@ -270,7 +270,7 @@ enum SceneObjectDirection
     SendToBack   = 0/*False*/
 };
 
-enum sortDirection {
+enum SortDirection {
     SortAscending = 0,
     SortDescending,
     SortDirections
@@ -282,7 +282,7 @@ const QString SortDirectionName[SortDirections] =
     "Descending"
 };
 
-enum sortOrder {
+enum SortOrder {
     SortPrimary = 0,
     SortSecondary,
     SortTetriary,
@@ -291,7 +291,7 @@ enum sortOrder {
     TertiaryDirection
 };
 
-enum lightType
+enum LightType
 {
     M_UNDEFINED_LIGHT,
     M_POINTLIGHT,

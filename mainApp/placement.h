@@ -107,7 +107,7 @@ enum Boundary {
   Middle             = 16
 };
 
-enum {        // -1
+enum PlacementTableEnc {        // -1
   TblCo0 = 0, //  0  C0 - Callout relative to StepNumber
   TblSn0,     //  1  S0 - StepNumber relative to CSI
   TblCo1,     //  2  C1 - Callout relative to RotateIcon
@@ -146,7 +146,7 @@ enum {        // -1
 //  NumPlaces
 //};
 
-enum dim {
+enum Dim {
   XX = 0,
   YY = 1
 };
