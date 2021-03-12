@@ -4,16 +4,131 @@
 #include "project.h"
 #include "lc_model.h"
 #include "lc_view.h"
+#include "lc_collapsiblewidget.h"
 
-lcInstructionsPageWidget::lcInstructionsPageWidget(QWidget* Parent, lcInstructions* Instructions)
-	: QGraphicsView(Parent), mInstructions(Instructions)
+lcInstructionsStepImageItem::lcInstructionsStepImageItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step)
+	: QGraphicsPixmapItem(Parent), mInstructions(Instructions), mModel(Model), mStep(Step)
 {
+	setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+}
+
+void lcInstructionsStepImageItem::Update()
+{
+	lcView View(lcViewType::View, mModel);
+
+	View.SetOffscreenContext();
+	View.MakeCurrent();
+	View.SetBackgroundColorOverride(lcRGBAFromQColor(mInstructions->GetColorProperty(lcInstructionsPropertyType::StepBackgroundColor, mModel, mStep)));
+	View.SetSize(mWidth, mHeight);
+
+	std::vector<QImage> Images = View.GetStepImages(mStep, mStep);
+
+	if (!Images.empty())
+		setPixmap(QPixmap::fromImage(Images.front()));
+}
+
+lcInstructionsStepNumberItem::lcInstructionsStepNumberItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step)
+	: QGraphicsSimpleTextItem(Parent), mInstructions(Instructions), mModel(Model), mStep(Step)
+{
+	setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+}
+
+void lcInstructionsStepNumberItem::Update()
+{
+	QFont StepNumberFont = mInstructions->GetFontProperty(lcInstructionsPropertyType::StepNumberFont, mModel, mStep);
+
+	setFont(StepNumberFont);
+	setBrush(QBrush(mInstructions->GetColorProperty(lcInstructionsPropertyType::StepNumberColor, mModel, mStep)));
+	setText(QString::number(mStep));
+}
+
+lcInstructionsPartsListItem::lcInstructionsPartsListItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step)
+	: QGraphicsPixmapItem(Parent), mInstructions(Instructions), mModel(Model), mStep(Step)
+{
+	setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+}
+
+void lcInstructionsPartsListItem::Update()
+{
+	QColor BackgroundColor = mInstructions->GetColorProperty(lcInstructionsPropertyType::PLIBackgroundColor, mModel, mStep);
+	QFont Font = mInstructions->GetFontProperty(lcInstructionsPropertyType::PLIFont, mModel, mStep);
+	QColor TextColor = mInstructions->GetColorProperty(lcInstructionsPropertyType::PLITextColor, mModel, mStep);
+
+	QImage PartsImage = mModel->GetPartsListImage(300, mStep, lcRGBAFromQColor(BackgroundColor), Font, TextColor);
+	setPixmap(QPixmap::fromImage(PartsImage));
+}
+
+lcInstructionsPageWidget::lcInstructionsPageWidget(QWidget* Parent, lcInstructions* Instructions, lcInstructionsPropertiesWidget* PropertiesWidget)
+	: QGraphicsView(Parent), mInstructions(Instructions), mPropertiesWidget(PropertiesWidget)
+{
+	QGraphicsScene* Scene = new QGraphicsScene();
+	setScene(Scene);
+
+	connect(mInstructions, &lcInstructions::StepSettingsChanged, this, &lcInstructionsPageWidget::StepSettingsChanged);
+	connect(Scene, &QGraphicsScene::selectionChanged, this, &lcInstructionsPageWidget::SelectionChanged);
+}
+
+void lcInstructionsPageWidget::StepSettingsChanged(lcModel* Model, lcStep Step)
+{
+	QGraphicsScene* Scene = scene();
+
+	QList<QGraphicsItem*> Items = Scene->items();
+
+	for (QGraphicsItem* Item : Items)
+	{
+		lcInstructionsStepImageItem* ImageItem = dynamic_cast<lcInstructionsStepImageItem*>(Item);
+
+		if (ImageItem)
+		{
+			if (!Model || (ImageItem->GetModel() == Model && ImageItem->GetStep() == Step))
+				ImageItem->Update();
+
+			continue;
+		}
+
+		lcInstructionsStepNumberItem* NumberItem = dynamic_cast<lcInstructionsStepNumberItem*>(Item);
+
+		if (NumberItem)
+		{
+			if (!Model || (NumberItem->GetModel() == Model && NumberItem->GetStep() == Step))
+				NumberItem->Update();
+
+			continue;
+		}
+
+		lcInstructionsPartsListItem* PartsItem = dynamic_cast<lcInstructionsPartsListItem*>(Item);
+
+		if (PartsItem)
+		{
+			if (!Model || (PartsItem->GetModel() == Model && PartsItem->GetStep() == Step))
+				PartsItem->Update();
+
+			continue;
+		}
+	}
+}
+
+void lcInstructionsPageWidget::SelectionChanged()
+{
+	QGraphicsScene* Scene = qobject_cast<QGraphicsScene*>(sender());
+	QGraphicsItem* Focus = nullptr;
+
+	if (Scene)
+	{
+		QList<QGraphicsItem*> SelectedItems = Scene->selectedItems();
+
+		if (!SelectedItems.isEmpty())
+			Focus = SelectedItems.first();
+	}
+
+	mPropertiesWidget->SelectionChanged(Focus);
 }
 
 void lcInstructionsPageWidget::SetCurrentPage(const lcInstructionsPage* Page)
 {
-	QGraphicsScene* Scene = new QGraphicsScene();
-	setScene(Scene);
+	QGraphicsScene* Scene = scene();
+
+	Scene->clear();
 
 	if (!Page)
 		return;
@@ -28,36 +143,17 @@ void lcInstructionsPageWidget::SetCurrentPage(const lcInstructionsPage* Page)
 
 	for (const lcInstructionsStep& Step : Page->Steps)
 	{
-		const float StepWidth = MarginsRect.width() * Step.Rect.width();
-		const float StepHeight = MarginsRect.height() * Step.Rect.height();
-
-		lcView View(lcViewType::View, Step.Model);
-
-		View.SetOffscreenContext();
-		View.MakeCurrent();
-//		View.SetBackgroundColorOverride(LC_RGBA(255, 255, 0, 255));
-		View.SetSize(StepWidth, StepHeight);
-
-		std::vector<QImage> Images = View.GetStepImages(Step.Step, Step.Step);
-
-		if (Images.empty())
-			continue;
-
-		QImage& StepImage = Images.front();
-
-		QGraphicsPixmapItem* StepImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(StepImage), PageItem);
-		StepImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+		lcInstructionsStepImageItem* StepImageItem = new lcInstructionsStepImageItem(PageItem, mInstructions, Step.Model, Step.Step);
 		StepImageItem->setPos(MarginsRect.left() + MarginsRect.width() * Step.Rect.x(), MarginsRect.top() + MarginsRect.height() * Step.Rect.y());
+		StepImageItem->SetImageSize(MarginsRect.width() * Step.Rect.width(), MarginsRect.height() * Step.Rect.height());
+		StepImageItem->Update();
 
-		QGraphicsSimpleTextItem* StepNumberItem = new QGraphicsSimpleTextItem(QString::number(Step.Step), StepImageItem);
-		StepNumberItem->setFont(QFont("Helvetica", 96));
-		StepNumberItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+		lcInstructionsStepNumberItem* StepNumberItem = new lcInstructionsStepNumberItem(StepImageItem, mInstructions, Step.Model, Step.Step);
+		StepNumberItem->Update();
 
-		QImage PartsImage = Step.Model->GetPartsListImage(300, Step.Step);
-
-		QGraphicsPixmapItem* PartsImageItem = new QGraphicsPixmapItem(QPixmap::fromImage(PartsImage), StepImageItem);
-		PartsImageItem->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsFocusable);
+		lcInstructionsPartsListItem* PartsImageItem = new lcInstructionsPartsListItem(StepImageItem, mInstructions, Step.Model, Step.Step);
 		PartsImageItem->setPos(StepNumberItem->boundingRect().topRight());
+		PartsImageItem->Update();
 	}
 }
 
@@ -175,6 +271,249 @@ void lcInstructionsPageListWidget::ShowPageSetupDialog()
 		return;
 }
 
+lcInstructionsPropertiesWidget::lcInstructionsPropertiesWidget(QWidget* Parent, lcInstructions* Instructions)
+	: QDockWidget(Parent), mInstructions(Instructions)
+{
+	QWidget* CentralWidget = new QWidget(this);
+	setWidget(CentralWidget);
+	setWindowTitle(tr("Properties"));
+	
+	QGridLayout* Layout = new QGridLayout(CentralWidget);
+	Layout->setContentsMargins(0, 0, 0, 0);
+
+	QComboBox* ScopeComboBox = new QComboBox(CentralWidget);
+	ScopeComboBox->addItems(QStringList() << tr("Default") << tr("Current Model") << tr("Current Step Only") << tr("Current Step Forward"));
+
+	Layout->addWidget(new QLabel(tr("Scope:")), 0, 0);
+	Layout->addWidget(ScopeComboBox, 0, 1);
+
+	QComboBox* PresetComboBox = new QComboBox(CentralWidget);
+
+	Layout->addWidget(new QLabel(tr("Preset:")), 1, 0);
+	Layout->addWidget(PresetComboBox, 1, 1);
+
+	Layout->setRowStretch(3, 1);
+}
+
+void lcInstructionsPropertiesWidget::AddColorProperty(lcInstructionsPropertyType Type)
+{
+	QString Label;
+
+	switch (Type)
+	{
+	case lcInstructionsPropertyType::StepNumberColor:
+	case lcInstructionsPropertyType::PLITextColor:
+		Label = tr("Text Color:");
+		break;
+
+	case lcInstructionsPropertyType::StepBackgroundColor:
+	case lcInstructionsPropertyType::PLIBackgroundColor:
+		Label = tr("Background Color:");
+		break;
+
+	case lcInstructionsPropertyType::PLIBorderColor:
+		Label = tr("Border Color:");
+		break;
+
+	case lcInstructionsPropertyType::StepNumberFont:
+	case lcInstructionsPropertyType::PLIFont:
+//	case lcInstructionsPropertyType::PLIBorderWidth:
+//	case lcInstructionsPropertyType::PLIBorderRound:
+	case lcInstructionsPropertyType::Count:
+		break;
+	}
+
+	const int Row = mPropertiesLayout->rowCount();
+
+	mPropertiesLayout->addWidget(new QLabel(Label), Row, 0);
+
+	QToolButton* ColorButton = new QToolButton();
+	mPropertiesLayout->addWidget(ColorButton, Row, 1);
+
+	auto UpdateButton = [this, Type, ColorButton]()
+	{
+		QPixmap Pixmap(12, 12);
+		QColor Color = mInstructions->GetColorProperty(Type, mModel, mStep);
+		Pixmap.fill(Color);
+		ColorButton->setIcon(Pixmap);
+	};
+	
+	UpdateButton();
+
+	connect(ColorButton, &QToolButton::clicked, [this, Type, UpdateButton]()
+	{
+		QString Title;
+
+		switch (Type)
+		{
+			case lcInstructionsPropertyType::StepNumberColor:
+				Title = tr("Select Step Number Color");
+				break;
+
+			case lcInstructionsPropertyType::StepBackgroundColor:
+				Title = tr("Select Step Background Color");
+				break;
+
+			case lcInstructionsPropertyType::PLIBackgroundColor:
+				Title = tr("Select Parts List Background Color");
+				break;
+
+			case lcInstructionsPropertyType::PLIBorderColor:
+				Title = tr("Select Parts List Border Color");
+				break;
+
+			case lcInstructionsPropertyType::PLITextColor:
+				Title = tr("Select Parts List Text Color");
+				break;
+
+			case lcInstructionsPropertyType::StepNumberFont:
+			case lcInstructionsPropertyType::PLIFont:
+//			case lcInstructionsPropertyType::StepPLIBorderWidth:
+//			case lcInstructionsPropertyType::StepPLIBorderRound:
+			case lcInstructionsPropertyType::Count:
+				break;
+		}
+
+		QColor Color = mInstructions->GetColorProperty(Type, mModel, mStep);
+		Color = QColorDialog::getColor(Color, this, Title);
+
+		if (Color.isValid())
+		{
+			mInstructions->SetDefaultColor(Type, Color);
+			UpdateButton();
+		}
+	});
+}
+
+void lcInstructionsPropertiesWidget::AddFontProperty(lcInstructionsPropertyType Type)
+{
+	const QString Label = tr("Font:");
+	const int Row = mPropertiesLayout->rowCount();
+
+	mPropertiesLayout->addWidget(new QLabel(Label), Row, 0);
+
+	QToolButton* FontButton = new QToolButton();
+	mPropertiesLayout->addWidget(FontButton, Row, 1);
+
+	auto UpdateButton = [this, Type, FontButton]()
+	{
+		QFont Font = mInstructions->GetFontProperty(Type, mModel, mStep);
+		QString FontName = QString("%1 %2").arg(Font.family(), QString::number(Font.pointSize()));
+		FontButton->setText(FontName);
+	};
+
+	UpdateButton();
+
+	connect(FontButton, &QToolButton::clicked, [this, Type, UpdateButton]()
+	{
+		QString Title;
+
+		switch (Type)
+		{
+			case lcInstructionsPropertyType::StepNumberFont:
+				Title = tr("Select Step Number Font");
+				break;
+
+			case lcInstructionsPropertyType::PLIFont:
+				Title = tr("Select Parts List Font");
+				break;
+
+			case lcInstructionsPropertyType::StepNumberColor:
+			case lcInstructionsPropertyType::StepBackgroundColor:
+			case lcInstructionsPropertyType::PLIBackgroundColor:
+			case lcInstructionsPropertyType::PLITextColor:
+			case lcInstructionsPropertyType::PLIBorderColor:
+			case lcInstructionsPropertyType::Count:
+				break;
+		}
+
+		bool Ok = false;
+
+		QFont Font = mInstructions->GetFontProperty(Type, mModel, mStep);
+		Font = QFontDialog::getFont(&Ok, Font, this, tr("Select Step Number Font"));
+
+		if (Ok)
+		{
+			UpdateButton();
+			mInstructions->SetDefaultFont(Type, Font);
+		}
+	});
+}
+
+void lcInstructionsPropertiesWidget::SelectionChanged(QGraphicsItem* FocusItem)
+{
+	if (mFocusItem == FocusItem)
+		return;
+
+	delete mWidget;
+	mWidget = nullptr;
+	mFocusItem = FocusItem;
+	mModel = nullptr;
+	mStep = 1;
+
+	if (!FocusItem)
+		return;
+
+	auto CreatePropertyWidget = [this](const QString& Title)
+	{
+		mWidget = new lcCollapsibleWidget(Title); // todo: disable collapse
+
+		QGridLayout* WidgetLayout = qobject_cast<QGridLayout*>(widget()->layout());
+		WidgetLayout->addWidget(mWidget, 2, 0, 1, -1);
+
+		mPropertiesLayout = new QGridLayout();
+		mWidget->SetChildLayout(mPropertiesLayout);
+	};
+
+	lcInstructionsStepImageItem* ImageItem = dynamic_cast<lcInstructionsStepImageItem*>(FocusItem);
+
+	if (ImageItem)
+	{
+		CreatePropertyWidget(tr("Step Properties"));
+
+		mModel = ImageItem->GetModel();
+		mStep = ImageItem->GetStep();
+
+		AddColorProperty(lcInstructionsPropertyType::StepBackgroundColor);
+
+		return;
+	}
+
+	lcInstructionsStepNumberItem* NumberItem = dynamic_cast<lcInstructionsStepNumberItem*>(FocusItem);
+
+	if (NumberItem)
+	{
+		CreatePropertyWidget(tr("Step Number Properties"));
+
+		mModel = NumberItem->GetModel();
+		mStep = NumberItem->GetStep();
+
+		AddFontProperty(lcInstructionsPropertyType::StepNumberFont);
+		AddColorProperty(lcInstructionsPropertyType::StepNumberColor);
+
+		return;
+	}
+
+	lcInstructionsPartsListItem* PartsItem = dynamic_cast<lcInstructionsPartsListItem*>(FocusItem);
+
+	if (PartsItem)
+	{
+		CreatePropertyWidget(tr("Parts List Properties"));
+
+		mModel = PartsItem->GetModel();
+		mStep = PartsItem->GetStep();
+
+		AddColorProperty(lcInstructionsPropertyType::PLIBackgroundColor);
+		AddFontProperty(lcInstructionsPropertyType::PLIFont);
+		AddColorProperty(lcInstructionsPropertyType::PLITextColor);
+		AddColorProperty(lcInstructionsPropertyType::PLIBorderColor);
+//		PLIBorderWidth,
+//		PLIBorderRound,
+
+		return;
+	}
+}
+
 lcInstructionsDialog::lcInstructionsDialog(QWidget* Parent, Project* Project)
 	: QMainWindow(Parent), mProject(Project)
 {
@@ -182,11 +521,15 @@ lcInstructionsDialog::lcInstructionsDialog(QWidget* Parent, Project* Project)
 
 	mInstructions = mProject->GetInstructions();
 
-	mPageWidget = new lcInstructionsPageWidget(this, &mInstructions);
+	mPropertiesWidget = new lcInstructionsPropertiesWidget(this, mInstructions);
+	mPropertiesWidget->setObjectName("InstructionsProperties");
+	addDockWidget(Qt::RightDockWidgetArea, mPropertiesWidget);
+
+	mPageWidget = new lcInstructionsPageWidget(this, mInstructions, mPropertiesWidget);
 	setCentralWidget(mPageWidget);
 
-	mPageListWidget = new lcInstructionsPageListWidget(this, &mInstructions);
-	mPageListWidget->setObjectName("PageList");
+	mPageListWidget = new lcInstructionsPageListWidget(this, mInstructions);
+	mPageListWidget->setObjectName("InstructionsPageList");
 	addDockWidget(Qt::LeftDockWidgetArea, mPageListWidget);
 
 	mPageSettingsToolBar = addToolBar(tr("Page Settings"));
@@ -209,7 +552,7 @@ lcInstructionsDialog::lcInstructionsDialog(QWidget* Parent, Project* Project)
 	PageDirectionGroup->addAction(mVerticalPageAction);
 	PageDirectionGroup->addAction(mHorizontalPageAction);
 
-	for (size_t PageNumber = 0; PageNumber < mInstructions.mPages.size(); PageNumber++)
+	for (size_t PageNumber = 0; PageNumber < mInstructions->mPages.size(); PageNumber++)
 		mPageListWidget->mThumbnailsWidget->addItem(QString("Page %1").arg(PageNumber + 1));
 
 	connect(mPageListWidget->mThumbnailsWidget, SIGNAL(currentRowChanged(int)), this, SLOT(CurrentThumbnailChanged(int)));
@@ -233,11 +576,11 @@ void lcInstructionsDialog::UpdatePageSettings()
 	else
 		PageSettings.Direction = lcInstructionsDirection::Vertical;
 
-	mInstructions.SetDefaultPageSettings(PageSettings);
+	mInstructions->SetDefaultPageSettings(PageSettings);
 //	lcInstructionsPage* Page = &mInstructions.mPages[mThumbnailsWidget->currentIndex().row()];
 
 	mPageListWidget->mThumbnailsWidget->clear();
-	for (size_t PageNumber = 0; PageNumber < mInstructions.mPages.size(); PageNumber++)
+	for (size_t PageNumber = 0; PageNumber < mInstructions->mPages.size(); PageNumber++)
 		mPageListWidget->mThumbnailsWidget->addItem(QString("Page %1").arg(PageNumber + 1));
 
 //	mThumbnailsWidget->setCurrentRow(0);
@@ -247,15 +590,15 @@ void lcInstructionsDialog::UpdatePageSettings()
 
 void lcInstructionsDialog::CurrentThumbnailChanged(int Index)
 {
-	if (Index < 0 || Index >= static_cast<int>(mInstructions.mPages.size()))
+	if (Index < 0 || Index >= static_cast<int>(mInstructions->mPages.size()))
 	{
 		mPageWidget->SetCurrentPage(nullptr);
 		return;
 	}
 
-	const lcInstructionsPage* Page = &mInstructions.mPages[Index];
+	const lcInstructionsPage* Page = &mInstructions->mPages[Index];
 //	const lcInstructionsPageSettings& PageSettings = Page->Settings;
-	const lcInstructionsPageSettings& PageSettings = mInstructions.mPageSettings;
+	const lcInstructionsPageSettings& PageSettings = mInstructions->mPageSettings;
 
 	mPageWidget->SetCurrentPage(Page);
 

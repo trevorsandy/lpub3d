@@ -1001,13 +1001,7 @@ bool lcModel::LoadBinary(lcFile* file)
 		else
 			file->ReadU16(&sh, 1);
 
-		if (sh < LC_MAXPATH)
-		{
-			char Background[LC_MAXPATH];
-			file->ReadBuffer(Background, sh);
-		}
-		else
-			file->Seek(sh, SEEK_CUR);
+		file->Seek(sh, SEEK_CUR); // Background
 	}
 
 	if (fv >= 0.8f)
@@ -1409,7 +1403,7 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 	return Image;
 }
 
-QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
+QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundColor, QFont Font, QColor TextColor) const
 {
 	lcPartsList PartsList;
 
@@ -1510,7 +1504,8 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 	for (lcPartsListImage& Image : Images)
 	{
-		Context->ClearColorAndDepth(lcVector4(1.0f, 1.0f, 1.0f, 0.0f));
+		View.BindRenderFramebuffer();
+		Context->ClearColorAndDepth(lcVector4(lcVector3FromColor(BackgroundColor), 0.0f));
 
 		lcScene Scene;
 
@@ -1529,6 +1524,7 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 		Scene.Draw(Context);
 
+		View.UnbindRenderFramebuffer();
 		Image.Thumbnail = View.GetRenderFramebufferImage().convertToFormat(QImage::Format_ARGB32);
 	}
 
@@ -1568,7 +1564,6 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 	QImage DummyImage(16, 16, QImage::Format_ARGB32);
 	QPainter DummyPainter(&DummyImage);
 
-	QFont Font("helvetica", 20, QFont::Bold);
 	DummyPainter.setFont(Font);
 	QFontMetrics FontMetrics = DummyPainter.fontMetrics();
 	int Ascent = FontMetrics.ascent();
@@ -1616,10 +1611,11 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 	}
 
 	QImage PainterImage(ImageWidth + 40, CurrentHeight + 40, QImage::Format_ARGB32);
-	PainterImage.fill(QColor(255, 255, 255, 0));
+	PainterImage.fill(lcQColorFromRGBA(BackgroundColor));
 
 	QPainter Painter(&PainterImage);
 	Painter.setFont(Font);
+	Painter.setPen(TextColor);
 
 	for (lcPartsListImage& Image : Images)
 	{

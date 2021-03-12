@@ -150,7 +150,7 @@ public:
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
-	lcInstructions GetInstructions();
+	lcInstructions* GetInstructions();
 
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& FileName);
@@ -197,6 +197,7 @@ protected:
 
 	lcArray<lcModel*> mModels;
 	lcModel* mActiveModel;
+	std::unique_ptr<lcInstructions> mInstructions;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
 /*** LPub3D Mod - Camera Globe and Image Export ***/

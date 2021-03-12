@@ -142,11 +142,11 @@ const QString Render::fixupDirname(const QString &dirNameIn) {
 
     length = GetShortPathName(dirNameWin, buffer, length);
     if (length == 0){
-                QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
+        QString message = QString("Couldn't get length of short path name length, lastError is %1, trying long path name").arg(GetLastError());
 #ifdef QT_DEBUG_MODE
-                qDebug() << message << "\n";
+        qDebug() << message << "\n";
 #else
-                emit gui->messageSig(LOG_INFO, message);
+        emit gui->messageSig(LOG_INFO, message);
 #endif
         return dirNameIn;
     }
@@ -3034,7 +3034,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
         lcView View(lcViewType::View, ActiveModel);
         View.SetCamera(Camera, true);
-
         View.SetOffscreenContext();
         View.MakeCurrent();
 

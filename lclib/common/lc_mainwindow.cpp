@@ -40,7 +40,7 @@ lcMainWindow* gMainWindow;
 
 void lcTabBar::mousePressEvent(QMouseEvent* Event)
 {
-	if (Event->button() == Qt::MidButton)
+	if (Event->button() == Qt::MiddleButton)
 		mMousePressTab = tabAt(Event->pos());
 	else
 		QTabBar::mousePressEvent(Event);
@@ -48,7 +48,7 @@ void lcTabBar::mousePressEvent(QMouseEvent* Event)
 
 void lcTabBar::mouseReleaseEvent(QMouseEvent* Event)
 {
-	if (Event->button() == Qt::MidButton && tabAt(Event->pos()) == mMousePressTab)
+	if (Event->button() == Qt::MiddleButton && tabAt(Event->pos()) == mMousePressTab)
 		tabCloseRequested(mMousePressTab);
 	else
 		QTabBar::mouseReleaseEvent(Event);
@@ -560,7 +560,7 @@ void lcMainWindow::CreateMenus()
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RENDER]);
-//	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
+	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
 	FileMenu->addSeparator();
@@ -1500,8 +1500,8 @@ void lcMainWindow::Print(QPrinter* Printer)
 	int DocCopies;
 	int PageCopies;
 
-	lcInstructions Instructions = lcGetActiveProject()->GetInstructions();
-	const int PageCount = static_cast<int>(Instructions.mPages.size());
+	lcInstructions* Instructions = lcGetActiveProject()->GetInstructions();
+	const int PageCount = static_cast<int>(Instructions->mPages.size());
 
 	if (Printer->collateCopies())
 	{
@@ -1538,7 +1538,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 		Ascending = false;
 	}
 
-	QRect PageRect = Printer->pageRect();
+	QRect PageRect = Printer->pageLayout().paintRectPixels(Printer->resolution());
 	const int Resolution = Printer->resolution();
 	const int Margin = Resolution / 2; // todo: user setting
 	QRect MarginRect = QRect(PageRect.left() + Margin, PageRect.top() + Margin, PageRect.width() - Margin * 2, PageRect.height() - Margin * 2);
@@ -1566,7 +1566,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 				int StepWidth = MarginRect.width();
 				int StepHeight = MarginRect.height();
 
-				const lcInstructionsPage& PageLayout = Instructions.mPages[Page - 1];
+				const lcInstructionsPage& PageLayout = Instructions->mPages[Page - 1];
 				lcModel* Model = PageLayout.Steps[0].Model;
 				lcStep Step = PageLayout.Steps[0].Step;
 				QImage Image = Model->GetStepImage(false, StepWidth, StepHeight, Step);
@@ -1672,7 +1672,7 @@ void lcMainWindow::ShowInstructionsDialog()
 void lcMainWindow::ShowPrintDialog()
 {
 #ifndef QT_NO_PRINTER
-	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions().mPages.size());
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions()->mPages.size());
 
 	QPrinter Printer(QPrinter::HighResolution);
 	Printer.setFromTo(1, PageCount + 1);
@@ -2312,7 +2312,7 @@ void lcMainWindow::TogglePrintPreview()
 #ifndef QT_NO_PRINTER
 	// todo: print preview inside main window
 
-	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions().mPages.size());
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetInstructions()->mPages.size());
 
 	QPrinter Printer(QPrinter::ScreenResolution);
 	Printer.setFromTo(1, PageCount + 1);

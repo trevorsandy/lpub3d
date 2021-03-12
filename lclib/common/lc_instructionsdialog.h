@@ -2,17 +2,101 @@
 
 #include "lc_instructions.h"
 
+class lcInstructionsPropertiesWidget;
+
+class lcInstructionsStepImageItem : public QGraphicsPixmapItem
+{
+public:
+	lcInstructionsStepImageItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step);
+
+	lcModel* GetModel() const
+	{
+		return mModel;
+	}
+
+	lcStep GetStep() const
+	{
+		return mStep;
+	}
+
+	void SetImageSize(int Width, int Height)
+	{
+		mWidth = Width;
+		mHeight = Height;
+	}
+
+	void Update();
+
+protected:
+	lcInstructions* mInstructions = nullptr;
+	lcModel* mModel = nullptr;
+	lcStep mStep = 1;
+	int mWidth = 1;
+	int mHeight = 1;
+};
+
+class lcInstructionsStepNumberItem : public QGraphicsSimpleTextItem
+{
+public:
+	lcInstructionsStepNumberItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step);
+
+	lcModel* GetModel() const
+	{
+		return mModel;
+	}
+
+	lcStep GetStep() const
+	{
+		return mStep;
+	}
+
+	void Update();
+
+protected:
+	lcInstructions* mInstructions = nullptr;
+	lcModel* mModel = nullptr;
+	lcStep mStep = 1;
+};
+
+class lcInstructionsPartsListItem : public QGraphicsPixmapItem
+{
+public:
+	lcInstructionsPartsListItem(QGraphicsItem* Parent, lcInstructions* Instructions, lcModel* Model, lcStep Step);
+
+	lcModel* GetModel() const
+	{
+		return mModel;
+	}
+
+	lcStep GetStep() const
+	{
+		return mStep;
+	}
+
+	void Update();
+
+protected:
+	lcInstructions* mInstructions = nullptr;
+	lcModel* mModel = nullptr;
+	lcStep mStep = 1;
+};
+
 class lcInstructionsPageWidget : public QGraphicsView
 {
 	Q_OBJECT
 
 public:
-	lcInstructionsPageWidget(QWidget* Parent, lcInstructions* Instructions);
+	lcInstructionsPageWidget(QWidget* Parent, lcInstructions* Instructions, lcInstructionsPropertiesWidget* PropertiesWidget);
 
 	void SetCurrentPage(const lcInstructionsPage* Page);
 
+protected slots:
+	void StepSettingsChanged(lcModel* Model, lcStep Step);
+	void SelectionChanged();
+
 protected:
 	lcInstructions* mInstructions;
+	lcInstructionsPropertiesWidget* mPropertiesWidget;
 };
 
 class lcInstructionsPageListWidget : public QDockWidget
@@ -47,6 +131,27 @@ protected:
 	lcInstructions* mInstructions;
 };
 
+class lcInstructionsPropertiesWidget : public QDockWidget
+{
+	Q_OBJECT
+
+public:
+	lcInstructionsPropertiesWidget(QWidget* Parent, lcInstructions* Instructions);
+
+	void SelectionChanged(QGraphicsItem* FocusItem);
+
+protected:
+	void AddColorProperty(lcInstructionsPropertyType Type);
+	void AddFontProperty(lcInstructionsPropertyType Type);
+
+	lcCollapsibleWidget* mWidget = nullptr;
+	QGridLayout* mPropertiesLayout = nullptr;
+	lcInstructions* mInstructions = nullptr;
+	QGraphicsItem* mFocusItem = nullptr;
+	lcModel* mModel = nullptr;
+	lcStep mStep = 1;
+};
+
 class lcInstructionsDialog : public QMainWindow
 {
 	Q_OBJECT
@@ -62,10 +167,11 @@ protected:
 	Project* mProject = nullptr;
 
 	int mCurrentPageNumber;
-	lcInstructions mInstructions;
+	lcInstructions* mInstructions;
 
 	lcInstructionsPageWidget* mPageWidget = nullptr;
 	lcInstructionsPageListWidget* mPageListWidget = nullptr;
+	lcInstructionsPropertiesWidget* mPropertiesWidget = nullptr;
 
 	QToolBar* mPageSettingsToolBar = nullptr;
 	QAction* mVerticalPageAction = nullptr;

@@ -17,6 +17,10 @@
 #include <functional>
 #include <memory>
 
+#if _MSC_VER
+#pragma warning(default : 4062) // enumerator 'identifier' in switch of enum 'enumeration' is not handled
+#endif
+
 #ifndef Q_FALLTHROUGH
 #define Q_FALLTHROUGH();
 #endif
@@ -53,7 +57,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.01"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_BUILD "1b0a47f"
+#define LC_VERSION_BUILD "e86ec23"
 /*** LPub3D Mod end ***/
 
 

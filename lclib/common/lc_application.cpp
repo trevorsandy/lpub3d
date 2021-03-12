@@ -131,7 +131,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
-	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mDrawGridOrigin);
+	lcSetProfileInt(LC_PROFILE_GRID_ORIGIN, mDrawGridOrigin);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED, mViewSphereSize ? 1 : 0);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION, static_cast<int>(mViewSphereLocation));
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE, mViewSphereSize);
@@ -559,6 +559,29 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			return false;
 		};
 
+		auto ParseUnsigned = [&Option, &Arguments, &Options](uint& Value, uint Min, uint Max)
+		{
+			if (!Arguments.isEmpty() && Arguments.front()[0] != '-')
+			{
+				bool Ok = false;
+				QString Parameter = Arguments.takeFirst();
+				uint NewValue = Parameter.toUInt(&Ok);
+
+				if (Ok && NewValue >= Min && NewValue <= Max)
+				{
+					Value = NewValue;
+					return true;
+				}
+				else
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
+			}
+			else
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
+
+			Options.ParseOK = false;
+			return false;
+		};
+
 		auto ParseFloat = [&Option, &Arguments, &Options](float& Value, float Min, float Max)
 		{
 			if (!Arguments.isEmpty() && Arguments.front()[0] != '-')
@@ -671,9 +694,9 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		else if (Option == QLatin1String("-h") || Option == QLatin1String("--height"))
 			ParseInteger(Options.ImageHeight, 1, INT_MAX);
 		else if (Option == QLatin1String("-f") || Option == QLatin1String("--from"))
-			ParseInteger(Options.ImageStart, 1, LC_STEP_MAX);
+			ParseUnsigned(Options.ImageStart, 1, LC_STEP_MAX);
 		else if (Option == QLatin1String("-t") || Option == QLatin1String("--to"))
-			ParseInteger(Options.ImageEnd, 1, LC_STEP_MAX);
+			ParseUnsigned(Options.ImageEnd, 1, LC_STEP_MAX);
 		else if (Option == QLatin1String("-s") || Option == QLatin1String("--submodel"))
 			ParseString(Options.ModelName, true);
 		else if (Option == QLatin1String("-c") || Option == QLatin1String("--camera"))
@@ -978,7 +1001,10 @@ int lcApplication::Process3DViewerCommandLine()
 		if (gMainWindow)
 			QMessageBox::information(gMainWindow, tr("LeoCAD"), Message);
 		else
-			StdErr << Message << endl;
+		{
+			StdErr << Message << "\n";
+			StdErr.flush();
+		}
 	}
 
 	if (!SaveAndExit)
@@ -1256,7 +1282,10 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		if (gMainWindow)
 			QMessageBox::information(gMainWindow, tr("3DViewer"), Message);
 		else
-			StdErr << Message << endl;
+		{
+			StdErr << Message << "\n";
+			StdErr.flush();
+		}
 	}
 
 	if (!SaveAndExit)

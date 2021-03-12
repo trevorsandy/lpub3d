@@ -573,7 +573,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			{
 				auto ModelCompare = [Model](const std::pair<int, lcModel*>& ModelIt)
 				{
-					return ModelIt.second->GetFileName() == Model->GetFileName();
+					return ModelIt.second->GetFileName().compare(Model->GetFileName(), Qt::CaseInsensitive) == 0;
 				};
 
 				if (std::find_if(Models.begin(), Models.end(), ModelCompare) == Models.end())
@@ -1723,9 +1723,12 @@ bool Project::ExportCSV()
 /*** LPub3D Mod end ***/
 }
 
-lcInstructions Project::GetInstructions()
+lcInstructions* Project::GetInstructions()
 {
-	return lcInstructions(this);
+	mInstructions.reset();
+	mInstructions = std::unique_ptr<lcInstructions>(new lcInstructions(this));
+
+	return mInstructions.get();
 }
 
 /*** LPub3D Mod - export ***/
@@ -1751,7 +1754,7 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 	auto AddPartsListImage = [&Dir](QTextStream& Stream, lcModel* Model, lcStep Step, const QString& BaseName)
 	{
-		QImage Image = Model->GetPartsListImage(1024, Step);
+		QImage Image = Model->GetPartsListImage(1024, Step, LC_RGBA(255, 255, 255, 0), QFont("Arial", 16, QFont::Bold), Qt::black);
 
 		if (!Image.isNull())
 		{
