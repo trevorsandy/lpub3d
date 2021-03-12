@@ -457,6 +457,7 @@ int Gui::drawPage(
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
   // Build mod update flags
+  int  buildModStepIndex = -1;
   Rc   buildModAction    = BuildModApplyRc;
   bool buildModItems     = false;
   bool buildModIgnore    = false;
@@ -1946,7 +1947,7 @@ int Gui::drawPage(
                                  opts.current);
                     }
 
-                  int buildModStepIndex = getBuildModStepIndex(topOfStep);
+                  buildModStepIndex = getBuildModStepIndex(topOfStep);
                   buildModKey = page.meta.LPub.buildMod.key();
                   if (buildModContains(buildModKey))
                       buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
@@ -1976,10 +1977,20 @@ int Gui::drawPage(
               if (! buildModKeys.contains(opts.buildModLevel))
                   buildModKeys.insert(opts.buildModLevel, buildModKey);
               // create this buildMod
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
+              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
-              buildModIgnore     = false;
-              buildModPliIgnore  = true;
+                  buildModStepIndex = BM_LAST_ACTION;
+                  buildModAction    = Rc(getBuildModAction(buildModKey, buildModStepIndex));
+                  buildModActions.insert(opts.buildModLevel, buildModAction);
+              }
+              // set buildMod action
+              if (buildModAction   == BuildModApplyRc){
+                  buildModIgnore    = false;
+                  buildModPliIgnore = true;
+              } else if (buildModAction == BuildModRemoveRc) {
+                  buildModIgnore    = true;
+                  buildModPliIgnore = false;
+              }
               buildMod[BM_BEGIN] = true;
               break;
 
@@ -1994,8 +2005,14 @@ int Gui::drawPage(
                   parseError(QString("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
-              buildModIgnore       = true;
-              buildModPliIgnore    = false;
+              // set buildMod action
+              if (buildModAction   == BuildModApplyRc){
+                  buildModIgnore    = true;
+                  buildModPliIgnore = false;
+              } else if (buildModAction == BuildModRemoveRc) {
+                  buildModIgnore    = false;
+                  buildModPliIgnore = true;
+              }
               buildMod[BM_END_MOD] = true;
               break;
 
@@ -3918,12 +3935,11 @@ void Gui::countPages()
    }
 }
 
-void Gui::drawPage(
-    LGraphicsView  *view,
+void Gui::drawPage(LGraphicsView  *view,
     LGraphicsScene *scene,
     bool            printing,
     bool            updateViewer/*true*/,
-    bool            buildMod/*false*/)
+    bool            buildModActionChange/*false*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
@@ -3933,7 +3949,7 @@ void Gui::drawPage(
   stepPageNum = 1;
 
   // if not buildMod action
-  if (! buildMod) {
+  if (! buildModActionChange) {
       // initialize ldrawFile registers
       ldrawFile.unrendered();
       ldrawFile.countInstances();

@@ -565,7 +565,7 @@ public:
     LGraphicsScene *scene,         // on the next two functions
     bool            printing,
     bool            updateViewer = true,
-    bool            buildMod = false);
+    bool            buildModActionChange = false);
 
   /*--------------------------------------------------------------------*
    * These are the work horses for back annotating user changes into    *
