@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -511,7 +511,7 @@
               <property name="checked">
                <bool>false</bool>
               </property>
-              <widget class="QWidget" name="">
+              <widget class="QWidget" name="layoutWidget">
                <property name="geometry">
                 <rect>
                  <x>10</x>
@@ -942,7 +942,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTabWidget" name="tabWidget">
+        <widget class="QTabWidget" name="tabRenderers">
          <property name="currentIndex">
           <number>0</number>
          </property>
@@ -1150,58 +1150,40 @@
               <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_11">
-              <item row="2" column="3" colspan="4">
-               <widget class="QGroupBox" name="ldvPOVSettingsBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="povrayRenderQualityCombo">
+                <property name="toolTip">
+                 <string>Select render quality settings</string>
                 </property>
-                <property name="minimumSize">
+                <item>
+                 <property name="text">
+                  <string>High</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Medium</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Low</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="5">
+               <spacer name="horizontalSpacer_22">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
                  <size>
-                  <width>0</width>
-                  <height>56</height>
+                  <width>40</width>
+                  <height>20</height>
                  </size>
                 </property>
-                <property name="title">
-                 <string>POV file generation settings</string>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_4">
-                 <item>
-                  <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Open Native POV options dialogue</string>
-                   </property>
-                   <property name="text">
-                    <string>Gen Options...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Open Native POV options dialogue</string>
-                   </property>
-                   <property name="text">
-                    <string>All Preferences...</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
+               </spacer>
               </item>
               <item row="2" column="0" colspan="3">
                <widget class="QGroupBox" name="povNativeGenBox">
@@ -1241,65 +1223,7 @@
                 </layout>
                </widget>
               </item>
-              <item row="0" column="4">
-               <spacer name="horizontalSpacer_10">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>85</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="povrayRenderQualityCombo">
-                <property name="toolTip">
-                 <string>Select render quality settings</string>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>High</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Medium</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Low</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QCheckBox" name="povrayAutoCropBox">
-                <property name="toolTip">
-                 <string>Automatically crop rendered images</string>
-                </property>
-                <property name="text">
-                 <string>Auto-Crop image</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="6">
-               <spacer name="horizontalSpacer_22">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="1" column="0" colspan="7">
+              <item row="1" column="0" colspan="6">
                <widget class="QGroupBox" name="groupBox_4">
                 <property name="title">
                  <string/>
@@ -1344,7 +1268,14 @@
                 </layout>
                </widget>
               </item>
-              <item row="3" column="0" colspan="7">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Quality:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0" colspan="6">
                <widget class="QGroupBox" name="lgeoBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
@@ -1429,27 +1360,17 @@
                 </layout>
                </widget>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
+              <item row="0" column="2" colspan="2">
+               <widget class="QCheckBox" name="povrayAutoCropBox">
+                <property name="toolTip">
+                 <string>Automatically crop rendered images</string>
+                </property>
                 <property name="text">
-                 <string>Quality:</string>
+                 <string>Auto-Crop image</string>
                 </property>
                </widget>
               </item>
-              <item row="0" column="2">
-               <spacer name="horizontalSpacer_18">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>102</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="5">
+              <item row="0" column="4">
                <widget class="QCheckBox" name="povrayDisplay_Chk">
                 <property name="toolTip">
                  <string>Display image during rendering (Experimental)</string>
@@ -1460,6 +1381,59 @@
                 <property name="text">
                  <string>Display image progress</string>
                 </property>
+               </widget>
+              </item>
+              <item row="2" column="3" colspan="3">
+               <widget class="QGroupBox" name="ldvPOVSettingsBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>56</height>
+                 </size>
+                </property>
+                <property name="title">
+                 <string>POV file generation settings</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
+                  <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>Open Native POV options dialogue</string>
+                   </property>
+                   <property name="text">
+                    <string>Gen Options...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>Open Native POV options dialogue</string>
+                   </property>
+                   <property name="text">
+                    <string>All Preferences...</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
@@ -2825,7 +2799,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>preferredRenderer</tabstop>
   <tabstop>projectionCombo</tabstop>
   <tabstop>rendererTimeout</tabstop>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>tabRenderers</tabstop>
   <tabstop>ldviewBox</tabstop>
   <tabstop>ldviewSingleCall_Chk</tabstop>
   <tabstop>ldviewSnaphsotsList_Chk</tabstop>

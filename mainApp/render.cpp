@@ -864,7 +864,14 @@ int POVRay::renderCsi(
 
       removeEmptyStrings(arguments);
 
-      emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
+      emit gui->messageSig(LOG_STATUS, "Native CSI POV file generation...");
+
+      message = QString("Native CSI POV File Generation Arguments: %1").arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message);
+#else
+      emit gui->messageSig(LOG_INFO, message);
+#endif
 
       bool retError = false;
       ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
@@ -899,21 +906,20 @@ int POVRay::renderCsi(
 
       removeEmptyStrings(arguments);
 
-      emit gui->messageSig(LOG_STATUS, "LDView POV CSI file generation...");
+      emit gui->messageSig(LOG_STATUS, "LDView CSI POV file generation...");
 
-      QProcess    ldview;
-      ldview.setEnvironment(QProcess::systemEnvironment());
-      ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
-      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
-      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
-
-      message = QString("LDView POV file generate CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+      message = QString("LDView CSI POV File Generation CSI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
       qDebug() << qPrintable(message);
 #else
       emit gui->messageSig(LOG_INFO, message);
 #endif
 
+      QProcess    ldview;
+      ldview.setEnvironment(QProcess::systemEnvironment());
+      ldview.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
+      ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
+      ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
       ldview.start(Preferences::ldviewExe,arguments);
       if ( ! ldview.waitForFinished(rendererTimeout())) {
           if (ldview.exitCode() != 0 || 1) {
@@ -989,14 +995,6 @@ int POVRay::renderCsi(
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing POVRay %1 CSI render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
 
-  QProcess povray;
-  QStringList povEnv = QProcess::systemEnvironment();
-  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
-  povray.setEnvironment(povEnv);
-  povray.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::assemDir); // pov win console app will not write to dir different from cwd or source file dir
-  povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
-  povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
-
   message = QString("POVRay CSI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
 #ifdef QT_DEBUG_MODE
   qDebug() << qPrintable(message);
@@ -1004,6 +1002,13 @@ int POVRay::renderCsi(
   emit gui->messageSig(LOG_INFO, message);
 #endif
 
+  QProcess povray;
+  QStringList povEnv = QProcess::systemEnvironment();
+  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
+  povray.setEnvironment(povEnv);
+  povray.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::assemDir); // pov win console app will not write to dir different from cwd or source file dir
+  povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
+  povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
   povray.start(Preferences::povrayExe,povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {
       if (povray.exitCode() != 0) {
@@ -1220,6 +1225,13 @@ int POVRay::renderPli(
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
+      message = QString("Native PLI POV File Generation Arguments: %1").arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message);
+#else
+      emit gui->messageSig(LOG_INFO, message);
+#endif
+
       bool retError = false;
       ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
       if (! ldvWidget->doCommand(arguments)) {
@@ -1250,20 +1262,20 @@ int POVRay::renderPli(
 
       removeEmptyStrings(arguments);
 
-      emit gui->messageSig(LOG_STATUS, "LDView POV PLI file generation...");
+      emit gui->messageSig(LOG_STATUS, "LDView PLI POV file generation...");
+
+      message = QString("LDView PLI POV File Generation PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message);
+#else
+      emit gui->messageSig(LOG_INFO, message);
+#endif
 
       QProcess    ldview;
       ldview.setEnvironment(QProcess::systemEnvironment());
       ldview.setWorkingDirectory(QDir::currentPath());
       ldview.setStandardErrorFile(QDir::currentPath() + "/stderr-ldviewpov");
       ldview.setStandardOutputFile(QDir::currentPath() + "/stdout-ldviewpov");
-
-      message = QString("LDView POV file generate PLI Arguments: %1 %2").arg(Preferences::ldviewExe).arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message);
-#else
-      emit gui->messageSig(LOG_INFO, message);
-#endif
 
       ldview.start(Preferences::ldviewExe,arguments);
       if ( ! ldview.waitForFinished()) {
@@ -1340,6 +1352,13 @@ int POVRay::renderPli(
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing POVRay %1 PLI render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
 
+  message = QString("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(message);
+#else
+  emit gui->messageSig(LOG_INFO, message);
+#endif
+
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
   povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
@@ -1348,14 +1367,6 @@ int POVRay::renderPli(
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + workingDirectory); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
-
-  message = QString("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
-#ifdef QT_DEBUG_MODE
-  //qDebug() << qPrintable(message);
-  emit gui->messageSig(LOG_DEBUG, message);
-#else
-  emit gui->messageSig(LOG_INFO, message);
-#endif
 
   povray.start(Preferences::povrayExe, povArguments);
   if ( ! povray.waitForFinished(rendererTimeout())) {

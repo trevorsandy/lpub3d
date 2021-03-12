@@ -274,12 +274,15 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
     ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
   } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
     ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
     ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
   }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
     ui.preferredRenderer->setCurrentIndex(povRayIndex);
     ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
   } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
     ui.preferredRenderer->setCurrentIndex(nativeIndex);
     ui.preferredRenderer->setEnabled(true);
@@ -798,6 +801,13 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       else
       if (ui.povGenLDViewRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+
+      if (ldviewEnabled)
+          ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+      else if (povrayEnabled)
+          ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
+      else if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+          ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab); 
 
       bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
       ui.applyCALocallyRadio->setChecked(! applyCARenderer);
