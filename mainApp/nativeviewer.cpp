@@ -1569,6 +1569,13 @@ void Gui::reloadViewer(){
      gMainWindow->mSubmodelIconsLoaded = value;
  }
 
+ int Gui::GetLPubStepPieces()
+ {
+     if (GetActiveModel())
+         return GetActiveModel()->GetPieces().GetSize();
+     return 0;
+ }
+
  int Gui::GetStudLogo()
  {
      return lcGetProfileInt(LC_PROFILE_STUD_LOGO);
@@ -1682,7 +1689,8 @@ void Gui::createBuildModification()
             lcModelProperties  mViewerProperties;
             lcArray<lcPieceControlPoint> ControlPoints;
             QStringList  mLPubFileLines, mViewerFileLines,
-                         LPubModContents, ViewerModContents;
+                         LPubModContents, ViewerModContents,
+                         ModStepKeys;
 
             bool FadeStep         = page.meta.LPub.fadeStep.fadeStep.value();
             bool HighlightStep    = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
@@ -1697,6 +1705,9 @@ void Gui::createBuildModification()
             mViewerPieces         = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
+            QString ModStepKey    = viewerStepKey;
+            ModStepKeys           = ModStepKey.split(";");
+
             // When edit, initialize BuildMod StepPieces, and Begin and End range with the existing values
             int BuildModBegin     = edit ? getBuildModBeginLineNumber(BuildModKey)  : 0;
             int BuildModAction    = edit ? getBuildModActionLineNumber(BuildModKey) : 0;
@@ -1706,13 +1717,17 @@ void Gui::createBuildModification()
             int ModActionLineNum  = edit ? BuildModAction : mBuildModRange.at(BM_ACTION_LINE_NUM);
             int ModEndLineNum     = edit ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
             int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
-            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
+            int ModelIndex        = edit ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
             int ModStepIndex      = getBuildModStepIndex(currentStep->top);
+            int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
+            int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
             int ModDisplayPageNum = displayPageNum;
+            QString ModelName     = getSubmodelName(ModelIndex);
             buildModChangeKey     = QString();
 
-            QString ModelName     = getSubmodelName(ModelIndex);
-            QString ModStepKey    = viewerStepKey;
+            if (ModStepKeys[BM_STEP_MODEL_KEY].toInt() != ModelIndex)
+                emit messageSig(LOG_ERROR, QString("BuildMod model (%1) '%2' and StepKey model (%3) mismatch")
+                                                   .arg(ModelIndex).arg(ModelName).arg(ModStepKeys[BM_STEP_MODEL_KEY]));
 
             // Check if there is an existing build mod in this Step
             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
@@ -2430,35 +2445,41 @@ void Gui::createBuildModification()
             // Set to updated number of pieces in the current Step
             ModStepPieces = mViewerPieces.GetSize();
 
-            QVector<int> ModAttributes = { ModBeginLineNum,   // BM_BEGIN_LINE_NUM
-                                           ModActionLineNum,  // BM_ACTION_LINE_NUM
-                                           ModEndLineNum,     // BM_END_LINE_NUM
-                                           ModDisplayPageNum, // BM_DISPLAY_PAGE_NUM
-                                           ModelIndex,        // BM_MODEL_NAME_INDEX
-                                           ModStepPieces      // BM_STEP_PIECES
-                                         };
+            QVector<int> ModAttributes =
+            {
+                ModBeginLineNum,            // 0 BM_BEGIN_LINE_NUM
+                ModActionLineNum,           // 1 BM_ACTION_LINE_NUM
+                ModEndLineNum,              // 2 BM_END_LINE_NUM
+                ModDisplayPageNum,          // 3 BM_DISPLAY_PAGE_NUM
+                ModStepPieces,              // 5 BM_STEP_PIECES
+                ModelIndex,                 // 4 BM_MODEL_NAME_INDEX
+                ModStepLineNum,             // 6 BM_MODEL_LINE_NUM
+                ModStepNum                  // 7 BM_MODEL_STEP_NUM
+            };
 
             insertBuildMod(BuildModKey,
-                           ModStepKey,
                            ModAttributes,
                            BuildModApplyRc,
-                           ModStepIndex);                     // Unique ID
+                           ModStepIndex);   // Unique ID
 
 #ifdef QT_DEBUG_MODE
-          emit messageSig(LOG_DEBUG, QString("%1 BuildMod StepIndx: %2, "
-                                             "Attributes: %3 %4 %5 %6 %7 %8, "
-                                             "StepKey: %9, "
-                                             "ModKey: %10")
-                                             .arg(edit ? "Update" : "Create")     // 01
-                                             .arg(ModStepIndex)                   // 02
-                                             .arg(ModBeginLineNum)                // 03
-                                             .arg(ModActionLineNum)               // 04
-                                             .arg(ModEndLineNum)                  // 05
-                                             .arg(ModDisplayPageNum)              // 06
-                                             .arg(ModelIndex)                     // 07
-                                             .arg(ModStepPieces)                  // 08
-                                             .arg(ModStepKey)                     // 09
-                                             .arg(BuildModKey));                  // 10
+            emit messageSig(LOG_DEBUG, QString("Create BuildMod StepIndx: %1, "
+                                               "Action: %2, "
+                                               "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
+                                               "ModKey: %11, "
+                                               "Level: %12")
+                                               .arg(edit ? "Update" : "Create")     // 01
+                                               .arg(ModStepIndex)                   // 02
+                                               .arg(ModBeginLineNum)                // 03 - 0 BM_BEGIN_LINE_NUM
+                                               .arg(ModActionLineNum)               // 04 - 1 BM_ACTION_LINE_NUM
+                                               .arg(ModEndLineNum)                  // 05 - 2 BM_END_LINE_NUM
+                                               .arg(ModDisplayPageNum)              // 06 - 3 BM_DISPLAY_PAGE_NUM
+                                               .arg(ModStepPieces)                  // 08 - 4 BM_STEP_PIECES
+                                               .arg(ModelIndex)                     // 07 - 5 BM_MODEL_NAME_INDEX
+                                               .arg(ModStepLineNum)                 // 08 - 6 BM_MODEL_LINE_NUM
+                                               .arg(ModStepNum)                     // 09 - 7 BM_MODEL_STEP_NUM
+                                               .arg(ModStepKey)                     // 10
+                                               .arg(BuildModKey));                  // 11
 #endif
 
             // Reset the build mod range
@@ -2801,7 +2822,7 @@ void Gui::deleteBuildModification()
         int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
         int modActionLineNum = getBuildModActionLineNumber(buildModKey);
         int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
-        QString modelName    = getBuildModModelName(buildModKey);
+        QString modelName    = getBuildModStepKeyModelName(buildModKey);
 
         if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
             emit messageSig(LOG_ERROR, QString("There was a problem receiving build mod attributes for key [%1]<br>"

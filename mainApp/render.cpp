@@ -3120,13 +3120,6 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         return false;
 }
 
-int Render::getViewerPieces()
-{
-    if (gui->GetActiveModel())
-        return gui->GetActiveModel()->GetPieces().GetSize();
-    return 0;
-}
-
 bool Render::NativeExport(const NativeOptions *Options) {
 
     QString exportModeName = nativeExportNames[Options->ExportMode];

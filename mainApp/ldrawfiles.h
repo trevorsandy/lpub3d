@@ -157,19 +157,26 @@ extern int getLevel(const QString& key, int position);
 
 class BuildMod {
   public:
-    QString       _modStepKey;
     QVector<int>  _modAttributes;
     QMap<int,int> _modActions;
 
     BuildMod()
     {
-      _modAttributes = { 0, 0, 0, -1 };
+       // Attributes:
+       // 0 BM_BEGIN_LINE_NUM    0
+       // 1 BM_ACTION_LINE_NUM   0
+       // 2 BM_END_LINE_NUM      0
+       // 3 BM_DISPLAY_PAGE_NUM -1
+       // 5 BM_STEP_PIECES       0
+       // 4 BM_MODEL_NAME_INDEX -1
+       // 6 BM_MODEL_LINE_NUM    0
+       // 7 BM_MODEL_STEP_NUM    0
+      _modAttributes = { 0, 0, 0, -1, 0, -1, 0, 0 };
     }
     BuildMod(
-      const QString            &modStepKey,
       const QVector<int>       &modAttributes,
       int                       modAction,
-      int                       stepNumber);
+      int                       stepIndex);
     ~BuildMod()
     {
       _modAttributes.clear();
@@ -340,7 +347,6 @@ class LDrawFile {
 
     /* Build Modification functions */
     void insertBuildMod(const QString      &buildModKey,
-                        const QString      &modStepKey,
                         const QVector<int> &modAttributes,
                         int                 action,
                         int                 stepIndex);
@@ -358,6 +364,8 @@ class LDrawFile {
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     int getBuildModStepPieces(const QString &buildModKey);
     int setBuildModStepPieces(const QString &buildModKey, int pieces);
+    int getBuildModStepKeyLineNum(const QString &buildModKey);
+    int getBuildModStepKeyStepNum(const QString &buildModKey);
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsSize();
@@ -367,7 +375,7 @@ class LDrawFile {
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
-    QString getBuildModModelName(const QString &buildModKey);
+    QString getBuildModStepKeyModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
 

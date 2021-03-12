@@ -564,7 +564,16 @@ int Gui::drawPage(
       int  fileNameIndex = getSubmodelIndex(topOfStep.modelName);
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
-          QVector<int> modAttributes = { 0, 0, 0, 1/*placeholder*/, fileNameIndex, 0/*placeholder*/ };
+          // Attributes:
+          // 0 BM_BEGIN_LINE_NUM    0
+          // 1 BM_ACTION_LINE_NUM   0
+          // 2 BM_END_LINE_NUM      0
+          // 3 BM_DISPLAY_PAGE_NUM  1
+          // 5 BM_STEP_PIECES       0
+          // 4 BM_MODEL_NAME_INDEX -1
+          // 6 BM_MODEL_LINE_NUM    0
+          // 7 BM_MODEL_STEP_NUM    0
+          QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
           modAttributes[index] = here.lineNumber;
           buildModAttributes.insert(buildModLevel, modAttributes);
       } else {
@@ -574,29 +583,48 @@ int Gui::drawPage(
 
   auto insertBuildModification =
           [this,
+          &opts,
+          &step,
           &buildModAttributes,
           &buildModKeys,
           &buildModActions,
           &topOfStep] (int buildModLevel)
   {
-      int buildModStepIndex = getBuildModStepIndex(topOfStep);
+      int stepCsiParts      = opts.csiParts.size();
       int fileNameIndex     = getSubmodelIndex(topOfStep.modelName);
-      int modAction         = buildModActions.value(buildModLevel);
       int lineNumber        = topOfStep.lineNumber;
+      int stepNumber        = opts.stepNum;
+      QStringList stepKeys  = step->viewerStepKey.split(";");
+      if (stepKeys.size() < BM_STEP_KEYS) {
+          messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
+      } else {
+          bool ok[3];
+          stepCsiParts      = GetLPubStepPieces();
+          fileNameIndex     = stepKeys[BM_STEP_MODEL_KEY].toInt(&ok[0]);
+          lineNumber        = stepKeys[BM_STEP_LINE_KEY].toInt(&ok[1]);
+          stepNumber        = stepKeys[BM_STEP_NUM_KEY].toInt(&ok[2]);
+          if (!ok[0] || !ok[1] || !ok[2])
+              messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
+      }
+
+      int buildModStepIndex = getBuildModStepIndex(topOfStep);
+
+      int modAction         = buildModActions.value(buildModLevel);
+
       QString buildModKey   = buildModKeys.value(buildModLevel);
 
-      QString modStepKey = QString("%1;%2;%3")
-                                   .arg(fileNameIndex)
-                                   .arg(lineNumber)
-                                   .arg(1/*placeholder*/);
-
-      QVector<int> modAttributes = { 0, 0, 0, 1, -1, 0 };
+      QVector<int> modAttributes = { 0, 0, 0, displayPageNum, stepCsiParts, fileNameIndex, lineNumber, stepNumber };
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-      if (i != buildModAttributes.end())
+      if (i != buildModAttributes.end()) {
           modAttributes = i.value();
+          modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+          modAttributes[BM_STEP_PIECES]      = stepCsiParts;
+          modAttributes[BM_MODEL_NAME_INDEX] = fileNameIndex;
+          modAttributes[BM_MODEL_LINE_NUM]   = lineNumber;
+          modAttributes[BM_MODEL_STEP_NUM]   = stepNumber;
+      }
 
       insertBuildMod(buildModKey,
-                     modStepKey,
                      modAttributes,
                      modAction,
                      buildModStepIndex);
@@ -604,17 +632,19 @@ int Gui::drawPage(
       emit messageSig(LOG_DEBUG, QString(
                       "DrawPage Insert BuildMod StepIndx: %1, "
                       "Action: %2, "
-                      "Attributes: %3 %4 %5 1* %6 0*, "
-                      "StepKey: %7, "
-                      "ModKey: %8, "
-                      "Level: %9, *=placeholder")
+                      "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
+                      "ModKey: %11, "
+                      "Level: %12")
                       .arg(buildModStepIndex)
                       .arg(modAction == BuildModApplyRc ? "Apply" : "Remove")
                       .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
                       .arg(modAttributes.at(BM_ACTION_LINE_NUM))
                       .arg(modAttributes.at(BM_END_LINE_NUM))
-                      .arg(fileNameIndex)
-                      .arg(modStepKey)
+                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))
+                      .arg(modAttributes.at(BM_STEP_PIECES))
+                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))
+                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))
+                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))
                       .arg(buildModKey)
                       .arg(buildModLevel));
 #endif
@@ -2249,20 +2279,19 @@ int Gui::drawPage(
                           return rc;
                       }
 
-                      // BuildMod create and update
+                      // BuildMod create and update - performed after createCsi to enable viewerStepKey
                       if (buildModKeys.size()) {
                           if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
                               parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                          int viewerPieces = renderer->getViewerPieces();
                           foreach (int buildModLevel, buildModKeys.keys()) {
                               QString buildModKey = buildModKeys.value(buildModLevel);
                               // Create BuildMods
                               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                                   insertBuildModification(buildModLevel);
-                              // Populate viewerPieces, viewerStepKey, displayPageNum
-                              setBuildModStepKey(buildModKey, step->viewerStepKey);
-                              setBuildModDisplayPageNumber(buildModKey, displayPageNum);
-                              setBuildModStepPieces(buildModKey, viewerPieces);
+                              // Populate viewerPieces, viewerStepKey, displayPageNum - DEPRECATED
+//                              setBuildModStepKey(buildModKey, step->viewerStepKey);
+//                              setBuildModDisplayPageNumber(buildModKey, displayPageNum);
+//                              setBuildModStepPieces(buildModKey, viewerPieces);
                           }
                           buildModKeys.clear();
                           buildModActions.clear();
@@ -4279,7 +4308,7 @@ bool Gui::setBuildModForNextStep(
         int  fileNameIndex = getSubmodelIndex(topOfStep.modelName);
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
         if (i == buildModAttributes.end()) {
-            QVector<int> modAttributes = { 0, 0, 0, 1/*placeholder*/, fileNameIndex, 0/*placeholder*/ };
+            QVector<int> modAttributes = { 0, 0, 0, 1, 0, fileNameIndex, 0, 0 };
             modAttributes[index] = here.lineNumber;
             buildModAttributes.insert(buildModLevel, modAttributes);
         } else {
@@ -4295,43 +4324,43 @@ bool Gui::setBuildModForNextStep(
             &buildModActions,
             &topOfStep] (int buildModLevel)
     {
-        int fileNameIndex     = getSubmodelIndex(topOfStep.modelName);
-        int modAction         = buildModActions.value(buildModLevel);
-        int lineNumber        = topOfStep.lineNumber;
-        QString buildModKey   = buildModKeys.value(buildModLevel);
+        int fileNameIndex   = getSubmodelIndex(topOfStep.modelName);
+        int modAction       = buildModActions.value(buildModLevel);
+        int lineNumber      = topOfStep.lineNumber;
+        QString buildModKey = buildModKeys.value(buildModLevel);
 
-        QString modStepKey = QString("%1;%2;%3")
-                                     .arg(fileNameIndex)
-                                     .arg(lineNumber)
-                                     .arg(1/*placeholder*/);
-
-        QVector<int> modAttributes = { 0, 0, 0, 1, -1, 0 };
+        QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, fileNameIndex, lineNumber, 0 };
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-        if (i != buildModAttributes.end())
+        if (i != buildModAttributes.end()) {
             modAttributes = i.value();
+            modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+            modAttributes[BM_MODEL_NAME_INDEX] = fileNameIndex;
+            modAttributes[BM_MODEL_LINE_NUM]   = lineNumber;
+        }
 
         insertBuildMod(buildModKey,
-                       modStepKey,
                        modAttributes,
                        modAction,
                        buildModNextStepIndex);
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString(
-                        "Insert BuildMod StepIndx: %1, "
-                        "Action: %2, "
-                        "Attributes: %3 %4 %5 1* %6 0*, "
-                        "StepKey: %7, "
-                        "ModKey: %8, "
-                        "Level: %9, *=placeholder")
-                        .arg(buildModNextStepIndex)
-                        .arg(modAction == BuildModApplyRc ? "Apply" : "Remove")
-                        .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
-                        .arg(modAttributes.at(BM_ACTION_LINE_NUM))
-                        .arg(modAttributes.at(BM_END_LINE_NUM))
-                        .arg(fileNameIndex)
-                        .arg(modStepKey)
-                        .arg(buildModKey)
-                        .arg(buildModLevel));
+      emit messageSig(LOG_DEBUG, QString(
+                      "Set BuildMod Next StepIndx: %1, "
+                      "Action: %2, "
+                      "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
+                      "ModKey: %11, "
+                      "Level: %12")
+                      .arg(buildModNextStepIndex)
+                      .arg(modAction == BuildModApplyRc ? "Apply" : "Remove")
+                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
+                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))
+                      .arg(modAttributes.at(BM_END_LINE_NUM))
+                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))
+                      .arg(modAttributes.at(BM_STEP_PIECES))
+                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))
+                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))
+                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))
+                      .arg(buildModKey)
+                      .arg(buildModLevel));
 #endif
     };
 

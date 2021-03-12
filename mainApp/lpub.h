@@ -580,6 +580,10 @@ public:
   {
       return ldrawFile.getSubModels();
   }
+  QStringList modelContents(const QString &modelName)
+  {
+      return ldrawFile.contents(modelName);
+  }
   bool changedSinceLastWrite(QString &modelName)
   {
       return ldrawFile.changedSinceLastWrite(modelName);
@@ -772,13 +776,11 @@ public:
   /* Build Modifications */
 
   void insertBuildMod(const QString      &buildModKey,
-                      const QString      &modStepKey,
                       const QVector<int> &modAttributes,
                       int                 modAction,
                       int                 stepIndex)
   {
       ldrawFile.insertBuildMod(buildModKey,
-                               modStepKey,
                                modAttributes,
                                modAction,
                                stepIndex);
@@ -865,9 +867,19 @@ public:
       return ldrawFile.getBuildModStepKey(buildModKey);
   }
 
-  QString getBuildModModelName(const QString &buildModKey)
+  QString getBuildModStepKeyModelName(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModModelName(buildModKey);
+      return ldrawFile.getBuildModStepKeyModelName(buildModKey);
+  }
+
+  int getBuildModStepKeyLineNum(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepKeyLineNum(buildModKey);
+  }
+
+  int getBuildModStepKeyStepNum(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepKeyStepNum(buildModKey);
   }
 
   int getBuildModStepIndexHere(int stepIndex,int which)
@@ -1139,6 +1151,7 @@ public slots:
   QDockWidget*           GetPartsToolBar();
   QDockWidget*           GetColorsToolBar();
   bool                   GetViewPieceIcons();
+  int                    GetLPubStepPieces();
   int                    GetStudLogo();
 
   void                   SetStudLogo(int, bool);

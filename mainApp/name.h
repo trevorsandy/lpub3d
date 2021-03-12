@@ -64,39 +64,45 @@ enum SceneObjectInfo { ObjectId };
 
 
 enum PartSource {
-    NOT_FOUND          = -1,                   // -1
-    OUT_OF_BOUNDS      = NOT_FOUND,            // -1
-    NEW_PART           = NOT_FOUND,            // -1
-    NEW_MODEL          = NOT_FOUND,            // -1
-    EDITOR_LINE,                               //  0
-    VIEWER_NONE        = EDITOR_LINE,          //  0
-    VIEWER_LINE,                               //  1
-    VIEWER_MOD,                                //  2
-    VIEWER_DEL,                                //  3
-    VIEWER_SEL,                                //  4
-    VIEWER_CLR                                 //  5
+    NOT_FOUND          = -1,               //  -1
+    OUT_OF_BOUNDS      = NOT_FOUND,        //  -1
+    NEW_PART           = NOT_FOUND,        //  -1
+    NEW_MODEL          = NOT_FOUND,        //  -1
+    EDITOR_LINE,                           //   0
+    VIEWER_NONE        = EDITOR_LINE,      //   0
+    VIEWER_LINE,                           //   1
+    VIEWER_MOD,                            //   2
+    VIEWER_DEL,                            //   3
+    VIEWER_SEL,                            //   4
+    VIEWER_CLR                             //   5
 };
 
 enum BuildModFlags {
-    BM_LAST_ACTION     = -1,                   // -1
-    BM_INVALID_INDEX   = BM_LAST_ACTION,       // -1
-    BM_BEGIN,                                  //  0 MOD LEVEL BEGIN
-    BM_MODEL_NAME      = BM_BEGIN,             //  0
-    BM_BEGIN_LINE_NUM  = BM_BEGIN,             //  0 BUILD_MOD BEGIN   BuildModRange[0]
-    BM_END_MOD,                                //  1
-    BM_ACTION_LINE_NUM = BM_END_MOD,           //  1 BUILD_MOD END_MOD BuildModRange[1]
-    BM_LINE_NUMBER     = BM_END_MOD,           //  1
-    BM_END,                                    //  2 MOD LEVEL END
-    BM_END_LINE_NUM    = BM_END,               //  2 BUILD_MOD END
-    BM_MODEL_INDEX     = BM_END,               //  2 MODEL_INDEX       BuildModRange[2]
-    BM_DISPLAY_PAGE_NUM,                       //  3
-    BM_MODEL_NAME_INDEX,                       //  4
-    BM_SINGLE_STEP,                            //  5
-    BM_STEP_PIECES     = BM_SINGLE_STEP,       //  5
-    BM_MULTI_STEP,                             //  6
-    BM_CALLOUT_STEP,                           //  7
-    BM_CHANGE,                                 //  8
-    BM_DELETE                                  //  9
+    BM_LAST_ACTION      = -1,              //  -1
+    BM_INVALID_INDEX    = BM_LAST_ACTION,  //  -1
+    BM_BEGIN,                              //   0 MOD LEVEL BEGIN
+    BM_MODEL_NAME       = BM_BEGIN,        //   0
+    BM_STEP_MODEL_KEY   = BM_BEGIN,        //   0
+    BM_BEGIN_LINE_NUM   = BM_BEGIN,        //   0 BUILD_MOD BEGIN   BuildModRange[0] Attributes[0]
+    BM_END_MOD,                            //   1
+    BM_STEP_LINE_KEY    = BM_END_MOD,      //   1
+    BM_ACTION_LINE_NUM  = BM_END_MOD,      //   1 BUILD_MOD END_MOD BuildModRange[1] Attributes[1]
+    BM_LINE_NUMBER      = BM_END_MOD,      //   1
+    BM_END,                                //   2 MOD LEVEL END
+    BM_END_LINE_NUM     = BM_END,          //   2 BUILD_MOD END                      Attributes[2]
+    BM_STEP_NUM_KEY     = BM_END,          //   2
+    BM_MODEL_INDEX      = BM_END,          //   2 MODEL_INDEX       BuildModRange[2]
+    BM_STEP_KEYS,                          //   3
+    BM_DISPLAY_PAGE_NUM = BM_STEP_KEYS,    //   3                                    Attributes[3]
+    BM_STEP_PIECES,                        //   4                                    Attributes[4]
+    BM_MODEL_NAME_INDEX,                   //   5                                    Attributes[5]
+    BM_MODEL_LINE_NUM,                     //   6                                    Attributes[6]
+    BM_MODEL_STEP_NUM,                     //   7                                    Attributes[7]
+    BM_SINGLE_STEP,                        //   8
+    BM_MULTI_STEP,                         //   9
+    BM_CALLOUT_STEP,                       //  10
+    BM_CHANGE,                             //  11
+    BM_DELETE                              //  12
 };
 
 enum GridStepSize {

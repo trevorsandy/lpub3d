@@ -54,7 +54,6 @@ public:
   static bool            useLDViewSList();
   static int             rendererTimeout();
   static int             getRendererIndex();
-  static int             getViewerPieces();
   static void            setRenderer(QString const &);
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
