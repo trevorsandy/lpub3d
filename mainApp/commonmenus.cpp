@@ -80,6 +80,24 @@ QAction* CommonMenus::annotationMenu(
   return action;
 }
 
+QAction* CommonMenus::resetViewerImageMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Reset %1 Viewer Image") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/resetviewerimage.png"));
+
+  formatted = QString(
+   "Reset %1 viewer image to its original position") .arg(name);
+
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::copyToClipboardMenu(
         QMenu   &menu,
   const QString  name)

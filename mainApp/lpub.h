@@ -430,6 +430,7 @@ class lcPiecesLibrary;
 class lcModel;
 class lcPartSelectionWidget;
 class lcView;
+class lcPreview;
 
 class ColourPartListWorker;
 class DialogExportPages;
@@ -1149,12 +1150,16 @@ public slots:
   void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
+  void updatePreview();
   QDockWidget *getPreviewDockWindow()
   {
       return previewDockWindow;
   }
 
-  void setPageProcessRunning(int p) {
+
+
+  void setPageProcessRunning(int p)
+  {
       pageProcessRunning = p;
   }
 
@@ -1537,6 +1542,7 @@ private:
   QStringList             bomParts;        // list of part strings configured for BOM setup
   QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
 
+  lcPreview*              preview;
 
   bool                   okToInvokeProgressBar()
   {

@@ -1245,6 +1245,11 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   lcPreferences& Preferences = lcGetPreferences();
   previewSubModelAction->setEnabled(Preferences.mPreviewEnabled);
 
+  QAction *resetViewerImageAction = nullptr;
+  if (canUpdatePreview) {
+      menu.addSeparator();
+      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
+  }
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -1256,6 +1261,14 @@ void SMGraphicsPixmapItem::contextMenuEvent(
 
   if (selectedAction == previewSubModelAction) {
     previewSubModel(true /*previewSubmodelAction*/);
+  } else if (selectedAction == resetViewerImageAction) {
+      if (!Preferences.mPreviewEnabled) {
+          if (gui->saveBuildModification()) {
+              subModel->loadTheViewer();
+          }
+      } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+          gui->updatePreview();
+      }
   } else if (selectedAction == marginAction) {
     changeMargins(pl+" Margins",
                   top,
@@ -1292,6 +1305,7 @@ void SMGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event
         if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
         {
             previewSubModel();
+            canUpdatePreview = true;
         }
     }
 }
@@ -1306,6 +1320,7 @@ void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 bool haveModelKey = !modelKey.isEmpty();
                 if (haveModelKey && modelKey !=  subModel->viewerSubmodelKey) {
                     subModel->loadTheViewer();
+                    canUpdatePreview = true;
                 }
             }
         } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {

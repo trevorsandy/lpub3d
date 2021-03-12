@@ -64,7 +64,7 @@ public:
           PlacementType  _parentRelativeType);
 
   void placeCsiPartAnnotations();
-  void loadTheViewer(bool override = false);
+  void loadTheViewer(bool override = false, bool zoomExtents = true);
 
   void setFlag(GraphicsItemFlag flag, bool value);
 

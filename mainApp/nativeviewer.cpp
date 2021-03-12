@@ -685,22 +685,31 @@ void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QR
         gMainWindow->PreviewPiece(partType, colorCode);
         return;
     } else {
-        lcPreview* Preview = new lcPreview();
-        lcViewWidget* ViewWidget = new lcViewWidget(nullptr, Preview);
+        preview = new lcPreview();
+        lcViewWidget* viewWidget = new lcViewWidget(nullptr, preview);
 
-        if (Preview && ViewWidget)
+        if (preview && viewWidget)
         {
-            ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+            viewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 
-            if (Preview->SetCurrentPiece(partType, colorCode))
+            if (preview->SetCurrentPiece(partType, colorCode))
             {
-                ViewWidget->SetPreviewPosition(parentRect, position);
+                viewWidget->SetPreviewPosition(parentRect, position);
                 return;
             }
         }
     }
 
     QMessageBox::information(this, tr("Error"), tr("Part preview for '%1' failed.").arg(partType));
+}
+
+void Gui::updatePreview()
+{
+    if (previewDockWindow) {
+        gMainWindow->GetPreviewWidget()->UpdatePreview();
+    } else if (preview) {
+        preview->UpdatePreview();
+    }
 }
 
 void Gui::togglePreviewWidget(bool visible)

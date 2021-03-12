@@ -389,6 +389,7 @@ protected:
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     bool isHovered;
     bool mouseIsDown;
+    bool canUpdatePreview;
 };
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem

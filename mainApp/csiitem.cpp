@@ -93,7 +93,7 @@ CsiItem::CsiItem(
   setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
-void CsiItem::loadTheViewer(bool override)
+void CsiItem::loadTheViewer(bool override, bool zoomExtents)
 {
     bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey;
     if (!stepAlreadySet || override) {
@@ -102,7 +102,7 @@ void CsiItem::loadTheViewer(bool override)
             gui->showLine(step->topOfStep());
         }
         gui->enableBuildModActions();
-        step->viewerOptions->ZoomExtents = true;
+        step->viewerOptions->ZoomExtents = zoomExtents;
         step->loadTheViewer();
     }
 }
@@ -551,8 +551,19 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *applyBuildModAction  = nullptr;
   QAction *removeBuildModAction = nullptr;
   QAction *deleteBuildModAction = nullptr;
+
+  bool canUpdatePreview = true;
+  if (gui->getViewerStepKey() != step->viewerStepKey) {
+      gui->setCurrentStep(step);
+      gui->showLine(step->topOfStep());
+      if (gui->saveBuildModification()) {
+          canUpdatePreview = false;
+          loadTheViewer(false/*override*/, false/*zoomExtents*/);
+      }
+  }
+  gui->enableBuildModActions();
+
   if (Preferences::buildModEnabled) {
-      loadTheViewer(true/*override viewerKey match*/);
       menu.addSeparator();
       applyBuildModAction  = gui->getApplyBuildModAct();
       menu.addAction(applyBuildModAction);
@@ -560,6 +571,12 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       menu.addAction(removeBuildModAction);
       deleteBuildModAction = gui->getDeleteBuildModAct();
       menu.addAction(deleteBuildModAction);
+  }
+
+  QAction *resetViewerImageAction = nullptr;
+  if (canUpdatePreview) {
+      menu.addSeparator();
+      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
   }
 
   // Copy to clipboard
@@ -656,6 +673,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         PlacementEnc placement = Center;
         addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
 
+    } else if (selectedAction == resetViewerImageAction) {
+      if (gui->saveBuildModification())
+          loadTheViewer(true/*override*/, false/*zoomExtents*/);
     } else if (selectedAction == allocAction) {
         if (parentRelativeType == StepGroupType) {
             changeAlloc(topOfSteps,

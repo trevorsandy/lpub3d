@@ -346,7 +346,8 @@ public:
     QString        &type,
     QString        &color) :
       isHovered(false),
-      mouseIsDown(false)
+      mouseIsDown(false),
+      canUpdatePreview(false)
   {
     Q_UNUSED(color);
     parentRelativeType = _parentRelativeType;
@@ -374,6 +375,7 @@ protected:
   virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
   bool isHovered;
   bool mouseIsDown;
+  bool canUpdatePreview;
 };
 
 #endif // SUBMODELITEM_H

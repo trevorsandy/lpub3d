@@ -205,6 +205,7 @@
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
+        <file alias="resetviewerimage.png">resources/resetviewerimage.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate.png">resources/rotate.png</file>

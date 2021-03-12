@@ -3599,7 +3599,8 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   QString &type,
   QString &color) :
     isHovered(false),
-    mouseIsDown(false)
+    mouseIsDown(false),
+    canUpdatePreview(false)
 {
   parentRelativeType = _parentRelativeType;
   pli = _pli;
@@ -3667,6 +3668,7 @@ void PGraphicsPixmapItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Floating)
         {
             previewPart();
+            canUpdatePreview = true;
         }
     }
 }
@@ -3689,10 +3691,12 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 pli->viewerOptions->ImageHeight = part->pixmapHeight;
                 if (havePartKey && partKey != viewerPliPartKey) {
                     pli->loadTheViewer();
+                    canUpdatePreview = true;
                 }
             }
         } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
             previewPart(true/*Dockable*/);
+            canUpdatePreview = true;
         }
     }
 
@@ -3748,6 +3752,12 @@ void PGraphicsPixmapItem::contextMenuEvent(
   QAction *resetPartGroupAction = nullptr;
   if (pli->pliMeta.enablePliPartGroup.value())
       resetPartGroupAction = commonMenus.resetPartGroupMenu(menu,pl);
+
+  QAction *resetViewerImageAction = nullptr;
+  if (canUpdatePreview) {
+      menu.addSeparator();
+      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
+  }
 
   QAction *copyPliImagePathAction = nullptr;
 #ifndef QT_NO_CLIPBOARD
@@ -3816,6 +3826,19 @@ void PGraphicsPixmapItem::contextMenuEvent(
       if (!part->subOriginalType.isEmpty())
           attributes.append(part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
+  } else if (selectedAction == resetViewerImageAction) {
+      if (!Preferences.mPreviewEnabled) {
+          if (gui->saveBuildModification()) {
+              QString type = QFileInfo(part->type).completeBaseName();
+              QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+              pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+              pli->viewerOptions->ImageWidth  = part->pixmapWidth;
+              pli->viewerOptions->ImageHeight = part->pixmapHeight;
+              pli->loadTheViewer();
+          }
+      } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+          gui->updatePreview();
+      }
   } else if (selectedAction == copyPliImagePathAction) {
       QObject::connect(copyPliImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
       copyPliImagePathAction->setData(pli->imageName);
