@@ -2485,7 +2485,7 @@ void Gui::applyBuildModification()
 
     if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
         QString model = "undefined", line = "undefined", step = "undefined";
-        QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+        QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
         if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
         QString text  = "The selected build modification was created in this step."
                         "It cannot be applied to the step it was created in.<br>"
@@ -2544,7 +2544,7 @@ void Gui::removeBuildModification()
 
     if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey) {
         QString model = "undefined", line = "undefined", step = "undefined";
-        QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
+        QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
         if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
         QString text  = "The selected build modification was created in this step."
                         "It cannot be removed from the step it was created in.<br>"
@@ -2707,7 +2707,7 @@ void Gui::deleteBuildModification()
         return;
 
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys  = gui->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
+    QStringList keys  =getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKeys.first()));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     QString text  = "This action cannot be completelly undone by the Undo button. "
                     "The BuildMod related image and viewer entry content will be parmanently deleted.<br>"

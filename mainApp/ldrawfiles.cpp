@@ -2270,17 +2270,17 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   // Insert new BuildMod
   _buildMods.insert(modKey, buildMod);
   // Update BuildMod list
-  if (!_buildModList.contains(modKey))
-      _buildModList.append(modKey);
+  if (!_buildModList.contains(buildModKey)) // Case Sensitive
+      _buildModList.append(buildModKey);
 }
 
 bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
-    QString modKey = buildModKey.toLower();
+    QString modKey = buildModKey;
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
         _buildMods.erase(i);
-        if (_buildModList.contains(modKey))
+        if (_buildModList.contains(modKey,Qt::CaseInsensitive))
             _buildModList.removeAt(_buildModList.indexOf(modKey));
         return true;
     }
@@ -2596,7 +2596,6 @@ bool LDrawFile::getBuildModStepIndexHere(int stepIndex, QString &modelName, int 
   QString insert  = QString("Get BuildMod StepIndexHere");
 
   if (stepIndex > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
-      validIndex = true;
       modelName  = getSubmodelName(_buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME));
       lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
       validIndex = ! modelName.isEmpty() && lineNumber > 0;
@@ -2742,8 +2741,8 @@ QString LDrawFile::getBuildModModelName(const QString &buildModKey)
 
 bool LDrawFile::buildModContains(const QString &buildModKey)
 {
-  QString modKey = buildModKey.toLower();
-  return _buildModList.contains(modKey);
+  QString modKey = buildModKey;
+  return _buildModList.contains(modKey,Qt::CaseInsensitive);
 }
 
 QStringList LDrawFile::getBuildModsList()
