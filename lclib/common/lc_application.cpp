@@ -39,6 +39,7 @@ void lcPreferences::LoadDefaults()
 	mActiveViewColor = lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR);
 	mInactiveViewColor = lcGetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR);
 	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+	mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 	mAllowLOD = lcGetProfileInt(LC_PROFILE_ALLOW_LOD);
 	mMeshLODDistance = lcGetProfileFloat(LC_PROFILE_LOD_DISTANCE);
@@ -100,11 +101,10 @@ void lcPreferences::LoadDefaults()
 
 /*** LPub3D Mod - true fade ***/
 	mLPubTrueFade     = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
-	mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/
-	mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
+	mBuildModificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 /*** LPub3D Mod end ***/
 }
 
@@ -126,6 +126,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR, mActiveViewColor);
 	lcSetProfileInt(LC_PROFILE_INACTIVE_VIEW_COLOR, mInactiveViewColor);
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
+	lcSetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES, mDrawConditionalLines);
 	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
 	lcSetProfileInt(LC_PROFILE_ALLOW_LOD, mAllowLOD);
 	lcSetProfileFloat(LC_PROFILE_LOD_DISTANCE, mMeshLODDistance);
@@ -188,11 +189,10 @@ void lcPreferences::SaveDefaults()
 
 /*** LPub3D Mod - true fade ***/
 	lcSetProfileInt(LC_PROFILE_LPUB_TRUE_FADE, mLPubTrueFade);
-	lcSetProfileInt(LC_PROFILE_CONDITIONAL_LINES, mConditionalLines);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Selected Parts ***/
-	lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, mBuildMofificationEnabled);
+	lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, mBuildModificationEnabled);
 /*** LPub3D Mod end ***/
 }
 
@@ -339,10 +339,6 @@ void lcApplication::UpdateStyle()
 
 void lcApplication::SaveTabLayout() const
 {
-/*** LPub3D - Disable save tab layout ***/
-	return;
-/*** LPub3D Mod end ***/
-
 	if (!mProject || mProject->GetFileName().isEmpty())
 		return;
 
@@ -1521,7 +1517,7 @@ void lcApplication::ShowPreferencesDialog()
 
 /*** LPub3D Mod - true fade ***/
 	Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
-	Options.Preferences.mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
+	Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
 	lcQPreferencesDialog Dialog(gMainWindow, &Options);
@@ -1558,7 +1554,7 @@ void lcApplication::ShowPreferencesDialog()
 
 /*** LPub3D Mod - true fade ***/
 	bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != mPreferences.mLPubTrueFade;
-	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != mPreferences.mConditionalLines;
+	bool DrawConditionalLinesChanged = Options.Preferences.mDrawConditionalLines != mPreferences.mDrawConditionalLines;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
@@ -1623,7 +1619,7 @@ void lcApplication::ShowPreferencesDialog()
 	if ((ViewPieceIconsChangd ||
 		 LPubTrueFadeChanged  ||
 		 DefaultCameraChanged ||
-		 DrawConditionalChanged) && !restartApp && !redrawPage)
+		 DrawConditionalLinesChanged) && !restartApp && !redrawPage)
 		reloadPage = true;
 
 	if ((Preferences::preferredRenderer == RENDERER_NATIVE) && !restartApp)

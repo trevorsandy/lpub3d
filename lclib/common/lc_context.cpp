@@ -164,26 +164,28 @@ void lcContext::CreateShaderPrograms()
 
 	const char* const VertexShaders[] =
 	{
-		":/resources/shaders/unlit_color_vs.glsl",            // UnlitColor
-		":/resources/shaders/unlit_texture_modulate_vs.glsl", // UnlitTextureModulate
-		":/resources/shaders/unlit_texture_decal_vs.glsl",    // UnlitTextureDecal
-		":/resources/shaders/unlit_vertex_color_vs.glsl",     // UnlitVertexColor
-		":/resources/shaders/unlit_view_sphere_vs.glsl",      // UnlitViewSphere
-		":/resources/shaders/fakelit_color_vs.glsl",          // FakeLitColor
-		":/resources/shaders/fakelit_texture_decal_vs.glsl"   // FakeLitTextureDecal
+		":/resources/shaders/unlit_color_vs.glsl",             // UnlitColor
+		":/resources/shaders/unlit_color_conditional_vs.glsl", // UnlitColorConditional
+		":/resources/shaders/unlit_texture_modulate_vs.glsl",  // UnlitTextureModulate
+		":/resources/shaders/unlit_texture_decal_vs.glsl",     // UnlitTextureDecal
+		":/resources/shaders/unlit_vertex_color_vs.glsl",      // UnlitVertexColor
+		":/resources/shaders/unlit_view_sphere_vs.glsl",       // UnlitViewSphere
+		":/resources/shaders/fakelit_color_vs.glsl",           // FakeLitColor
+		":/resources/shaders/fakelit_texture_decal_vs.glsl"    // FakeLitTextureDecal
 	};
 
 	LC_ARRAY_SIZE_CHECK(VertexShaders, lcMaterialType::Count);
 
 	const char* const FragmentShaders[] =
 	{
-		":/resources/shaders/unlit_color_ps.glsl",            // UnlitColor
-		":/resources/shaders/unlit_texture_modulate_ps.glsl", // UnlitTextureModulate
-		":/resources/shaders/unlit_texture_decal_ps.glsl",    // UnlitTextureDecal
-		":/resources/shaders/unlit_vertex_color_ps.glsl",     // UnlitVertexColor
-		":/resources/shaders/unlit_view_sphere_ps.glsl",      // UnlitViewSphere
-		":/resources/shaders/fakelit_color_ps.glsl",          // FakeLitColor
-		":/resources/shaders/fakelit_texture_decal_ps.glsl"   // FakeLitTextureDecal
+		":/resources/shaders/unlit_color_ps.glsl",             // UnlitColor
+		":/resources/shaders/unlit_color_conditional_ps.glsl", // UnlitColorConditional
+		":/resources/shaders/unlit_texture_modulate_ps.glsl",  // UnlitTextureModulate
+		":/resources/shaders/unlit_texture_decal_ps.glsl",     // UnlitTextureDecal
+		":/resources/shaders/unlit_vertex_color_ps.glsl",      // UnlitVertexColor
+		":/resources/shaders/unlit_view_sphere_ps.glsl",       // UnlitViewSphere
+		":/resources/shaders/fakelit_color_ps.glsl",           // FakeLitColor
+		":/resources/shaders/fakelit_texture_decal_ps.glsl"    // FakeLitTextureDecal
 	};
 
 	LC_ARRAY_SIZE_CHECK(FragmentShaders, lcMaterialType::Count);
@@ -320,6 +322,9 @@ void lcContext::SetGLContext(QOpenGLContext* Context, QOpenGLWidget* Widget)
 
 		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
 			lcGetPreferences().mShadingMode = lcShadingMode::Flat;
+
+		if (!gSupportsShaderObjects && lcGetPreferences().mDrawConditionalLines)
+			lcGetPreferences().mDrawConditionalLines = false;
 
 		if (!gSupportsFramebufferObject)
 			gMainWindow->GetPartSelectionWidget()->DisableIconMode();
@@ -483,6 +488,7 @@ void lcContext::SetMaterial(lcMaterialType MaterialType)
 			break;
 
 		case lcMaterialType::UnlitColor:
+		case lcMaterialType::UnlitColorConditional:
 		case lcMaterialType::UnlitVertexColor:
 		case lcMaterialType::FakeLitColor:
 			if (mTextureEnabled)
@@ -891,6 +897,33 @@ void lcContext::SetVertexFormatPosition(int PositionSize)
 	}
 }
 
+void lcContext::SetVertexFormatConditional(int BufferOffset)
+{
+	const int VertexSize = 12 * sizeof(float);
+	char* VertexBufferPointer = mVertexBufferPointer + BufferOffset;
+
+	if (gSupportsShaderObjects)
+	{
+		if (mVertexBufferOffset != VertexBufferPointer)
+		{
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, VertexSize, VertexBufferPointer);
+			glVertexAttribPointer(1, 3, GL_FLOAT, false, VertexSize, VertexBufferPointer + 3 * sizeof(float));
+			glVertexAttribPointer(2, 3, GL_FLOAT, false, VertexSize, VertexBufferPointer + 6 * sizeof(float));
+			glVertexAttribPointer(3, 3, GL_FLOAT, false, VertexSize, VertexBufferPointer + 9 * sizeof(float));
+
+			mVertexBufferOffset = VertexBufferPointer;
+
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
+
+			mNormalEnabled = true; // todo: store state using an array
+			mTexCoordEnabled = true;
+			mColorEnabled = true;
+		}
+	}
+}
+
 void lcContext::SetVertexFormat(int BufferOffset, int PositionSize, int NormalSize, int TexCoordSize, int ColorSize, bool EnableNormals)
 {
 	const int VertexSize = (PositionSize + TexCoordSize) * sizeof(float) + NormalSize * sizeof(quint32) + ColorSize;
@@ -918,7 +951,7 @@ void lcContext::SetVertexFormat(int BufferOffset, int PositionSize, int NormalSi
 		}
 		else if (mNormalEnabled)
 		{
-			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableVertexAttribArray(LC_ATTRIB_NORMAL);
 			mNormalEnabled = false;
 		}
 

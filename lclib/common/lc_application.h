@@ -66,6 +66,7 @@ public:
 	quint32 mActiveViewColor;
 	quint32 mInactiveViewColor;
 	bool mDrawEdgeLines;
+	bool mDrawConditionalLines;
 	float mLineWidth;
 	bool mAllowLOD;
 	float mMeshLODDistance;
@@ -131,10 +132,9 @@ public:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
 	bool mLPubTrueFade;
-	bool mConditionalLines;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Selected Parts ***/
-	bool mBuildMofificationEnabled;
+	bool mBuildModificationEnabled;
 /*** LPub3D Mod end ***/
 };
 

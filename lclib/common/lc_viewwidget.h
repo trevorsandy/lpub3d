@@ -8,11 +8,7 @@ public:
 	lcViewWidget(QWidget* Parent, lcView* View);
 	~lcViewWidget();
 
-	lcView* GetView() const
-	{
-		return mView;
-	}
-
+	lcView* GetView() const;
 	void SetView(lcView* View);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint());
@@ -51,7 +47,7 @@ protected:
 	void dragMoveEvent(QDragMoveEvent* DragMoveEvent) override;
 	void dropEvent(QDropEvent* DropEvent) override;
 
-	lcView* mView;
+	std::unique_ptr<lcView> mView;
 	QSize mPreferredSize;
-	int mWheelAccumulator;
+	int mWheelAccumulator = 0;
 };

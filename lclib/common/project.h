@@ -187,6 +187,7 @@ public:
 
 protected:
 	QString GetExportFileName(const QString& FileName, const QString& DefaultExtension, const QString& DialogTitle, const QString& DialogFilter) const;
+
 	std::vector<lcModelPartsEntry> GetModelParts();
 //	void SetFileName(const QString& FileName);   /*** LPub3D Mod - viewer interface (moved to public) ***/
 

@@ -123,12 +123,6 @@ public:
 		return mFindReplaceParams;
 	}
 
-	void Clear()
-	{
-		mModel = nullptr;
-		mActiveSubmodelInstance = nullptr;
-	}
-
 	lcModel* GetModel() const
 	{
 		return mModel;
@@ -206,6 +200,7 @@ public:
 	void SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ApplyZoomExtents = false);
 /*** LPub3D Mod end ***/
 
+	static std::vector<lcView*> GetModelViews(const lcModel* Model);
 	static void UpdateProjectViews(const Project* Project);
 	static void UpdateAllViews();
 

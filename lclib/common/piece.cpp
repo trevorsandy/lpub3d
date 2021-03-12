@@ -578,7 +578,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		Context->SetInterfaceColor(LC_COLOR_FOCUSED);
 	else
 /*** LPub3D Mod - Selected Parts ***/
-		if (gApplication->mPreferences.mBuildMofificationEnabled)
+		if (gApplication->mPreferences.mBuildModificationEnabled)
 			Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
 		else
 			Context->SetInterfaceColor(LC_COLOR_SELECTED);

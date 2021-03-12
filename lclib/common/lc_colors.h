@@ -67,7 +67,6 @@ bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update = false);
 bool lcLoadColorEntry(const char* ColorEntry, lcStudStyle StudStyle);
 /*** LPub3D Mod end ***/
 int lcGetColorIndex(quint32 ColorCode);
-int lcGetBrickLinkColor(int ColorIndex);
 
 inline quint32 lcGetColorCodeFromExtendedColor(int Color)
 {

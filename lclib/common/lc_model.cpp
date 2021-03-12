@@ -204,19 +204,15 @@ void lcModel::DeleteModel()
 {
 	if (gMainWindow)
 	{
-		const lcArray<lcView*>* Views = gMainWindow->GetViewsForModel(this);
+		std::vector<lcView*> Views = lcView::GetModelViews(this);
 
 		// TODO: this is only needed to avoid a dangling pointer during undo/redo if a camera is set to a view but we should find a better solution instead
-		if (Views)
+		for (lcView* View : Views)
 		{
-			for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
-			{
-				lcView* View = (*Views)[ViewIdx];
-				lcCamera* Camera = View->GetCamera();
+			lcCamera* Camera = View->GetCamera();
 
-				if (!Camera->IsSimple() && mCameras.FindIndex(Camera) != -1)
-					View->SetCamera(Camera, true);
-			}
+			if (!Camera->IsSimple() && mCameras.FindIndex(Camera) != -1)
+				View->SetCamera(Camera, true);
 		}
 	}
 
@@ -2814,14 +2810,12 @@ quint32 lcModel::RemoveSelectedObjects()
 
 		if (Camera->IsSelected())
 		{
-			const lcArray<lcView*>* Views = gMainWindow->GetViewsForModel(this);
-			for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
-			{
-				lcView* View = (*Views)[ViewIdx];
+			std::vector<lcView*> Views = lcView::GetModelViews(this);
 
+			for (lcView* View : Views)
 				if (Camera == View->GetCamera())
 					View->SetCamera(Camera, true);
-			}
+
 /*** LPub3D Mod - Build Modification ***/
 			if(! RemovedCamera)
 				RemovedCamera = RemoveMask |= (1 << RemovedCameraRC) ;
@@ -3540,7 +3534,7 @@ lcVector3 lcModel::GetSelectionOrModelCenter() const
 	{
 		lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-		if (GetPiecesBoundingBox(Min, Max))
+		if (GetVisiblePiecesBoundingBox(Min, Max))
 			Center = (Min + Max) / 2.0f;
 		else
 			Center = lcVector3(0.0f, 0.0f, 0.0f);
@@ -3616,7 +3610,25 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 	return Selected;
 }
 
-bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
+lcBoundingBox lcModel::GetAllPiecesBoundingBox() const
+{
+	lcBoundingBox Box;
+
+	if (!mPieces.IsEmpty())
+	{
+		Box.Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
+		Box.Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+		for (lcPiece* Piece : mPieces)
+			Piece->CompareBoundingBox(Box.Min, Box.Max);
+	}
+	else
+		Box.Min = Box.Max = lcVector3(0.0f, 0.0f, 0.0f);
+
+	return Box;
+}
+
+bool lcModel::GetVisiblePiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 {
 	bool Valid = false;
 	Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -4544,10 +4556,10 @@ void lcModel::EraserToolClicked(lcObject* Object)
 
 	case lcObjectType::Camera:
 		{
-			const lcArray<lcView*>* Views = gMainWindow->GetViewsForModel(this);
-			for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
+			std::vector<lcView*> Views = lcView::GetModelViews(this);
+
+			for (lcView* View : Views)
 			{
-				lcView* View = (*Views)[ViewIdx];
 				lcCamera* Camera = View->GetCamera();
 
 				if (Camera == Object)
@@ -4668,7 +4680,7 @@ void lcModel::LookAt(lcCamera* Camera)
 	{
 		lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-		if (GetPiecesBoundingBox(Min, Max))
+		if (GetVisiblePiecesBoundingBox(Min, Max))
 			Center = (Min + Max) / 2.0f;
 		else
 			Center = lcVector3(0.0f, 0.0f, 0.0f);
@@ -4748,6 +4760,7 @@ void lcModel::ShowPropertiesDialog()
 	lcPropertiesDialogOptions Options;
 
 	Options.Properties = mProperties;
+	Options.BoundingBox = GetAllPiecesBoundingBox();
 
 	GetPartsList(gDefaultColor, true, false, Options.PartsList);
 

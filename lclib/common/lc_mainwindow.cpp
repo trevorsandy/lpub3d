@@ -52,33 +52,6 @@ void lcTabBar::mouseReleaseEvent(QMouseEvent* Event)
 		QTabBar::mouseReleaseEvent(Event);
 }
 
-void lcModelTabWidget::ResetLayout()
-{
-	QLayout* TabLayout = layout();
-	QWidget* TopWidget = TabLayout->itemAt(0)->widget();
-
-	if (TopWidget->metaObject() == &lcViewWidget::staticMetaObject)
-		return;
-
-	QWidget* Widget = GetAnyViewWidget();
-
-	TabLayout->addWidget(Widget);
-	TabLayout->removeWidget(TopWidget);
-	TopWidget->deleteLater();
-
-	Widget->setFocus();
-}
-
-void lcModelTabWidget::Clear()
-{
-	ResetLayout();
-	mModel = nullptr;
-	for (lcView* View : mViews)
-		View->Clear();
-	mViews.RemoveAll();
-	mActiveView = nullptr;
-}
-
 /*** LPub3D Mod - set lcMainWindow parent ***/
 lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 {
@@ -503,9 +476,6 @@ void lcMainWindow::CreateMenus()
 
 	for (int actionIdx = LC_VIEW_CAMERA_FIRST; actionIdx <= LC_VIEW_CAMERA_LAST; actionIdx++)
 		mCameraMenu->addAction(mActions[actionIdx]);
-
-	mCameraMenu->addSeparator();
-	mCameraMenu->addAction(mActions[LC_VIEW_CAMERA_RESET]);
 
 	mViewpointMenu = new QMenu(tr("&Viewpoints"), this);
 	mViewpointMenu->addAction(mActions[LC_VIEW_VIEWPOINT_FRONT]);
@@ -1824,7 +1794,6 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 	DataStream >> CurrentTabName;
 
 	RemoveAllModelTabs();
-	bool ModelAdded = false;
 
 	for (int TabIdx = 0; TabIdx < NumTabs; TabIdx++)
 	{
@@ -1838,7 +1807,6 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 		{
 			SetCurrentModelTab(Model);
 			TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(mModelTabWidget->count() - 1);
-			ModelAdded = true;
 		}
 
 		QWidget* ActiveWidget = nullptr;
@@ -1937,7 +1905,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 			ActiveWidget->setFocus();
 	}
 
-	if (!ModelAdded)
+	if (!mModelTabWidget->count())
 		lcGetActiveProject()->SetActiveModel(0);
 	else
 		lcGetActiveProject()->SetActiveModel(CurrentTabName);
@@ -1945,17 +1913,8 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 
 void lcMainWindow::RemoveAllModelTabs()
 {
-	while (mModelTabWidget->count() > 1)
-	{
-		QWidget* TabWidget = mModelTabWidget->widget(0);
-		delete TabWidget;
-	}
-
-	if (mModelTabWidget->count())
-	{
-		lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(0);
-		TabWidget->Clear();
-	}
+	while (mModelTabWidget->count())
+		delete mModelTabWidget->widget(0);
 }
 
 void lcMainWindow::CloseCurrentModelTab()
@@ -1968,8 +1927,6 @@ void lcMainWindow::CloseCurrentModelTab()
 
 void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 {
-	lcModelTabWidget* EmptyWidget = nullptr;
-
 	for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
 	{
 		lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
@@ -1979,60 +1936,23 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 			mModelTabWidget->setCurrentIndex(TabIdx);
 			return;
 		}
-
-		if (!TabWidget->GetModel())
-			EmptyWidget = TabWidget;
 	}
 
-	lcModelTabWidget* TabWidget;
-	lcViewWidget* ViewWidget;
-	lcView* NewView;
+	lcModelTabWidget* TabWidget = new lcModelTabWidget(Model);
+	mModelTabWidget->addTab(TabWidget, Model->GetProperties().mFileName);
 
-	if (!EmptyWidget)
-	{
-		TabWidget = new lcModelTabWidget(Model);
-		mModelTabWidget->addTab(TabWidget, Model->GetProperties().mFileName);
+	QVBoxLayout* CentralLayout = new QVBoxLayout(TabWidget);
+	CentralLayout->setContentsMargins(0, 0, 0, 0);
 
-		QVBoxLayout* CentralLayout = new QVBoxLayout(TabWidget);
-		CentralLayout->setContentsMargins(0, 0, 0, 0);
+	lcView* NewView = CreateView(Model);
+	lcViewWidget* ViewWidget = new lcViewWidget(TabWidget, NewView);
+	CentralLayout->addWidget(ViewWidget);
 
-		NewView = CreateView(Model);
-		ViewWidget = new lcViewWidget(TabWidget, NewView);
-		CentralLayout->addWidget(ViewWidget);
-
-		mModelTabWidget->setCurrentWidget(TabWidget);
-	}
-	else
-	{
-		TabWidget = EmptyWidget;
-		TabWidget->SetModel(Model);
-
-		NewView = CreateView(Model);
-		AddView(NewView);
-		ViewWidget = (lcViewWidget*)TabWidget->layout()->itemAt(0)->widget();
-		ViewWidget->SetView(NewView);
-
-		mModelTabWidget->setCurrentWidget(TabWidget);
-	}
+	mModelTabWidget->setCurrentWidget(TabWidget);
 
 	ViewWidget->show();
 	ViewWidget->setFocus();
 	NewView->ZoomExtents();
-}
-
-void lcMainWindow::ResetCameras()
-{
-	lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
-
-	if (!CurrentTab)
-		return;
-
-	const lcArray<lcView*>* Views = CurrentTab->GetViews();
-
-	for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
-		(*Views)[ViewIdx]->SetDefaultCamera();
-
-	lcGetActiveModel()->DeleteAllCameras();
 }
 
 void lcMainWindow::AddView(lcView* View)
@@ -2041,8 +1961,6 @@ void lcMainWindow::AddView(lcView* View)
 
 	if (!TabWidget)
 		return;
-
-	TabWidget->AddView(View);
 
 	if (!TabWidget->GetActiveView())
 	{
@@ -2314,8 +2232,17 @@ void lcMainWindow::ResetViews()
 	if (!TabWidget)
 		return;
 
-	TabWidget->ResetLayout();
-	TabWidget->GetActiveView()->SetViewpoint(lcViewpoint::Home);
+	QLayout* TabLayout = TabWidget->layout();
+	QWidget* TopWidget = TabLayout->itemAt(0)->widget();
+	TopWidget->deleteLater();
+
+	lcView* NewView = CreateView(TabWidget->GetModel());
+	lcViewWidget* ViewWidget = new lcViewWidget(TabWidget, NewView);
+	TabLayout->addWidget(ViewWidget);
+
+	ViewWidget->show();
+	ViewWidget->setFocus();
+	NewView->ZoomExtents();
 }
 
 void lcMainWindow::ToggleDockWidget(QWidget* DockWidget)
@@ -3149,6 +3076,23 @@ lcModel* lcMainWindow::GetActiveModel() const
 	return ActiveView ? ActiveView->GetActiveModel() : nullptr;
 }
 
+lcModelTabWidget* lcMainWindow::GetTabForView(lcView* View) const
+{
+	QWidget* Widget = View->GetWidget();
+
+	while (Widget)
+	{
+		lcModelTabWidget* TabWidget = qobject_cast<lcModelTabWidget*>(Widget);
+
+		if (TabWidget)
+			return TabWidget;
+		else
+			Widget = Widget->parentWidget();
+	}
+
+	return nullptr;
+}
+
 void lcMainWindow::HandleCommand(lcCommandId CommandId)
 {
 	lcView* ActiveView = GetActiveView();
@@ -3778,10 +3722,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_VIEW_CAMERA16:
 		if (ActiveView)
 			ActiveView->SetCameraIndex(CommandId - LC_VIEW_CAMERA1);
-		break;
-
-	case LC_VIEW_CAMERA_RESET:
-		ResetCameras();
 		break;
 
 	case LC_MODEL_NEW:

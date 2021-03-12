@@ -12,16 +12,10 @@
 #include "lc_profile.h"
 #include "lc_previewwidget.h"
 
-static QList<lcViewWidget*> gWidgetList;
-
 lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
-	: QOpenGLWidget(Parent)
+	: QOpenGLWidget(Parent), mView(View)
 {
-	mWheelAccumulator = 0;
-	mView = View;
 	mView->SetWidget(this);
-
-	gWidgetList.append(this);
 
 	setMouseTracking(true);
 
@@ -34,14 +28,16 @@ lcViewWidget::lcViewWidget(QWidget* Parent, lcView* View)
 
 lcViewWidget::~lcViewWidget()
 {
-	gWidgetList.removeOne(this);
-
-	delete mView;
 }
 
 QSize lcViewWidget::sizeHint() const
 {
 	return mPreferredSize.isEmpty() ? QOpenGLWidget::sizeHint() : mPreferredSize;
+}
+
+lcView* lcViewWidget::GetView() const
+{
+	return mView.get();
 }
 
 void lcViewWidget::SetView(lcView* View)
@@ -62,15 +58,14 @@ void lcViewWidget::SetView(lcView* View)
 			View->SetFocus(true);
 	}
 
-	delete mView;
-	mView = View;
+	mView = std::unique_ptr<lcView>(View);
 }
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 void lcViewWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& ViewPos)
 {
 	lcPreferences& Preferences = lcGetPreferences();
-	lcPreview* Preview = reinterpret_cast<lcPreview*>(mView);
+	lcPreview* Preview = reinterpret_cast<lcPreview*>(mView.get());
 
 	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
 

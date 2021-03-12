@@ -238,7 +238,11 @@ void lcPartSelectionListModel::SetCurrentModelCategory()
 
 	lcModel* ActiveModel = gMainWindow->GetActiveModel();
 	lcPartsList PartsList;
-	ActiveModel->GetPartsList(gDefaultColor, true, true, PartsList);
+
+/*** LPub3D - Fix unsafe lcModel instantiation above ***/
+	if (ActiveModel)
+/*** LPub3D Mod end ***/
+		ActiveModel->GetPartsList(gDefaultColor, true, true, PartsList);
 
 	for (const auto& PartIt : PartsList)
 		mParts.emplace_back(std::pair<PieceInfo*, QPixmap>((PieceInfo*)PartIt.first, QPixmap()));

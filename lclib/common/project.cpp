@@ -16,9 +16,9 @@
 #include "lc_zipfile.h"
 #include "lc_qimagedialog.h"
 #include "lc_qmodellistdialog.h"
+#include "lc_bricklink.h"
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
-#include "annotations.h"
 /*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
@@ -1330,62 +1330,8 @@ bool Project::ExportBrickLink()
 	if (SaveFileName.isEmpty())
 /*** LPub3D Mod - export ***/
 		return false;
-/*** LPub3D Mod end ***/
 
-	lcDiskFile BrickLinkFile(SaveFileName);
-	char Line[1024];
-
-	if (!BrickLinkFile.Open(QIODevice::WriteOnly))
-	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - export ***/
-		return false;
-/*** LPub3D Mod end ***/
-	}
-
-	BrickLinkFile.WriteLine("<INVENTORY>\n");
-
-	for (const auto& PartIt : PartsList)
-	{
-		const PieceInfo* Info = PartIt.first;
-
-		for (const auto& ColorIt : PartIt.second)
-		{
-			BrickLinkFile.WriteLine("  <ITEM>\n");
-			BrickLinkFile.WriteLine("    <ITEMTYPE>P</ITEMTYPE>\n");
-
-			char FileName[LC_PIECE_NAME_LEN];
-			strcpy(FileName, Info->mFileName);
-			char* Ext = strchr(FileName, '.');
-			if (Ext)
-				*Ext = 0;
-/*** LPub3D Mod - use LPub3D exportable BrickLink codes table ***/
-			sprintf(Line, "    <ITEMID>%s</ITEMID>\n", Annotations::getBrickLinkPartId(FileName).toLatin1().constData());
-/*** LPub3D Mod end ***/
-			BrickLinkFile.WriteLine(Line);
-
-			sprintf(Line, "    <MINQTY>%d</MINQTY>\n", ColorIt.second);
-			BrickLinkFile.WriteLine(Line);
-/*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
-			int LDColorID = gColorList[ColorIt.first].Code;
-			int Color = Annotations::getBrickLinkColor(LDColorID);
-/*** LPub3D Mod end ***/
-			if (Color)
-			{
-				sprintf(Line, "    <COLOR>%d</COLOR>\n", Color);
-				BrickLinkFile.WriteLine(Line);
-			}
-
-			BrickLinkFile.WriteLine("  </ITEM>\n");
-		}
-	}
-
-	BrickLinkFile.WriteLine("</INVENTORY>\n");
-
-/*** LPub3D Mod - export ***/
-	return true;
+	return lcExportBrickLink(SaveFileName, PartsList);
 /*** LPub3D Mod end ***/
 }
 

@@ -398,7 +398,7 @@
            </widget>
           </item>
           <item row="1" column="3" colspan="2">
-           <widget class="QCheckBox" name="ConditionalLines">
+           <widget class="QCheckBox" name="ConditionalLinesCheckBox">
             <property name="toolTip">
              <string>Draw conditional lines </string>
             </property>
@@ -2242,7 +2242,7 @@
   <tabstop>studStyleCombo</tabstop>
   <tabstop>HighContrastButton</tabstop>
   <tabstop>LPubTrueFade</tabstop>
-  <tabstop>ConditionalLines</tabstop>
+  <tabstop>ConditionalLinesCheckBox</tabstop>
   <tabstop>FadeSteps</tabstop>
   <tabstop>FadeStepsColor</tabstop>
   <tabstop>ResetFadeStepsButton</tabstop>

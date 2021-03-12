@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/common/image.h \
     $$PWD/common/lc_application.h \
     $$PWD/common/lc_array.h \
+    $$PWD/common/lc_bricklink.h \
     $$PWD/common/lc_category.h \
 	$$PWD/common/lc_collapsiblewidget.h \
     $$PWD/common/lc_colors.h \
@@ -73,6 +74,7 @@ SOURCES += \
     $$PWD/common/group.cpp \
     $$PWD/common/image.cpp \
     $$PWD/common/lc_application.cpp \
+    $$PWD/common/lc_bricklink.cpp \
     $$PWD/common/lc_category.cpp \
     $$PWD/common/lc_collapsiblewidget.cpp \
     $$PWD/common/lc_colors.cpp \

@@ -78,9 +78,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "ActiveViewColor", LC_RGBA(255, 0, 0, 255)),                    // LC_PROFILE_ACTIVE_VIEW_COLOR                          /*** LPub3D Mod - Set default colour ***/
 	lcProfileEntry("Settings", "InactiveViewColor", LC_RGBA(69, 69, 69, 255)),                 // LC_PROFILE_INACTIVE_VIEW_COLOR
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                            // LC_PROFILE_DRAW_EDGE_LINES
-	lcProfileEntry("Settings", "GridStuds", 1),                                                // LC_PROFILE_GRID_STUDS
+	lcProfileEntry("Settings", "DrawConditionalLines", 1),                                     // LC_PROFILE_DRAW_CONDITIONAL_LINES
+	lcProfileEntry("Settings", "GridStuds", 0),                                                // LC_PROFILE_GRID_STUDS                                 /*** LPub3D Mod - Default settings ***/
 	lcProfileEntry("Settings", "GridStudColor", LC_RGBA(64, 64, 64, 192)),                     // LC_PROFILE_GRID_STUD_COLOR                            /*** LPub3D Mod - Set default colour ***/
-	lcProfileEntry("Settings", "GridLines", 1),                                                // LC_PROFILE_GRID_LINES
+	lcProfileEntry("Settings", "GridLines", 0),                                                // LC_PROFILE_GRID_LINES                                 /*** LPub3D Mod - Default settings ***/
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                          // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                        // LC_PROFILE_GRID_LINE_COLOR
 	lcProfileEntry("Settings", "GridOrigin", 0),                                               // LC_PROFILE_GRID_ORIGIN
@@ -108,7 +109,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "RecentFile3", ""),                                             // LC_PROFILE_RECENT_FILE3
 	lcProfileEntry("Settings", "RecentFile4", ""),                                             // LC_PROFILE_RECENT_FILE4
 	lcProfileEntry("Settings", "AutoLoadMostRecent", false),                                   // LC_PROFILE_AUTOLOAD_MOSTRECENT
-	lcProfileEntry("Settings", "RestoreTabLayout", true),                                      // LC_PROFILE_RESTORE_TAB_LAYOUT
+	lcProfileEntry("Settings", "RestoreTabLayout", false),                                     // LC_PROFILE_RESTORE_TAB_LAYOUT                         /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "AutosaveInterval", 10),                                        // LC_PROFILE_AUTOSAVE_INTERVAL
 	lcProfileEntry("Settings", "MouseSensitivity", 11),                                        // LC_PROFILE_MOUSE_SENSITIVITY
 	lcProfileEntry("Settings", "ImageWidth", 1280),                                            // LC_PROFILE_IMAGE_WIDTH
@@ -149,11 +150,11 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "AutomateEdgeColor", 0),                                        // LC_PROFILE_AUTOMATE_EDGE_COLOR
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED                         /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE                            /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION                        /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION	                    /*** LPub3D Mod - preview widget for LPub3D ***/
-	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                         // LC_PROFILE_PREVIEW_LOAD_PATH                       /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED                            /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE                               /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewLocation", (int)lcPreviewLocation::BottomRight),        // LC_PROFILE_PREVIEW_LOCATION                           /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewPosition", (int)lcPreviewPosition::Dockable),           // LC_PROFILE_PREVIEW_POSITION	                        /*** LPub3D Mod - preview widget for LPub3D ***/
+	lcProfileEntry("Settings", "PreviewLoadPath", ""),                                         // LC_PROFILE_PREVIEW_LOAD_PATH                          /*** LPub3D Mod - preview widget for LPub3D ***/
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Build Modification ***/
@@ -189,7 +190,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 /*** LPub3D Mod - true fade ***/
 	lcProfileEntry("Settings", "LPubTrueFade", 1),                                             // LC_PROFILE_LPUB_TRUE_FADE                            /*** LPub3D Mod - true fade ***/
-	lcProfileEntry("Settings", "ConditionalLines", 0),                                         // LC_PROFILE_CONDITIONAL_LINES                         /*** LPub3D Mod - true fade ***/
 /*** LPub3D Mod end ***/
 
 };

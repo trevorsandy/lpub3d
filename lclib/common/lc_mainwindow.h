@@ -52,9 +52,6 @@ public:
 		mActiveView = nullptr;
 	}
 
-	void ResetLayout();
-	void Clear();
-
 	QWidget* GetAnyViewWidget()
 	{
 		QWidget* Widget = layout()->itemAt(0)->widget();
@@ -75,17 +72,10 @@ public:
 		mActiveView = ActiveView;
 	}
 
-	void AddView(lcView* View)
-	{
-		mViews.Add(View);
-	}
-
 	void RemoveView(lcView* View)
 	{
 		if (View == mActiveView)
 			mActiveView = nullptr;
-
-		mViews.Remove(View);
 	}
 
 	lcModel* GetModel() const
@@ -93,20 +83,9 @@ public:
 		return mModel;
 	}
 
-	void SetModel(lcModel* Model)
-	{
-		mModel = Model;
-	}
-
-	const lcArray<lcView*>* GetViews() const
-	{
-		return &mViews;
-	}
-
 protected:
 	lcModel* mModel;
 	lcView* mActiveView;
-	lcArray<lcView*> mViews;
 };
 
 class lcMainWindow : public QMainWindow
@@ -198,31 +177,12 @@ public:
 	}
 
 	lcModel* GetActiveModel() const;
+	lcModelTabWidget* GetTabForView(lcView* View) const;
 
 	lcModel* GetCurrentTabModel() const
 	{
 		const lcModelTabWidget* const CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
 		return CurrentTab ? CurrentTab->GetModel() : nullptr;
-	}
-
-	const lcArray<lcView*>* GetViewsForModel(const lcModel* Model) const
-	{
-		const lcModelTabWidget* const TabWidget = GetTabWidgetForModel(Model);
-		return TabWidget ? TabWidget->GetViews() : nullptr;
-	}
-
-	lcModelTabWidget* GetTabForView(lcView* View) const
-	{
-		for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
-		{
-			lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
-
-			const int ViewIndex = TabWidget->GetViews()->FindIndex(View);
-			if (ViewIndex != -1)
-				return TabWidget;
-		}
-
-		return nullptr;
 	}
 
 	lcPartSelectionWidget* GetPartSelectionWidget() const

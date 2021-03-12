@@ -210,7 +210,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 				case lcRenderMeshState::Selected:
  /*** LPub3D Mod - Selected Parts ***/
-					if (gApplication->mPreferences.mBuildMofificationEnabled)
+					if (gApplication->mPreferences.mBuildModificationEnabled)
 						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_BM_SELECTED, 0.5f);
 					else
 						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
@@ -229,7 +229,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 					break;
 				}
 			}
-			else if (Section->PrimitiveType & LC_MESH_LINES)
+			else if (Section->PrimitiveType & (LC_MESH_LINES | LC_MESH_CONDITIONAL_LINES))
 			{
 				switch (RenderMesh.State)
 				{
@@ -252,7 +252,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 				case lcRenderMeshState::Selected:
 /*** LPub3D Mod - Selected Parts ***/
-				   if (gApplication->mPreferences.mBuildMofificationEnabled)
+				   if (gApplication->mPreferences.mBuildModificationEnabled)
 					   Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
 				   else
 					   Context->SetInterfaceColor(LC_COLOR_SELECTED);
@@ -271,48 +271,20 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 					Context->SetEdgeColorIndexTinted(ColorIndex, mFadeColor);
 					break;
 				}
-			}
-			else if (Section->PrimitiveType == LC_MESH_CONDITIONAL_LINES)
-			{
-				const lcMatrix44 WorldViewProjectionMatrix = lcMul(RenderMesh.WorldMatrix, lcMul(mViewMatrix, Context->GetProjectionMatrix()));
-				const lcVertex* const VertexBuffer = (lcVertex*)Mesh->mVertexData;
-				const int IndexBufferOffset = Mesh->mIndexCacheOffset != -1 ? Mesh->mIndexCacheOffset : 0;
 
-				const int VertexBufferOffset = Mesh->mVertexCacheOffset != -1 ? Mesh->mVertexCacheOffset : 0;
-				Context->SetVertexFormat(VertexBufferOffset, 3, 1, 0, 0, DrawLit);
-
-				if (Mesh->mIndexType == GL_UNSIGNED_SHORT)
+				if (Section->PrimitiveType == LC_MESH_CONDITIONAL_LINES)
 				{
-					const quint16* const Indices = (quint16*)((char*)Mesh->mIndexData + Section->IndexOffset);
+					int VertexBufferOffset = Mesh->mVertexCacheOffset != -1 ? Mesh->mVertexCacheOffset : 0;
+					VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex) + Mesh->mNumTexturedVertices * sizeof(lcVertexTextured);
+					const int IndexBufferOffset = Mesh->mIndexCacheOffset != -1 ? Mesh->mIndexCacheOffset : 0;
 
-					for (int i = 0; i < Section->NumIndices; i += 4)
-					{
-						const lcVector3 p1 = lcMul31(VertexBuffer[Indices[i + 0]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p2 = lcMul31(VertexBuffer[Indices[i + 1]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p3 = lcMul31(VertexBuffer[Indices[i + 2]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p4 = lcMul31(VertexBuffer[Indices[i + 3]].Position, WorldViewProjectionMatrix);
+					Context->SetMaterial(lcMaterialType::UnlitColorConditional);
+					Context->SetVertexFormatConditional(VertexBufferOffset);
 
-						if (((p1.y - p2.y) * (p3.x - p1.x) + (p2.x - p1.x) * (p3.y - p1.y)) * ((p1.y - p2.y) * (p4.x - p1.x) + (p2.x - p1.x) * (p4.y - p1.y)) >= 0)
-							Context->DrawIndexedPrimitives(GL_LINES, 2, Mesh->mIndexType, IndexBufferOffset + Section->IndexOffset + i * sizeof(quint16));
-					}
+					Context->DrawIndexedPrimitives(GL_LINES, Section->NumIndices, Mesh->mIndexType, IndexBufferOffset + Section->IndexOffset);
+
+					continue;
 				}
-				else
-				{
-					const quint32* const Indices = (quint32*)((char*)Mesh->mIndexData + Section->IndexOffset);
-
-					for (int i = 0; i < Section->NumIndices; i += 4)
-					{
-						const lcVector3 p1 = lcMul31(VertexBuffer[Indices[i + 0]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p2 = lcMul31(VertexBuffer[Indices[i + 1]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p3 = lcMul31(VertexBuffer[Indices[i + 2]].Position, WorldViewProjectionMatrix);
-						const lcVector3 p4 = lcMul31(VertexBuffer[Indices[i + 3]].Position, WorldViewProjectionMatrix);
-
-						if (((p1.y - p2.y) * (p3.x - p1.x) + (p2.x - p1.x) * (p3.y - p1.y)) * ((p1.y - p2.y) * (p4.x - p1.x) + (p2.x - p1.x) * (p4.y - p1.y)) >= 0)
-							Context->DrawIndexedPrimitives(GL_LINES, 2, Mesh->mIndexType, IndexBufferOffset + Section->IndexOffset + i * sizeof(quint32));
-					}
-				}
-
-				continue;
 			}
 
 			const lcTexture* const Texture = Section->Texture;
@@ -501,10 +473,8 @@ void lcScene::Draw(lcContext* Context) const
 	Context->SetViewMatrix(mViewMatrix);
 
 	const lcPreferences& Preferences = lcGetPreferences();
-/*** LPub3D Mod - draw conditional lines from preferences***/
-	const bool DrawConditional = Preferences.mConditionalLines;
-/*** LPub3D Mod end ***/
-
+	const bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth > 0.0f;
+	const bool DrawConditional = Preferences.mDrawConditionalLines && Preferences.mLineWidth > 0.0f;
 /*** LPub3D Mod - true fade ***/
 	const bool LPubTrueFade = gApplication->LPubFadeSteps() && // to turn off during HTML Steps export
 							  gApplication->mPreferences.mLPubTrueFade &&
@@ -530,8 +500,6 @@ void lcScene::Draw(lcContext* Context) const
 	}
 	else if (mShadingMode == lcShadingMode::Flat)
 	{
-		const bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
-
 		int LinePrimitiveTypes = 0;
 
 		if (DrawLines)
@@ -593,8 +561,6 @@ void lcScene::Draw(lcContext* Context) const
 	}
 	else
 	{
-		const bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
-
 		int LinePrimitiveTypes = LC_MESH_LINES;
 
 		if (DrawConditional)

@@ -100,6 +100,7 @@
         <file alias="gear_in.png">resources/gear_in.png</file>
         <file alias="ldconfig.ldr">resources/ldconfig.ldr</file>
         <file alias="ldraw.xml">resources/ldraw.xml</file>
+        <file alias="ldraw2bl.txt">resources/ldraw2bl.txt</file>
         <file alias="leocad.icns">resources/leocad.icns</file>
         <file alias="leocad.ico">resources/leocad.ico</file>
         <file alias="leocad32.png">resources/icon/32x32/apps/leocad.png</file>
@@ -129,6 +130,8 @@
         <file alias="shaders/fakelit_color_vs.glsl">resources/shaders/fakelit_color_vs.glsl</file>
         <file alias="shaders/fakelit_texture_decal_ps.glsl">resources/shaders/fakelit_texture_decal_ps.glsl</file>
         <file alias="shaders/fakelit_texture_decal_vs.glsl">resources/shaders/fakelit_texture_decal_vs.glsl</file>
+        <file alias="shaders/unlit_color_conditional_ps.glsl">resources/shaders/unlit_color_conditional_ps.glsl</file>
+        <file alias="shaders/unlit_color_conditional_vs.glsl">resources/shaders/unlit_color_conditional_vs.glsl</file>
         <file alias="shaders/unlit_color_ps.glsl">resources/shaders/unlit_color_ps.glsl</file>
         <file alias="shaders/unlit_color_vs.glsl">resources/shaders/unlit_color_vs.glsl</file>
         <file alias="shaders/unlit_texture_decal_ps.glsl">resources/shaders/unlit_texture_decal_ps.glsl</file>

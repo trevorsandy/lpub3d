@@ -51,7 +51,10 @@ lcView::lcView(lcViewType ViewType, lcModel* Model, bool SubstituteView)
 	if (ActiveView)
 		SetCamera(ActiveView->mCamera, false);
 	else
-		SetDefaultCamera();
+	{
+		mCamera = new lcCamera(true);
+		mCamera->SetViewpoint(lcViewpoint::Home);
+	}
 }
 
 lcView::~lcView()
@@ -71,6 +74,17 @@ lcView::~lcView()
 
 	if (mDeleteContext)
 		delete mContext;
+}
+
+std::vector<lcView*> lcView::GetModelViews(const lcModel* Model)
+{
+	std::vector<lcView*> Views;
+
+	for (lcView* View : mViews)
+		if (View->GetModel() == Model)
+			Views.push_back(View);
+
+	return Views;
 }
 
 void lcView::UpdateProjectViews(const Project* Project)
@@ -447,7 +461,7 @@ void lcView::ShowContextMenu() const
 
 	QAction** Actions = gMainWindow->mActions;
 
-	QMenu* Popup = new QMenu(mWidget);
+	QMenu* Popup = new QMenu();
 
 /*** LPub3D Mod - add context menu edit submodel ***/
 	Popup->addAction(Actions[LC_EDIT_CUT]);
@@ -657,7 +671,7 @@ lcVector3 lcView::GetCameraLightInsertPosition() const
 	lcVector3 Min, Max;
 	lcVector3 Center;
 
-	if (ActiveModel->GetPiecesBoundingBox(Min, Max))
+	if (ActiveModel->GetVisiblePiecesBoundingBox(Min, Max))
 		Center = (Min + Max) / 2.0f;
 	else
 		Center = lcVector3(0.0f, 0.0f, 0.0f);
@@ -1916,7 +1930,7 @@ void lcView::DrawGrid()
 	int MinX, MaxX, MinY, MaxY;
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	bool GridSizeValid = mModel->GetPiecesBoundingBox(Min, Max);
+	bool GridSizeValid = mModel->GetVisiblePiecesBoundingBox(Min, Max);
 
 	if (mTrackTool == lcTrackTool::Insert)
 	{
@@ -2284,6 +2298,8 @@ void lcView::SetDefaultCamera()
 		mCamera = new lcCamera(true);
 
 	mCamera->SetViewpoint(lcViewpoint::Home);
+	ZoomExtents();
+	Redraw();
 
 	emit CameraChanged();
 }
