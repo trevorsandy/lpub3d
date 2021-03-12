@@ -184,7 +184,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bALPHA\\b"
     ;
 
-    foreach (QString pattern, LDrawColourPatterns) {
+    Q_FOREACH (QString pattern, LDrawColourPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LDrawColourMetaFormat;
         highlightingRules.append(rule);
@@ -204,7 +204,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bWRITE\\b"
        ;
 
-    foreach (QString pattern, LDrawBodyPatterns) {
+    Q_FOREACH (QString pattern, LDrawBodyPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LDrawBodyFormat;
         highlightingRules.append(rule);
@@ -600,7 +600,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bZNEAR\\b"
        ;
 
-    foreach (QString pattern, LPubBodyMetaPatterns) {
+    Q_FOREACH (QString pattern, LPubBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LPubBodyMetaFormat;
         highlightingRules.append(rule);
@@ -665,7 +665,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\b~MOVED TO\\b"
        ;
 
-    foreach (QString pattern, LDrawHeaderPatterns) {
+    Q_FOREACH (QString pattern, LDrawHeaderPatterns) {
         rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
         rule.format = LDrawHeaderFormat;
         highlightingRules.append(rule);
@@ -715,7 +715,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSTORE\\b"
        ;
 
-    foreach (QString pattern, MLCadBodyMetaPatterns) {
+    Q_FOREACH (QString pattern, MLCadBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = MLCadBodyMetaFormat;
         highlightingRules.append(rule);
@@ -749,7 +749,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "(?<=LDCAD )\\bGROUP_NXT\\b"
     ;
 
-    foreach (QString pattern, LDCadBodyMetaPatterns) {
+    Q_FOREACH (QString pattern, LDCadBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LDCadBodyMetaFormat;
         highlightingRules.append(rule);
@@ -818,7 +818,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "(?<=LEOCAD )\\bGROUP END\\b"
     ;
 
-    foreach (QString pattern, LeoCADBodyMetaPatterns) {
+    Q_FOREACH (QString pattern, LeoCADBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LeoCADBodyMetaFormat;
         highlightingRules.append(rule);
@@ -870,7 +870,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 void Highlighter::highlightBlock(const QString &text)
 {
     // apply the predefined rules
-    foreach (HighlightingRule rule, highlightingRules) {
+    Q_FOREACH (HighlightingRule rule, highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = text.indexOf(expression);
         while (index >= 0) {

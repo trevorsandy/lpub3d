@@ -615,7 +615,7 @@ void Gui::togglePreviewWidget(bool visible)
         else
             previewDockWindow->hide();
         QList<QAction*> viewActions = viewMenu->actions();
-        foreach (QAction *viewAct, viewActions) {
+        Q_FOREACH (QAction *viewAct, viewActions) {
             if (viewAct->text() == "3DPreview") {
                 viewAct->setChecked(visible);
                 viewAct->setVisible(visible);
@@ -2875,7 +2875,7 @@ void Gui::deleteBuildModification()
         QMap<int, int> actionsMap = getBuildModActions(buildModKey);
         QList<int> stepIndexes = actionsMap.keys();
         std::sort(stepIndexes.begin(), stepIndexes.end(), std::greater<int>()); // sort stepIndexes descending
-        foreach (int stepIndex, stepIndexes) {
+        Q_FOREACH (int stepIndex, stepIndexes) {
             QMap<int, int>::iterator i = actionsMap.find(stepIndex);
             if (i.key()) {                                                      // skip first step at index 0 - deleted later
                 if (getBuildModStepIndexHere(i.key(), topOfStep)){

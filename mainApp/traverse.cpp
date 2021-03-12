@@ -2283,7 +2283,7 @@ int Gui::drawPage(
                       if (buildModKeys.size()) {
                           if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
                               parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
-                          foreach (int buildModLevel, buildModKeys.keys()) {
+                          Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                               QString buildModKey = buildModKeys.value(buildModLevel);
                               // Create BuildMods
                               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
@@ -3802,7 +3802,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName){
         return false;
     }
 
-    foreach (QString bomPartsString, tempParts){
+    Q_FOREACH (QString bomPartsString, tempParts){
         if (bomPartsString.startsWith("1")) {
             QStringList partComponents = bomPartsString.split(";");
             bomParts << partComponents.at(0);
@@ -3822,7 +3822,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName){
 
     QTextStream out(&bomFile);
     out << QString("0 Name: %1").arg(QFileInfo(bomFileName).fileName()) << endl;
-    foreach (QString bomPart, bomParts)
+    Q_FOREACH (QString bomPart, bomParts)
         out << bomPart << endl;
     bomFile.close();
     return true;
@@ -4444,7 +4444,7 @@ bool Gui::setBuildModForNextStep(
             case StepRc:
                 if (buildMod[BM_BEGIN] && !buildMod[BM_END])
                     parseError(QString("Required meta BUILD_MOD END not found"), here, Preferences::BuildModErrors);
-                foreach (int buildModLevel, buildModKeys.keys())
+                Q_FOREACH (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
                 topOfStep = here;
                 buildModKeys.clear();

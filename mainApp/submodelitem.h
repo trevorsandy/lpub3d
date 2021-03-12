@@ -188,7 +188,7 @@ class SubModel : public Placement {
     void operator= (SubModel& from)
     {
       QString key;
-      foreach (key,from.parts.keys()) {
+      Q_FOREACH (key,from.parts.keys()) {
         SubModelPart *part = from.parts[key];
         parts.insert(key,part);
       }

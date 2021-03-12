@@ -772,7 +772,7 @@ void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
       for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
         DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
         int initiator = CsiType;
-        foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+        Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
             if (item == this)
                 pointerItem->drawTip(delta,initiator);
         }
@@ -820,7 +820,7 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
           // dividers
           for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
               DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-              foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+              Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
                   if (item == this)
                       pointerItem->updatePointer(deltaI);
               }
@@ -862,7 +862,7 @@ void CsiItem::change()
       // dividers
       for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
         DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-        foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+        Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
             if (item == this)
                 pointerItem->updatePointer(deltaI);
         }

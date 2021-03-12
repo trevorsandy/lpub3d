@@ -259,7 +259,7 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
         program = list.first();
     } else {
         QStringList values;
-        foreach (QString item, list) {
+        Q_FOREACH (QString item, list) {
             if (inside) {                                                 // If 's' is inside quotes ...
                 values.append(item);                                      // ... get the whole string
             } else {                                                      // If 's' is outside quotes ...

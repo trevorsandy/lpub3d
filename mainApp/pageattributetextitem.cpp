@@ -390,7 +390,7 @@ void PageAttributeTextItem::focusOutEvent(QFocusEvent *event)
       QStringList list = toPlainText().split(rx);
 
       QStringList list2;
-      foreach (QString string, list){
+      Q_FOREACH (QString string, list){
         string.replace("\"","\\\"");
         list2 << string;
         }

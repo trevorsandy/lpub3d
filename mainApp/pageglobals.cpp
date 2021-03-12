@@ -812,7 +812,7 @@ void GlobalPageDialog::accept()
   mi.beginMacro("GlobalPage");
 
   MetaGui *child;
-  foreach (child,data->children) {
+  Q_FOREACH (child,data->children) {
       if ((child == authorChildFront && authorChildFront->modified) ||
           (child == titleChildFront && titleChildFront->modified) ||
           (child == documentLogoChildFront && documentLogoChildFront->modified) ||

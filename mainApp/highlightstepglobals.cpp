@@ -153,7 +153,7 @@ void GlobalHighlightStepDialog::accept()
 
   MetaGui *child;
 
-  foreach (child,data->children) {
+  Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
 

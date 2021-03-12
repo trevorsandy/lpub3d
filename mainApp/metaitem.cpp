@@ -1808,7 +1808,7 @@ void MetaItem::setRendererArguments(
         QStringList list = arguments.split("\n");
 
         QStringList list2;
-        foreach (QString string, list){
+        Q_FOREACH (QString string, list){
           string = string.trimmed();
           QRegExp rx2("\"");
           int pos = 0;
@@ -2924,7 +2924,7 @@ void MetaItem::updateText(
 
     QStringList list = text.split("\n");
     QStringList list2;
-    foreach (QString string, list){
+    Q_FOREACH (QString string, list){
       string = string.trimmed();
       QRegExp rx2("\"");
       int pos = 0;

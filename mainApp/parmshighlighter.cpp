@@ -118,7 +118,7 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
 void ParmsHighlighter::highlightBlock(const QString &text)
 {
-    foreach (HighlightingRule rule, highlightingRules) {
+    Q_FOREACH (HighlightingRule rule, highlightingRules) {
         QRegExp expression(rule.pattern);
 
         int index = text.indexOf(expression);

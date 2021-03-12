@@ -977,7 +977,7 @@ void LDVWidget::displayGLExtensions()
 	countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
 
 	emit lpubAlert->messageSig(LOG_INFO, QString("OpenGL supported extensions (%1)").arg(countString));
-	foreach(openGLString, list){
+	Q_FOREACH (openGLString, list){
 		emit lpubAlert->messageSig(LOG_INFO, QString("%1").arg(openGLString));
 	}
 #endif

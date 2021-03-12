@@ -120,7 +120,7 @@ void PartWorker::ldsearchDirPreferences(){
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       // Process fade and highlight custom directories...
-      foreach (QString searchDir, searchDirs) {
+      Q_FOREACH (QString searchDir, searchDirs) {
           if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               // Skip custom directory if not doFadeStep or not doHighlightStep
               QString customDir = QDir::toNativeSeparators(searchDir.toLower());
@@ -180,7 +180,7 @@ void PartWorker::ldsearchDirPreferences(){
     bool addSearchDir    = Preferences::addLSynthSearchDir;
     bool dirInSearchList = false;
     QStringList saveSearchDirs;
-    foreach (QString ldSearchDir, Preferences::ldSearchDirs){
+    Q_FOREACH (QString ldSearchDir, Preferences::ldSearchDirs){
         if (addSearchDir) {
             if (QDir::toNativeSeparators(ldSearchDir.toLower()) == _lsynthPartsDir.toLower()) {
                 dirInSearchList = true;
@@ -231,7 +231,7 @@ bool PartWorker::loadLDrawSearchDirs(){
             foundUnofficialRootDir = ldrawSearchDir.toLower() == unofficialRootDir.toLower();
 
           bool excludeSearchDir = false;
-          foreach (QString excludedDir, _excludedSearchDirs){
+          Q_FOREACH (QString excludedDir, _excludedSearchDirs){
               if ((excludeSearchDir =
                    ldrawSearchDir.toLower().contains(excludedDir.toLower()))) {
                   break;
@@ -275,11 +275,11 @@ bool PartWorker::loadLDrawSearchDirs(){
 #endif
           if (unofficialSubDirs.count() > 0) {
               // Recurse unofficial subdirectories for excluded directories
-              foreach (QString unofficialSubDirName, unofficialSubDirs) {
+              Q_FOREACH (QString unofficialSubDirName, unofficialSubDirs) {
                   // Exclude invalid directories
                   bool excludeSearchDir = false;
                   QString unofficialSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialRootDir).arg(unofficialSubDirName));
-                  foreach (QString excludedDir, _excludedSearchDirs){
+                  Q_FOREACH (QString excludedDir, _excludedSearchDirs){
                       if ((excludeSearchDir =
                            unofficialSubDir.toLower() == excludedDir.toLower())) {
                           break;
@@ -301,7 +301,7 @@ bool PartWorker::loadLDrawSearchDirs(){
                           // 2. get list of subSubDirs in subDir path - e.g. .../custom/parts, .../custom/textures
                           QStringList subSubDirs = subSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
                           // 3. search each subSubDir for files and subSubSubDir
-                          foreach (QString subSubDirName, subSubDirs) {
+                          Q_FOREACH (QString subSubDirName, subSubDirs) {
                               // 4. get the unofficialSubSubDir path - e.g. .../unofficial/custom/textures
                               QString unofficialSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubDir).arg(subSubDirName));
                               // First, check if there are files in subSubSubDir
@@ -317,7 +317,7 @@ bool PartWorker::loadLDrawSearchDirs(){
                                   // 6. get list of subSubSubDirs in subDir path - e.g. .../custom/textures/model1, .../custom/textures/model2
                                   QStringList subSubSubDirs = subSubSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
                                   // 7. search each subSubSubDir for files and subfolders
-                                  foreach (QString subSubDirName, subSubSubDirs) {
+                                  Q_FOREACH (QString subSubDirName, subSubSubDirs) {
                                       // 8. get the unofficialSubSubSubDir path - e.g. .../unofficial/custom/textures/model
                                       QString unofficialSubSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubSubDir).arg(subSubDirName));
                                       // Exclude 'parts/s', 'p/8' and 'p/48' sub-directories
@@ -326,7 +326,7 @@ bool PartWorker::loadLDrawSearchDirs(){
                                               << QDir::toNativeSeparators(QString("parts/s"))
                                               << QDir::toNativeSeparators(QString("p/8"))
                                               << QDir::toNativeSeparators(QString("p/48"));
-                                      foreach (QString excludedDir, _excludedDirs){
+                                      Q_FOREACH (QString excludedDir, _excludedDirs){
                                           if ((excludeSearchDir =
                                                unofficialSubSubSubDir.toLower().endsWith(excludedDir.toLower()))) {
                                               break;
@@ -395,14 +395,14 @@ void PartWorker::populateLdgLiteSearchDirs() {
         Preferences::ldgliteSearchDirs.clear();
         int count = 0;                    // set delimiter from 2nd entry
         // Recurse ldraw search directories
-        foreach (QString ldgliteSearchDir, Preferences::ldSearchDirs){
+        Q_FOREACH (QString ldgliteSearchDir, Preferences::ldSearchDirs){
             // Exclude invalid directories
             bool excludeSearchDir = false;
             // Skip over customDirs if fade or highlight step
             if (!(doFadeStep() || doHighlightStep()) &&
                 !(ldgliteSearchDir.toLower() == QString(_customPartDir).toLower() ||
                   ldgliteSearchDir.toLower() == QString(_customPrimDir).toLower())) {
-                foreach (QString excludedDir, ldgliteExcludedDirs){
+                Q_FOREACH (QString excludedDir, ldgliteExcludedDirs){
                     if ((excludeSearchDir =
                          ldgliteSearchDir.toLower() == excludedDir.toLower())) {
                         break;
@@ -633,7 +633,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                         customPartsDirs << customFileInfo.absolutePath();
                       existingCustomParts++;
                       // check if part entry already in list
-                      foreach (QString colourPart, colourPartList){
+                      Q_FOREACH (QString colourPart, colourPartList){
                           if (colourPart == fileString){
                               entryExists = true;
                               break;
@@ -669,7 +669,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       createCustomPartFiles(partType);
 
       // Populate custom parts dirs
-      foreach (QDir customDir, Paths::customDirs){
+      Q_FOREACH (QDir customDir, Paths::customDirs){
           if(customDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
               customPartsDirs << customDir.absolutePath();
       }
@@ -679,11 +679,11 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       if (_customParts > 0 && customPartsDirs.size() > 0) {
           // transfer to ldSearchDirs
           bool updateLDGLiteSearchDirs = false;
-          foreach (QString customPartDir, customPartsDirs){
+          Q_FOREACH (QString customPartDir, customPartsDirs){
               bool customDirsIncluded = false;
               QString customDir = QDir::toNativeSeparators(customPartDir.toLower());
               // check if custom directories included
-              foreach (QString ldSearchDir, Preferences::ldSearchDirs ) {
+              Q_FOREACH (QString ldSearchDir, Preferences::ldSearchDirs ) {
                   QString searchDir = QDir::toNativeSeparators(ldSearchDir.toLower());
                   if (customDirsIncluded)
                     break;
@@ -784,7 +784,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     int partsProcessed = 0;
     QStringList childrenColourParts;
 
-    foreach (QString partEntry, colourPartList) {
+    Q_FOREACH (QString partEntry, colourPartList) {
 
         bool partFound = false;
 
@@ -866,7 +866,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                             entryExists = customFileInfo.exists();
                             // check if child part entry already in list
                             if (!entryExists) {
-                                foreach (QString childColourPart, childrenColourParts){
+                                Q_FOREACH (QString childColourPart, childrenColourParts){
                                     if (childColourPart == childFileString){
                                         entryExists = true;
                                         break;
@@ -1435,14 +1435,14 @@ void ColourPartListWorker::generateCustomColourPartsList()
     QString lib = Preferences::validLDrawLibrary;
     QString unoffLib = Preferences::usingDefaultLibrary ? "Unofficial "+lib  : lib+" Custom";
     QString offLib = Preferences::usingDefaultLibrary ? "Official "+lib : lib;
-    foreach (QString archiveFile, archiveFiles) {
+    Q_FOREACH (QString archiveFile, archiveFiles) {
       QString library = archiveFile == lpub3dLibFileInfo.absoluteFilePath() ? offLib+" Library" : unoffLib+" Library";
       _ldrawStaticColourParts  << QString("# %1. %2: %3").arg(libCount++).arg(library).arg(archiveFile);
     }
     int dirCount = 1;
     _ldrawStaticColourParts  << "";
     _ldrawStaticColourParts  << "# Library Directories:";
-    foreach (QString partTypeDir, partTypeDirs){
+    Q_FOREACH (QString partTypeDir, partTypeDirs){
       _ldrawStaticColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
     }
     _ldrawStaticColourParts  << "# ----------------------Do not delete above this line----------------------------------";
@@ -1451,7 +1451,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     fileSectionHeader(FADESTEP_FILE_HEADER);
 
     emit progressBarInitSig();
-    foreach (QString archiveFile, archiveFiles) {
+    Q_FOREACH (QString archiveFile, archiveFiles) {
        if(!processArchiveParts(archiveFile)){
            QString error = QString("Process color parts list failed!.");
            emit messageSig(LOG_ERROR,error);

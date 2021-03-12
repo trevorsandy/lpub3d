@@ -154,7 +154,7 @@ QStringList Steps::submodelStack()
 {
   QStringList submodelStack;
   SubmodelStack filename;
-  foreach (filename,meta.submodelStack) {
+  Q_FOREACH (filename,meta.submodelStack) {
     submodelStack << filename.modelName;
   }
   return submodelStack;

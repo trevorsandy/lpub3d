@@ -414,7 +414,7 @@ int SubModel::generateSubModelItem()
   widestPart = 0;
   tallestPart = 0;
 
-  foreach(key,parts.keys()) { // There's only one
+  Q_FOREACH (key,parts.keys()) { // There's only one
     SubModelPart *part;
 
     part = parts[key];
@@ -778,7 +778,7 @@ void SubModel::positionChildren(
 {
   QString key;
 
-  foreach (key, sortedKeys) {
+  Q_FOREACH (key, sortedKeys) {
     SubModelPart *part = parts[key];
     if (part == nullptr) {
       continue;

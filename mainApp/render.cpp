@@ -571,7 +571,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
     }
 
   bool usingInputFileList = false;
-  foreach (QString argument, arguments){
+  Q_FOREACH (QString argument, arguments){
       if (argument.startsWith("-CommandLinesList=") ||
           argument.startsWith("-SaveSnapshotsList=")) {
           usingInputFileList = true;
@@ -1862,7 +1862,7 @@ int LDView::renderCsi(
         // populate ldrNames
         if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
             enableIM = true;
-            foreach (QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
+            Q_FOREACH (QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
                 QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
                 if (LDVImageMatte::validMatteCSIImage(csiFile)) {
                     ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
@@ -1969,7 +1969,7 @@ int LDView::renderCsi(
                 QTextStream out(&CommandLinesListFile);
                 // add normal snapshot lines
                 if (snapshotLdrs.size()) {
-                    foreach (QString argsLine,snapShotsListArgs) {
+                    Q_FOREACH (QString argsLine,snapShotsListArgs) {
                         out << argsLine << endl;
                         if (Preferences::debugLogging)
                             emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to CSI Command line list").arg(argsLine));
@@ -2100,7 +2100,7 @@ int LDView::renderCsi(
                     // IM each ldrNameIM file
                     emit gui->messageSig(LOG_STATUS, "Executing LDView render Image Matte CSI - please wait...");
 
-                    foreach (QString ldrNameIM, ldrNamesIM){
+                    Q_FOREACH (QString ldrNameIM, ldrNamesIM){
                         QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(ldrNameIM).replace(".ldr",".png")).fileName()));
                         QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
                         if (!csiKey.isEmpty()) {
@@ -2125,7 +2125,7 @@ int LDView::renderCsi(
 
     // move generated CSI images to assem subfolder
     if (useLDViewSCall()){
-        foreach (QString ldrName, ldrNames){
+        Q_FOREACH (QString ldrName, ldrNames){
             QString pngFileTmpPath = ldrName.replace(".ldr",".png");
             QString pngFilePath = QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName());
             QFile destinationFile(pngFilePath);
@@ -2344,7 +2344,7 @@ int LDView::renderPli(
       QString snapshotsCmdLineArgs,snapshotArgs;
       QStringList snapShotsListArgs, subSnapShotsListArgs;
 
-      foreach (QString ldrName,ldrNames) {
+      Q_FOREACH (QString ldrName,ldrNames) {
           if (!QFileInfo(ldrName).exists()) {
               emit gui->messageSig(LOG_ERROR, QString("LDR file %1 not found.").arg(ldrName));
               continue;
@@ -2440,13 +2440,13 @@ int LDView::renderPli(
               QTextStream out(&CommandLinesListFile);
               if (snapshotLdrs.size()) {
                   // add normal snapshot lines
-                  foreach (QString argsLine,snapShotsListArgs) {
+                  Q_FOREACH (QString argsLine,snapShotsListArgs) {
                       out << argsLine << endl;
                       if (Preferences::debugLogging)
                           emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Command line list").arg(argsLine));
                   }
                   // add substitute snapshot lines
-                  foreach (QString argsLine,subSnapShotsListArgs) {
+                  Q_FOREACH (QString argsLine,subSnapShotsListArgs) {
                       out << argsLine << endl;
                       if (Preferences::debugLogging)
                           emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Substitute Command line list").arg(argsLine));
@@ -2538,7 +2538,7 @@ int LDView::renderPli(
 
   // move generated PLI images to parts subfolder
   if (useLDViewSCall() && pliType != SUBMODEL){
-      foreach (QString ldrName, ldrNames){
+      Q_FOREACH (QString ldrName, ldrNames){
           QString pngFileTmpPath = ldrName.endsWith("_SUB.ldr") ?
                                    ldrName.replace("_SUB.ldr",".png") :
                                    ldrName.replace(".ldr",".png");

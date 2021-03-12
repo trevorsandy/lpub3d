@@ -237,7 +237,7 @@ bool TextEditDialog::getText(
     QString unformattedGoods = goods;
     if (!goods.isEmpty()) {
         QStringList list;
-        foreach (QString string, QStringList(goods.split("\\n"))){
+        Q_FOREACH (QString string, QStringList(goods.split("\\n"))){
             string = string.trimmed();
             QRegExp rx2("\"");
             int pos = 0;

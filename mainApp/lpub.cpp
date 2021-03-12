@@ -789,7 +789,7 @@ bool Gui::continuousPageDialog(Direction d)
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
       // Split page range values
-      foreach(QString ranges,pageRanges){
+      Q_FOREACH (QString ranges,pageRanges){
           // If n-n range, split into start through end pages
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
@@ -832,7 +832,7 @@ bool Gui::continuousPageDialog(Direction d)
       QApplication::setOverrideCursor(Qt::BusyCursor);
 
       // process each page
-      foreach(int printPage,printPages){
+      Q_FOREACH (int printPage,printPages){
 
           displayPageNum = printPage;
 

@@ -53,7 +53,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
   // Create an array of part file QFileInfo objects
   QFileInfoList filesToArchive;
-  foreach (QString fileName, dirFileList) filesToArchive << QFileInfo(fileName);
+  Q_FOREACH (QString fileName, dirFileList) filesToArchive << QFileInfo(fileName);
 
   // Confirm archive exist or create new instance
   QFileInfo zipFileInfo(zipArchive);
@@ -85,10 +85,10 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       // Check if filesToArchive are not in excluded location
       QStringList validDirFiles;
       QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
-      foreach(QString dirFile, dirFileList) {
+      Q_FOREACH (QString dirFile, dirFileList) {
           QString fileDir(QDir::toNativeSeparators(QFileInfo(dirFile).absolutePath()));
           bool isExcludedPath = false;
-          foreach(QString excludedPath, excludedPaths) {
+          Q_FOREACH (QString excludedPath, excludedPaths) {
               QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
               if ((isExcludedPath = (fileDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                   break;
@@ -116,7 +116,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       emit gui->messageSig(LOG_DEBUG, QString("Get Existing Archive File List %1").arg(gui->elapsedTime(t.elapsed())));
 
       //Create an array of archive file QFileInfo objects
-      foreach (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
+      Q_FOREACH (QString zipFile, zipFileList) zipFiles << QFileInfo(zipFile);
 
   } else {
       if (!zip.open(QuaZip::mdCreate)) {
@@ -131,7 +131,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   int archivedPartCount   = 0;
 
   char c;
-  foreach(QFileInfo fileInfo, filesToArchive) {
+  Q_FOREACH (QFileInfo fileInfo, filesToArchive) {
 
       //qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
       if (!fileInfo.isFile())
@@ -140,7 +140,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       bool alreadyArchived = false;
       QString partStatus = "Archiving";
 
-      foreach (QFileInfo zipFileInfo, zipFiles) {
+      Q_FOREACH (QFileInfo zipFileInfo, zipFiles) {
           if (fileInfo == zipFileInfo) {
               bool okToOverwrite = (zipFileInfo.fileName().contains(QString("%1.dat").arg(FADE_SFX)) ||
                                     zipFileInfo.fileName().contains(QString("%1.dat").arg(HIGHLIGHT_SFX)));
@@ -269,7 +269,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
   };
   QStringList entryList[num_entryPoints];
 
-  foreach (QString dirFile, validDirFiles) {
+  Q_FOREACH (QString dirFile, validDirFiles) {
 
      QFileInfo zipFile(dirFile);
      QString fileName = zipFile.fileName();
@@ -337,10 +337,10 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
   QStringList entryList = dir.entryList(filters, QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
   QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
 
-  foreach (QString file, entryList) {
+  Q_FOREACH (QString file, entryList) {
       QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
       bool isExcludedPath = false;
-      foreach(QString excludedPath, excludedPaths) {
+      Q_FOREACH (QString excludedPath, excludedPaths) {
           QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
           if ((isExcludedPath = (filePath.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
               break;

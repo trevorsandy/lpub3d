@@ -3263,7 +3263,7 @@ bool Preferences::getShowMessagePreference(MsgKey key)
 
 int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type, bool option, bool override)
 {
-    foreach (QString messageNotShown, messagesNotShown)
+    Q_FOREACH (QString messageNotShown, messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
             return QMessageBox::Ok;
 
@@ -4156,10 +4156,10 @@ bool Preferences::getPreferences()
                 ldSearchDirs.clear();
                 QStringList excludedEntries;
                 QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
-                foreach (QString searchDir, dialog->searchDirSettings()) {
+                Q_FOREACH (QString searchDir, dialog->searchDirSettings()) {
                     bool entryHasExcludedPath = false;
                     QString formattedDir = QDir::toNativeSeparators(searchDir);
-                    foreach (QString excludedPath, excludedPaths) {
+                    Q_FOREACH (QString excludedPath, excludedPaths) {
                         QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(ldrawLibPath).arg(excludedPath));
                         if ((entryHasExcludedPath = (formattedDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                             break;
@@ -4691,7 +4691,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                 if (line.left(1) == "[" || line.isEmpty()) {        // at next section or empty line, insert search dirs
                     dirNum = 0;
                     QString nativePath;
-                    foreach (QString searchDir, ldSearchDirs) {
+                    Q_FOREACH (QString searchDir, ldSearchDirs) {
                        dirNum++;
                        if (dirNum <= ldSearchDirs.count()) {
 #ifdef Q_OS_WIN
@@ -4715,7 +4715,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                 if (line.contains("_SessionPlaceholder")) {      // insert search dirs before session placeholder
                     dirNum = 0;
                     QString nativePath;
-                    foreach (QString searchDir, ldSearchDirs) {
+                    Q_FOREACH (QString searchDir, ldSearchDirs) {
                        dirNum++;
                        if (dirNum <= ldSearchDirs.count()) {
 #ifdef Q_OS_WIN
@@ -4756,7 +4756,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     if (confFile.open(QIODevice::WriteOnly))
     {
         QTextStream output(&confFile);
-        foreach (QString line, contentList) {
+        Q_FOREACH (QString line, contentList) {
            output << line << endl;
         }
         confFile.flush();
@@ -4930,7 +4930,7 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
             return false;
         QDir sourceDir(srcFilePath);
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        foreach (const QString &fileName, fileNames) {
+        Q_FOREACH (const QString &fileName, fileNames) {
             const QString newSrcFilePath
                     = srcFilePath + QLatin1Char('/') + fileName;
             const QString newTgtFilePath

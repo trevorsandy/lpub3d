@@ -690,7 +690,7 @@ void LDViewExportOption::setLights(void)
 	QStringList lights;
 	int number = 0;
 	m_liCombo->clear();
-	foreach (QString light, m_pov_lightList){
+	Q_FOREACH (QString light, m_pov_lightList){
 		number++;
 		tempList = light.split(" ");
 		lights << QString("%1. Latitude %2 Longitude %3")

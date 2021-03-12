@@ -88,7 +88,7 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     << "\\b~MOVED TO[^\n]*"
        ;
 
-    foreach (QString pattern, LDrawHeaderPatterns) {
+    Q_FOREACH (QString pattern, LDrawHeaderPatterns) {
         rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
         rule.format = LDrawHeaderFormat;
         highlightingRules.append(rule);
@@ -123,7 +123,7 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     << "\\b!LEOCAD\\b[^\n]*"
       ;
 
-    foreach (QString pattern, ModuleMetaPatterns) {
+    Q_FOREACH (QString pattern, ModuleMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = ModuleMetaFormat;
 
@@ -141,7 +141,7 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     << "\\bPLIST\\b[^\n]*"
        ;
 
-    foreach (QString pattern, LPubMetaPatterns) {
+    Q_FOREACH (QString pattern, LPubMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LPubMetaFormat;
 
@@ -158,7 +158,7 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     << "\\b!SYNTH\\b[^\n]*"
        ;
 
-    foreach (QString pattern, LSynthMetaPatterns) {
+    Q_FOREACH (QString pattern, LSynthMetaPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = LSynthMetaFormat;
 
@@ -175,7 +175,7 @@ HighlighterSimple::HighlighterSimple(QTextDocument *parent)
 
 void HighlighterSimple::highlightBlock(const QString &text)
 {
-    foreach (HighlightingRule rule, highlightingRules) {
+    Q_FOREACH (HighlightingRule rule, highlightingRules) {
         QRegExp expression(rule.pattern);
 
         int index = text.indexOf(expression);

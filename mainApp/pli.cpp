@@ -643,7 +643,7 @@ void Pli::setParts(
         }
 
       QString key;
-      foreach(key,sortedKeys){
+      Q_FOREACH (key,sortedKeys){
           PliPart *part;
           part = tempParts[key];
 
@@ -1090,7 +1090,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
                 }
 
                 QTextStream out(&part);
-                foreach (QString line, pliFile)
+                Q_FOREACH (QString line, pliFile)
                     out << line << endl;
                 part.close();
 
@@ -1188,7 +1188,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
 
         QString key;
         // 3. populate parts with image pixmap and size
-        foreach(key,parts.keys()) {
+        Q_FOREACH (key,parts.keys()) {
 
             PliPart *part;
             // get part info
@@ -2085,7 +2085,7 @@ int Pli::partSize()
       widestPart = 0;
       tallestPart = 0;
 
-      foreach(key,parts.keys()) {
+      Q_FOREACH (key,parts.keys()) {
           PliPart *part;
 
           // get part info
@@ -2313,7 +2313,7 @@ int Pli::partSizeLDViewSCall() {
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
 
     // 1. generate ldr files
-    foreach(key,parts.keys()) {
+    Q_FOREACH (key,parts.keys()) {
         PliPart *pliPart;
 
         // get part info
@@ -2514,7 +2514,7 @@ int Pli::partSizeLDViewSCall() {
                         }
 
                         QTextStream out(&part);
-                        foreach (QString line, pliFile)
+                        Q_FOREACH (QString line, pliFile)
                             out << line << endl;
                         part.close();
                     }
@@ -2888,7 +2888,7 @@ void Pli::positionChildren(
 {
   QString key;
 
-  foreach (key, sortedKeys) {
+  Q_FOREACH (key, sortedKeys) {
       PliPart *part = parts[key];
       if (part == nullptr) {
           continue;

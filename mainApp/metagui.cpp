@@ -6167,7 +6167,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     activeBuildModItem = nullptr;
 
     if (gui->buildModsSize()) {
-        foreach (QString buildMod, gui->getBuildModsList()){
+        Q_FOREACH (QString buildMod, gui->getBuildModsList()){
            QListWidgetItem* buildModItem = new QListWidgetItem(buildMod);
            buildModList->addItem(buildModItem);
         }
@@ -7617,7 +7617,7 @@ bool BlenderRenderDialogGui::extractBlenderAddon(const QString &blenderDir)
         QDir dir(blenderAddonDir);
         dir.setNameFilters(QStringList() << "*.*");
         dir.setFilter(QDir::Files);
-        foreach (QString dirFile, dir.entryList()) {
+        Q_FOREACH (QString dirFile, dir.entryList()) {
             dir.remove(dirFile);
             emit gui->messageSig(LOG_INFO, QString("Removed Blender addon item: [%1]").arg(dirFile));
         }

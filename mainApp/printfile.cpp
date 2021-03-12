@@ -183,7 +183,7 @@ void Gui::checkMixedPageSizeStatus(){
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
-      foreach (QString ranges,pageRanges){
+      Q_FOREACH (QString ranges,pageRanges){
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
@@ -200,7 +200,7 @@ void Gui::checkMixedPageSizeStatus(){
 
           bool defaultSizesUpdated = false;
 
-          foreach (key,printPages) {
+          Q_FOREACH (key,printPages) {
 
               QMap<int,PgSizeData>::iterator i = pageSizes.find(key);   // this page
               if (i != pageSizes.end()){
@@ -261,7 +261,7 @@ void Gui::checkMixedPageSizeStatus(){
                                .arg(pageSizes[DEF_SIZE].sizeID)
                                .arg(pageSizes[DEF_SIZE].orientation == Landscape ? "Landscape" : "Portrait");
 #endif
-      foreach (key,pageSizes.keys()){
+      Q_FOREACH (key,pageSizes.keys()){
 
           if (pageSizes[key].orientation != orientation && orientation_warning != true) {
               orientation_warning = true;
@@ -337,7 +337,7 @@ bool Gui::validatePageRange(){
   bool validEntry = true;
   QString message;
   QStringList pageRanges = pageRangeText.split(",");
-  foreach (QString ranges, pageRanges){
+  Q_FOREACH (QString ranges, pageRanges){
       if (ranges.contains("-")){
           bool ok[2];
           QStringList range = ranges.split("-");
@@ -982,7 +982,7 @@ void Gui::exportAsPdf()
           m_progressDlgProgressBar->setRange(1,pages.count());
 
           int page;
-          foreach (page, pages.keys()) {
+          Q_FOREACH (page, pages.keys()) {
               m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
                                                .arg(page)
                                                .arg(pages.count()));
@@ -1021,7 +1021,7 @@ void Gui::exportAsPdf()
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
-      foreach (QString ranges,pageRanges){
+      Q_FOREACH (QString ranges,pageRanges){
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
@@ -1053,7 +1053,7 @@ void Gui::exportAsPdf()
       }
 
       // step 1. generate page pixmaps
-      foreach (int printPage,printPages){
+      Q_FOREACH (int printPage,printPages){
 
           _pageCount++;
 
@@ -1171,7 +1171,7 @@ void Gui::exportAsPdf()
           m_progressDlgProgressBar->setRange(1,pages.count());
 
           int page;
-          foreach (page, pages.keys()) {
+          Q_FOREACH (page, pages.keys()) {
               m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
                                                .arg(page)
                                                .arg(pages.count()));
@@ -1460,7 +1460,7 @@ void Gui::exportAs(const QString &_suffix)
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
-      foreach (QString ranges,pageRanges){
+      Q_FOREACH (QString ranges,pageRanges){
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int minPage = range[0].toInt();
@@ -1479,7 +1479,7 @@ void Gui::exportAs(const QString &_suffix)
 
       int _pageCount = 0;
 
-      foreach (int printPage,printPages){
+      Q_FOREACH (int printPage,printPages){
 
           if (! exporting()) {
               if (Preferences::modeGUI)
@@ -1815,7 +1815,7 @@ void Gui::Print(QPrinter* Printer)
           // page range
           QStringList pageRanges = pageRangeText.split(",");
           QList<int> printPages;
-          foreach (QString ranges,pageRanges){
+          Q_FOREACH (QString ranges,pageRanges){
               if (ranges.contains("-")){
                   QStringList range = ranges.split("-");
                   int minPage = range[0].toInt();
@@ -1836,7 +1836,7 @@ void Gui::Print(QPrinter* Printer)
 
           int _pageCount = 0;
 
-          foreach (int printPage,printPages){
+          Q_FOREACH (int printPage,printPages){
 
               if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error || ! exporting())
                 {

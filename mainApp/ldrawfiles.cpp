@@ -441,7 +441,7 @@ bool LDrawFile::modified()
 {
   QString key;
   bool    modified = false;
-  foreach(key,_subFiles.keys()) {
+  Q_FOREACH (key,_subFiles.keys()) {
     modified |= _subFiles[key]._modified;
   }
   return modified;
@@ -577,7 +577,7 @@ void LDrawFile::setPrevStepPosition(const QString     &mcFileName,
 void LDrawFile::clearPrevStepPositions()
 {
   QString key;
-  foreach(key,_subFiles.keys()) {
+  Q_FOREACH (key,_subFiles.keys()) {
     _subFiles[key]._prevStepPosition = 0;
   }
 }
@@ -599,7 +599,7 @@ bool LDrawFile::older(const QStringList &parsedStack,
                       const QDateTime &lastModified)
 {
   QString fileName;
-  foreach (fileName, parsedStack) {
+  Q_FOREACH (fileName, parsedStack) {
     QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
     if (i != _subFiles.end()) {
       QDateTime fileDatetime = i.value()._datetime;
@@ -776,7 +776,7 @@ QString LDrawFile::readConfiguredLine(const QString &mcFileName, int lineNumber)
 void LDrawFile::unrendered()
 {
   QString key;
-  foreach(key,_subFiles.keys()) {
+  Q_FOREACH (key,_subFiles.keys()) {
     _subFiles[key]._rendered = false;
     _subFiles[key]._mirrorRendered = false;
     _subFiles[key]._renderedKeys.clear();
@@ -2221,7 +2221,7 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
 void LDrawFile::tempCacheCleared()
 {
   QString key;
-  foreach(key,_subFiles.keys()) {
+  Q_FOREACH (key,_subFiles.keys()) {
     _subFiles[key]._changedSinceLastWrite = true;
   }
 }
@@ -2240,7 +2240,7 @@ void LDrawFile::insertLDCadGroup(const QString &name, int lid)
 bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 {
   QList<int> values = _ldcadGroups.values(name);
-  foreach(QString lid, lids){
+  Q_FOREACH (QString lid, lids){
     if (values.contains(lid.toInt()))
       return true;
   }

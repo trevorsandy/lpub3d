@@ -1150,7 +1150,7 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
             Where top = step->topOfStep();
             Where bottom = step->bottomOfStep();
             int lineNumber = step->stepNumber.number;
-            foreach(key,pliParts.keys()) {
+            Q_FOREACH (key,pliParts.keys()) {
                 part = pliParts[key];
                 part->addPartGroupToScene(scene,top,bottom,lineNumber);
             }
@@ -1222,7 +1222,7 @@ int Gui::addPliPartGroupsToScene(
                 Where top = page->pli.step ? page->pli.step->topOfStep() : page->topOfSteps();
                 Where bottom = page->pli.step ? page->pli.step->bottomOfStep() : page->bottomOfSteps();
                 int lineNumber = page->pli.step ? page->pli.step->stepNumber.number : 0;
-                foreach(key,pliParts.keys()) {
+                Q_FOREACH (key,pliParts.keys()) {
                     part = pliParts[key];
                     part->addPartGroupToScene(scene,top,bottom,lineNumber);
                 }
@@ -1626,7 +1626,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                     if (debugLogging)
                         emit messageSig(LOG_DEBUG, QString("01 Checking colliding scene items..."));
                 }
-                foreach (QGraphicsItem *item, overlapItems) {
+                Q_FOREACH (QGraphicsItem *item, overlapItems) {
                     itemObjS = SceneObject(item->data(ObjectId).toInt());
                     if (itemObjS == itemObjD){
                         if (page->relativeType == StepGroupType){
@@ -1675,7 +1675,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
                                 emit messageSig(LOG_TRACE, QString("-- Add related scene item %1 (%2) for step (%3)...")
                                                 .arg(soMap[itemObjR]).arg(itemObjR).arg(relatedItemStepNumber));
                             relatedItems.append(item);
-                            foreach (QGraphicsItem *childItem, item->childItems()) {
+                            Q_FOREACH (QGraphicsItem *childItem, item->childItems()) {
                                 if (!relatedItems.contains(childItem)){
                                     SceneObject itemObjC = SceneObject(childItem->data(ObjectId).toInt());
                                     if (debugLogging)
@@ -1698,7 +1698,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             // Callout Pointer
             QList<QGraphicsItem *>relatedItems;
             if (itemObjS == CalloutPointerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
+                Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
                         emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
@@ -1711,7 +1711,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             }
             // Callout
             if (itemObjS == CalloutBackgroundObj){
-                foreach (QGraphicsItem *item, scene->items()) {
+                Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
                         emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
@@ -1725,7 +1725,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
 
             // Divider pointer
             if (itemObjS == DividerPointerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
+                Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
                         emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
@@ -1738,7 +1738,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
             }
             // Divider
             if (itemObjS == DividerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
+                Q_FOREACH (QGraphicsItem *item, scene->items()) {
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)
                         emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
@@ -1760,7 +1760,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
 
             qreal zValue = 0;
             SceneObjectDirection direction = soData.direction;
-            foreach (QGraphicsItem *item, overlapItems) {
+            Q_FOREACH (QGraphicsItem *item, overlapItems) {
                 qreal itemZValue = item->zValue() ;
                 SceneObject itemObjO = SceneObject(item->data(ObjectId).toInt());
                 bool itemIsUserSceneObject = isUserSceneObject(itemObjO);
@@ -1786,7 +1786,7 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
 
             if (relatedItems.size()){
                 qreal zValueR = zValue;
-                foreach (QGraphicsItem *item, relatedItems) {
+                Q_FOREACH (QGraphicsItem *item, relatedItems) {
                     qreal itemZValueR = item->zValue() ;
                     SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
                     if (debugLogging)

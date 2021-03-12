@@ -234,7 +234,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
   if (Preferences::ldSearchDirs.size() > 0){
-      foreach (QString searchDir, Preferences::ldSearchDirs)
+      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
   }
 
@@ -610,7 +610,7 @@ void PreferencesDialog::on_pushButtonReset_clicked()
       Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
       ui.textEditSearchDirs->clear();
-      foreach (QString searchDir, Preferences::ldSearchDirs)
+      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
 
       box.setIcon (QMessageBox::Information);
@@ -1055,7 +1055,7 @@ void PreferencesDialog::messageManagement()
 
         if (Preferences::messagesNotShown.size()) {
             bool ok;
-            foreach (QString message,Preferences::messagesNotShown) {
+            Q_FOREACH (QString message,Preferences::messagesNotShown) {
                 int key = QString(message.at(0)).toInt(&ok);
                 if (ok) {
                     Preferences::MsgKey msgKey = Preferences::MsgKey(key);
