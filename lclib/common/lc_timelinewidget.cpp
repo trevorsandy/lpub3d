@@ -314,6 +314,7 @@ void lcTimelineWidget::UpdateCurrentStepItem()
 			QFont Font = mCurrentStepItem->font(0);
 			Font.setBold(false);
 			mCurrentStepItem->setFont(0, Font);
+			setCurrentItem(CurrentStepItem);
 		}
 
 		if (CurrentStepItem)
@@ -325,7 +326,6 @@ void lcTimelineWidget::UpdateCurrentStepItem()
 
 		mCurrentStepItem = CurrentStepItem;
 	}
-
 }
 
 /*** LPub3D Mod - Timeline part icons ***/
