@@ -62,7 +62,6 @@ GlobalProjectDialog::GlobalProjectDialog(
   setWindowTitle(tr("Project Globals Setup"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
-  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
 
   setLayout(layout);
 
@@ -75,17 +74,19 @@ GlobalProjectDialog::GlobalProjectDialog(
   layout->addWidget(box);
   child = new ResolutionGui(&lpubMeta->resolution,box);
   data->children.append(child);
-  
-  box = new QGroupBox("Stud Style");
+
+  box = new QGroupBox("Stud Style and Automate Edge Color");
   layout->addWidget(box);
-  StudStyleGui *childStudStyle = new StudStyleGui("", &lpubMeta->studStyle, box);
-  childStudStyle->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
+  StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
+  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
-  connect (childStudStyle->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
+  connect (childStudStyle->getCheckBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
+  connect (childStudStyle->getComboBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childStudStyle, SIGNAL(settingsChanged(int)), this, SLOT(clearCache(int)));
 
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
-  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable Build Modifications",&lpubMeta->buildModEnabled,box);
+  BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable build modifications",&lpubMeta->buildModEnabled,box);
   box->setToolTip("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework.");
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
@@ -101,24 +102,26 @@ GlobalProjectDialog::GlobalProjectDialog(
   connect (childCountInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childCountInstance->getStepRadio(),  SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
-  box = new QGroupBox("Step Numbers");
+  box = new QGroupBox("Continuous Step Numbers");
   layout->addWidget(box);
-  box->setLayout(childlayout);
-  childContStepNumbersBox = new ContStepNumGui("Continuous step numbers",&lpubMeta->contStepNumbers/*,box*/);
+  //box->setLayout(childlayout);
+  childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers, box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
-  childlayout->addWidget(childContStepNumbersBox);
+  //childlayout->addWidget(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
-  childStartStepNumberSpin = new SpinGui("Start Step Number", &lpubMeta->startStepNumber,0,10000,1/*,box*/);
+  box = new QGroupBox("Start Step Number");
+  layout->addWidget(box);
+  childStartStepNumberSpin = new SpinGui("Set start step number", &lpubMeta->startStepNumber,0,10000,1,box);
   data->children.append(childStartStepNumberSpin);
   connect (childStartStepNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
-  childlayout->addWidget(childStartStepNumberSpin);
+  //childlayout->addWidget(childStartStepNumberSpin);
 
   box = new QGroupBox("Page Numbers");
   layout->addWidget(box);
-  childStartPageNumberSpin = new SpinGui("Start Page Number", &lpubMeta->startPageNumber,0,10000,1,box);
+  childStartPageNumberSpin = new SpinGui("Set start page number", &lpubMeta->startPageNumber,0,10000,1,box);
   data->children.append(childStartPageNumberSpin);
   connect (childStartPageNumberSpin->getSpinBox(),   SIGNAL(valueChanged(int)), this, SLOT(clearCache(int)));
 

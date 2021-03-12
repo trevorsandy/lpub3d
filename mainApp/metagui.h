@@ -260,21 +260,46 @@ class StudStyleGui : public MetaGui
 public:
 
   StudStyleGui(
-    const QString &namedValues,
-    StudStyleMeta *meta,
-    QGroupBox     *parent = nullptr);
+    AutoEdgeColorMeta     *autoEdgeMeta,
+    StudStyleMeta         *studStyleMeta,
+    HighContrastColorMeta *highContrastMeta,
+    QGroupBox             *parent = nullptr);
   ~StudStyleGui() {}
 
+  QCheckBox *getCheckBox() {return checkbox;}
   QComboBox *getComboBox() {return combo;}
 
   virtual void apply(QString &modelName);
 
 private:
-  StudStyleMeta *meta;
-  QComboBox     *combo;
+  HighContrastColorMeta *highContrastMeta;
+  StudStyleMeta         *studStyleMeta;
+  AutoEdgeColorMeta     *autoEdgeMeta;
+  QCheckBox             *checkbox;
+  QComboBox             *combo;
+  QToolButton           *studStyleButton;
+  QToolButton           *autoEdgeButton;
+
+  bool    lightDarkIndexModified;
+  bool    studCylinderColorModified;
+  bool    partEdgeColorModified;
+  bool    blackEdgeColorModified;
+  bool    darkEdgeColorModified;
+  bool    contrastModified;
+  bool    saturationModified;
+
+  bool    studStyleModified;
+  bool    autoEdgeModified;
+
+signals:
+  void settingsChanged(int);
 
 public slots:
-  void valueChanged(int);
+  void comboChanged(int);
+  void checkboxChanged(bool);
+  void processToolButtonClick();
+  void enableStudStyleButton(int index);
+  void enableAutoEdgeButton();
 };
 
 /***********************************************************************

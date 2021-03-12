@@ -1349,6 +1349,8 @@ int LDGLite::   renderCsi(
   Q_UNUSED(csiKeys)
   Q_UNUSED(nType)
 
+  const lcPreferences& Preferences = lcGetPreferences();
+
   /* Create the CSI DAT file */
   QString ldrPath, ldrName, ldrFile;
   int rc;

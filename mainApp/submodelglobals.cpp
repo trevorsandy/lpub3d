@@ -226,10 +226,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   child = new NumberGui(&subModelMeta->instance,instanceCountBox);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style");
+  box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui("", &subModelMeta->studStyle, box);
-  child->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
+  child = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
+  child->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

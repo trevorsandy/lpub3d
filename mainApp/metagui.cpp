@@ -809,55 +809,177 @@ void NumberGui::apply(
  *
  **********************************************************************/
 
-StudStyleGui::StudStyleGui(
-  const QString &namedValues,
-  StudStyleMeta *_meta,
-  QGroupBox     *parent)
-{
-  meta = _meta;
+#include "lc_edgecolordialog.h"
 
-  QHBoxLayout* layout = new QHBoxLayout(parent);
+StudStyleGui::StudStyleGui(
+  AutoEdgeColorMeta     *_autoEdgeMeta,
+  StudStyleMeta         *_studStyleMeta,
+  HighContrastColorMeta *_highContrastMeta,
+  QGroupBox             *parent)
+{
+  autoEdgeMeta     = _autoEdgeMeta;
+  studStyleMeta    = _studStyleMeta;
+  highContrastMeta = _highContrastMeta;
+
+  QGridLayout* gridLayout = new QGridLayout(parent);
 
   if (parent)
-      parent->setLayout(layout);
+      parent->setLayout(gridLayout);
   else
-      setLayout(layout);
+      setLayout(gridLayout);
+
+  checkbox = new QCheckBox(parent);
+  checkbox->setText(tr("Automate edge colors"));
+  checkbox->setChecked(autoEdgeMeta->enable.value());
+
+  autoEdgeButton = new QToolButton(parent);
+  autoEdgeButton->setEnabled(checkbox->isChecked());
+  autoEdgeButton->setText(tr("Settings..."));
+
+  QLabel *label = new QLabel(tr("Stud style"), parent);
 
   combo = new QComboBox(parent);
-  if (namedValues.isEmpty()) {
-      combo->addItem("0 Plain");
-      combo->addItem("1 Thin Line Logo");
-      combo->addItem("2 Outline Logo");
-      combo->addItem("3 Sharp Top Logo");
-      combo->addItem("4 Rounded Top Logo");
-      combo->addItem("5 Flattened Logo");
-      combo->addItem("6 High Contrast");
-      combo->addItem("7 High Contrast with Logo");
-  } else {
-      QStringList comboItems = namedValues.split("|");
-      for (QString &item : comboItems)
-          combo->addItem(item);
-  }
+  combo->addItem("0 Plain");
+  combo->addItem("1 Thin Line Logo");
+  combo->addItem("2 Outline Logo");
+  combo->addItem("3 Sharp Top Logo");
+  combo->addItem("4 Rounded Top Logo");
+  combo->addItem("5 Flattened Logo");
+  combo->addItem("6 High Contrast");
+  combo->addItem("7 High Contrast with Logo");
+  combo->setCurrentIndex(int(studStyleMeta->value()));
 
-  combo->setCurrentIndex(meta->value());
+  studStyleButton = new QToolButton(parent);
+  studStyleButton->setEnabled(combo->currentIndex() > 5);
+  studStyleButton->setText(tr("Settings..."));
 
-  layout->addWidget(combo);
+  gridLayout->addWidget(checkbox, 0, 0,1, 2);
+  gridLayout->addWidget(autoEdgeButton, 0, 2);
+
+  gridLayout->addWidget(label, 1, 0);
+  gridLayout->addWidget(combo, 1, 1);
+  gridLayout->addWidget(studStyleButton, 1, 2);
+
+  connect(checkbox,SIGNAL(toggled(bool)),
+          this, SLOT  (checkboxChanged()));
 
   connect(combo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT  (valueChanged(int)));
+          this, SLOT  (comboChanged(int)));
+
+  connect(checkbox,SIGNAL(toggled(bool)),
+          this, SLOT  (enableAutoEdgeButton()));
+  connect(combo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT  (enableStudStyleButton(int)));
+
+  connect(autoEdgeButton,SIGNAL(clicked()),
+          this, SLOT  (processToolButtonClick()));
+  connect(studStyleButton,SIGNAL(clicked()),
+          this, SLOT  (processToolButtonClick()));
+
+  lightDarkIndexModified = false;
+  studCylinderColorModified = false;
+  partEdgeColorModified = false;
+  blackEdgeColorModified = false;
+  darkEdgeColorModified = false;
+
+  studStyleModified = false;
+  contrastModified = false;
+  saturationModified = false;
+  autoEdgeModified = false;
 }
 
-void StudStyleGui::valueChanged(int value)
+void StudStyleGui::enableStudStyleButton(int index)
 {
-  if ((modified = value != meta->value()))
-    meta->setValue(value);
+  studStyleButton->setEnabled(index > 5);
+}
+
+void StudStyleGui::enableAutoEdgeButton()
+{
+  autoEdgeButton->setEnabled(checkbox->isChecked());
+}
+
+void StudStyleGui::checkboxChanged(bool value)
+{
+  if ((autoEdgeModified = value != autoEdgeMeta->enable.value())) {
+    autoEdgeMeta->enable.setValue(value);
+    modified = true;
+  }
+}
+
+void StudStyleGui::comboChanged(int value)
+{
+  if ((studStyleModified = value != studStyleMeta->value())) {
+    studStyleMeta->setValue(value);
+    modified = true;
+  }
+}
+
+void StudStyleGui::processToolButtonClick()
+{
+  lcAutomateEdgeColorDialog Dialog(this, sender() == studStyleButton);
+  if (Dialog.exec() == QDialog::Accepted) {
+    if (sender() == studStyleButton) {
+      if ((lightDarkIndexModified = Dialog.mPartColorValueLDIndex != highContrastMeta->lightDarkIndex.value())) {
+        highContrastMeta->lightDarkIndex.setValue(Dialog.mPartColorValueLDIndex);
+        emit settingsChanged(1);
+      }
+      if ((studCylinderColorModified = Dialog.mStudCylinderColor != highContrastMeta->studCylinderColor.value())) {
+        highContrastMeta->studCylinderColor.setValue(Dialog.mStudCylinderColor);
+        emit settingsChanged(1);
+      }
+      if ((partEdgeColorModified = Dialog.mPartEdgeColor != highContrastMeta->partEdgeColor.value())) {
+        highContrastMeta->partEdgeColor.setValue(Dialog.mPartEdgeColor);
+        emit settingsChanged(1);
+      }
+      if ((blackEdgeColorModified = Dialog.mBlackEdgeColor != highContrastMeta->blackEdgeColor.value())) {
+        highContrastMeta->blackEdgeColor.setValue(Dialog.mBlackEdgeColor);
+        emit settingsChanged(1);
+      }
+      if ((darkEdgeColorModified = Dialog.mDarkEdgeColor != highContrastMeta->darkEdgeColor.value())) {
+        highContrastMeta->darkEdgeColor.setValue(Dialog.mDarkEdgeColor);
+        emit settingsChanged(1);
+      }
+    } else {
+      if ((contrastModified = Dialog.mPartEdgeContrast != autoEdgeMeta->contrast.value())) {
+        autoEdgeMeta->contrast.setValue(Dialog.mPartEdgeContrast);
+        emit settingsChanged(1);
+      }
+      if ((saturationModified = Dialog.mPartColorValueLDIndex != autoEdgeMeta->saturation.value())) {
+        autoEdgeMeta->saturation.setValue(Dialog.mPartColorValueLDIndex);
+        emit settingsChanged(1);
+      }
+    }
+    modified = (lightDarkIndexModified || studCylinderColorModified ||
+                partEdgeColorModified || blackEdgeColorModified ||
+                darkEdgeColorModified || contrastModified ||
+                saturationModified);
+  }
 }
 
 void StudStyleGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;
-    mi.setGlobalMeta(modelName,meta);
+    mi.beginMacro("StudStyleSettings");
+    if (studStyleModified)
+        mi.setGlobalMeta(modelName,studStyleMeta);
+    if (autoEdgeModified)
+        mi.setGlobalMeta(modelName,&autoEdgeMeta->enable);
+    if (contrastModified)
+        mi.setGlobalMeta(modelName,&autoEdgeMeta->contrast);
+    if (saturationModified)
+        mi.setGlobalMeta(modelName,&autoEdgeMeta->saturation);
+    if (lightDarkIndexModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->lightDarkIndex);
+    if (studCylinderColorModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->studCylinderColor);
+    if (partEdgeColorModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->partEdgeColor);
+    if (blackEdgeColorModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->blackEdgeColor);
+    if (darkEdgeColorModified)
+        mi.setGlobalMeta(modelName,&highContrastMeta->darkEdgeColor);
+    mi.endMacro();
   }
 }
 

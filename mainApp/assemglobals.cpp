@@ -167,9 +167,9 @@ GlobalAssemDialog::GlobalAssemDialog(
   if (!enableAnnotations)
       box->setToolTip("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation.");
 
-  box = new QGroupBox("Stud Style");
+  box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui("", &assem->studStyle, box);
+  child = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
   child->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(child);
 

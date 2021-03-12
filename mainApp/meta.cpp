@@ -2741,6 +2741,76 @@ void StudStyleMeta::doc(QStringList &out, QString preamble)
   out << preamble + " (NONE|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO|1-7)";
 }
 
+/* ------------------ */
+
+ColorMeta::ColorMeta() : LeafMeta()
+{
+    _value[0] = 0;
+    _value[1] = 0;
+}
+
+Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
+{
+  Rc rc = OkRc;
+  if (argv.size() - index == 1) {
+    _value[pushed] = getRGBAFromString(argv[index]);
+    rc = _value[pushed] ? OkRc : FailureRc;
+    if (rc)
+      _here[pushed] = here;
+  } else {
+    rc = FailureRc;
+  }
+  if (rc == FailureRc && reportErrors) {
+    emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected \"NNN,NNN,NNN,NNN\", got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+  }
+  return rc;
+}
+
+QString ColorMeta::format(bool local, bool global)
+{
+  QString foo = QString("\"%1\"").arg(getRGBAString(_value[pushed]));
+  return LeafMeta::format(local,global,foo);
+}
+
+void ColorMeta::getRGBA(quint32 color, int& r, int& g, int& b, int& a)
+{
+    // Colors are stored in RGBA format.
+    r = color & 0xFF;
+    g = (color >> 8) & 0xFF;
+    b = (color >> 16) & 0xFF;
+    a = (color >> 24) & 0xFF;
+}
+
+quint32 ColorMeta::getRGBA(int r, int g, int b, int a)
+{
+    return (r & 0xFF) | ((g & 0xFF) << 8) | ((b & 0xFF) << 16) | ((a & 0xFF) << 24);
+}
+
+quint32 ColorMeta::getRGBAFromString(const QString &value)
+{
+    if (!value.isEmpty()) {
+        int n, r, g, b, a;
+        n = sscanf(value.toLatin1().constData(), "%d,%d,%d,%d", &r, &g, &b, &a);
+        if (n == 3 || n == 4)
+            return getRGBA(r, g, b, (n == 3 ? 255 : a));
+    }
+    return 0;
+}
+
+QString ColorMeta::getRGBAString(const quint32 rgba)
+{
+    int r, g, b, a;
+    getRGBA(rgba, r, g, b, a);
+    char v[128];
+    sprintf(v, "%d,%d,%d,%d", r, g, b, a);
+    return QString(v);
+}
+
+void ColorMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " \"NNN,NNN,NNN,NNN\"";
+}
+
 /* ------------------ */ 
 
 /*
@@ -3107,12 +3177,52 @@ void ArrowEndMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
+{
+  contrast.setRange(0.0f,1.0f);
+  contrast.setFormats(1,2,"#9.99");
+  contrast.setValue(0.5f);
+  saturation.setRange(0.0f,1.0f);
+  saturation.setFormats(1,2,"#9.99");
+  saturation.setValue(0.5f);
+  enable.setValue(false);
+}
+
+void AutoEdgeColorMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  contrast     .init(this,"CONTRAST");
+  saturation   .init(this,"SATURATION");
+  enable       .init(this,"ENABLE");
+}
+
+/* ------------------ */
+
+HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
+{
+  lightDarkIndex.setRange(0.0f,1.0f);
+  lightDarkIndex.setFormats(1,2,"#9.99");
+  lightDarkIndex.setValue(0.5f);
+}
+
+void HighContrastColorMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  lightDarkIndex     .init(this,"COLOR_LIGHT_DARK_INDEX");
+  studCylinderColor  .init(this,"STUD_CYLINDER_COLOR");
+  partEdgeColor      .init(this,"EDGE_COLOR");
+  blackEdgeColor     .init(this,"BLACK_EDGE_COLOR");
+  darkEdgeColor      .init(this,"DARK_EDGE_COLOR");
+}
+
+/*------------------------*/
+
 SettingsMeta::SettingsMeta() : BranchMeta()
 {
   // assem image generation
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"#99999.9");
-  modelScale.setValue(1.0);
+  modelScale.setValue(1.0f);
 
   // assem native camera position
   cameraAngles.setFormats(7,4,"###9.90");
@@ -3140,8 +3250,10 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   placement.init        (this,"PLACEMENT");
   margin.init           (this,"MARGINS");
-  // stud
-  studStyle.init        (this,"STUD_STYLE");
+  studStyle.init        (this,"STUD_STYLE");  
+  highContrast.init     (this,"HIGH_CONTRAST");
+  autoEdgeColor.init    (this,"AUTOMATE_EDGE_COLOR");
+
   // assem image scale
   modelScale.init       (this,"MODEL_SCALE");
   // assem native camera position
@@ -4244,6 +4356,8 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   show                 .init(this,"SHOW");
   showTopModel         .init(this,"SHOW_TOP_MODEL");
   studStyle            .init(this,"STUD_STYLE");
+  highContrast         .init(this,"HIGH_CONTRAST");
+  autoEdgeColor        .init(this,"AUTOMATE_EDGE_COLOR");
   showInstanceCount    .init(this,"SHOW_INSTANCE_COUNT");
   ldviewParms          .init(this,"LDVIEW_PARMS");
   ldgliteParms         .init(this,"LDGLITE_PARMS");
@@ -4662,6 +4776,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   ldgliteParms.init   (this,"LDGLITE_PARMS");
   povrayParms .init   (this,"POVRAY_PARMS");
   studStyle.init      (this,"STUD_STYLE");
+  highContrast.init   (this,"HIGH_CONTRAST");
+  autoEdgeColor.init  (this,"AUTOMATE_EDGE_COLOR");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
   imageSize.init      (this,"IMAGE_SIZE");
@@ -4784,6 +4900,8 @@ void PliMeta::init(BranchMeta *parent, QString name)
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
   studStyle       .init(this,"STUD_STYLE");
+  highContrast    .init(this,"HIGH_CONTRAST");
+  autoEdgeColor   .init(this,"AUTOMATE_EDGE_COLOR");
   begin           .init(this,"BEGIN");
   end             .init(this,"END",           PliEndRc);
   sort            .init(this,"SORT");
@@ -4920,6 +5038,8 @@ void BomMeta::init(BranchMeta *parent, QString name)
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
   studStyle       .init(this,"STUD_STYLE");
+  highContrast    .init(this,"HIGH_CONTRAST");
+  autoEdgeColor   .init(this,"AUTOMATE_EDGE_COLOR");
   begin           .init(this,"BEGIN");
   begin.ignore.rc = BomBeginIgnRc;
   end             .init(this,"END",BomEndRc);
@@ -5341,6 +5461,8 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   subModel                 .init(this,"SUBMODEL_DISPLAY");
   rotateIcon               .init(this,"ROTATE_ICON");
   studStyle                .init(this,"STUD_STYLE");
+  highContrast             .init(this,"HIGH_CONTRAST");
+  autoEdgeColor            .init(this,"AUTOMATE_EDGE_COLOR");
   countInstance            .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");

@@ -217,9 +217,10 @@ GlobalPliDialog::GlobalPliDialog(
   child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
   data->children.append(child);
 
-  box = new QGroupBox("Stud Style");
+  box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui("", &pliMeta->studStyle, box);
+  child = new StudStyleGui(&pliMeta->autoEdgeColor,&pliMeta->studStyle,&pliMeta->highContrast,box);
+  child->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
 
   data->children.append(child);
 

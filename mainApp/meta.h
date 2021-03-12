@@ -1736,6 +1736,56 @@ public:
 };
 
 /*
+ * This is the class that parses an RGBA color string
+ */
+
+class ColorMeta : public LeafMeta
+{
+private:
+  quint32 _value[2];
+public:
+  quint32 value()
+  {
+    return _value[pushed];
+  }
+  quint32 validValue(const QString& defaultString)
+  {
+      return (value()) ? value() : getRGBAFromString(defaultString);
+  }
+  QString stringValue()
+  {
+    return getRGBAString(_value[pushed]);
+  }
+  QString validStringValue(const QString& defaultString)
+  {
+      return value() ? getRGBAString(value()) : defaultString;
+  }
+  void setValue(int value)
+  {
+    _value[pushed] = quint32(value);
+  }
+  void setStringValue(const QString& value)
+  {
+    _value[pushed] = getRGBAFromString(value);
+  }
+
+  static void getRGBA(quint32 color, int& r, int& g, int& b, int& a);
+  static quint32 getRGBA(int r, int g, int b, int a);
+  static quint32 getRGBAFromString(const QString& value);
+  static QString getRGBAString(quint32 rgba);
+  ColorMeta();
+  ColorMeta(const ColorMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~ColorMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
  * INSERT
  *   (PICTURE "name" (SCALE x) |
  *    TEXT "font" "string" |
@@ -2177,14 +2227,54 @@ public:
 
 /*------------------------*/
 
+class AutoEdgeColorMeta : public BranchMeta
+{
+public:
+  FloatMeta contrast;
+  FloatMeta saturation;
+  BoolMeta  enable;
+
+  AutoEdgeColorMeta();
+  AutoEdgeColorMeta(const AutoEdgeColorMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~AutoEdgeColorMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class HighContrastColorMeta : public BranchMeta
+{
+public:
+  FloatMeta lightDarkIndex;
+  ColorMeta studCylinderColor;
+  ColorMeta partEdgeColor;
+  ColorMeta blackEdgeColor;
+  ColorMeta darkEdgeColor;
+
+  HighContrastColorMeta();
+  HighContrastColorMeta(const HighContrastColorMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~HighContrastColorMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/* ------------------ */
+
 class SettingsMeta : public BranchMeta
 {
 public:
   PlacementMeta        placement;
   MarginsMeta          margin;
 
-  // stud
+  // stud style and automate edge colour
   StudStyleMeta        studStyle;
+  AutoEdgeColorMeta    autoEdgeColor;
+  HighContrastColorMeta highContrast;
 
   // image scale
   FloatMeta            modelScale;
@@ -3294,6 +3384,8 @@ public:
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;
   StudStyleMeta        studStyle;
+  AutoEdgeColorMeta    autoEdgeColor;
+  HighContrastColorMeta highContrast;
 
   // pli/smp camera settings
   FloatMeta            cameraFoV;
@@ -3371,6 +3463,8 @@ public:
   BoolMeta              showStepNumber;
   CsiAnnotationMeta     annotation;
   StudStyleMeta         studStyle;
+  AutoEdgeColorMeta     autoEdgeColor;
+  HighContrastColorMeta highContrast;
 
   // assem camera settings
   FloatMeta            cameraDistance;
@@ -3729,6 +3823,8 @@ public:
   IntMeta              startStepNumber;
   StepPliMeta          stepPli;
   StudStyleMeta        studStyle;
+  AutoEdgeColorMeta    autoEdgeColor;
+  HighContrastColorMeta highContrast;
 
   LeoCadGroupMeta      group;
   LightMeta            light;
