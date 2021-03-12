@@ -551,7 +551,7 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
                 emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
             previewLayout->addWidget(ViewWidget);
             ViewWidget->SetPreferredSize(ui->previewFrame->size());
-            float Scale               = ViewWidget->deviceScale();
+            float Scale               = ViewWidget->GetDeviceScale();
             Preview->mWidth           = ViewWidget->width()  * Scale;
             Preview->mHeight          = ViewWidget->height() * Scale;
             mViewWidgetEnabled        = true;
