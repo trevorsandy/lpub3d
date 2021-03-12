@@ -108,6 +108,9 @@ BuildRequires: git
 %if 0%{?fedora}==26
 %define build_osmesa 1
 %endif
+%if 0%{?fedora_version}>30
+BuildRequires: libXext-devel
+%endif
 %endif
 
 %if 0%{?suse_version}
