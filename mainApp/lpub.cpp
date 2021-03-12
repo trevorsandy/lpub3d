@@ -392,9 +392,7 @@ void Gui::updateClipboard()
 void Gui::displayPage()
 {
   emit messageSig(LOG_STATUS, "Processing page display...");
-
   timer.start();
-  ldrawFile.clearBuildModSteps();
   if (macroNesting == 0) {
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
@@ -405,8 +403,8 @@ void Gui::displayPage()
     }
   }
   if (! ContinuousPage())
-      emit messageSig(LOG_STATUS,QString("Page loaded%1.")
-                  .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
+    emit messageSig(LOG_STATUS,QString("Page loaded%1.")
+                .arg(Preferences::modeGUI ? QString(". %1").arg(gui->elapsedTime(timer.elapsed())) : ""));
 }
 
 void Gui::nextPage()
@@ -1821,13 +1819,21 @@ void Gui::clearStepCSICache(QString &pngName) {
         if (!file.remove())
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
+#ifdef QT_DEBUG_MODE
+        else
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
+#endif
     }
     if (renderer->useLDViewSCall())
         ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
     file.setFileName(ldrName);
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(ldrName));
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(file.fileName()));
+#ifdef QT_DEBUG_MODE
+        else
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(file.fileName()));
+#endif
     }
     if (Preferences::enableFadeSteps)
         clearPrevStepPositions();
@@ -1881,13 +1887,21 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
         if (!file.remove())
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                             .arg(assemDirName + "/" + fileInfo.fileName()));
+#ifdef QT_DEBUG_MODE
+        else
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
+#endif
     }
     if (renderer->useLDViewSCall())
         ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
     file.setFileName(ldrName);
     if (file.exists()) {
         if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(ldrName));
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(fileInfo.fileName()));
+#ifdef QT_DEBUG_MODE
+        else
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
+#endif
     }
     // process callout step(s) image(s)
     for (int k = 0; k < step->list.size(); k++) {

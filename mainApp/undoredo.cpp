@@ -98,6 +98,16 @@ void Gui::contentsChange(
                                             charsAdded));
 }
 
+void Gui::setBuildModClearStepKey(const QString &text)
+{
+    if (text.startsWith("BuildMod")) {
+        buildModClearStepKey = text.split("|").last();
+#ifdef QT_DEBUG_MODE
+        emit messageSig(LOG_DEBUG, QString("UndoRedo reset BuildMod images trigger: %1").arg(text));
+#endif
+    }
+}
+
 void Gui::undo()
 {
   if (viewerUndo){
@@ -106,6 +116,7 @@ void Gui::undo()
     if (ActiveModel)
       ActiveModel->UndoAction();
   } else {
+    setBuildModClearStepKey(undoStack->undoText());
     macroNesting++;
     undoStack->undo();
     macroNesting--;
@@ -121,6 +132,7 @@ void Gui::redo()
     if (ActiveModel)
       ActiveModel->RedoAction();
   } else {
+    setBuildModClearStepKey(undoStack->redoText());
     macroNesting++;
     undoStack->redo();
     macroNesting--;
@@ -198,3 +210,4 @@ bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx)
   }
   return found;
 }
+

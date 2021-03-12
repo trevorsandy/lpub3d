@@ -1282,7 +1282,7 @@ void Gui::enableBuildModification()
 
 void Gui::enableBuildModActions()
 {
-    if (!createBuildModAct->isEnabled())
+    if (!createBuildModAct->isEnabled() || !Preferences::modeGUI || exporting())
         return;
 
     Rc buildModStep = BuildModNoActionRc;
@@ -2410,11 +2410,7 @@ void Gui::createBuildModification()
                 QString metaString;
                 buildModData.buildModKey = QString();
 
-                QString assemDirName = QDir::currentPath() +  QDir::separator() + Paths::assemDir;
-                QFileInfo imageInfo(currentStep->pngName);
-                QFile imageFile(assemDirName + QDir::separator() + imageInfo.fileName());
-
-                beginMacro("CreateBuildModContent");
+                beginMacro("BuildModCreate|" + viewerStepKey);
 
                 // Delete old BUILD_MOD END meta command
                 Where endMod = Where(ModelName, SaveModEndLineNum);
@@ -2458,9 +2454,7 @@ void Gui::createBuildModification()
                 metaString = currentStep->buildMod.format(false,false);
                 insertLine(modHere, metaString, nullptr);
 
-                if (!imageFile.remove())
-                    emit messageSig(LOG_INFO_STATUS, QString("Unable to remove %1")
-                                    .arg(assemDirName +  QDir::separator() + imageFile.fileName()));
+                clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
                 endMacro();
             }
@@ -2612,7 +2606,7 @@ void Gui::applyBuildModification()
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
 
-        beginMacro("ApplyBuildModContent");
+        beginMacro("BuildModApply|" + viewerStepKey);
 
         buildModData.action      = QString("APPLY");
         buildModData.buildModKey = buildModKey;
@@ -2621,9 +2615,9 @@ void Gui::applyBuildModification()
         newCommand = currentStep->buildMod.here() ==  Where();
         currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
-        endMacro();
+        clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
-        clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
+        endMacro();
     }
         break;
     default: /*Options::PLI:*/
@@ -2719,7 +2713,7 @@ void Gui::removeBuildModification()
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
 
-        beginMacro("RemoveBuildModContent");
+        beginMacro("BuildModRemove|" + viewerStepKey);
 
         buildModData.action      = QString("REMOVE");
         buildModData.buildModKey = buildModKey;
@@ -2728,9 +2722,9 @@ void Gui::removeBuildModification()
         newCommand = currentStep->buildMod.here() == Where();
         currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
-        endMacro();
+        clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
-        clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
+        endMacro();
     }
         break;
     default: /*Options::PLI:*/
@@ -2906,7 +2900,8 @@ void Gui::deleteBuildModification()
     }
     */
 
-    bool multiStepPage = isViewerStepMultiStep(viewerStepKey);
+    const QString buildModStepKey = getBuildModStepKey(buildModKey);
+    bool multiStepPage = isViewerStepMultiStep(buildModStepKey);
 
     // Delete options
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -2922,8 +2917,8 @@ void Gui::deleteBuildModification()
     box.setText (tr("Select your option to reset the image cache."));
     box.setInformativeText(text);
 
-    QPushButton *cleaModifiedButton = box.addButton(tr("Modified"), QMessageBox::AcceptRole);
-    cleaModifiedButton->setToolTip(tr("Reset modified submodel images from step %1").arg(step));
+    QPushButton *clearModifiedButton = box.addButton(tr("Modified"), QMessageBox::AcceptRole);
+    clearModifiedButton->setToolTip(tr("Reset modified submodel images from step %1").arg(step));
 
     QPushButton *clearPageButton = nullptr;
     if (multiStepPage) {
@@ -2946,6 +2941,8 @@ void Gui::deleteBuildModification()
     if (box.clickedButton() == cancelButton)
         return;
 
+    QString clearOption = clearModified ? "_cm" : clearPage ? "_cp" : clearStep ? "_cs" : QString();
+
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::CSI:
@@ -2961,7 +2958,7 @@ void Gui::deleteBuildModification()
             return;
         }
 
-        beginMacro("DeleteBuildModContent");
+        beginMacro("BuildModDelete|" + buildModStepKey + clearOption);
 
         // delete existing APPLY/REMOVE (action) commands, starting from the bottom of the step
         Rc rc;
@@ -3011,24 +3008,18 @@ void Gui::deleteBuildModification()
             for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);
 
-        // get viewerStepKey
-        QString viewerStepKey = getBuildModStepKey(buildModKey);
-        if (!viewerStepKey.isEmpty()) {
-            // delete step image to trigger image regen
-            if (cleaModified) {
-                clearWorkingFiles(getBuildModPathsFromStep(buildModKey));
-            } else if (clearPage) {
-                PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-                clearPageCSICache(relativeType, &page);
-            } else if (clearStep) {
-                QString csiPngName = getViewerStepImagePath(viewerStepKey);
-                clearStepCSICache(csiPngName);
-                // delete viewer step to trigger viewer update
-                if (!deleteViewerStep(viewerStepKey))
-                    emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(viewerStepKey));
-            }
-        } else {
-            emit messageSig(LOG_ERROR, QString("Failed to receive the step key using BuildMod key [%1]").arg(buildModKey));
+        // delete step image to trigger image regen
+        if (clearModified) {
+            clearWorkingFiles(getBuildModPathsFromStep(buildModStepKey));
+        } else if (clearPage) {
+            PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
+            clearPageCSICache(relativeType, &page);
+        } else if (clearStep) {
+            QString csiPngName = getViewerStepImagePath(buildModStepKey);
+            clearStepCSICache(csiPngName);
+            // delete viewer step to trigger viewer update
+            if (!deleteViewerStep(buildModStepKey))
+                emit messageSig(LOG_ERROR,QString("Failed to delete viewer step entry for key %1.").arg(buildModStepKey));
         }
 
         // delete BuildMod

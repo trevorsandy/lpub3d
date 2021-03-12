@@ -483,6 +483,8 @@ int Gui::drawPage(
   QStringList calloutParts;
 
   Where topOfStep = opts.current;
+  topOfStep.setModelIndex(getSubmodelIndex(topOfStep.modelName));
+
   steps->setTopOfSteps(topOfStep/*opts.current*/);
   steps->isMirrored = opts.isMirrored;
   page.coverPage = false;
@@ -562,7 +564,7 @@ int Gui::drawPage(
           int index, const Where &here)
   {
       int  buildModLevel = opts.buildModLevel;
-      int  fileNameIndex = getSubmodelIndex(topOfStep.modelName);
+      int  fileNameIndex = topOfStep.modelIndex;
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
           // Attributes:
@@ -591,7 +593,7 @@ int Gui::drawPage(
           &topOfStep] (int buildModLevel)
   {
       int stepCsiParts      = opts.csiParts.size();
-      int fileNameIndex     = getSubmodelIndex(topOfStep.modelName);
+      int fileNameIndex     = topOfStep.modelIndex;
       int lineNumber        = topOfStep.lineNumber;
       int stepNumber        = opts.stepNum;
       QStringList stepKeys  = step->viewerStepKey.split(";");
@@ -1943,10 +1945,9 @@ int Gui::drawPage(
               if (!Preferences::buildModEnabled)
                   break;
               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
-                  if (partsAdded) {
+                  if (partsAdded)
                       parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                  opts.current);
-                    }
 
                   buildModStepIndex = getBuildModStepIndex(topOfStep);
                   buildModKey = page.meta.LPub.buildMod.key();
@@ -1961,6 +1962,8 @@ int Gui::drawPage(
                       setBuildModAction(buildModKey, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
+                      // set the stepKey to clear the image cache
+                      buildModClearStepKey = QString("%1;%2;%3").arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
                       // clear viewerStepKey for previous step to not trigger viewerUpdate in createCsi()
                       viewerStepKey.clear();
                       // Rerun to findPage() to regenerate parts and options for buildMod action
@@ -3435,7 +3438,6 @@ int Gui::findPage(
       ++opts.pageNum;
       topOfPages.append(opts.current); // TopOfStep (Last Step)
       ++stepPageNum;
-      pageDisplayed = isDisplayPage;
 
       if (Preferences::modeGUI && ! exporting()) {
           emit messageSig(LOG_STATUS, QString("Counting document page %1...")
@@ -3970,6 +3972,26 @@ void Gui::drawPage(LGraphicsView  *view,
       }
   }
 
+  if (!buildModClearStepKey.isEmpty()) {
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
+#endif
+    QStringList keys = buildModClearStepKey.split("_");
+    QString stepKey = keys.first();
+    QString option = keys.last();
+    if (keys.size() == 1 || option == "cm") {
+      clearWorkingFiles(getBuildModPathsFromStep(stepKey));
+    } else if (option == "cp") {
+      bool multiStepPage = isViewerStepMultiStep(stepKey);
+      PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
+      clearPageCSICache(relativeType, &page);
+    } else if (option == "cs") {
+      QString csiPngName = getViewerStepImagePath(stepKey);
+      clearStepCSICache(csiPngName);
+    }
+    buildModClearStepKey.clear();
+  }
+
   writeToTmp();
   //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
   QString empty;
@@ -3996,7 +4018,7 @@ void Gui::drawPage(LGraphicsView  *view,
                  << "ID:" << pageSize.sizeID
                  << "Model:" << current.modelName;
 #endif
-    }
+  }
 
   FindPageOptions findOptions(
               maxPages,

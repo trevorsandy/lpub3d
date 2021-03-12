@@ -2871,48 +2871,25 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
   return QString();
 }
 
-QVector<int> LDrawFile::getBuildModStepKeyVector(const QString &buildModKey)
-{
-  QVector<int> kv = { -1, 0, 0 };
-  QString modKey = buildModKey.toLower();
-  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
-  if (i != _buildMods.end()) {
-           kv[BM_STEP_MODEL_KEY] = i.value()._modAttributes[BM_MODEL_NAME_INDEX];
-           kv[BM_STEP_LINE_KEY] = i.value()._modAttributes[BM_MODEL_LINE_NUM];
-           kv[BM_STEP_NUM_KEY] = i.value()._modAttributes[BM_MODEL_STEP_NUM];
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod StepKeyVector: %1;%2;%3").arg(kv[BM_STEP_MODEL_KEY], kv[BM_STEP_LINE_KEY], kv[BM_STEP_NUM_KEY]));
-#endif
-  }
-  return kv;
-}
-
 /* this call gets the paths from the specified submodel step to the end of the submodel */
 
-QStringList LDrawFile::getBuildModPathsFromStep(const QString &buildModKey, const int image)
+QStringList LDrawFile::getBuildModPathsFromStep(const QString &modStepKey, const int image)
 {
-  QStringList pathList;
-  QString modKey = buildModKey.toLower();
-  QVector<int> kv = getBuildModStepKeyVector(modKey);
-  ViewerStep::StepKey stepKey = { kv[BM_STEP_MODEL_KEY], kv[BM_STEP_LINE_KEY], kv[BM_STEP_NUM_KEY] };
+  QStringList list = modStepKey.split(";");
+  ViewerStep::StepKey stepKey = { list.at(BM_STEP_MODEL_KEY).toInt(), list.at(BM_STEP_LINE_KEY).toInt(), list.at(BM_STEP_NUM_KEY).toInt() };
+  list.clear();
   QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
   while (i != _viewerSteps.constEnd()) {
     if (stepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
       if (stepKey.stepNum <= i->_stepKey.stepNum)
-        pathList.append(image ? i->_imagePath : i->_filePath);
+        list.append(image ? i->_imagePath : i->_filePath);
     }
     ++i;
   }
 
-  pathList.removeDuplicates();
+  list.removeDuplicates();
 
-//#ifdef QT_DEBUG_MODE
-//  emit gui->messageSig(LOG_DEBUG, QString("BuildMod Paths From Step: %1").arg(stepKey.stepNum));
-//  Q_FOREACH (const QString item, pathList)
-//      emit gui->messageSig(LOG_DEBUG, QString("BuildMod Path: %1").arg(item));
-//#endif
-
-  return pathList;
+  return list;
 }
 
 

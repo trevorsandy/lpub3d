@@ -922,9 +922,9 @@ public:
       return ldrawFile.getBuildModsList();
   }
 
-  QStringList getBuildModPathsFromStep(const QString &buildModKey, const int image = 1/*ldr=0*/)
+  QStringList getBuildModPathsFromStep(const QString &modStepKey, const int image = 1/*ldr=0*/)
   {
-      return ldrawFile.getBuildModPathsFromStep(buildModKey, image);
+      return ldrawFile.getBuildModPathsFromStep(modStepKey, image);
   }
 
   bool buildModsSize()
@@ -942,7 +942,14 @@ public:
       return buildModChangeKey;
   }
 
+  QString getBuildModClearStepKey()
+  {
+      return buildModClearStepKey;
+  }
+
   void resetLastBuildMod(bool clearNextStep = false);
+
+  void setBuildModClearStepKey(const QString &text);
 
   void enableBuildModMenuAndActions();
 
@@ -1458,7 +1465,7 @@ private:
   LGraphicsView         *KpageView;          // the visual representation of the scene
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
   QString                curFile;            // the file name for MPD, or top level file
-  QString                exportedFile;     // the print preview produced pdf file
+  QString                exportedFile;       // the print preview produced pdf file
   QElapsedTimer          timer;              // measure elapsed time for slow functions
   QString                curSubFile;         // whats being displayed in the edit window
   EditWindow            *editWindow;         // the sub file editable by the user
@@ -1474,8 +1481,10 @@ private:
   bool                   m_exportingObjects; // indicate exporting non-image object file content
   bool                   m_contPageProcessing;// indicate continuous page processing underway
 
+  QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
   QStringList            buildModSubmodels;   // submodels implicated when checking for next step build modifications
+
   QString                saveRenderer;
 
   QStringList            programEntries;      // list of 'open with' programs populated on startup

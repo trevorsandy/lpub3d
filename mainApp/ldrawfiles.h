@@ -420,11 +420,10 @@ class LDrawFile {
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
-    QVector<int> getBuildModStepKeyVector(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
-    QStringList getBuildModPathsFromStep(const QString &buildModKey, const int image = 1/*ldr=0*/);
+    QStringList getBuildModPathsFromStep(const QString &modStepKey, const int image = 1/*ldr=0*/);
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,
