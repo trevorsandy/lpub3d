@@ -240,14 +240,18 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
  - ps: |
+       $startTime = $(Get-Date)
        $env:LP3D_MSYS2_INSTALL_LOG = "$($env:TEMP)\InstallSecureTransfer.log"
        Start-Transcript -Path $env:LP3D_MSYS2_INSTALL_LOG
-       write-host "Downloading MSYS2 install script..."
+       write-host "Download MSYS2 install script..." -NoNewline
        $scriptUrl = "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/install_msys64.ps1"
        $msys2InstallScript = "$($env:TEMP)\install_msys64.ps1"
        (New-Object Net.WebClient).DownloadFile($scriptUrl, $msys2InstallScript)
+       write-host " - OK" -ForegroundColor Green
        .$msys2InstallScript
-       write-host "`n"
+       $endTime = $(Get-Date) - $startTime
+       $elapsedTime = "{0:mm:ss}" -f ([datetime]$endTime.Ticks)
+       write-host "Elapsed Time: $elapsedTime"
        Stop-Transcript
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
@@ -296,8 +300,9 @@ after_build:
                       $Asset = [System.IO.Path]::GetFileName("$_")
                       $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
                       $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
-                      write-host "`n  Creating Hash File: ${Asset}.sha512..."
+                      write-host "`n  Creating Hash File: ${Asset}.sha512..." -NoNewline
                       C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > ${Asset}.sha512 2>&1"
+                      write-host " - OK" -ForegroundColor Green
                   }
               }
               write-host "`n"
