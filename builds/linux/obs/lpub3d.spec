@@ -287,7 +287,7 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_bindir}/*
 %{_datadir}/lpub3d/*
-%{_datadir}/pixmaps/*
+%{_datadir}/icons/*
 #  {_datadir}/metainfo/*
 %{_datadir}/mime/packages/*
 %{_datadir}/applications/*

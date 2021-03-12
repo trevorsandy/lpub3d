@@ -32,7 +32,7 @@
 #include "paths.h"
 
 #include "lc_qglwidget.h"
-#include "previewwidget.h"
+#include "lc_previewwidget.h"
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "project.h"
@@ -580,14 +580,14 @@ void Gui::create3DDockWindows()
 
 bool Gui::createPreviewWidget()
 {
-    PreviewWidget = new PreviewDockWidget();
+    gMainWindow->CreatePreviewWidget();
 
-    if (PreviewWidget) {
+    if (gMainWindow->GetPreviewWidget()) {
         previewDockWindow = new QDockWidget(tr("3DPreview"), this);
         previewDockWindow->setWindowTitle(tr("3DPreview"));
         previewDockWindow->setObjectName("PreviewDockWindow");
         previewDockWindow->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-        previewDockWindow->setWidget(PreviewWidget);
+        previewDockWindow->setWidget(gMainWindow->GetPreviewWidget());
         addDockWidget(Qt::RightDockWidgetArea, previewDockWindow);
         viewMenu->addAction(previewDockWindow->toggleViewAction());
 
@@ -604,8 +604,8 @@ bool Gui::createPreviewWidget()
 
 void Gui::previewPiece(const QString &partType, int colorCode)
 {
-    if (PreviewWidget) {
-        if (!PreviewWidget->SetCurrentPiece(partType, colorCode))
+    if (gMainWindow->GetPreviewWidget()) {
+        if (!gMainWindow->GetPreviewWidget()->SetCurrentPiece(partType, colorCode))
             messageSig(LOG_ERROR, QString("Part preview for % failed.").arg(partType));
     }
 }
@@ -643,6 +643,12 @@ void Gui::enableWindowFlags(bool detached)
                                    Qt::WindowCloseButtonHint);
         dockWidget->show();
     }
+}
+
+void Gui::ClearPreviewWidget()
+{
+    if (gMainWindow->GetPreviewWidget())
+         gMainWindow->GetPreviewWidget()->ClearPreview();
 }
 
 void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)

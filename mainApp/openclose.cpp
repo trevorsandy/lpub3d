@@ -30,7 +30,7 @@
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
 #include "metagui.h"
-#include "previewwidget.h"
+#include "lc_previewwidget.h"
 #include "waitingspinnerwidget.h"
 
 #include <LDVQt/LDVImageMatte.h>
@@ -694,8 +694,7 @@ void Gui::closeFile()
   editWindow->textEdit()->document()->clear();
   editWindow->textEdit()->document()->setModified(false);
   mpdCombo->clear();
-  if (PreviewWidget)
-      PreviewWidget->ClearPreview();
+  ClearPreviewWidget();
   mpdCombo->setEnabled(false);
   setGoToPageCombo->clear();
   setGoToPageCombo->setEnabled(false);

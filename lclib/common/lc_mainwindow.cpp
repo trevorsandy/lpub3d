@@ -894,12 +894,13 @@ void lcMainWindow::CreateToolBars()
 	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
 ***/
 /*** LPub3D Mod end ***/
+
 	// Preview
 	const lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 		CreatePreviewWidget();
-		
-/*** LPub3D Mod - hide tabify and raise DockWidgets ***/
+
+/*** LPub3D Mod - do not tabify toolbars here ***/
 /***
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
@@ -913,7 +914,7 @@ void lcMainWindow::CreateToolBars()
 ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - hide toolbars ***/
+/*** LPub3D Mod - hide standard and timeline toolbars ***/
 	mStandardToolBar->setVisible(false);
 	mTimeToolBar->setVisible(false);
 	// remove first mToolsToolBar separator
@@ -939,6 +940,8 @@ void lcMainWindow::CreatePreviewWidget()
 {
 	mPreviewWidget  = new lcPreviewDockWidget();
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
+/***
 	mPreviewToolBar = new QDockWidget(tr("Preview"), this);
 	mPreviewToolBar->setWindowTitle(trUtf8("Preview"));
 	mPreviewToolBar->setObjectName("PreviewToolBarw");
@@ -1139,7 +1142,10 @@ void lcMainWindow::UpdateDockWidgetActions()
 	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
 	lcPreferences& Preferences = lcGetPreferences();
 	if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
-		mActions[LC_VIEW_TOOLBAR_PREVIEW]->setChecked(mPreviewToolBar->isVisible());
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		mActions[LC_VIEW_TOOLBAR_PREVIEW]->setChecked(/*mPreviewToolBar*/
+													  gui->getPreviewDockWindow()->isVisible());
+/*** LPub3D Mod end ***/
 }
 
 void lcMainWindow::UpdateGamepads()

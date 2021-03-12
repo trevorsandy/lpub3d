@@ -429,7 +429,6 @@ class lcPreferences;
 class lcPiecesLibrary;
 class lcModel;
 class lcPartSelectionWidget;
-class PreviewDockWidget;
 class View;
 
 class ColourPartListWorker;
@@ -1228,6 +1227,10 @@ public slots:
   void previewPiece(const QString &type, int colorCode);
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
+  QDockWidget *getPreviewDockWindow()
+  {
+      return previewDockWindow;
+  }
 
   void setPageProcessRunning(int p) {
       pageProcessRunning = p;
@@ -1330,6 +1333,7 @@ public slots:
   void                   UpdateAllViews();
   void                   UnloadOfficialPiecesLibrary();
   void                   UnloadUnofficialPiecesLibrary();
+  void                   ClearPreviewWidget();
 
   // End native viewer calls
 
@@ -1938,13 +1942,8 @@ private:
   bool createPreviewWidget();
 
   QDockWidget       *fileEditDockWindow;
-
   QDockWidget       *viewerDockWindow;
-
   QDockWidget       *previewDockWindow;
-
-  // Preview widget;
-  PreviewDockWidget *PreviewWidget;
 
   // Menus
   QMenu    *fileMenu;

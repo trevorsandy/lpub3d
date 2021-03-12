@@ -277,8 +277,14 @@ void Application::setTheme(bool appStarted)
               case LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR:
                   lcGetPreferences().mViewSphereHighlightColor = tc;
                   break;
-              case LC_PROFILE_DEFAULT_BACKGROUND_COLOR:
+              case LC_PROFILE_BACKGROUND_COLOR:
                   lcGetPreferences().mBackgroundSolidColor = tc;
+                  break;
+              case LC_PROFILE_GRADIENT_COLOR_TOP:
+                  lcGetPreferences().mBackgroundGradientColorTop = tc;
+                  break;
+              case LC_PROFILE_GRADIENT_COLOR_BOTTOM:
+                  lcGetPreferences().mBackgroundGradientColorBottom = tc;
                   break;
               default:
                   break;
@@ -370,7 +376,9 @@ void Application::setTheme(bool appStarted)
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,          THEME_DARK_VIEW_SPHERE_COLOR,       THEME_DEFAULT_VIEW_SPHERE_COLOR);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,  THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR);
   setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR);
-  setViewerThemeColor(LC_PROFILE_DEFAULT_BACKGROUND_COLOR,   THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
+  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
+  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_GRADIENT_COLOR_TOP,    THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP);
+  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,           THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM, THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM);
 
   // Set 3DViewer colour theme - apply this after interface settings update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));

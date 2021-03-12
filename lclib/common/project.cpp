@@ -73,10 +73,9 @@ void lcHTMLExportOptions::SaveDefaults()
 Project::Project(bool IsPreview)
 	: mIsPreview(IsPreview)
 {
-/*** LPub3D Mod - preview widget ***/
 	mModified = false;
-/*** LPub3D Mod - default model name and preview widget ***/
-	mActiveModel = new lcModel(tr(VIEWER_MODEL_DEFAULT), mIsPreview);
+/*** LPub3D Mod - Default Model name for new Project and Preview ***/
+	mActiveModel = new lcModel(tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT), mIsPreview);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	mPageWidth = 0;
@@ -84,10 +83,6 @@ Project::Project(bool IsPreview)
 	mImageType = 0;
 	mResolution = 150.0f;
 	mViewerLoaded = false;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - set Timeline title ***/
-	mLPubModelName   = "Model Pieces";
-	mLPubStepNumber = 0;
 /*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
@@ -169,8 +164,8 @@ QString Project::GetTitle() const
 {
 	if (!mFileName.isEmpty())
 		return QFileInfo(mFileName).fileName();
-/*** LPub3D Mod - default model name ***/
-	return tr(VIEWER_MODEL_DEFAULT);
+/*** LPub3D Mod - Default model name ***/
+	return mModels.GetSize() == 1 ? tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT) : tr("New Model.mpd");
 /*** LPub3D Mod end ***/
 }
 
@@ -509,12 +504,16 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			};
 
 			// viewerStepKey - 3 elements:
-			// CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
+			// CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)],
 			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
+			// PLI: 0=partName,  1=colourNumber, 2=stepNumber,
 			QStringList Keys = gui->getViewerStepKeys(true/*get Name*/, Type == Options::PLI, StepKey);
-			if (Keys.size() > 2)
-				SetTimelineTitle(QString::fromStdString(TitleCase(Keys.at(0).toStdString())), Keys.at(2).toInt());
+			if (Keys.size()) {
+				QString TimelineTopItem = QString::fromStdString(TitleCase(Keys.at(0).toStdString()));
+				if (Keys.size() > 2)
+					TimelineTopItem.append(QString(" Step %1").arg(Keys.at(2)));
+				SetTimelineTopItem(TimelineTopItem);
+			}
 
 #ifdef QT_DEBUG_MODE
 			QFileInfo outFileInfo(FileName);

@@ -97,12 +97,17 @@ void lcQGLWidget::SetPreviewPosition(const QRect& ParentRect, const QPoint& View
 
 	setWindowTitle(tr("%1 Preview").arg(Preview->IsModel() ? "Submodel" : "Part"));
 
-	int Size[2] = { 300,200 };
-	if (Preferences.mPreviewSize == 400)
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	if (mPreferredSize.isNull())
 	{
-		Size[0] = 400; Size[1] = 300;
+		int Size[2] = { 300,200 };
+		if (Preferences.mPreviewSize == 400)
+		{
+			Size[0] = 400; Size[1] = 300;
+		}
+		mPreferredSize = QSize(Size[0], Size[1]);
 	}
-	mPreferredSize = QSize(Size[0], Size[1]);
+/*** LPub3D Mod end ***/
 
 	float Scale = deviceScale();
 	Preview->mWidth = width()  * Scale;

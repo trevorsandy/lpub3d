@@ -67,10 +67,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "HighlightNewParts", 0),                                        // LC_PROFILE_HIGHLIGHT_NEW_PARTS
 	lcProfileEntry("Settings", "HighlightNewPartsColor", LC_RGBA(255, 242, 0, 192)),           // LC_PROFILE_HIGHLIGHT_NEW_PARTS_COLOR
 	lcProfileEntry("Settings", "ShadingMode", static_cast<int>(lcShadingMode::DefaultLights)), // LC_PROFILE_SHADING_MODE
-	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT
-	lcProfileEntry("Settings", "BackgroundColor", LC_RGB(49, 52, 55)),                         // LC_PROFILE_BACKGROUND_COLOR
-	lcProfileEntry("Settings", "GradientColorTop", LC_RGB(54, 72, 95)),                        // LC_PROFILE_GRADIENT_COLOR_TOP
-	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM
+	lcProfileEntry("Settings", "BackgroundGradient", false),                                   // LC_PROFILE_BACKGROUND_GRADIENT                        /*** LPub3D Mod - set background colour ***/
+	lcProfileEntry("Settings", "BackgroundColor", LC_RGB(255, 255, 255)),                      // LC_PROFILE_BACKGROUND_COLOR                           /*** LPub3D Mod - set background colour ***/
+	lcProfileEntry("Settings", "GradientColorTop", LC_RGB(54, 72, 95)),                        // LC_PROFILE_GRADIENT_COLOR_TOP                         /*** LPub3D Mod - set background colour ***/
+	lcProfileEntry("Settings", "GradientColorBottom", LC_RGB(49, 52, 55)),                     // LC_PROFILE_GRADIENT_COLOR_BOTTOM                      /*** LPub3D Mod - set background colour ***/
 	lcProfileEntry("Settings", "DrawAxes", 0),                                                 // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "AxesColor", LC_RGBA(0, 0, 0, 255)),                            // LC_PROFILE_AXES_COLOR
 	lcProfileEntry("Settings", "OverlayColor", LC_RGBA(0, 0, 0, 255)),                         // LC_PROFILE_OVERLAY_COLOR

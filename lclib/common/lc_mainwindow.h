@@ -454,12 +454,12 @@ public slots:
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	void CreatePreviewWidget();
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - signals ***/
 signals:
-/*** LPub3D Mod - preview widget for LPub3D ***/
-	void PreviewPieceSig(const QString &, int);
-	void TogglePreviewWidgetSig(bool);
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - rotate step signals ***/
 	QVector<float> GetRotStepMeta();   // used to capture step meta angles
 	void SetRotStepMeta();
@@ -477,6 +477,9 @@ signals:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Move unod/redo trigger to LPub3D ***/
 	void UpdateUndoRedoSig(const QString&, const QString&);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	void TogglePreviewWidgetSig(bool);
 /*** LPub3D Mod end ***/
 protected slots:
 	void UpdateDockWidgetActions();
@@ -510,7 +513,9 @@ protected:
 	void ShowRenderDialog();
 	void ShowInstructionsDialog();
 	void ShowPrintDialog();
-	void CreatePreviewWidget();
+/*** LPub3D Mod - preview widget for LPub3D ***/
+	//void CreatePreviewWidget(); // moved to public
+/*** LPub3D Mod end ***/
 
 	bool OpenProjectFile(const QString& FileName);
 

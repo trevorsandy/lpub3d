@@ -85,13 +85,15 @@ public:
 	{
 		return mFileName;
 	}
-/*** LPub3D Mod - set Timeline title ***/
-	void SetTimelineTitle(
-		const QString& LPubModelName,
-		const int LPubStepNumber)
+/*** LPub3D Mod - set Timeline top item ***/
+	QString &GetTimelineTopItem()
 	{
-		mLPubModelName  = LPubModelName;
-		mLPubStepNumber = LPubStepNumber;
+		return mTimelineTopItem;
+	}
+	void SetTimelineTopItem(
+		const QString& TimelineTitle)
+	{
+		mTimelineTopItem  = TimelineTitle;
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
@@ -137,16 +139,6 @@ public:
 	int GetRenderer()
 	{
 		return mRenderer;
-	}
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - set Timeline title ***/
-	QString GetLPubModelName() const
-	{
-		return mLPubModelName;
-	}
-	int GetLPubStepNumber() const
-	{
-		return mLPubStepNumber;
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - viewer interface ***/
@@ -224,9 +216,8 @@ protected:
 	float mResolution;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - set Timeline title ***/
-	QString mLPubModelName;
-	int mLPubStepNumber;
+/*** LPub3D Mod - set Timeline top item ***/
+	QString mTimelineTopItem;
 /*** LPub3D Mod end ***/
 };
 

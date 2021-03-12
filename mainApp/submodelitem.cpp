@@ -44,7 +44,7 @@
 #include "dependencies.h"
 
 #include "lc_qglwidget.h"
-#include "previewwidget.h"
+#include "lc_previewwidget.h"
 
 const Where &SubModel::topOfStep()
 {
@@ -1207,9 +1207,9 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
         return;
     }
 
-    PreviewWidget *Preview = new PreviewWidget();
+    lcPreviewWidget *Preview = new lcPreviewWidget();
 
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
 
     if (Preview && ViewWidget) {
         ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);

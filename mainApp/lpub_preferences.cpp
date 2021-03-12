@@ -4081,6 +4081,8 @@ void Preferences::viewerPreferences()
         lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, lpub3dLibFile);
 
     lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
+
+    lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
 }
 
 bool Preferences::getPreferences()

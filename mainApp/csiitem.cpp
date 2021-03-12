@@ -45,7 +45,7 @@
 #include "editwindow.h"
 
 #include "lc_qglwidget.h"
-#include "previewwidget.h"
+#include "lc_previewwidget.h"
 
 CsiItem::CsiItem(
   Step          *_step,
@@ -273,9 +273,9 @@ void CsiItem::previewCsi(bool useDockable) {
         return;
     }
 
-    PreviewWidget *Preview = new PreviewWidget();
+    lcPreviewWidget *Preview = new lcPreviewWidget();
 
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
 
     if (Preview && ViewWidget) {
         ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);

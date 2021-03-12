@@ -5,7 +5,7 @@
 #include "pieceinf.h"
 #include "lc_mainwindow.h"
 
-/*** LPub3D Mod - set Timeline title ***/
+/*** LPub3D Mod - set Timeline top item ***/
 #include "project.h"
 /*** LPub3D Mod end ***/
 #include "lc_qglwidget.h"
@@ -133,14 +133,11 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
-/*** LPub3D Mod - Set Timeline title to loaded model name when loading single step ***/
-		QString ItemLabel = tr("Step %1").arg(TopLevelItemIdx + 1);
-		if (LastStep == 1) {
-			int Number = lcGetActiveProject()->GetLPubStepNumber();
-			ItemLabel = QString("%1%2").arg(lcGetActiveProject()->GetLPubModelName())
-									   .arg(Number ? QString(" Step %1").arg(Number) : QString());
-		}
-		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(ItemLabel));
+/*** LPub3D Mod - set Timeline top item to loaded model name when loading single step ***/
+		QString TimelineTopItem = tr("Step %1").arg(TopLevelItemIdx + 1);
+		if (LastStep == 1)
+			TimelineTopItem = lcGetActiveProject()->GetTimelineTopItem();
+		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(TimelineTopItem));
 		StepItem->setData(0, Qt::UserRole, qVariantFromValue<int>(int(TopLevelItemIdx) + 1));
 /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);

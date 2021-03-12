@@ -56,7 +56,7 @@
 #include "lc_qglwidget.h"
 #include "lc_library.h"
 #include "pieceinf.h"
-#include "previewwidget.h"
+#include "lc_previewwidget.h"
 
 QCache<QString,QString> Pli::orientation;
 
@@ -3593,9 +3593,9 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
         return;
     }
 
-    PreviewWidget *Preview = new PreviewWidget();
+    lcPreviewWidget *Preview = new lcPreviewWidget();
 
-    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
+    lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr/*parent*/, Preview/*owner*/);
 
     if (Preview && ViewWidget) {
         ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);

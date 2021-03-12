@@ -23,6 +23,10 @@ public:
 	}
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
+	void SetPreferredSize(const QSize &PreferredSize)
+	{
+		mPreferredSize = PreferredSize;
+	}
 	void SetPreviewPosition(const QRect& ParentRect, const QPoint &ViewPos = QPoint(), bool UseViewPos = false);
 /*** LPub3D Mod end ***/
 

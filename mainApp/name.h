@@ -456,8 +456,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
 #define PREVIEW_SUBMODEL_SUFFIX                 "Preview"
-
-#define VIEWER_MODEL_DEFAULT                    "LPub3D_PlcHldr.ldr"
+#define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"
+#define VIEWER_MODEL_DEFAULT                    "Model.ldr"
 
 // Renderers
 #define RENDERER_POVRAY                         "POVRay"
@@ -545,7 +545,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define THEME_DEFAULT_PALETTE_LIGHT            THEME_SCENE_BGCOLOR_DEFAULT
 
-#define THEME_DEFAULT_VIEWER_BACKGROUND_COLOR  "#FFFFFF"                             // 255, 255, 255, 255
+#define THEME_DEFAULT_VIEWER_BACKGROUND_COLOR      "#FFFFFF"                         // 255, 255, 255, 255 LC_PROFILE_BACKGROUND_COLOR
+#define THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP    "#36485f"                         // 54, 72, 95, 255    LC_PROFILE_GRADIENT_COLOR_TOP
+#define THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM "#313437"                         // 49, 52, 55, 255    LC_PROFILE_GRADIENT_COLOR_BOTTOM
 #define THEME_DEFAULT_AXES_COLOR               "#000000"                             // 0, 0, 0, 255
 #define THEME_DEFAULT_OVERLAY_COLOR            THEME_DEFAULT_AXES_COLOR              // 0, 0, 0, 255
 #define THEME_DEFAULT_ACTIVE_VIEW_COLOR        "#FF0000"                             // 255, 0, 0, 255
@@ -679,7 +681,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_DARK_PALETTE_LINK                THEME_DARK_PALETTE_HILIGHT
 #define THEME_DARK_PALETTE_DISABLED_TEXT       THEME_PALETTE_DISABLED_TEXT
 
-#define THEME_DARK_VIEWER_BACKGROUND_COLOR     "#808B96"                       // 128,139,150, 255   LC_PROFILE_DEFAULT_BACKGROUND_COLOR
+#define THEME_DARK_VIEWER_BACKGROUND_COLOR     "#313437"                       // 49, 52, 55, 255    LC_PROFILE_BACKGROUND_COLOR
+#define THEME_DARK_VIEWER_GRADIENT_COLOR_TOP   "#0000bf"                       // 0, 0, 191, 255     LC_PROFILE_GRADIENT_COLOR_TOP
+#define THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM "#FFFFFF"                      // 255, 255, 255      LC_PROFILE_GRADIENT_COLOR_BOTTOM
 #define THEME_DARK_AXES_COLOR                  THEME_DEFAULT_AXES_COLOR        // 0, 0, 0, 255       LC_PROFILE_AXES_COLOR
 #define THEME_DARK_OVERLAY_COLOR               THEME_DEFAULT_AXES_COLOR        // 0, 0, 0, 255       LC_PROFILE_OVERLAY_COLOR
 #define THEME_DARK_ACTIVE_VIEW_COLOR           "#2980B9"                       // 41, 128, 185, 255  LC_PROFILE_ACTIVE_VIEW_COLOR

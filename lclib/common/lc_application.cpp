@@ -184,9 +184,7 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 	if (ColorTheme == lcColorTheme::Dark)
 	{
 		mAxesColor = LC_RGBA(0, 0, 0, 255);
-/*** LPub3D Mod - set default background colour ***/
 		mBackgroundSolidColor = LC_RGB(49, 52, 55);
-/*** LPub3D Mod end ***/
 		mBackgroundGradientColorTop = LC_RGB(0, 0, 191);
 		mBackgroundGradientColorBottom = LC_RGB(255, 255, 255);
 		mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
@@ -1022,11 +1020,14 @@ void lcApplication::ShowPreferencesDialog()
 
 	lcPreviewPosition Dockable = Options.Preferences.mPreviewPosition;
 	if (PreviewDockable != Dockable)
-		gMainWindow->TogglePreviewWidget(
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		emit gMainWindow->TogglePreviewWidgetSig(
 			Dockable == lcPreviewPosition::Dockable);
+		//gMainWindow->TogglePreviewWidget(
+		//	Dockable == lcPreviewPosition::Dockable);
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preference refresh ***/
-
 	bool restartApp = false;
 	bool reloadPage = false;
 	bool redrawPage = false;

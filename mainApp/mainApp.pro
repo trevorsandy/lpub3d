@@ -447,7 +447,6 @@ HEADERS += \
     pointeritem.h \
     pointerplacementdialog.h \
     preferencesdialog.h \
-    previewwidget.h \
     range.h \
     range_element.h \
     ranges.h \
@@ -556,7 +555,6 @@ SOURCES += \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
     preferencesdialog.cpp \
-    previewwidget.cpp \
     printfile.cpp \
     projectglobals.cpp \
     range.cpp \
