@@ -76,7 +76,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 {
     editWindow  = this;
 
-    _textEdit   = new QTextEditor(this);
+    _textEdit   = new QTextEditor(_modelFileEdit, this);
 
     loadModelWorker = new LoadModelWorker();
 
@@ -640,7 +640,8 @@ void EditWindow::createToolBars()
     toolsToolBar->addAction(editColorAct);
     toolsToolBar->addAction(editPartAct);
 /*    toolsToolBar->addAction(substitutePartAct); */
-    toolsToolBar->addAction(previewLineAct);
+    if (modelFileEdit())
+        toolsToolBar->addAction(previewLineAct);
 #ifdef QT_DEBUG_MODE
     toolsToolBar->addSeparator();
     toolsToolBar->addAction(previewViewerFileAct);
@@ -737,17 +738,21 @@ bool EditWindow::setValidPartLine()
     QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
 
     lcPreferences& Preferences = lcGetPreferences();
-    if (Preferences.mPreviewEnabled && !isIncludeFile) {
-        previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
-        previewLineAct->setData(partKey);
-        previewLineAct->setEnabled(true);
+    if (modelFileEdit()) {
+        if (Preferences.mPreviewEnabled && !isIncludeFile) {
+            previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
+            previewLineAct->setData(partKey);
+            previewLineAct->setEnabled(true);
+        }
     }
 
     if (_subFileList.contains(partType.toLower())) {
-        titleType = "subfile";
-        if (Preferences.mPreviewEnabled) {
-            previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
-            previewLineAct->setStatusTip(tr("Display the %1 on the highlighted line in a popup 3D viewer").arg(titleType));
+        if (modelFileEdit()) {
+            titleType = "subfile";
+            if (Preferences.mPreviewEnabled) {
+                previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
+                previewLineAct->setStatusTip(tr("Display the %1 on the highlighted line in a popup 3D viewer").arg(titleType));
+            }
         }
 
         copyFullPathToClipboardAct->setEnabled(true);
@@ -757,13 +762,13 @@ bool EditWindow::setValidPartLine()
     copyFileNameToClipboardAct->setEnabled(true);
     copyFileNameToClipboardAct->setData(partType);
 
-    if (colorCode != LDRAW_MATERIAL_COLOUR)  {
-        editColorAct->setText(tr("Edit color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
+    if (colorCode != LDRAW_MATERIAL_COLOUR) {
+        editColorAct->setText(tr("Edit line color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
         editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
         editColorAct->setEnabled(true);
     }
 
-    editPartAct->setText(tr("Edit %1...").arg(elidedPartType));
+    editPartAct->setText(tr("Edit line  %1 %2...").arg(titleType).arg(elidedPartType));
     editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
     editPartAct->setEnabled(true);
 
@@ -823,7 +828,9 @@ void EditWindow::showContextMenu(const QPoint &pt)
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
 /*            toolsMenu->addAction(substitutePartAct); */
-            toolsMenu->addAction(previewLineAct);
+
+            if (modelFileEdit())
+                toolsMenu->addAction(previewLineAct);
 
             QMenu *openWithMenu = new QMenu(tr("Open With..."));
             openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
@@ -908,16 +915,13 @@ void EditWindow::editLineItem()
 
         cursor.select(QTextCursor::LineUnderCursor);
         QString selection = cursor.selectedText();
-
-
         if (!selection.isEmpty())
         {
             if (sender() == editPartAct) {
-                _textEdit->moveCursor(QTextCursor::StartOfLine);
-
                 QTextDocument::FindFlags flags;
                 result = _textEdit->find(findText, flags);
             } else {
+                _textEdit->setTextCursor(cursor);
                 result = true;
             }
         } else {
@@ -1566,7 +1570,7 @@ void EditWindow::updateSelectedParts() {
             }
         }
         // set next selected line
-        //cursor.movePosition(QTextCursor::Down);
+        cursor.movePosition(QTextCursor::Down);
         _textEdit->setTextCursor(cursor);
        currentLine++;
     }
@@ -2250,11 +2254,12 @@ void EditWindow::loadPagedContent()
  *
  */
 
-QTextEditor::QTextEditor(QWidget *parent) :
+QTextEditor::QTextEditor(bool detachedEdit, QWidget *parent) :
     QTextEdit(parent),
     completer(nullptr),
     completion_minchars(1),
     completion_max(0),
+    detachedEdit(detachedEdit),
     _fileIsUTF8(false)
 {
     lineNumberArea = new QLineNumberArea(this);
@@ -2272,8 +2277,10 @@ QTextEditor::QTextEditor(QWidget *parent) :
 void QTextEditor::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QWidget::mouseDoubleClickEvent(event);
-    if ( event->button() == Qt::LeftButton && Preferences::editorPreviewOnDoubleClick) {
-        emit triggerPreviewLine();
+    if (modelFileEdit()) {
+        if ( event->button() == Qt::LeftButton && Preferences::editorPreviewOnDoubleClick) {
+            emit triggerPreviewLine();
+        }
     }
     return;
 }

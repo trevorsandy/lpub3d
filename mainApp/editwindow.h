@@ -267,7 +267,7 @@ class QTextEditor : public QTextEdit
     Q_OBJECT
 
 public:
-    explicit QTextEditor(QWidget *parent = nullptr);
+    explicit QTextEditor(bool modelFileEdit = false, QWidget *parent = nullptr);
 
     ~QTextEditor()override{}
 
@@ -283,6 +283,10 @@ public:
     void setCompleterMinChars(int min_chars);
     void setCompleterMaxSuggestions(int max);
     void setCompleterPrefix(const QString& prefix);
+    bool modelFileEdit()
+    {
+        return detachedEdit;
+    }
 
 signals:
     void updateSelectedParts();
@@ -317,6 +321,7 @@ private:
     int         completion_minchars;
     int         completion_max;
     QString     completion_prefix;
+    bool       detachedEdit;
     std::atomic<bool> _fileIsUTF8;
     QWidget    *lineNumberArea;
 };
