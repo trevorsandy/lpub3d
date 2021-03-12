@@ -5070,11 +5070,10 @@ void Gui::writeToTmp()
 
           emit progressPermSetValueSig(i + 1);
 
-          writeToTmpFutures.append(QtConcurrent::run([this, &fileName]() {
-              QString modelName = fileName;
+          writeToTmpFutures.append(QtConcurrent::run([this, fileName]() {
               QStringList *modelContent = new QStringList;
-              modelContent->append(ldrawFile.contents(modelName));
-              writeToTmp(modelName, *modelContent);
+              modelContent->append(ldrawFile.contents(fileName));
+              writeToTmp(fileName, *modelContent);
           }));
 
           QString fileNameStr = fileName;
@@ -5089,15 +5088,13 @@ void Gui::writeToTmp()
 
             emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
 
-            writeToTmpFutures.append(QtConcurrent::run([this, &fileName, &fileNameStr, &fadeColor]() {
-                QString modelName = fileName;
-                QString modelNameStr = fileNameStr;
+            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor]() {
                 QStringList *modelContent = new QStringList;
-                modelContent->append(ldrawFile.contents(modelName));
+                modelContent->append(ldrawFile.contents(fileName));
                 QStringList *configuredContent = new QStringList;
                 configuredContent->append(configureModelSubFile(*modelContent, fadeColor, FADE_PART));
-                insertConfiguredSubFile(modelNameStr, *configuredContent);
-                writeToTmp(modelNameStr, *configuredContent);
+                insertConfiguredSubFile(fileNameStr, *configuredContent);
+                writeToTmp(fileNameStr, *configuredContent);
             }));
           }
 
@@ -5110,15 +5107,13 @@ void Gui::writeToTmp()
 
             emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
 
-            writeToTmpFutures.append(QtConcurrent::run([this, &fileName, &fileNameStr, &fadeColor]() {
-                QString modelName = fileName;
-                QString modelNameStr = fileNameStr;
+            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor]() {
                 QStringList *modelContent = new QStringList;
-                modelContent->append(ldrawFile.contents(modelName));
+                modelContent->append(ldrawFile.contents(fileName));
                 QStringList *configuredContent = new QStringList;
                 configuredContent->append(configureModelSubFile(*modelContent, fadeColor, HIGHLIGHT_PART));
-                insertConfiguredSubFile(modelNameStr, *configuredContent);
-                writeToTmp(modelNameStr, *configuredContent);
+                insertConfiguredSubFile(fileNameStr, *configuredContent);
+                writeToTmp(fileNameStr, *configuredContent);
             }));
           }
       }
