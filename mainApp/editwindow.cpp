@@ -1504,6 +1504,9 @@ void EditWindow::displayFile(
 
 void EditWindow::waitingSpinnerStarted()
 {
+    if (!Preferences::modeGUI)
+        return;
+
 #ifdef QT_DEBUG_MODE
           emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Starting.."));
 #endif
@@ -1526,12 +1529,12 @@ void EditWindow::waitingSpinnerStarted()
 
 void EditWindow::waitingSpinnerFinished()
 {
+  if (!Preferences::modeGUI)
+      return;
+
 #ifdef QT_DEBUG_MODE
   emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Finished.."));
 #endif
-//  if (futureWatcher.result())
-//    _textEdit->document()->clear();
-
   if (_spinnerStarted && _waitingSpinner) {
     _spinnerStarted = false;
     if (_waitingSpinner->isSpinning()) {

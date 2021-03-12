@@ -765,7 +765,8 @@ void Gui::closeModelFile(){
 bool Gui::openFile(QString &fileName)
 {
 
-  waitingSpinner->start();
+  if (Preferences::modeGUI)
+    waitingSpinner->start();
 
   disableWatcher();
 
