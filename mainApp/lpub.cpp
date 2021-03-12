@@ -1421,6 +1421,8 @@ void Gui::deployExportBanner(bool b)
 void Gui::mpdComboChanged(int index)
 {
 
+  Q_UNUSED(index)
+
   QString newSubFile = mpdCombo->currentText();
 
   bool isIncludeFile = false;
@@ -1431,9 +1433,9 @@ void Gui::mpdComboChanged(int index)
 
   if (curSubFile != newSubFile) {
 
-    bool callDisplayFile = false;
+    bool callDisplayFile = isIncludeFile;
 
-    if (!isIncludeFile) {
+    if (!callDisplayFile) {
       int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
       countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
@@ -1448,11 +1450,11 @@ void Gui::mpdComboChanged(int index)
     }
 
     if (callDisplayFile) {
-      messageSig(LOG_INFO, QString( "Select subModel: %1").arg(newSubFile));
+      messageSig(LOG_INFO, QString( "Selected %1: %2")
+                 .arg(isIncludeFile ? "includeFile" : "subModel").arg(newSubFile));
       displayFile(&ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
       showLineSig(0, LINE_HIGHLIGHT);
-      if (isIncludeFile) {  // Combo will not be set to include file in displayFile call, so set here
-          mpdCombo->setCurrentIndex(index);
+      if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
           mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
       }
     }

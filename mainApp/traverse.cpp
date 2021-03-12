@@ -4502,7 +4502,8 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
         }
         mpdCombo->addItem(QString("%1 - Include File").arg(fileName),fileName);
         comboIndex++;
-        mpdCombo->setItemData(comboIndex, QBrush(Qt::blue), Qt::TextColorRole);
+        bool dark = Preferences::displayTheme == THEME_DARK;
+        mpdCombo->setItemData(comboIndex, QBrush(dark ? Qt::cyan : Qt::blue), Qt::TextColorRole);
         enableWatcher();
 
         emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
