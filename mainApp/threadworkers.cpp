@@ -3062,8 +3062,8 @@ int CountPageWorker::countPage(
                                                              (alreadyRendered ? false : true /*countPage*/));
 
                           // check if submodel is in current step build modification
-                          bool buildModRendered = ldrawFile->getBuildModRendered(
-                                          (alreadyRendered ? "" : "cp")+opts.buildMod.key, colorType);
+                          bool buildModRendered = (opts.buildMod.ignore2 || ldrawFile->getBuildModRendered(
+                                          (alreadyRendered ? "" : "cp")+opts.buildMod.key, colorType));
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3289,6 +3289,10 @@ int CountPageWorker::countPage(
                   if ( ! opts.flags.bfxStore2) {
                       bfxParts.clear();
                   } // ! BfxStore2
+                  opts.buildMod.ignore2 = opts.buildMod.ignore;
+                  if ( ! opts.buildMod.ignore2) {
+                      ldrawFile->clearBuildModRendered();
+                  } // ! BuildMod.ignore2
 
                 } // PartsAdded && ! NoStep
 

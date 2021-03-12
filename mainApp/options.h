@@ -208,11 +208,13 @@ public:
     int  action;
     int  state;
     bool ignore;
+    bool ignore2;
     BuildModFlags()
         : level(0),
           action(0),
           state(-1),
-          ignore(false)
+          ignore(false),
+          ignore2(false)
     { }
 };
 

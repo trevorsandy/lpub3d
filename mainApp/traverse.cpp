@@ -854,7 +854,7 @@ int Gui::drawPage(
 
                       if (PliSubstituteParts::getSubstitutePart(substitutePart)){
                           substituteToken[substituteToken.size()-1] = substitutePart;
-                        }
+                      }
 
                       line = substituteToken.join(" ");
                   }
@@ -2791,7 +2791,7 @@ int Gui::findPage(
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
                           // check if submodel is in current step build modification
-                          bool buildModRendered = getBuildModRendered(opts.buildMod.key, colorType);
+                          bool buildModRendered = (opts.buildMod.ignore2 || getBuildModRendered(opts.buildMod.key, colorType));
 
                           // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3086,8 +3086,8 @@ int Gui::findPage(
                 } // StepGroup && ! NoStep2
 
               //buildModActions.clear();
-              opts.flags.noStep2 = false;
-              break;
+                  opts.flags.noStep2 = false;
+                  break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
@@ -3303,7 +3303,11 @@ int Gui::findPage(
                   opts.flags.bfxStore1 = false;
                   if ( ! opts.flags.bfxStore2) {
                       bfxParts.clear();
-                    } // ! BfxStore2
+                  } // ! BfxStore2
+                  opts.buildMod.ignore2 = opts.buildMod.ignore;
+                  if ( ! opts.buildMod.ignore2) {
+                      ldrawFile.clearBuildModRendered();
+                  } // ! BuildMod.ignore2
 
                 } // PartsAdded && ! NoStep
               else if ( ! opts.flags.stepGroup)
