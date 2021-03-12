@@ -1323,7 +1323,7 @@ void EditWindow::updateSelectedParts() {
 
     toolsToolBar->setEnabled(setValidPartLine());
 
-    if (modelFileEdit() || !gMainWindow->isVisible())
+    if (modelFileEdit() || !gMainWindow || !gMainWindow->isVisible())
         return;
 
     int lineNumber = 0;

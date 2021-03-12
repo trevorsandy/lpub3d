@@ -1479,8 +1479,7 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
 
 void Gui::deployExportBanner(bool b)
 {
-
-  if (b) {
+  if (b && Preferences::modeGUI) {
       QString exportBanner, imageFile;
 
 #ifdef __APPLE__
@@ -3642,8 +3641,10 @@ void Gui::initialize()
   createToolBars();
   createStatusBar();
   createDockWindows();
-  initiaizeNativeViewer();
-  toggleLCStatusBar(true);
+  if (Preferences::modeGUI) {
+      initiaizeNativeViewer();
+      toggleLCStatusBar(true);
+  }
 
   emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
 
@@ -5131,7 +5132,8 @@ void Gui::createActions()
     openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+1"));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
 
-    create3DActions();
+    if (Preferences::modeGUI)
+        create3DActions();
 }
 
 void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
@@ -5556,7 +5558,8 @@ void Gui::createMenus()
 
     // 3DViewer
 
-    create3DMenus();
+    if (Preferences::modeGUI)
+        create3DMenus();
 
     // Help Menus
 
@@ -5808,7 +5811,8 @@ void Gui::createToolBars()
     snapToGridComboAct->setMenu(snapToGridMenu);
     zoomToolBar->addAction(snapToGridComboAct);
 
-    create3DToolBars();
+    if (Preferences::modeGUI)
+        create3DToolBars();
 }
 
 void Gui::statusBarMsg(QString msg)
@@ -5829,7 +5833,8 @@ void Gui::createDockWindows()
 
     connect(fileEditDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
 
-    create3DDockWindows();
+    if (Preferences::modeGUI)
+        create3DDockWindows();
 
     // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
     fileEditDockWindow->raise();

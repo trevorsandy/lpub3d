@@ -3200,8 +3200,11 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
-    if (! gui->OpenProject(Options->InputFileName))
+    if (! gui->OpenProject(Options->InputFileName)) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load native image input file %1")
+                                                       .arg(Options->InputFileName));
         return false;
+    }
 
     return ExecuteViewer(Options,true/*exportImage*/);
 }
@@ -3221,7 +3224,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
     }
     else
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer for step key %1.")
                              .arg(Options->ViewerStepKey));
         gui->setViewerStepKey(QString(),0);
         delete Loader;
@@ -3239,8 +3242,6 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
     QString exportModeName = nativeExportNames[Options->ExportMode];
 
-    Project* NativeExportProject = new Project();
-
     if (Options->ExportMode == EXPORT_HTML_STEPS ||
         Options->ExportMode == EXPORT_WAVEFRONT  ||
         Options->ExportMode == EXPORT_COLLADA    ||
@@ -3249,19 +3250,16 @@ bool Render::NativeExport(const NativeOptions *Options) {
         Options->ExportMode == EXPORT_3DS_MAX*/) {
 
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
-        gApplication->SetProject(NativeExportProject);
         if (Options->ExportMode != EXPORT_HTML_STEPS) {
             if (! gui->OpenProject(Options->InputFileName)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                                .arg(exportModeName));
-                delete NativeExportProject;
                 return false;
             }
         }
     }
     else
     {
-        delete NativeExportProject;
         return doLDVCommand(Options->ExportArgs, Options->ExportMode);
     }
 
@@ -3305,7 +3303,6 @@ bool Render::NativeExport(const NativeOptions *Options) {
             if (! gui->OpenProject(Options->InputFileName)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                                .arg(exportModeName));
-                delete NativeExportProject;
                 rc = false;
             }
 

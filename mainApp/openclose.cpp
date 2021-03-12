@@ -722,10 +722,12 @@ void Gui::closeModelFile(){
     QString topModel = ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...
     //3D Viewer
-    enableBuildModMenuAndActions();
-    enable3DActions(false);
-    emit clearViewerWindowSig();
-    emit updateAllViewsSig();
+    if (Preferences::modeGUI) {
+        enableBuildModMenuAndActions();
+        enable3DActions(false);
+        emit clearViewerWindowSig();
+        emit updateAllViewsSig();
+    }
     // Editor
     emit clearEditorWindowSig();
     // Gui

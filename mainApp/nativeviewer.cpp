@@ -685,7 +685,8 @@ bool Gui::createPreviewWidget()
 void Gui::previewPiece(const QString &partType, int colorCode, bool dockable, QRect parentRect, QPoint position)
 {
     if (dockable) {
-        gMainWindow->PreviewPiece(partType, colorCode, false);
+        if (gMainWindow)
+            gMainWindow->PreviewPiece(partType, colorCode, false);
         return;
     } else {
         preview = new lcPreview();
@@ -752,7 +753,7 @@ void Gui::enableWindowFlags(bool detached)
 
 void Gui::ClearPreviewWidget()
 {
-    if (gMainWindow->GetPreviewWidget())
+    if (gMainWindow && gMainWindow->GetPreviewWidget())
          gMainWindow->GetPreviewWidget()->ClearPreview();
 }
 
@@ -786,14 +787,12 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
 
 void Gui::showLCStatusMessage()
 {
-
     if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
 void Gui::toggleLCStatusBar(bool topLevel)
 {
-
     Q_UNUSED(topLevel);
 
     if(viewerDockWindow->isFloating())
@@ -1356,15 +1355,12 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     }
     bannerFile.close();
 
-    Project* BannerProject = new Project();
     if (!gMainWindow->OpenProject(bannerFile.fileName()))
     {
         emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
-        delete BannerProject;
         return false;
     }
 
-    delete BannerProject;
     return true;
 }
 
@@ -1535,11 +1531,15 @@ void Gui::autoCenterSelection()
 void Gui::createStatusBar()
 {
   statusBar()->showMessage(tr("Ready"));
-  connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
+  if (Preferences::modeGUI)
+      connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
 }
 
 void Gui::readNativeSettings()
 {
+    if (!gMainWindow)
+        return;
+
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
     gMainWindow->PartSelectionWidgetLoadState(Settings);
@@ -1548,6 +1548,9 @@ void Gui::readNativeSettings()
 
 void Gui::writeNativeSettings()
 {
+    if (!gMainWindow)
+        return;
+
     QSettings Settings;
     Settings.beginGroup(MAINWINDOW);
     gMainWindow->PartSelectionWidgetSaveState(Settings);
@@ -1770,24 +1773,48 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary();
  }
 
- lcView* Gui::GetActiveView()
+ bool Gui::OpenProject(const QString& FileName)
  {
-     return gMainWindow->GetActiveView();
+     bool ProjectLoaded = false;
+
+     if (gMainWindow)
+         ProjectLoaded = gMainWindow->OpenProject(FileName);
+     else
+     {
+         Project* LoadedProject = new Project();
+
+         if (LoadedProject->Load(FileName))
+         {
+             gApplication->SetProject(LoadedProject);
+             ProjectLoaded = true;
+         }
+         else
+         {
+             delete LoadedProject;
+         }
+     }
+
+     return ProjectLoaded;
  }
 
- void Gui::UpdateAllViews()
+ lcView* Gui::GetActiveView()
  {
-     lcView::UpdateAllViews();
+     if (gMainWindow)
+         return gMainWindow->GetActiveView();
+     else
+         return new lcView(lcViewType::View, gApplication->mProject->GetMainModel());
  }
 
  lcModel* Gui::GetActiveModel()
  {
-     return GetActiveView() ? GetActiveView()->GetActiveModel() : nullptr;
+     return GetActiveView()->GetActiveModel();
  }
 
  lcPartSelectionWidget* Gui::GetPartSelectionWidget()
  {
-     return gMainWindow->GetPartSelectionWidget();
+     if (gMainWindow)
+         return gMainWindow->GetPartSelectionWidget();
+     return nullptr;
  }
 
  lcPreferences& Gui::GetPreferences()
@@ -1802,12 +1829,15 @@ void Gui::reloadViewer(){
 
  bool Gui::GetSubmodelIconsLoaded()
  {
-     return gMainWindow->mSubmodelIconsLoaded;
+     if (gMainWindow)
+         return gMainWindow->mSubmodelIconsLoaded;
+     return false;
  }
 
  void Gui::SetSubmodelIconsLoaded(bool value)
  {
-     gMainWindow->mSubmodelIconsLoaded = value;
+     if (gMainWindow)
+         gMainWindow->mSubmodelIconsLoaded = value;
  }
 
  int Gui::GetLPubStepPieces()
@@ -1825,6 +1855,11 @@ void Gui::reloadViewer(){
  void Gui::SetStudLogo(int Logo, bool value)
  {
      lcGetPiecesLibrary()->SetStudLogo(Logo, value);
+ }
+
+ void Gui::UpdateAllViews()
+ {
+     lcView::UpdateAllViews();
  }
 
  void Gui::UnloadOfficialPiecesLibrary()
@@ -1852,59 +1887,74 @@ void Gui::reloadViewer(){
      gApplication->mPreferences.LoadDefaults();
  }
 
- bool Gui::OpenProject(const QString& FileName)
- {
-     return gMainWindow->OpenProject(FileName);
- }
-
  QToolBar* Gui::GetToolsToolBar()
  {
-     return gMainWindow->GetToolsToolBar();
+     if (gMainWindow)
+         return gMainWindow->GetToolsToolBar();
+     return nullptr;
  }
 
  QDockWidget* Gui::GetTimelineToolBar()
  {
-     return gMainWindow->GetTimelineToolBar();
+     if (gMainWindow)
+         return gMainWindow->GetTimelineToolBar();
+     return nullptr;
  }
 
  QDockWidget* Gui::GetPropertiesToolBar()
  {
-     return gMainWindow->GetPropertiesToolBar();
+     if (gMainWindow)
+         return gMainWindow->GetPropertiesToolBar();
+     return nullptr;
  }
 
  QDockWidget* Gui::GetPartsToolBar()
  {
-     return gMainWindow->GetPartsToolBar();
+     if (gMainWindow)
+         return gMainWindow->GetPartsToolBar();
+     return nullptr;
  }
 
  QDockWidget* Gui::GetColorsToolBar()
  {
-     return gMainWindow->GetColorsToolBar();
+     if (gMainWindow)
+         return gMainWindow->GetColorsToolBar();
+     return nullptr;
  }
 
  QMenu* Gui::GetCameraMenu()
  {
-     return gMainWindow->GetCameraMenu();
+     if (gMainWindow)
+         return gMainWindow->GetCameraMenu();
+     return nullptr;
  }
 
  QMenu* Gui::GetToolsMenu()
  {
-     return gMainWindow->GetToolsMenu();
+     if (gMainWindow)
+         return gMainWindow->GetToolsMenu();
+     return nullptr;
  }
 
  QMenu* Gui::GetViewpointMenu()
  {
-     return gMainWindow->GetViewpointMenu();
+     if (gMainWindow)
+         return gMainWindow->GetViewpointMenu();
+     return nullptr;
  }
 
  QMenu* Gui::GetProjectionMenu()
  {
-     return gMainWindow->GetProjectionMenu();
+     if (gMainWindow)
+         return gMainWindow->GetProjectionMenu();
+     return nullptr;
  }
 
  QMenu* Gui::GetShadingMenu()
  {
-     return gMainWindow->GetShadingMenu();
+     if (gMainWindow)
+         return gMainWindow->GetShadingMenu();
+     return nullptr;
  }
 
 /*********************************************
@@ -3524,7 +3574,7 @@ void Gui::setCurrentStep(Step *step)
 
 void Gui::setStepForLine(const TypeLine &here)
 {
-    if (!currentStep || !gMainWindow->isVisible() || exporting())
+    if (!currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
         return;
 
     // limit the scope to the current page
