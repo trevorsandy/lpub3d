@@ -36,6 +36,10 @@ Persistence of Vision Raytracer Pty. Ltd.
 qSLog 2.0.0
 Razvan Petru
 
+QtWaitingSpinner commit bb8f898
+https://github.com/snowwlex/QtWaitingSpinner
+Alex Turkin 
+
 QuaZip 0.7.3
 https://github.com/stachenov/quazip
 Sergey A. Tachenov

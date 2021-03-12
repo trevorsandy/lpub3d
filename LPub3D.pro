@@ -77,6 +77,12 @@ lclib.makefile = Makefile.lc
 lclib.target   = sub-lclib
 lclib.depends  =
 
+SUBDIRS += waitingspinner
+waitingspinner.subdir   = $$PWD/waitingspinner
+waitingspinner.makefile = Makefile.WaitingSpinner
+waitingspinner.target   = sub-WaitingSpinner
+waitingspinner.depends  =
+
 SUBDIRS += mainApp
 mainApp.subdir   = $$PWD/mainApp
 mainApp.makefile = Makefile.mainapp
@@ -87,6 +93,7 @@ mainApp.depends  = ldrawini
 mainApp.depends  = lclib
 mainApp.depends  = ldvqt
 mainApp.depends  = wpngimage
+mainApp.depends  = waitingspinner
 
 RESOURCES += \
     qsimpleupdater/etc/resources/qsimpleupdater.qrc \

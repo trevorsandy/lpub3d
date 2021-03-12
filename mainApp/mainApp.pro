@@ -30,7 +30,7 @@ include(../gitversion.pri)
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
-INCLUDEPATH += ../ldrawini ../lclib/common ../lclib/qt ../qsimpleupdater/include ../qsimpleupdater/src
+INCLUDEPATH += ../ldrawini ../waitingspinner ../lclib/common ../lclib/qt ../qsimpleupdater/include ../qsimpleupdater/src
 INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include ../ldvlib/WPngImage
 win32-msvc* {
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
@@ -175,6 +175,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = LCd18
         LDVQT_LIB = LDVQtd44
         WPNGIMAGE_LIB = WPngImaged14
+        WAITING_SPINNER_LIB = WaitingSpinnerd10
     }
 
     macx {
@@ -184,6 +185,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = LC_debug
         LDVQT_LIB = LDVQt_debug
         WPNGIMAGE_LIB = WPngImage_debug
+        WAITING_SPINNER_LIB = WaitingSpinner_debug
     }
 
     unix:!macx {
@@ -192,6 +194,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = lcd
         LDVQT_LIB = ldvqtd
         WPNGIMAGE_LIB = wpngimaged
+        WAITING_SPINNER_LIB = waitingspinnerd
     }
 
     # executable target name
@@ -216,6 +219,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = LC18
         LDVQT_LIB = LDVQt44
         WPNGIMAGE_LIB = WPngImage14
+        WAITING_SPINNER_LIB = WaitingSpinner10
     }
 
     macx {
@@ -224,6 +228,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = LC
         LDVQT_LIB = LDVQt
         WPNGIMAGE_LIB = WPngImage
+        WAITING_SPINNER_LIB = WaitingSpinner
     }
 
     unix:!macx {
@@ -233,6 +238,7 @@ CONFIG(debug, debug|release) {
         LC_LIB = lc
         LDVQT_LIB = ldvqt
         WPNGIMAGE_LIB = wpngimage
+        WAITING_SPINNER_LIB = waitingspinner
     }
 
     # executable target
@@ -334,6 +340,8 @@ LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
 LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
 
 LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
+
+LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
 
 # Setup LDVQt Libraries
 LOAD_LDVLIBS = True
