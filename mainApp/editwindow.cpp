@@ -950,9 +950,6 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 
 void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection)
 {
-    emit lpubAlert->messageSig(LOG_TRACE, QString("HighlightSelectedLines Sender: %1")
-                               .arg(sender()->metaObject()->className()));
-
     // Remove duplicate editor (saved) lines and viewer lines
     if (!editorSelection && savedSelection.size()) {
         for (int line : lines) {
