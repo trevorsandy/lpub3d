@@ -450,7 +450,7 @@ class Where;
 enum traverseRc { HitEndOfPage = 1, HitBuildModAction };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
-enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
+enum Direction { PAGE_PREVIOUS, PAGE_JUMP_BACKWARD, PAGE_NEXT, PAGE_JUMP_FORWARD, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum ExportMode { PRINT_FILE   = -2,//-2
                   EXPORT_NONE  = -1,//-1

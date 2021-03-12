@@ -706,6 +706,7 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
+  pageDirection = PAGE_NEXT;
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
@@ -767,6 +768,7 @@ bool Gui::openFile(QString &fileName)
 {
   disableWatcher();
 
+  pageDirection = PAGE_NEXT;
   parsedMessages.clear();
   clearPage(KpageView,KpageScene,true);
   closeFile();

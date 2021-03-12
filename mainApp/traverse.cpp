@@ -1326,7 +1326,7 @@ int Gui::drawPage(
             case InsertPageRc:
               {
                 if (stepContains(topOfStep,beginSubLineRc))
-                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::InsertErrors),
+                    parseError(QString("INSERT PAGE meta must be followed by 0 [ROT]STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1, Preferences::InsertErrors),
                                opts.current);
 
                 partsAdded = true;
@@ -3983,8 +3983,6 @@ void Gui::drawPage(LGraphicsView  *view,
   maxPages    = 1 + pa;
   stepPageNum = maxPages;
 
-  qDebug() << QString("MaxPages: %1, StepPageNum: %2").arg(maxPages).arg(stepPageNum);
-
   // if not buildMod action
   if (! buildModActionChange) {
       // initialize ldrawFile registers
@@ -4030,7 +4028,9 @@ void Gui::drawPage(LGraphicsView  *view,
   }
 
   writeToTmp();
+
   //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
+
   QMap<int,int> buildModActions;
   QString empty;
   Meta    meta;
@@ -4079,10 +4079,10 @@ void Gui::drawPage(LGraphicsView  *view,
       topOfPages.append(current);
 /*
 #ifdef QT_DEBUG_MODE
-      emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
+      emit messageSig(LOG_NOTICE, QString("DrawPage Page Indexes:"));
       for (int i = 0; i < topOfPages.size(); i++)
       {
-          emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+          emit messageSig(LOG_NOTICE, QString("PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
                                              .arg(i)                            // index
                                              .arg(topOfPages.at(i).modelIndex)  // modelIndex
                                              .arg(topOfPages.at(i).lineNumber)  // lineNumber
@@ -4290,22 +4290,28 @@ bool Gui::setBuildModForNextStep(
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
     bool buildMod[3]           = { false, false, false };                    // validate buildMod meta command set
-    enum D_Step{ D_NEXT_STEP, D_JUMP_FORWARD };
-    D_Step stepDirection       = D_NEXT_STEP;
 
     auto setBottomOfNextStep = [this, &buildModNextStepIndex] (Where &bottomOfNextStep) {
         getBuildModStepIndexWhere(buildModNextStepIndex, bottomOfNextStep);  // initialize bottomOfNextStep Where
         int top = bottomOfNextStep.lineNumber;                               // save top line number for later comparison
-        Rc rc = mi->scanForward(bottomOfNextStep,StepMask);                  // scan to top of next step
-        if (rc == StepRc && bottomOfNextStep.lineNumber == top) {            // check if on a STEP command
-            bottomOfNextStep++;                                              // advance past STEP command
-            mi->scanForward(bottomOfNextStep,StepMask);                      // scan to top of next step
+        int numLines = gui->subFileSize(bottomOfNextStep.modelName);         // set top model lines count
+        for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
+            QString line = gui->readLine(bottomOfNextStep);                  // count line
+            if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
+                if (bottomOfNextStep.lineNumber == top)                      // check if top and bottom are on the same line
+                    bottomOfNextStep++;                                      // advance past STEP command
+                else
+                    break;                                                   // break at bottom of step/top of next step
+            }
         }
+
+#ifdef QT_DEBUG_MODE
+        int numberOfLines = bottomOfNextStep.lineNumber - topOfStep.lineNumber;
+        emit messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, numberOfLines %2")
+                                           .arg(bottomOfNextStep.lineNumber).arg(numberOfLines));
+#endif
     };
 
-    emit messageSig(LOG_INFO_STATUS, QString("Build modifications check for %1...")
-                                             .arg(submodel ? "submodel '" + topOfSubmodel.modelName + "'" :
-                                                             "model '" + startModel + "'"));
     if (submodel) {
         if (!topOfSubmodel.lineNumber)
             skipHeader(topOfSubmodel);                                       // advance past headers
@@ -4313,7 +4319,14 @@ bool Gui::setBuildModForNextStep(
         startLine  = topOfSubmodel.lineNumber;
         startModel = topOfSubmodel.modelName;
         topOfStep  = topOfSubmodel;
+#ifdef QT_DEBUG_MODE
+        emit messageSig(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
+                                          .arg(topOfSubmodel.modelName));
+#endif
     } else {
+        emit messageSig(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
+                                            .arg(topOfStep.modelName));
+
         buildModSubmodels.clear();
 
         if (!topOfStep.lineNumber)
@@ -4329,41 +4342,41 @@ bool Gui::setBuildModForNextStep(
 
         startLine = topOfStep.lineNumber;                                    // set starting line number
 
-        if ((buildModNextStepIndex - buildModPrevStepIndex) > 1) {           // if jump forward, modify BuildMod processing start...
-            stepDirection = D_JUMP_FORWARD;
-            Where topOfFromStep;
-            getBuildModStepIndexWhere(buildModPrevStepIndex, topOfFromStep); // set start Where to previous step index
-            startLine  = getBuildModStepLineNumber(buildModPrevStepIndex);   // set start Where lineNumber to bottom of previous step
-            startModel = topOfFromStep.modelName;
-            progressMax = 0;
+#ifdef QT_DEBUG_MODE
+        emit messageSig(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
+#endif
+
+        if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
+            bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
+                            pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1
+            if (backward) {                                                      // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
+                startLine  = topOfStep.lineNumber;                               // set step start lineNumber to topOfStep.lineNumber
+                startModel = topOfStep.modelName;                                // set step start modelName to topOfStep.modelName
+
+            } else {                                                             // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
+                Where topOfFromStep;
+                getBuildModStepIndexWhere(buildModPrevStepIndex, topOfFromStep); // get previous (last) step index
+                startLine  = getBuildModStepLineNumber(buildModPrevStepIndex);   // set start Where to previous step index
+                startModel = topOfFromStep.modelName;                            // set start Where lineNumber to bottom of previous step
+            }
 
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_NOTICE, QString("Jump forward - StartModel: %1, StartLineNum: %2, EndModel %3, EndLineNum %4")
+            emit messageSig(LOG_NOTICE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
+                            .arg(jumpBackward ? "Backward" : "Forward")
                             .arg(startModel).arg(startLine)
                             .arg(bottomOfNextStep.modelName)
                             .arg(bottomOfNextStep.lineNumber));
 #endif
-        } else if ((buildModNextStepIndex - buildModPrevStepIndex) < 0) {    // if jump backward, there is nothing to do so return
-#ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_NOTICE, QString("Jump backward - StartModel: %1, StartLineNum: %2, EndModel %3, EndLineNum %4")
-                            .arg(startModel).arg(startLine)
-                            .arg(bottomOfNextStep.modelName)
-                            .arg(bottomOfNextStep.lineNumber));
-#endif
-
-            // Nothing to do at jump backward as all models would have already been checked for modifications up to this point
-            return true;
         }
 
-        if (stepDirection == D_NEXT_STEP) {
-            progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber; // progress bar max
-            progressMin = 1;
+        progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber; // progress bar max
+        progressMin = 1;
 
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber [%1], step numberOfLines [%2]...")
-                                              .arg(bottomOfNextStep.lineNumber).arg(progressMax));
+        emit messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber [%1], step numberOfLines [%2]...")
+                        .arg(bottomOfNextStep.lineNumber).arg(progressMax));
 #endif
-        }
 
         emit progressBarPermInitSig();
         emit progressPermRangeSig(progressMin, progressMax);

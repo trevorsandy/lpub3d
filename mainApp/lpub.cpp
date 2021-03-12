@@ -422,6 +422,8 @@ void Gui::nextPage()
           if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
               if (!saveBuildModification())
                   return;
+              bool jumpForward = inputPageNum - displayPageNum > 1;
+              pageDirection = jumpForward ? PAGE_JUMP_FORWARD : PAGE_NEXT;
               displayPageNum = inputPageNum;
               displayPage();
               return;
@@ -436,6 +438,7 @@ void Gui::nextPage()
           if (displayPageNum < maxPages) {
               if (!saveBuildModification())
                   return;
+              pageDirection = PAGE_NEXT;
               ++displayPageNum;
               displayPage();
             } else {
@@ -512,6 +515,8 @@ void Gui::previousPage()
           if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
               if (!saveBuildModification())
                   return;
+              bool jumpBackward = inputPageNum - displayPageNum < -1;
+              pageDirection  = jumpBackward ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
               displayPageNum = inputPageNum;
               displayPage();
               return;
@@ -525,6 +530,7 @@ void Gui::previousPage()
           if (displayPageNum > 1 + pa) {
               if (!saveBuildModification())
                   return;
+              pageDirection = PAGE_PREVIOUS;
               displayPageNum--;
               displayPage();
             } else {
@@ -939,6 +945,12 @@ void Gui::firstPage()
   if (displayPageNum == 1 + pa) {
     statusBarMsg("You are on the first page");
   } else {
+    if (!saveBuildModification())
+        return;
+    if ((1 + pa) - displayPageNum < -1)
+        pageDirection = PAGE_JUMP_BACKWARD;
+    else if ((1 + pa) - displayPageNum == -1)
+        pageDirection = PAGE_PREVIOUS;
     displayPageNum = 1 + pa;
     displayPage();
   }
@@ -950,6 +962,12 @@ void Gui::lastPage()
     statusBarMsg("You are on the last page");
   } else {
     countPages();
+    if (!saveBuildModification())
+        return;
+    if (maxPages - displayPageNum > 1)
+        pageDirection = PAGE_JUMP_FORWARD;
+    else if (maxPages - displayPageNum == 1)
+        pageDirection = PAGE_NEXT;
     displayPageNum = maxPages;
     displayPage();
   }
@@ -968,6 +986,14 @@ void Gui::setPage()
       if (inputPage <= maxPages && inputPage != displayPageNum) {
           if (!saveBuildModification())
               return;
+          if (inputPage - displayPageNum > 1)
+              pageDirection = PAGE_JUMP_FORWARD;
+          else if (inputPage - displayPageNum < -1)
+              pageDirection = PAGE_JUMP_BACKWARD;
+          else if (inputPage - displayPageNum == 1)
+              pageDirection = PAGE_NEXT;
+          else if (inputPage - displayPageNum == -1)
+              pageDirection = PAGE_PREVIOUS;
           displayPageNum = inputPage;
           displayPage();
           return;
@@ -987,6 +1013,14 @@ void Gui::setGoToPage(int index)
   if (goToPageNum <= maxPages && goToPageNum != displayPageNum) {
         if (!saveBuildModification())
             return;
+        if (goToPageNum - displayPageNum > 1)
+            pageDirection = PAGE_JUMP_FORWARD;
+        else if (goToPageNum - displayPageNum < -1)
+            pageDirection = PAGE_JUMP_BACKWARD;
+        else if (goToPageNum - displayPageNum == 1)
+            pageDirection = PAGE_NEXT;
+        else if (goToPageNum - displayPageNum == -1)
+            pageDirection = PAGE_PREVIOUS;
         displayPageNum = goToPageNum;
         displayPage();
     }
