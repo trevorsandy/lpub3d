@@ -1115,6 +1115,9 @@ void EditWindow::pageUpDown(
 }
 
 void EditWindow::updateSelectedParts() {
+    if (modelFileEdit())
+        return;
+
     if (!gMainWindow->isVisible())
         return;
 
@@ -1173,14 +1176,17 @@ void EditWindow::updateSelectedParts() {
             int lineNumber = getSelectedLineNumber();
             TypeLine typeLine(fileOrderIndex,lineNumber);
             lineTypeIndexes.append(typeLine);
-            toggleLines.append(lineNumber);
-            clearSelection = savedSelection.contains(lineNumber);
-            highlightSelectedLines(toggleLines, clearSelection);
-            if (clearSelection)
-                savedSelection.removeAll(lineNumber);
-            else
-                savedSelection.append(lineNumber);
-            toggleLines.clear();
+            if (stepLines.isInScope(lineNumber))
+            {
+                toggleLines.append(lineNumber);
+                clearSelection = savedSelection.contains(lineNumber);
+                highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
+                if (clearSelection)
+                    savedSelection.removeAll(lineNumber);
+                else
+                    savedSelection.append(lineNumber);
+                toggleLines.clear();
+            }
         }
         // set next selected line
         cursor.movePosition(QTextCursor::Down);
@@ -1244,8 +1250,17 @@ void EditWindow::setSubFiles(const QStringList& subFiles){
 }
 
 void EditWindow::displayFile(
-  LDrawFile     *ldrawFile,
-  const QString &_fileName)
+  LDrawFile       *ldrawFile,
+  const QString   &fileName)
+{
+   const StepLines lineScope;
+   displayFile(ldrawFile, fileName, lineScope);
+}
+
+void EditWindow::displayFile(
+  LDrawFile       *ldrawFile,
+  const QString   &_fileName,
+  const StepLines &lineScope)
 {
   bool reloaded  = _fileName == fileName;
   fileName       = _fileName;
@@ -1253,6 +1268,7 @@ void EditWindow::displayFile(
   isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
   _subFileListPending = true;
+  stepLines      = lineScope;
   savedSelection.clear();
 
   if (modelFileEdit() && !fileName.isEmpty())

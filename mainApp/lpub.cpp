@@ -1233,8 +1233,8 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName,
-    bool editModelFile   /*false*/,
-    bool displayStartPage/*false*/) // doesn't seem like this is used here; only on direct call to displayPage
+    bool           editModelFile   /*false*/,
+    bool           displayStartPage/*false*/) // doesn't seem like this is used here; only on direct call to displayPage
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE        
@@ -1244,7 +1244,16 @@ void Gui::displayFile(
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
-            displayFileSig(ldrawFile, modelName);
+            Where bottom;
+            if (getCurrentStep()) {
+                bottom = getCurrentStep()->bottomOfStep();
+            } else {
+                bool partsAdded = false;
+                while (!partsAdded)
+                    mi->scanForward(bottom,StepMask|StepGroupMask,partsAdded);
+            }
+           StepLines lineScope(0, bottom.lineNumber);
+           displayFileSig(ldrawFile, modelName, lineScope);
 #ifdef QT_DEBUG_MODE            
             emit messageSig(LOG_DEBUG,tr("Editor loaded - %1").arg(elapsedTime(t.elapsed())));
 #endif
@@ -1256,6 +1265,7 @@ void Gui::displayFile(
             if (displayStartPage)
                 countPages();
 
+            // --> this block is suspect
             int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
 
             if (displayStartPage) {
@@ -1267,6 +1277,7 @@ void Gui::displayFile(
                 Where topOfSteps(modelName,0);
                 showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
             }
+            // <-- suspect block
 
             int saveIndex = mpdCombo->currentIndex();
             int currentIndex = 0;
@@ -1276,6 +1287,7 @@ void Gui::displayFile(
                     break;
                 }
             }
+
             if (saveIndex != currentIndex) {
                 mpdCombo->setCurrentIndex(currentIndex);
                 mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
@@ -1366,10 +1378,14 @@ void Gui::mpdComboChanged(int index)
       }
 
       if (displayFile) {
-          Where topOfSteps(newSubFile,0);
+          Where bottom;
+          bool partsAdded = false;
+          while (!partsAdded)
+              mi->scanForward(bottom,StepMask|StepGroupMask,partsAdded);
+          StepLines lineScope(0, bottom.lineNumber);
+          displayFileSig(&ldrawFile, curSubFile, lineScope);
           curSubFile = newSubFile;
-          displayFileSig(&ldrawFile, curSubFile);
-          showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
+          showLineSig(0, LINE_HIGHLIGHT);
       }
 
       mpdCombo->setCurrentIndex(index);
@@ -3061,8 +3077,8 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(previewPieceSig(const QString &,int)),
             this,           SLOT(previewPiece(const QString &,int)));
 
-    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
-            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
+    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
+            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &, const StepLines &)));
 
     connect(this,           SIGNAL(showLineSig(int, int)),
             editWindow,     SLOT(  showLine(   int, int)));
@@ -5483,9 +5499,9 @@ void Gui::writeSettings()
 void Gui::showLine(const Where &topOfStep, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
-      displayFile(&ldrawFile,topOfStep.modelName);
-      showLineSig(topOfStep.lineNumber, type);
-    }
+    displayFile(&ldrawFile,topOfStep.modelName);
+    showLineSig(topOfStep.lineNumber, type);
+  }
 }
 
 void Gui::parseError(const QString message, const Where &here, Preferences::MsgKey msgKey, bool option, bool override)

@@ -72,7 +72,7 @@
  * change is made to the ldraw file, and that LDraw file is being displayed
  * by the editWindow, the gui signals editWindow using this:
  *
- * void displayFile(LDrawFile *ldrawFile, QString subFile);
+ * void displayFile(LDrawFile *ldrawFile, QString subFile, StepLine lineScope);
  *
  * The editWindow disconnects contentsChange events, updates the document's
  * plain text, and then reconnects contentsChange.

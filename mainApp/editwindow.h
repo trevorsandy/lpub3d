@@ -103,6 +103,7 @@ signals:
     void previewPieceSig(const QString &, int);
 
 public slots:
+    void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);
     void displayFile(LDrawFile *, const QString &fileName);
     void setSubFiles(const QStringList& subFiles);
     void modelFileChanged(const QString &fileName);
@@ -166,6 +167,7 @@ protected:
     HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
     QFileSystemWatcher fileWatcher;
+    StepLines          stepLines;
     QVector<int>       savedSelection;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;

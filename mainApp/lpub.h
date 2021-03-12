@@ -1385,7 +1385,7 @@ signals:
 
   /* tell the editor to display this file */
 
-  void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
+  void displayFileSig(LDrawFile *ldrawFile, const QString &subFile, const StepLines &lineScope);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes, bool clear);

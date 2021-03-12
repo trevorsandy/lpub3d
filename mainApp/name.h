@@ -32,14 +32,22 @@ struct ActionAttributes
     const char* StatusText;
 };
 
+struct StepLines {
+  int top;
+  int bottom;
+  StepLines() : top(0), bottom(0) {}
+  StepLines( int _top, int _bottom) :
+      top(_top), bottom(_bottom) {}
+  bool isInScope(int value)
+  { return value >= top && value <= bottom; }
+};
+
 struct TypeLine {
   int modelIndex;
   int lineIndex;
-  TypeLine(){}
-  TypeLine(int _modelIndex,
-           int _lineIndex)
-      : modelIndex(_modelIndex),
-        lineIndex(_lineIndex) {}
+  TypeLine() : modelIndex(-1), lineIndex(-1) {}
+  TypeLine( int _modelIndex, int _lineIndex) :
+      modelIndex(_modelIndex), lineIndex(_lineIndex) {}
 };
 
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };

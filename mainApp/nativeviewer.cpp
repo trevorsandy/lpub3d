@@ -1387,14 +1387,14 @@ void Gui::writeNativeSettings()
     gApplication->SaveTabLayout();
 }
 
-void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
+void Gui::SetActiveModel(const QString &fileName, bool newSubmodel)
 {
     if (fileName == VIEWER_MODEL_DEFAULT)
         return;
+    if (lcGetActiveProject()->GetImageType() != Options::CSI)
+        return;
 
-    if (lcGetActiveProject()->GetImageType() == Options::CSI
-            && getCurrentStep()
-            && !viewerStepKey.isEmpty()) {
+    if (getCurrentStep() && !viewerStepKey.isEmpty()) {
         QString modelName = getSubmodelName(QString(viewerStepKey[0]).toInt());
         if (newSubmodel){
             if (isSubmodel(fileName)) {
@@ -1405,7 +1405,7 @@ void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
             }
         }
         if (!modelName.isEmpty()) {
-            displayFile(&ldrawFile,modelName);
+            displayFile(&ldrawFile, modelName);
         }
     }
 }
