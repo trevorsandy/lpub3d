@@ -86,7 +86,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  fadeStepChild = new FadeStepGui(fadeStepMeta, true/*global*/);
+  fadeStepChild = new FadeStepGui(fadeStepMeta);
   data->children.append(fadeStepChild);
   connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));

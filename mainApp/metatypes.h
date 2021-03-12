@@ -666,29 +666,13 @@ public:
   bool useLDVSingleCall;
   bool useLDVSnapShotList;
   bool useNativeGenerator;
-  bool initialized;
   bool reset;
   RendererData()
   {
-    initialized = false;
     reset = false;
     useLDVSingleCall = false;
     useLDVSnapShotList = false;
     useNativeGenerator = false;
-  }
-};
-
-class EnableData
-{
-public:
-  bool value;
-  bool reset;
-  bool initialized;
-  EnableData()
-  {
-    initialized = false;
-    value = false;
-    reset = false;
   }
 };
 

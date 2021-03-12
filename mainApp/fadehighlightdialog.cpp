@@ -55,9 +55,9 @@ FadeHighlightDialog::FadeHighlightDialog(
   layout->addWidget(box);
 
   if (_useMeta == UseFadeMeta)
-    fadeSteps = new FadeStepGui(&fadeMeta,false/*global*/,box);
+    fadeSteps = new FadeStepGui(&fadeMeta,box);
   else
-    highlightStep = new HighlightStepGui(&highlightMeta,false/*global*/,box);
+    highlightStep = new HighlightStepGui(&highlightMeta,box);
 
   QDialogButtonBox *buttonBox;
 

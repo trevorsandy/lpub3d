@@ -2632,13 +2632,13 @@ public:
 
 class EnableMeta : public RcMeta {
 private:
-  EnableData _value[2];
+  bool _value[2];
 public:
-  EnableData &value()
+  bool &value()
   {
     return _value[pushed];
   }
-  void setValue(EnableData &value)
+  void setValue(bool value)
   {
     _value[pushed] = value;
   }

@@ -502,7 +502,7 @@ public slots:
 
 /***********************************************************************
  *
- * FadeStep
+ * Fade Step
  *
  **********************************************************************/
 
@@ -514,7 +514,6 @@ public:
 
   FadeStepGui(
     FadeStepMeta *meta,
-    bool global = false,
     QGroupBox  *parent = nullptr);
   ~FadeStepGui() {}
 
@@ -527,12 +526,9 @@ private:
 
   QCheckBox   *fadeCheck;
   QCheckBox   *useColorCheck;
-  QCheckBox   *fadeResetCheck;
   QSpinBox    *fadeOpacitySpin;
   QLabel      *colorExample;
   QComboBox   *colorCombo;
-
-  bool global;
 
   bool colorModified;
   bool fadeModified;
@@ -558,7 +554,6 @@ public:
 
   HighlightStepGui(
     HighlightStepMeta *meta,
-    bool global = false,
     QGroupBox  *parent = nullptr);
   ~HighlightStepGui() {}
 
@@ -570,7 +565,6 @@ private:
   HighlightStepMeta  *meta;
 
   QCheckBox   *highlightCheck;
-  QCheckBox   *highlightResetCheck;
   QLabel      *colorExample;
   QPushButton *colorButton;
   QSpinBox    *lineWidthSpin;

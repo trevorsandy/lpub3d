@@ -3243,9 +3243,8 @@ void MetaItem::changePreferredRenderer(
   const Where &topOfStep,
   const Where &bottomOfStep,
   PreferredRendererMeta *meta,
-  bool         local,
   int          append,
-  bool         useTop,
+  bool         local,
   bool         askLocal)
 {
   PreferredRendererMeta _meta;
@@ -3255,6 +3254,9 @@ void MetaItem::changePreferredRenderer(
   ok = PreferredRendererDialog::getPreferredRenderer(_meta,title,gui);
 
   if (ok) {
+    QRegExp calloutRx("CALLOUT BEGIN");
+    Where here(topOfStep + 1);
+    bool useTop = !gui->stepContains(here,calloutRx);
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
   }
@@ -3270,27 +3272,29 @@ QString         title,
   bool          askLocal)
 {
   FadeStepMeta _meta;
-  _meta.enable         = meta->enable;
+  _meta.enable   = meta->enable;
   _meta.color    = meta->color;
   _meta.opacity  = meta->opacity;
   bool ok;
   ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
 
   if (ok) {
+    QRegExp calloutRx("CALLOUT BEGIN");
+    Where here(topOfStep + 1);
+    bool useTop = !gui->stepContains(here,calloutRx);
     beginMacro("SetFadeSteps");
-    if(_meta.enable.value().value != meta->enable.value().value ||
-       _meta.enable.value().reset != meta->enable.value().reset) {
+    if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->enable,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
     }
     if(_meta.color.value().color != meta->color.value().color ||
        _meta.color.value().useColor != meta->color.value().useColor) {
       meta->color.setValue(_meta.color.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->color,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->color,useTop,append,local,askLocal);
     }
     if(_meta.opacity.value() != meta->opacity.value()) {
       meta->opacity.setValue(_meta.opacity.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->opacity,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->opacity,useTop,append,local,askLocal);
     }
     endMacro();
   }
@@ -3306,26 +3310,28 @@ void MetaItem::setHighlightStep(
   bool               askLocal)
 {
   HighlightStepMeta _meta;
-  _meta.enable          = meta->enable;
+  _meta.enable    = meta->enable;
   _meta.color     = meta->color;
   _meta.lineWidth = meta->lineWidth;
   bool ok;
   ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
 
   if (ok) {
+    QRegExp calloutRx("CALLOUT BEGIN");
+    Where here(topOfStep + 1);
+    bool useTop = !gui->stepContains(here,calloutRx);
     beginMacro("SetHighlightStep");
-    if(_meta.enable.value().value != meta->enable.value().value ||
-       _meta.enable.value().reset != meta->enable.value().reset) {
+    if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->enable,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->enable,useTop,append,local,askLocal);
     }
     if(_meta.color.value() != meta->color.value()) {
       meta->color.setValue(_meta.color.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->color,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->color,useTop,append,local,askLocal);
     }
     if(_meta.lineWidth.value() != meta->lineWidth.value()) {
       meta->lineWidth.setValue(_meta.lineWidth.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->lineWidth,append,local,askLocal);
+      setMeta(topOfStep,bottomOfStep,&meta->lineWidth,useTop,append,local,askLocal);
     }
     endMacro();
   }

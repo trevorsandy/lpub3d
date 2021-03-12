@@ -1723,18 +1723,15 @@ void HeaderFooterHeightGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * FadeStep
+ * Fade Step
  *
  **********************************************************************/
 
 FadeStepGui::FadeStepGui(
         FadeStepMeta *_meta,
-        bool        _global,
         QGroupBox  *parent)
 {
   meta = _meta;
-  global = _global;
-  EnableData data = _meta->enable.value();
 
   QGridLayout *grid;
 
@@ -1743,7 +1740,7 @@ FadeStepGui::FadeStepGui(
   // enable fade step row
 
   fadeCheck = new QCheckBox(tr("Enable fade previous steps"), parent);
-  fadeCheck->setChecked(data.value);
+  fadeCheck->setChecked(_meta->enable.value());
   fadeCheck->setToolTip(tr("Turn on global fade previous steps."));
 
   connect(fadeCheck,SIGNAL(stateChanged(int)),
@@ -1801,20 +1798,6 @@ FadeStepGui::FadeStepGui(
 
   grid->addWidget(fadeOpacitySpin,3,1);
 
-  // fade step reset row
-
-  if (! global) {
-    bool checked = data.value && !data.reset ? true : data.reset;
-    fadeResetCheck = new QCheckBox(tr("Reset after this image render."), parent);
-    fadeResetCheck->setToolTip(tr("Reset settings to the global fade steps preference."));
-    fadeResetCheck->setChecked(checked);
-
-    connect(fadeResetCheck,SIGNAL(stateChanged(int)),
-            this,            SLOT(valueChanged(int)));
-
-    grid->addWidget(fadeResetCheck,4,0,1,2);
-  }
-
   if (parent) {
     parent->setLayout(grid);
   } else {
@@ -1860,20 +1843,10 @@ void FadeStepGui::valueChanged(int state)
     useColorCheck->setEnabled(checked);
     fadeOpacitySpin->setEnabled(checked);
     colorCombo->setEnabled(checked);
-    EnableData data = meta->enable.value();
-    fadeModified = data.value != checked;
+    fadeModified = meta->enable.value() != checked;
     if (!modified)
       modified = fadeModified;
-    data.value = checked;
-    meta->enable.setValue(data);
-  } else if (sender() == fadeResetCheck) {
-    checked = isChecked();
-    EnableData data = meta->enable.value();
-    fadeModified = data.reset != checked;
-    if (!modified)
-      modified = fadeModified;
-    data.reset = checked;
-    meta->enable.setValue(data);
+    meta->enable.setValue(checked);
   } else if (sender() == useColorCheck) {
     checked = isChecked();
     FadeColorData data = meta->color.value();
@@ -1914,12 +1887,9 @@ void FadeStepGui::apply(
 
 HighlightStepGui::HighlightStepGui(
         HighlightStepMeta *_meta,
-        bool        _global,
         QGroupBox  *parent)
 {
   meta = _meta;
-  global = _global;
-  EnableData data = _meta->enable.value();
 
   QGridLayout *grid;
 
@@ -1928,7 +1898,7 @@ HighlightStepGui::HighlightStepGui(
   // enable highlight row
 
   highlightCheck = new QCheckBox(tr("Enable Highlight Current Step"), parent);
-  highlightCheck->setChecked(data.value);
+  highlightCheck->setChecked(meta->enable.value());
   highlightCheck->setToolTip(tr("Turn on global highlight current step."));
 
   connect(highlightCheck,SIGNAL(stateChanged(int)),
@@ -1977,20 +1947,6 @@ HighlightStepGui::HighlightStepGui(
     grid->addWidget(lineWidthSpin,2,1);
   }
 
-  // highlight step reset row
-
-  if (! global) {
-    bool checked = data.value && !data.reset ? true : data.reset;
-    highlightResetCheck = new QCheckBox(tr("Reset after this image render"), parent);
-    highlightResetCheck->setToolTip(tr("Reset settings to the global highlight step preference."));
-    highlightResetCheck->setChecked(checked);
-
-    connect(highlightResetCheck,SIGNAL(stateChanged(int)),
-            this,                 SLOT(valueChanged(int)));
-
-    grid->addWidget(highlightResetCheck,row,0,1,2);
-  }
-
   if (parent) {
     parent->setLayout(grid);
   } else {
@@ -2033,20 +1989,10 @@ void HighlightStepGui::valueChanged(int state)
     colorButton->setEnabled(checked);
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       lineWidthSpin->setEnabled(checked);
-    EnableData data = meta->enable.value();
-    highlightModified = data.value != checked;
+    highlightModified = meta->enable.value() != checked;
     if (!modified)
       modified = highlightModified;
-    data.value = checked;
-    meta->enable.setValue(data);
-  } else if (sender() == highlightResetCheck) {
-      checked = isChecked();
-      EnableData data = meta->enable.value();
-      highlightModified = data.reset != checked;
-      if (!modified)
-        modified = highlightModified;
-      data.reset = checked;
-      meta->enable.setValue(data);
+    meta->enable.setValue(checked);
   } else if (sender() == lineWidthSpin) {
     modified = lineWidthModified = meta->lineWidth.value() != state;
     meta->lineWidth.setValue(state);

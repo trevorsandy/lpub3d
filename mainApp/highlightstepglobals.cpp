@@ -86,7 +86,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  highlightStepChild = new HighlightStepGui(highlightStepMeta, true/*global*/);
+  highlightStepChild = new HighlightStepGui(highlightStepMeta);
   data->children.append(highlightStepChild);
   connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
   connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));

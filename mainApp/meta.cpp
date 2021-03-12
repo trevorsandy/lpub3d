@@ -1911,7 +1911,6 @@ void CsiAnnotationIconMeta::doc(QStringList &out, QString preamble)
 PreferredRendererMeta::PreferredRendererMeta() : LeafMeta()
 {
   _value[0].reset              = false;
-  _value[0].initialized        = true;
   _value[0].renderer           = Preferences::preferredRenderer;
   _value[0].useLDVSingleCall   = Preferences::enableLDViewSingleCall;
   _value[0].useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
@@ -1924,9 +1923,8 @@ void PreferredRendererMeta::setPreferences(bool reset)
   bool preferenceChanged = false;
   if (reset) {
     Preferences::preferredRendererPreferences();
-    preferenceChanged = data.initialized && Preferences::preferredRenderer != data.renderer;
+    preferenceChanged = Preferences::preferredRenderer != data.renderer;
     data.reset              = false;
-    data.initialized        = true;
     data.renderer           = Preferences::preferredRenderer;
     data.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
     data.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
@@ -3702,11 +3700,8 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = FailureRc;
   QRegExp rx("^(TRUE|FALSE)$");
-  if (argv.size() - index >= 1 && argv[index].contains(rx)) {
-    _value[pushed].value = argv[index] == "TRUE";
-    _value[pushed].reset = false;
-    if (argv.size() - index > 1)
-      _value[pushed].reset = argv[index + 1] == "RESET";
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+    _value[pushed] = argv[index] == "TRUE";
     _here[pushed] = here;
     if (argv[1] == "FADE_STEP")
       rc = EnableFadeStepsRc;
@@ -3722,7 +3717,7 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE and optionally RESET, got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
   }
 
@@ -3731,15 +3726,13 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 
 QString EnableMeta::format(bool local, bool global)
 {
-  QString foo (_value[pushed].value ? "TRUE" : "FALSE");
-  if (_value[pushed].reset)
-    foo += " RESET";
+  QString foo (_value[pushed] ? "TRUE" : "FALSE");
   return LeafMeta::format(local,global,foo);
 }
 
 void EnableMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <TRUE|FALSE> [<RESET>]";
+  out << preamble + " <TRUE|FALSE>";
 }
 
 /* ------------------ */
@@ -3790,11 +3783,7 @@ void FadeColorMeta::doc(QStringList &out, QString preamble)
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
   opacity.setRange(0,100);
-  EnableData bdata = enable.value();
-  bdata.value       = Preferences::enableFadeSteps;
-  bdata.reset       = false;
-  bdata.initialized = true;
-  enable.setValue(bdata);
+  enable.setValue(Preferences::enableFadeSteps);
   setup.setValue(false);
   FadeColorData fdata;
   fdata.color = Preferences::validFadeStepsColour;
@@ -3805,23 +3794,19 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
 
 void FadeStepMeta::setPreferences(bool reset)
 {
-   EnableData bdata  = enable.value();
    FadeColorData fdata = color.value();
    bool preferenceChanged = false;
    if (reset) {
      Preferences::fadestepPreferences();
-     preferenceChanged = bdata.initialized && Preferences::enableFadeSteps != bdata.value;
-     bdata.value       = Preferences::enableFadeSteps;
-     bdata.reset       = false;
-     bdata.initialized = true;
-     enable.setValue(bdata);
+     preferenceChanged = Preferences::enableFadeSteps != enable.value();
+     enable.setValue(Preferences::enableFadeSteps);
      fdata.color = Preferences::validFadeStepsColour;
      fdata.useColor = Preferences::fadeStepsUseColour;
      color.setValue(fdata);
      opacity.setValue(Preferences::fadeStepsOpacity);
    } else {
-     if ((preferenceChanged = Preferences::enableFadeSteps != bdata.value))
-       Preferences::enableFadeSteps    = bdata.value;
+     if ((preferenceChanged = Preferences::enableFadeSteps != enable.value()))
+       Preferences::enableFadeSteps    = enable.value();
      Preferences::validFadeStepsColour = fdata.color;
      Preferences::fadeStepsUseColour   = fdata.useColor;
      Preferences::fadeStepsOpacity     = opacity.value();
@@ -3853,11 +3838,7 @@ void FadeStepMeta::init(
 HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 {
   lineWidth.setRange(0,10);
-  EnableData data  = enable.value();
-  data.value       = Preferences::enableHighlightStep;
-  data.reset       = false;
-  data.initialized = true;
-  enable.setValue(data);
+  enable.setValue(Preferences::enableHighlightStep);
   setup.setValue(false);
   color.setValue(Preferences::highlightStepColour);
   lineWidth.setValue(Preferences::highlightStepLineWidth);
@@ -3865,20 +3846,16 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 
 void HighlightStepMeta::setPreferences(bool reset)
 {
-   EnableData data  = enable.value();
    bool preferenceChanged = false;
    if (reset) {
      Preferences::highlightstepPreferences();
-     preferenceChanged = data.initialized && Preferences::enableHighlightStep != data.value;
-     data.value       = Preferences::enableHighlightStep;
-     data.reset       = false;
-     data.initialized = true;
-     enable.setValue(data);
+     preferenceChanged = Preferences::enableHighlightStep != enable.value();
+     enable.setValue(Preferences::enableHighlightStep);
      color.setValue(Preferences::highlightStepColour);
      lineWidth.setValue(Preferences::highlightStepLineWidth);
    } else {
-     if ((preferenceChanged = Preferences::enableHighlightStep != data.value))
-       Preferences::enableHighlightStep  = data.value;
+     if ((preferenceChanged = Preferences::enableHighlightStep != enable.value()))
+       Preferences::enableHighlightStep  = enable.value();
      Preferences::highlightStepColour    = color.value();
      Preferences::highlightStepLineWidth = lineWidth.value();
    }

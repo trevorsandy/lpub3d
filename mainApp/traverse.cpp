@@ -1152,10 +1152,9 @@ int Gui::drawPage(
 
             case EnableFadeStepsRc:
             case EnableFadeStepsAssemRc:
-              if (Preferences::enableFadeSteps)
-                  break;
-              if (! curMeta.LPub.fadeStep.setup.value())
-                  parseError("Fade previous steps will not be processed. FADE_STEP SETUP is not set to TRUE in the first step of the main model file.",opts.current);
+              if ((!Preferences::enableFadeSteps && !curMeta.LPub.fadeStep.setup.value()) &&
+                  (rc == EnableFadeStepsRc ? curMeta.LPub.fadeStep.enable.value() : curMeta.LPub.assem.fadeStep.enable.value()))
+                      parseError("Fade previous steps command ignored. FADE_STEP ENABLED or FADE_STEP SETUP (in the first STEP of the main model) must be set to TRUE.",opts.current);
               else if (rc == EnableFadeStepsRc)
                   curMeta.LPub.fadeStep.setPreferences();
               else
@@ -1164,10 +1163,9 @@ int Gui::drawPage(
 
             case EnableHighlightStepRc:
             case EnableHighlightStepAssemRc:
-              if (Preferences::enableHighlightStep)
-                  break;
-              if (! curMeta.LPub.highlightStep.setup.value())
-                  parseError("Highlight current step will not be processed. HIGHLIGHT_STEP SETUP is not set to TRUE in the first step of the main model file.",opts.current);
+              if ((!Preferences::enableHighlightStep && !curMeta.LPub.highlightStep.setup.value()) &&
+                  (rc == EnableHighlightStepRc ? curMeta.LPub.highlightStep.enable.value() : curMeta.LPub.assem.highlightStep.enable.value() ))
+                  parseError("Highlight current step command ignored. HIGHLIGHT_STEP ENABLED or HIGHLIGHT_STEP SETUP (in the first STEP of the main model) must be set to TRUE.",opts.current);
               else if (rc == EnableHighlightStepRc)
                   curMeta.LPub.highlightStep.setPreferences();
               else
@@ -2556,10 +2554,10 @@ int Gui::drawPage(
 
                       // reset fade previous steps
                       bool reset = true;
-                      if (curMeta.LPub.assem.fadeStep.enable.value().reset)
+                      if (curMeta.LPub.assem.fadeStep.enable.value())
                           curMeta.LPub.assem.fadeStep.setPreferences(reset);
                       // reset highlight current step
-                      if (curMeta.LPub.assem.highlightStep.enable.value().reset)
+                      if (curMeta.LPub.assem.highlightStep.enable.value())
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
                       // reset preferred renderer
                       if (curMeta.LPub.assem.preferredRenderer.value().reset)
@@ -5036,8 +5034,8 @@ void Gui::writeToTmp()
 
   int writtenFiles = 0;;
   int subFileCount = ldrawFile._subFileOrder.size();
-  bool doFadeStep  = Preferences::enableFadeSteps;
-  bool doHighlightStep = Preferences::enableHighlightStep && !suppressColourMeta();
+  bool doFadeStep  = (Preferences::enableFadeSteps || page.meta.LPub.fadeStep.setup.value());
+  bool doHighlightStep = (Preferences::enableHighlightStep || page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
 
@@ -5170,6 +5168,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
   }
 
   QStringList configuredContents, subfileColourList;
+  bool doFadeStep  = (Preferences::enableFadeSteps || page.meta.LPub.fadeStep.setup.value());
+  bool doHighlightStep = (Preferences::enableHighlightStep || page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
 
@@ -5185,12 +5185,12 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
           split(contentLine, argv);
           if (argv.size() == 15 && argv[0] == "1") {
               // Insert opening fade meta
-              if (!FadeMetaAdded && Preferences::enableFadeSteps && partType == FADE_PART){
+              if (!FadeMetaAdded && doFadeStep && partType == FADE_PART){
                  configuredContents.insert(index,QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity));
                  FadeMetaAdded = true;
               }
               // Insert opening silhouette meta
-              if (!SilhouetteMetaAdded && Preferences::enableHighlightStep && partType == HIGHLIGHT_PART){
+              if (!SilhouetteMetaAdded && doHighlightStep && partType == HIGHLIGHT_PART){
                  configuredContents.insert(index,QString("0 !SILHOUETTE %1 %2")
                                                          .arg(Preferences::highlightStepLineWidth)
                                                          .arg(Preferences::highlightStepColour));
