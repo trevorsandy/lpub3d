@@ -3439,6 +3439,20 @@ int Gui::findPage(
               }
               break;
 
+
+          case FinalModelEnableRc:
+            if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+            {
+                bool enabled = meta.LPub.finalModelEnabled.value();
+                if (Preferences::finalModelEnabled != enabled) {
+                    Preferences::finalModelEnabled  = enabled;
+                    enableBuildModMenuAndActions();
+                    emit messageSig(LOG_INFO, QString("Fade/Highlight final model step is %1")
+                                    .arg(enabled ? "Enabled" : "Disabled"));
+                }
+            }
+            break;
+
             case PageOrientationRc:
               {
                 if (exporting()){

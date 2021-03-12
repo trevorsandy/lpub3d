@@ -382,6 +382,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bFADE_STEP\\b"
     << "\\bFILE\\b"
     << "\\bFILL\\b"
+    << "\\bFINAL_MODEL_ENABLED\\b"
     << "\\bFIXED_ANNOTATIONS\\b"
     << "\\bFONT\\b"
     << "\\bFONT_COLOR\\b"

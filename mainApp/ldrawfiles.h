@@ -248,6 +248,7 @@ class LDrawFile {
     bool hdrDescNotFound;
     bool hdrCategNotFound;
     bool metaBuildModNotFund;
+    bool metaFinalModelNotFound;
     bool metaStartPageNumNotFound;
     bool metaStartStepNumNotFound;
     bool unofficialPart;

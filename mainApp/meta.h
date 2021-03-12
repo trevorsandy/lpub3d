@@ -144,6 +144,8 @@ enum Rc {
          BuildModEnableRc,
          BuildModSourceRc,
 
+         FinalModelEnableRc,
+
          PageOrientationRc,
          PageSizeRc,
 
@@ -1830,6 +1832,35 @@ public:
     type[1] = rhs.type[1];
   }
 //  virtual ~BuildModEnabledMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
+ * This class parses the FinalModelEnabled flag (FinalModelEnabledTrue|FinalModelEnabledFalse)
+ */
+class FinalModelEnabledMeta : public LeafMeta
+{
+private:
+  FinalModelEnabledEnc type[2];
+public:
+  QHash<QString, int> finalModelEnabledMap;
+  int value()
+  {
+    return FinalModelEnabledEnc(type[pushed]);
+  }
+  void setValue(int value)
+  {
+    type[pushed] = FinalModelEnabledEnc(value);
+  }
+  FinalModelEnabledMeta();
+  FinalModelEnabledMeta(const FinalModelEnabledMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+//  virtual ~FinalModelEnabledMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -3643,6 +3674,7 @@ public:
   RemoveMeta           remove;
   BuildModMeta         buildMod;
   BuildModEnabledMeta  buildModEnabled;
+  FinalModelEnabledMeta finalModelEnabled;
   FloatMeta            reserve;
   PartIgnMeta          partSub;
   InsertMeta           insert;

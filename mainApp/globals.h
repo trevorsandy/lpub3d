@@ -311,6 +311,7 @@ public:
 public slots:
   void accept();
   void cancel();
+  void reloadModelFile(bool);
 };
 
 /*****************************************************************
@@ -334,6 +335,7 @@ public:
 public slots:
   void accept();
   void cancel();
+  void reloadModelFile(bool);
 };
 
 /*****************************************************************

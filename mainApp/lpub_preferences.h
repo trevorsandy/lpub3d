@@ -278,6 +278,7 @@ class Preferences
     static bool    defaultBlendFile;
     static bool    blenderIs28OrLater;
     static bool    buildModEnabled;
+    static bool    finalModelEnabled;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

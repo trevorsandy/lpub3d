@@ -774,6 +774,39 @@ public slots:
 
 /***********************************************************************
  *
+ * FinalModelEnabledMeta
+ *
+ **********************************************************************/
+
+class FinalModelEnabledGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  FinalModelEnabledGui(
+    QString const  &heading,
+    FinalModelEnabledMeta *meta,
+    QGroupBox       *parent = nullptr);
+  FinalModelEnabledGui(){}
+  ~FinalModelEnabledGui() {}
+
+  QCheckBox *getCheckBox() {return check;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  FinalModelEnabledMeta *meta;
+  QCheckBox           *check;
+  bool                 change;
+
+public slots:
+  void stateChanged(int state);
+};
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

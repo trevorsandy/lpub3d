@@ -67,6 +67,11 @@ enum ContStepNumEnc {
     ContStepNumTrue
 };
 
+enum FinalModelEnabledEnc {
+    FinalModelEnabledFalse,
+    FinalModelEnabledTrue
+};
+
 enum BuildModEnabledEnc {
     BuildModEnabledFalse,
     BuildModEnabledTrue

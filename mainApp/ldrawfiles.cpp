@@ -1080,7 +1080,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     hdrAuthorNotFound   = true;
     hdrCategNotFound    = true;
 
-    metaBuildModNotFund = true;
+    metaBuildModNotFund      = true;
+    metaFinalModelNotFound   = true;
     metaStartPageNumNotFound = true;
     metaStartStepNumNotFound = true;
 
@@ -1234,8 +1235,21 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 if (metaBuildModNotFund) {
                     if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
                         bool state = tokens.last() == "FALSE" ? false : true ;
-                        Preferences::buildModEnabled  = state;
+                        Preferences::buildModEnabled = state;
                         metaBuildModNotFund = false;
+                    }
+                }
+
+                // Check if insert final model is disabled
+                if (metaFinalModelNotFound) {
+                    if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
+                        metaFinalModelNotFound = false;
+                    } else {
+                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                            bool state = tokens.last() == "FALSE" ? false : true ;
+                            Preferences::finalModelEnabled = state;
+                            metaFinalModelNotFound = false;
+                        }                            
                     }
                 }
 
@@ -1421,6 +1435,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     if (metaBuildModNotFund)
         Preferences::buildModEnabled = false;
 
+    if (metaFinalModelNotFound)
+        Preferences::finalModelEnabled = true;
+
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->progressPermStatusRemoveSig();
 }
@@ -1482,6 +1499,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             hdrAuthorNotFound   = true;
             hdrCategNotFound    = true;
             metaBuildModNotFund = true;
+            metaFinalModelNotFound   = true;
             metaStartPageNumNotFound = true;
             metaStartStepNumNotFound = true;
             descriptionLine     = 0;
@@ -1543,7 +1561,21 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                     }
                 }
 
+                // Check if insert final model is disabled
+                if (metaFinalModelNotFound) {
+                    if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
+                        metaFinalModelNotFound = false;
+                    } else {
+                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                            bool state = tokens.last() == "FALSE" ? false : true ;
+                            Preferences::finalModelEnabled  = state;
+                            metaFinalModelNotFound = false;
+                        }                            
+                    }
+                }
+
                 // Check if Start Page Number is specified
+
                 if (metaStartPageNumNotFound) {
                     if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
                         number = tokens.last().toInt(&validNumber);
@@ -1654,6 +1686,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         // Check if BuildMod meta is present
         if (metaBuildModNotFund)
             Preferences::buildModEnabled = false;
+
+        // Check if FinalModelEnabled meta is present
+        if (metaFinalModelNotFound)
+            Preferences::finalModelEnabled = true;
 
         emit gui->progressPermSetValueSig(contents.size());
         emit gui->progressPermStatusRemoveSig();

@@ -175,11 +175,12 @@ void GlobalProjectDialog::accept()
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
   }
-  mi.endMacro();
 
   if (data->clearCache) {
       clearAndReloadModelFileFromSettings();
   }
+
+  mi.endMacro();
 
   QDialog::accept();
 }

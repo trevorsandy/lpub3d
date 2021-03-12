@@ -2308,7 +2308,51 @@ QString BuildModEnabledMeta::format(bool local, bool global)
     }
   return LeafMeta::format(local,global,foo);
 }
+
 void BuildModEnabledMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (TRUE|FALSE)";
+}
+
+/* ------------------ */
+
+FinalModelEnabledMeta::FinalModelEnabledMeta() : LeafMeta()
+{
+  finalModelEnabledMap["FALSE"] = FinalModelEnabledFalse;
+  finalModelEnabledMap["TRUE"]  = FinalModelEnabledTrue;
+  type[0] = Preferences::finalModelEnabled ? FinalModelEnabledTrue : FinalModelEnabledFalse;
+}
+
+Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(TRUE|FALSE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed]  = FinalModelEnabledEnc(finalModelEnabledMap[argv[index]]);
+      _here[pushed] = here;
+      return FinalModelEnableRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString FinalModelEnabledMeta::format(bool local, bool global)
+{
+    QString foo;
+    switch (type[pushed])
+    {
+    case FinalModelEnabledFalse:
+        foo = "FALSE";
+        break;
+    default: /*FinalModelEnabledTrue*/
+        foo = "TRUE";
+        break;
+    }
+  return LeafMeta::format(local,global,foo);
+}
+
+void FinalModelEnabledMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (TRUE|FALSE)";
 }
@@ -5153,6 +5197,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   bom                      .init(this,"BOM");
   buildMod                 .init(this,"BUILD_MOD");
   buildModEnabled          .init(this,"BUILD_MOD_ENABLED");
+  finalModelEnabled        .init(this,"FINAL_MODEL_ENABLED");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);

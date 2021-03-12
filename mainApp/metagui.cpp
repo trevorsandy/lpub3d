@@ -2162,6 +2162,63 @@ void BuildModEnabledGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * FinalModelEnabledMeta
+ *
+ **********************************************************************/
+
+FinalModelEnabledGui::FinalModelEnabledGui(
+  QString const   &heading,
+  FinalModelEnabledMeta *_meta,
+  QGroupBox       *parent)
+{
+  meta = _meta;
+  change = false;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  check = new QCheckBox(heading,parent);
+  check->setChecked(meta->value());
+  layout->addWidget(check);
+  connect(check,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateChanged(int)));
+}
+
+void FinalModelEnabledGui::stateChanged(int state)
+{
+  int checked = meta->value();
+
+  if (state == Qt::Unchecked) {
+    checked = 0;
+  } else if (state == Qt::Checked) {
+    checked = 1;
+  }
+  change = checked != meta->value();
+  meta->setValue(checked);
+  modified = true;
+}
+
+void FinalModelEnabledGui::apply(QString &modelName)
+{
+  if (modified) {
+    if (change) {
+      Preferences::finalModelEnabled = bool(meta->value());
+      changeMessage = QString("Fade/Highlight final model step is %1")
+                               .arg(meta->value() ? "Enabled" : "Disabled");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+    }
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

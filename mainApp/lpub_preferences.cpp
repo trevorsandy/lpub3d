@@ -268,6 +268,7 @@ bool    Preferences::blenderIs28OrLater         = true;
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
 bool    Preferences::buildModEnabled            = true;
+bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorBufferedPaging       = false;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;

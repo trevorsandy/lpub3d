@@ -44,11 +44,13 @@ public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
+  bool  reloadFile;
 
   GlobalFadeStepPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
-    meta = _meta;
+    meta         = _meta;
+    reloadFile   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -67,6 +69,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
 {
   data = new GlobalFadeStepPrivate(topLevelFile,meta);
   FadeStepMeta *fadeStepMeta = &data->meta.LPub.fadeStep;
+  LPubMeta *lpubMeta = &data->meta.LPub;
 
   setWindowTitle(tr("Fade Step Globals Setup"));
 
@@ -89,8 +92,21 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   data->children.append(child);
   boxGrid->addWidget(child,0,0);
 
-  box = new QGroupBox("Fade Settings (read only)");
+  box = new QGroupBox("Final Model Step");
   grid->addWidget(box,1,0);
+
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+  box->setToolTip("Automatically, append an un-faded and/or un-highlighted final step "
+                  "to the top level model file. This step will not be saved.");
+
+  FinalModelEnabledGui *finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
+  data->children.append(child);
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  boxGrid->addWidget(finalModelEnabledChild,0,0);
+
+  box = new QGroupBox("Fade Settings (read only)");
+  grid->addWidget(box,2,0);
 
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
@@ -138,6 +154,12 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   setMinimumSize(40,20);
 }
 
+void GlobalFadeStepDialog::reloadModelFile(bool b)
+{
+    if (!data->reloadFile)
+        data->reloadFile = b;
+}
+
 void GlobalFadeStepDialog::getFadeStepGlobals(
   QString topLevelFile, Meta &meta)
 {
@@ -155,6 +177,10 @@ void GlobalFadeStepDialog::accept()
 
   Q_FOREACH (child,data->children) {
     child->apply(data->topLevelFile);
+  }
+
+  if (data->reloadFile) {
+      clearAndReloadModelFileFromSettings();
   }
 
   mi.endMacro();
