@@ -1950,18 +1950,21 @@ int Gui::drawPage(
             case BuildModRemoveRc:
               if (!Preferences::buildModEnabled)
                   break;
+              if (partsAdded)
+                  parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                             opts.current,Preferences::BuildModErrors);
+              buildModStepIndex = getBuildModStepIndex(topOfStep);
+              buildModKey = page.meta.LPub.buildMod.key();
+              if (buildModContains(buildModKey)) {
+                  if (getBuildModAction(buildModKey, buildModStepIndex - 1) == rc)
+                      parseError("Redundant build modification meta command - this command can be removed.",
+                                 opts.current,Preferences::BuildModErrors);
+              } else {
+                  parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
+                             opts.current,Preferences::BuildModErrors);
+              }
               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
-                  if (partsAdded)
-                      parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
-                                 opts.current);
-
-                  buildModStepIndex = getBuildModStepIndex(topOfStep);
-                  buildModKey = page.meta.LPub.buildMod.key();
-                  if (buildModContains(buildModKey))
-                      opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, buildModStepIndex));
-                  else
-                      parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
-                                 opts.current,Preferences::ParseErrors);
+                  opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, buildModStepIndex));
                   if (opts.buildModActions.value(opts.buildModLevel) != rc) {
                       // set BuildMod action for current step
                       setBuildModAction(buildModKey, buildModStepIndex, rc);
@@ -1969,8 +1972,6 @@ int Gui::drawPage(
                       setBuildModNextStepIndex(topOfStep);
                       // set the stepKey to clear the image cache
                       buildModClearStepKey = QString("%1;%2;%3").arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
-                      // clear viewerStepKey for previous step to not trigger viewerUpdate in createCsi()
-                      //viewerStepKey.clear();
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       return HitBuildModAction;
                   }
