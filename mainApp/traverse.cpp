@@ -2562,6 +2562,7 @@ int Gui::findPage(
   bool pageSizeUpdate     = false;
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
+  bool pageDisplayed      = false;
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
@@ -2605,8 +2606,7 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  Rc   buildModAction        = BuildModApplyRc;
-  int  buildModBeginLineNum  = 0;
+  Rc   buildModAction = BuildModApplyRc;
   bool buildModIgnore = false;
   bool buildModItems  = false;
   bool buildModFile   = false;
@@ -2956,6 +2956,7 @@ int Gui::findPage(
                   ++opts.pageNum;         
                   topOfPages.append(opts.current);  // TopOfSteps (StepGroup)
                   saveStepPageNum = ++stepPageNum;
+                  pageDisplayed = opts.pageNum > displayPageNum;
 
                   if (Preferences::modeGUI && ! exporting()) {
                       emit messageSig(LOG_STATUS, QString("Counting document page %1...")
@@ -2970,17 +2971,14 @@ int Gui::findPage(
               case BuildModBeginRc:
                 if (!Preferences::buildModEnabled)
                     break;
-                if (!pageDisplayed/*isPreDisplayPage/opts.pageNum < displayPageNum*/) {
-                     if ((buildModFile = opts.current.lineNumber < getBuildModStepLineNumber(getBuildModNextStepIndex()))) {
-                        buildModKey          = meta.LPub.buildMod.key();
-                        opts.buildModLevel   = getLevel(buildModKey, BM_BEGIN);
-                        buildModBeginLineNum = opts.current.lineNumber;
-                        buildModAction       = Rc(getBuildModAction(buildModKey,getBuildModNextStepIndex()));
-                        if (buildModAction   == BuildModApplyRc){
-                            buildModIgnore = false;
-                        } else if (buildModAction == BuildModRemoveRc) {
-                            buildModIgnore = true;
-                        }
+                if ((buildModFile      = !pageDisplayed)) {
+                    buildModKey        = meta.LPub.buildMod.key();
+                    opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
+                    buildModAction     = Rc(getBuildModAction(buildModKey,getBuildModNextStepIndex()));
+                    if (buildModAction == BuildModApplyRc){
+                        buildModIgnore = false;
+                    } else if (buildModAction == BuildModRemoveRc) {
+                        buildModIgnore = true;
                     }
                 }
                 break;
@@ -3158,6 +3156,7 @@ int Gui::findPage(
                   saveCurrent = opts.current;  // so that draw page doesn't have to
                   // deal with steps that are not steps
                 }
+              pageDisplayed = opts.pageNum > displayPageNum;;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -3435,6 +3434,7 @@ int Gui::findPage(
       ++opts.pageNum;
       topOfPages.append(opts.current); // TopOfStep (Last Step)
       ++stepPageNum;
+      pageDisplayed = isDisplayPage;
 
       if (Preferences::modeGUI && ! exporting()) {
           emit messageSig(LOG_STATUS, QString("Counting document page %1...")
