@@ -93,7 +93,7 @@ public:
 		const int LPubStepNumber)
 	{
 		mLPubModelName  = LPubModelName;
-		mLPubStepNumber= LPubStepNumber;
+		mLPubStepNumber = LPubStepNumber;
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/

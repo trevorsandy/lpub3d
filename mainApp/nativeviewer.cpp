@@ -3113,6 +3113,10 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
         if (Preferences::debugLogging)
             emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
         return QStringList();
+    } else if (keys.at(2).count("_")) {
+        QStringList displayStepKeys = keys.at(2).split("_");
+        keys.removeLast();
+        keys.append(displayStepKeys);
     }
 
     if (!pliPart) {
