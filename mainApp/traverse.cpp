@@ -5182,6 +5182,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
       // save the current step position
       ldrawFile.setPrevStepPosition(current.modelName,stepNum,csiParts.size());
 
+/*
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString("Configure StepNum: %1, PrevStepPos: %2, StepPos: %3, ModelSize: %4, ModelName: %5")
                       .arg(stepNum)
@@ -5190,7 +5191,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       .arg(ldrawFile.size(current.modelName))
                       .arg(current.modelName));
 #endif
-
+*/
       QStringList argv;
 
       for (int index = 0; index < csiParts.size(); index++) {

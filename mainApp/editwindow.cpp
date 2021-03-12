@@ -1404,7 +1404,8 @@ void EditWindow::displayFile(
 
   auto loadContent = [this, &ldrawFile]()
   {
-    setSubFiles(ldrawFile->subFileOrder());
+    if (ldrawFile)
+      setSubFiles(ldrawFile->subFileOrder());
 
     bool isUTF8 = ldrawFile ? LDrawFile::_currFileIsUTF8 : true;
     _textEdit->setIsUTF8(isUTF8);
