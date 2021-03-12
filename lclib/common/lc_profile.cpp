@@ -5,9 +5,6 @@
 #include "lc_model.h"
 #include "project.h"
 #include "lc_viewsphere.h"
-/*** LPub3D Mod - includes ***/
-#include "lpub_preferences.h"
-/*** LPub3D Mod end ***/
 
 lcProfileEntry::lcProfileEntry(const char* Section, const char* Key, int DefaultValue)
 {
@@ -86,6 +83,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "GridLines", 1),                                                // LC_PROFILE_GRID_LINES
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                          // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                        // LC_PROFILE_GRID_LINE_COLOR
+	lcProfileEntry("Settings", "GridOrigin", 0),                                               // LC_PROFILE_GRID_ORIGIN
 	lcProfileEntry("Settings", "AASamples", 4),                                                // LC_PROFILE_ANTIALIASING_SAMPLES                       /*** LPub3D Mod - Set default antialiasing ***/
 	lcProfileEntry("Settings", "ViewSphereEnabled", 1),                                        // LC_PROFILE_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TopRight),     // LC_PROFILE_VIEW_SPHERE_LOCATION

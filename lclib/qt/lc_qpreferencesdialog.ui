@@ -856,6 +856,58 @@
                 </property>
                </widget>
               </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label_23">
+                <property name="minimumSize">
+                 <size>
+                  <width>35</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>studs</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="gridLineSpacing">
+                <property name="maximumSize">
+                 <size>
+                  <width>75</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Draw grid line every 'n' studs</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="5">
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>228</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="4">
+               <widget class="QToolButton" name="gridLineColor">
+                <property name="toolTip">
+                 <string>Select grid line colour</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="1">
                <widget class="QToolButton" name="gridStudColor">
                 <property name="toolTip">
@@ -876,55 +928,10 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="3">
-               <widget class="QLabel" name="label_23">
-                <property name="minimumSize">
-                 <size>
-                  <width>35</width>
-                  <height>0</height>
-                 </size>
-                </property>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="GridOriginCheckBox">
                 <property name="text">
-                 <string>studs</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="4">
-               <widget class="QToolButton" name="gridLineColor">
-                <property name="toolTip">
-                 <string>Select grid line colour</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="5">
-               <spacer name="horizontalSpacer_8">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>228</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="gridLineSpacing">
-                <property name="maximumSize">
-                 <size>
-                  <width>75</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Draw grid line every 'n' studs</string>
+                 <string>Draw origin lines</string>
                 </property>
                </widget>
               </item>
@@ -2225,6 +2232,7 @@
   <tabstop>gridLines</tabstop>
   <tabstop>gridLineSpacing</tabstop>
   <tabstop>gridLineColor</tabstop>
+  <tabstop>GridOriginCheckBox</tabstop>
   <tabstop>ResetColorsButton</tabstop>
   <tabstop>ViewSphereSizeCombo</tabstop>
   <tabstop>ViewSphereLocationCombo</tabstop>

@@ -51,6 +51,7 @@ void lcPreferences::LoadDefaults()
 	mDrawGridLines = lcGetProfileInt(LC_PROFILE_GRID_LINES);
 	mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
 	mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
+	mDrawGridOrigin = lcGetProfileInt(LC_PROFILE_GRID_ORIGIN);
 	mViewSphereEnabled = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED);
 	mViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION));
 	mViewSphereSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE);
@@ -130,6 +131,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
+	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mDrawGridOrigin);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED, mViewSphereSize ? 1 : 0);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION, static_cast<int>(mViewSphereLocation));
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE, mViewSphereSize);
@@ -400,7 +402,7 @@ void lcApplication::ExportClipboard(const QByteArray& Clipboard)
 	SetClipboard(Clipboard);
 }
 
-bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress)
+bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths)
 {
 /*** LPub3D Mod - run search directories ***/
 	Q_UNUSED(LibraryPaths);
@@ -428,6 +430,8 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 
 	if (mLibrary == nullptr)
 		mLibrary = new lcPiecesLibrary();
+
+	const bool ShowProgress = gMainWindow != nullptr;
 
 	if (!OnlyUsePaths)
 	{
@@ -486,7 +490,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
 	Options.ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 	Options.AASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
-//	Options.StudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO); /*** LPub3D Mod - process command line ***/
+	Options.StudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
 	Options.ImageStart = 0;
 	Options.ImageEnd = 0;
 	Options.CameraPosition[0] = lcVector3(0.0f, 0.0f, 0.0f);
@@ -524,7 +528,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			}
 			else if (Required)
 			{
-				Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 				Options.ParseOK = false;
 				return false;
 			}
@@ -546,10 +550,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 					return true;
 				}
 				else
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
 			}
 			else
-				Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 
 			Options.ParseOK = false;
 			return false;
@@ -569,10 +573,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 					return true;
 				}
 				else
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
 			}
 			else
-				Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 
 			Options.ParseOK = false;
 			return false;
@@ -582,7 +586,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		{
 			if (Arguments.size() < Count)
 			{
-				Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 				Arguments.clear();
 				Options.ParseOK = false;
 				return false;
@@ -602,10 +606,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 						continue;
 					}
 
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
 				}
 				else
-					Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+					Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 
 				Options.ParseOK = false;
 				return false;
@@ -627,10 +631,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 					return true;
 				}
 				else
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, Parameter);
 			}
 			else
-				Options.Output += QString("Not enough parameters for the '%1' option.\n").arg(Option);
+				Options.StdErr += tr("Not enough parameters for the '%1' option.\n").arg(Option);
 
 			Options.ParseOK = false;
 			return false;
@@ -641,7 +645,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			if (QFileInfo(Option).isReadable())
 				Options.ProjectName = Option;
 			else
-				Options.Output += QString("The file '%1' is not readable.\n").arg(Option);
+				Options.StdErr += tr("The file '%1' is not readable.\n").arg(Option);
 
 			continue;
 		}
@@ -684,7 +688,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 
 				if (Options.Viewpoint == lcViewpoint::Count)
 				{
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, ViewpointName);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, ViewpointName);
 					Options.ParseOK = false;
 				}
 			}
@@ -693,7 +697,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		{
 			if ((Options.SetCameraAngles = ParseFloatArray(2, Options.CameraLatLon, true)) && (fabsf(Options.CameraLatLon[0]) > 360.0f || fabsf(Options.CameraLatLon[1]) > 360.0f))
 			{
-				Options.Output += QString("Invalid parameter value(s) specified for the '%1' option: limits are +/- 360.\n").arg(Option);
+				Options.StdErr += tr("Invalid parameter value(s) specified for the '%1' option: limits are +/- 360.\n").arg(Option);
 				Options.ParseOK = false;
 			}
 		}
@@ -705,7 +709,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 
 				if (Front.LengthSquared() < 1.0f || Options.CameraPosition[2].LengthSquared() < 1.0f || fabsf(lcDot(lcNormalize(Front), lcNormalize(Options.CameraPosition[2]))) > 0.99f)
 				{
-					Options.Output += QString("Invalid parameter value(s) specified for the '%1' option.\n").arg(Option);
+					Options.StdErr += tr("Invalid parameter value(s) specified for the '%1' option.\n").arg(Option);
 					Options.ParseOK = false;
 				}
 				else if (Option == QLatin1String("--camera-position-ldraw"))
@@ -724,7 +728,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		{
 			if ((Options.SetZPlanes = ParseFloatArray(2, Options.ZPlanes, false)) && (Options.ZPlanes[0] < 1.0 || Options.ZPlanes[0] >= Options.ZPlanes[1]))
 			{
-				Options.Output += QString("Invalid parameter value(s) specified for the '%1' option: requirements are: 1 <= <near> < <far>.\n").arg(Option);
+				Options.StdErr += tr("Invalid parameter value(s) specified for the '%1' option: requirements are: 1 <= <near> < <far>.\n").arg(Option);
 				Options.ParseOK = false;
 			}
 		}
@@ -768,7 +772,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 					mPreferences.mShadingMode = lcShadingMode::Full;
 				else
 				{
-					Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, ShadingString);
+					Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, ShadingString);
 					Options.ParseOK = false;
 				}
 			}
@@ -779,7 +783,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		{
 			if (ParseInteger(Options.AASamples, 1, 8) && Options.AASamples != 1 && Options.AASamples != 2 && Options.AASamples != 4 && Options.AASamples != 8)
 			{
-				Options.Output += QString("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, QString::number(Options.AASamples));
+				Options.StdErr += tr("Invalid parameter value specified for the '%1' option: '%2'.\n").arg(Option, QString::number(Options.AASamples));
 				Options.ParseOK = false;
 			}
 		}
@@ -819,58 +823,95 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		else if (Option == QLatin1String("-v") || Option == QLatin1String("--version"))
 		{
 #ifdef LC_CONTINUOUS_BUILD
-			Options.Output += QLatin1String("LeoCAD Continuous Build " QT_STRINGIFY(LC_CONTINUOUS_BUILD) "\n");
+			Options.StdOut += tr("LeoCAD Continuous Build %1\n").arg(QT_STRINGIFY(LC_CONTINUOUS_BUILD));
 #else
-			Options.Output += QLatin1String("LeoCAD Version " LC_VERSION_TEXT "\n");
+			Options.StdOut += tr("LeoCAD Version %1\n").arg(LC_VERSION_TEXT);
 #endif
-			Options.Output += QLatin1String("Compiled " __DATE__ "\n");
+			Options.StdOut += tr("Compiled %1\n").arg(__DATE__);
 			Options.Exit = true;
 		}
 		else if (Option == QLatin1String("-?") || Option == QLatin1String("--help"))
 		{
-			Options.Output += QLatin1String("Usage: leocad [options] [file]\n");
-			Options.Output += QLatin1String("  [options] can be:\n");
-			Options.Output += QLatin1String("  -l, --libpath <path>: Set the Parts Library location to path.\n");
-			Options.Output += QLatin1String("  -i, --image <outfile.ext>: Save a picture in the format specified by ext and exit.\n");
-			Options.Output += QLatin1String("  -w, --width <width>: Set the picture width.\n");
-			Options.Output += QLatin1String("  -h, --height <height>: Set the picture height.\n");
-			Options.Output += QLatin1String("  -f, --from <step>: Set the first step to save pictures.\n");
-			Options.Output += QLatin1String("  -t, --to <step>: Set the last step to save pictures.\n");
-			Options.Output += QLatin1String("  -s, --submodel <submodel>: Set the active submodel.\n");
-			Options.Output += QLatin1String("  -c, --camera <camera>: Set the active camera.\n");
-			Options.Output += QLatin1String("  -sl, --stud-logo <type>: Set the stud logo type 0 - 5, 0 is no logo.\n");
-			Options.Output += QLatin1String("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
-			Options.Output += QLatin1String("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
-			Options.Output += QLatin1String("  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
-			Options.Output += QLatin1String("  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n");
-			Options.Output += QLatin1String("  --orthographic: Render images using an orthographic projection.\n");
-			Options.Output += QLatin1String("  --fov <degrees>: Set the vertical field of view used to render images (< 180).\n");
-			Options.Output += QLatin1String("  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n");
-			Options.Output += QLatin1String("  --fade-steps: Render parts from prior steps faded.\n");
-			Options.Output += QLatin1String("  --no-fade-steps: Do not render parts from prior steps faded.\n");
-			Options.Output += QLatin1String("  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n");
-			Options.Output += QLatin1String("  --highlight: Highlight parts in the steps they appear.\n");
-			Options.Output += QLatin1String("  --no-highlight: Do not highlight parts in the steps they appear.\n");
-			Options.Output += QLatin1String("  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
-			Options.Output += QLatin1String("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
-			Options.Output += QLatin1String("  --line-width <width>: Set the with of the edge lines.\n");
-			Options.Output += QLatin1String("  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
-			Options.Output += QLatin1String("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-			Options.Output += QLatin1String("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
-			Options.Output += QLatin1String("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
-			Options.Output += QLatin1String("  -html, --export-html <folder>: Create an HTML page for the model.\n");
-			Options.Output += QLatin1String("  -v, --version: Output version information and exit.\n");
-			Options.Output += QLatin1String("  -?, --help: Display this help message and exit.\n");
-			Options.Output += QLatin1String("\n");
+			Options.StdOut += tr("Usage: leocad [options] [file]\n");
+			Options.StdOut += tr("  [options] can be:\n");
+			Options.StdOut += tr("  -l, --libpath <path>: Set the Parts Library location to path.\n");
+			Options.StdOut += tr("  -i, --image <outfile.ext>: Save a picture in the format specified by ext and exit.\n");
+			Options.StdOut += tr("  -w, --width <width>: Set the picture width.\n");
+			Options.StdOut += tr("  -h, --height <height>: Set the picture height.\n");
+			Options.StdOut += tr("  -f, --from <step>: Set the first step to save pictures.\n");
+			Options.StdOut += tr("  -t, --to <step>: Set the last step to save pictures.\n");
+			Options.StdOut += tr("  -s, --submodel <submodel>: Set the active submodel.\n");
+			Options.StdOut += tr("  -c, --camera <camera>: Set the active camera.\n");
+			Options.StdOut += tr("  -sl, --stud-logo <type>: Set the stud logo type 0 - 5, 0 is no logo.\n");
+			Options.StdOut += tr("  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
+			Options.StdOut += tr("  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
+			Options.StdOut += tr("  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
+			Options.StdOut += tr("  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n");
+			Options.StdOut += tr("  --orthographic: Render images using an orthographic projection.\n");
+			Options.StdOut += tr("  --fov <degrees>: Set the vertical field of view used to render images (< 180).\n");
+			Options.StdOut += tr("  --zplanes <near> <far>: Set the near and far clipping planes used to render images (1 <= <near> < <far>).\n");
+			Options.StdOut += tr("  --fade-steps: Render parts from prior steps faded.\n");
+			Options.StdOut += tr("  --no-fade-steps: Do not render parts from prior steps faded.\n");
+			Options.StdOut += tr("  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n");
+			Options.StdOut += tr("  --highlight: Highlight parts in the steps they appear.\n");
+			Options.StdOut += tr("  --no-highlight: Do not highlight parts in the steps they appear.\n");
+			Options.StdOut += tr("  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
+			Options.StdOut += tr("  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
+			Options.StdOut += tr("  --line-width <width>: Set the with of the edge lines.\n");
+			Options.StdOut += tr("  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
+			Options.StdOut += tr("  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
+			Options.StdOut += tr("  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
+			Options.StdOut += tr("  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
+			Options.StdOut += tr("  -html, --export-html <folder>: Create an HTML page for the model.\n");
+			Options.StdOut += tr("  -v, --version: Output version information and exit.\n");
+			Options.StdOut += tr("  -?, --help: Display this help message and exit.\n");
+			Options.StdOut += QLatin1String("\n");
 			Options.Exit = true;
 		}
 		else
 		{
-			Options.Output += QString("Unknown option: '%1'\n").arg(Option);
+			Options.StdErr += tr("Unknown option: '%1'.\n").arg(Option);
 			Options.ParseOK = false;
 		}
 		***/
 /*** LPub3D Mod end ***/
+
+	}
+
+	if (!Options.CameraName.isEmpty())
+	{
+		if (Options.Viewpoint != lcViewpoint::Count)
+			Options.StdErr += tr("--viewpoint is ignored when --camera is set.\n");
+
+		if (Options.Orthographic)
+			Options.StdErr += tr("--orthographic is ignored when --camera is set.\n");
+
+		if (Options.SetCameraAngles)
+			Options.StdErr += tr("--camera-angles is ignored when --camera is set.\n");
+
+		if (Options.SetCameraPosition)
+			Options.StdErr += tr("--camera-position is ignored when --camera is set.\n");
+	}
+	else if (Options.Viewpoint != lcViewpoint::Count)
+	{
+		if (Options.SetCameraAngles)
+			Options.StdErr += tr("--camera-angles is ignored when --viewpoint is set.\n");
+
+		if (Options.SetCameraPosition)
+			Options.StdErr += tr("--camera-position is ignored when --viewpoint is set.\n");
+	}
+	else if (Options.SetCameraAngles)
+	{
+		if (Options.SetCameraPosition)
+			Options.StdErr += tr("--camera-position is ignored when --camera-angles is set.\n");
+	}
+
+	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
+
+	if (SaveAndExit && Options.ProjectName.isEmpty())
+	{
+		Options.StdErr += tr("No file name specified.\n");
+		Options.ParseOK = false;
 	}
 
 	return Options;
@@ -880,30 +921,41 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 int lcApplication::Process3DViewerCommandLine()
 {
 	lcCommandLineOptions Options = ParseCommandLineOptions();
+	QTextStream StdErr(stderr, QIODevice::WriteOnly);
+	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 
-	QTextStream(stdout, QIODevice::WriteOnly) << Options.Output;
+	if (!Options.StdErr.isEmpty())
+	{
+		StdErr << Options.StdErr;
+		StdErr.flush();
+	}
+
+	if (!Options.StdOut.isEmpty())
+	{
+		StdOut << Options.StdOut;
+		StdOut.flush();
+	}
+
+	if (!Options.ParseOK)
+		return -1;
 
 	if (Options.Exit)
 		return 0;
 
-	if (!Options.ParseOK)
-		return -1;
+	/***
+	if (!InitializeRenderer())
+	{
+		StdErr << tr("Error creating OpenGL context.\n");
+		return lcStartupMode::Error;
+	}
+	***/
 
 	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
 
 	if (!SaveAndExit)
 		return 0;
-	else
-	if (SaveAndExit && Options.ProjectName.isEmpty())
-	{
-		printf("No file name specified.\n");
-		return -1;
-	}
-
-	/***
-	if (!InitializeRenderer())
-		return lcStartupMode::Error;
-
+		
+	/***	
 	if (!SaveAndExit)
 	{
 		UpdateStyle();
@@ -914,7 +966,7 @@ int lcApplication::Process3DViewerCommandLine()
 		lcLoadDefaultMouseShortcuts();
 	}
 
-	if (!LoadPartsLibrary(Options.LibraryPaths.isEmpty() ? LibraryPaths : Options.LibraryPaths, !Options.LibraryPaths.isEmpty(), !SaveAndExit))
+	if (!LoadPartsLibrary(Options.LibraryPaths.isEmpty() ? LibraryPaths : Options.LibraryPaths, !Options.LibraryPaths.isEmpty()))
 	{
 		QString Message;
 
@@ -923,20 +975,18 @@ int lcApplication::Process3DViewerCommandLine()
 		else
 			Message = tr("LeoCAD could not load Parts Library.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
 
-		if (!SaveAndExit)
+		if (gMainWindow)
 			QMessageBox::information(gMainWindow, tr("LeoCAD"), Message);
 		else
-			fprintf(stderr, "%s", Message.toLatin1().constData());
+			StdErr << Message << endl;
 	}
 
 	if (!SaveAndExit)
 		gMainWindow->CreateWidgets();
-	***/
 
 	Project* NewProject = new Project();
 	SetProject(NewProject);
 
-	/***
 	if (!SaveAndExit && Options.ProjectName.isEmpty() && lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT))
 		Options.ProjectName = lcGetProfileString(LC_PROFILE_RECENT_FILE1);
 	***/
@@ -980,7 +1030,7 @@ int lcApplication::Process3DViewerCommandLine()
 
 				if (!Model)
 				{
-					printf("Error: model '%s' does not exist.\n", Options.ModelName.toLatin1().constData());
+					StdErr << tr("Error: model '%1' does not exist.\n").arg(Options.ModelName);
 					return -1;
 				}
 			}
@@ -999,21 +1049,7 @@ int lcApplication::Process3DViewerCommandLine()
 		if (ActiveView)
 		{
 			if (!Options.CameraName.isEmpty())
-			{
 				ActiveView->SetCamera(Options.CameraName);
-
-				if (Options.Viewpoint != lcViewpoint::Count)
-					printf("Warning: --viewpoint is ignored when --camera is set.\n");
-
-				if (Options.Orthographic)
-					printf("Warning: --orthographic is ignored when --camera is set.\n");
-
-				if (Options.SetCameraAngles)
-					printf("Warning: --camera-angles is ignored when --camera is set.\n");
-
-				if (Options.SetCameraPosition)
-					printf("Warning: --camera-position is ignored when --camera is set.\n");
-			}
 			else
 			{
 				ActiveView->SetProjection(Options.Orthographic);
@@ -1030,26 +1066,11 @@ int lcApplication::Process3DViewerCommandLine()
 				}
 
 				if (Options.Viewpoint != lcViewpoint::Count)
-				{
 					ActiveView->SetViewpoint(Options.Viewpoint);
-
-					if (Options.SetCameraAngles)
-						printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
-
-					if (Options.SetCameraPosition)
-						printf("Warning: --camera-position is ignored when --viewpoint is set.\n");
-				}
 				else if (Options.SetCameraAngles)
-				{
 					ActiveView->SetCameraAngles(Options.CameraLatLon[0], Options.CameraLatLon[1]);
-
-					if (Options.SetCameraPosition)
-						printf("Warning: --camera-position is ignored when --camera-angles is set.\n");
-				}
 				else if (Options.SetCameraPosition)
-				{
 					ActiveView->SetViewpoint(Options.CameraPosition[0], Options.CameraPosition[1], Options.CameraPosition[2]);
-				}
 			}
 		}
 
@@ -1098,9 +1119,9 @@ int lcApplication::Process3DViewerCommandLine()
 			if (Options.CameraName.isEmpty() && !Options.SetCameraPosition)
 				ActiveView->ZoomExtents();
 
-			auto ProgressCallback = [](const QString& FileName)
+			auto ProgressCallback = [&StdOut](const QString& FileName)
 			{
-				printf("Saved '%s'.\n", FileName.toLatin1().constData());
+				StdOut << tr("Saved '%1'.\n").arg(FileName);
 			};
 
 			ActiveView->SaveStepImages(Frame, Options.ImageStart != Options.ImageEnd, Options.ImageStart, Options.ImageEnd, ProgressCallback);
@@ -1128,7 +1149,7 @@ int lcApplication::Process3DViewerCommandLine()
 			}
 
 			if (mProject->ExportWavefront(FileName))
-				printf("Saved '%s'.\n", FileName.toLatin1().constData());
+				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
 		if (Options.Save3DS)
@@ -1153,7 +1174,7 @@ int lcApplication::Process3DViewerCommandLine()
 			}
 
 			if (mProject->Export3DStudio(FileName))
-				printf("Saved '%s'.\n", FileName.toLatin1().constData());
+				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
 		if (Options.SaveCOLLADA)
@@ -1178,7 +1199,7 @@ int lcApplication::Process3DViewerCommandLine()
 			}
 
 			if (mProject->ExportCOLLADA(FileName))
-				printf("Saved '%s'.\n", FileName.toLatin1().constData());
+				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
 		if (Options.SaveHTML)
@@ -1199,6 +1220,8 @@ int lcApplication::Process3DViewerCommandLine()
 /*** LPub3D Mod - initialize with LPub3D as parent ***/
 lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent)
 {
+	QTextStream StdErr(stderr, QIODevice::WriteOnly);
+	
 	bool SaveAndExit = !Application::instance()->modeGUI();
 
 	bool OnlyUsePaths = false;
@@ -1206,7 +1229,10 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
 
 	if (!InitializeRenderer())
+	{
+		StdErr << tr("3DViewer error creating OpenGL context.\n");
 		return lcStartupMode::Error;
+	}
 
 	if (!SaveAndExit)
 	{
@@ -1218,19 +1244,19 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		lcLoadDefaultMouseShortcuts();
 	}
 
-	if (!LoadPartsLibrary(LibraryPaths, OnlyUsePaths, !SaveAndExit))
+	if (!LoadPartsLibrary(LibraryPaths, OnlyUsePaths))
 	{
 		QString Message;
 
 		if (mLibrary->LoadBuiltinPieces())
-			Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
+			Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n");
 		else
-			Message = tr("3DViewer could not load Parts Library.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
+			Message = tr("3DViewer could not load Parts Library.\n");
 
-		if (!SaveAndExit)
+		if (gMainWindow)
 			QMessageBox::information(gMainWindow, tr("3DViewer"), Message);
 		else
-			fprintf(stderr, "%s", Message.toLatin1().constData());
+			StdErr << Message << endl;
 	}
 
 	if (!SaveAndExit)

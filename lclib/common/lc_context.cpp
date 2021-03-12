@@ -45,6 +45,8 @@ lcContext::lcContext()
 	mTextureCubeMap = 0;
 	mPolygonOffset = lcPolygonOffset::None;
 	mDepthWrite = true;
+	mDepthFunction = lcDepthFunction::LessEqual;
+	mCullFace = false;
 	mLineWidth = 1.0f;
 #ifndef LC_OPENGLES
 	mMatrixMode = GL_MODELVIEW;
@@ -334,11 +336,14 @@ void lcContext::SetOffscreenContext()
 
 void lcContext::SetDefaultState()
 {
+#ifndef LC_OPENGLES
 	if (QSurfaceFormat::defaultFormat().samples() > 1)
 		glEnable(GL_LINE_SMOOTH);
+#endif
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	mDepthFunction = lcDepthFunction::LessEqual;
 
 	if (gSupportsBlendFuncSeparate)
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
@@ -393,6 +398,9 @@ void lcContext::SetDefaultState()
 
 	mDepthWrite = true;
 	glDepthMask(GL_TRUE);
+
+	glDisable(GL_CULL_FACE);
+	mCullFace = false;
 
 	glLineWidth(1.0f);
 	mLineWidth = 1.0f;
@@ -529,6 +537,38 @@ void lcContext::SetDepthWrite(bool Enable)
 
 	glDepthMask(Enable ? GL_TRUE : GL_FALSE);
 	mDepthWrite = Enable;
+}
+
+void lcContext::SetDepthFunction(lcDepthFunction DepthFunction)
+{
+	if (DepthFunction == mDepthFunction)
+		return;
+
+	switch (DepthFunction)
+	{
+	case lcDepthFunction::Always:
+		glDepthFunc(GL_ALWAYS);
+		break;
+
+	case lcDepthFunction::LessEqual:
+		glDepthFunc(GL_LEQUAL);
+		break;
+	}
+
+	mDepthFunction = DepthFunction;
+}
+
+void lcContext::EnableCullFace(bool Enable)
+{
+	if (Enable == mCullFace)
+		return;
+
+	if (Enable)
+		glEnable(GL_CULL_FACE);
+	else
+		glDisable(GL_CULL_FACE);
+
+	mCullFace = Enable;
 }
 
 void lcContext::SetLineWidth(float LineWidth)
@@ -1116,10 +1156,7 @@ void lcContext::FlushState()
 
 		if (mHighlightParamsDirty && Program.HighlightParamsLocation != -1)
 		{
-			lcMatrix44 InverseViewMatrix = lcMatrix44AffineInverse(mViewMatrix);
-			mHighlightParams[4] = InverseViewMatrix[2];
-
-			glUniform4fv(Program.HighlightParamsLocation, 5, mHighlightParams[0]);
+			glUniform4fv(Program.HighlightParamsLocation, 4, mHighlightParams[0]);
 			mHighlightParamsDirty = false;
 		}
 	}

@@ -560,7 +560,7 @@ void lcMainWindow::CreateMenus()
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RENDER]);
-	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
+//	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
 	FileMenu->addSeparator();
@@ -897,6 +897,7 @@ void lcMainWindow::CreateToolBars()
 /***
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
+	tabifyDockWidget(mTimelineToolBar, mPreviewToolBar);
 
 	connect(mPropertiesToolBar, SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
 	connect(mTimelineToolBar,   SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
@@ -985,8 +986,6 @@ void lcMainWindow::CreatePreviewWidget()
 	mPreviewToolBar->setWidget(mPreviewWidget);
 	addDockWidget(Qt::RightDockWidgetArea, mPreviewToolBar);
 
-	tabifyDockWidget(mTimelineToolBar, mPreviewToolBar);
-
 	connect(mPreviewToolBar, SIGNAL(topLevelChanged(bool)), this, SLOT(EnableWindowFlags(bool)));
 ***/
 /*** LPub3D Mod end ***/
@@ -1001,7 +1000,7 @@ void lcMainWindow::TogglePreviewWidget(bool Visible)
 		else
 			mPreviewToolBar->hide();
 	}
-	else if (Visible)
+	else if (Visible) 
 	{
 		CreatePreviewWidget();
 	}

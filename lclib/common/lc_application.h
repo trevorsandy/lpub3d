@@ -79,6 +79,7 @@ public:
 	bool mDrawGridLines;
 	int mGridLineSpacing;
 	quint32 mGridLineColor;
+	bool mDrawGridOrigin;
 	bool mFixedAxes;
 	bool mViewSphereEnabled;
 	lcViewSphereLocation mViewSphereLocation;
@@ -151,7 +152,7 @@ struct lcCommandLineOptions
 	int ImageWidth;
 	int ImageHeight;
 	int AASamples;
-//	int StudLogo;
+	int StudLogo;
 	int ImageStart;
 	int ImageEnd;
 	lcVector3 CameraPosition[3];
@@ -170,7 +171,8 @@ struct lcCommandLineOptions
 	QString SaveCOLLADAName;
 	QString SaveHTMLName;
 	QList<QPair<QString, bool>> LibraryPaths;
-	QString Output;
+	QString StdOut;
+	QString StdErr;
 };
 ***/
 /*** LPub3D Mod end ***/
@@ -206,7 +208,7 @@ public:
 	void ShowPreferencesDialog();
 	void SaveTabLayout() const;
 
-	bool LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress);
+	bool LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths);
 
 	void SetClipboard(const QByteArray& Clipboard);
 	void ExportClipboard(const QByteArray& Clipboard);

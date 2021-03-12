@@ -28,10 +28,10 @@ INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
 
 # The ABI version.
-VER_MAJ = 1
-VER_MIN = 9
+VER_MAJ = 21
+VER_MIN = 1
 VER_PAT = 0
-VER_BLD = 7
+VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch
 
