@@ -353,7 +353,7 @@ extern ActionAttributes sgCommands[NUM_GRID_SIZES];
 
 enum ThemeColorType {
     // THEME_DEFAULT
-    THEME_DEFAULT_SCENE_BGCOLOR,                             // "#AEADAC"
+    THEME_DEFAULT_SCENE_BACKGROUND_COLOR,                    // "#AEADAC"
     THEME_DEFAULT_GRID_PEN,                                  // "#1E1B18"
     THEME_DEFAULT_RULER_PEN,                                 // "#1E1B18"
     THEME_DEFAULT_RULER_TICK_PEN,                            // "#35322F"
@@ -423,7 +423,7 @@ enum ThemeColorType {
     THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT,              // "#00FF00"
 
     // THEME_DARK
-    THEME_DARK_SCENE_BGCOLOR,                                // "#31363B"
+    THEME_DARK_SCENE_BACKGROUND_COLOR,                       // "#31363B"
     THEME_DARK_GRID_PEN,                                     // "#FFFFFF"
     THEME_DARK_RULER_PEN,                                    // "#FFFFFF"
     THEME_DARK_RULER_TICK_PEN,                               // "#EFF0F1"

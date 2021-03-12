@@ -64,7 +64,7 @@ const QString msgKeyTypes [][2] = {
 
 Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
 {   //KEY                                                COLOR      LABEL                                          // THEME_DEFAULT
-    {"ThemeDefaultSceneBgcolor",                         "#AEADAC", "Scene Background"                          }, // THEME_DEFAULT_SCENE_BGCOLOR
+    {"ThemeDefaultSceneBackgroundColor",                 "#AEADAC", "Scene Background"                          }, // THEME_DEFAULT_SCENE_BACKGROUND_COLOR
     {"ThemeDefaultGridPen",                              "#1E1B18", "Grid Pen"                                  }, // THEME_DEFAULT_GRID_PEN
     {"ThemeDefaultRulerPen",                             "#1E1B18", "Ruler Pen (uses Grid Pen)"                 }, // THEME_DEFAULT_RULER_PEN [NOT USED]
     {"ThemeDefaultRulerTickPen",                         "#35322F", "Ruler Tick Pen"                            }, // THEME_DEFAULT_RULER_TICK_PEN
@@ -134,7 +134,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultLineHighlightViewerSelect",            "#00FF00", "Editor Line Highlight Viewer Select"       }, // THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT (180 alpha)    lighter(180) alpha(100)
 
     //KEY                                                COLOR      LABEL                                          // THEME_DARK
-    {"ThemeDarkSceneBgcolor",                            "#31363B", "Scene Background"                          }, // THEME_DARK_SCENE_BGCOLOR
+    {"ThemeDarkSceneBackgroundColor",                    "#31363B", "Scene Background"                          }, // THEME_DARK_SCENE_BACKGROUND_COLOR
     {"ThemeDarkGridPen",                                 "#FFFFFF", "Grid Pen"                                  }, // THEME_DARK_GRID_PEN
     {"ThemeDarkRulerPen",                                "#FFFFFF", "Ruler Pen (uses Grid Pen)"                 }, // THEME_DARK_RULER_PEN [NOT USED]
     {"ThemeDarkRulerTickPen",                            "#EFF0F1", "Ruler Tick Pen"                            }, // THEME_DARK_RULER_TICK_PEN
@@ -336,7 +336,7 @@ QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE
 QString Preferences::ld2rbColorsXRefFile        = VER_LPUB3D_LD2RBCOLORSXREF_FILE;
 QString Preferences::ld2rbCodesXRefFile         = VER_LPUB3D_LD2RBCODESXREF_FILE;
 
-QString Preferences::sceneBackgroundColor       = defaultThemeColors[THEME_DEFAULT_SCENE_BGCOLOR].color;
+QString Preferences::sceneBackgroundColor       = defaultThemeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR].color;
 QString Preferences::sceneGridColor             = defaultThemeColors[THEME_DEFAULT_GRID_PEN].color;
 QString Preferences::sceneRulerTickColor        = defaultThemeColors[THEME_DEFAULT_RULER_TICK_PEN].color;
 QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAULT_RULER_TRACK_PEN].color;
@@ -3206,8 +3206,8 @@ void Preferences::userInterfacePreferences()
   QString const sceneBackgroundColorKey("SceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
           displayTheme == THEME_DARK ?
-                  sceneBackgroundColor = themeColors[THEME_DARK_SCENE_BGCOLOR] :
-                  sceneBackgroundColor = themeColors[THEME_DEFAULT_SCENE_BGCOLOR];
+                  sceneBackgroundColor = themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
+                  sceneBackgroundColor = themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR];
           Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
   } else {
           sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString().toUpper();
@@ -4713,7 +4713,7 @@ bool Preferences::getPreferences()
             QMap<int, QString>::ConstIterator i = dialog->themeColours().constBegin();
             while (i != dialog->themeColours().constEnd()) {
                 if (!textDecorationColorChanged)
-                    if ((darkTheme && i.key() >= THEME_DEFAULT_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_SCENE_BGCOLOR) ||
+                    if ((darkTheme && i.key() >= THEME_DEFAULT_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_SCENE_BACKGROUND_COLOR) ||
                                      (i.key() >= THEME_DARK_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_PALETTE_WINDOW))
                         textDecorationColorChanged = true;
                 themeColors[i.key()] = i.value().toUpper();
@@ -4726,8 +4726,8 @@ bool Preferences::getPreferences()
         if (sceneBackgroundColor != dialog->sceneBackgroundColor()){
             sceneBackgroundColor = dialog->sceneBackgroundColor();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
-            bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_SCENE_BGCOLOR] :
-                                                                themeColors[THEME_DEFAULT_SCENE_BGCOLOR]));
+            bool customColor = (sceneGuideColor != (darkTheme ? themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
+                                                                themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR]));
             setCustomSceneBackgroundColorPreference(customColor);
         }
 
@@ -4765,13 +4765,13 @@ bool Preferences::getPreferences()
 
         if (dialog->resetSceneColors()) {
             if (darkTheme) {
-                sceneBackgroundColor    = defaultThemeColors[THEME_DARK_SCENE_BGCOLOR].color;
+                sceneBackgroundColor    = defaultThemeColors[THEME_DARK_SCENE_BACKGROUND_COLOR].color;
                 sceneGridColor          = defaultThemeColors[THEME_DARK_GRID_PEN].color;
                 sceneRulerTickColor     = defaultThemeColors[THEME_DARK_RULER_TICK_PEN].color;
                 sceneRulerTrackingColor = defaultThemeColors[THEME_DARK_RULER_TRACK_PEN].color;
                 sceneGuideColor         = defaultThemeColors[THEME_DARK_GUIDE_PEN].color;
             } else {
-                sceneBackgroundColor    = defaultThemeColors[THEME_DEFAULT_SCENE_BGCOLOR].color;
+                sceneBackgroundColor    = defaultThemeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR].color;
                 sceneGridColor          = defaultThemeColors[THEME_DEFAULT_GRID_PEN].color;
                 sceneRulerTickColor     = defaultThemeColors[THEME_DEFAULT_RULER_TICK_PEN].color;
                 sceneRulerTrackingColor = defaultThemeColors[THEME_DEFAULT_RULER_TRACK_PEN].color;

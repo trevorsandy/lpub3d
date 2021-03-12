@@ -357,8 +357,8 @@ void Application::setTheme(bool appStarted)
   // Set default scene colours
   if (!Preferences::customSceneBackgroundColor)
       Preferences::setSceneBackgroundColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR] :
-                              Preferences::themeColors[THEME_DEFAULT_SCENE_BGCOLOR]);
+                  darkTheme ? Preferences::themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
+                              Preferences::themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR]);
   if (!Preferences::customSceneGridColor)
       Preferences::setSceneGridColorPreference(
                   darkTheme ? Preferences::themeColors[THEME_DARK_GRID_PEN] :

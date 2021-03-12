@@ -881,13 +881,13 @@ void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
     resetSceneColorsFlag = checked;
 
     if (Preferences::displayTheme == THEME_DARK) {
-        sceneBackgroundColorStr    = Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR];
+        sceneBackgroundColorStr    = Preferences::themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR];
         sceneGridColorStr          = Preferences::themeColors[THEME_DARK_GRID_PEN];
         sceneRulerTickColorStr     = Preferences::themeColors[THEME_DARK_RULER_TICK_PEN];
         sceneRulerTrackingColorStr = Preferences::themeColors[THEME_DARK_RULER_TRACK_PEN];
         sceneGuideColorStr         = Preferences::themeColors[THEME_DARK_GUIDE_PEN];
     } else {
-        sceneBackgroundColorStr    = Preferences::themeColors[THEME_DEFAULT_SCENE_BGCOLOR];
+        sceneBackgroundColorStr    = Preferences::themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR];
         sceneGridColorStr          = Preferences::themeColors[THEME_DEFAULT_GRID_PEN];
         sceneRulerTickColorStr     = Preferences::themeColors[THEME_DEFAULT_RULER_TICK_PEN];
         sceneRulerTrackingColorStr = Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN];
@@ -1833,7 +1833,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
         }
     };
 
-    setControls(THEME_DEFAULT_SCENE_BGCOLOR, THEME_DARK_SCENE_BGCOLOR);
+    setControls(THEME_DEFAULT_SCENE_BACKGROUND_COLOR, THEME_DARK_SCENE_BACKGROUND_COLOR);
 
     scrollArea->setMinimumWidth(
                 container->sizeHint().width() +
@@ -1851,7 +1851,7 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
     scrollArea = new QScrollArea(tabs);
     scrollArea->setWidget(container);
 
-    setControls(THEME_DARK_SCENE_BGCOLOR, THEME_NUM_COLORS);
+    setControls(THEME_DARK_SCENE_BACKGROUND_COLOR, THEME_NUM_COLORS);
 
     scrollArea->setMinimumWidth(
                 container->sizeHint().width() +
@@ -2091,9 +2091,9 @@ void ThemeColorsDialog::toggleDefaultsTab()
         else
             readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
         readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
-        for (int i = THEME_DEFAULT_SCENE_BGCOLOR; i < THEME_NUM_COLORS; i++) {
+        for (int i = THEME_DEFAULT_SCENE_BACKGROUND_COLOR; i < THEME_NUM_COLORS; i++) {
             QString labelText = Preferences::defaultThemeColors[i].label;
-            if (i < THEME_DARK_SCENE_BGCOLOR)
+            if (i < THEME_DARK_SCENE_BACKGROUND_COLOR)
                 labelText.prepend("Default ");
             else
                 labelText.prepend("Dark ");
