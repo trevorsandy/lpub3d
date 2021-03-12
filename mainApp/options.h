@@ -151,7 +151,6 @@ public:
 
 // Page Options Routines
 
-class Rc;
 class Meta;
 class Where;
 class PgSizeData;
@@ -165,7 +164,7 @@ public:
             int             &_pageNum,
             Where           &_current,
             PgSizeData      &_pageSize,
-            QMap<int,Rc>    &_buildModActions,
+            QMap<int,int>   &_buildModActions,
 
             bool             _updateViewer,
             bool             _isMirrored,
@@ -191,7 +190,7 @@ public:
     int           &pageNum;
     Where         &current;
     PgSizeData    &pageSize;
-    QMap<int,Rc>  &buildModActions;
+    QMap<int,int>  &buildModActions;
 
     bool           updateViewer;
     bool           isMirrored;
@@ -215,7 +214,7 @@ public:
             QStringList                 &_csiKeys,
             QHash<QString, QStringList> &_bfx,
             QList<PliPartGroupMeta>     &_pliPartGroups,
-            QMap<int,Rc>                &_buildModActions,
+            QMap<int,int>               &_buildModActions,
             QVector<int>                &_lineTypeIndexes,
             QHash<QString, QVector<int>>&_bfxLineTypeIndexes,
 
@@ -259,7 +258,7 @@ public:
     QStringList                 &csiKeys;
     QHash<QString, QStringList> &bfx;
     QList<PliPartGroupMeta>     &pliPartGroups;
-    QMap<int,Rc>                &buildModActions;
+    QMap<int,int>               &buildModActions;
     QVector<int>                &lineTypeIndexes;
     QHash<QString, QVector<int>>&bfxLineTypeIndexes;
 

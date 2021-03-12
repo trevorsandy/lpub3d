@@ -2632,7 +2632,7 @@ int Gui::findPage(
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
   // to initialie drawPageOptins.
-  QMap<int, Rc> emptyBuildModActions;
+  QMap<int,int> emptyBuildModActions;
 
   PartLineAttributes pla(
   csiParts,
@@ -3932,7 +3932,7 @@ void Gui::countPages()
       Meta meta;
       QString empty;
       PgSizeData emptyPageSize;
-      QMap<int,Rc> buildModActions;
+      QMap<int,int> buildModActions;
       stepPageNum = 1;
       FindPageOptions findOptions(
                   maxPages,
@@ -4023,7 +4023,7 @@ void Gui::drawPage(LGraphicsView  *view,
 
   writeToTmp();
   //logTrace() << "SET INITIAL Model: " << current.modelName << " @ Page: " << maxPages;
-  QMap<int,Rc> buildModActions;
+  QMap<int,int> buildModActions;
   QString empty;
   Meta    meta;
   firstStepPageNum = -1;
@@ -4558,12 +4558,13 @@ void Gui::writeToTmp(const QString &fileName,
       skipHeader(topOfStep);
 
       int  buildModLevel      = 0;
+      int  buildModBottom     = 0;
       bool buildModIgnore     = false;
       bool buildModItems      = false;
       bool buildModApplicable = false;
 
       QString                 buildModKey;
-      QMap<int, Rc>           buildModActions;
+      QMap<int, int>          buildModActions;
       QMap<int, QVector<int>> buildModAttributes;
 
       QVector<int> lineTypeIndexes, buildModLineTypeIndexes;
