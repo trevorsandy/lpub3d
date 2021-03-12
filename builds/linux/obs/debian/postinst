@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
-if -x update-mime-database ; then
+if [ -x update-mime-database ]; then
   update-mime-database  ~/.local/share/mime/ >/dev/null
 fi
-if -x update-desktop-database ; then
+if [ -x update-desktop-database ]; then
   update-desktop-database ~/.local/share/applications/ >/dev/null
 fi
 #DEBHELPER#
