@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 15, 2020
+# Last Update: October 16, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -275,10 +275,9 @@ after_build:
               If ($AssetExtension -eq ".zip" -or $AssetExtension -eq ".exe") {
                   $Asset = [System.IO.Path]::GetFileName("$_")
                   $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
-                  $AssetPathPosix = "/"+$AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
+                  $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
                   write-host "`n  Creating Hash File: $AssetPathPosix/$Asset.sha512..."
-                  "#!/bin/bash`nsha512sum `"$Asset`" > `"$Asset.sha512`"" | Out-File -FilePath $env:LP3D_DOWNLOAD_ASSETS\s.sh -NoNewline -Encoding utf8
-                  C:\msys64\usr\bin\bash -lc "cd $AssetPathPosix && chmod +x ./s.sh && ./s.sh && rm ./s.sh"
+                  C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > $Asset.sha512 2>&1"
               }
           }
           [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
