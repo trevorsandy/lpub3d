@@ -60,9 +60,14 @@
 #include "lpub_preferences.h"
 
 #include "lc_mainwindow.h"
+#include "pli.h"
+#include "color.h"
+#include "ldrawpartdialog.h"
+#include "ldrawcolordialog.h"
 
 #include "lc_qglwidget.h"
 #include "lc_previewwidget.h"
+#include "pieceinf.h"
 
 EditWindow *editWindow;
 
@@ -495,6 +500,22 @@ void EditWindow::createActions()
     openWithToolbarAct = new QAction(QIcon(":/resources/openwith.png"), tr("Open With..."), this);
     openWithToolbarAct->setStatusTip(tr("Open model file with selected application"));
 
+    editColorAct = new QAction(QIcon(":/resources/editcolor.png"),tr("Change color..."), this);
+    editColorAct->setStatusTip(tr("Edit the part color"));
+    connect(editColorAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+
+    editPartAct = new QAction(QIcon(":/resources/editpart.png"),tr("Change part..."), this);
+    editPartAct->setStatusTip(tr("Edit this part"));
+    connect(editPartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+/*
+    substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute part..."), this);
+    substitutePartAct->setStatusTip(tr("Substitute this part"));
+    connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+
+    removeSubstitutePartAct = new QAction(QIcon(":/resources/removesubstitutepart.png"),tr("Remove Substitute..."), this);
+    removeSubstitutePartAct->setStatusTip(tr("Replace this substitute part with the original part."));
+    connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+*/
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
@@ -510,10 +531,6 @@ void EditWindow::createActions()
 void EditWindow::disableActions()
 {
     editModelFileAct->setEnabled(false);
-    previewLineAct->setEnabled(false);
-#ifdef QT_DEBUG_MODE
-    previewViewerFileAct->setEnabled(false);
-#endif
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
@@ -561,8 +578,8 @@ void EditWindow::clearEditorWindow()
 
 void EditWindow::createToolBars()
 {
-    editToolBar = addToolBar(tr("LDraw Editor Toolbar"));
-    editToolBar->setObjectName("EditToolbar");
+    editToolBar = addToolBar(tr("Editor Edit Toolbar"));
+    editToolBar->setObjectName("EditorEditToolbar");
     if (modelFileEdit()) {
         mpdCombo = new QComboBox(this);
         mpdCombo->setMinimumContentsLength(25);
@@ -573,6 +590,8 @@ void EditWindow::createToolBars()
         connect(mpdCombo,SIGNAL(activated(int)),
                 this,    SLOT(mpdComboChanged(int)));
 
+        editToolBar->addAction(preferencesAct);
+        editToolBar->addSeparator();
         editToolBar->addAction(exitAct);
         editToolBar->addAction(saveAct);
         editToolBar->addAction(saveCopyAct);
@@ -580,24 +599,14 @@ void EditWindow::createToolBars()
         editToolBar->addAction(undoAct);
         editToolBar->addAction(redoAct);
         editToolBar->addSeparator();
-        editToolBar->addAction(preferencesAct);
-        editToolBar->addSeparator();
         editToolBar->addWidget(mpdCombo);
-        editToolBar->addSeparator();
-
-        editToolBar->addSeparator();
-        editToolBar->addAction(openFolderAct);
 #ifndef QT_NO_CLIPBOARD
+        editToolBar->addSeparator();
         editToolBar->addAction(copyFileNameToClipboardAct);
         editToolBar->addAction(copyFullPathToClipboardAct);
 #endif
         editToolBar->addSeparator();
-        editToolBar->addAction(previewLineAct);
-
-#ifdef QT_DEBUG_MODE
-        editToolBar->addSeparator();
-        editToolBar->addAction(previewViewerFileAct);
-#endif
+        editToolBar->addAction(openFolderAct);
         QMenu *openWithMenu = new QMenu(tr("Open With Menu"));
         openWithMenu->setEnabled(false);
         openWithToolbarAct->setMenu(openWithMenu);
@@ -608,6 +617,8 @@ void EditWindow::createToolBars()
         }
         editToolBar->addAction(openWithToolbarAct);
         editToolBar->addSeparator();
+    } else {
+        editToolBar->addAction(preferencesAct);
     }
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
@@ -621,10 +632,19 @@ void EditWindow::createToolBars()
     editToolBar->addAction(delAct);
     editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
-    if (!modelFileEdit()) {
-        editToolBar->addSeparator();
-        editToolBar->addAction(preferencesAct);
-    }
+
+    toolsToolBar = addToolBar(tr("Editor Tools Toolbar"));
+    toolsToolBar->setObjectName("EditorToolsToolbar");
+    toolsToolBar->setEnabled(false);
+
+    toolsToolBar->addAction(editColorAct);
+    toolsToolBar->addAction(editPartAct);
+/*    toolsToolBar->addAction(substitutePartAct); */
+    toolsToolBar->addAction(previewLineAct);
+#ifdef QT_DEBUG_MODE
+    toolsToolBar->addSeparator();
+    toolsToolBar->addAction(previewViewerFileAct);
+#endif
 }
 
 void EditWindow::setReadOnly(bool enabled)
@@ -656,15 +676,18 @@ void EditWindow::setReadOnly(bool enabled)
 
 bool EditWindow::setValidPartLine()
 {
-    QString partType, titleType = "file";
+    QString partType, titleType = "part";
     int validCode, colorCode = LDRAW_MATERIAL_COLOUR;
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
-    bool colorOk = false;
+    bool colorOk = false, isSubstitute = false;
 
-    previewLineAct->setEnabled(false);
+    toolsToolBar->setEnabled(false);
+    editColorAct->setText(tr("Edit color"));
+    editPartAct->setText(tr("Edit part"));
+/*    substitutePartAct->setText(tr("Substitute part")); */
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
@@ -687,12 +710,18 @@ bool EditWindow::setValidPartLine()
 
         validCode = list[6].toInt(&colorOk);
 
+        selection.append("|sub");
+
+        isSubstitute = true;
+
     } else {
         return false;
     }
 
     if (partType.isEmpty())
         return false;
+
+    toolsToolBar->setEnabled(true);
 
     if (colorOk)
         colorCode = validCode;
@@ -709,7 +738,7 @@ bool EditWindow::setValidPartLine()
 
     lcPreferences& Preferences = lcGetPreferences();
     if (Preferences.mPreviewEnabled && !isIncludeFile) {
-        previewLineAct->setText(tr("Preview part %1...").arg(elidedPartType));
+        previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
         previewLineAct->setData(partKey);
         previewLineAct->setEnabled(true);
     }
@@ -717,8 +746,8 @@ bool EditWindow::setValidPartLine()
     if (_subFileList.contains(partType.toLower())) {
         titleType = "subfile";
         if (Preferences.mPreviewEnabled) {
-            previewLineAct->setText(tr("Preview subfile %1...").arg(elidedPartType));
-            previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
+            previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
+            previewLineAct->setStatusTip(tr("Display the %1 on the highlighted line in a popup 3D viewer").arg(titleType));
         }
 
         copyFullPathToClipboardAct->setEnabled(true);
@@ -727,6 +756,35 @@ bool EditWindow::setValidPartLine()
 
     copyFileNameToClipboardAct->setEnabled(true);
     copyFileNameToClipboardAct->setData(partType);
+
+    if (colorCode != LDRAW_MATERIAL_COLOUR)  {
+        editColorAct->setText(tr("Edit color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
+        editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
+        editColorAct->setEnabled(true);
+    }
+
+    editPartAct->setText(tr("Edit %1...").arg(elidedPartType));
+    editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
+    editPartAct->setEnabled(true);
+
+/*
+    actionText = tr("Substitute  %1...").arg(elidedPartType);
+    if (isSubstitute) {
+        substitutePartAct->setText(tr("Change %1").arg(actionText));
+        removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
+        removeSubstitutePartAct->setData(partKey);
+        removeSubstitutePartAct->setEnabled(true);
+        QMenu *removeMenu = new QMenu(tr("Remove %1").arg(actionText));
+        removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
+        removeMenu->addAction(removeSubstitutePartAct);
+        substitutePartAct->setMenu(removeMenu);
+        partKey.append("|sub");
+    } else {
+        substitutePartAct->setText(actionText);
+    }
+    substitutePartAct->setData(partKey);
+    substitutePartAct->setEnabled(true);
+*/
 
     if (numOpenWithPrograms)
         openWithToolbarAct->setEnabled(true);
@@ -744,29 +802,36 @@ void EditWindow::showContextMenu(const QPoint &pt)
             while (_subFileListPending)
                 QApplication::processEvents();
         }
-        int validLine = setValidPartLine();
+
         menu->addSeparator();
         menu->addAction(openFolderAct);
 #ifndef QT_NO_CLIPBOARD
         menu->addAction(copyFileNameToClipboardAct);
         menu->addAction(copyFullPathToClipboardAct);
 #endif
-        menu->addSeparator();
-        menu->addAction(previewLineAct);
-
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
             menu->addAction(editModelFileAct);
         }
 
-        QMenu *openWithMenu = new QMenu(tr("Open With..."));
-        openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
-        menu->addMenu(openWithMenu);
-        if (numOpenWithPrograms) {
-            openWithMenu->setEnabled(validLine);
-            for (int i = 0; i < numOpenWithPrograms; i++)
-                openWithMenu->addAction(openWithActList.at(i));
+        if (setValidPartLine()) {
+            menu->addSeparator();
+            QMenu *toolsMenu = new QMenu(tr("Tools..."));
+            toolsMenu->setIcon(QIcon(":/resources/tools.png"));
+            menu->addMenu(toolsMenu);
+            toolsMenu->addAction(editColorAct);
+            toolsMenu->addAction(editPartAct);
+/*            toolsMenu->addAction(substitutePartAct); */
+            toolsMenu->addAction(previewLineAct);
+
+            QMenu *openWithMenu = new QMenu(tr("Open With..."));
+            openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
+            menu->addMenu(openWithMenu);
+            if (numOpenWithPrograms) {
+                for (int i = 0; i < numOpenWithPrograms; i++)
+                    openWithMenu->addAction(openWithActList.at(i));
+            }
         }
         menu->addSeparator();
     }
@@ -779,6 +844,96 @@ void EditWindow::showContextMenu(const QPoint &pt)
     menu->addAction(redrawAct);
     menu->exec(_textEdit->mapToGlobal(pt));
     delete menu;
+}
+
+void EditWindow::editLineItem()
+{
+    QString findText;
+    QString replaceText;
+
+    QStringList elements, items;
+    if (sender() == editColorAct) {
+        elements = editColorAct->data().toString().split("|");
+        int colorCode = elements.first().toInt();
+        int newColorIndex = -1;
+        items = elements.at(1).split(" ", QString::SkipEmptyParts);
+        QColor qcolor = QColor(QString("#%1").arg(gColorList[lcGetColorIndex(colorCode)].CValue, 6, 16, QChar('0')));
+        QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
+        if (newColor.isValid() && qcolor != newColor) {
+            if (elements.size() == 3)  // selection is a substitute meta command
+                items[6] = QString::number(lcGetColorCode(newColorIndex));
+            else
+                items[1] = QString::number(lcGetColorCode(newColorIndex));
+        }
+        replaceText = items.join(" ");
+    } else if (sender() == editPartAct) {
+        elements = editPartAct->data().toString().split("|");
+        findText = elements.first();
+        PieceInfo *partInfo = LDrawPartDialog::getLDrawPart(QString("%1;%2").arg(findText).arg(elements.last()));
+        if (partInfo)
+            replaceText = partInfo->mFileName;
+        else
+            replaceText = findText;
+    }
+/*
+    else if (sender() == substitutePartAct) {
+        QStringList items = substitutePartAct->data().toString().split("|");
+        if (items.size() > 1) {
+
+        }
+    } else if (sender() == removeSubstitutePartAct) {
+        ;
+    }
+*/
+
+    int current = 0;
+    int selectedLines = 0;
+
+    QTextCursor cursor = _textEdit->textCursor();
+    if(cursor.selection().isEmpty())
+        cursor.select(QTextCursor::LineUnderCursor);
+
+    QString str = cursor.selection().toPlainText();
+    selectedLines = str.count("\n")+1;
+
+    cursor.beginEditBlock();
+
+    while (true)
+    {
+        if (current == selectedLines) {
+           break;
+        }
+
+        bool result = false;
+
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString selection = cursor.selectedText();
+
+
+        if (!selection.isEmpty())
+        {
+            if (sender() == editPartAct) {
+                _textEdit->moveCursor(QTextCursor::StartOfLine);
+
+                QTextDocument::FindFlags flags;
+                result = _textEdit->find(findText, flags);
+            } else {
+                result = true;
+            }
+        } else {
+            break;
+        }
+
+        if (result) {
+            _textEdit->textCursor().insertText(replaceText);
+            if (++current < selectedLines) {
+                cursor.movePosition(QTextCursor::Down);
+                _textEdit->setTextCursor(cursor);
+            }
+        }
+    }
+
+    cursor.endEditBlock();
 }
 
 void EditWindow::triggerPreviewLine()
@@ -1315,15 +1470,13 @@ void EditWindow::pageUpDown(
 }
 
 void EditWindow::updateSelectedParts() {
-    if (modelFileEdit()) {
-        setValidPartLine();
-        return;
-    }
-
-    if (!gMainWindow->isVisible())
-        return;
 
     if (isIncludeFile)
+        return;
+
+    toolsToolBar->setEnabled(setValidPartLine());
+
+    if (modelFileEdit() || !gMainWindow->isVisible())
         return;
 
     int lineNumber = 0;
@@ -1352,24 +1505,23 @@ void EditWindow::updateSelectedParts() {
         return;
 
     auto getSelectedLineNumber = [&cursor] () {
+
         int lineNumber = 0;
 
-        QTextCursor _cursor = cursor;
-        _cursor.select(QTextCursor::LineUnderCursor);
+        cursor.movePosition(QTextCursor::StartOfLine);
 
-        while(_cursor.positionInBlock()>0) {
-            bool atTop = !_cursor.movePosition(QTextCursor::Up);
+        while(cursor.positionInBlock()>0) {
+            cursor.movePosition(QTextCursor::Up);
             lineNumber++;
-            if (atTop)
-                break;
         }
 
-        QTextBlock block = _cursor.block().previous();
+        QTextBlock block = cursor.block().previous();
 
         while(block.isValid()) {
             lineNumber += block.lineCount();
             block = block.previous();
         }
+
         return lineNumber;
     };
 
@@ -1384,7 +1536,7 @@ void EditWindow::updateSelectedParts() {
             if (!stepLines.isInScope(lineNumber) && highlightLines)
             {
                 emit setStepForLineSig(typeLine);
-                QApplication::processEvents();
+                //QApplication::processEvents();
             }
         }
 
@@ -1414,7 +1566,7 @@ void EditWindow::updateSelectedParts() {
             }
         }
         // set next selected line
-        cursor.movePosition(QTextCursor::Down);
+        //cursor.movePosition(QTextCursor::Down);
         _textEdit->setTextCursor(cursor);
        currentLine++;
     }

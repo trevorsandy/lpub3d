@@ -86,6 +86,7 @@
         <file alias="displaycolumn.png">resources/displaycolumn.png</file>
         <file alias="displayrow.png">resources/displayrow.png</file>
         <file alias="divider.png">resources/divider.png</file>
+        <file alias="editcolor.png">resources/editcolor.png</file>
         <file alias="editdivider.png">resources/editdivider.png</file>
         <file alias="editexcludedparts.png">resources/editexcludedparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>
@@ -98,6 +99,7 @@
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editldviewconf.png">resources/editldviewconf.png</file>
         <file alias="editparameterfiles.png">resources/editparameterfiles.png</file>
+        <file alias="editpart.png">resources/editpart.png</file>
         <file alias="editplisubstituteparts.png">resources/editplisubstituteparts.png</file>
         <file alias="editpovrayconf.png">resources/editpovrayconf.png</file>
         <file alias="editredo.png">resources/editredo.png</file>
@@ -239,6 +241,7 @@
         <file alias="tileimage.png">resources/tileimage.png</file>
         <file alias="togglecomment.png">resources/togglecomment.png</file>
         <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
+        <file alias="tools.png">resources/tools.png</file>
         <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>

@@ -72,6 +72,8 @@ class QProgressBar;
 class WaitingSpinnerWidget;
 class LoadModelWorker;
 
+/*class Pli;*/
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class EditWindow : public QMainWindow
@@ -80,7 +82,6 @@ class EditWindow : public QMainWindow
 
 public:
     explicit EditWindow(QMainWindow *parent = nullptr, bool modelFileEdit = false);
-    QToolBar *editToolBar;
     QTextEditor *textEdit()
     {
         return _textEdit;
@@ -93,6 +94,9 @@ public:
     {
         return fileName;
     }
+
+    QToolBar *editToolBar;
+    QToolBar *toolsToolBar;
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
@@ -143,6 +147,7 @@ private slots:
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();
+    void editLineItem();
     void previewLine();
 #ifdef QT_DEBUG_MODE
     void previewViewerFile();
@@ -188,6 +193,7 @@ protected:
     QCompleter        *completer;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
+/*    Pli               *pli; */
     QComboBox         *mpdCombo;
     QFutureWatcher<int> futureWatcher;
     QFileSystemWatcher fileWatcher;
@@ -215,9 +221,16 @@ protected:
 
     QScrollBar *verticalScrollBar;
     QList<QAction *> openWithActList;
+
     QAction  *openWithToolbarAct;
     QAction  *editModelFileAct;   
     QAction  *previewLineAct;
+    QAction  *editColorAct;
+    QAction  *editPartAct;
+/*
+    QAction  *substitutePartAct;
+    QAction  *removeSubstitutePartAct;
+*/
 #ifdef QT_DEBUG_MODE
     QAction  *previewViewerFileAct;
 #endif

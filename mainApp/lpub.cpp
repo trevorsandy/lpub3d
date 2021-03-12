@@ -5613,6 +5613,7 @@ void Gui::createToolBars()
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)).toBool();
     editMenu->addAction(editToolBar->toggleViewAction());
     editMenu->addAction(editWindow->editToolBar->toggleViewAction());
+    editMenu->addAction(editWindow->toolsToolBar->toggleViewAction());
     editToolBar->setVisible(visible);
     connect (editToolBar, SIGNAL (visibilityChanged(bool)),
                      this, SLOT (editToolBarVisibilityChanged(bool)));
