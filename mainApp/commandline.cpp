@@ -344,6 +344,7 @@ int Gui::processCommandLine()
         if (!ParseInteger(highlightLineWidth, 1, 10))
             InvalidParse(QString("Invalid value specified, valid values range from 1 to 10 for the"), true);
       }
+      else
       if (Param == QLatin1String("-ccf") || Param == QLatin1String("--color-config-file"))
       {
         if (ParseString(colourConfigFile, true))

@@ -887,7 +887,7 @@ void EditWindow::editLineItem()
         int colorCode = elements.first().toInt();
         int newColorIndex = -1;
         items = elements.at(1).split(" ", QString::SkipEmptyParts);
-        QColor qcolor = QColor(QString("#%1").arg(gColorList[lcGetColorIndex(colorCode)].CValue, 6, 16, QChar('0')));
+        QColor qcolor(gColorList[lcGetColorIndex(colorCode)].CValue);
         QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
         if (newColor.isValid() && qcolor != newColor) {
             if (elements.size() == 3)  // selection is a substitute meta command

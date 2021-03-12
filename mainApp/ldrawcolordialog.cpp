@@ -74,7 +74,9 @@ QColor LDrawColorDialog::getLDrawColor(
       return dialog->mLDrawColor;
     }
     colorIndex = lcGetColorIndex(initial);
-    return initial;
+    lcColor* color = &gColorList[colorIndex];
+    QColor rgb(color->Value[0] * 255, color->Value[1] * 255, color->Value[2] * 255);
+    return rgb;
 }
 
 QColor LDrawColorDialog::getLDrawColor(

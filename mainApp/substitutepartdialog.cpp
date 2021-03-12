@@ -219,8 +219,7 @@ void SubstitutePartDialog::initialize()
        ui->ldrawTitleLbl->setText(Pli::titleDescription(mLdrawType));
     }
 
-    QString colorName = QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0'));
-    QColor partColor(colorName);
+    QColor partColor(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue);
     if(partColor.isValid() ) {
       ui->colorLbl->setAutoFillBackground(true);
       QString styleSheet =
@@ -232,7 +231,7 @@ void SubstitutePartDialog::initialize()
       ui->colorLbl->setToolTip(QString("%1 (%2) %3")
                                .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
                                .arg(mAttributes.at(sColorCode))
-                               .arg(QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0')).toUpper()));
+                               .arg(partColor.name().toUpper()));
     }
 
     // Extended settings
@@ -500,7 +499,7 @@ void SubstitutePartDialog::colorChanged(const QString &colorName)
       ui->colorLbl->setToolTip(QString("%1 (%2) %3")
                                .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
                                .arg(mAttributes.at(sColorCode))
-                               .arg(QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0')).toUpper()));
+                               .arg(newColor.name().toUpper()));
 
       showPartPreview(PartColor);
 
@@ -588,11 +587,11 @@ void SubstitutePartDialog::browseType(bool clicked)
 void SubstitutePartDialog::browseColor(bool clicked)
 {
   Q_UNUSED(clicked);
-  QString colorName = QString("#%1").arg(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue, 6, 16, QChar('0'));
-  QColor qcolor = QColor(colorName);
-  int newColorIndex = -1;
+  QString colorName = QColor(gColorList[lcGetColorIndex(mAttributes.at(sColorCode).toInt())].CValue).name();
+  int newColorIndex = ~0U;
   QColor newColor = LDrawColorDialog::getLDrawColor(mAttributes.at(sColorCode).toInt(),newColorIndex,this);
-  if (newColor.isValid() && qcolor != newColor) {
+  QString newColorName = newColor.name();
+  if (newColor.isValid() && colorName != newColorName) {
       mAttributes[sColorCode] = QString::number(newColorIndex);
       colorChanged(newColor.name());
   }

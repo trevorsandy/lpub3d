@@ -5369,8 +5369,8 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
   QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
   QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
   QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
-  QString _mainColourValue   = "#" + ldrawColors.value(colourCode);
-  QString _edgeColourValue   = fadePartType ? "#" + ldrawColors.edge(colourCode) : Preferences::highlightStepColour;
+  QString _mainColourValue   = ldrawColors.value(colourCode);
+  QString _edgeColourValue   = fadePartType ? ldrawColors.edge(colourCode) : Preferences::highlightStepColour;
   QString _colourDescription = LPUB3D_COLOUR_TITLE_PREFIX + ldrawColors.name(colourCode);
   int _fadeAlphaValue        = ((ldrawColors.alpha(colourCode) * (100 - Preferences::fadeStepsOpacity)) + (100 - 1)) / 100;
   int _alphaValue            = fadePartType ? _fadeAlphaValue : ldrawColors.alpha(colourCode);             // use 100% opacity with highlight color
