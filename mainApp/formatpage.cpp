@@ -1096,8 +1096,10 @@ int Gui::addGraphicsPageItems(
 
   page->relativeType = SingleStepType;
 
-  if (waitingSpinner->isSpinning())
-      waitingSpinner->stop();
+  if (Preferences::modeGUI) {
+      if (waitingSpinner->isSpinning())
+          waitingSpinner->stop();
+  }
 
   statusBarMsg("");
 

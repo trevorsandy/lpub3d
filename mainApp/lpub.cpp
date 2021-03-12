@@ -3164,16 +3164,18 @@ Gui::Gui()
                               QPainter::SmoothPixmapTransform);
     KpageView->setResolution(resolution());
 
-    waitingSpinner = new WaitingSpinnerWidget(KpageView);
-    waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
-    waitingSpinner->setRoundness(70.0);
-    waitingSpinner->setMinimumTrailOpacity(15.0);
-    waitingSpinner->setTrailFadePercentage(70.0);
-    waitingSpinner->setNumberOfLines(12);
-    waitingSpinner->setLineLength(10);
-    waitingSpinner->setLineWidth(5);
-    waitingSpinner->setInnerRadius(10);
-    waitingSpinner->setRevolutionsPerSecond(1);
+    if (Preferences::modeGUI) {
+        waitingSpinner = new WaitingSpinnerWidget(KpageView);
+        waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
+        waitingSpinner->setRoundness(70.0);
+        waitingSpinner->setMinimumTrailOpacity(15.0);
+        waitingSpinner->setTrailFadePercentage(70.0);
+        waitingSpinner->setNumberOfLines(12);
+        waitingSpinner->setLineLength(10);
+        waitingSpinner->setLineWidth(5);
+        waitingSpinner->setInnerRadius(10);
+        waitingSpinner->setRevolutionsPerSecond(1);
+    }
 
     setCentralWidget(KpageView);
 
