@@ -653,92 +653,6 @@ void ConstrainGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * Combo Box
- *
- **********************************************************************/
-
-ComboGui::ComboGui(
-  QString const &heading,
-  QString const &namedValues,
-  IntMeta       *_meta,
-  QGroupBox     *parent,
-  bool           enable,
-  bool          _check)
-{
-  meta = _meta;
-  check = _check;
-
-  QHBoxLayout *layout = new QHBoxLayout(parent);
-
-  if (parent) {
-    parent->setLayout(layout);
-  } else {
-    setLayout(layout);
-  }
-
-  int index = 0;
-  bool enabled = enable;
-  if (meta->value()) {
-      enabled = true;
-      // account for 0 (no logo) default value
-      index = meta->value() - 1;
-  }
-
-  label = nullptr;
-  checkBox = nullptr;
-  if (!heading.isEmpty()) {
-    if (check) {
-        checkBox = new QCheckBox(heading,parent);
-        checkBox->setChecked(enabled);
-        layout->addWidget(checkBox);
-        connect(checkBox,SIGNAL(toggled(bool)),
-                this, SLOT(valueChanged(bool)));
-    } else {
-        label = new QLabel(heading,parent);
-        layout->addWidget(label);
-    }
-  }
-
-  combo = new QComboBox(parent);
-  QStringList comboItems;
-  if (namedValues.isEmpty()){
-     combo->addItem("None specified");
-  } else {
-     comboItems = namedValues.split("|");
-     for (QString &item : comboItems)
-         combo->addItem(item);
-  }
-  combo->setEnabled(enabled);
-  combo->setCurrentIndex(index);
-  layout->addWidget(combo);
-  connect(combo,SIGNAL(currentIndexChanged(int)),
-          this, SLOT  (valueChanged(int)));
-}
-
-void ComboGui::valueChanged(bool checked)
-{
-  combo->setEnabled(checked);
-  valueChanged(combo->currentIndex());
-}
-
-void ComboGui::valueChanged(int value)
-{
-  // account for 0 (no logo) default value
-  int adjValue = combo->isEnabled() ? value + 1 : 0;
-  if ((modified = adjValue != meta->value()))
-    meta->setValue(adjValue);
-}
-
-void ComboGui::apply(QString &modelName)
-{
-  if (modified) {
-    MetaItem mi;
-    mi.setGlobalMeta(modelName,meta);
-  }
-}
-
-/***********************************************************************
- *
  * Number
  *
  **********************************************************************/
@@ -887,6 +801,64 @@ void NumberGui::apply(
     mi.setGlobalMeta(topLevelFile,&meta->margin);
   }
   mi.endMacro();
+}
+
+/***********************************************************************
+ *
+ * Stud Style
+ *
+ **********************************************************************/
+
+StudStyleGui::StudStyleGui(
+  const QString &namedValues,
+  StudStyleMeta *_meta,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout* layout = new QHBoxLayout(parent);
+
+  if (parent)
+      parent->setLayout(layout);
+  else
+      setLayout(layout);
+
+  combo = new QComboBox(parent);
+  if (namedValues.isEmpty()) {
+      combo->addItem("0 Plain");
+      combo->addItem("1 Thin Line Logo");
+      combo->addItem("2 Outline Logo");
+      combo->addItem("3 Sharp Top Logo");
+      combo->addItem("4 Rounded Top Logo");
+      combo->addItem("5 Flattened Logo");
+      combo->addItem("6 High Contrast");
+      combo->addItem("7 High Contrast with Logo");
+  } else {
+      QStringList comboItems = namedValues.split("|");
+      for (QString &item : comboItems)
+          combo->addItem(item);
+  }
+
+  combo->setCurrentIndex(meta->value());
+
+  layout->addWidget(combo);
+
+  connect(combo,SIGNAL(currentIndexChanged(int)),
+          this, SLOT  (valueChanged(int)));
+}
+
+void StudStyleGui::valueChanged(int value)
+{
+  if ((modified = value != meta->value()))
+    meta->setValue(value);
+}
+
+void StudStyleGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
 }
 
 /***********************************************************************

@@ -83,6 +83,17 @@ enum OrientationEnc {
   InvalidOrientation
 };
 
+enum StudStyleEnc {
+    StylePlain,
+    StyleThinLineLogo,
+    StyleOutlineLogo,
+    StyleSharpTopLogo,
+    StyleRoundedTopLogo,
+    StyleFlattenedLogo,
+    StyleHighContrast,
+    StyleHighContrastWithLogo
+};
+
 enum RectPlacement{
 
     /**************************************************************************************************************************

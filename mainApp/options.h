@@ -80,7 +80,7 @@ public:
     CameraName     = QString();
     IsOrtho        = false;
     ZoomExtents    = false;
-    StudLogo       = 0;
+    StudStyle       = 0;
     ImageWidth     = 800 ;
     ImageHeight    = 600;
     PageWidth      = 800;
@@ -108,7 +108,7 @@ public:
   int ImageHeight;
   int PageWidth;
   int PageHeight;
-  int StudLogo;
+  int StudStyle;
   float Resolution;
   float ModelScale;
   float CameraDistance;

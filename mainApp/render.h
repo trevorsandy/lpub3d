@@ -68,7 +68,7 @@ public:
   static bool            RenderNativeImage(const NativeOptions *);
   static bool            NativeExport(const NativeOptions *);
   static float           ViewerCameraDistance(Meta &meta, float);
-  static bool            ExecuteViewer(const NativeOptions *, bool RenderImage = false);
+  static bool            RenderNativeView(const NativeOptions *, bool RenderImage = false);
   static bool            LoadViewer(const ViewerOptions *);
   static QStringList const getImageAttributes(const QString &);
   static bool            compareImageAttributes(const QStringList &,

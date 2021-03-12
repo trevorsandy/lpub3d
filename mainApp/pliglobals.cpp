@@ -217,14 +217,10 @@ GlobalPliDialog::GlobalPliDialog(
   child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
   data->children.append(child);
 
-  box = new QGroupBox("Studs");
+  box = new QGroupBox("Stud Style");
   vlayout->addWidget(box);
-  child = new ComboGui("Display Stud Logo",
-                       "Single Wire|Double Wire|Raised Flat|Raised Rounded|Subtle Rounded",
-                       &pliMeta->studLogo,
-                       box,
-                       false/*enabled*/,
-                       true/*useCheckBox*/);
+  child = new StudStyleGui("", &pliMeta->studStyle, box);
+
   data->children.append(child);
 
   if ( ! bom) {

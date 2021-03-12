@@ -27,6 +27,7 @@
 #include "ui_ldrawcolordialog.h"
 #include "lc_global.h"
 #include "lc_qcolorlist.h"
+#include "lc_colors.h"
 #include "color.h"
 
 LDrawColorDialog::LDrawColorDialog(

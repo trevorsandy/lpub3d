@@ -1131,7 +1131,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             viewerOptions->Resolution     = nameKeys.at(3).toFloat();
             viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
             viewerOptions->RotStepType    = rotate.at(3);
-            viewerOptions->StudLogo       = pliMeta.studLogo.value();
+            viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : pliMeta.studStyle.value();
             viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
             viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
             viewerOptions->ViewerStepKey  = viewerPliPartKey;
@@ -2575,7 +2575,7 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->Resolution     = nameKeys.at(3).toFloat();
                     viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
                     viewerOptions->RotStepType    = rotate.at(3);
-                    viewerOptions->StudLogo       = pliMeta.studLogo.value();
+                    viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : pliMeta.studStyle.value();
                     viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
                     viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
                     viewerOptions->ViewerStepKey  = viewerPliPartKey;

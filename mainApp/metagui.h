@@ -203,42 +203,6 @@ public slots:
 
 /***********************************************************************
  *
- * Combo Box
- *
- **********************************************************************/
-
-class IntMeta;
-class QComboBox;
-class ComboGui : public MetaGui
-{
-  Q_OBJECT
-public:
-
-  ComboGui(
-    QString const &heading,
-    QString const &namedValues,
-    IntMeta       *meta,
-    QGroupBox     *parent = nullptr,
-    bool           enable = false,
-    bool           check = false);
-  ~ComboGui() {}
-
-  virtual void apply(QString &modelName);
-
-private:
-  IntMeta   *meta;
-  QLabel    *label;
-  QCheckBox *checkBox;
-  QComboBox *combo;
-  bool       check;
-
-public slots:
-  void valueChanged(int);
-  void valueChanged(bool);
-};
-
-/***********************************************************************
- *
  * Number
  *
  **********************************************************************/
@@ -280,6 +244,37 @@ public slots:
   void value0Changed(QString const &);
   void value1Changed(QString const &);
   void enableTextFormatGroup(bool);
+};
+
+/***********************************************************************
+ *
+ * Stud Style
+ *
+ **********************************************************************/
+
+class IntMeta;
+class QComboBox;
+class StudStyleGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  StudStyleGui(
+    const QString &namedValues,
+    StudStyleMeta *meta,
+    QGroupBox     *parent = nullptr);
+  ~StudStyleGui() {}
+
+  QComboBox *getComboBox() {return combo;}
+
+  virtual void apply(QString &modelName);
+
+private:
+  StudStyleMeta *meta;
+  QComboBox     *combo;
+
+public slots:
+  void valueChanged(int);
 };
 
 /***********************************************************************

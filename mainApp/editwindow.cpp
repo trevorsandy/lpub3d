@@ -2013,7 +2013,7 @@ void EditWindow::closeEvent(QCloseEvent *_event)
 
 void EditWindow::preferences()
 {
-    QString windowTitle             = QString("Editor Preferences");
+    const QString windowTitle       = QString("Editor Preferences");
     int editorDecoration            = Preferences::editorDecoration;
     int editorLinesPerPage          = Preferences::editorLinesPerPage;
     bool editorBufferedPaging       = Preferences::editorBufferedPaging;

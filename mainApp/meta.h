@@ -1706,6 +1706,36 @@ public:
 };
 
 /*
+ * This class parses the Stud Style Id
+ */
+
+class StudStyleMeta : public LeafMeta
+{
+private:
+  StudStyleEnc type[2];
+public:
+  QHash<QString, int> studStyleMap;
+  int value()
+  {
+    return StudStyleEnc(type[pushed]);
+  }
+  void setValue(int value)
+  {
+    type[pushed] = StudStyleEnc(value);
+  }
+  StudStyleMeta();
+  StudStyleMeta(const StudStyleMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+//  virtual ~StudStyleMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
  * INSERT
  *   (PICTURE "name" (SCALE x) |
  *    TEXT "font" "string" |
@@ -2154,7 +2184,7 @@ public:
   MarginsMeta          margin;
 
   // stud
-  IntMeta              studLogo;
+  StudStyleMeta        studStyle;
 
   // image scale
   FloatMeta            modelScale;
@@ -3263,7 +3293,7 @@ public:
   AnnotationStyleMeta  rectangleStyle;
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;
-  IntMeta              studLogo;
+  StudStyleMeta        studStyle;
 
   // pli/smp camera settings
   FloatMeta            cameraFoV;
@@ -3340,7 +3370,7 @@ public:
   StringMeta            povrayParms;
   BoolMeta              showStepNumber;
   CsiAnnotationMeta     annotation;
-  IntMeta               studLogo;
+  StudStyleMeta         studStyle;
 
   // assem camera settings
   FloatMeta            cameraDistance;
@@ -3698,6 +3728,7 @@ public:
   IntMeta              startPageNumber;
   IntMeta              startStepNumber;
   StepPliMeta          stepPli;
+  StudStyleMeta        studStyle;
 
   LeoCadGroupMeta      group;
   LightMeta            light;

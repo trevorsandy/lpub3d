@@ -397,7 +397,7 @@ int SubModel::createSubModelImage(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
-      viewerOptions->StudLogo       = subModelMeta.studLogo.value();
+      viewerOptions->StudStyle      = meta->LPub.studStyle.value() ? meta->LPub.studStyle.value() : subModelMeta.studStyle.value();
       viewerOptions->Target         = Vector3(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
       viewerOptions->UpVector       = Vector3(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;

@@ -3329,6 +3329,7 @@ Gui::Gui()
     qRegisterMetaType<SortOption>("SortOption");
     qRegisterMetaType<SortOrder>("SortOrder");
     qRegisterMetaType<StepLines>("StepLines");
+    qRegisterMetaType<StudStyleEnc>("StudStyleEnc");
     qRegisterMetaType<SubAttributes>("SubAttributes");
     qRegisterMetaType<Theme>("Theme");
     qRegisterMetaType<ThemeColorType>("ThemeColorType");

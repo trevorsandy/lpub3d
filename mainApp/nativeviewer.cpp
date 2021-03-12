@@ -1850,14 +1850,14 @@ void Gui::reloadViewer(){
      return 0;
  }
 
- int Gui::GetStudLogo()
+ int Gui::GetStudStyle()
  {
-     return lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+     return static_cast<int>(lcGetPiecesLibrary()->GetStudStyle());
  }
 
- void Gui::SetStudLogo(int Logo, bool value)
+ void Gui::SetStudStyle(int Style, bool value)
  {
-     lcGetPiecesLibrary()->SetStudLogo(Logo, value);
+     lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(Style), value);
  }
 
  void Gui::UpdateAllViews()

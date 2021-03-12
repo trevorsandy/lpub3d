@@ -1227,9 +1227,9 @@ public slots:
   bool                   GetViewPieceIcons();
   bool                   GetSubmodelIconsLoaded();
   int                    GetLPubStepPieces();
-  int                    GetStudLogo();
+  int                    GetStudStyle();
 
-  void                   SetStudLogo(int, bool);
+  void                   SetStudStyle(int, bool);
   void                   SetSubmodelIconsLoaded(bool);
 
   int                    Process3DViewerCommandLine();

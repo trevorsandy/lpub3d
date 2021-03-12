@@ -144,7 +144,7 @@ Step::Step(
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
 
-      csiStepMeta.studLogo         = _meta.LPub.assem.studLogo;
+      csiStepMeta.studStyle        = _meta.LPub.assem.studStyle;
 
       csiStepMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
       csiStepMeta.modelScale       = _meta.LPub.assem.modelScale;
@@ -255,7 +255,7 @@ int Step::createCsi(
   ldrName.clear();
 
 //  if (multiStep)
-//  logTrace() << "STEP NO: "<< stepNumber.number << ", STUD LOGO: " << meta.LPub.multiStep.csi.studLogo.value();
+//  logTrace() << "STEP NO: "<< stepNumber.number << ", STUD LOGO: " << meta.LPub.multiStep.csi.studStyle.value();
 
   // 1 color x y z a b c d e f g h i foo.dat
   // 0 1     2 3 4 5 6 7 8 9 0 1 2 3 4
@@ -416,7 +416,7 @@ int Step::createCsi(
          showStatus = true;
 
          // set camera
-         meta.LPub.assem.studLogo       = csiStepMeta.studLogo;
+         meta.LPub.assem.studStyle      = csiStepMeta.studStyle;
 
          meta.LPub.assem.cameraAngles   = csiStepMeta.cameraAngles;
          meta.LPub.assem.cameraDistance = csiStepMeta.cameraDistance;
@@ -522,7 +522,7 @@ int Step::createCsi(
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = meta.rotStep.value().type;
-      viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
+      viewerOptions->StudStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : csiStepMeta.studStyle.value();
       viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerStepKey;

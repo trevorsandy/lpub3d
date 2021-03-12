@@ -76,6 +76,13 @@ GlobalProjectDialog::GlobalProjectDialog(
   child = new ResolutionGui(&lpubMeta->resolution,box);
   data->children.append(child);
   
+  box = new QGroupBox("Stud Style");
+  layout->addWidget(box);
+  StudStyleGui *childStudStyle = new StudStyleGui("", &lpubMeta->studStyle, box);
+  childStudStyle->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle->getComboBox(), SIGNAL(currentIndexChanged(int)), this, SLOT(clearCache(int)));
+
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
   BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable Build Modifications",&lpubMeta->buildModEnabled,box);

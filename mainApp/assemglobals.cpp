@@ -167,14 +167,10 @@ GlobalAssemDialog::GlobalAssemDialog(
   if (!enableAnnotations)
       box->setToolTip("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation.");
 
-  box = new QGroupBox("Studs");
+  box = new QGroupBox("Stud Style");
   vlayout->addWidget(box);
-  child = new ComboGui("Display Stud Logo",
-                       "Single Wire|Double Wire|Raised Flat|Raised Rounded|Subtle Rounded",
-                       &assem->studLogo,
-                       box,
-                       false/*enabled*/,
-                       true/*useCheckBox*/);
+  child = new StudStyleGui("", &assem->studStyle, box);
+  child->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(child);
 
   //spacer

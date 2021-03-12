@@ -101,7 +101,7 @@ builds/linux/debbuild/*
 builds/linux/rpmbuild/*
 builds/linux/pkgbuild/*
 mainApp/LDViewMessages.h
-mainApp/StudLogo.h
+mainApp/StudStyle.h
 ldvlib/LDViewMessages.ini
 
 # Makefiles

@@ -2660,6 +2660,87 @@ void SceneObjectMeta::doc(QStringList &out, QString preamble)
   out << preamble + " BRING_TO_FRONT|SEND_TO_BACK <float XPos> <float YPos>";
 }
 
+/* ------------------ */
+
+StudStyleMeta::StudStyleMeta() : LeafMeta()
+{
+  studStyleMap["PLAIN"]                   = StylePlain;
+  studStyleMap["THIN_LINE_LOGO"]          = StyleThinLineLogo;
+  studStyleMap["OUTLINE_LOGO"]            = StyleOutlineLogo;
+  studStyleMap["SHARP_TOP_LOGO"]          = StyleSharpTopLogo;
+  studStyleMap["ROUNDED_TOP_LOGO"]        = StyleRoundedTopLogo;
+  studStyleMap["FLATTENED_LOGO"]          = StyleFlattenedLogo;
+  studStyleMap["HIGH_CONTRAST"]           = StyleHighContrast;
+  studStyleMap["HIGH_CONTRAST_WITH_LOGO"] = StyleHighContrastWithLogo;
+  type[0] = StylePlain;
+}
+
+Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
+{
+  Rc rc = OkRc;
+  QRegExp rx("^(PLAIN|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO)$");
+  if (argv.size() - index == 1) {
+    if (!argv[index].contains(rx)) {
+      bool ok;
+      int styleId = argv[index].toInt(&ok);
+      if (ok && styleId >= StylePlain && styleId <= StyleHighContrastWithLogo) {
+        type[pushed] = StudStyleEnc(styleId);
+      } else {
+        rc = FailureRc;
+      }
+    } else {
+      type[pushed]  = StudStyleEnc(studStyleMap[argv[index]]);;
+    }
+    if (rc == OkRc) {
+      _here[pushed] = here;
+    }
+  } else {
+    rc = FailureRc;
+  }
+  if (rc == FailureRc && reportErrors) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+  }
+  return rc;
+}
+
+QString StudStyleMeta::format(bool local, bool global)
+{
+  QString foo;
+  switch (type[pushed])
+  {
+  case StyleThinLineLogo:
+    foo = "THIN_LINE_LOGO";
+    break;
+  case StyleOutlineLogo:
+    foo = "OUTLINE_LOGO";
+    break;
+  case StyleSharpTopLogo:
+    foo = "SHARP_TOP_LOGO";
+    break;
+  case StyleRoundedTopLogo:
+    foo = "ROUNDED_TOP_LOGO";
+    break;
+  case StyleFlattenedLogo:
+    foo = "FLATTENED_LOGO";
+    break;
+  case StyleHighContrast:
+    foo = "HIGH_CONTRAST";
+    break;
+  case StyleHighContrastWithLogo:
+    foo = "HIGH_CONTRAST_WITH_LOGO";
+    break;
+  default: /*StylePlain*/
+    foo = "PLAIN";
+    break;
+  }
+  return LeafMeta::format(local,global,foo);
+}
+
+void StudStyleMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (NONE|THIN_LINE_LOGO|OUTLINE_LOGO|SHARP_TOP_LOGO|ROUNDED_TOP_LOGO|FLATTENED_LOGO|HIGH_CONTRAST|HIGH_CONTRAST_WITH_LOGO|1-7)";
+}
+
 /* ------------------ */ 
 
 /*
@@ -3028,11 +3109,6 @@ void ArrowEndMeta::doc(QStringList &out, QString preamble)
 
 SettingsMeta::SettingsMeta() : BranchMeta()
 {
-
-   // stud
-  studLogo.setRange(0,5);
-  studLogo.setValue(0);
-
   // assem image generation
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"#99999.9");
@@ -3065,7 +3141,7 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   placement.init        (this,"PLACEMENT");
   margin.init           (this,"MARGINS");
   // stud
-  studLogo.init         (this,"STUD_LOGO");
+  studStyle.init        (this,"STUD_STYLE");
   // assem image scale
   modelScale.init       (this,"MODEL_SCALE");
   // assem native camera position
@@ -4125,8 +4201,6 @@ SubModelMeta::SubModelMeta() : PliMeta()
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
   part.margin.setValuesInches(0.05f,0.03f);
-  studLogo.setRange(0,5);
-  studLogo.setValue(0);
   RotStepData rotStepData;
   rotStepData.rots[0] = 0.0;
   rotStepData.rots[1] = 0.0;
@@ -4169,7 +4243,7 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   modelScale           .init(this,"MODEL_SCALE");
   show                 .init(this,"SHOW");
   showTopModel         .init(this,"SHOW_TOP_MODEL");
-  studLogo             .init(this,"STUD_LOGO");
+  studStyle            .init(this,"STUD_STYLE");
   showInstanceCount    .init(this,"SHOW_INSTANCE_COUNT");
   ldviewParms          .init(this,"LDVIEW_PARMS");
   ldgliteParms         .init(this,"LDGLITE_PARMS");
@@ -4556,8 +4630,6 @@ AssemMeta::AssemMeta() : BranchMeta()
   ldviewParms.setValue("");
   povrayParms.setValue("+A");    // Deprecated - using Quality Settings, v2.3.7
   showStepNumber.setValue(true);
-  studLogo.setRange(0,5);
-  studLogo.setValue(0);
 
   // image generation
   cameraAngles.setFormats(7,4,"###9.90");
@@ -4589,7 +4661,7 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   ldviewParms.init    (this,"LDVIEW_PARMS");
   ldgliteParms.init   (this,"LDGLITE_PARMS");
   povrayParms .init   (this,"POVRAY_PARMS");
-  studLogo.init       (this,"STUD_LOGO");
+  studStyle.init      (this,"STUD_STYLE");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
   imageSize.init      (this,"IMAGE_SIZE");
@@ -4638,8 +4710,6 @@ PliMeta::PliMeta() : BranchMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
-  studLogo.setRange(0,5);
-  studLogo.setValue(0);
 
   //annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
   annotate.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
@@ -4713,7 +4783,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   subModelFontColor.init(this,"SUBMODEL_FONT_COLOR");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
-  studLogo        .init(this,"STUD_LOGO");
+  studStyle       .init(this,"STUD_STYLE");
   begin           .init(this,"BEGIN");
   end             .init(this,"END",           PliEndRc);
   sort            .init(this,"SORT");
@@ -4776,8 +4846,6 @@ BomMeta::BomMeta() : PliMeta()
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
-  studLogo.setRange(0,5);
-  studLogo.setValue(0);
 
   elementStyle.border.setValue(BorderData::BdrNone,BorderData::BdrLnNone,"#ffffff");
   elementStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
@@ -4851,7 +4919,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   part            .init(this,"PART");
   pliPartGroup    .init(this,"PART_GROUP");
-  studLogo        .init(this,"STUD_LOGO");
+  studStyle       .init(this,"STUD_STYLE");
   begin           .init(this,"BEGIN");
   begin.ignore.rc = BomBeginIgnRc;
   end             .init(this,"END",BomEndRc);
@@ -5272,6 +5340,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   highlightStep            .init(this,"HIGHLIGHT_STEP");
   subModel                 .init(this,"SUBMODEL_DISPLAY");
   rotateIcon               .init(this,"ROTATE_ICON");
+  studStyle                .init(this,"STUD_STYLE");
   countInstance            .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");

@@ -68,7 +68,7 @@ int Gui::processCommandLine()
 
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
    int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-   int StudLogo              = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+   int StudStyle             = GetStudStyle();
   bool processExport         = false;
   bool processFile           = false;
   bool fadeSteps             = false;
@@ -194,13 +194,13 @@ int Gui::processCommandLine()
             highlightStep = true;
       }
       else
-      if (Param == QLatin1String("-sl") || Param == QLatin1String("--stud-logo"))
+      if (Param == QLatin1String("-ss") || Param == QLatin1String("--stud-style"))
       {
-        if (ParseInteger(StudLogo) && StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO)) {
-            if (StudLogo < 0 || StudLogo > 5)
-               InvalidParse(QString("Invalid value specified, valid values range from 0 to 5 for the"), true);
+        if (ParseInteger(StudStyle) && StudStyle != GetStudStyle()) {
+            if (StudStyle < 0 || StudStyle > 7)
+               InvalidParse(QString("Invalid value specified, valid values range from 0 to 7 for the"), true);
             else
-                SetStudLogo(StudLogo, false);
+               SetStudStyle(StudStyle, false);
         }
       } else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))

@@ -680,11 +680,11 @@ int POVRay::renderCsi(
   QString transform  = meta.rotStep.value().type;
   bool noCA          = Preferences::applyCALocally || transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = meta.LPub.assem.studLogo.value();
   float modelScale   = meta.LPub.assem.modelScale.value();
   float cameraFoV    = meta.LPub.assem.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(XX);
   float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(YY);
+  int studStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.assem.studStyle.value();
   Vector3 target     = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
 
   /* determine camera distance */
@@ -788,7 +788,7 @@ int POVRay::renderCsi(
 
   getRendererSettings(CA, cg, parmsArgs);
 
-  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
+  QString s  = studStyle ? QString("-StudStyle=%1").arg(studStyle) : QString();
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -1006,11 +1006,11 @@ int POVRay::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(XX);
   float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(YY);
+  int studStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : metaType.studStyle.value();
   Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   /* determine camera distance */
@@ -1135,7 +1135,7 @@ int POVRay::renderPli(
 
   getRendererSettings(CA, cg, noCA, parmsArgs);
 
-  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
+  QString s  = studStyle ? QString("-StudStyle=%1").arg(studStyle) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
@@ -1338,7 +1338,7 @@ float LDGLite::cameraDistance(
     return stdCameraDistance(meta,scale);
 }
 
-int LDGLite::renderCsi(
+int LDGLite::   renderCsi(
   const QString     &addLine,
   const QStringList &csiParts,
   const QStringList &csiKeys,
@@ -1373,11 +1373,14 @@ int LDGLite::renderCsi(
   bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
   int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
+  int studStyle = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.assem.studStyle.value();
 
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
+
+  QString s  = studStyle ? QString("-sl%1").arg(studStyle) : QString();
 
   int lineThickness = int(resolution()/150+0.5f);
   if (lineThickness == 0) {
@@ -1398,10 +1401,6 @@ int LDGLite::renderCsi(
                                   .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(YY)))
                                   .arg(cd);
   }
-
-  QString s  = meta.LPub.assem.studLogo.value() ?
-                         QString("-sl%1")
-                                 .arg(meta.LPub.assem.studLogo.value()) : QString();
 
   QString J  = QString("-%1").arg(pp ? "J" : "j");
 
@@ -1536,7 +1535,7 @@ int LDGLite::renderPli(
   bool useImageSize = metaType.imageSize.value(XX) > 0;
   int width  = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   int height = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
-
+  int studStyle = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : metaType.studStyle.value();
   int lineThickness = int(double(resolution())/72.0+0.5);
 
   if (pliType == SUBMODEL)
@@ -1563,9 +1562,7 @@ int LDGLite::renderPli(
   QString mf = QString("-mF%1")     .arg(pngName);
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
-  QString s  = metaType.studLogo.value() ?
-                         QString("-sl%1")
-                                 .arg(metaType.studLogo.value()) : QString();
+  QString s  =  studStyle ? QString("-sl%1").arg(studStyle) : QString();
 
   QStringList arguments;
   arguments << CA;                  // Camera FOV in degrees
@@ -1710,12 +1707,12 @@ int LDView::renderCsi(
     QString transform  = meta.rotStep.value().type;
     bool noCA          = Preferences::applyCALocally || transform == "ABS";
     bool pp            = Preferences::perspectiveProjection;
-    int studLogo       = meta.LPub.assem.studLogo.value();
     float modelScale   = meta.LPub.assem.modelScale.value();
     float cameraFoV    = meta.LPub.assem.cameraFoV.value();
     float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(XX);
     float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(YY);
     Vector3 target     = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
+    int studStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.assem.studStyle.value();
 
     // Assemble compareKey and test csiParts if Single Call
     QString compareKey;
@@ -2044,7 +2041,7 @@ int LDView::renderCsi(
     bool haveLdrNames   = !ldrNames.isEmpty();
     bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
-    QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
+    QString s  = studStyle ? QString("-StudStyle=%1").arg(studStyle) : QString();
     QString w  = QString("-SaveWidth=%1")  .arg(width);
     QString h  = QString("-SaveHeight=%1") .arg(height);
     QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2058,7 +2055,7 @@ int LDView::renderCsi(
     }
 
     arguments << f; // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
-    arguments << s ;// -StudLogo
+    arguments << s ;// -StudStyle
     arguments << w; // -SaveWidth
     arguments << h; // -SaveHeight
     arguments << l; // -LDrawDir
@@ -2201,12 +2198,12 @@ int LDView::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
-  int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(XX);
   float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(YY);
   Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  int studStyle      = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : metaType.studStyle.value();
 
   // Assemble compareKey if Single Call
   QString compareKey;
@@ -2505,7 +2502,7 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
+  QString s  = studStyle ? QString("-StudStyle=%1").arg(studStyle) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -2528,7 +2525,7 @@ int LDView::renderPli(
   }
 
   arguments << f; // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
-  arguments << s ;// -StudLogo
+  arguments << s ;// -StudStyle
   arguments << w; // -SaveWidth
   arguments << h; // -SaveHeight
   arguments << l; // -LDrawDir
@@ -2612,7 +2609,7 @@ int Native::renderCsi(
   QString ldrName     = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
 
   // process native settings
-  int studLogo         = meta.LPub.assem.studLogo.value();
+
   float camDistance    = meta.LPub.assem.cameraDistance.value();
   float cameraAngleX   = meta.LPub.assem.cameraAngles.value(XX);
   float cameraAngleY   = meta.LPub.assem.cameraAngles.value(YY);
@@ -2622,11 +2619,11 @@ int Native::renderCsi(
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
+  int studStyle        = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.assem.studStyle.value();
   Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
   Vector3 upvector     = Vector3(meta.LPub.assem.upvector.x(),meta.LPub.assem.upvector.y(),meta.LPub.assem.upvector.z());
   if (nType == NTypeCalledOut) {
-    studLogo           = meta.LPub.callout.csi.studLogo.value();
     camDistance        = meta.LPub.callout.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(YY);
@@ -2636,11 +2633,11 @@ int Native::renderCsi(
     cameraZFar         = meta.LPub.callout.csi.cameraZFar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
+    studStyle          = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.callout.csi.studStyle.value();
     position           = Vector3(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
     target             = Vector3(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
     upvector           = Vector3(meta.LPub.callout.csi.upvector.x(),meta.LPub.callout.csi.upvector.y(),meta.LPub.callout.csi.upvector.z());
   } else if (nType == NTypeMultiStep) {
-    studLogo           = meta.LPub.multiStep.csi.studLogo.value();
     camDistance        = meta.LPub.multiStep.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(YY);
@@ -2650,6 +2647,7 @@ int Native::renderCsi(
     cameraZFar         = meta.LPub.multiStep.csi.cameraZFar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
+    studStyle          = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : meta.LPub.multiStep.csi.studStyle.value();
     position           = Vector3(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
     target             = Vector3(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
     upvector           = Vector3(meta.LPub.multiStep.csi.upvector.x(),meta.LPub.multiStep.csi.upvector.y(),meta.LPub.multiStep.csi.upvector.z());
@@ -2681,7 +2679,7 @@ int Native::renderCsi(
   Options->PageWidth         = gui->pageSize(meta.LPub.page, XX);
   Options->Position          = position;
   Options->Resolution        = resolution();
-  Options->StudLogo          = studLogo;
+  Options->StudStyle         = studStyle;
   Options->Target            = target;
   Options->UpVector          = upvector;
   Options->ZFar              = cameraZFar;
@@ -2768,7 +2766,7 @@ int Native::renderCsi(
                                    .arg(noCA ? 0.0 : double(cameraAngleY))
                                    .arg(pp ? QString::number(cd * cdf,'f',0) : QString::number(cd) );
 
-              QString s  = studLogo ? QString("-StudLogo=%1").arg(studLogo) : QString();
+              QString s  = studStyle ? QString("-StudStyle=%1").arg(studStyle) : QString();
               QString w  = QString("-SaveWidth=%1") .arg(double(Options->ImageWidth));
               QString h  = QString("-SaveHeight=%1") .arg(double(Options->ImageHeight));
               QString f  = QString("-ExportFile=%1") .arg(Options->ExportFileName);
@@ -2819,7 +2817,6 @@ int Native::renderPli(
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
   // Populate render attributes
-  int studLogo         = metaType.studLogo.value();
   float camDistance    = metaType.cameraDistance.value();
   float modelScale     = metaType.modelScale.value();
   float cameraAngleX   = metaType.cameraAngles.value(XX);
@@ -2829,6 +2826,7 @@ int Native::renderPli(
   float cameraZFar     = metaType.cameraZFar.value();
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
+  int studStyle        = meta.LPub.studStyle.value() ? meta.LPub.studStyle.value() : metaType.studStyle.value();
   Vector3 position     = Vector3(metaType.position.x(),metaType.position.y(),metaType.position.z());
   Vector3 target       = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
   Vector3 upvector     = Vector3(metaType.upvector.x(),metaType.upvector.y(),metaType.upvector.z());
@@ -2874,7 +2872,7 @@ int Native::renderPli(
   Options->PageWidth      = gui->pageSize(meta.LPub.page, XX);
   Options->Position       = position;
   Options->Resolution     = resolution();
-  Options->StudLogo       = studLogo;
+  Options->StudStyle      = studStyle;
   Options->Target         = target;
   Options->UpVector       = upvector;
   Options->ZFar           = cameraZFar;
@@ -2908,7 +2906,7 @@ float Render::ViewerCameraDistance(
     return distance;
 }
 
-bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
+bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcGetActiveProject()->SetRenderAttributes(
                 O->ImageType,
@@ -2923,12 +2921,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     if (!RenderImage) {
         gui->enableApplyLightAction();
         gui->GetPartSelectionWidget()->SetDefaultPart();
-    }
-
-    bool ResetStudLogo = false;
-    if (O->StudLogo && O->StudLogo != gui->GetStudLogo()) {
-        ResetStudLogo = true;
-        gui->SetStudLogo(O->StudLogo,true/*reload*/);
     }
 
     lcView* ActiveView = gui->GetActiveView();
@@ -3160,7 +3152,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
                 arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
         }
         arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
-        arguments << QString("StudLogo: %1").arg(O->StudLogo == 0 ? "None (0)" : O->StudLogo == 1 ? "Single-Wire (1)" : O->StudLogo == 2 ? "Double-Wire (2)" : O->StudLogo == 3 ? "Raised-Flat (3)" : O->StudLogo == 4 ? "Raised-Rounded (4)" : "Subtle-Rounded (5)");
+        arguments << QString("StudStyle: %1").arg(O->StudStyle == 0 ? "None (0)" : O->StudStyle == 1 ? "LDraw Single-Wire (1)" : O->StudStyle == 2 ? "LDraw Double-Wire (2)" : O->StudStyle == 3 ? "LDraw Raised-Flat (3)" : O->StudStyle == 4 ? "LDraw Raised-Rounded (4)" : O->StudStyle == 5 ? "LDraw Subtle-Rounded (5)" : O->StudStyle == 6 ? "LEGO No Logo (6)" : "LEGO Single-Wire (7)");
         arguments << QString("Resolution: %1").arg(double(O->Resolution));
         arguments << QString("ImageWidth: %1").arg(RenderImage ? ImageWidth : O->ImageWidth);
         arguments << QString("ImageHeight: %1").arg(RenderImage ? ImageHeight : O->ImageHeight);
@@ -3198,21 +3190,22 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     if (!DefaultCamera)
         delete Camera;
 
-    if (ResetStudLogo)
-        gui->SetStudLogo(gui->GetStudLogo(),false/*reload*/);
-
     return rc;
 }
 
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
+
+    if(Options->StudStyle != gui->GetStudStyle())
+        gui->SetStudStyle(Options->StudStyle, true/*reload*/);
+
     if (! gui->OpenProject(Options->InputFileName)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load native image input file %1")
                                                        .arg(Options->InputFileName));
         return false;
     }
 
-    return ExecuteViewer(Options,true/*exportImage*/);
+    return RenderNativeView(Options,true/*exportImage*/);
 }
 
 bool Render::LoadViewer(const ViewerOptions *Options) {
@@ -3221,6 +3214,9 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         return true;
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
+
+    if(Options->StudStyle != gui->GetStudStyle())
+        gui->SetStudStyle(Options->StudStyle, true/*reload*/);
 
     Project* Loader = new Project();
     if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType))
@@ -3239,7 +3235,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
 
     NativeOptions *derived = new NativeOptions(*Options);
     if (derived)
-        return ExecuteViewer(derived);
+        return RenderNativeView(derived);
     else
         return false;
 }
@@ -3272,6 +3268,10 @@ bool Render::NativeExport(const NativeOptions *Options) {
             if (Dialog.exec() != QDialog::Accepted)
                 return rc;
         }
+
+        if(Options->StudStyle != gui->GetStudStyle())
+            gui->SetStudStyle(Options->StudStyle, true/*reload*/);
+
         if (! gui->OpenProject(Options->InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                  .arg(exportModeName));

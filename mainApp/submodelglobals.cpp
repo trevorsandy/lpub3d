@@ -226,14 +226,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   child = new NumberGui(&subModelMeta->instance,instanceCountBox);
   data->children.append(child);
 
-  box = new QGroupBox("Studs");
+  box = new QGroupBox("Stud Style");
   vlayout->addWidget(box);
-  child = new ComboGui("Display Stud Logo",
-                       "Single Wire|Double Wire|Raised Flat|Raised Rounded|Subtle Rounded",
-                       &subModelMeta->studLogo,
-                       box,
-                       false/*enabled*/,
-                       true/*useCheckBox*/);
+  child = new StudStyleGui("", &subModelMeta->studStyle, box);
+  child->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
