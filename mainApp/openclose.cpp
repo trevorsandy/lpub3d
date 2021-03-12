@@ -816,12 +816,15 @@ bool Gui::openFile(QString &fileName)
                                     .arg(QFileInfo(curFile).fileName())
                                     .arg(fileInfo.fileName()));
   }
+
   insertFinalModel();    //insert final fully coloured model if fadeStep turned on
+
   generateCoverPages();  //auto-generate cover page
 
   enableWatcher();
 
   defaultResolutionType(Preferences::preferCentimeters);
+
   emit messageSig(LOG_INFO, QString("Open file '%1' completed.").arg(fileName));
   return true;
 }

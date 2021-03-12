@@ -71,7 +71,8 @@ void Gui::endMacro()
 {
   undoStack->endMacro();
   --macroNesting;
-  displayPage();
+  if (!mloadingFile)
+    displayPage();
 }
 
 void Gui::contentsChange(
