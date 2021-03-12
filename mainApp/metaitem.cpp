@@ -517,16 +517,18 @@ void MetaItem::addNextStepsMultiStep(
         rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         Where end;
 
-        if (rc1 == StepGroupEndRc) {                            // END
+        // encountered end of current step group
+        if (rc1 == StepGroupEndRc) {        // END
             amendGroup = true;
-            end = walk++;
+            end = walk++;                   // encountered current multi step end meta
             rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         }
 
-        if (rc1 == StepGroupBeginRc) {                          // BEGIN
+        // encountered beginning of next step group
+        if (rc1 == StepGroupBeginRc) {      // BEGIN
             firstChange = false;
             beginMacro("addNextStep1");
-            removeFirstStep(bottomOfSteps);                     // remove BEGIN
+            removeFirstStep(bottomOfSteps); // remove BEGIN
             partsAdded = false;
             rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         }
@@ -536,27 +538,38 @@ void MetaItem::addNextStepsMultiStep(
             firstChange = false;
         }
 
+        // check if encountered last step in model
         if (rc1 == EndOfFileRc && partsAdded) {
             lastStep = true;
             insertMeta(walk,step);
         }
 
+        // increment to next step in number of steps to append
         nextStep =  walk;
 
+        // if current multi step end meta encountered, delete it
         if (end.lineNumber) {
             deleteMeta(end);
         } else {
-            walk = topOfSteps + 1;
+            walk = topOfSteps;
             rc1 = scanForward(walk,StepMask|StepGroupMask);
-            if (rc1 == StepGroupEndRc) {
+            // encountered 0 STEP top of step (after headers for first step)
+            if (rc1 == StepRc) {
+                walk = topOfSteps + 1;
+                rc1 = scanForward(walk,StepMask|StepGroupMask);
+            }
+            // encountered 0 !LPUB MULTI_STEP BEGIN at top of step
+            if (rc1 == StepGroupBeginRc) {
+                            finalTopOfSteps = walk+1;
+            }
+            // encountered 0 !LPUB MULTI_STEP END at top of step
+            else if (rc1 == StepGroupEndRc) {
                 finalTopOfSteps = walk+1;
                 if (lastStep)
                     appendMeta(walk,stepGroupBegin);
             }
-            else
-            if (rc1 == StepGroupBeginRc) {
-                finalTopOfSteps = walk+1;
-            } else {
+            // did not encounter STEP or MULTI_STEP at top of step
+            else  {
                 walk = topOfSteps;
                 scanPastGlobal(walk);
                 finalTopOfSteps = walk+1;
@@ -565,8 +578,10 @@ void MetaItem::addNextStepsMultiStep(
             }
         }
 
+        // reset to top of step group
         startTopOfSteps = finalTopOfSteps;
 
+        // encountered last step in model = set step group end meta
         if (lastStep) {
             Where endStep = nextStep;
             if (!amendGroup) {

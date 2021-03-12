@@ -1883,10 +1883,16 @@ int Gui::drawPage(
                       Range *lastRange = range;
                       if (!lastRange)
                           lastRange = dynamic_cast<Range *>(steps->list[steps->list.size() - 1]);
-                      lastStep = dynamic_cast<Step *>(lastRange->list[lastRange->list.size() - 1]);
-                      emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
+                      if (lastRange) {
+                          int lastStepIndex = lastRange->list.size() - 1;
+                          lastStep = dynamic_cast<Step *>(lastRange->list[lastStepIndex]);
+                      }
                   }
-                  lastStep->loadTheViewer();
+
+                  if (lastStep && lastStep->csiItem) {
+                      emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
+                      lastStep->loadTheViewer();
+                  }
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
 
