@@ -2971,12 +2971,30 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         Camera->UpdatePosition(1);
 
         if (!DefaultCamera) {
-            // Get the created camera name and set the camera
-            lcModel* ActiveModel = ActiveView->GetActiveModel();
-            Camera->CreateName(ActiveModel->GetCameras());
+            bool RemovedCamera = false;
+            for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
+                QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
+                if (Name == O->CameraName) {
+                    RemovedCamera = true;
+                    ActiveModel->RemoveCameraIndex(CameraIdx);
+                }
+                else
+                    CameraIdx++;
+            }
+
+            Camera->SetName(O->CameraName); // Camera->CreateName(ActiveModel->GetCameras());
             Camera->SetSelected(true);
             ActiveModel->AddCamera(Camera);
-            ActiveView->SetCamera(QString("Camera %1").arg(ActiveModel->GetCameras().GetSize()));
+            // QString CameraName = QString("Camera %1").arg(ActiveModel->GetCameras().GetSize());
+            ActiveView->SetCamera(O->CameraName);
+
+            if (RemovedCamera) {
+                QStringList keys = gui->getViewerStepKeys(true/*Name*/,O->ImageType, O->ViewerStepKey);
+                QString step;
+                if (keys.size() >= 3)
+                    step = QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0));
+                emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.").arg(O->CameraName).arg(step));
+            }
         }
 
         if (!SetTarget)
