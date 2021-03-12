@@ -50,7 +50,7 @@ public:
   {
     _populated  = x != 0.0f || y != 0.0f || z != 0.0f;
   }
-  bool isPopulated()
+  bool isPopulated() const
   {
     return _populated;
   }
@@ -89,10 +89,14 @@ public:
     ModelScale     = 1.0f;
     CameraDistance = 0.0f;
     FoV            = 0.0f;
+    ZNear          = 0.0f;
+    ZFar           = 0.0f;
     Latitude       = 0.0f;
     Longitude      = 0.0f;
     RotStep        = xyzVector(0, 0, 0);
     Target         = xyzVector(0, 0, 0);
+    Position       = xyzVector(0, 0, 0);
+    UpVector       = xyzVector(0, 0, 0);
   }
 //  virtual ~ViewerOptions(){}
   QString ViewerStepKey;
@@ -109,12 +113,16 @@ public:
   float ModelScale;
   float CameraDistance;
   float FoV;
+  float ZNear;
+  float ZFar;
   float Latitude;
   float Longitude;
   bool IsOrtho;
   bool ZoomExtents;
   xyzVector RotStep;
   xyzVector Target;
+  xyzVector Position;
+  xyzVector UpVector;
 };
 
 class NativeOptions : public ViewerOptions

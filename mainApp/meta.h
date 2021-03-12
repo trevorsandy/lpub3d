@@ -2156,18 +2156,18 @@ public:
   // stud
   IntMeta              studLogo;
 
-  // assem image scale
+  // image scale
   FloatMeta            modelScale;
 
-  // assem shared native camera settings (selected camera)
+  // shared camera settings
   FloatMeta            cameraDistance;
   FloatPairMeta        cameraAngles;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
-
-  // assem specific camera settings
   StringMeta           cameraName;
   FloatMeta            cameraFoV;
+  FloatMeta            cameraZNear;
+  FloatMeta            cameraZFar;
   FloatXYZMeta         target;
   FloatXYZMeta         position;
   FloatXYZMeta         upvector;
@@ -3265,15 +3265,18 @@ public:
   AnnotationStyleMeta  squareStyle;
   IntMeta              studLogo;
 
-  // pli image generation
+  // pli/smp camera settings
   FloatMeta            cameraFoV;
+  FloatMeta            cameraZNear;
+  FloatMeta            cameraZFar;
   FloatPairMeta        cameraAngles;
   FloatMeta            cameraDistance;
   BoolMeta             isOrtho;
-
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
+  FloatXYZMeta         position;
+  FloatXYZMeta         upvector;
 
   RotStepMeta          rotStep;
 
@@ -3339,14 +3342,18 @@ public:
   CsiAnnotationMeta     annotation;
   IntMeta               studLogo;
 
-  // image generation
+  // assem camera settings
   FloatMeta            cameraDistance;
   FloatMeta            cameraFoV;
+  FloatMeta            cameraZNear;
+  FloatMeta            cameraZFar;
   FloatPairMeta        cameraAngles;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
+  FloatXYZMeta         position;
+  FloatXYZMeta         upvector;
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)

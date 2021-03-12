@@ -151,9 +151,13 @@ Step::Step(
       csiStepMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
       csiStepMeta.cameraName       = _meta.LPub.assem.cameraName;
       csiStepMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
+      csiStepMeta.cameraZNear      = _meta.LPub.assem.cameraZNear;
+      csiStepMeta.cameraZFar       = _meta.LPub.assem.cameraZFar;
       csiStepMeta.isOrtho          = _meta.LPub.assem.isOrtho;
       csiStepMeta.imageSize        = _meta.LPub.assem.imageSize;
       csiStepMeta.target           = _meta.LPub.assem.target;
+      csiStepMeta.position         = _meta.LPub.assem.position;
+      csiStepMeta.upvector         = _meta.LPub.assem.upvector;
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
@@ -504,21 +508,26 @@ int Step::createCsi(
 
       // for now, we always set viewer display options
       viewerOptions                 = new ViewerOptions();
-      viewerOptions->ViewerStepKey  = viewerStepKey;
-      viewerOptions->ImageFileName  = pngName;
-      viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
-      viewerOptions->Resolution     = resolution();
-      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
-      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
-      viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
-      viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
-      viewerOptions->RotStepType    = meta.rotStep.value().type;
+      viewerOptions->FoV            = csiStepMeta.cameraFoV.value();
+      viewerOptions->ImageFileName  = pngName;
+      viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
       viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
-      viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
+      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
+      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+      viewerOptions->Position       = xyzVector(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
+      viewerOptions->Resolution     = resolution();
+      viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
+      viewerOptions->RotStepType    = meta.rotStep.value().type;
+      viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
+      viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
+      viewerOptions->UpVector       = xyzVector(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
+      viewerOptions->ViewerStepKey  = viewerStepKey;
+      viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
+      viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
@@ -895,8 +904,8 @@ const int subModelPlace[NumPlacements][2] =
 };
 
 /*
- * this tells us where to place a rotateIcon when placing
  * relative to csi
+ * this tells us where to place a rotateIcon when placing
  */
 
 const int rotateIconPlace[NumPlacements][2] =

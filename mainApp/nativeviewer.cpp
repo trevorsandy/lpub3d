@@ -1033,26 +1033,25 @@ void Gui::applyCameraSettings()
 {
     if (currentStep){
 
-        SettingsMeta cameraMeta;
-
         lcView* ActiveView = gMainWindow->GetActiveView();
 
         if (!ActiveView)
             return;
-/*
-        else if (autoCenterSelectionAct->isChecked())
+
+        SettingsMeta cameraMeta;
+
+        if (autoCenterSelectionAct->isChecked())
             ActiveView->LookAt();
-*/
 
         lcCamera* Camera = ActiveView->GetCamera();
 
-        auto validCameraFoV = [&cameraMeta, &Camera] ()
+        auto validCameraFoV = [this, &cameraMeta, &Camera] ()
         {
-            if (Preferences::usingNativeRenderer)
-                return qRound(Camera->m_fovy);
+            float result = qRound(Camera->m_fovy);
 
+            if (!Preferences::usingNativeRenderer)
                   // e.g.            30.0  +                 0.01         - 30.0
-            float result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
+                   result = Camera->m_fovy + cameraMeta.cameraFoV.value() - GetPreferences().mCFoV;
 
             return qRound(result);
         };
@@ -1073,18 +1072,26 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->pli.pliMeta.modelScale;
             cameraMeta.cameraFoV      = currentStep->pli.pliMeta.cameraFoV;
+            cameraMeta.cameraZNear    = currentStep->pli.pliMeta.cameraZNear;
+            cameraMeta.cameraZFar     = currentStep->pli.pliMeta.cameraZFar;
             cameraMeta.isOrtho        = currentStep->pli.pliMeta.isOrtho;
             cameraMeta.imageSize      = currentStep->pli.pliMeta.imageSize;
             cameraMeta.target         = currentStep->pli.pliMeta.target;
+            cameraMeta.position       = currentStep->pli.pliMeta.position;
+            cameraMeta.upvector       = currentStep->pli.pliMeta.upvector;
             break;
         case Options::SMP:
             cameraMeta.cameraAngles   = currentStep->subModel.subModelMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->subModel.subModelMeta.modelScale;
             cameraMeta.cameraFoV      = currentStep->subModel.subModelMeta.cameraFoV;
+            cameraMeta.cameraZNear    = currentStep->subModel.subModelMeta.cameraZNear;
+            cameraMeta.cameraZFar     = currentStep->subModel.subModelMeta.cameraZFar;
             cameraMeta.isOrtho        = currentStep->subModel.subModelMeta.isOrtho;
             cameraMeta.imageSize      = currentStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = currentStep->subModel.subModelMeta.target;
+            cameraMeta.position       = currentStep->subModel.subModelMeta.position;
+            cameraMeta.upvector       = currentStep->subModel.subModelMeta.upvector;
             break;
         default: /*Options::CSI:*/
             cameraMeta                = currentStep->csiStepMeta;
@@ -1095,6 +1102,7 @@ void Gui::applyCameraSettings()
         QString metaString;
         bool newCommand = false;
         bool clearStepCache = false;
+        lcVector3 ldrawVector;
         Where undefined = Where();
         Where top = currentStep->topOfStep();
         Where bottom = currentStep->bottomOfStep();
@@ -1105,10 +1113,33 @@ void Gui::applyCameraSettings()
         bool applyTarget = !(Camera->mTargetPosition[0] == 0.0f  &&
                              Camera->mTargetPosition[1] == 0.0f  &&
                              Camera->mTargetPosition[2] == 0.0f);
+        bool applyPosition = !(Camera->mPosition[0] == 0.0f &&
+                             Camera->mPosition[1] == -1.0f &&
+                             Camera->mPosition[2] == 0.0);
+        bool applyUpVector = applyPosition && !(Camera->mUpVector[0] == 0.0f &&
+                             Camera->mUpVector[1] == 0.0f &&
+                             Camera->mUpVector[2] == 1.0);
+        bool applyZPlanes = applyUpVector;
+
 
         beginMacro("CameraSettings");
 
         // execute first in last out
+
+        if (applyUpVector) {
+
+            clearStepCache = true;
+            if (QFileInfo(imageFileName).exists())
+                clearStepCSICache(imageFileName);
+
+            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
+            ldrawVector = lcVector3LeoCADToLDraw(Camera->mUpVector);
+            cameraMeta.upvector.setValues(ldrawVector[0], ldrawVector[1], ldrawVector[2]);
+            metaString = cameraMeta.upvector.format(true/*local*/,false/*global*/);
+            newCommand = cameraMeta.upvector.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.upvector.here(), metaString, newCommand);
+        }
+
         if (applyTarget) {
 
             clearStepCache = true;
@@ -1116,11 +1147,25 @@ void Gui::applyCameraSettings()
                 clearStepCSICache(imageFileName);
 
             // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
-            lcVector3 ldrawPosition = lcVector3LeoCADToLDraw(Camera->mTargetPosition);
-            cameraMeta.target.setValues(ldrawPosition[0], ldrawPosition[1], ldrawPosition[2]);
+            lcVector3 ldrawTarget = lcVector3LeoCADToLDraw(Camera->mTargetPosition);
+            cameraMeta.target.setValues(ldrawTarget[0], ldrawTarget[1], ldrawTarget[2]);
             metaString = cameraMeta.target.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.target.here() == undefined;
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.target.here(), metaString, newCommand);
+        }
+
+        if (applyPosition) {
+
+            clearStepCache = true;
+            if (QFileInfo(imageFileName).exists())
+                clearStepCSICache(imageFileName);
+
+            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction
+            ldrawVector = lcVector3LeoCADToLDraw(Camera->mPosition);
+            cameraMeta.position.setValues(ldrawVector[0], ldrawVector[1], ldrawVector[2]);
+            metaString = cameraMeta.position.format(true/*local*/,false/*global*/);
+            newCommand = cameraMeta.position.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.position.here(), metaString, newCommand);
         }
 
         if (useImageSizeAct->isChecked()) {
@@ -1157,6 +1202,22 @@ void Gui::applyCameraSettings()
             metaString = cameraMeta.cameraAngles.format(true,false);
             newCommand = cameraMeta.cameraAngles.here() == undefined;
             currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraAngles.here(), metaString, newCommand);
+        }
+
+        if (applyZPlanes && notEqual(cameraMeta.cameraZNear.value(), Camera->m_zNear)) {
+            clearStepCache = true;
+            cameraMeta.cameraZNear.setValue(Camera->m_zNear);
+            metaString = cameraMeta.cameraZNear.format(true,false);
+            newCommand = cameraMeta.cameraZNear.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZNear.here(), metaString, newCommand);
+        }
+
+        if (applyZPlanes && notEqual(cameraMeta.cameraZFar.value(), Camera->m_zFar)) {
+            clearStepCache = true;
+            cameraMeta.cameraZFar.setValue(Camera->m_zFar);
+            metaString = cameraMeta.cameraZFar.format(true,false);
+            newCommand = cameraMeta.cameraZFar.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZFar.here(), metaString, newCommand);
         }
 
         float fovy = validCameraFoV();
@@ -1584,7 +1645,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 float Gui::getDefaultCameraFoV() const
 {
     return (Preferences::usingNativeRenderer ?
-                gApplication->mPreferences.mCFoV :
+                gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
                 Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
                 CAMERA_FOV_LDVIEW_P_DEFAULT :
                 CAMERA_FOV_DEFAULT);
@@ -1606,18 +1667,18 @@ float Gui::getDefaultFOVMaxRange() const
                 CAMERA_FOV_MAX_DEFAULT);
 }
 
-float Gui::getDefaultCameraZNear() const
+float Gui::getDefaultNativeCameraZNear() const
 {
-    return (Preferences::usingNativeRenderer ?
-                gApplication->mPreferences.mCNear :
-                CAMERA_ZNEAR_DEFAULT);
+    if (gApplication)
+        return lcGetPreferences().mCNear;
+    return CAMERA_ZNEAR_NATIVE_DEFAULT;
 }
 
-float Gui::getDefaultCameraZFar() const
+float Gui::getDefaultNativeCameraZFar() const
 {
-    return (Preferences::usingNativeRenderer ?
-                gApplication->mPreferences.mCFar :
-                CAMERA_ZFAR_DEFAULT);
+    if (gApplication)
+        return lcGetPreferences().mCFar;
+    return CAMERA_ZFAR_NATIVE_DEFAULT;
 }
 
 /*********************************************

@@ -639,18 +639,22 @@ enum ThemeColorType {
 #define LIBOPENEXR_MACOS_VERSION                "2.3.0"  // base 2.2.0
 #define LIBILMBASE_MACOS_VERSION                "2.3.0"  // base 2.2.1
 
-#define CAMERA_FOV_LDVIEW_P_DEFAULT              0.007f  // LPub3D (LDViez) default [Mimic Perspective]
-#define CAMERA_FOV_LDVIEW_P_MAX_DEFAULT         90.0f    // LPub3D (LDViez) default
+#define CAMERA_FOV_LDVIEW_P_DEFAULT              0.007f  // LPub3D (LDView) default [Mimic Perspective]
+#define CAMERA_FOV_LDVIEW_P_MAX_DEFAULT         90.0f    // LPub3D (LDView) default
 
 #define CAMERA_FOV_DEFAULT                       0.01f   // LPub3D (L3P) default [Orthographic]
+#define CAMERA_FOV_NATIVE_DEFAULT               30.0F
 #define CAMERA_FOV_MIN_DEFAULT                   0.0f    // LPub3D (L3P) default
 #define CAMERA_FOV_MAX_DEFAULT                 360.0f    // LPub3D (L3P) default
+
+#define CAMERA_FOV_NATIVE_MIN_DEFAULT            1.0f    // Native (LeoCAD) default
+#define CAMERA_FOV_NATIVE_MAX_DEFAULT          359.0f    // Native (LeoCAD) default
 
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
 #define CAMERA_ZFAR_DEFAULT                   4000.0f    // LPub3D (L3P) default
 
-#define CAMERA_FOV_NATIVE_MIN_DEFAULT            1.0f    // Native (LeoCAD) default
-#define CAMERA_FOV_NATIVE_MAX_DEFAULT          359.0f    // Native (LeoCAD) default
+#define CAMERA_ZNEAR_NATIVE_DEFAULT             25.0f    // LPub3D (LeoCAD) default
+#define CAMERA_ZFAR_NATIVE_DEFAULT           50000.0f    // LPub3D (LeoCAD) default
 
 #define UPDATE_CHECK_FREQUENCY_DEFAULT          0        //0=Never,1=Daily,2=Weekly,3=Monthly
 

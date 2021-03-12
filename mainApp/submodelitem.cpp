@@ -383,21 +383,26 @@ int SubModel::createSubModelImage(
 
       // set viewer display options
       viewerOptions                 = new ViewerOptions();
-      viewerOptions->ImageType      = Options::SMP;
-      viewerOptions->ViewerStepKey  = viewerSubmodelKey;
-      viewerOptions->StudLogo       = subModelMeta.studLogo.value();
-      viewerOptions->ImageFileName  = imageName;
-      viewerOptions->Resolution     = resolution();
-      viewerOptions->PageWidth      = pageSizeP(meta, 0);
-      viewerOptions->PageHeight     = pageSizeP(meta, 1);
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
-      viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
-      viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
+      viewerOptions->FoV            = subModelMeta.cameraFoV.value();
+      viewerOptions->ImageFileName  = imageName;
+      viewerOptions->ImageType      = Options::SMP;
       viewerOptions->Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();
+      viewerOptions->PageHeight     = pageSizeP(meta, 1);
+      viewerOptions->PageWidth      = pageSizeP(meta, 0);
+      viewerOptions->Position       = xyzVector(subModelMeta.position.x(),subModelMeta.position.y(),subModelMeta.position.z());
+      viewerOptions->Resolution     = resolution();
+      viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
+      viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
+      viewerOptions->StudLogo       = subModelMeta.studLogo.value();
       viewerOptions->Target         = xyzVector(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
+      viewerOptions->UpVector       = xyzVector(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
+      viewerOptions->ViewerStepKey  = viewerSubmodelKey;
+      viewerOptions->ZFar           = subModelMeta.cameraZFar.value();
+      viewerOptions->ZNear          = subModelMeta.cameraZNear.value();
   }
 
   pixmap->load(imageName);

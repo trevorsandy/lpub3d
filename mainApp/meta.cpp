@@ -3047,6 +3047,12 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraZNear.setFormats(3,0,"###9");
+  cameraZNear.setRange(1.0f,FLT_MAX);
+  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"#####9");
+  cameraZFar.setRange(1.0f,FLT_MAX);
+  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -3066,10 +3072,14 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   imageSize.init        (this,"IMAGE_SIZE");
   cameraDistance.init   (this,"CAMERA_DISTANCE");
   cameraFoV.init        (this,"CAMERA_FOV");
+  cameraZNear.init      (this,"CAMERA_ZNEAR");
+  cameraZFar.init       (this,"CAMERA_ZFAR");
   cameraAngles.init     (this,"CAMERA_ANGLES");
   isOrtho.init          (this,"CAMERA_ORTHOGRAPHIC");
   cameraName.init       (this,"CAMERA_NAME");
   target.init           (this,"CAMERA_TARGET");
+  position.init         (this,"CAMERA_POSITION");
+  upvector.init         (this,"CAMERA_UPVECTOR");
 }
 
 /* ------------------ */ 
@@ -4133,6 +4143,12 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraZNear.setFormats(3,0,"###9");
+  cameraZNear.setRange(1.0f,FLT_MAX);
+  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"#####9");
+  cameraZFar.setRange(1.0f,FLT_MAX);
+  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
 
   // movable pli part groups
@@ -4162,8 +4178,13 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   part                 .init(this,"PART");
   rotStep              .init(this,"SUBMODEL_ROTATION");
   cameraFoV            .init(this,"CAMERA_FOV");
+  cameraZNear          .init(this,"CAMERA_ZNEAR");
+  cameraZFar           .init(this,"CAMERA_ZFAR");
   cameraAngles         .init(this,"CAMERA_ANGLES");
   cameraDistance       .init(this,"CAMERA_DISTANCE");
+  target               .init(this,"CAMERA_TARGET");
+  position             .init(this,"CAMERA_POSITION");
+  upvector             .init(this,"CAMERA_UPVECTOR");
 }
 
 /* ------------------ */
@@ -4547,6 +4568,12 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraZNear.setFormats(3,0,"###9");
+  cameraZNear.setRange(1.0f,FLT_MAX);
+  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"#####9");
+  cameraZFar.setRange(1.0f,FLT_MAX);
+  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4567,11 +4594,15 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   annotation.init     (this,"ANNOTATION");
   imageSize.init      (this,"IMAGE_SIZE");
   cameraFoV.init      (this,"CAMERA_FOV");
+  cameraZNear.init    (this,"CAMERA_ZNEAR");
+  cameraZFar.init     (this,"CAMERA_ZFAR");
   cameraAngles.init   (this,"CAMERA_ANGLES");
   cameraDistance.init (this,"CAMERA_DISTANCE");
   isOrtho.init        (this,"CAMERA_ORTHOGRAPHIC");
   cameraName.init     (this,"CAMERA_NAME");
   target.init         (this,"CAMERA_TARGET");
+  position.init       (this,"CAMERA_POSITION");
+  upvector.init       (this,"CAMERA_UPVECTOR");
 }
 
 /* ------------------ */
@@ -4646,6 +4677,12 @@ PliMeta::PliMeta() : BranchMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraZNear.setFormats(3,0,"###9");
+  cameraZNear.setRange(1.0f,FLT_MAX);
+  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"#####9");
+  cameraZFar.setRange(1.0f,FLT_MAX);
+  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4691,7 +4728,12 @@ void PliMeta::init(BranchMeta *parent, QString name)
   imageSize       .init(this,"IMAGE_SIZE");
   rotStep         .init(this,"PART_ROTATION");
   cameraFoV       .init(this,"CAMERA_FOV");
+  cameraZNear     .init(this,"CAMERA_ZNEAR");
+  cameraZFar      .init(this,"CAMERA_ZFAR");
   cameraAngles    .init(this,"CAMERA_ANGLES");
+  target          .init(this,"CAMERA_TARGET");
+  position        .init(this,"CAMERA_POSITION");
+  upvector        .init(this,"CAMERA_UPVECTOR");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
   isOrtho         .init(this,"CAMERA_ORTHOGRAPHIC");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
@@ -4775,6 +4817,12 @@ BomMeta::BomMeta() : PliMeta()
   cameraFoV.setRange(gui->getDefaultFOVMinRange(),
                      gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraZNear.setFormats(3,0,"###9");
+  cameraZNear.setRange(1.0f,FLT_MAX);
+  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"#####9");
+  cameraZFar.setRange(1.0f,FLT_MAX);
+  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4818,8 +4866,13 @@ void BomMeta::init(BranchMeta *parent, QString name)
   squareStyle     .init(this,"SQUARE_STYLE");
   imageSize       .init(this,"IMAGE_SIZE");
   cameraFoV       .init(this,"CAMERA_FOV");
+  cameraZNear     .init(this,"CAMERA_ZNEAR");
+  cameraZFar      .init(this,"CAMERA_ZFAR");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
+  target          .init(this,"CAMERA_TARGET");
+  position        .init(this,"CAMERA_POSITION");
+  upvector        .init(this,"CAMERA_UPVECTOR");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
 

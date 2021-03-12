@@ -2612,9 +2612,13 @@ int Native::renderCsi(
   float cameraAngleY   = meta.LPub.assem.cameraAngles.value(1);
   float modelScale     = meta.LPub.assem.modelScale.value();
   float cameraFoV      = meta.LPub.assem.cameraFoV.value();
+  float cameraZNear    = meta.LPub.assem.cameraZNear.value();
+  float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
+  xyzVector position   = xyzVector(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   xyzVector target     = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
+  xyzVector upvector   = xyzVector(meta.LPub.assem.upvector.x(),meta.LPub.assem.upvector.y(),meta.LPub.assem.upvector.z());
   if (nType == NTypeCalledOut) {
     studLogo           = meta.LPub.callout.csi.studLogo.value();
     camDistance        = meta.LPub.callout.csi.cameraDistance.value();
@@ -2622,11 +2626,13 @@ int Native::renderCsi(
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(1);
     modelScale         = meta.LPub.callout.csi.modelScale.value();
     cameraFoV          = meta.LPub.callout.csi.cameraFoV.value();
-//    zNear              = meta.LPub.callout.csi.znear.value();
-//    zFar               = meta.LPub.callout.csi.zfar.value();
+    cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
+    cameraZFar         = meta.LPub.callout.csi.cameraZFar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
+    position           = xyzVector(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
     target             = xyzVector(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
+    upvector           = xyzVector(meta.LPub.callout.csi.upvector.x(),meta.LPub.callout.csi.upvector.y(),meta.LPub.callout.csi.upvector.z());
   } else if (nType == NTypeMultiStep) {
     studLogo           = meta.LPub.multiStep.csi.studLogo.value();
     camDistance        = meta.LPub.multiStep.csi.cameraDistance.value();
@@ -2634,11 +2640,13 @@ int Native::renderCsi(
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(1);
     modelScale         = meta.LPub.multiStep.csi.modelScale.value();
     cameraFoV          = meta.LPub.multiStep.csi.cameraFoV.value();
-//    zNear              = meta.LPub.multiStep.csi.znear.value();
-//    zFar               = meta.LPub.multiStep.csi.zfar.value();
+    cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
+    cameraZFar         = meta.LPub.multiStep.csi.cameraZFar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
+    position           = xyzVector(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
     target             = xyzVector(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
+    upvector           = xyzVector(meta.LPub.multiStep.csi.upvector.x(),meta.LPub.multiStep.csi.upvector.y(),meta.LPub.multiStep.csi.upvector.z());
   }
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
@@ -2648,26 +2656,30 @@ int Native::renderCsi(
   bool useImageSize   = meta.LPub.assem.imageSize.value(0) > 0;
 
   // Renderer options
-  NativeOptions *Options    = new NativeOptions();
-  Options->ImageType         = Options::CSI;
-  Options->InputFileName     = ldrName;
-  Options->OutputFileName    = pngName;
-  Options->StudLogo          = studLogo;
-  Options->Resolution        = resolution();
-  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
-  Options->PageWidth         = gui->pageSize(meta.LPub.page, 0);
-  Options->PageHeight        = gui->pageSize(meta.LPub.page, 1);
-  Options->IsOrtho           = isOrtho;
+  NativeOptions *Options     = new NativeOptions();
+  Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
-  Options->Latitude          = noCA ? 0.0 : cameraAngleX;
-  Options->Longitude         = noCA ? 0.0 : cameraAngleY;
-  Options->Target            = target;
-  Options->ModelScale        = modelScale;
-  Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
-  Options->LineWidth         = lineThickness;
   Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->ImageType         = Options::CSI;
+  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->InputFileName     = ldrName;
+  Options->IsOrtho           = isOrtho;
+  Options->Latitude          = noCA ? 0.0 : cameraAngleX;
+  Options->LineWidth         = lineThickness;
+  Options->Longitude         = noCA ? 0.0 : cameraAngleY;
+  Options->ModelScale        = modelScale;
+  Options->OutputFileName    = pngName;
+  Options->PageHeight        = gui->pageSize(meta.LPub.page, 1);
+  Options->PageWidth         = gui->pageSize(meta.LPub.page, 0);
+  Options->Position          = position;
+  Options->Resolution        = resolution();
+  Options->StudLogo          = studLogo;
+  Options->Target            = target;
+  Options->UpVector          = upvector;
+  Options->ZFar              = cameraZFar;
+  Options->ZNear             = cameraZNear;
   Options->ZoomExtents       = false;
 
   // Set CSI project
@@ -2807,9 +2819,14 @@ int Native::renderPli(
   float cameraAngleX   = metaType.cameraAngles.value(0);
   float cameraAngleY   = metaType.cameraAngles.value(1);
   float cameraFoV      = metaType.cameraFoV.value();
+  float cameraZNear    = metaType.cameraZNear.value();
+  float cameraZFar     = metaType.cameraZFar.value();
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
+  xyzVector position   = xyzVector(metaType.position.x(),metaType.position.y(),metaType.position.z());
   xyzVector target     = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  xyzVector upvector   = xyzVector(metaType.upvector.x(),metaType.upvector.y(),metaType.upvector.z());
+
   bool useImageSize    = metaType.imageSize.value(0) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
@@ -2833,25 +2850,29 @@ int Native::renderPli(
   }
 
   // Renderer options
-  NativeOptions *Options = new NativeOptions();
-  Options->ImageType      = Options::PLI;
-  Options->InputFileName  = ldrNames.first();
-  Options->OutputFileName = pngName;
-  Options->StudLogo       = studLogo;
-  Options->Resolution     = resolution();
-  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
-  Options->PageWidth      = gui->pageSize(meta.LPub.page, 0);
-  Options->PageHeight     = gui->pageSize(meta.LPub.page, 1);
-  Options->IsOrtho        = isOrtho;
+  NativeOptions *Options  = new NativeOptions();
+  Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName     = cameraName;
   Options->FoV            = cameraFoV;
+  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->ImageType      = Options::PLI;
+  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->InputFileName  = ldrNames.first();
+  Options->IsOrtho        = isOrtho;
   Options->Latitude       = noCA ? 0.0 : cameraAngleX;
-  Options->Longitude      = noCA ? 0.0 : cameraAngleY;
-  Options->Target         = target;
-  Options->ModelScale     = modelScale;
-  Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  Options->Longitude      = noCA ? 0.0 : cameraAngleY;
+  Options->ModelScale     = modelScale;
+  Options->OutputFileName = pngName;
+  Options->PageHeight     = gui->pageSize(meta.LPub.page, 1);
+  Options->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+  Options->Position       = position;
+  Options->Resolution     = resolution();
+  Options->StudLogo       = studLogo;
+  Options->Target         = target;
+  Options->UpVector       = upvector;
+  Options->ZFar           = cameraZFar;
+  Options->ZNear          = cameraZNear;
   Options->ZoomExtents    = false;
 
   // Set PLI project
@@ -2908,41 +2929,60 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-    // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
-    lcVector3 Target = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
-
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
     bool ZoomExtents    = O->ZoomExtents; // was !RenderImage && IsOrtho;
     bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
 
     lcCamera* Camera = nullptr;
-
-    if (DefaultCamera) {
-
-      Camera = ActiveView->GetCamera();
-
-    }
+    if (DefaultCamera)
+        Camera = ActiveView->GetCamera();
+    else
+        Camera = new lcCamera(false);
 
     if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
         ActiveView->SetViewpoint(lcViewpoint(gui->GetPreferences().mNativeViewpoint));
 
     } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
+        if (Preferences::usingNativeRenderer)
+            Camera->m_fovy = O->FoV;
+        else
+            Camera->m_fovy = O->FoV + Camera->m_fovy - gui->getDefaultCameraFoV();
 
-        Camera->m_fovy = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
+        bool SetTarget = O->Target.isPopulated();
+        if (SetTarget) {
+            if (Camera->m_zNear != O->ZNear)
+                Camera->m_zNear = O->ZNear;
 
-        // Get the created camera name and set the camera
+            if (Camera->m_zFar != O->ZFar)
+                Camera->m_zFar = O->ZFar;
+
+            if (O->Position.isPopulated())
+                Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
+
+            if (O->UpVector.isPopulated())
+                Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
+
+            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
+            Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
+        }
+
+        Camera->UpdatePosition(1);
+
         if (!DefaultCamera) {
-            Camera = new lcCamera(false);
+            // Get the created camera name and set the camera
+            lcModel* ActiveModel = ActiveView->GetActiveModel();
             Camera->CreateName(ActiveModel->GetCameras());
             Camera->SetSelected(true);
             ActiveModel->AddCamera(Camera);
             ActiveView->SetCamera(QString("Camera %1").arg(ActiveModel->GetCameras().GetSize()));
         }
 
+        if (!SetTarget)
+            ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
+
         ActiveView->SetProjection(IsOrtho);
-        ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Target, ZoomExtents);
     }
 
     if (Preferences::debugLogging){
@@ -2951,6 +2991,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
             arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
             arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
+            arguments << (O->ImageFileName.isEmpty()   ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
             arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
             arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]));
             arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1").arg(O->ExportArgs.join(" ")));
@@ -2959,10 +3000,10 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
         } else {
             arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
-            arguments << (O->ImageFileName.isEmpty() ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
-            arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+            if (O->RotStep.isPopulated())
+                arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
         }
-        arguments << QString("StudLogo: %1").arg(O->StudLogo);
+        arguments << QString("StudLogo: %1").arg(O->StudLogo == 0 ? "None (0)" : O->StudLogo == 1 ? "Single-Wire (1)" : O->StudLogo == 2 ? "Double-Wire (2)" : O->StudLogo == 3 ? "Raised-Flat (3)" : O->StudLogo == 4 ? "Raised-Rounded (4)" : "Subtle-Rounded (5)");
         arguments << QString("Resolution: %1").arg(double(O->Resolution));
         arguments << QString("ImageWidth: %1").arg(O->ImageWidth);
         arguments << QString("ImageHeight: %1").arg(O->ImageHeight);
@@ -2979,7 +3020,10 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
         arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
         arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
-
+        if (O->Position.isPopulated())
+            arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3)").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));
+        if (O->UpVector.isPopulated())
+            arguments << QString("CameraUpVector: X(%1) Y(%2) Z(%3)").arg(double(O->UpVector.x)).arg(double(O->UpVector.y)).arg(double(O->UpVector.z));
         removeEmptyStrings(arguments);
 
         QString message = QString("%1 %2 Arguments: %3")
@@ -3087,8 +3131,9 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
             {
                 emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.<br>"
-                                                       "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
-                                                       "are configured for the Native Renderer")
+                                                       "Ensure Field of View (default is 30), ZPlane Near (default is 25), "
+                                                       "ZPlane Far (default is 50000) and Camera Distance Factor are properly "
+                                                       "configured for the Native Renderer - see log for current settings")
                                      .arg(ImageType)
                                      .arg(O->ExportMode == EXPORT_NONE ?
                                               QString("image") :

@@ -1102,8 +1102,8 @@ public:
   float getDefaultCameraFoV() const;
   float getDefaultFOVMinRange() const;
   float getDefaultFOVMaxRange() const;
-  float getDefaultCameraZNear() const;
-  float getDefaultCameraZFar() const;
+  float getDefaultNativeCameraZNear() const;
+  float getDefaultNativeCameraZFar() const;
 
   void restorePreferredRenderer();
 
