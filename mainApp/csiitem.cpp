@@ -739,8 +739,8 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
             if (gui->saveBuildModification()) {
                 if (gui->getViewerStepKey() != step->viewerStepKey) {
                     step->viewerOptions->ZoomExtents = true;
-                    step->loadTheViewer();
                     gui->setCurrentStep(step);
+                    step->loadTheViewer();
                     gui->enableBuildModActions();
                 }
             }

@@ -73,6 +73,7 @@ void Gui::create3DActions()
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
     updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification - Shift+K"),this);
+    updateBuildModAct->setEnabled(false);
     updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification - Shift+K"));
     updateBuildModAct->setShortcut(tr("Shift+K"));
     connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
@@ -81,6 +82,7 @@ void Gui::create3DActions()
     ApplyBuildModIcon.addFile(":/resources/buildmodapply.png");
     ApplyBuildModIcon.addFile(":/resources/buildmodapply16.png");
     applyBuildModAct = new QAction(ApplyBuildModIcon,tr("Apply Build Modification..."),this);
+    applyBuildModAct->setEnabled(false);
     applyBuildModAct->setStatusTip(tr("Apply existing build modification to this step"));
     connect(applyBuildModAct, SIGNAL(triggered()), this, SLOT(applyBuildModification()));
 
@@ -88,6 +90,7 @@ void Gui::create3DActions()
     RemoveBuildModIcon.addFile(":/resources/buildmodremove.png");
     RemoveBuildModIcon.addFile(":/resources/buildmodremove16.png");
     removeBuildModAct = new QAction(RemoveBuildModIcon,tr("Remove Build Modification..."),this);
+    removeBuildModAct->setEnabled(false);
     removeBuildModAct->setStatusTip(tr("Remove build modification from this step"));
     connect(removeBuildModAct, SIGNAL(triggered()), this, SLOT(removeBuildModification()));
 
@@ -1289,7 +1292,7 @@ void Gui::enableBuildModActions()
 
     int hasMod = buildModsSize();
 
-    bool appliedMod = false, sourceMod = false;
+    bool appliedMod = false, sourceMod = false, removedMod = false;
 
     switch (buildModStep)
     {
@@ -1300,12 +1303,15 @@ void Gui::enableBuildModActions()
             appliedMod = true;
             break;
         case BuildModRemoveRc:
+            removedMod = true;
+            break;
+        case BuildModNoActionRc:
         default:
             break;
     }
 
-    applyBuildModAct->setEnabled(hasMod && !sourceMod);
-    removeBuildModAct->setEnabled(hasMod && appliedMod && !sourceMod);
+    applyBuildModAct->setEnabled(hasMod && (!appliedMod || removedMod) && !sourceMod);
+    removeBuildModAct->setEnabled(hasMod && (appliedMod || !removedMod) && !sourceMod);
 
     updateBuildModAct->setEnabled(hasMod && sourceMod);
 
@@ -2497,6 +2503,7 @@ void Gui::createBuildModification()
         } // mBuildModRange || edit
 
         emit progressPermStatusRemoveSig();
+        enableBuildModActions();
     }
 }
 
@@ -3353,7 +3360,6 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                     }
                     if (!modsEnabled) {
                         createBuildModAct->setEnabled(true);
-                        updateBuildModAct->setEnabled(buildModsSize());
                         enableBuildModification();
                         modsEnabled = true;
                     }
@@ -3395,7 +3401,6 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 if (!modsEnabled) {
                     createBuildModAct->setEnabled(true);
-                    updateBuildModAct->setEnabled(buildModsSize());
                     enableBuildModification();
                 }
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
