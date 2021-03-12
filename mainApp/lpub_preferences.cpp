@@ -5008,8 +5008,8 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                           if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
                               QString formattedSearchDir = QString("Dir%1=%2").arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
-                                  logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
+//                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
+//                                  logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
                           }
                        }
                     }
@@ -5032,8 +5032,8 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                           if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
                               QString formattedSearchDir = QString("%1/ExtraSearchDirs/Dir%2=%3").arg(prefSetRx.cap(1)).arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
-                                  logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
+//                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
+//                                  logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
                           }
                        }
                     }
