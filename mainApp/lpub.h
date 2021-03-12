@@ -1226,6 +1226,10 @@ public slots:
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
 
+  void setPageProcessRunning(int p) {
+      pageProcessRunning = p;
+  }
+
   void insertPageSize(int i, const PgSizeData &pgSizeData)
   {
       pageSizes.insert(i,pgSizeData);
@@ -1309,6 +1313,7 @@ public slots:
   QDockWidget*           GetPartsToolBar();
   QDockWidget*           GetColorsToolBar();
   bool                   GetViewPieceIcons();
+  bool                   GetSubmodelIconsLoaded();
   int                    GetLPubStepPieces();
   int                    GetStudLogo();
 

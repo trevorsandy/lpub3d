@@ -1622,6 +1622,11 @@ void Gui::reloadViewer(){
      return lcGetPreferences().mViewPieceIcons;
  }
 
+ bool Gui::GetSubmodelIconsLoaded()
+ {
+     return gMainWindow->mSubmodelIconsLoaded;
+ }
+
  void Gui::SetSubmodelIconsLoaded(bool value)
  {
      gMainWindow->mSubmodelIconsLoaded = value;
