@@ -394,6 +394,7 @@ void Gui::displayPage()
   emit messageSig(LOG_STATUS, "Processing page display...");
 
   timer.start();
+  ldrawFile.clearBuildModSteps();
   if (macroNesting == 0) {
     bool updateViewer = currentStep ? currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling

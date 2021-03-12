@@ -159,26 +159,35 @@ extern int getLevel(const QString& key, int position);
 class BuildModStep {
   public:
     BuildModStep(
-       const QString&  buildModKey,
-       int             buildModAction,
-       int             buildModStepIndex);
+       const int      buildModStepIndex,
+       const int      buildModAction,
+       const QString& buildModKey);
     ~BuildModStep()
     { }
     bool operator==(const BuildModStep &other) const
     {
-        return  _buildModKey == other._buildModKey &&
+        return  _buildModStepIndex == other._buildModStepIndex &&
                 _buildModAction == other._buildModAction &&
-                _buildModStepIndex == other._buildModStepIndex;
+                _buildModKey == other._buildModKey;
     }
-    QString     _buildModKey;
-    int         _buildModAction;
+    bool operator<(const BuildModStep &other) const
+    {
+        if (_buildModStepIndex != other._buildModStepIndex)
+            return _buildModStepIndex < other._buildModStepIndex;
+        if (_buildModAction != other._buildModAction)
+            return _buildModAction < other._buildModAction;
+        return _buildModKey < other._buildModKey;
+    }
     int         _buildModStepIndex;
+    int         _buildModAction;
+    QString     _buildModKey;
 };
 
 class BuildMod {
   public:
     QVector<int>  _modAttributes;
     QMap<int,int> _modActions;
+    int           _modStepIndex;
 
     BuildMod()
     {
@@ -210,7 +219,7 @@ class LDrawFile {
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
     QVector<QVector<int>>       _buildModStepIndexes;
-    QMultiMap<QString, BuildModStep> _buildModSteps;
+    QMultiMap<int, BuildModStep> _buildModSteps;
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
@@ -364,21 +373,21 @@ class LDrawFile {
 
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
+    int getStepIndex(const QString &modelName, const int &lineNumber);
 
     /* Build Modification functions */
     void insertBuildMod(const QString      &buildModKey,
                         const QVector<int> &modAttributes,
                         int                 stepIndex);
     void insertBuildModStep(const QString  &buildModKey,
-                            int             stepIndex,
-                            int             modAction = 0);
-    int setBuildModAction(const QString &buildModKey,
-                          int            stepIndex,
-                          int            modAction);
-    int getBuildModStep(const QString &modStepKey,
-                        int            modelIndex,
-                        int            lineNumber);
+                            const int       stepIndex,
+                            const int       modAction = 0);
+    int setBuildModAction(const QString  &buildModKey,
+                          const int       stepIndex,
+                          const int       modAction);
+    int getBuildModStep(const QString &modelName, const int &lineNumber);
     int getBuildModStepIndex(const int modelIndex, const int lineNumber);
+    int getBuildModStepIndex(const QString &buildModKey);
     int getBuildModStepIndexHere(int stepIndex, int which);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
@@ -395,6 +404,7 @@ class LDrawFile {
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsSize();
+    void clearBuildModSteps();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     bool getBuildModStepIndexHere(const int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);

@@ -1287,10 +1287,10 @@ void Gui::enableBuildModActions()
 
     Rc buildModStep = BuildModNoActionRc;
 
-    if (currentStep)
-        buildModStep = Rc(getBuildModStep(viewerStepKey,currentStep->topOfStep()));
-
     int hasMod = buildModsSize();
+
+    if (currentStep)
+        buildModStep = Rc(getBuildModStep(currentStep->topOfStep()));
 
     bool oneMod = hasMod == 1;
 
