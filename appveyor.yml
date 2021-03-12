@@ -69,9 +69,9 @@ environment:
   SECURE_AV_SECRET:
     secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
   SECURE_SF_SECRET:
-    secure: p0FZK2sONLxKjc/ZuilFN5V2JP1Rd+WtFDOLReo0LvU=
+    secure: XI0RaM1evReXbTW1n9EqL/AaPIgK21OkxnAkJYjy7CQ=
   SECURE_SF_SALT:
-    secure: ctyrE7TNgQql4AA0u7agp0DDW698jIFMLiN1KJjKLIS/BOm5cZqkHKSxUhBPjRb9GgsFm5oFFq32WzicWbEfUQ==
+    secure: WFahv44bG+N4QH1SmOVEeUhClstmo1lrFRVNdyw9rnwArzi3O3MLolqXsYrE/PC5W4BtSV41uBrOZIrzNel4GA==
 
 # Build package if commit message contains [build pkg]
 # Parse the commit message for 3rd party build override
