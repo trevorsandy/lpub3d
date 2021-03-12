@@ -19,6 +19,8 @@
 
 #if _MSC_VER
 #pragma warning(default : 4062) // enumerator 'identifier' in switch of enum 'enumeration' is not handled
+#pragma warning(default : 4388) // 'token' : signed/unsigned mismatch
+#pragma warning(default : 4389) // 'equality-operator' : signed/unsigned mismatch
 #endif
 
 #ifndef Q_FALLTHROUGH
@@ -57,7 +59,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.01"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_BUILD "a8d757c"
+#define LC_VERSION_BUILD "03b9c75"
 /*** LPub3D Mod end ***/
 
 
@@ -75,6 +77,7 @@ struct lcModelPartsEntry;
 struct lcMinifig;
 enum class lcViewpoint;
 enum class lcShadingMode;
+enum class lcStudStyle;
 class lcInstructions;
 struct lcInstructionsPageSetup;
 struct lcObjectRayTest;

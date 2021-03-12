@@ -111,6 +111,8 @@
         <file alias="studlogo3.zip">resources/studlogo3.zip</file>
         <file alias="studlogo4.zip">resources/studlogo4.zip</file>
         <file alias="studlogo5.zip">resources/studlogo5.zip</file>
+        <file alias="studslegostyle1.zip">resources/studslegostyle1.zip</file>
+        <file alias="studslegostyle2.zip">resources/studslegostyle2.zip</file>        
         <file alias="minifig.ini">resources/minifig.ini</file>
         <file alias="parts_cancel.png">resources/parts_cancel.png</file>
         <file alias="parts_search.png">resources/parts_search.png</file>

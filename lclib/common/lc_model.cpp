@@ -570,7 +570,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - process color entry ***/
 			else if (Token == QLatin1String("!COLOUR"))
 			{
-				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
+				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData(), lcGetPiecesLibrary()->GetStudStyle()))
 					emit gui->messageSig(LOG_ERROR,QString("Could not colour meta %1.")
 										 .arg(OriginalLine));
 			}
@@ -733,7 +733,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Library->IsPrimitive(CleanId.constData()))
 			{
-				mFileLines.append(OriginalLine);
+				mFileLines.append(OriginalLine); 
 			}
 			else
 			{

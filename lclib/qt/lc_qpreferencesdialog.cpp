@@ -193,17 +193,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	else
 		ui->PreviewViewSphereSizeCombo->setCurrentIndex(0);
 
-	if (!lcGetPiecesLibrary()->SupportsStudLogo())
-	{
-		ui->studLogo->setEnabled(false);
-		ui->studLogoCombo->setEnabled(false);
-	}
+	if (!lcGetPiecesLibrary()->SupportsStudStyle())
+		ui->studStyleCombo->setEnabled(false);
 
-	ui->studLogo->setChecked(mOptions->StudLogo);
-	if (ui->studLogo->isChecked())
-		ui->studLogoCombo->setCurrentIndex(mOptions->StudLogo - 1);
-	else
-		ui->studLogoCombo->setCurrentIndex(mOptions->StudLogo);
+	ui->studStyleCombo->setCurrentIndex(static_cast<int>(mOptions->StudStyle));
 
 	if (!gSupportsShaderObjects)
 		ui->ShadingMode->removeItem(static_cast<int>(lcShadingMode::DefaultLights));
@@ -235,7 +228,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	SetButtonPixmap(mOptions->Preferences.mViewSphereTextColor, ui->ViewSphereTextColorButton);
 	SetButtonPixmap(mOptions->Preferences.mViewSphereHighlightColor, ui->ViewSphereHighlightColorButton);
 
-	on_studLogo_toggled();
 	on_antiAliasing_toggled();
 	on_edgeLines_toggled();
 	on_LineWidthSlider_valueChanged();
@@ -423,10 +415,7 @@ void lcQPreferencesDialog::accept()
 
 	mOptions->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
 
-	if (ui->studLogoCombo->isEnabled())
-		mOptions->StudLogo = ui->studLogoCombo->currentIndex() + 1;
-	else
-		mOptions->StudLogo = 0;
+	mOptions->StudStyle = static_cast<lcStudStyle>(ui->studStyleCombo->currentIndex());
 
 	mOptions->Preferences.mDrawPreviewAxis = ui->PreviewAxisIconCheckBox->isChecked();
 	mOptions->Preferences.mPreviewViewSphereEnabled = ui->PreviewViewSphereSizeCombo->currentIndex() > 0;
@@ -434,7 +423,7 @@ void lcQPreferencesDialog::accept()
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	mOptions->Preferences.mPreviewEnabled = ui->PreviewSizeCombo->currentIndex() > 0;
-	
+
 	mOptions->Preferences.mPreviewLocation = (lcPreviewLocation)ui->PreviewLocationCombo->currentIndex();
 
 	mOptions->Preferences.mPreviewPosition = (lcPreviewPosition)ui->PreviewPositionCombo->currentIndex();
@@ -448,7 +437,7 @@ void lcQPreferencesDialog::accept()
 		mOptions->Preferences.mPreviewSize = 300;
 		break;
 	}
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 
 	switch (ui->PreviewViewSphereSizeCombo->currentIndex())
 	{
@@ -706,12 +695,6 @@ void lcQPreferencesDialog::on_BackgroundGradientRadio_toggled(bool checked)
 	ui->BackgroundSolidColorButton->setEnabled(!checked);
 }
 /*** LPub3D Mod end ***/
-
-void lcQPreferencesDialog::on_studLogo_toggled()
-{
-	if (lcGetPiecesLibrary()->SupportsStudLogo())
-	   ui->studLogoCombo->setEnabled(ui->studLogo->isChecked());
-}
 
 void lcQPreferencesDialog::on_antiAliasing_toggled()
 {

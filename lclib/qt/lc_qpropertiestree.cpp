@@ -1167,12 +1167,12 @@ void lcQPropertiesTree::slotSetValue(int Value)
 
 			PieceInfo* Info = (PieceInfo*)editor->itemData(Value).value<void*>();
 			Model->SetSelectedPiecesPieceInfo(Info);
-			
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 			lcPreferences& Preferences = lcGetPreferences();
 			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
 			{
-/*** LPub3D Mod end ***/				
+/*** LPub3D Mod end ***/
 				int ColorIndex = gDefaultColor;
 				lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();
 				if (Focus && Focus->IsPiece())
@@ -1181,10 +1181,10 @@ void lcQPropertiesTree::slotSetValue(int Value)
 				gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 			}
-/*** LPub3D Mod end ***/			
+/*** LPub3D Mod end ***/
 		}
 	}
-/*** LPub3D Mod - enable lights ***/	
+/*** LPub3D Mod - enable lights ***/
 	else if (mWidgetMode == LC_PROPERTY_WIDGET_LIGHT)
 	{
 		lcObject* Focus = Model->GetFocusObject();
@@ -1229,7 +1229,7 @@ void lcQPropertiesTree::slotColorButtonClicked()
 
 	if (!Button)
 		return;
-		
+
 	QWidget *Popup  = nullptr;
 
 	if (mWidgetMode == LC_PROPERTY_WIDGET_PIECE)
@@ -1486,7 +1486,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 			gMainWindow->PreviewPiece(Info->mFileName, ColorCode, false);
 /*** LPub3D Mod - preview widget for LPub3D ***/
 		}
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 	}
 	else
 	{
@@ -1559,7 +1559,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	partModel->setText(1, ModelInfo.mFileName);
 	partModel->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
-	partType->setText(1, Info ? Info->mZipFileType == LC_ZIPFILE_OFFICIAL ? QString("Official Part") : QString("Unofficial Part") : QString());
+	partType->setText(1, Info ? Info->mZipFileType == lcZipFileType::Official ? QString("Official Part") : QString("Unofficial Part") : QString());
 	partType->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partIsSubmodel->setText(1, Info ? Info->IsModel() ? QString("Yes") : QString("No") : QString());

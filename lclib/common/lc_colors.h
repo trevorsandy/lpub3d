@@ -9,6 +9,7 @@
 struct lcColor
 {
 	quint32 Code;
+	int Group;
 	bool Translucent;
 	lcVector4 Value;
 	lcVector4 Edge;
@@ -55,14 +56,13 @@ enum lcInterfaceColor
 extern lcVector4 gInterfaceColors[LC_NUM_INTERFACECOLORS];
 extern std::vector<lcColor> gColorList;
 extern lcColorGroup gColorGroups[LC_NUM_COLORGROUPS];
-extern int gNumUserColors;
 extern int gEdgeColor;
 extern int gDefaultColor;
 
-void lcLoadDefaultColors();
-bool lcLoadColorFile(lcFile& File);
+void lcLoadDefaultColors(lcStudStyle StudStyle);
 /*** LPub3D Mod - load color entry ***/
-bool lcLoadColorEntry(const char* ColorEntry);
+bool lcLoadColorFile(lcFile& File, lcStudStyle StudStyle, bool Update = false);
+bool lcLoadColorEntry(const char* ColorEntry, lcStudStyle StudStyle);
 /*** LPub3D Mod end ***/
 int lcGetColorIndex(quint32 ColorCode);
 int lcGetBrickLinkColor(int ColorIndex);

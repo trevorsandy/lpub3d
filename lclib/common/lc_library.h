@@ -10,11 +10,24 @@ class PieceInfo;
 class lcZipFile;
 class lcLibraryMeshData;
 
+enum class lcStudStyle
+{
+	Plain,
+	ThinLinesLogo,
+	OutlineLogo,
+	SharpTopLogo,
+	RoundedTopLogo,
+	FlattenedLogo,
+	HighContrast,
+	HighContrastLogo,
+	Count
+};
+
 enum class lcZipFileType
 {
 	Official,
 	Unofficial,
-	StudLogo,
+	StudStyle,
 	Count
 };
 
@@ -35,7 +48,7 @@ enum class lcPrimitiveState
 class lcLibraryPrimitive
 {
 public:
-	explicit lcLibraryPrimitive(QString&& FileName, const char* Name, lcZipFileType ZipFileType, quint32 ZipFileIndex, bool Stud, bool SubFile)
+	explicit lcLibraryPrimitive(QString&& FileName, const char* Name, lcZipFileType ZipFileType, quint32 ZipFileIndex, bool Stud, bool StudStyle, bool SubFile)
 		: mFileName(std::move(FileName))
 	{
 		strncpy(mName, Name, sizeof(mName)-1);
@@ -45,6 +58,7 @@ public:
 		mZipFileIndex = ZipFileIndex;
 		mState = lcPrimitiveState::NotLoaded;
 		mStud = Stud;
+		mStudStyle = StudStyle;
 		mSubFile = SubFile;
 	}
 
@@ -66,6 +80,7 @@ public:
 	quint32 mZipFileIndex;
 	lcPrimitiveState mState;
 	bool mStud;
+	bool mStudStyle;
 	bool mSubFile;
 	lcLibraryMeshData mMeshData;
 };
@@ -76,7 +91,7 @@ enum class lcLibrarySourceType
 	Official,
 	Unofficial,
 /*** LPub3D Mod end ***/
-	StudLogo
+	StudStyle
 };
 
 struct lcLibrarySource
@@ -105,6 +120,7 @@ public:
 	lcPiecesLibrary& operator=(lcPiecesLibrary&&) = delete;
 
 	bool Load(const QString& LibraryPath, bool ShowProgress);
+	void LoadColors();
 	void Unload();
 /*** LPub3D Mod - library reload ***/
 	bool ReloadUnoffLib();
@@ -152,12 +168,12 @@ public:
 	lcLibraryPrimitive* FindPrimitive(const char* Name) const;
 	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
 
-	bool SupportsStudLogo() const;
-	void SetStudLogo(int StudLogo, bool Reload);
+	bool SupportsStudStyle() const;
+	void SetStudStyle(lcStudStyle StudStyle, bool Reload);
 
-	int GetStudLogo() const
+	lcStudStyle GetStudStyle() const
 	{
-		return mStudLogo;
+		return mStudStyle;
 	}
 
 	void SetOfficialPieces()
@@ -188,6 +204,7 @@ public:
 
 signals:
 	void PartLoaded(PieceInfo* Info);
+	void ColorsLoaded();
 
 protected:
 	bool OpenArchive(const QString& FileName, lcZipFileType ZipFileType);
@@ -205,7 +222,9 @@ protected:
 	bool ReadDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool WriteDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 
-	void UpdateStudLogoSource();
+	static bool IsStudPrimitive(const char* FileName);
+	static bool IsStudStylePrimitive(const char* FileName);
+	void UpdateStudStyleSource();
 
 	std::vector<std::unique_ptr<lcLibrarySource>> mSources;
 
@@ -216,7 +235,7 @@ protected:
 	QMutex mTextureMutex;
 	std::vector<lcTexture*> mTextureUploads;
 
-	int mStudLogo;
+	lcStudStyle mStudStyle;
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
