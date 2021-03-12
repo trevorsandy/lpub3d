@@ -3013,7 +3013,6 @@ int CountPageWorker::countPage(
   bool resetIncludeRc = false;
 
   bool buildModIgnore = false;
-  bool buildModValid  = false;
   QString buildModKey;
 
   int numLines = ldrawFile->size(opts.current.modelName);
@@ -3075,7 +3074,7 @@ int CountPageWorker::countPage(
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if ((localSubmodel || modelStack.size()) && buildMod[BM_BEGIN])
+                              if ((localSubmodel || modelStack.size()) && opts.buildMod.begin)
                                   ldrawFile->setBuildModRendered("p"+buildModKey, colorType);
 
                               opts.isMirrored = ldrawFile->mirrored(token);
@@ -3111,11 +3110,12 @@ int CountPageWorker::countPage(
                                           opts.pageNum,
                                           current2,
                                           opts.pageSize,
+                                          opts.buildMod,
                                           opts.buildModActions,
                                           opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
-                                          opts.buildModLevel,
+                                          0 /*opts.buildModLevel*/,
                                           opts.stepNumber,
                                           opts.contStepNumber,
                                           opts.groupStepNumber,
@@ -3142,7 +3142,7 @@ int CountPageWorker::countPage(
                       if (bfxStore1) {
                           bfxParts << colorType;
                       }
-                      if (contains && ! buildModIgnore) {
+                      if (contains && buildMod[BM_BEGIN] && ! buildModIgnore) {
                           ldrawFile->setBuildModRendered(buildModKey, colorType);
                       }
                   }
@@ -3222,28 +3222,32 @@ int CountPageWorker::countPage(
               break;
 
             case BuildModBeginRc:
-              if (Preferences::buildModEnabled) {
-                  opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
-                  opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
-                  buildModValid = true;
-                  buildModIgnore = false;
-              }
+              if (!Preferences::buildModEnabled)
+                  break;
+              opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
+              opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
+              buildModIgnore = false;
+              opts.buildMod.begin = true;
               break;
 
             case BuildModEndModRc:
-              if (buildModValid) {
+              if (buildMod[BM_BEGIN])
                   if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
+              if (opts.buildMod.begin)
+                  if (buildModActions.value(buildModLevel) == BuildModApplyRc)
                       buildModIgnore = true;
-              }
+              opts.buildMod.begin = false;
+              opts.buildMod.mod_end = true;
               break;
 
             case BuildModEndRc:
-              if (buildModValid) {
-                  opts.buildModLevel = getLevel(QString(), BM_END);
+              if (opts.buildMod.mod_end) {
+                  buildModLevel = getLevel(QString(), BM_END);
                   if (opts.buildModLevel == BM_BEGIN)
                       buildModIgnore = false;
-                  buildModValid = false;
               }
+              opts.buildMod.mod_end = false;
+              opts.buildMod.end = true;
               break;
 
             case RotStepRc:
@@ -3297,6 +3301,7 @@ int CountPageWorker::countPage(
 
                 } // PartsAdded && ! NoStep && ! BuildModIgnore
 
+              opts.buildMod.end = false;
               noStep2 = noStep;
               noStep = false;
               break;

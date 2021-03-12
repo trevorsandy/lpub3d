@@ -464,14 +464,14 @@ int Gui::drawPage(
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
   // Build mod update flags
-  int  buildModStepIndex = -1;
-  bool buildModItems     = false;
-  bool buildModIgnore    = false;
-  bool buildModInsert    = false;
-  bool buildModExists    = false;
-  bool buildModChange    = false;
-  bool buildModPliIgnore = false;
-  bool buildMod[3]       = { false, false, false };
+  int      buildModStepIndex = -1;
+  bool     buildModItems     = false;
+  bool     buildModIgnore    = false;
+  bool     buildModInsert    = false;
+  bool     buildModExists    = false;
+  bool     buildModChange    = false;
+  bool     buildModPliIgnore = false;
+  bool     buildMod[3]= { false, false, false };
 
   enum draw_page_stat { begin, end };
 
@@ -1978,6 +1978,7 @@ int Gui::drawPage(
                   buildModIgnore    = false;
                   buildModPliIgnore = true;
               }
+              buildMod[BM_BEGIN] = false;
               buildMod[BM_END_MOD] = true;
               break;
 
@@ -1991,10 +1992,11 @@ int Gui::drawPage(
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               opts.buildModLevel = getLevel(QString(), BM_END);
               if (opts.buildModLevel == BM_BEGIN) {
-                  buildModIgnore      = false;
-                  buildModPliIgnore   = pliIgnore;
-                  buildMod[BM_END]    = true;
+                  buildModIgnore = false;
+                  buildModPliIgnore = pliIgnore;
               }
+              buildMod[BM_END] = true;
+              buildMod[BM_END_MOD] = false;
               break;
 
             case NoStepRc:
@@ -2265,7 +2267,7 @@ int Gui::drawPage(
 
                           // BuildMod create and update - performed after createCsi to enable viewerStepKey
                           if (buildModKeys.size()) {
-                              if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
+                              if (! buildMod[BM_END])
                                   parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
                               Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                                   if (buildModInsert)
@@ -2275,7 +2277,6 @@ int Gui::drawPage(
                               }
                               buildModKeys.clear();
                               buildModAttributes.clear();
-                              buildMod[2] = buildMod[1] = buildMod[0] = false;
                           }
 
                           // Set CSI annotations - single step only
@@ -2491,6 +2492,7 @@ int Gui::drawPage(
               }
 
               steps->setBottomOfSteps(opts.current);
+              buildMod[BM_END] = false;
               noStep = false;
               break;
 
@@ -2762,6 +2764,9 @@ int Gui::findPage(
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
+                              if (opts.buildMod.begin)
+                                  setBuildModRendered(buildModKey, colorType);
+
                               opts.isMirrored = ldrawFile.mirrored(token);
 
                               // add submodel to the model stack - it can't be a callout
@@ -2801,6 +2806,7 @@ int Gui::findPage(
                                           opts.pageNum,
                                           current2,
                                           opts.pageSize,
+                                          opts.buildMod,
                                           opts.buildModActions,
                                           opts.updateViewer,
                                           opts.isMirrored,
@@ -2850,7 +2856,7 @@ int Gui::findPage(
                      if (bfxStore1) {
                          bfxParts << colorType;
                      }
-                     if (contains && ! buildModIgnore) {
+                     if (contains && buildMod[BM_BEGIN] && ! buildModIgnore) {
                          setBuildModRendered(buildModKey, colorType);
                      }
                   } // token.size() == 15
@@ -3057,6 +3063,7 @@ int Gui::findPage(
                         buildModIgnore = false;
                     else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
                         buildModIgnore = true;
+                    opts.buildMod.begin = true;
                 }
                 break;
 
@@ -3067,6 +3074,8 @@ int Gui::findPage(
                         buildModIgnore = true;
                     else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
                         buildModIgnore = false;
+                    opts.buildMod.begin = false;
+                    opts.buildMod.mod_end = true;
                 }
                 break;
 
@@ -3075,7 +3084,9 @@ int Gui::findPage(
                 if (!pageDisplayed) {
                     opts.buildModLevel = getLevel(QString(), BM_END);
                     if (opts.buildModLevel == BM_BEGIN)
-                        buildModIgnore     = false;
+                        buildModIgnore = false;
+                    opts.buildMod.end = true;
+                    opts.buildMod.mod_end = false;
                 }
                 break;
 
@@ -3258,6 +3269,7 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
+              opts.buildMod.end = false;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -4044,6 +4056,7 @@ void Gui::countPages()
       stepPageNum          =  maxPages;
       modelStack.clear();
       QString empty;
+      BMFlags buildMod;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
 
@@ -4051,6 +4064,7 @@ void Gui::countPages()
                   maxPages,      /*pageNum*/
                   current,
                   emptyPageSize,
+                  buildMod,
                   buildModActions,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
@@ -4148,6 +4162,7 @@ void Gui::drawPage(
 
   QString empty;
   Meta    meta;
+  BMFlags buildMod;
   QMap<int,int> buildModActions;
   firstStepPageNum     = -1;
   lastStepPageNum      = -1;
@@ -4178,6 +4193,7 @@ void Gui::drawPage(
               maxPages,    /*pageNum*/
               current,
               pageSize,
+              buildMod,
               buildModActions,
               updateViewer,
               false        /*mirrored*/,
@@ -4629,6 +4645,7 @@ int Gui::setBuildModForNextStep(
                     parseError(QString("Required meta BUILD_MOD BEGIN not found"),
                                walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
+                buildMod[BM_BEGIN] = false;
                 buildMod[BM_END_MOD] = true;
                 break;
 
@@ -4639,6 +4656,7 @@ int Gui::setBuildModForNextStep(
                                walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildModLevel    = getLevel(QString(), BM_END);
+                buildMod[BM_END_MOD] = false;
                 buildMod[BM_END] = true;
                 break;
 
@@ -4658,7 +4676,7 @@ int Gui::setBuildModForNextStep(
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
-                buildMod[2] = buildMod[1] = buildMod[0] = false;
+                buildMod[BM_END] = false;
                 return HitBottomOfStep;
             default:
                 break;

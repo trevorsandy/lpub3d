@@ -174,6 +174,7 @@ public:
 
 class Meta;
 class Where;
+class BMFlags;
 class PgSizeData;
 class PliPartGroupMeta;
 
@@ -207,6 +208,7 @@ public:
             int             &_pageNum,
             Where           &_current,
             PgSizeData      &_pageSize,
+            BMFlags         &_buildMod,
             QMap<int,int>   &_buildModActions,
 
             bool             _updateViewer,
@@ -221,6 +223,7 @@ public:
           pageNum           (_pageNum),
           current           (_current),
           pageSize          (_pageSize),
+          buildMod          (_buildMod),
           buildModActions   (_buildModActions),
 
           updateViewer      (_updateViewer),
@@ -235,6 +238,7 @@ public:
     int           &pageNum;
     Where         &current;
     PgSizeData    &pageSize;
+    BMFlags       &buildMod;
     QMap<int,int> &buildModActions;
 
     bool           updateViewer;

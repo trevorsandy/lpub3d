@@ -3239,6 +3239,7 @@ Gui::Gui()
 
     // classes
     qRegisterMetaType<BackgroundData>("BackgroundData");
+    qRegisterMetaType<BMFlags>("BMFlags");
     qRegisterMetaType<BorderData>("BorderData");
     qRegisterMetaType<BuffExchgData>("BuffExchgData");
     qRegisterMetaType<BuildModData>("BuildModData");

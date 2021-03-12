@@ -312,6 +312,20 @@ enum LightType
     M_NUM_LIGHT_TYPES
 };
 
+class BMFlags
+{
+public:
+    bool begin;
+    bool mod_end;
+    bool end;
+    BMFlags()
+    {
+      begin = false;
+      mod_end = false;
+      end = false;
+    }
+};
+
 class PlacementData
 {
 public:
