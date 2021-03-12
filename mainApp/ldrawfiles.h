@@ -420,6 +420,9 @@ class LDrawFile {
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
+    void clearBuildModAction(const QString &buildModKey, const int stepIndex);
+    void clearBuildModStep(const QString &buildModKey,const int stepIndex);
+    void clearBuildModSteps(const QString &buildModKey);
     void clearBuildModSteps();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);

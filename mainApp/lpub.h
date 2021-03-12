@@ -876,6 +876,11 @@ public:
       return ldrawFile.getBuildModPrevStepIndex();
   }
 
+  void clearBuildModAction(const QString &buildModKey,const int stepIndex)
+  {
+      ldrawFile.clearBuildModAction(buildModKey, stepIndex);
+  }
+
   // This function returns the equivalent of the ViewerStepKey
   QString getBuildModStepKey(const QString &buildModKey)
   {

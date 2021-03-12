@@ -2725,6 +2725,8 @@ void Gui::removeBuildModification()
         newCommand = currentStep->buildMod.here() == Where();
         currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand, removeCommand);
 
+        clearBuildModAction(buildModKey, buildModStepIndex);
+
         clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
 
         endMacro();
