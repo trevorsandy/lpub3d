@@ -73,7 +73,19 @@ bool PreviewDockWidget::SetCurrentPiece(const QString& PartType, int ColorCode)
     mLabel->setText(tr("Loading..."));
     if (mPreview->SetCurrentPiece(PartType, ColorCode))
     {
-        mLabel->setText(mPreview->GetDescription());
+        QString ColorName;
+        lcColor* Color = nullptr;
+        if (ColorCode != LDRAW_MATERIAL_COLOUR)
+        {
+            Color = &gColorList[lcGetColorIndex(ColorCode)];
+            ColorName = Color ? Color->Name : "Undefined";
+        }
+        QString PartLabel = QString("%1 (%2)%3")
+                .arg(mPreview->GetDescription())
+                .arg(QFileInfo(PartType).completeBaseName().toUpper())
+                .arg(Color ? QString(", %1 (%2)").arg(ColorName).arg(ColorCode) : QString());
+        mLabel->setText(PartLabel);
+        mLabel->setToolTip(PartLabel);
         return true;
     }
     return false;
