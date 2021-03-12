@@ -413,6 +413,7 @@ public slots:
             LDrawFile *,
       const QString &,
             bool,
+            bool,
             bool);
 private:
     static void statusMessage(const LogType, const QString &);

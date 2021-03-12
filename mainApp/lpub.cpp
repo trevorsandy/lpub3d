@@ -1472,6 +1472,8 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
     displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
     editModeWindow->show();
+    while (!editModeWindow->contentLoading())
+        QApplication::processEvents();
 }
 
 

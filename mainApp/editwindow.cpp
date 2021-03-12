@@ -112,7 +112,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
         connect(verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(verticalScrollValueChanged(int)));
     }
 
-    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::waitingSpinnerStop);
+    connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &EditWindow::contentLoaded);
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
     connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
     connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
@@ -619,8 +619,10 @@ void EditWindow::createToolBars()
         editToolBar->addSeparator();
         editToolBar->addAction(undoAct);
         editToolBar->addAction(redoAct);
-        editToolBar->addSeparator();
-        editToolBar->addWidget(mpdCombo);
+
+        mpdComboSeparatorAct = editToolBar->addSeparator();
+        mpdComboAct = editToolBar->addWidget(mpdCombo);
+
 #ifndef QT_NO_CLIPBOARD
         editToolBar->addSeparator();
         editToolBar->addAction(copyFileNameToClipboardAct);
@@ -1337,8 +1339,6 @@ void EditWindow::updateSelectedParts() {
 
     QTextCursor cursor = _textEdit->textCursor();
 
-    QTextCursor saveCursor = cursor;
-
     if(!cursor.hasSelection())
         cursor.select(QTextCursor::LineUnderCursor);
 
@@ -1371,8 +1371,6 @@ void EditWindow::updateSelectedParts() {
 
         return lineNumber;
     };
-
-    cursor.beginEditBlock();
 
     while (currentLine < selectedLines)
     {
@@ -1417,11 +1415,6 @@ void EditWindow::updateSelectedParts() {
         currentLine++;
     }
 
-    // restore selection
-   _textEdit->setTextCursor(saveCursor);
-
-    cursor.endEditBlock();
-
     if (!highlightLines)
         clearEditorHighlightLines();
 
@@ -1450,8 +1443,6 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
 
         QTextCursor textCursor(_textEdit->document());
 
-        textCursor.beginEditBlock();
-
         if (!_textEdit->isReadOnly()) {
 
             QColor lineColor = QColor(Qt::transparent);
@@ -1460,7 +1451,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
             if (applyFormat) {
                 if (clear) {
                     if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]); // THEME_DARK_VIEWER_BACKGROUND_COLOR
+                        lineColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_BASE]);
                     } else {
                         lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
                     }
@@ -1501,8 +1492,6 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                 }
             }
         }
-
-        textCursor.endEditBlock();
     };
 
     disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
@@ -1731,7 +1720,6 @@ void EditWindow::displayFile(
   const QString   &_fileName,
   const StepLines &lineScope)
 {
-  bool fileExists = QFileInfo(_fileName).exists();
   reloaded        = _fileName == fileName;
   fileName        = _fileName;
   lineCount       = 0;
@@ -1741,20 +1729,8 @@ void EditWindow::displayFile(
   displayTimer.start();
   QString content;
 
-  auto loadContent = [this, &ldrawFile]()
-  {
-    if (ldrawFile)
-      setSubFiles(ldrawFile->subFileOrder());
-
-    bool isUTF8 = ldrawFile ? LDrawFile::_currFileIsUTF8 : true;
-    _textEdit->setIsUTF8(isUTF8);
-
-    QFuture<int> loadModelFuture = QtConcurrent::run(loadModelWorker->loadModel, ldrawFile, fileName, _modelFileEdit, isUTF8);
-    futureWatcher.setFuture(loadModelFuture);
-
-    while (!loadModelFuture.isFinished())
-      QApplication::processEvents();
-  };
+  disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+             this,                  SLOT(  contentsChange(int,int,int)));
 
   if (ldrawFile) {
     _subFileListPending = true;
@@ -1764,9 +1740,6 @@ void EditWindow::displayFile(
     clearEditorHighlightLines();
   }
 
-  disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-             this,                  SLOT(  contentsChange(int,int,int)));
-
 #ifdef QT_DEBUG_MODE
     emit lpubAlert->messageSig(LOG_DEBUG,QString("1. Editor Load Starting..."));
 #endif
@@ -1775,36 +1748,30 @@ void EditWindow::displayFile(
     _textEdit->document()->clear();
 
   } else if (modelFileEdit()) {
-    if (!ldrawFile && !fileExists)
+    if (!ldrawFile && !QFileInfo(_fileName).exists()) {
+      _textEdit->document()->setModified(false);
+      connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+              this,                  SLOT(  contentsChange(int,int,int)));
       return;
+    }
 
     waitingSpinnerStart();
 
     fileWatcher.removePath(fileName);
 
-    mpdCombo->setMaxCount(0);
-    mpdCombo->setMaxCount(1000);
-    if (ldrawFile) {
-      mpdCombo->addItems(ldrawFile->subFileOrder());
-    } else {
-      if (_subFileList.size())
-          mpdCombo->addItems(_subFileList);
-    }
-    if(_saveSubfileIndex) {
-      mpdCombo->setCurrentIndex(_saveSubfileIndex);
-      _saveSubfileIndex = 0;
-    }
-    mpdCombo->setEnabled(!isIncludeFile && (ldrawFile || _subFileList.size()));
-
     disconnect(_textEdit, SIGNAL(textChanged()),
                this,      SLOT(enableSave()));
 
-    loadContent();
+    _textEdit->document()->clear();
 
-    connect(_textEdit,  SIGNAL(textChanged()),
-            this,       SLOT(enableSave()));
+    QString discFileName = QDir::fromNativeSeparators(fileName);
+    bool useDiscFile = discFileName.count("/");
 
-    exitAct->setEnabled(true);
+    bool isUTF8 = ldrawFile ? LDrawFile::_currFileIsUTF8 : true;
+    _textEdit->setIsUTF8(isUTF8);
+
+    QFuture<int> loadModelFuture = QtConcurrent::run(loadModelWorker->loadModel, ldrawFile, fileName, _modelFileEdit, isUTF8, useDiscFile);
+    futureWatcher.setFuture(loadModelFuture);
 
   } // Detached Editor
   else
@@ -1812,47 +1779,115 @@ void EditWindow::displayFile(
 
     waitingSpinnerStart();
 
-//    loadContent();
-
-// *
     lineCount = ldrawFile->size(fileName);
 
     if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
 #ifdef QT_DEBUG_MODE
-          emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
+      emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
 #endif
-        _pageContent = ldrawFile->contents(fileName);
+      _pageContent = ldrawFile->contents(fileName);
 
-        loadPagedContent();
+      loadPagedContent();
 
     } else {
 #ifdef QT_DEBUG_MODE
-        emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
+      emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
 #endif
-        // loadContentBlocks(ldrawFile->contents(fileName),true/ *initial load* /);
+      // loadContentBlocks(ldrawFile->contents(fileName),true/ *initial load* /);
 
-        _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
-
+      _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
     }
 
     waitingSpinnerStop();
-// */
-  }   // Docked Editor
 
-  _textEdit->document()->setModified(false);
+    _textEdit->document()->setModified(false);
 
-  connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
-          this,                  SLOT(  contentsChange(int,int,int)));
+    connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+            this,                  SLOT(  contentsChange(int,int,int)));
 
-  enableActions();
+    enableActions();
 
-  if (modelFileEdit() && fileExists)
-    fileWatcher.addPath(fileName);
 #ifdef QT_DEBUG_MODE
-  else
     emit lpubAlert->messageSig(LOG_DEBUG,QString("6. %1 Document loaded with %2 lines")
                                                  .arg(QFileInfo(fileName).baseName())
                                                  .arg(_textEdit->document()->lineCount()));
+#endif
+  }  // Docked Editor
+}
+
+void EditWindow::contentLoaded()
+{
+    waitingSpinnerStop();
+
+    const QString message = tr("%1 File %2: %3, %4 lines - %5")
+            .arg(isIncludeFile ? "Include" : "Model")
+            .arg(reloaded ? "Updated" : "Loaded")
+            .arg(QFileInfo(fileName).fileName())
+            .arg(lineCount)
+            .arg(lpubAlert->elapsedTime(displayTimer.elapsed()));
+
+    if (futureWatcher.future().result()) {
+        _textEdit->document()->clear();
+        _textEdit->document()->setModified(false);
+        connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+                this,                  SLOT(  contentsChange(int,int,int)));
+        emit lpubAlert->messageSig(LOG_ERROR, QString("Editor not loaded for %1").arg(fileName));
+        return;
+    }
+
+    if (Preferences::modeGUI) {
+        if (modelFileEdit()) {
+            bool enableMpdCombo = !isIncludeFile && _subFileList.size();
+            mpdCombo->setEnabled(enableMpdCombo);
+            if (enableMpdCombo) {
+                bool mpdComboActionFound = false;
+                for (QAction *action : editToolBar->actions()) {
+                    if ((mpdComboActionFound = action == mpdComboSeparatorAct))
+                        break;
+                }
+                mpdCombo->setMaxCount(0);
+                mpdCombo->setMaxCount(1000);
+                mpdCombo->addItems(_subFileList);
+                if(_saveSubfileIndex) {
+                    mpdCombo->setCurrentIndex(_saveSubfileIndex);
+                    _saveSubfileIndex = 0;
+                }
+                if (!mpdComboActionFound) {
+                    int index = editToolBar->actions().indexOf(redoAct) + 1;
+                    editToolBar->insertAction(editToolBar->actions().at(index), mpdComboAct);
+                    editToolBar->insertAction(mpdComboAct, mpdComboSeparatorAct);
+                }
+            } else {
+                editToolBar->removeAction(mpdComboSeparatorAct);
+                editToolBar->removeAction(mpdComboAct);
+            }
+
+            connect(_textEdit,  SIGNAL(textChanged()),
+                    this,       SLOT(enableSave()));
+
+            exitAct->setEnabled(true);
+
+            statusBar()->showMessage(message);
+
+            if (modelFileEdit()) {
+                if(QFileInfo(fileName).exists())
+                    fileWatcher.addPath(fileName);
+            }
+        }
+
+        _contentLoaded = true;
+
+        _textEdit->document()->setModified(false);
+
+        connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+                this,                  SLOT(  contentsChange(int,int,int)));
+
+        enableActions();
+    }
+
+#ifdef QT_DEBUG_MODE
+    previewViewerFileAct->setEnabled(true);
+    emit lpubAlert->messageSig(LOG_DEBUG,"5. "+message);
 #endif
 }
 
@@ -1892,8 +1927,6 @@ void EditWindow::waitingSpinnerStart()
 
 void EditWindow::waitingSpinnerStop()
 {
-  contentLoaded();
-
   if (!Preferences::modeGUI)
       return;
 
@@ -1904,32 +1937,6 @@ void EditWindow::waitingSpinnerStop()
     emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Stopped"));
 #endif
   }
-}
-
-void EditWindow::contentLoaded()
-{
-    const QString message = tr("%1 File %2: %3, %4 lines - %5")
-            .arg(isIncludeFile ? "Include" : "Model")
-            .arg(reloaded ? "Updated" : "Loaded")
-            .arg(QFileInfo(fileName).fileName())
-            .arg(lineCount)
-            .arg(lpubAlert->elapsedTime(displayTimer.elapsed()));
-
-    if (modelFileEdit() && Preferences::modeGUI) {
-        if (_subFileList.size() && !mpdCombo->count() && !isIncludeFile) {
-            mpdCombo->addItems(_subFileList);
-            mpdCombo->setEnabled(true);
-        }
-#ifdef QT_DEBUG_MODE
-        previewViewerFileAct->setEnabled(true);
-#endif
-        statusBar()->showMessage(message);
-    }
-
-#ifdef QT_DEBUG_MODE
-    previewViewerFileAct->setEnabled(true);
-    emit lpubAlert->messageSig(LOG_DEBUG,"5. "+message);
-#endif
 }
 
 void EditWindow::redraw()

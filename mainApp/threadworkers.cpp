@@ -3453,50 +3453,50 @@ int CountPageWorker::countPage(
 void LoadModelWorker::statusMessage(const LogType logType, const QString &message)
 {
     QMetaObject::invokeMethod(
-                gui,                            // obj
-                "statusMessage",                // member
-                Qt::QueuedConnection,           // connection type
-                Q_ARG(LogType, logType),        // val1
-                Q_ARG(QString, message));       // val2
+                gui,                           // obj
+                "statusMessage",               // member
+                Qt::QueuedConnection,          // connection type
+                Q_ARG(LogType, logType),       // val1
+                Q_ARG(QString, message));      // val2
 }
 
 void LoadModelWorker::setPlainText(const QString &content)
 {
     QMetaObject::invokeMethod(
-                editWindow,               // obj
-                "setPlainText",           // member
-                Qt::QueuedConnection,     // connection type
-                Q_ARG(QString, content)); // val1
+                editWindow,                    // obj
+                "setPlainText",                // member
+                Qt::QueuedConnection,          // connection type
+                Q_ARG(QString, content));      // val1
 }
 
 void LoadModelWorker::setPagedContent(const QStringList &content)
 {
     QMetaObject::invokeMethod(
-                editWindow,                   // obj
-                "setPagedContent",            // member
-                Qt::QueuedConnection,         // connection type
-                Q_ARG(QStringList, content)); // val1
+                editWindow,                    // obj
+                "setPagedContent",             // member
+                Qt::QueuedConnection,          // connection type
+                Q_ARG(QStringList, content));  // val1
 }
 
 void LoadModelWorker::setSubFiles(const QStringList &subFiles)
 {
     QMetaObject::invokeMethod(
-                editWindow,                   // obj
-                "setSubFiles",                // member
-                Qt::QueuedConnection,         // connection type
+                editWindow,                    // obj
+                "setSubFiles",                 // member
+                Qt::QueuedConnection,          // connection type
                 Q_ARG(QStringList, subFiles)); // val1
 }
 
 void LoadModelWorker::setLineCount(const int count)
 {
     QMetaObject::invokeMethod(
-                editWindow,                   // obj
-                "setLineCount",               // member
-                Qt::QueuedConnection,         // connection type
-                Q_ARG(int, count));           // val1
+                editWindow,                    // obj
+                "setLineCount",                // member
+                Qt::QueuedConnection,          // connection type
+                Q_ARG(int, count));            // val1
 }
 
-int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor, bool isUTF8)
+int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor, bool isUTF8, bool useDiscFile)
 {
     QMutex loadMutex;
     loadMutex.lock();
@@ -3505,14 +3505,15 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
     statusMessage(LOG_DEBUG,QString("3.  Editor loading..."));
 #endif
 
-    int lineCount    = 0;
-    bool useDiscFile = false;
-    QString fileName = QDir::fromNativeSeparators(filePath);
+    int lineCount = 0;
     QString content;
     QStringList contentList;
+    QString fileName = filePath;
 
     if (detachedEditor) {
-        if ((useDiscFile = fileName.count("/"))) {
+
+        if (useDiscFile) {
+
             // open file for read
             QFile file(fileName);
             if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -3529,29 +3530,31 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
             QTextStream in(&file);
             in.setCodec(isUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
             content = in.readAll();
+            contentList = content.split("\n");
 
             file.close();
 
-            if ((useDiscFile = !ldrawFile)) {
-                QStringList subFiles;
-                contentList = content.split("\n");
-                QRegExp sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
-                for (int i = 0; i < contentList.size(); i++) {
-                     if(contentList.at(i).contains(sofRx))
-                         subFiles.append(sofRx.cap(1));
-                }
-                if (subFiles.size())
-                    setSubFiles(subFiles);
-            }
+        } else if (ldrawFile) {
+            fileName = QFileInfo(filePath).fileName();
+            contentList = ldrawFile->contents(fileName);
+            content = contentList.join("\n");
+        } else {
+            statusMessage(LOG_ERROR,QString("No suitable data source detected for %1").arg(fileName));
+            loadMutex.unlock();
+            return 1;
         }
+
+        QStringList subFiles;
+        QRegExp sofRx("^0\\s+FILE\\s+(.*)$");  //start of file
+        for (int i = 0; i < contentList.size(); i++) {
+             if(contentList.at(i).contains(sofRx))
+                 subFiles.append(sofRx.cap(1));
+        }
+        setSubFiles(subFiles);
     }
 
     // set line count
-    if (useDiscFile)
-        lineCount = contentList.size();
-    else if (ldrawFile) {
-        lineCount = ldrawFile->size(fileName);
-    }
+    lineCount = contentList.size();
     if (lineCount) {
 #ifdef QT_DEBUG_MODE
         statusMessage(LOG_DEBUG,QString("3a. Editor set line count to %1").arg(lineCount));
@@ -3568,17 +3571,14 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
 #ifdef QT_DEBUG_MODE
         statusMessage(LOG_DEBUG,QString("3b. Editor load paged text started..."));
 #endif
-        if (useDiscFile)
-           setPagedContent(contentList);
-        else if (ldrawFile)
-            setPagedContent(ldrawFile->contents(fileName));
+        if (contentList.size())
+            setPagedContent(contentList);
     } else {
 #ifdef QT_DEBUG_MODE
         statusMessage(LOG_DEBUG,QString("3b. Editor load plain text started..."));
 #endif
-        if (ldrawFile && !useDiscFile)
-            content = ldrawFile->contents(fileName).join("\n");
-        setPlainText(content);
+        if (!content.isEmpty())
+            setPlainText(content);
     }
 
     loadMutex.unlock();

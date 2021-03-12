@@ -94,6 +94,10 @@ public:
     {
         return fileName;
     }
+    bool contentLoading()
+    {
+        return _contentLoading;
+    }
 
     QToolBar *editToolBar;
     QToolBar *toolsToolBar;
@@ -134,13 +138,13 @@ public slots:
     void setPlainText(const QString &);
     void setLineCount(int);
     void clearWindow();
+    bool maybeSave();
+    bool saveFile();
 
 private slots:
     void openWith();
     void contentsChange(int position, int charsRemoved, int charsAdded);
-    bool saveFile();
     bool saveFileCopy();
-    bool maybeSave();
     void redraw();
     void update(bool state);
     void enableSave();
@@ -227,6 +231,9 @@ protected:
     QAction  *previewLineAct;
     QAction  *editColorAct;
     QAction  *editPartAct;
+
+    QAction  *mpdComboSeparatorAct;
+    QAction  *mpdComboAct;
 /*
     QAction  *substitutePartAct;
     QAction  *removeSubstitutePartAct;
