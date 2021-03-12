@@ -940,7 +940,7 @@ void Gui::applyCameraSettings()
         else if (autoCenterSelectionAct->isChecked())
             ActiveView->LookAt();
 
-        lcCamera* Camera = ActiveView->mCamera;
+        lcCamera* Camera = ActiveView->GetCamera();
 
         auto validCameraFoV = [&cameraMeta, &Camera] ()
         {
@@ -1432,10 +1432,10 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
     if (ActiveModel){
         // Create a copy of the current camera and add it cameras
-        lcCamera* Camera = ActiveView->mCamera;
+        lcCamera* Camera = ActiveView->GetCamera();
         Camera->CreateName(ActiveModel->GetCameras());
         Camera->SetSelected(true);
-        ActiveModel->AddCamera(ActiveView->mCamera);
+        ActiveModel->AddCamera(ActiveView->GetCamera());
 
         // Get the created camera name
         char cameraName[81];
@@ -1463,7 +1463,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         }
 
         ActiveView->SetCamera(Camera, true);
-        strcpy(ActiveView->mCamera->m_strName, "");
+        strcpy(ActiveView->GetCamera()->m_strName, "");
 
         if (RemovedCamera)
             gMainWindow->UpdateCameraMenu();

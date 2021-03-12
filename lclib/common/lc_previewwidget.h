@@ -4,6 +4,9 @@
 #include "lc_scene.h"
 #include "lc_viewsphere.h"
 #include "lc_commands.h"
+/*** LPub3D Mod - preview widget for LPub3D ***/
+#include "lc_application.h"
+/*** LPub3D Mod end ***/
 
 class lcQGLWidget;
 class lcPreviewWidget;

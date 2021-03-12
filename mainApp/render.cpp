@@ -2886,7 +2886,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-    lcCamera* Camera =  ActiveView->mCamera;
+    lcCamera* Camera =  ActiveView->GetCamera();
 
     // Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
     lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
