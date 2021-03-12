@@ -1883,9 +1883,11 @@ void LDrawFile::countInstances(
             buildModLevel = getLevel("", BM_END);
           }
           buildModIgnore = buildModLevel;
-          // buffer exchange - do nothing
-        } else if (tokens.size() == 4 && tokens[0] == "0"
-                   && tokens[1] == "BUFEXCHG") {}
+          // page insert, e.g. dispaly model, bom
+        } else if (tokens[2] == "INSERT" &&
+                  (tokens[3] == "PAGE" || tokens[3] == "COVER_PAGE")) {
+            partsAdded = true;
+        } else if (tokens[1] == "BUFEXCHG") {}
         // no step
       } else if (tokens.size() == 3 && tokens[0] == "0" &&
                 (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
