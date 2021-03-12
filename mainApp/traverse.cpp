@@ -2167,7 +2167,7 @@ int Gui::drawPage(
                   /*
                    * STEP - normal case of parts added
                    */
-                  if (partsAdded && ! noStep && ! buildMod.ignore) {
+                  if (partsAdded) {
 
                       // set step group page meta attributes first step
                       if (firstStep) {
@@ -2201,7 +2201,7 @@ int Gui::drawPage(
                       }
 
                      /*
-                      * STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+                      * STEP - Actual parts added, simple, mulitStep or calledOut (no render graphics)
                       */
                       if (step) {
 
@@ -2337,11 +2337,11 @@ int Gui::drawPage(
                               opts.csiKeys << step->csiKey;
                           }
 
-                      } // STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+                      } // STEP - Actual parts added, simple, mulitStep or calledOut (no render graphics)
 
                       else
                      /*
-                      * STEP - No step object, e.g. inserted page (no draw graphics)
+                      * STEP - No step object, e.g. inserted page (no rendered graphics)
                       */
                       {
 
@@ -2360,10 +2360,10 @@ int Gui::drawPage(
                                   page->selectedSceneItems = selectedSceneItems;
                               }
                           }
-                      } // STEP - No step object, e.g. inserted page (no draw graphics)
+                      } // STEP - No step object, e.g. inserted page (no rendered graphics)
 
                      /*
-                      *  STEP - Simple, not mulitStep, not calledOut (draw graphics)
+                      *  STEP - Simple, not mulitStep, not calledOut (render graphics)
                       */
                       if ( ! multiStep && ! opts.calledOut) {
 
