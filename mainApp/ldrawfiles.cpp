@@ -712,6 +712,15 @@ QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
     return nullptr;
 }
 
+// This function returns the number of indexes (type 1 parts) specified for the specified submodel
+int LDrawFile::getLineTypeRelativeIndexCount(int submodelIndx) {
+    QString fileName = getSubmodelName(submodelIndx).toLower();
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
+    if (f != _subFiles.end())
+        return f.value()._lineTypeIndexes.size();
+    return 0;
+}
+
 // This function resets the Line Type Indexes vector
 void LDrawFile::resetLineTypeRelativeIndex(const QString &mcFileName) {
     QString fileName = mcFileName.toLower();

@@ -2496,7 +2496,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			"VIEWER_SEL",  // 4
 			"VIEWER_CLR"   // 5
 		};
-		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "True" : "False");
+		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "Yes" : "No");
 		emit gui->messageSig(LOG_DEBUG, _Message);
 #endif
 	}
@@ -2546,15 +2546,18 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 
 				QVector<TypeLine> LineTypeIndexes;
 
-				if (Selection.GetSize() > 0) {
-
+				int Objects = Selection.GetSize();
+				if (Objects > 0) {
 					QString Message;
 					if (Preferences::debugLogging) {
-						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetModelName());
+						Message = tr("%1 Viewer %2 selected in model [%3]")
+								.arg(Objects)
+								.arg(Objects == 1 ? "object" : "objects")
+								.arg(ActiveModel->GetModelName());
 						gui->statusMessage(LOG_DEBUG, Message);
 					}
 
-					if ((Selection.GetSize() == 1))
+					if (Objects == 1)
 					{
 						lcObject *SelectedItem = Selection[0];
 
@@ -2570,7 +2573,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 							gui->statusMessage(LOG_DEBUG, Message);
 						}
 					}
-					else if (Selection.GetSize() > 0)
+					else
 					{
 						for (lcObject *SelectedItem : Selection) {
 
@@ -2591,7 +2594,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 					}
 				}
 				if (SelectionType != VIEWER_LINE) {
-					PartSource Selection = ActiveModel->GetModAction() ? PartSource(SelectionType) : VIEWER_SEL;
+					PartSource Selection = ActiveModel->GetModAction() || SelectionType == VIEWER_CLR ? PartSource(SelectionType) : VIEWER_SEL;
 					emit SelectedPartLinesSig(LineTypeIndexes, Selection);
 					ActiveModel->ResetModAction();
 				}

@@ -3299,7 +3299,7 @@ bool Gui::setCurrentStep(const QString &key)
 
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
-    else if (Preferences::debugLogging) {
+    else {
         emit messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
                                            .arg(here.modelName).arg(stepNumberSpecified));
     }
@@ -3390,13 +3390,13 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
         if (!currentStep)
             return false;
 
-        if (Preferences::debugLogging) {
-            emit messageSig(LOG_TRACE, QString("LPub Step lineIndex size: %1 item(s)")
-                                                .arg(currentStep->lineTypeIndexes.size()));
-//            for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
-//                emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
-//                                                   .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
-        }
+#ifdef QT_DEBUG_MODE
+        emit messageSig(LOG_TRACE, QString("LPub Step lineIndex count: %1 item(s)")
+                        .arg(currentStep->lineTypeIndexes.size()));
+//      for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
+//          emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
+//                                             .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+#endif
 
         if (fromViewer)      // input relativeIndes
             lineNumber = currentStep->getLineTypeRelativeIndex(lineIndex);
@@ -3438,8 +3438,9 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         int lineNumber    = 0;
         int lineIndex     = NEW_PART;
         int modelIndex    = NEW_MODEL;
-
         QString modelName = "undefined";
+
+#ifdef QT_DEBUG_MODE
         if (source > VIEWER_NONE) {
             const QString SourceNames[] =
             {
@@ -3450,9 +3451,10 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                 "VIEWER_SEL",  // 4
                 "VIEWER_CLR"   // 5
             };
-            QString _Message = tr("Selected Part Source: %1 (%2)").arg(SourceNames[source], QString::number(source));
+            QString _Message = tr("Selection Source: %1 (%2)").arg(SourceNames[source], QString::number(source));
             emit gui->messageSig(LOG_DEBUG, _Message);
         }
+#endif
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
@@ -3461,11 +3463,11 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             modelIndex = getSubmodelIndex(modelName);
         }
 
-        if (Preferences::debugLogging) {
-            if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
-                emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")
-                                .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
-        }
+#ifdef QT_DEBUG_MODE
+        if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
+            emit messageSig(LOG_TRACE, QString("Submodel lineIndex count: %1 item(s)")
+                            .arg(ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
+#endif
 
         for (int i = 0; i < indexes.size() && source < VIEWER_CLR; ++i) {
             lineIndex = indexes.at(i).lineIndex;

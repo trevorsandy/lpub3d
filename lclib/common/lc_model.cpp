@@ -2639,7 +2639,8 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 
 	QString Message;
 	if (Preferences::debugLogging) {
-		Message = tr("%n Pieces from editor selected","", LineTypeIndexes.size());
+		int Pieces = LineTypeIndexes.size();
+		Message = tr("%1 %2 from Editor selected").arg(Pieces).arg(Pieces == 1 ? "Piece" : "Pieces");
 		gui->statusMessage(LOG_DEBUG, Message);
 	}
 

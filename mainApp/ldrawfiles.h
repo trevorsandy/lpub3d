@@ -480,6 +480,7 @@ class LDrawFile {
     int         getSubmodelIndex(const QString &fileName);
     int         getLineTypeIndex(int submodelIndx, int relativeTypeIndx);
     int         getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx);
+    int         getLineTypeRelativeIndexCount(int submodelIndx);
     void        setLineTypeRelativeIndex(int submodelIndx, int relativeTypeIndx); // not used
     void        setLineTypeRelativeIndexes(int submodelIndx, QVector<int> &relativeTypeIndxes);
     void        resetLineTypeRelativeIndex(const QString &fileName);              // not used
