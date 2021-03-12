@@ -4143,7 +4143,7 @@ void Gui::pagesCounted()
                                     .arg(elapsedTime(timer.elapsed())));
                 mloadingFile = false;
             } else if (! ContinuousPage()) {
-                emit messageSig(LOG_STATUS,QString("Page %1 loaded %2.")
+                emit messageSig(LOG_INFO_STATUS,QString("Page %1 loaded %2.")
                                 .arg(displayPageNum)
                                 .arg(gui->elapsedTime(timer.elapsed())));
             }
