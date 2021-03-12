@@ -1164,10 +1164,11 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
             bool applyFormat = linesToFormat.size() || (editorSelection && savedSelection.size());
             if (applyFormat) {
                 if (clear) {
+                    if (Preferences::displayTheme == THEME_DARK) {
+                        lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]); // THEME_DARK_VIEWER_BACKGROUND_COLOR
+                    } else
                     if (Preferences::displayTheme == THEME_DEFAULT) {
-                        lineColor = QColor(Qt::white);
-                    } else if (Preferences::displayTheme == THEME_DARK) {
-                        lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]);
+                        lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
                     }
                 } else {
                     if (Preferences::displayTheme == THEME_DARK) {
@@ -1177,8 +1178,8 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                         lineColor.setAlpha(100); // make 60% transparent
                     } else {
                         lineColor = QColor(editorSelection ?
-                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT] :
-                                               Preferences::themeColors[THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT]);
+                                               Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT] :
+                                               Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT]);
                     }
                 }
             }
