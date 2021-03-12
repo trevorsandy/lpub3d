@@ -97,6 +97,7 @@ void CsiItem::loadTheViewer()
     if (gui->getViewerStepKey() != step->viewerStepKey) {
         step->viewerOptions->ZoomExtents = true;
         gui->setCurrentStep(step);
+        gui->showLine(step->topOfStep());
         step->loadTheViewer();
         gui->enableBuildModActions();
     }
@@ -762,16 +763,15 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     positionChanged = false;
     //placeGrabbers();
     position = pos();
-    gui->showLine(step->topOfStep());
 
+    bool lineShown = false;
     if ( event->button() == Qt::LeftButton ) {
-        //lcPreferences& Preferences = lcGetPreferences();
-        //if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
-            if (gui->saveBuildModification()) {
-                loadTheViewer();
-            }
-        //}
+        if ((lineShown = gui->saveBuildModification())) {
+            loadTheViewer();
+        }
     }
+    if (!lineShown)
+        gui->showLine(step->topOfStep());
     //  update();
 }
 

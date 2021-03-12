@@ -3303,8 +3303,8 @@ bool Gui::setCurrentStep(const QString &key)
 
 #ifdef QT_DEBUG_MODE
     if (currentStep)
-        emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
-                        .arg(currentStep->stepNumber.number));
+        emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2 ")
+                        .arg(currentStep->stepNumber.number).arg(key));
 #endif
 
     return currentStep;
@@ -3314,10 +3314,10 @@ void Gui::setCurrentStep(Step *step)
 {
     viewerStepKey = step->viewerStepKey;
     currentStep = step;
-#ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
-                    .arg(currentStep->stepNumber.number));
-#endif
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
+//                    .arg(currentStep->stepNumber.number));
+//#endif
 }
 
 /*********************************************

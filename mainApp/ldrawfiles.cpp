@@ -2308,8 +2308,9 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
     _buildModSteps.insert(stepIndex, newModStep);
 
 #ifdef QT_DEBUG_MODE
+    int action = modAction ? modAction : newModStep._buildModAction;
     emit gui->messageSig(LOG_DEBUG, QString("Insert BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
-                         .arg(stepIndex).arg(modAction == BuildModApplyRc ? "Apply" : "Remove").arg(modKey));
+                         .arg(stepIndex).arg(action == BuildModApplyRc ? "Apply" : "Remove").arg(modKey));
 #endif
 }
 
@@ -2480,7 +2481,7 @@ int LDrawFile::setBuildModStepPieces(const QString &buildModKey, int pieces)
 
 int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex)
 {
-    int lastIndex = -1;
+    int lastIndex = BM_INVALID_INDEX;
     return getBuildModAction(buildModKey, stepIndex, lastIndex);
 }
 
@@ -2489,8 +2490,7 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   bool lastAction = stepIndex == BM_LAST_ACTION ;
   QString insert  = QString("Get BuildMod");
   QString modKey  = buildModKey.toLower();
-  int action      = 0;
-  lastIndex       = -1;
+  int action      = BuildModNoActionRc;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
       int numActions = i.value()._modActions.size();
@@ -2520,7 +2520,7 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   if (!action) {
      action = setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
 #ifdef QT_DEBUG_MODE
-     QString insert = QString("Get BuildMod (SET)%1").arg(lastAction ? " Last" : "");
+     QString insert = QString("Get BuildMod Default");
 #endif
   }
 
@@ -2551,6 +2551,7 @@ int LDrawFile::setBuildModAction(
     QString  modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
 
+    int action = modAction;
     if (i != _buildMods.end()) {
         QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
         if (a != i.value()._modActions.end())
@@ -2566,6 +2567,8 @@ int LDrawFile::setBuildModAction(
           s.value()._changedSinceLastWrite = true;
         }
 
+        action = i.value()._modActions.value(stepIndex);
+
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
                                                 .arg(i.value()._modActions.value(stepIndex) == BuildModApplyRc ? "Apply" : "Remove")
@@ -2573,11 +2576,9 @@ int LDrawFile::setBuildModAction(
                                                 .arg(s.value()._changedSinceLastWrite ? "True" : "False")
                                                 .arg(modFileName));
 #endif
-
-        return i.value()._modActions.value(stepIndex);
     }
 
-    return 0;
+    return action;
 }
 
 QMap<int, int>LDrawFile::getBuildModActions(const QString &buildModKey)
@@ -2835,7 +2836,7 @@ bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &li
     bool validIndex   = newStepIndex > BM_INVALID_INDEX;
     bool nextIndex    = validIndex && _buildModNextStepIndex > BM_INVALID_INDEX;
 
-    _buildModPrevStepIndex = nextIndex ? _buildModNextStepIndex : nextIndex;
+    _buildModPrevStepIndex = nextIndex ? _buildModNextStepIndex : 0;
     _buildModNextStepIndex = newStepIndex;
 
 #ifdef QT_DEBUG_MODE

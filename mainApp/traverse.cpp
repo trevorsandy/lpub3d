@@ -483,7 +483,6 @@ int Gui::drawPage(
   QStringList calloutParts;
 
   Where topOfStep = opts.current;
-  topOfStep.setModelIndex(getSubmodelIndex(topOfStep.modelName));
 
   steps->setTopOfSteps(topOfStep/*opts.current*/);
   steps->isMirrored = opts.isMirrored;
@@ -883,7 +882,7 @@ int Gui::drawPage(
 
               if (callout->bottom.modelName != thisType) {
 
-                  Where current2(thisType,0);
+                  Where current2(type,getSubmodelIndex(type),0);
                   skipHeader(current2);
                   if (calloutMode == CalloutBeginMeta::Assembled) {
                       // In this case, no additional rotation should be applied to the submodel
@@ -1537,7 +1536,10 @@ int Gui::drawPage(
                             if (opts.calledOut){
                               pagePointer->parentRelativeType = CalloutType;
                           } else {
-                              pagePointer->parentRelativeType = step->relativeType;
+                                if (step)
+                                    pagePointer->parentRelativeType = step->relativeType;
+                                else
+                                    pagePointer->parentRelativeType = SingleStepType;
                           }
                           PlacementMeta placementMeta;
                           placementMeta.setValue(currRp, PageType);
@@ -1922,7 +1924,7 @@ int Gui::drawPage(
                   }
 
                   if (lastStep && !lastStep->csiPixmap.isNull()) {
-                      emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
+                      emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
                       setCurrentStep(lastStep);
                       if (! gui->exportingObjects()) {
                           showLine(lastStep->topOfStep());
@@ -2308,10 +2310,6 @@ int Gui::drawPage(
                               // Create BuildMods
                               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                                   insertBuildModification(buildModLevel);
-                              // Populate viewerPieces, viewerStepKey, displayPageNum - DEPRECATED
-//                              setBuildModStepKey(buildModKey, step->viewerStepKey);
-//                              setBuildModDisplayPageNumber(buildModKey, displayPageNum);
-//                              setBuildModStepPieces(buildModKey, viewerPieces);
                           }
                           buildModKeys.clear();
                           buildModActions.clear();
@@ -2754,7 +2752,7 @@ int Gui::findPage(
                               // add submodel to the model stack - it can't be a callout
                               SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
                               meta.submodelStack << tos;
-                              Where current2(type,0);
+                              Where current2(type,getSubmodelIndex(type),0);
 
                               ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -3963,7 +3961,7 @@ void Gui::drawPage(LGraphicsView  *view,
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  Where current(ldrawFile.topLevelFile(),0);
+  Where current(ldrawFile.topLevelFile(),0,0);
 
   maxPages    = 1;
   stepPageNum = 1;
@@ -4262,6 +4260,7 @@ bool Gui::setBuildModForNextStep(
     int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
+    int  topModelIndx          = getSubmodelIndex(topOfNextStep.modelName);
     int  startLine             = topOfNextStep.lineNumber;               // always start at the top
     QString startModel         = submodel ? topOfSubmodel.modelName  : topOfNextStep.modelName;
     Where topOfStep            = submodel ? topOfSubmodel            : topOfNextStep;
@@ -4277,19 +4276,11 @@ bool Gui::setBuildModForNextStep(
             &buildModNextStepIndex,
             &topOfStep] (Where &bottomOfNextStep) {
         Rc rc;
-        MetaItem mi;
-        Where walk = topOfStep + 1;
+        Where walk = topOfStep + 1;                                                // advance past STEP command
         getBuildModStepIndexHere(buildModNextStepIndex, bottomOfNextStep);         // initialize bottomOfNextStep Where
 
-        rc = mi.scanForward(walk,StepMask|StepGroupMask);                          // check next step for step group command
-        if (rc == StepGroupEndRc) {                                                // we have an end of previous step group
-            rc = mi.scanForward(walk,StepGroupBeginMask);                          //   so scan forward again to start of step group
-            if (rc == StepGroupBeginRc)                                            //   step starts a step group
-                mi.scanForward(walk,StepGroupEndMask);                             //     scan forward to end of step group
-        } else if (rc == StepGroupBeginRc) {                                       // step starts a step group
-            mi.scanForward(walk,StepGroupEndMask);                                 //   scan forward to end of step group
-        }
-        bottomOfNextStep = walk;                                                   //   set bottomOfNextStep to bottom of step
+        rc = mi->scanForward(walk,StepMask);                                       // scan to top of next step
+        bottomOfNextStep = walk;                                                   // set bottomOfNextStep to bottom of step
     };
 
     if (!submodel) {
@@ -4305,7 +4296,7 @@ bool Gui::setBuildModForNextStep(
 
         buildModPrevStepIndex = getBuildModPrevStepIndex();                        // set previous step index;
 
-        if ((buildModNextStepIndex - buildModPrevStepIndex) > 1) { // if jump forward, modify BuildMod processing start...
+        if ((buildModNextStepIndex - buildModPrevStepIndex) > 1) {                 // if jump forward, modify BuildMod processing start...
             stepDir = D_JUMP_FORWARD;
             Where topOfFromStep;
             getBuildModStepIndexHere(buildModPrevStepIndex, topOfFromStep);        // set start Where to previous step index
@@ -4409,33 +4400,32 @@ bool Gui::setBuildModForNextStep(
 #endif
     };
 
-    Where walk(startModel, startLine);
+    // next step lines index
+    int stepLines = 0;
+    int modelIndx = getSubmodelIndex(startModel);
+
+    Where walk(startModel, modelIndx, startLine);
     QString line = readLine(walk);
     rc =  page.meta.parse(line, walk, false);
     if (rc == StepRc || rc == RotStepRc)
         walk++;   // Advance past STEP meta
-
-    // next step lines index
-    int stepLines = 0;
-    int modelIndx = getSubmodelIndex(startModel);
 
     // Parse the step lines
     for ( ;
           walk.lineNumber < subFileSize(walk.modelName);
           walk.lineNumber++) {
 
-        if (progressMax && modelIndx == buildModNextStepIndex) {
+        if (progressMax && modelIndx == topModelIndx) {
             stepLines++;
             emit progressPermMessageSig(QString("Build modification check %1 of %2...").arg(stepLines).arg(progressMax));
             emit progressPermSetValueSig(stepLines);
         }
 
-        line = readLine(walk);
+       line = readLine(walk);
 
         if (line.toLatin1()[0] == '0') {
 
-            Where here(walk.modelName,walk.lineNumber);
-            rc =  page.meta.parse(line,here,false);
+            rc =  page.meta.parse(line,walk,false);
 
             switch (rc) {
 
@@ -4447,7 +4437,7 @@ bool Gui::setBuildModForNextStep(
                     buildModAction = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
                 else
                     parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
-                                        here,Preferences::ParseErrors);
+                                        walk,Preferences::ParseErrors);
                 if (buildModAction != rc)
                     change = setBuildModAction(buildModKey, buildModNextStepIndex, rc);
                 break;
@@ -4457,7 +4447,7 @@ bool Gui::setBuildModForNextStep(
                 buildModKey   = page.meta.LPub.buildMod.key();
                 buildModLevel = getLevel(buildModKey, BM_BEGIN);
                 buildModKeys.insert(buildModLevel, buildModKey);
-                insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, here);
+                insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, walk);
                 buildModActions.insert(buildModLevel, BuildModApplyRc);
                 buildMod[BM_BEGIN] = true;
                 break;
@@ -4466,18 +4456,18 @@ bool Gui::setBuildModForNextStep(
             case BuildModEndModRc:
                 if (buildModLevel > 1 && page.meta.LPub.buildMod.key().isEmpty())
                     parseError("Key required for nested build mod meta command",
-                               here,Preferences::BuildModErrors);
+                               walk,Preferences::BuildModErrors);
                 if (!buildMod[BM_BEGIN])
-                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), here, Preferences::BuildModErrors);
-                insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, here);
+                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), walk, Preferences::BuildModErrors);
+                insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
                 buildMod[BM_END_MOD] = true;
                 break;
 
             // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
             case BuildModEndRc:
                 if (!buildMod[BM_END_MOD])
-                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), here, Preferences::BuildModErrors);
-                insertAttribute(buildModAttributes, BM_END_LINE_NUM, here);
+                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), walk, Preferences::BuildModErrors);
+                insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildModLevel    = getLevel(QString(), BM_END);
                 buildMod[BM_END] = true;
                 break;
@@ -4486,15 +4476,15 @@ bool Gui::setBuildModForNextStep(
             case RotStepRc:
             case StepRc:
                 if (buildMod[BM_BEGIN] && !buildMod[BM_END])
-                    parseError(QString("Required meta BUILD_MOD END not found"), here, Preferences::BuildModErrors);
+                    parseError(QString("Required meta BUILD_MOD END not found"), walk, Preferences::BuildModErrors);
                 Q_FOREACH (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
-                topOfStep = here;
+                topOfStep = walk;
                 buildModKeys.clear();
                 buildModActions.clear();
                 buildModAttributes.clear();
                 buildMod[2] = buildMod[1] = buildMod[0] = false;
-                if (here == bottomOfNextStep)
+                if (walk == bottomOfNextStep)
                     return change;
                 break;
 
@@ -4502,6 +4492,8 @@ bool Gui::setBuildModForNextStep(
                 break;
             }
         } else if (line.toLatin1()[0] == '1') {
+            if (walk == bottomOfNextStep)
+                return change;
             QStringList token;
             split(line,token);
             if (token.size() == 15) {

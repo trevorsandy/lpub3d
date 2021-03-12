@@ -1259,7 +1259,7 @@ void Gui::displayFile(
            StepLines lineScope(top.lineNumber, bottom.lineNumber);
            displayFileSig(ldrawFile, modelName, lineScope);
 #ifdef QT_DEBUG_MODE            
-            emit messageSig(LOG_DEBUG,tr("Editor loaded (step %1, lines %2-%3) - %4")
+            emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
                             .arg(stepNumber)
                             .arg(top.lineNumber + 1/*adjust for 0-start index*/)
                             .arg(bottom.lineNumber /*actually top next step so no adjustment*/)

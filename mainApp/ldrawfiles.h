@@ -210,6 +210,8 @@ class BuildMod {
        // 6 BM_MODEL_LINE_NUM    0
        // 7 BM_MODEL_STEP_NUM    0
       _modAttributes = { 0, 0, 0, -1, 0, -1, 0, 0 };
+      _modActions = {};
+      _modStepIndex = -1;
     }
     BuildMod(
       const QVector<int>       &modAttributes,
