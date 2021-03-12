@@ -3261,9 +3261,15 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     return result;
 }
 
-int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, const QString &title, const QString &type, bool option, bool override)
+int  Preferences::showMessage(
+        Preferences::MsgID msgID,
+        const QString &message,
+        const QString &title,
+        const QString &type,
+        bool option  /*OkCancel=false*/,
+        bool override/*false*/)
 {
-    Q_FOREACH (QString messageNotShown, messagesNotShown)
+    for (QString &messageNotShown : messagesNotShown)
         if (messageNotShown.startsWith(msgID.toString()))
             return QMessageBox::Ok;
 
@@ -3275,7 +3281,7 @@ int  Preferences::showMessage(Preferences::MsgID msgID, const QString &message, 
     box.setText(message);
     box.setIcon(QMessageBox::Icon::Warning);
     box.setStandardButtons (option ? QMessageBox::Ok | QMessageBox::Cancel : QMessageBox::Ok);
-    box.setDefaultButton   (QMessageBox::Cancel);
+    box.setDefaultButton   (option ? QMessageBox::Cancel : QMessageBox::Ok);
     if (!override) {
         QCheckBox *cb = new QCheckBox(QString("Do not show this %1 again.").arg(type));
         box.setCheckBox(cb);

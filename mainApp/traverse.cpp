@@ -2623,7 +2623,6 @@ int Gui::findPage(
 
   bool buildModIgnore     = false;
   bool buildModItems      = false;
-  bool buildModApplicable = false;
 
   QString       buildModKey;
   QVector<int>  buildModLineTypeIndexes;
@@ -2990,7 +2989,7 @@ int Gui::findPage(
               case BuildModBeginRc:
                 if (!Preferences::buildModEnabled)
                     break;
-                if ((buildModApplicable= !pageDisplayed)) {
+                if (!pageDisplayed) {
                     buildModKey        = meta.LPub.buildMod.key();
                     opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
                     if (buildModContains(buildModKey))
@@ -3006,7 +3005,7 @@ int Gui::findPage(
 
               // Set buildModIgnore based on 'next' step buildModAction
               case BuildModEndModRc:
-                if (buildModApplicable) {
+                if (!pageDisplayed) {
                     if (opts.buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
                         parseError("Key required for nested build mod meta command",
                                    opts.current,Preferences::BuildModErrors);
@@ -3019,12 +3018,10 @@ int Gui::findPage(
 
               // Get buildModLevel and reset buildModIgnore to default
               case BuildModEndRc:
-                if (buildModApplicable) {
+                if (!pageDisplayed) {
                     opts.buildModLevel = getLevel(QString(), BM_END);
-                    if (opts.buildModLevel == BM_BEGIN) {
+                    if (opts.buildModLevel == BM_BEGIN)
                         buildModIgnore     = false;
-                        buildModApplicable = false;
-                    }
                 }
                 break;
 

@@ -2351,12 +2351,12 @@ int LDrawFile::getBuildModStep(const QString &modelName,
             modAction = BuildModSourceRc;
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Get BuildModStep StepIndex: %1, SourceIndex: %2, ModCount: %3, Action: %4, TopOfPage: Line %5 Model %6, ModKey: %7")
+        emit gui->messageSig(LOG_DEBUG, QString("Get BuildModStep StepIndex: %1, SourceIndex: %2, ModCount: %3, Action: %4, TopOfPage: ModelIndex %5 Line %6, ModKey: %7")
                         .arg(modStepIndex)
                         .arg(modSourceStepIndex)
                         .arg(_buildModSteps.values(modStepIndex).size())
                         .arg(modAction == BuildModApplyRc ? "Apply" : modAction == BuildModRemoveRc ? "Remove" : modAction == BuildModSourceRc ? "Source" : "None")
-                        .arg(lineNumber).arg(QString("%1 (%2)").arg(modelName).arg(modelIndex)).arg(modKey));
+                        .arg(modelIndex).arg(lineNumber).arg(modKey));
 #endif
     }
 /*
@@ -2386,7 +2386,7 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
     }
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
+    emit gui->messageSig(LOG_DEBUG, QString("Remove BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
                          .arg(stepIndex)
                          .arg(action == BuildModApplyRc ? "Apply" : action == BuildModRemoveRc ? "Remove" : action == BuildModSourceRc ? "Source" : "None")
                          .arg(modKey));
@@ -2697,7 +2697,7 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
         }
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Remove BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
+        emit gui->messageSig(LOG_TRACE, QString("Remove BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
                                                 .arg(action == BuildModApplyRc ? "Apply" : "Remove")
                                                 .arg(stepIndex)
                                                 .arg(change ? "True" : "False")

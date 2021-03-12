@@ -2517,7 +2517,7 @@ void Gui::createBuildModification()
 
 void Gui::applyBuildModification()
 {
-    if (!currentStep)
+    if (!currentStep || exporting())
         return;
 
     QStringList buildModKeys;
@@ -2531,16 +2531,19 @@ void Gui::applyBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
-    // get the last action for this build mod
-    int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
-    Rc buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
-    // was the last action defined in this step ?
-    Rc buildModStep =  Rc(getBuildModStep(currentStep->topOfStep()));
-    // set flag to remove the last action command if it is not 'Apply'
-    bool removeCommand = buildModStep == buildModAction;
+    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'apply' action..."));
 
-    QString model = currentStep->topOfStep().modelName;
-    QString line = QString::number(currentStep->topOfStep().lineNumber);
+    Where topOfStep = currentStep->topOfStep();
+
+    // get the last action for this build mod
+    Rc buildModAction = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
+    // was the last action defined in this step ?
+    Rc buildModStep =  Rc(getBuildModStep(topOfStep));
+    // set flag to remove the last action command if it is not 'Apply'
+    bool removeActionCommand = buildModStep == buildModAction;
+
+    QString model = topOfStep.modelName;
+    QString line = QString::number(topOfStep.lineNumber);
     QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
@@ -2598,36 +2601,32 @@ void Gui::applyBuildModification()
     } */
 
     int it = lcGetActiveProject()->GetImageType();
-    switch(it) {
-    case Options::CSI:
-    {
+    if (it == Options::CSI) {
         QString metaString;
         bool newCommand = false;
-        Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
 
-        beginMacro("BuildModApply|" + viewerStepKey);
+        beginMacro("BuildModApply|" + currentStep->viewerStepKey);
 
         buildModData.action      = QString("APPLY");
         buildModData.buildModKey = buildModKey;
         currentStep->buildMod.setValue(buildModData);
         metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
         newCommand = currentStep->buildMod.here() ==  Where();
-        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand, removeCommand);
+        currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
-        clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
+        if (removeActionCommand)
+            clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
+
+        clearWorkingFiles(getBuildModPathsFromStep(currentStep->viewerStepKey));
 
         endMacro();
-    }
-        break;
-    default: /*Options::PLI:*/
-        break;
     }
 }
 
 void Gui::removeBuildModification()
 {
-    if (!currentStep)
+    if (!currentStep || exporting())
         return;
 
     QStringList buildModKeys;
@@ -2642,16 +2641,19 @@ void Gui::removeBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
-    // get the last action for this build mod
-    int buildModStepIndex = getBuildModStepIndex(currentStep->topOfStep());
-    Rc buildModAction = Rc(getBuildModAction(buildModKey, buildModStepIndex));
-    // was the last action defined in this step ?
-    Rc buildModStep =  Rc(getBuildModStep(currentStep->topOfStep()));
-    // set flag to remove the last action command if it is not 'Remove'
-    bool removeCommand = buildModStep == buildModAction;
+    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'remove' action..."));
 
-    QString model = currentStep->topOfStep().modelName;
-    QString line = QString::number(currentStep->topOfStep().lineNumber);
+    Where topOfStep = currentStep->topOfStep();
+
+    // get the last action for this build mod
+    Rc buildModAction = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
+    // was the last action defined in this step ?
+    Rc buildModStep =  Rc(getBuildModStep(topOfStep));
+    // set flag to remove the last action command if it is not 'Remove'
+    bool removeActionCommand = buildModStep == buildModAction;
+
+    QString model = topOfStep.modelName;
+    QString line = QString::number(topOfStep.lineNumber);
     QString step = QString::number(currentStep->stepNumber.number);
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
@@ -2708,32 +2710,26 @@ void Gui::removeBuildModification()
     } */
 
     int it = lcGetActiveProject()->GetImageType();
-    switch(it) {
-    case Options::CSI:
-    {
+    if (it == Options::CSI) {
         QString metaString;
         bool newCommand = false;
-        Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
 
-        beginMacro("BuildModRemove|" + viewerStepKey);
+        beginMacro("BuildModRemove|" + currentStep->viewerStepKey);
 
         buildModData.action      = QString("REMOVE");
         buildModData.buildModKey = buildModKey;
         currentStep->buildMod.setValue(buildModData);
         metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
         newCommand = currentStep->buildMod.here() == Where();
-        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand, removeCommand);
+        currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
-        clearBuildModAction(buildModKey, buildModStepIndex);
+        if (removeActionCommand)
+            clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
-        clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
+        clearWorkingFiles(getBuildModPathsFromStep(currentStep->viewerStepKey));
 
         endMacro();
-    }
-        break;
-    default: /*Options::PLI:*/
-        break;
     }
 
     enableBuildModMenuAndActions();
@@ -2741,6 +2737,9 @@ void Gui::removeBuildModification()
 
 void Gui::loadBuildModification()
 {
+    if (exporting())
+        return;
+
     QStringList buildModKeys;
     if (!buildModsCount()) {
         return;
@@ -2752,6 +2751,8 @@ void Gui::loadBuildModification()
         buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
     }
     const QString buildModKey = buildModKeys.first();
+
+    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'load' action..."));
 
     /*
     QString model = "undefined", line = "undefined", step = "undefined";
@@ -2774,9 +2775,7 @@ void Gui::loadBuildModification()
     */
 
     int it = lcGetActiveProject()->GetImageType();
-    switch(it) {
-    case Options::CSI:
-    {
+    if (it == Options::CSI) {
 
         buildModChangeKey = "";
 
@@ -2803,10 +2802,6 @@ void Gui::loadBuildModification()
             buildModChangeKey = buildModKey;
         }
     }
-        break;
-    default: /*Options::PLI:*/
-        break;
-    }
 }
 
 bool Gui::setBuildModChangeKey()
@@ -2815,9 +2810,7 @@ bool Gui::setBuildModChangeKey()
         return false;
 
     int it = lcGetActiveProject()->GetImageType();
-    switch(it) {
-    case Options::CSI:
-    {
+    if (it == Options::CSI) {
         Rc rc;
         Where walk = currentStep->top;
 
@@ -2849,10 +2842,6 @@ bool Gui::setBuildModChangeKey()
             }
         }
     }
-        break;
-    default: /*Options::PLI:*/
-        break;
-    }
 
     return false;
 }
@@ -2881,6 +2870,7 @@ void Gui::deleteBuildModification()
     }
     const QString buildModKey = buildModKeys.first();
 
+    emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'delete' action..."));
 
     QString model = "undefined", line = "undefined", step = "undefined";
     QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
@@ -2943,15 +2933,14 @@ void Gui::deleteBuildModification()
     bool clearSubmodel = box.clickedButton() == clearSubmodelButton;
     bool clearPage     = multiStepPage ? box.clickedButton() == clearPageButton : false;
     bool clearStep     = box.clickedButton() == clearStepButton;
+
     if (box.clickedButton() == cancelButton)
         return;
 
     QString clearOption = clearSubmodel ? "_cm" : clearPage ? "_cp" : clearStep ? "_cs" : QString();
 
     int it = lcGetActiveProject()->GetImageType();
-    switch(it) {
-    case Options::CSI:
-    {
+    if (it == Options::CSI) {
         int modBeginLineNum  = getBuildModBeginLineNumber(buildModKey);
         int modActionLineNum = getBuildModActionLineNumber(buildModKey);
         int modEndLineNum    = getBuildModEndLineNumber(buildModKey);
@@ -2972,7 +2961,7 @@ void Gui::deleteBuildModification()
         QMap<int, int> actionsMap = getBuildModActions(buildModKey);
         QList<int> stepIndexes = actionsMap.keys();
         std::sort(stepIndexes.begin(), stepIndexes.end(), std::greater<int>()); // sort stepIndexes descending
-        Q_FOREACH (int stepIndex, stepIndexes) {
+        for (int &stepIndex : stepIndexes) {
             QMap<int, int>::iterator i = actionsMap.find(stepIndex);
             if (i.key()) {                                                      // skip first step at index 0 - deleted later
                 if (getBuildModStepIndexHere(i.key(), topOfStep)) {             // initialize topOfStep Where
@@ -3032,10 +3021,6 @@ void Gui::deleteBuildModification()
             emit messageSig(LOG_ERROR,QString("Failed to delete build modification for key %1.").arg(buildModKey));
 
         endMacro();
-    }
-        break;
-    default: /*Options::PLI:*/
-        break;
     }
 
     enableBuildModMenuAndActions();
