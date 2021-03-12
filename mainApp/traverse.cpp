@@ -471,7 +471,8 @@ int Gui::drawPage(
   bool     buildModExists    = false;
   bool     buildModChange    = false;
   bool     buildModPliIgnore = false;
-  bool     buildModTypeIgnore= false;
+  bool     buildModAction    = false; 
+  bool     buildModTypeIgnore= false;  
   bool     buildMod[3]= { false, false, false };
 
   enum draw_page_stat { begin, end };
@@ -1945,6 +1946,7 @@ int Gui::drawPage(
                       return HitBuildModAction;
                   }
               }
+              buildModAction = true;
               break;
 
             // Get BuildMod attributes and set ModIgnore based on 'current' step buildModAction
@@ -2102,9 +2104,9 @@ int Gui::drawPage(
               } // STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
 
              /*
-              * STEP - special case of no parts added, but BFX load and not NOSTEP and not BUILD_MOD ignore
+              * STEP - special case of no parts added, but BFX load or BuildMod Action and not NOSTEP
               */
-              if (! partsAdded && bfxLoad && ! noStep && ! buildModIgnore) {
+              if (! partsAdded && ! noStep && (bfxLoad || buildModAction)) {
                   if (step == nullptr) {
                       if (range == nullptr) {
                           range = newRange(steps,opts.calledOut);
@@ -2120,7 +2122,13 @@ int Gui::drawPage(
                       range->append(step);
                     }
 
-                  emit messageSig(LOG_INFO, "Processing CSI bfx load special case for " + topOfStep.modelName + "...");
+                  QString caseType;
+                  if (bfxLoad)
+                      caseType.append("bfx load");
+                  if (buildModAction)
+                      caseType.isEmpty() ? caseType.append("build modification") : caseType.append(" build modification");
+                  emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
+
                   step->updateViewer = opts.updateViewer;
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -2128,7 +2136,8 @@ int Gui::drawPage(
                         opts.lineTypeIndexes,
                         &step->csiPixmap,
                         steps->meta,
-                        bfxLoad);
+                        bfxLoad,
+                        buildModAction);
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       opts.ldrStepFiles << step->ldrName;
@@ -2491,15 +2500,16 @@ int Gui::drawPage(
                       steps->meta.pop();
                       steps->meta.LPub.buildMod.clear();
                       curMeta.LPub.buildMod.clear();
-                      opts.stepNum += partsAdded;
-                      topOfStep     = opts.current;  // set next step
-                      partsAdded    = false;
-                      coverPage     = false;
-                      rotateIcon    = false;
-                      step          = nullptr;
-                      opts.bfxStore2= bfxStore1;
-                      bfxStore1     = false;
-                      bfxLoad       = false;
+                      opts.stepNum  += partsAdded;
+                      topOfStep      = opts.current;  // set next step
+                      partsAdded     = false;
+                      coverPage      = false;
+                      rotateIcon     = false;
+                      step           = nullptr;
+                      opts.bfxStore2 = bfxStore1;
+                      bfxStore1      = false;
+                      bfxLoad        = false;
+                      buildModAction = false;
 
                   } // STEP - normal case of parts added
                   else

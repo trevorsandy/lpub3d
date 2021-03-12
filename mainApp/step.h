@@ -162,7 +162,8 @@ class Step : public AbstractRangeElement
            QVector<int> const &lineTypeIndexes,
            QPixmap            *pixmap,
            Meta               &meta,
-           bool                bfxLoad = false);
+           bool                bfxLoad = false,
+           bool                buildModAction = false);
 
     int  sizeit(int  rows[],
                 int  cols[],

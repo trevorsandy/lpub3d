@@ -227,11 +227,12 @@ Page *Step::page()
 
 int Step::createCsi(
     QString      const &addLine,
-    QStringList  const &csiParts,  // the partially assembles model
+    QStringList  const &csiParts,       // the partially assembles model
     QVector<int> const &_lineTypeIndexes,
     QPixmap           *pixmap,
     Meta              &meta,
-    bool               bfxLoad)   // Bfx load special case (no parts added)
+    bool               bfxLoad,        // Bfx load special case (no parts added)
+    bool               buildModAction) // BuildMod action special case (no parts added)
 {
   bool csiExist       = false;
   bool nativeRenderer = Preferences::usingNativeRenderer;
@@ -245,7 +246,9 @@ int Step::createCsi(
   if (nativeRenderer) {
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
-  QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_dm" : bfxLoad ? csiName()+"_bfx" : csiName();
+
+  QString nameExtension = modelDisplayOnlyStep ? "dm" : bfxLoad ? "bfx" : buildModAction ? "bm" : QString();
+  QString csi_Name      = QString("%1_%2").arg(csiName(), nameExtension);
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
