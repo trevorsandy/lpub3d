@@ -1990,7 +1990,7 @@ int Gui::drawPage(
                   buildModPliIgnore = true;
               } else if (buildModAction == BuildModRemoveRc) {
                   buildModIgnore    = true;
-                  buildModPliIgnore = false;
+                  buildModPliIgnore = pliIgnore;
               }
               buildMod[BM_BEGIN] = true;
               break;
@@ -2009,7 +2009,7 @@ int Gui::drawPage(
               // set buildMod action
               if (buildModAction   == BuildModApplyRc){
                   buildModIgnore    = true;
-                  buildModPliIgnore = false;
+                  buildModPliIgnore = pliIgnore;
               } else if (buildModAction == BuildModRemoveRc) {
                   buildModIgnore    = false;
                   buildModPliIgnore = true;
@@ -2026,7 +2026,8 @@ int Gui::drawPage(
               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               opts.buildModLevel  = getLevel(QString(), BM_END);
-              buildModIgnore      = buildModPliIgnore = false;
+              buildModIgnore      = false;
+              buildModPliIgnore   = pliIgnore;
               buildMod[BM_END]    = true;
               break;
 
