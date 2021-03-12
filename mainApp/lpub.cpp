@@ -3411,7 +3411,7 @@ void Gui::ldrawColorPartsLoad()
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
                 box.setMinimumSize(40,20);
 
-                QString body = QMessageBox::tr ("Would you like to generate it now ?");
+                QString body = QMessageBox::tr ("Would you like to generate this file now ?");
                 box.setText (message);
                 box.setInformativeText (body);
                 box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);

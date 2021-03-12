@@ -1410,6 +1410,10 @@ ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
 
 void ColourPartListWorker::generateCustomColourPartsList()
 {
+    QFileInfo colourFileList(Preferences::ldrawColourPartsFile);
+    if (!colourFileList.exists())
+        colourFileList.setFile(QString("%1/extras/%2").arg(Preferences::lpubDataPath, Preferences::validLDrawColorParts));
+
     // Archive library files
     QStringList archiveFiles;
     QFileInfo lpub3dLibFileInfo(QDir::toNativeSeparators(Preferences::lpub3dLibFile));
@@ -1464,7 +1468,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     processChildren();
 
-    writeLDrawColourPartFile();
+    writeLDrawColourPartFile(/*append=false*/);
 
     int secs = _timer.elapsed() / 1000;
     int mins = (secs / 60) % 60;
@@ -1479,8 +1483,12 @@ void ColourPartListWorker::generateCustomColourPartsList()
     QString fileStatus = QString("%1 Color Parts List successfully created with %2 entries. %3.")
                                    .arg(Preferences::validLDrawLibrary).arg(QString::number(_cpLines)).arg(time);
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
-    bool append = true;
-    writeLDrawColourPartFile(append);
+
+    writeLDrawColourPartFile(true/*append*/);
+
+    QSettings Settings;
+    Preferences::ldrawColourPartsFile = colourFileList.absoluteFilePath();
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"), Preferences::ldrawColourPartsFile);
 
     emit progressStatusRemoveSig();
     emit colourPartListFinishedSig();
@@ -1703,10 +1711,9 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
 
     if (! _ldrawStaticColourParts.empty())
     {
-        QFileInfo colourFileList(Preferences::ldrawColourPartsFile);
-        QFile file(colourFileList.absoluteFilePath());
+        QFile file(Preferences::ldrawColourPartsFile);
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
-            emit messageSig(LOG_ERROR,QString("Failed to OPEN colour parts file %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
+            emit messageSig(LOG_ERROR,QString("Failed to OPEN colour parts file %1 for writing:<br>%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);

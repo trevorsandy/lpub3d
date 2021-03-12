@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2140 (12 03 2021 07:42:24)
+LPub3D 2.4.1.1.2141 (12 03 2021 07:43:03)
 
 Features, enhancements, fixes and changes
 ------------
@@ -17,6 +17,7 @@ Revisions:
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
 - Enhancement - Set project start page and start step number for multi-document layouts #477
 - Change - Cover page not displayed in GoToPage drop-down dialogue #479
+- Change - LEGO Colour Parts File missing on AppImage startup #467
 - Change - Slow file load when Buffered Page flag is On #464
 - Change - View Next Step takes almost 1.5 minutes #465
 - Fix - Crash adding multiple next step  #459
