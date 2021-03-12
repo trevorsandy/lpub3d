@@ -3914,7 +3914,7 @@ void Gui::countPages()
   if (maxPages < 1) {
       emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
-      Where current(ldrawFile.topLevelFile(),0);
+      Where current(ldrawFile.topLevelFile(),0,0);
       int savedDpn     =  displayPageNum;
       displayPageNum   =  1 << 31;  // really large number: 2147483648
       firstStepPageNum = -1;
@@ -3974,15 +3974,19 @@ void Gui::drawPage(LGraphicsView  *view,
       ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
 
       // Set BuildMod action options for next step
-      int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
       if (Preferences::buildModEnabled) {
+          int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
           bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
+#ifdef QT_DEBUG_MODE
           QElapsedTimer t; t.start();
+#endif
 
           setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
 
+#ifdef QT_DEBUG_MODE
           emit messageSig(LOG_DEBUG,QString("Build modifications check - %1")
                                             .arg(elapsedTime(t.elapsed())));
+#endif
       }
   }
 
@@ -4048,22 +4052,23 @@ void Gui::drawPage(LGraphicsView  *view,
   if (findPage(view,scene,meta,empty/*addLine*/,findOptions) == HitBuildModAction && Preferences::buildModEnabled) {
       QApplication::restoreOverrideCursor();
       clearPage(KpageView,KpageScene);
-      drawPage(view,scene,printing,updateViewer,true/*buildMod*/);
+      buildModActionChange = true;
+      drawPage(view,scene,printing,updateViewer,buildModActionChange);
   } else {
       topOfPages.append(current);
-/*
+// *
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
       for (int i = 0; i < topOfPages.size(); i++)
       {
           emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                                             .arg(i)                                            // index
-                                             .arg(getSubmodelIndex(topOfPages.at(i).modelName)) // modelIndex
-                                             .arg(topOfPages.at(i).lineNumber)                  // lineNumber
-                                             .arg(topOfPages.at(i).modelName));                 // modelName
+                                             .arg(i)                            // index
+                                             .arg(topOfPages.at(i).modelIndex)  // modelIndex
+                                             .arg(topOfPages.at(i).lineNumber)  // lineNumber
+                                             .arg(topOfPages.at(i).modelName)); // modelName
       }
 #endif
-*/
+//*/
 
       maxPages--;
 
@@ -4260,11 +4265,11 @@ bool Gui::setBuildModForNextStep(
     int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
-    int  topModelIndx          = getSubmodelIndex(topOfNextStep.modelName);
-    int  startLine             = topOfNextStep.lineNumber;               // always start at the top
+    //int  stepModelIndx         = getSubmodelIndex(topOfNextStep.modelName);        // only count lines from the top step
+    int  startLine             = submodel ? topOfSubmodel.lineNumber : topOfNextStep.lineNumber;
     QString startModel         = submodel ? topOfSubmodel.modelName  : topOfNextStep.modelName;
     Where topOfStep            = submodel ? topOfSubmodel            : topOfNextStep;
-    bool buildMod[3]           = { false, false, false };                // validate buildMod meta command set
+    bool buildMod[3]           = { false, false, false };                          // validate buildMod meta command set
     enum D_Step{ D_NEXT, D_JUMP_FORWARD, D_JUMP_BACKWARD };
     D_Step stepDir             = D_NEXT;
 
@@ -4273,14 +4278,10 @@ bool Gui::setBuildModForNextStep(
 
     auto setBottomOfNextStep = [
             this,
-            &buildModNextStepIndex,
-            &topOfStep] (Where &bottomOfNextStep) {
-        Rc rc;
-        Where walk = topOfStep + 1;                                                // advance past STEP command
-        getBuildModStepIndexHere(buildModNextStepIndex, bottomOfNextStep);         // initialize bottomOfNextStep Where
-
-        rc = mi->scanForward(walk,StepMask);                                       // scan to top of next step
-        bottomOfNextStep = walk;                                                   // set bottomOfNextStep to bottom of step
+            &buildModNextStepIndex] (Where &bottomOfNextStep) {
+        getBuildModStepIndexHere(buildModNextStepIndex, bottomOfNextStep);  // initialize bottomOfNextStep Where
+        bottomOfNextStep++;                                                 // advance past STEP command
+        mi->scanForward(bottomOfNextStep,StepMask);                         // scan to top of next step
     };
 
     if (!submodel) {
@@ -4415,7 +4416,7 @@ bool Gui::setBuildModForNextStep(
           walk.lineNumber < subFileSize(walk.modelName);
           walk.lineNumber++) {
 
-        if (progressMax && modelIndx == topModelIndx) {
+        if (progressMax && modelIndx == stepModelIndx) {
             stepLines++;
             emit progressPermMessageSig(QString("Build modification check %1 of %2...").arg(stepLines).arg(progressMax));
             emit progressPermSetValueSig(stepLines);
@@ -4500,8 +4501,8 @@ bool Gui::setBuildModForNextStep(
                 QString modelName = token[token.size() - 1];
                 if (isSubmodel(modelName) && !buildModSubmodels.contains(modelName)) {
                     buildModSubmodels.append(modelName);
-                    Where topOfSubmodel(modelName, 0);
-                    setBuildModForNextStep(topOfStep, bottomOfNextStep, topOfSubmodel, change, true);
+                    Where topOfSubmodel(modelName,getSubmodelIndex(modelName), 0);
+                    setBuildModForNextStep(topOfStep, bottomOfNextStep, topOfSubmodel, change, true/*isSubmodel*/);
                 }
             }
         }

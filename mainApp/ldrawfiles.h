@@ -387,6 +387,7 @@ class LDrawFile {
     int getStepIndex(const QString &modelName, const int &lineNumber);
 
     /* Build Modification functions */
+
     void insertBuildMod(const QString      &buildModKey,
                         const QVector<int> &modAttributes,
                         int                 stepIndex);
@@ -399,7 +400,6 @@ class LDrawFile {
     int getBuildModStep(const QString &modelName, const int &lineNumber);
     int getBuildModStepIndex(const int modelIndex, const int lineNumber); // last application step index
     int getBuildModStepIndex(const QString &buildModKey);                 // creation step index
-    int getBuildModStepIndexHere(int stepIndex, int which);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);
@@ -416,12 +416,13 @@ class LDrawFile {
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsSize();
-    void clearBuildModSteps();
-    void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
+//    int getBuildModStepIndexHere(int stepIndex, int which);
     bool getBuildModStepIndexHere(const int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
+    void clearBuildModSteps();
+    void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
@@ -429,6 +430,7 @@ class LDrawFile {
     QStringList getBuildModPathsFromStep(const QString &modStepKey, const int image = 1/*ldr=0*/);
 
     /* ViewerStep functions */
+
     void insertViewerStep(const QString     &stepKey,
                           const QStringList &rotatedContents,
                           const QStringList &unrotatedContents,
@@ -437,7 +439,7 @@ class LDrawFile {
                           const QString     &csiKey,
                           bool               multiStep,
                           bool               calledOut,
-                          int                viewType);
+                          int                viewType/*CSI,PLI,SMP*/);
     void updateViewerStep(const QString     &fileName,
                           const QStringList &contents,
                           bool rotated = true);
@@ -452,6 +454,8 @@ class LDrawFile {
     bool        viewerStepContentExist(const QString &stepKey);
     bool        deleteViewerStep(const QString &stepKey);
     void        clearViewerSteps();
+
+    /* Line index functions */
 
     QString     getSubmodelName(int submodelIndx);
     int         getSubmodelIndex(const QString &fileName);
