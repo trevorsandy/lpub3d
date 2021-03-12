@@ -1742,6 +1742,7 @@ public:
 class ColorMeta : public LeafMeta
 {
 private:
+  int _format;
   quint32 _value[2];
 public:
   quint32 value()
@@ -1755,6 +1756,10 @@ public:
   QString stringValue()
   {
     return getRGBAString(_value[pushed]);
+  }
+  QString hexRgbValue()
+  {
+      return QColor(_value[pushed]).name(QColor::HexRgb);
   }
   QString validStringValue(const QString& defaultString)
   {

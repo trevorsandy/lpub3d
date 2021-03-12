@@ -4456,7 +4456,8 @@ int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
         QStringList contents;
         while ( ! in.atEnd()) {
             QString line = in.readLine(0);
-            contents << line.trimmed();
+            if (!line.isEmpty())
+                contents << line.trimmed();
         }
         file.close();
 

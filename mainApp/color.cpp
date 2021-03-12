@@ -53,15 +53,15 @@ void LDrawColor::LDrawColorInit()
 //                  .arg(name).arg(code).arg(color.name().toUpper()).arg(edge.name().toUpper())
 //                  .arg(nativeColor->Alpha).arg(color.name());
 
-    value2code.insert(color.name(),code.toInt()); // color code  from value
-    color2alpha.insert(code,nativeColor->Alpha);  // color alpha from code
-    color2value.insert(code,color.name());        // color value from code
-    color2edge.insert(code,edge.name());          // color edge from code
-    name2QColor.insert(code,color);               // QColor from code
-    name2QColor.insert(name.toLower(),color);     // QColor from name (lower) - e.g. dark_nougat
-    ldname2ldcolor.insert(name.toLower(),code);   // color code from name
-    color2name.insert(code,name);                 // color name from code (normal) - e.g. Dark_Nougat
-    color2name.insert(color.name(),name);         // color name from value (normal)
+    value2code.insert(color.name(QColor::HexRgb),code.toInt()); // color code  from value
+    color2alpha.insert(code,nativeColor->Alpha);                // color alpha from code
+    color2value.insert(code,color.name(QColor::HexRgb));        // color value from code
+    color2edge.insert(code,edge.name(QColor::HexRgb));          // color edge from code
+    name2QColor.insert(code,color);                             // QColor from code
+    name2QColor.insert(name.toLower(),color);                   // QColor from name (lower) - e.g. dark_nougat
+    ldname2ldcolor.insert(name.toLower(),code);                 // color code from name
+    color2name.insert(code,name);                               // color name from code (normal) - e.g. Dark_Nougat
+    color2name.insert(color.name(QColor::HexRgb),name);         // color name from value (normal)
   }
 }
 
@@ -71,19 +71,13 @@ void LDrawColor::LDrawColorInit()
  */
 QColor LDrawColor::color(const QString& nickname)
 {
-  bool isHex = false;
+//  logDebug() << QString("RECEIVED Color NICKNAME (formatted)  [%1] for QCOLOR").arg(nickname);
   QRegExp hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$",Qt::CaseInsensitive);
   QString name(nickname.toLower());
-  if (nickname.contains(name)){
-    name = nickname.toUpper();
-    isHex= nickname.contains(hexRx);
-  }
-//  logDebug() << QString("RECEIVED Color NICKNAME (formatted)  [%1] for QCOLOR").arg(name);
   QColor color(Qt::black);
-
   if (name2QColor.contains(name)) {
     color = name2QColor[name];
-  } else if (isHex) {
+  } else if (name.contains(hexRx)) {
     if (hexRx.cap(1) == "0x") {
       QString prefix("0xf"+hexRx.cap(2));
       bool ok;

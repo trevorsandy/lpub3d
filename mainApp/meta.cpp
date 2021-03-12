@@ -2747,28 +2747,43 @@ ColorMeta::ColorMeta() : LeafMeta()
 {
     _value[0] = 0;
     _value[1] = 0;
+    _format   = 2; // String: 0-255,0-255,0-255,0-255
 }
 
 Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
 {
   Rc rc = OkRc;
   if (argv.size() - index == 1) {
-    _value[pushed] = getRGBAFromString(argv[index]);
-    rc = _value[pushed] ? OkRc : FailureRc;
-    if (rc)
+    QRegExp hexRx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
+    QColor color;
+    if (argv[index].contains(hexRx)) {
+      color = QColor(argv[index]);
+      _format = argv[index].length() == 7 ? QColor::HexRgb : QColor::HexArgb;
+    } else {
+      color = QColor(getRGBAFromString(argv[index]));
+    }
+    if (color.isValid())
+      _value[pushed] = getRGBA(color.red(), color.green(), color.blue(), color.alpha());
+    else
+      rc = FailureRc;
+    if (rc == OkRc)
       _here[pushed] = here;
   } else {
     rc = FailureRc;
   }
   if (rc == FailureRc && reportErrors) {
-    emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected \"NNN,NNN,NNN,NNN\", got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected "
+                                                    "\"#RRGGBB\", \"#AARRGGBB\", or \"0-255,0-255,0-255,0-255\", "
+                                                    "got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return rc;
 }
 
 QString ColorMeta::format(bool local, bool global)
 {
-  QString foo = QString("\"%1\"").arg(getRGBAString(_value[pushed]));
+  QString foo = QString("\"%1\"").arg(_format == 2 ? getRGBAString(_value[pushed]) :
+                                      _format == QColor::HexRgb ? QColor(_value[pushed]).name(QColor::HexRgb) :
+                                                 QColor(_value[pushed]).name(QColor::HexArgb));
   return LeafMeta::format(local,global,foo);
 }
 
@@ -2808,7 +2823,7 @@ QString ColorMeta::getRGBAString(const quint32 rgba)
 
 void ColorMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " \"NNN,NNN,NNN,NNN\"";
+  out << preamble + " \"#RRGGBB\", \"#AARRGGBB\", or \"0-255,0-255,0-255,0-255\"";
 }
 
 /* ------------------ */ 
