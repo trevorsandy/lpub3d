@@ -1339,11 +1339,8 @@ void Gui::enableBuildModActions()
 
 void Gui::enableBuildModMenuAndActions()
 {
-    if (!curFile.isEmpty()) {
-        if (Preferences::buildModEnabled)
-            createBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
-        enableBuildModActions();
-    }
+    if (!curFile.isEmpty() && Preferences::buildModEnabled)
+        createBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
     enableBuildModification();
 }
 
