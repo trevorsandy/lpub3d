@@ -965,6 +965,12 @@ public:
   {
       return removeBuildModAct;
   }
+
+  QAction *getDeleteBuildModAct()
+  {
+      return deleteBuildModAct;
+  }
+
   /* End Build Modifications */
 
   void setExportedFile(const QString &fileName)

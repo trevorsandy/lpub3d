@@ -92,6 +92,16 @@ CsiItem::CsiItem(
   setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
+void CsiItem::loadTheViewer()
+{
+    if (gui->getViewerStepKey() != step->viewerStepKey) {
+        step->viewerOptions->ZoomExtents = true;
+        gui->setCurrentStep(step);
+        step->loadTheViewer();
+        gui->enableBuildModActions();
+    }
+}
+
 /********************************************
  *
  * partLine
@@ -547,14 +557,18 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   previewCsiAction->setEnabled(Preferences.mPreviewEnabled);
 
   // Build modification actions
-  QAction * applyBuildModAction = nullptr;
-  QAction * removeBuildModAction = nullptr;
+  QAction *applyBuildModAction  = nullptr;
+  QAction *removeBuildModAction = nullptr;
+  QAction *deleteBuildModAction = nullptr;
   if (Preferences::buildModEnabled) {
+      loadTheViewer();
       menu.addSeparator();
-      applyBuildModAction = gui->getApplyBuildModAct();
+      applyBuildModAction  = gui->getApplyBuildModAct();
       menu.addAction(applyBuildModAction);
       removeBuildModAction = gui->getRemoveBuildModAct();
       menu.addAction(removeBuildModAction);
+      deleteBuildModAction = gui->getDeleteBuildModAct();
+      menu.addAction(deleteBuildModAction);
   }
 
   QAction *copyCsiImagePathAction = nullptr;
@@ -708,9 +722,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       copyCsiImagePathAction->setData(step->pngName);
       emit copyCsiImagePathAction->triggered();
     } else if (selectedAction == applyBuildModAction) {
-      ; // triggered in gui
+      ; // triggered from gui
     } else if (selectedAction == removeBuildModAction) {
-      ; // triggered in gui
+      ; // triggered from gui
+    } else if (selectedAction == deleteBuildModAction) {
+      ; // triggered from gui
     }
 }
 
@@ -749,17 +765,12 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     gui->showLine(step->topOfStep());
 
     if ( event->button() == Qt::LeftButton ) {
-        lcPreferences& Preferences = lcGetPreferences();
-        if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
+        //lcPreferences& Preferences = lcGetPreferences();
+        //if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
             if (gui->saveBuildModification()) {
-                if (gui->getViewerStepKey() != step->viewerStepKey) {
-                    step->viewerOptions->ZoomExtents = true;
-                    gui->setCurrentStep(step);
-                    step->loadTheViewer();
-                    gui->enableBuildModActions();
-                }
+                loadTheViewer();
             }
-        }
+        //}
     }
     //  update();
 }
