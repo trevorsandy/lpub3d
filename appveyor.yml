@@ -49,7 +49,9 @@ matrix:
 # LP3D_BUILD_PKG_VAR         ; trigger package build
 # LP3D_TEST_SF_DEPLOY_VAR    ; deploy SourceForge
 # LP3D_SKIP_SF_DEPLOY_VAR    ; skip SourceForge deploy
+# LP3D_SKIP_SHA_GEN_VAR      ; skip sha512 file generation
 # LP3D_CLEAR_AVCACHE_VAR     ; delete cache
+# LP3D_CONTINUOUS_BUILD_VAR  ; continuous, maintenance build - use if SKIP TRAVIS is true
 # LP3D_BUILD_RENDERERS_VAR   ; build specified renderer(s) in compile only configuration
 # LP3D_BUILD_LDGLITE_VAR     ; rebuild LDGLite
 # LP3D_BUILD_LDVIEW_VAR      ; rebuild LDView
@@ -145,6 +147,13 @@ init:
         $env:LP3D_DEPLOY_PKG = "false"
       }
  - ps: |
+      If ($env:LP3D_CONTINUOUS_BUILD_VAR -eq "true") {
+        write-host "Continuous build, used if SKIP TRAVIS, detected in environment variable."
+        $env:LP3D_BUILD_PKG = "yes"
+        $env:LP3D_DEPLOY_PKG = "false"
+        $env:LP3D_CONTINUOUS_BUILD_PKG = "true"
+      }
+ - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
           $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
@@ -229,7 +238,7 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
- - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
+# - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'
@@ -270,17 +279,19 @@ after_build:
         }
         If (${env:LP3D_DOWNLOAD_ASSETS}) {
           $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS};
-          [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % {
-              $AssetExtension = [System.IO.Path]::GetExtension("$_")
-              If ($AssetExtension -eq ".zip" -or $AssetExtension -eq ".exe") {
-                  $Asset = [System.IO.Path]::GetFileName("$_")
-                  $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
-                  $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
-                  write-host "`n  Creating Hash File: ${Asset}.sha512..."
-                  C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > ${Asset}.sha512 2>&1"
+          If ($env:LP3D_SKIP_SHA_GEN_VAR -ne "true") {
+              [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % {
+                  $AssetExtension = [System.IO.Path]::GetExtension("$_")
+                  If ($AssetExtension -eq ".zip" -or $AssetExtension -eq ".exe") {
+                      $Asset = [System.IO.Path]::GetFileName("$_")
+                      $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
+                      $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
+                      write-host "`n  Creating Hash File: ${Asset}.sha512..."
+                      C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > ${Asset}.sha512 2>&1"
+                  }
               }
+              write-host "`n"
           }
-          write-host "`n"
           [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
