@@ -264,11 +264,11 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]->setIcon(ViewZoomExtentsIcon);
 
     QIcon ViewLookAtIcon;
-    ViewLookAtIcon.addFile(":/resources/convertcallout.png");
-    ViewLookAtIcon.addFile(":/resources/convertcallout16.png");
+    ViewLookAtIcon.addFile(":/resources/lookat.png");
+    ViewLookAtIcon.addFile(":/resources/lookat.png");
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setIcon(ViewLookAtIcon);
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setShortcut(tr("Shift+O"));
-    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setStatusTip(tr("Rotate view so selected pieces are at center - Shift+O"));
+    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setStatusTip(tr("Position camera so selection is placed at the viewport center - Shift+O"));
 
     enableBuildModification();
 }
