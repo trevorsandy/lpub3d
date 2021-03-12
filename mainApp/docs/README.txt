@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2217 (12 03 2021 21:45:00)
+LPub3D 2.4.1.1.2218 (12 03 2021 21:45:38)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,7 @@ Revisions:
 - Change - LEGO Colour Parts File missing on AppImage startup #467
 - Change - Slow file load when Buffered Page flag is On #464
 - Change - View Next Step takes almost 1.5 minutes #465
+- Fix - Assembly with callout does not remain where its dragged to #397
 - Fix - Change Assembly Camera Angles removes highlighting #468
 - Fix - Crash adding multiple next step  #459
 - Fix - Double Assembly Margins in callout/step-group settings #482

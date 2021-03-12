@@ -753,7 +753,7 @@ int Gui::addGraphicsPageItems(
 
                   // Place the step relative to the page.
 
-                  plPage.relativeTo(step);      // place everything - calculate placement for all page objects
+                  plPage.relativeTo(step, true/*ignoreCallouts*/);      // place everything - calculate placement for all page objects
 
                   // center the csi's bounding box relative to the page
                   plPage.placeRelativeBounding(step->csiItem);

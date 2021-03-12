@@ -131,7 +131,8 @@ void Placement::appendRelativeTo(Placement *element)
  * of things that are relative to them.
  */
 int Placement::relativeTo(
-  Step *step)
+  Step *step,
+  bool ignoreCallouts)
 {
   int rc = 0;
 
@@ -187,13 +188,21 @@ int Placement::relativeTo(
       appendRelativeTo(&step->plPageFooter);
     }
     /* callouts */
-    for (int i = 0; i < step->list.size(); i++) {
-      if (step->list[i]->relativeType == CalloutType) {
-        Callout *callout = step->list[i];
-        stepRelativeTo = callout->placement.value().relativeTo;
-        if (stepRelativeTo == relativeType) {
-          placeRelative(callout);
-          appendRelativeTo(callout);
+    // Ignore callouts falg is basically a hack to suppress
+    // repositioning the csiItem on a single-step pages when
+    // callouts are dragged. The placeRelative(Placement *them) call
+    // will recalculate it's size based on the deminsions of the callout
+    // thus causing the csiItem to be 'moved' which is almost never
+    // expectecd or appreciated.
+    if (!ignoreCallouts) {
+      for (int i = 0; i < step->list.size(); i++) {
+        if (step->list[i]->relativeType == CalloutType) {
+          Callout *callout = step->list[i];
+          stepRelativeTo = callout->placement.value().relativeTo;
+          if (stepRelativeTo == relativeType) {
+            placeRelative(callout);
+            appendRelativeTo(callout);
+          }
         }
       }
     } // callouts
@@ -230,7 +239,7 @@ int Placement::relativeTo(
 
   int limit = relativeToList.size();
   for (int i = 0; i < limit; i++) {
-    rc = relativeToList[i]->relativeTo(step);
+    rc = relativeToList[i]->relativeTo(step, ignoreCallouts);
     if (rc) {
       break;
     }

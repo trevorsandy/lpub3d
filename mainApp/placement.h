@@ -236,7 +236,8 @@ class Placement {
     void appendRelativeTo(Placement *element);
 
     int  relativeTo(
-      Step      *step);
+      Step      *step,
+      bool       ignoreCallouts = false);
 
     int relativeToSg(
       Steps    *steps);
