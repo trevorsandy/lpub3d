@@ -440,7 +440,7 @@ class LDrawFile {
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool deleteBuildMod(const QString &buildModKey);
-    void clearBuildModRendered();
+    void clearBuildModRendered(bool countPage = false);
     void clearBuildModRendered(const QString &buildModKey, const QString &renderedModel);
     void clearBuildModAction(const QString &buildModKey, const int stepIndex);
     void clearBuildModStep(const QString &buildModKey,const int stepIndex);

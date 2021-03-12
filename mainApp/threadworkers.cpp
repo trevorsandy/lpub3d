@@ -3027,129 +3027,141 @@ int CountPageWorker::countPage(
 
       switch (line.toLatin1()[0]) {
       case '1':
+          // process type 1 line...
+          if (! opts.flags.partIgnore) {
 
-          // process submodel...
-          if (! opts.buildMod.ignore) {
+              if (gui->firstStepPageNum == -1) {
+                  gui->firstStepPageNum = opts.pageNum;
+              }
+              gui->lastStepPageNum = opts.pageNum;
 
-              if (! opts.flags.partIgnore) {
+              QStringList token;
 
-                  if (gui->firstStepPageNum == -1) {
-                      gui->firstStepPageNum = opts.pageNum;
-                  }
-                  gui->lastStepPageNum = opts.pageNum;
+              split(line,token);
 
-                  QStringList token;
+              if (token.size() == 15) {
 
-                  split(line,token);
+                  QString type = token[token.size()-1];
+                  QString colorType = token[1]+type;
 
-                  if (token.size() == 15) {
+                  bool contains   = gui->isSubmodel(type);
+                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
-                      QString type = token[token.size()-1];
-                      QString colorType = token[1]+type;
+                  // if submodel
+                  if (contains) {
 
-                      bool contains   = gui->isSubmodel(type);
-                      CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                      // check if submodel is in current step build modification
+                      bool buildModRendered = (opts.buildMod.ignore2 || ldrawFile->getBuildModRendered(opts.buildMod.key, colorType, true/*countPage*/));
 
-                      // if submodel or assembled/rotated callout
-                      if (contains && (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                      // if assembled/rotated callout
+                      if (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
                           bool rendered = ldrawFile->rendered(type,
-                                                             ldrawFile->mirrored(token),
-                                                             opts.current.modelName,
-                                                             opts.stepNumber,
-                                                             countInstances,
-                                                             (alreadyRendered ? false : true /*countPage*/));
-
-                          // check if submodel is in current step build modification
-                          bool buildModRendered = (opts.buildMod.ignore2 || ldrawFile->getBuildModRendered(
-                                          (alreadyRendered ? "" : "cp~")+opts.buildMod.key, colorType));
+                                                              ldrawFile->mirrored(token),
+                                                              opts.current.modelName,
+                                                              opts.stepNumber,
+                                                              countInstances,
+                                                              (alreadyRendered ? false : true /*countPage*/));
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if (opts.buildMod.state == BM_BEGIN)
-                                  ldrawFile->setBuildModRendered("cp"+opts.buildMod.key, colorType);
+                              if (! opts.buildMod.ignore || ! buildModRendered) {
 
-                              opts.isMirrored = ldrawFile->mirrored(token);
+                                  opts.isMirrored = ldrawFile->mirrored(token);
 
-                              // add submodel to the model modelStack - it can't be a callout
-                              SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                              meta.submodelStack << tos;
-                              Where current2(type,ldrawFile->getSubmodelIndex(type),0);
-                              FindPageFlags flags2;
-                              BuildModFlags buildMod2;
+                                  // add submodel to the model modelStack - it can't be a callout
+                                  SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                                  meta.submodelStack << tos;
+                                  Where current2(type,ldrawFile->getSubmodelIndex(type),0);
+                                  FindPageFlags saveFlags2 = opts.flags;
+                                  FindPageFlags flags2;
+                                  BuildModFlags saveBuildMod2 = opts.buildMod;
+                                  BuildModFlags buildMod2;
 
-                              ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
+                                  ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
-                              // save rotStep, clear it, and restore it afterwards
-                              // since rotsteps don't affect submodels
-                              RotStepMeta saveRotStep2 = meta.rotStep;
-                              meta.rotStep.clear();
+                                  // save rotStep, clear it, and restore it afterwards
+                                  // since rotsteps don't affect submodels
+                                  RotStepMeta saveRotStep2 = meta.rotStep;
+                                  meta.rotStep.clear();
 
-                              // save Default pageSize information
-                              PgSizeData pageSize2;
-                              if (gui->exporting()) {
-                                  pageSize2       = gui->getPageSize(DEF_SIZE);
-                                  opts.flags.pageSizeUpdate  = false;
+                                  // save Default pageSize information
+                                  PgSizeData pageSize2;
+                                  if (gui->exporting()) {
+                                      pageSize2       = gui->getPageSize(DEF_SIZE);
+                                      opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
-                                  logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
-                                             << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
-                                             << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
-                                             << "ID:"   << pageSize2.sizeID
-                                             << "Model:" << opts.current.modelName;
+                                      logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                                                 << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                                 << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << pageSize2.sizeID
+                                                 << "Model:" << opts.current.modelName;
 #endif
-                              }
+                                  }
 
-                              // set the step number and parent model where the submodel will be rendered
-                              FindPageOptions submodelOpts(
-                                          opts.pageNum,
-                                          current2,
-                                          opts.pageSize,
-                                          flags2,
-                                          buildMod2,
-                                          opts.updateViewer,
-                                          opts.isMirrored,
-                                          opts.printing,
-                                          opts.stepNumber,
-                                          opts.contStepNumber,
-                                          opts.groupStepNumber,
-                                          opts.current.modelName /*renderParentModel*/);
-                              countPage(meta, ldrawFile, modelStack, submodelOpts);
+                                  // set the step number and parent model where the submodel will be rendered
+                                  FindPageOptions submodelOpts(
+                                              opts.pageNum,
+                                              current2,
+                                              opts.pageSize,
+                                              flags2,
+                                              buildMod2,
+                                              opts.updateViewer,
+                                              opts.isMirrored,
+                                              opts.printing,
+                                              opts.stepNumber,
+                                              opts.contStepNumber,
+                                              opts.groupStepNumber,
+                                              opts.current.modelName /*renderParentModel*/);
+                                  countPage(meta, ldrawFile, modelStack, submodelOpts);
 
-                              gui->saveStepPageNum = gui->stepPageNum;
-                              meta.submodelStack.pop_back();
-                              meta.rotStep = saveRotStep2;              // restore old rotstep
+                                  gui->saveStepPageNum = gui->stepPageNum;
+                                  opts.flags = saveFlags2;                  // restore old flags
+                                  opts.buildMod = saveBuildMod2;            // restore old buildMod
+                                  meta.rotStep = saveRotStep2;              // restore old rotstep
+                                  meta.submodelStack.pop_back();
 
-                              if (gui->exporting()) {
-                                  removePageSize(DEF_SIZE);
-                                  insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
+                                  if (gui->exporting()) {
+                                      removePageSize(DEF_SIZE);
+                                      insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
-                                  logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                             << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                                             << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                                             << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
-                                             << "Model:" << opts.current.modelName;
+                                      logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                                                 << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                                                 << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                                                 << "Model:" << opts.current.modelName;
 #endif
-                              }
-                          }
-                      }
-                      if (opts.flags.bfxStore1) {
-                          bfxParts << colorType;
-                      }
-                      if (opts.buildMod.state == BM_BEGIN && ! opts.buildMod.ignore) {
+                                  } // Exporting
+
+                              } // ! BuildModIgnore
+
+                          } // ! Rendered && (! BfxStore2 || ! BfxParts.contains(colorType))
+
+                      } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
+
+                      // add submodel to buildMod rendered list
+                      if (opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
                           ldrawFile->setBuildModRendered("cp~"+opts.buildMod.key, colorType);
                       }
-                  }
-              } // ! PartIgnore
 
+                  } // Contains [IsSubmodel]
+
+                  if (opts.flags.bfxStore1) {
+                      bfxParts << colorType;
+                  }
+
+              } // Type 1 Line
+
+          } // ! PartIgnore
         case '2':
         case '3':
         case '4':
         case '5':
-            ++opts.flags.partsAdded;
-
-          } // ! BuildModIgnore, for each line
+          if (! opts.buildMod.ignore) {
+              ++opts.flags.partsAdded;
+            } // ! BuildModIgnore, for each line
             break;
 
         case '0':
@@ -3219,6 +3231,7 @@ int CountPageWorker::countPage(
             case BuildModBeginRc:
               if (!Preferences::buildModEnabled)
                   break;
+              opts.buildMod.key = meta.LPub.buildMod.key();
               opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
               opts.buildMod.action = BuildModApplyRc;
               opts.buildMod.ignore = false;
@@ -3291,7 +3304,7 @@ int CountPageWorker::countPage(
                   } // ! BfxStore2
                   opts.buildMod.ignore2 = opts.buildMod.ignore;
                   if ( ! opts.buildMod.ignore2) {
-                      ldrawFile->clearBuildModRendered();
+                      ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore2
 
                 } // PartsAdded && ! NoStep

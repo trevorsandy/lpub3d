@@ -2760,154 +2760,163 @@ int Gui::findPage(
               line = tokens.join(" ");
           }
 
-          // process submodel...
-          if (! opts.buildMod.ignore) {
+          // process type 1 line...
+          if (! opts.flags.partIgnore) {
 
-              if (! opts.flags.partIgnore) {
+              // csiParts << line;
 
-                  // csiParts << line;
+              if (firstStepPageNum == -1) {
+                  firstStepPageNum = opts.pageNum;
+              }
+              lastStepPageNum = opts.pageNum;
 
-                  if (firstStepPageNum == -1) {
-                      firstStepPageNum = opts.pageNum;
-                  }
-                  lastStepPageNum = opts.pageNum;
+              QStringList token;
 
-                  QStringList token;
+              split(line,token);
 
-                  split(line,token);
+              if (token.size() == 15) {
 
-                  if (token.size() == 15) {
+                  QString type = token[token.size()-1];
+                  QString colorType = token[1]+type;
 
-                      QString    type = token[token.size()-1];
-                      QString colorType = token[1]+type;
+                  bool contains = ldrawFile.isSubmodel(type);
+                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
-                      bool contains   = ldrawFile.isSubmodel(type);
-                      CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                  // if submodel
+                  if (contains) {
 
-                      // if submodel or assembled/rotated callout
-                      if (contains && (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                      // check if submodel is in current step build modification
+                      bool buildModRendered = (opts.buildMod.ignore2 || getBuildModRendered(opts.buildMod.key, colorType));
+
+                      // if assembled/rotated callout
+                      if (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
-                          // check if submodel is in current step build modification
-                          bool buildModRendered = (opts.buildMod.ignore2 || getBuildModRendered(opts.buildMod.key, colorType));
-
                           // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if (opts.buildMod.state == BM_BEGIN)
-                                  setBuildModRendered(opts.buildMod.key, colorType);
+                              if (! opts.buildMod.ignore || ! buildModRendered) {
 
-                              opts.isMirrored = ldrawFile.mirrored(token);
+                                  opts.isMirrored = ldrawFile.mirrored(token);
 
-                              // add submodel to the model stack - it can't be a callout
-                              SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                              meta.submodelStack << tos;
-                              Where current2(type,getSubmodelIndex(type),0);
-                              FindPageFlags flags2;
-                              BuildModFlags buildMod2;
+                                  // add submodel to the model stack - it can't be a callout
+                                  SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                                  meta.submodelStack << tos;
+                                  Where current2(type,getSubmodelIndex(type),0);
+                                  FindPageFlags flags2;
+                                  BuildModFlags buildMod2;
+                                  BuildModFlags saveBuildMod2 = opts.buildMod;
 
-                              ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
+                                  ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
 
-                              // save rotStep, clear it, and restore it afterwards
-                              // since rotsteps don't affect submodels
-                              RotStepMeta saveRotStep2 = meta.rotStep;
-                              meta.rotStep.clear();
+                                  // save rotStep, clear it, and restore it afterwards
+                                  // since rotsteps don't affect submodels
+                                  RotStepMeta saveRotStep2 = meta.rotStep;
+                                  meta.rotStep.clear();
 
-                              // set the group step number to the first step of the submodel
-                              if (meta.LPub.multiStep.pli.perStep.value() == false &&
-                                  meta.LPub.multiStep.showGroupStepNumber.value()) {
-                                  opts.groupStepNumber = opts.stepNumber;
-                              }
+                                  // set the group step number to the first step of the submodel
+                                  if (meta.LPub.multiStep.pli.perStep.value() == false &&
+                                          meta.LPub.multiStep.showGroupStepNumber.value()) {
+                                      opts.groupStepNumber = opts.stepNumber;
+                                  }
 
-                              // save Default pageSize information
-                              PgSizeData pageSize2;
-                              if (exporting()) {
-                                  pageSize2       = pageSizes[DEF_SIZE];
-                                  opts.flags.pageSizeUpdate  = false;
+                                  // save Default pageSize information
+                                  PgSizeData pageSize2;
+                                  if (exporting()) {
+                                      pageSize2       = pageSizes[DEF_SIZE];
+                                      opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
-                                  logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
-                                             << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
-                                             << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
-                                             << "ID:"   << pageSize2.sizeID
-                                             << "Model:" << opts.current.modelName;
+                                      logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                                                 << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                                 << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << pageSize2.sizeID
+                                                 << "Model:" << opts.current.modelName;
 #endif
-                              }
+                                  }
 
-                              // set the step number and parent model where the submodel will be rendered
-                              FindPageOptions submodelOpts(
-                                          opts.pageNum,
-                                          current2,
-                                          opts.pageSize,
-                                          flags2,
-                                          buildMod2,
-                                          opts.updateViewer,
-                                          opts.isMirrored,
-                                          opts.printing,
-                                          opts.stepNumber,
-                                          opts.contStepNumber,
-                                          opts.groupStepNumber,
-                                          opts.current.modelName /*renderParentModel*/);
-                              findPage(view, scene, meta, line, submodelOpts);
+                                  // set the step number and parent model where the submodel will be rendered
+                                  FindPageOptions submodelOpts(
+                                              opts.pageNum,
+                                              current2,
+                                              opts.pageSize,
+                                              flags2,
+                                              buildMod2,
+                                              opts.updateViewer,
+                                              opts.isMirrored,
+                                              opts.printing,
+                                              opts.stepNumber,
+                                              opts.contStepNumber,
+                                              opts.groupStepNumber,
+                                              opts.current.modelName /*renderParentModel*/);
+                                  findPage(view, scene, meta, line, submodelOpts);
 
-                              saveStepPageNum = stepPageNum;
-                              meta.rotStep    = saveRotStep2;           // restore old rotstep
-                              meta.submodelStack.pop_back();            // remove where we stopped in the parent model
+                                  saveStepPageNum = stepPageNum;
+                                  opts.buildMod = saveBuildMod2;            // restore old buildMod
+                                  meta.rotStep  = saveRotStep2;             // restore old rotstep
+                                  meta.submodelStack.pop_back();            // remove where we stopped in the parent model
 
-                              if (opts.contStepNumber) {                // capture continuous step number from exited submodel
-                                  opts.contStepNumber = saveContStepNum;
-                              }
+                                  if (opts.contStepNumber) {                // capture continuous step number from exited submodel
+                                      opts.contStepNumber = saveContStepNum;
+                                  }
 
-                              if (opts.groupStepNumber) {               // capture group step number from exited submodel
-                                  opts.groupStepNumber = saveGroupStepNum;
-                              }
+                                  if (opts.groupStepNumber) {               // capture group step number from exited submodel
+                                      opts.groupStepNumber = saveGroupStepNum;
+                                  }
 
-                              if (exporting()) {
-                                  pageSizes.remove(DEF_SIZE);
-                                  pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information
+                                  if (exporting()) {
+                                      pageSizes.remove(DEF_SIZE);
+                                      pageSizes.insert(DEF_SIZE,pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
-                                  logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                             << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                             << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                             << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                             << "Model:" << opts.current.modelName;
+                                      logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                                                 << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                                                 << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                                 << "Model:" << opts.current.modelName;
 #endif
-                              } // Exporting
+                                  } // Exporting
 
-                              // if page displayed, end processing
-                              if (opts.pageNum > displayPageNum) {
-                                  // Set buildMod action
-                                  if (opts.buildMod.state != BM_NONE)
-                                      opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                                  // advance one line so we don't process this line again in the countPage block
-                                  opts.current++;
-                                  // set processing state
-                                  pageProcessRunning = PROC_DISPLAY_PAGE;
-                                  return OkRc;
-                              }
+                                  // if page displayed, end processing
+                                  if (opts.pageNum > displayPageNum) {
+                                      // Set buildMod action
+                                      if (opts.buildMod.state != BM_NONE)
+                                          opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                                      // advance one line so we don't process this line again in the countPage block
+                                      opts.current++;
+                                      // set processing state
+                                      pageProcessRunning = PROC_DISPLAY_PAGE;
+                                      return OkRc;
+                                  }
+
+                              } // ! BuildModIgnore
 
                           } // ! Rendered && (! BfxStore2 || ! BfxParts.contains(colorType))
 
-                      } // Contains [IsSubmodel] && (! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled))
+                      } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
-                     if (opts.flags.bfxStore1) {
-                         bfxParts << colorType;
-                     }
-                     if (contains && buildMod[BM_BEGIN] && ! buildModIgnore) {
-                         setBuildModRendered(buildModKey, colorType);
-                     }
-                  } // token.size() == 15
+                      // add submodel to buildMod rendered list
+                      if (opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
+                          setBuildModRendered(opts.buildMod.key, colorType);
+                      }
 
-              } // ! PartIgnore
+                  } // Contains [IsSubmodel]
+
+                  if (opts.flags.bfxStore1) {
+                      bfxParts << colorType;
+                  }
+
+              } // Type 1 Line
+
+          } // ! PartIgnore
         case '2':
         case '3':
         case '4':
         case '5':
-            ++opts.flags.partsAdded;
-            CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
-
-          } // ! BuildModIgnore, for each linee
+          if (! opts.buildMod.ignore) {
+              ++opts.flags.partsAdded;
+              CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+            } // ! BuildModIgnore, for each linee
             break;
 
         case '0':
@@ -3133,182 +3142,183 @@ int Gui::findPage(
             case RotStepRc:
             case StepRc:
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
-                  if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
-                      if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
-                         (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
-                          opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                      }
-                      if (! opts.flags.stepGroup && opts.stepNumber == 1 + sa) {
-                          if (opts.pageNum == 1 + pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
-                              meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
-                          } else {
-                              saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
-                          }
-                      }
-                  }
-
-                  opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                  stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
-
-                  if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
-                      if ( ! opts.flags.stepGroup) {
-                          saveLineTypeIndexes    = lineTypeIndexes;
-                          saveStepNumber         = opts.stepNumber;
-                          saveCsiParts           = csiParts;
-                          saveMeta               = meta;
-                          saveBfx                = bfx;
-                          saveBfxParts           = bfxParts;
-                          saveBfxLineTypeIndexes = bfxLineTypeIndexes;
-                          saveStepPageNum        = stepPageNum;
-                          // bfxParts.clear();
-                          if (opts.groupStepNumber &&
-                              meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
-                              opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                              saveGroupStepNum      = opts.groupStepNumber;
-                          }
-#ifdef WRITE_PARTS_DEBUG
-                          writeFindPartsFile("a_find_csi_parts", csiParts);
-#endif
+                  if (! opts.buildMod.ignore) {
+                    if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
+                        if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
+                           (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
+                            opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                         }
-                      if (opts.contStepNumber) { // save continuous step number from current model
-                          saveContStepNum = opts.contStepNumber;
-                      }
-                      saveCurrent = opts.current;
-                      saveRotStep = meta.rotStep;
-                    } // isPreDisplayPage/*opts.pageNum < displayPageNum*/
-
-                  if ( ! opts.flags.stepGroup) {
-                      if (isDisplayPage && ! opts.buildMod.ignore) {
-                          lineTypeIndexes.clear();
-                          csiParts.clear();
-                          savePrevStepPosition = saveCsiParts.size();
-                          stepPageNum = saveStepPageNum;
-                          if (opts.pageNum == 1 + pa) {
-                              page.meta = meta;
-                          } else {
-                              page.meta = saveMeta;
-                          }
-                          if (opts.contStepNumber) { // pass continuous step number to drawPage
-                              page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
-                              saveStepNumber    = opts.contStepNumber;
-                          }
-                          if (opts.groupStepNumber) { // pass group step number to drawPage and persist
-                              saveGroupStepNum  = opts.groupStepNumber;
-                              saveStepNumber    = opts.groupStepNumber;
-                          }
-                          page.meta.pop();
-                          page.meta.LPub.buildMod.clear();
-                          page.meta.rotStep = saveRotStep;
-                          page.meta.rotStep = meta.rotStep;
-
-                          QStringList pliParts;
-                          DrawPageOptions pageOptions(
-                                      saveCurrent,
-                                      saveCsiParts,
-                                      pliParts,
-                                      saveBfxParts,
-                                      ldrStepFiles,
-                                      csiKeys,
-                                      saveBfx,
-                                      emptyPartGroups,
-                                      saveLineTypeIndexes,
-                                      saveBfxLineTypeIndexes,
-                                      saveStepNumber,
-                                      opts.groupStepNumber,
-                                      opts.updateViewer,
-                                      opts.isMirrored,
-                                      opts.printing,
-                                      opts.flags.bfxStore2);
-#ifdef WRITE_PARTS_DEBUG
-                          writeFindPartsFile("b_find_save_csi_parts");
-#endif
-                          if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
-                              // Set opts.current to topOfStep
-                              opts.current = pageOptions.current;
-                              // Set processing state
-                              pageProcessRunning = PROC_DISPLAY_PAGE;
-                              // rerun findPage to reflect change in pre-displayPageNum csiParts
-                              return HitBuildModAction;
-                          }
-
-                          pageDisplayed = true;
-                          saveCurrent.modelName.clear();
-                          saveCsiParts.clear();
-                          saveLineTypeIndexes.clear();
-                          //buildModActions.clear();
-
-                        } // IsDisplayPage /*opts.pageNum == displayPageNum*/
-
-                      if (exporting()) {
-                          pageSizes.remove(opts.pageNum);
-                          if (opts.flags.pageSizeUpdate) {
-                              opts.flags.pageSizeUpdate = false;
-                              pageSizes.insert(opts.pageNum,opts.pageSize);
-#ifdef PAGE_SIZE_DEBUG
-                              logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << opts.pageSize.sizeID
-                                         << "Model:" << opts.current.modelName;
-#endif
+                        if (! opts.flags.stepGroup && opts.stepNumber == 1 + sa) {
+                            if (opts.pageNum == 1 + pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
+                                meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                             } else {
-                              pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
-#ifdef PAGE_SIZE_DEBUG
-                              logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                         << "Model:" << opts.current.modelName;
-#endif
+                                saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                             }
-                        } // Exporting
+                        }
+                    }
 
-                      ++opts.pageNum;
-                      topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
+                    opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
+                    stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
-                      // if page displayed, save state and end processing
-                      if (pageDisplayed) {
-                          // if submodel, save where we stopped in the parent model
-                          if (meta.submodelStack.size()) {
-                              // add parent model positions - excpet positions in the top level model
-                              Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
-                                 if (getSubmodelIndex(tos.modelName) > 0) {
-                                      ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
-                                      modelStack.append(toms);
-                                 }
-                             }
-                              // lastly, add the current where position
-                              ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                              modelStack.append(toms);
-                         }
-                          // Set buildMod action
-                          if (opts.buildMod.state != BM_NONE)
-                              opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                          // advance one line so we don't process this line again in the countPage block
-                          opts.current++;
-                          // set processing state
-                          pageProcessRunning = PROC_DISPLAY_PAGE;
-                          return OkRc;
-                      }
+                    if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+                        if ( ! opts.flags.stepGroup) {
+                            saveLineTypeIndexes    = lineTypeIndexes;
+                            saveStepNumber         = opts.stepNumber;
+                            saveCsiParts           = csiParts;
+                            saveMeta               = meta;
+                            saveBfx                = bfx;
+                            saveBfxParts           = bfxParts;
+                            saveBfxLineTypeIndexes = bfxLineTypeIndexes;
+                            saveStepPageNum        = stepPageNum;
+                            // bfxParts.clear();
+                            if (opts.groupStepNumber &&
+                                meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
+                                opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
+                                saveGroupStepNum      = opts.groupStepNumber;
+                            }
+#ifdef WRITE_PARTS_DEBUG
+                            writeFindPartsFile("a_find_csi_parts", csiParts);
+#endif
+                          }
+                        if (opts.contStepNumber) { // save continuous step number from current model
+                            saveContStepNum = opts.contStepNumber;
+                        }
+                        saveCurrent = opts.current;
+                        saveRotStep = meta.rotStep;
+                      } // isPreDisplayPage/*opts.pageNum < displayPageNum*/
 
-                    } // ! StepGroup
+                    if ( ! opts.flags.stepGroup) {
+                        if (isDisplayPage) {
+                            lineTypeIndexes.clear();
+                            csiParts.clear();
+                            savePrevStepPosition = saveCsiParts.size();
+                            stepPageNum = saveStepPageNum;
+                            if (opts.pageNum == 1 + pa) {
+                                page.meta = meta;
+                            } else {
+                                page.meta = saveMeta;
+                            }
+                            if (opts.contStepNumber) { // pass continuous step number to drawPage
+                                page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
+                                saveStepNumber    = opts.contStepNumber;
+                            }
+                            if (opts.groupStepNumber) { // pass group step number to drawPage and persist
+                                saveGroupStepNum  = opts.groupStepNumber;
+                                saveStepNumber    = opts.groupStepNumber;
+                            }
+                            page.meta.pop();
+                            page.meta.LPub.buildMod.clear();
+                            page.meta.rotStep = saveRotStep;
+                            page.meta.rotStep = meta.rotStep;
 
-                  topOfStep = opts.current;  // Set next step
-                  opts.flags.partsAdded = 0;
-                  meta.pop();
-                  meta.LPub.buildMod.clear();
-                  opts.flags.coverPage = false;
-                  opts.flags.stepPage = false;
-                  opts.flags.bfxStore2 = opts.flags.bfxStore1;
-                  opts.flags.bfxStore1 = false;
-                  if ( ! opts.flags.bfxStore2) {
-                      bfxParts.clear();
-                  } // ! BfxStore2
+                            QStringList pliParts;
+                            DrawPageOptions pageOptions(
+                                        saveCurrent,
+                                        saveCsiParts,
+                                        pliParts,
+                                        saveBfxParts,
+                                        ldrStepFiles,
+                                        csiKeys,
+                                        saveBfx,
+                                        emptyPartGroups,
+                                        saveLineTypeIndexes,
+                                        saveBfxLineTypeIndexes,
+                                        saveStepNumber,
+                                        opts.groupStepNumber,
+                                        opts.updateViewer,
+                                        opts.isMirrored,
+                                        opts.printing,
+                                        opts.flags.bfxStore2);
+#ifdef WRITE_PARTS_DEBUG
+                            writeFindPartsFile("b_find_save_csi_parts");
+#endif
+                            if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+                                // Set opts.current to topOfStep
+                                opts.current = pageOptions.current;
+                                // Set processing state
+                                pageProcessRunning = PROC_DISPLAY_PAGE;
+                                // rerun findPage to reflect change in pre-displayPageNum csiParts
+                                return HitBuildModAction;
+                            }
+
+                            pageDisplayed = true;
+                            saveCurrent.modelName.clear();
+                            saveCsiParts.clear();
+                            saveLineTypeIndexes.clear();
+                            //buildModActions.clear();
+
+                          } // IsDisplayPage /*opts.pageNum == displayPageNum*/
+
+                        if (exporting()) {
+                            pageSizes.remove(opts.pageNum);
+                            if (opts.flags.pageSizeUpdate) {
+                                opts.flags.pageSizeUpdate = false;
+                                pageSizes.insert(opts.pageNum,opts.pageSize);
+#ifdef PAGE_SIZE_DEBUG
+                                logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                                           << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                                           << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                           << "ID:"   << opts.pageSize.sizeID
+                                           << "Model:" << opts.current.modelName;
+#endif
+                              } else {
+                                pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+#ifdef PAGE_SIZE_DEBUG
+                                logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                                           << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                                           << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                           << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                           << "Model:" << opts.current.modelName;
+#endif
+                              }
+                          } // Exporting
+
+                        ++opts.pageNum;
+                        topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
+
+                        // if page displayed, save state and end processing
+                        if (pageDisplayed) {
+                            // if submodel, save where we stopped in the parent model
+                            if (meta.submodelStack.size()) {
+                                // add parent model positions - excpet positions in the top level model
+                                Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
+                                   if (getSubmodelIndex(tos.modelName) > 0) {
+                                        ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
+                                        modelStack.append(toms);
+                                   }
+                               }
+                                // lastly, add the current where position
+                                ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                                modelStack.append(toms);
+                           }
+                            // Set buildMod action
+                            if (opts.buildMod.state != BM_NONE)
+                                opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                            // advance one line so we don't process this line again in the countPage block
+                            opts.current++;
+                            // set processing state
+                            pageProcessRunning = PROC_DISPLAY_PAGE;
+                            return OkRc;
+                        }
+
+                      } // ! StepGroup
+
+                    topOfStep = opts.current;  // Set next step
+                    opts.flags.partsAdded = 0;
+                    meta.pop();
+                    meta.LPub.buildMod.clear();
+                    opts.flags.coverPage = false;
+                    opts.flags.stepPage = false;
+                    opts.flags.bfxStore2 = opts.flags.bfxStore1;
+                    opts.flags.bfxStore1 = false;
+                    if ( ! opts.flags.bfxStore2) {
+                        bfxParts.clear();
+                      } // ! BfxStore2
+                  } // ! opts.buildMod.ignore
                   opts.buildMod.ignore2 = opts.buildMod.ignore;
                   if ( ! opts.buildMod.ignore2) {
                       ldrawFile.clearBuildModRendered();
-                  } // ! BuildMod.ignore2
-
+                    } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
               else if ( ! opts.flags.stepGroup)
                 {
