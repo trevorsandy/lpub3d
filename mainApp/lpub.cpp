@@ -1942,7 +1942,11 @@ void Gui::highlightStepSetup()
 
 void Gui::useSystemEditor()
 {
-   Preferences::useSystemEditorPreference(useSystemEditorAct->isChecked());
+   bool useSystemEditor = useSystemEditorAct->isChecked();
+   Preferences::useSystemEditorPreference(useSystemEditor);
+   editModelFileAct->setStatusTip(tr("Edit current model file with %1")
+                                  .arg(useSystemEditor ? Preferences::systemEditor.isEmpty() ? "the system editor" :
+                                                                                               Preferences::systemEditor : "detached LDraw Editor"));
 }
 
 /*********************************************
@@ -4514,8 +4518,8 @@ void Gui::createActions()
 
     useSystemEditorAct = new QAction(tr("Use System Editor"),this);
     useSystemEditorAct->setStatusTip(tr("Open parameter file with %1")
-                                        .arg(Preferences::systemEditor.isEmpty() ? "the system editor" :
-                                             Preferences::systemEditor));
+                                     .arg(Preferences::systemEditor.isEmpty() ? "the system editor" :
+                                                                                Preferences::systemEditor));
     useSystemEditorAct->setCheckable(true);
     useSystemEditorAct->setChecked(Preferences::useSystemEditor);
     connect(useSystemEditorAct, SIGNAL(triggered()), this, SLOT(useSystemEditor()));
@@ -4609,7 +4613,10 @@ void Gui::createActions()
     connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
 
     editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
-    editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
+    editModelFileAct->setStatusTip(tr("Edit current model file with %1")
+                                   .arg(Preferences::useSystemEditor ?
+                                            Preferences::systemEditor.isEmpty() ? "the system editor" :
+                                                                                  Preferences::systemEditor : "detached LDraw Editor"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
 
     editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit PLI parts control file"), this);
