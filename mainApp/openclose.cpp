@@ -1100,7 +1100,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
     useNativeGenerator = false;
   } else {
     emit messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
-    return false;
+    return rendererChanged;
   }
 
   rendererChanged = Preferences::preferredRenderer != renderer;
@@ -1154,10 +1154,11 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
     Preferences::preferredRenderer   = renderer;
     Preferences::usingNativeRenderer = useNativeRenderer;
     Render::setRenderer(Preferences::preferredRenderer);
+    Preferences::preferredRendererPreferences(true/*global*/);
     Preferences::updatePOVRayConfigFiles();
   }
 
-  return true;
+  return rendererChanged;
 }
 
 //void Gui::dropEvent(QDropEvent* event)

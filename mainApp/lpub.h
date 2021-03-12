@@ -1565,7 +1565,7 @@ private:
   int                     bomOccurrence;   // the actual occurrence of each pli BOM
   QStringList             bomParts;        // list of part strings configured for BOM setup
   QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
-
+  RendererData            savedData;       // store current renderer data;
   lcPreview*              preview;
 
   bool                   okToInvokeProgressBar()

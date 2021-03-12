@@ -86,6 +86,7 @@ int Gui::processCommandLine()
 // bool imageMatting          = false;
   bool resetSearchDirs       = false;
   bool coloursChanged        = false;
+  bool rendererChanged       = false;
   bool studStyleChanged      = false;
   bool autoEdgeColorChanged  = false;
   QString pageRange, exportOption, colourConfigFile,
@@ -378,9 +379,13 @@ int Gui::processCommandLine()
       return 1;
   }
 
-  if (! preferredRenderer.isEmpty()){
-     if (! setPreferredRendererFromCommand(preferredRenderer))
-         return 1;
+  if (! preferredRenderer.isEmpty()) {
+     savedData.renderer           = Preferences::preferredRenderer;
+     savedData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+     savedData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+     savedData.useNativeGenerator = Preferences::useNativePovGenerator;
+     savedData.usePerspectiveProjection = Preferences::perspectiveProjection;
+     rendererChanged = setPreferredRendererFromCommand(preferredRenderer);
   }
 
   if (projection.toLower() == "p" || projection.toLower() == "perspective") {
@@ -600,6 +605,16 @@ int Gui::processCommandLine()
     } else {
        return 1;
     }
+
+  if (rendererChanged) {
+      Preferences::preferredRenderer        = savedData.renderer;
+      Preferences::enableLDViewSingleCall   = savedData.useLDVSingleCall ;
+      Preferences::enableLDViewSnaphsotList = savedData.useLDVSnapShotList;
+      Preferences::useNativePovGenerator    = savedData.useNativeGenerator;
+      Preferences::perspectiveProjection    = savedData.usePerspectiveProjection;
+      Preferences::usingNativeRenderer      = savedData.renderer == RENDERER_NATIVE;
+      Preferences::preferredRendererPreferences(true/*global*/);
+  }
 
   emit messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
                   .arg(QFileInfo(commandlineFile).fileName())
