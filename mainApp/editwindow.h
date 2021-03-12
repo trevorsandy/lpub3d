@@ -67,8 +67,10 @@ class QComboBox;
 class QAbstractItemModel;
 class QCompleter;
 class QProgressBar;
+class WaitingSpinnerWidget;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class EditWindow : public QMainWindow
 {
     Q_OBJECT
@@ -164,6 +166,7 @@ protected:
 
     enum Decor { SIMPLE, STANDARD };
 
+    WaitingSpinnerWidget *waitingSpinner;
     QTextEditor       *_textEdit;
     QCompleter        *completer;
     Highlighter       *highlighter;

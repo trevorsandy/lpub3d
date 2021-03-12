@@ -51,6 +51,7 @@
 #include "highlightersimple.h"
 #include "ldrawfiles.h"
 #include "messageboxresizable.h"
+#include "waitingspinnerwidget.h"
 
 #include "version.h"
 #include "paths.h"
@@ -103,6 +104,17 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     connect(_textEdit, SIGNAL(cursorPositionChanged()),  this, SLOT(highlightCurrentLine()));
     connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
     connect(_textEdit, SIGNAL(triggerPreviewLine()),   this,  SLOT(triggerPreviewLine()));
+
+    waitingSpinner = new WaitingSpinnerWidget(_textEdit);
+    waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
+    waitingSpinner->setRoundness(70.0);
+    waitingSpinner->setMinimumTrailOpacity(15.0);
+    waitingSpinner->setTrailFadePercentage(70.0);
+    waitingSpinner->setNumberOfLines(12);
+    waitingSpinner->setLineLength(10);
+    waitingSpinner->setLineWidth(5);
+    waitingSpinner->setInnerRadius(10);
+    waitingSpinner->setRevolutionsPerSecond(1);
 
     setCentralWidget(_textEdit);
 
@@ -1339,6 +1351,9 @@ void EditWindow::displayFile(
   if (fileName == "") {
     _textEdit->document()->clear();
   } else {
+      if (_textEdit->document()->isEmpty())
+          waitingSpinner->start();
+
       if (modelFileEdit()) {
           QFile file(fileName);
           if (!file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1352,7 +1367,8 @@ void EditWindow::displayFile(
               return;
           }
 
-          bool setProgressDialog = file.size() > 256000;  /*in Bytes = 250KB*/
+          /*
+          bool setProgressDialog = file.size() > 256000;  / *in Bytes = 250KB* /
 
           QProgressDialog *progressDialog = nullptr;
 
@@ -1366,6 +1382,7 @@ void EditWindow::displayFile(
                   buttonList.at(0)->hide();
               progressDialog->exec();
           }
+          */
 
           mpdCombo->setMaxCount(0);
           mpdCombo->setMaxCount(1000);
@@ -1411,8 +1428,10 @@ void EditWindow::displayFile(
               _textEdit->setPlainText(in.readAll());
           }
 
+          /*
           if (setProgressDialog)
               progressDialog->reset();
+          */
 
           connect(_textEdit,  SIGNAL(textChanged()),
                    this,      SLOT(enableSave()));
@@ -1438,6 +1457,8 @@ void EditWindow::displayFile(
 #endif
           }
       }
+      if (waitingSpinner->isSpinning())
+          waitingSpinner->stop();
   }
 
   _textEdit->document()->setModified(false);
