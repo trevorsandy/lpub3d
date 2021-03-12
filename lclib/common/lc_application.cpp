@@ -541,6 +541,11 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 		if (Option.isEmpty())
 			continue;
 
+/*** LPub3D Mod - process command line ***/
+		if (!Arguments.isEmpty() && Option[0] != '-')
+			continue;
+/*** LPub3D Mod end ***/
+
 		auto ParseString = [&Option, &Arguments, &Options](QString& Value, bool Required)
 		{
 			if (!Arguments.isEmpty() && Arguments.front()[0] != '-')
