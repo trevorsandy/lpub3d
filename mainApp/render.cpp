@@ -3420,6 +3420,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
                              .arg(Options->ViewerStepKey));
         gui->setViewerStepKey(QString(),0);
         delete Loader;
+        delete nativeOptions;
         return false;
     }
 

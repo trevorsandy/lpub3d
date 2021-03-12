@@ -580,7 +580,6 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_CAMERA_NONE]->setEnabled(enable);
-    gMainWindow->mActions[LC_VIEW_CAMERA_RESET]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
 }
@@ -1454,7 +1453,7 @@ void Gui::enableBuildModification()
     enableRotstepRotateAct->setChecked(!buildModEnabled);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(!buildModEnabled);
-    gApplication->mPreferences.mBuildMofificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
+    gApplication->mPreferences.mBuildModificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
 }
 
 void Gui::enableBuildModActions()
