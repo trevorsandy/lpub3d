@@ -1718,7 +1718,7 @@ private slots:
 
     // End Jaco's code
 
-    void meta();
+    void exportMetaCommands();
 
     void redo();
     void undo();
@@ -2085,7 +2085,7 @@ private:
 
   // End Jaco's code
 
-  QAction  *metaAct;
+  QAction  *exportMetaCommandsAct;
   QAction  *separatorAct;
 
   QList<QAction *> openWithActList;

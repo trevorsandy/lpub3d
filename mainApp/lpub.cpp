@@ -3947,7 +3947,7 @@ void Gui::onlineManual()
     QDesktopServices::openUrl(QUrl(VER_LPUB3D_ONLINE_MANUAL_URL));
 }
 
-void Gui::meta()
+void Gui::exportMetaCommands()
 {
   Meta meta;
   QStringList doc;
@@ -4767,9 +4767,9 @@ void Gui::createActions()
 
     // End Jaco's code
 
-    metaAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Save LPub Metacommands to File"), this);
-    metaAct->setStatusTip(tr("Save a list of the known LPub meta commands to a file"));
-    connect(metaAct, SIGNAL(triggered()), this, SLOT(meta()));
+    exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands to File"), this);
+    exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
+    connect(exportMetaCommandsAct, SIGNAL(triggered()), this, SLOT(exportMetaCommands()));
 
     updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
     updateAppAct->setStatusTip(tr("Check if a newer version of  %1 is available for download").arg(VER_PRODUCTNAME_STR));
@@ -5226,7 +5226,7 @@ void Gui::createMenus()
     // Begin Jaco's code
     helpMenu->addAction(onlineManualAct);
     // End Jaco's code
-    helpMenu->addAction(metaAct);
+    helpMenu->addAction(exportMetaCommandsAct);
     helpMenu->addSeparator();
     // About Editor
     helpMenu->addAction(aboutAct);
