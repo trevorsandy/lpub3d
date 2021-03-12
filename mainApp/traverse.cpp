@@ -2891,6 +2891,11 @@ int Gui::findPage(
 
                               // if page displayed, end processing
                               if (opts.pageNum > displayPageNum) {
+                                  // Set buildMod action
+                                  if (opts.buildMod.state != BM_NONE)
+                                      opts.buildMod.action = buildModActions.value(opts.buildMod.level);
+                                  // advance one line so we don't process this line in the countPage block
+                                  opts.current++;
                                   // set processing state
                                   pageProcessRunning = PROC_DISPLAY_PAGE;
                                   return OkRc;
@@ -3082,6 +3087,9 @@ int Gui::findPage(
                           ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                           modelStack.append(toms);
                      }
+                      // Set buildMod action
+                      if (opts.buildMod.state != BM_NONE)
+                          opts.buildMod.action = buildModActions.value(opts.buildMod.level);
                       // set processing state
                       pageProcessRunning = PROC_DISPLAY_PAGE;
                       return OkRc;
@@ -3089,6 +3097,7 @@ int Gui::findPage(
 
                 } // StepGroup && ! NoStep2 && ! BuildModIgnore
 
+              //buildModActions.clear();
               noStep2 = false;
               break;
 
@@ -3238,6 +3247,7 @@ int Gui::findPage(
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
                           saveLineTypeIndexes.clear();
+                          //buildModActions.clear();
 
                         } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
@@ -3283,6 +3293,9 @@ int Gui::findPage(
                               ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                               modelStack.append(toms);
                          }
+                          // Set buildMod action
+                          if (opts.buildMod.state != BM_NONE)
+                              opts.buildMod.action = buildModActions.value(opts.buildMod.level);
                           // set processing state
                           pageProcessRunning = PROC_DISPLAY_PAGE;
                           return OkRc;
@@ -3310,7 +3323,6 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
-              opts.buildMod.state = BM_NONE;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -3633,6 +3645,9 @@ int Gui::findPage(
 
     }  // Last Step in Submodel
 
+  // Set buildMod action
+  if (opts.buildMod.state != BM_NONE)
+      opts.buildMod.action = buildModActions.value(opts.buildMod.level);
   // Set processing state
   pageProcessRunning = PROC_DISPLAY_PAGE;
   return OkRc;

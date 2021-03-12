@@ -3019,6 +3019,8 @@ int CountPageWorker::countPage(
   bool resetIncludeRc = false;
 
   QMap<int,int> buildModActions;
+  if (opts.buildMod.state != BM_NONE)
+      buildModActions.insert(opts.buildMod.level, opts.buildMod.action);
 
   int numLines = ldrawFile->size(opts.current.modelName);
 
@@ -3307,6 +3309,7 @@ int CountPageWorker::countPage(
                 } // PartsAdded && ! NoStep && ! BuildModIgnore
 
               buildModActions.clear();
+              meta.LPub.buildMod.clear();
               opts.buildMod.state = BM_NONE;
               noStep2 = noStep;
               noStep = false;
