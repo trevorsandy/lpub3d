@@ -3165,8 +3165,11 @@ Gui::Gui()
     KpageView->setResolution(resolution());
 
     if (Preferences::modeGUI) {
+        QColor spinnerColor(
+               Preferences::displayTheme == THEME_DARK ?
+               Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
         waitingSpinner = new WaitingSpinnerWidget(KpageView);
-        waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
+        waitingSpinner->setColor(spinnerColor);
         waitingSpinner->setRoundness(70.0);
         waitingSpinner->setMinimumTrailOpacity(15.0);
         waitingSpinner->setTrailFadePercentage(70.0);

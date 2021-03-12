@@ -1661,8 +1661,11 @@ void EditWindow::waitingSpinnerStart()
         if (_waitingSpinner->isSpinning())
             _waitingSpinner->stop();
     } else {
+        QColor spinnerColor(
+               Preferences::displayTheme == THEME_DARK ?
+               Preferences::themeColors[THEME_DARK_PALETTE_TEXT] : LPUB3D_DEFAULT_COLOUR);
         _waitingSpinner = new WaitingSpinnerWidget(this);
-        _waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
+        _waitingSpinner->setColor(QColor(spinnerColor));
         _waitingSpinner->setRoundness(70.0);
         _waitingSpinner->setMinimumTrailOpacity(15.0);
         _waitingSpinner->setTrailFadePercentage(70.0);
