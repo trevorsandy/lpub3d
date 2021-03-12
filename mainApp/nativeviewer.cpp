@@ -2612,17 +2612,13 @@ void Gui::removeBuildModification()
     int it = lcGetActiveProject()->GetImageType();
 
     Where here = currentStep->topOfStep();
-    bool modInCurrentStep = stepContains(here, buildModKey);
 
     QString text, type, title;
     QString model = "undefined", line = "undefined", step = "undefined";
     QStringList keys  = getViewerStepKeys(true/*get Name*/, false/*pliPart*/);
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
-    if (getBuildModStepKey(buildModKey) == viewerStepKey || !modInCurrentStep) {
-        text  = !modInCurrentStep ?
-                "Build modification '" + buildModKey + "' was not applied in '" + model + "' step " + step + ".<br>"
-                "Consult prior steps to locate this build modification 'apply' command." :
-                "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
+    if (getBuildModStepKey(buildModKey) == viewerStepKey) {
+        text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "in model '" + model + "' at line " + line + ".<br><br>"
                 "It cannot be removed from the step it was created in.<br><br>"
                 "Select 'Delete Build Modification' to delete from '" + model + "', "
