@@ -932,9 +932,9 @@ public:
       return ldrawFile.getBuildModPathsFromStep(modStepKey, image);
   }
 
-  bool buildModsSize()
+  bool buildModsCount()
   {
-      return ldrawFile.buildModsSize();
+      return ldrawFile.buildModsCount();
   }
 
   bool deleteBuildMod(const QString &buildModKey = QString())

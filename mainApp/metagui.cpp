@@ -6166,7 +6166,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 
     activeBuildModItem = nullptr;
 
-    if (gui->buildModsSize()) {
+    if (gui->buildModsCount()) {
         Q_FOREACH (QString buildMod, gui->getBuildModsList()){
            QListWidgetItem* buildModItem = new QListWidgetItem(buildMod);
            buildModList->addItem(buildModItem);

@@ -415,7 +415,7 @@ class LDrawFile {
     int getBuildModStepKeyModelIndex(const QString &buildModKey);
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
-    int buildModsSize();
+    int buildModsCount();
 //    int getBuildModStepIndexHere(int stepIndex, int which);
     bool getBuildModStepIndexHere(const int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);

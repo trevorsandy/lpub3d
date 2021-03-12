@@ -1424,7 +1424,7 @@ void Gui::insertConfiguredSubFile(const QString &name,
 
 void Gui::resetLastBuildMod(bool clearNextStep)
 {
-    if (buildModsSize()){
+    if (buildModsCount()){
         deleteBuildMod(/*last*/);
         if (clearNextStep)
             setBuildModNextStepIndex(Where());

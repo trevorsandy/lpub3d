@@ -1265,7 +1265,7 @@ void Gui::enableBuildModification()
 
     bool buildModEnabled = Preferences::buildModEnabled    &&
             lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) &&
-            (mBuildModRange.first() || buildModsSize())    &&
+            (mBuildModRange.first() || buildModsCount())    &&
             !curFile.isEmpty();
     QIcon RotateIcon;
     if (buildModEnabled)
@@ -1287,7 +1287,7 @@ void Gui::enableBuildModActions()
 
     Rc buildModStep = BuildModNoActionRc;
 
-    int hasMod = buildModsSize();
+    int hasMod = buildModsCount();
 
     if (currentStep)
         buildModStep = Rc(getBuildModStep(currentStep->topOfStep()));
@@ -1341,7 +1341,7 @@ void Gui::enableBuildModMenuAndActions()
 {
     if (!curFile.isEmpty()) {
         if (Preferences::buildModEnabled)
-            createBuildModAct->setEnabled(mBuildModRange.first() || buildModsSize());
+            createBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
         enableBuildModActions();
     }
     enableBuildModification();
@@ -2370,7 +2370,7 @@ void Gui::createBuildModification()
             int BuildModPieces = ViewerModContents.size();
 
             if (!edit)
-                BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsSize() + 1);
+                BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsCount() + 1);
 
             // Delete meta commands uses the 'original' BuildMod values
             int SaveModBeginLineNum  = edit ? BuildModBegin  : ModBeginLineNum;
@@ -2524,9 +2524,9 @@ void Gui::applyBuildModification()
         return;
 
     QStringList buildModKeys;
-    if (!buildModsSize()) {
+    if (!buildModsCount()) {
         return;
-    } else if (buildModsSize() == 1) {
+    } else if (buildModsCount() == 1) {
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui = new BuildModDialogGui();
@@ -2634,9 +2634,9 @@ void Gui::removeBuildModification()
         return;
 
     QStringList buildModKeys;
-    if (!buildModsSize()) {
+    if (!buildModsCount()) {
         return;
-    } else if (buildModsSize() == 1) {
+    } else if (buildModsCount() == 1) {
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui =
@@ -2743,9 +2743,9 @@ void Gui::removeBuildModification()
 void Gui::loadBuildModification()
 {
     QStringList buildModKeys;
-    if (!buildModsSize()) {
+    if (!buildModsCount()) {
         return;
-    } else if (buildModsSize() == 1) {
+    } else if (buildModsCount() == 1) {
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui =
@@ -2871,9 +2871,9 @@ void Gui::updateBuildModification()
 void Gui::deleteBuildModification()
 {
     QStringList buildModKeys;
-    if (!buildModsSize()) {
+    if (!buildModsCount()) {
         return;
-    } else if (buildModsSize() == 1) {
+    } else if (buildModsCount() == 1) {
         buildModKeys = getBuildModsList();
     } else {
         BuildModDialogGui *buildModDialogGui =

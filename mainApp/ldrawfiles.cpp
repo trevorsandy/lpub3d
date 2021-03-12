@@ -2965,7 +2965,7 @@ QStringList LDrawFile::getBuildModsList()
   return _buildModList;
 }
 
-int LDrawFile::buildModsSize()
+int LDrawFile::buildModsCount()
 {
   return _buildMods.size();
 }
