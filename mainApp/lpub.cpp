@@ -3213,6 +3213,38 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
+    // classes
+    qRegisterMetaType<BackgroundData>("BackgroundData");
+    qRegisterMetaType<BorderData>("BorderData");
+    qRegisterMetaType<BuffExchgData>("BuffExchgData");
+    qRegisterMetaType<BuildModData>("BuildModData");
+    qRegisterMetaType<ConstrainData>("ConstrainData");
+    qRegisterMetaType<CsiAnnotationIconData>("CsiAnnotationIconData");
+    qRegisterMetaType<FreeFormData>("FreeFormData");
+    qRegisterMetaType<InsertData>("InsertData");
+    qRegisterMetaType<JustifyStepData>("JustifyStepData");
+    qRegisterMetaType<ModelStack>("ModelStack");
+    qRegisterMetaType<NativeOptions>("NativeOptions");
+    qRegisterMetaType<PageSizeData>("PageSizeData");
+    qRegisterMetaType<PgSizeData>("PgSizeData");
+    qRegisterMetaType<PlacementData>("PlacementData");
+    qRegisterMetaType<PliPartGroupData>("PliPartGroupData");
+    qRegisterMetaType<PointerAttribData>("PointerAttribData");
+    qRegisterMetaType<PointerData>("PointerData");
+    qRegisterMetaType<RotStepData>("RotStepData");
+    qRegisterMetaType<SceneObjectData>("SceneObjectData");
+    qRegisterMetaType<SepData>("SepData");
+    qRegisterMetaType<SubData>("SubData");
+    qRegisterMetaType<ViewerOptions>("ViewerOptions");
+    qRegisterMetaType<Where>("Where");
+    qRegisterMetaType<xyzVector>("xyzVector");
+
+    // structs
+    qRegisterMetaType<ActionAttributes>("ActionAttributes");
+    qRegisterMetaType<StepLines>("StepLines");
+    qRegisterMetaType<TypeLine>("TypeLine");
+
+    // enumerators
     qRegisterMetaType<AllocEnc>("AllocEnc");
     qRegisterMetaType<AnnotationCategory>("AnnotationCategory");
     qRegisterMetaType<AnnotationStyle>("AnnotationStyle");
