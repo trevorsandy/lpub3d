@@ -1880,7 +1880,8 @@ void LDrawFile::countInstances(
       _currentLevels.clear();
       _buildModStepIndexes.clear();
     }
-    _buildModStepIndexes.append({ modelIndex, topOfStep.lineNumber });
+    if (! _buildModStepIndexes.contains({ modelIndex, topOfStep.lineNumber }))
+      _buildModStepIndexes.append({ modelIndex, topOfStep.lineNumber });
     firstStep = false;
   }
 
@@ -1960,7 +1961,7 @@ void LDrawFile::countInstances(
         // no step
       } else if (tokens.size() == 3 && tokens[0] == "0" &&
                 (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                 tokens[2] == "NOSTEP") {
+                (tokens[2] == "NOSTEP" || tokens[2] == "NOFILE")) {
         noStep = true;
         // LDraw step or rotstep - so check if parts added
       } else if (tokens.size() >= 2 && tokens[0] == "0" &&
@@ -1972,8 +1973,10 @@ void LDrawFile::countInstances(
                        (! isMirrored && f->_instances == 0);
             f->_numSteps += incr;
           }
-          // set step index for all occurrences of STEP or ROTSTEP
-          _buildModStepIndexes.append({ modelIndex, i });
+          // set step index for occurrences of STEP or ROTSTEP not ignored by BuildMod
+          if (! buildModIgnore) {
+            _buildModStepIndexes.append({ modelIndex, i });
+          }
         }
         // reset partsAdded, noStep and emptyLines
         partsAdded = false;
@@ -1988,7 +1991,7 @@ void LDrawFile::countInstances(
       }
     }
 
-    // increment steps and add BuildMod step index if parts added in the last step of the sub/model
+    // increment steps and add BuildMod step index if parts added in the last step of the sub/model and not ignored by BuildMod
     if (partsAdded && ! noStep) {
       int incr = (isMirrored && f->_mirrorInstances == 0) ||
                  (! isMirrored && f->_instances == 0);
