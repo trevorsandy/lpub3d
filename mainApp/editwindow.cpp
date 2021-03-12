@@ -1423,7 +1423,8 @@ void EditWindow::updateSelectedParts() {
 
     cursor.endEditBlock();
 
-    emit SelectedPartLinesSig(lineTypeIndexes);
+    if (lineTypeIndexes.size())
+       emit SelectedPartLinesSig(lineTypeIndexes);
 }
 
 void EditWindow::showLine(int lineNumber, int lineType)
