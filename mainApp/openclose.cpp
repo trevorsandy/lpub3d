@@ -197,10 +197,10 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
         else
             openPath(path.left(path.lastIndexOf("/")));
 
-        QProcess::ExitStatus Status = Process->exitStatus();
-        if (Status != 0) {  // look for error
+        QProcess::ExitStatus status = proc.exitStatus();
+        if (status != 0) {  // look for error
             QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(CommandPath));
+            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(path));
         }
     }
     else {
