@@ -1288,22 +1288,23 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 }
 
 void Gui::displayFile(
-    LDrawFile     *ldrawFile,
-    const QString &modelName,
-    bool           editModelFile   /*false*/,
-    bool           displayStartPage/*false*/)
+          LDrawFile *ldrawFile,
+    const Where     &here,
+          bool       editModelFile   /*false*/,
+          bool       displayStartPage/*false*/)
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE        
         QElapsedTimer t;
         t.start();
 #endif        
+        const QString &modelName = here.modelName;
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
             int stepNumber = 1;
-            Where top(modelName,0);
-            Where bottom(modelName,0);
+            Where top = here;
+            Where bottom = here;
             if (!pageProcessRunning && !exporting()) {
                 if (getCurrentStep()) {
                     top = getCurrentStep()->topOfStep();
@@ -1382,7 +1383,7 @@ void Gui::editModelFile(bool saveBefore)
     QString file = getCurFile();
     if (ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
-    displayFile(&ldrawFile, file, true/*modelFile*/);
+    displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
     editModeWindow->show();
 }
@@ -1443,7 +1444,7 @@ void Gui::mpdComboChanged(int index)
 
     if (callDisplayFile) {
       messageSig(LOG_INFO, QString( "Select subModel: %1").arg(newSubFile));
-      displayFile(&ldrawFile, curSubFile, false/*editModelFile*/, true/*displayStartPage*/);
+      displayFile(&ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
       showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include file in displayFile call, so set here
           mpdCombo->setCurrentIndex(index);
@@ -5571,11 +5572,11 @@ void Gui::writeSettings()
     Settings.setValue(QString("%1/%2").arg(MESSAGES,MessagesNotShownKey),uValue);
 }
 
-void Gui::showLine(const Where &topOfStep, int type)
+void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
-    displayFile(&ldrawFile,topOfStep.modelName);
-    showLineSig(topOfStep.lineNumber, type);
+    displayFile(&ldrawFile, here);
+    showLineSig(here.lineNumber, type);
   }
 }
 

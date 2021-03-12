@@ -1030,7 +1030,7 @@ public:
   void initialize();
   void initiaizeNativeViewer();
 
-  void displayFile(LDrawFile *ldrawFile, const QString &modelName, bool editModelFile = false, bool displayStartPage = false);
+  void displayFile(LDrawFile *ldrawFile, const Where &here, bool editModelFile = false, bool displayStartPage = false);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &duration);
 
@@ -1139,7 +1139,7 @@ public slots:
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();
-  void SetActiveModel(const QString &fileName,bool newSubmodel);
+  void SetActiveModel(const QString &modelName, bool setActive);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
@@ -1260,7 +1260,7 @@ public slots:
   void statusBarMsg(QString msg);
 
   void showExportedFile();
-  void showLine(const Where &topOfStep, int type = LINE_HIGHLIGHT);
+  void showLine(const Where &here, int type = LINE_HIGHLIGHT);
 
   void enableApplyLightAction();
 

@@ -1382,26 +1382,30 @@ void Gui::writeNativeSettings()
     gApplication->SaveTabLayout();
 }
 
-void Gui::SetActiveModel(const QString &fileName, bool newSubmodel)
+void Gui::SetActiveModel(const QString &modelName, bool setActive)
 {
-    if (fileName == VIEWER_MODEL_DEFAULT)
+    if (modelName == VIEWER_MODEL_DEFAULT)
         return;
     if (lcGetActiveProject()->GetImageType() != Options::CSI)
         return;
+    if (getCurrentStep() && modelName == getCurrentStep()->topOfStep().modelName)
+        return;
 
-    if (getCurrentStep() && !viewerStepKey.isEmpty()) {
-        QString modelName = getSubmodelName(QString(viewerStepKey[0]).toInt());
-        if (newSubmodel){
-            if (isSubmodel(fileName)) {
-                modelName = fileName;
-            } else {
-                modelName.clear();
-                emit messageSig(LOG_ERROR, QString("Model '%1' not found in model list").arg(fileName));
+    bool displayModelFile = false;
+    if (setActive) {
+        if (isSubmodel(modelName)) {
+            const QString stepKey = getViewerStepKeyWhere(Where(getSubmodelIndex(modelName), 0));
+            if (!stepKey.isEmpty()) {
+                setCurrentStep(stepKey);
+                displayModelFile = true;
             }
+        } else if (getCurrentStep()) {
+            displayModelFile = true;
+        } else {
+            emit messageSig(LOG_ERROR, QString("Active model '%1' not found").arg(modelName));
         }
-        if (!modelName.isEmpty()) {
-            displayFile(&ldrawFile, modelName);
-        }
+        if (displayModelFile)
+            displayFile(&ldrawFile, getCurrentStep()->topOfStep());
     }
 }
 
