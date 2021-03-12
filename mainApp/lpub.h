@@ -1215,6 +1215,7 @@ public slots:
 
   // Native viewer functions
   void enable3DActions(bool enable);
+  void halt3DViewer(bool enable);
   void UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText);
 
   void ShowStepRotationStatus();

@@ -439,10 +439,6 @@ public slots:
 	void UpdateAllViews();           // moved from public:
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - halt, viewer ***/
-	void Halt3DViewer(bool b);
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - rotate step objects ***/
 	void SetStepRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/

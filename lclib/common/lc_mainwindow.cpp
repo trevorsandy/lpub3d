@@ -1194,23 +1194,6 @@ const QString lcMainWindow::GetFadeStepsColor()
 }
 /*** LPub3D Mod end ***/
 
-
-
-/*** LPub3D Mod - Halt3DViewer ***/
-void lcMainWindow::Halt3DViewer(bool b)
-{
-	logStatus() << "2. lcMainWindow (SLOT) Halt3DViewer Status: " << b;
-
-	if(b){
-		mToolsToolBar->setEnabled(false);
-		menuBar()->setEnabled(false);
-	} else {
-		mToolsToolBar->setEnabled(true);
-		menuBar()->setEnabled(true);
-	}
-}
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Selected Parts ***/
 int lcMainWindow::GetImageType(){
 	return lcGetActiveProject()->GetImageType();

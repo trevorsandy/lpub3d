@@ -3448,6 +3448,8 @@ void Gui::initialize()
           this, SLOT(  processCommandLine()));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(  deployExportBanner(bool)));
+  connect(this, SIGNAL(setExportingSig(bool)),
+          this, SLOT(halt3DViewer(bool)));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
 

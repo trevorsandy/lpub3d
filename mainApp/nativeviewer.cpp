@@ -474,7 +474,6 @@ void Gui::create3DToolBars()
 
 void Gui::initiaizeNativeViewer()
 {
-    connect(this,        SIGNAL(setExportingSig(bool)),                    gMainWindow, SLOT(Halt3DViewer(bool)));
     connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
     connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
     connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
@@ -575,6 +574,19 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_CAMERA_RESET]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
+}
+
+void Gui::halt3DViewer(bool enable)
+{
+    if(enable){
+        GetToolsToolBar()->setEnabled(false);
+        gMainWindow->menuBar()->setEnabled(false);
+    } else {
+        GetToolsToolBar()->setEnabled(true);
+        gMainWindow->menuBar()->setEnabled(true);
+    }
+
+    messageSig(LOG_INFO, QString("3D Viewer %1").arg(enable ? "stopped" :"resumed"));
 }
 
 void Gui::create3DDockWindows()
