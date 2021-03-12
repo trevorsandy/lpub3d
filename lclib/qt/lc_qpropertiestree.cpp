@@ -2009,7 +2009,7 @@ bool lcQPropertiesTree::lastColumn(int column) const
 void lcQPropertiesTree::PreviewSelection(const QString &PartType, int ColorCode)
 {
 	lcPreferences& Preferences = lcGetPreferences();
-	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 	{
 		emit gMainWindow->PreviewPieceSig(PartType, ColorCode);
 		return;
@@ -2021,6 +2021,7 @@ void lcQPropertiesTree::PreviewSelection(const QString &PartType, int ColorCode)
 
 	if (Preview && ViewWidget)
 	{
+		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (!Preview->SetCurrentPiece(PartType, ColorCode))
 			QMessageBox::critical(gMainWindow, tr("Error"), tr("Part preview for %1 failed.").arg(PartType));
 		ViewWidget->SetPreviewPosition(rect());
