@@ -62,11 +62,11 @@ GlobalProjectDialog::GlobalProjectDialog(
   setWindowTitle(tr("Project Globals Setup"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
+  QGridLayout *boxGrid;
 
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox("Renderer");
-  QGridLayout *boxGrid = new QGridLayout();
   layout->addWidget(box);
   MetaGui *child =new RendererGui(box);
   data->children.append(child);
@@ -75,7 +75,6 @@ GlobalProjectDialog::GlobalProjectDialog(
   layout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
-
   child = new ResolutionGui(&lpubMeta->resolution);
   boxGrid->addWidget(child,0,0);
   boxGrid->setColumnStretch(0,1);
@@ -109,7 +108,7 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox("Continuous Step Numbers");
   layout->addWidget(box);
-  childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers, box);
+  childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));

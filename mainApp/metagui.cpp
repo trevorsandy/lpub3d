@@ -901,14 +901,34 @@ void StudStyleGui::enableAutoEdgeButton()
 void StudStyleGui::checkboxChanged(bool value)
 {
   if ((autoEdgeModified = value != autoEdgeMeta->enable.value())) {
-    autoEdgeMeta->enable.setValue(value);
-    modified = true;
+    if (value && combo->currentIndex() > 5) {
+      if (QMessageBox::question(nullptr,
+        QString("Automate Edge Colors Conflict"),
+        QString("High contrast stud style settings are ignored when automate edge colors is enabled.<br>"
+                "Do you want to continue ?"),
+        QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
+        autoEdgeMeta->enable.setValue(value);
+        modified = true;
+      } else {
+        checkbox->setChecked(!value);
+        autoEdgeMeta->enable.setValue(!value);
+      }
+    }
   }
 }
 
 void StudStyleGui::comboChanged(int value)
 {
   if ((studStyleModified = value != studStyleMeta->value())) {
+    if (value > 5 && checkbox->isChecked() && QMessageBox::question(nullptr,
+      QString("High Contrast Conflict"),
+      QString("High contrast stud style settings are ignored when automate edge colors is enabled.<br>"
+              "Would you like to disable automate edge colors ?"),
+      QMessageBox::Ok | QMessageBox::Cancel) == QMessageBox::Ok) {
+      bool disable = false;
+      checkbox->setChecked(disable);
+      autoEdgeMeta->enable.setValue(disable);
+    }
     studStyleMeta->setValue(value);
     modified = true;
   }
@@ -2074,7 +2094,7 @@ void RotStepGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * ContStepNumMeta
+ * Continuous Step Number
  *
  **********************************************************************/
 
@@ -2123,7 +2143,7 @@ void ContStepNumGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * CountInstance
+ * Count Instance
  *
  **********************************************************************/
 
@@ -2135,12 +2155,10 @@ CountInstanceGui::CountInstanceGui(
 
   QGridLayout *grid = new QGridLayout(parent);
 
-  QHBoxLayout *layout = new QHBoxLayout(parent);
-
   if (parent) {
-    parent->setLayout(layout);
+    parent->setLayout(grid);
   } else {
-    setLayout(layout);
+    setLayout(grid);
   }
 
   countCheck = new QCheckBox(tr("Consolidate Submodel Instances"), parent);
@@ -2170,7 +2188,6 @@ CountInstanceGui::CountInstanceGui(
   stepRadio    = new QRadioButton("At Step",parent);
   stepRadio->setChecked(meta->value() == CountAtStep);
   stepRadio->setToolTip("Consolidate instances and display count at step page of first occurrence in the current step.");
-  layout->addWidget(stepRadio);
   connect(stepRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
@@ -2209,7 +2226,7 @@ void CountInstanceGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * BuildModEnabledMeta
+ * Build Modification
  *
  **********************************************************************/
 
@@ -2267,7 +2284,7 @@ void BuildModEnabledGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * FinalModelEnabledMeta
+ * Final Model Enabled
  *
  **********************************************************************/
 
