@@ -535,11 +535,9 @@ int Gui::drawPage(
   };
 
   auto getTopOfPreviousStep = [this,&topOfStep] () {
-      int adjustedIndx = exporting() ? displayPageNum : displayPageNum - 1;
-      int displayPageIndx = adjustedIndx ? adjustedIndx-- : adjustedIndx; // top of 1 step back
-      bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
-      Where top = displayPageIndxOk ? topOfPages[displayPageIndx] : topOfStep;
-      return top;
+      int index = displayPageNum - 1; // top of 1 step back
+      bool indexOk = topOfPages.size() && topOfPages.size() >= index;
+      return indexOk ? topOfPages[index] : topOfStep;;
   };
 
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
