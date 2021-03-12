@@ -1177,7 +1177,7 @@ void lcQPropertiesTree::slotSetValue(int Value)
 			Model->SetSelectedPiecesPieceInfo(Info);
 
 			lcPreferences& Preferences = lcGetPreferences();
-			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition != lcPreviewPosition::Floating)
+			if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable)
 			{
 				int ColorIndex = gDefaultColor;
 				lcObject* Focus = gMainWindow->GetActiveModel()->GetFocusObject();

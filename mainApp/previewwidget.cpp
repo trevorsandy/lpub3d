@@ -40,8 +40,6 @@
 #include "lpubalert.h"
 #include "paths.h"
 
-PreviewWidget* gPreviewWidget;
-
 PreviewDockWidget::PreviewDockWidget(QMainWindow* Parent)
     : QMainWindow(Parent)
 {
@@ -126,8 +124,6 @@ PreviewWidget::~PreviewWidget()
         delete mCamera;
 
     delete mLoader;
-
-    gPreviewWidget = nullptr;
 }
 
 bool PreviewWidget::SetCurrentPiece(const QString& PartType, int ColorCode)

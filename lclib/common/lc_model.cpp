@@ -281,16 +281,8 @@ void lcModel::DeleteModel()
 	lcReleaseTexture(mBackgroundTexture);
 	mBackgroundTexture = nullptr;
 
-/*** LPub3D Mod - preview widget ***/
-	if (mIsPreview && gPreviewWidget) {
-		lcCamera* Camera = gPreviewWidget->GetCamera();
-
-		if (Camera && !Camera->IsSimple() && mCameras.FindIndex(Camera) != -1)
-			gPreviewWidget->SetCamera(Camera);
-	}
-	else if (gMainWindow)
+	if (gMainWindow)
 	{
-/*** LPub3D Mod end ***/
 		const lcArray<View*>* Views = gMainWindow->GetViewsForModel(this);
 
 		// TODO: this is only needed to avoid a dangling pointer during undo/redo if a camera is set to a view but we should find a better solution instead

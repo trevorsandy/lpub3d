@@ -177,6 +177,4 @@ protected:
     int mMouseDownY;
 };
 
-extern PreviewWidget* gPreviewWidget;
-
 #endif // PREVIEWWIDGET_H

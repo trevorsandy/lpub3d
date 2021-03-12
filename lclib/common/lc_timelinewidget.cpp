@@ -648,6 +648,7 @@ void lcTimelineWidget::PreviewSelection(QTreeWidgetItem* Current)
 
 	if (Preview && ViewWidget)
 	{
+		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (!Preview->SetCurrentPiece(Info->mFileName, Piece->mColorCode))
 			lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(Info->mFileName));
 		ViewWidget->SetPreviewPosition(rect());

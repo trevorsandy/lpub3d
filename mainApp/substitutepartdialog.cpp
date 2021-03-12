@@ -538,9 +538,11 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
         ui->previewFrame->setLayout(previewLayout);
 
         Preview    = new PreviewWidget(true/*substitute preview*/);
+
         ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
         if (Preview && ViewWidget) {
+            ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
             if (!Preview->SetCurrentPiece(partType, colorCode))
                 emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
             previewLayout->addWidget(ViewWidget);

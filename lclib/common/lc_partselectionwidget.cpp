@@ -712,7 +712,7 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 
 	quint32 ColorCode = lcGetColorCode(mListModel->GetColorIndex());
 
-	if (Preferences.mPreviewPosition != lcPreviewPosition::Floating) {
+	if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
 		emit gMainWindow->PreviewPieceSig(Info->mFileName, ColorCode);
 		return;
 	}
@@ -722,6 +722,7 @@ void lcPartSelectionListView::PreviewSelection(int InfoIndex)
 	lcQGLWidget   *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
 	if (Preview && ViewWidget) {
+		ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
 		if (!Preview->SetCurrentPiece(Info->mFileName, ColorCode))
 			emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(Info->mFileName));
 		ViewWidget->SetPreviewPosition(rect());

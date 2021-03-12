@@ -3567,6 +3567,7 @@ void PGraphicsPixmapItem::previewPart(bool useDockable) {
     lcQGLWidget *ViewWidget = new lcQGLWidget(nullptr, Preview, true/*isView*/, true/*isPreview*/);
 
     if (Preview && ViewWidget) {
+        ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
         if (!Preview->SetCurrentPiece(part->type, part->color.toInt())) {
             emit gui->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(part->type));
             delete ViewWidget;
