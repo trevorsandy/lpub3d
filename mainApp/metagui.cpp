@@ -1930,10 +1930,7 @@ HighlightStepGui::HighlightStepGui(
 
   // optional line width row
 
-  int row = 2;
   if (Preferences::preferredRenderer == RENDERER_LDGLITE) {
-    row = 3;
-
     QLabel *lineWidthLabel = new QLabel(tr("Line Width"));
     grid->addWidget(lineWidthLabel,2,0);
 

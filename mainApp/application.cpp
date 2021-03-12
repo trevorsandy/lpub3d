@@ -653,7 +653,7 @@ void Application::initialize()
                 fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
                 fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
                 fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
-                fprintf(stdout, "  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");                
+                fprintf(stdout, "  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
                 fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
                 fprintf(stdout, "  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
                 fprintf(stdout, "  --camera-position-ldraw <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector using LDraw coordinates.\n");
@@ -830,10 +830,11 @@ void Application::initialize()
   QDir contentsDir(progDir.absolutePath() + "/");
   QStringList fileFilters = QStringList() << "lpub3d*";
   QStringList shareContents = contentsDir.entryList(fileFilters);
-  if (shareContents.size() > 0)
+  if (shareContents.size() > 0) {
       logInfo() << QString(QString("LPub3D Application Folder....(%1)").arg(Preferences::lpub3dAppName));
-  else
+  } else {
       logInfo() << QString(QString("ERROR - Application Folder Not Found."));
+  }
 #endif
   // applications paths:
   logInfo() << QString(QString("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath));

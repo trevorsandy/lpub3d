@@ -92,7 +92,7 @@ if [ "${TRAVIS}" != "true"  ]; then
   echo "You can stop here if you do not want to uninstall your current version of Boost"
   echo "or if you prefer to personally configure the availability of Boost 1.60."
   read -n 1 -p "Enter c to continue Boost uninstall: " getoption
-  if [ "$getoption" = "c" ] || [ "$getoption" = "c" ]; then
+  if [ "$getoption" = "c" ] || [ "$getoption" = "C" ]; then
      echo  "  You selected to uninstall any current versions of Boost."
   else
      echo  "  You selected to stop the installation."

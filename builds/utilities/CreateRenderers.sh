@@ -757,7 +757,12 @@ if [ "$OS_NAME" = "Darwin" ]; then
     if [ "${TRAVIS}" = "true" ]; then
      Info  "--- Skipped brew update to save time"
     else
-     brew update > $depsLog 2>&1
+     Info && Info "Enter u to update brew or any key to skip brew update."
+     read -n 1 -p "Do you want to update brew? : " getoption
+     if [ "$getoption" = "u" ] || [ "$getoption" = "U" ]; then
+       Info "--- Updating brew - this may take a while..."
+       brew update > $depsLog 2>&1
+     fi
     fi
     Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
     brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
