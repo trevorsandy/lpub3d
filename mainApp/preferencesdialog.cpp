@@ -2053,7 +2053,7 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
         if (index == THEME_DARK_GRID_STUD_COLOR)
             color.setAlpha(192);
         else if (index == THEME_DARK_LINE_SELECT)
-            color.setAlpha(30);
+            color.setAlpha(50);
         else if (index == THEME_DARK_LINE_ERROR)
             color.lighter(180);
         else if (index == THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT)

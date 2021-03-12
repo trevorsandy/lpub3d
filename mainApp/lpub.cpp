@@ -3447,14 +3447,21 @@ Gui::Gui()
             editModeWindow, SLOT(  updateDisabled(bool)));
 
     // Edit Model Window
+    connect(this,           SIGNAL(setTextEditHighlighterSig()),
+            editModeWindow, SLOT(  setTextEditHighlighter()));
+
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
             editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
+
     connect(editModeWindow, SIGNAL(refreshModelFileSig()),
             this,           SLOT(  refreshModelFile()));
+
     connect(editModeWindow, SIGNAL(redrawSig()),
             this,           SLOT(  clearAndRedrawModelFile()));
+
     connect(editModeWindow, SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentModelFile()));
+
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editModeWindow, SLOT(  clearEditorWindow()));
 

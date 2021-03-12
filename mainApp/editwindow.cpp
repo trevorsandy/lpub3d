@@ -156,11 +156,13 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
 void EditWindow::setSelectionHighlighter()
 {
     QColor highlightColor;
-    if (Preferences::displayTheme == THEME_DEFAULT)
-        highlightColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_SELECT]);
-    else if (Preferences::displayTheme == THEME_DARK)
+    if (Preferences::displayTheme == THEME_DARK) {
         highlightColor = QColor(Preferences::themeColors[THEME_DARK_LINE_SELECT]);
-    highlightColor.setAlpha(30);
+        highlightColor.setAlpha(50);
+    } else {
+        highlightColor = QColor(Preferences::themeColors[THEME_DEFAULT_LINE_SELECT]);
+        highlightColor.setAlpha(30);
+    }
 
     auto palette = _textEdit->palette();
     palette.setBrush(QPalette::Highlight, highlightColor);
@@ -1344,8 +1346,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                 if (clear) {
                     if (Preferences::displayTheme == THEME_DARK) {
                         lineColor = QColor(Preferences::themeColors[THEME_DARK_SCENE_BGCOLOR]); // THEME_DARK_VIEWER_BACKGROUND_COLOR
-                    } else
-                    if (Preferences::displayTheme == THEME_DEFAULT) {
+                    } else {
                         lineColor = QColor(Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
                     }
                 } else {
@@ -1359,6 +1360,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                                                Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT] :
                                                Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT]);
                     }
+                    lineColor.lighter(180);
                 }
             }
 
