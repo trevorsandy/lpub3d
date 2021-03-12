@@ -1604,7 +1604,7 @@ void Gui::exportAs(const QString &_suffix)
   box.setInformativeText (text);
 
   if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)){
-      openFolder(directoryName);
+      openFolderSelect(directoryName  + "/" + type);
     } else {
       emit messageSig(LOG_STATUS, QString("Export %1 %2 completed!").arg(suffix).arg(type));
       emit messageSig(LOG_STATUS, QString("Exported %1 %2 path: %3")

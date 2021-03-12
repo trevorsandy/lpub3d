@@ -121,30 +121,100 @@ void Gui::openDropFile(QString &fileName){
     }
 }
 
-void Gui::openFolder(const QString &folder)
+void Gui::openFolderSelect(const QString &absoluteFilePath)
 {
-    QString CommandPath = folder;
-    QProcess *Process = new QProcess(this);
-    Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
+    auto openPath = [this](const QString& absolutePath)
+    {
+        bool ok = true;
+        const QString path = QDir::fromNativeSeparators(absolutePath);
+        // Hack to access samba shares with QDesktopServices::openUrl
+        if (path.startsWith("//"))
+            ok = QDesktopServices::openUrl(QDir::toNativeSeparators("file:" + path));
+        else
+            ok = QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+
+        if (!ok) {
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to open folder!").arg(path));
+        }
+    };
+
+    const QString path = QDir::fromNativeSeparators(absoluteFilePath);
 #ifdef Q_OS_WIN
-    Process->setNativeArguments(CommandPath);
-    QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
-#else
-    Process->execute(CommandPath, QStringList());
-    Process->waitForFinished();
+    if (QFileInfo(path).exists()) {
+        // Syntax is: explorer /select, "C:\Folder1\Folder2\file_to_select"
+        // Dir separators MUST be win-style slashes
 
-    QProcess::ExitStatus Status = Process->exitStatus();
+        // QProcess::startDetached() has an obscure bug. If the path has
+        // no spaces and a comma(and maybe other special characters) it doesn't
+        // get wrapped in quotes. So explorer.exe can't find the correct path and
+        // displays the default one. If we wrap the path in quotes and pass it to
+        // QProcess::startDetached() explorer.exe still shows the default path. In
+        // this case QProcess::startDetached() probably puts its own quotes around ours.
 
-    if (Status != 0) {  // look for error
-        QErrorMessage *m = new QErrorMessage(this);
-        m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
-      }
+        STARTUPINFO startupInfo;
+        ::ZeroMemory(&startupInfo, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
+
+        PROCESS_INFORMATION processInfo;
+        ::ZeroMemory(&processInfo, sizeof(processInfo));
+
+        QString cmd = QString("explorer.exe /select,\"%1\"").arg(QDir::toNativeSeparators(absoluteFilePath));
+        LPWSTR lpCmd = new WCHAR[cmd.size() + 1];
+        cmd.toWCharArray(lpCmd);
+        lpCmd[cmd.size()] = 0;
+
+        bool ret = ::CreateProcessW(NULL, lpCmd, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+        delete [] lpCmd;
+
+        if (ret) {
+            ::CloseHandle(processInfo.hProcess);
+            ::CloseHandle(processInfo.hThread);
+        }
+    }
+    else {
+        // If the item to select doesn't exist, try to open its parent
+        openPath(path.left(path.lastIndexOf("/")));
+    }
+#elif defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    if (QFileInfo(path).exists()) {
+        QProcess proc;
+        QString output;
+        proc.start("xdg-mime", QStringList() << "query" << "default" << "inode/directory");
+        proc.waitForFinished();
+        output = proc.readLine().simplified();
+        if (output == "dolphin.desktop" || output == "org.kde.dolphin.desktop")
+            proc.startDetached("dolphin", QStringList() << "--select" << QDir::toNativeSeparators(path));
+        else if (output == "nautilus.desktop" || output == "org.gnome.Nautilus.desktop"
+                 || output == "nautilus-folder-handler.desktop")
+            proc.startDetached("nautilus", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "caja-folder-handler.desktop")
+            proc.startDetached("caja", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "nemo.desktop")
+            proc.startDetached("nemo", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "kfmclient_dir.desktop")
+            proc.startDetached("konqueror", QStringList() << "--select" << QDir::toNativeSeparators(path));
+        else
+            openPath(path.left(path.lastIndexOf("/")));
+
+        QProcess::ExitStatus Status = Process->exitStatus();
+        if (Status != 0) {  // look for error
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(CommandPath));
+        }
+    }
+    else {
+        // If the item to select doesn't exist, try to open its parent
+        openPath(path.left(path.lastIndexOf("/")));
+    }
+#else // Q_OS_MAC
+    openPath(path.left(path.lastIndexOf("/")));
 #endif
 }
 
 void Gui::openWorkingFolder() {
     if (!getCurFile().isEmpty())
-        openFolder(QFileInfo(getCurFile()).absolutePath());
+        openFolderSelect(getCurFile());
 }
 
 void Gui::updateOpenWithActions()

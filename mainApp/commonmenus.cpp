@@ -86,7 +86,7 @@ QAction* CommonMenus::copyToClipboardMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Copy %1 Path To Clipboard") .arg(name);
+  QString formatted = QString("%1 Image Path to Clipboard") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/copytoclipboard.png"));
 

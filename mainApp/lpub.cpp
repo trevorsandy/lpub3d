@@ -359,10 +359,12 @@ void Gui::updateClipboard()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     if (action) {
+        bool isImage = false;
         QString data;
         if (action == copyFilePathToClipboardAct) {
-            data = getCurFile();
+            data = QDir::toNativeSeparators(getCurFile());
         } else {
+            isImage = true;
             data = action->data().toString();
         }
 
@@ -376,12 +378,13 @@ void Gui::updateClipboard()
 
         QString efn =QFileInfo(data).fileName();
         // Text elided to 20 chars
-        QString fileName = QString("Part %1")
+        QString fileName = QString("%1 '%2' full path")
+                           .arg(isImage ? "Image" : "File")
                            .arg(efn.size() > 20 ?
                                 efn.left(17) + "..." +
                                 efn.right(3) : efn);
 
-        emit messageSig(LOG_INFO_STATUS, QString("Copied '%1' to clipboard.").arg(fileName));
+        emit messageSig(LOG_INFO_STATUS, QString("'%1' copied to clipboard.").arg(fileName));
     }
 }
 #endif

@@ -1566,7 +1566,7 @@ private:
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
   void openWith(const QString &filePath);
-  void openFolder(const QString &folder);
+  void openFolderSelect(const QString &absoluteFilePath);
   bool processPageRange(const QString &range);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);
