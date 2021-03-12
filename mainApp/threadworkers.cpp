@@ -433,22 +433,26 @@ void PartWorker::populateLdgLiteSearchDirs() {
  */
 
 void PartWorker::addCustomDirs() {
+    bool customDirs = false;
     if (!Preferences::ldSearchDirs.contains(_customPartDir)) {
         Preferences::ldSearchDirs << _customPartDir;
         emit gui->messageSig(LOG_INFO, QString("Add custom part directory: %1").arg(_customPartDir));
+        customDirs = true;
     }
     if (!Preferences::ldSearchDirs.contains(_customPrimDir)) {
         Preferences::ldSearchDirs << _customPrimDir;
         emit gui->messageSig(LOG_INFO, QString("Add custom primitive directory: %1").arg(_customPrimDir));
+        if (!customDirs)
+            customDirs = true;
     }
-    updateLDSearchDirs(true);
+    updateLDSearchDirs(true /*archive*/, customDirs);
 }
 
 /*
  * Update ldSearch Directory list and archvie new parts if any
  */
 
-void PartWorker::updateLDSearchDirs(bool archive /*false*/) {
+void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*/) {
     // Update the registry
     QSettings Settings;
     Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
@@ -466,8 +470,15 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/) {
        populateLdgLiteSearchDirs();
 
     // Archive search directory parts
-    if (archive)
-       processLDSearchDirParts();
+    if (archive) {
+       if (custom) {
+           QStringList dirs;
+           dirs << _customPartDir << _customPrimDir;
+           processPartsArchive(dirs, "custom directory");
+       } else {
+           processLDSearchDirParts();
+       }
+    }
 }
 
 /*

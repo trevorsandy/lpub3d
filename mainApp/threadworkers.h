@@ -124,7 +124,7 @@ public:
 
     bool loadLDrawSearchDirs();
 
-    void updateLDSearchDirs(bool archive = false);
+    void updateLDSearchDirs(bool archive = false, bool custom = false);
 
     void addCustomDirs();
 

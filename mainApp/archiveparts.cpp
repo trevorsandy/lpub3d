@@ -267,6 +267,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
   {
       "/parts", "/p", "/parts/s", "/parts/textures", "/p/8", "/p/48", "/parts/b", "/parts/s/b"
   };
+
   QStringList entryList[num_entryPoints];
 
   Q_FOREACH (QString dirFile, validDirFiles) {
