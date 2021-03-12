@@ -735,12 +735,12 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if ( event->button() == Qt::LeftButton ) {
         lcPreferences& Preferences = lcGetPreferences();
         if (Preferences.mPreviewEnabled && Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
-            QString stepKey = gui->getViewerStepKey();
-            bool haveStepKey = !stepKey.isEmpty();
-            if (haveStepKey && stepKey != step->viewerStepKey) {
-                step->viewerOptions->ZoomExtents = true;
-                if (gui->saveBuildModification())
+            if (gui->saveBuildModification()) {
+                if (gui->getViewerStepKey() != step->viewerStepKey) {
+                    step->viewerOptions->ZoomExtents = true;
                     step->loadTheViewer();
+                    gui->setCurrentStep(step);
+                }
             }
         }
     }

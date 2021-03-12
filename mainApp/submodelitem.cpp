@@ -1314,11 +1314,12 @@ void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if ( event->button() == Qt::LeftButton ) {
         lcPreferences& Preferences = lcGetPreferences();
         if (!Preferences.mPreviewEnabled) {
-            QString modelKey = gui->getViewerStepKey();
-            bool haveModelKey = !modelKey.isEmpty();
-            if (haveModelKey && modelKey !=  subModel->viewerSubmodelKey) {
-                if (gui->saveBuildModification())
+            if (gui->saveBuildModification()) {
+                QString modelKey = gui->getViewerStepKey();
+                bool haveModelKey = !modelKey.isEmpty();
+                if (haveModelKey && modelKey !=  subModel->viewerSubmodelKey) {
                     subModel->loadTheViewer();
+                }
             }
         } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
             previewSubModel();

@@ -3627,19 +3627,20 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     if ( event->button() == Qt::LeftButton ) {
         lcPreferences& Preferences = lcGetPreferences();
         if (!Preferences.mPreviewEnabled) {
-            QString type = QFileInfo(part->type).completeBaseName();
-            QString viewerPliPartKey        = QString("%1;%2;%3")
-                    .arg(type).arg(part->color)
-                    .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
-            QString partKey = gui->getViewerStepKey();
-            bool havePartKey = !partKey.isEmpty();
-            QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
-            pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
-            pli->viewerOptions->ImageWidth  = part->pixmapWidth;
-            pli->viewerOptions->ImageHeight = part->pixmapHeight;
-            if (havePartKey && partKey != viewerPliPartKey) {
-                if (gui->saveBuildModification())
+            if (gui->saveBuildModification()) {
+                QString type = QFileInfo(part->type).completeBaseName();
+                QString viewerPliPartKey        = QString("%1;%2;%3")
+                        .arg(type).arg(part->color)
+                        .arg(pli->step ? pli->step->stepNumber.number : 0/*BOM page*/);
+                QString partKey = gui->getViewerStepKey();
+                bool havePartKey = !partKey.isEmpty();
+                QString viewerOptKey = QString("%1_%2").arg(type).arg(part->color);
+                pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+                pli->viewerOptions->ImageWidth  = part->pixmapWidth;
+                pli->viewerOptions->ImageHeight = part->pixmapHeight;
+                if (havePartKey && partKey != viewerPliPartKey) {
                     pli->loadTheViewer();
+                }
             }
         } else if (Preferences.mPreviewPosition == lcPreviewPosition::Dockable) {
             previewPart(true/*Dockable*/);
