@@ -3245,6 +3245,7 @@ Gui::Gui()
     qRegisterMetaType<BuildModData>("BuildModData");
     qRegisterMetaType<ConstrainData>("ConstrainData");
     qRegisterMetaType<CsiAnnotationIconData>("CsiAnnotationIconData");
+    qRegisterMetaType<FindPageFlags>("FindPageFlags");
     qRegisterMetaType<FreeFormData>("FreeFormData");
     qRegisterMetaType<InsertData>("InsertData");
     qRegisterMetaType<JustifyStepData>("JustifyStepData");

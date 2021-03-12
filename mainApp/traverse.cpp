@@ -2601,17 +2601,6 @@ int Gui::findPage(
     QString const   &addLine,
     FindPageOptions &opts)
 {
-  bool stepGroup  = false; // opts.multiStep
-  bool partIgnore = false;
-  bool coverPage  = false;
-  bool stepPage   = false;
-  bool bfxStore1  = false;
-  bool bfxStore2  = false;
-  bool callout    = false;
-  bool noStep     = false;
-  bool noStep2    = false;
-  bool stepGroupBfxStore2 = false;
-  bool pageSizeUpdate     = false;
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
   bool pageDisplayed      = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
@@ -2633,7 +2622,7 @@ int Gui::findPage(
   QStringList saveBfxParts;
   QStringList ldrStepFiles;
   QStringList csiKeys;
-  int  partsAdded = 0;
+
   int  saveStepNumber = opts.stepNumber;
 
   QStringList  csiParts;
@@ -2654,7 +2643,7 @@ int Gui::findPage(
   QHash<QString, QVector<int>> saveBfxLineTypeIndexes;
   QList<PliPartGroupMeta>      emptyPartGroups;
 
-  int numLines = ldrawFile.size(opts.current.modelName);
+  opts.flags.numLines = ldrawFile.size(opts.current.modelName);
 
   int countInstances = meta.LPub.countInstance.value();
 
@@ -2673,12 +2662,6 @@ int Gui::findPage(
   opts.buildMod.level,
   opts.buildMod.ignore,
   buildModItems);
-
-  // include file vars
-  Where includeHere;
-  Rc includeFileRc    = EndOfFileRc;
-  bool inserted       = false;
-  bool resetIncludeRc = false;
 
 #ifdef WRITE_PARTS_DEBUG
   auto writeFindPartsFile = [this,&topOfStep, &saveCsiParts, &opts](
@@ -2741,12 +2724,12 @@ int Gui::findPage(
    */
 
   for ( ;
-        opts.current.lineNumber < numLines && !pageDisplayed;
+        opts.current.lineNumber < opts.flags.numLines && !pageDisplayed;
         opts.current.lineNumber++) {
 
       // if reading include file, return to current line, do not advance
 
-      if (includeFileRc != EndOfFileRc) {
+      if (opts.flags.includeFileRc != EndOfFileRc) {
          opts.current.lineNumber--;
       }
 
@@ -2780,7 +2763,7 @@ int Gui::findPage(
           // process submodel...
           if (! opts.buildMod.ignore) {
 
-              if (! partIgnore) {
+              if (! opts.flags.partIgnore) {
 
                   // csiParts << line;
 
@@ -2802,7 +2785,7 @@ int Gui::findPage(
                       CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
                       // if submodel or assembled/rotated callout
-                      if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                      if (contains && (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                           // check if submodel was rendered
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
@@ -2811,7 +2794,7 @@ int Gui::findPage(
                           bool buildModRendered = getBuildModRendered(opts.buildMod.key, colorType);
 
                           // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
-                          if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+                          if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
 
                               if (opts.buildMod.state == BM_BEGIN)
                                   setBuildModRendered(opts.buildMod.key, colorType);
@@ -2822,6 +2805,8 @@ int Gui::findPage(
                               SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                               meta.submodelStack << tos;
                               Where current2(type,getSubmodelIndex(type),0);
+                              FindPageFlags flags2;
+                              BuildModFlags buildMod2;
 
                               ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -2840,7 +2825,7 @@ int Gui::findPage(
                               PgSizeData pageSize2;
                               if (exporting()) {
                                   pageSize2       = pageSizes[DEF_SIZE];
-                                  pageSizeUpdate  = false;
+                                  opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
                                   logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
                                              << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
@@ -2855,7 +2840,8 @@ int Gui::findPage(
                                           opts.pageNum,
                                           current2,
                                           opts.pageSize,
-                                          opts.buildMod,
+                                          flags2,
+                                          buildMod2,
                                           opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
@@ -2905,7 +2891,7 @@ int Gui::findPage(
 
                       } // Contains [IsSubmodel] && (! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled))
 
-                     if (bfxStore1) {
+                     if (opts.flags.bfxStore1) {
                          bfxParts << colorType;
                      }
                      if (contains && buildMod[BM_BEGIN] && ! buildModIgnore) {
@@ -2918,7 +2904,7 @@ int Gui::findPage(
         case '3':
         case '4':
         case '5':
-            ++partsAdded;
+            ++opts.flags.partsAdded;
             CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
 
           } // ! BuildModIgnore, for each linee
@@ -2928,20 +2914,20 @@ int Gui::findPage(
 
           // intercept include file flag
 
-          if (includeFileRc != EndOfFileRc) {
-              if (resetIncludeRc) {
-                  rc = IncludeRc;                 // return to IncludeRc to parse another line
+          if (opts.flags.includeFileRc != EndOfFileRc) {
+              if (opts.flags.resetIncludeRc) {
+                  rc = IncludeRc;                    // return to IncludeRc to parse another line
               } else {
-                  rc = includeFileRc;             // execute the Rc returned by include(...)
-                  resetIncludeRc = true;          // reset to run include(...) to parse another line
+                  rc = Rc(opts.flags.includeFileRc); // execute the Rc returned by include(...)
+                  opts.flags.resetIncludeRc = true;  // reset to run include(...) to parse another line
               }
           } else {
-              rc = meta.parse(line,opts.current); // continue
+              rc = meta.parse(line,opts.current);    // continue
           }
 
           switch (rc) {
             case StepGroupBeginRc:
-              stepGroup = true;
+              opts.flags.stepGroup = true;
               stepGroupCurrent = topOfStep;
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
@@ -2967,7 +2953,7 @@ int Gui::findPage(
               // Steps within step group modify bfxStore2 as they progress
               // so we must save bfxStore2 and use the saved copy when
               // we call drawPage for a step group.
-              stepGroupBfxStore2 = bfxStore2;
+              opts.flags.stepGroupBfxStore2 = opts.flags.bfxStore2;
               break;
 
             case StepGroupEndRc:
@@ -3022,7 +3008,7 @@ int Gui::findPage(
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
-                                  stepGroupBfxStore2,
+                                  opts.flags.stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/);
 #ifdef WRITE_PARTS_DEBUG
@@ -3046,8 +3032,8 @@ int Gui::findPage(
                   // ignored when processing buildMod display
                   if (exporting()) {
                       pageSizes.remove(opts.pageNum);
-                      if (pageSizeUpdate) {
-                          pageSizeUpdate = false;
+                      if (opts.flags.pageSizeUpdate) {
+                          opts.flags.pageSizeUpdate = false;
                           pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
@@ -3098,7 +3084,7 @@ int Gui::findPage(
                 } // StepGroup && ! NoStep2
 
               //buildModActions.clear();
-              noStep2 = false;
+              opts.flags.noStep2 = false;
               break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
@@ -3148,9 +3134,9 @@ int Gui::findPage(
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
                          (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
-                          opts.contStepNumber += ! coverPage && ! stepPage;
+                          opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                       }
-                      if (! stepGroup && opts.stepNumber == 1 + sa) {
+                      if (! opts.flags.stepGroup && opts.stepNumber == 1 + sa) {
                           if (opts.pageNum == 1 + pa && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
                               meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
                           } else {
@@ -3159,11 +3145,11 @@ int Gui::findPage(
                       }
                   }
 
-                  opts.stepNumber  += ! coverPage && ! stepPage;
-                  stepPageNum += ! coverPage && ! stepGroup;
+                  opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
+                  stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
                   if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
-                      if ( ! stepGroup) {
+                      if ( ! opts.flags.stepGroup) {
                           saveLineTypeIndexes    = lineTypeIndexes;
                           saveStepNumber         = opts.stepNumber;
                           saveCsiParts           = csiParts;
@@ -3175,7 +3161,7 @@ int Gui::findPage(
                           // bfxParts.clear();
                           if (opts.groupStepNumber &&
                               meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
-                              opts.groupStepNumber += ! coverPage && ! stepPage;
+                              opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                               saveGroupStepNum      = opts.groupStepNumber;
                           }
 #ifdef WRITE_PARTS_DEBUG
@@ -3230,7 +3216,7 @@ int Gui::findPage(
                                       opts.updateViewer,
                                       opts.isMirrored,
                                       opts.printing,
-                                      bfxStore2);
+                                      opts.flags.bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                           writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -3253,8 +3239,8 @@ int Gui::findPage(
 
                       if (exporting()) {
                           pageSizes.remove(opts.pageNum);
-                          if (pageSizeUpdate) {
-                              pageSizeUpdate = false;
+                          if (opts.flags.pageSizeUpdate) {
+                              opts.flags.pageSizeUpdate = false;
                               pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
@@ -3304,14 +3290,14 @@ int Gui::findPage(
                     } // ! StepGroup
 
                   topOfStep = opts.current;  // Set next step
-                  partsAdded = 0;
+                  opts.flags.partsAdded = 0;
                   meta.pop();
                   meta.LPub.buildMod.clear();
-                  coverPage = false;
-                  stepPage = false;
-                  bfxStore2 = bfxStore1;
-                  bfxStore1 = false;
-                  if ( ! bfxStore2) {
+                  opts.flags.coverPage = false;
+                  opts.flags.stepPage = false;
+                  opts.flags.bfxStore2 = opts.flags.bfxStore1;
+                  opts.flags.bfxStore1 = false;
+                  if ( ! opts.flags.bfxStore2) {
                       bfxParts.clear();
                     } // ! BfxStore2
 
@@ -3323,35 +3309,35 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
-              noStep2 = noStep;
-              noStep = false;
+              opts.flags.noStep2 = opts.flags.noStep;
+              opts.flags.noStep = false;
               break;
 
             case CalloutBeginRc:
-              callout = true;
+              opts.flags.callout = true;
               break;
 
             case CalloutEndRc:
-              callout = false;
+              opts.flags.callout = false;
               meta.LPub.callout.placement.clear();
               break;
 
             case InsertCoverPageRc:
-              coverPage  = true;
-              partsAdded = true;
+              opts.flags.coverPage  = true;
+              opts.flags.partsAdded = true;
               break;
 
             case InsertPageRc:
-              stepPage   = true;
-              partsAdded = true;
+              opts.flags.stepPage   = true;
+              opts.flags.partsAdded = true;
               break;
 
             case PartBeginIgnRc:
-              partIgnore = true;
+              opts.flags.partIgnore = true;
               break;
 
             case PartEndRc:
-              partIgnore = false;
+              opts.flags.partIgnore = false;
               break;
 
               // Any of the metas that can change csiParts needs
@@ -3372,7 +3358,7 @@ int Gui::findPage(
                   bfx[meta.bfx.value()] = csiParts;
                   bfxLineTypeIndexes[meta.bfx.value()] = lineTypeIndexes;
                 }
-              bfxStore1 = true;
+              opts.flags.bfxStore1 = true;
               bfxParts.clear();
               break;
 
@@ -3381,7 +3367,7 @@ int Gui::findPage(
                   csiParts = bfx[meta.bfx.value()];
                   lineTypeIndexes = bfxLineTypeIndexes[meta.bfx.value()];
                 }
-              partsAdded = true;
+              opts.flags.partsAdded = true;
               break;
 
             case PartNameRc:
@@ -3400,7 +3386,7 @@ int Gui::findPage(
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                   CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
               }
-              partsAdded = true;
+              opts.flags.partsAdded = true;
               break;
 
               /* remove a group or all instances of a part type */
@@ -3425,9 +3411,9 @@ int Gui::findPage(
               break;
 
             case IncludeRc:
-              includeFileRc = Rc(include(meta,includeHere,inserted)); // includeHere and inserted are include(...) vars
-              if (includeFileRc != EndOfFileRc) {                     // still reading so continue
-                  resetIncludeRc = false;                             // do not reset, allow includeFileRc to execute
+              opts.flags.includeFileRc = Rc(include(meta,opts.flags.includeHere,opts.flags.inserted)); // includeHere and inserted are include(...) vars
+              if (opts.flags.includeFileRc != EndOfFileRc) {                     // still reading so continue
+                  opts.flags.resetIncludeRc = false;                             // do not reset, allow includeFileRc to execute
                   continue;
               }
               break;
@@ -3435,7 +3421,7 @@ int Gui::findPage(
             case PageSizeRc:
               {
                 if (exporting()) {
-                    pageSizeUpdate  = true;
+                    opts.flags.pageSizeUpdate  = true;
 
                     opts.pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
                     opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
@@ -3474,7 +3460,7 @@ int Gui::findPage(
             case StartStepNumberRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
               {
-                  if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                  if ((opts.current.modelName == ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                           opts.current.modelName != ldrawFile.topLevelFile())
                       parseError("Start step number must be specified in the top model header.", opts.current);
                   sa = meta.LPub.startStepNumber.value() - 1;
@@ -3484,7 +3470,7 @@ int Gui::findPage(
             case StartPageNumberRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
               {
-                  if ((opts.current.modelName == ldrawFile.topLevelFile() && partsAdded) ||
+                  if ((opts.current.modelName == ldrawFile.topLevelFile() && opts.flags.partsAdded) ||
                           opts.current.modelName != ldrawFile.topLevelFile())
                       parseError("Start page number must be specified in the top model header.", opts.current);
                   pa = meta.LPub.startPageNumber.value() - 1;
@@ -3521,7 +3507,7 @@ int Gui::findPage(
             case PageOrientationRc:
               {
                 if (exporting()){
-                    pageSizeUpdate      = true;
+                    opts.flags.pageSizeUpdate = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
                       opts.pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
@@ -3545,7 +3531,7 @@ int Gui::findPage(
               break;
 
             case NoStepRc:
-              noStep = true;
+              opts.flags.noStep = true;
               break;
             default:
               break;
@@ -3565,7 +3551,7 @@ int Gui::findPage(
       if (opts.contStepNumber) {
           if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && ! countInstances &&
              (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) {
-              opts.contStepNumber += ! coverPage && ! stepPage;
+              opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
           }
           if (isDisplayPage/*opts.pageNum == displayPageNum*/) {
               saveMeta.LPub.contModelStepNum.setValue(saveStepNumber);
@@ -3575,7 +3561,7 @@ int Gui::findPage(
       }
       if (isPreDisplayPage && opts.groupStepNumber &&
           meta.LPub.multiStep.countGroupSteps.value()) { // count group step number and persist
-          opts.contStepNumber += ! coverPage && ! stepPage;
+          opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
           saveGroupStepNum     = opts.contStepNumber;
       }
 
@@ -3602,7 +3588,7 @@ int Gui::findPage(
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
-                      bfxStore2);
+                      opts.flags.bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
@@ -3618,7 +3604,7 @@ int Gui::findPage(
 
       if (exporting()) {
           pageSizes.remove(opts.pageNum);
-          if (pageSizeUpdate) {
+          if (opts.flags.pageSizeUpdate) {
               pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
@@ -4110,6 +4096,7 @@ void Gui::countPages()
       stepPageNum          =  maxPages;
       modelStack.clear();
       QString empty;
+      FindPageFlags flags;
       BuildModFlags buildMod;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
@@ -4118,6 +4105,7 @@ void Gui::countPages()
                   maxPages,      /*pageNum*/
                   current,
                   emptyPageSize,
+                  flags,
                   buildMod,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
@@ -4214,6 +4202,7 @@ void Gui::drawPage(
 
   QString empty;
   Meta    meta;
+  FindPageFlags flags;
   BuildModFlags buildMod;
   firstStepPageNum     = -1;
   lastStepPageNum      = -1;
@@ -4244,6 +4233,7 @@ void Gui::drawPage(
               maxPages,    /*pageNum*/
               current,
               pageSize,
+              flags,
               buildMod,
               updateViewer,
               false        /*mirrored*/,

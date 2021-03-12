@@ -216,6 +216,49 @@ public:
     { }
 };
 
+class FindPageFlags
+{
+
+public:
+    bool stepGroup;
+    bool partIgnore;
+    bool coverPage;
+    bool stepPage;
+    bool bfxStore1;
+    bool bfxStore2;
+    bool callout;
+    bool noStep;
+    bool noStep2;
+    bool stepGroupBfxStore2;
+    bool pageSizeUpdate;
+    bool resetIncludeRc;
+    bool includeFileFound;
+    int  includeFileRc;
+    int  includeLineNum;
+    int  partsAdded;
+    int  numLines;
+    FindPageFlags()
+        :
+          stepGroup         (false),
+          partIgnore        (false),
+          coverPage         (false),
+          stepPage          (false),
+          bfxStore1         (false),
+          bfxStore2         (false),
+          callout           (false),
+          noStep            (false),
+          noStep2           (false),
+          stepGroupBfxStore2(false),
+          pageSizeUpdate    (false),
+          resetIncludeRc    (false),
+          includeFileFound  (false),
+          includeFileRc     (-1),    // EndOfIncludeFileRc
+          includeLineNum    (0),
+          partsAdded        (0),
+          numLines          (0)
+    { }
+};
+
 class FindPageOptions
 {
 
@@ -224,6 +267,7 @@ public:
             int             &_pageNum,
             Where           &_current,
             PgSizeData      &_pageSize,
+            FindPageFlags   &_flags,
             BuildModFlags   &_buildMod,
 
             bool             _updateViewer,
@@ -237,6 +281,7 @@ public:
           pageNum           (_pageNum),
           current           (_current),
           pageSize          (_pageSize),
+          flags             (_flags),
           buildMod          (_buildMod),
 
           updateViewer      (_updateViewer),
@@ -250,6 +295,7 @@ public:
     int           &pageNum;
     Where         &current;
     PgSizeData    &pageSize;
+    FindPageFlags &flags;
     BuildModFlags &buildMod;
 
     bool           updateViewer;
