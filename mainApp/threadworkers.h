@@ -322,6 +322,32 @@ private:
                            const QString &heading = "");
 };
 
+class BuildModWorker : public QObject
+{
+    Q_OBJECT
+
+public slots:
+    static bool setBuildModForNextStep(
+             LDrawFile *ldrawFile,
+             Meta *meta,
+       const int pageDirection,
+       const int displayPageNum,
+       const Where topOfNextStep);
+
+private:
+    static bool setBuildMod(
+            LDrawFile *ldrawFile,
+            Meta *meta,
+      const int pageDirection,
+      const int displayPageNum,
+      const Where topOfNextStep,
+            Where bottomOfNextStep,
+            Where topOfSubmodel,
+            bool change,
+            bool submodel);
+    static QStringList buildModSubmodels;
+};
+
 class FindPageOptions;
 class CountPageWorker : public QObject
 {
@@ -329,10 +355,10 @@ class CountPageWorker : public QObject
 
 public slots:
     static int countPage(
-            Meta,
-            LDrawFile *,
-            QList<ModelStack> &,
-            FindPageOptions &);
+            Meta meta,
+            LDrawFile *ldrawFile,
+            QList<ModelStack> &modelStack,
+            FindPageOptions &opts);
 private:
     static void insertPageSize(const int i, const PgSizeData &);
     static void removePageSize(const int i);

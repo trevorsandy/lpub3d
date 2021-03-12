@@ -2040,6 +2040,330 @@ bool ExtractWorker::removeFile(QStringList listFile) {
  *
  */
 
+/*
+ * For setBuildModForNextStep(), the BuildMod behaviour searches ahead for any BuildMod action meta command in 'next step'.
+ *
+ * Three operations are performed in this function:
+ *
+ * 1. BuildMod attributes and content line numbers are captured when BUILD_MOD BEGIN is detected
+ * When BUILD_MOD END is detected, the BuildMod item is inserted into the BuildMod list in ldrawfile.
+ * The buildModLevel flag uses the getLevel() function to determine the current BuildMod when mods are nested.
+ * At this stage, the BuildMod action is set to BuildModApply by default.
+ *
+ * 2. The BuildMod action for the 'next' step being configured by this instance of writeToTmp() is updated.
+ * The action update proceedes as follows: (a.) The index for the 'next' step is captured in buildModStepIndex
+ * and used to correctly identify the BuldMod action slot. (b.) The corresponding BuildMod action is determined
+ * snd subsequently updated when BUILD_MOD APPLY or BUILD_MOD REMOVE meta commands are encountered. These
+ * commands must include their respective buildModKey
+ *
+ * 3. Part lines are written to to buildModCsiParts, their corresponding index is added to buildModLineTypeIndexes
+ * and buildModItems (bool) is set to then number of mod lines. The buildModCsiParts is added to csiParts and
+ * buildModLineTypeIndexes is added to lineTypeIndexes when buildModLevel is false (0).
+ */
+
+QStringList  BuildModWorker::buildModSubmodels;
+
+bool BuildModWorker::setBuildMod(
+   LDrawFile *ldrawFile,
+        Meta *meta,
+  const int   pageDirection,
+  const int   displayPageNum,
+  const Where topOfNextStep,
+        Where bottomOfNextStep,
+        Where topOfSubmodel,
+        bool  change,
+        bool  submodel)
+{
+    int  progressMin           = 0;
+    int  progressMax           = 0;
+    int  buildModLevel         = 0;
+    int  buildModNextStepIndex = 0;
+    int  buildModPrevStepIndex = 0;
+    int  startLine             = 0;
+    QString startModel         = topOfNextStep.modelName;
+    Where topOfStep            = topOfNextStep;
+    bool buildMod[3]           = { false, false, false };                    // validate buildMod meta command set
+
+    auto setBottomOfNextStep = [&ldrawFile, &buildModNextStepIndex, &topOfStep] (Where &bottomOfNextStep) {
+        ldrawFile->getBuildModStepIndexWhere(buildModNextStepIndex,
+                                             bottomOfNextStep.modelName,
+                                             bottomOfNextStep.modelIndex,
+                                             bottomOfNextStep.lineNumber);   // initialize bottomOfNextStep Where
+        int top = bottomOfNextStep.lineNumber;                               // save top line number for later comparison
+        int numLines = ldrawFile->size(bottomOfNextStep.modelName);          // set top model lines count
+        for (; bottomOfNextStep < numLines; ++bottomOfNextStep) {            // scan to top of next step
+            QString line = ldrawFile->readLine(bottomOfNextStep.modelName,
+                                               bottomOfNextStep.lineNumber);       // count line
+            if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")) { // check if STEP or ROTSTEP
+                if (bottomOfNextStep.lineNumber == top)                      // check if top and bottom are on the same line
+                    bottomOfNextStep++;                                      // advance past STEP command
+                else
+                    break;                                                   // break at bottom of step/top of next step
+            }
+        }
+
+#ifdef QT_DEBUG_MODE
+        int numberOfLines = bottomOfNextStep.lineNumber - topOfStep.lineNumber;
+        emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod BottomOfStep lineNumber %1, numberOfLines %2")
+                                                .arg(bottomOfNextStep.lineNumber).arg(numberOfLines));
+#endif
+    };
+
+    if (submodel) {
+        if (!topOfSubmodel.lineNumber)
+            ldrawFile->skipHeader(topOfSubmodel.modelName,topOfSubmodel.lineNumber);                                       // advance past headers
+
+        startLine  = topOfSubmodel.lineNumber;
+        startModel = topOfSubmodel.modelName;
+        topOfStep  = topOfSubmodel;
+
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG, QString("Build Modifications Check - Submodel '%1'...")
+                                          .arg(topOfSubmodel.modelName));
+#endif
+
+    } else {
+        emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modifications Check - Model '%1'...")
+                                            .arg(topOfStep.modelName));
+
+        buildModSubmodels.clear();
+
+        buildModNextStepIndex = ldrawFile->getBuildModNextStepIndex();       // set next/'display' step index
+
+        buildModPrevStepIndex = ldrawFile->getBuildModPrevStepIndex();       // set previous step index - i.e. the last 'set' step index, may not be sequential;
+
+        setBottomOfNextStep(bottomOfNextStep);                               // set bottom of next step
+
+        startLine = topOfStep.lineNumber;                                    // set starting line number
+/*
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG, QString("Build Modifications Check - StepIndex %1, StartLine %2, StartModel '%3'...")
+                                           .arg(buildModNextStepIndex).arg(startLine).arg(startModel));
+#endif
+*/
+        if (pageDirection != PAGE_NEXT) {                                        // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
+            bool backward = pageDirection == PAGE_PREVIOUS ||                    // step backward by 1
+                            pageDirection == PAGE_JUMP_BACKWARD;                 // jump backward by more than 1
+            if (backward) {                                                      // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
+                startLine  = topOfStep.lineNumber;                               // set step start lineNumber to topOfStep.lineNumber
+                startModel = topOfStep.modelName;                                // set step start modelName to topOfStep.modelName
+
+            } else {                                                             // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
+                Where topOfFromStep;
+                ldrawFile->getBuildModStepIndexWhere(buildModPrevStepIndex,
+                                                     topOfFromStep.modelName,
+                                                     topOfFromStep.modelIndex,
+                                                     topOfFromStep.lineNumber);  // get previous (last) step index
+                startLine  = ldrawFile->getBuildModStepLineNumber(
+                                                     buildModPrevStepIndex,
+                                                     true/*bottom*/);            // set start Where to previous step index
+                startModel = topOfFromStep.modelName;                            // set start Where lineNumber to bottom of previous step
+            }
+
+#ifdef QT_DEBUG_MODE
+            emit gui->messageSig(LOG_TRACE, QString("Jump %1 - StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
+                                               .arg(backward ? "Backward" : "Forward")
+                                               .arg(startModel).arg(startLine)
+                                               .arg(bottomOfNextStep.modelName)
+                                               .arg(bottomOfNextStep.lineNumber));
+#endif
+        }
+
+        progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber; // progress bar max
+        progressMin = 1;
+
+        emit gui->progressBarPermInitSig();
+        emit gui->progressPermRangeSig(progressMin, progressMax);
+    }
+
+    Rc rc;
+    QString buildModKey;
+    Rc buildModAction     = BuildModNoActionRc;
+    QMap<int, QString>      buildModKeys;
+    QMap<int, QVector<int>> buildModAttributes;
+
+    auto insertAttribute =
+            [&buildModLevel,
+             &topOfStep] (
+            QMap<int, QVector<int>> &buildModAttributes,
+            int index, const Where &here)
+    {
+        QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+        if (i == buildModAttributes.end()) {
+            QVector<int> modAttributes = { 0, 0, 0, 1, 0, topOfStep.modelIndex, 0, 0 };
+            modAttributes[index] = here.lineNumber;
+            buildModAttributes.insert(buildModLevel, modAttributes);
+        } else {
+            i.value()[index] = here.lineNumber;
+        }
+    };
+
+    auto insertBuildModification =
+           [&ldrawFile,
+            &displayPageNum,
+            &buildModNextStepIndex,
+            &buildModAttributes,
+            &buildModKeys,
+            &topOfStep] (int buildModLevel)
+    {
+        QString buildModKey = buildModKeys.value(buildModLevel);
+        QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
+
+        QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+        if (i != buildModAttributes.end()) {
+            modAttributes = i.value();
+            modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+            modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+            modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+        }
+
+        ldrawFile->insertBuildMod(buildModKey,
+                                  modAttributes,
+                                  buildModNextStepIndex);
+#ifdef QT_DEBUG_MODE
+      emit gui->messageSig(LOG_DEBUG, QString(
+                      "Insert Next-Step BuildMod StepIndex: %1, "
+                      "Action: Apply, "
+                      "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                      "ModKey: %10, "
+                      "Level: %11")
+                      .arg(buildModNextStepIndex)                  // Attribute Default Initial:
+                      .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                      .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                      .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                      .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                      .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                      .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                      .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                      .arg(buildModKey)
+                      .arg(buildModLevel));
+#endif
+    };
+
+    Where walk(startModel, ldrawFile->getSubmodelIndex(startModel), startLine);
+    QString line = ldrawFile->readLine(walk.modelName,walk.lineNumber);
+    rc =  meta->parse(line, walk, false);
+    if (rc == StepRc || rc == RotStepRc)
+        walk++;   // Advance past STEP meta
+
+    // next step lines index
+    int lineCount = 0;
+
+    // Parse the step lines
+    for ( ;
+          walk.lineNumber < ldrawFile->size(walk.modelName);
+          walk.lineNumber++) {
+
+        if (progressMax && walk.modelIndex == topOfNextStep.modelIndex) {
+            emit gui->progressPermMessageSig(QString("Build modification check %1 of %2...").arg(lineCount).arg(progressMax));
+            emit gui->progressPermSetValueSig(lineCount);
+            lineCount++;
+        }
+
+       line = ldrawFile->readLine(walk.modelName,walk.lineNumber);
+
+        if (line.toLatin1()[0] == '0') {
+
+            rc =  meta->parse(line,walk,false);
+
+            switch (rc) {
+
+            // Update BuildMod action for 'current' step
+            case BuildModApplyRc:
+            case BuildModRemoveRc:
+                buildModKey = meta->LPub.buildMod.key();
+                if (ldrawFile->buildModContains(buildModKey))
+                    buildModAction = Rc(ldrawFile->getBuildModAction(buildModKey, buildModNextStepIndex));
+                else
+                    gui->parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
+                                        walk,Preferences::ParseErrors);
+                if (buildModAction != rc)
+                    change = ldrawFile->setBuildModAction(buildModKey, buildModNextStepIndex, rc);
+                break;
+
+            // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
+            case BuildModBeginRc:
+                buildModKey   = meta->LPub.buildMod.key();
+                buildModLevel = getLevel(buildModKey, BM_BEGIN);
+                buildModKeys.insert(buildModLevel, buildModKey);
+                insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, walk);
+                buildMod[BM_BEGIN] = true;
+                break;
+
+            // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
+            case BuildModEndModRc:
+                if (buildModLevel > 1 && meta->LPub.buildMod.key().isEmpty())
+                    gui->parseError("Key required for nested build mod meta command",
+                               walk,Preferences::BuildModErrors);
+                if (!buildMod[BM_BEGIN])
+                    gui->parseError(QString("Required meta BUILD_MOD BEGIN not found"), walk, Preferences::BuildModErrors);
+                insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
+                buildMod[BM_END_MOD] = true;
+                break;
+
+            // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
+            case BuildModEndRc:
+                if (!buildMod[BM_END_MOD])
+                    gui->parseError(QString("Required meta BUILD_MOD END_MOD not found"), walk, Preferences::BuildModErrors);
+                insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
+                buildModLevel    = getLevel(QString(), BM_END);
+                buildMod[BM_END] = true;
+                break;
+
+            // Search until next step/rotstep meta
+            case RotStepRc:
+            case StepRc:
+                if (buildMod[BM_BEGIN] && !buildMod[BM_END])
+                    gui->parseError(QString("Required meta BUILD_MOD END not found"), walk, Preferences::BuildModErrors);
+                Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                    insertBuildModification(buildModLevel);
+                topOfStep = walk;
+                buildModKeys.clear();
+                buildModAttributes.clear();
+                buildMod[2] = buildMod[1] = buildMod[0] = false;
+                if (walk == bottomOfNextStep)
+                    return change;
+                break;
+
+            default:
+                break;
+            }
+        } else if (line.toLatin1()[0] == '1') {
+            if (walk == bottomOfNextStep)
+                return change;
+            QStringList token;
+            split(line,token);
+            if (token.size() == 15) {
+                QString modelName = token[token.size() - 1];
+                submodel = ldrawFile->isSubmodel(modelName);
+                if (submodel && ! buildModSubmodels.contains(modelName)) {
+                    buildModSubmodels.append(modelName);
+                    Where topOfSubmodel(modelName, ldrawFile->getSubmodelIndex(modelName), 0);
+                    setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfStep, bottomOfNextStep, topOfSubmodel, change, submodel);
+                }
+            }
+        }
+    }
+
+    if (progressMax) {
+        emit gui->progressPermSetValueSig(progressMax);
+        emit gui->progressPermStatusRemoveSig();
+    }
+
+    return change;
+}
+
+bool BuildModWorker::setBuildModForNextStep(
+ LDrawFile *ldrawFile,
+      Meta *meta,
+  const int pageDirection,
+  const int displayPageNum,
+  const Where topOfNextStep)
+{
+  return setBuildMod(ldrawFile, meta, pageDirection, displayPageNum, topOfNextStep, Where(), Where(), false, false);
+}
+
 void CountPageWorker::insertPageSize(const int i, const PgSizeData &pgSizeData)
 {
     QMetaObject::invokeMethod(
@@ -2094,7 +2418,7 @@ int CountPageWorker::countPage(
 
   Rc  rc;
   int partsAdded         = 0;
-  int countInstances     = meta.LPub.countInstance.value();;
+  int countInstances     = meta.LPub.countInstance.value();
   bool localSubmodel     = ! opts.current.lineNumber;
 
   if (localSubmodel || modelStack.size()) {
