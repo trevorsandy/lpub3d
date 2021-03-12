@@ -2619,7 +2619,8 @@ bool MetaItem::backCoverPageExist()
 {
   QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
   Where here(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile())); //start at bottom of file
-  scanBackward(here, StepMask | StepGroupMask);
+  if (here.lineNumber)
+      scanBackward(here, StepMask | StepGroupMask);
   return gui->stepContains(here, rx);
 }
 
@@ -2993,77 +2994,91 @@ void MetaItem::insertBOM()
   insertMeta(bottomOfPage,meta);
 }
 
-int MetaItem::okToInsertFinalModel()
+int MetaItem::displayModelStepExists()
 {
   Rc rc;
   QString line;
-  Meta content;
-  Where saveHere;                                          //initialize saveHere
+  Meta meta;
+  Where saveHere;                                            //initialize saveHere
   Where here(gui->topLevelFile(),0);
-  here.lineNumber = gui->subFileSize(here.modelName);      //start at bottom of file
-  here--;                                                  //adjust lineNumber using from zero-start index
+  here.lineNumber = gui->subFileSize(here.modelName);        //start at bottom of file
+  here--;                                                    //adjust lineNumber for zero-start index
 
-  for ( ; here >= 0; here--) {                             //scan from bottom to top of file
+  for ( ; here >= 0; here--) {                               //scan from bottom to top of file
     line = gui->readLine(here);
-    rc = content.parse(line,here);
-    if (rc == StepRc || rc == RotStepRc) {                 //if Step save the line number to perform perform insert (place before) later
+    rc = meta.parse(line,here);
+    if (rc == StepRc || rc == RotStepRc) {                   //if Step, save the line number to perform insert (place before) later
         saveHere = here.lineNumber;
     } else if (
-      rc == StepGroupEndRc || rc == CalloutEndRc) {        //if Step, StepGroup, RotStep or Callout, save the line number
-      logDebug() << "End of Step or Callout - Ok to insert Final Model at line: " << here.lineNumber;
-      return here.lineNumber;                              //reached a valid boundary so so return line number
-    } else if (rc == InsertFinalModelRc) {                 //check if insert final model
-      logStatus() << "Final model detected at line: " << here.lineNumber;
-      return -1;
-    } else {                                               //else keep walking back until 1_5 line
-      QStringList tokens;
-      split(line,tokens);
-      bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-          tokens[0] >= "1" && tokens[0] <= "5";
-      if (token_1_5) {                                     //non-zero line detected so no back final model
-        if (saveHere.lineNumber > 0) {
-            return saveHere.lineNumber;
+      rc == StepGroupEndRc || rc == CalloutEndRc) {          //if Step, StepGroup, RotStep or Callout, save the line number
+      emit gui->messageSig(LOG_DEBUG,QString("Insert Final Model - hit end of StepGroup or Callout - Ok to insert Model at line: %1").arg(here.lineNumber));
+      return here.lineNumber;                                //reached a valid boundary so so return line number
+    } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
+      emit gui->messageSig(LOG_INFO,QString("Final model detected at line: %1").arg(here.lineNumber));
+      return DM_FINAL_MODEL;
+    } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
+      emit gui->messageSig(LOG_INFO,QString("Display model detected at line: %1").arg(here.lineNumber));
+      return DM_DISPLAY_MODEL;
+    } else {                                                 //else keep walking back until 1_5 line
+      QStringList args;
+      split(line,args);
+      if (args.size() && args[0] >= "1" && args[0] <= "5") { //non-zero line detected so no back final model
+        if (saveHere.lineNumber) {
+          emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit end of Step - Ok to insert model at line: %1").arg(saveHere.lineNumber));
+          return saveHere.lineNumber;
         } else {
-          int fileSize = gui->subFileSize(here.modelName) - 1;
-          if (here.lineNumber < (fileSize)) {                //check that we are not at the end of the file
-            logDebug() << "Line type 1-5 detected - Ok to insert Final Model at line: " << here.lineNumber;
-            return here.lineNumber + 1;                      //step forward (backup one line) and return line number
-          } else {
-            logDebug() << "Line type 1-5 detected - Ok to insert Final Model at line: " << here.lineNumber;
-            return here.lineNumber;                          //at last line so return line number
-          }
+          int lastLine = gui->subFileSize(here.modelName);
+          if (here.lineNumber >= lastLine - 1)               //check if 'here' is at the end of the file
+            lastLine = here.lineNumber;                      //at last line so return line number
+          emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit line type 1-5 - Ok to insert model at EOF, line: %1").arg(lastLine));
+          return lastLine;                                   //return last line
         }
       }
     }
   }
-  return -1;
+  return DM_FINAL_MODEL;
 }
 
-void MetaItem::insertDisplayModel(Where &here, bool finalModel)
+void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 {
-    bool atStep = (QString(gui->readLine(here))
-                   .contains(QRegExp("^0 STEP$")));
+    bool atStep = (QString(gui->readLine(here)).contains(QRegExp("^0 STEP$")));
 
-    QString modelMeta = finalModel ? QString("0 !LPUB INSERT MODEL") :
-                                     QString("0 !LPUB INSERT DISPLAY_MODEL");
-    QString pageMeta  = QString("0 !LPUB INSERT PAGE");
+    const QString disclaimerText1  = QString("0 // The following 3 command lines were auto-generated for fade or highlight step.");
+    const QString disclaimerText2  = QString("0 // Use 0 !LPUB INSERT DISPLAY_MODEL to override automatic insertion and deletion.");
+    const QString modelInsertMeta  = finalModel ? QString("0 !LPUB INSERT MODEL") :
+                                                  QString("0 !LPUB INSERT DISPLAY_MODEL");
+    const QString pageMeta   = QString("0 !LPUB INSERT PAGE");
 
-    beginMacro("insertFinalModel");
+    const QString macroLabel = finalModel ? QString("insertFinalModelStep") : QString("insertDisplayModelStep");
+
+    beginMacro(macroLabel);
 
     if (atStep) {
-      appendMeta(here,modelMeta);
+      if (finalModel) {
+         appendMeta(here,disclaimerText1);
+         appendMeta(++here,disclaimerText2);
+         appendMeta(++here,modelInsertMeta);
+      } else {
+          appendMeta(here,modelInsertMeta);
+      }
       appendMeta(++here,pageMeta);
       appendMeta(++here,step);
     } else {
-      appendMeta(here,step);
-      appendMeta(++here,modelMeta);
+      if (finalModel) {
+         appendMeta(here,disclaimerText1);
+         appendMeta(++here,disclaimerText2);
+         appendMeta(++here,step);
+      } else {
+         appendMeta(here,step);
+      }
+      appendMeta(++here,modelInsertMeta);
       appendMeta(++here,pageMeta);
     }
 
     endMacro();
 }
 
-void MetaItem::insertFinalModel(int atLine)
+void MetaItem::insertFinalModelStep(int atLine)
 {
   // final model already installed so exit.
   if (atLine <= 0){
@@ -3074,11 +3089,12 @@ void MetaItem::insertFinalModel(int atLine)
   Where here(gui->topLevelFile(),atLine);
 
   // insert final model
-  insertDisplayModel(here, true /*Final Model*/);
-  emit gui->messageSig(LOG_INFO, QString("Final model inserted at lines: %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
+  insertDisplayModelStep(here, true /*Final Model*/);
+
+  emit gui->messageSig(LOG_INFO, QString("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
 }
 
-void MetaItem::deleteFinalModel(){
+bool MetaItem::deleteFinalModelStep(){
 
   int maxLines;
   QStringList tokens;
@@ -3088,50 +3104,62 @@ void MetaItem::deleteFinalModel(){
 
   Where finalModelLine;
   Where stopAtThisLine;
+  Where walk;
 
   Rc rc;
   Meta meta;
   bool foundFinalModel = false;
+
   for (; here >=0; here--) {                                    //scan backwards until Model
-      QString line = gui->readLine(here);
-      rc = meta.parse(line,here);
-      if (rc == InsertFinalModelRc) {                           //model found so locate position of page insert line
-          foundFinalModel  = true;
-          finalModelLine   = here;                              //mark line as starting point for deletion
-          if ((here.lineNumber + 1) < maxLines) {               //check if line before is page insert and adjust starting point for deletion
-              Where lineBefore = here+1;
-              line = gui->readLine(lineBefore);
-              rc = meta.parse(line,lineBefore);
-              if (rc == InsertPageRc) {
-                  finalModelLine = lineBefore;                  //adjust starting point for deletion
-                }
-            }
-          logInfo() << "Final model metas detected at lines: " << here.lineNumber << "and" << finalModelLine.lineNumber;
+    QString line = gui->readLine(here);
+    rc = meta.parse(line,here);
+    if (rc == InsertFinalModelRc) {                             //model found so locate position of page insert line
+      foundFinalModel  = true;
+      finalModelLine   = here;                                  //mark line as starting point for deletion
+      if ((here + 1) < maxLines) {                              //check if line before is page insert and adjust starting point for deletion
+        walk = here + 1;
+        QString line = gui->readLine(walk);
+        Rc rc = meta.parse(line,walk);
+        if (rc == InsertPageRc) {
+          finalModelLine = walk;                                //adjust starting point for deletion
         }
-      else
-      if (foundFinalModel && rc == StepRc){                     //at at final model STEP command ...
-          beginMacro("deleteFinalModel");
-          stopAtThisLine = here/* - 1*/;
-          Where walk = finalModelLine;
-          for (; walk >= stopAtThisLine.lineNumber ; walk-- ){   //remove lines between model insert and model insert step
-              logDebug() << "Deleting inserted final model line No"
-                         << walk.lineNumber << " in "
-                         << walk.modelName << "["
-                         << gui->readLine(walk) << "]"
-                            ;
-              deleteMeta(walk);
-            }
-          endMacro();
-          return;
-      } else {
-         split(line,tokens);
-         bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-              tokens[0] >= "1" && tokens[0] <= "5";
-         if (token_1_5) {                                      //we have reached a non-zero line so there is no final model
-             return;
-         }
       }
-   }
+
+      emit gui->messageSig(LOG_DEBUG,QString("Final model meta commands detected at lines %1 to %2").arg(here.lineNumber).arg(finalModelLine.lineNumber));
+
+    } else if (foundFinalModel && (rc == StepRc || rc == RotStepRc)) { //at at final model [ROT]STEP command ...
+      QRegExp rx("auto-generated for fade or highlight step.$|override automatic insertion and deletion.$");
+      for (int i = 0; i < 2; i++) {
+          walk = here - 1;
+          QString line = gui->readLine(walk);
+          if (isComment(line) && (line.contains(rx)))
+              here = walk;
+          else
+              break;
+      }
+      stopAtThisLine = here;
+      walk = finalModelLine;
+
+      beginMacro("deleteFinalModelStep");
+
+      for (; walk >= stopAtThisLine.lineNumber ; walk-- ){       //remove lines between model insert and model insert step
+        emit gui->messageSig(LOG_DEBUG, QString("Deleting inserted final model line %1 in '%2' [%3]")
+                                                .arg(walk.lineNumber).arg(walk.modelName).arg(gui->readLine(walk)));
+        deleteMeta(walk);
+      }
+
+      endMacro();
+
+    } else {
+      split(line,tokens);
+      bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
+           tokens[0] >= "1" && tokens[0] <= "5";
+      if (token_1_5) {                                      //we have reached a non-zero line so there is no final model
+        foundFinalModel = false;
+      }
+    }
+  }
+  return foundFinalModel;
 }
 
 void MetaItem::insertSplitBOM()

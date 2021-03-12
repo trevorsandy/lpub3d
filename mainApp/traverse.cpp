@@ -53,6 +53,7 @@
 #include "pagepointer.h"
 #include "ranges_item.h"
 #include "separatorcombobox.h"
+#include "waitingspinnerwidget.h"
 
 #include "QsLog.h"
 
@@ -4256,6 +4257,15 @@ void Gui::pagesCounted()
                                     .arg(maxPages)
                                     .arg(ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
+                if (!maxPages || !ldrawFile.getPartCount()) {
+                    emit messageSig(LOG_ERROR,QString("File '%1' is invalid - %2 pages, %3 parts loaded.")
+                                    .arg(getCurFile())
+                                    .arg(maxPages)
+                                    .arg(ldrawFile.getPartCount()));
+                    closeModelFile();
+                    if (waitingSpinner->isSpinning())
+                        waitingSpinner->stop();
+                }
                 mloadingFile = false;
             } else if (! ContinuousPage()) {
                 emit messageSig(LOG_INFO_STATUS,QString("Page %1 loaded %2.")

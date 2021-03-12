@@ -686,6 +686,7 @@ bool Gui::saveFile(const QString &fileName)
 }
 
 // This call performs LPub3D file close operations - does not clear curFile
+// use closeModelFile() to definitively close the current file in LPub3D
 void Gui::closeFile()
 {
   pa = sa = 0;
@@ -817,7 +818,7 @@ bool Gui::openFile(QString &fileName)
                                     .arg(fileInfo.fileName()));
   }
 
-  insertFinalModel();    //insert final fully coloured model if fadeStep turned on
+  insertFinalModelStep();    //insert final fully coloured model if fadeStep turned on
 
   generateCoverPages();  //auto-generate cover page
 

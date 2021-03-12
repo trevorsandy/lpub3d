@@ -2025,6 +2025,11 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
         return false;
     }
 
+    QStringList saveTopLevelContent = contents(topLevelFile());
+
+    gui->mloadingFile = true;
+    gui->deleteFinalModelStep();
+
     QTextStream out(&file);
     out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
     for (int i = 0; i < _subFileOrder.size(); i++) {
@@ -2039,6 +2044,8 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
                 emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
                                     .arg(writeFileName)
                                     .arg(file.errorString()));
+                gui->insertFinalModelStep();
+                gui->mloadingFile = false;
                 return false;
             }
 
@@ -2054,6 +2061,10 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
           out << "0 NOFILE " << endl;
       }
     }
+
+    gui->insertFinalModelStep();
+    gui->mloadingFile = false;
+
     return true;
 }
 
@@ -2241,6 +2252,9 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
     QString path = QFileInfo(fileName).path();
     QFile file;
 
+    gui->mloadingFile = true;
+    gui->deleteFinalModelStep();
+
     for (int i = 0; i < _subFileOrder.size(); i++) {
       QString writeFileName;
       if (i == 0) {
@@ -2260,6 +2274,8 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
             emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
                                  .arg(writeFileName)
                                  .arg(file.errorString()));
+            gui->insertFinalModelStep();
+            gui->mloadingFile = false;
             return false;
           }
           QTextStream out(&file);
@@ -2271,6 +2287,10 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
         }
       }
     }
+
+    gui->insertFinalModelStep();
+    gui->mloadingFile = false;
+
     return true;
 }
 

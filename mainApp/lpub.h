@@ -541,7 +541,7 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
-  bool             mloadingFile;        // flag to indicate file being loaded.
+  bool             mloadingFile;        // when true, the endMacro() call will not call displayPage()
 
   void            *noData;
 
@@ -1377,7 +1377,8 @@ public slots:
   void fadeStepSetup();
   void highlightStepSetup();
   void generateCoverPages();
-  void insertFinalModel();
+  void insertFinalModelStep();
+  void deleteFinalModelStep();
   void ldrawColorPartsLoad();
 
   void pageSetup();

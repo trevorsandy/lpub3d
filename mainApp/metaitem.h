@@ -478,7 +478,7 @@ public:
 
   bool okToInsertCoverPage();
   bool okToAppendCoverPage();
-  int  okToInsertFinalModel();
+  int  displayModelStepExists();
   bool frontCoverPageExist();
   bool backCoverPageExist();
 
@@ -492,9 +492,9 @@ public:
 
   void insertPage(QString &meta);
   void appendPage(QString &meta);
-  void insertFinalModel(int atLine);
-  void insertDisplayModel(Where &here, bool = false);
-  void deleteFinalModel();
+  void insertFinalModelStep(int atLine);
+  void insertDisplayModelStep(Where &here, bool = false);
+  bool deleteFinalModelStep();
 
   void insertPicture();
   void insertText();

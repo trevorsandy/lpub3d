@@ -281,25 +281,26 @@ void Gui::generateCoverPages()
     }
 }
 
-void Gui::insertFinalModel(){
-  static int modelExist = -1;
-  if (Preferences::enableFadeSteps ||
-      Preferences::enableHighlightStep){
-      int modelStatus = mi->okToInsertFinalModel();
-      if (modelStatus != modelExist) {
-        emit messageSig(LOG_INFO, QString("Inserting final model..."));
-        mi->insertFinalModel(modelStatus);
-      }
-  } else
-  if (! Preferences::enableFadeSteps &&
-      ! Preferences::enableHighlightStep){
-      if (mi->okToInsertFinalModel() == modelExist) {
-        emit messageSig(LOG_INFO, QString("Removing final model..."));
-        mi->deleteFinalModel();
-      }
+void Gui::insertFinalModelStep() {
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+    int modelStatus = mi->displayModelExists();
+    if (modelStatus != DM_FINAL_MODEL && modelStatus != DM_DISPLAY_MODEL) {
+      emit messageSig(LOG_INFO, QString("Inserting final model..."));
+      mi->insertFinalModelStep(modelStatus);
+    }
+  } else {
+    if (! Preferences::enableFadeSteps && ! Preferences::enableHighlightStep) {
+      deleteFinalModelStep();
+    }
   }
 }
 
+void Gui::deleteFinalModelStep() {
+  if (mi->displayModelExists() == DM_FINAL_MODEL) {
+    emit messageSig(LOG_INFO, QString("Removing final model..."));
+    mi->deleteFinalModelStep();
+  }
+}
 
 //void Gui::insertCoverPage()
 //{
