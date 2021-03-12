@@ -75,17 +75,19 @@ if [ "$APPVEYOR" = "True" ]; then
     echo "  ERROR - builds/utilities/ci/secure/$LP3D_HOST_RSA_KEY was not found."
     export LP3D_SF_DEPLOY_ABORT=true;
   fi
-
-  # add host public key to .ssh/known_hosts - prevent interactive prompt
-  [ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
-  [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
-  [ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts || \
-  echo  "Public key for remote host $LP3D_SF_REMOTE_HOST exist in .ssh/known_hosts."
 elif [ "$TRAVIS" = "true" ]; then
   echo && echo "Deploying Travis release assets to Sourceforge.net..."
 
   # set host private key
   LP3D_HOST_RSA_KEY=".sfdeploy_travis_rsa"
+fi
+
+if [[ "$APPVEYOR" = "True" || "$TRAVIS_OS_NAME" == "osx" ]]; then
+  # add host public key to .ssh/known_hosts - prevent interactive prompt
+  [ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
+  [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
+  [ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts || \
+  echo  "Public key for remote host $LP3D_SF_REMOTE_HOST exist in .ssh/known_hosts."
 fi
 
 # where are we working from
