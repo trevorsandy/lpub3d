@@ -2017,9 +2017,14 @@ void ThemeColorsDialog::setThemeColor()
 
     QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
     QColor oldColor  = getColor(index, button->property("color").toString());
-    QColor newColor  = getColor(index, QColorDialog::getColor(oldColor, dialog, title, dialogOptions).name());
+    QColor newColor  = QColorDialog::getColor(oldColor, dialog, title, dialogOptions);
 
-    if (newColor == oldColor || !newColor.isValid())
+    if (newColor.isValid())
+        newColor = getColor(index, newColor.name());
+    else
+        return;
+
+    if (newColor == oldColor)
         return;
 
     mThemeColors[index] = newColor.name().toUpper();
