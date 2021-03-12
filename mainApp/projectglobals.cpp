@@ -177,7 +177,7 @@ void GlobalProjectDialog::accept()
   }
 
   if (data->clearCache) {
-      clearAndReloadModelFileFromSettings();
+      clearAndReloadModelFile(true);
   }
 
   mi.endMacro();

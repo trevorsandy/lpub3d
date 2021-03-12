@@ -1083,14 +1083,9 @@ int Application::run()
   return ExecReturn;
 }
 
-void clearAndReloadModelFileFromSettings()
+void clearAndReloadModelFile(bool global)
 {
-    gui->clearAndReloadModelFile(true);
-}
-
-void clearAndReloadModelFile()
-{
-    gui->clearAndReloadModelFile();
+    gui->clearAndReloadModelFile(global);
 }
 
 void clearCustomPartCache(bool silent)
@@ -1098,7 +1093,8 @@ void clearCustomPartCache(bool silent)
     gui->clearCustomPartCache(silent);
 }
 
-void reloadCurrentPage(){
+void reloadCurrentPage()
+{
     gui->reloadCurrentPage();
 }
 
@@ -1107,7 +1103,8 @@ void restartApplication()
     gui->restartApplication();
 }
 
-void messageSig(LogType logType, QString message){
+void messageSig(LogType logType, QString message)
+{
     gui->messageSig(logType, message);
 }
 

@@ -1730,8 +1730,8 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndReloadModelFile(bool fromProjectSetup) { // EditWindow Redraw
-    if (sender() == editWindow || fromProjectSetup) {
+void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
+    if (sender() == editWindow || global) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1742,7 +1742,7 @@ void Gui::clearAndReloadModelFile(bool fromProjectSetup) { // EditWindow Redraw
             return;
     }
 
-    if (fromProjectSetup) {
+    if (global) {
         timer.start();
         clearPLICache();
         clearCSICache();

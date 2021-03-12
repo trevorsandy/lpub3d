@@ -180,7 +180,7 @@ void GlobalFadeStepDialog::accept()
   }
 
   if (data->reloadFile) {
-      clearAndReloadModelFileFromSettings();
+      clearAndReloadModelFile(true);
   }
 
   mi.endMacro();

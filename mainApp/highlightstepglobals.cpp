@@ -180,7 +180,7 @@ void GlobalHighlightStepDialog::accept()
   }
 
   if (data->reloadFile) {
-      clearAndReloadModelFileFromSettings();
+      clearAndReloadModelFile(true);
   }
 
   mi.endMacro();

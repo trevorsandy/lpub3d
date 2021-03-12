@@ -368,8 +368,8 @@ public slots:
   void checkConflict(bool);
 };
 
-void clearPliCache();
-void clearAndReloadModelFileFromSettings();
+// These are defined in application.cpp
+void clearAndReloadModelFile(bool);
 void clearCsiCache();
 void clearSubmodelCache();
 void clearPliCache();

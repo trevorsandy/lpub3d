@@ -30,7 +30,6 @@
 
 #include "lc_global.h"
 
-/*** Mod - Options moved from lc_application.h ***/
 #include "lc_math.h"
 
 struct lcCommandLineOptions
@@ -76,7 +75,6 @@ struct lcCommandLineOptions
     QString StdOut;
     QString StdErr;
 };
-/*** Mod end ***/
 
 class InitException: public QException
 {
@@ -200,8 +198,8 @@ private:
 };
 
 void clearCustomPartCache(bool silent = false);
-void clearAndReloadModelFileFromSettings();
-void clearAndReloadModelFile();
+void clearAndReloadModelFile(bool global = false);
 void reloadCurrentPage();
 void restartApplication();
+
 #endif // APPLICATION_H
