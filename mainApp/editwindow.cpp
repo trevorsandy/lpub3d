@@ -1108,17 +1108,18 @@ void EditWindow::displayFile(
                      this,      SLOT(enableSave()));
 
           int lineCount = 0;
-          if (Preferences::editorBufferedPaging) {
+          if (Preferences::editorBufferedPaging && lineCount >= Preferences::editorLinesPerPage) {
               _pageIndx = 0;
               while(!in.atEnd()) {
                   _pageContent.append(in.readLine());
                   lineCount++;
               }
-          }
-          if (lineCount >= Preferences::editorLinesPerPage)
               loadPagedContent();
+          }
           else
+          {
               _textEdit->setPlainText(in.readAll());
+          }
 
           if (setProgressDialog)
               progressDialog->reset();
