@@ -3450,10 +3450,6 @@ void Gui::initialize()
           this, SLOT(  deployExportBanner(bool)));
   connect(this, SIGNAL(setPliIconPathSig(QString&,QString&)),
           this, SLOT(  setPliIconPath(QString&,QString&)));
-  connect(this, SIGNAL(enable3DActionsSig()),
-          this, SLOT(  Enable3DActions()));
-  connect(this, SIGNAL(disable3DActionsSig()),
-          this, SLOT(  Disable3DActions()));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)

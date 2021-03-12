@@ -475,8 +475,6 @@ void Gui::create3DToolBars()
 void Gui::initiaizeNativeViewer()
 {
     connect(this,        SIGNAL(setExportingSig(bool)),                    gMainWindow, SLOT(Halt3DViewer(bool)));
-    connect(this,        SIGNAL(enable3DActionsSig()),                     gMainWindow, SLOT(Enable3DActions()));
-    connect(this,        SIGNAL(disable3DActionsSig()),                    gMainWindow, SLOT(Disable3DActions()));
     connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
     connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
     connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
@@ -492,22 +490,91 @@ void Gui::initiaizeNativeViewer()
     connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
     connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
 
-    emit disable3DActionsSig();
+    enable3DActions(false);
 }
 
-void Gui::Disable3DActions()
+void Gui::enable3DActions(bool enable)
 {
-    createBuildModAct->setEnabled(false);
-    lightGroupAct->setEnabled(false);
-    viewpointGroupAct->setEnabled(false);
-}
+    if (enable)
+        enableBuildModMenuAndActions();
+    else
+        createBuildModAct->setEnabled(enable);
 
-void Gui::Enable3DActions()
-{
-    enableBuildModMenuAndActions();
+    lightGroupAct->setEnabled(enable);
+    viewpointGroupAct->setEnabled(enable);
 
-    lightGroupAct->setEnabled(true);
-    viewpointGroupAct->setEnabled(true);
+    blenderRenderAct->setEnabled(enable);
+    blenderImportAct->setEnabled(enable);
+    povrayRenderAct->setEnabled(enable);
+    ViewerExportMenu->setEnabled(enable);
+
+    GetToolsToolBar()->setEnabled(enable);
+    GetTimelineToolBar()->setEnabled(enable);
+    GetPropertiesToolBar()->setEnabled(enable);
+    GetPartsToolBar()->setEnabled(enable);
+    GetColorsToolBar()->setEnabled(enable);
+
+    GetCameraMenu()->setEnabled(enable);
+    GetToolsMenu()->setEnabled(enable);
+    GetViewpointMenu()->setEnabled(enable);
+    GetProjectionMenu()->setEnabled(enable);
+    GetShadingMenu()->setEnabled(enable);
+
+    //Window
+    gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setEnabled(enable);
+    //File
+    gMainWindow->mActions[LC_FILE_RENDER]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setEnabled(enable);
+    //Export
+    gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_CSV]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_HTML]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(enable);
+    gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(enable);
+    //Tools
+    //mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_PAN]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_ROLL]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_MOVE]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_INSERT]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_PAINT]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_DELETE]->setEnabled(enable);
+    //Shading
+    gMainWindow->mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_SHADING_FLAT]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(enable);
+    //View
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_CAMERA_NONE]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_CAMERA_RESET]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(enable);
+    gMainWindow->mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(enable);
 }
 
 void Gui::create3DDockWindows()
@@ -1712,6 +1779,31 @@ void Gui::reloadViewer(){
  QDockWidget* Gui::GetColorsToolBar()
  {
      return gMainWindow->GetColorsToolBar();
+ }
+
+ QMenu* Gui::GetCameraMenu()
+ {
+     return gMainWindow->GetCameraMenu();
+ }
+
+ QMenu* Gui::GetToolsMenu()
+ {
+     return gMainWindow->GetToolsMenu();
+ }
+
+ QMenu* Gui::GetViewpointMenu()
+ {
+     return gMainWindow->GetViewpointMenu();
+ }
+
+ QMenu* Gui::GetProjectionMenu()
+ {
+     return gMainWindow->GetProjectionMenu();
+ }
+
+ QMenu* Gui::GetShadingMenu()
+ {
+     return gMainWindow->GetShadingMenu();
  }
 
 /*********************************************

@@ -308,13 +308,6 @@ int Gui::addGraphicsPageItems(
   PageNumberItem          *pageNumber    = nullptr;
   TextItem                *textItem      = nullptr;
 
-  // disable viewer menu on conver page
-  GetToolsToolBar()->setEnabled(!page->coverPage);
-  GetTimelineToolBar()->setEnabled(!page->coverPage);
-  GetPropertiesToolBar()->setEnabled(!page->coverPage);
-  GetPartsToolBar()->setEnabled(!page->coverPage);
-  GetColorsToolBar()->setEnabled(!page->coverPage);
-  ViewerMenu->setEnabled(!page->coverPage);
   if (page->coverPage) {
       emit clearViewerWindowSig();
       emit updateAllViewsSig();

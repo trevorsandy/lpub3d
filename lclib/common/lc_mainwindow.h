@@ -439,10 +439,8 @@ public slots:
 	void UpdateAllViews();           // moved from public:
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - halt, disable, enable viewer ***/
+/*** LPub3D Mod - halt, viewer ***/
 	void Halt3DViewer(bool b);
-	void Enable3DActions();
-	void Disable3DActions();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/

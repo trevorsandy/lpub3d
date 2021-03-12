@@ -724,9 +724,9 @@ void Gui::closeModelFile(){
     curFile.clear();       // clear file from curFile here...
     //3D Viewer
     enableBuildModMenuAndActions();
+    enable3DActions(false);
     emit clearViewerWindowSig();
     emit updateAllViewsSig();
-    emit disable3DActionsSig();
     // Editor
     emit clearEditorWindowSig();
     // Gui

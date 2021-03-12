@@ -4391,7 +4391,7 @@ void Gui::pagesCounted()
             }
             enableActions2();
             enableNavigationActions(true);
-            emit enable3DActionsSig();
+            enable3DActions(!page.coverPage);
         }
 
     } // modeGUI and not exporting

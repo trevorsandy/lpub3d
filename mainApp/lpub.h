@@ -1214,8 +1214,7 @@ public slots:
   // End Download components
 
   // Native viewer functions
-  void Disable3DActions();
-  void Enable3DActions();
+  void enable3DActions(bool enable);
   void UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText);
 
   void ShowStepRotationStatus();
@@ -1318,6 +1317,11 @@ public slots:
   QDockWidget*           GetPropertiesToolBar();
   QDockWidget*           GetPartsToolBar();
   QDockWidget*           GetColorsToolBar();
+  QMenu*                 GetCameraMenu();
+  QMenu*                 GetToolsMenu();
+  QMenu*                 GetViewpointMenu();
+  QMenu*                 GetProjectionMenu();
+  QMenu*                 GetShadingMenu();
   bool                   GetViewPieceIcons();
   bool                   GetSubmodelIconsLoaded();
   int                    GetLPubStepPieces();
@@ -1522,9 +1526,6 @@ signals:
   void previewPieceSig(const QString &, int);
   void clearEditorWindowSig();
   void setTextEditHighlighterSig();
-
-  void enable3DActionsSig();
-  void disable3DActionsSig();
   void updateAllViewsSig();
   void clearViewerWindowSig();
   void setExportingSig(bool);
