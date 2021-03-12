@@ -2036,7 +2036,7 @@ void LDrawFile::countInstances()
   QVector<int> stepIndex = { 0/*SubmodelIndex*/, size(topLevelFile()) };
   _buildModStepIndexes.append(stepIndex);
 
-// *
+/*
 #ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("CountInstances Step Indexes:"));
   QVector<int> key;
@@ -2050,7 +2050,7 @@ void LDrawFile::countInstances()
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
 #endif
-// */
+*/
 #ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
                                           .arg(gui->elapsedTime(timer.elapsed())));

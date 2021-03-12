@@ -4969,7 +4969,7 @@ void Gui::writeToTmp()
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
-      emit messageSig(LOG_INFO_STATUS, QString("Processing submodel for temp directory: '%1'...").arg(fileName));
+      emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileName));
 
       content = ldrawFile.contents(fileName);
 
@@ -5000,7 +5000,7 @@ void Gui::writeToTmp()
              }
 
             /* Faded version of submodels */
-            emit messageSig(LOG_INFO, "Writing fade submodel to temp directory: " + fileNameStr);
+            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
@@ -5014,7 +5014,7 @@ void Gui::writeToTmp()
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
             }
             /* Highlighted version of submodels */
-            emit messageSig(LOG_INFO, "Writing highlight submodel to temp directory: " + fileNameStr);
+            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: '%1'...").arg(fileNameStr));
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
             insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);

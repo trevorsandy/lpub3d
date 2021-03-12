@@ -795,13 +795,18 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+      emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
+      QApplication::processEvents();
       writeGeneratedColorPartsToTemp();
-  bool overwriteCustomParts = false;
-  emit messageSig(LOG_INFO, "Loading fade color parts...");
-  processFadeColourParts(overwriteCustomParts);
-  emit messageSig(LOG_INFO, "Loading highlight color parts...");
-  processHighlightColourParts(overwriteCustomParts);
+      bool overwriteCustomParts = false;
+      emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
+      QApplication::processEvents();
+      processHighlightColourParts(overwriteCustomParts);
+      emit messageSig(LOG_INFO_STATUS, "Loading fade color parts...");
+      QApplication::processEvents();
+      processFadeColourParts(overwriteCustomParts);
+  }
   emit messageSig(LOG_INFO, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->clear();

@@ -131,6 +131,7 @@ public slots:
       QTextCursor::MoveMode      moveMode);
     void setReadOnly(bool enabled);
     void setSubmodel(int index);
+    void loadContentBlocks(const QStringList &, bool);
     void loadPagedContent();
     void setPagedContent(const QStringList &);
     void setPlainText(const QString &);

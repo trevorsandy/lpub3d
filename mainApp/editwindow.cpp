@@ -1290,6 +1290,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
   if (Preferences::editorBufferedPaging &&
       showLineNumber > Preferences::editorLinesPerPage &&
       showLineNumber > _pageIndx) {
+
       int linesNeeded = showLineNumber - _pageIndx;
       int pages = linesNeeded / Preferences::editorLinesPerPage;
 
@@ -1297,18 +1298,22 @@ void EditWindow::showLine(int lineNumber, int lineType)
           pages++;
 
       if (pages) {
-          emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...").arg(linesNeeded));
-          QApplication::processEvents();
+          waitingSpinnerStarted();
 
-          for (int i = 0; i < pages && !_contentLoading; i++)
+          emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Show Line %1 - Loading buffered page %2 lines...")
+                                     .arg(lineNumber).arg(linesNeeded));
+
+          for (int i = 0; i < pages && !_contentLoading; i++) {
+              QApplication::processEvents();
               loadPagedContent();
+          }
 
           emit lpubAlert->messageSig(LOG_STATUS,QString());
-          QApplication::processEvents();
 #ifdef QT_DEBUG_MODE
           emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
                                      .arg(pages).arg(pages == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
 #endif
+          waitingSpinnerFinished();
       }
   }
 
@@ -1379,6 +1384,12 @@ void EditWindow::displayFile(
   _spinnerStarted = false;
   QElapsedTimer t; t.start();
   QString content;
+
+  int maxSplit = 4;
+  QString str("How\nare\nall\nof\nyou\ndoing\nthis\nafternoon\nI\nfeel\nquite\ngood\ndoday\nmyself");
+  QStringList list = str.split('\n').mid(0, maxSplit);
+  QString remainingStr = str.section('\n', maxSplit);
+  list << remainingStr;
 
   auto loadContent = [this, &ldrawFile]()
   {
@@ -1470,14 +1481,19 @@ void EditWindow::displayFile(
 #endif
         _textEdit->document()->clear();
         _pageContent = ldrawFile->contents(fileName);
+
         loadPagedContent();
 
     } else {
 #ifdef QT_DEBUG_MODE
-          emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
+        emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
 #endif
-        content = ldrawFile->contents(fileName).join("\n");
+        loadContentBlocks(ldrawFile->contents(fileName),true/*initial load*/);
+
+     /*
+       content = ldrawFile->contents(fileName).join("\n");
        _textEdit->setPlainText(content);
+     */
 
     }
 
@@ -1507,24 +1523,29 @@ void EditWindow::waitingSpinnerStarted()
     if (!Preferences::modeGUI)
         return;
 
+    if (_spinnerStarted && _waitingSpinner) {
+        if (_waitingSpinner->isSpinning())
+            _waitingSpinner->stop();
+    } else {
+        _waitingSpinner = new WaitingSpinnerWidget(this);
+        _waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
+        _waitingSpinner->setRoundness(70.0);
+        _waitingSpinner->setMinimumTrailOpacity(15.0);
+        _waitingSpinner->setTrailFadePercentage(70.0);
+        _waitingSpinner->setNumberOfLines(12);
+        _waitingSpinner->setLineLength(10);
+        _waitingSpinner->setLineWidth(5);
+        _waitingSpinner->setInnerRadius(10);
+        _waitingSpinner->setRevolutionsPerSecond(1);
+        _waitingSpinner->setTextColor(_waitingSpinner->color());
+        _waitingSpinner->setText(tr("Loading..."));
+    }
 #ifdef QT_DEBUG_MODE
-          emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Starting.."));
+    emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Starting.."));
 #endif
-    _waitingSpinner = new WaitingSpinnerWidget(this);
-    _waitingSpinner->setColor(QColor(LPUB3D_DEFAULT_COLOUR));
-    _waitingSpinner->setRoundness(70.0);
-    _waitingSpinner->setMinimumTrailOpacity(15.0);
-    _waitingSpinner->setTrailFadePercentage(70.0);
-    _waitingSpinner->setNumberOfLines(12);
-    _waitingSpinner->setLineLength(10);
-    _waitingSpinner->setLineWidth(5);
-    _waitingSpinner->setInnerRadius(10);
-    _waitingSpinner->setRevolutionsPerSecond(1);
-    _waitingSpinner->setTextColor(_waitingSpinner->color());
-    _waitingSpinner->setText(tr("Loading..."));
     _waitingSpinner->start();
     _spinnerStarted = true;
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    QApplication::processEvents();
 }
 
 void EditWindow::waitingSpinnerFinished()
@@ -1747,12 +1768,49 @@ void  EditWindow::verticalScrollValueChanged(int value)
     if (value > (verticalScrollBar->maximum() * 0.90 /*trigger load at 90% page scroll*/)) {
         emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...")
                                    .arg(Preferences::editorLinesPerPage));
-        QApplication::processEvents();
 
         loadPagedContent();
 
         emit lpubAlert->messageSig(LOG_STATUS,QString());
         QApplication::processEvents();
+    }
+}
+
+void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) {
+    QElapsedTimer t; t.start();
+    int lineCount     = content.size();
+    int blockLineCount= 0;
+    int blockIndx     = 0;
+    int linesPerBlock = 100;
+    int blocks        = lineCount / linesPerBlock;
+    int remain        = lineCount % linesPerBlock;
+    if (remain) {
+        if (blocks)
+            blocks++;
+        else
+            blocks = 1;
+    }
+    if (blocks) {
+        for (int i = 0; i < blocks ; i++) {
+            int nextBlockIndx = qMin((linesPerBlock - (firstBlock ? 1 : 0)), (lineCount - blockIndx) - 1);
+            int maxBlockIndx  = blockIndx + nextBlockIndx;
+            const QString block = content.mid(blockIndx, nextBlockIndx).join('\n');
+            blockLineCount  = block.count("\n") + (firstBlock ? 2 : 1);
+            if (firstBlock) {
+                firstBlock = false;
+                _textEdit->setPlainText(block);
+            } else {
+                _textEdit->append(block);
+            }
+#ifdef QT_DEBUG_MODE
+        emit lpubAlert->messageSig(LOG_DEBUG,QString("Load content block %1, lines %2 - %3")
+                                   .arg(i)
+                                   .arg(blockLineCount)
+                                   .arg(lpubAlert->elapsedTime(t.elapsed())));
+#endif
+            blockIndx = maxBlockIndx;
+            QApplication::processEvents();
+        }
     }
 }
 
@@ -1792,6 +1850,9 @@ void EditWindow::loadPagedContent()
 
    verticalScrollBar->setMaximum(verticalScrollBar->maximum() + nextIndx);
 
+   loadContentBlocks(page.split('\n'), initialLoad);
+
+/*
    if (initialLoad) {
        _textEdit->setPlainText(page);
 #ifdef QT_DEBUG_MODE
@@ -1807,6 +1868,7 @@ void EditWindow::loadPagedContent()
                               .arg(lpubAlert->elapsedTime(t.elapsed())));
 #endif
    }
+   */
 
    _contentLoaded = maxPageIndx >= _pageContent.size() - 1;
 
