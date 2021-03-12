@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 27, 2020
+# Last Update: October 29, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -226,8 +226,9 @@ init:
 # Fetch the commit that triggered the AppVeyor build.
 # We don't use git clone because the 'clone_directory' is not empty (restored cached components were added in previous steps) - so the
 # git clone command will fail. Instead we use fetch and checkout to pretty much replicate the same behaviour as the default git clone.
-# This includes setting the clone depth, and fetching the last commit and previous tags. Lastly, we manage 3rd party items cache -
-# deleting a component will trigger a new build.
+# This includes setting the clone depth, and fetching the last commit and previous tags. We also manage 3rd party items cache -
+# deleting a component will trigger a new build. Lastly, we replace MSYS2 to work around the 'pacman -S openssh rsync' abnormal end on
+# the VS2015 image, see https://help.appveyor.com/discussions/problems/28463-build-fail-pacman-s-openssh-rsync-command-exited-with-code-1.
 install:
  - cmd: git config --global core.autocrlf true
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
@@ -238,7 +239,16 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
- - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
+ - ps: |
+       $env:LP3D_MSYS2_INSTALL_LOG = "$($env:TEMP)\InstallSecureTransfer.log"
+       Start-Transcript -Path $env:LP3D_MSYS2_INSTALL_LOG
+       write-host "Downloading MSYS2 install script..."
+       $scriptUrl = "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/install_msys64.ps1"
+       $msys2InstallScript = "$($env:TEMP)\install_msys64.ps1"
+       (New-Object Net.WebClient).DownloadFile($scriptUrl, $msys2InstallScript)
+       .$msys2InstallScript
+       write-host "`n"
+       Stop-Transcript
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'
@@ -297,6 +307,9 @@ after_build:
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
         }
         If (${env:LP3D_RUNLOG_ASSETS}) {
+          If (${env:LP3D_MSYS2_INSTALL_LOG}) {
+            Copy-Item "${env:LP3D_MSYS2_INSTALL_LOG}" -Destination "${env:LP3D_RUNLOG_ASSETS}"
+          }
           $root = Resolve-Path .\${env:LP3D_RUNLOG_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-runlog-package }
         } Else {
           Write-Error -Message "env var LP3D_RUNLOG_ASSETS is null." -ErrorAction Continue
