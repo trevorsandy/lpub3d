@@ -386,9 +386,6 @@ void Application::setTheme(bool appStarted)
   setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,
                       Preferences::themeColors[THEME_DARK_ACTIVE_VIEW_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_ACTIVE_VIEW_COLOR]);
-  setViewerThemeColor(LC_PROFILE_PREVIEW_ACTIVE_COLOR,
-                      Preferences::themeColors[THEME_DARK_ACTIVE_PREVIEW_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_ACTIVE_PREVIEW_COLOR]);
   setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,
                       Preferences::themeColors[THEME_DARK_GRID_STUD_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_GRID_STUD_COLOR], 192/*alpha*/);
@@ -610,11 +607,11 @@ void Application::initialize()
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[3DViewer commands - Not tested]\n");
                 fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
-                fprintf(stdout, "  -f, --from <time>: Set the first step to save pictures.\n");
+                fprintf(stdout, "  -f, --from <step>: Set the first step to save pictures.\n");
                 fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
                 fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
                 fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
-                fprintf(stdout, "  -t, --to <time>: Set the last step to save pictures.\n");
+                fprintf(stdout, "  -t, --to <step>: Set the last step to save pictures.\n");
                 fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
                 fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
                 fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
@@ -623,8 +620,18 @@ void Application::initialize()
                 fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
                 fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
                 fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
+                fprintf(stdout, "  --camera-position <x> <y> <z> <tx> <ty> <tz> <ux> <uy> <uz>: Set the camera position, target and up vector.\n");
+                fprintf(stdout, "  --orthographic: Render images using an orthographic projection.\n");
+                fprintf(stdout, "  --fov <degrees>: Set the vertical field of view used to render images.\n");
+                fprintf(stdout, "  --zplanes <near> <far>: Set the near and far clipping planes used to render images.\n");
+                fprintf(stdout, "  --fade-steps: Render parts from prior steps faded.\n");
+                fprintf(stdout, "  --no-fade-steps: Do not render parts from prior steps faded.\n");
+                fprintf(stdout, "  --fade-steps-color <rgba>: Renderinng color for prior step parts (#AARRGGBB).\n");
+                fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
+                fprintf(stdout, "  --no-highlight: Do not highlight parts in the steps they appear.\n");
+                fprintf(stdout, "  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
+                fprintf(stdout, "  --aa-samples <count>: AntiAliasing sample size (1, 2, 4, or 8).\n");
                 fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
-                fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
                 fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
                 fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
                 fprintf(stdout, "\n");

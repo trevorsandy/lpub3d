@@ -369,7 +369,6 @@ enum ThemeColorType {
     THEME_DEFAULT_AXES_COLOR,                                // "#000000"
     THEME_DEFAULT_OVERLAY_COLOR,                             // "#000000"
     THEME_DEFAULT_ACTIVE_VIEW_COLOR,                         // "#FF0000"
-    THEME_DEFAULT_ACTIVE_PREVIEW_COLOR,                      // "#454545"
     THEME_DEFAULT_GRID_STUD_COLOR,                           // "#404040"
     THEME_DEFAULT_GRID_LINE_COLOR,                           // "#000000"
     THEME_DEFAULT_VIEW_SPHERE_COLOR,                         // "#FFFFFF"
@@ -508,7 +507,6 @@ enum ThemeColorType {
     THEME_DARK_AXES_COLOR,                                   // "#000000"
     THEME_DARK_OVERLAY_COLOR,                                // "#000000"
     THEME_DARK_ACTIVE_VIEW_COLOR,                            // "#2980B9"
-    THEME_DARK_ACTIVE_PREVIEW_COLOR,                         // "#999999"
     THEME_DARK_GRID_STUD_COLOR,                              // "#181818"
     THEME_DARK_GRID_LINE_COLOR,                              // "#181818"
     THEME_DARK_VIEW_SPHERE_COLOR,                            // "#232629"
@@ -516,7 +514,7 @@ enum ThemeColorType {
     THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,                     // "#2980B9"
 
     THEME_DARK_GRAPHICSVIEW_BORDER_COLOR,                    // "#999999"
-    THEME_NUM_COLORS                                         // 142
+    THEME_NUM_COLORS                                         // 140
 };
 
 // Color picker: https://www.w3schools.com/colors/colors_picker.asp

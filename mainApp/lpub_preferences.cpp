@@ -80,7 +80,6 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultAxesColor",                            "#000000", "Viewer Axes"                               }, // THEME_DEFAULT_AXES_COLOR                                     0,   0,   0, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDefaultOverlayColor",                         "#000000", "Viewer Overlay"                            }, // THEME_DEFAULT_OVERLAY_COLOR                                  0,   0,   0, 255 LC_PROFILE_OVERLAY_COLOR
     {"ThemeDefaultActiveViewColor",                      "#FF0000", "Viewer Active View"                        }, // THEME_DEFAULT_ACTIVE_VIEW_COLOR                            255,   0,   0, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
-    {"ThemeDefaultActivePreviewColor",                   "#454545", "Viewer Active Preview"                     }, // THEME_DEFAULT_ACTIVE_PREVIEW_COLOR                          69,  69,  69, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
     {"ThemeDefaultGridStudColor",                        "#404040", "Viewer Grid Stud"                          }, // THEME_DEFAULT_GRID_STUD_COLOR                               64,  64,  64, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDefaultGridLineColor",                        "#000000", "Viewer Grid Line"                          }, // THEME_DEFAULT_GRID_LINE_COLOR                                0,   0,   0, 255 LC_PROFILE_GRID_LINE_COLOR
     {"ThemeDefaultViewSphereColor",                      "#FFFFFF", "Viewer View Sphere"                        }, // THEME_DEFAULT_VIEW_SPHERE_COLOR                            255, 255, 255, 255 LC_PROFILE_VIEW_SPHERE_COLOR
@@ -219,14 +218,13 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkAxesColor",                               "#E0E0E0", "Viewer Axes"                               }, // THEME_DARK_AXES_COLOR                                      224, 224, 224, 255 LC_PROFILE_AXES_COLOR
     {"ThemeDarkOverlayColor",                            "#E0E0E0", "Viewer Overlay"                            }, // THEME_DARK_OVERLAY_COLOR                                   224, 224, 224, 255 LC_PROFILE_OVERLAY_COLOR
     {"ThemeDarkActiveViewColor",                         "#2980B9", "Viewer Active View"                        }, // THEME_DARK_ACTIVE_VIEW_COLOR                                41, 128, 185, 255 LC_PROFILE_ACTIVE_VIEW_COLOR
-    {"ThemeDarkActivePreviewColor",                      "#999999", "Viewer Active Preview"                     }, // THEME_DARK_ACTIVE_PREVIEW_COLOR                            153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
     {"ThemeDarkGridStudColor",                           "#181818", "Viewer Grid Stud (192 alpha)"              }, // THEME_DARK_GRID_STUD_COLOR                                  24,  24,  24, 192 LC_PROFILE_GRID_STUD_COLOR alpha(192)
     {"ThemeDarkGridLineColor",                           "#181818", "Viewer Grid Line"                          }, // THEME_DARK_GRID_LINE_COLOR                                  24,  24,  24, 255 LC_PROFILE_GRID_LINE_COLOR
     {"ThemeDarkViewSphereColor",                         "#232629", "Viewer View Sphere"                        }, // THEME_DARK_VIEW_SPHERE_COLOR                                35,  38,  41, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDarkViewSphereTextColor",                     "#E0E0E0", "Viewer View Sphere Text"                   }, // THEME_DARK_VIEW_SPHERE_TEXT_COLOR                          224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
     {"ThemeDarkViewSphereHlightColor",                   "#2980B9", "Viewer View Sphere Hlight"                 }, // THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR                         41, 128, 185, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 
-    {"ThemeDarkGraphicsviewBorderColor",                 "#999999", "Graphicsview Border"                       }  // THEME_DARK_GRAPHICSVIEW_BORDER_COLOR                       153, 153, 153, 255 LC_PROFILE_PREVIEW_ACTIVE_COLOR
+    {"ThemeDarkGraphicsviewBorderColor",                 "#999999", "Graphicsview Border"                       }  // THEME_DARK_GRAPHICSVIEW_BORDER_COLOR                       153, 153, 153, 255
                                                                                                                    // THEME_NUM_COLORS
 };
 
@@ -3468,7 +3466,6 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DARK_AXES_COLOR, lcGetProfileInt(LC_PROFILE_AXES_COLOR));
         setInterfaceColor(THEME_DARK_OVERLAY_COLOR, lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR));
         setInterfaceColor(THEME_DARK_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
-        setInterfaceColor(THEME_DARK_ACTIVE_PREVIEW_COLOR, lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR));
         setInterfaceColor(THEME_DARK_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
         setInterfaceColor(THEME_DARK_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
@@ -3481,7 +3478,6 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DEFAULT_AXES_COLOR, lcGetProfileInt(LC_PROFILE_AXES_COLOR));
         setInterfaceColor(THEME_DEFAULT_OVERLAY_COLOR, lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR));
         setInterfaceColor(THEME_DEFAULT_ACTIVE_VIEW_COLOR, lcGetProfileInt(LC_PROFILE_ACTIVE_VIEW_COLOR));
-        setInterfaceColor(THEME_DEFAULT_ACTIVE_PREVIEW_COLOR, lcGetProfileInt(LC_PROFILE_PREVIEW_ACTIVE_COLOR));
         setInterfaceColor(THEME_DEFAULT_GRID_STUD_COLOR, lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR));
         setInterfaceColor(THEME_DEFAULT_GRID_LINE_COLOR, lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));

@@ -1902,8 +1902,6 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_OVERLAY_COLOR;
                     else if (i == THEME_DARK_ACTIVE_VIEW_COLOR)
                         key = LC_PROFILE_ACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DARK_ACTIVE_PREVIEW_COLOR)
-                        key = LC_PROFILE_PREVIEW_ACTIVE_COLOR;
                     else if (i == THEME_DARK_GRID_STUD_COLOR)
                         key = LC_PROFILE_GRID_STUD_COLOR;
                     else if (i == THEME_DARK_GRID_LINE_COLOR)
@@ -1927,8 +1925,6 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
                         key = LC_PROFILE_OVERLAY_COLOR;
                     else if (i == THEME_DEFAULT_ACTIVE_VIEW_COLOR)
                         key = LC_PROFILE_ACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DEFAULT_ACTIVE_PREVIEW_COLOR)
-                        key = LC_PROFILE_PREVIEW_ACTIVE_COLOR;
                     else if (i == THEME_DEFAULT_GRID_STUD_COLOR)
                         key = LC_PROFILE_GRID_STUD_COLOR;
                     else if (i == THEME_DEFAULT_GRID_LINE_COLOR)

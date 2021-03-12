@@ -42,6 +42,7 @@ int Gui::processCommandLine()
   bool useLDVSingleCall      = false;
   bool useLDVSnapShotList    = false;
   bool useNativeRenderer     = false;
+
   QString generator          = RENDERER_NATIVE;
 
   QString pageRange, exportOption,
