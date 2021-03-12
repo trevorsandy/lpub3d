@@ -87,6 +87,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *addNextStepsAction   = nullptr;
   QAction *addPrevStepAction    = nullptr;
   QAction *calloutAction        = nullptr;
+  QAction *calloutNoPointAction = nullptr;
   QAction *assembledAction      = nullptr;
   QAction *ignoreAction         = nullptr;
   QAction *partAction           = nullptr;
@@ -148,6 +149,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           calloutAction->setWhatsThis("Convert to Callout:\n"
                                       "  A callout shows how to build these steps in a picture next\n"
                                       "  to where it is added to the set you are building");
+
+          calloutNoPointAction = menu.addAction("Convert to Pointerless Callout");
+          calloutNoPointAction->setIcon(QIcon(":/resources/convertcalloutwithoutpointer.png"));
+          calloutNoPointAction->setWhatsThis("Convert to Pointerless Callout:\n"
+                                      "  A callout without pointer shows how to build these steps in a\n"
+                                      "  picture next to where it is added to the set you are building");
 
           // FIXME: don't allow this if it already got an assembled.
           if (canConvertToCallout(&page->meta)) {
@@ -229,6 +236,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (fullContextMenu){
       if (selectedAction == calloutAction) {
           convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
+        } else if (selectedAction == calloutNoPointAction) {
+          convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false, true);
         } else if (selectedAction == assembledAction) {
           convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, true);
         } else if (selectedAction == ignoreAction) {

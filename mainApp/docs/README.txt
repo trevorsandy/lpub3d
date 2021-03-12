@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2316 (12 03 2021 23:01:20)
+LPub3D 2.4.1.1.2317 (12 03 2021 23:02:09)
 
 Features, enhancements, fixes and changes
 ------------
@@ -19,6 +19,7 @@ Revisions:
 - Enhancement - Configurable Theme colors #490
 - Enhancement - Do not save fade steps and/or highlight step final model step #483
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
+- Enhancement - Make generate arrows optional when converting to callout #501
 - Enhancement - Set project start page and start step number for multi-document layouts #477
 - Change - Cover page not displayed in GoToPage drop-down dialogue #479
 - Change - LEGO Colour Parts File missing on AppImage startup #467

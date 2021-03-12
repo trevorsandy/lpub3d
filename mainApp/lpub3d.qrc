@@ -71,6 +71,8 @@
         <file alias="contentspage.png">resources/contentspage.png</file>
         <file alias="convertcallout.png">resources/convertcallout.png</file>
         <file alias="convertcallout16.png">resources/convertcallout16.png</file>
+        <file alias="convertcalloutwithoutpointer.png">resources/convertcalloutwithoutpointer.png</file>
+        <file alias="convertcalloutwithoutpointer16.png">resources/convertcalloutwithoutpointer16.png</file>
         <file alias="copy.png">resources/copy.png</file>
         <file alias="copytoclipboard.png">resources/copytoclipboard.png</file>
         <file alias="csv32.png">resources/csv32.png</file>

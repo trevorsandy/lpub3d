@@ -59,16 +59,16 @@ class MetaItem
 public:
   void setGlobalMeta(QString &topLevelFile, LeafMeta *leaf);
 
-  bool canConvertToCallout(    Meta *);
-  void convertToCallout(       Meta *, const QString &, bool isMirrored, bool assembled = false);
-  void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
-  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc, Rc);
-  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc, Rc);
+  bool canConvertToCallout(Meta *);
+  void convertToCallout(   Meta *, const QString &, bool isMirrored, bool assembled = false, bool pointerless = false);
+  void addCalloutMetas(    Meta *, const QString &, bool isMirrored, bool assembled = false, bool pointerless = false);
+  void addPointerTip(      Meta *, const Where &, const Where &, PlacementEnc, Rc);
+  void addPointerTipMetas( Meta *, const Where &, const Where &, PlacementEnc, Rc);
   void writeCsiAnnotationMeta(QStringList &list, const Where &, const Where &, Meta *,bool = false);
-  bool offsetPoint(Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int (&)[2], int = -1);
+  bool offsetPoint(        Meta &, const Where &, const Where &, int (&)[2], int (&)[2], int (&)[2], int = -1);
   void updateCsiAnnotationIconMeta(const Where &here, CsiAnnotationIconMeta *caim);
 
-  int  nestCallouts(           Meta *, const QString &, bool isMirrored);
+  int  nestCallouts(Meta *, const QString &, bool isMirrored, bool pointerless = false);
   QString makeMonoName(const QString &fileName, const QString &color);
   int monoColorSubmodel(const QString &modelName, const QString &monoOutName, const QString &color);
   QPointF defaultPointerTip(

@@ -3619,7 +3619,8 @@ int MetaItem::numSteps(QString modelName)
 int MetaItem::nestCallouts(
   Meta  *meta,
   const QString &modelName,
-  bool  isMirrored)
+  bool  isMirrored,
+  bool  pointerless)
 {
   bool restart = true;
 
@@ -3678,8 +3679,8 @@ int MetaItem::nestCallouts(
         if (argv.size() == 15 && argv[0] == "1") {
           if (gui->isSubmodel(argv[14])) {
             meta->submodelStack << SubmodelStack(walk.modelName,walk.lineNumber,0);
-            addCalloutMetas(meta,argv[14],isMirrored);
-            nestCallouts(meta,argv[14],isMirrored);
+            addCalloutMetas(meta,argv[14],isMirrored,pointerless);
+            nestCallouts(meta,argv[14],isMirrored,pointerless);
             meta->submodelStack.removeLast();
             restart = true;
             break;
@@ -3721,18 +3722,18 @@ bool MetaItem::canConvertToCallout(
   return true;
 }
 
-void MetaItem::convertToCallout(
-  Meta *meta,
+void MetaItem::convertToCallout(Meta *meta,
   const QString &modelName,
   bool  isMirrored,
-  bool  assembled)
+  bool  assembled,
+  bool pointerless)
 {
   gui->maxPages = -1;
 
   beginMacro("convertToCallout");
-  addCalloutMetas(meta,modelName,isMirrored,assembled);
+  addCalloutMetas(meta,modelName,isMirrored,assembled,pointerless);
   if ( ! assembled) {
-    nestCallouts(meta,modelName,isMirrored);
+    nestCallouts(meta,modelName,isMirrored,pointerless);
   }
   endMacro();
 }
@@ -3741,7 +3742,8 @@ void MetaItem::addCalloutMetas(
   Meta *meta,
   const QString &modelName,
   bool  /* isMirrored */,
-  bool  assembled)
+  bool  assembled,
+  bool  pointerless)
 {
   /* Scan the file and remove any multi-step stuff from the file
      we're converting to callout - starting from the bottom up*/
@@ -3877,32 +3879,40 @@ void MetaItem::addCalloutMetas(
 
     Where thisInstance = firstInstance;
     for (int i = 0; i < instanceCount; i++) {
-      /* defaultPointerTip is the trick - it calculates the pointer tip
-         for a given instance of a callout.  It does this by rendering
-         the parent image with the non-called out parts color A and
-         the called out parts color B.  Then the resultant image is
-         searched for color B.  The parent model needs to be rotated
-         by ROTSTEP for this to work. */
-      //QPointF offset = defaultPointerTip(*meta, instances[i],isMirrored);
-      QStringList argv;
-      split(firstLine,argv);
-      QPointF offset = defaultPointerTip(*meta,
-                                         walk.modelName,
-                                         firstInstance.lineNumber,
-                                         modelName,
-                                         i,
-                                         gui->isMirrored(argv));
-      emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
-                                                                     .arg(QString::number(offset.y(),'f',6)));
+      QString pointerLine;
+      if (!pointerless) {
+        /*
+        defaultPointerTip is the trick - it calculates the pointer tip
+        for a given instance of a callout.  It does this by rendering
+        the parent image with the non-called out parts color A and
+        the called out parts color B.  Then the resultant image is
+        searched for color B.  The parent model needs to be rotated
+        by ROTSTEP for this to work.
+        */
+        QStringList argv;
+        split(firstLine,argv);
+        QPointF offset = defaultPointerTip(*meta,
+                                           walk.modelName,
+                                           firstInstance.lineNumber,
+                                           modelName,
+                                           i,
+                                           gui->isMirrored(argv));
+        emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
+                             .arg(QString::number(offset.y(),'f',6)));
 
-      QString line = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
+        pointerLine = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
+      }
 
       if (together) {
-        appendMeta(lastInstance,"0 !LPUB CALLOUT POINTER CENTER 0 " + line);
-        ++lastInstance.lineNumber;
+        if (!pointerless) {
+          appendMeta(lastInstance,"0 !LPUB CALLOUT POINTER CENTER 0 " + pointerLine);
+          ++lastInstance.lineNumber;
+        }
       } else {
-        appendMeta(thisInstance,"0 !LPUB CALLOUT POINTER CENTER 0 " + line);
-        ++thisInstance.lineNumber;
+        if (!pointerless) {
+          appendMeta(thisInstance,"0 !LPUB CALLOUT POINTER CENTER 0 " + pointerLine);
+          ++thisInstance.lineNumber;
+        }
         appendMeta(thisInstance,"0 !LPUB CALLOUT END");
         --thisInstance.lineNumber;
         if (assembled) {
