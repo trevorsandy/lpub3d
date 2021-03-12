@@ -2581,31 +2581,9 @@ void MetaItem::insertCoverPage()
 
 bool MetaItem::frontCoverPageExist()
 {
-    Rc rc;
-    QString line;
-    Meta content;
-    Where here(gui->topLevelFile(),0);
-    int numLines = gui->subFileSize(here.modelName);
-
-    scanPastGlobal(here);                         //scan past headers and global
-
-    for ( ; here < numLines; here++) {            //scan forward
-        line = gui->readLine(here);
-        rc   = content.parse(line,here);
-
-        if (rc == InsertCoverPageRc) {            //check if line is Cover Page
-            return true;                          //it is a cover page, so return true
-        } else {                                  //no cover page detected so...
-            QStringList tokens;                   //check if non-zero line
-            split(line,tokens);
-            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-                 tokens[0] >= "1" && tokens[0] <= "5";
-            if (token_1_5) {                      //non-zeor line detected so return false
-                return false;
-            }
-        }
-    }
-    return false;
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
+  Where here(gui->topLevelFile(),0);
+  return gui->stepContains(here, rx);
 }
 
 void MetaItem::appendCoverPage()
@@ -2622,52 +2600,24 @@ void MetaItem::appendCoverPage()
   line = gui->readLine(here);
   rc   = content.parse(line,here);
 
-   if ((rc == StepGroupEndRc ||                        //STEP so advance line before 'insert' meta
+   if ((rc == StepGroupEndRc ||                       //STEP so advance line before 'insert' meta
         rc == StepRc)) {
       here++;
       insertMeta(here,meta);
-//      appendMeta(here,step);
    } else {
-      appendMeta(here,step);                           //NO STEP, 'append' one before appending meta
+      appendMeta(here,step);                          //NO STEP, 'append' one before appending meta
       here++;
       appendMeta(here,meta);
-//      appendMeta(here,step);
    }
    endMacro();
 }
 
 bool MetaItem::backCoverPageExist()
 {
-    Rc rc;
-    QString line;
-    Meta content;
-    bool endStep = true;
-    Where here(gui->topLevelFile(),0);
-    here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
-    here--;                                             //adjust to readline from zero-start index
-
-    for ( ; here >= 0; here--) {                        //scan backwards
-        line = gui->readLine(here);
-        rc = content.parse(line,here);
-        if ((rc == StepRc) && endStep) {                //if end STEP, continue
-            endStep = false;
-            continue;
-        } else if (rc == InsertCoverPageRc) {           //check if line is Cover Page
-            return true;
-        } else if (rc == StepGroupEndRc ||              //if Step Grpup end or STEP, then there is no back cover page
-                  (rc == StepRc && ! endStep)) {        //so return false
-            return false;
-        } else {
-            QStringList tokens;                         //no STEP encountered os check for non-zero line
-            split(line,tokens);
-            bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-                 tokens[0] >= "1" && tokens[0] <= "5";
-            if (token_1_5) {                            //non-zeor line detected so no back cover page, return false
-                return false;
-            }
-        }
-    }
-    return false;
+  QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
+  Where here(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile())); //start at bottom of file
+  scanBackward(here, StepMask | StepGroupMask);
+  return gui->stepContains(here, rx);
 }
 
 bool MetaItem::okToInsertNumberedPage()

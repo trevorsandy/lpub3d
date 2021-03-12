@@ -4769,21 +4769,20 @@ void Gui::createActions()
     create3DActions();
 }
 
-void Gui::loadPages(){
+void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
   int pageNum     = 0 + pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
-  bool frontCoverPage = mi->frontCoverPageExist();
-  bool backCoverPage  = mi->backCoverPageExist();
+
 
   for(int i=1 + pa;i <= maxPages;i++){
       QApplication::processEvents();
       pageNum++;
-      if (frontCoverPage && i == 1){
+      if (frontCoverPageExist && i == 1){
           pageNum--;
           setGoToPageCombo->addItem(QString("Front Cover"));
         }
-      else if (backCoverPage && i == maxPages){
+      else if (backCoverPageExist && i == maxPages){
           setGoToPageCombo->addItem(QString("Back Cover"));
         }
       else
@@ -4975,10 +4974,12 @@ void Gui::disableActions()
 
 void Gui::enableActions2()
 {
-    insertCoverPageAct->setEnabled(mi->okToInsertCoverPage() &&
-                                   ! mi->frontCoverPageExist());
-    appendCoverPageAct->setEnabled(mi->okToAppendCoverPage() &&
-                                   ! mi->backCoverPageExist());
+    bool frontCoverPageExist = mi->frontCoverPageExist();
+    insertCoverPageAct->setEnabled(! frontCoverPageExist &&
+                                   mi->okToInsertCoverPage());
+    bool backCoverPageExist = mi->backCoverPageExist();
+    appendCoverPageAct->setEnabled(! backCoverPageExist &&
+                                   mi->okToAppendCoverPage());
     bool frontCover = mi->okToInsertNumberedPage();
     insertNumberedPageAct->setEnabled(frontCover);
     bool backCover = mi->okToAppendNumberedPage();
@@ -4986,7 +4987,7 @@ void Gui::enableActions2()
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
-    loadPages();
+    loadPages(frontCoverPageExist, backCoverPageExist);
 }
 
 void Gui::disableActions2()

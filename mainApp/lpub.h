@@ -1738,7 +1738,7 @@ private slots:
     void firstPage();
     void lastPage();
     void setGoToPage(int index);
-    void loadPages();
+    void loadPages(bool, bool);
 
     void getExportPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
