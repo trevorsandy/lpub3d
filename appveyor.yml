@@ -148,7 +148,8 @@ init:
       }
  - ps: |
       If ($env:LP3D_CONTINUOUS_BUILD_VAR -eq "true") {
-        write-host "Continuous build, used if SKIP TRAVIS, detected in environment variable."
+        write-host "Force Continuous Build, used if SKIP TRAVIS, detected in environment variable." -ForegroundColor Magenta
+        $env:APPVEYOR_REPO_TAG_NAME = "continuous"
         $env:LP3D_BUILD_PKG = "yes"
         $env:LP3D_DEPLOY_PKG = "false"
         $env:LP3D_CONTINUOUS_BUILD_PKG = "true"
@@ -240,19 +241,12 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
  - ps: |
-       $startTime = $(Get-Date)
-       $env:LP3D_MSYS2_INSTALL_LOG = "$($env:TEMP)\InstallSecureTransfer.log"
-       Start-Transcript -Path $env:LP3D_MSYS2_INSTALL_LOG
        write-host "Download MSYS2 install script..." -NoNewline
        $scriptUrl = "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/install_msys64.ps1"
        $msys2InstallScript = "$($env:TEMP)\install_msys64.ps1"
        (New-Object Net.WebClient).DownloadFile($scriptUrl, $msys2InstallScript)
        write-host " - OK" -ForegroundColor Green
        .$msys2InstallScript
-       $endTime = $(Get-Date) - $startTime
-       $elapsedTime = "{0:mm:ss}" -f ([datetime]$endTime.Ticks)
-       write-host "Elapsed Time: $elapsedTime"
-       Stop-Transcript
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'
