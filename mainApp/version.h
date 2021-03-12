@@ -168,7 +168,7 @@
 
 // ~~~~~~ Resource Locators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
+#define VER_HOMEPAGE_GITHUB_STR             "https://trevorsandy.github.io/lpub3d/"
 #define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
 #define VER_BLENDER_RENDER_STR              "https://github.com/trevorsandy/blenderldrawrender/"
 #define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
@@ -184,9 +184,9 @@
 #else
   #define VER_UPDATE_CHECK_JSON_URL         VER_SOURCEFORGE_STR "lpub3dupdates.json"
 #endif
-#define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
-#define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_COMPANYDOMAIN_STR "assets/resources/codes.txt"
-#define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_COMPANYDOMAIN_STR "assets/resources/missingimage.png"
+#define VER_REBRICKABLE_KEYS_JSON_URL       VER_HOMEPAGE_GITHUB_STR "assets/resources/rebrickablekeys.json"
+#define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_HOMEPAGE_GITHUB_STR "assets/resources/codes.txt"
+#define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_HOMEPAGE_GITHUB_STR "assets/resources/missingimage.png"
 #define VER_BLENDER_RENDER_ADDONS_URL       VER_BLENDER_RENDER_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

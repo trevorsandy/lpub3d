@@ -299,7 +299,7 @@ QString Preferences::plugImage                  = QString(":/resources/LPub64.pn
 QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n Download %1 at %3")
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
                                                                QString::fromLatin1(VER_FILEVERSION_STR).replace("\"",""),
-                                                               QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
+                                                               QString::fromLatin1(VER_HOMEPAGE_GITHUB_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
 QString Preferences::titleAnnotationsFile;
@@ -1279,19 +1279,19 @@ void Preferences::lpub3dLibPreferences(bool browse)
     QFileInfo fileInfo;
     QSettings Settings;
 
-    // check if archive parts on launch enabled 
-    QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch"); 
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey))) { 
+    // check if archive parts on launch enabled
+    QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey))) {
         QVariant uValue(archivePartsOnLaunch);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey),uValue); 
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey),uValue);
     } else {
         archivePartsOnLaunch = Settings.value(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey)).toBool();
     }
 
     // check if skip parts archive selected - used by refresh LDraw parts routine
-    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY))) { 
-        skipPartsArchive = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)).toBool(); 
-        Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)); 
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY))) {
+        skipPartsArchive = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)).toBool();
+        Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY));
     }
 
     QString const PartsLibraryKey("PartsLibrary");
@@ -1551,7 +1551,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
 
 void Preferences::ldrawPreferences(bool browse)
 {
-    if (modeGUI && ! lpub3dLoaded) 
+    if (modeGUI && ! lpub3dLoaded)
         emit Application::instance()->splashMsgSig("10% - Locate LDraw directory...");
 
     QSettings Settings;
