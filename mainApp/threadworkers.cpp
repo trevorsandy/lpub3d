@@ -3042,27 +3042,29 @@ int CountPageWorker::countPage(
       case '1':
 
           // process submodel...
-          if (! partIgnore) {
+          if (! buildModIgnore) {
 
-              if (gui->firstStepPageNum == -1) {
-                  gui->firstStepPageNum = opts.pageNum;
-              }
-              gui->lastStepPageNum = opts.pageNum;
+              if (! partIgnore) {
 
-              QStringList token;
+                  if (gui->firstStepPageNum == -1) {
+                      gui->firstStepPageNum = opts.pageNum;
+                  }
+                  gui->lastStepPageNum = opts.pageNum;
 
-              split(line,token);
+                  QStringList token;
 
-              if (token.size() == 15) {
+                  split(line,token);
 
-                  QString type = token[token.size()-1];
-                  QString colorType = token[1]+type;
+                  if (token.size() == 15) {
 
-                  bool contains   = gui->isSubmodel(type);
-                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                      QString type = token[token.size()-1];
+                      QString colorType = token[1]+type;
 
-                  // if submodel or assembled/rotated callout
-                  if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                      bool contains   = gui->isSubmodel(type);
+                      CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+
+                      // if submodel or assembled/rotated callout
+                      if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                       // check if submodel was rendered
                       bool rendered = ldrawFile->rendered(type,ldrawFile->mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
@@ -3072,76 +3074,78 @@ int CountPageWorker::countPage(
 
                           opts.isMirrored = ldrawFile->mirrored(token);
 
-                          // add submodel to the model modelStack - it can't be a callout
-                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                          meta.submodelStack << tos;
-                          Where current2(type,ldrawFile->getSubmodelIndex(type),0);
+                              // add submodel to the model modelStack - it can't be a callout
+                              SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
+                              meta.submodelStack << tos;
+                              Where current2(type,ldrawFile->getSubmodelIndex(type),0);
 
-                          ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
+                              ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
-                          // save rotStep, clear it, and restore it afterwards
-                          // since rotsteps don't affect submodels
-                          RotStepMeta saveRotStep2 = meta.rotStep;
-                          meta.rotStep.clear();
+                              // save rotStep, clear it, and restore it afterwards
+                              // since rotsteps don't affect submodels
+                              RotStepMeta saveRotStep2 = meta.rotStep;
+                              meta.rotStep.clear();
 
-                          // save Default pageSize information
-                          PgSizeData pageSize2;
-                          if (gui->exporting()) {
-                              pageSize2       = gui->getPageSize(DEF_SIZE);
-                              pageSizeUpdate  = false;
+                              // save Default pageSize information
+                              PgSizeData pageSize2;
+                              if (gui->exporting()) {
+                                  pageSize2       = gui->getPageSize(DEF_SIZE);
+                                  pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
-                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
-                                         << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << pageSize2.sizeID
-                                         << "Model:" << opts.current.modelName;
+                                  logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                                             << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                             << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                             << "ID:"   << pageSize2.sizeID
+                                             << "Model:" << opts.current.modelName;
 #endif
-                          }
+                              }
 
-                          // set the step number and parent model where the submodel will be rendered
-                          FindPageOptions submodelOpts(
-                                      opts.pageNum,
-                                      current2,
-                                      opts.pageSize,
-                                      opts.buildModActions,
-                                      opts.updateViewer,
-                                      opts.isMirrored,
-                                      opts.printing,
-                                      opts.buildModLevel,
-                                      opts.stepNumber,
-                                      opts.contStepNumber,
-                                      opts.groupStepNumber,
-                                      opts.current.modelName /*renderParentModel*/);
-                          countPage(meta, ldrawFile, modelStack, submodelOpts);
+                              // set the step number and parent model where the submodel will be rendered
+                              FindPageOptions submodelOpts(
+                                          opts.pageNum,
+                                          current2,
+                                          opts.pageSize,
+                                          opts.buildModActions,
+                                          opts.updateViewer,
+                                          opts.isMirrored,
+                                          opts.printing,
+                                          opts.buildModLevel,
+                                          opts.stepNumber,
+                                          opts.contStepNumber,
+                                          opts.groupStepNumber,
+                                          opts.current.modelName /*renderParentModel*/);
+                              countPage(meta, ldrawFile, modelStack, submodelOpts);
 
-                          gui->saveStepPageNum = gui->stepPageNum;
-                          meta.submodelStack.pop_back();
-                          meta.rotStep = saveRotStep2;              // restore old rotstep
+                              gui->saveStepPageNum = gui->stepPageNum;
+                              meta.submodelStack.pop_back();
+                              meta.rotStep = saveRotStep2;              // restore old rotstep
 
-                          if (gui->exporting()) {
-                              removePageSize(DEF_SIZE);
-                              insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
+                              if (gui->exporting()) {
+                                  removePageSize(DEF_SIZE);
+                                  insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
-                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
-                                         << "Model:" << opts.current.modelName;
+                                  logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                                             << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                                             << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                             << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                                             << "Model:" << opts.current.modelName;
 #endif
+                              }
                           }
                       }
-                  }
-                  if (bfxStore1) {
-                      bfxParts << colorType;
-                  }
+                      if (bfxStore1) {
+                          bfxParts << colorType;
+                      }
               }
-          } // ! PartIgnore
+              } // ! PartIgnore
 
         case '2':
         case '3':
         case '4':
         case '5':
             ++partsAdded;
+
+          } // ! BuildModIgnore
             break;
 
         case '0':
@@ -3171,7 +3175,7 @@ int CountPageWorker::countPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2) {
+              if (stepGroup && ! noStep2 && ! buildModIgnore) {
                   stepGroup = false;
 
                   // ignored when processing buildMod display
@@ -3204,13 +3208,38 @@ int CountPageWorker::countPage(
                   gui->saveStepPageNum = ++gui->stepPageNum;
                   documentPageCount();
 
-                } // StepGroup && ! NoStep2
+                } // StepGroup && ! NoStep2 && ! BuildModIgnore
               noStep2 = false;
+              break;
+
+            case BuildModBeginRc:
+              if (Preferences::buildModEnabled) {
+                  opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
+                  opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
+                  buildModValid = true;
+                  buildModIgnore = false;
+              }
+              break;
+
+            case BuildModEndModRc:
+              if (buildModValid) {
+                  if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
+                      buildModIgnore = true;
+              }
+              break;
+
+            case BuildModEndRc:
+              if (buildModValid) {
+                  opts.buildModLevel = getLevel(QString(), BM_END);
+                  if (opts.buildModLevel == BM_BEGIN)
+                      buildModIgnore = false;
+                  buildModValid = false;
+              }
               break;
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep) {
+              if (partsAdded && ! noStep && ! buildModIgnore) {
 
                   opts.stepNumber  += ! coverPage && ! stepPage;
                   gui->stepPageNum += ! coverPage && ! stepGroup;
@@ -3257,7 +3286,7 @@ int CountPageWorker::countPage(
                       bfxParts.clear();
                   } // ! BfxStore2
 
-                } // PartsAdded && ! NoStep
+                } // PartsAdded && ! NoStep && ! BuildModIgnore
 
               noStep2 = noStep;
               noStep = false;
@@ -3392,7 +3421,7 @@ int CountPageWorker::countPage(
     } // For Every Line
 
   // last step in submodel
-  if (partsAdded && ! noStep) {
+  if (partsAdded && ! noStep && ! buildModIgnore) {
       if (gui->exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (pageSizeUpdate) {
