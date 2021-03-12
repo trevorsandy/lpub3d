@@ -38,7 +38,7 @@ void wcstoqstring(QString &dst, const wchar_t *src, int length /*= -1*/)
 		temp[i] = (QChar)src[i];
 	}
 	dst.insert(0, temp, length);
-	delete temp;
+	delete[] temp;
 }
 
 QString wcstoqstring(const wchar_t *src, int length /*= -1*/)
@@ -62,7 +62,7 @@ QString wcstoqstring(const wchar_t *src, int length /*= -1*/)
 		temp[i] = (QChar)src[i];
 	}
 	dst.insert(0, temp, length);
-	delete temp;
+	delete[] temp;
 	return dst;
 }
 

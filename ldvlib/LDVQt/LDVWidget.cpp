@@ -291,7 +291,7 @@ bool LDVWidget::setupLDVApplication(){
 				stream.readRawData(buffer,len);
 				modelViewer->setFontData((TCByte*)buffer,len);
 			}
-			delete buffer;
+			free(buffer);
 		}
 	}
 
@@ -303,7 +303,7 @@ bool LDVWidget::setupLDVApplication(){
 }
 
 bool LDVWidget::setIniFile()
-{    
+{
 	if (!TCUserDefaults::isIniFileSet() || forceIni)
 	{
 		if (getIniTitle().isEmpty()){
@@ -676,10 +676,10 @@ void LDVWidget::doPartList(void)
 					htmlInventory->setModelWidget(this);
 				}
 
-				QString initialDir = QString(ldPrefs->getInvLastSavePath());
+				QString initialDir = QString::fromStdString(ldPrefs->getInvLastSavePath());
 				if (initialDir.isEmpty()) {
-					initialDir = QString(ldPrefs->getDefaultSaveDir(LDPreferences::SOPartsList,
-												 modelViewer->getFilename()).c_str());
+					initialDir = QString::fromStdString(ldPrefs->getDefaultSaveDir(LDPreferences::SOPartsList,
+																				   modelViewer->getFilename()).c_str());
 					QDir cwd(initialDir);            // <model>/LPub3D/tmp
 					cwd.cdUp();                      // <model>/LPub3D
 					cwd.cdUp();                      // <model>
@@ -906,7 +906,7 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 			if (dirLen)
 			{
 				dir.setPath(dirName);
-				delete dirName;
+				delete[] dirName;
 				if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
 				{
 					return false;
@@ -921,7 +921,7 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 		dirName[dirLen] = 0;
 		dir.setPath(dirName);
 		shortName = lastSlashSpot + 1;
-		delete dirName;
+		delete[] dirName;
 	}
 	else
 	{
