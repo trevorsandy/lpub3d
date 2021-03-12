@@ -183,11 +183,15 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 {
 	if (ColorTheme == lcColorTheme::Dark)
 	{
-		mAxesColor = LC_RGBA(0, 0, 0, 255);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		mAxesColor = LC_RGBA(224, 224, 224, 255);
+/*** LPub3D Mod end ***/
 		mBackgroundSolidColor = LC_RGB(49, 52, 55);
 		mBackgroundGradientColorTop = LC_RGB(0, 0, 191);
 		mBackgroundGradientColorBottom = LC_RGB(255, 255, 255);
-		mOverlayColor = lcGetProfileInt(LC_PROFILE_OVERLAY_COLOR);
+/*** LPub3D Mod - preview widget for LPub3D ***/
+		mOverlayColor = LC_RGBA(224, 224, 224, 255);
+/*** LPub3D Mod end ***/
 		mActiveViewColor = LC_RGBA(41, 128, 185, 255);
 		mGridStudColor = LC_RGBA(24, 24, 24, 192);
 		mGridLineColor = LC_RGBA(24, 24, 24, 255);
