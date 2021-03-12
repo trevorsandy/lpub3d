@@ -1314,6 +1314,129 @@ bool EditWindow::saveFileCopy()
   return rc;
 }
 
+void EditWindow::updateSelectedParts() {
+
+    if (isIncludeFile)
+        return;
+
+    toolsToolBar->setEnabled(setValidPartLine());
+
+    if (modelFileEdit() || !gMainWindow->isVisible())
+        return;
+
+    int lineNumber = 0;
+    int currentLine = 0;
+    int selectedLines = 0;
+    bool clearSelection = false;
+    bool selectionStep = Preferences::editorLoadSelectionStep;
+    bool highlightLines = Preferences::editorHighlightLines;
+    TypeLine typeLine = { -1/*fileOrderIndex*/, 0/*lineNumber*/ };
+
+    QVector<TypeLine> lineTypeIndexes;
+    QVector<int> toggleLines;
+
+    QTextCursor cursor = _textEdit->textCursor();
+
+    QTextCursor saveCursor = cursor;
+
+    if(!cursor.hasSelection())
+        cursor.select(QTextCursor::LineUnderCursor);
+
+    QStringList content = cursor.selection().toPlainText().split("\n");
+
+    selectedLines = content.size();
+
+    if (!selectedLines)
+        return;
+
+    QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
+
+    auto getSelectedLineNumber = [&cursor] () {
+
+        int lineNumber = 0;
+
+        cursor.movePosition(QTextCursor::StartOfLine);
+
+        while(cursor.positionInBlock()>0) {
+            cursor.movePosition(QTextCursor::Up);
+            lineNumber++;
+        }
+
+        QTextBlock block = cursor.block().previous();
+
+        while(block.isValid()) {
+            lineNumber += block.lineCount();
+            block = block.previous();
+        }
+
+        return lineNumber;
+    };
+
+    cursor.beginEditBlock();
+
+    while (currentLine < selectedLines)
+    {
+        if (selectionStep)
+        {
+            lineNumber = getSelectedLineNumber();
+            typeLine = { fileOrderIndex, lineNumber };
+            if (!stepLines.isInScope(lineNumber))
+            {
+                clearEditorHighlightLines();
+                emit setStepForLineSig(typeLine);
+            }
+        }
+
+        if (content.at(currentLine).startsWith("1") ||
+            content.at(currentLine).contains(" PLI BEGIN SUB "))
+        {
+            if (!selectionStep)
+            {
+                lineNumber = getSelectedLineNumber();
+                typeLine = { fileOrderIndex, lineNumber };
+            }
+
+            lineTypeIndexes.append(typeLine);
+
+            if (highlightLines) {
+                if (stepLines.isInScope(lineNumber))
+                {
+                    toggleLines.append(lineNumber);
+                    clearSelection = savedSelection.contains(lineNumber);
+                    highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
+                    if (clearSelection)
+                        savedSelection.removeAll(lineNumber);
+                    else
+                        savedSelection.append(lineNumber);
+                    toggleLines.clear();
+                }
+            }
+        }
+
+        cursor.movePosition(nextLine);
+        currentLine++;
+    }
+
+    // restore selection
+   _textEdit->setTextCursor(saveCursor);
+
+    cursor.endEditBlock();
+
+    if (!highlightLines)
+        clearEditorHighlightLines();
+
+    if (lineTypeIndexes.size())
+       emit SelectedPartLinesSig(lineTypeIndexes);
+}
+
+void EditWindow::clearEditorHighlightLines()
+{
+    if (savedSelection.size()) {
+        highlightSelectedLines(savedSelection, true/*clear*/, true/*editor*/);
+        savedSelection.clear();
+    }
+}
+
 void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 {
     highlightSelectedLines(lines, clear, false/*editorSelection*/);
@@ -1321,14 +1444,6 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear)
 
 void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection)
 {
-    // Remove duplicate editor (saved) lines and viewer lines
-    if (!editorSelection && savedSelection.size()) {
-        for (int line : lines) {
-            if (savedSelection.contains(line))
-                savedSelection.removeAll(line);
-        }
-    }
-
     auto highlightLines = [this, &editorSelection] (QVector<int> &linesToFormat, bool clear)
     {
         QTextCursor highlightCursor(_textEdit->document());
@@ -1393,9 +1508,22 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
     disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
                this,                  SLOT(  contentsChange(int,int,int)));
 
-    // apply previously selected lines if any
-    if (savedSelection.size())
-        highlightLines(savedSelection, false/*clear*/);
+    // apply or clear savedSelection lines if any
+    if (savedSelection.size()) {
+        QVector<int> validSelection;
+        bool clearSelection = !editorSelection;
+        if (clearSelection) {
+            validSelection = savedSelection;
+            savedSelection.clear();
+        } else {
+            for (int line : savedSelection)
+                if (!lines.contains(line))
+                    validSelection.append(line);
+            if (validSelection.size())
+                savedSelection = validSelection;
+        }
+        highlightLines(validSelection, clearSelection);
+    }
 
     // apply highlighting, toggle on from editor or selection from viewer
     highlightLines(lines, clear);
@@ -1492,117 +1620,6 @@ void EditWindow::pageUpDown(
 
   connect(verticalScrollBar, SIGNAL(valueChanged(int)),
           this,              SLOT(verticalScrollValueChanged(int)));
-}
-
-void EditWindow::updateSelectedParts() {
-
-    if (isIncludeFile)
-        return;
-
-    toolsToolBar->setEnabled(setValidPartLine());
-
-    if (modelFileEdit() || !gMainWindow->isVisible())
-        return;
-
-    int lineNumber = 0;
-    int currentLine = 0;
-    int selectedLines = 0;
-    bool clearSelection = false;
-    bool selectionStep = Preferences::editorLoadSelectionStep;
-    bool highlightLines = Preferences::editorHighlightLines;
-    TypeLine typeLine = { -1/*fileOrderIndex*/, 0/*lineNumber*/ };
-
-    QVector<TypeLine> lineTypeIndexes;
-    QVector<int> toggleLines;
-
-    QTextCursor cursor = _textEdit->textCursor();
-
-    QTextCursor saveCursor = cursor;
-
-    if(!cursor.hasSelection())
-        cursor.select(QTextCursor::LineUnderCursor);
-
-    QStringList content = cursor.selection().toPlainText().split("\n");
-
-    selectedLines = content.size();
-
-    if (!selectedLines)
-        return;
-
-    auto getSelectedLineNumber = [&cursor] () {
-
-        int lineNumber = 0;
-
-        cursor.movePosition(QTextCursor::StartOfLine);
-
-        while(cursor.positionInBlock()>0) {
-            cursor.movePosition(QTextCursor::Up);
-            lineNumber++;
-        }
-
-        QTextBlock block = cursor.block().previous();
-
-        while(block.isValid()) {
-            lineNumber += block.lineCount();
-            block = block.previous();
-        }
-
-        return lineNumber;
-    };
-
-    cursor.beginEditBlock();
-
-    while (currentLine < selectedLines)
-    {
-        if (selectionStep)
-        {
-            lineNumber = getSelectedLineNumber();
-            typeLine = { fileOrderIndex, lineNumber };
-            if (!stepLines.isInScope(lineNumber) && highlightLines)
-            {
-                emit setStepForLineSig(typeLine);
-                //QApplication::processEvents();
-            }
-        }
-
-        if (content.at(currentLine).startsWith("1") ||
-            content.at(currentLine).contains(" PLI BEGIN SUB "))
-        {
-            if (!selectionStep)
-            {
-                lineNumber = getSelectedLineNumber();
-                typeLine = { fileOrderIndex, lineNumber };
-            }
-
-            lineTypeIndexes.append(typeLine);
-
-            if (highlightLines) {
-                if (stepLines.isInScope(lineNumber))
-                {
-                    toggleLines.append(lineNumber);
-                    clearSelection = savedSelection.contains(lineNumber);
-                    highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
-                    if (clearSelection)
-                        savedSelection.removeAll(lineNumber);
-                    else
-                        savedSelection.append(lineNumber);
-                    toggleLines.clear();
-                }
-            }
-        }
-        // set next selected line
-        cursor.movePosition(QTextCursor::Down);
-        _textEdit->setTextCursor(cursor);
-       currentLine++;
-    }
-
-    // restore selection
-   _textEdit->setTextCursor(saveCursor);
-
-    cursor.endEditBlock();
-
-    if (lineTypeIndexes.size())
-       emit SelectedPartLinesSig(lineTypeIndexes);
 }
 
 void EditWindow::showLine(int lineNumber, int lineType)
@@ -1744,7 +1761,7 @@ void EditWindow::displayFile(
     fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
     isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
     stepLines      = lineScope;
-    savedSelection.clear();
+    clearEditorHighlightLines();
   }
 
   disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
@@ -1995,6 +2012,7 @@ void EditWindow::preferences()
     bool editorBufferedPaging       = Preferences::editorBufferedPaging;
     bool editorHighlightLines       = Preferences::editorHighlightLines;
     bool editorLoadSelectionStep    = Preferences::editorLoadSelectionStep;
+    // modelFileEdit() only
     bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
 
     auto showMessage = [&windowTitle] (const QString change) {

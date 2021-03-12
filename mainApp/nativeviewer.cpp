@@ -3457,7 +3457,9 @@ void Gui::setStepForLine(const TypeLine &here)
 
     if (!stepKey.isEmpty()) {
         if (!currentStep->viewerStepKey.startsWith(&stepKey)) {
-            setCurrentStep(stepKey);
+            if (!setCurrentStep(stepKey))
+                return;
+
             setLineScopeSig(StepLines(getCurrentStep()->topOfStep().lineNumber, getCurrentStep()->bottomOfStep().lineNumber));
 #ifdef QT_DEBUG_MODE
             emit messageSig(LOG_DEBUG,tr("Editor step %1 loaded line scope %2-%3")

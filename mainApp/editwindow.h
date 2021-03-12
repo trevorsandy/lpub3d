@@ -173,8 +173,9 @@ protected:
     void createOpenWithActions();
     void readSettings();
     void writeSettings();
+    void clearEditorHighlightLines();
     void openFolderSelect(const QString& absoluteFilePath);
-    void highlightSelectedLines(QVector<int> &lines, bool clear, bool editorSelection);
+    void highlightSelectedLines(QVector<int> &lines, bool clear, bool editor);
 
     QAbstractItemModel *modelFromFile(const QString& fileName);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
