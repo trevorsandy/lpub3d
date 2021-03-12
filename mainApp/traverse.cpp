@@ -1983,7 +1983,7 @@ int Gui::drawPage(
               if (!buildMod[BM_END_MOD])
                   parseError(QString("Required meta BUILD_MOD END_MOD not found"), opts.current, Preferences::BuildModErrors);
               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
-                  insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
+                  insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               opts.buildModLevel  = getLevel(QString(), BM_END);
               buildModIgnore      = buildModPliIgnore = false;
               buildMod[BM_END]    = true;

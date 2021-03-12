@@ -2276,12 +2276,12 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
 
 bool LDrawFile::deleteBuildMod(const QString &buildModKey)
 {
-    QString modKey = buildModKey;
+    QString modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
         _buildMods.erase(i);
-        if (_buildModList.contains(modKey,Qt::CaseInsensitive))
-            _buildModList.removeAt(_buildModList.indexOf(modKey));
+        if (_buildModList.contains(buildModKey,Qt::CaseInsensitive))
+            _buildModList.removeAt(_buildModList.indexOf(buildModKey));
         return true;
     }
     return false;
