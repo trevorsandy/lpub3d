@@ -134,6 +134,10 @@ private slots:
     void updateSelectedParts();
     void preferences();
     void verticalScrollValueChanged(int action);
+    void openFolder();
+#ifndef QT_NO_CLIPBOARD
+    void updateClipboard();
+#endif
 
 protected:
     void createActions();
@@ -142,13 +146,14 @@ protected:
     void createOpenWithActions();
     void readSettings();
     void writeSettings();
+    void openFolderSelect(const QString& absoluteFilePath);
 
     QAbstractItemModel *modelFromFile(const QString& fileName);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
-    bool validPreviewLine();
+    bool validPartLine();
     void loadPagedContent();
     void closeEvent(QCloseEvent*_event);
 
@@ -192,6 +197,9 @@ protected:
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
     QAction  *preferencesAct;
+    QAction  *openFolderActAct;
+    QAction  *copyFullPathToClipboardAct;
+    QAction  *copyFileNameToClipboardAct;
 
     QAction  *exitAct;
     QAction  *saveAct;

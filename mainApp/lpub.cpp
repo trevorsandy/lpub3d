@@ -4031,9 +4031,9 @@ void Gui::createActions()
     blenderImportAct->setEnabled(false);
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
     
-    copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Copy Path to Clipboard"), this);
+    copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
     copyFilePathToClipboardAct->setShortcut(tr("Alt+Shift+0"));
-    copyFilePathToClipboardAct->setStatusTip(tr("Copy current file path to clipboard - Alt+Shift+0"));
+    copyFilePathToClipboardAct->setStatusTip(tr("Copy current model full file path to clipboard - Alt+Shift+0"));
     copyFilePathToClipboardAct->setEnabled(false);
     connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
@@ -4645,8 +4645,8 @@ void Gui::createActions()
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
     openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
-    openWorkingFolderAct->setShortcut(tr("Alt+Shift+D"));
-    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+D"));
+    openWorkingFolderAct->setShortcut(tr("Alt+Shift+1"));
+    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+1"));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
 
     create3DActions();

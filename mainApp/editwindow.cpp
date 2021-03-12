@@ -426,6 +426,21 @@ void EditWindow::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LDraw Editor"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
+    openFolderActAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    openFolderActAct->setShortcut(tr("Alt+Shift+2"));
+    openFolderActAct->setStatusTip(tr("Open file working folder - Alt+Shift+2"));
+    connect(openFolderActAct, SIGNAL(triggered()), this, SLOT(openFolder()));
+
+    copyFullPathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
+    copyFullPathToClipboardAct->setShortcut(tr("Alt+Shift+3"));
+    copyFullPathToClipboardAct->setStatusTip(tr("Copy full file path to clipboard - Alt+Shift+3"));
+    connect(copyFullPathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
+    copyFileNameToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("File Name to Clipboard"), this);
+    copyFileNameToClipboardAct->setShortcut(tr("Alt+Shift+0"));
+    copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard - Alt+Shift+0"));
+    connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
+
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
@@ -456,6 +471,10 @@ void EditWindow::disableActions()
     bottomAct->setEnabled(false);
     showAllCharsAct->setEnabled(false);
 
+    openFolderActAct->setEnabled(false);
+    copyFullPathToClipboardAct->setEnabled(false);
+    copyFileNameToClipboardAct->setEnabled(false);
+
     undoAct->setEnabled(false);
     redoAct->setEnabled(false);
     saveAct->setEnabled(false);
@@ -472,6 +491,7 @@ void EditWindow::enableActions()
     toggleCmmentAct->setEnabled(true);
     bottomAct->setEnabled(true);
     showAllCharsAct->setEnabled(true);
+    openFolderActAct->setEnabled(true);
 }
 
 void EditWindow::clearEditorWindow()
@@ -519,10 +539,10 @@ void EditWindow::createToolBars()
     editToolBar->addAction(preferencesAct);
 }
 
-bool EditWindow::validPreviewLine ()
+bool EditWindow::validPartLine ()
 {
     QString partType;
-    int validCode, colorCode = int(LDRAW_MATERIAL_COLOUR);
+    int validCode, colorCode = LDRAW_MATERIAL_COLOUR;
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
@@ -539,13 +559,6 @@ bool EditWindow::validPreviewLine ()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-        partType = partType.trimmed().toLower();
-
-        if (_subFileList.contains(partType)) {
-            previewLineAct->setText(tr("Preview highlighted subfile..."));
-            previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
-        }
-
     } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
@@ -556,12 +569,15 @@ bool EditWindow::validPreviewLine ()
         validCode = list[6].toInt(&colorOk);
 
     } else {
-        previewLineAct->setEnabled(false);
         return false;
     }
 
+    if (partType.isEmpty())
+        return false;
+
     if (colorOk)
         colorCode = validCode;
+
     partType = partType.trimmed();
 
     emit lpubAlert->messageSig(LOG_DEBUG,
@@ -569,6 +585,17 @@ bool EditWindow::validPreviewLine ()
                                .arg(partType).arg(colorCode).arg(selection));
 
     QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
+
+    if (_subFileList.contains(partType.toLower())) {
+        previewLineAct->setText(tr("Preview highlighted subfile..."));
+        previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
+
+        copyFullPathToClipboardAct->setEnabled(true);
+        copyFullPathToClipboardAct->setData(partType);
+    }
+
+    copyFileNameToClipboardAct->setEnabled(true);
+    copyFileNameToClipboardAct->setData(partType);
 
     previewLineAct->setData(partKey);
     previewLineAct->setEnabled(true);
@@ -579,19 +606,31 @@ bool EditWindow::validPreviewLine ()
 void EditWindow::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = _textEdit->createStandardContextMenu();
-    if (!fileName.isEmpty()) {
-        menu->addSeparator();
-        menu->addAction(previewLineAct);
-        previewLineAct->setEnabled(false);
 
-        lcPreferences& Preferences = lcGetPreferences();
-        if (Preferences.mPreviewEnabled && !isIncludeFile) {
-            _subFileListPending = true;
+    bool validLine = false;
+    previewLineAct->setEnabled(validLine);
+    copyFullPathToClipboardAct->setEnabled(validLine);
+    copyFileNameToClipboardAct->setEnabled(validLine);
+
+    if (!fileName.isEmpty()) {
+        if (_subFileListPending) {
             emit getSubFileListSig();
             while (_subFileListPending)
                 QApplication::processEvents();
-            previewLineAct->setEnabled(validPreviewLine());
         }
+        validLine = validPartLine();
+        menu->addSeparator();
+        menu->addAction(openFolderActAct);
+#ifndef QT_NO_CLIPBOARD
+        menu->addAction(copyFileNameToClipboardAct);
+        menu->addAction(copyFullPathToClipboardAct);
+#endif
+        menu->addSeparator();
+        menu->addAction(previewLineAct);
+
+        lcPreferences& Preferences = lcGetPreferences();
+        if (Preferences.mPreviewEnabled && !isIncludeFile)
+            previewLineAct->setEnabled(validLine);
 
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
@@ -624,11 +663,12 @@ void EditWindow::showContextMenu(const QPoint &pt)
 void EditWindow::triggerPreviewLine()
 {
     if (!isIncludeFile && !_subFileListPending) {
-        _subFileListPending = true;
-        emit getSubFileListSig();
-        while (_subFileListPending)
-            QApplication::processEvents();
-        if (validPreviewLine())
+        if (_subFileListPending) {
+            emit getSubFileListSig();
+            while (_subFileListPending)
+                QApplication::processEvents();
+        }
+        if (validPartLine())
             emit previewLineAct->triggered();
     }
 }
@@ -668,6 +708,140 @@ void EditWindow::contentsChange(
      updateDisabled(false);
   }
 }
+
+void EditWindow::openFolderSelect(const QString& absoluteFilePath)
+{
+    auto openPath = [this](const QString& absolutePath)
+    {
+        bool ok = true;
+        const QString path = QDir::fromNativeSeparators(absolutePath);
+        // Hack to access samba shares with QDesktopServices::openUrl
+        if (path.startsWith("//"))
+            ok = QDesktopServices::openUrl(QDir::toNativeSeparators("file:" + path));
+        else
+            ok = QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+
+        if (!ok) {
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to open folder!").arg(path));
+        }
+    };
+
+    const QString path = QDir::fromNativeSeparators(absoluteFilePath);
+#ifdef Q_OS_WIN
+    if (QFileInfo(path).exists()) {
+        // Syntax is: explorer /select, "C:\Folder1\Folder2\file_to_select"
+        // Dir separators MUST be win-style slashes
+
+        // QProcess::startDetached() has an obscure bug. If the path has
+        // no spaces and a comma(and maybe other special characters) it doesn't
+        // get wrapped in quotes. So explorer.exe can't find the correct path and
+        // displays the default one. If we wrap the path in quotes and pass it to
+        // QProcess::startDetached() explorer.exe still shows the default path. In
+        // this case QProcess::startDetached() probably puts its own quotes around ours.
+
+        STARTUPINFO startupInfo;
+        ::ZeroMemory(&startupInfo, sizeof(startupInfo));
+        startupInfo.cb = sizeof(startupInfo);
+
+        PROCESS_INFORMATION processInfo;
+        ::ZeroMemory(&processInfo, sizeof(processInfo));
+
+        QString cmd = QString("explorer.exe /select,\"%1\"").arg(QDir::toNativeSeparators(absoluteFilePath));
+        LPWSTR lpCmd = new WCHAR[cmd.size() + 1];
+        cmd.toWCharArray(lpCmd);
+        lpCmd[cmd.size()] = 0;
+
+        bool ret = ::CreateProcessW(NULL, lpCmd, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo);
+        delete [] lpCmd;
+
+        if (ret) {
+            ::CloseHandle(processInfo.hProcess);
+            ::CloseHandle(processInfo.hThread);
+        }
+    }
+    else {
+        // If the item to select doesn't exist, try to open its parent
+        openPath(path.left(path.lastIndexOf("/")));
+    }
+#elif defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+    if (QFileInfo(path).exists()) {
+        QProcess proc;
+        QString output;
+        proc.start("xdg-mime", QStringList() << "query" << "default" << "inode/directory");
+        proc.waitForFinished();
+        output = proc.readLine().simplified();
+        if (output == "dolphin.desktop" || output == "org.kde.dolphin.desktop")
+            proc.startDetached("dolphin", QStringList() << "--select" << QDir::toNativeSeparators(path));
+        else if (output == "nautilus.desktop" || output == "org.gnome.Nautilus.desktop"
+                 || output == "nautilus-folder-handler.desktop")
+            proc.startDetached("nautilus", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "caja-folder-handler.desktop")
+            proc.startDetached("caja", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "nemo.desktop")
+            proc.startDetached("nemo", QStringList() << "--no-desktop" << QDir::toNativeSeparators(path));
+        else if (output == "kfmclient_dir.desktop")
+            proc.startDetached("konqueror", QStringList() << "--select" << QDir::toNativeSeparators(path));
+        else
+            openPath(path.left(path.lastIndexOf("/")));
+
+        QProcess::ExitStatus Status = Process->exitStatus();
+        if (Status != 0) {  // look for error
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to open working folder!").arg(CommandPath));
+        }
+    }
+    else {
+        // If the item to select doesn't exist, try to open its parent
+        openPath(path.left(path.lastIndexOf("/")));
+    }
+#else // Q_OS_MAC
+    openPath(path.left(path.lastIndexOf("/")));
+#endif
+}
+
+void EditWindow::openFolder() {
+    if (!fileName.isEmpty()) {
+        const QString path = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
+        openFolderSelect(path + QDir::separator() + fileName);
+    }
+}
+
+#ifndef QT_NO_CLIPBOARD
+void EditWindow::updateClipboard()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action) {
+        bool fullPath = false;
+        QString data;
+        if (action == copyFullPathToClipboardAct) {
+            fullPath = true;
+            QString fullFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/" + action->data().toString();
+            data =  QDir::toNativeSeparators(fullFilePath );
+        } else if (action == copyFileNameToClipboardAct) {
+            data = action->data().toString();
+        }
+
+        if (data.isEmpty()) {
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
+                                               .arg(sender()->metaObject()->className()));
+            return;
+        }
+
+        QGuiApplication::clipboard()->setText(data, QClipboard::Clipboard);
+
+        QString efn =QFileInfo(data).fileName();
+        // Text elided to 20 chars
+        QString _fileName = QString("File '%1' %2")
+                           .arg(efn.size() > 20 ?
+                                efn.left(17) + "..." +
+                                efn.right(3) : efn)
+                           .arg(fullPath ? "full path" : "name");
+
+        emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("%1 copied to clipboard.").arg(_fileName));
+    }
+}
+#endif
 
 void EditWindow::modelFileChanged(const QString &_fileName)
 {
@@ -1043,7 +1217,7 @@ void EditWindow::displayFile(
   fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
   isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
   _contentLoaded = false;
-  _subFileListPending = false;
+  _subFileListPending = true;
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
