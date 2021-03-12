@@ -276,10 +276,11 @@ after_build:
                   $Asset = [System.IO.Path]::GetFileName("$_")
                   $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
                   $AssetPathPosix = $AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
-                  write-host "`n  Creating Hash File: $AssetPathPosix/$Asset.sha512..."
+                  write-host "`n  Creating Hash File: ${Asset}.sha512..."
                   C:\msys64\usr\bin\bash -lc "cd /$AssetPathPosix && sha512sum $Asset > $Asset.sha512 2>&1"
               }
           }
+          write-host "`n"
           [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
