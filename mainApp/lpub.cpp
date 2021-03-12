@@ -2688,49 +2688,50 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
-    bool libraryChangeRestart           = false;
-    bool defaultUnitsCompare            = Preferences::preferCentimeters;
-    bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
-    bool enableLDViewSListCompare       = Preferences::enableLDViewSnaphsotList;
-    bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
-    bool generateCoverPagesCompare      = Preferences::generateCoverPages;
-    bool enableFadeStepsCompare         = Preferences::enableFadeSteps;
-    bool fadeStepsUseColourCompare      = Preferences::fadeStepsUseColour;
-    int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
-    bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
-    bool enableImageMattingCompare      = Preferences::enableImageMatting;
-    bool applyCALocallyCompare          = Preferences::applyCALocally;
-    int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
-    bool highlightFirstStepCompare      = Preferences::highlightFirstStep;
-    bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
-    int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
-    bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
-    bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
-    bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
-    bool saveOnUpdateCompare            = Preferences::saveOnUpdate;
-    bool saveOnRedrawCompare            = Preferences::saveOnRedraw;
-    bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
-    bool extendedSubfileSearchCompare   = Preferences::extendedSubfileSearch;
-    bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
-    bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
-    int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
-    int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
-    bool lineParseErrorsCompare         = Preferences::lineParseErrors;
-    bool showInsertErrorsCompare        = Preferences::showInsertErrors;
-    bool showAnnotationErrorsCompare    = Preferences::showAnnotationErrors;
-    QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
-    QString povFileGeneratorCompare     = Preferences::povFileGenerator;
-    QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
-    QString highlightStepColourCompare  = Preferences::highlightStepColour;
-    QString ldrawPathCompare            = Preferences::ldrawLibPath;
-    QString lgeoPathCompare             = Preferences::lgeoPath;
-    QString preferredRendererCompare    = Preferences::preferredRenderer;
-    QString displayThemeCompare         = Preferences::displayTheme;
-    QString sceneBackgroundColorCompare = Preferences::sceneBackgroundColor;
-    QString sceneGridColorCompare       = Preferences::sceneGridColor;
-    QString sceneRulerTickColorCompare  = Preferences::sceneRulerTickColor;
-    QString sceneGuideColorCompare      = Preferences::sceneGuideColor;
-    QStringList ldSearchDirsCompare     = Preferences::ldSearchDirs;
+    bool libraryChangeRestart              = false;
+    bool defaultUnitsCompare               = Preferences::preferCentimeters;
+    bool enableLDViewSCallCompare          = Preferences::enableLDViewSingleCall;
+    bool enableLDViewSListCompare          = Preferences::enableLDViewSnaphsotList;
+    bool displayAllAttributesCompare       = Preferences::displayAllAttributes;
+    bool generateCoverPagesCompare         = Preferences::generateCoverPages;
+    bool enableFadeStepsCompare            = Preferences::enableFadeSteps;
+    bool fadeStepsUseColourCompare         = Preferences::fadeStepsUseColour;
+    int fadeStepsOpacityCompare            = Preferences::fadeStepsOpacity;
+    bool enableHighlightStepCompare        = Preferences::enableHighlightStep;
+    bool enableImageMattingCompare         = Preferences::enableImageMatting;
+    bool applyCALocallyCompare             = Preferences::applyCALocally;
+    int  highlightStepLineWidthCompare     = Preferences::highlightStepLineWidth;
+    bool highlightFirstStepCompare         = Preferences::highlightFirstStep;
+    bool doNotShowPageProcessDlgCompare    = Preferences::doNotShowPageProcessDlg;
+    int  pageDisplayPauseCompare           = Preferences::pageDisplayPause;
+    bool addLSynthSearchDirCompare         = Preferences::addLSynthSearchDir;
+    bool archiveLSynthPartsCompare         = Preferences::archiveLSynthParts;
+    bool perspectiveProjectionCompare      = Preferences::perspectiveProjection;
+    bool saveOnUpdateCompare               = Preferences::saveOnUpdate;
+    bool saveOnRedrawCompare               = Preferences::saveOnRedraw;
+    bool loadLastOpenedFileCompare         = Preferences::loadLastOpenedFile;
+    bool extendedSubfileSearchCompare      = Preferences::extendedSubfileSearch;
+    bool povrayAutoCropCompare             = Preferences::povrayAutoCrop;
+    bool showDownloadRedirectsCompare      = Preferences::showDownloadRedirects;
+    int povrayRenderQualityCompare         = Preferences::povrayRenderQuality;
+    int ldrawFilesLoadMsgsCompare          = Preferences::ldrawFilesLoadMsgs;
+    bool lineParseErrorsCompare            = Preferences::lineParseErrors;
+    bool showInsertErrorsCompare           = Preferences::showInsertErrors;
+    bool showAnnotationErrorsCompare       = Preferences::showAnnotationErrors;
+    QString altLDConfigPathCompare         = Preferences::altLDConfigPath;
+    QString povFileGeneratorCompare        = Preferences::povFileGenerator;
+    QString fadeStepsColourCompare         = Preferences::validFadeStepsColour;
+    QString highlightStepColourCompare     = Preferences::highlightStepColour;
+    QString ldrawPathCompare               = Preferences::ldrawLibPath;
+    QString lgeoPathCompare                = Preferences::lgeoPath;
+    QString preferredRendererCompare       = Preferences::preferredRenderer;
+    QString displayThemeCompare            = Preferences::displayTheme;
+    QString sceneBackgroundColorCompare    = Preferences::sceneBackgroundColor;
+    QString sceneGridColorCompare          = Preferences::sceneGridColor;
+    QString sceneRulerTickColorCompare     = Preferences::sceneRulerTickColor;
+    QString sceneRulerTrackingColorCompare = Preferences::sceneRulerTrackingColor;
+    QString sceneGuideColorCompare         = Preferences::sceneGuideColor;
+    QStringList ldSearchDirsCompare        = Preferences::ldSearchDirs;
 
     // Native POV file generation settings
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
@@ -2790,13 +2791,23 @@ void Gui::preferences()
         bool sceneBackgroundColorChanged   = Preferences::sceneBackgroundColor.toLower()         != sceneBackgroundColorCompare.toLower();
         bool sceneGridColorChanged         = Preferences::sceneGridColor.toLower()               != sceneGridColorCompare.toLower();
         bool sceneRulerTickColorChanged    = Preferences::sceneRulerTickColor.toLower()          != sceneRulerTickColorCompare.toLower();
+        bool sceneRulerTrackingColorChanged= Preferences::sceneRulerTrackingColor.toLower()      != sceneRulerTrackingColorCompare.toLower();
         bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
         bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
         bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
 
         bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
         bool showInsertErrorsChanged       = Preferences::showInsertErrors                       != showInsertErrorsCompare;
-        bool showAnnotationErrorsChanged = Preferences::showAnnotationErrors                 != showAnnotationErrorsCompare;
+        bool showAnnotationErrorsChanged   = Preferences::showAnnotationErrors                   != showAnnotationErrorsCompare;
+
+        bool displayThemeColorsChanged     = Preferences::displayThemeColorsChanged;
+        bool textDecorationColorChanged    = Preferences::textDecorationColorChanged;
+
+        if (displayThemeColorsChanged)
+            emit messageSig(LOG_INFO,QString("Display theme colors have changed"));
+
+        if (textDecorationColorChanged)
+            emit messageSig(LOG_INFO,QString("Text Decoration color have changed"));
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
@@ -2851,6 +2862,11 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Scene Ruler Tick Color changed from %1 to %2")
                             .arg(sceneRulerTickColorCompare)
                             .arg(Preferences::sceneRulerTickColor));
+
+        if (sceneRulerTrackingColorChanged)
+            emit messageSig(LOG_INFO,QString("Scene Ruler Tracking Color changed from %1 to %2")
+                            .arg(sceneRulerTrackingColorCompare)
+                            .arg(Preferences::sceneRulerTrackingColor));
 
         if (sceneGridColorChanged)
             emit messageSig(LOG_INFO,QString("Scene Grid Color changed from %1 to %2")
@@ -3007,16 +3023,22 @@ void Gui::preferences()
         if (showInsertErrorsChanged)
                    emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
 
-        if (displayThemeChanged         ||
+        bool sceneDisplayChanged =
+            displayThemeChanged         ||
             sceneBackgroundColorChanged ||
             sceneGridColorChanged       ||
             sceneRulerTickColorChanged  ||
-            sceneGuideColorChanged)
+            sceneGuideColorChanged;
+        if (displayThemeColorsChanged   ||
+            sceneDisplayChanged)
         {
-            if (displayThemeChanged)
+            if (displayThemeChanged     ||
+                displayThemeColorsChanged)
                 loadTheme();
-            KpageView->setSceneTheme();
-            if (sceneGridColorChanged)
+            if (sceneDisplayChanged)
+                KpageView->setSceneTheme();
+            if (sceneGridColorChanged   ||
+                textDecorationColorChanged)
                 reloadCurrentPage();
         }
 

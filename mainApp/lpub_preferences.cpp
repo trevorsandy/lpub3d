@@ -437,6 +437,8 @@ bool    Preferences::editorBufferedPaging       = false;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
+bool    Preferences::displayThemeColorsChanged  = false;
+bool    Preferences::textDecorationColorChanged = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -4661,8 +4663,13 @@ bool Preferences::getPreferences()
         }
 
         if (dialog->themeColours().size()) {
+            displayThemeColorsChanged = true;
             QMap<int, QString>::ConstIterator i = dialog->themeColours().begin();
             while (i != dialog->themeColours().end()) {
+                if (!textDecorationColorChanged)
+                    if ((darkTheme && i.key() >= THEME_DEFAULT_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_SCENE_BGCOLOR) ||
+                                     (i.key() >= THEME_DARK_DECORATE_LDRAW_COMMENTS && i.key() < THEME_DARK_PALETTE_WINDOW))
+                        textDecorationColorChanged = true;
                 themeColors[i.key()] = i.value();
                 const QString themeKey(defaultThemeColors[i.key()].key);
                 Settings.setValue(QString("%1/%2").arg(THEMECOLORS,themeKey),themeColors[i.key()]);
