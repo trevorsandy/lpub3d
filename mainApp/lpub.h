@@ -953,9 +953,8 @@ public:
   bool setBuildModChangeKey();
 
   int setBuildModForNextStep(Where topOfNextStep,
-                             Where bottomOfNextStep = Where(),
-                             Where topOfSubmodel    = Where(),
-                             bool submodel          = false);
+                             Where topOfSubmodel = Where(),
+                             bool submodel       = false);
 
   QAction *getApplyBuildModAct()
   {
