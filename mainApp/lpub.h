@@ -892,6 +892,11 @@ public:
       return ldrawFile.getBuildModStepKeyStepNum(buildModKey);
   }
 
+  int getBuildModStepKeyModelIndex(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepKeyModelIndex(buildModKey);
+  }
+
   int getBuildModStepIndexHere(int stepIndex,int which)
   {
       return ldrawFile.getBuildModStepIndexHere(stepIndex, which);

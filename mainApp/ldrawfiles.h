@@ -393,6 +393,7 @@ class LDrawFile {
     int setBuildModStepPieces(const QString &buildModKey, int pieces);
     int getBuildModStepKeyLineNum(const QString &buildModKey);
     int getBuildModStepKeyStepNum(const QString &buildModKey);
+    int getBuildModStepKeyModelIndex(const QString &buildModKey);
     int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsSize();

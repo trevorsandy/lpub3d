@@ -2875,6 +2875,17 @@ int LDrawFile::getBuildModStepKeyStepNum(const QString &buildModKey)
   return 0;
 }
 
+int LDrawFile::getBuildModStepKeyModelIndex(const QString &buildModKey)
+{
+  QString modKey = buildModKey.toLower();
+  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+  if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_MODEL_NAME_INDEX) {
+    int index = i.value()._modAttributes.at(BM_MODEL_NAME_INDEX);
+    return index;
+  }
+
+  return 0;
+}
 
 bool LDrawFile::buildModContains(const QString &buildModKey)
 {
