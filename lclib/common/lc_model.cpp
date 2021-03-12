@@ -1455,22 +1455,21 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 	std::sort(Images.begin(), Images.end(), ImageCompare);
 
-	lcView* View = gMainWindow->GetActiveView();
-	View->MakeCurrent();
-	lcContext* Context = View->mContext;
+	lcView View(lcViewType::PartsList, nullptr);
+	View.SetOffscreenContext();
+	View.MakeCurrent();
+	lcContext* Context = View.mContext;
 	const int ThumbnailSize = qMin(MaxWidth, 512);
 
-	std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(ThumbnailSize, ThumbnailSize);
+	View.SetSize(ThumbnailSize, ThumbnailSize);
 
-	if (!RenderFramebuffer.first.IsValid())
+	if (!View.BeginRenderToImage(ThumbnailSize, ThumbnailSize))
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
 /*** LPub3D Mod end ***/
 		return QImage();
 	}
-
-	Context->BindFramebuffer(RenderFramebuffer.first);
 
 	float OrthoSize = 200.0f;
 
@@ -1530,11 +1529,10 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 		Scene.Draw(Context);
 
-		Image.Thumbnail = Context->GetRenderFramebufferImage(RenderFramebuffer);
+		Image.Thumbnail = View.GetRenderFramebufferImage().convertToFormat(QImage::Format_ARGB32);
 	}
 
-	Context->ClearFramebuffer();
-	Context->DestroyRenderFramebuffer(RenderFramebuffer);
+	View.EndRenderToImage();
 	Context->ClearResources();
 
 	auto CalculateImageBounds = [](lcPartsListImage& Image)
@@ -1735,10 +1733,6 @@ void lcModel::SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::v
 
 void lcModel::SaveCheckpoint(const QString& Description)
 {
-	if (mIsPreview) {
-		return;
-	}
-
 	lcModelHistoryEntry* ModelHistoryEntry = new lcModelHistoryEntry();
 
 	ModelHistoryEntry->Description = Description;
@@ -1760,10 +1754,6 @@ void lcModel::SaveCheckpoint(const QString& Description)
 
 void lcModel::LoadCheckPoint(lcModelHistoryEntry* CheckPoint)
 {
-	if (mIsPreview) {
-		return;
-	}
-
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	std::vector<PieceInfo*> LoadedInfos;
 
@@ -4256,8 +4246,7 @@ void lcModel::FindPiece(bool FindFirst, bool SearchForward)
 
 void lcModel::UndoAction()
 {
-
-	if (mIsPreview || mUndoHistory.size() < 2)
+	if (mUndoHistory.size() < 2)
 		return;
 
 	lcModelHistoryEntry* Undo = mUndoHistory.front();
@@ -4272,7 +4261,7 @@ void lcModel::UndoAction()
 
 void lcModel::RedoAction()
 {
-	if (mIsPreview || mRedoHistory.empty())
+	if (mRedoHistory.empty())
 		return;
 
 	lcModelHistoryEntry* Redo = mRedoHistory.front();
@@ -4292,7 +4281,7 @@ void lcModel::BeginMouseTool()
 
 void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 {
-	if (!Accept && !mIsPreview)
+	if (!Accept)
 	{
 		if (!mUndoHistory.empty())
 			LoadCheckPoint(mUndoHistory.front());
@@ -4314,8 +4303,7 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case lcTool::Camera:
-		if (!mIsPreview)
-			gMainWindow->UpdateCameraMenu();
+		gMainWindow->UpdateCameraMenu();
 		SaveCheckpoint(tr("New Camera"));
 		break;
 
@@ -4336,22 +4324,22 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 		break;
 
 	case lcTool::Zoom:
-		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
+		if (!gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Zoom"));
 		break;
 
 	case lcTool::Pan:
-		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
+		if (!gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Pan"));
 		break;
 
 	case lcTool::RotateView:
-		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
+		if (!gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Orbit"));
 		break;
 
 	case lcTool::Roll:
-		if (!mIsPreview && !gMainWindow->GetActiveView()->GetCamera()->IsSimple())
+		if (!gMainWindow->GetActiveView()->GetCamera()->IsSimple())
 			SaveCheckpoint(tr("Roll"));
 		break;
 
@@ -4684,7 +4672,7 @@ bool lcModel::ApplyViewpointZoomExtent()
 
 void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
-	Camera->Zoom(Amount, mCurrentStep, mIsPreview ? false : gMainWindow->GetAddKeys());
+	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
 
 	if (!mIsPreview)
 /*** LPub3D Mod - Update Default Camera ***/
@@ -4918,6 +4906,8 @@ void lcModel::SetPreviewPieceInfo(PieceInfo* Info, int ColorIndex)
 	Piece->SetColorIndex(ColorIndex);
 	AddPiece(Piece);
 	Piece->UpdatePosition(1);
+
+	SaveCheckpoint(QString());
 }
 
 void lcModel::UpdateInterface()
