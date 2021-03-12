@@ -393,13 +393,13 @@ int SubModel::createSubModelImage(
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();
       viewerOptions->PageHeight     = pageSizeP(meta, 1);
       viewerOptions->PageWidth      = pageSizeP(meta, 0);
-      viewerOptions->Position       = xyzVector(subModelMeta.position.x(),subModelMeta.position.y(),subModelMeta.position.z());
+      viewerOptions->Position       = Vector3(subModelMeta.position.x(),subModelMeta.position.y(),subModelMeta.position.z());
       viewerOptions->Resolution     = resolution();
-      viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
+      viewerOptions->RotStep        = Vector3(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = subModelMeta.rotStep.value().type;
       viewerOptions->StudLogo       = subModelMeta.studLogo.value();
-      viewerOptions->Target         = xyzVector(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
-      viewerOptions->UpVector       = xyzVector(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
+      viewerOptions->Target         = Vector3(subModelMeta.target.x(),subModelMeta.target.y(),subModelMeta.target.z());
+      viewerOptions->UpVector       = Vector3(subModelMeta.upvector.x(),subModelMeta.upvector.y(),subModelMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;
       viewerOptions->ZFar           = subModelMeta.cameraZFar.value();
       viewerOptions->ZNear          = subModelMeta.cameraZNear.value();

@@ -3237,7 +3237,7 @@ Gui::Gui()
     qRegisterMetaType<SubData>("SubData");
     qRegisterMetaType<ViewerOptions>("ViewerOptions");
     qRegisterMetaType<Where>("Where");
-    qRegisterMetaType<xyzVector>("xyzVector");
+    qRegisterMetaType<Vector3>("Vector3");
 
     // structs
     qRegisterMetaType<ActionAttributes>("ActionAttributes");

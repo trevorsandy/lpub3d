@@ -35,17 +35,17 @@ namespace Options
     enum Mt { PLI, CSI ,SMP ,MON };
 }
 
-class xyzVector
+class Vector3
 {
 private:
 bool _populated;
 
 public:
-  xyzVector()
+  Vector3()
   {
     _populated  = false;
   }
-  xyzVector(const float _x, const float _y, const float _z)
+  Vector3(const float _x, const float _y, const float _z)
       : x(_x), y(_y), z(_z)
   {
     _populated  = x != 0.0f || y != 0.0f || z != 0.0f;
@@ -55,18 +55,18 @@ public:
     return _populated;
   }
 
-  friend bool operator==(const xyzVector& a, const xyzVector& b);
-  friend bool operator!=(const xyzVector& a, const xyzVector& b);
+  friend bool operator==(const Vector3& a, const Vector3& b);
+  friend bool operator!=(const Vector3& a, const Vector3& b);
 
   float x, y, z;
 };
 
-inline bool operator==(const xyzVector &a, const xyzVector &b)
+inline bool operator==(const Vector3 &a, const Vector3 &b)
 {
     return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
-inline bool operator!=(const xyzVector &a, const xyzVector &b)
+inline bool operator!=(const Vector3 &a, const Vector3 &b)
 {
     return a.x != b.x || a.y != b.y || a.z != b.z;
 }
@@ -93,10 +93,10 @@ public:
     ZFar           = 0.0f;
     Latitude       = 0.0f;
     Longitude      = 0.0f;
-    RotStep        = xyzVector(0, 0, 0);
-    Target         = xyzVector(0, 0, 0);
-    Position       = xyzVector(0, 0, 0);
-    UpVector       = xyzVector(0, 0, 0);
+    RotStep        = Vector3(0, 0, 0);
+    Target         = Vector3(0, 0, 0);
+    Position       = Vector3(0, 0, 0);
+    UpVector       = Vector3(0, 0, 0);
   }
 //  virtual ~ViewerOptions(){}
   QString ViewerStepKey;
@@ -119,10 +119,10 @@ public:
   float Longitude;
   bool IsOrtho;
   bool ZoomExtents;
-  xyzVector RotStep;
-  xyzVector Target;
-  xyzVector Position;
-  xyzVector UpVector;
+  Vector3 RotStep;
+  Vector3 Target;
+  Vector3 Position;
+  Vector3 UpVector;
 };
 
 class NativeOptions : public ViewerOptions

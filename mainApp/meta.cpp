@@ -420,7 +420,7 @@ void FloatPairMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
-void FloatXYZMeta::init(
+void Vector3Meta::init(
     BranchMeta *parent,
     const QString name,
     Rc _rc)
@@ -428,7 +428,7 @@ void FloatXYZMeta::init(
   AbstractMeta::init(parent,name);
   rc = _rc;
 }
-Rc FloatXYZMeta::parse(QStringList &argv, int index,Where &here)
+Rc Vector3Meta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 3) {
       bool ok[3];
@@ -456,7 +456,7 @@ Rc FloatXYZMeta::parse(QStringList &argv, int index,Where &here)
 
   return FailureRc;
 }
-QString FloatXYZMeta::format(bool local, bool global)
+QString Vector3Meta::format(bool local, bool global)
 {
   QString foo = QString("%1 %2 %3")
       .arg(double(_x[pushed]),_fieldWidth,'f',_precision)
@@ -464,7 +464,7 @@ QString FloatXYZMeta::format(bool local, bool global)
       .arg(double(_z[pushed]),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }
-void FloatXYZMeta::doc(QStringList &out, QString preamble)
+void Vector3Meta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " <float x> <float y> <float z>";
 }

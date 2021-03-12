@@ -518,13 +518,13 @@ int Step::createCsi(
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
       viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
       viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
-      viewerOptions->Position       = xyzVector(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
+      viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
       viewerOptions->Resolution     = resolution();
-      viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
+      viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = meta.rotStep.value().type;
       viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
-      viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
-      viewerOptions->UpVector       = xyzVector(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
+      viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
+      viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
       viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
       viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();

@@ -555,7 +555,7 @@ public:
 
 /* This is a leaf object class for X,Y and Z floating point numbers */
 
-class FloatXYZMeta : public RcMeta {
+class Vector3Meta : public RcMeta {
 protected:
   float     _x[2];
   float     _y[2];
@@ -566,7 +566,7 @@ public:
   int       _fieldWidth;
   int       _precision;
   QString   _inputMask;
-  FloatXYZMeta()
+  Vector3Meta()
   {
     _x[0]       = 0.0f;
     _y[0]       = 0.0f;
@@ -578,7 +578,7 @@ public:
     _inputMask  = "###9.90";
     _populated  = false;
   }
-  FloatXYZMeta(const FloatXYZMeta &rhs) : RcMeta(rhs)
+  Vector3Meta(const Vector3Meta &rhs) : RcMeta(rhs)
   {
     _x[0]       = rhs._x[0];
     _y[0]       = rhs._y[0];
@@ -633,7 +633,7 @@ public:
   {
     return _populated;
   }
-//  virtual ~FloatXYZMeta() {}
+//  virtual ~Vector3Meta() {}
   virtual void    init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
@@ -2168,9 +2168,9 @@ public:
   FloatMeta            cameraFoV;
   FloatMeta            cameraZNear;
   FloatMeta            cameraZFar;
-  FloatXYZMeta         target;
-  FloatXYZMeta         position;
-  FloatXYZMeta         upvector;
+  Vector3Meta          target;
+  Vector3Meta          position;
+  Vector3Meta          upvector;
 
   SettingsMeta();
   SettingsMeta(const SettingsMeta &rhs) : BranchMeta(rhs)
@@ -3274,9 +3274,9 @@ public:
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
-  FloatXYZMeta         target;
-  FloatXYZMeta         position;
-  FloatXYZMeta         upvector;
+  Vector3Meta          target;
+  Vector3Meta          position;
+  Vector3Meta          upvector;
 
   RotStepMeta          rotStep;
 
@@ -3351,9 +3351,9 @@ public:
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
-  FloatXYZMeta         target;
-  FloatXYZMeta         position;
-  FloatXYZMeta         upvector;
+  Vector3Meta          target;
+  Vector3Meta          position;
+  Vector3Meta          upvector;
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
@@ -3533,9 +3533,9 @@ struct LightData
   FloatMeta     size;          // float     mLightFactor[0]
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
-  FloatXYZMeta  lightColour;   // lcVector3 mLightColor
-  FloatXYZMeta  target;        // lcVector3 mPosition
-  FloatXYZMeta  position;      // lcVector3 mTargetPosition
+  Vector3Meta   lightColour;   // lcVector3 mLightColor
+  Vector3Meta   target;        // lcVector3 mPosition
+  Vector3Meta   position;      // lcVector3 mTargetPosition
 };
 
 class LightMeta : public BranchMeta
@@ -3558,9 +3558,9 @@ public:
   FloatMeta     size;          // float     mLightFactor[0]
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
-  FloatXYZMeta  lightColour;   // lcVector3 mLightColor
-  FloatXYZMeta  target;        // lcVector3 mPosition
-  FloatXYZMeta  position;      // lcVector3 mTargetPosition
+  Vector3Meta   lightColour;   // lcVector3 mLightColor
+  Vector3Meta   target;        // lcVector3 mPosition
+  Vector3Meta   position;      // lcVector3 mTargetPosition
 
   LightData value()
   {

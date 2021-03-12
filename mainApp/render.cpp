@@ -429,12 +429,12 @@ float stdCameraDistance(Meta &meta, float scale) {
     onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
     onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
     onexone *= scale;
-    factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
+    factor   = gui->pageSize(meta.LPub.page, XX)/onexone; // in pixels;
 //#ifdef QT_DEBUG_MODE
 //    logTrace() << "\n" << QString("DEBUG - STANDARD CAMERA DISTANCE")
 //               << "\n" << QString("PI [4*atan(1.0)]                    : %1").arg(double(pi))
 //               << "\n" << QString("LduDistance [10.0/tan(0.005*pi/180)]: %1").arg(double(LduDistance))
-//               << "\n" << QString("Page Width [pixels]                 : %1").arg(gui->pageSize(meta.LPub.page, 0))
+//               << "\n" << QString("Page Width [pixels]                 : %1").arg(gui->pageSize(meta.LPub.page, XX))
 //               << "\n" << QString("Resolution [LDU]                    : %1").arg(QString::number(double(meta.LPub.resolution.ldu()), 'f' ,10))
 //               << "\n" << QString("Resolution [pixels]                 : %1").arg(double(meta.LPub.resolution.value()))
 //               << "\n" << QString("Scale                               : %1").arg(double(scale))
@@ -676,9 +676,9 @@ int POVRay::renderCsi(
   int studLogo       = meta.LPub.assem.studLogo.value();
   float modelScale   = meta.LPub.assem.modelScale.value();
   float cameraFoV    = meta.LPub.assem.cameraFoV.value();
-  float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0);
-  float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1);
-  xyzVector target   = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
+  float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(XX);
+  float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(YY);
+  Vector3 target     = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
 
   /* determine camera distance */
   int cd = int(meta.LPub.assem.cameraDistance.value());
@@ -686,9 +686,9 @@ int POVRay::renderCsi(
       cd = int(cameraDistance(meta,modelScale)*1700/1000);
 
   // set page size
-  bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
-  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
   // projection settings
   QString CA, cg;
@@ -1002,9 +1002,9 @@ int POVRay::renderPli(
   int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
-  float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(0);
-  float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(1);
-  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(XX);
+  float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(YY);
+  Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
@@ -1014,9 +1014,9 @@ int POVRay::renderPli(
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
   // set page size
-  bool useImageSize = metaType.imageSize.value(0) > 0;
-  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = metaType.imageSize.value(XX) > 0;
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
   // projection settings
   QString CA, cg;
@@ -1078,7 +1078,7 @@ int POVRay::renderPli(
         if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
           noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
         if (attributes.size() >= nHasTarget)
-          target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+          target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
         if (keySub > PliBeginSub2Rc) {
           modelScale   = attributes.at(nModelScale).toFloat();
           cameraFoV    = attributes.at(nCameraFoV).toFloat();
@@ -1363,9 +1363,9 @@ int LDGLite::renderCsi(
   bool noCA  = Preferences::applyCALocally;
   bool pp    = Preferences::perspectiveProjection;
 
-  bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
-  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
@@ -1387,8 +1387,8 @@ int LDGLite::renderCsi(
                .arg(double(meta.LPub.assem.target.y()))
                .arg(double(meta.LPub.assem.target.z()));
   } else {
-      cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
-                                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
+      cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(XX)))
+                                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(YY)))
                                   .arg(cd);
   }
 
@@ -1501,9 +1501,9 @@ int LDGLite::renderPli(
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
-  float cameraAngleX = metaType.cameraAngles.value(0);
-  float cameraAngleY = metaType.cameraAngles.value(1);
-  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  float cameraAngleX = metaType.cameraAngles.value(XX);
+  float cameraAngleY = metaType.cameraAngles.value(YY);
+  Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   // Process substitute part attributes
   if (keySub) {
@@ -1512,7 +1512,7 @@ int LDGLite::renderPli(
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
       noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
     if (attributes.size() >= nHasTarget)
-      target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+      target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
       modelScale   = attributes.at(nModelScale).toFloat();
       cameraFoV    = attributes.at(nCameraFoV).toFloat();
@@ -1526,9 +1526,9 @@ int LDGLite::renderPli(
   if (!cd)
       cd = int(cameraDistance(meta,modelScale));
 
-  bool useImageSize = metaType.imageSize.value(0) > 0;
-  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = metaType.imageSize.value(XX) > 0;
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
   int lineThickness = int(double(resolution())/72.0+0.5);
 
@@ -1706,9 +1706,9 @@ int LDView::renderCsi(
     int studLogo       = meta.LPub.assem.studLogo.value();
     float modelScale   = meta.LPub.assem.modelScale.value();
     float cameraFoV    = meta.LPub.assem.cameraFoV.value();
-    float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0);
-    float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1);
-    xyzVector target   = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
+    float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(XX);
+    float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(YY);
+    Vector3 target     = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
 
     // Assemble compareKey and test csiParts if Single Call
     QString compareKey;
@@ -1745,9 +1745,9 @@ int LDView::renderCsi(
         cd = int(cameraDistance(meta,modelScale)*1700/1000);
 
     // set page size
-    bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
-    int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-    int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+    bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
+    int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+    int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
     // arguments settings
     bool usingSnapshotArgs = false;
@@ -1844,7 +1844,7 @@ int LDView::renderCsi(
 
     auto processAttributes = [this, &meta, &usingSnapshotArgs, &getRendererSettings] (
         QStringList &attributes,
-        xyzVector   &target,
+        Vector3     &target,
         bool        &noCA,
         int         &cd,
         QString     &CA,
@@ -1862,7 +1862,7 @@ int LDView::renderCsi(
                 noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
             // set target attribute
             if (attributes.size() >= nHasTarget)
-                target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+                target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
             // set scale FOV and camera angles
             modelScale   = attributes.at(nModelScale).toFloat();
             cameraFoV    = attributes.at(nCameraFoV).toFloat();
@@ -2197,9 +2197,9 @@ int LDView::renderPli(
   int studLogo       = metaType.studLogo.value();
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
-  float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(0);
-  float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(1);
-  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(XX);
+  float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(YY);
+  Vector3 target     = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   // Assemble compareKey if Single Call
   QString compareKey;
@@ -2229,9 +2229,9 @@ int LDView::renderPli(
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
   // set page size
-  bool useImageSize = metaType.imageSize.value(0) > 0;
-  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = metaType.imageSize.value(XX) > 0;
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
 
   // arguments settings
   bool usingListCmdArg   = false;
@@ -2326,7 +2326,7 @@ int LDView::renderPli(
           &usingSnapshotArgs,
           &getRendererSettings] (
       QStringList &attributes,
-      xyzVector   &target,
+      Vector3     &target,
       bool        &noCA,
       int         &cd,
       QString     &CA,
@@ -2343,7 +2343,7 @@ int LDView::renderPli(
               noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
           // set target attribute
           if (attributes.size() >= nHasTarget)
-              target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+              target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
           // set scale FOV and camera angles
 
           modelScale   = attributes.at(nModelScale).toFloat();
@@ -2608,52 +2608,52 @@ int Native::renderCsi(
   // process native settings
   int studLogo         = meta.LPub.assem.studLogo.value();
   float camDistance    = meta.LPub.assem.cameraDistance.value();
-  float cameraAngleX   = meta.LPub.assem.cameraAngles.value(0);
-  float cameraAngleY   = meta.LPub.assem.cameraAngles.value(1);
+  float cameraAngleX   = meta.LPub.assem.cameraAngles.value(XX);
+  float cameraAngleY   = meta.LPub.assem.cameraAngles.value(YY);
   float modelScale     = meta.LPub.assem.modelScale.value();
   float cameraFoV      = meta.LPub.assem.cameraFoV.value();
   float cameraZNear    = meta.LPub.assem.cameraZNear.value();
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
-  xyzVector position   = xyzVector(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
-  xyzVector target     = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
-  xyzVector upvector   = xyzVector(meta.LPub.assem.upvector.x(),meta.LPub.assem.upvector.y(),meta.LPub.assem.upvector.z());
+  Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
+  Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
+  Vector3 upvector     = Vector3(meta.LPub.assem.upvector.x(),meta.LPub.assem.upvector.y(),meta.LPub.assem.upvector.z());
   if (nType == NTypeCalledOut) {
     studLogo           = meta.LPub.callout.csi.studLogo.value();
     camDistance        = meta.LPub.callout.csi.cameraDistance.value();
-    cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(0);
-    cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(1);
+    cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(XX);
+    cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(YY);
     modelScale         = meta.LPub.callout.csi.modelScale.value();
     cameraFoV          = meta.LPub.callout.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.callout.csi.cameraZFar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
-    position           = xyzVector(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
-    target             = xyzVector(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
-    upvector           = xyzVector(meta.LPub.callout.csi.upvector.x(),meta.LPub.callout.csi.upvector.y(),meta.LPub.callout.csi.upvector.z());
+    position           = Vector3(meta.LPub.callout.csi.position.x(),meta.LPub.callout.csi.position.y(),meta.LPub.callout.csi.position.z());
+    target             = Vector3(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
+    upvector           = Vector3(meta.LPub.callout.csi.upvector.x(),meta.LPub.callout.csi.upvector.y(),meta.LPub.callout.csi.upvector.z());
   } else if (nType == NTypeMultiStep) {
     studLogo           = meta.LPub.multiStep.csi.studLogo.value();
     camDistance        = meta.LPub.multiStep.csi.cameraDistance.value();
-    cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(0);
-    cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(1);
+    cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(XX);
+    cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(YY);
     modelScale         = meta.LPub.multiStep.csi.modelScale.value();
     cameraFoV          = meta.LPub.multiStep.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
     cameraZFar         = meta.LPub.multiStep.csi.cameraZFar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
-    position           = xyzVector(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
-    target             = xyzVector(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
-    upvector           = xyzVector(meta.LPub.multiStep.csi.upvector.x(),meta.LPub.multiStep.csi.upvector.y(),meta.LPub.multiStep.csi.upvector.z());
+    position           = Vector3(meta.LPub.multiStep.csi.position.x(),meta.LPub.multiStep.csi.position.y(),meta.LPub.multiStep.csi.position.z());
+    target             = Vector3(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
+    upvector           = Vector3(meta.LPub.multiStep.csi.upvector.x(),meta.LPub.multiStep.csi.upvector.y(),meta.LPub.multiStep.csi.upvector.z());
   }
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
   QString rotstepType = meta.rotStep.value().type;
   bool noCA           = rotstepType == "ABS";
   bool pp             = Preferences::perspectiveProjection;
-  bool useImageSize   = meta.LPub.assem.imageSize.value(0) > 0;
+  bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
   // Renderer options
   NativeOptions *Options     = new NativeOptions();
@@ -2661,9 +2661,9 @@ int Native::renderCsi(
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
   Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
-  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
   Options->ImageType         = Options::CSI;
-  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   Options->InputFileName     = ldrName;
   Options->IsOrtho           = isOrtho;
   Options->Latitude          = noCA ? 0.0 : cameraAngleX;
@@ -2671,8 +2671,8 @@ int Native::renderCsi(
   Options->Longitude         = noCA ? 0.0 : cameraAngleY;
   Options->ModelScale        = modelScale;
   Options->OutputFileName    = pngName;
-  Options->PageHeight        = gui->pageSize(meta.LPub.page, 1);
-  Options->PageWidth         = gui->pageSize(meta.LPub.page, 0);
+  Options->PageHeight        = gui->pageSize(meta.LPub.page, YY);
+  Options->PageWidth         = gui->pageSize(meta.LPub.page, XX);
   Options->Position          = position;
   Options->Resolution        = resolution();
   Options->StudLogo          = studLogo;
@@ -2816,18 +2816,18 @@ int Native::renderPli(
   int studLogo         = metaType.studLogo.value();
   float camDistance    = metaType.cameraDistance.value();
   float modelScale     = metaType.modelScale.value();
-  float cameraAngleX   = metaType.cameraAngles.value(0);
-  float cameraAngleY   = metaType.cameraAngles.value(1);
+  float cameraAngleX   = metaType.cameraAngles.value(XX);
+  float cameraAngleY   = metaType.cameraAngles.value(YY);
   float cameraFoV      = metaType.cameraFoV.value();
   float cameraZNear    = metaType.cameraZNear.value();
   float cameraZFar     = metaType.cameraZFar.value();
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
-  xyzVector position   = xyzVector(metaType.position.x(),metaType.position.y(),metaType.position.z());
-  xyzVector target     = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
-  xyzVector upvector   = xyzVector(metaType.upvector.x(),metaType.upvector.y(),metaType.upvector.z());
+  Vector3 position     = Vector3(metaType.position.x(),metaType.position.y(),metaType.position.z());
+  Vector3 target       = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  Vector3 upvector     = Vector3(metaType.upvector.x(),metaType.upvector.y(),metaType.upvector.z());
 
-  bool useImageSize    = metaType.imageSize.value(0) > 0;
+  bool useImageSize    = metaType.imageSize.value(XX) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
   bool noCA            = metaType.rotStep.value().type  == "ABS";
@@ -2840,7 +2840,7 @@ int Native::renderPli(
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
       noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
     if (attributes.size() >= nHasTarget)
-      target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+      target = Vector3(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
       modelScale   = attributes.at(nModelScale).toFloat();
       cameraFoV    = attributes.at(nCameraFoV).toFloat();
@@ -2854,9 +2854,9 @@ int Native::renderPli(
   Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName     = cameraName;
   Options->FoV            = cameraFoV;
-  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
   Options->ImageType      = Options::PLI;
-  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   Options->InputFileName  = ldrNames.first();
   Options->IsOrtho        = isOrtho;
   Options->Latitude       = noCA ? 0.0 : cameraAngleX;
@@ -2864,8 +2864,8 @@ int Native::renderPli(
   Options->Longitude      = noCA ? 0.0 : cameraAngleY;
   Options->ModelScale     = modelScale;
   Options->OutputFileName = pngName;
-  Options->PageHeight     = gui->pageSize(meta.LPub.page, 1);
-  Options->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+  Options->PageHeight     = gui->pageSize(meta.LPub.page, YY);
+  Options->PageWidth      = gui->pageSize(meta.LPub.page, XX);
   Options->Position       = position;
   Options->Resolution     = resolution();
   Options->StudLogo       = studLogo;
