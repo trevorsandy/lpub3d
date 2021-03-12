@@ -989,8 +989,6 @@ public:
       return buildModClearStepKey;
   }
 
-  void resetLastBuildMod(bool clearNextStep = false);
-
   void setBuildModClearStepKey(const QString &text);
 
   void enableBuildModMenuAndActions();

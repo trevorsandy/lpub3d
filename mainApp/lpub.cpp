@@ -298,7 +298,6 @@ void Gui::insertFinalModel(){
         mi->deleteFinalModel();
       }
   }
-  resetLastBuildMod(true/*clearNextStep*/);
 }
 
 
@@ -1469,15 +1468,6 @@ void Gui::insertConfiguredSubFile(const QString &name,
                                   QStringList &content) {
     QString subFilePath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/" + name);
     ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
-}
-
-void Gui::resetLastBuildMod(bool clearNextStep)
-{
-    if (buildModsCount()){
-        deleteBuildMod(/*last*/);
-        if (clearNextStep)
-            setBuildModNextStepIndex(Where());
-    }
 }
 
 void Gui::reloadCurrentPage(){
