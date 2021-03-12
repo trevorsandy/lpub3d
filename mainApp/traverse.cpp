@@ -1893,7 +1893,7 @@ int Gui::drawPage(
               buildModStepIndex = getBuildModStepIndex(topOfStep);
               buildModKey = curMeta.LPub.buildMod.key();
               if (buildModContains(buildModKey)) {
-                  if (getBuildModAction(buildModKey, buildModStepIndex - 1) == rc)
+                  if (getBuildModActionPrevIndex(buildModKey, buildModStepIndex, rc) < buildModStepIndex)
                       parseError("Redundant build modification meta command - this command can be removed.",
                                  opts.current,Preferences::BuildModErrors);
               } else {

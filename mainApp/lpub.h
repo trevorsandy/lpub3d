@@ -798,6 +798,11 @@ public:
       return ldrawFile.getBuildModEndLineNumber(buildModKey);
   }
 
+  int getBuildModActionPrevIndex(const QString &buildModKey, const int stepIndex, const int action)
+  {
+      return ldrawFile.getBuildModActionPrevIndex(buildModKey, stepIndex, action);
+  }
+
   int getBuildModAction(const QString &buildModKey, const int stepIndex)
   {
       return ldrawFile.getBuildModAction(buildModKey, stepIndex);

@@ -2795,6 +2795,14 @@ void LDrawFile::clearBuildModRendered()
         _buildModRendered[key].clear();
 }
 
+int LDrawFile::getBuildModActionPrevIndex(const QString &buildModKey, const int stepIndex, const int action)
+{
+    int actionStepIndex;
+    if (getBuildModAction(buildModKey, stepIndex - 1, BM_LAST_ACTION, actionStepIndex) == action)
+        return actionStepIndex;
+    return stepIndex;
+}
+
 int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex)
 {
     int unusedIndex;

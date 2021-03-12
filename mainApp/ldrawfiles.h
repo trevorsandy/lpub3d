@@ -422,6 +422,7 @@ class LDrawFile {
     int getBuildModAction(const QString &buildModKey, const int stepIndex);
     int getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex);
     int getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex, int &actionStepIndex);
+    int getBuildModActionPrevIndex(const QString &buildModKey, const int stepIndex, const int action);
     int getBuildModDisplayPageNumber(const QString &buildModKey);
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     int getBuildModStepPieces(const QString &buildModKey);
