@@ -705,8 +705,11 @@ bool EditWindow::setValidPartLine()
 
     QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
 
+    QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
+
     lcPreferences& Preferences = lcGetPreferences();
     if (Preferences.mPreviewEnabled && !isIncludeFile) {
+        previewLineAct->setText(tr("Preview part %1...").arg(elidedPartType));
         previewLineAct->setData(partKey);
         previewLineAct->setEnabled(true);
     }
@@ -714,7 +717,7 @@ bool EditWindow::setValidPartLine()
     if (_subFileList.contains(partType.toLower())) {
         titleType = "subfile";
         if (Preferences.mPreviewEnabled) {
-            previewLineAct->setText(tr("Preview highlighted subfile..."));
+            previewLineAct->setText(tr("Preview subfile %1...").arg(elidedPartType));
             previewLineAct->setStatusTip(tr("Display the subfile on the highlighted line in a popup 3D viewer"));
         }
 
