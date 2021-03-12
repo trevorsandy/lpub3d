@@ -2950,7 +2950,7 @@ int CountPageWorker::countPage(
     Meta             meta,
     LDrawFile       *ldrawFile,
     QList<ModelStack>&modelStack,
-    FindPageOptions &opts)
+    FindPageOptions  &opts)
 {
 
   QMutex countPageMutex;
@@ -3018,8 +3018,7 @@ int CountPageWorker::countPage(
   bool inserted       = false;
   bool resetIncludeRc = false;
 
-  bool buildModIgnore = false;
-  QString buildModKey;
+  QMap<int,int> buildModActions;
 
   int numLines = ldrawFile->size(opts.current.modelName);
 
@@ -3047,7 +3046,7 @@ int CountPageWorker::countPage(
       case '1':
 
           // process submodel...
-          if (! buildModIgnore) {
+          if (! opts.buildMod.ignore) {
 
               if (! partIgnore) {
 
@@ -3123,11 +3122,9 @@ int CountPageWorker::countPage(
                                           current2,
                                           opts.pageSize,
                                           opts.buildMod,
-                                          opts.buildModActions,
                                           opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
-                                          0 /*opts.buildModLevel*/,
                                           opts.stepNumber,
                                           opts.contStepNumber,
                                           opts.groupStepNumber,
@@ -3196,7 +3193,7 @@ int CountPageWorker::countPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2 && ! buildModIgnore) {
+              if (stepGroup && ! noStep2 && ! opts.buildMod.ignore) {
                   stepGroup = false;
 
                   // ignored when processing buildMod display
@@ -3236,35 +3233,31 @@ int CountPageWorker::countPage(
             case BuildModBeginRc:
               if (!Preferences::buildModEnabled)
                   break;
-              opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
-              opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
-              buildModIgnore = false;
-              opts.buildMod.begin = true;
+              opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
+              buildModActions.insert(opts.buildMod.level, BuildModApplyRc);
+              opts.buildMod.ignore = false;
+              opts.buildMod.state = BM_BEGIN;
               break;
 
             case BuildModEndModRc:
-              if (buildMod[BM_BEGIN])
-                  if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
-              if (opts.buildMod.begin)
-                  if (buildModActions.value(buildModLevel) == BuildModApplyRc)
-                      buildModIgnore = true;
-              opts.buildMod.begin = false;
-              opts.buildMod.mod_end = true;
+              if (opts.buildMod.state == BM_BEGIN)
+                  if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
+                      opts.buildMod.ignore = true;
+              opts.buildMod.state = BM_END_MOD;
               break;
 
             case BuildModEndRc:
-              if (opts.buildMod.mod_end) {
-                  buildModLevel = getLevel(QString(), BM_END);
-                  if (opts.buildModLevel == BM_BEGIN)
-                      buildModIgnore = false;
+              if (opts.buildMod.state == BM_END_MOD) {
+                  opts.buildMod.level = getLevel(QString(), BM_END);
+                  if (opts.buildMod.level == BM_BEGIN)
+                      opts.buildMod.ignore = false;
               }
-              opts.buildMod.mod_end = false;
-              opts.buildMod.end = true;
+              opts.buildMod.state = BM_END;
               break;
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep && ! buildModIgnore) {
+              if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
 
                   opts.stepNumber  += ! coverPage && ! stepPage;
                   gui->stepPageNum += ! coverPage && ! stepGroup;
@@ -3313,7 +3306,8 @@ int CountPageWorker::countPage(
 
                 } // PartsAdded && ! NoStep && ! BuildModIgnore
 
-              opts.buildMod.end = false;
+              buildModActions.clear();
+              opts.buildMod.state = BM_NONE;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -3447,7 +3441,7 @@ int CountPageWorker::countPage(
     } // For Every Line
 
   // last step in submodel
-  if (partsAdded && ! noStep && ! buildModIgnore) {
+  if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
       if (gui->exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (pageSizeUpdate) {

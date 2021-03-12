@@ -117,9 +117,10 @@ enum PartSource {
     VIEWER_SEL,                            //   4
     VIEWER_CLR                             //   5
 };
-enum BuildModFlags {
-    BM_LAST_ACTION      = -1,              //  -1
-    BM_INVALID_INDEX    = BM_LAST_ACTION,  //  -1
+enum BuildModRc {
+    BM_NONE             = -1,              //  -1
+    BM_INVALID_INDEX    = BM_NONE,         //  -1
+    BM_LAST_ACTION      = BM_NONE,         //  -1
     BM_BEGIN,                              //   0 MOD LEVEL BEGIN
     BM_NEXT_ACTION      = BM_BEGIN,        //   0
     BM_FIRST_INDEX      = BM_BEGIN,        //   0

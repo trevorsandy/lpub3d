@@ -3239,9 +3239,9 @@ Gui::Gui()
 
     // classes
     qRegisterMetaType<BackgroundData>("BackgroundData");
-    qRegisterMetaType<BMFlags>("BMFlags");
     qRegisterMetaType<BorderData>("BorderData");
     qRegisterMetaType<BuffExchgData>("BuffExchgData");
+    qRegisterMetaType<BuildModFlags>("BuildModFlags");
     qRegisterMetaType<BuildModData>("BuildModData");
     qRegisterMetaType<ConstrainData>("ConstrainData");
     qRegisterMetaType<CsiAnnotationIconData>("CsiAnnotationIconData");
@@ -3275,7 +3275,7 @@ Gui::Gui()
     qRegisterMetaType<AnnotationStyle>("AnnotationStyle");
     qRegisterMetaType<Boundary>("Boundary");
     qRegisterMetaType<BuildModEnabledEnc>("BuildModEnabledEnc");
-    qRegisterMetaType<BuildModFlags>("BuildModFlags");
+    qRegisterMetaType<BuildModRc>("BuildModRc");
     qRegisterMetaType<CamFlag>("CamFlag");
     qRegisterMetaType<ContStepNumEnc>("ContStepNumEnc");
     qRegisterMetaType<CountInstanceEnc>("CountInstanceEnc");

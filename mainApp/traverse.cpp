@@ -464,23 +464,22 @@ int Gui::drawPage(
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
   // Build mod update flags
-  int      buildModStepIndex = -1;
-  bool     buildModItems     = false;
-  bool     buildModIgnore    = false;
-  bool     buildModInsert    = false;
-  bool     buildModExists    = false;
-  bool     buildModChange    = false;
-  bool     buildModPliIgnore = false;
-  bool     buildModAction    = false; 
-  bool     buildModTypeIgnore= false;  
-  bool     buildMod[3]= { false, false, false };
+  int      buildModStepIndex  = -1;
+  bool     buildModItems      = false;
+  bool     buildModInsert     = false;
+  bool     buildModExists     = false;
+  bool     buildModChange     = false;
+  bool     buildModPliIgnore  = false;
+  bool     buildModAction     = false;
+  bool     buildModTypeIgnore = false;
 
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
-  QString       buildModKey;
+  BuildModFlags buildMod;
 
   QMap<int, QString> buildModKeys;
   QMap<int, QVector<int>> buildModAttributes;
+  QMap<int,int> buildModActions;
 
   DividerType dividerType  = NoDivider;
 
@@ -573,17 +572,17 @@ int Gui::drawPage(
   auto insertAttribute =
           [this,
            &opts,
+           &buildMod,
            &topOfStep] (
           QMap<int, QVector<int>> &buildModAttributes,
           int index, const Where &here)
   {
-      int  buildModLevel = opts.buildModLevel;
       int  fileNameIndex = topOfStep.modelIndex;
-      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildMod.level);
       if (i == buildModAttributes.end()) {
           QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0/*step pieces*/, fileNameIndex, topOfStep.lineNumber, opts.stepNum };
           modAttributes[index] = here.lineNumber;
-          buildModAttributes.insert(buildModLevel, modAttributes);
+          buildModAttributes.insert(buildMod.level, modAttributes);
       } else {
           i.value()[index] = here.lineNumber;
       }
@@ -657,7 +656,7 @@ int Gui::drawPage(
   auto buildModIgnoreOverride = [&multiStep, &buildMod] (bool &buildModIgnore, bool &buildModTypeIgnore)
   {
       if (buildModIgnore) {
-          buildModIgnore = (multiStep && ! buildMod[BM_BEGIN]);
+          buildModIgnore = (multiStep && buildMod.state != BM_BEGIN);
           // if ignore override, set flag to ignore CSI parts
           buildModTypeIgnore = ! buildModIgnore;
       }
@@ -703,8 +702,8 @@ int Gui::drawPage(
      opts.lineTypeIndexes,
      buildModCsiParts,
      buildModLineTypeIndexes,
-     opts.buildModLevel,
-     buildModIgnore,
+     buildMod.level,
+     buildMod.ignore,
      buildModItems);
 
   drawPageStatus(begin);
@@ -797,11 +796,11 @@ int Gui::drawPage(
 
           // STEP - Allocate step for type
 
-          if (! buildModIgnore) {
+          if (! buildMod.ignore) {
 
               /* for multistep build mod case where we are processing a callout
                  and we are overriding the last action, buildModTypeIgnore is set
-                 so we do render overridden types */
+                 so we do not render overridden types */
 
               if (! buildModTypeIgnore) {
                   CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
@@ -899,7 +898,7 @@ int Gui::drawPage(
 
           /* if it is a called out sub-model, then process it */
 
-          if (ldrawFile.isSubmodel(type) && callout && ! noStep && ! buildModIgnore) {
+          if (ldrawFile.isSubmodel(type) && callout && ! noStep && ! buildMod.ignore) {
 
               CalloutBeginMeta::CalloutMode calloutMode = callout->meta.LPub.callout.begin.value();
 
@@ -984,7 +983,6 @@ int Gui::drawPage(
                               opts.csiKeys,
                               calloutBfx,
                               opts.pliPartGroups,
-                              opts.buildModActions,
                               lineTypeIndexes2,
                               calloutBfxLineTypeIndexes,
                               1                   /*stepNum*/,
@@ -992,7 +990,6 @@ int Gui::drawPage(
                               opts.updateViewer,
                               ldrawFile.mirrored(tokens),
                               opts.printing,
-                              0                  /*opts.buildModLevel*/,
                               opts.bfxStore2,
                               opts.assembledCallout,
                               true               /*calledOut*/
@@ -1062,11 +1059,11 @@ int Gui::drawPage(
           /* we've got a line, triangle or polygon, so add it to the list
              and make sure we know we have a step */
 
-          if (! buildModIgnore) {
+          if (! buildMod.ignore) {
 
             /* for multistep build mod case where we are processing a callout
                and we are overriding the last action, buildModTypeIgnore is set
-               so we do render overridden types */
+               so we do not render overridden types */
 
             if (! buildModTypeIgnore) {
               CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
@@ -1215,7 +1212,7 @@ int Gui::drawPage(
                   opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
                 }
 
-              if (step == nullptr && ! noStep && ! buildModIgnore) {
+              if (step == nullptr && ! noStep && ! buildMod.ignore) {
                   if (range == nullptr) {
                       range = newRange(steps,opts.calledOut);
                       steps->append(range);
@@ -1293,7 +1290,7 @@ int Gui::drawPage(
             case RemovePartTypeRc:
             case RemovePartNameRc:
             {
-              if (! buildModIgnore) {
+              if (! buildMod.ignore) {
                 QStringList newCSIParts;
                 QVector<int> newLineTypeIndexes;
                 if (rc == RemoveGroupRc) {
@@ -1575,7 +1572,7 @@ int Gui::drawPage(
             case CalloutBeginRc:
               if (callout) {
                   parseError("Nested CALLOUT not allowed within the same file",opts.current);
-                } else if (! buildModIgnoreOverride(buildModIgnore, buildModTypeIgnore)) {
+                } else if (! buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore)) {
                   parseError("Failed to process previous BUILD_MOD action for CALLOUT.",opts.current);
                 } else {
                   callout = new Callout(curMeta,view);
@@ -1660,7 +1657,7 @@ int Gui::drawPage(
                   parseError("MULTI_STEP not allowed inside callout models",opts.current);
               } else if (multiStep) {
                   parseError("Nested MULTI_STEP not allowed",opts.current);
-              } else if (! (multiStep = buildModIgnoreOverride(buildModIgnore, buildModTypeIgnore))) {
+              } else if (! (multiStep = buildModIgnoreOverride(buildMod.ignore, buildModTypeIgnore))) {
                   parseError("Failed to process previous BUILD_MOD action for MULTI_STEP.",opts.current);
               } else {
                 steps->relativeType = StepGroupType;
@@ -1938,22 +1935,22 @@ int Gui::drawPage(
                   parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                              opts.current,Preferences::BuildModErrors);
               buildModStepIndex = getBuildModStepIndex(topOfStep);
-              buildModKey = curMeta.LPub.buildMod.key();
-              if (buildModContains(buildModKey)) {
-                  if (getBuildModActionPrevIndex(buildModKey, buildModStepIndex, rc) < buildModStepIndex)
+              buildMod.key = curMeta.LPub.buildMod.key();
+              if (buildModContains(buildMod.key)) {
+                  if (getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
                       parseError("Redundant build modification meta command - this command can be removed.",
                                  opts.current,Preferences::BuildModErrors);
               } else {
-                  parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
+                  parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
                              opts.current,Preferences::BuildModErrors);
               }
               if (multiStep || opts.calledOut)
                   buildModChange = topOfStep != steps->topOfSteps();
               if (buildModChange) {
-                  opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, buildModStepIndex));
-                  if (opts.buildModActions.value(opts.buildModLevel) != rc) {
+                  buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
+                  if (buildModActions.value(buildMod.level) != rc) {
                       // set BuildMod action for current step
-                      setBuildModAction(buildModKey, buildModStepIndex, rc);
+                      setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
                       // set the stepKey to clear the image cache
@@ -1970,12 +1967,12 @@ int Gui::drawPage(
             case BuildModBeginRc:
               if (!Preferences::buildModEnabled)
                   break;
-              buildModKey        = curMeta.LPub.buildMod.key();
-              buildModExists     = buildModContains(buildModKey);
-              opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
+              buildMod.key = curMeta.LPub.buildMod.key();
+              buildModExists = buildModContains(buildMod.key);
+              buildMod.level = getLevel(buildMod.key, BM_BEGIN);
               // assign buildMod key
-              if (! buildModKeys.contains(opts.buildModLevel))
-                  buildModKeys.insert(opts.buildModLevel, buildModKey);
+              if (! buildModKeys.contains(buildMod.level))
+                  buildModKeys.insert(buildMod.level, buildMod.key);
               // insert new or update existing buildMod
               if (multiStep)
                   buildModInsert = topOfStep != steps->topOfSteps();
@@ -1986,64 +1983,62 @@ int Gui::drawPage(
               // set buildModAction
               if (buildModExists)
                   if (multiStep || opts.calledOut) // always take the last action
-                      opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, BM_LAST_ACTION));
+                      buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, BM_LAST_ACTION));
                   else // take the for the current step if exists or last action
-                      opts.buildModActions.insert(opts.buildModLevel, getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
+                      buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, getBuildModStepIndex(topOfStep), BM_LAST_ACTION));
               else if (buildModInsert)
-                  opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
+                  buildModActions.insert(buildMod.level, BuildModApplyRc);
               else
                   parseError(QString("Expected BuildMod action - Ensure your meta command is well formed."),
                              opts.current,Preferences::BuildModErrors);
               // set buildMod and buildModPli ignore
-              if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
-                  buildModIgnore    = false;
+              if (buildModActions.value(buildMod.level) == BuildModApplyRc) {
+                  buildMod.ignore = false;
                   buildModPliIgnore = true;
-              } else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc) {
-                  buildModIgnore    = true;
+              } else if (buildModActions.value(buildMod.level) == BuildModRemoveRc) {
+                  buildMod.ignore = true;
                   buildModPliIgnore = pliIgnore;
               }
-              buildMod[BM_BEGIN] = true;
+              buildMod.state = BM_BEGIN;
               break;
 
             // Set modActionLineNum and ModIgnore based on 'current' step buildModAction
             case BuildModEndModRc:
               if (!Preferences::buildModEnabled)
                   break;
-              if (opts.buildModLevel > 1 && curMeta.LPub.buildMod.key().isEmpty())
+              if (buildMod.level > 1 && curMeta.LPub.buildMod.key().isEmpty())
                   parseError("Key required for nested build mod meta command",
                              opts.current,Preferences::BuildModErrors);
-              if (!buildMod[BM_BEGIN])
+              if (buildMod.state != BM_BEGIN)
                   parseError(QString("Required meta BUILD_MOD BEGIN not found"), opts.current, Preferences::BuildModErrors);
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
               // set buildMod and buildModPli ignore
-              if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
-                  buildModIgnore    = true;
+              if (buildModActions.value(buildMod.level) == BuildModApplyRc) {
+                  buildMod.ignore = true;
                   buildModPliIgnore = pliIgnore;
-              } else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc) {
-                  buildModIgnore    = false;
+              } else if (buildModActions.value(buildMod.level) == BuildModRemoveRc) {
+                  buildMod.ignore = false;
                   buildModPliIgnore = true;
               }
               buildModTypeIgnore = false;
-              buildMod[BM_BEGIN] = false;
-              buildMod[BM_END_MOD] = true;
+              buildMod.state = BM_END_MOD;
               break;
 
             // Get buildModLevel and reset ModIgnore to default
             case BuildModEndRc:
               if (!Preferences::buildModEnabled)
                   break;
-              if (!buildMod[BM_END_MOD])
+              if (buildMod.state != BM_END_MOD)
                   parseError(QString("Required meta BUILD_MOD END_MOD not found"), opts.current, Preferences::BuildModErrors);
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
-              opts.buildModLevel = getLevel(QString(), BM_END);
-              if (opts.buildModLevel == BM_BEGIN) {
-                  buildModIgnore = false;
+              buildMod.level = getLevel(QString(), BM_END);
+              if (buildMod.level == BM_BEGIN) {
+                  buildMod.ignore = false;
                   buildModPliIgnore = pliIgnore;
               }
-              buildMod[BM_END] = true;
-              buildMod[BM_END_MOD] = false;
+              buildMod.state = BM_END;
               break;
 
             case NoStepRc:
@@ -2057,7 +2052,7 @@ int Gui::drawPage(
              /*
               * STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
               */
-              if (! buildModIgnore && noStep && opts.calledOut) {
+              if (! buildMod.ignore && noStep && opts.calledOut) {
                 if (opts.current.modelName.contains("whole_rotated_") ||
                     opts.current.modelName.contains("whole_assembled_")) {
                   bool nsHasParts    = false;
@@ -2168,11 +2163,11 @@ int Gui::drawPage(
              /*
               *  STEP - case of not NOSTEP and not BuildMod ignore
               */
-              if (! noStep && ! buildModIgnore) {
+              if (! noStep && ! buildMod.ignore) {
                   /*
                    * STEP - normal case of parts added
                    */
-                  if (partsAdded && ! noStep && ! buildModIgnore) {
+                  if (partsAdded && ! noStep && ! buildMod.ignore) {
 
                       // set step group page meta attributes first step
                       if (firstStep) {
@@ -2321,7 +2316,7 @@ int Gui::drawPage(
 
                           // BuildMod create and update - performed after createCsi to enable viewerStepKey
                           if (buildModKeys.size()) {
-                              if (! buildMod[BM_END])
+                              if (buildMod.state != BM_END)
                                   parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
                               Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
                                   if (buildModInsert)
@@ -2548,7 +2543,9 @@ int Gui::drawPage(
 
               steps->setBottomOfSteps(opts.current);
               buildModTypeIgnore = false;
-              buildMod[BM_END] = false;
+              buildModActions.clear();
+              buildMod.level = 0;
+              buildMod.state = BM_NONE;
               noStep = false;
               break;
 
@@ -2663,29 +2660,25 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  bool buildModIgnore     = false;
-  bool buildModItems      = false;
-
+  bool buildModItems = false;
   QVector<int>  buildModLineTypeIndexes;
   QStringList   buildModCsiParts;
-  QString       buildModKey;
-
-  QMap<int,int> emptyBuildModActions; // initialize drawPageOptions.
+  QMap<int,int> buildModActions;
 
   PartLineAttributes pla(
   csiParts,
   lineTypeIndexes,
   buildModCsiParts,
   buildModLineTypeIndexes,
-  opts.buildModLevel,
-  buildModIgnore,
+  opts.buildMod.level,
+  opts.buildMod.ignore,
   buildModItems);
 
   // include file vars
   Where includeHere;
-  Rc includeFileRc        = EndOfFileRc;
-  bool inserted           = false;
-  bool resetIncludeRc     = false;
+  Rc includeFileRc    = EndOfFileRc;
+  bool inserted       = false;
+  bool resetIncludeRc = false;
 
 #ifdef WRITE_PARTS_DEBUG
   auto writeFindPartsFile = [this,&topOfStep, &saveCsiParts, &opts](
@@ -2785,7 +2778,7 @@ int Gui::findPage(
           }
 
           // process submodel...
-          if (! buildModIgnore) {
+          if (! opts.buildMod.ignore) {
 
               if (! partIgnore) {
 
@@ -2815,13 +2808,13 @@ int Gui::findPage(
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
 
                           // check if submodel is in current step build modification
-                          bool buildModRendered = getBuildModRendered(buildModKey, colorType);
+                          bool buildModRendered = getBuildModRendered(opts.buildMod.key, colorType);
 
-                          // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
+                          // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if (opts.buildMod.begin)
-                                  setBuildModRendered(buildModKey, colorType);
+                              if (opts.buildMod.state == BM_BEGIN)
+                                  setBuildModRendered(opts.buildMod.key, colorType);
 
                               opts.isMirrored = ldrawFile.mirrored(token);
 
@@ -2863,11 +2856,9 @@ int Gui::findPage(
                                           current2,
                                           opts.pageSize,
                                           opts.buildMod,
-                                          opts.buildModActions,
                                           opts.updateViewer,
                                           opts.isMirrored,
                                           opts.printing,
-                                          opts.buildModLevel,
                                           opts.stepNumber,
                                           opts.contStepNumber,
                                           opts.groupStepNumber,
@@ -2925,7 +2916,7 @@ int Gui::findPage(
             ++partsAdded;
             CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
 
-          } // ! BuildModIgnore
+          } // ! opts.buildMod.ignore
             break;
 
         case '0':
@@ -2975,7 +2966,7 @@ int Gui::findPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2 && ! buildModIgnore) {
+              if (stepGroup && ! noStep2 && ! opts.buildMod.ignore) {
                   stepGroup = false;
                   if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
                       saveLineTypeIndexes    = lineTypeIndexes;
@@ -3019,7 +3010,6 @@ int Gui::findPage(
                                   csiKeys,
                                   saveBfx,
                                   emptyPartGroups,
-                                  emptyBuildModActions,
                                   saveLineTypeIndexes,
                                   saveBfxLineTypeIndexes,
                                   saveStepNumber,
@@ -3027,7 +3017,6 @@ int Gui::findPage(
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
-                                  0 /*opts.buildModLevel*/,
                                   stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/);
@@ -3108,47 +3097,45 @@ int Gui::findPage(
                 if (!Preferences::buildModEnabled)
                     break;
                 if (!pageDisplayed) {
-                    buildModKey        = meta.LPub.buildMod.key();
-                    opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
-                    if (buildModContains(buildModKey))
-                        opts.buildModActions.insert(opts.buildModLevel,
-                                                    getBuildModAction(buildModKey, getBuildModNextStepIndex()));
+                    opts.buildMod.key        = meta.LPub.buildMod.key();
+                    opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
+                    if (buildModContains(opts.buildMod.key))
+                        buildModActions.insert(opts.buildMod.level,
+                                                    getBuildModAction(opts.buildMod.key, getBuildModNextStepIndex()));
                     else
-                        opts.buildModActions.insert(opts.buildModLevel, BuildModNoActionRc);
-                    if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
-                        buildModIgnore = false;
-                    else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
-                        buildModIgnore = true;
-                    opts.buildMod.begin = true;
+                        buildModActions.insert(opts.buildMod.level, BuildModNoActionRc);
+                    if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
+                        opts.buildMod.ignore = false;
+                    else if (buildModActions.value(opts.buildMod.level) == BuildModRemoveRc)
+                        opts.buildMod.ignore = true;
+                    opts.buildMod.state = BM_BEGIN;
                 }
                 break;
 
               // Set buildModIgnore based on 'next' step buildModAction
               case BuildModEndModRc:
                 if (!pageDisplayed) {
-                    if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc)
-                        buildModIgnore = true;
-                    else if (opts.buildModActions.value(opts.buildModLevel) == BuildModRemoveRc)
-                        buildModIgnore = false;
-                    opts.buildMod.begin = false;
-                    opts.buildMod.mod_end = true;
+                    if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
+                        opts.buildMod.ignore = true;
+                    else if (buildModActions.value(opts.buildMod.level) == BuildModRemoveRc)
+                        opts.buildMod.ignore = false;
+                    opts.buildMod.state = BM_END_MOD;
                 }
                 break;
 
               // Get buildModLevel and reset buildModIgnore to default
               case BuildModEndRc:
                 if (!pageDisplayed) {
-                    opts.buildModLevel = getLevel(QString(), BM_END);
-                    if (opts.buildModLevel == BM_BEGIN)
-                        buildModIgnore = false;
-                    opts.buildMod.end = true;
-                    opts.buildMod.mod_end = false;
+                    opts.buildMod.level = getLevel(QString(), BM_END);
+                    if (opts.buildMod.level == BM_BEGIN)
+                        opts.buildMod.ignore = false;
+                    opts.buildMod.state = BM_END;
                 }
                 break;
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep && ! buildModIgnore) {
+              if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
                          (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) { // skip the first step
@@ -3227,7 +3214,6 @@ int Gui::findPage(
                                       csiKeys,
                                       saveBfx,
                                       emptyPartGroups,
-                                      emptyBuildModActions,
                                       saveLineTypeIndexes,
                                       saveBfxLineTypeIndexes,
                                       saveStepNumber,
@@ -3235,7 +3221,6 @@ int Gui::findPage(
                                       opts.updateViewer,
                                       opts.isMirrored,
                                       opts.printing,
-                                      0 /*opts.buildModLevel*/,
                                       bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                           writeFindPartsFile("b_find_save_csi_parts");
@@ -3325,7 +3310,7 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
-              opts.buildMod.end = false;
+              opts.buildMod.state = BM_NONE;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -3411,7 +3396,7 @@ int Gui::findPage(
             case RemovePartTypeRc:
             case RemovePartNameRc:
               if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
-                  if (! buildModIgnore) {
+                  if (! opts.buildMod.ignore) {
                     QStringList newCSIParts;
                     QVector<int> newLineTypeIndexes;
                     if (rc == RemoveGroupRc) {
@@ -3561,7 +3546,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (partsAdded && ! noStep && ! buildModIgnore) {
+  if (partsAdded && ! noStep && ! opts.buildMod.ignore) {
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
@@ -3598,7 +3583,6 @@ int Gui::findPage(
                       csiKeys,
                       saveBfx,
                       emptyPartGroups,
-                      emptyBuildModActions,
                       saveLineTypeIndexes,
                       saveBfxLineTypeIndexes,
                       saveStepNumber,
@@ -3606,7 +3590,6 @@ int Gui::findPage(
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
-                      0 /*opts.buildModLevel*/,
                       bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
@@ -4112,7 +4095,7 @@ void Gui::countPages()
       stepPageNum          =  maxPages;
       modelStack.clear();
       QString empty;
-      BMFlags buildMod;
+      BuildModFlags buildMod;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
 
@@ -4121,11 +4104,9 @@ void Gui::countPages()
                   current,
                   emptyPageSize,
                   buildMod,
-                  buildModActions,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
                   false          /*printing*/,
-                  0              /*buildModLevel*/,
                   0              /*stepNumber*/,
                   0              /*contStepNumber*/,
                   0              /*groupStepNumber*/,
@@ -4218,8 +4199,7 @@ void Gui::drawPage(
 
   QString empty;
   Meta    meta;
-  BMFlags buildMod;
-  QMap<int,int> buildModActions;
+  BuildModFlags buildMod;
   firstStepPageNum     = -1;
   lastStepPageNum      = -1;
   savePrevStepPosition =  0;
@@ -4250,11 +4230,9 @@ void Gui::drawPage(
               current,
               pageSize,
               buildMod,
-              buildModActions,
               updateViewer,
               false        /*mirrored*/,
               printing,
-              0            /*buildModLevel*/,
               0            /*stepNumber*/,
               0            /*contStepNumber*/,
               0            /*groupStepNumber*/,
@@ -4530,13 +4508,11 @@ int Gui::setBuildModForNextStep(
         Where topOfSubmodel,
         bool  submodel)
 {
-    int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
     int  startLine             = 0;
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
-    bool buildMod[3]           = { false, false, false };                    // validate buildMod meta command set
 
     if (submodel) {
         if (!topOfSubmodel.lineNumber)
@@ -4588,22 +4564,21 @@ int Gui::setBuildModForNextStep(
     }
 
     Rc rc;
-    QString buildModKey;
-    Rc buildModAction     = BuildModNoActionRc;
+    BuildModFlags           buildMod;
     QMap<int, QString>      buildModKeys;
     QMap<int, QVector<int>> buildModAttributes;
 
     auto insertAttribute =
-            [&buildModLevel,
+            [&buildMod,
              &topOfStep] (
             QMap<int, QVector<int>> &buildModAttributes,
             int index, const Where &here)
     {
-        QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+        QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildMod.level);
         if (i == buildModAttributes.end()) {
             QVector<int> modAttributes = { 0, 0, 0, 1, 0, topOfStep.modelIndex, 0, 0 };
             modAttributes[index] = here.lineNumber;
-            buildModAttributes.insert(buildModLevel, modAttributes);
+            buildModAttributes.insert(buildMod.level, modAttributes);
         } else {
             i.value()[index] = here.lineNumber;
         }
@@ -4671,56 +4646,54 @@ int Gui::setBuildModForNextStep(
 
             switch (rc) {
 
-            // Update BuildMod action for 'current' step
+            // Populate BuildMod action and begin, mod_end and end line numbers for 'current' step
             case BuildModApplyRc:
             case BuildModRemoveRc:
-                buildModKey = page.meta.LPub.buildMod.key();
-                if (buildModContains(buildModKey))
-                    buildModAction = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
+                buildMod.key = page.meta.LPub.buildMod.key();
+                if (buildModContains(buildMod.key))
+                    buildMod.action = getBuildModAction(buildMod.key, buildModNextStepIndex);
                 else
-                    parseError(QString("BuildMod for key '%1' not found").arg(buildModKey),
+                    parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
                                     walk,Preferences::ParseErrors,false,false);
-                if (buildModAction != rc)
-                    setBuildModAction(buildModKey, buildModNextStepIndex, rc);
+                if ((Rc)buildMod.action != rc)
+                    setBuildModAction(buildMod.key, buildModNextStepIndex, rc);
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
             case BuildModBeginRc:
-                buildModKey   = page.meta.LPub.buildMod.key();
-                buildModLevel = getLevel(buildModKey, BM_BEGIN);
-                buildModKeys.insert(buildModLevel, buildModKey);
+                buildMod.key   = page.meta.LPub.buildMod.key();
+                buildMod.level = getLevel(buildMod.key, BM_BEGIN);
+                buildModKeys.insert(buildMod.level, buildMod.key);
                 insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, walk);
-                buildMod[BM_BEGIN] = true;
+                buildMod.state = BM_BEGIN;
                 break;
 
             // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
             case BuildModEndModRc:
-                if (buildModLevel > 1 && page.meta.LPub.buildMod.key().isEmpty())
+                if (buildMod.level > 1 && page.meta.LPub.buildMod.key().isEmpty())
                     parseError("Key required for nested build mod meta command",
                                walk,Preferences::BuildModErrors,false,false);
-                if (!buildMod[BM_BEGIN])
+                if (buildMod.state != BM_BEGIN)
                     parseError(QString("Required meta BUILD_MOD BEGIN not found"),
                                walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
-                buildMod[BM_BEGIN] = false;
-                buildMod[BM_END_MOD] = true;
+                buildMod.state = BM_END_MOD;
                 break;
 
-            // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
+            // Insert buildModAttributes and reset buildMod.level and buildModIgnore to default
             case BuildModEndRc:
-                if (!buildMod[BM_END_MOD])
+                if (buildMod.state != BM_END_MOD)
                     parseError(QString("Required meta BUILD_MOD END_MOD not found"),
                                walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
-                buildModLevel    = getLevel(QString(), BM_END);
-                buildMod[BM_END_MOD] = false;
-                buildMod[BM_END] = true;
+                buildMod.level = getLevel(QString(), BM_END);
+                buildMod.state = BM_END;;
                 break;
 
             // Search until next occurrence of step/rotstep meta or bottom of step
             case RotStepRc:
             case StepRc:
-                if (buildMod[BM_BEGIN] && !buildMod[BM_END])
+                if (buildModKeys.size() && buildMod.state != BM_END)
                     parseError(QString("Required meta BUILD_MOD END not found"),
                                walk, Preferences::BuildModErrors,false,false);
 #ifdef QT_DEBUG_MODE
@@ -4733,12 +4706,12 @@ int Gui::setBuildModForNextStep(
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
-                buildMod[BM_END] = false;
+                buildMod.state = BM_NONE;
                 return HitBottomOfStep;
             default:
                 break;
             }
-        } else if (!(buildMod[BM_BEGIN] && !buildMod[BM_END]) && line.toLatin1()[0] == '1') {
+        } else if (! (buildModKeys.size() && buildMod.state != BM_END) && line.toLatin1()[0] == '1') {
             // search until hit buttom of step
             QStringList token;
             split(line,token);

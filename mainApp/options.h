@@ -174,7 +174,6 @@ public:
 
 class Meta;
 class Where;
-class BMFlags;
 class PgSizeData;
 class PliPartGroupMeta;
 
@@ -200,6 +199,23 @@ public:
   }
 };
 
+class BuildModFlags
+{
+
+public:
+    QString key;
+    int  level;
+    int  action;
+    int  state;
+    bool ignore;
+    BuildModFlags()
+        : level(0),
+          action(0),
+          state(-1),
+          ignore(false)
+    { }
+};
+
 class FindPageOptions
 {
 
@@ -208,13 +224,11 @@ public:
             int             &_pageNum,
             Where           &_current,
             PgSizeData      &_pageSize,
-            BMFlags         &_buildMod,
-            QMap<int,int>   &_buildModActions,
+            BuildModFlags   &_buildMod,
 
             bool             _updateViewer,
             bool             _isMirrored,
             bool             _printing,
-            int              _buildModLevel,
             int              _stepNumber,
             int              _contStepNumber,
             int              _groupStepNumber = 0,
@@ -224,12 +238,10 @@ public:
           current           (_current),
           pageSize          (_pageSize),
           buildMod          (_buildMod),
-          buildModActions   (_buildModActions),
 
           updateViewer      (_updateViewer),
           isMirrored        (_isMirrored),
           printing          (_printing),
-          buildModLevel     (_buildModLevel),
           stepNumber        (_stepNumber),
           contStepNumber    (_contStepNumber),
           groupStepNumber   (_groupStepNumber),
@@ -238,13 +250,11 @@ public:
     int           &pageNum;
     Where         &current;
     PgSizeData    &pageSize;
-    BMFlags       &buildMod;
-    QMap<int,int> &buildModActions;
+    BuildModFlags &buildMod;
 
     bool           updateViewer;
     bool           isMirrored;
     bool           printing;
-    int            buildModLevel;
     int            stepNumber;
     int            contStepNumber;
     int            groupStepNumber;
@@ -264,7 +274,6 @@ public:
             QStringList                 &_csiKeys,
             QHash<QString, QStringList> &_bfx,
             QList<PliPartGroupMeta>     &_pliPartGroups,
-            QMap<int,int>               &_buildModActions,
             QVector<int>                &_lineTypeIndexes,
             QHash<QString, QVector<int>>&_bfxLineTypeIndexes,
 
@@ -273,7 +282,6 @@ public:
             bool                         _updateViewer,
             bool                         _isMirrored,
             bool                         _printing,
-            int                          _buildModLevel,
             bool                         _bfxStore2,
             bool                         _assembledCallout = false,
             bool                         _calledOut        = false)
@@ -286,7 +294,6 @@ public:
           csiKeys                       (_csiKeys),
           bfx                           (_bfx),
           pliPartGroups                 (_pliPartGroups),
-          buildModActions               (_buildModActions),
           lineTypeIndexes               (_lineTypeIndexes),
           bfxLineTypeIndexes            (_bfxLineTypeIndexes),
 
@@ -295,7 +302,6 @@ public:
           updateViewer                  (_updateViewer),
           isMirrored                    (_isMirrored),
           printing                      (_printing),
-          buildModLevel                 (_buildModLevel),
           bfxStore2                     (_bfxStore2),
           assembledCallout              (_assembledCallout),
           calledOut                     (_calledOut)
@@ -308,7 +314,6 @@ public:
     QStringList                 &csiKeys;
     QHash<QString, QStringList> &bfx;
     QList<PliPartGroupMeta>     &pliPartGroups;
-    QMap<int,int>               &buildModActions;
     QVector<int>                &lineTypeIndexes;
     QHash<QString, QVector<int>>&bfxLineTypeIndexes;
 
@@ -317,7 +322,6 @@ public:
     bool                         updateViewer;
     bool                         isMirrored;
     bool                         printing;
-    int                          buildModLevel;
     bool                         bfxStore2;
     bool                         assembledCallout;
     bool                         calledOut;
