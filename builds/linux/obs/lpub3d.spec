@@ -2,7 +2,7 @@
 # spec file for package lpub3d
 #
 # Last Update July 23, 2019
-# Copyright © 2018 - 2020 Trevor SANDY
+# Copyright © 2018 - 2021 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.

@@ -3,7 +3,7 @@ Upstream-Name: lpub3d
 Source: https://github.com/trevorsandy/lpub3d
 
 Files: *
-Copyright: 2015-2020 Trevor SANDY <trevor.sandy@gmail.com>
+Copyright: 2015 - 2021 Trevor SANDY <trevor.sandy@gmail.com>
 License: GPL-3
 
 Files:
@@ -148,7 +148,7 @@ Files: ldrawini/*
 Copyright: 2004-2008 Lars C. Hassing <SP.lars@AM.hassings.dk>
 License: MIT
 
-Copyright: 2017-2020 Trevor SANDY <trevor.sandy@gmail.com>
+Copyright: 2017 - 2021 Trevor SANDY <trevor.sandy@gmail.com>
 
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
