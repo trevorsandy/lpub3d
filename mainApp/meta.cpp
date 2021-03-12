@@ -710,14 +710,13 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
       index++;
       if (argc - index == 2) {
           bool ok[2];
-          argv[index  ].toFloat(&ok[0]);
-          argv[index+1].toFloat(&ok[1]);
-          if (ok[0] && ok[1]) {
-              _value[pushed].offsets[0] = argv[index  ].toFloat(&ok[0]);
-              _value[pushed].offsets[1] = argv[index+1].toFloat(&ok[1]);
-              _here[pushed] = here;
-              return OkRc;
-            }
+          _value[pushed].offsets[0] = argv[index  ].toFloat(&ok[0]);
+          _value[pushed].offsets[1] = argv[index+1].toFloat(&ok[1]);
+          if (!ok[0] || !ok[1])
+              rc = FailureRc;
+           _here[pushed] = here;
+        } else if (argc - index < 2) {
+          rc = FailureRc;
         }
     }
 
@@ -777,17 +776,19 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                   preposition = argv[index++];
                   rc = OkRc;
                 }
-              if (argc - index >= 2){
-                  if (argv[index] == "OFFSET")
-                      index++;
-                  bool ok[2];
-                  argv[index  ].toFloat(&ok[0]);
-                  argv[index+1].toFloat(&ok[1]);
-                  if (ok[0] && ok[1]) {
+              if (argc - index >= 2) {
+                  if (argv[index] == "OFFSET") {
+                    index++;
+                    if (argc - index == 2) {
+                      bool ok[2];
                       _offsets[0] = argv[index  ].toFloat(&ok[0]);
                       _offsets[1] = argv[index+1].toFloat(&ok[1]);
-                      rc = OkRc;
+                      if (!ok[0] || !ok[1])
+                          rc = FailureRc;
+                    } else if (argc - index < 2) {
+                        rc = FailureRc;
                     }
+                  }
                 }
             } else {
               rc = OkRc;
@@ -2806,14 +2807,16 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
     }
 
   if (rc == OkRc) {
-      if (!insertData.placementCommand){
-        if (argv.size() - index == 3 && argv[index] == "OFFSET") {
-          bool ok[2];
-          insertData.offsets[0] = argv[++index].toFloat(&ok[0]);
-          insertData.offsets[1] = argv[++index].toFloat(&ok[1]);
-          if ( ! ok[0] || ! ok[1]) {
+      if (!insertData.placementCommand) {
+        if (argv.size() - index == 3) {
+          if (argv[index] == "OFFSET") {
+            bool ok[2];
+            insertData.offsets[0] = argv[++index].toFloat(&ok[0]);
+            insertData.offsets[1] = argv[++index].toFloat(&ok[1]);
+            if ( ! ok[0] || ! ok[1]) {
               rc = FailureRc;
             }
+          }
         } else if (argv.size() - index > 0) {
           rc = FailureRc;
         }
