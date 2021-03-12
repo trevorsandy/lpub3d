@@ -964,7 +964,7 @@ int Gui::drawPage(
                               opts.updateViewer,
                               ldrawFile.mirrored(tokens),
                               opts.printing,
-                              opts.buildModLevel,
+                              0                  /*opts.buildModLevel*/,
                               opts.bfxStore2,
                               opts.assembledCallout,
                               true               /*calledOut*/
@@ -2954,7 +2954,7 @@ int Gui::findPage(
                                   opts.updateViewer,
                                   opts.isMirrored,
                                   opts.printing,
-                                  opts.buildModLevel,
+                                  0 /*opts.buildModLevel*/,
                                   stepGroupBfxStore2,
                                   false /*assembledCallout*/,
                                   false /*calldeOut*/);
@@ -3157,7 +3157,7 @@ int Gui::findPage(
                                       opts.updateViewer,
                                       opts.isMirrored,
                                       opts.printing,
-                                      opts.buildModLevel,
+                                      0 /*opts.buildModLevel*/,
                                       bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                           writeFindPartsFile("b_find_save_csi_parts");
@@ -3527,7 +3527,7 @@ int Gui::findPage(
                       opts.updateViewer,
                       opts.isMirrored,
                       opts.printing,
-                      opts.buildModLevel,
+                      0 /*opts.buildModLevel*/,
                       bfxStore2);
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
