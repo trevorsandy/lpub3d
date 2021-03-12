@@ -368,6 +368,11 @@
 #define WATCHER
 #endif
 
+// Set to enable PageSize debug logging
+#ifndef SIZE_DEBUG
+//#define SIZE_DEBUG
+#endif
+
 // PageSize default entry
 #ifndef DEF_SIZE
 #define DEF_SIZE 0
@@ -1100,6 +1105,11 @@ public:
       return pageSizes;
   }
 
+  PgSizeData &getPageSize(int i)
+  {
+      return pageSizes[i];
+  }
+
   int includePub(Meta &meta, Where &includeHere, bool &inserted)
   {
       return include(meta, includeHere, inserted);
@@ -1211,6 +1221,16 @@ public slots:
   void previewPiece(const QString &type, int colorCode);
   void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
+
+  void insertPageSize(int i, const PgSizeData &pgSizeData)
+  {
+      pageSizes.insert(i,pgSizeData);
+  }
+
+  void removePageSize(int i)
+  {
+      pageSizes.remove(i);
+  }
 
   QString getViewerStepKey()
   {

@@ -57,11 +57,6 @@
 
 #include "QsLog.h"
 
-// Set to enable PageSize trace logging
-#ifndef SIZE_DEBUG
-//#define SIZE_DEBUG
-#endif
-
 #define FIRST_STEP 1
 #define FIRST_PAGE 1
 
@@ -2612,7 +2607,7 @@ int Gui::findPage(
   bool pageSizeUpdate     = false;
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
-  bool pageDisplayed      = opts.pageNum > displayPageNum;
+  bool pageDisplayed      = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
   pageProcessRunning      = PROC_FIND_PAGE;
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
@@ -4180,7 +4175,7 @@ void Gui::drawPage(LGraphicsView  *view,
       pageSize.orientation= meta.LPub.page.orientation.value();
       pageSizes.insert(     DEF_SIZE,pageSize);
 #ifdef SIZE_DEBUG
-      logTrace() << "0. Inserting INIT page size info    at PageNumber:" << DEF_SIZE
+      logTrace() << "0. Inserting INIT page size info at PageNumber:" << DEF_SIZE
                  << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
                  << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
                  << "ID:" << pageSize.sizeID
@@ -4240,7 +4235,12 @@ void Gui::drawPage(LGraphicsView  *view,
       }
 
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, meta, &ldrawFile, modelStack, findOptions);
-      futureWatcher.setFuture(future);
+      if (exporting() || ContinuousPage()) {
+          future.waitForFinished();
+          pagesCounted();
+      } else {
+          futureWatcher.setFuture(future);
+      }
 
       QApplication::restoreOverrideCursor();
   }

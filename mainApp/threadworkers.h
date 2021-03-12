@@ -333,6 +333,9 @@ public slots:
             LDrawFile *,
             QList<ModelStack> &,
             FindPageOptions &);
+private:
+    static void insertPageSize(const int i, const PgSizeData &);
+    static void removePageSize(const int i);
 };
 
 class LDrawFile;

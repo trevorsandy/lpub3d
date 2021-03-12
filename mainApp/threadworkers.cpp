@@ -2040,6 +2040,25 @@ bool ExtractWorker::removeFile(QStringList listFile) {
  *
  */
 
+void CountPageWorker::insertPageSize(const int i, const PgSizeData &pgSizeData)
+{
+    QMetaObject::invokeMethod(
+                gui,                            // obj
+                "insertPageSize",               // member
+                Qt::QueuedConnection,           // connection type
+                Q_ARG(int, i),                  // val1
+                Q_ARG(PgSizeData, pgSizeData)); // val2
+}
+
+void CountPageWorker::removePageSize(const int i)
+{
+    QMetaObject::invokeMethod(
+                gui,                          // obj
+                "removePageSize",             // member
+                Qt::QueuedConnection,         // connection type
+                Q_ARG(int, i));               // val1
+}
+
 int CountPageWorker::countPage(
     Meta             meta,
     LDrawFile       *ldrawFile,
@@ -2172,7 +2191,7 @@ int CountPageWorker::countPage(
                           // save Default pageSize information
                           PgSizeData pageSize2;
                           if (gui->exporting()) {
-                              pageSize2       = gui->getPageSizes()[DEF_SIZE];
+                              pageSize2       = gui->getPageSize(DEF_SIZE);
                               pageSizeUpdate  = false;
 #ifdef SIZE_DEBUG
                               logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
@@ -2201,16 +2220,16 @@ int CountPageWorker::countPage(
 
                           gui->saveStepPageNum = gui->stepPageNum;
                           meta.submodelStack.pop_back();
-                          meta.rotStep = saveRotStep2;            // restore old rotstep
+                          meta.rotStep = saveRotStep2;              // restore old rotstep
 
                           if (gui->exporting()) {
-                              gui->getPageSizes().remove(DEF_SIZE);
-                              gui->getPageSizes().insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
+                              removePageSize(DEF_SIZE);
+                              insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
 #ifdef SIZE_DEBUG
                               logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
-                                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
                                          << "Model:" << opts.current.modelName;
 #endif
                           }
@@ -2264,7 +2283,7 @@ int CountPageWorker::countPage(
                       gui->getPageSizes().remove(opts.pageNum);
                       if (pageSizeUpdate) {
                           pageSizeUpdate = false;
-                          gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+                          insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                      << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2273,12 +2292,12 @@ int CountPageWorker::countPage(
                                      << "Model:" << opts.current.modelName;
 #endif
                       } else {
-                          gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+                          insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
 #ifdef SIZE_DEBUG
                           logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                     << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
-                                     << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                     << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                                     << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
                                      << "Model:" << opts.current.modelName;
 #endif
                       }
@@ -2305,7 +2324,7 @@ int CountPageWorker::countPage(
                           gui->getPageSizes().remove(opts.pageNum);
                           if (pageSizeUpdate) {
                               pageSizeUpdate = false;
-                              gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+                              insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef SIZE_DEBUG
                               logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2314,12 +2333,12 @@ int CountPageWorker::countPage(
                                          << "Model:" << opts.current.modelName;
 #endif
                             } else {
-                              gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+                              insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
 #ifdef SIZE_DEBUG
                               logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
-                                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
                                          << "Model:" << opts.current.modelName;
 #endif
                             }
@@ -2421,8 +2440,8 @@ int CountPageWorker::countPage(
                     opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
                     opts.pageSize.sizeID = meta.LPub.page.size.valueSizeID();
 
-                    gui->getPageSizes().remove(DEF_SIZE);
-                    gui->getPageSizes().insert(DEF_SIZE,opts.pageSize);
+                    removePageSize(DEF_SIZE);
+                    insertPageSize(DEF_SIZE,opts.pageSize);
 #ifdef SIZE_DEBUG
                     logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2444,15 +2463,15 @@ int CountPageWorker::countPage(
                     pageSizeUpdate      = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
-                      opts.pageSize.sizeW    = gui->getPageSizes()[DEF_SIZE].sizeW;
+                      opts.pageSize.sizeW    = gui->getPageSize(DEF_SIZE).sizeW;
                     if (opts.pageSize.sizeH == 0.0f)
-                      opts.pageSize.sizeH    = gui->getPageSizes()[DEF_SIZE].sizeH;
+                      opts.pageSize.sizeH    = gui->getPageSize(DEF_SIZE).sizeH;
                     if (opts.pageSize.sizeID.isEmpty())
-                      opts.pageSize.sizeID   = gui->getPageSizes()[DEF_SIZE].sizeID;
+                      opts.pageSize.sizeID   = gui->getPageSize(DEF_SIZE).sizeID;
                     opts.pageSize.orientation= meta.LPub.page.orientation.value();
 
-                    gui->getPageSizes().remove(DEF_SIZE);
-                    gui->getPageSizes().insert(DEF_SIZE,opts.pageSize);
+                    removePageSize(DEF_SIZE);
+                    insertPageSize(DEF_SIZE,opts.pageSize);
 #ifdef SIZE_DEBUG
                     logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2482,7 +2501,7 @@ int CountPageWorker::countPage(
           gui->getPageSizes().remove(opts.pageNum);
           if (pageSizeUpdate) {
               pageSizeUpdate = false;
-              gui->getPageSizes().insert(opts.pageNum,opts.pageSize);
+              insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2491,12 +2510,12 @@ int CountPageWorker::countPage(
                          << "Model:" << opts.current.modelName;
 #endif
             } else {
-              gui->getPageSizes().insert(opts.pageNum,gui->getPageSizes()[DEF_SIZE]);
+              insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
 #ifdef SIZE_DEBUG
               logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                         << "W:"    << gui->getPageSizes()[DEF_SIZE].sizeW << "H:"    << gui->getPageSizes()[DEF_SIZE].sizeH
-                         << "O:"    << (gui->getPageSizes()[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << gui->getPageSizes()[DEF_SIZE].sizeID
+                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
+                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
                          << "Model:" << opts.current.modelName;
 #endif
             }

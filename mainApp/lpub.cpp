@@ -3104,6 +3104,7 @@ Gui::Gui()
 
     qRegisterMetaType<TypeLine>("TypeLine");
     qRegisterMetaType<StepLines>("StepLines");
+    qRegisterMetaType<PgSizeData>("PgSizeData");
     qRegisterMetaType<LogType>("LogType");
     qRegisterMetaType<Preferences::MsgKey>("MsgKey");
     qRegisterMetaType<Preferences::MsgID>("MsgID");
@@ -5689,7 +5690,7 @@ void Gui::parseError(const QString message, const Where &here, Preferences::MsgK
     };
 
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI) {
+    if (Preferences::modeGUI && !exporting()) {
         if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
             showLine(here, LINE_ERROR);
         }
