@@ -73,7 +73,9 @@ void Reserve::addGraphicsItems(
 
 ReserveBackgroundItem::ReserveBackgroundItem(
   Reserve       *_reserve,
-  QGraphicsItem *parent)
+  QGraphicsItem *parent):
+    isHovered(false),
+    mouseIsDown(false)
 {
   reserve       = _reserve;
   top           = _reserve->top;
@@ -85,7 +87,49 @@ ReserveBackgroundItem::ReserveBackgroundItem(
   setToolTip(QString("Reserve Rectangle [%1 x %2 px]")
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
+
   setFlag(QGraphicsItem::ItemIsMovable,false);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
   setData(ObjectId, StepBackgroundObj);
   setZValue(RESERVE_BACKGROUND_ZVALUE_DEFAULT);
+}
+
+void ReserveBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void ReserveBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void ReserveBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void ReserveBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void ReserveBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
 }
