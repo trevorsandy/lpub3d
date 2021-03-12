@@ -2395,7 +2395,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 	lcModel* ActiveModel = GetActiveModel();
 	if (ActiveModel) {
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
-
+#ifdef QT_DEBUG_MODE
 		const QString TypeNames[] =
 		{
 			"VIEWER_NONE", // 0
@@ -2405,8 +2405,9 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 			"VIEWER_SEL",  // 4
 			"VIEWER_CLR"   // 5
 		};
-		QString _Message = tr("Update Selection Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "True" : "False");
+		QString _Message = tr("Update Selected Objects Type: %1 (%2), ModAction: %3").arg(TypeNames[SelectionType], QString::number(SelectionType), ActiveModel->GetModAction() ? "True" : "False");
 		emit gui->messageSig(LOG_DEBUG, _Message);
+#endif
 	}
 
 	lcTool Tool = GetTool();

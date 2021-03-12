@@ -1093,10 +1093,14 @@ int Gui::addGraphicsPageItems(
   }
 
   page->relativeType = SingleStepType;
+
   statusBarMsg("");
 
+#ifdef QT_DEBUG_MODE
   emit messageSig(LOG_DEBUG,QString("Draw page graphics - %1")
                                     .arg(elapsedTime(t.elapsed())));
+#endif
+
   return 0;
 }
 

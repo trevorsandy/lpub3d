@@ -3172,11 +3172,7 @@ bool Gui::setCurrentStep(const QString &key)
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
     else if (Preferences::debugLogging) {
-        LogType logType = LOG_DEBUG;
-#ifdef QT_DEBUG_MODE
-        logType = LOG_ERROR;
-#endif
-        emit messageSig(logType, QString("Could not determine step for %1 at step number %2.")
+        emit messageSig(LOG_ERROR, QString("Could not determine step for %1 at step number %2.")
                                            .arg(here.modelName).arg(stepNumber));
     }
 
