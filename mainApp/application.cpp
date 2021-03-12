@@ -188,25 +188,10 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-    QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
-    QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
-
-    //qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
-#ifdef Q_OS_MAC
-    QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
-    m_application.setStyle(QStyleFactory::create("macintosh"));
-#endif
+  QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
+  QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
   m_instance = this;
-  m_console_mode = false;
-  m_print_output = false;
-  m_redirect_io_to_console = true;
-#ifdef Q_OS_WIN
-  m_allocated_console = false;
-#endif
-
-  connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
-
 }
 
 Application* Application::instance()
@@ -448,6 +433,18 @@ void Application::setTheme(bool appStarted)
 
 void Application::initialize()
 {
+#ifdef Q_OS_MAC
+    m_application.setStyle(QStyleFactory::create("macintosh"));
+#endif
+    m_console_mode = false;
+    m_print_output = false;
+    m_redirect_io_to_console = true;
+#ifdef Q_OS_WIN
+    m_allocated_console = false;
+#endif
+
+    connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
+
     // process arguments
     bool headerPrinted = false;
 #ifdef Q_OS_WIN
@@ -700,35 +697,6 @@ void Application::initialize()
             }
         }
     }
-
-    // Enum registrations from name.h
-    Q_ENUMS(PartType)
-    Q_ENUMS(PliType)
-    Q_ENUMS(LogType)
-    Q_ENUMS(IniFlag)
-    Q_ENUMS(DividerType)
-    Q_ENUMS(ShowLoadMsgType)
-    Q_ENUMS(LoadMsgType)
-    Q_ENUMS(RulerTrackingType)
-    Q_ENUMS(SceneGuidesPosType)
-    Q_ENUMS(LibType)
-    Q_ENUMS(Theme)
-    Q_ENUMS(SaveOnSender)
-    Q_ENUMS(NativeType)
-    Q_ENUMS(SceneObjectInfo)
-    Q_ENUMS(GridStepSize)
-    Q_ENUMS(LDrawUnofficialFileType)
-    Q_ENUMS(SubAttributes)
-    Q_ENUMS(NameKeyAttributes)
-    Q_ENUMS(SceneObject)
-    Q_ENUMS(ThemeColorType)
-
-    // other enum registrations
-    Q_ENUMS(Dimensions)
-    Q_ENUMS(PAction)
-    Q_ENUMS(Direction)
-    Q_ENUMS(ExportOption)
-    Q_ENUMS(ExportMode)
 
     // Set loaded library flags and variables
     Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
@@ -1003,7 +971,8 @@ void Application::initialize()
 */
 
     // set theme
-    setTheme(false/*appStarted*/);
+    if (modeGUI())
+        setTheme(false/*appStarted*/);
 
     emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
@@ -1017,10 +986,15 @@ void Application::initialize()
 
     gApplication = new lcApplication();
 
+    emit splashMsgSig("35% - 3D Viewer defaults loading...");
+
+    Preferences::viewerPreferences();
+
     emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
     if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
         emit gui->messageSig(LOG_ERROR, QString("Unable to initialize 3D Viewer."));
+        gApplication->Shutdown();
         throw InitException{};
     } else {
         gui->initialize();
@@ -1136,17 +1110,38 @@ void messageSig(LogType logType, QString message){
     gui->messageSig(logType, message);
 }
 
+static void initializeSurfaceFormat(int argc, char* argv[])
+{
+    Application App(argc, argv);
+    lcApplication Viewer;
+    const lcCommandLineOptions Options = Viewer.ParseCommandLineOptions();
+
+    if (Options.ParseOK && Options.AASamples > 1)
+    {
+        QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+        Format.setSamples(Options.AASamples);
+        QSurfaceFormat::setDefaultFormat(Format);
+    }
+}
+
 int main(int argc, char** argv)
 {
+    initializeSurfaceFormat(argc, argv);
+
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+#ifdef Q_OS_MAC
+    QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+#endif
+
     QScopedPointer<Application> app(new Application(argc, argv));
+
     try
     {
-        app->initialize();
+       app->initialize();
     }
     catch(const InitException &ex)
     {

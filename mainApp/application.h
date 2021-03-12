@@ -21,14 +21,61 @@
 #include <string>
 #include <vector>
 
+#ifdef Q_OS_WIN
+  #include <Windows.h>
+#endif
+
 #include "QsLog.h"
 #include "name.h"
 
 #include "lc_global.h"
 
-#ifdef Q_OS_WIN
-  #include <Windows.h>
-#endif
+/*** Mod - Options moved from lc_application.h ***/
+#include "lc_math.h"
+
+struct lcCommandLineOptions
+{
+    bool ParseOK;
+    bool Exit;
+    bool SaveImage;
+    bool SaveWavefront;
+    bool Save3DS;
+    bool SaveCOLLADA;
+    bool SaveHTML;
+    bool SetCameraAngles;
+    bool SetCameraPosition;
+    bool Orthographic;
+    bool SetFoV;
+    bool SetZPlanes;
+    bool SetFadeStepsColor;
+    bool SetHighlightColor;
+    bool FadeSteps;
+    bool ImageHighlight;
+    int ImageWidth;
+    int ImageHeight;
+    int AASamples;
+//	int StudLogo; /*** LPub3D Mod - process command line ***/
+    int ImageStart;
+    int ImageEnd;
+    lcVector3 CameraPosition[3];
+    lcVector2 CameraLatLon;
+    float FoV;
+    lcVector2 ZPlanes;
+    lcViewpoint Viewpoint;
+    quint32 FadeStepsColor;
+    quint32	HighlightColor;
+    QString ImageName;
+    QString ModelName;
+    QString CameraName;
+    QString ProjectName;
+    QString SaveWavefrontName;
+    QString Save3DSName;
+    QString SaveCOLLADAName;
+    QString SaveHTMLName;
+    QList<QPair<QString, bool>> LibraryPaths;
+    QString Output;
+};
+/*** Mod end ***/
 
 class InitException: public QException
 {

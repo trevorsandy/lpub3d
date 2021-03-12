@@ -21,14 +21,51 @@
 int Gui::processCommandLine()
 {
   // 3DViewer
-  int viewerJob = Process3DViewerCommandLine();
-  if (viewerJob < 0)
+  int viewerCommand = Process3DViewerCommandLine();
+  if (viewerCommand < 0)
      return 1;
   else
-  if (viewerJob)
+  if (viewerCommand)
     return 0;
-    
+
   // Declarations
+  QStringList excludedCommands = QStringList()
+    // Application::initialize arguments
+    << "-ns" << "--no-stdout-log"
+    << "-ll" << "--liblego"
+    << "-lt" << "--libtente"
+    << "-lv" << "--libvexiq"
+    // 3DViewer arguments
+    << "-l" << "--libpath"
+    << "-i" << "--image"
+    << "-w" << "--width"
+    << "-h" << "--height"
+    << "-f" << "--from"
+    << "-t" << "--to"
+    << "-s" << "--submodel"
+    << "-c" << "--camera"
+    << "--viewpoint"
+    << "--camera-angles"
+    << "--camera-position"
+    << "--camera-position-ldraw"
+    << "--orthographic"
+    << "--fov"
+    << "--zplanes"
+    << "--fade-steps"
+    << "--no-fade-steps"
+    << "--fade-steps-color"
+    << "--highlight"
+    << "--no-highlight"
+    << "--highlight-color"
+    << "--shading"
+    << "--line-width"
+    << "--aa-samples"
+    << "-obj" << "--export-wavefront"
+    << "-3ds" << "--export-3ds"
+    << "-dae" << "--export-collada"
+    << "-html" << "--export-html"
+    ;
+
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
    int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
    int StudLogo              = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
@@ -67,23 +104,24 @@ int Gui::processCommandLine()
           continue;
       }
 
-      if (  /* These are treated in Application::initialize() so ignore here */
-            (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log")) ||
-            (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))  ||
-            (Param == QLatin1String("-lt") || Param == QLatin1String("--libtente")) ||
-            (Param == QLatin1String("-lv") || Param == QLatin1String("--libvexiq"))
-            )
-      {
-          continue;
+      bool IsExcluded = false;
+      for (int i = 0; i < excludedCommands.size(); i++) {
+          if (Param.startsWith(excludedCommands.at(i))) {
+              IsExcluded = true;
+              break;
+          }
       }
+
+      if (IsExcluded)
+          continue;
 
       auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair)
       {
           QString message = Text.isEmpty() ? QString("Invalid value specified") : Text;
           if (Pair)
-              emit messageSig(LOG_ERROR, message.append(QString(" for the '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
+              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
           else
-              emit messageSig(LOG_ERROR, message.append(QString(" for the '%1' option.").arg(Param)));
+              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option.").arg(Param)));
 
           ParseOK = false;
       };
@@ -97,7 +135,7 @@ int Gui::processCommandLine()
           }
           else if (Required)
           {
-              InvalidParse(QString("Not enough parameters"), false);
+              InvalidParse(QString("Not enough parameters for the"), false);
               return false;
           }
 
@@ -118,10 +156,10 @@ int Gui::processCommandLine()
                   return true;
               }
               else
-                  InvalidParse(QString("Invalid parameter value specified"), true);
+                  InvalidParse(QString("Invalid parameter value specified for the"), true);
           }
           else
-              InvalidParse(QString("Not enough parameters"), false);
+              InvalidParse(QString("Not enough parameters for the"), false);
 
           return false;
       };
@@ -160,7 +198,7 @@ int Gui::processCommandLine()
       {
         if (ParseInteger(StudLogo) && StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO)) {
             if (StudLogo < 0 || StudLogo > 5)
-               InvalidParse(QString("Invalid value specified, valid values range from 0 to 5"), true);
+               InvalidParse(QString("Invalid value specified, valid values range from 0 to 5 for the"), true);
             else
                 SetStudLogo(StudLogo, false);
         }
@@ -195,10 +233,10 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-hw") || Param == QLatin1String("--highlight-line-width"))
       {
         if (ParseInteger(highlightLineWidth) && (highlightLineWidth < 1 || highlightLineWidth > 10))
-            InvalidParse(QString("Invalid value specified, valid values range from 1 to 10"), true);
+            InvalidParse(QString("Invalid value specified, valid values range from 1 to 10 for the"), true);
       }
       else
-        InvalidParse(QString("Unknown %1 command line parameter").arg(VER_PRODUCTNAME_STR), false);
+        InvalidParse(QString("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
     }
     
   if (!ParseOK)
@@ -420,9 +458,13 @@ int Gui::processCommandLine()
 
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {
+      if (processExport)
+          setExporting(true);
+      if (processFile)
+          setExporting(false);
       if(resetCache) {
           emit messageSig(LOG_INFO,QString("Reset parts cache specified."));
-          resetModelCache(QFileInfo(commandlineFile).absoluteFilePath());
+          resetModelCache(QFileInfo(commandlineFile).absoluteFilePath(), true/*commandLine*/);
       }
       commandTimer.start();
       if (!loadFile(commandlineFile)) {

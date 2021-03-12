@@ -1849,16 +1849,18 @@ int Gui::drawPage(
                       }
                   }
 
-                  if (lastStep && !lastStep->csiPixmap.isNull()) {
-                      emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
-                      setCurrentStep(lastStep);
+                  if (Preferences::modeGUI) {
+                      if (lastStep && !lastStep->csiPixmap.isNull()) {
+                          emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
+                          setCurrentStep(lastStep);
                       if (!exportingObjects()) {
                           showLine(lastStep->topOfStep());
                           lastStep->loadTheViewer();
                       }
                   } else {
-                      if (!exportingObjects())
-                          showLine(steps->topOfSteps());
+                          if (!exportingObjects())
+                              showLine(steps->topOfSteps());
+                      }
                   }
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);

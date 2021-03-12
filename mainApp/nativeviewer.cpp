@@ -580,6 +580,9 @@ void Gui::enable3DActions(bool enable)
 
 void Gui::halt3DViewer(bool enable)
 {
+    if (!gMainWindow)
+        return;
+
     if(enable){
         GetToolsToolBar()->setEnabled(false);
         gMainWindow->menuBar()->setEnabled(false);
