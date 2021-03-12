@@ -1117,6 +1117,8 @@ static void initializeSurfaceFormat(int argc, char* argv[])
 {
     QCoreApplication CoreApp(argc, argv);
 
+    Preferences::setDistribution();
+
     const lcCommandLineOptions Options = lcApplication::ParseCommandLineOptions();
 
     if (Options.ParseOK && Options.AASamples > 1)
