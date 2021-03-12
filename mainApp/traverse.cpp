@@ -467,6 +467,7 @@ int Gui::drawPage(
   int  buildModStepIndex = -1;
   bool buildModItems     = false;
   bool buildModIgnore    = false;
+  bool buildModCreate    = false;
   bool buildModPliIgnore = false;
   bool buildMod[3]       = { false, false, false };
 
@@ -650,6 +651,13 @@ int Gui::drawPage(
                       .arg(buildModKey)
                       .arg(buildModLevel));
 #endif
+  };
+
+  auto updateBuildModification = [this, &step, &buildModKeys] (int buildModLevel)
+  {
+      const QString buildModKey = buildModKeys.value(buildModLevel);
+      setBuildModStepKey(buildModKey, step->viewerStepKey);
+      setBuildModStepPieces(buildModKey, GetLPubStepPieces());
   };
 
   PartLineAttributes pla(
@@ -1999,15 +2007,17 @@ int Gui::drawPage(
               opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
               if (! buildModKeys.contains(opts.buildModLevel))
                   buildModKeys.insert(opts.buildModLevel, buildModKey);
-              // create this buildMod
-              if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut) {
+              // create new buildMod if step-group and not on first group step
+              if ((buildModCreate = (multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut))
                   insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
-                  if (buildModContains(buildModKey))
-                      opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
-                  else
-                      opts.buildModActions.insert(opts.buildModLevel, BuildModNoActionRc);
-
-              }
+              // set buildModActions
+              if (buildModContains(buildModKey))
+                  opts.buildModActions.insert(opts.buildModLevel, Rc(getBuildModAction(buildModKey, BM_LAST_ACTION)));
+              else if (buildModCreate)
+                  opts.buildModActions.insert(opts.buildModLevel, BuildModApplyRc);
+              else
+                  parseError(QString("Expected BuildMod action - Ensure your meta command is well formed."),
+                             opts.current,Preferences::BuildModErrors);
               // set buildMod action
               if (opts.buildModActions.value(opts.buildModLevel) == BuildModApplyRc) {
                   buildModIgnore    = false;
@@ -2323,10 +2333,10 @@ int Gui::drawPage(
                           if (buildMod[BM_BEGIN] && ! buildMod[BM_END])
                               parseError(QString("Required meta BUILD_MOD END not found"), opts.current, Preferences::BuildModErrors);
                           Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
-                              QString buildModKey = buildModKeys.value(buildModLevel);
-                              // Create BuildMods
                               if ((multiStep && topOfStep != steps->topOfSteps()) || opts.calledOut)
                                   insertBuildModification(buildModLevel);
+                              else
+                                  updateBuildModification(buildModLevel);
                           }
                           buildModKeys.clear();
                           buildModAttributes.clear();
@@ -2399,9 +2409,6 @@ int Gui::drawPage(
                           if (countInstances > CountFalse && countInstances < CountAtStep)
                               instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
                       }
-
-
-
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {

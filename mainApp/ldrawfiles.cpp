@@ -2544,24 +2544,33 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
 
 void LDrawFile::clearBuildModSteps(const QString &buildModKey)
 {
-    int action = BuildModNoActionRc;
-    QString modKey = buildModKey.toLower();
-    QMap<int, BuildModStep>::iterator i = _buildModSteps.begin();
-    int hasItems = _buildModSteps.size();
-    while (i != _buildModSteps.end() && hasItems) {
-        if (i.value()._buildModKey == modKey) {
-            action = i.value()._buildModAction;
-            _buildModSteps.erase(i);
-            hasItems--;
-
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep Action: %1, ModKey: %2")
-                                 .arg(action == BuildModApplyRc ? "Apply" : action == BuildModRemoveRc ? "Remove" : action == BuildModSourceRc ? "Source" : "None")
-                                 .arg(modKey));
+    emit gui->messageSig(LOG_TRACE, QString("Remove BuildModStep actions for ModKey %1...") .arg(buildModKey));
 #endif
+
+    QString modKey = buildModKey.toLower();
+    QMultiMap<int, BuildModStep> buildModSteps;
+    QMap<int, BuildModStep>::iterator i = _buildModSteps.begin();
+    while (i != _buildModSteps.end()) {
+        if(i.value()._buildModKey != modKey ) {
+            buildModSteps.insert(i.key(),i.value());
         }
-        if (hasItems)
-            i++;
+#ifdef QT_DEBUG_MODE
+        else
+        {
+            int action = i.value()._buildModAction;
+            emit gui->messageSig(LOG_TRACE, QString("Step Index: %1, Action: %2")
+                                 .arg(i.value()._buildModStepIndex)
+                                 .arg(action == BuildModApplyRc ? "Apply" : action == BuildModRemoveRc ? "Remove" : action == BuildModSourceRc ? "Source" : "None"));
+
+        }
+#endif
+        i++;
+    }
+
+    if (buildModSteps.size()) {
+        _buildModSteps.clear();
+        _buildModSteps = buildModSteps;
     }
 }
 
