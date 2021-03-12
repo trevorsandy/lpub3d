@@ -92,14 +92,17 @@ public:
     QMessageBoxResizable(QWidget *parent=nullptr);
     ~QMessageBoxResizable(){}
     void setDetailedText(const QString &text, bool html = true);
-    void setText(const QString &text);
+    void setInformativeText(const QString &text);
 private slots:
     void showDetails(bool clicked);
 private:
     virtual bool event(QEvent *e);
+    virtual void resizeEvent(QResizeEvent *e);
     QMessageBoxDetailsText *detailsTextBrowser;
     DetailPushButton       *detailsPushButton;
+    int                     fixedWidth;
     bool                    autoAddOkButton;
+    bool                    autoSize;
 };
 
 #endif // MESSAGEBOXRESIZABLE_H

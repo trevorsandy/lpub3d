@@ -28,7 +28,8 @@ QMessageBoxResizable::QMessageBoxResizable(QWidget *parent)
     : QMessageBox(parent),
       detailsTextBrowser(nullptr),
       detailsPushButton(nullptr),
-      autoAddOkButton(true)
+      autoAddOkButton(true),
+      autoSize(false)
 {
     setMouseTracking(true);
     setSizeGripEnabled(true);
@@ -43,8 +44,23 @@ void QMessageBoxResizable::showDetails(bool clicked){
     }
 }
 
-void QMessageBoxResizable::setText(const QString &text){
-    QMessageBox::setText(text);
+void QMessageBoxResizable::setInformativeText(const QString &text){
+    autoSize = true;
+    // number of the characters in text string
+    int textWidth = text.size();
+    // maximum characters width
+    int characterLimit = 80;
+    // size of font character
+    int fontWidth = QFontMetrics(font()).averageCharWidth();
+    // take the smallest between text width and character limit
+    fixedWidth = qMin(textWidth, characterLimit) * fontWidth;
+    // ensure we break at a space
+    if (fixedWidth/fontWidth == characterLimit) {
+        int index = characterLimit - 1;
+        if (!text.midRef(index,1).isEmpty())
+            fixedWidth = text.indexOf(" ", index);
+    }
+    QMessageBox::setInformativeText(text);
 }
 
 void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
@@ -97,11 +113,22 @@ void QMessageBoxResizable::setDetailedText(const QString &text, bool html){
     this->adjustSize();
 }
 
+void QMessageBoxResizable::resizeEvent(QResizeEvent *event)
+{
+    QMessageBox::resizeEvent(event);
+    if (autoSize) {
+        resize(fixedWidth, height()); // width in pixels.
+        if (QWidget *textBrowser = findChild<QTextBrowser *>())
+            textBrowser->resize(fixedWidth, height());
+    }
+}
+
 bool QMessageBoxResizable::event(QEvent *e){
     bool res = QMessageBox::event(e);
     switch (e->type()) {
     case QEvent::MouseMove:
     case QEvent::MouseButtonPress:
+        autoSize = false;
         setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
         if (QWidget *textBrowser = findChild<QTextBrowser *>()) {
             textBrowser->setMaximumHeight(QWIDGETSIZE_MAX);
