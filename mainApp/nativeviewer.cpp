@@ -1880,6 +1880,11 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary()->ReloadUnoffLib();
  }
 
+ void Gui::LoadColors()
+ {
+     lcGetPiecesLibrary()->LoadColors();
+ }
+
  int Gui::Process3DViewerCommandLine()
  {
      return gApplication->Process3DViewerCommandLine();

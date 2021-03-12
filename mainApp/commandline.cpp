@@ -16,6 +16,7 @@
 
 #include "application.h"
 #include "lc_profile.h"
+#include "lc_application.h"
 #include "lpub.h"
 
 int Gui::processCommandLine()
@@ -66,9 +67,18 @@ int Gui::processCommandLine()
     << "-html" << "--export-html"
     ;
 
+  const lcPreferences& Preferences = lcGetPreferences();
+  quint32 StudCylinderColor     = Preferences.mStudCylinderColor;
+  quint32 PartEdgeColor         = Preferences.mPartEdgeColor;
+  quint32 BlackEdgeColor        = Preferences.mBlackEdgeColor;
+  quint32 DarkEdgeColor         = Preferences.mDarkEdgeColor;
+  float   PartEdgeContrast      = Preferences.mPartEdgeContrast;
+  float   PartColorValueLDIndex = Preferences.mPartColorValueLDIndex;
+  bool    AutomateEdgeColor     = Preferences.mAutomateEdgeColor;
+
+   int StudStyle             = GetStudStyle();
    int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
    int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-   int StudStyle             = GetStudStyle();
   bool processExport         = false;
   bool processFile           = false;
   bool fadeSteps             = false;
@@ -78,10 +88,11 @@ int Gui::processCommandLine()
   bool useLDVSingleCall      = false;
   bool useLDVSnapShotList    = false;
   bool useNativeRenderer     = false;
-  
+  bool coloursChanged        = false;
+
   QString generator          = RENDERER_NATIVE;
 
-  QString pageRange, exportOption,
+  QString pageRange, exportOption, colourConfigFile,
           commandlineFile, preferredRenderer, projection,
           fadeStepsColour, highlightStepColour, message;
 
@@ -142,7 +153,7 @@ int Gui::processCommandLine()
           return true;
       };
 
-      auto ParseInteger = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](int& Value)
+      auto ParseInteger = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](int& Value, int Min, int Max)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
           {
@@ -150,13 +161,57 @@ int Gui::processCommandLine()
               ArgIdx++;
               int NewValue = Arguments[ArgIdx].toInt(&Ok);
 
-              if (Ok)
+              if (Ok && NewValue >= Min && NewValue <= Max)
               {
                   Value = NewValue;
                   return true;
               }
               else
                   InvalidParse(QString("Invalid parameter value specified for the"), true);
+          }
+          else
+              InvalidParse(QString("Not enough parameters for the"), false);
+
+          return false;
+      };
+
+      auto ParseFloat = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](float& Value, float Min, float Max)
+      {
+          if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+          {
+              bool Ok = false;
+              ArgIdx++;
+              int NewValue = Arguments[ArgIdx].toFloat(&Ok);
+
+              if (Ok && NewValue >= Min && NewValue <= Max)
+              {
+                  Value = NewValue;
+                  return true;
+              }
+              else
+                  InvalidParse(QString("Invalid parameter value specified for the"), true);
+          }
+          else
+              InvalidParse(QString("Not enough parameters for the"), false);
+
+          return false;
+      };
+
+      auto ParseColor32 = [&InvalidParse, &ArgIdx, &Arguments, NumArguments](quint32& Color)
+      {
+          if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+          {
+              ArgIdx++;
+              QString Parameter = Arguments[ArgIdx];
+              QColor ParsedColor = QColor(Parameter);
+
+              if (ParsedColor.isValid())
+              {
+                  Color = LC_RGBA(ParsedColor.red(), ParsedColor.green(), ParsedColor.blue(), ParsedColor.alpha());
+                  return true;
+              }
+              else
+                  InvalidParse(QString("Not enough parameters for the"), false);
           }
           else
               InvalidParse(QString("Not enough parameters for the"), false);
@@ -175,7 +230,7 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-fo") || Param == QLatin1String("--fade-step-opacity"))
       {
-         if (ParseInteger(fadeStepsOpacity))
+         if (ParseInteger(fadeStepsOpacity, 0, 100))
            fadeSteps = true;
       }
       else
@@ -186,7 +241,7 @@ int Gui::processCommandLine()
       }
       else
       if (Param == QLatin1String("-hs") || Param == QLatin1String("--highlight-step"))
-        highlightStep = true;
+          highlightStep = true;
       else
       if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-color"))
       {
@@ -196,13 +251,67 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-ss") || Param == QLatin1String("--stud-style"))
       {
-        if (ParseInteger(StudStyle) && StudStyle != GetStudStyle()) {
-            if (StudStyle < 0 || StudStyle > 7)
-               InvalidParse(QString("Invalid value specified, valid values range from 0 to 7 for the"), true);
-            else
-               SetStudStyle(StudStyle, false);
-        }
-      } else
+        if (!ParseInteger(StudStyle, 0, 7))
+            InvalidParse(QString("Invalid value specified, valid values range from 0 to 7 for the"), true);
+      }
+      else if (Param == QLatin1String("-scc") || Param == QLatin1String("--stud-cylinder-color"))
+      {
+          if (ParseColor32(StudCylinderColor))
+          {
+              coloursChanged = true;
+              if (StudStyle < 6)
+                  InvalidParse(QString("High contrast stud style is required for the"), true);
+          }
+      }
+      else if (Param == QLatin1String("-ec") || Param == QLatin1String("--edge-color"))
+      {
+          if (ParseColor32(PartEdgeColor))
+          {
+              coloursChanged = true;
+              if (StudStyle < 6)
+                  InvalidParse(QString("High contrast stud style is required for the"), true);
+          }
+      }
+      else if (Param == QLatin1String("-bec") || Param == QLatin1String("--black-edge-color"))
+      {
+          if (ParseColor32(BlackEdgeColor))
+          {
+              coloursChanged = true;
+              if (StudStyle < 6)
+                  InvalidParse(QString("High contrast stud style is required for the"), true);
+          }
+      }
+      else if (Param == QLatin1String("-dec") || Param == QLatin1String("--dark-edge-color"))
+      {
+          if (ParseColor32(DarkEdgeColor))
+          {
+              coloursChanged = true;
+              if (StudStyle < 6)
+                  InvalidParse(QString("High contrast stud style is required for the"), true);
+          }
+      }
+      else
+      if (Param == QLatin1String("-aec") || Param == QLatin1String("--automate-edge-color"))
+      {
+          if (!AutomateEdgeColor)
+              coloursChanged = true;
+          AutomateEdgeColor = true;
+      }
+      else
+      if (Param == QLatin1String("-cc") || Param == QLatin1String("--color-contrast"))
+      {
+          if (ParseFloat(PartEdgeContrast, 0.0f, 1.0f))
+              if (!AutomateEdgeColor)
+                  InvalidParse(QString("Automate edge color is required for the"), true);
+      }
+      else
+      if (Param == QLatin1String("-ldv") || Param == QLatin1String("--light-dark-value"))
+      {
+          if (ParseFloat(PartColorValueLDIndex, 0.0f, 1.0f))
+              if (!AutomateEdgeColor)
+                  InvalidParse(QString("Automate edge color is required for the"), true);
+      }
+      else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
 //        imageMatting = true;
 //      else
@@ -232,8 +341,23 @@ int Gui::processCommandLine()
       else
       if (Param == QLatin1String("-hw") || Param == QLatin1String("--highlight-line-width"))
       {
-        if (ParseInteger(highlightLineWidth) && (highlightLineWidth < 1 || highlightLineWidth > 10))
+        if (!ParseInteger(highlightLineWidth, 1, 10))
             InvalidParse(QString("Invalid value specified, valid values range from 1 to 10 for the"), true);
+      }
+      if (Param == QLatin1String("-ccf") || Param == QLatin1String("--color-config-file"))
+      {
+        if (ParseString(colourConfigFile, true))
+        {
+            if (QFileInfo(colourConfigFile).exists())
+            {
+                coloursChanged = true;
+            }
+            else
+            {
+                InvalidParse(QString("Invalid value specified for the "), true);
+                colourConfigFile = QString();
+            }
+        }
       }
       else
         InvalidParse(QString("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
@@ -455,6 +579,22 @@ int Gui::processCommandLine()
         }
       partWorkerLDSearchDirs.resetSearchDirSettings();
     }
+
+  gApplication->mPreferences.mStudCylinderColor = StudCylinderColor;
+  gApplication->mPreferences.mPartEdgeColor = PartEdgeColor;
+  gApplication->mPreferences.mBlackEdgeColor = BlackEdgeColor;
+  gApplication->mPreferences.mDarkEdgeColor = DarkEdgeColor;
+  gApplication->mPreferences.mPartEdgeContrast = PartEdgeContrast;
+  gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+  gApplication->mPreferences.mAutomateEdgeColor = AutomateEdgeColor;
+
+  if (!colourConfigFile.isEmpty())
+      Preferences::altLDConfigPath = colourConfigFile;
+
+  if (StudStyle != GetStudStyle())
+      SetStudStyle(StudStyle, false);
+  else if (coloursChanged || AutomateEdgeColor)
+      LoadColors();
 
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {
