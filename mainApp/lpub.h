@@ -1047,6 +1047,7 @@ public:
   }
 
   void skipHeader(Where &current);
+  void enableNavigationActions(bool enable);
 
   bool setCurrentStep(const QString &key = "");
   void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);

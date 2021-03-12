@@ -550,7 +550,7 @@ int Gui::drawPage(
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
     emit messageSig(LOG_INFO_STATUS, QString("Counting document pages..."));
-    QApplication::processEvents();
+    setPageLineEdit->setText(QString("Counting pages..."));
   };
 
   auto insertAttribute =
@@ -3978,6 +3978,8 @@ void Gui::drawPage(LGraphicsView  *view,
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
+  enableNavigationActions(false);
+
   Where current(ldrawFile.topLevelFile(),0,0);
 
   maxPages    = 1 + pa;
@@ -4097,8 +4099,7 @@ void Gui::drawPage(LGraphicsView  *view,
 
       if (Preferences::modeGUI && ! exporting()) {
           QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-          if (! exporting())
-              setPageLineEdit->setText(string);
+          setPageLineEdit->setText(string);
       }
 
       QApplication::restoreOverrideCursor();

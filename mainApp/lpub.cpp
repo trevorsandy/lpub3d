@@ -409,6 +409,27 @@ void Gui::displayPage()
   pageProcessRunning = PROC_NONE;
 }
 
+void Gui::enableNavigationActions(bool enable)
+{
+    setPageLineEdit->setEnabled(enable);
+    setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
+    mpdCombo->setEnabled(mpdCombo->count() && enable);
+
+    firstPageAct->setEnabled(enable);
+    lastPageAct->setEnabled(enable);
+
+    if (!nextPageContinuousIsRunning  && !previousPageContinuousIsRunning) {
+        nextPageAct->setEnabled(enable);
+        previousPageAct->setEnabled(enable);
+        nextPageComboAct->setEnabled(enable);
+        previousPageComboAct->setEnabled(enable);
+        nextPageContinuousAct->setEnabled(enable);
+        previousPageContinuousAct->setEnabled(enable);
+    }
+
+    QApplication::processEvents();
+}
+
 void Gui::nextPage()
 {
   QString string = setPageLineEdit->displayText();
@@ -4770,10 +4791,9 @@ void Gui::createActions()
 }
 
 void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
-  int pageNum     = 0 + pa;
+  int pageNum = 0 + pa;
   disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
   setGoToPageCombo->clear();
-
 
   for(int i=1 + pa;i <= maxPages;i++){
       QApplication::processEvents();
@@ -4788,9 +4808,11 @@ void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
       else
         setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
     }
-  mpdCombo->setEnabled(mpdCombo->count());
-  setGoToPageCombo->setEnabled(setGoToPageCombo->count());
-  setGoToPageCombo->setCurrentIndex(displayPageNum-1 - pa);
+
+  if (Preferences::modeGUI && ! exporting())
+      enableNavigationActions(true);
+
+  setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
 }
 
@@ -4980,6 +5002,9 @@ void Gui::enableActions2()
     bool backCoverPageExist = mi->backCoverPageExist();
     appendCoverPageAct->setEnabled(! backCoverPageExist &&
                                    mi->okToAppendCoverPage());
+
+    loadPages(frontCoverPageExist, backCoverPageExist);
+
     bool frontCover = mi->okToInsertNumberedPage();
     insertNumberedPageAct->setEnabled(frontCover);
     bool backCover = mi->okToAppendNumberedPage();
@@ -4987,7 +5012,7 @@ void Gui::enableActions2()
     deletePageAct->setEnabled(page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
-    loadPages(frontCoverPageExist, backCoverPageExist);
+
 }
 
 void Gui::disableActions2()
