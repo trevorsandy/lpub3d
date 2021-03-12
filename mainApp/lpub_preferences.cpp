@@ -2036,6 +2036,16 @@ void Preferences::preferredRendererPreferences()
         enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,enableLDViewSingleCallKey)).toBool();
     }
 
+    // Default projection
+    QString const perspectiveProjectionKey("PerspectiveProjection");
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
+        QVariant uValue(perspectiveProjection);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
+    } else {
+        perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
+    }
+
     //  LDView single call snapshot list
     QString const enableLDViewSnapshotsListKey("EnableLDViewSnapshotsList");
 
@@ -2318,16 +2328,6 @@ void Preferences::rendererPreferences()
 
     // Set valid preferred renderer preferences
     preferredRendererPreferences();
-
-    // Default projection
-    QString const perspectiveProjectionKey("PerspectiveProjection");
-
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
-        QVariant uValue(perspectiveProjection);
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
-    } else {
-        perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
-    }
 
     // Renderer timeout
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {

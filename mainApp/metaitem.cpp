@@ -3239,13 +3239,14 @@ bool MetaItem::deleteFinalModelStep(){
 }
 
 void MetaItem::changePreferredRenderer(
-  QString title,
+  QString      title,
   const Where &topOfStep,
   const Where &bottomOfStep,
   PreferredRendererMeta *meta,
-  bool        local,
-  int         append,
-  bool        useTop)
+  bool         local,
+  int          append,
+  bool         useTop,
+  bool         askLocal)
 {
   PreferredRendererMeta _meta;
   _meta.setValue(meta->value());
@@ -3255,44 +3256,41 @@ void MetaItem::changePreferredRenderer(
 
   if (ok) {
     meta->setValue(_meta.value());
-    setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
+    setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
   }
 }
 
 void MetaItem::setFadeSteps(
-  QString            title,
-  const Where       &topOfStep,
-  const Where       &bottomOfStep,
-  FadeStepMeta      *meta,
-  int                append,
-  bool               local)
+QString         title,
+  const Where  &topOfStep,
+  const Where  &bottomOfStep,
+  FadeStepMeta *meta,
+  int           append,
+  bool          local,
+  bool          askLocal)
 {
   FadeStepMeta _meta;
-  _meta.fade         = meta->fade;
-  _meta.fadeColor    = meta->fadeColor;
-  _meta.fadeUseColor = meta->fadeUseColor;
-  _meta.fadeOpacity  = meta->fadeOpacity;
+  _meta.enable         = meta->enable;
+  _meta.color    = meta->color;
+  _meta.opacity  = meta->opacity;
   bool ok;
   ok = FadeHighlightDialog::getFadeSteps(_meta,title,gui);
 
   if (ok) {
     beginMacro("SetFadeSteps");
-    if(_meta.fade.value().value != meta->fade.value().value ||
-       _meta.fade.value().reset != meta->fade.value().reset) {
-      meta->fade.setValue(_meta.fade.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->fade,append,local,true);
+    if(_meta.enable.value().value != meta->enable.value().value ||
+       _meta.enable.value().reset != meta->enable.value().reset) {
+      meta->enable.setValue(_meta.enable.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->enable,append,local,askLocal);
     }
-    if(_meta.fadeColor.value() != meta->fadeColor.value()) {
-      meta->fadeColor.setValue(_meta.fadeColor.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeColor,append,local,true);
+    if(_meta.color.value().color != meta->color.value().color ||
+       _meta.color.value().useColor != meta->color.value().useColor) {
+      meta->color.setValue(_meta.color.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->color,append,local,askLocal);
     }
-    if(_meta.fadeUseColor.value() != meta->fadeUseColor.value()) {
-      meta->fadeUseColor.setValue(_meta.fadeUseColor.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeUseColor,append,local,true);
-    }
-    if(_meta.fadeOpacity.value() != meta->fadeOpacity.value()) {
-      meta->fadeOpacity.setValue(_meta.fadeOpacity.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->fadeOpacity,append,local,true);
+    if(_meta.opacity.value() != meta->opacity.value()) {
+      meta->opacity.setValue(_meta.opacity.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->opacity,append,local,askLocal);
     }
     endMacro();
   }
@@ -3304,29 +3302,30 @@ void MetaItem::setHighlightStep(
   const Where       &bottomOfStep,
   HighlightStepMeta *meta,
   int                append,
-  bool               local)
+  bool               local,
+  bool               askLocal)
 {
   HighlightStepMeta _meta;
-  _meta.highlight          = meta->highlight;
-  _meta.highlightColor     = meta->highlightColor;
-  _meta.highlightLineWidth = meta->highlightLineWidth;
+  _meta.enable          = meta->enable;
+  _meta.color     = meta->color;
+  _meta.lineWidth = meta->lineWidth;
   bool ok;
   ok = FadeHighlightDialog::getHighlightStep(_meta,title,gui);
 
   if (ok) {
     beginMacro("SetHighlightStep");
-    if(_meta.highlight.value().value != meta->highlight.value().value ||
-       _meta.highlight.value().reset != meta->highlight.value().reset) {
-      meta->highlight.setValue(_meta.highlight.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlight,append,local,true);
+    if(_meta.enable.value().value != meta->enable.value().value ||
+       _meta.enable.value().reset != meta->enable.value().reset) {
+      meta->enable.setValue(_meta.enable.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->enable,append,local,askLocal);
     }
-    if(_meta.highlightColor.value() != meta->highlightColor.value()) {
-      meta->highlightColor.setValue(_meta.highlightColor.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlightColor,append,local,true);
+    if(_meta.color.value() != meta->color.value()) {
+      meta->color.setValue(_meta.color.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->color,append,local,askLocal);
     }
-    if(_meta.highlightLineWidth.value() != meta->highlightLineWidth.value()) {
-      meta->highlightLineWidth.setValue(_meta.highlightLineWidth.value());
-      setMetaTopOf(topOfStep,bottomOfStep,&meta->highlightLineWidth,append,local,true);
+    if(_meta.lineWidth.value() != meta->lineWidth.value()) {
+      meta->lineWidth.setValue(_meta.lineWidth.value());
+      setMetaTopOf(topOfStep,bottomOfStep,&meta->lineWidth,append,local,askLocal);
     }
     endMacro();
   }

@@ -518,8 +518,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *setHighlightStepAction = commonMenus.highlightStepMenu(menu,pl);
   QAction *setFadeStepsAction = commonMenus.fadeStepsMenu(menu,pl);
   QAction *rendererAction = commonMenus.preferredRendererMenu(menu,pl);
-  setHighlightStepAction->setEnabled(meta->LPub.highlightStepSetup.value());
-  setFadeStepsAction->setEnabled(meta->LPub.fadeStepSetup.value());
+  setHighlightStepAction->setEnabled(meta->LPub.highlightStep.setup.value());
+  setFadeStepsAction->setEnabled(meta->LPub.fadeStep.setup.value());
 
   if (dividerDetected) {
       addDividerPointerAction = menu.addAction("Place Divider Pointer");

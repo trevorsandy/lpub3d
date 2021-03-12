@@ -1750,7 +1750,7 @@ void Gui::clearAllCaches(bool global)
         } else {
             _continue = maybeSave(true);
             if (_continue) {
-                // Suppress promots in the following calls
+                // Suppress prompt in the following call
                 disableSaveOnRedraw = true;
                 Preferences::saveOnRedraw = true;
             }
@@ -1765,10 +1765,12 @@ void Gui::clearAllCaches(bool global)
         ldrawFile.clearPrevStepPositions();
     }
 
-    clearPLICache();
-    clearCSICache();
-    clearSubmodelCache();
-    clearTempCache();
+    if (!global) {
+        clearPLICache();
+        clearCSICache();
+        clearSubmodelCache();
+        clearTempCache();
+    }
 
     if (disableSaveOnRedraw) {
         Preferences::saveOnRedraw = false;

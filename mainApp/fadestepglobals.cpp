@@ -98,7 +98,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  fadeStepSetupChild = new CheckBoxGui("Setup Fade Previous Steps",&lpubMeta->fadeStepSetup);
+  fadeStepSetupChild = new CheckBoxGui("Setup Fade Previous Steps",&fadeStepMeta->setup);
   fadeStepSetupChild->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
   data->children.append(fadeStepSetupChild);
   connect (fadeStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));

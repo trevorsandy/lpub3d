@@ -1524,6 +1524,7 @@ private:
   LGraphicsView         *KpageView;          // the visual representation of the scene
   WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
+  Where                  current;             // current line being parsed by drawPage
   QString                curFile;            // the file name for MPD, or top level file
   QString                exportedFile;       // the print preview produced pdf file
   QElapsedTimer          timer;              // measure elapsed time for slow functions
@@ -1546,15 +1547,13 @@ private:
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
-
-  QString                saveRenderer;
-  Where                  current;             // current line being parsed by drawPage
-
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
+  QString                saveRenderer;
   bool                   saveProjection;
-
   bool                   saveSingleCall;
+  bool                   saveSnapShotList;
+  bool                   saveNativeGenerator;
 
   int                    m_workerJobResult;
 

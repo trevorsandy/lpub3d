@@ -1734,7 +1734,7 @@ FadeStepGui::FadeStepGui(
 {
   meta = _meta;
   global = _global;
-  BoolAndResetData data = _meta->fade.value();
+  EnableData data = _meta->enable.value();
 
   QGridLayout *grid;
 
@@ -1756,7 +1756,7 @@ FadeStepGui::FadeStepGui(
   colorExample = new QLabel(parent);
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  QColor c = QColor(LDrawColor::color(meta->fadeColor.value()));
+  QColor c = QColor(LDrawColor::color(meta->color.value().color));
   QString styleSheet =
     QString("QLabel { background-color: rgb(%1, %2, %3); }").
     arg(c.red()).arg(c.green()).arg(c.blue());
@@ -1767,7 +1767,7 @@ FadeStepGui::FadeStepGui(
 
   colorCombo = new QComboBox(parent);
   colorCombo->addItems(LDrawColor::names());
-  colorCombo->setCurrentIndex(int(colorCombo->findText(meta->fadeColor.value())));
+  colorCombo->setCurrentIndex(int(colorCombo->findText(meta->color.value().color)));
   colorCombo->setDisabled(true);
 
   connect(colorCombo,SIGNAL(currentIndexChanged(QString const &)),
@@ -1779,7 +1779,7 @@ FadeStepGui::FadeStepGui(
 
   useColorCheck = new QCheckBox(tr("Use fade color"), parent);
   useColorCheck->setToolTip(tr("Use specified fade color (versus part colour"));
-  useColorCheck->setChecked(meta->fadeUseColor.value());
+  useColorCheck->setChecked(meta->color.value().useColor);
 
   connect(useColorCheck,SIGNAL(stateChanged(int)),
                     this, SLOT(valueChanged(int)));
@@ -1794,7 +1794,7 @@ FadeStepGui::FadeStepGui(
   fadeOpacitySpin = new QSpinBox(parent);
   fadeOpacitySpin->setToolTip(tr("Set the fade color opaqueness beteen 0 and 100."));
   fadeOpacitySpin->setRange(0,100);
-  fadeOpacitySpin->setValue(_meta->fadeOpacity.value());
+  fadeOpacitySpin->setValue(_meta->opacity.value());
 
   connect(fadeOpacitySpin,SIGNAL(valueChanged(int)),
                        this,SLOT(valueChanged(int)));
@@ -1804,9 +1804,10 @@ FadeStepGui::FadeStepGui(
   // fade step reset row
 
   if (! global) {
+    bool checked = data.value && !data.reset ? true : data.reset;
     fadeResetCheck = new QCheckBox(tr("Reset after this image render."), parent);
     fadeResetCheck->setToolTip(tr("Reset settings to the global fade steps preference."));
-    fadeResetCheck->setChecked(data.reset);
+    fadeResetCheck->setChecked(checked);
 
     connect(fadeResetCheck,SIGNAL(stateChanged(int)),
             this,            SLOT(valueChanged(int)));
@@ -1838,7 +1839,10 @@ void FadeStepGui::colorChange(QString const &colorName)
       QString("QLabel { background-color: rgb(%1, %2, %3); }")
               .arg(fadeColor.red()).arg(fadeColor.green()).arg(fadeColor.blue());
     colorExample->setStyleSheet(styleSheet);
-    meta->fadeColor.setValue(LDrawColor::name(fadeColor.name()));
+    FadeColorData data = meta->color.value();
+    data.color = LDrawColor::name(fadeColor.name());
+    data.useColor = true;
+    meta->color.setValue(data);
     modified = colorModified = oldFadeColour != fadeColor;
   }
 }
@@ -1856,31 +1860,33 @@ void FadeStepGui::valueChanged(int state)
     useColorCheck->setEnabled(checked);
     fadeOpacitySpin->setEnabled(checked);
     colorCombo->setEnabled(checked);
-    BoolAndResetData data = meta->fade.value();
+    EnableData data = meta->enable.value();
     fadeModified = data.value != checked;
     if (!modified)
       modified = fadeModified;
     data.value = checked;
-    meta->fade.setValue(data);
+    meta->enable.setValue(data);
   } else if (sender() == fadeResetCheck) {
     checked = isChecked();
-    BoolAndResetData data = meta->fade.value();
+    EnableData data = meta->enable.value();
     fadeModified = data.reset != checked;
     if (!modified)
       modified = fadeModified;
     data.reset = checked;
-    meta->fade.setValue(data);
+    meta->enable.setValue(data);
   } else if (sender() == useColorCheck) {
     checked = isChecked();
-    useColorModified = meta->fadeUseColor.value() != checked;
+    FadeColorData data = meta->color.value();
+    useColorModified = data.useColor != checked && !checked;
+    data.useColor = checked;
     if (!modified)
       modified = useColorModified;
-    meta->fadeUseColor.setValue(checked);
+    meta->color.setValue(data);
   } else if (sender() == fadeOpacitySpin) {
-    opacityModified = meta->fadeOpacity.value() != state;
+    opacityModified = meta->opacity.value() != state;
     if (!modified)
       modified = opacityModified;
-    meta->fadeOpacity.setValue(state);
+    meta->opacity.setValue(state);
   }
 }
 
@@ -1891,13 +1897,11 @@ void FadeStepGui::apply(
     MetaItem mi;
     mi.beginMacro("FadeStep");
     if (fadeModified)
-      mi.setGlobalMeta(topLevelFile,&meta->fade);
-    if (colorModified)
-      mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
-    if (useColorModified)
-      mi.setGlobalMeta(topLevelFile,&meta->fadeUseColor);
+      mi.setGlobalMeta(topLevelFile,&meta->enable);
+    if (colorModified || useColorModified)
+      mi.setGlobalMeta(topLevelFile,&meta->color);
     if (opacityModified)
-      mi.setGlobalMeta(topLevelFile,&meta->fadeOpacity);
+      mi.setGlobalMeta(topLevelFile,&meta->opacity);
     mi.endMacro();
   }
 }
@@ -1915,7 +1919,7 @@ HighlightStepGui::HighlightStepGui(
 {
   meta = _meta;
   global = _global;
-  BoolAndResetData data = _meta->highlight.value();
+  EnableData data = _meta->enable.value();
 
   QGridLayout *grid;
 
@@ -1938,7 +1942,7 @@ HighlightStepGui::HighlightStepGui(
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   colorExample->setAutoFillBackground(true);
-  QColor c = QColor(meta->highlightColor.value());
+  QColor c = QColor(meta->color.value());
   QString styleSheet =
     QString("QLabel { background-color: rgb(%1, %2, %3); }").
     arg(c.red()).arg(c.green()).arg(c.blue());
@@ -1965,7 +1969,7 @@ HighlightStepGui::HighlightStepGui(
 
     lineWidthSpin = new QSpinBox(parent);
     lineWidthSpin->setRange(0,10);
-    lineWidthSpin->setValue(_meta->highlightLineWidth.value());
+    lineWidthSpin->setValue(_meta->lineWidth.value());
 
     connect(lineWidthSpin,SIGNAL(valueChanged(int)),
                        this,SLOT(valueChanged(int)));
@@ -1976,9 +1980,10 @@ HighlightStepGui::HighlightStepGui(
   // highlight step reset row
 
   if (! global) {
+    bool checked = data.value && !data.reset ? true : data.reset;
     highlightResetCheck = new QCheckBox(tr("Reset after this image render"), parent);
     highlightResetCheck->setToolTip(tr("Reset settings to the global highlight step preference."));
-    highlightResetCheck->setChecked(data.reset);
+    highlightResetCheck->setChecked(checked);
 
     connect(highlightResetCheck,SIGNAL(stateChanged(int)),
             this,                 SLOT(valueChanged(int)));
@@ -2010,7 +2015,7 @@ void HighlightStepGui::colorChange(bool clicked)
       QString("QLabel { background-color: rgb(%1, %2, %3); }")
               .arg(highlightColour.red()).arg(highlightColour.green()).arg(highlightColour.blue());
     colorExample->setStyleSheet(styleSheet);
-    meta->highlightColor.setValue(highlightColour.name());
+    meta->color.setValue(highlightColour.name());
     modified = colorModified = oldHighlightColour != highlightColour;
   }
 }
@@ -2028,23 +2033,23 @@ void HighlightStepGui::valueChanged(int state)
     colorButton->setEnabled(checked);
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
       lineWidthSpin->setEnabled(checked);
-    BoolAndResetData data = meta->highlight.value();
+    EnableData data = meta->enable.value();
     highlightModified = data.value != checked;
     if (!modified)
       modified = highlightModified;
     data.value = checked;
-    meta->highlight.setValue(data);
+    meta->enable.setValue(data);
   } else if (sender() == highlightResetCheck) {
       checked = isChecked();
-      BoolAndResetData data = meta->highlight.value();
+      EnableData data = meta->enable.value();
       highlightModified = data.reset != checked;
       if (!modified)
         modified = highlightModified;
       data.reset = checked;
-      meta->highlight.setValue(data);
+      meta->enable.setValue(data);
   } else if (sender() == lineWidthSpin) {
-    modified = lineWidthModified = meta->highlightLineWidth.value() != state;
-    meta->highlightLineWidth.setValue(state);
+    modified = lineWidthModified = meta->lineWidth.value() != state;
+    meta->lineWidth.setValue(state);
   }
 }
 
@@ -2055,11 +2060,11 @@ void HighlightStepGui::apply(
     MetaItem mi;
     mi.beginMacro("HighlightStep");
     if (highlightModified)
-      mi.setGlobalMeta(topLevelFile,&meta->highlight);
+      mi.setGlobalMeta(topLevelFile,&meta->enable);
     if (colorModified)
-      mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
+      mi.setGlobalMeta(topLevelFile,&meta->color);
     if (lineWidthModified)
-      mi.setGlobalMeta(topLevelFile,&meta->highlightLineWidth);
+      mi.setGlobalMeta(topLevelFile,&meta->lineWidth);
     mi.endMacro();
   }
 }

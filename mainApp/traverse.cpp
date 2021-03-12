@@ -1130,22 +1130,48 @@ int Gui::drawPage(
               // in step group.
               break;
 
+            case PreferredRendererRc:
+              curMeta.LPub.preferredRenderer.setPreferences();
+              break;
+
+            case PreferredRendererAssemRc:
+              curMeta.LPub.assem.preferredRenderer.setPreferences();
+              break;
+
+            case PreferredRendererSubModelRc:
+              curMeta.LPub.subModel.preferredRenderer.setPreferences();
+              break;
+
+            case PreferredRendererPliRc:
+              curMeta.LPub.pli.preferredRenderer.setPreferences();
+              break;
+
+            case PreferredRendererBomRc:
+              curMeta.LPub.bom.preferredRenderer.setPreferences();
+              break;
+
             case EnableFadeStepsRc:
+            case EnableFadeStepsAssemRc:
               if (Preferences::enableFadeSteps)
                   break;
-              if (! curMeta.LPub.fadeStepSetup.value())
-                  parseError("Fade previous step cannot run. FADE_STEP_SETUP was not detected in the first step of the main model file.",opts.current);
-              else
+              if (! curMeta.LPub.fadeStep.setup.value())
+                  parseError("Fade previous step cannot run. FADE_STEP SETUP was not detected in the first step of the main model file.",opts.current);
+              else if (rc == EnableFadeStepsRc)
                   curMeta.LPub.fadeStep.setPreferences();
+              else
+                  curMeta.LPub.assem.fadeStep.setPreferences();
               break;
 
             case EnableHighlightStepRc:
+            case EnableHighlightStepAssemRc:
               if (Preferences::enableHighlightStep)
                   break;
-              if (! curMeta.LPub.highlightStepSetup.value())
-                  parseError("Fade previous step cannot run. HIGHLIGHT_STEP_SETUP was not detected in the first step of the main model file.",opts.current);
-              else
+              if (! curMeta.LPub.highlightStep.setup.value())
+                  parseError("Fade previous step cannot run. HIGHLIGHT_STEP SETUP was not detected in the first step of the main model file.",opts.current);
+              else if (rc == EnableHighlightStepRc)
                   curMeta.LPub.highlightStep.setPreferences();
+              else
+                  curMeta.LPub.assem.highlightStep.setPreferences();
               break;
 
               /* Buffer exchange */
@@ -2530,10 +2556,10 @@ int Gui::drawPage(
 
                       // reset fade previous steps
                       bool reset = true;
-                      if (curMeta.LPub.assem.fadeStep.fade.value().reset)
+                      if (curMeta.LPub.assem.fadeStep.enable.value().reset)
                           curMeta.LPub.assem.fadeStep.setPreferences(reset);
                       // reset highlight current step
-                      if (curMeta.LPub.assem.highlightStep.highlight.value().reset)
+                      if (curMeta.LPub.assem.highlightStep.enable.value().reset)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
                       // reset preferred renderer
                       if (curMeta.LPub.assem.preferredRenderer.value().reset)
@@ -5006,7 +5032,7 @@ void Gui::writeToTmp()
   bool doFadeStep  = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep && !suppressColourMeta();
 
-  QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
+  QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
 
   LDrawFile::_currentLevels.clear();
 
@@ -5253,7 +5279,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
   if (csiParts.size() > 0 && (doHighlightFirstStep ? true : stepNum > 1)) {
 
-      QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
+      QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
 
       // retrieve the previous step position
       int prevStepPosition = ldrawFile.getPrevStepPosition(current.modelName,stepNum);
@@ -5459,7 +5485,7 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
   bool fadePartType          = partType == FADE_PART;
 
   QString _colourPrefix      = fadePartType ? LPUB3D_COLOUR_FADE_PREFIX : LPUB3D_COLOUR_HIGHLIGHT_PREFIX;  // fade prefix 100, highlight prefix 110
-  QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
+  QString _fadeColour        = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
   QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = ldrawColors.value(colourCode);
   QString _edgeColourValue   = fadePartType ? ldrawColors.edge(colourCode) : Preferences::highlightStepColour;

@@ -247,8 +247,8 @@ int Step::createCsi(
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
 
-  QString nameExtension = modelDisplayOnlyStep ? "dm" : bfxLoad ? "bfx" : buildModAction ? "bm" : QString();
-  QString csi_Name      = QString("%1_%2").arg(csiName(), nameExtension);
+  QString nameExtension = modelDisplayOnlyStep ? "_dm" : bfxLoad ? "_bfx" : buildModAction ? "_bm" : QString();
+  QString csi_Name      = QString("%1%2").arg(csiName(), nameExtension);
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
@@ -294,11 +294,11 @@ int Step::createCsi(
                      .arg(double(csiStepMeta.target.y()))
                      .arg(double(csiStepMeta.target.z())));
 
-  // set imageMatteKey
-  QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+  // populate csi name and step number key
+  QString nameAndStepKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
 
-  // populate csiKey - Add CompareKey and ImageMatteKey if LDView Single Call
-  // key components: compareKey|imageMatteKey|rendererParms
+  // populate csiKey - Add CompareKey and NameAndStepKey if LDView Single Call
+  // key components: compareKey|nameAndStepKey|rendererParms
   if (renderer->useLDViewSCall()) {
       QString compareKey = keyPart2;
       // append rotate type if specified
@@ -306,14 +306,14 @@ int Step::createCsi(
           compareKey.append(QString("_%1")
                                   .arg(meta.rotStep.value().type.isEmpty() ? "REL" :
                                        meta.rotStep.value().type));
-      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(imageMatteKey);
+      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(nameAndStepKey);
       // add LDView parms to csiKey if not empty
       if (!ldviewParms.value().isEmpty())
           csiKey.append(QString("|%1").arg(ldviewParms.value()));
   }
-  // add add ImageMatteKey
+  // add NameAndStepKey
   else {
-      csiKey = imageMatteKey;
+      csiKey = nameAndStepKey;
   }
 
   // append rotstep if specified
@@ -332,8 +332,8 @@ int Step::createCsi(
   // add csiKey and pngName to ImageMatte repository - exclude first step
 
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
-      if (!LDVImageMatte::validMatteCSIImage(imageMatteKey))
-          LDVImageMatte::insertMatteCSIImage(imageMatteKey, pngName);
+      if (!LDVImageMatte::validMatteCSIImage(nameAndStepKey))
+          LDVImageMatte::insertMatteCSIImage(nameAndStepKey, pngName);
     }
 
   // Check if png file date modified is older than model file (on the stack) date modified
@@ -437,7 +437,7 @@ int Step::createCsi(
          if (Preferences::preferredRenderer == RENDERER_POVRAY)
              meta.LPub.assem.povrayParms = povrayParms;
          // render the partially assembled model
-         QStringList csiKeys = QStringList() << csiKey; // adding just a single key
+         QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
 
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta, nType)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")

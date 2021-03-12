@@ -1991,8 +1991,17 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
     }
   }
   if (rc == OkRc) {
-    setPreferences();
     _here[pushed] = here;
+    if (argv[1] == "PREFERRED_RENDERER")
+      rc = PreferredRendererRc;
+    else if (argv[1] == "ASSEM")
+      rc = PreferredRendererAssemRc;
+    else if (argv[1] == "SUBMODEL_DISPLAY")
+      rc = PreferredRendererSubModelRc;
+    else if (argv[1] == "PLI")
+      rc = PreferredRendererPliRc;
+    else if (argv[1] == "BOM")
+      rc = PreferredRendererBomRc;
   } else if (reportErrors) {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
@@ -3688,28 +3697,38 @@ void SceneItemMeta::init(
 
 /* ------------------ */
 
-Rc BoolAndResetMeta::parse(QStringList &argv, int index, Where &here)
+Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 {
+  Rc rc = FailureRc;
   QRegExp rx("^(TRUE|FALSE)$");
   if (argv.size() - index >= 1 && argv[index].contains(rx)) {
-      _value[pushed].value = argv[index] == "TRUE";
-      _value[pushed].reset = false;
-      rx.setPattern("^(RESET)$");
-      if (argv.size() - index > 1) {
-        _value[pushed].reset = argv[index + 1].contains(rx);
-      }
-      _here[pushed] = here;
-      return OkRc;
+    _value[pushed].value = argv[index] == "TRUE";
+    _value[pushed].reset = false;
+    if (argv.size() - index > 1)
+      _value[pushed].reset = argv[index + 1] == "RESET";
+    _here[pushed] = here;
+    if (argv[1] == "FADE_STEP")
+      rc = EnableFadeStepsRc;
+    else if (argv[1] == "HIGHLIGHT_STEP")
+      rc = EnableHighlightStepRc;
+    else if (argv[1] == "ASSEM") {
+      if (argv[2] == "FADE_STEP")
+        rc = EnableFadeStepsAssemRc;
+      else if (argv[2] == "HIGHLIGHT_STEP")
+        rc = EnableHighlightStepAssemRc;
     }
+  }
 
-  if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE and optionally RESET, got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+  if (rc == FailureRc) {
+    if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE and optionally RESET, got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
+  }
 
-  return FailureRc;
+  return rc;
 }
 
-QString BoolAndResetMeta::format(bool local, bool global)
+QString EnableMeta::format(bool local, bool global)
 {
   QString foo (_value[pushed].value ? "TRUE" : "FALSE");
   if (_value[pushed].reset)
@@ -3717,46 +3736,94 @@ QString BoolAndResetMeta::format(bool local, bool global)
   return LeafMeta::format(local,global,foo);
 }
 
-void BoolAndResetMeta::doc(QStringList &out, QString preamble)
+void EnableMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " <TRUE|FALSE> [<RESET>]";
 }
 
 /* ------------------ */
 
+Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
+{
+  Rc rc = FailureRc;
+  QRegExp rx("^(0x|#)([\\da-fA-F]+)$");
+  _value[pushed].useColor = false;
+  if (argv.size() - index >= 1 && argv[index].contains(rx)) {
+    QColor parsedColor = QColor(argv[index]);
+    if (parsedColor.isValid()) {
+      _value[pushed].color = argv[index];
+      rc = OkRc;
+    }
+    if (argv.size() - index == 3 && argv[index + 1] == "USE") {
+      _value[pushed].useColor = argv[index + 2] == "TRUE";
+      rc = OkRc;
+    }
+    if (rc == OkRc)
+      _here[pushed] = here;
+  }
+
+  if (rc == FailureRc) {
+    if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected color (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  }
+
+  return rc;
+}
+
+QString FadeColorMeta::format(bool local, bool global)
+{
+  QString foo (_value[pushed].color);
+  if (!_value[pushed].useColor)
+    foo += " USE FASLE";
+  return LeafMeta::format(local,global,foo);
+}
+
+void FadeColorMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (0x|#)([AA]RRGGBB)";
+}
+
+/* ------------------ */
+
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
-  fadeOpacity.setRange(0,100);
-  BoolAndResetData data = fade.value();
-  data.value       = Preferences::enableFadeSteps;
-  data.reset       = false;
-  data.initialized = true;
-  fade.setValue(data);
-  fadeColor.setValue(Preferences::validFadeStepsColour);
-  fadeUseColor.setValue(Preferences::fadeStepsUseColour);
-  fadeOpacity.setValue(Preferences::fadeStepsOpacity);
+  opacity.setRange(0,100);
+  EnableData bdata = enable.value();
+  bdata.value       = Preferences::enableFadeSteps;
+  bdata.reset       = false;
+  bdata.initialized = true;
+  enable.setValue(bdata);
+  setup.setValue(false);
+  FadeColorData fdata;
+  fdata.color = Preferences::validFadeStepsColour;
+  fdata.useColor = Preferences::fadeStepsUseColour;
+  color.setValue(fdata);
+  opacity.setValue(Preferences::fadeStepsOpacity);
 }
 
 void FadeStepMeta::setPreferences(bool reset)
 {
-   BoolAndResetData data  = fade.value();
+   EnableData bdata  = enable.value();
+   FadeColorData fdata = color.value();
    bool preferenceChanged = false;
    if (reset) {
-     Preferences::preferredRendererPreferences();
-     preferenceChanged = data.initialized && Preferences::enableFadeSteps != data.value;
-     data.value       = Preferences::enableFadeSteps;
-     data.reset       = false;
-     data.initialized = true;
-     fade.setValue(data);
-     fadeColor.setValue(Preferences::validFadeStepsColour);
-     fadeUseColor.setValue(Preferences::fadeStepsUseColour);
-     fadeOpacity.setValue(Preferences::fadeStepsOpacity);
+     Preferences::fadestepPreferences();
+     preferenceChanged = bdata.initialized && Preferences::enableFadeSteps != bdata.value;
+     bdata.value       = Preferences::enableFadeSteps;
+     bdata.reset       = false;
+     bdata.initialized = true;
+     enable.setValue(bdata);
+     fdata.color = Preferences::validFadeStepsColour;
+     fdata.useColor = Preferences::fadeStepsUseColour;
+     color.setValue(fdata);
+     opacity.setValue(Preferences::fadeStepsOpacity);
    } else {
-     if ((preferenceChanged = Preferences::enableFadeSteps != data.value))
-       Preferences::enableFadeSteps    = data.value;
-     Preferences::validFadeStepsColour = fadeColor.value();
-     Preferences::fadeStepsUseColour   = fadeUseColor.value();
-     Preferences::fadeStepsOpacity     = fadeOpacity.value();
+     if ((preferenceChanged = Preferences::enableFadeSteps != bdata.value))
+       Preferences::enableFadeSteps    = bdata.value;
+     Preferences::validFadeStepsColour = fdata.color;
+     Preferences::fadeStepsUseColour   = fdata.useColor;
+     Preferences::fadeStepsOpacity     = opacity.value();
    }
    if (preferenceChanged)
      emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 to %2%3.")
@@ -3774,44 +3841,45 @@ void FadeStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  fade.init               (this, "FADE", EnableFadeStepsRc);
-  fadeColor.init          (this, "FADE_COLOR");
-  fadeUseColor.init       (this, "USE_FADE_COLOR");
-  fadeOpacity.init        (this, "FADE_OPACITY");
+  enable.init( this, "ENABLED");
+  setup.init(  this, "SETUP");
+  color.init(  this, "COLOR");
+  opacity.init(this, "OPACITY");
 }
 
 /* ------------------ */
 
 HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 {
-  highlightLineWidth.setRange(0,10);
-  BoolAndResetData data  = highlight.value();
+  lineWidth.setRange(0,10);
+  EnableData data  = enable.value();
   data.value       = Preferences::enableHighlightStep;
   data.reset       = false;
   data.initialized = true;
-  highlight.setValue(data);
-  highlightColor.setValue(Preferences::highlightStepColour);
-  highlightLineWidth.setValue(Preferences::highlightStepLineWidth);
+  enable.setValue(data);
+  setup.setValue(false);
+  color.setValue(Preferences::highlightStepColour);
+  lineWidth.setValue(Preferences::highlightStepLineWidth);
 }
 
 void HighlightStepMeta::setPreferences(bool reset)
 {
-   BoolAndResetData data  = highlight.value();
+   EnableData data  = enable.value();
    bool preferenceChanged = false;
    if (reset) {
-     Preferences::preferredRendererPreferences();
+     Preferences::highlightstepPreferences();
      preferenceChanged = data.initialized && Preferences::enableHighlightStep != data.value;
      data.value       = Preferences::enableHighlightStep;
      data.reset       = false;
      data.initialized = true;
-     highlight.setValue(data);
-     highlightColor.setValue(Preferences::highlightStepColour);
-     highlightLineWidth.setValue(Preferences::highlightStepLineWidth);
+     enable.setValue(data);
+     color.setValue(Preferences::highlightStepColour);
+     lineWidth.setValue(Preferences::highlightStepLineWidth);
    } else {
      if ((preferenceChanged = Preferences::enableHighlightStep != data.value))
        Preferences::enableHighlightStep  = data.value;
-     Preferences::highlightStepColour    = highlightColor.value();
-     Preferences::highlightStepLineWidth = highlightLineWidth.value();
+     Preferences::highlightStepColour    = color.value();
+     Preferences::highlightStepLineWidth = lineWidth.value();
    }
    if (preferenceChanged)
      emit gui->messageSig(LOG_INFO,QMessageBox::tr("Highlight current step %1 to %2%3.")
@@ -3827,9 +3895,10 @@ void HighlightStepMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  highlight.init          (this, "HIGHLIGHT", EnableHighlightStepRc);
-  highlightColor.init     (this, "HIGHLIGHT_COLOR");
-  highlightLineWidth.init (this, "HIGHLIGHT_LINE_WIDTH");
+  enable.init(   this, "ENABLED");
+  setup.init(    this, "SETUP");
+  color.init(    this, "COLOR");
+  lineWidth.init(this, "LINE_WIDTH");
 }
 
 /* ------------------ */
@@ -5699,9 +5768,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   insert                   .init(this,"INSERT");
   include                  .init(this,"INCLUDE", IncludeRc);
   nostep                   .init(this,"NOSTEP", NoStepRc);
-  fadeStepSetup            .init(this,"FADE_STEP_SETUP");
   fadeStep                 .init(this,"FADE_STEP");
-  highlightStepSetup       .init(this,"HIGHLIGHT_STEP_SETUP");
   highlightStep            .init(this,"HIGHLIGHT_STEP");
   preferredRenderer        .init(this,"PREFERRED_RENDERER");
   subModel                 .init(this,"SUBMODEL_DISPLAY");
@@ -6162,28 +6229,36 @@ void Meta::doc(QStringList &out)
 
 void Meta::processSpecialCases(QString &line, Where &here){
 
-    /* Legacy LPub backward compatibilty:  VIEW_ANGLE with CAMERA_ANGLES */
-
-    QRegExp viewAngleRx("^\\s*0.*\\s+(VIEW_ANGLE)\\s+.*$");
-    if (line.contains(viewAngleRx))
-        line.replace(viewAngleRx.cap(1),"CAMERA_ANGLES");
-
+    /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
+    QRegExp parseRx("\\s+(VIEW_ANGLE)\\s+");
+    if (line.contains(parseRx)) {
+        line.replace(parseRx.cap(1),"CAMERA_ANGLES");
+        return;
+    }
+    /* Legacy LPub backward compatibilty. Replace HIGHLIGHT/FADE with ENABLE */
+    parseRx.setPattern("\\s+(HIGHLIGHT|FADE)\\s+");
+    if (line.contains(parseRx)) {
+        line.replace(parseRx.cap(1),"ENABLE");
+        return;
+    }
+    /* Native camera distance deprecated. Command ignored if not GLOBAL */
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
         if (gui->parsedMessages.contains(here)) {
             line = "0 // IGNORED";
         } else if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
             here.setModelIndex(gui->getSubmodelIndex(here.modelName));
-            QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
-            if (line.contains(typesRx)) {
+            parseRx.setPattern("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+            if (line.contains(parseRx)) {
                 QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
                                           "Only application at GLOBAL scope is permitted. "
                                           "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
                                           "This command will be ignored. %2")
-                                          .arg(typesRx.cap(1))
+                                          .arg(parseRx.cap(1))
                                           .arg(line);
                 gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
                 line = "0 // IGNORED";
             }
         }
+        return;
     }
 }

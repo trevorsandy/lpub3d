@@ -2099,7 +2099,7 @@ int LDView::renderCsi(
 
         // RotateParts #2 - 8 parms
         if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI rotate parts failed!"));
             return rc;
         } else
           // recheck csiKey - may have been deleted by rotateParts if IM files not created.

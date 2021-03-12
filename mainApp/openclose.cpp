@@ -978,13 +978,13 @@ bool Gui::setFadeStepsFromCommand()
 {
   if (!Preferences::enableFadeSteps) {
     Where topLevelModel(gui->topLevelFile(),0);
-    QRegExp fadeRx = QRegExp("FADE\\s*(?:GLOBAL)?\\s*TRUE");
+    QRegExp fadeRx = QRegExp("FADE_STEP ENABLED\\s*(?:GLOBAL)?\\s*TRUE");
     Preferences::enableFadeSteps = stepContains(topLevelModel,fadeRx);
     bool setupFadeSteps = false;
     QString fadeMessage = "is OFF";
 
     if (!Preferences::enableFadeSteps) {
-      QRegExp fadeSetupRx = QRegExp("FADE_STEP_SETUP\\s*(?:GLOBAL)?\\s*TRUE");
+      QRegExp fadeSetupRx = QRegExp("FADE_STEP SETUP\\s*(?:GLOBAL)?\\s*TRUE");
       setupFadeSteps = stepContains(topLevelModel,fadeSetupRx);
     } else {
       fadeMessage = "is ON";
@@ -996,15 +996,8 @@ bool Gui::setFadeStepsFromCommand()
 
       ldrawColorPartsLoad();
 
-      if (!Preferences::fadeStepsUseColour) {
-        fadeRx.setPattern("USE_FADE_COLOR\\s*(?:GLOBAL)?\\s*TRUE");
-        Preferences::fadeStepsUseColour = stepContains(topLevelModel,fadeRx);
-        messageSig(LOG_INFO,QString("Use Global Fade Color is %1")
-                                    .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
-      }
-
-       QString result;
-      fadeRx.setPattern("FADE_OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
+      QString result;
+      fadeRx.setPattern("FADE_STEP OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
       stepContains(topLevelModel,fadeRx,result,1);
       if (!result.isEmpty()) {
         bool ok = result.toInt(&ok);
@@ -1018,11 +1011,16 @@ bool Gui::setFadeStepsFromCommand()
       }
 
       result.clear();
-      fadeRx.setPattern("FADE_COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
+      fadeRx.setPattern("FADE_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
       stepContains(topLevelModel,fadeRx,result,1);
       if (!result.isEmpty()) {
         QColor ParsedColor = LDrawColor::color(result);
-        QString fadeStepsColourCompare  = Preferences::validFadeStepsColour;
+        bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
+        Preferences::fadeStepsUseColour = ParsedColor.isValid();
+        if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
+          messageSig(LOG_INFO,QString("Use Fade Color is %1")
+                                      .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
+        QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
         Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
         if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
             messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
@@ -1041,13 +1039,13 @@ bool Gui::setHighlightStepFromCommand()
 {
   if (!Preferences::enableHighlightStep) {
     Where topLevelModel(gui->topLevelFile(),0);
-    QRegExp highlightRx = QRegExp("HIGHLIGHT\\s*(?:GLOBAL)?\\s*TRUE");
+    QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP ENABLED\\s*(?:GLOBAL)?\\s*TRUE");
     Preferences::enableHighlightStep = stepContains(topLevelModel,highlightRx);
     bool setupHighlightStep = false;
     QString highlightMessage = "is OFF";
 
     if (!Preferences::enableHighlightStep) {
-      QRegExp highlightSetupRx = QRegExp("HIGHLIGHT_STEP_SETUP\\s*(?:GLOBAL)?\\s*TRUE");
+      QRegExp highlightSetupRx = QRegExp("HIGHLIGHT_STEP SETUP\\s*(?:GLOBAL)?\\s*TRUE");
       setupHighlightStep = stepContains(topLevelModel,highlightSetupRx);
     } else {
       highlightMessage = "is ON";
@@ -1060,9 +1058,9 @@ bool Gui::setHighlightStepFromCommand()
       ldrawColorPartsLoad();
 
       QString result;
-      highlightRx.setPattern("HIGHLIGHT_COLOR\\s*(?:GLOBAL)?\\s*\"(#[A-Fa-f0-9]{6}|\\w+)\"");
-      stepContains(topLevelModel,highlightRx,result,1);
-      if (!result.isEmpty()) {
+      highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(0x|#)([\\da-fA-F]+)\"");
+      if (stepContains(topLevelModel,highlightRx,result)) {
+        result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(2));
         QColor ParsedColor = QColor(result);
         QString highlightStepColourCompare = Preferences::highlightStepColour;
         Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;

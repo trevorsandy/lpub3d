@@ -519,19 +519,22 @@ public:
                   PreferredRendererMeta *,
                   bool useTop = true,
                   int  append = 1,
-                  bool local = true);
+                  bool local = true,
+                  bool askLocal = false);
   void setFadeSteps(QString,
                     const Where &,
                     const Where &,
                     FadeStepMeta *,
                     int  append = 1,
-                    bool local = true);
+                    bool local = true,
+                    bool askLocal = false);
   void setHighlightStep(QString,
                     const Where &,
                     const Where &,
                     HighlightStepMeta *,
                     int  append = 1,
-                    bool local = true);
+                    bool local = true,
+                    bool askLocal = false);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
 

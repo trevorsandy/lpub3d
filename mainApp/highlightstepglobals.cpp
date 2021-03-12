@@ -98,7 +98,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  highlightStepSetupChild = new CheckBoxGui("Setup Highlight Current Step",&lpubMeta->highlightStepSetup);
+  highlightStepSetupChild = new CheckBoxGui("Setup Highlight Current Step",&highlightStepMeta->setup);
   highlightStepSetupChild->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
   data->children.append(highlightStepSetupChild);
   connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));

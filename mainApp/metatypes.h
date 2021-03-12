@@ -678,17 +678,28 @@ public:
   }
 };
 
-class BoolAndResetData
+class EnableData
 {
 public:
   bool value;
   bool reset;
   bool initialized;
-  BoolAndResetData()
+  EnableData()
   {
     initialized = false;
     value = false;
     reset = false;
+  }
+};
+
+class FadeColorData
+{
+public:
+  bool useColor;
+  QString color;
+  FadeColorData()
+  {
+    useColor = false;
   }
 };
 

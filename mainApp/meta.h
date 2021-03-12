@@ -147,7 +147,16 @@ enum Rc {
 
          FinalModelEnableRc,
 
+         PreferredRendererSubModelRc,
+         PreferredRendererPliRc,
+         PreferredRendererAssemRc,
+         PreferredRendererBomRc,
+         PreferredRendererRc,
+
+         EnableFadeStepsAssemRc,
          EnableFadeStepsRc,
+
+         EnableHighlightStepAssemRc,
          EnableHighlightStepRc,
 
          PageOrientationRc,
@@ -2621,27 +2630,53 @@ public:
 
 /* This leaf is to catch booleans (TRUE or FALSE) and optional RESET flag*/
 
-class BoolAndResetMeta : public RcMeta {
+class EnableMeta : public RcMeta {
 private:
-  BoolAndResetData _value[2];
+  EnableData _value[2];
 public:
-  BoolAndResetData &value()
+  EnableData &value()
   {
     return _value[pushed];
   }
-  void setValue(BoolAndResetData &value)
+  void setValue(EnableData &value)
   {
     _value[pushed] = value;
   }
-  BoolAndResetMeta ()
+  EnableMeta ()
   {
   }
-  BoolAndResetMeta(const BoolAndResetMeta &rhs) : RcMeta(rhs)
+  EnableMeta(const EnableMeta &rhs) : RcMeta(rhs)
   {
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-//  virtual ~BoolAndResetMeta() {}
+//  virtual ~EnableMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+class FadeColorMeta : public RcMeta {
+private:
+  FadeColorData _value[2];
+public:
+  FadeColorData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(FadeColorData &value)
+  {
+    _value[pushed] = value;
+  }
+  FadeColorMeta ()
+  {
+  }
+  FadeColorMeta(const FadeColorMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~FadeColorMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2654,10 +2689,10 @@ public:
 class FadeStepMeta : public BranchMeta
 {
 public:
-  BoolAndResetMeta  fade;
-  StringMeta        fadeColor;
-  BoolMeta          fadeUseColor;
-  IntMeta           fadeOpacity;
+  EnableMeta    enable;
+  BoolMeta      setup;
+  FadeColorMeta color;
+  IntMeta       opacity;
   void setPreferences(bool = false);
   FadeStepMeta();
   FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
@@ -2677,9 +2712,10 @@ public:
 class HighlightStepMeta : public BranchMeta
 {
 public:
-  BoolAndResetMeta highlight;
-  StringMeta       highlightColor;
-  IntMeta          highlightLineWidth;
+  EnableMeta enable;
+  BoolMeta   setup;
+  StringMeta color;
+  IntMeta    lineWidth;
   void setPreferences(bool = false);
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
@@ -3870,9 +3906,7 @@ public:
   InsertMeta           insert;
   StringMeta           include;
   NoStepMeta           nostep;
-  BoolMeta             fadeStepSetup;
   FadeStepMeta         fadeStep;
-  BoolMeta             highlightStepSetup;
   HighlightStepMeta    highlightStep;
   PreferredRendererMeta preferredRenderer;
   RotateIconMeta       rotateIcon;
