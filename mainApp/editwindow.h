@@ -101,6 +101,7 @@ signals:
     void editModelFileSig();
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
     void previewPieceSig(const QString &, int);
+    void setStepForLineSig(const TypeLine &);
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName, const StepLines& lineScope);

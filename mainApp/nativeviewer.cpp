@@ -3272,7 +3272,7 @@ bool Gui::setCurrentStep(const QString &key)
     else
         stepNumberSpecified = QString::number(stepNumber);
 
-    QString stepKey = key.isEmpty() ? viewerStepKey : key;
+    QString stepKey = key.isEmpty() ? viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
 
     if (isViewerStepCalledOut(stepKey))
         stepType = BM_CALLOUT_STEP;
@@ -3290,7 +3290,7 @@ bool Gui::setCurrentStep(const QString &key)
 
 #ifdef QT_DEBUG_MODE
     if (currentStep)
-        emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2 ")
+        emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
                         .arg(currentStep->stepNumber.number).arg(key));
 #endif
 
@@ -3305,6 +3305,33 @@ void Gui::setCurrentStep(Step *step)
 //    emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
 //                    .arg(currentStep->stepNumber.number));
 //#endif
+}
+
+/*********************************************
+ *
+ * set step from specified line
+ *
+ ********************************************/
+
+void Gui::setStepForLine(const TypeLine &here)
+{
+    if (!currentStep || (!currentStep->multiStep && !currentStep->calledOut))
+        return;
+
+    const Where top    = currentStep->multiStep ? currentStep->topOfSteps() : currentStep->topOfCallout();
+    const Where bottom = currentStep->multiStep ? currentStep->bottomOfSteps() : currentStep->bottomOfCallout();
+    QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), top, bottom);
+    if (!stepKey.isEmpty()) {
+        if (!currentStep->viewerStepKey.startsWith(&stepKey)) {
+            setCurrentStep(stepKey);
+            showLine(getCurrentStep()->topOfStep());
+            enableBuildModActions();
+            if (gMainWindow->isVisible()) {
+                getCurrentStep()->viewerOptions->ZoomExtents = true;
+                getCurrentStep()->loadTheViewer();
+            }
+        }
+    }
 }
 
 /*********************************************

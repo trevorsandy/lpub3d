@@ -1170,11 +1170,13 @@ void EditWindow::updateSelectedParts() {
     while (currentLine < selectedLines)
     {
         QString selection = content.at(currentLine);
+        int lineNumber = getSelectedLineNumber();
+        TypeLine typeLine(fileOrderIndex,lineNumber);
+        emit setStepForLineSig(typeLine);
+
         if (content.at(currentLine).startsWith("1") ||
             content.at(currentLine).contains(" PLI BEGIN SUB "))
         {
-            int lineNumber = getSelectedLineNumber();
-            TypeLine typeLine(fileOrderIndex,lineNumber);
             lineTypeIndexes.append(typeLine);
             if (stepLines.isInScope(lineNumber))
             {
@@ -2103,7 +2105,7 @@ QFindReplace::QFindReplace(
     QTabWidget  *tabWidget = new QTabWidget;
     QVBoxLayout *vlayout = new QVBoxLayout;
     QHBoxLayout *hlayout = new QHBoxLayout;
-    QGridLayout *gropuLayout = new QGridLayout;
+    QGridLayout *gropuLayout;
 
     setLayout(vlayout);
     vlayout->addWidget(tabWidget);

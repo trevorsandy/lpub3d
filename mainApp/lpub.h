@@ -773,7 +773,7 @@ public:
 
   bool deleteViewerStep(const QString &stepKey)
   {
-    return ldrawFile.deleteViewerStep(stepKey);
+      return ldrawFile.deleteViewerStep(stepKey);
   }
 
   void clearViewerSteps(){
@@ -1141,6 +1141,7 @@ public slots:
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
   void previewPiece(const QString &type, int colorCode);
+  void setStepForLine(const TypeLine &);
   void togglePreviewWidget(bool);
 
   QString getViewerStepKey()

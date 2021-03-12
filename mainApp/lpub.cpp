@@ -3112,12 +3112,16 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
+    connect(editWindow,     SIGNAL(setStepForLineSig(const TypeLine &)),
+            this,           SLOT(  setStepForLine(const TypeLine &)));
+
     connect(editWindow,     SIGNAL(editModelFileSig()),
             this,           SLOT(  editModelFile()));
 
     connect(editWindow,     SIGNAL(getSubFileListSig()),
             this,           SLOT(  getSubFileList()));
 
+    // Edit Window - Edit Model Window
     connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
 
