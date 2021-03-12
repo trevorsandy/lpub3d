@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 16, 2019
+#  Last Update: October 15, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -24,8 +24,8 @@ CWD=`pwd`
 
 if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
   # logging stuff - increment log file name
-  f="${CWD}/CreateS${ME:1}"
-  ext="$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
+  f="${CWD}/CreateSourceforgeD${ME:3}"
+  ext=".${LP3D_ASSET_EXT}.log"
   if [[ -e "$f$ext" ]] ; then
     i=1
     f="${f%.*}";
@@ -145,11 +145,11 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "- LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
         if [ "$APPVEYOR" = "True" ]; then
           rsync --recursive --verbose --delete-before \
-          --include={'*.exe','*.zip','*.html','*.txt'} --exclude '*' \
+          --include={'*.exe','*.zip','*.html','*.txt','*.sha512'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
           rsync --recursive --verbose --delete-before \
-          --include "$LP3D_ASSET_EXT" --exclude '*' \
+          --include "*${LP3D_ASSET_EXT}*" --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         fi
       fi

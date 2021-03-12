@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 03, 2020
+#  Last Update: October 15, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -45,35 +45,48 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst -type f);
+      export LP3D_ASSET_EXT="pkg.tar.zst"
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     fi;
     if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.rpm from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.rpm -type f);
+      export LP3D_ASSET_EXT="rpm"
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     fi;
     if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.deb from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.deb -type f);
+      export LP3D_ASSET_EXT="deb"
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     fi;
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.dmg from $DmgBuildPath/lpub3d..."
-    file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.dmg -type f);
+    export LP3D_ASSET_EXT="dmg"
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/lpub3d..."
+    file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find $DmgBuildPath/lpub3d -name CreateDmg.sh.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
     file_Logs=$(find $DmgBuildPath -name CreateRenderers.sh*.log -type f);
   fi;
   if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage from $AppImageBuildPath/AppImage..."
-    file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
+    export LP3D_ASSET_EXT="AppImage"
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $AppImageBuildPath/AppImage..."
+    file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find ${LP3D_BUILD_FOLDER} -name CreateAppImage.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
     file_Logs=$(find ${LP3D_3RD_BUILD_FOLDER} -name CreateRenderers.sh*.log -type f);
   fi;
   [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
   [ -n "$file_DPkg" ] && cp -f $file_DPkg $LP3D_DOWNLOAD_ASSETS || echo "ERROR - Download assets folder empty, nothing copied";
+
+  # Create hash file
+  cd $LP3D_DOWNLOAD_ASSETS
+  file_DPkg=$(find ./ -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
+  file_Hash=${file_DPkg}.sha512
+  echo "Creating hash file failed for $file_DPkg..."
+  [ -n "$file_DPkg" ] && sha512sum "${file_DPkg}" > "${file_Hash}" || echo "ERROR - Creating hash file failed for $file_DPkg"
+  cd $LP3D_BUILD_FOLDER
 
   # Set release or build Dropbox storage path
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
@@ -135,24 +148,29 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
         sed -i "s/    RELEASE_TITLE=\"Continuous build\"/    RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "${upload_script_file}"
       fi;
     else
-      echo  "   Error: could not update ${upload_script_file}"
+      echo  "   Error: could not update release title ${upload_script_file}"
     fi;
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst*
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst.sha512
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst
       fi;
       if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm*
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm.sha512
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm
       fi;
       if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.deb*
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.deb.sha512
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.deb
       fi;
     fi;
     if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage*
+      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage.sha512
+      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage
     fi;
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg*
+      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg.sha512
+      bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg
     fi;
   fi;
   # Upload Sourceforge.net build assets at each build for continuous and official deploy

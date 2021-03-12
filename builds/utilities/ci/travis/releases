@@ -3,7 +3,7 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 03, 2019
+#  Last Update: October 15, 2019
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -46,28 +46,12 @@ fi
 # On Travis, Sourceforge upload is run for each build in 'after_script'
 if [ "$LP3D_DEPLOY_PACKAGES" != "true" ]; then
   if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
-    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-        export LP3D_ASSET_EXT="*.pkg.tar.zst*"
-      fi;
-      if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-        export LP3D_ASSET_EXT="*.rpm*"
-      fi;
-      if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-        export LP3D_ASSET_EXT="*.deb*"
-      fi;
-    fi;
-    if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-      export LP3D_ASSET_EXT="*.AppImage*"
-    fi;
-    if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-      export LP3D_ASSET_EXT="*.dmg*"
-    fi;
+    export LP3D_ASSET_EXT=$LP3D_ASSET_EXT
     chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
     # Upload Sourceforge deploy log to Dropbox for temp storage
     if [ -f "/tmp/.dropbox_oauth" ]; then
       chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-      sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
+      sfdeployLog="CreateSourceforgeDeploy.sh.${LP3D_ASSET_EXT}.log"
       if [ -f "$sfdeployLog" ]; then
         cp -f "$sfdeployLog" $LP3D_LOGS_DIR;
         ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/$sfdeployLog" "$LP3D_DROPBOX_DIR/logs"/;

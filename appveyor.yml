@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: August 21, 2020
+# Last Update: October 15, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -254,31 +254,43 @@ test: off
 # The last step here is to deploy to Sourceforge if deploy tag is present, valid and does not
 # indicate 'skip sfr'. For SF deploy, I use a custom bash 'script provider' because this approach
 # offers more granularity and can be reused between AppVeyor and Travis - so write-once, run any.
-# On Appveyor, I use MinGW's OpenSSH and rsync (I don't think WLS is available in AppVeyor) to
-# process the file transfer to Sourceforge.net
+# On Appveyor, I use MinGW's bash to process release SHAs and OpenSSH and rsync to process the
+# file transfer to Sourceforge.net
 after_build:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
         cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
         builds\utilities\ci\set_ps_vars.ps1
-        Get-ChildItem Env:* -Include ("LP3D_BUILD_*","LP3D_VERSION*","LP3D_APP_*") | Sort-Object name
+        Get-ChildItem Env:* -Include ("LP3D_BUILD_*","LP3D_VERSION*","LP3D_APP_*", "LP3D_DOWNLOAD_*") | Sort-Object name
         write-host "`n"
-        if (${env:LP3D_UPDATE_ASSETS}) {
+        If (${env:LP3D_UPDATE_ASSETS}) {
           $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
         } Else {
           Write-Error -Message "env var LP3D_UPDATE_ASSETS is null." -ErrorAction Stop
         }
-        if (${env:LP3D_DOWNLOAD_ASSETS}) {
-          $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
+        If (${env:LP3D_DOWNLOAD_ASSETS}) {
+          $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS};
+          [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % {
+              $AssetExtension = [System.IO.Path]::GetExtension("$_")
+              If ($AssetExtension -eq ".zip" -or $AssetExtension -eq ".exe") {
+                  $Asset = [System.IO.Path]::GetFileName("$_")
+                  $AssetPath = [System.IO.Path]::GetDirectoryName("$_")
+                  $AssetPathPosix = "/"+$AssetPath.substring(0,1).tolower()+$AssetPath.substring(1).replace(":","").replace("\","/")
+                  write-host "`n  Creating Hash File: $AssetPathPosix/$Asset.sha512..."
+                  "#!/bin/bash`nsha512sum `"$Asset`" > `"$Asset.sha512`"" | Out-File -FilePath $env:LP3D_DOWNLOAD_ASSETS\s.sh -NoNewline -Encoding utf8
+                  C:\msys64\usr\bin\bash -lc "cd $AssetPathPosix && chmod +x ./s.sh && ./s.sh && rm ./s.sh"
+              }
+          }
+          [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
         }
-        if (${env:LP3D_RUNLOG_ASSETS}) {
+        If (${env:LP3D_RUNLOG_ASSETS}) {
           $root = Resolve-Path .\${env:LP3D_RUNLOG_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-runlog-package }
         } Else {
           Write-Error -Message "env var LP3D_RUNLOG_ASSETS is null." -ErrorAction Continue
         }
-        If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -eq "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
+        If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and $env:APPVEYOR_PROJECT_NAME -eq "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
           If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -and ($env:LP3D_SKIP_SF_DEPLOY_VAR -ne "true")) {
             iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
