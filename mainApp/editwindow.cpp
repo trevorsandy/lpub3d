@@ -1135,18 +1135,25 @@ void EditWindow::updateSelectedParts() {
     if(!cursor.hasSelection())
         cursor.select(QTextCursor::LineUnderCursor);
 
-    QString content = cursor.selection().toPlainText();
-    selectedLines   = content.count("\n")+1;
+    QStringList content = cursor.selection().toPlainText().split("\n");
+
+    selectedLines = content.size();
+
+    if (!selectedLines)
+        return;
 
     auto getSelectedLineNumber = [&cursor] () {
         int lineNumber = 0;
 
-        while(cursor.positionInBlock()>0) {
-            cursor.movePosition(QTextCursor::Up);
+        QTextCursor _cursor = cursor;
+        _cursor.select(QTextCursor::LineUnderCursor);
+
+        while(_cursor.positionInBlock()>0) {
+            _cursor.movePosition(QTextCursor::Up);
             lineNumber++;
         }
 
-        QTextBlock block = cursor.block().previous();
+        QTextBlock block = _cursor.block().previous();
 
         while(block.isValid()) {
             lineNumber += block.lineCount();
@@ -1157,36 +1164,28 @@ void EditWindow::updateSelectedParts() {
 
     cursor.beginEditBlock();
 
-    while (currentLine != selectedLines)
+    while (currentLine < selectedLines)
     {
-        cursor.select(QTextCursor::LineUnderCursor);
-        QString selection = cursor.selectedText();
-        _textEdit->moveCursor(QTextCursor::StartOfLine);
-
-        if (!selection.isEmpty())
+        QString selection = content.at(currentLine);
+        if (content.at(currentLine).startsWith("1") ||
+            content.at(currentLine).contains(" PLI BEGIN SUB "))
         {
-            if (selection.startsWith("1") || selection.contains(" PLI BEGIN SUB ")) {
-                int lineNumber = getSelectedLineNumber();
-                TypeLine typeLine(fileOrderIndex,lineNumber);
-                lineTypeIndexes.append(typeLine);
-                toggleLines.append(lineNumber);
-                clearSelection = savedSelection.contains(lineNumber);
-                highlightSelectedLines(toggleLines, clearSelection); // toggle On/Off
-                toggleLines.clear();
-                if (clearSelection)
-                    savedSelection.removeAll(lineNumber);
-                else
-                    savedSelection.append(lineNumber);
-            }
-
-            // go to next selected line
-            if (++currentLine < selectedLines) {
-                cursor.movePosition(QTextCursor::Down);
-                _textEdit->setTextCursor(cursor);
-            }
-        } else {
-            break;
+            int lineNumber = getSelectedLineNumber();
+            TypeLine typeLine(fileOrderIndex,lineNumber);
+            lineTypeIndexes.append(typeLine);
+            toggleLines.append(lineNumber);
+            clearSelection = savedSelection.contains(lineNumber);
+            highlightSelectedLines(toggleLines, clearSelection);
+            if (clearSelection)
+                savedSelection.removeAll(lineNumber);
+            else
+                savedSelection.append(lineNumber);
+            toggleLines.clear();
         }
+        // set next selected line
+        cursor.movePosition(QTextCursor::Down);
+        _textEdit->setTextCursor(cursor);
+       currentLine++;
     }
 
     // restore selection
