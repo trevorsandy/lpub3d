@@ -2067,12 +2067,14 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
         else if (index == THEME_DARK_LINE_SELECT)
             color.setAlpha(50);
         else if (index == THEME_DARK_LINE_ERROR)
-            color.lighter(180);
-        else if (index == THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT)
-            color.lighter(180).setAlpha(100);
-        else if (index == THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT)
-            color.lighter(180).setAlpha(100);
-        else if (index == THEME_DARK_MARQUEE_FILL_COLOR)
+            color = color.lighter(180);
+        else if (index == THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT) {
+            color = color.lighter(180);
+            color.setAlpha(100);
+        } else if (index == THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT) {
+            color = color.lighter(180);
+            color.setAlpha(100);
+        } else if (index == THEME_DARK_MARQUEE_FILL_COLOR)
             color.setAlpha(64);
     } else {
         if (index == THEME_DEFAULT_GRID_STUD_COLOR)
@@ -2080,9 +2082,9 @@ QColor ThemeColorsDialog::getColor(const int index, const QString &name)
         else if (index == THEME_DEFAULT_LINE_SELECT)
             color.setAlpha(30);
         else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT)
-            color.lighter(180);
+            color = color.lighter(180);
         else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT)
-            color.lighter(180);
+            color = color.lighter(180);
         if (index == THEME_DEFAULT_MARQUEE_FILL_COLOR)
             color.setAlpha(64);
     }

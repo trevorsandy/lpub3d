@@ -1466,7 +1466,7 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
                                                Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT] :
                                                Preferences::themeColors[THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT]);
                     }
-                    lineColor.lighter(180);
+                    lineColor = lineColor.lighter(180);
                 }
             }
 
