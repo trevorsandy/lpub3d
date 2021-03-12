@@ -633,7 +633,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                         customPartsDirs << customFileInfo.absolutePath();
                       existingCustomParts++;
                       // check if part entry already in list
-                      foreach(QString colourPart, colourPartList){
+                      foreach (QString colourPart, colourPartList){
                           if (colourPart == fileString){
                               entryExists = true;
                               break;
@@ -669,7 +669,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       createCustomPartFiles(partType);
 
       // Populate custom parts dirs
-      foreach(QDir customDir, Paths::customDirs){
+      foreach (QDir customDir, Paths::customDirs){
           if(customDir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0)
               customPartsDirs << customDir.absolutePath();
       }
@@ -683,7 +683,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
               bool customDirsIncluded = false;
               QString customDir = QDir::toNativeSeparators(customPartDir.toLower());
               // check if custom directories included
-              foreach(QString ldSearchDir, Preferences::ldSearchDirs ) {
+              foreach (QString ldSearchDir, Preferences::ldSearchDirs ) {
                   QString searchDir = QDir::toNativeSeparators(ldSearchDir.toLower());
                   if (customDirsIncluded)
                     break;
@@ -866,7 +866,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                             entryExists = customFileInfo.exists();
                             // check if child part entry already in list
                             if (!entryExists) {
-                                foreach(QString childColourPart, childrenColourParts){
+                                foreach (QString childColourPart, childrenColourParts){
                                     if (childColourPart == childFileString){
                                         entryExists = true;
                                         break;

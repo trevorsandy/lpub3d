@@ -325,7 +325,7 @@ public:
   BranchMeta &operator= (const BranchMeta &rhs)
   {
     QString key;
-    foreach(key, list.keys()) {
+    foreach (key, list.keys()) {
       *list[key] = *rhs.list[key];
     }
     preamble = rhs.preamble;
@@ -334,7 +334,7 @@ public:
   BranchMeta (const BranchMeta &rhs) : AbstractMeta(rhs)
   {
     QString key;
-    foreach(key, list.keys()) {
+    foreach (key, list.keys()) {
       *list[key] = *rhs.list[key];
     }
   }

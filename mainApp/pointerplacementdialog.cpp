@@ -140,7 +140,7 @@ PointerPlacementDialog::PointerPlacementDialog(
   int currentIndex = 0;
 
   for (int i = 0; i < PointerPlacementDialog::PointerNumRelatives; i++) {
-      foreach(int ok, oks){
+      foreach (int ok, oks){
           if (ok == i) {
 //              logDebug() << "POINTER MATCH: Ok:" << ok << "Type:" << RelNames[i];
               combo->addItem(relativeNames[i]);

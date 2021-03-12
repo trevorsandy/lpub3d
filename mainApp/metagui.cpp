@@ -7617,7 +7617,7 @@ bool BlenderRenderDialogGui::extractBlenderAddon(const QString &blenderDir)
         QDir dir(blenderAddonDir);
         dir.setNameFilters(QStringList() << "*.*");
         dir.setFilter(QDir::Files);
-        foreach(QString dirFile, dir.entryList()) {
+        foreach (QString dirFile, dir.entryList()) {
             dir.remove(dirFile);
             emit gui->messageSig(LOG_INFO, QString("Removed Blender addon item: [%1]").arg(dirFile));
         }

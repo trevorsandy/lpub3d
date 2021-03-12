@@ -424,7 +424,7 @@ PlacementDialog::PlacementDialog(
 //                     << "\n     Index:" << i
 //                     << "\n MatchType:" << RelNames[i];
 
-      foreach(int ok, oks){
+      foreach (int ok, oks){
           if (ok == i){
               // logDebug() << "MATCH: Ok:" << ok << "Type:" << RelNames[i];
               combo->addItem(relativeNames[i]);

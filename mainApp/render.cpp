@@ -571,7 +571,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
     }
 
   bool usingInputFileList = false;
-  foreach(QString argument, arguments){
+  foreach (QString argument, arguments){
       if (argument.startsWith("-CommandLinesList=") ||
           argument.startsWith("-SaveSnapshotsList=")) {
           usingInputFileList = true;
@@ -1862,7 +1862,7 @@ int LDView::renderCsi(
         // populate ldrNames
         if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
             enableIM = true;
-            foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
+            foreach (QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
                 QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
                 if (LDVImageMatte::validMatteCSIImage(csiFile)) {
                     ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
@@ -2100,7 +2100,7 @@ int LDView::renderCsi(
                     // IM each ldrNameIM file
                     emit gui->messageSig(LOG_STATUS, "Executing LDView render Image Matte CSI - please wait...");
 
-                    foreach(QString ldrNameIM, ldrNamesIM){
+                    foreach (QString ldrNameIM, ldrNamesIM){
                         QFileInfo pngFileInfo(QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(ldrNameIM).replace(".ldr",".png")).fileName()));
                         QString csiKey = LDVImageMatte::getMatteCSIImage(pngFileInfo.absoluteFilePath());
                         if (!csiKey.isEmpty()) {
@@ -2125,7 +2125,7 @@ int LDView::renderCsi(
 
     // move generated CSI images to assem subfolder
     if (useLDViewSCall()){
-        foreach(QString ldrName, ldrNames){
+        foreach (QString ldrName, ldrNames){
             QString pngFileTmpPath = ldrName.replace(".ldr",".png");
             QString pngFilePath = QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName());
             QFile destinationFile(pngFilePath);
@@ -2538,7 +2538,7 @@ int LDView::renderPli(
 
   // move generated PLI images to parts subfolder
   if (useLDViewSCall() && pliType != SUBMODEL){
-      foreach(QString ldrName, ldrNames){
+      foreach (QString ldrName, ldrNames){
           QString pngFileTmpPath = ldrName.endsWith("_SUB.ldr") ?
                                    ldrName.replace("_SUB.ldr",".png") :
                                    ldrName.replace(".ldr",".png");

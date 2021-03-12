@@ -171,7 +171,7 @@ QStringList LDrawColor::names()
     QStringList colorNames;
     QRegExp rx("\\s*(0x|#)([\\da-fA-F]+)\\s*$");
 
-    foreach(key,color2name.keys()) {
+    foreach (key,color2name.keys()) {
 
         if (! key.contains(rx)) {
 

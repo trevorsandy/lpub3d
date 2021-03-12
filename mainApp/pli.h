@@ -282,7 +282,7 @@ class Pli : public Placement {
     void operator= (Pli& from)
     {
       QString key;
-      foreach(key,from.parts.keys()) {
+      foreach (key,from.parts.keys()) {
         PliPart *part = from.parts[key];
         parts.insert(key,part);
       }

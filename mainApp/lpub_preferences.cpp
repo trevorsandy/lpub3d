@@ -4159,7 +4159,7 @@ bool Preferences::getPreferences()
                 foreach (QString searchDir, dialog->searchDirSettings()) {
                     bool entryHasExcludedPath = false;
                     QString formattedDir = QDir::toNativeSeparators(searchDir);
-                    foreach(QString excludedPath, excludedPaths) {
+                    foreach (QString excludedPath, excludedPaths) {
                         QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(ldrawLibPath).arg(excludedPath));
                         if ((entryHasExcludedPath = (formattedDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                             break;

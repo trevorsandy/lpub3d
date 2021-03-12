@@ -205,7 +205,7 @@ void BranchMeta::doc(QStringList &out, QString preamble)
   QString key;
   QStringList keys = list.keys();
   keys.sort();
-  foreach(key, keys) {
+  foreach (key, keys) {
       list[key]->doc(out, preamble + " " + key);
     }
 }
@@ -5587,7 +5587,7 @@ void Meta::doc(QStringList &out)
   QString key;
   QStringList keys = list.keys();
   keys.sort();
-  foreach(key, keys) {
+  foreach (key, keys) {
       list[key]->doc(out, "0 " + key);
     }
 }

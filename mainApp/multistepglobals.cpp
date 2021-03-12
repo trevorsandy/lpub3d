@@ -287,7 +287,7 @@ void GlobalMultiStepDialog::accept()
 
   MetaGui *child;
 
-  foreach(child,data->children) {
+  foreach (child,data->children) {
     child->apply(data->topLevelFile);
   }
   mi.endMacro();
