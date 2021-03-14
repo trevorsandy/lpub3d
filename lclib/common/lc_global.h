@@ -55,11 +55,11 @@ char* strupr(char* string);
 
 // Version number.
 #define LC_VERSION_MAJOR 21
-#define LC_VERSION_MINOR 01
+#define LC_VERSION_MINOR 03
 #define LC_VERSION_PATCH 0
-#define LC_VERSION_TEXT "21.01"
+#define LC_VERSION_TEXT "21.03"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "57c4f29"
+#define LC_VERSION_SHA "61cf1dc"
 /*** LPub3D Mod end ***/
 
 
