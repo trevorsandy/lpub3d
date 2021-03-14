@@ -26,7 +26,7 @@ class QStringList;
 
 class Preferences
 {
-  public:
+  public:   
     enum MsgKey {
         ParseErrors,
         InsertErrors,
@@ -156,7 +156,6 @@ class Preferences
     static QString ldgliteExe;
     static QString ldviewExe;
     static QString povrayExe;
-    static QString preferredRenderer;
     static QString lpub3dPath;
     static QString lpub3dExtrasResourcePath;
     static QString lpub3dDocsResourcePath;
@@ -359,6 +358,7 @@ class Preferences
     static bool    missingRendererLibs;
 #endif
 
+    static int     preferredRenderer;
     static int     nativeImageCameraFoVAdjust;
     static int     fadeStepsOpacity;
     static int     checkUpdateFrequency;
@@ -379,6 +379,8 @@ class Preferences
     virtual ~Preferences() {}
 };
 
+extern QHash<QString, int> rendererMap;
+extern const QString rendererNames [];
 extern const QString msgKeyTypes [][2];
 extern Preferences preferences;
 

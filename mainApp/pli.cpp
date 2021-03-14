@@ -1104,7 +1104,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
                 // feed DAT to renderer
                 if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
                     emit gui->messageSig(LOG_ERROR,QString("%1 PLI [%2] render failed for<br>[%3]")
-                                         .arg(Render::getRenderer())
+                                         .arg(rendererNames[Render::getRenderer()])
                                          .arg(PartTypeNames[pT])
                                          .arg(imageName));
                     imageName = QString(":/resources/missingimage.png");
@@ -1179,7 +1179,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             if (!ptRc) {
                 emit gui->messageSig(LOG_INFO,QString("%1 PLI [%2] render took %3 milliseconds "
                                                       "to render image [%4].")
-                                                      .arg(Render::getRenderer())
+                                                      .arg(rendererNames[Render::getRenderer()])
                                                       .arg(PartTypeNames[pT])
                                                       .arg(timer.elapsed())
                                                       .arg(imageName));
@@ -2658,7 +2658,7 @@ int Pli::partSizeLDViewSCall() {
             if (!ptRc) {
                 emit gui->messageSig(LOG_INFO, QString("%1 PLI (Single Call) for [%2] render took "
                                                        "%3 milliseconds to render %4.")
-                                                       .arg(Render::getRenderer())
+                                                       .arg(rendererNames[Render::getRenderer()])
                                                        .arg(PartTypeNames[pT])
                                                        .arg(timer.elapsed())
                                                        .arg(QString("%1 %2")
@@ -3300,16 +3300,16 @@ void PliBackgroundItem::contextMenuEvent(
         QAction *povrayRendererArgumentsAction = nullptr;
         QAction *rendererArgumentsAction = nullptr;
         bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-        QString rendererName = QString("Add %1 Arguments")
+        QString rendererLabel = QString("Add %1 Arguments")
                 .arg(usingPovray ? "POV Generation":
-                                   QString("%1 Renderer").arg(Render::getRenderer()));
+                                   QString("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
         if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-            rendererArgumentsAction = menu.addAction(rendererName);
+            rendererArgumentsAction = menu.addAction(rendererLabel);
             rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
             rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
             if (usingPovray) {
                 povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                               .arg(Render::getRenderer()));
+                                                               .arg(rendererNames[Render::getRenderer()]));
                 povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
                 povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
             }
@@ -3443,12 +3443,12 @@ void PliBackgroundItem::contextMenuEvent(
                                   /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
             setRendererArguments(top,
                                  bottom,
-                                 rendererName,
+                                 rendererLabel,
                                  &rendererArguments);
         } else if (selectedAction == povrayRendererArgumentsAction) {
             setRendererArguments(top,
                                  bottom,
-                                 Render::getRenderer(),
+                                 rendererNames[Render::getRenderer()],
                                  &pli->pliMeta.povrayParms);
         }
     }

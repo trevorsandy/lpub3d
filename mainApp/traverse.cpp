@@ -549,7 +549,7 @@ int Gui::drawPage(
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
     if (!page.coverPage && partsAdded) {
-      pageRenderMessage += QString("using %1 ").arg(Render::getRenderer());
+      pageRenderMessage += QString("using %1 ").arg(rendererNames[Render::getRenderer()]);
       QString renderAttributes;
       if (Render::getRenderer() == RENDERER_LDVIEW) {
         if (Preferences::enableLDViewSingleCall)
@@ -1966,7 +1966,7 @@ int Gui::drawPage(
                                           QString("%1 CSI (Single Call) render took "
                                                   "%2 milliseconds to render %3 [Step %4] %5 "
                                                   "for %6 step group on page %7.")
-                                             .arg(Render::getRenderer())
+                                             .arg(rendererNames[Render::getRenderer()])
                                              .arg(timer.elapsed())
                                              .arg(opts.ldrStepFiles.size())
                                              .arg(opts.stepNum)
@@ -2555,7 +2555,7 @@ int Gui::drawPage(
                                                    QString("%1 CSI (Single Call) render took "
                                                            "%2 milliseconds to render %3 [Step %4] %5 for %6 "
                                                            "single step on page %7.")
-                                                           .arg(Render::getRenderer())
+                                                           .arg(rendererNames[Render::getRenderer()])
                                                            .arg(timer.elapsed())
                                                            .arg(opts.ldrStepFiles.size())
                                                            .arg(opts.stepNum)

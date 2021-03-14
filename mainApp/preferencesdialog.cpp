@@ -251,25 +251,25 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   bool povRayExists = fileInfo.exists();
   povRayExists &= fileInfo.exists();
   if (povRayExists) {
-      ui.preferredRenderer->addItem(RENDERER_POVRAY);
+      ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
     }
 
   fileInfo.setFile(Preferences::ldgliteExe);
   int ldgliteIndex = ui.preferredRenderer->count();
   bool ldgliteExists = fileInfo.exists();
   if (ldgliteExists) {
-    ui.preferredRenderer->addItem(RENDERER_LDGLITE);
+    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
   }
 
   fileInfo.setFile(Preferences::ldviewExe);
   int ldviewIndex = ui.preferredRenderer->count();
   bool ldviewExists = fileInfo.exists();
   if (ldviewExists) {
-    ui.preferredRenderer->addItem(RENDERER_LDVIEW);
+    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
   }
 
   int nativeIndex = ui.preferredRenderer->count();
-  ui.preferredRenderer->addItem(RENDERER_NATIVE);
+  ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
   if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
     ui.preferredRenderer->setCurrentIndex(ldviewIndex);
@@ -781,7 +781,7 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
   ui.highlightStepBtn->setEnabled(checked);
   ui.highlightStepLabel->setEnabled(checked);
   // Only enabled for LDGLite
-  if (ui.preferredRenderer->currentText() == RENDERER_LDGLITE)
+  if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDGLITE])
     ui.highlightStepLineWidthSpin->setEnabled(checked);
   else
     ui.highlightStepLineWidthSpin->setEnabled(false);
@@ -789,8 +789,8 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
 
 void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
 {
-      bool ldviewEnabled = (currentText == RENDERER_LDVIEW);
-      bool povrayEnabled = (currentText == RENDERER_POVRAY);
+      bool ldviewEnabled = (currentText == rendererNames[RENDERER_LDVIEW]);
+      bool povrayEnabled = (currentText == rendererNames[RENDERER_POVRAY]);
       ui.povNativeGenBox->setEnabled(povrayEnabled);
       ui.ldvPOVSettingsBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
@@ -819,7 +819,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
 
 void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
 {
-    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
+    bool applyCARenderer = ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW] &&
                            currentText == "Perspective";
     ui.applyCALocallyRadio->setChecked(! applyCARenderer);
     ui.applyCARendererRadio->setChecked(applyCARenderer);
@@ -827,7 +827,7 @@ void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &cu
 
 void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
 {
-    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
+    bool applyCARenderer = ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW] &&
                            ui.projectionCombo->currentText() == "Perspective";
     if (checked && applyCARenderer) {
       QMessageBox box;
@@ -837,7 +837,7 @@ void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
       box.setText (tr("The preferred renderer is set to %1 and projection is Perspective.<br>"
                       "This configureaiton requires camera angles to be set by %1.<br>"
                       "Are you sure you want to change the camera angles settings ?")
-                      .arg(RENDERER_LDVIEW));
+                      .arg(rendererNames[RENDERER_LDVIEW]));
       box.setDefaultButton(QMessageBox::No);
       if (box.exec() == QMessageBox::No) {
           ui.applyCALocallyRadio->setChecked(!checked);
@@ -966,16 +966,14 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     form->addWidget(parseErrorGrpBox);
     QGridLayout *parseErrorLayout = new QGridLayout(parseErrorGrpBox);
 
-    QFrame* separator = new QFrame();
-
-    QCheckBox * parseErrorChkBox = new QCheckBox("Show model line parse errors", messageDialog);
+    QCheckBox* parseErrorChkBox = new QCheckBox("Show model line parse errors", messageDialog);
     parseErrorChkBox->setChecked(Preferences::lineParseErrors);
     parseErrorLayout->addWidget(parseErrorChkBox,0,0,1,2);
     parseErrorTBtn = new QToolButton(messageDialog);
     parseErrorLayout->addWidget(parseErrorTBtn,1,0);
     parseErrorLbl = new QLabel("", messageDialog);
     parseErrorLayout->addWidget(parseErrorLbl,1,1);
-    separator = new QFrame();
+    QFrame* separator = new QFrame();
     separator->setFrameShape(QFrame::HLine);
     parseErrorLayout->addWidget(separator,2,0,1,2);
     QObject::connect(parseErrorTBtn, SIGNAL(clicked()), this, SLOT(messageManagement()));
@@ -1228,12 +1226,12 @@ QString const PreferencesDialog::povrayExe()
     return "";
 }
 
-QString const PreferencesDialog::preferredRenderer()
+int PreferencesDialog::preferredRenderer()
 {
   if (ui.preferredRenderer->isEnabled()) {
-    return ui.preferredRenderer->currentText();
+    return rendererMap[ui.preferredRenderer->currentText()];
   }
-  return "";
+  return RENDERER_INVALID;
 }
 
 bool PreferencesDialog::useNativePovGenerator()
@@ -1682,7 +1680,7 @@ void PreferencesDialog::accept(){
         bool povRayExists = fileInfo.exists();
         if (povRayExists) {
             Preferences::povrayExe = ui.povrayPath->text();
-            ui.preferredRenderer->addItem(RENDERER_POVRAY);
+            ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
         } else {
             emit gui->messageSig(LOG_ERROR,QString("POV-Ray path entered is not valid: %1").arg(ui.povrayPath->text()));
         }
@@ -1692,7 +1690,7 @@ void PreferencesDialog::accept(){
         bool ldgliteExists = fileInfo.exists();
         if (ldgliteExists) {
             Preferences::ldgliteExe = ui.ldglitePath->text();
-            ui.preferredRenderer->addItem(RENDERER_LDGLITE);
+            ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
         } else {
             emit gui->messageSig(LOG_ERROR,QString("LDGLite path entered is not valid: %1").arg(ui.ldglitePath->text()));
         }
@@ -1709,7 +1707,7 @@ void PreferencesDialog::accept(){
         bool ldviewExists = fileInfo.exists();
         if (ldviewExists) {
             Preferences::ldviewExe = ldviewPath;
-            ui.preferredRenderer->addItem(RENDERER_LDVIEW);
+            ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
         } else {
             emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }

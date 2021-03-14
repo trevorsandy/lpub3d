@@ -1949,9 +1949,9 @@ void PreferredRendererMeta::setPreferences(bool reset)
   if (displayPreference)
     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Renderer %1 %2%3.")
                                                   .arg(reset ? "reset to" : global ? "save as" : "changed to")
-                                                  .arg(Preferences::preferredRenderer)
+                                                  .arg(rendererNames[Preferences::preferredRenderer])
                                                   .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
-                                                                                                                   .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                                                                                                                   .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                                                        Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ?
                                                                                                            Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
                                                                                                                                                    QString(" (Single Call)") :
@@ -1976,12 +1976,12 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
       rc = FailureRc;
     if (argv.size() - index > 1) {
       index++;
-      if (_value[pushed].renderer == "LDVIEW") {
+      if (_value[pushed].renderer == RENDERER_LDVIEW) {
         if (argv[index] == "SINGLE_CALL")
           _value[pushed].useLDVSingleCall = true;
         else if (argv[index] == "SINGLE_CALL_EXPORT_LIST")
           _value[pushed].useLDVSnapShotList = _value[pushed].useLDVSingleCall = true;
-      } else if (_value[pushed].renderer == "POVRAY") {
+      } else if (_value[pushed].renderer == RENDERER_POVRAY) {
         if (argv[index] == "LDVIEW_POV_GENERATOR")
           _value[pushed].useNativeGenerator = false;
       }
@@ -2012,7 +2012,7 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
 QString PreferredRendererMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = _value[pushed].renderer.toUpper();
+  foo = QString(rendererNames[_value[pushed].renderer]).toUpper();
   if (_value[pushed].renderer == RENDERER_LDVIEW) {
     if (_value[pushed].useLDVSingleCall)
       foo.append(" SINGLE_CALL");

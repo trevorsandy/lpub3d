@@ -1563,7 +1563,7 @@ private:
   lcPreview*              preview;
 
   RendererData            savedData;       // store current renderer data when temporarily switching renderer;
-  QString                 saveRenderer;    // saved renderer when temporarily switching to Native renderer
+  int                     saveRenderer;    // saved renderer when temporarily switching to Native renderer
   bool                    saveProjection;  // saved projection when temporarily switching to Native renderer
 
   bool                   okToInvokeProgressBar()

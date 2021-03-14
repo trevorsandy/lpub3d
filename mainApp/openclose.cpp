@@ -1072,19 +1072,17 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
   if (preferredRenderer.isEmpty())
       return false;
 
+  int renderer = RENDERER_INVALID;
   bool useLDVSingleCall = false;
   bool useLDVSnapShotList = false;
-  bool useNativeRenderer = false;
   bool useNativeGenerator = true;
   bool rendererChanged = false;
   bool renderFlagChanged = false;
 
   QString message;
-  QString renderer;
   QString command = preferredRenderer.toLower();
   if (command == "native") {
     renderer = RENDERER_NATIVE;
-    useNativeRenderer = true;
   } else if (command == "ldview") {
     renderer = RENDERER_LDVIEW;
   } else if ((useLDVSingleCall = command == "ldview-sc")) {
@@ -1128,8 +1126,8 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
   } else if (renderer == RENDERER_POVRAY) {
     if (Preferences::useNativePovGenerator != useNativeGenerator) {
       message = QString("Renderer preference POV file generator changed from %1 to %2.")
-                        .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW)
-                        .arg(useNativeGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW);
+                        .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW])
+                        .arg(useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
       emit messageSig(LOG_INFO,message);
       Preferences::useNativePovGenerator = useNativeGenerator;
       if (!renderFlagChanged)
@@ -1139,10 +1137,10 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
 
   if (rendererChanged || renderFlagChanged) {
     message = QString("Renderer preference changed from %1 to %2%3.")
-                      .arg(Preferences::preferredRenderer)
-                      .arg(renderer)
+                      .arg(rendererNames[Preferences::preferredRenderer])
+                      .arg(rendererNames[renderer])
                       .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
-                                                                 .arg(Preferences::useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                                                                 .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                            renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
                                                          useLDVSnapShotList ? QString(" (Single Call using Export File List)") :
                                                                               QString(" (Single Call)") :
@@ -1151,7 +1149,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
   }
 
   if (rendererChanged) {
-    Preferences::preferredRenderer   = renderer;
+    Preferences::preferredRenderer = renderer;
     Render::setRenderer(Preferences::preferredRenderer);
     Preferences::preferredRendererPreferences(true/*global*/);
     Preferences::updatePOVRayConfigFiles();

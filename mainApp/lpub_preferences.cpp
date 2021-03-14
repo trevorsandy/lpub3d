@@ -44,6 +44,15 @@
 
 Preferences preferences;
 
+QHash<QString, int> rendererMap;
+const QString rendererNames[NUM_RENDERERS] =
+{
+  "Native",  // RENDERER_NATIVE
+  "LDView",  // RENDERER_LDVIEW
+  "LDGLite", // RENDERER_LDGLITE
+  "POVRay"   // RENDERER_POVRAY
+};
+
 const QString MsgKeys[Preferences::NumKeys] =
 {
     "ShowLineParseErrors",    // ParseErrors
@@ -264,7 +273,6 @@ QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
-QString Preferences::preferredRenderer          = RENDERER_NATIVE;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
@@ -465,6 +473,7 @@ bool    Preferences::textDecorationColorChanged = false;
 bool    Preferences::missingRendererLibs        = false;
 #endif
 
+int     Preferences::preferredRenderer          = RENDERER_NATIVE;
 int     Preferences::ldrawFilesLoadMsgs         = NEVER_SHOW;
 int     Preferences::sceneRulerTracking         = TRACKING_NONE;
 int     Preferences::sceneGuidesPosition        = GUIDES_TOP_LEFT;
@@ -2104,6 +2113,13 @@ void Preferences::highlightstepPreferences(bool persist)
 
 void Preferences::preferredRendererPreferences(bool persist)
 {
+    if (rendererMap.size() == 0) {
+        rendererMap[rendererNames[RENDERER_NATIVE]]  = RENDERER_NATIVE;
+        rendererMap[rendererNames[RENDERER_LDVIEW]]  = RENDERER_LDVIEW;
+        rendererMap[rendererNames[RENDERER_LDGLITE]] = RENDERER_LDGLITE;
+        rendererMap[rendererNames[RENDERER_POVRAY]]  = RENDERER_POVRAY;
+    }
+
     QSettings Settings;
 
     /* Do we have a valid preferred renderer */
@@ -2114,10 +2130,10 @@ void Preferences::preferredRendererPreferences(bool persist)
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,preferredRendererKey)) || persist) {
         if (! persist)
             preferredRenderer = RENDERER_NATIVE; // No persisted setting so set renderer to Native
-        QVariant cValue(preferredRenderer);
+        QVariant cValue(rendererNames[preferredRenderer]);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),cValue);
     } else {
-        preferredRenderer = Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString();
+        preferredRenderer = rendererMap[Settings.value(QString("%1/%2").arg(SETTINGS,preferredRendererKey)).toString()];
         bool clearPreferredRenderer = false;
         if (preferredRenderer == RENDERER_LDGLITE) {
             clearPreferredRenderer = !ldgliteInstalled;
@@ -2127,7 +2143,7 @@ void Preferences::preferredRendererPreferences(bool persist)
             clearPreferredRenderer = !povRayInstalled;
         }
         if (clearPreferredRenderer) {
-            preferredRenderer.clear();
+            preferredRenderer = RENDERER_INVALID;
             Settings.remove(QString("%1/%2").arg(SETTINGS,preferredRendererKey));
         }
     }
@@ -2593,9 +2609,9 @@ void Preferences::rendererPreferences()
     logInfo() << QString("POVRay scene path  : %1").arg(povrayScenePath.isEmpty() ? "Not found" : povrayScenePath);
 
     logInfo() << QString("Renderer is %1%2.")
-                         .arg(preferredRenderer)
+                         .arg(rendererNames[preferredRenderer])
                          .arg(preferredRenderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
-                                                                             .arg(useNativePovGenerator ? RENDERER_NATIVE : RENDERER_LDVIEW) :
+                                                                             .arg(useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                               preferredRenderer == RENDERER_LDVIEW ? enableLDViewSingleCall ?
                                                                      enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
                                                                                                 QString(" (Single Call)") :
@@ -4403,10 +4419,10 @@ bool Preferences::getPreferences()
 
         if (preferredRenderer != dialog->preferredRenderer()) {
             preferredRenderer = dialog->preferredRenderer();
-            if (preferredRenderer.isEmpty()) {
+            if (preferredRenderer == RENDERER_INVALID) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
             } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),preferredRenderer);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"),rendererNames[preferredRenderer]);
             }
         }
 
@@ -4974,7 +4990,7 @@ void Preferences::getRequireds()
 {
     // this call will most likely not get past the preferredRenderer == "" statement as
     // the preferred renderer is set on application launch before getRequireds() is called.
-    if (preferredRenderer == "" && ! getPreferences()) {
+    if (preferredRenderer == RENDERER_INVALID && ! getPreferences()) {
         exit (-1);
     }
 }

@@ -318,7 +318,7 @@ int SubModel::createSubModelImage(
       // feed DAT to renderer
       if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
           emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
-                                                 .arg(Render::getRenderer())
+                                                 .arg(rendererNames[Render::getRenderer()])
                                                  .arg(imageName)
                                                  .arg(callout ? "called out," : "simple,")
                                                  .arg(multistep ? "step group" : "single step")
@@ -332,7 +332,7 @@ int SubModel::createSubModelImage(
           emit gui->messageSig(LOG_INFO,
                                QString("%1 Submodel render call took %2 milliseconds "
                                        "to render %3 for %4 %5 %6 on page %7.")
-                               .arg(Render::getRenderer())
+                               .arg(rendererNames[Render::getRenderer()])
                                .arg(timer.elapsed())
                                .arg(imageName)
                                .arg(callout ? "called out," : "simple,")
@@ -1536,16 +1536,16 @@ void SubModelBackgroundItem::contextMenuEvent(
     QAction *povrayRendererArgumentsAction = nullptr;
     QAction *rendererArgumentsAction = nullptr;
     bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-    QString rendererName = QString("Add %1 Arguments")
+    QString rendererLabel = QString("Add %1 Arguments")
                                    .arg(usingPovray ? "POV Generation":
-                                                      QString("%1 Renderer").arg(Render::getRenderer()));
+                                                      QString("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
     if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-        rendererArgumentsAction = menu.addAction(rendererName);
+        rendererArgumentsAction = menu.addAction(rendererLabel);
         rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
         rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
         if (usingPovray) {
             povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                                    .arg(Render::getRenderer()));
+                                                                    .arg(rendererNames[Render::getRenderer()]));
             povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
             povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
         }
@@ -1646,12 +1646,12 @@ void SubModelBackgroundItem::contextMenuEvent(
                                /*POV scene file generator*/  subModel->subModelMeta.ldviewParms ;
       setRendererArguments(top,
                            bottom,
-                           rendererName,
+                           rendererLabel,
                            &rendererArguments);
     } else if (selectedAction == povrayRendererArgumentsAction) {
       setRendererArguments(top,
                            bottom,
-                           Render::getRenderer(),
+                           rendererNames[Render::getRenderer()],
                            &subModel->subModelMeta.povrayParms);
     } else if (selectedAction == copySmpImagePathAction) {
         QObject::connect(copySmpImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));

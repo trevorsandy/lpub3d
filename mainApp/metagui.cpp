@@ -3688,14 +3688,14 @@ PreferredRendererGui::PreferredRendererGui(
   meta = _meta;
 
   combo = new QComboBox(parent);
-  combo->addItem(RENDERER_NATIVE);
-  if (Preferences::ldgliteExe != "")
-    combo->addItem(RENDERER_LDGLITE);
-  if (Preferences::ldviewExe != "")
-    combo->addItem(RENDERER_LDVIEW);
-  if (Preferences::povrayExe != "")
-    combo->addItem(RENDERER_POVRAY);
-  combo->setCurrentIndex(int(combo->findText(meta->value().renderer)));
+  combo->addItem(rendererNames[RENDERER_NATIVE]);
+  if (!Preferences::ldgliteExe.isEmpty())
+    combo->addItem(rendererNames[RENDERER_LDGLITE]);
+  if (!Preferences::ldviewExe.isEmpty())
+    combo->addItem(rendererNames[RENDERER_LDVIEW]);
+  if (!Preferences::povrayExe.isEmpty())
+    combo->addItem(rendererNames[RENDERER_POVRAY]);
+  combo->setCurrentIndex(int(combo->findText(rendererNames[meta->value().renderer])));
 
   connect(combo,SIGNAL(currentIndexChanged(int)),
           this,   SLOT(       valueChanged(int)));
@@ -3760,10 +3760,10 @@ void PreferredRendererGui::valueChanged(int state)
   RendererData data = meta->value();
   if (sender() == combo) {
     QString pick = combo->currentText();
-    ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
-    povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
+    ldvSingleCallBox->setEnabled(pick == rendererNames[RENDERER_LDVIEW]);
+    povFileGeneratorGrpBox->setEnabled(pick == rendererNames[RENDERER_POVRAY]);
     if (!modified)
-      modified = data.renderer != pick;
+      modified = data.renderer != rendererMap[pick];
   } else if (sender() == ldvSnapshotListBox) {
     checked = isChecked();
     if (!modified)

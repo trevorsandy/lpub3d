@@ -50,6 +50,7 @@ struct TypeLine {
       modelIndex(_modelIndex), lineIndex(_lineIndex) {}
 };
 
+enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
@@ -696,12 +697,6 @@ enum ThemeColorType {
 #define PREVIEW_SUBMODEL_SUFFIX                 "Preview"
 #define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"
 #define VIEWER_MODEL_DEFAULT                    "Model.ldr"
-
-// Renderers
-#define RENDERER_POVRAY                         "POVRay"
-#define RENDERER_LDGLITE                        "LDGLite"
-#define RENDERER_LDVIEW                         "LDView"
-#define RENDERER_NATIVE                         "Native"
 
 #define LEGO_LIBRARY                            "LEGO"
 #define TENTE_LIBRARY                           "TENTE"

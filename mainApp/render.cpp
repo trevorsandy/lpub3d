@@ -160,7 +160,7 @@ const QString Render::fixupDirname(const QString &dirNameIn) {
 #endif
 }
 
-QString const Render::getRenderer()
+int Render::getRenderer()
 {
   if (renderer == &ldglite)
   {
@@ -182,7 +182,7 @@ QString const Render::getRenderer()
   }
 }
 
-int Render::getRendererIndex()
+int Render::getDistanceRendererIndex()
 {
     int renderer = 0; // RENDERER_NATIVE, RENDERER_LDGLITE
     if (getRenderer() == RENDERER_POVRAY)      // 1
@@ -192,19 +192,19 @@ int Render::getRendererIndex()
     return renderer;
 }
 
-void Render::setRenderer(QString const &name)
+void Render::setRenderer(int id)
 {
-  if (name == RENDERER_LDGLITE)
+  if (id == RENDERER_LDGLITE)
   {
     renderer = &ldglite;
   }
   else
-  if (name == RENDERER_LDVIEW)
+  if (id == RENDERER_LDVIEW)
   {
     renderer = &ldview;
   }
   else
-  if (name == RENDERER_POVRAY)
+  if (id == RENDERER_POVRAY)
   {
     renderer = &povray;
   }
@@ -3047,7 +3047,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->ImageHeight,
                 O->PageWidth,
                 O->PageHeight,
-                getRendererIndex(),
+                getDistanceRendererIndex(),
                 O->ImageFileName,
                 O->Resolution);
 

@@ -234,11 +234,11 @@ void Gui::setNativeRenderer() {
 }
 
 void Gui::restorePreferredRenderer() {
-    if (!saveRenderer.isEmpty()) {
+    if (saveRenderer != RENDERER_INVALID) {
         Preferences::preferredRenderer      = saveRenderer;
         Preferences::perspectiveProjection  = saveProjection;
         Render::setRenderer(Preferences::preferredRenderer);
-        saveRenderer = QString();
+        saveRenderer = RENDERER_INVALID;
     }
 }
 
@@ -2796,6 +2796,7 @@ void Gui::preferences()
     bool povrayAutoCropCompare             = Preferences::povrayAutoCrop;
     bool showDownloadRedirectsCompare      = Preferences::showDownloadRedirects;
     bool povFileGeneratorCompare           = Preferences::useNativePovGenerator;
+    int preferredRendererCompare           = Preferences::preferredRenderer;
     int povrayRenderQualityCompare         = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare          = Preferences::ldrawFilesLoadMsgs;
     bool lineParseErrorsCompare            = Preferences::lineParseErrors;
@@ -2806,7 +2807,6 @@ void Gui::preferences()
     QString highlightStepColourCompare     = Preferences::highlightStepColour;
     QString ldrawPathCompare               = Preferences::ldrawLibPath;
     QString lgeoPathCompare                = Preferences::lgeoPath;
-    QString preferredRendererCompare       = Preferences::preferredRenderer;
     QString displayThemeCompare            = Preferences::displayTheme;
     QString sceneBackgroundColorCompare    = Preferences::sceneBackgroundColor;
     QString sceneGridColorCompare          = Preferences::sceneGridColor;
@@ -2837,7 +2837,7 @@ void Gui::preferences()
         box.setStandardButtons (QMessageBox::Ok);
 
         bool defaultUnitsChanged           = Preferences::preferCentimeters                      != defaultUnitsCompare;
-        bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
+        bool rendererChanged               = Preferences::preferredRenderer                      != preferredRendererCompare;
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
         bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()!= fadeStepsColourCompare.toLower();
@@ -3298,6 +3298,7 @@ Gui::Gui()
     qRegisterMetaType<RectPlacement>("RectPlacement");
     qRegisterMetaType<RelativeTos>("RelativeTos");
     qRegisterMetaType<RemoveObjectsRC>("RemoveObjectsRC");
+    qRegisterMetaType<RendererType>("RendererType");
     qRegisterMetaType<RulerTrackingType>("RulerTrackingType");
     qRegisterMetaType<SaveOnSender>("SaveOnSender");
     qRegisterMetaType<SceneGuidesPosType>("SceneGuidesPosType");

@@ -662,13 +662,14 @@ class PointerAttribData
 class RendererData
 {
 public:
-  QString renderer;
+  int  renderer;
   bool useLDVSingleCall;
   bool useLDVSnapShotList;
   bool useNativeGenerator;
   bool usePerspectiveProjection;
   RendererData()
   {
+    renderer = -1; // RENDERER_INVALID
     useLDVSingleCall = false;
     useLDVSnapShotList = false;
     useNativeGenerator = false;

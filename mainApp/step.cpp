@@ -250,7 +250,7 @@ int Step::createCsi(
   }
 
   QString nameExtension = modelDisplayOnlyStep ? "_dm" : bfxLoad ? "_bfx" : buildModAction ? "_bm" : QString();
-  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameExtension, Preferences::preferredRenderer.left(3).toLower());
+  QString csi_Name      = QString("%1%2-%3").arg(csiName(), nameExtension, QString::number(Preferences::preferredRenderer));
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
@@ -443,7 +443,7 @@ int Step::createCsi(
 
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta, nType)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
-                                                    .arg(Render::getRenderer())
+                                                    .arg(rendererNames[Render::getRenderer()])
                                                     .arg(pngName));
              pngName = QString(":/resources/missingimage.png");
              rc = -1;
@@ -454,7 +454,7 @@ int Step::createCsi(
          emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 milliseconds "
                                           "to render %3 for %4 %5 %6 on page %7.")
-                                          .arg(Render::getRenderer())
+                                          .arg(rendererNames[Render::getRenderer()])
                                           .arg(timer.elapsed())
                                           .arg(pngName)
                                           .arg(calledOut ? "called out," : "simple,")

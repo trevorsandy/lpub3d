@@ -1797,10 +1797,9 @@ void MetaItem::hideSubmodel(
     setMeta(topOfStep,bottomOfStep,show,useTop,append,local);
 }
 
-void MetaItem::setRendererArguments(
-        const Where &top,
+void MetaItem::setRendererArguments(const Where &top,
         const Where &bottom,
-        const QString &renderer,
+        const QString &rendererLabel,
         StringMeta *rendererArguments,
         bool  useTop,
         int   append,
@@ -1808,7 +1807,7 @@ void MetaItem::setRendererArguments(
 {
     QString arguments = rendererArguments->value();
 
-    bool ok = TextEditDialog::getText(arguments,renderer/*QString("%1 Renderer Arguments").arg(renderer)*/);
+    bool ok = TextEditDialog::getText(arguments,rendererLabel/*QString("%1 Renderer Arguments").arg(renderer)*/);
 
     if (ok && !arguments.isEmpty()) {
 

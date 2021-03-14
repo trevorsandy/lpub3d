@@ -48,7 +48,6 @@ class PreferencesDialog : public QDialog
     QString const ldgliteExe();
     QString const ldviewExe();
     QString const moduleVersion();
-    QString const preferredRenderer();
     QString const defaultAuthor();
     QString const defaultURL();
     QString const defaultEmail();
@@ -121,6 +120,7 @@ class PreferencesDialog : public QDialog
     bool          fatalLevel();
     bool          allLogLevels();
 
+    int           preferredRenderer();
     int           ldrawFilesLoadMsgs();
     int           checkUpdateFrequency();
     int           povrayRenderQuality();

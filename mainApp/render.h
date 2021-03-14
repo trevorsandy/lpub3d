@@ -52,12 +52,12 @@ class Render
 public:
   Render(){}
   virtual ~Render() {}
-  static QString const   getRenderer();
+  static int             getRenderer();
   static bool            useLDViewSCall();
   static bool            useLDViewSList();
   static int             rendererTimeout();
-  static int             getRendererIndex();
-  static void            setRenderer(QString const &);
+  static int             getDistanceRendererIndex();
+  static void            setRenderer(int);
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
   static QString const   getPovrayRenderQuality(int quality = -1);

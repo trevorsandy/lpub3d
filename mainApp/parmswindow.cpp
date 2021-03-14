@@ -615,8 +615,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
       // load LDGLite settings if modified
       QFileInfo fileInfo(fileName);
-      QString renderer = Render::getRenderer();
-      if ((renderer == RENDERER_LDGLITE) && (fileInfo.fileName() == QString(VER_LDGLITE_INI_FILE)))
+      if ((Render::getRenderer() == RENDERER_LDGLITE) && (fileInfo.fileName() == QString(VER_LDGLITE_INI_FILE)))
           Preferences::setLDGLiteIniParams();
 
       // is there anything loaded - to take advantage of our change?
@@ -909,7 +908,6 @@ FindReplace::FindReplace(
 
     box = new QGroupBox("String to find");
     grid->addWidget(box);
-    gropuLayout = new QGridLayout;
     box->setLayout(gropuLayout);
 
     gropuLayout->addWidget(find->textFind,0,0,1,5);
