@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2386 (14 03 2021 22:45:39)
+LPub3D 2.4.1.1.2387 (14 03 2021 22:46:12)
 
 Features, enhancements, fixes and changes
 ------------
@@ -37,6 +37,7 @@ Revisions:
 - Fix - Load PLI substitute and excluded part lists on initialisation #471
 - Fix - LPub3D 2.3.13 and 2.4 not showing times indicator in certain instances #480
 - Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
+- Fix - Meta command for divider/separator is incorrect #511
 - Fix - Problems with generated parts #496
 - Fix - Rounded corners are not round but oval #473
 - Fix - Segmentation fault (core dumped) when dragging step number #466

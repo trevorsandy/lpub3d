@@ -3335,7 +3335,7 @@ void MetaItem::setHighlightStep(
     bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = append = !gui->stepContains(here,calloutRx);
+    bool useTop = (append = !gui->stepContains(here,calloutRx));
     beginMacro("SetHighlightStep");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());

@@ -3408,7 +3408,6 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   cameraFoV.init        (this,"CAMERA_FOV");
   cameraZNear.init      (this,"CAMERA_ZNEAR");
   cameraZFar.init       (this,"CAMERA_ZFAR");
-  cameraAngles.init     (this,"VIEW_ANGLE");   // legacy command
   cameraAngles.init     (this,"CAMERA_ANGLES");
   isOrtho.init          (this,"CAMERA_ORTHOGRAPHIC");
   cameraName.init       (this,"CAMERA_NAME");
@@ -4680,7 +4679,6 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   cameraFoV            .init(this,"CAMERA_FOV");
   cameraZNear          .init(this,"CAMERA_ZNEAR");
   cameraZFar           .init(this,"CAMERA_ZFAR");
-  cameraAngles         .init(this,"VIEW_ANGLE");   // legacy command
   cameraAngles         .init(this,"CAMERA_ANGLES");
   cameraDistance       .init(this,"CAMERA_DISTANCE");
   target               .init(this,"CAMERA_TARGET");
@@ -5100,7 +5098,6 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   cameraFoV.init      (this,"CAMERA_FOV");
   cameraZNear.init    (this,"CAMERA_ZNEAR");
   cameraZFar.init     (this,"CAMERA_ZFAR");
-  cameraAngles.init   (this,"VIEW_ANGLE");   // legacy command
   cameraAngles.init   (this,"CAMERA_ANGLES");
   cameraDistance.init (this,"CAMERA_DISTANCE");
   isOrtho.init        (this,"CAMERA_ORTHOGRAPHIC");
@@ -5236,7 +5233,6 @@ void PliMeta::init(BranchMeta *parent, QString name)
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraZNear     .init(this,"CAMERA_ZNEAR");
   cameraZFar      .init(this,"CAMERA_ZFAR");
-  cameraAngles    .init(this,"VIEW_ANGLE");   // legacy command
   cameraAngles    .init(this,"CAMERA_ANGLES");
   target          .init(this,"CAMERA_TARGET");
   position        .init(this,"CAMERA_POSITION");
@@ -5376,7 +5372,6 @@ void BomMeta::init(BranchMeta *parent, QString name)
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraZNear     .init(this,"CAMERA_ZNEAR");
   cameraZFar      .init(this,"CAMERA_ZFAR");
-  cameraAngles    .init(this,"VIEW_ANGLE");   // legacy command
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
   target          .init(this,"CAMERA_TARGET");
@@ -5469,8 +5464,7 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   margin     .init(this,      "MARGINS");
   stepNum    .init(this,      "STEP_NUMBER");
-  sep        .init(this,      "SEPARATOR");  // legacy command
-  sep        .init(this,      "DIVIDER");
+  sep        .init(this,      "SEPARATOR");
   border     .init(this,      "BORDER");
   subModelFont.init (this,    "SUBMODEL_FONT");
   instance   .init(this,      "INSTANCE_COUNT");
@@ -5556,8 +5550,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   margin   .init(this,    "MARGINS");
   stepNum  .init(this,    "STEP_NUMBER");
   placement.init(this,    "PLACEMENT");
-  sep      .init(this,    "SEPARATOR");  // legacy command
-  sep      .init(this,    "DIVIDER");
+  sep      .init(this,    "SEPARATOR");
   justifyStep.init(this,  "STEPS");
 
   divPointer.init(this,   "DIVIDER_POINTER");
@@ -6240,6 +6233,13 @@ void Meta::doc(QStringList &out)
 }
 
 void Meta::processSpecialCases(QString &line, Where &here) {
+    /* Legacy LPub backward compatibilty. Replace VIEW_ANGLE with CAMERA_ANGLES */
+    QRegExp parseRx("\\s+(VIEW_ANGLE)\\s+");
+    if (line.contains(parseRx)) {
+        line.replace(parseRx.cap(1),"CAMERA_ANGLES");
+        return;
+    }
+
     /* Native camera distance deprecated. Command ignored if not GLOBAL */
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
         if (gui->parsedMessages.contains(here)) {
