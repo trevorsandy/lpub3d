@@ -141,8 +141,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                        .arg(QString::fromLatin1(VER_COMPILED_WITH).replace("qtver",qVersion()))
                                        .arg(QString("Qt %1").arg(qVersion()))
                                        .arg(QString::fromLatin1(VER_IDE))
-                                       .arg(tr("%1 - Revision %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
-                                                                  .arg(QString::fromLatin1(LC_VERSION_BUILD)))
+                                       .arg(tr("%1 - Commit %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+                                                                .arg(QString::fromLatin1(LC_VERSION_SHA)))
                                        .arg(QString::fromLatin1(VER_COMPILE_DATE_STR))
                                        .arg(QString::fromLatin1(VER_QT_URL));
 

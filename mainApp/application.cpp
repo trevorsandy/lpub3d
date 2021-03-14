@@ -586,7 +586,7 @@ void Application::initialize()
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_BUILD);
+              fprintf(stdout, "3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
               return;
