@@ -287,7 +287,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 				}
 			}
 
-			const lcTexture* const Texture = Section->Texture;
+			lcTexture* const Texture = Section->Texture;
 			int VertexBufferOffset = Mesh->mVertexCacheOffset != -1 ? Mesh->mVertexCacheOffset : 0;
 			const int IndexBufferOffset = Mesh->mIndexCacheOffset != -1 ? Mesh->mIndexCacheOffset : 0;
 
@@ -298,6 +298,8 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 			}
 			else
 			{
+				if (Texture->NeedsUpload())
+					Texture->Upload(Context);
 				Context->SetMaterial(TexturedMaterial);
 				VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
 				Context->SetVertexFormat(VertexBufferOffset, 3, 1, 2, 0, DrawLit);
@@ -416,7 +418,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			break;
 		}
 
-		const lcTexture* Texture = Section->Texture;
+		lcTexture* const Texture = Section->Texture;
 		int VertexBufferOffset = Mesh->mVertexCacheOffset != -1 ? Mesh->mVertexCacheOffset : 0;
 		const int IndexBufferOffset = Mesh->mIndexCacheOffset != -1 ? Mesh->mIndexCacheOffset : 0;
 
@@ -427,6 +429,8 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 		}
 		else
 		{
+			if (Texture->NeedsUpload())
+				Texture->Upload(Context);
 			Context->SetMaterial(TexturedMaterial);
 			VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
 			Context->SetVertexFormat(VertexBufferOffset, 3, 1, 2, 0, DrawLit);

@@ -28,7 +28,7 @@
 #  define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #endif
 
-#define LC_LIBRARY_CACHE_VERSION   0x0108
+#define LC_LIBRARY_CACHE_VERSION   0x0109
 #define LC_LIBRARY_CACHE_ARCHIVE   0x0001
 #define LC_LIBRARY_CACHE_DIRECTORY 0x0002
 /*** LPub3D Mod - part types ***/
@@ -500,7 +500,11 @@ bool lcPiecesLibrary::OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType Zi
 	}
 
 	mZipFiles[static_cast<int>(ZipFileType)] = std::move(ZipFile);
-	mSources.insert(mSources.begin(), std::move(Source));
+
+	if (ZipFileType != lcZipFileType::StudStyle)
+		mSources.emplace_back(std::move(Source));
+	else
+		mSources.insert(mSources.begin(), std::move(Source));
 
 	return true;
 }
@@ -564,7 +568,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 {
 /*** LPub3D Mod - parts load order ***/
-	const QLatin1String BaseFolders[LC_NUM_FOLDERTYPES] = { mPreferOfficialParts ? QLatin1String("") : QLatin1String("unofficial/"), mPreferOfficialParts ? QLatin1String("unofficial/") : QLatin1String("") };
+	const QLatin1String BaseFolders[] = { mPreferOfficialParts ? QLatin1String("") : QLatin1String("unofficial/"), mPreferOfficialParts ? QLatin1String("unofficial/") : QLatin1String("") };
 /*** LPub3D Mod ***/
 	constexpr int NumBaseFolders = LC_ARRAY_COUNT(BaseFolders);
 
@@ -577,11 +581,11 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 		FileLists[BaseFolderIdx] = Dir.entryInfoList();
 	}
 
-	if (FileLists[LC_FOLDER_OFFICIAL].isEmpty())
+	if (FileLists[static_cast<int>(lcLibraryFolderType::Official)].isEmpty())
 		return false;
 
 /*** LPub3D Mod - parts load order ***/
-	mHasUnofficialDirectory = !FileLists[LC_FOLDER_UNOFFICIAL].isEmpty();
+	mHasUnofficialDirectory = !FileLists[static_cast<int>(lcLibraryFolderType::Unofficial)].isEmpty();
 /*** LPub3D Mod ***/
 	ReadDirectoryDescriptions(FileLists, ShowProgress);
 
@@ -630,12 +634,10 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 				if (memcmp(Dst, ".DAT", 4))
 					continue;
 
-/*** LPub3D Mod - parts load order ***/
-				if (mHasUnofficialDirectory && IsPrimitive(Name))
-/*** LPub3D Mod ***/
+				if (BaseFolderIdx > 0 && IsPrimitive(Name))
 					continue;
 
-				if (BaseFolderIdx == 0)
+				if (BaseFolderIdx == static_cast<int>(lcLibraryFolderType::Unofficial))
 /*** LPub3D Mod - parts load order ***/
 					mHasUnofficialDirectory = true;
 /*** LPub3D Mod ***/
@@ -644,8 +646,8 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 				Source->Primitives[Name] = new lcLibraryPrimitive(std::move(FileName), strchr(FileString, '/') + 1, lcZipFileType::Count, 0, !SubFile && IsStudPrimitive(Name), IsStudStylePrimitive(Name), SubFile);
 			}
 		}
-
-		mSources.push_back(std::move(Source));
+		
+		mSources.emplace_back(std::move(Source));
 	}
 
 	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
@@ -696,13 +698,15 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 	return true;
 }
 
-void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)[LC_NUM_FOLDERTYPES], bool ShowProgress)
+void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)[static_cast<int>(lcLibraryFolderType::Count)], bool ShowProgress)
 {
 	QString IndexFileName = QFileInfo(QDir(mCachePath), QLatin1String("index")).absoluteFilePath();
 	lcMemFile IndexFile;
 	std::vector<const char*> CachedDescriptions;
 
+/*** LPub3D Mod - parts load order ***/
 	if (!lcGetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX) && ReadDirectoryCacheFile(IndexFileName, IndexFile))
+/*** LPub3D Mod ***/
 	{
 		QString LibraryPath = IndexFile.ReadQString();
 
@@ -723,7 +727,7 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 		}
 	}
 
-	for (int FolderIdx = 0; FolderIdx < LC_NUM_FOLDERTYPES; FolderIdx++)
+	for (int FolderIdx = 0; FolderIdx < static_cast<int>(lcLibraryFolderType::Count); FolderIdx++)
 	{
 		const QFileInfoList& FileList = FileLists[FolderIdx];
 
@@ -749,9 +753,9 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 			*Dst = 0;
 
 /*** LPub3D Mod - parts load order ***/
-			if (FolderIdx == LC_FOLDER_UNOFFICIAL && mPreferOfficialParts && mPieces.find(Name) != mPieces.end())
+			if (FolderIdx > 0 && mPreferOfficialParts && mPieces.find(Name) != mPieces.end())
 				continue;
-			else if (FolderIdx == LC_FOLDER_OFFICIAL && mHasUnofficialDirectory && mPieces.find(Name) != mPieces.end())
+			else if (FolderIdx == static_cast<int>(lcLibraryFolderType::Official) && mHasUnofficialDirectory && mPieces.find(Name) != mPieces.end())
 				continue;
 /*** LPub3D Mod ***/
 

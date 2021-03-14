@@ -1075,7 +1075,7 @@ lcMesh* lcLibraryMeshData::CreateMesh()
 					for (quint32& Index : Section->mIndices)
 						Index = IndexRemap[MeshDataIdx][Index];
 				}
-				else
+				else if (Section->mPrimitiveType != LC_MESH_CONDITIONAL_LINES)
 				{
 					if (!Section->mTexture)
 					{
@@ -1126,7 +1126,7 @@ lcMesh* lcLibraryMeshData::CreateMesh()
 			if (DstSection.Texture)
 				DstSection.Texture->AddRef();
 
-			if (Mesh->mNumVertices < 0x10000)
+			if (Mesh->mIndexType == GL_UNSIGNED_SHORT)
 			{
 				DstSection.IndexOffset = NumIndices * 2;
 
@@ -1297,7 +1297,7 @@ void lcLibraryMeshData::UpdateMeshBoundingBox(lcMesh* Mesh)
 			lcMeshSection& Section = Lod.Sections[SectionIdx];
 			lcVector3 SectionMin(FLT_MAX, FLT_MAX, FLT_MAX), SectionMax(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-			if (Mesh->mNumVertices < 0x10000)
+			if (Mesh->mIndexType == GL_UNSIGNED_SHORT)
 				UpdateMeshSectionBoundingBox<quint16>(Mesh, Section, SectionMin, SectionMax);
 			else
 				UpdateMeshSectionBoundingBox<quint32>(Mesh, Section, SectionMin, SectionMax);
@@ -1408,7 +1408,7 @@ bool lcMeshLoader::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform
 			if (strstr(Token, "!COLOUR") != nullptr)
 			{
 				if (!lcLoadColorEntry(Line, Library->GetStudStyle()))
-					logError() << qPrintable(QString("Could not colour meta %1.").arg(Line));
+					logError() << qPrintable(QString("Could not load colour meta %1.").arg(Line));
 				continue;
 			}
 /*** LPub3D Mod end ***/
