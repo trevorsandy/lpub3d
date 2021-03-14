@@ -1079,7 +1079,7 @@ int lcApplication::Process3DViewerCommandLine()
 		return 0;
 
 	/***
-	if (!InitializeRenderer())
+	if (!lcContext::InitializeRenderer())
 	{
 		StdErr << tr("Error creating OpenGL context.\n");
 		return lcStartupMode::Error;
@@ -1381,7 +1381,7 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 
 	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
 
-	if (!InitializeRenderer())
+	if (!lcContext::InitializeRenderer())
 	{
 		StdErr << tr("3DViewer error creating OpenGL context.\n");
 		return lcStartupMode::Error;
@@ -1449,20 +1449,7 @@ void lcApplication::Shutdown()
 	delete mLibrary;
 	mLibrary = nullptr;
 
-	ShutdownRenderer();
-}
-
-bool lcApplication::InitializeRenderer()
-{
-	if (!lcContext::CreateOffscreenContext())
-		return false;
-
-	return true;
-}
-
-void lcApplication::ShutdownRenderer()
-{
-	lcContext::DestroyOffscreenContext();
+	lcContext::ShutdownRenderer();
 }
 
 void lcApplication::ShowPreferencesDialog()

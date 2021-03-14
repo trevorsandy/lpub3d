@@ -67,6 +67,7 @@ lcPiecesLibrary::~lcPiecesLibrary()
 	mCancelLoading = true;
 	WaitForLoadQueue();
 	Unload();
+	ReleaseBuffers();
 }
 
 void lcPiecesLibrary::Unload()
@@ -1457,10 +1458,14 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 	}
 }
 
-void lcPiecesLibrary::ReleaseBuffers(lcContext* Context)
+void lcPiecesLibrary::ReleaseBuffers()
 {
+	lcContext* Context = lcContext::GetGlobalOffscreenContext();
+
+	Context->MakeCurrent();
 	Context->DestroyVertexBuffer(mVertexBuffer);
 	Context->DestroyIndexBuffer(mIndexBuffer);
+
 	mBuffersDirty = true;
 }
 
@@ -1536,6 +1541,7 @@ void lcPiecesLibrary::UnloadUnusedParts()
 
 bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)
 {
+	QMutexLocker Lock(&mTextureMutex);
 	char FileName[2*LC_MAXPATH];
 
 	if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
@@ -1569,22 +1575,6 @@ void lcPiecesLibrary::ReleaseTexture(lcTexture* Texture)
 			mTextures.erase(TextureIt);
 		delete Texture;
 	}
-}
-
-void lcPiecesLibrary::QueueTextureUpload(lcTexture* Texture)
-{
-	QMutexLocker Lock(&mTextureMutex);
-	mTextureUploads.push_back(Texture);
-}
-
-void lcPiecesLibrary::UploadTextures(lcContext* Context)
-{
-	QMutexLocker Lock(&mTextureMutex);
-
-	for (lcTexture* Texture : mTextureUploads)
-		Texture->Upload(Context);
-
-	mTextureUploads.clear();
 }
 
 bool lcPiecesLibrary::SupportsStudStyle() const

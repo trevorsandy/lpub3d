@@ -239,9 +239,7 @@ void lcPartSelectionListModel::SetCurrentModelCategory()
 	lcModel* ActiveModel = gMainWindow->GetActiveModel();
 	lcPartsList PartsList;
 
-/*** LPub3D - Fix unsafe lcModel instantiation above ***/
 	if (ActiveModel)
-/*** LPub3D Mod end ***/
 		ActiveModel->GetPartsList(gDefaultColor, true, true, PartsList);
 
 	for (const auto& PartIt : PartsList)

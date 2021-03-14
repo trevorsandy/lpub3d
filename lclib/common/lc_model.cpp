@@ -1610,7 +1610,7 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 			ColumnWidth = qMax(ColumnWidth, Image.Bounds.width());
 		}
 
-		if (CurrentWidth < MaxWidth)
+		if (CurrentWidth <= MaxWidth)
 		{
 			ImageWidth = CurrentWidth;
 			break;
