@@ -1,4 +1,4 @@
-LPub3D 2.4.1.1.2384 (14 03 2021 22:44:33)
+LPub3D 2.4.1.1.2385 (14 03 2021 22:45:06)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,7 @@ Revisions:
 - Enhancement - Execute fade, highlight, and preferred renderer locally #505
 - Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
 - Enhancement - Make generate arrows optional when converting to callout #501
+- Enhancement - Native renderer official, unofficial parts load order option #509
 - Enhancement - Set project start page and start step number for multi-document layouts #477
 - Change - Cover page not displayed in GoToPage drop-down dialogue #479
 - Change - LEGO Colour Parts File missing on AppImage startup #467

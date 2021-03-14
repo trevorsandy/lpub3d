@@ -93,7 +93,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 	ui->ConditionalLinesCheckBox->setChecked(mOptions->Preferences.mDrawConditionalLines);
-
+/*** LPub3D Mod - parts load order ***/
+	ui->PreferOfficialParts->setChecked(mOptions->Preferences.mPreferOfficialParts);
+	ui->PreferOfficialParts->setEnabled(mOptions->HasUnofficialParts);
+/*** LPub3D Mod - ***/
 	if (!gSupportsShaderObjects)
 	{
 		ui->ConditionalLinesCheckBox->setChecked(false);
@@ -378,6 +381,9 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 	mOptions->Preferences.mColorTheme = static_cast<lcColorTheme>(ui->ColorTheme->currentIndex());
 	mOptions->Preferences.mAutomateEdgeColor = ui->AutomateEdgeColor->isChecked();
+/*** LPub3D Mod - parts load order ***/
+	mOptions->Preferences.mPreferOfficialParts = ui->PreferOfficialParts->isChecked();
+/*** LPub3D Mod - ***/
 
 	int Language = ui->Language->currentIndex();
 	if (Language < 0 || Language > static_cast<int>(LC_ARRAY_COUNT(gLanguageLocales)))

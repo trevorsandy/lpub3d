@@ -183,6 +183,13 @@ public:
 			mNumOfficialPieces = (int)mPieces.size();
 	}
 
+/*** LPub3D Mod - parts load order ***/
+	bool HasUnofficialParts() const
+	{
+		return mZipFiles[static_cast<int>(lcZipFileType::Unofficial)] || mHasUnofficialDirectory;
+	}
+/*** LPub3D Mod - ***/
+
 	bool ShouldCancelLoading() const
 	{
 		return mCancelLoading;
@@ -237,10 +244,15 @@ protected:
 	QMutex mTextureMutex;
 
 	lcStudStyle mStudStyle;
+/*** LPub3D Mod - parts load order ***/
+bool mPreferOfficialParts;
+/*** LPub3D Mod - ***/
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
 	std::unique_ptr<lcZipFile> mZipFiles[static_cast<int>(lcZipFileType::Count)];
-	bool mHasUnofficial;
+/*** LPub3D Mod - parts load order ***/
+	bool mHasUnofficialDirectory;
+/*** LPub3D Mod - ***/
 	bool mCancelLoading;
 };

@@ -24,6 +24,10 @@ struct lcPreferencesDialogOptions
 	bool CategoriesModified;
 	bool CategoriesDefault;
 
+/*** LPub3D Mod - parts load order ***/
+	bool HasUnofficialParts;
+/*** LPub3D Mod - ***/
+
 	lcKeyboardShortcuts KeyboardShortcuts;
 	bool KeyboardShortcutsModified;
 	bool KeyboardShortcutsDefault;

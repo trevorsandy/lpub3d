@@ -1712,6 +1712,16 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="PreferOfficialParts">
+           <property name="toolTip">
+            <string>Prefer official part when part is also present in the unofficial library </string>
+           </property>
+           <property name="text">
+            <string>Prefer official parts</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -1728,11 +1738,6 @@
         </spacer>
        </item>
       </layout>
-      <zorder>groupBox_6</zorder>
-      <zorder>fixedDirectionKeys</zorder>
-      <zorder>autoLoadMostRecent</zorder>
-      <zorder>RestoreTabLayout</zorder>
-      <zorder>ApplicationGroup</zorder>
      </widget>
      <widget class="QWidget" name="tabCategories">
       <attribute name="title">
@@ -2318,6 +2323,7 @@
   <tabstop>fixedDirectionKeys</tabstop>
   <tabstop>PromptRedrawLPubPage</tabstop>
   <tabstop>autoLoadMostRecent</tabstop>
+  <tabstop>PreferOfficialParts</tabstop>
   <tabstop>RestoreTabLayout</tabstop>
   <tabstop>categoriesTree</tabstop>
   <tabstop>partsTree</tabstop>

@@ -192,6 +192,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "LPubTrueFade", 1),                                             // LC_PROFILE_LPUB_TRUE_FADE                            /*** LPub3D Mod - true fade ***/
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - parts load order ***/
+	lcProfileEntry("Settings", "PreferOfficialParts", 1),                                      // LC_PROFILE_PREFER_OFFICIAL_PARTS                     /*** LPub3D Mod - parts load order ***/
+	lcProfileEntry("Settings", "UpdateCacheIndex", 0),                                         // LC_PROFILE_UPDATE_CACHE_INDEX                        /*** LPub3D Mod - parts load order ***/
+/*** LPub3D Mod - ***/
 };
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)

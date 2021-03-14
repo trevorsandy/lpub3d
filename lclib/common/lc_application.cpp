@@ -73,6 +73,11 @@ void lcPreferences::LoadDefaults()
 	mPartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
 	mPartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 	mAutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+
+/*** LPub3D Mod - parts load order ***/
+	mPreferOfficialParts = lcGetProfileInt(LC_PROFILE_PREFER_OFFICIAL_PARTS);
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	mPreviewEnabled  = lcGetProfileInt(LC_PROFILE_PREVIEW_ENABLED);
 	mPreviewSize     = lcGetProfileInt(LC_PROFILE_PREVIEW_SIZE);
@@ -159,6 +164,10 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST, mPartEdgeContrast);
 	lcSetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX, mPartColorValueLDIndex);
 	lcSetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR, mAutomateEdgeColor);
+
+/*** LPub3D Mod - parts load order ***/
+	lcSetProfileInt(LC_PROFILE_PREFER_OFFICIAL_PARTS, mPreferOfficialParts);
+/*** LPub3D Mod - ***/
 
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcSetProfileInt(LC_PROFILE_PREVIEW_ENABLED, mPreviewViewSphereEnabled);
@@ -1414,6 +1423,10 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 			StdErr.flush();
 		}
 	}
+	else if (lcGetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX))
+	{
+		lcSetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX, 0);
+	}
 
 	lcStudStyle StudStyle = static_cast<lcStudStyle>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
 	lcGetPiecesLibrary()->SetStudStyle(StudStyle, false);
@@ -1483,6 +1496,10 @@ void lcApplication::ShowPreferencesDialog()
 	Options.MouseShortcutsModified = false;
 	Options.MouseShortcutsDefault = false;
 
+/*** LPub3D Mod - parts load order ***/
+	Options.HasUnofficialParts = mLibrary->HasUnofficialParts();
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreviewPosition PreviewDockable = Options.Preferences.mPreviewPosition;
 /*** LPub3D Mod end ***/
@@ -1523,6 +1540,10 @@ void lcApplication::ShowPreferencesDialog()
 	AutomateEdgeColorChanged |= Options.Preferences.mDarkEdgeColor != mPreferences.mDarkEdgeColor;
 	AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeContrast != mPreferences.mPartEdgeContrast;
 	AutomateEdgeColorChanged |= Options.Preferences.mPartColorValueLDIndex != mPreferences.mPartColorValueLDIndex;
+
+/*** LPub3D Mod - parts load order ***/
+	bool PreferOfficialPartsChanged = Options.Preferences.mPreferOfficialParts != mPreferences.mPreferOfficialParts;
+/*** LPub3D Mod - ***/
 
 /*** LPub3D Mod - preference refresh ***/
 	bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mPreferences.mDrawEdgeLines;
@@ -1567,6 +1588,10 @@ void lcApplication::ShowPreferencesDialog()
 	lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 	lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
 
+/*** LPub3D Mod - parts load order ***/
+	lcSetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX, static_cast<int>(PreferOfficialPartsChanged));
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreviewPosition Dockable = Options.Preferences.mPreviewPosition;
 	if (PreviewDockable != Dockable)
@@ -1581,7 +1606,7 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod - preference refresh ***/
 	bool restartApp = false;
 	bool reloadPage = false;
-	bool redrawPage = false;
+	bool reloadFile = false;
 
 	QMessageBox box;
 	box.setMinimumSize(40,20);
@@ -1589,15 +1614,16 @@ void lcApplication::ShowPreferencesDialog()
 	box.setDefaultButton   (QMessageBox::Ok);
 	box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
 
-	if (LanguageChanged || LibraryChanged || AAChanged) {
-		QString thisChange = LanguageChanged ? "Language" :
-							 LibraryChanged  ? "Library" :
-											  "Anti-aliasing";
-		box.setText (QString("You must close and restart %1 to enable %2 change.")
-					 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
+	if (LanguageChanged || LibraryChanged || AAChanged || PreferOfficialPartsChanged) {
+		QString thisChange = LanguageChanged ? tr("Language") :
+							 LibraryChanged  ? tr("Library") :
+							 AAChanged ?  tr("Anti-aliasing") :
+										  tr("Prefer Official Parts");
+		box.setText (tr("You must close and restart %1 to enable %2 change.")
+					 .arg(QLatin1String(VER_PRODUCTNAME_STR))
 					 .arg(thisChange));
-		box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Cancel\" to continue.\n\n")
-								.arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
+		box.setInformativeText (tr("Click \"OK\" to close and restart %1 or \"Cancel\" to continue.\n\n")
+								.arg(QLatin1String(VER_PRODUCTNAME_STR)));
 		if (box.exec() == QMessageBox::Ok) {
 			restartApp = true;
 		}
@@ -1606,10 +1632,10 @@ void lcApplication::ShowPreferencesDialog()
 	if ((ViewPieceIconsChangd ||
 		 LPubTrueFadeChanged  ||
 		 DefaultCameraChanged ||
-		 DrawConditionalLinesChanged) && !restartApp && !redrawPage)
+		 DrawConditionalLinesChanged) && !restartApp && !reloadFile)
 		reloadPage = true;
 
-	if ((Preferences::preferredRenderer == RENDERER_NATIVE) && !restartApp)
+	if (Preferences::preferredRenderer == RENDERER_NATIVE && !restartApp)
 	{
 		if (shadingModeChanged     ||
 			drawEdgeLinesChanged   ||
@@ -1617,7 +1643,7 @@ void lcApplication::ShowPreferencesDialog()
 			NativeViewpointChanged ||
 			NativeProjectionChanged)
 		{
-			redrawPage = true;
+			reloadFile = true;
 
 			QString oldShadingMode, newShadingMode;
 			switch (int(Options.Preferences.mShadingMode))
@@ -1779,7 +1805,7 @@ void lcApplication::ShowPreferencesDialog()
 		restartApplication();
 	}
 	else
-	if (redrawPage) {
+	if (reloadFile) {
 		clearAndReloadModelFile();
 	}
 	else

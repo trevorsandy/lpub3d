@@ -105,6 +105,10 @@ public:
 	float mPartColorValueLDIndex;
 	bool  mAutomateEdgeColor;
 
+/*** LPub3D Mod - parts load order ***/
+	bool mPreferOfficialParts;
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcPreviewLocation mPreviewLocation;
 	lcPreviewPosition mPreviewPosition;

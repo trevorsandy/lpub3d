@@ -141,6 +141,11 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_LPUB_TRUE_FADE,
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - parts load order ***/
+	LC_PROFILE_PREFER_OFFICIAL_PARTS,
+	LC_PROFILE_UPDATE_CACHE_INDEX,
+/*** LPub3D Mod - ***/
+
 	LC_NUM_PROFILE_KEYS
 };
 
