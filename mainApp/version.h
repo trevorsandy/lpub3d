@@ -206,7 +206,7 @@
     #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
     #define VER_COMPILED_FOR            "macOS " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
-    #define VER_IDE                     "Qt Creator 4.13.0 on Qt 5.15.0 (Clang 9.0, x64)"
+    #define VER_IDE                     "Qt Creator 4.14.2 on Qt 5.15.2 (Clang 9.0, x64)"
   #elif __linux__
     #define VER_COMPILED_ON             "GCC (5.4.1 20160904)"
     #define VER_COMPILED_FOR            "Linux " VER_BUILD_ARCH_STR "bit"
@@ -224,7 +224,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2019"
   #define VER_COMPILED_FOR               "MS Windows " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 4.13.0 on Qt 5.15.0 (MSVC 2019, x32)"
+  #define VER_IDE                        "Qt Creator 4.14.2 on Qt 5.15.2 (MSVC 2019, 64bit)"
 #endif
 
 #endif // VERSION_H
