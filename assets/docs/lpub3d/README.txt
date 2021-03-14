@@ -1,4 +1,53 @@
-LPub3D 2.4.0.1.1990 (03 10 2020 07:53:39)
+LPub3D 2.4.1.1.2389 (15 03 2021 00:03:46)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Add shortcut to Zoom Extents - Shift+X #470
+- Enhancement - Append page options #491
+- Enhancement - Bill of materials options #492
+- Enhancement - Configurable Theme colors #490
+- Enhancement - Do not save fade steps and/or highlight step final model step #483
+- Enhancement - Enable LEGO Digital Designer and set inventory import #506
+- Enhancement - Execute fade, highlight, and preferred renderer locally #505
+- Enhancement - Export SHA-512 checksum for Appveyor and Travis builds #460
+- Enhancement - Make generate arrows optional when converting to callout #501
+- Enhancement - Native renderer official, unofficial parts load order option #509
+- Enhancement - Set project start page and start step number for multi-document layouts #477
+- Change - Cover page not displayed in GoToPage drop-down dialogue #479
+- Change - LEGO Colour Parts File missing on AppImage startup #467
+- Change - Slow file load when Buffered Page flag is On #464
+- Change - View Next Step takes almost 1.5 minutes #465
+- Fix - Assembly with callout does not remain where its dragged to #397
+- Fix - Change Assembly Camera Angles removes highlighting #468
+- Fix - Crash adding multiple next step  #459
+- Fix - Double Assembly Margins in callout/step-group settings #482
+- Fix - Empty editor when buffered pages is on and lines per page is less than default #462
+- Fix - Format callout mono images for native renderer #458
+- Fix - Load PLI substitute and excluded part lists on initialisation #471
+- Fix - LPub3D 2.3.13 and 2.4 not showing times indicator in certain instances #480
+- Fix - LPub3D 2.4 unstable, might have something to do with switching pages #476
+- Fix - Meta command for divider/separator is incorrect #511
+- Fix - Problems with generated parts #496
+- Fix - Rounded corners are not round but oval #473
+- Fix - Segmentation fault (core dumped) when dragging step number #466
+- Fix - Some settings do not appear to save #457
+- Fix - Treat as part substitution causes crash #478
+- HowTo - Assure LPub3D release integrity with SHA-512 #461
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.0.0.1990 (03 10 2020 08:11:40)
 
 Features, enhancements, fixes and changes
 ------------
@@ -45,7 +94,6 @@ Revisions:
 - Enhancement - Insert display model at any step #415
 - Enhancement - Integrate 3DViewer and native renderer camera #412
 - Enhancement - LDraw editor load paging for very large model files #442
-- Enhancement - Menu option to turn on or off part archiving on startup #437
 - Enhancement - Move helper part category to top of search list #428
 - Enhancement - Multi step PLI per step with step number and submodel preview #382
 - Enhancement - Open parameter files in designated system editor #429
@@ -60,6 +108,7 @@ Revisions:
 - Enhancement - Use relative path for images #400
 - Change - Add OpenSSL v1.0 libraries to Windows distribution #393
 - Change - Enable rotate icon placement on single step page #348
+- Change - Menu option to turn on or off part archiving on startup #437
 - Change - OFFSET inconsistently uses relative and pixel values #383
 - Change - PNG Export - transparent background exports as black background #380
 - Change - Redesign ldrawFile load and parse checks #398

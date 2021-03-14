@@ -12,14 +12,14 @@ Trevor Sandy <trevor.sandy@gmail.com>
 LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-3DViewer (LeoCAD version 19.07.1 59d75fb specifically adapted for LPub3D)
+3DViewer (LeoCAD version 21.03 sha 61cf1dc specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 19.07.1 commit 59d75fb
+LeoCAD 21.01 commit 61cf1dc
 Author:
 Leonardo Zide <leozide@gmail.com>
 
@@ -33,8 +33,16 @@ Peter Bartfai <pbartfai@stardust.hu>
 POV-Ray 3.8 commit 74b3ebe
 Persistence of Vision Raytracer Pty. Ltd.
 
+Qt-History-LineEdit c6c6992
+https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
+Mattia Basaglia <mattia.basaglia@gmail.com>
+
 qSLog 2.0.0
 Razvan Petru
+
+QtWaitingSpinner commit bb8f898
+https://github.com/snowwlex/QtWaitingSpinner
+Alex Turkin 
 
 QuaZip 0.7.3
 https://github.com/stachenov/quazip
@@ -65,16 +73,12 @@ https://github.com/mklement0/fileicon 7108132
 Michael Klement <mklement0@gmail.com>
 
 Create Dmg
-https://github.com/andreyvit/create-dmg
-Andrey Tarantsov
+https://github.com/andreyvit/create-dmg fbe0f36c
+Andrey Tarantsov, Andrew Janke
 
 Dmg License script
-https://github.com/andreyvit/create-dmg/blob/master/support/dmg-license.py
-Jared Hobbs
-
-Qt-History-LineEdit c6c6992
-https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
-Mattia Basaglia <mattia.basaglia@gmail.com>
+https://github.com/create-dmg/create-dmg/blob/master/support/licenseDMG.py 5eff2ce8
+Jared Hobbs <https://bitbucket.org/jaredhobbs/pyhacker>
 
 LEGO LDraw Library content
 LDraw.org
@@ -92,6 +96,3 @@ TENTE LDraw Library content
 
 VEXIQ LDraw Library content
 Philippe Hurbain <philo@philohome.com> [Philo]
-
-Linux Porting suggestion
-Milan Vancura
