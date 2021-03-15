@@ -147,7 +147,7 @@ jobs:
       file_glob: true
       file: "$LP3D_DOWNLOAD_ASSETS/*"
       overwrite: true
-      cleanup: true
+      cleanup: false
       on:
         repo: trevorsandy/lpub3d
         branch: "$TRAVIS_BRANCH"
