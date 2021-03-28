@@ -216,6 +216,14 @@ public:
           ignore(false),
           ignore2(false)
     { }
+    void clear()
+    {
+        level = 0;
+        action = 0;
+        state = -1;
+        ignore = false;
+        ignore2 = false;
+    }
 };
 
 class FindPageFlags
@@ -270,7 +278,6 @@ public:
             Where           &_current,
             PgSizeData      &_pageSize,
             FindPageFlags   &_flags,
-            BuildModFlags   &_buildMod,
 
             bool             _updateViewer,
             bool             _isMirrored,
@@ -284,7 +291,6 @@ public:
           current           (_current),
           pageSize          (_pageSize),
           flags             (_flags),
-          buildMod          (_buildMod),
 
           updateViewer      (_updateViewer),
           isMirrored        (_isMirrored),
@@ -298,7 +304,6 @@ public:
     Where         &current;
     PgSizeData    &pageSize;
     FindPageFlags &flags;
-    BuildModFlags &buildMod;
 
     bool           updateViewer;
     bool           isMirrored;

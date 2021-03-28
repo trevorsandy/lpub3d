@@ -2983,7 +2983,8 @@ int CountPageWorker::countPage(
       gui->topOfPages.append(opts.current);
   }
 
-  Rc  rc;
+  Rc rc;
+  BuildModFlags buildMod;
 
   int countInstances = meta.LPub.countInstance.value();
   bool localSubmodel = opts.current.lineNumber == 0;
@@ -3057,8 +3058,8 @@ int CountPageWorker::countPage(
                   if (contains) {
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = Preferences::buildModEnabled && (opts.buildMod.ignore2 ||
-                                              ldrawFile->getBuildModRendered(opts.buildMod.key, colorType, true/*countPage*/));
+                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore2 ||
+                                              ldrawFile->getBuildModRendered(buildMod.key, colorType, true/*countPage*/));
 
                       // if not callout or assembled/rotated callout
                       if (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
@@ -3074,7 +3075,7 @@ int CountPageWorker::countPage(
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                              if (! opts.buildMod.ignore || ! buildModRendered) {
+                              if (! buildMod.ignore || ! buildModRendered) {
 
                                   opts.isMirrored = ldrawFile->mirrored(token);
 
@@ -3084,8 +3085,7 @@ int CountPageWorker::countPage(
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
                                   FindPageFlags saveFlags2 = opts.flags;
                                   FindPageFlags flags2;
-                                  BuildModFlags saveBuildMod2 = opts.buildMod;
-                                  BuildModFlags buildMod2;
+                                  BuildModFlags saveBuildMod2 = buildMod;
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -3114,7 +3114,6 @@ int CountPageWorker::countPage(
                                               current2,
                                               opts.pageSize,
                                               flags2,
-                                              buildMod2,
                                               opts.updateViewer,
                                               opts.isMirrored,
                                               opts.printing,
@@ -3125,8 +3124,8 @@ int CountPageWorker::countPage(
                                   countPage(meta, ldrawFile, modelStack, submodelOpts);
 
                                   gui->saveStepPageNum = gui->stepPageNum;
+                                  buildMod = saveBuildMod2;                 // restore old buildMod
                                   opts.flags = saveFlags2;                  // restore old flags
-                                  opts.buildMod = saveBuildMod2;            // restore old buildMod
                                   meta.rotStep = saveRotStep2;              // restore old rotstep
                                   meta.submodelStack.pop_back();
 
@@ -3149,8 +3148,8 @@ int CountPageWorker::countPage(
                       } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
                       // add submodel to buildMod rendered list
-                      if (Preferences::buildModEnabled && opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
-                          ldrawFile->setBuildModRendered("cp~"+opts.buildMod.key, colorType);
+                      if (Preferences::buildModEnabled && buildMod.state == BM_BEGIN && ! buildModRendered) {
+                          ldrawFile->setBuildModRendered("cp~"+buildMod.key, colorType);
                       }
 
                   } // Contains [IsSubmodel]
@@ -3166,7 +3165,7 @@ int CountPageWorker::countPage(
         case '3':
         case '4':
         case '5':
-          if (! opts.buildMod.ignore) {
+          if (! buildMod.ignore) {
               ++opts.flags.partsAdded;
             } // ! BuildModIgnore, for each line
             break;
@@ -3237,36 +3236,36 @@ int CountPageWorker::countPage(
 
             case BuildModBeginRc:
               if (!Preferences::buildModEnabled) {
-                  opts.buildMod.ignore = true;
+                  buildMod.ignore = true;
                   break;
               }
-              opts.buildMod.key = meta.LPub.buildMod.key();
-              opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
-              opts.buildMod.action = BuildModApplyRc;
-              opts.buildMod.ignore = false;
-              opts.buildMod.state = BM_BEGIN;
+              buildMod.key = meta.LPub.buildMod.key();
+              buildMod.level = getLevel(buildMod.key, BM_BEGIN);
+              buildMod.action = BuildModApplyRc;
+              buildMod.ignore = false;
+              buildMod.state = BM_BEGIN;
               break;
 
             case BuildModEndModRc:
               if (!Preferences::buildModEnabled) {
-                  opts.buildMod.ignore = getLevel(QString(), BM_END);
+                  buildMod.ignore = getLevel(QString(), BM_END);
                   break;
               }
-              if (opts.buildMod.state == BM_BEGIN)
-                  if (opts.buildMod.action == BuildModApplyRc)
-                      opts.buildMod.ignore = true;
-              opts.buildMod.state = BM_END_MOD;
+              if (buildMod.state == BM_BEGIN)
+                  if (buildMod.action == BuildModApplyRc)
+                      buildMod.ignore = true;
+              buildMod.state = BM_END_MOD;
               break;
 
             case BuildModEndRc:
               if (!Preferences::buildModEnabled)
                   break;
-              if (opts.buildMod.state == BM_END_MOD) {
-                  opts.buildMod.level = getLevel(QString(), BM_END);
-                  if (opts.buildMod.level == BM_BEGIN)
-                      opts.buildMod.ignore = false;
+              if (buildMod.state == BM_END_MOD) {
+                  buildMod.level = getLevel(QString(), BM_END);
+                  if (buildMod.level == BM_BEGIN)
+                      buildMod.ignore = false;
               }
-              opts.buildMod.state = BM_END;
+              buildMod.state = BM_END;
               break;
 
             case RotStepRc:
@@ -3317,15 +3316,14 @@ int CountPageWorker::countPage(
                   if ( ! opts.flags.bfxStore2) {
                       bfxParts.clear();
                   } // ! BfxStore2
-                  opts.buildMod.ignore2 = opts.buildMod.ignore;
-                  if ( ! opts.buildMod.ignore2) {
+                  buildMod.ignore2 = buildMod.ignore;
+                  if ( ! buildMod.ignore2) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
 
+              buildMod.clear();
               meta.LPub.buildMod.clear();
-              opts.buildMod.action = BuildModNoActionRc;
-              opts.buildMod.state = BM_NONE;
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
               break;
@@ -3501,9 +3499,8 @@ int CountPageWorker::countPage(
       current2.setModelIndex(ldrawFile->getSubmodelIndex(current2.modelName));
       QString renderParentModel2 = modelStack.size() ? current2.modelName : QString();
       RotStepMeta saveRotStep2 = meta.rotStep;
-      BuildModFlags saveBuildMod2 = opts.buildMod;
+      BuildModFlags saveBuildMod2 = buildMod;
       FindPageFlags saveFlags2 = opts.flags;
-      BuildModFlags buildMod2;
       FindPageFlags flags2;
 
       // remove last modelStack item
@@ -3515,7 +3512,6 @@ int CountPageWorker::countPage(
                   current2,
                   opts.pageSize,
                   flags2,
-                  buildMod2,
                   opts.updateViewer,
                   opts.isMirrored,
                   opts.printing,
@@ -3526,9 +3522,9 @@ int CountPageWorker::countPage(
       countPage(meta, ldrawFile, modelStack, parentOpts);
 
       //gui->saveStepPageNum = gui->stepPageNum;
-      opts.buildMod = saveBuildMod2;  // restore saved buildMod
-      opts.flags = saveFlags2;        // restore saved flags
-      meta.rotStep = saveRotStep2;    // restore saved rotstep
+      buildMod = saveBuildMod2;    // restore saved buildMod
+      opts.flags = saveFlags2;     // restore saved flags
+      meta.rotStep = saveRotStep2; // restore saved rotstep
   }
 
   countPageMutex.unlock();
