@@ -99,7 +99,7 @@ class Where
       QString _modelName,
       int     _lineNumber)
     {
-      modelName    = _modelName;
+      modelName    = _modelName.size() ? _modelName : "undefined";
       modelIndex   = -1;
       lineNumber   = _lineNumber;
     }
@@ -108,7 +108,7 @@ class Where
       QString _modelName,
       QString _lineNumber)
     {
-      modelName    = _modelName;
+      modelName    = _modelName.size() ? _modelName : "undefined";
       modelIndex   = -1;
       bool ok;
       int foo      = _lineNumber.toInt(&ok);
@@ -130,14 +130,14 @@ class Where
       int     _modelIndex,
       int     _lineNumber)
     {
-      modelName    = _modelName;
+      modelName    = _modelName.size() ? _modelName : "undefined";;
       modelIndex   = _modelIndex;
       lineNumber   = _lineNumber;
     }
 
     Where(QString _modelName)
     {
-      modelName    = _modelName;
+      modelName    = _modelName.size() ? _modelName : "undefined";
       modelIndex   = -1;
       lineNumber   = 0;
     }
@@ -191,9 +191,9 @@ class Where
         modelName = where;
     }
 
-    void setModelIndex(const int &where)
+    void setModelIndex(const int index)
     {
-        modelIndex = where;
+        modelIndex = index;
     }
 
     Where operator+=(const int value)
@@ -301,7 +301,7 @@ class Where
 
     ~Where()
     {
-//      modelName.clear();
+      modelName.clear();
     }
 
 };
