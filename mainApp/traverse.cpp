@@ -4497,6 +4497,8 @@ void Gui::pagesCounted()
     if (mloadingFile)
         mloadingFile = false;
 
+    QApplication::restoreOverrideCursor();
+
 //#ifdef QT_DEBUG_MODE
 //    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
 //    for (int i = 0; i < topOfPages.size(); i++)
