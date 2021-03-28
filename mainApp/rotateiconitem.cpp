@@ -148,7 +148,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   if (backgroundData.type == BackgroundData::BgImage &&
      !backgroundData.string.isEmpty()) {
       backgroundImage = true;
-      arrowData.hideArrows = true;
+      arrowData.hideTip = true;
       backgroundData.stretch = true;
       borderData.type = BorderData::BdrNone;
       borderData.line = BorderData::BdrLnNone;
@@ -195,7 +195,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
                 emit gui->messageSig(LOG_ERROR, QString("Unable to locate 'rotate icon' image %1. Be sure image file "
                                                    "is relative to model file or define using an absolute path.").arg(fileInfo.fileName()));
                 backgroundImage = false;
-                arrowData.hideArrows = false;
+                arrowData.hideTip = false;
                 backgroundData.stretch = saveFill;
                 borderData.type = BorderData::Border(saveBorderType);
                 borderData.line = BorderData::Line(saveBorderLine);
@@ -287,7 +287,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   }
 
   /* ARROWS */
-  if (!arrowData.hideArrows) {
+  if (!arrowData.hideTip) {
 
       // set arrow parts (head, tips etc...)
       qreal arrowTipLength = 9.0;

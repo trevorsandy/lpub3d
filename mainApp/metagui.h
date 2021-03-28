@@ -982,15 +982,21 @@ class PointerAttribGui : public MetaGui
 {
   Q_OBJECT
 public:
-  PointerAttribGui(PointerAttribMeta *meta,
+  PointerAttribGui(
+    PointerAttribMeta *meta,
     QGroupBox         *parent    = nullptr,
     bool               _isCallout= false);
   ~PointerAttribGui() {}
 
   virtual void apply(QString &modelName);
 
+  PointerAttribData  line;
+  PointerAttribData  border;
+  bool        lineModified;
+  bool        borderModified;
+
 private:
-  bool        lineData;
+  bool        isLine;
   PointerAttribMeta *meta;
 
   QLineEdit   *thicknessEdit;

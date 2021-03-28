@@ -106,7 +106,7 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
 
 QPointF BorderedLineItem::getLineP1Offset(){
 
-    bool hideTip = pad->lineData.hideArrows;
+    bool hideTip = pad->lineData.hideTip;
 
     if (segment == 1 && ! hideTip)
         return line().p1();

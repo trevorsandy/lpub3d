@@ -533,6 +533,7 @@ public:
 class BackgroundData
 {
 public:
+  QHash<QString, int> map;
   enum Background {
     BgTransparent,
     BgColor,
@@ -556,6 +557,13 @@ public:
     type     = BgTransparent;
     stretch  = true;
     string   = "";
+    if (map.size() == 0) {
+      map["TRANSPARENT"]    = BgTransparent;
+      map["COLOR"]          = BgColor;
+      map["GRADIENT"]       = BgGradient;
+      map["IMAGE"]          = BgImage;
+      map["SUBMODEL_COLOR"] = BgSubmodelColor;
+    }
     //gradient initialization
     gmode    = LogicalMode;
     gspread  = RepeatSpread;
@@ -579,6 +587,7 @@ public:
 class BorderData
 {
 public:
+  QHash<QString, int> map;
   enum Border {
     BdrNone = 0,
     BdrSquare,
@@ -591,12 +600,13 @@ public:
     BdrLnDot,
     BdrLnDashDot,
     BdrLnDashDotDot,
+    BdrNumLines
   } line;
   QString color;
   float   thickness;  // in units [inches]
   float   radius;     // in units [inches]
   float   margin[2];  // in units [inches]
-  bool    hideArrows;
+  bool    hideTip;
   bool    useDefault;
 
   BorderData()
@@ -608,9 +618,27 @@ public:
     type       = BdrNone;
     line       = BdrLnNone;
     color      = "Black";
-    hideArrows = false;
+    hideTip = false;
     useDefault = true;
+    if (map.size() == 0) {
+      map["NONE"]         = BdrLnNone;
+      map["SOLID"]        = BdrLnSolid;
+      map["DASH"]         = BdrLnDash;
+      map["DOT"]          = BdrLnDot;
+      map["DASH_DOT"]     = BdrLnDashDot;
+      map["DASH_DOT_DOT"] = BdrLnDashDotDot;
+    }
   }
+};
+
+const QString LineTypeNames[BorderData::BdrNumLines] =
+{
+  "NONE",
+  "SOLID",
+  "DASH",
+  "DOT",
+  "DASH_DOT",
+  "DASH_DOT_DOT"
 };
 
 class PointerAttribData
@@ -641,7 +669,7 @@ class PointerAttribData
         lineData.margin[0]    = 0;
         lineData.margin[1]    = 0;
         lineData.useDefault   = true;    // flag if using attribute meta
-        lineData.hideArrows   = false;   // flag if pointer tip is hidden
+        lineData.hideTip   = false;   // flag if pointer tip is hidden
 
         borderData.color      = QString();
         borderData.type       = BorderData::BdrRound;
@@ -651,7 +679,7 @@ class PointerAttribData
         borderData.margin[0]  = 0;
         borderData.margin[1]  = 0;
         borderData.useDefault = true;
-        borderData.hideArrows = false;
+        borderData.hideTip = false;
 
         attribType            = PointerAttribData::Line;
         id                    = 0;

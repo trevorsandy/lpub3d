@@ -149,7 +149,7 @@ PagePointerItem::PagePointerItem(
   if (! pad->borderData.useDefault)
       tipPenColor.setNamedColor(pad->borderData.color);
 
-  if (pad->lineData.hideArrows) {
+  if (pad->lineData.hideTip) {
       brushColor  = QColor(Qt::transparent);
       tipPenColor = brushColor;
   }

@@ -1456,55 +1456,7 @@ public:
     }
   }
 
-  PointerAttribData &parseAttributes(const QStringList &argv,Where &here)
-  {
-    int index = 4;
-
-//    #ifdef QT_DEBUG_MODE
-//    QStringList debugLine;
-//    for(int i=0;i<argv.size();i++){
-//        debugLine << argv[i];
-//        int size = argv.size();
-//        int incr = i;
-//        int result = size - incr;
-//        qDebug() << QString("ATTRIBUTES LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
-//                    .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
-//    }
-//    logTrace() << "\n[PARSE ATTRIBUTES LINE ARGV]:" << debugLine.join(" ");
-//    logDebug() << "\n[ATTRIBUTES LINE] - argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
-//                  ;
-//    #endif
-
-        bool isLine = argv[index] == "LINE";
-        _result = _value[pushed];
-
-        if (isLine) {
-           _result.attribType            = PointerAttribData::Line;
-
-           _result.lineData.line         = setBorderLine(argv[index+1]);
-           _result.lineData.color        = argv[index+2];
-           _result.lineData.thickness    = argv[index+3].toFloat();
-           _result.lineData.hideArrows   = argv[index+4].toInt();        // used to show/hide arrow tip
-           _result.lineData.useDefault   = false;
-           _result.lineHere.modelName    = here.modelName;
-           _result.lineHere.lineNumber   = here.lineNumber;
-        } else
-          if (argv[index] == "BORDER") {
-           _result.attribType            = PointerAttribData::Border;
-
-           _result.borderData.line       = setBorderLine(argv[index+1]);
-           _result.borderData.color      = argv[index+2];
-           _result.borderData.thickness  = argv[index+3].toFloat();
-           _result.borderData.useDefault = false;
-           _result.borderHere.modelName  = here.modelName;
-           _result.borderHere.lineNumber = here.lineNumber;
-        }
-        bool noParent                    = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
-        _result.id                       = argv[isLine ? index+5 : index+4].toInt();
-        _result.parent                   = noParent ? QString() : argv[isLine ? index+6 : index+5];
-
-        return _result;
-  }
+  PointerAttribData &parseAttributes(const QStringList &argv,Where &here);
 
   PointerAttribMeta() : LeafMeta()
   {

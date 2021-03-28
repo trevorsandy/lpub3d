@@ -2882,9 +2882,9 @@ BorderGui::BorderGui(
   parent->setLayout(grid);
 
   /* Arrows CheckBox */
-  chkBoxHideArrowsText = border.hideArrows ? "Rotate Icon arrows hidden" : "Hide Rotate Icon arrows";
+  chkBoxHideArrowsText = border.hideTip ? "Rotate Icon arrows hidden" : "Hide Rotate Icon arrows";
   hideArrowsChk = new QCheckBox(chkBoxHideArrowsText, parent);
-  hideArrowsChk->setChecked(border.hideArrows);
+  hideArrowsChk->setChecked(border.hideTip);
   hideArrowsChk->setToolTip("Set checked when only icon image is desired.");
   connect(hideArrowsChk,SIGNAL(stateChanged(int)),
           this,            SLOT(  checkChange(int)));
@@ -3093,7 +3093,7 @@ void BorderGui::checkChange(int value)
   Q_UNUSED(value);
   BorderData arrows = meta->value();
 
-  arrows.hideArrows = hideArrowsChk->isChecked();
+  arrows.hideTip = hideArrowsChk->isChecked();
   if (hideArrowsChk->isChecked())
     hideArrowsChk->setText("Rotate Icon arrows hidden");
   else
@@ -3230,8 +3230,8 @@ void PlacementGui::apply(QString &topLevelFile)
      bool          _isCallout)
 {
   meta   = _meta;
-  PointerAttribData pad = meta->value();
-  lineData = pad.attribType == PointerAttribData::Line;
+
+  isLine = meta->value().attribType == PointerAttribData::Line;
 
   QString        string;
   QGridLayout   *grid;
@@ -3246,17 +3246,19 @@ void PlacementGui::apply(QString &topLevelFile)
   QString title;
   QString thickness;
   QString color;
-  if (lineData) {
+  if (isLine) {
+      line = meta->value();
       title = "Line";
-      index = (int)pad.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
-      thickness = QString("%1") .arg(pad.lineData.thickness,5,'f',4);
-      color = pad.lineData.color;
-      hideTip = pad.lineData.hideArrows;
+      index = (int)line.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
+      thickness = QString("%1") .arg(line.lineData.thickness,5,'f',4);
+      color = line.lineData.color;
+      hideTip = line.lineData.hideTip;
   } else {
+      border = meta->value();
       title = "Border";
-      index = (int)pad.borderData.line - 1;
-      thickness = QString("%1") .arg(pad.borderData.thickness,5,'f',4);
-      color = pad.borderData.color;
+      index = (int)border.borderData.line - 1;
+      thickness = QString("%1") .arg(border.borderData.thickness,5,'f',4);
+      color = border.borderData.color.isEmpty() ? border.lineData.color : border.borderData.color;
   }
 
     /* Line Combo */
@@ -3271,7 +3273,8 @@ void PlacementGui::apply(QString &topLevelFile)
   connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
           this,       SLOT(  lineChange(       QString const &)));
   grid->addWidget(lineCombo,0,0);
-
+  grid->setColumnStretch(0,1);
+  grid->setColumnStretch(1,1);
     /*  Width */
 
   thicknessLabel = new QLabel(title+" Width",parent);
@@ -3309,7 +3312,7 @@ void PlacementGui::apply(QString &topLevelFile)
   grid->addWidget(colorButton,1,2);
 
   /* hide arrows [optional] */
-  if (lineData && !_isCallout) {
+  if (isLine && !_isCallout) {
       hideTipBox = new QCheckBox("Hide Pointer Tip", parent);
       hideTipBox->setChecked(hideTip);
       connect(hideTipBox,SIGNAL(clicked(    bool)),
@@ -3317,84 +3320,101 @@ void PlacementGui::apply(QString &topLevelFile)
       grid->addWidget(hideTipBox,2,0,1,3);
   }
 
+  lineModified = false;
+  borderModified = false;
 }
 
-void PointerAttribGui::lineChange(QString const &line)
+void PointerAttribGui::lineChange(QString const &_line)
 {
   BorderData::Line padLine = BorderData::BdrLnSolid;
 
-  if (line == "Solid Line") {
-      padLine = BorderData::BdrLnSolid;
-    } else if (line == "Dash Line") {
-      padLine = BorderData::BdrLnDash;
-    } else if (line == "Dotted Line") {
-      padLine = BorderData::BdrLnDot;
-    } else if (line == "Dot-Dash Line") {
-      padLine = BorderData::BdrLnDashDot;
-    } else if (line == "Dot-Dot-Dash Line"){
-      padLine = BorderData::BdrLnDashDotDot;
-    }
+  if (_line == "Solid Line") {
+    padLine = BorderData::BdrLnSolid;
+  } else if (_line == "Dash Line") {
+    padLine = BorderData::BdrLnDash;
+  } else if (_line == "Dotted Line") {
+    padLine = BorderData::BdrLnDot;
+  } else if (_line == "Dot-Dash Line") {
+    padLine = BorderData::BdrLnDashDot;
+  } else if (_line == "Dot-Dot-Dash Line"){
+    padLine = BorderData::BdrLnDashDotDot;
+  }
 
-  PointerAttribData pad = meta->value();
-  if (lineData)
-      pad.lineData.line = padLine;
-  else
-      pad.borderData.line = padLine;
-
-  meta->setValue(pad);
-  modified = true;
+  if (isLine) {
+    if (!lineModified)
+      lineModified = line.lineData.line != padLine;
+    line.lineData.line = padLine;
+  } else {
+    if (!borderModified)
+      borderModified = border.borderData.line != padLine;
+    border.borderData.line = padLine;
+  }
+  modified = lineModified || borderModified;
 }
 
 void PointerAttribGui::thicknessChange(QString const &thickness)
 {
-  PointerAttribData pad = meta->value();
-  if (lineData)
-      pad.lineData.thickness = thickness.toFloat();
-  else
-      pad.borderData.thickness = thickness.toFloat();
-  meta->setValue(pad);
-  modified = true;
+  if (isLine) {
+    if (!lineModified)
+      lineModified = line.lineData.thickness != thickness.toFloat();
+    line.lineData.thickness = thickness.toFloat();
+  } else {
+    if (!borderModified)
+      borderModified = border.borderData.thickness != thickness.toFloat();
+    border.borderData.thickness = thickness.toFloat();
+  }
+  modified = lineModified || borderModified;
 }
 
 void PointerAttribGui::browseColor(bool)
 {
-  PointerAttribData pad = meta->value();
   QString padColor;
-  if (lineData)
-      padColor = pad.lineData.color;
+  if (isLine)
+    padColor = line.lineData.color;
   else
-      padColor = pad.borderData.color;
+    padColor = border.borderData.color;
   QColor color = LDrawColor::color(padColor);
   QColor newColor = QColorDialog::getColor(color,this);
   if (newColor.isValid() && color != newColor) {
-    if (lineData)
-        pad.lineData.color = newColor.name();
-    else
-        pad.borderData.color = newColor.name();
-    meta->setValue(pad);
+    if (isLine) {
+      if (!lineModified)
+        lineModified = line.lineData.color != newColor.name();
+      line.lineData.color = newColor.name();
+    } else {
+      if (!borderModified)
+        borderModified = border.borderData.color != newColor.name();
+      border.borderData.color = newColor.name();
+    }
+    modified = lineModified || borderModified;
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }").
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    modified = true;
   }
 }
 
 void PointerAttribGui::hideTipChange(bool checked)
 {
-    PointerAttribData pad = meta->value();
-    pad.lineData.hideArrows = checked;
-    meta->setValue(pad);
-    modified = true;
+  if (!lineModified)
+    lineModified = line.lineData.hideTip != checked;
+  line.lineData.hideTip = checked;
+  modified = lineModified;
 }
 
 void PointerAttribGui::apply(QString &modelName)
 {
-   if (modified) {
-     MetaItem mi;
-     mi.setGlobalMeta(modelName,meta);
-   }
+  if (modified) {
+    MetaItem mi;
+    if (lineModified) {
+       meta->setValue(line);
+       mi.setGlobalMeta(modelName,meta);
+    }
+    if (borderModified) {
+       meta->setValue(border);
+       mi.setGlobalMeta(modelName,meta);
+    }
+  }
 }
 
 /***********************************************************************

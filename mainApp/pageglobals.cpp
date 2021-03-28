@@ -64,10 +64,11 @@ GlobalPageDialog::GlobalPageDialog(
   setWindowTitle(tr("Page Globals Setup"));
 
   QTabWidget     *tab         = new QTabWidget();
-  QTabWidget     *childtab    = new QTabWidget();
+
   QGridLayout    *grid        = new QGridLayout();
   QVBoxLayout    *layout      = new QVBoxLayout();
-  QVBoxLayout    *childlayout = new QVBoxLayout();
+  QTabWidget     *childtab;
+  QVBoxLayout    *childlayout;
   QSpacerItem    *vSpacer     = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
   QWidget        *widget      = new QWidget();
@@ -154,6 +155,32 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(child);
 
   tab->addTab(widget,"Page");
+
+  //~~~~~~~~~~~~pointer tab ~~~~~~~~~~~~~~~//
+  widget = new QWidget(nullptr);
+  childlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(childlayout);
+
+  box = new QGroupBox("Border");
+  childlayout->addWidget(box);
+  PointerAttribData pad = pageMeta->pointerAttrib.value();
+  pad.attribType = PointerAttribData::Border;
+  pageMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  data->children.append(child);
+
+  box = new QGroupBox("Line");
+  childlayout->addWidget(box);
+  pad.attribType = PointerAttribData::Line;
+  pageMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  data->children.append(child);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  childlayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Pointers");
 
   //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
   childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER

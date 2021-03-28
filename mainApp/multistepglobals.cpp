@@ -221,6 +221,26 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   child = new SepGui(&multiStepMeta->sep,box);
   data->children.append(child);
 
+  box = new QGroupBox("Divider Pointers");
+  vlayout->addWidget(box);
+  QVBoxLayout *childLayout = new QVBoxLayout(nullptr);
+  box->setLayout(childLayout);
+
+  QGroupBox * childBox = new QGroupBox("Border");
+  childLayout->addWidget(childBox);
+  PointerAttribData pad = multiStepMeta->divPointerAttrib.value();
+  pad.attribType = PointerAttribData::Border;
+  multiStepMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
+  data->children.append(child);
+
+  childBox = new QGroupBox("Line");
+  childLayout->addWidget(childBox);
+  pad.attribType = PointerAttribData::Line;
+  multiStepMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
+  data->children.append(child);
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

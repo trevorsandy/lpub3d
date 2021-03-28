@@ -1678,6 +1678,8 @@ int Gui::drawPage(
               if (callout) {
                   PointerAttribMeta pam = curMeta.LPub.callout.pointerAttrib;
                   pam.setValueInches(pam.parseAttributes(tokens,opts.current));
+                  if (!pam.value().id)
+                      break;
                   Pointer          *p = nullptr;
                   int i               = pam.value().id - 1;
                   int validIndex      = callout->pointerList.size() - 1; /*0-index*/

@@ -214,6 +214,59 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   childtab->addTab(widget,"Assembly");
 
   /*
+   * Pointer Tab
+   */
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Callout Pointers");
+  vlayout->addWidget(box);
+  QVBoxLayout *childLayout = new QVBoxLayout(nullptr);
+  box->setLayout(childLayout);
+
+  QGroupBox * childBox = new QGroupBox("Border");
+  childLayout->addWidget(childBox);
+  PointerAttribData pad = calloutMeta->divPointerAttrib.value();
+  pad.attribType = PointerAttribData::Border;
+  calloutMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
+  data->children.append(child);
+
+  childBox = new QGroupBox("Line");
+  childLayout->addWidget(childBox);
+  pad.attribType = PointerAttribData::Line;
+  calloutMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
+  data->children.append(child);
+
+  box = new QGroupBox("Callout Divider Pointers");
+  vlayout->addWidget(box);
+  childLayout = new QVBoxLayout(nullptr);
+  box->setLayout(childLayout);
+
+  childBox = new QGroupBox("Border");
+  childLayout->addWidget(childBox);
+  pad = calloutMeta->divPointerAttrib.value();
+  pad.attribType = PointerAttribData::Border;
+  calloutMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,childBox);
+  data->children.append(child);
+
+  childBox = new QGroupBox("Line");
+  childLayout->addWidget(childBox);
+  pad.attribType = PointerAttribData::Line;
+  calloutMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,childBox);
+  data->children.append(child);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Pointers");
+
+  /*
    * Submodel colors
    */
   widget = new QWidget();
