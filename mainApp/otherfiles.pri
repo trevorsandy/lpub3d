@@ -54,6 +54,8 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/mesa/osmesa-config \
 ../builds/utilities/ci/dropbox_uploader.sh \
 ../builds/utilities/ci/sfdeploy.sh \
+../builds/utilities/ci/ci_cutover.sh \
+../builds/utilities/ci/dropbox_uploader.sh \
 ../builds/utilities/ci/travis/after_script \
 ../builds/utilities/ci/travis/before_install \
 ../builds/utilities/ci/travis/before_script \
