@@ -2033,7 +2033,7 @@ int Gui::drawPage(
                              opts.current,Preferences::BuildModErrors);
               }
               if (multiStep || opts.calledOut)
-                  buildModChange = topOfStep != steps->topOfSteps();
+                  buildModChange = topOfStep != steps->topOfSteps(); // uses list[0].topOfStep for both multiStep and callout
               if (buildModChange) {
                   buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
                   if (buildModActions.value(buildMod.level) != rc) {
@@ -4244,16 +4244,16 @@ void Gui::countPages()
       emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
 
-      current              =  Where(ldrawFile.topLevelFile(),0,0);
-      displayPageNum       =  1 << 31;  // really large number: 2147483648
-      saveDisplayPageNum   =  displayPageNum;
-
-      firstStepPageNum     = -1;  // for front cover page
-      lastStepPageNum      = -1;  // for back cover page
-      Meta meta;
-      maxPages             =  1 + pa;
-      stepPageNum          =  maxPages;
+      current            =  Where(ldrawFile.topLevelFile(),0,0);
+      saveDisplayPageNum =  displayPageNum;
+      displayPageNum     =  1 << 31; // really large number: 2147483648
+      firstStepPageNum   = -1;       // for front cover page
+      lastStepPageNum    = -1;       // for back cover page
+      maxPages           =  1 + pa;
+      stepPageNum        =  maxPages;
       modelStack.clear();
+
+      Meta meta;
       QString empty;
       FindPageFlags flags;
       BuildModFlags buildMod;
@@ -4295,6 +4295,9 @@ void Gui::drawPage(
   maxPages    = 1 + pa;
   stepPageNum = maxPages;
 
+  // set submodels unrendered
+  ldrawFile.unrendered();
+
   // if not buildMod action
   if (! buildModActionChange) {
     // test if next step index is display page index - i.e. refreshing the current page display
@@ -4319,7 +4322,6 @@ void Gui::drawPage(
     }
 
     // initialize ldrawFile registers
-    ldrawFile.unrendered();
     ldrawFile.countInstances();
     ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
 
@@ -4358,16 +4360,17 @@ void Gui::drawPage(
 
   writeToTmp();
 
-  QString empty;
-  Meta    meta;
-  FindPageFlags flags;
-  BuildModFlags buildMod;
   firstStepPageNum     = -1;
   lastStepPageNum      = -1;
   savePrevStepPosition =  0;
   saveGroupStepNum     =  1 + sa;
   saveContStepNum      =  1 + sa;
   modelStack.clear();
+
+  Meta meta;
+  QString empty;
+  FindPageFlags flags;
+  BuildModFlags buildMod;
 
   enableLineTypeIndexes = true;
 
