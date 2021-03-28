@@ -178,8 +178,14 @@ void SubModel::clear()
 bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color, bool noCA)
 {
    subModel = subModel.toLower();
-   QStringList rotatedModel = QStringList()
-           << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
+   QStringList rotatedModel;
+
+   // Populate rotatedModel list
+   if (Preferences::buildModEnabled)
+       writeSubmodel(subModel, rotatedModel);
+   else
+       rotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
+
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
    FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
 
@@ -209,6 +215,117 @@ int SubModel::pageSizeP(Meta *meta, int which){
       _size = which;
     }
   return meta->LPub.page.size.valuePixels(_size);
+}
+
+void SubModel::writeSubmodel(const QString &fileName, QStringList &submodelParts)
+{
+    QMutex writeSubmodelMutex;
+
+    QStringList content = gui->getLDrawFile().contents(fileName);
+
+    writeSubmodelMutex.lock();
+
+    Where topOfStep(fileName, gui->getSubmodelIndex(fileName), 0);
+    gui->skipHeader(topOfStep);
+
+    bool partIgnore         = false;
+    bool buildModIgnore     = false;
+
+    QHash<QString, QStringList> bfx;
+
+    Rc    rc;
+    Meta  meta;
+    for (int i = 0; i < content.size(); i++) {
+        QString line = content[i];
+        QStringList tokens;
+
+        split(line,tokens);
+        if (tokens.size()) {
+            if (tokens[0] != "0") {
+                QStringList token;
+                split(line,token);
+                if (token.size() == 15) {
+                    QString modelName = token[token.size() - 1];
+                    if (gui->isSubmodel(modelName)) {
+                        if (Preferences::buildModEnabled) {
+                            for (int t = 0; t < 13; t++)
+                                line.append(QString(" %1").arg(token[t]));
+                            line.append(QString(" %1-%2.ldr").arg(QFileInfo(modelName).completeBaseName()).arg(SUBMODEL_IMAGE_BASENAME));
+                        }
+                        writeSubmodel(modelName, submodelParts);
+                    }
+                }
+                if (! buildModIgnore && !partIgnore)
+                    submodelParts << line;
+            } else {
+
+                Where here(fileName,i);
+                rc =  meta.parse(line,here,false);
+
+                switch (rc) {
+                /* buffer exchange */
+                case BufferStoreRc:
+                    bfx[meta.bfx.value()] = submodelParts;
+                    break;
+
+                case BufferLoadRc:
+                    submodelParts = bfx[meta.bfx.value()];
+                    break;
+
+                /* get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction */
+                case BuildModBeginRc:
+                    buildModIgnore = true;
+                    break;
+
+                /* set modActionLineNum and buildModIgnore based on 'next' step buildModAction */
+                case BuildModEndModRc:
+                    if (getLevel(QString(), BM_END) == BM_BEGIN)
+                        buildModIgnore = false;
+                  break;
+
+                case PartBeginIgnRc:
+                  partIgnore = true;
+                  break;
+
+                case PartEndRc:
+                  partIgnore = false;
+                  break;
+
+                case PartNameRc:
+                case PartTypeRc:
+                case MLCadGroupRc:
+                case LDCadGroupRc:
+                case LeoCadGroupBeginRc:
+                case LeoCadGroupEndRc:
+                    submodelParts << line;
+                    break;
+
+                /* remove a group or all instances of a part type */
+                case RemoveGroupRc:
+                case RemovePartTypeRc:
+                case RemovePartNameRc:
+                    if (! buildModIgnore) {
+                        QStringList newSubmodelParts;
+                        QVector<int> dummy;
+                        if (rc == RemoveGroupRc) {
+                            gui->remove_group(submodelParts,dummy,meta.LPub.remove.group.value(),newSubmodelParts,dummy,&meta);
+                        } else if (rc == RemovePartTypeRc) {
+                            gui->remove_parttype(submodelParts,dummy,meta.LPub.remove.parttype.value(),newSubmodelParts,dummy);
+                        } else {
+                            gui->remove_partname(submodelParts,dummy,meta.LPub.remove.partname.value(),newSubmodelParts,dummy);
+                        }
+                        submodelParts = newSubmodelParts;
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+    }
+
+    writeSubmodelMutex.unlock();
 }
 
 int SubModel::createSubModelImage(
@@ -287,6 +404,8 @@ int SubModel::createSubModelImage(
               }
           }
       }
+      if (!imageOutOfDate)
+          imageOutOfDate = ! QFileInfo(ldrNames.first()).exists();
   }
 
   // Populate viewerSubmodelKey variable
@@ -359,7 +478,7 @@ int SubModel::createSubModelImage(
           if (Preferences::buildModEnabled)
               submodelName = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
           QStringList subModel = QStringList()
-                  << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
+                  << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(submodelName);
           QStringList rotatedSubmodel = subModel;
 
           // RotateParts #3 - 5 parms, submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
