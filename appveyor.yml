@@ -155,6 +155,11 @@ init:
         $env:LP3D_CONTINUOUS_BUILD_PKG = "true"
       }
  - ps: |
+     If ($env:LP3D_BUILD_PKG -ne "yes" -And $env:LP3D_COMPILE_SOURCE_VAR -ne "true") {
+       write-host "No positive build directive received. Build will exit."
+       Exit-AppveyorBuild
+     }
+ - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
           $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
@@ -206,17 +211,17 @@ init:
           write-host "[clear avcache] detected."
         }
 
-        $apiUrl = 'https://ci.appveyor.com/api'
-        $token = $env:SECURE_AV_SECRET
-        $headers = @{
-          "Authorization" = "Bearer $token"
-          "Content-type" = "application/json"
-        }
+        $env:APPVEYOR_CACHE_SKIP_RESTORE  = "true"
 
+        $apiUrl = 'https://ci.appveyor.com/api'
         $accountName = $env:APPVEYOR_ACCOUNT_NAME
         $projectSlug = $env:APPVEYOR_PROJECT_SLUG
 
-        $env:APPVEYOR_CACHE_SKIP_RESTORE  = "true"
+        $token = $env:SECURE_AV_SECRET
+        $headers = @{}
+        $headers['Authorization'] = "Bearer $token"
+        $headers["Content-type"] = "application/json"
+
         Invoke-RestMethod -Uri "$apiUrl/projects/$accountName/$projectSlug/buildcache" -Headers $headers -Method DELETE
 
         Write-Output "Build cache cleared."
