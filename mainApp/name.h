@@ -694,7 +694,7 @@ enum ThemeColorType {
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
-#define PREVIEW_SUBMODEL_SUFFIX                 "Preview"
+#define SUBMODEL_IMAGE_BASENAME                 "smi"
 #define PREVIEW_MODEL_DEFAULT                   "Preview.ldr"
 #define VIEWER_MODEL_DEFAULT                    "Model.ldr"
 

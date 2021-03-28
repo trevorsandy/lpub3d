@@ -275,7 +275,8 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
 
     // special case where the modelName will match the line type name so we append '_Preview' to the modelName
     if (imageType == Options::SMP) {
-         baseName = baseName.append("_Preview");
+         QString smi(SUBMODEL_IMAGE_BASENAME);
+         baseName = baseName.append(QString("-%1").arg(smi.replace(smi.indexOf(smi.at(0)),1,smi.at(0).toUpper())));
     }
 
     // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround 3DViewer abend

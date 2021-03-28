@@ -157,7 +157,7 @@ void SubModel::setSubModel(
   QString type = fileInfo.fileName().toLower();
   QString key = QString("%1_%2_%3")            // partial key
                         .arg(fileInfo.completeBaseName())
-                        .arg(PREVIEW_SUBMODEL_SUFFIX)
+                        .arg(SUBMODEL_IMAGE_BASENAME)
                         .arg(color);
 
   if ( ! parts.contains(key)) {
@@ -227,7 +227,7 @@ int SubModel::createSubModelImage(
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
 
   // assemble name key - create unique file when a value that impacts the image changes
-  QString keyPart1 = QString("%1").arg(partialKey); /*baseName + @submodel + colour (0) */
+  QString keyPart1 = QString("%1").arg(partialKey); /* baseName + -smi + @submodel + colour (0) */
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber)
                              .arg(useImageSize ? double(subModelMeta.imageSize.value(0)) :
@@ -258,7 +258,7 @@ int SubModel::createSubModelImage(
 
   // define ldr file name
   QStringList ldrNames = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
-                                                                   Paths::tmpDir + QDir::separator() + "submodel.ldr");
+                                                                   Paths::tmpDir + QDir::separator() + QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME));
 
   // Check if model content or png file date modified is older than model file (on the stack), date modified
   imageOutOfDate = false;
@@ -293,10 +293,10 @@ int SubModel::createSubModelImage(
                           .arg(gui->getSubmodelIndex(bottom.modelName/*QFileInfo(type).fileName()*/))
                           .arg(bottom.lineNumber)
                           .arg(stepNumber)
-                          .arg(PREVIEW_SUBMODEL_SUFFIX);
+                          .arg(SUBMODEL_IMAGE_BASENAME);
 
   if (Preferences::debugLogging)
-      emit gui->messageSig(LOG_DEBUG,QString("SMP ViewerSubmodelKey Attributes "
+      emit gui->messageSig(LOG_DEBUG,QString("SMI ViewerSubmodelKey Attributes "
                                              "Key SubmodelIndex, bottom.lineNum, stepNum, suffix [%1], "
                                              "modelName [%2]")
                            .arg(viewerSubmodelKey)
@@ -354,6 +354,9 @@ int SubModel::createSubModelImage(
           QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");
 
           // set submodel entries - unrotated and rotated
+          QString submodelName = type.toLower();
+          if (Preferences::buildModEnabled)
+              submodelName = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
           QStringList subModel = QStringList()
                   << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
           QStringList rotatedSubmodel = subModel;
@@ -1242,7 +1245,12 @@ void SMGraphicsPixmapItem::previewSubModel(bool previewSubmodelAction)
         position = view->viewport()->mapToGlobal(viewP);
     }
 
-    gui->previewPiece(part->type, part->color.toInt(), dockable, QRect(), position);
+    QString submodelName = part->type;
+    Preferences.mPreviewLoadPath = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir);
+    if (Preferences::buildModEnabled)
+        submodelName = QString("%1.ldr").arg(SUBMODEL_IMAGE_BASENAME);
+
+    gui->previewPiece(submodelName, part->color.toInt(), dockable, QRect(), position);
 }
 
 void SMGraphicsPixmapItem::contextMenuEvent(
