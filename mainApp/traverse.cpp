@@ -3057,7 +3057,7 @@ int Gui::findPage(
             case StepGroupBeginRc:
               opts.flags.stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/) {
+              if (!pageDisplayed) {
                   if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
                       int showStepNum = opts.contStepNumber == 1 + sa ? opts.stepNumber : opts.contStepNumber;
                       if (opts.pageNum == 1 + pa) {

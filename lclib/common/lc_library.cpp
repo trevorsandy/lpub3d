@@ -190,7 +190,10 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 
 		if (ProjectFile.isFile())
 		{
-			Project* NewProject = new Project();
+/*** LPub3D Mod - preview widget ***/
+			bool Preview = CurrentProject ? CurrentProject->GetIsPreview() : false;
+			Project* NewProject = new Project(Preview);
+/*** LPub3D Mod end ***/
 
 			if (NewProject->Load(ProjectFile.absoluteFilePath()))
 			{
@@ -646,7 +649,7 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 				Source->Primitives[Name] = new lcLibraryPrimitive(std::move(FileName), strchr(FileString, '/') + 1, lcZipFileType::Count, 0, !SubFile && IsStudPrimitive(Name), IsStudStylePrimitive(Name), SubFile);
 			}
 		}
-		
+
 		mSources.emplace_back(std::move(Source));
 	}
 

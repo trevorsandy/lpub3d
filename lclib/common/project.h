@@ -160,6 +160,10 @@ public:
 	void ShowModelListDialog();
 
 /*** LPub3D Mod - preview widget ***/
+	bool GetIsPreview()
+	{
+		return mIsPreview;
+	}
 	bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
 /*** LPub3D Mod end ***/
 	bool Load(const QString& FileName);

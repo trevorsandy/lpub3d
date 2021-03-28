@@ -152,7 +152,7 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 		QString Path = Preferences.mPreviewLoadPath;
 		if (Path.isEmpty())
 			Path = QDir::currentPath();
-		QString ModelPath = QString("%1/%2").arg(Path).arg(PartType);
+		QString ModelPath = QString("%1%2%3").arg(Path).arg(QDir::separator()).arg(PartType);
 /*** LPub3D Mod end ***/
 
 		if (!mLoader->Load(ModelPath))
