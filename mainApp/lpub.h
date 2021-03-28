@@ -734,7 +734,7 @@ public:
 
   QString getViewerStepKeyFromRange(const Where &here, const Where &top, const Where &bottom)
   {
-      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.lineNumber, bottom.lineNumber);
+      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.modelIndex, top.lineNumber, bottom.modelIndex, bottom.lineNumber);
   }
 
   QString getViewerStepKeyWhere(const Where &here)

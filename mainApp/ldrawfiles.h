@@ -399,6 +399,7 @@ class LDrawFile {
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
     int getStepIndex(const QString &modelName, const int &lineNumber);
+    int getStepIndex(const int &modelIndex, const int &lineNumber);
     void getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber);
     void skipHeader(const QString &modelName, int &lineNumber);
 
@@ -469,8 +470,10 @@ class LDrawFile {
                           bool rotated = true);
     QString getViewerStepKeyFromRange(const int modelIndex,
                                       const int lineNumber,
-                                      const int top,
-                                      const int bottom);
+                                      const int topModelIndex,
+                                      const int topLineNumber,
+                                      const int bottomModelIndex,
+                                      const int bottomLineNumber);
     QStringList getViewerStepRotatedContents(const QString &stepKey);
     QStringList getViewerStepUnrotatedContents(const QString &stepKey);
     QString     getViewerStepKeyWhere(const int modelIndex, const int lineNumber);

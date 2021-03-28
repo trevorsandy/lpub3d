@@ -3215,35 +3215,56 @@ bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &li
     return validIndex;
 }
 
-int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
+int LDrawFile::getStepIndex(const int &modelIndex, const int &lineNumber)
 {
-  QVector<int> topOfStep = { getSubmodelIndex(modelName), lineNumber };
-  return _buildModStepIndexes.indexOf(topOfStep);
-}
+    int stepIndex = BM_INVALID_INDEX;
 
-void LDrawFile::skipHeader(const QString &modelName, int &lineNumber)
-{
-    int numLines = size(modelName);
-    for ( ; lineNumber < numLines; lineNumber++) {
-        QString line = readLine(modelName,lineNumber);
-        int p;
-        for (p = 0; p < line.size(); ++p) {
-            if (line[p] != ' ') {
+    for (QVector<int> &topOfStep : _buildModStepIndexes) {
+        if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
+            if (topOfStep.at(BM_STEP_LINE_KEY) == lineNumber)
+                stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+            else if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
+                stepIndex = _buildModStepIndexes.indexOf(topOfStep) - 1;
+            if (stepIndex > BM_INVALID_INDEX)
                 break;
-            }
-        }
-        if (line[p] >= '1' && line[p] <= '5') {
-            if (lineNumber > 0) {
-                --lineNumber;
-            }
-            break;
-        } else if ( ! isHeader(line)) {
-            if (lineNumber != 0) {
-                --lineNumber;
-                break;
-            }
         }
     }
+    return stepIndex;
+}
+
+int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
+{
+    int modelIndex = getSubmodelIndex(modelName);
+    QVector<int> topOfStep = { modelIndex, lineNumber };
+    int stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+    if (stepIndex == -1)
+        stepIndex = getStepIndex(modelIndex, lineNumber);
+    return stepIndex;
+}
+
+QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
+{
+    QString stepKey;
+    int stepIndex = getStepIndex(modelIndex, lineNumber);
+
+    if (stepIndex > BM_INVALID_INDEX) {
+        QVector<int> topOfStep =  _buildModStepIndexes.at(stepIndex);
+        int lineNumber = topOfStep.at(BM_STEP_LINE_KEY);
+        stepKey = QString("%1;%2;0").arg(modelIndex).arg(lineNumber);
+
+        QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
+        while (i != _viewerSteps.constEnd()) {
+            if (i->_viewType == Options::CSI && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
+                if (i->_stepKey.stepNum) {
+                    stepKey.chop(1);
+                    stepKey.append(QString::number(i->_stepKey.stepNum));
+                }
+                break;
+            }
+            ++i;
+        }
+    }
+    return stepKey;
 }
 
 void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int &lineNumber)
@@ -3262,50 +3283,12 @@ void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int
     }
 }
 
-QString LDrawFile::getViewerStepKeyWhere(const int modelIndex, const int lineNumber)
+QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int topModelIndex, const int topLineNumber, const int bottomModelIndex, const int bottomLineNumber)
 {
-    QVector<QVector<int>> stepIndexes;
-    for (QVector<int> &topOfStep : _buildModStepIndexes) {
-        if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
-            stepIndexes.append(topOfStep);
-            if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
-                break;
-        }
-    }
-
-    QString stepKey;
-    int index = BM_INVALID_INDEX;
-    for (QVector<int> &topOfStep : stepIndexes) {
-        if (topOfStep.at(BM_STEP_MODEL_KEY) == modelIndex) {
-            if (topOfStep.at(BM_STEP_LINE_KEY) == lineNumber)
-                index = stepIndexes.indexOf(topOfStep);
-            else if (topOfStep.at(BM_STEP_LINE_KEY) > lineNumber)
-                index = stepIndexes.indexOf(topOfStep) - 1;
-            if (index > BM_INVALID_INDEX) {
-                int lineNumber = stepIndexes.at(index).at(BM_STEP_LINE_KEY);
-                stepKey = QString("%1;%2;0").arg(modelIndex).arg(lineNumber);
-                QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
-                while (i != _viewerSteps.constEnd()) {
-                    if (i->_viewType == Options::CSI && i->_stepKey.modIndex == modelIndex && i->_stepKey.lineNum == lineNumber) {
-                        if (i->_stepKey.stepNum) {
-                            stepKey.chop(1);
-                            stepKey.append(QString::number(i->_stepKey.stepNum));
-                        }
-                        break;
-                    }
-                    ++i;
-                }
-                break;
-            }
-        }
-    }
-
-    return stepKey;
-}
-
-QString LDrawFile::getViewerStepKeyFromRange(const int modelIndex, const int lineNumber, const int top, const int bottom)
-{
-    if (lineNumber >= top && lineNumber <= bottom)
+    int stepIndex = getStepIndex(modelIndex, lineNumber);
+    int topStepIndex = getStepIndex(topModelIndex, topLineNumber);
+    int bottomStepIndex = getStepIndex(bottomModelIndex, bottomLineNumber);
+    if (stepIndex >= topStepIndex && stepIndex <= bottomStepIndex)
         return getViewerStepKeyWhere(modelIndex, lineNumber);
     return QString();
 }
@@ -3611,6 +3594,31 @@ bool LDrawFile::isViewerStepCalledOut(const QString &stepKey)
 void LDrawFile::clearViewerSteps()
 {
   _viewerSteps.clear();
+}
+
+void LDrawFile::skipHeader(const QString &modelName, int &lineNumber)
+{
+    int numLines = size(modelName);
+    for ( ; lineNumber < numLines; lineNumber++) {
+        QString line = readLine(modelName,lineNumber);
+        int p;
+        for (p = 0; p < line.size(); ++p) {
+            if (line[p] != ' ') {
+                break;
+            }
+        }
+        if (line[p] >= '1' && line[p] <= '5') {
+            if (lineNumber > 0) {
+                --lineNumber;
+            }
+            break;
+        } else if ( ! isHeader(line)) {
+            if (lineNumber != 0) {
+                --lineNumber;
+                break;
+            }
+        }
+    }
 }
 
 // -- -- Utility Functions -- -- //
