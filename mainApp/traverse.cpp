@@ -103,11 +103,26 @@ void Gui::remove_group(
     QVector<int> &tiout, // newTypeIndexes
     Meta         *meta)
 {
+  Q_UNUSED(meta)
 
   bool    grpMatch = false;
   int     grpLevel = 0;
-  Rc      grpType;
-  QRegExp grpRx;
+  Rc      grpType  = OkRc;
+  QString line, grpData;
+
+  auto parseGroupMeta = [&line](Rc &grpType)
+  {
+      QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+      while (i != groupRegExMap.constEnd()) {
+          QRegExp rx(i.value());
+          if (line.contains(rx)) {
+              grpType = i.key();
+              return rx.cap(rx.captureCount());
+          }
+          ++i;
+      }
+      return QString();
+  };
 
   if (in.size() != tin.size()) {
       enableLineTypeIndexes = false;
@@ -118,24 +133,24 @@ void Gui::remove_group(
 
   for (int i = 0; i < in.size(); i++) {
 
-      QString line = in.at(i);
-      grpRx = meta->groupRx(line,grpType);
+      line = in.at(i);
 
-      if (!grpRx.isEmpty() && grpType) {
+      grpData = parseGroupMeta(grpType);
+
+      if (grpData.size() && grpType > OkRc) {
           // MLCad Groups
           if (grpType == MLCadGroupRc) {
-             if (grpRx.cap(grpRx.captureCount()) == group) {
-               i++;
-             } else {
-               out << line;
-               tiout << tin.at(i);
-             }
+              if (grpData == group) {
+                  i++;
+              } else {
+                  out << line;
+                  tiout << tin.at(i);
+              }
           }
           // LDCad Groups
-          else
-          if (grpType == LDCadGroupRc) {
-              QStringList lids = grpRx.cap(grpRx.captureCount()).split(" ");
-              if (lids.size() && gui->ldcadGroupMatch(group,lids)) {
+          else if (grpType == LDCadGroupRc) {
+              QStringList lids = grpData.split(" ");
+              if (lids.size() && gui->ldcadGroupMatch(group, lids)) {
                   i++;
               } else {
                   out << line;
@@ -143,30 +158,27 @@ void Gui::remove_group(
               }
           }
           // LeoCAD	Group Begin
-          else
-          if (grpType == LeoCadGroupBeginRc) {
-              if ((grpRx.cap(grpRx.captureCount()) == group)){
-                grpMatch = true;
-                i++;
+          else if (grpType == LeoCadGroupBeginRc) {
+              if (grpData == group){
+                  grpMatch = true;
+                  i++;
               }
-              else
-              if (grpMatch) {
+              else if (grpMatch) {
                   grpLevel++;
                   i++;
               }
               else {
-                 out << line;
-                 tiout << tin.at(i);
+                  out << line;
+                  tiout << tin.at(i);
               }
           }
           // LeoCAD	Group End
-          else
-          if (grpType == LeoCadGroupEndRc) {
+          else if (grpType == LeoCadGroupEndRc) {
               if (grpMatch) {
                   if (grpLevel == 0) {
-                    grpMatch = false;
+                      grpMatch = false;
                   } else {
-                    grpLevel--;
+                      grpLevel--;
                   }
               }
               else {
@@ -174,17 +186,15 @@ void Gui::remove_group(
                   tiout << tin.at(i);
               }
           }
-          else
-          if (grpMatch) {
-                 i++;
+          else if (grpMatch) {
+              i++;
           }
           else {
-             out << line;
-             tiout << tin.at(i);
-          }
-          // End groups
+              out << line;
+              tiout << tin.at(i);
+          } // End groups
       }
-    }
+  }
 
   return;
 }

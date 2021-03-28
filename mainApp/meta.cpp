@@ -48,13 +48,7 @@
  */
 
 QHash<QString, int> tokenMap;
-QList<QRegExp> groupRegExp =
-{
-    QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$"),
-    QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$"),
-    QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive),
-    QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$")
-};
+QHash<Rc, QRegExp> groupRegExMap;
 
 bool AbstractMeta::reportErrors = false;
 
@@ -6237,77 +6231,76 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
       tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
     }
-}
 
-QRegExp Meta::groupRx(QString &line, Rc &rc) {
-    int rxSize = groupRegExp.size();
-    for (int i = 0; i < rxSize; i++) {
-        if (line.contains(groupRegExp.at(i))) {
-            rc = i == 0 ? MLCadGroupRc :
-                 i == 1 ? LDCadGroupRc :
-                 i == 2 ? LeoCadGroupBeginRc :
-                          LeoCadGroupEndRc
-                          ;
-            return groupRegExp.at(i);
-        }
+    if (groupRegExMap.size() == 0)
+    {
+        groupRegExMap[MLCadGroupRc] = QRegExp("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
+        groupRegExMap[LDCadGroupRc] = QRegExp("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
+        groupRegExMap[LeoCadGroupBeginRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
+        groupRegExMap[LeoCadGroupEndRc] = QRegExp("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$");
     }
-    rc = OkRc;
-    return QRegExp();
 }
 
 Rc Meta::parse(
-    QString  &line,
-    Where    &here,
-    bool      reportErrors)
+        QString  &line,
+        Where    &here,
+        bool      reportErrors)
 {
 
-  AbstractMeta::reportErrors = reportErrors;
+    AbstractMeta::reportErrors = reportErrors;
 
-  Rc notUsed;
-  QRegExp grpRx = groupRx(line,notUsed);
-  QStringList argv;
+    auto parseGroupMeta = [&line]()
+    {
+        QHash<Rc, QRegExp>::const_iterator i = groupRegExMap.constBegin();
+        while (i != groupRegExMap.constEnd()) {
+            QRegExp rx(i.value());
+            if (line.contains(rx))
+                return QStringList() << rx.cap(1) << rx.cap(2) << rx.cap(3);
+            ++i;
+        }
+        return QStringList();
+    };
 
-  if (!grpRx.isEmpty()) {
+    QStringList argv = parseGroupMeta();
 
-      argv << grpRx.cap(1) << grpRx.cap(2) << grpRx.cap(3);
+    if (argv.isEmpty()) {
 
-  } else {
+        processSpecialCases(line,here);
 
-      processSpecialCases(line,here);
+        /* Parse the input line into argv[] */
 
-      /* Parse the input line into argv[] */
+        split(line,argv);
 
-      split(line,argv);
+        if (argv.size() > 0) {
+            argv.removeFirst();
+        }
+        if (argv.size()) {
+            if (argv[0] == "LPUB") {
+                argv[0] = "!LPUB";
+            }
 
-      if (argv.size() > 0) {
-          argv.removeFirst();
-      }
-      if (argv.size()) {
-          if (argv[0] == "LPUB") {
-              argv[0] = "!LPUB";
-          }
-
-          if (argv[0] == "PLIST") {
-              return  LPub.pli.parse(argv,1,here);
-          }
-      }
-  }
-
-  if (argv.size() > 0 && list.contains(argv[0])) {
-
-      /* parse it up */
-
-      Rc rc = this->BranchMeta::parse(argv,0,here);
-
-      if (rc == FailureRc) {
-          if (reportErrors) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Parse failed %1:%2\n%3")
-                                   .arg(here.modelName) .arg(here.lineNumber) .arg(line));
+            if (argv[0] == "PLIST") {
+                return  LPub.pli.parse(argv,1,here);
             }
         }
-      return rc;
     }
-  return OkRc;
+
+    if (argv.size() > 0 && list.contains(argv[0])) {
+
+        /* parse it up */
+
+        Rc rc = this->BranchMeta::parse(argv,0,here);
+
+        if (rc == FailureRc) {
+            if (reportErrors) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Parse failed %1:%2\n%3")
+                                     .arg(here.modelName) .arg(here.lineNumber) .arg(line));
+            }
+        }
+        return rc;
+    }
+
+    return OkRc;
 }
 
 bool Meta::preambleMatch(

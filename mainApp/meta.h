@@ -4063,7 +4063,6 @@ public:
 
   Meta();
   virtual ~Meta();
-  QRegExp groupRx(QString &line, Rc &rc);
   Rc    parse(QString &line, Where &here, bool reportErrors = 0);
   bool  preambleMatch(QString &line, QString &preamble);
   virtual void  init(BranchMeta *parent, QString name);
@@ -4097,6 +4096,6 @@ extern const QString prepositionNames[];
 extern const QString placementOptions[][3];
 extern int placementDecode[][3];
 extern QHash<QString, int> tokenMap;
-extern QList<QRegExp> groupRegExp;
+extern QHash<Rc, QRegExp> groupRegExMap;
 
 #endif
