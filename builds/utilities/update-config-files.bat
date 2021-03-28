@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Aug 02, 2019
+rem  Last Update: March 20, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 rem --
@@ -241,7 +241,7 @@ SET LP3D_HOUR=unknown
 SET LP3D_MIN=unknown
 SET LP3D_SEC=unknown
 FOR /F "skip=1 delims=" %%F IN ('
-    wmic PATH Win32_LocalTime GET Day^,DayOfWeek^,Hour^,Minute^,Month^,Second^,Year /FORMAT:TABLE
+    %SystemRoot%\System32\Wbem\wmic PATH Win32_LocalTime GET Day^,DayOfWeek^,Hour^,Minute^,Month^,Second^,Year /FORMAT:TABLE
 ') DO (
     FOR /F "tokens=1-7" %%L IN ("%%F") DO (
         SET _Day=0%%L

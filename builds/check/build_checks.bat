@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 21, 2020
+rem  Last Update: March 20, 2021
 rem  Copyright (c) 2018 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -11,12 +11,21 @@ rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 rem Construct the staged files path
+
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
 SET PKG_TARGET_RUNLOG=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
 SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 SET PKG_RUNLOG=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
+SET PKG_DUMP_FILE=%TEMP%\%PACKAGE%.dmp
+IF /I "%PKG_PLATFORM%"=="x86" (
+  SET PKG_TARGET_PDB=mainApp\32bit_%CONFIGURATION%\%PACKAGE%.pdb
+) ELSE (
+  IF /I "%PKG_PLATFORM%"=="x86_64" (
+    SET PKG_TARGET_PDB=mainApp\64bit_%CONFIGURATION%\%PACKAGE%.pdb
+  )
+)
 
 rem Check 1 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
@@ -73,6 +82,8 @@ ECHO   PKG_DISTRO_DIR............[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET................[%PKG_TARGET%]
+ECHO   PKG_TARGET_PDB............[%PKG_TARGET_PDB%]
+ECHO   PKG_DUMP_FILE.............[%PKG_DUMP_FILE%]
 ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
 
 CALL :SET_LDRAW_LIBS
@@ -87,6 +98,12 @@ IF NOT EXIST "%PKG_TARGET%" (
   EXIT /b
 ) ELSE (
   ECHO -%PKG_TARGET% found.
+  IF NOT EXIST "%PKG_TARGET_PDB%" (
+    ECHO -WARNING - %PKG_TARGET_PDB% does not exist.
+  ) ELSE (
+    ECHO -%PKG_TARGET_PDB% found.
+    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+  )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
   ECHO   1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
@@ -173,16 +190,16 @@ IF NOT EXIST "%PKG_TARGET%" (
       ECHO. -ERROR - PKG_CHECK_VEXIQ NO OUTPUT
     )
   )
-
+  
   ECHO.
   ECHO   Build checks cleanup...
   IF EXIST %PKG_RUNLOG% (
     ECHO.
-    ECHO   Copying %PKG_DISTRO_DIR%_RunLog.txt to log asset folder...
+    ECHO   Copying %PKG_DISTRO_DIR%_RunLog.txt to log assets...
     IF NOT EXIST %PKG_TARGET_RUNLOG% (
       MKDIR %PKG_TARGET_RUNLOG%
     )
-    COPY /V /Y %PKG_RUNLOG% %PKG_TARGET_RUNLOG%\%PKG_DISTRO_DIR%_RunLog.txt /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_RUNLOG%" "%PKG_TARGET_RUNLOG%\%PKG_DISTRO_DIR%_RunLog.txt" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -[WARNING] Could not find %PKG_RUNLOG%.
@@ -193,6 +210,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   RMDIR /S /Q %PKG_TARGET_DIR%\libraries
   RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
   RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
+  IF EXIST "%PKG_TARGET_DIR%\%PACKAGE%.pdb" DEL /Q "%PKG_TARGET_DIR%\%PACKAGE%.pdb"
 
   SET /P PKG_CHECK_PASS=<%TEMP%\$\%PKG_CHECK_PASS_IN%
   SET /P PKG_CHECKS_PASS=<%TEMP%\$\%PKG_CHECKS_PASS_IN%
@@ -205,6 +223,10 @@ IF NOT EXIST "%PKG_TARGET%" (
   )
   IF !PKG_CHECK_FAIL! GTR 0 (
     SET PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL:~1!
+    IF EXIST "%PKG_TARGET_PDB%" (
+      ECHO   Copying %PACKAGE%.pdb to log assets....
+      COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\" /A | findstr /i /v /r /c:"copied\>"
+    )
   )
   CALL :ELAPSED_CHECK_TIME %overall_check_start%
   ECHO.
@@ -237,6 +259,15 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
   FOR /f "tokens=* delims=" %%i IN (%TEMP%\$\%PKG_CHECKS_FAIL_IN%) DO SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL!%%i"
   SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL!,%2"
 >%PKG_UPDATE_CHECKS_FAIL% !PKG_CHECKS_FAIL!
+  IF EXIST "%PKG_DUMP_FILE%" (
+    ECHO -Copying %PACKAGE%_Check_!PKG_CHECK_FAIL!.dmp to log assets....
+    IF NOT EXIST %PKG_TARGET_RUNLOG% (
+      MKDIR %PKG_TARGET_RUNLOG%
+    )
+    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_Check_!PKG_CHECK_FAIL!.dmp" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO. -WARNING - %PKG_DUMP_FILE% was not found.
+  )
   TYPE "%PKG_LOG_FILE%"
 )
 SETLOCAL DISABLEDELAYEDEXPANSION

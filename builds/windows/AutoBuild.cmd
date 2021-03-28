@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: August 21, 2019
+rem  Last Update: March 20, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -223,7 +223,7 @@ ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
-ECHO   LDRAW_LIBS.....................[%LDRAW_LIBS%]
+ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
 ECHO.
 
 rem set application version variables
