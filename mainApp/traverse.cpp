@@ -631,7 +631,7 @@ int Gui::drawPage(
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
                       "Insert DrawPage BuildMod StepIndex: %1, "
-                      "Action: Apply, "
+                      "Action: Apply(64), "
                       "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
                       "ModKey: %10, "
                       "Level: %11")
@@ -4774,8 +4774,8 @@ int Gui::setBuildModForNextStep(
 
 #ifdef QT_DEBUG_MODE
       statusMessage(LOG_DEBUG, QString(
-                    "Insert Next-Step BuildMod StepIndex: %1, "
-                    "Action: Apply, "
+                    "Insert NextStep BuildMod StepIndex: %1, "
+                    "Action: Apply(64), "
                     "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
                     "ModKey: %10, "
                     "Level: %11")

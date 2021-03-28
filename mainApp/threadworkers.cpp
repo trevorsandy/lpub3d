@@ -2786,7 +2786,7 @@ int BuildModWorker::setBuildMod(
 #ifdef QT_DEBUG_MODE
       statusMessage(LOG_DEBUG, QString(
                     "Insert Next-Step BuildMod StepIndex: %1, "
-                    "Action: Apply, "
+                    "Action: Apply(64), "
                     "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
                     "ModKey: %10, "
                     "Level: %11")

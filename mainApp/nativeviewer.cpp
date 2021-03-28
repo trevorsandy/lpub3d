@@ -2831,7 +2831,7 @@ void Gui::createBuildModification()
 
 #ifdef QT_DEBUG_MODE
             emit messageSig(LOG_DEBUG, QString("Create BuildMod StepIndex: %1, "
-                                               "Action: Apply - %2, "
+                                               "Action: Apply(64) - %2, "
                                                "Attributes: %3 %4 %5 %6 %7 %8 %9 %10, "
                                                "ModKey: %11, "
                                                "Level: %12")
