@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: November 22, 2020
+# Last Update: Last Update: March 16, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 language: cpp
@@ -67,8 +67,9 @@ stages:
 - name: Prepare Release Storage
   if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 - name: Build and Package
+  if: env(LP3D_BUILD_PKG_VAR) = true
 - name: Compile Source
-  if: tag IS blank
+  if: tag IS blank AND NOT env(LP3D_BUILD_PKG_VAR) = true
 - name: GitHub and Sourceforge Deploy
   if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 
@@ -141,13 +142,13 @@ jobs:
     deploy:
       provider: releases
       name: "$LP3D_RELEASE_LABEL"
-      body: "$LP3D_RELEASE_DESCRIPTION"
-      api_key:
+      release_notes: "$LP3D_RELEASE_DESCRIPTION"
+      token:
         secure: a6uWXXv7NQNVEccxq4hDtMczJCSJsdPJUVppYoY0Q5C1YqVyceWjDdY6hgV2pOSKqyoJNPkQbyJHn3LML5Gv1X9mnvnuelg6gaXXV2lUQf4BzGDRO2/4bd0phdvt7fGIVjiED/b/YYNESFH6fq6HQdlBi+rYaZ0RUNVvanYHFAo077xfcz7rnXJqzuxM5l2LY1s+gvoKDjIrP//+tDP0lCQz0SQvHFjaJwGHW9c9ppUEok34VWnlR3tgT/pmj08jpeTlGYSPh6zbmLwC949MCFY1/QUSxBF/0Y6NhYBLeLTvwneY2hIbs9JgCl+AoRDhQ6nT5c+RzQZqU9jofcf9gtlXcyi9uQkO6c5drmBrmtCucEYXGJ5/90dxMh+GhwDgImxHqI/Fy+MWVTUVF06vLErCm/KfHh19hKBeAcaDw1xLgAEmLFjG5SA67EWH5QSqdl7Puxje15YqxmO4ZJFNyMF8kObt1tNdGbsxyOoAjmm1Rg27KJZl9FzEX3yRBImA3gB8Wf2cESlYcljCMHzPxqecLxoh+iC/7GbWDZ02X/oFSAElmmZSwqA7YEV22TZ+eaq+MwQWRIEvGbQGZl7voKSpWZ3dijX5lC4XurCgcVZlQ02hG22QFKNDZ1ub3SQPwdnUfnpbl/x2yeNmjPJnDXBU1PvzfVWtwaIjkxoGirs=
       file_glob: true
       file: "$LP3D_DOWNLOAD_ASSETS/*"
       overwrite: true
-      cleanup: false
+      edge: true # opt in to dpl v2
       on:
         repo: trevorsandy/lpub3d
         branch: "$TRAVIS_BRANCH"

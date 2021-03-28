@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 24, 2020
+#  Last Update: March 16, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
@@ -19,9 +19,14 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip tra
 # or environment variable LP3D_BUILD_PKG_VAR is true
 echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg.*\]' \
 && export LP3D_BUILD_PKG=yes \
-&& echo "[build pkg] detected in commit message." || [ "$LP3D_BUILD_PKG_VAR" = "true" ] \
+&& echo "[build pkg] detected in commit message." || true
+
+# Set build package or enable compile source
+[ "$LP3D_BUILD_PKG_VAR" = "true" ] \
 && export LP3D_BUILD_PKG=yes \
-&& echo "'Build package' detected in environment variable." || true
+&& echo "'Build package' detected in environment variable." || \
+&& export LP3D_COMPILE_SOURCE=true \
+&& echo "'Compile source' enabled."
 
 # Deploy package if environment variable LP3D_TEST_SF_DEPLOY_VAR is true
 [ "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ] \
@@ -42,6 +47,7 @@ if [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ]; then
   echo "Deploy branch is $TRAVIS_BRANCH.";
   export LP3D_BUILD_PKG=yes;
   export LP3D_DEPLOY_PKG=yes;
+  export LP3D_COMPILE_SOURCE=false;
   echo $(git tag -l -n $TRAVIS_TAG | awk '{print tolower($0)}') | grep -E '\[skip sfr\]' \
   && export LP3D_SKIP_SF_DEPLOY=yes \
   && echo "Skip Sourceforge deploy detected." || true;
