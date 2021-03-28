@@ -2987,7 +2987,7 @@ int CountPageWorker::countPage(
 
   int countInstances = meta.LPub.countInstance.value();
   bool localSubmodel = opts.current.lineNumber == 0;
-  bool alreadyRendered = !(localSubmodel || modelStack.size());
+  bool alreadyRendered = ! localSubmodel &&  ! meta.submodelStack.size();
 
   if (! alreadyRendered) {
       if (localSubmodel)
