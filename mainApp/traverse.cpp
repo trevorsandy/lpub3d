@@ -3016,20 +3016,6 @@ int Gui::findPage(
 #endif
                                   } // Exporting
 
-                                  // if page displayed, end processing
-                                  if (opts.pageNum > displayPageNum) {
-                                      // Set buildMod action
-                                      if (opts.buildMod.state != BM_NONE)
-                                          opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                                      // set partsAdded so countPage will properly trigger
-                                      opts.flags.partsAdded++;
-                                      // advance one line so we don't process this line again in the countPage block
-                                      opts.current++;
-                                      // set processing state
-                                      pageProcessRunning = PROC_DISPLAY_PAGE;
-                                      return OkRc;
-                                  }
-
                               } // ! BuildModIgnore
 
                           } // ! Rendered && (! BfxStore2 || ! BfxParts.contains(colorType))
@@ -3175,6 +3161,7 @@ int Gui::findPage(
                       csiParts.clear();
 
                       saveCurrent.modelName.clear();
+                      saveCurrent.modelIndex = -1;
                       saveCsiParts.clear();
                       saveLineTypeIndexes.clear();
                   } // IsDisplayPage /*opts.pageNum == displayPageNum*/
@@ -3208,34 +3195,11 @@ int Gui::findPage(
                   topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
-                  // if page displayed, save state and end processing
-                  if (pageDisplayed) {
-                      // if submodel, save where we stopped in the parent model
-                      if (meta.submodelStack.size()) {
-                          // add parent model positions - excpet positions in the top level model
-                          Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
-                             if (getSubmodelIndex(tos.modelName) > 0) {
-                                  ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
-                                  modelStack.append(toms);
-                             }
-                         }
-                          // lastly, add the current where position
-                          ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                          modelStack.append(toms);
-                     }
-                      // Set buildMod action
-                      if (opts.buildMod.state != BM_NONE)
-                          opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                      // advance one line so we don't process this line again in the countPage block
-                      opts.current++;
-                      // set processing state
-                      pageProcessRunning = PROC_DISPLAY_PAGE;
-                      return OkRc;
-                  }
+                  opts.flags.noStep2 = false;
 
                 } // StepGroup && ! NoStep2
                   opts.flags.noStep2 = false;
-                  break;
+                break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
@@ -3390,6 +3354,7 @@ int Gui::findPage(
 
                             pageDisplayed = true;
                             saveCurrent.modelName.clear();
+                            saveCurrent.modelIndex = -1;
                             saveCsiParts.clear();
                             saveLineTypeIndexes.clear();
                             //buildModActions.clear();
@@ -3423,7 +3388,7 @@ int Gui::findPage(
                         ++opts.pageNum;
                         topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
 
-                        // if page displayed, save state and end processing
+                        // if page displayed, save state
                         if (pageDisplayed) {
                             // if submodel, save where we stopped in the parent model
                             if (meta.submodelStack.size()) {
@@ -3437,18 +3402,11 @@ int Gui::findPage(
                                 // lastly, add the current where position
                                 ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                 modelStack.append(toms);
-                           }
-                            // Set buildMod action
-                            if (opts.buildMod.state != BM_NONE)
-                                opts.buildMod.action = buildModActions.value(opts.buildMod.level);
-                            // advance one line so we don't process this line again in the countPage block
-                            opts.current++;
-                            // set processing state
-                            pageProcessRunning = PROC_DISPLAY_PAGE;
-                            return OkRc;
-                        }
+                           } // SubmodelStack
 
-                      } // ! StepGroup
+                        } // PageDisplayed
+
+                    } // ! StepGroup
 
                     topOfStep = opts.current;  // Set next step
                     opts.flags.partsAdded = 0;
@@ -3476,6 +3434,13 @@ int Gui::findPage(
 
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
+
+              // if page displayed end processing
+              if (pageDisplayed) {
+                  // set processing state
+                  pageProcessRunning = PROC_DISPLAY_PAGE;
+                  return OkRc;
+              }
               break;
 
             case CalloutBeginRc:
@@ -3801,9 +3766,6 @@ int Gui::findPage(
   // Clear parts added so we dont count again in countPage;
   opts.flags.partsAdded = 0;
 
-  // Set buildMod action
-  if (opts.buildMod.state != BM_NONE)
-      opts.buildMod.action = buildModActions.value(opts.buildMod.level);
   // Set processing state
   pageProcessRunning = PROC_DISPLAY_PAGE;
   return OkRc;
