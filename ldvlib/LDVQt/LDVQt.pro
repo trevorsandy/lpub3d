@@ -156,7 +156,7 @@ contains(LOAD_LDV_SOURCE_FILES,True) {
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
-    CONFIG       += windows
+    CONFIG       += windows incremental force_debug_info
     QMAKE_EXT_OBJ = .obj
 
     win32-msvc* {
@@ -165,6 +165,7 @@ win32 {
         DEFINES += _TC_STATIC
         QMAKE_CXXFLAGS_RELEASE += /FI winsock2.h /FI winsock.h
 
+        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {

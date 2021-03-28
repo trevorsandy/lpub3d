@@ -63,7 +63,7 @@ unix:!freebsd:!macx {
     CONFIG += c++11
 }
 
-CONFIG += precompile_header
+CONFIG += precompile_header incremental force_debug_info
 PRECOMPILED_HEADER = common/lc_global.h
 
 win32 {
@@ -73,6 +73,7 @@ win32 {
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
 
+        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {

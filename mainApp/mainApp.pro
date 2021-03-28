@@ -93,13 +93,14 @@ win32 {
 
     DEFINES += QT_NODLL
     QMAKE_EXT_OBJ = .obj
-    CONFIG += windows
+    CONFIG += windows incremental force_debug_info
     win32-msvc* {
         DEFINES += _CRT_SECURE_NO_WARNINGS _CRT_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
         DEFINES += _WINSOCKAPI_
         DEFINES += _TC_STATIC
         DEFINES += QUAZIP_STATIC
 
+        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
