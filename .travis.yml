@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Last Update: March 18, 2021
+# Last Update: March 19, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 os: linux
@@ -61,6 +61,7 @@ env:
   - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building
     instructions."
   - LP3D_UPLOADTOOL_REV=master
+  - LP3D_DOCKER_COMPOSE_VERSION=1.28.5
   
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net

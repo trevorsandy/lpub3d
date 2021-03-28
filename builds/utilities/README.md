@@ -157,7 +157,7 @@ However, you may choose to download and install [Qt][qtwebsite] elsewhere, in wh
 [vs2017]:            https://www.visualstudio.com/downloads/
 [qtmscv2017-64-bug]: https://bugreports.qt.io/browse/QTBUG-72073
 [msvc2017-bug]:      https://developercommunity.visualstudio.com/content/problem/406329/compiler-error-c2666-when-using-stdbitset-and-cust.html
-[travis-ci]:         https://travis-ci.org/trevorsandy/lpub3d
+[travis-ci]:         https://travis-ci.com/trevorsandy/lpub3d
 [appveyor-ci]:       https://ci.appveyor.com/project/trevorsandy/lpub3d
 [gh-rel-badge]:      https://img.shields.io/github/release/trevorsandy/lpub3d.svg
 
