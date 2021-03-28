@@ -2,9 +2,9 @@
 #
 # Travis build [after_script] procedures
 #
-#  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 29, 2020
-#  Copyright (c) 2017 - 2021 by Trevor SANDY
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update March 20, 2021
+# Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
@@ -22,7 +22,7 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   #source ${SOURCE_DIR}/builds/check/build_checks.sh
 fi
 
-if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
   echo "- build check LPub3D.AppImage bundle..."
   
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
@@ -44,23 +44,18 @@ cd $LP3D_BUILD_FOLDER
 if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_STORAGE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
-    [ "$LP3D_BUILD_ARCH" = "true" ] && export LP3D_ASSET_EXT="pkg.tar.zst"
-    [ "$LP3D_BUILD_FEDORA" = "true" ] && export LP3D_ASSET_EXT="rpm"
-    [ "$LP3D_BUILD_UBUNTU" = "true" ] && export LP3D_ASSET_EXT="deb"
     echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $LP3D_COMPOSE_DIR..."
     file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
-  if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    export LP3D_ASSET_EXT="dmg"
+  if [ "$LP3D_BUILD_OS" = "macos" ]; then
     echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/lpub3d..."
     file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find $DmgBuildPath/lpub3d -name CreateDmg.sh.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
     file_Logs=$(find $DmgBuildPath -name CreateRenderers.sh*.log -type f);
   fi;
-  if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    export LP3D_ASSET_EXT="AppImage"
+  if [ "$LP3D_BUILD_OS" = "appimage" ]; then
     echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $AppImageBuildPath/AppImage..."
     file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find ${LP3D_BUILD_FOLDER} -name CreateAppImage.log -type f);
@@ -131,7 +126,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
       else
         LP3D_RELEASE_LABEL="Continuous Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
       fi
-      if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+      if [ "$LP3D_BUILD_OS" = "macos" ]; then
         sed -i "" "s/    RELEASE_TITLE=\"Continuous build\"/    RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "${upload_script_file}"
       else
         sed -i "s/    RELEASE_TITLE=\"Continuous build\"/    RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "${upload_script_file}"

@@ -2,9 +2,9 @@
 #
 # Build all LPub3D 3rd-party renderers
 #
-#  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update October 10, 2020
-#  Copyright (c) 2017 - 2021 by Trevor SANDY
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update March 20, 2021
+# Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
 # sample commands [call from root build directory - e.g. lpub3d]:
@@ -239,7 +239,7 @@ InstallDependencies() {
       Info "ERROR - Unable to process this target platform: [$platform_id]."
       ;;
     esac
-    if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+    if [ "$LP3D_BUILD_OS" = "appimage" ]; then
       depsLog=${LOG_PATH}/${ME}_AppImage_deps_${1}.log
     else
       depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
@@ -312,7 +312,7 @@ InstallDependencies() {
         controlFile="$PWD/QT/debian/control"
         sed -e '/#Qt4.x/d' -e '/^Build-Depends/d' \
             -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
-        if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+        if [ "$LP3D_BUILD_OS" = "appimage" ]; then
           sed -e 's/ libkf5kio-dev//g' \
               -e 's/ extra-cmake-modules//g' \
               -e 's/ libkf5kdelibs4support5-bin//g' -i $controlFile
@@ -573,7 +573,7 @@ TARGET_CPU=$(uname -m)
 # Display platform settings
 Info "Working Directory........[${CallDir}]"
 Info "Platform ID..............[${platform_id}]"
-if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+if [ "$LP3D_BUILD_OS" = "appimage" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
 if [ "${DOCKER}" = "true" ]; then

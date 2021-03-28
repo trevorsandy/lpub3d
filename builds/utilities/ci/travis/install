@@ -2,9 +2,9 @@
 #
 # Travis-ci build [install] procedures
 #
-#  Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 19, 2021
-#  Copyright (c) 2017 - 2021 by Trevor SANDY
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update March 20, 2021
+# Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
@@ -13,7 +13,7 @@ _PRO_FILE_PWD_=$PWD/mainApp;
 source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
 if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
-     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+     ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$LP3D_QT_BASE" = "512" ]; then sudo apt-get install -qq qt512base; source /opt/qt512/bin/qt512-env.sh; fi
 fi
 # Setup 3rd party base distribution directory
@@ -41,7 +41,7 @@ else
 fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
+  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "macos") ]]; then
     echo "Force linking to 'keg-only' instance of Qt..."
     brew link --force qt5;
     echo "Downloading archive libraries...";
@@ -74,7 +74,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     docker-compose version;
   fi;
 # AppImage setup, download LDraw library archive files, and setup build directory
-  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     echo "Download AppImage archive libraries...";
     if [ ! -d "${LP3D_DIST_DIR_BASE}/bionic" ]; then
        mkdir -p "${LP3D_DIST_DIR_BASE}/bionic";
@@ -102,16 +102,25 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
 fi
 # setup linux platform-specific 3rd party distribution directory
 if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
-  if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
-  elif [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
-  elif [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
+  if [ "$LP3D_BUILD_OS" = "archlinux" ]; then
+    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
+    export LP3D_ASSET_EXT="pkg.tar.zst";
+  elif [ "$LP3D_BUILD_OS" = "fedora" ]; then
+    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
+    export LP3D_ASSET_EXT="rpm"
+  elif [ "$LP3D_BUILD_OS" = "ubuntu" ]; then
+    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
+    export LP3D_ASSET_EXT="deb"
   elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
+    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
+    export LP3D_ASSET_EXT="dmg"
   else
-    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/bionic;
+    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/bionic;
+    if [ "$LP3D_BUILD_OS" = "appimage" ]; then
+      export LP3D_ASSET_EXT="AppImage"
+    else
+      export LP3D_ASSET_EXT="deb"
+    fi
   fi;
   if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
     mkdir -p "${LP3D_DIST_DIR_PATH}";

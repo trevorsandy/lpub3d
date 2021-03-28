@@ -94,15 +94,15 @@ Updater::Updater()
 
     //qDebug() << qPrintable(QString("DISTRO_PACKAGE_CODE (m_platform): %1").arg(m_platform));
 
-    setUserAgentString (QString ("%1/%2 (Qt; QSimpleUpdater)").arg (qApp->applicationName(),
+    setUserAgentString(QString ("%1/%2 (Qt; QSimpleUpdater)").arg(qApp->applicationName(),
                         qApp->applicationVersion()));
     // LPub3D Mod
     //connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
     // Mod End
-    connect (m_downloader, SIGNAL (downloadFinished (QString, QString)),
-             this,         SIGNAL (downloadFinished (QString, QString)));
-    connect (m_manager,    SIGNAL (finished (QNetworkReply*)),
-             this,           SLOT (onReply  (QNetworkReply*)));
+    connect (m_downloader, SIGNAL (downloadFinished(QString,QString)),
+             this,         SIGNAL (downloadFinished(QString,QString)));
+    connect (m_manager,    SIGNAL (finished(QNetworkReply*)),
+             this,           SLOT (onReply(QNetworkReply*)));
     // LPub3D Mod
     connect (m_downloader, SIGNAL (downloadCancelled()),
              this,         SIGNAL (downloadCancelled()));

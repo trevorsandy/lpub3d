@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 23, 2019
+# Last Update March 20, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -71,7 +71,7 @@ if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
 fi
 
 # AppImage execute permissions
-if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+if [ "$LP3D_BUILD_OS" = "appimage" ]; then
     cd ${SOURCE_DIR}
 
     echo && echo "- set AppImage $(realpath ${LPUB3D_EXE}) execute permissions..."

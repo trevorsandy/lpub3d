@@ -103,23 +103,23 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
-    env: LP3D_BUILD_ARCH=true
+    env: LP3D_BUILD_OS=archlinux
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_FEDORA=true
+    env: LP3D_BUILD_OS=fedora
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_UBUNTU=true
+    env: LP3D_BUILD_OS=ubuntu
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_APPIMAGE=true
+    env: LP3D_BUILD_OS=appimage
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_MACOS=true
+    env: LP3D_BUILD_OS=macos
     os: osx
     osx_image: xcode11.3
     compiler: clang
