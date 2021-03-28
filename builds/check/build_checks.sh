@@ -101,6 +101,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     lp3d_check_start=$SECONDS
     case ${LP3D_BUILD_CHECK} in
     CHECK01)
+        QT_DEBUG_PLUGINS=1
         LP3D_CHECK_LBL="Native File Process"
         LP3D_CHECK_HDR="- Check 1 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
