@@ -3494,24 +3494,41 @@ int CountPageWorker::countPage(
   // if submodel, load where findPage stopped in the parent model
   if (opts.current.lineNumber == opts.flags.numLines && modelStack.size()) {
 
-      /* Set last modelStack item to opts current, stepNumber and renderParentModel */
+      /* Save settings, set last modelStack, stepNumber, renderParentModel, and initialize buildMod, and flags*/
 
-      // save last modelStack item - step number and current where
-      int newStepNumber = modelStack.last().stepNumber;
-      Where newCurrent(modelStack.last().modelName,
-                       gui->getSubmodelIndex(modelStack.last().modelName),
-                       modelStack.last().lineNumber);
+      int stepNumber2 = modelStack.last().stepNumber;
+      Where current2(modelStack.last().modelName, modelStack.last().lineNumber);
+      current2.setModelIndex(ldrawFile->getSubmodelIndex(current2.modelName));
+      QString renderParentModel2 = modelStack.size() ? current2.modelName : QString();
+      RotStepMeta saveRotStep2 = meta.rotStep;
+      BuildModFlags saveBuildMod2 = opts.buildMod;
+      FindPageFlags saveFlags2 = opts.flags;
+      BuildModFlags buildMod2;
+      FindPageFlags flags2;
 
       // remove last modelStack item
       modelStack.pop_back();
 
       // set curent, stepNumber and renderParentModel from next up modelStack modelName
-      opts.current = newCurrent;
-      opts.stepNumber = newStepNumber;
-      opts.renderParentModel = modelStack.size() ? modelStack.last().modelName : QString();
+      FindPageOptions parentOpts(
+                  opts.pageNum,
+                  current2,
+                  opts.pageSize,
+                  flags2,
+                  buildMod2,
+                  opts.updateViewer,
+                  opts.isMirrored,
+                  opts.printing,
+                  stepNumber2,
+                  opts.contStepNumber,
+                  opts.groupStepNumber,
+                  renderParentModel2);
+      countPage(meta, ldrawFile, modelStack, parentOpts);
 
-      // let's go
-      countPage(meta, ldrawFile, modelStack, opts);
+      //gui->saveStepPageNum = gui->stepPageNum;
+      opts.buildMod = saveBuildMod2;  // restore saved buildMod
+      opts.flags = saveFlags2;        // restore saved flags
+      meta.rotStep = saveRotStep2;    // restore saved rotstep
   }
 
   countPageMutex.unlock();
