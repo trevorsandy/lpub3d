@@ -3335,18 +3335,38 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
 QStringList LDrawFile::getBuildModPathsFromStep(const QString &modStepKey, const int image)
 {
   QStringList list = modStepKey.split(";");
+  QStringList stack;
+  if (list.size() == BM_SUBMODEL_STACK) {
+    QStringList models = list.takeFirst().split(":");
+    if (models.size())
+      Q_FOREACH (const QString &index, models)
+        stack << getSubmodelName(index.toInt());
+  }
   ViewerStep::StepKey stepKey = { list.at(BM_STEP_MODEL_KEY).toInt(), list.at(BM_STEP_LINE_KEY).toInt(), list.at(BM_STEP_NUM_KEY).toInt() };
+  stack << getSubmodelName(stepKey.modIndex);
   list.clear();
+  QDateTime lastModified;
   QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
   while (i != _viewerSteps.constEnd()) {
     if (stepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
-      if (stepKey.stepNum <= i->_stepKey.stepNum)
-        list.append(image ? i->_imagePath : i->_filePath);
+      if (stepKey.stepNum <= i->_stepKey.stepNum) {
+        if (image) {
+          QFileInfo imageInfo(i->_imagePath);
+          if (imageInfo.exists()) {
+            lastModified = imageInfo.lastModified();
+            if ( ! older(stack, lastModified))
+              list.append(i->_imagePath);
+          }
+        } else {
+          list.append(i->_filePath);
+        }
+      }
     }
     ++i;
   }
 
-  list.removeDuplicates();
+  if (list.size())
+    list.removeDuplicates();
 
   return list;
 }

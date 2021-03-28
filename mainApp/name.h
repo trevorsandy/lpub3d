@@ -140,6 +140,7 @@ enum BuildModRc {
     BM_STEP_KEYS,                          //   3
     BM_DISPLAY_PAGE_NUM = BM_STEP_KEYS,    //   3                                    Attributes[3]
     BM_STEP_PIECES,                        //   4                                    Attributes[4]
+    BM_SUBMODEL_STACK   = BM_STEP_PIECES,  //   4
     BM_MODEL_NAME_INDEX,                   //   5                                    Attributes[5]
     BM_MODEL_LINE_NUM,                     //   6                                    Attributes[6]
     BM_MODEL_STEP_NUM,                     //   7                                    Attributes[7]

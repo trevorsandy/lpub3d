@@ -2041,8 +2041,16 @@ int Gui::drawPage(
                       setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
-                      // set the stepKey to clear the image cache
-                      buildModClearStepKey = QString("%1;%2;%3").arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
+                      // set the stepKey to clear the image cache if not navigating backward
+                      if (pageDirection < PAGE_BACKWARD) {
+                          // pass the submodel stack
+                          QString stack;
+                          Q_FOREACH (const SubmodelStack &model,curMeta.submodelStack)
+                            stack.append(QString("%1:").arg(getSubmodelIndex(model.modelName)));
+                          if (!stack.isEmpty())
+                            stack.replace(stack.lastIndexOf(":"),1,";");
+                          buildModClearStepKey = QString("%1%2;%3;%4").arg(stack).arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
+                      }
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       pageProcessRunning = PROC_FIND_PAGE;
                       return HitBuildModAction;
