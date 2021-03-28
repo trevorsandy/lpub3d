@@ -2,26 +2,24 @@
 #
 # Travis build [script] procedures
 #
-#  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 24, 2019
-#  Copyright (c) 2017 - 2021 by Trevor SANDY
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: March 19, 2021
+# Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Build distributions package (using docker-compose and AppImage for linux builds) or just compile the code
-if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
+if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
   # build packages
-  if [ "$LP3D_BUILD_PKG" = "yes" ]; then
-    # build linux packages
-    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" ]]; then
+    # build linux Docker packages
+    if [[ "$TRAVIS_OS_NAME" = "linux" && -z "$LP3D_BUILD_APPIMAGE" ]]; then
       # setup Docker compose directory
-      if [[ "$LP3D_BUILD_ARCH" = "true" || "$LP3D_BUILD_FEDORA" = "true" || "$LP3D_BUILD_UBUNTU" = "true" ]]; then
-        if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
-          ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
-          if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
-        else
-          echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}";
-        fi;
+      if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
+        if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
+      else
+        echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}";
       fi;
       # Docker builds - Arch
       if [ "$LP3D_BUILD_ARCH" = "true" ]; then
@@ -51,7 +49,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   fi
   # Compile source code or build AppImage
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
-        ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+        ("$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true") ]]; then
     # Linux
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="14.04"
@@ -120,7 +118,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
           qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
           make -j$(nproc);
       fi
-    # macOS compile
+    # macOS compile source code
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
         if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
             ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
