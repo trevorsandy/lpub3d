@@ -2061,8 +2061,10 @@ int Gui::drawPage(
 
             // Get BuildMod attributes and set ModIgnore based on 'current' step buildModAction
             case BuildModBeginRc:
-              if (!Preferences::buildModEnabled)
+              if (!Preferences::buildModEnabled) {
+                  buildMod.ignore = true;
                   break;
+              }
               buildMod.key = curMeta.LPub.buildMod.key();
               buildModExists = buildModContains(buildMod.key);
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
@@ -2100,8 +2102,10 @@ int Gui::drawPage(
 
             // Set modActionLineNum and ModIgnore based on 'current' step buildModAction
             case BuildModEndModRc:
-              if (!Preferences::buildModEnabled)
+              if (!Preferences::buildModEnabled) {
+                  buildMod.ignore = getLevel(QString(), BM_END);
                   break;
+              }
               if (buildMod.level > 1 && curMeta.LPub.buildMod.key().isEmpty())
                   parseError("Key required for nested build mod meta command",
                              opts.current,Preferences::BuildModErrors);
@@ -2911,10 +2915,10 @@ int Gui::findPage(
                   if (contains) {
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = (opts.buildMod.ignore2 || getBuildModRendered(opts.buildMod.key, colorType));
+                      bool buildModRendered = Preferences::buildModEnabled && (opts.buildMod.ignore2 || getBuildModRendered(opts.buildMod.key, colorType));
 
-                      // if assembled/rotated callout
-                      if (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
+                      // if not callout or assembled/rotated callout
+                      if (! opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
                           bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
@@ -3023,7 +3027,7 @@ int Gui::findPage(
                       } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
                       // add submodel to buildMod rendered list
-                      if (opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
+                      if (Preferences::buildModEnabled && opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
                           setBuildModRendered(opts.buildMod.key, colorType);
                       }
 
@@ -3043,7 +3047,7 @@ int Gui::findPage(
           if (! opts.buildMod.ignore) {
               ++opts.flags.partsAdded;
               CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
-            } // ! BuildModIgnore, for each linee
+            } // ! BuildModIgnore, for each
             break;
 
         case '0':
@@ -3220,16 +3224,16 @@ int Gui::findPage(
                   }
 
                 } // StepGroup && ! NoStep2
-
-              //buildModActions.clear();
                   opts.flags.noStep2 = false;
                   break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
-                if (!Preferences::buildModEnabled)
-                    break;
-                if (!pageDisplayed) {
+                if (! pageDisplayed) {
+                    if (!Preferences::buildModEnabled) {
+                        opts.buildMod.ignore = true;
+                        break;
+                    }
                     opts.buildMod.key = meta.LPub.buildMod.key();
                     opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
                     if (buildModContains(opts.buildMod.key))
@@ -3247,7 +3251,11 @@ int Gui::findPage(
 
               // Set buildModIgnore based on 'next' step buildModAction
               case BuildModEndModRc:
-                if (!pageDisplayed) {
+                if (! pageDisplayed) {
+                    if (!Preferences::buildModEnabled) {
+                        opts.buildMod.ignore = getLevel(QString(), BM_END);
+                        break;
+                    }
                     if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
                         opts.buildMod.ignore = true;
                     else if (buildModActions.value(opts.buildMod.level) == BuildModRemoveRc)
@@ -3258,7 +3266,9 @@ int Gui::findPage(
 
               // Get buildModLevel and reset buildModIgnore to default
               case BuildModEndRc:
-                if (!pageDisplayed) {
+                if (!Preferences::buildModEnabled)
+                    break;
+                if (! pageDisplayed) {
                     opts.buildMod.level = getLevel(QString(), BM_END);
                     if (opts.buildMod.level == BM_BEGIN)
                         opts.buildMod.ignore = false;
@@ -4005,8 +4015,7 @@ int Gui::getBOMParts(
               break;
 
             case BuildModEndModRc:
-              if (getLevel(QString(), BM_END) == BM_BEGIN)
-                  buildModIgnore = false;
+              buildModIgnore = getLevel(QString(), BM_END);
               break;
 
             case PartNameRc:
@@ -5008,10 +5017,7 @@ void Gui::writeToTmp(const QString &fileName,
                   // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
                   case BuildModBeginRc:
                       if (!Preferences::buildModEnabled) {
-                          emit parseErrorSig("Build Mod meta command encountered but this functionality is currently disabled.<br>"
-                                             "Enable at Build Instructions Setup -> Project Setup or check 'don't show this message<br>"
-                                             "again' to disable Build Mod meta parse notifications.",
-                                             here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
+                          buildModIgnore = true;
                           break;
                       }
                       buildModBottom = getBuildModStepLineNumber(getBuildModNextStepIndex());
@@ -5031,6 +5037,10 @@ void Gui::writeToTmp(const QString &fileName,
 
                   // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
                   case BuildModEndModRc:
+                      if (!Preferences::buildModEnabled) {
+                          buildModIgnore = getLevel(QString(), BM_END);
+                          break;
+                      }
                      if (buildModApplicable) {
                          if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
                                  emit parseErrorSig("Key required for nested build mod meta command",
@@ -5044,6 +5054,8 @@ void Gui::writeToTmp(const QString &fileName,
 
                   // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
                   case BuildModEndRc:
+                    if (!Preferences::buildModEnabled)
+                        break;
                     if (buildModApplicable) {
                         buildModLevel      = getLevel(QString(), BM_END);
                         if (buildModLevel == BM_BEGIN) {

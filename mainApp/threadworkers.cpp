@@ -3057,9 +3057,10 @@ int CountPageWorker::countPage(
                   if (contains) {
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = (opts.buildMod.ignore2 || ldrawFile->getBuildModRendered(opts.buildMod.key, colorType, true/*countPage*/));
+                      bool buildModRendered = Preferences::buildModEnabled && (opts.buildMod.ignore2 ||
+                                              ldrawFile->getBuildModRendered(opts.buildMod.key, colorType, true/*countPage*/));
 
-                      // if assembled/rotated callout
+                      // if not callout or assembled/rotated callout
                       if (!opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
@@ -3148,7 +3149,7 @@ int CountPageWorker::countPage(
                       } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
                       // add submodel to buildMod rendered list
-                      if (opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
+                      if (Preferences::buildModEnabled && opts.buildMod.state == BM_BEGIN && ! buildModRendered) {
                           ldrawFile->setBuildModRendered("cp~"+opts.buildMod.key, colorType);
                       }
 
@@ -3235,8 +3236,10 @@ int CountPageWorker::countPage(
               break;
 
             case BuildModBeginRc:
-              if (!Preferences::buildModEnabled)
+              if (!Preferences::buildModEnabled) {
+                  opts.buildMod.ignore = true;
                   break;
+              }
               opts.buildMod.key = meta.LPub.buildMod.key();
               opts.buildMod.level = getLevel(opts.buildMod.key, BM_BEGIN);
               opts.buildMod.action = BuildModApplyRc;
@@ -3245,6 +3248,10 @@ int CountPageWorker::countPage(
               break;
 
             case BuildModEndModRc:
+              if (!Preferences::buildModEnabled) {
+                  opts.buildMod.ignore = getLevel(QString(), BM_END);
+                  break;
+              }
               if (opts.buildMod.state == BM_BEGIN)
                   if (opts.buildMod.action == BuildModApplyRc)
                       opts.buildMod.ignore = true;
@@ -3252,6 +3259,8 @@ int CountPageWorker::countPage(
               break;
 
             case BuildModEndRc:
+              if (!Preferences::buildModEnabled)
+                  break;
               if (opts.buildMod.state == BM_END_MOD) {
                   opts.buildMod.level = getLevel(QString(), BM_END);
                   if (opts.buildMod.level == BM_BEGIN)
@@ -3312,7 +3321,6 @@ int CountPageWorker::countPage(
                   if ( ! opts.buildMod.ignore2) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore2
-
                 } // PartsAdded && ! NoStep
 
               meta.LPub.buildMod.clear();

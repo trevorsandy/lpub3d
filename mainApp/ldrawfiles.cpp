@@ -1954,7 +1954,7 @@ void LDrawFile::countInstances(
           if (tokens[3] == "BEGIN") {
             buildModLevel = getLevel(tokens[4], BM_BEGIN);
           } else if (tokens[3] == "END_MOD") {
-            buildModLevel = getLevel("", BM_END);
+            buildModLevel = getLevel(QString(), BM_END);
           }
           buildModIgnore = buildModLevel;
           // page insert, e.g. dispaly model, bom
@@ -2987,7 +2987,7 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
     }
 }
 
-/* Returns index for BEGIN, APPLY and REMOVE BuildMod commands, requires TopOfStep */
+/* Returns index for BEGIN, APPLY and REMOVE BuildMod commands, requires valid TopOfStep */
 
 int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber)
 {
@@ -3153,10 +3153,10 @@ int LDrawFile::getBuildModNextStepIndex()
 
 #ifdef QT_DEBUG_MODE
     if (validIndex) {
-        QVector<int> stepIndex = _buildModStepIndexes.at(_buildModNextStepIndex);
-        QString modelName      = getSubmodelName(stepIndex.at(BM_MODEL_NAME));
+        QVector<int> topOfStep = _buildModStepIndexes.at(_buildModNextStepIndex);
+        QString modelName      = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
         QString insert         = firstIndex ? "First" : "Next";
-        int lineNumber         = stepIndex.at(BM_LINE_NUMBER);
+        int lineNumber         = topOfStep.at(BM_LINE_NUMBER);
         validIndex             = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
         if (!validIndex) {
             insert.prepend("(INVALID) ");
