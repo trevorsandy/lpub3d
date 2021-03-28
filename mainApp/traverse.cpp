@@ -2788,10 +2788,72 @@ int Gui::findPage(
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  bool buildModItems = false;
-  QVector<int>  buildModLineTypeIndexes;
-  QStringList   buildModCsiParts;
-  QMap<int,int> buildModActions;
+  bool                    buildModItems = false;
+
+  QMap<int, QString>      buildModKeys;
+  QMap<int,int>           buildModActions;
+  QStringList             buildModCsiParts;
+  QMap<int, QVector<int>> buildModAttributes;
+  QVector<int>            buildModLineTypeIndexes;
+
+  auto insertAttribute =
+          [&opts,
+           &topOfStep] (
+          QMap<int, QVector<int>> &buildModAttributes,
+          int index, const Where &here)
+  {
+      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(opts.buildMod.level);
+      if (i == buildModAttributes.end()) {
+          QVector<int> modAttributes = { 0, 0, 0, 1, 0, topOfStep.modelIndex, 0, 0 };
+          modAttributes[index] = here.lineNumber;
+          buildModAttributes.insert(opts.buildMod.level, modAttributes);
+      } else {
+          i.value()[index] = here.lineNumber;
+      }
+  };
+
+  auto insertBuildModification =
+         [this,
+          &buildModAttributes,
+          &buildModKeys,
+          &topOfStep] (int buildModLevel)
+  {
+      int buildModStepIndex = getBuildModStepIndex(topOfStep);
+      QString buildModKey = buildModKeys.value(buildModLevel);
+      QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
+
+      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+      if (i != buildModAttributes.end()) {
+          modAttributes = i.value();
+          modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+          modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+          modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      }
+
+#ifdef QT_DEBUG_MODE
+    statusMessage(LOG_DEBUG, QString(
+                  "Insert FindPage BuildMod StepIndex: %1, "
+                  "Action: Apply, "
+                  "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                  "ModKey: %10, "
+                  "Level: %11")
+                  .arg(buildModStepIndex)                      // Attribute Default Initial:
+                  .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                  .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                  .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                  .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                  .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                  .arg(buildModKey)
+                  .arg(buildModLevel));
+#endif
+
+      insertBuildMod(buildModKey,
+                     modAttributes,
+                     buildModStepIndex);
+  };
 
   PartLineAttributes pla(
   csiParts,
@@ -3214,13 +3276,17 @@ int Gui::findPage(
                         buildModActions.insert(opts.buildMod.level,
                                                     getBuildModAction(opts.buildMod.key, getBuildModNextStepIndex(),BM_PREVIOUS_ACTION));
                     else
-                        buildModActions.insert(opts.buildMod.level, BuildModNoActionRc);
+                        buildModActions.insert(opts.buildMod.level, BuildModApplyRc);
                     if (buildModActions.value(opts.buildMod.level) == BuildModApplyRc)
                         opts.buildMod.ignore = false;
                     else if (buildModActions.value(opts.buildMod.level) == BuildModRemoveRc)
                         opts.buildMod.ignore = true;
-                    opts.buildMod.state = BM_BEGIN;
                 }
+                if (! isPreDisplayPage) {
+                    buildModKeys.insert(opts.buildMod.level, opts.buildMod.key);
+                    insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
+                }
+                opts.buildMod.state = BM_BEGIN;
                 break;
 
               // Set buildModIgnore based on 'next' step buildModAction
@@ -3234,8 +3300,17 @@ int Gui::findPage(
                         opts.buildMod.ignore = true;
                     else if (buildModActions.value(opts.buildMod.level) == BuildModRemoveRc)
                         opts.buildMod.ignore = false;
-                    opts.buildMod.state = BM_END_MOD;
                 }
+                if (! isPreDisplayPage) {
+                    if (opts.buildMod.level > 1 && opts.buildMod.key.isEmpty())
+                        parseError("Key required for nested build mod meta command",
+                                opts.current,Preferences::BuildModErrors,false,false);
+                    if (opts.buildMod.state != BM_BEGIN)
+                        parseError(QString("Required meta BUILD_MOD BEGIN not found"),
+                                opts.current, Preferences::BuildModErrors,false,false);
+                    insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
+                }
+                opts.buildMod.state = BM_END_MOD;
                 break;
 
               // Get buildModLevel and reset buildModIgnore to default
@@ -3246,8 +3321,14 @@ int Gui::findPage(
                     opts.buildMod.level = getLevel(QString(), BM_END);
                     if (opts.buildMod.level == BM_BEGIN)
                         opts.buildMod.ignore = false;
-                    opts.buildMod.state = BM_END;
                 }
+                if (! isPreDisplayPage) {
+                    if (opts.buildMod.state != BM_END_MOD)
+                        parseError(QString("Required meta BUILD_MOD END_MOD not found"),
+                                opts.current, Preferences::BuildModErrors,false,false);
+                    insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
+                }
+                opts.buildMod.state = BM_END;
                 break;
 
             case RotStepRc:
@@ -3402,10 +3483,16 @@ int Gui::findPage(
                                 // lastly, add the current where position
                                 ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                 modelStack.append(toms);
-                           } // SubmodelStack
+                            } // SubmodelStack
 
+                            if (buildModKeys.size()) {
+                                if (opts.buildMod.state != BM_END)
+                                    parseError(QString("Required meta BUILD_MOD END not found"),
+                                               opts.current, Preferences::BuildModErrors,false,false);
+                                Q_FOREACH (int buildModLevel, buildModKeys.keys())
+                                    insertBuildModification(buildModLevel);
+                            } // BuildModKeys
                         } // PageDisplayed
-
                     } // ! StepGroup
 
                     topOfStep = opts.current;  // Set next step
@@ -3432,6 +3519,7 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
+              meta.LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
 
@@ -4753,11 +4841,11 @@ int Gui::setBuildModForNextStep(
 
     auto insertBuildModification =
            [this,
-            &buildModStepIndex,
             &buildModAttributes,
             &buildModKeys,
             &topOfStep] (int buildModLevel)
     {
+        int buildModStepIndex = getBuildModStepIndex(topOfStep);
         QString buildModKey = buildModKeys.value(buildModLevel);
         QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
 
