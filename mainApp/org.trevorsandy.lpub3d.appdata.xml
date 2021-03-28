@@ -19,7 +19,7 @@
           LeoCAD© 2020 Leonardo Zide and additional third party components.
           LEGO® is a trademark of the LEGO Group of companies which does not
           sponsor, authorize or endorse this application.
-          © 2015-2020 Trevor SANDY
+          © 2015-2021 Trevor SANDY
         </p>
     </description>
     <keywords>
@@ -70,7 +70,7 @@
         <binary>lpub3d24</binary>
     ​</provides>
     <releases>
-        <release version="2.4.2.2406" date="2021-03-29">
+        <release version="2.4.2.2407" date="2021-03-29">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>
