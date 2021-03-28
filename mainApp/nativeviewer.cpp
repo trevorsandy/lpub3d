@@ -368,6 +368,7 @@ void Gui::create3DMenus()
      ViewerMenu->addSeparator();
      // Show/Hide Piece menus
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
      ViewerMenu->addSeparator();
