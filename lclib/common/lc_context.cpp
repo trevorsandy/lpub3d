@@ -110,16 +110,14 @@ bool lcContext::InitializeRenderer()
 
 void lcContext::ShutdownRenderer()
 {
-/*** LPub3D Mod - fix command line crash ***/
-	gStringCache.Reset();
-	gTexFont.Reset();
-
-	lcContext* Context = mGlobalOffscreenContext.get();
-	if (!Context)
+	if (!mGlobalOffscreenContext)
 		return;
 
 	mGlobalOffscreenContext->MakeCurrent();
-/*** LPub3D Mod end ***/
+	lcContext* Context = mGlobalOffscreenContext.get();
+
+	gStringCache.Reset();
+	gTexFont.Reset();
 
 	lcView::DestroyResources(Context);
 	Context->DestroyResources();
