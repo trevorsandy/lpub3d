@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 08, 2021
+# Last Update: March 19, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -64,10 +64,11 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
     sudo apt-get update -qq;
     sudo apt-get -y install docker-ce;
+    echo "Login to Docker Hub and set credentials for Compose...";
+    echo $DOCKER_HUB_TOKEN | docker login --username trevorsandy --password-stdin
     docker version;
-    export DOCKER_COMPOSE_VERSION=1.27.4;
     sudo rm /usr/local/bin/docker-compose;
-    curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
+    curl -L https://github.com/docker/compose/releases/download/${LP3D_DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
     chmod +x docker-compose;
     sudo mv docker-compose /usr/local/bin;
     docker-compose version;
