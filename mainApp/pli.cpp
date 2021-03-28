@@ -532,7 +532,7 @@ void Pli::setParts(
 
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-              .arg(baseName)                                           // 0
+              .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer)) // 0
               .arg(color)                                              // 1
               .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
                                   gui->pageSize(meta.LPub.page, 0))    // 2
@@ -559,8 +559,8 @@ void Pli::setParts(
           }
 
           // assemble image name
-          QString imageName = QDir::toNativeSeparators(QDir::currentPath() + "/" +
-                              Paths::partsDir + "/" + nameKey + ".png");
+          QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
+                                                       Paths::partsDir + QDir::separator() + nameKey + ".png");
 
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
@@ -794,7 +794,7 @@ QString Pli::orient(QString &color, QString type)
                                    .arg(file.errorString()));
           }
       }
-    }
+  }
 
   if (cached) {
       QStringList tokens;
@@ -919,7 +919,8 @@ int Pli::createSubModelIcons()
     return rc;
 }
 
-int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
+int Pli::createPartImage(
+    QString  &nameKey /*old Value: partialKey*/,
     QString  &type,
     QString  &color,
     QPixmap  *pixmap,
@@ -1014,7 +1015,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
-        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png");
+        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ".png");
         ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr");
 
         QFile part(imageName);
@@ -3461,13 +3462,16 @@ void PliBackgroundItem::contextMenuEvent(
 
 void PliBackgroundItem::resize(QPointF grabbed)
 {
+  if (!pli)
+      return;
+
   // recalculate corners Y
 
   point = grabbed;
 
   // Figure out desired height of PLI
 
-  if (pli && pli->parentRelativeType == CalloutType) {
+  if (pli->parentRelativeType == CalloutType) {
       QPointF absPos = pos();
       absPos = mapToScene(absPos);
       grabHeight = int(grabbed.y() - absPos.y());

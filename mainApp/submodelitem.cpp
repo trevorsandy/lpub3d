@@ -155,9 +155,10 @@ void SubModel::setSubModel(
 
   QFileInfo fileInfo(_file);
   QString type = fileInfo.fileName().toLower();
-  QString key = QString("%1_%2_%3")            // partial key
+  QString key = QString("%1-%2-%3_%4") // partial key
                         .arg(fileInfo.completeBaseName())
                         .arg(SUBMODEL_IMAGE_BASENAME)
+                        .arg(Preferences::preferredRenderer)
                         .arg(color);
 
   if ( ! parts.contains(key)) {
@@ -227,7 +228,7 @@ int SubModel::createSubModelImage(
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
 
   // assemble name key - create unique file when a value that impacts the image changes
-  QString keyPart1 = QString("%1").arg(partialKey); /* baseName + -smi + @submodel + colour (0) */
+  QString keyPart1 = QString("%1").arg(partialKey); /* baseName + -smi + -renderer + _colour (0) */
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber)
                              .arg(useImageSize ? double(subModelMeta.imageSize.value(0)) :
@@ -454,8 +455,9 @@ int SubModel::generateSubModelItem()
         }
 
         if (createSubModelImage(key,part->type,part->color,pixmap)) {
-            QString imageName = QDir::toNativeSeparators(Paths::partsDir + QDir::separator() + key + ".png");
-            emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create Submodel image for %1")
+            QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
+                                                         Paths::submodelDir + QDir::separator() + key.toLower() + ".png");
+            emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create submodel image %1")
                                  .arg(imageName));
             return -1;
         }
