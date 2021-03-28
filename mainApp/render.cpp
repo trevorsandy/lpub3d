@@ -3140,7 +3140,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     bool UseImageSize = false;
     int  ImageWidth   = 0;
     int  ImageHeight  = 0;
-    QString ImageType = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+    QString ImageType = O->ImageType == Options::CSI ? "CSI" :
+                        O->ImageType == Options::PLI ? "PLI" :
+                        O->ImageType == Options::SMP ? "SMP" : "MON";
 
     // generate image
     if (RenderImage) {

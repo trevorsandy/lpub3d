@@ -102,8 +102,10 @@ bool lcContext::InitializeRenderer()
 	if (!gSupportsShaderObjects && lcGetPreferences().mDrawConditionalLines)
 		lcGetPreferences().mDrawConditionalLines = false;
 
-	if (!gSupportsFramebufferObject)
+/*** LPub3D Mod - Fix crash in CLI mode ***/
+	if (!gSupportsFramebufferObject && gMainWindow)
 		gMainWindow->GetPartSelectionWidget()->DisableIconMode();
+/*** LPub3D Mod - ***/
 
 	return true;
 }

@@ -348,8 +348,10 @@ void lcApplication::UpdateStyle()
 
 void lcApplication::SaveTabLayout() const
 {
-	if (!mProject || mProject->GetFileName().isEmpty())
+/*** LPub3D Mod - Fix crash in CLI mode ***/
+	if (!gMainWindow || !mProject || mProject->GetFileName().isEmpty())
 		return;
+/*** LPub3D Mod - ***/
 
 	QSettings Settings;
 	QByteArray TabLayout = gMainWindow->GetTabLayout();
