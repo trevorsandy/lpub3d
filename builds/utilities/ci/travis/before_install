@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 16, 2021
+#  Last Update: March 19, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
@@ -24,9 +24,7 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg
 # Set build package or enable compile source
 [ "$LP3D_BUILD_PKG_VAR" = "true" ] \
 && export LP3D_BUILD_PKG=yes \
-&& echo "'Build package' detected in environment variable." || \
-&& export LP3D_COMPILE_SOURCE=true \
-&& echo "'Compile source' enabled."
+&& echo "'Build package' detected in environment variable." || export LP3D_COMPILE_SOURCE=true
 
 # Deploy package if environment variable LP3D_TEST_SF_DEPLOY_VAR is true
 [ "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ] \
@@ -35,7 +33,7 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg
 # Skip Sourceforge deploy if LP3D_SKIP_SF_DEPLOY_VAR is true
 [ "$LP3D_SKIP_SF_DEPLOY_VAR" = "true" ] \
 && export LP3D_SKIP_SF_DEPLOY=yes \
-&& echo "'Skip Sourceforge deploy' detected in environment variable." || true;
+&& echo "'Skip Sourceforge deploy' detected in environment variable." || true
 
 # Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
 # Automatically deploy to GitHub Release and Sourceforge.net.
@@ -47,7 +45,6 @@ if [ "$LP3D_VALID_DEPLOY_TAG" = "yes" ]; then
   echo "Deploy branch is $TRAVIS_BRANCH.";
   export LP3D_BUILD_PKG=yes;
   export LP3D_DEPLOY_PKG=yes;
-  export LP3D_COMPILE_SOURCE=false;
   echo $(git tag -l -n $TRAVIS_TAG | awk '{print tolower($0)}') | grep -E '\[skip sfr\]' \
   && export LP3D_SKIP_SF_DEPLOY=yes \
   && echo "Skip Sourceforge deploy detected." || true;
@@ -69,6 +66,7 @@ fi
 if [ "$LP3D_BUILD_PKG" = "yes" ]; then
   LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build pkg //p' -e 's/^.*deploy pkg //p' | sed 's/].*//g');
 elif [ "$LP3D_COMPILE_SOURCE" = "true" ]; then
+  echo "'Compile source' is enabled.";
   LP3D_BUILD_3RD=$(echo "$TRAVIS_COMMIT_MESSAGE" | sed -n -e 's/^.*build 3rdpkg //p');
 fi;
 if [ -n "$LP3D_BUILD_3RD" ]; then

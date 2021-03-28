@@ -1,10 +1,13 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Last Update: March 16, 2021
+# Last Update: Last Update: March 18, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
-language: cpp
+os: linux
+
 dist: xenial
+
+language: cpp
 
 git:
   depth: false
@@ -58,12 +61,13 @@ env:
   - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building
     instructions."
   - LP3D_UPLOADTOOL_REV=master
+  
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
 
 stages:
 - name: Prepare Build Storage
-  if: tag IS blank
+  if: tag IS blank AND env(LP3D_BUILD_PKG_VAR) = true
 - name: Prepare Release Storage
   if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
 - name: Build and Package
@@ -83,6 +87,7 @@ script:
 - source ${LP3D_CI_SCRIPT_DIR}/script
 after_script:
 - source ${LP3D_CI_SCRIPT_DIR}/after_script
+
 jobs:
   fast_finish: true
   include:
