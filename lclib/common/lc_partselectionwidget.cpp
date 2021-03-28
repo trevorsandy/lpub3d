@@ -436,6 +436,31 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 
 	QImage Image = mView->GetRenderFramebufferImage().convertToFormat(QImage::Format_ARGB32);
 
+	if (Info->GetSynthInfo())
+	{
+		QPainter Painter(&Image);
+		QImage Icon = QImage(":/resources/flexible.png");
+		uchar* ImageBits = Icon.bits();
+		QRgb TextColor = mListView->palette().color(QPalette::WindowText).rgba();
+		int Red = qRed(TextColor);
+		int Green = qGreen(TextColor);
+		int Blue = qBlue(TextColor);
+
+		for (int y = 0; y < Icon.height(); y++)
+		{
+			for (int x = 0; x < Icon.width(); x++)
+			{
+				QRgb& Pixel = ((QRgb*)ImageBits)[x];
+				Pixel = qRgba(Red, Green, Blue, qAlpha(Pixel));
+			}
+
+			ImageBits += Icon.bytesPerLine();
+		}
+
+		Painter.drawImage(QPoint(0, 0), Icon);
+		Painter.end();
+	}
+
 	mParts[InfoIndex].second = QPixmap::fromImage(Image).scaled(mIconSize, mIconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
 	lcGetPiecesLibrary()->ReleasePieceInfo(Info);
@@ -963,7 +988,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
 /*** LPub3D Mod - Set part lookup default ***/
-		if (CategoryItem->text(0) == "In Use") // previous: "Brick"
+		if (CategoryItem->text(0) == "In Use")
 /*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);

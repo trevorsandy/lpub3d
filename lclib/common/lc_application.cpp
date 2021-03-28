@@ -1068,29 +1068,14 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 int lcApplication::Process3DViewerCommandLine()
 {
 	lcCommandLineOptions Options = ParseCommandLineOptions();
-	QFile StdErrData(QDir::currentPath() + "/stderr-native");
-	if (!StdErrData.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		QTextStream StdErr(stderr, QIODevice::WriteOnly);
-		StdErr << tr("Could not open error output '%1'.\n").arg(QDir::currentPath() + "/stderr-native");
-		return -1;
-	}
-	QTextStream StdErr(&StdErrData);
+	QTextStream StdErr(stderr, QIODevice::WriteOnly);
+	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 
 	if (!Options.StdErr.isEmpty())
 	{
 		StdErr << Options.StdErr;
 		StdErr.flush();
 	}
-
-	QFile StdOutData(QDir::currentPath() + "/stdout-native");
-	if (!StdOutData.open(QFile::WriteOnly | QFile::Truncate))
-	{
-		QTextStream StdOut(stderr, QIODevice::WriteOnly);
-		StdOut << tr("Could not open standard output '%1'.\n").arg(QDir::currentPath() + "/stdout-native");
-		return -1;
-	}
-	QTextStream StdOut(&StdOutData);
 
 	if (!Options.StdOut.isEmpty())
 	{

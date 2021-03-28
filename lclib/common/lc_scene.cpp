@@ -252,10 +252,10 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 				case lcRenderMeshState::Selected:
 /*** LPub3D Mod - Selected Parts ***/
-				   if (gApplication->mPreferences.mBuildModificationEnabled)
-					   Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
-				   else
-					   Context->SetInterfaceColor(LC_COLOR_SELECTED);
+					if (gApplication->mPreferences.mBuildModificationEnabled)
+						Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
+					else
+						Context->SetInterfaceColor(LC_COLOR_SELECTED);
 /*** LPub3D Mod end ***/
 					break;
 
@@ -479,6 +479,7 @@ void lcScene::Draw(lcContext* Context) const
 	const bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth > 0.0f;
 	const bool DrawConditional = Preferences.mDrawConditionalLines && Preferences.mLineWidth > 0.0f;
 /*** LPub3D Mod - true fade ***/
+// 03/22/2021 8039f5b Draw conditional lines on a separate pass.
 	const bool LPubTrueFade = gApplication->LPubFadeSteps() && // to turn off during HTML Steps export
 							  gApplication->mPreferences.mLPubTrueFade &&
 							  mHasLPubFadedParts &&
@@ -491,30 +492,17 @@ void lcScene::Draw(lcContext* Context) const
 
 	if (mShadingMode == lcShadingMode::Wireframe)
 	{
-		int PrimitiveTypes = LC_MESH_LINES;
+		DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, true);
 
 		if (DrawConditional)
-			PrimitiveTypes |= LC_MESH_CONDITIONAL_LINES;
-
-		DrawOpaqueMeshes(Context, false, PrimitiveTypes, true, true);
+			DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, true);
 
 		if (mPreTranslucentCallback)
 			mPreTranslucentCallback();
 	}
 	else if (mShadingMode == lcShadingMode::Flat)
 	{
-		int LinePrimitiveTypes = 0;
-
-		if (DrawLines)
-		{
-			LinePrimitiveTypes |= LC_MESH_LINES;
-
-			if (DrawConditional)
-				LinePrimitiveTypes |= LC_MESH_CONDITIONAL_LINES;
-		}
-
-		const int SolidPrimitiveTypes = LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES;
-
+		const int SolidPrimitiveTypes = LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES | (DrawLines ? LC_MESH_LINES : 0);
 
 /*** LPub3D Mod - true fade ***/
 		if (LPubTrueFade) // Fade - Flat
@@ -533,14 +521,19 @@ void lcScene::Draw(lcContext* Context) const
 
 			// 4. Draw mesh lines
 			if (DrawLines)
-				// 5. Draw opaque unlit mesh lines
-				DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes | LinePrimitiveTypes, true, true);
-		}                 // Fade - Flat
+				// 4a. Draw opaque unlit mesh lines
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, true);
+
+			// 5. Draw conditional lines
+			if (DrawConditional)
+				// 5a. Draw conditional opaque unlit mesh lines
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, true);
+		} // Fade - Flat
 		else
 /*** LPub3D Mod end ***/
 		if (mTranslucentFade && mHasFadedParts)
 		{
-			DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes | LinePrimitiveTypes, false, true);
+			DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes, false, true);
 
 			if (mPreTranslucentCallback)
 				mPreTranslucentCallback();
@@ -548,13 +541,19 @@ void lcScene::Draw(lcContext* Context) const
 			DrawTranslucentMeshes(Context, false, true, true, false);
 
 			if (DrawLines)
-				DrawOpaqueMeshes(Context, false, LinePrimitiveTypes, true, false);
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, false);
+
+			if (DrawConditional)
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, false);
 
 			DrawTranslucentMeshes(Context, false, false, true, true);
 		}
 		else
 		{
-			DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes | LinePrimitiveTypes, true, true);
+			DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes, true, true);
+
+			if (DrawConditional)
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, true);
 
 			if (mPreTranslucentCallback)
 				mPreTranslucentCallback();
@@ -564,19 +563,11 @@ void lcScene::Draw(lcContext* Context) const
 	}
 	else
 	{
-		int LinePrimitiveTypes = LC_MESH_LINES;
-
-		if (DrawConditional)
-			LinePrimitiveTypes |= LC_MESH_CONDITIONAL_LINES;
-
 /*** LPub3D Mod - true fade ***/
-		const int SolidPrimitiveTypes = LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES;
-
 		if (LPubTrueFade)           // Fade - Default
 		{
-
 			// 1. Draw opaque mesh triangles - without mesh lines
-			DrawOpaqueMeshes(Context, true, SolidPrimitiveTypes , false, true);
+			DrawOpaqueMeshes(Context, true, LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES , false, true);
 
 			// 2. Disable color writes to only update the Z buffer
 			DrawTranslucentMeshes(Context, true, false, false, true, LC_DISABLE_COLOR_WRITES);
@@ -590,13 +581,18 @@ void lcScene::Draw(lcContext* Context) const
 			// 4. Draw mesh lines
 			if (DrawLines)
 			{
-				// 5. Draw translucent unlit mesh lines
+				// 4a. Draw translucent unlit mesh lines
 				DrawTranslucentMeshes(Context, false, false, true, true, LC_DISABLE_BFC);
 
-				// 6. Draw opaque unlit mesh lines
-				DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes | LinePrimitiveTypes, true, true);
+				// 4b. Draw opaque unlit mesh lines
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, true);
 			}
-		}                // Fade - Default
+
+			// 5. Draw conditional lines
+			if (DrawConditional)
+				// 5a Draw conditional opaque unlit mesh lines
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, true);
+		} // Fade - Default
 		else
 /*** LPub3D Mod end ***/
 		if (mTranslucentFade && mHasFadedParts)
@@ -604,7 +600,10 @@ void lcScene::Draw(lcContext* Context) const
 			DrawOpaqueMeshes(Context, true, LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES, false, true);
 
 			if (DrawLines)
-				DrawOpaqueMeshes(Context, false, LinePrimitiveTypes, false, true);
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, false, true);
+
+			if (DrawConditional)
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, false, true);
 
 			if (mPreTranslucentCallback)
 				mPreTranslucentCallback();
@@ -612,14 +611,20 @@ void lcScene::Draw(lcContext* Context) const
 			DrawTranslucentMeshes(Context, false, true, true, false);
 
 			if (DrawLines)
-				DrawOpaqueMeshes(Context, false, LinePrimitiveTypes, true, false);
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, false);
+
+			if (DrawConditional)
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, false);
 
 			DrawTranslucentMeshes(Context, true, false, true, true);
 		}
 		else
 		{
 			if (DrawLines)
-				DrawOpaqueMeshes(Context, false, LinePrimitiveTypes, true, true);
+				DrawOpaqueMeshes(Context, false, LC_MESH_LINES, true, true);
+
+			if (DrawConditional)
+				DrawOpaqueMeshes(Context, false, LC_MESH_CONDITIONAL_LINES, true, true);
 
 			DrawOpaqueMeshes(Context, true, LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES, true, true);
 

@@ -96,6 +96,7 @@
         <file alias="file_print_preview_16.png">resources/file_print_preview_16.png</file>
         <file alias="file_save.png">resources/file_save.png</file>
         <file alias="file_save_16.png">resources/file_save_16.png</file>
+        <file alias="flexible.png">resources/flexible.png</file>
         <file alias="help_homepage.png">resources/help_homepage.png</file>
         <file alias="gear_in.png">resources/gear_in.png</file>
         <file alias="ldconfig.ldr">resources/ldconfig.ldr</file>
