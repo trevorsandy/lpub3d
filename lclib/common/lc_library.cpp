@@ -1451,7 +1451,7 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 			};
 
 /*** LPub3D Mod - parts load order ***/
-			if (mPreferOfficialParts ? true : mHasUnofficialDirectory)
+			if (mPreferOfficialParts ? true : mZipFiles[static_cast<int>(ZipFileType)] != nullptr)
 			{
 				sprintf(Folder, "%s/%%s", (mPreferOfficialParts ? "ldraw/parts" : "parts"));
 				Found = LoadIncludeFile(Folder, ZipFileType);

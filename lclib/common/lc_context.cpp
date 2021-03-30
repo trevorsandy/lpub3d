@@ -105,7 +105,7 @@ bool lcContext::InitializeRenderer()
 /*** LPub3D Mod - Fix crash in CLI mode ***/
 	if (!gSupportsFramebufferObject && gMainWindow)
 		gMainWindow->GetPartSelectionWidget()->DisableIconMode();
-/*** LPub3D Mod - ***/
+/*** LPub3D Mod***/
 
 	return true;
 }
@@ -946,13 +946,23 @@ void lcContext::SetVertexFormatConditional(int BufferOffset)
 
 			mVertexBufferOffset = VertexBufferPointer;
 
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
-			glEnableVertexAttribArray(3);
+			if (!mNormalEnabled)
+			{
+				glEnableVertexAttribArray(1);
+				mNormalEnabled = true; // todo: store state using an array
+			}
 
-			mNormalEnabled = true; // todo: store state using an array
-			mTexCoordEnabled = true;
-			mColorEnabled = true;
+			if (!mTexCoordEnabled)
+			{
+				glEnableVertexAttribArray(2);
+				mTexCoordEnabled = true;
+			}
+
+			if (!mColorEnabled)
+			{
+				glEnableVertexAttribArray(3);
+				mColorEnabled = true;
+			}
 		}
 	}
 }
