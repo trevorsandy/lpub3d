@@ -3237,7 +3237,7 @@ int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
     int modelIndex = getSubmodelIndex(modelName);
     QVector<int> topOfStep = { modelIndex, lineNumber };
     int stepIndex = _buildModStepIndexes.indexOf(topOfStep);
-    if (stepIndex == -1)
+    if (stepIndex == BM_INVALID_INDEX)
         stepIndex = getStepIndex(modelIndex, lineNumber);
     return stepIndex;
 }
@@ -3271,7 +3271,7 @@ void LDrawFile::getTopOfStepWhere(const QString &modelName, int &modelIndex, int
 {
     const QStringList keys = getViewerStepKeyWhere(getSubmodelIndex(modelName), lineNumber).split(";");
     bool valid = false;
-    if (keys.size() > 2) {
+    if (keys.size() > BM_STEP_NUM_KEY) {
         bool ok[2];
         modelIndex = keys.at(BM_STEP_MODEL_KEY).toInt(&ok[0]);
         lineNumber = keys.at(BM_STEP_LINE_KEY).toInt(&ok[1]);
@@ -3348,7 +3348,7 @@ QStringList LDrawFile::getBuildModPathsFromStep(const QString &modStepKey, const
     ++i;
   }
 
-  if (list.size())
+  if (list.size() > 1)
     list.removeDuplicates();
 
   return list;

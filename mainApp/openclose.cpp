@@ -745,16 +745,11 @@ void Gui::closeModelFile(){
     QString windowName = VER_FILEDESCRIPTION_STR;
     QString windowVersion;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-    windowVersion = QString("v%1 r%2 (%3)")
-            .arg(VER_PRODUCTVERSION_STR)
-            .arg(VER_REVISION_STR)
-            .arg(VER_BUILD_TYPE_STR);
+    windowVersion = QString("v%1 r%2 (%3)").arg(VER_PRODUCTVERSION_STR).arg(VER_REVISION_STR).arg(VER_BUILD_TYPE_STR);
 #else
     windowVersion = QString("v%1%2")
             .arg(VER_PRODUCTVERSION_STR)
-            .arg(QString(VER_REVISION_STR).toInt() ?
-                     QString(" r%1").arg(VER_REVISION_STR) :
-                     QString());
+            .arg(QString(VER_REVISION_STR).toInt() ? QString(" r%1").arg(VER_REVISION_STR) : QString());
 #endif
 
     setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));

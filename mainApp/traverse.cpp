@@ -3055,7 +3055,7 @@ int Gui::findPage(
                                   findPage(view, scene, meta, line, submodelOpts);
 
                                   saveStepPageNum = stepPageNum;
-                                  buildMod = saveBuildMod2;            // restore old buildMod
+                                  buildMod = saveBuildMod2;                 // restore old buildMod
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
                                   meta.submodelStack.pop_back();            // remove where we stopped in the parent model
 

@@ -273,7 +273,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
         }
     }
 
-    // special case where the modelName will match the line type name so we append '_Preview' to the modelName
+    // special case where the modelName will match the line type name so we append '_smi' to the modelName
     if (imageType == Options::SMP) {
          QString smi(SUBMODEL_IMAGE_BASENAME);
          baseName = baseName.append(QString("-%1").arg(smi.replace(smi.indexOf(smi.at(0)),1,smi.at(0).toUpper())));

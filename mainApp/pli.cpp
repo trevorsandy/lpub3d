@@ -1015,7 +1015,7 @@ int Pli::createPartImage(
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
-        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ".png");
+        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png");
         ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr");
 
         QFile part(imageName);
