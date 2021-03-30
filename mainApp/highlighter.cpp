@@ -379,6 +379,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDOT\\b"
     << "\\bDPCM\\b"
     << "\\bDPI\\b"
+    << "\\bELEMENT\\b"
     << "\\bELEMENT_STYLE\\b"
     << "\\bENABLED\\b"
     << "\\bENABLE_STYLE\\b"
