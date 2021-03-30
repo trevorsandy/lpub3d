@@ -49,7 +49,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
         m_updater->checkForUpdates (DEFS_URL);
 
         QSettings Settings;
-        Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+        Settings.setValue(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime::currentDateTimeUtc());
     }
 
 }

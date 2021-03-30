@@ -185,6 +185,7 @@ class PreferencesDialog : public QDialog
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
+    void updaterCancelled();
 
     void on_themeColorsButton_clicked();
 
@@ -217,6 +218,7 @@ private:
     bool mShowAnnotationErrors;
 
     QSimpleUpdater  *m_updater;
+    bool             m_updaterCancelled;
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
     QString mLDrawLibPath;

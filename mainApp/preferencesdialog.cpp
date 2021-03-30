@@ -358,17 +358,34 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && Preferences::enableFadeSteps);
 
   /* QSimpleUpdater start */
+  m_updaterCancelled = false;
   m_updater = QSimpleUpdater::getInstance();
   connect (m_updater, SIGNAL (checkingFinished (QString)),
            this,        SLOT (updateChangelog  (QString)));
 
+  connect (m_updater, SIGNAL (cancel()),
+           this,        SLOT (updaterCancelled()));
+
   QString version = qApp->applicationVersion();
   QString revision = QString::fromLatin1(VER_REVISION_STR);
   QStringList updatableVersions = Preferences::availableVersions.split(",");
+#ifdef QT_DEBUG_MODE
+  updatableVersions.prepend(version);
+#endif
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
-
-  ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1 revision %2").arg(version).arg(revision));
+  QString titleInfo;
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+  titleInfo = tr("Change Log for version %1 revision %2 (%3)")
+                 .arg(version)
+                 .arg(revision)
+                 .arg(VER_BUILD_TYPE_STR);
+#else
+  versionInfo = tr("Change Log for version %1%2")
+                   .arg(version)
+                   .arg(revision.toInt() ? QString(" revision %1").arg(revision) : QString());
+#endif
+  ui.groupBoxChangeLog->setTitle(titleInfo);
   ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
   ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
   ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
@@ -1610,13 +1627,33 @@ void PreferencesDialog::updateChangelog (QString url) {
     auto processRequest = [this, &url, &processing] ()
     {
         if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
-            ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1 revision %2")
-                                              .arg(m_updater->getLatestVersion(url))
-                                              .arg(m_updater->getLatestRevision(DEFS_URL)));
-            if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
-                ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
-            else
-                ui.changeLog_txbr->setText(m_updater->getChangelog (url));
+            QString titleInfo = ui.groupBoxChangeLog->title();
+            if (!m_updaterCancelled) {
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+#ifdef QT_DEBUG_MODE
+                titleInfo = tr("Change Log for version %1 revision %2 (%3)")
+                               .arg(qApp->applicationVersion())
+                               .arg(QString::fromLatin1(VER_REVISION_STR))
+                               .arg(QString::fromLatin1(VER_BUILD_TYPE_STR));
+#else
+                titleInfo = tr("Change Log for version %1 revision %2 (%3)")
+                               .arg(m_updater->getLatestVersion(url))
+                               .arg(m_updater->getLatestRevision(DEFS_URL))
+                               .arg(QString::fromLatin1(VER_BUILD_TYPE_STR));
+#endif
+#else
+                titleInfo = tr("Change Log for version %1%2")
+                               .arg(m_updater->getLatestVersion(url))
+                               .arg(m_updater->getLatestRevision(DEFS_URL).toInt() ? QString(" revision %1").arg(m_updater->getLatestRevision(DEFS_URL)) : QString());
+#endif
+                if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
+                    ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
+                else
+                    ui.changeLog_txbr->setText(m_updater->getChangelog (url));
+            } else {
+                ui.changeLog_txbr->setHtml("");
+            }
+            ui.groupBoxChangeLog->setTitle(titleInfo);
         }
         processing = false;
     };
@@ -1633,10 +1670,19 @@ QString const PreferencesDialog::moduleVersion()
    return ui.moduleVersion_Combo->currentText();
 }
 
+void PreferencesDialog::updaterCancelled()
+{
+  m_updaterCancelled = true;
+}
+
 void PreferencesDialog::checkForUpdates () {
     bool processing = true;
     auto processRequest = [this, &processing] ()
     {
+        const QString htmlNotes = ui.changeLog_txbr->toHtml();
+
+        ui.changeLog_txbr->setHtml("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>");
+
         /* Get settings from the UI */
         QString moduleVersion = ui.moduleVersion_Combo->currentText();
         QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
@@ -1658,8 +1704,14 @@ void PreferencesDialog::checkForUpdates () {
         /* Check for updates */
         m_updater->checkForUpdates (DEFS_URL);
 
-        QSettings Settings;
-        Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+        if (!m_updaterCancelled) {
+            QSettings Settings;
+            Settings.setValue("Updates/LastCheck", QDateTime::currentDateTimeUtc());
+        }
+
+        if (ui.changeLog_txbr->document()->isEmpty())
+                   ui.changeLog_txbr->setHtml(htmlNotes);
+
         processing = false;
     };
 
