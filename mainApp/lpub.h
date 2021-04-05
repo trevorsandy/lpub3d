@@ -1387,6 +1387,7 @@ public slots:
   void useSystemEditor();
   void autoCenterSelection();
 
+  void ldrawSearchDirectories();
   void showDefaultCameraProperties();
   void restoreLightAndViewpointDefaults();
   void applyCameraSettings();
@@ -1417,7 +1418,6 @@ public slots:
   void loadTheme();
   void restartApplication(bool changeLibrary = false, bool prompt = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);
-
   bool removeDir(int &count,const QString &dirName);
 
   void fileChanged(const QString &path);
@@ -1538,7 +1538,7 @@ private:
   Step                  *currentStep;        // the current step as loaded in the 3DViewer
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
-  QFutureWatcher<int>   futureWatcher;
+  QFutureWatcher<int>    futureWatcher;
   QMutex                 countPagesMutex;
 
   bool                   m_exportingContent; // indicate export/printing underway
@@ -2037,6 +2037,9 @@ private:
   QComboBox         *setGoToPageCombo;
   SeparatorComboBox *mpdCombo;
 
+  // manage search directories
+  QAction *ldrawSearchDirectoriesAct;
+
   // manage Caches
   QAction *clearAllCachesAct;
 
@@ -2151,6 +2154,25 @@ private:
 
   friend class PartWorker;
   friend class DialogExportPages;
+};
+
+class LDrawSearchDirDialog : public QObject
+{
+    Q_OBJECT
+public:
+    LDrawSearchDirDialog(){}
+    virtual ~LDrawSearchDirDialog(){}
+
+    void getLDrawSearchDirDialog();
+public slots:
+    void buttonSetState();
+    void buttonClicked();
+
+private:
+    QDialog     *dialog;
+    QLineEdit   *lineEditIniFile;
+    QTextEdit   *textEditSearchDirs;
+    QPushButton *pushButtonReset;
 };
 
 class GlobalFadeStep

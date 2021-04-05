@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2441 (05 04 2021 21:43:24)
+LPub3D 2.4.2.1.2442 (05 04 2021 21:44:31)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519

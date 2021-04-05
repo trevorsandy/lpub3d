@@ -1539,6 +1539,12 @@ void  Gui::restartApplication(bool changeLibrary, bool prompt) {
     QCoreApplication::quit();
 }
 
+void Gui::ldrawSearchDirectories()
+{
+    LDrawSearchDirDialog dialog;
+    dialog.getLDrawSearchDirDialog();
+}
+
 void Gui::insertConfiguredSubFile(const QString &name,
                                   QStringList &content) {
     QString subFilePath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/" + name);
@@ -3225,7 +3231,6 @@ void Gui::preferences()
         }
     }
 }
-
 
 /*******************************************************************************
  *
@@ -5017,6 +5022,10 @@ void Gui::createActions()
     setPageLineEdit->setEnabled(false);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
 
+    ldrawSearchDirectoriesAct = new QAction(QIcon(":/resources/searchdirectories.png"),tr("LDraw Search Directories..."), this);
+    ldrawSearchDirectoriesAct->setStatusTip(tr("Manage LDraw search directories"));
+    connect(ldrawSearchDirectoriesAct, SIGNAL(triggered()), this, SLOT(ldrawSearchDirectories()));
+
     clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
     clearPLICacheAct->setShortcut(tr("Alt+R"));
     clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache - Alt+R"));
@@ -5626,11 +5635,13 @@ void Gui::createMenus()
     cacheMenu->addSeparator();
     cacheMenu->setDisabled(true);
 
-    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
-    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     toolsMenu->addSeparator();
+    toolsMenu->addAction(ldrawSearchDirectoriesAct);
     toolsMenu->addAction(archivePartsOnDemandAct);
     toolsMenu->addAction(archivePartsOnLaunchAct);
+    toolsMenu->addSeparator();
+    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
+    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     toolsMenu->addSeparator();
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
@@ -6266,6 +6277,132 @@ void Gui::statusMessage(LogType logType, QString message) {
 
     } else {
         logger.setLoggingLevel(OffLevel);
+    }
+}
+
+void LDrawSearchDirDialog::getLDrawSearchDirDialog()
+{
+  QPalette readOnlyPalette = QApplication::palette();
+  if (Preferences::displayTheme == THEME_DARK)
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]));
+  else
+      readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
+  readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
+
+  dialog = new QDialog(nullptr);
+  dialog->setWindowTitle(tr("Search Directories"));
+
+  QVBoxLayout *layout = new QVBoxLayout();
+
+  dialog->setLayout(layout);
+
+  QGridLayout *gridLayout = new QGridLayout(dialog);
+
+  QString ldrawSearchDirsTitle = tr("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
+
+  QGroupBox *groupBoxSearchDirs = new QGroupBox(ldrawSearchDirsTitle);
+
+  layout->addWidget(groupBoxSearchDirs);
+
+  groupBoxSearchDirs->setLayout(gridLayout);
+
+  lineEditIniFile = new QLineEdit(dialog);
+  lineEditIniFile->setPalette(readOnlyPalette);
+  lineEditIniFile->setReadOnly(true);
+  gridLayout->addWidget(lineEditIniFile,0,0,1,2);
+
+  textEditSearchDirs = new QTextEdit(dialog);
+  textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
+  textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
+  textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  gridLayout->addWidget(textEditSearchDirs,1,0,2,1);
+
+  pushButtonReset = new QPushButton(dialog);
+  pushButtonReset->setToolTip(tr("Reset LPub3D LDraw search directories to default"));
+  pushButtonReset->setIcon(QIcon(QIcon(":/resources/resetsetting.png")));
+  gridLayout->addWidget(pushButtonReset,1,1);
+
+  if (Preferences::ldrawiniFound) {
+      lineEditIniFile->setText(tr("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
+      lineEditIniFile->setToolTip(tr("LDraw.ini file"));
+      pushButtonReset->hide();
+      textEditSearchDirs->setReadOnly(true);
+      textEditSearchDirs->setPalette(readOnlyPalette);
+      textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+      textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
+  } else {
+      textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths. Use a new line for each entry.");
+      lineEditIniFile->setText(tr("%1").arg(Preferences::ldSearchDirs.size() ?
+                                            tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR) :
+                                            tr("Using default search. No search directories detected.")));
+      lineEditIniFile->setToolTip(tr("Default search"));
+      pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
+  }
+
+  if (Preferences::ldSearchDirs.size() > 0) {
+      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
+        textEditSearchDirs->append(searchDir);
+  }
+
+  connect(textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(buttonSetState()));
+  connect(pushButtonReset, SIGNAL(clicked()),this, SLOT(buttonClicked()));
+
+  QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                             Qt::Horizontal, dialog);
+
+  layout->addWidget(&buttonBox);
+
+  QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+  QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+
+  dialog->setMinimumWidth(500);
+
+  if (dialog->exec() == QDialog::Accepted) {
+    QStringList newContent = textEditSearchDirs->toPlainText().split("\n");
+    if (newContent.size() && Preferences::ldSearchDirs != newContent) {
+      QStringList ldSearchDirsCompare = Preferences::ldSearchDirs;
+      Preferences::ldSearchDirs = newContent;
+      emit gui->messageSig(LOG_INFO,QString("LDraw search directories has changed"));
+      emit gui->messageSig(LOG_INFO,QString("Previous Directories:"));
+      for(int i =0; i < ldSearchDirsCompare.size(); i++) {
+          emit gui->messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(ldSearchDirsCompare.at(i))));
+      }
+      emit gui->messageSig(LOG_INFO,QString("Updated Directories:"));
+      for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
+          emit gui->messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
+      }
+      gui->partWorkerLDSearchDirs.updateLDSearchDirs(true);
+    }
+  }
+}
+
+void LDrawSearchDirDialog::buttonSetState()
+{
+  pushButtonReset->setEnabled(true);
+}
+
+void LDrawSearchDirDialog::buttonClicked()
+{
+  QMessageBox box;
+  box.setIcon (QMessageBox::Question);
+  box.setWindowTitle(tr ("Reset Search Directories?"));
+  box.setDefaultButton   (QMessageBox::Yes);
+  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  box.setText (tr("This action will reset your search directory settings to the LPub3D default.\n"
+                  "Are you sure you want to continue? "));
+
+  if (box.exec() == QMessageBox::Yes) {
+      gui->partWorkerLDSearchDirs.resetSearchDirSettings();
+      textEditSearchDirs->clear();
+
+      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
+        textEditSearchDirs->append(searchDir);
+
+      box.setIcon (QMessageBox::Information);
+      box.setStandardButtons (QMessageBox::Ok);
+      box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
+      emit gui->messageSig(LOG_STATUS,box.text());
+      box.exec();
     }
 }
 
