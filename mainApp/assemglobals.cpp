@@ -169,9 +169,10 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
-  child->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
-  data->children.append(child);
+  StudStyleGui *childStudStyle = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
+  childStudStyle->setToolTip("Select stud style, High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   //spacer
 
@@ -201,6 +202,12 @@ void GlobalAssemDialog::getAssemGlobals(
   dlg->exec();
 }
 
+void GlobalAssemDialog::clearCache(bool b)
+{
+  if (!data->clearCache)
+    data->clearCache = b;
+}
+
 void GlobalAssemDialog::accept()
 {
   MetaItem mi;
@@ -214,8 +221,8 @@ void GlobalAssemDialog::accept()
   }
 
   if (data->clearCache) {
+    mi.setLoadingFileFlag(false);
     mi.clearCsiCache();
-    mi.clearTempCache();
   }
 
   mi.endMacro();

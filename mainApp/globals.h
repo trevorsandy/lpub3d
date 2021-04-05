@@ -152,13 +152,14 @@ public:
   static void getAssemGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void clearCache(bool);
   void accept();
   void cancel();
 };
 
 /*****************************************************************
  *
- * Global to pli
+ * Global to parts list (pli)
  *
  ****************************************************************/
 
@@ -207,6 +208,7 @@ public:
   static void getBomGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void clearCache(bool);
   void styleOptionChanged(bool);
   void displayAnnotationsChanged(bool);
   void enableElementStyleChanged(bool);
@@ -216,7 +218,7 @@ public slots:
 
 /*****************************************************************
  *
- * Global to sub-model
+ * Global to submodel
  *
  ****************************************************************/
 
@@ -236,6 +238,7 @@ public:
 public slots:
   void accept();
   void cancel();
+  void clearCache(bool);
   void instanceCountClicked(bool);
 };
 
@@ -258,6 +261,7 @@ public:
   static void getCalloutGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void clearCache(bool);
   void accept();
   void cancel();
 };
@@ -284,6 +288,7 @@ public:
   static void getMultiStepGlobals(QString topLevelFile, Meta &meta);
 
 public slots:
+  void clearCache(bool);
   void pliPerStepStateChanged(int state);
   void showGrpStepNumStateChanged(int state);
   void accept();

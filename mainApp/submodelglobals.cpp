@@ -228,9 +228,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
-  child->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
-  data->children.append(child);
+  StudStyleGui *childStudStyle = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
+  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
@@ -281,9 +282,15 @@ void GlobalSubModelDialog::getSubModelGlobals(
 
 void GlobalSubModelDialog::instanceCountClicked(bool checked)
 {
-    instanceCountBox->setEnabled(checked);
-    if (!checked)
-      instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Preview' tab to enable.");
+  instanceCountBox->setEnabled(checked);
+  if (!checked)
+    instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Preview' tab to enable.");
+}
+
+void GlobalSubModelDialog::clearCache(bool b)
+{
+  if (!data->clearCache)
+    data->clearCache = b;
 }
 
 void GlobalSubModelDialog::accept()
@@ -299,7 +306,8 @@ void GlobalSubModelDialog::accept()
   }
 
   if (data->clearCache) {
-      mi.clearSubmodelCache();
+    mi.setLoadingFileFlag(false);
+    mi.clearSubmodelCache();
   }
 
   mi.endMacro();

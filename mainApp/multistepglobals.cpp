@@ -151,7 +151,6 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   /*
   * CSI Assembly Tab
   */
-  boxGrid = new QGridLayout();
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
@@ -202,6 +201,13 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   vlayout->addWidget(box);
   child = new UnitsGui("L/R|T/B",&multiStepMeta->csi.margin,box);
   data->children.append(child);
+
+  box = new QGroupBox("Stud Style and Automate Edge Color");
+  vlayout->addWidget(box);
+  StudStyleGui *childStudStyle = new StudStyleGui(&multiStepMeta->csi.autoEdgeColor,&multiStepMeta->csi.studStyle,&multiStepMeta->csi.highContrast,box);
+  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -294,6 +300,12 @@ void GlobalMultiStepDialog::showGrpStepNumStateChanged(int state){
     }
 }
 
+void GlobalMultiStepDialog::clearCache(bool b)
+{
+  if (!data->clearCache)
+    data->clearCache = b;
+}
+
 void GlobalMultiStepDialog::accept()
 {
   MetaItem mi;
@@ -307,8 +319,8 @@ void GlobalMultiStepDialog::accept()
   }
 
   if (data->clearCache) {
+    mi.setLoadingFileFlag(false);
     mi.clearCsiCache();
-    mi.clearTempCache();
   }
 
   mi.endMacro();

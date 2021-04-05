@@ -219,10 +219,10 @@ GlobalPliDialog::GlobalPliDialog(
 
   box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
-  child = new StudStyleGui(&pliMeta->autoEdgeColor,&pliMeta->studStyle,&pliMeta->highContrast,box);
-  child->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
-
-  data->children.append(child);
+  StudStyleGui *childStudStyle = new StudStyleGui(&pliMeta->autoEdgeColor,&pliMeta->studStyle,&pliMeta->highContrast,box);
+  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   if ( ! bom) {
     box = new QGroupBox("Submodels");
@@ -507,146 +507,152 @@ void GlobalPliDialog::getBomGlobals(
   dialog->exec();
 }
 
+void GlobalPliDialog::clearCache(bool b)
+{
+  if (!data->clearCache)
+    data->clearCache = b;
+}
+
 void GlobalPliDialog::styleOptionChanged(bool b){
 
   Q_UNUSED(b)
 
   QObject *obj = sender();
   if (obj == squareStyleButton) {
-      squareBkGrndStyleBox->setDisabled(false);
-      squareBorderStyleBox->setDisabled(false);
-      squareFormatStyleBox->setDisabled(false);
-      squareSizeStyleBox->setDisabled(false);
+    squareBkGrndStyleBox->setDisabled(false);
+    squareBorderStyleBox->setDisabled(false);
+    squareFormatStyleBox->setDisabled(false);
+    squareSizeStyleBox->setDisabled(false);
 
-      squareBkGrndStyleBox->show();
-      squareBorderStyleBox->show();
-      squareFormatStyleBox->show();
-      squareSizeStyleBox->show();
+    squareBkGrndStyleBox->show();
+    squareBorderStyleBox->show();
+    squareFormatStyleBox->show();
+    squareSizeStyleBox->show();
 
-      circleBkGrndStyleBox->hide();
-      circleBorderStyleBox->hide();
-      circleFormatStyleBox->hide();
-      circleSizeStyleBox->hide();
+    circleBkGrndStyleBox->hide();
+    circleBorderStyleBox->hide();
+    circleFormatStyleBox->hide();
+    circleSizeStyleBox->hide();
 
-      rectangleBkGrndStyleBox->hide();
-      rectangleBorderStyleBox->hide();
-      rectangleFormatStyleBox->hide();
-      rectangleSizeStyleBox->hide();
-      if (data->bom) {
-            elementBkGrndStyleBox->hide();
-            elementBorderStyleBox->hide();
-            elementFormatStyleBox->hide();
-            elementSizeStyleBox->hide();
-      }
+    rectangleBkGrndStyleBox->hide();
+    rectangleBorderStyleBox->hide();
+    rectangleFormatStyleBox->hide();
+    rectangleSizeStyleBox->hide();
+    if (data->bom) {
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
+    }
   }
   else
   if (obj == circleStyleButton) {
-      circleBkGrndStyleBox->show();
-      circleBorderStyleBox->show();
-      circleFormatStyleBox->show();
-      circleSizeStyleBox->show();
+    circleBkGrndStyleBox->show();
+    circleBorderStyleBox->show();
+    circleFormatStyleBox->show();
+    circleSizeStyleBox->show();
 
-      squareBkGrndStyleBox->hide();
-      squareBorderStyleBox->hide();
-      squareFormatStyleBox->hide();
-      squareSizeStyleBox->hide();
+    squareBkGrndStyleBox->hide();
+    squareBorderStyleBox->hide();
+    squareFormatStyleBox->hide();
+    squareSizeStyleBox->hide();
 
-      rectangleBkGrndStyleBox->hide();
-      rectangleBorderStyleBox->hide();
-      rectangleFormatStyleBox->hide();
-      rectangleSizeStyleBox->hide();
+    rectangleBkGrndStyleBox->hide();
+    rectangleBorderStyleBox->hide();
+    rectangleFormatStyleBox->hide();
+    rectangleSizeStyleBox->hide();
 
-      if (data->bom) {
-            elementBkGrndStyleBox->hide();
-            elementBorderStyleBox->hide();
-            elementFormatStyleBox->hide();
-            elementSizeStyleBox->hide();
-      }
+    if (data->bom) {
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
+    }
   }
   else
   if (obj == rectangleStyleButton) {
-      rectangleBkGrndStyleBox->show();
-      rectangleBorderStyleBox->show();
-      rectangleFormatStyleBox->show();
-      rectangleSizeStyleBox->show();
+    rectangleBkGrndStyleBox->show();
+    rectangleBorderStyleBox->show();
+    rectangleFormatStyleBox->show();
+    rectangleSizeStyleBox->show();
 
-      squareBkGrndStyleBox->hide();
-      squareBorderStyleBox->hide();
-      squareFormatStyleBox->hide();
-      squareSizeStyleBox->hide();
+    squareBkGrndStyleBox->hide();
+    squareBorderStyleBox->hide();
+    squareFormatStyleBox->hide();
+    squareSizeStyleBox->hide();
 
-      circleBkGrndStyleBox->hide();
-      circleBorderStyleBox->hide();
-      circleFormatStyleBox->hide();
-      circleSizeStyleBox->hide();
+    circleBkGrndStyleBox->hide();
+    circleBorderStyleBox->hide();
+    circleFormatStyleBox->hide();
+    circleSizeStyleBox->hide();
 
-      if (data->bom) {
-            elementBkGrndStyleBox->hide();
-            elementBorderStyleBox->hide();
-            elementFormatStyleBox->hide();
-            elementSizeStyleBox->hide();
-      }
+    if (data->bom) {
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
+    }
   }
   else
   if (data->bom && obj == elementStyleButton) {
-      elementBkGrndStyleBox->show();
-      elementBorderStyleBox->show();
-      elementFormatStyleBox->show();
-      elementSizeStyleBox->show();
+    elementBkGrndStyleBox->show();
+    elementBorderStyleBox->show();
+    elementFormatStyleBox->show();
+    elementSizeStyleBox->show();
 
-      rectangleBkGrndStyleBox->hide();
-      rectangleBorderStyleBox->hide();
-      rectangleFormatStyleBox->hide();
-      rectangleSizeStyleBox->hide();
+    rectangleBkGrndStyleBox->hide();
+    rectangleBorderStyleBox->hide();
+    rectangleFormatStyleBox->hide();
+    rectangleSizeStyleBox->hide();
 
-      squareBkGrndStyleBox->hide();
-      squareBorderStyleBox->hide();
-      squareFormatStyleBox->hide();
-      squareSizeStyleBox->hide();
+    squareBkGrndStyleBox->hide();
+    squareBorderStyleBox->hide();
+    squareFormatStyleBox->hide();
+    squareSizeStyleBox->hide();
 
-      circleBkGrndStyleBox->hide();
-      circleBorderStyleBox->hide();
-      circleFormatStyleBox->hide();
-      circleSizeStyleBox->hide();
+    circleBkGrndStyleBox->hide();
+    circleBorderStyleBox->hide();
+    circleFormatStyleBox->hide();
+    circleSizeStyleBox->hide();
   } else {
-      squareBkGrndStyleBox->show();
-      squareBorderStyleBox->show();
-      squareFormatStyleBox->show();
-      squareSizeStyleBox->show();
+    squareBkGrndStyleBox->show();
+    squareBorderStyleBox->show();
+    squareFormatStyleBox->show();
+    squareSizeStyleBox->show();
 
-      circleBkGrndStyleBox->hide();
-      circleBorderStyleBox->hide();
-      circleFormatStyleBox->hide();
-      circleSizeStyleBox->hide();
+    circleBkGrndStyleBox->hide();
+    circleBorderStyleBox->hide();
+    circleFormatStyleBox->hide();
+    circleSizeStyleBox->hide();
 
-      rectangleBkGrndStyleBox->hide();
-      rectangleBorderStyleBox->hide();
-      rectangleFormatStyleBox->hide();
-      rectangleSizeStyleBox->hide();
+    rectangleBkGrndStyleBox->hide();
+    rectangleBorderStyleBox->hide();
+    rectangleFormatStyleBox->hide();
+    rectangleSizeStyleBox->hide();
 
-      if (data->bom) {
-            elementBkGrndStyleBox->hide();
-            elementBorderStyleBox->hide();
-            elementFormatStyleBox->hide();
-            elementSizeStyleBox->hide();
-      }
+    if (data->bom) {
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
+    }
 
-      squareBkGrndStyleBox->setDisabled(true);
-      squareBorderStyleBox->setDisabled(true);
-      squareFormatStyleBox->setDisabled(true);
-      squareSizeStyleBox->setDisabled(true);
+    squareBkGrndStyleBox->setDisabled(true);
+    squareBorderStyleBox->setDisabled(true);
+    squareFormatStyleBox->setDisabled(true);
+    squareSizeStyleBox->setDisabled(true);
   }
 }
 
 void GlobalPliDialog::displayAnnotationsChanged(bool b) {
-    annotationEditStyleBox->setEnabled(b);
-    childTextFormat->enableTextFormatGroup(b);
-    if (data->bom)
-        childPliPartElement->enablePliPartElementGroup(b);
+  annotationEditStyleBox->setEnabled(b);
+  childTextFormat->enableTextFormatGroup(b);
+  if (data->bom)
+    childPliPartElement->enablePliPartElementGroup(b);
 }
 
 void GlobalPliDialog::enableElementStyleChanged(bool b) {
-    childPliAnnotation->enableElementStyle(b);
+  childPliAnnotation->enableElementStyle(b);
 }
 
 void GlobalPliDialog::accept()
@@ -662,6 +668,7 @@ void GlobalPliDialog::accept()
   }
 
   if (data->clearCache) {
+    mi.setLoadingFileFlag(false);
     mi.clearPliCache();
   }
 

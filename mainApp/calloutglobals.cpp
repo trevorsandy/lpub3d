@@ -204,8 +204,15 @@ GlobalCalloutDialog::GlobalCalloutDialog(
 
   box = new QGroupBox("Assembly Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("L/R|T/B",&calloutMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&calloutMeta->csi.margin,box);
   data->children.append(child);
+
+  box = new QGroupBox("Stud Style and Automate Edge Color");
+  vlayout->addWidget(box);
+  StudStyleGui *childStudStyle = new StudStyleGui(&calloutMeta->csi.autoEdgeColor,&calloutMeta->csi.studStyle,&calloutMeta->csi.highContrast,box);
+  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  data->children.append(childStudStyle);
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -306,6 +313,12 @@ void GlobalCalloutDialog::getCalloutGlobals(
   dialog->exec();
 }
 
+void GlobalCalloutDialog::clearCache(bool b)
+{
+  if (!data->clearCache)
+    data->clearCache = b;
+}
+
 void GlobalCalloutDialog::accept()
 {
   MetaItem mi;
@@ -319,8 +332,8 @@ void GlobalCalloutDialog::accept()
   }
 
   if (data->clearCache) {
+    mi.setLoadingFileFlag(false);
     mi.clearCsiCache();
-    mi.clearTempCache();
   }
 
   mi.endMacro();

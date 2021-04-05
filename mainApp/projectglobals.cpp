@@ -90,7 +90,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
   childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
-  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Build Modifications");
   layout->addWidget(box);
@@ -147,34 +147,32 @@ void GlobalProjectDialog::getProjectGlobals(
 
 void GlobalProjectDialog::reloadModelFile(bool b)
 {
-    if (!data->reloadFile)
-        data->reloadFile = b;
-    if (data->clearCache)
-        data->clearCache = !data->reloadFile;
+  if (!data->reloadFile)
+    data->reloadFile = b;
 }
 
 void GlobalProjectDialog::clearCache(bool b)
 {
-    if (!data->clearCache && !data->reloadFile)
-        data->clearCache = b;
+  if (!data->clearCache)
+    data->clearCache = b;
 }
 
 void GlobalProjectDialog::checkConflict(bool b)
 {
-    if (b && data->meta.LPub.multiStep.countGroupSteps.value()) {
-        childContStepNumbersBox->getCheckBox()->setChecked(false);
-        QMessageBox box;
-        box.setTextFormat (Qt::RichText);
-        box.setIcon (QMessageBox::Critical);
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setWindowTitle(tr ("Continuous Step Numbers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
-        box.setStandardButtons (QMessageBox::Ok);
-        QString text = "<b> Count group step numbers conflict </b>";
-        QString message = QString("Continuous step numbers cannot coexist with count group step numbers.");
-        box.setText (text);
-        box.setInformativeText (message);
-        box.exec();
-    }
+  if (b && data->meta.LPub.multiStep.countGroupSteps.value()) {
+    childContStepNumbersBox->getCheckBox()->setChecked(false);
+    QMessageBox box;
+    box.setTextFormat (Qt::RichText);
+    box.setIcon (QMessageBox::Critical);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setWindowTitle(tr ("Continuous Step Numbers&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
+    box.setStandardButtons (QMessageBox::Ok);
+    QString text = "<b> Count group step numbers conflict </b>";
+    QString message = QString("Continuous step numbers cannot coexist with count group step numbers.");
+    box.setText (text);
+    box.setInformativeText (message);
+    box.exec();
+  }
 }
 
 void GlobalProjectDialog::accept()
@@ -190,10 +188,12 @@ void GlobalProjectDialog::accept()
     child->apply(data->topLevelFile);
   }
 
-  mi.setLoadingFileFlag(data->reloadFile);
-
   if (data->clearCache) {
-      mi.clearCache(true);
+    mi.setLoadingFileFlag(false);
+    mi.clearCache(true);
+  }
+  if (data->reloadFile) {
+    mi.setLoadingFileFlag(true);
   }
 
   mi.endMacro();
