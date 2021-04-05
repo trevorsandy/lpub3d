@@ -408,8 +408,6 @@ class ContentChangesCommand;
 
 class PlacementNum;
 class AbstractStepsElement;
-class GlobalFadeStep;
-class GlobalHighlightStep;
 class UpdateCheck;
 
 class LGraphicsView;
@@ -2174,40 +2172,6 @@ private:
     QLineEdit   *lineEditIniFile;
     QTextEdit   *textEditSearchDirs;
     QPushButton *pushButtonReset;
-};
-
-class GlobalFadeStep
-{
-private:
-    LDrawFile   ldrawFile;       // contains MPD or all files used in model
-public:
-    Meta        meta;
-    QString     topLevelFile;
-    GlobalFadeStep()
-    {
-        meta = gui->page.meta;
-
-        topLevelFile = ldrawFile.topLevelFile();
-        MetaItem mi; // examine all the globals and then return
-        mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
-    }
-};
-
-class GlobalHighlightStep
-{
-private:
-    LDrawFile   ldrawFile;       // contains MPD or all files used in model
-public:
-    Meta        meta;
-    QString     topLevelFile;
-    GlobalHighlightStep()
-    {
-        meta = gui->page.meta;
-
-        topLevelFile = ldrawFile.topLevelFile();
-        MetaItem mi; // examine all the globals and then return
-        mi.sortedGlobalWhere(meta,topLevelFile,"ZZZZZZZ");
-    }
 };
 
 extern QHash<SceneObject, QString> soMap;

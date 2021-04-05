@@ -36,8 +36,6 @@
 
 #include "QsLog.h"
 
-class GlobalFadeStep;
-class GlobalHighlightStep;
 class PartWorker;
 class ColourPart;
 class LDPartsDirs;
@@ -322,69 +320,6 @@ private:
                              const bool       isUnOffLib);
     void fileSectionHeader(const int &option,
                            const QString &heading = "");
-};
-
-/*
- *
- * PAGE DISPLAY WORKERS
- *
- */
-
-class BuildModWorker : public QObject
-{
-    Q_OBJECT
-
-public slots:
-    static int setBuildModForNextStep(
-             LDrawFile *ldrawFile,
-             Meta *meta,
-       const int pageDirection,
-       const int displayPageNum,
-       const Where topOfNextStep);
-
-private:
-    static int setBuildMod(
-            LDrawFile *ldrawFile,
-            Meta *meta,
-      const int pageDirection,
-      const int displayPageNum,
-      const Where topOfNextStep,
-            Where bottomOfNextStep,
-            Where topOfSubmodel,
-            bool submodel);
-    static void statusMessage(const LogType, const QString &);
-    static void parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool);
-};
-
-class WriteToTmpWorker : public QObject
-{
-    Q_OBJECT
-
-public slots:
-    static int writeToTmp(
-                  LDrawFile *ldrawFile,
-                  Meta *meta);
-    static void writeToTmp(
-                  LDrawFile *ldrawFile,
-                  Meta *meta,
-            const QString &fileName,
-            const QStringList &);
-protected:
-    static QStringList configureModelSubFile(
-                  LDrawFile *ldrawFile,
-            const QStringList &contents,
-            const QString &fadeColour,
-            const PartType partType);
-private:
-    static void progressBarPermInit();
-    static void progressPermStatusRemove();
-    static void progressBarPermSetRange(const int, const int);
-    static void progressBarPermSetValue(const int);
-    static void progressBarPermSetText(const QString &);
-    static void statusMessage(const LogType, const QString &);
-    static void parseError(const QString &, const Where &, Preferences::MsgKey, bool, bool);
-    static void setPageProcessRunning(const int p);
-    static void setSubmodelIconsLoaded(const bool b);
 };
 
 class FindPageOptions;
