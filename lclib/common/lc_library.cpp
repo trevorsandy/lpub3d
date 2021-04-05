@@ -2100,13 +2100,13 @@ void lcPiecesLibrary::UnloadUnofficialLib()
 				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
 				Primitive->Unload();
 			}
-			for (lcTexture* Texture : mTextures)
-			{
-				if (Texture->mZipFileType == lcZipFileType::Unofficial)
-				{
-				   delete Texture;
-				}
-			}
+//			for (lcTexture* Texture : mTextures)
+//			{
+//				if (Texture->mZipFileType == lcZipFileType::Unofficial)
+//				{
+//				   delete Texture;
+//				}
+//			}
 			if (mZipFiles[static_cast<int>(lcZipFileType::Unofficial)])
 				mZipFiles[static_cast<int>(lcZipFileType::Unofficial)].reset();
 			mSources.erase(SourceIt);
@@ -2131,13 +2131,13 @@ void lcPiecesLibrary::UnloadOfficialLib()
 				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
 				Primitive->Unload();
 			}
-			for (lcTexture* Texture : mTextures)
-			{
-				if (Texture->mZipFileType == lcZipFileType::Official)
-				{
-				   delete Texture;
-				}
-			}
+//			for (lcTexture* Texture : mTextures)
+//			{
+//				if (Texture->mZipFileType == lcZipFileType::Official)
+//				{
+//				   delete Texture;
+//				}
+//			}
 			if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
 			{
 				mZipFiles[static_cast<int>(lcZipFileType::Official)].reset();
