@@ -38,6 +38,9 @@ lcTexture::lcTexture()
 	mTexture = 0;
 	mRefCount = 0;
 	mTemporary = false;
+/*** LPub3D Mod - unload/reload texture ***/
+	mZipFileType = lcZipFileType::Count;
+/*** LPub3D Mod end ***/
 }
 
 lcTexture::~lcTexture()

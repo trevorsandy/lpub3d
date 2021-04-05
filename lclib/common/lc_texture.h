@@ -17,6 +17,10 @@
 
 #include "image.h"
 
+/*** LPub3D Mod - unload/reload texture ***/
+#include "lc_library.h"
+/*** LPub3D Mod end ***/
+
 class lcTexture
 {
 public:
@@ -75,6 +79,9 @@ public:
 	char mName[LC_TEXTURE_NAME_LEN];
 	QString mFileName;
 	GLuint mTexture;
+/*** LPub3D Mod - unload/reload texture ***/
+	lcZipFileType mZipFileType;
+/*** LPub3D Mod end ***/
 
 protected:
 	bool Load();

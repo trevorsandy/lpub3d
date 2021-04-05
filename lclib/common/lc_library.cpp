@@ -444,6 +444,9 @@ bool lcPiecesLibrary::OpenArchive(std::unique_ptr<lcFile> File, lcZipFileType Zi
 					*Dst = 0;
 					strncpy(Texture->mName, Name + (ZipFileType == lcZipFileType::Official ? 21 : 15), sizeof(Texture->mName)-1);
 					Texture->mName[sizeof(Texture->mName) - 1] = 0;
+/*** LPub3D Mod - unload/reload texture ***/
+					Texture->mZipFileType = ZipFileType;
+/*** LPub3D Mod end ***/
 				}
 			}
 
@@ -540,7 +543,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 		for (const auto& PieceIt : mPieces)
 		{
 			PieceInfo* Info = PieceIt.second;
-/*** LPub3D Mod - Custom Mutex Segfault fix provided by Leonardo 08-04-2018 Zide ***/
+/*** LPub3D Mod - reload library ***/
 			if (Info->IsTemporary())
 				continue;
 /*** LPub3D Mod end ***/
@@ -2003,8 +2006,46 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	return true;
 }
 
+/*** LPub3D Mod - library reload ***/
+bool lcPiecesLibrary::Reload()
+{
+	//unload official library
+	UnloadOfficialLib();
+
+	//load official library
+	QString OfficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawPartsArchive);
+	if (!OpenArchive(OfficialFileName, lcZipFileType::Official))
+	{
+		lpubAlert->messageSig(LOG_ERROR, QString("Failed to load archive %1").arg(OfficialFileName));
+		return false;
+	}
+
+	//reload official pieces
+	mLoadMutex.lock();
+
+	for (const auto& PieceIt : mPieces)
+	{
+		PieceInfo* Info = PieceIt.second;
+
+		if (Info->mState == LC_PIECEINFO_LOADED && Info->mZipFileType == lcZipFileType::Official)
+		{
+			Info->Unload();
+			mLoadQueue.append(Info);
+			mLoadFutures.append(QtConcurrent::run([this]() { LoadQueuedPiece(); }));
+		}
+	}
+
+	mLoadMutex.unlock();
+
+	WaitForLoadQueue();
+
+	//reload unofficial library
+	return ReloadUnofficialLib();
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - reload unofficial library ***/
-bool lcPiecesLibrary::ReloadUnoffLib()
+bool lcPiecesLibrary::ReloadUnofficialLib()
 {
 	//unload unofficial library content
 	UnloadUnofficialLib();
@@ -2017,6 +2058,7 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 	else
 		return false;
 
+	//reload unofficial pieces
 	mLoadMutex.lock();
 
 	for (const auto& PieceIt : mPieces)
@@ -2035,6 +2077,7 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 
 	WaitForLoadQueue();
 
+	//reload categories and synth pieces
 	lcLoadDefaultCategories();
 	lcSynthInit();
 
@@ -2045,7 +2088,7 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 /*** LPub3D Mod - unload Unofficial library ***/
 void lcPiecesLibrary::UnloadUnofficialLib()
 {
-	mLoadMutex.lock();
+	QMutexLocker LoadLock(&mLoadMutex);
 
 	for (auto& Source : mSources)
 	{
@@ -2057,24 +2100,26 @@ void lcPiecesLibrary::UnloadUnofficialLib()
 				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
 				Primitive->Unload();
 			}
+			for (lcTexture* Texture : mTextures)
+			{
+				if (Texture->mZipFileType == lcZipFileType::Unofficial)
+				{
+				   delete Texture;
+				}
+			}
+			if (mZipFiles[static_cast<int>(lcZipFileType::Unofficial)])
+				mZipFiles[static_cast<int>(lcZipFileType::Unofficial)].reset();
 			mSources.erase(SourceIt);
 			break;
 		}
 	}
-
-	mLoadMutex.unlock();
-
-	if (mZipFiles[static_cast<int>(lcZipFileType::Unofficial)])
-		mZipFiles[static_cast<int>(lcZipFileType::Unofficial)].reset();
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Official library reload ***/
 void lcPiecesLibrary::UnloadOfficialLib()
 {
-	mNumOfficialPieces = 0;
-
-	mLoadMutex.lock();
+	QMutexLocker LoadLock(&mLoadMutex);
 
 	for (auto& Source : mSources)
 	{
@@ -2086,14 +2131,21 @@ void lcPiecesLibrary::UnloadOfficialLib()
 				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
 				Primitive->Unload();
 			}
+			for (lcTexture* Texture : mTextures)
+			{
+				if (Texture->mZipFileType == lcZipFileType::Official)
+				{
+				   delete Texture;
+				}
+			}
+			if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
+			{
+				mZipFiles[static_cast<int>(lcZipFileType::Official)].reset();
+				mNumOfficialPieces = 0;
+			}
 			mSources.erase(SourceIt);
 			break;
 		}
 	}
-
-	mLoadMutex.unlock();
-
-	if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
-		mZipFiles[static_cast<int>(lcZipFileType::Official)].reset();
 }
 /*** LPub3D Mod end ***/

@@ -126,7 +126,8 @@ public:
 	void LoadColors();
 	void Unload();
 /*** LPub3D Mod - library reload ***/
-	bool ReloadUnoffLib();
+	bool Reload();
+	bool ReloadUnofficialLib();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Unofficial library ***/

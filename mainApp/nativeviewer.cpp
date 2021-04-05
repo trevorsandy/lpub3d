@@ -1955,9 +1955,14 @@ void Gui::reloadViewer(){
      lcGetPiecesLibrary()->UnloadUnofficialLib();
  }
 
+ bool Gui::ReloadPiecesLibrary()
+ {
+     return lcGetPiecesLibrary()->Reload();
+ }
+
  bool Gui::ReloadUnofficialPiecesLibrary()
  {
-     return lcGetPiecesLibrary()->ReloadUnoffLib();
+     return lcGetPiecesLibrary()->ReloadUnofficialLib();
  }
 
  void Gui::LoadColors()

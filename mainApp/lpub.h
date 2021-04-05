@@ -1255,6 +1255,7 @@ public slots:
 
   int                    Process3DViewerCommandLine();
   bool                   OpenProject(const QString& FileName);
+  bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
   void                   LoadColors();
   void                   LoadDefaults();
