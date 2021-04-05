@@ -742,17 +742,18 @@ void Gui::closeModelFile(){
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
     emit messageSig(LOG_INFO, QString("Model unloaded. File closed - %1.").arg(topModel));
 
-    QString windowName = VER_FILEDESCRIPTION_STR;
-    QString windowVersion;
+    QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
+    QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-    windowVersion = QString("v%1 r%2 (%3)").arg(VER_PRODUCTVERSION_STR).arg(VER_REVISION_STR).arg(VER_BUILD_TYPE_STR);
+    versionInfo = QString("%1 v%2 r%3 (%4)")
+                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-    windowVersion = QString("v%1%2")
-            .arg(VER_PRODUCTVERSION_STR)
-            .arg(QString(VER_REVISION_STR).toInt() ? QString(" r%1").arg(VER_REVISION_STR) : QString());
+    int revisionNumber = QString::fromLatin1(VER_REVISION_STR).toInt();
+    versionInfo = QString("%1 v%2%3")
+                          .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), revisionNumber ? QString(" r%1").arg(VER_REVISION_STR) : "");
 #endif
 
-    setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
+    setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
   }
 }
 
@@ -878,30 +879,24 @@ void Gui::updateRecentFileActions()
 
 void Gui::setCurrentFile(const QString &fileName)
 {
-  QString windowName;
+  QString windowTitle;
   if (fileName.size() == 0) {
-    windowName = VER_FILEDESCRIPTION_STR;
+    windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
   } else {
     QFileInfo fileInfo(fileName);
-    windowName = fileInfo.fileName();
+    windowTitle = fileInfo.fileName();
   }
-  QString windowVersion;
+  QString versionInfo;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
-  windowVersion = QString("%1 v%2 r%3 (%4)")
-                          .arg(VER_PRODUCTNAME_STR)
-                          .arg(VER_PRODUCTVERSION_STR)
-                          .arg(VER_REVISION_STR)
-                          .arg(VER_BUILD_TYPE_STR);
+  versionInfo = QString("%1 v%2 r%3 (%4)")
+                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR));
 #else
-  windowVersion = QString("%1 v%2%3")
-                          .arg(VER_PRODUCTNAME_STR)
-                          .arg(VER_PRODUCTVERSION_STR)
-                          .arg(QString(VER_REVISION_STR).toInt() ?
-                                   QString(" r%1").arg(VER_REVISION_STR) :
-                                   QString());
+  int revisionNumber = QString::fromLatin1(VER_REVISION_STR).toInt();
+  versionInfo = QString("%1 v%2%3")
+                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), revisionNumber ? QString(" r%1").arg(VER_REVISION_STR) : "");
 #endif
 
-  setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
+  setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
 
   if (fileName.size() > 0) {
     QSettings Settings;

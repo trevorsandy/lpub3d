@@ -458,19 +458,11 @@ void Application::initialize()
     ListArgs << Arguments[ArgIdx];
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
     hdr = QString("%1 v%2 r%3 (%4) for %5")
-                            .arg(VER_PRODUCTNAME_STR)
-                            .arg(VER_PRODUCTVERSION_STR)
-                            .arg(VER_REVISION_STR)
-                            .arg(VER_BUILD_TYPE_STR)
-                            .arg(VER_COMPILED_FOR);
+                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR), QString::fromLatin1(VER_COMPILED_FOR));
 #else
+    int rev = QString::fromLatin1(VER_REVISION_STR).toInt();
     hdr = QString("%1 v%2%3 for %4")
-                            .arg(VER_PRODUCTNAME_STR)
-                            .arg(VER_PRODUCTVERSION_STR)
-                            .arg(QString(VER_REVISION_STR).toInt() ?
-                                     QString(" r%1").arg(VER_REVISION_STR) :
-                                     QString())
-                            .arg(VER_COMPILED_FOR);
+                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), rev ? QString(" r%1").arg(VER_REVISION_STR) : "", QString::fromLatin1(VER_COMPILED_FOR));
 #endif
     args = QString("Arguments: %1").arg(ListArgs.join(" "));
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
