@@ -1788,15 +1788,17 @@ FadeStepGui::FadeStepGui(
   QLabel *fadeOpacityLabel = new QLabel(tr("Fade opacity"));
   grid->addWidget(fadeOpacityLabel,3,0);
 
-  fadeOpacitySpin = new QSpinBox(parent);
-  fadeOpacitySpin->setToolTip(tr("Set the fade color opaqueness beteen 0 and 100."));
-  fadeOpacitySpin->setRange(0,100);
-  fadeOpacitySpin->setValue(_meta->opacity.value());
+  fadeOpacitySlider = new QSlider(Qt::Horizontal, parent);
+  fadeOpacitySlider->setToolTip(tr("Set the fade color opaqueness beteen 0 and 100."));
+  fadeOpacitySlider->setRange(0,100);
+  fadeOpacitySlider->setTickInterval(5);
+  fadeOpacitySlider->setTickPosition(QSlider::TicksAbove);
+  fadeOpacitySlider->setValue(_meta->opacity.value());
 
-  connect(fadeOpacitySpin,SIGNAL(valueChanged(int)),
-                       this,SLOT(valueChanged(int)));
+  connect(fadeOpacitySlider,SIGNAL(valueChanged(int)),
+                         this,SLOT(valueChanged(int)));
 
-  grid->addWidget(fadeOpacitySpin,3,1);
+  grid->addWidget(fadeOpacitySlider,3,1);
 
   if (parent) {
     parent->setLayout(grid);
@@ -1841,7 +1843,7 @@ void FadeStepGui::valueChanged(int state)
   if (sender() == fadeCheck) {
     checked = isChecked();
     useColorCheck->setEnabled(checked);
-    fadeOpacitySpin->setEnabled(checked);
+    fadeOpacitySlider->setEnabled(checked);
     colorCombo->setEnabled(checked);
     fadeModified = meta->enable.value() != checked;
     if (!modified)
@@ -1855,7 +1857,7 @@ void FadeStepGui::valueChanged(int state)
     if (!modified)
       modified = useColorModified;
     meta->color.setValue(data);
-  } else if (sender() == fadeOpacitySpin) {
+  } else if (sender() == fadeOpacitySlider) {
     opacityModified = meta->opacity.value() != state;
     if (!modified)
       modified = opacityModified;

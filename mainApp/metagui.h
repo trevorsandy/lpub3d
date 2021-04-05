@@ -526,7 +526,7 @@ private:
 
   QCheckBox   *fadeCheck;
   QCheckBox   *useColorCheck;
-  QSpinBox    *fadeOpacitySpin;
+  QSlider     *fadeOpacitySlider;
   QLabel      *colorExample;
   QComboBox   *colorCombo;
 
