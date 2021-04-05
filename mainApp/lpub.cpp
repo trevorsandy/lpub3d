@@ -334,7 +334,7 @@ void Gui::generateCoverPages()
 }
 
 void Gui::insertFinalModelStep() {
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+  if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
     int modelStatus = mi->displayModelStepExists();
     if (modelStatus != DM_FINAL_MODEL && modelStatus != DM_DISPLAY_MODEL) {
       emit messageSig(LOG_INFO, QString("Inserting fade/highlight final model step..."));
@@ -344,7 +344,7 @@ void Gui::insertFinalModelStep() {
 }
 
 void Gui::deleteFinalModelStep() {
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+  if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
     if (mi->displayModelStepExists() == DM_FINAL_MODEL) {
       emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
       mi->deleteFinalModelStep();

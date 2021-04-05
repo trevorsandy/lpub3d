@@ -832,9 +832,9 @@ bool Gui::openFile(QString &fileName)
                                   .arg(fileInfo.fileName()));
   }
 
-  insertFinalModelStep();    //insert final fully coloured model if fadeStep turned on
+  insertFinalModelStep();  //insert final fully coloured model if fadeStep turned on
 
-  generateCoverPages();  //auto-generate cover page
+  generateCoverPages();    //auto-generate cover page
 
   enableWatcher();
 

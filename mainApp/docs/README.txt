@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2447 (05 04 2021 21:49:24)
+LPub3D 2.4.2.1.2448 (05 04 2021 21:50:30)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
+- Fix - Disable automatic insertion of page/model #517
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 
