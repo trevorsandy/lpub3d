@@ -1268,14 +1268,10 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
                 // Check if insert final model is disabled
                 if (metaFinalModelNotFound) {
-                    if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
+                    if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                        bool state = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::finalModelEnabled = state;
                         metaFinalModelNotFound = false;
-                    } else {
-                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                            bool state = tokens.last() == "FALSE" ? false : true ;
-                            Preferences::finalModelEnabled = state;
-                            metaFinalModelNotFound = false;
-                        }
                     }
                 }
 
@@ -1589,14 +1585,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
                 // Check if insert final model is disabled
                 if (metaFinalModelNotFound) {
-                    if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
+                    if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                        bool state = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::finalModelEnabled  = state;
                         metaFinalModelNotFound = false;
-                    } else {
-                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                            bool state = tokens.last() == "FALSE" ? false : true ;
-                            Preferences::finalModelEnabled  = state;
-                            metaFinalModelNotFound = false;
-                        }
                     }
                 }
 

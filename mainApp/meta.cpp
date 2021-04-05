@@ -3945,11 +3945,13 @@ void FadeStepMeta::setPreferences(bool reset)
      emit gui->messageSig(LOG_INFO,QMessageBox::tr("Fade previous steps %1 %2%3.")
                                                    .arg(reset ? "reset to" : enable.global ? "save as" : "changed to")
                                                    .arg(Preferences::enableFadeSteps ? "ON" : "OFF")
-                                                   .arg(Preferences::enableFadeSteps ? QString(" Opacity %1").arg(Preferences::fadeStepsOpacity) : QString())
-                                                   .arg(Preferences::enableFadeSteps &&
-                                                        Preferences::fadeStepsUseColour &&
-                                                        Preferences::validFadeStepsColour.isEmpty() ? QString() :
-                                                                                                      QString(" Fade Color %1").arg(Preferences::validFadeStepsColour)));
+                                                   .arg(Preferences::enableFadeSteps ? QString(" Opacity %1%2")
+                                                                                               .arg(Preferences::fadeStepsOpacity)
+                                                                                               .arg(Preferences::enableFadeSteps &&
+                                                                                                    Preferences::fadeStepsUseColour &&
+                                                                                                    Preferences::validFadeStepsColour.isEmpty() ? QString() :
+                                                                                                                                                  QString(" Fade Color %1").arg(Preferences::validFadeStepsColour)) : QString())
+                                                   );
 }
 
 void FadeStepMeta::init(

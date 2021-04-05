@@ -17,6 +17,7 @@
 #include "color.h"
 #include "application.h"
 #include "threadworkers.h"
+#include "lpubalert.h"
 /*** LPub3D Mod end ***/
 
 lcApplication* gApplication;
@@ -1538,6 +1539,10 @@ void lcApplication::ShowPreferencesDialog()
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
 
+/*** LPub3D Mod - preferences save message ***/
+	lpubAlert->messageSig(LOG_STATUS, QString("Saving 3DViewer preferences. Please wait..."));
+/*** LPub3D Mod end ***/
+
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);
 	bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 	bool ColorsChanged = Options.ColorConfigPath != lcGetProfileString(LC_PROFILE_COLOR_CONFIG);
@@ -1811,6 +1816,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
+	lpubAlert->messageSig(LOG_STATUS, QString("3DViewer preferences saved..."));
 	if (restartApp) {
 		restartApplication();
 	}

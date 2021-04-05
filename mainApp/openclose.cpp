@@ -709,8 +709,11 @@ void Gui::closeFile()
   Preferences::preferredRendererPreferences();
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+  Preferences::resetFadeSteps();
+  Preferences::resetHighlightStep();
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
       ldrawColourParts.clearGeneratedColorParts();
+  }
   submodelIconsLoaded = false;
   SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty())
@@ -795,22 +798,24 @@ bool Gui::openFile(QString &fileName)
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
   setupFadeSteps = setFadeStepsFromCommand();
   setupHighlightStep = setHighlightStepFromCommand();
-  if (setupFadeSteps || setupHighlightStep) {
+  bool enableFadeSteps = setupFadeSteps || Preferences::enableFadeSteps;
+  bool enableHighlightSttep = setupHighlightStep || Preferences::enableHighlightStep;
+  if (enableFadeSteps || enableHighlightSttep) {
     ldrawColorPartsLoad();
     writeGeneratedColorPartsToTemp();
     // archive fade/highlight colour parts
     partWorkerLDSearchDirs.addCustomDirs();
-    if (setupFadeSteps) {
+    if (enableFadeSteps) {
       if (Preferences::enableImageMatting)
         LDVImageMatte::clearMatteCSIImages();
       emit messageSig(LOG_INFO_STATUS, "Loading fade color parts...");
       partWorkerLDSearchDirs.setDoFadeStep(true);
-      processFadeColourParts(false/*overwrite*/, !Preferences::enableFadeSteps/*setup*/);
+      processFadeColourParts(false/*overwrite*/, enableFadeSteps);
     }
-    if (setupHighlightStep) {
+    if (enableHighlightSttep) {
       emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
       partWorkerLDSearchDirs.setDoHighlightStep(true);
-      processHighlightColourParts(false/*overwrite*/, !Preferences::enableHighlightStep/*setup*/);
+      processHighlightColourParts(false/*overwrite*/, enableHighlightSttep);
     }
   }
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
@@ -964,36 +969,55 @@ void Gui::fileChanged(const QString &path)
 
 void Gui::writeGeneratedColorPartsToTemp() {
   emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
+  int count = 0;
   LDrawFile::_currentLevels.clear();
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
     QString fileName = ldrawFile._subFileOrder[i];
     if (ldrawColourParts.isLDrawColourPart(fileName)) {
+      count++;
       ldrawFile.normalizeHeader(fileName);
       QStringList content = ldrawFile.contents(fileName);
-      emit messageSig(LOG_INFO, "Writing generated part to temp directory: " + fileName + "...");
+      emit messageSig(LOG_INFO, tr("Writing generated part %1 to temp directory: %2...").arg(count).arg(fileName));
       writeToTmp(fileName,content);
     }
   }
+  if (!count)
+      emit messageSig(LOG_INFO, tr("No generated parts written."));
   LDrawFile::_currentLevels.clear();
 }
 
 bool Gui::setFadeStepsFromCommand()
 {
   QString result;
+
   Where topLevelModel(gui->topLevelFile(),0);
   QRegExp fadeRx = QRegExp("FADE_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
-  bool setupFadeSteps = Preferences::enableFadeSteps;
-  if (!setupFadeSteps)
-    setupFadeSteps = stepContains(topLevelModel,fadeRx,result,1);
+  if (!Preferences::enableFadeSteps) {
+    Preferences::enableFadeSteps = stepContains(topLevelModel,fadeRx,result,1);
+    if (Preferences::enableFadeSteps && result != "GLOBAL") {
+      emit messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
+      Preferences::enableFadeSteps = false;
+    }
+  }
 
-  if (!setupFadeSteps) {
+  bool setupFadeSteps = false;
+  if (!Preferences::enableFadeSteps) {
+    result.clear();
     fadeRx.setPattern("FADE_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = stepContains(topLevelModel,fadeRx,result,1);
+    if (setupFadeSteps && result != "GLOBAL") {
+      emit messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
+      setupFadeSteps = false;
+    }
   }
 
   emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps %1.")
                                           .arg(Preferences::enableFadeSteps ? "is ON" : setupFadeSteps ? "Setup is Enabled" : "is OFF"));
 
+  if (!Preferences::enableFadeSteps && !setupFadeSteps)
+    return false;
+
+  result.clear();
   fadeRx.setPattern("FADE_STEP OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
   stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
@@ -1007,6 +1031,7 @@ bool Gui::setFadeStepsFromCommand()
                                        .arg(Preferences::fadeStepsOpacity));
   }
 
+  result.clear();
   fadeRx.setPattern("FADE_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
   stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
@@ -1032,18 +1057,32 @@ bool Gui::setHighlightStepFromCommand()
   QString result;
   Where topLevelModel(gui->topLevelFile(),0);
   QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
-  bool setupHighlightStep = Preferences::enableHighlightStep;
-  if (!setupHighlightStep)
-    setupHighlightStep = stepContains(topLevelModel,highlightRx,result,1);
-
   if (!Preferences::enableHighlightStep) {
+    Preferences::enableHighlightStep = stepContains(topLevelModel,highlightRx,result,1);
+    if (Preferences::enableHighlightStep && result != "GLOBAL") {
+      emit messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
+      Preferences::enableHighlightStep = false;
+    }
+  }
+
+  bool setupHighlightStep = false;
+  if (!Preferences::enableHighlightStep) {
+    result.clear();
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupHighlightStep = stepContains(topLevelModel,highlightRx,result,1);
+    if (setupHighlightStep && result != "GLOBAL") {
+      emit messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
+      setupHighlightStep = false;
+    }
   }
 
   messageSig(LOG_INFO,QString("Highlight Current Step %1.")
                               .arg(Preferences::enableHighlightStep ? "is ON" : setupHighlightStep ? "Setup is Enabled" : "is OFF"));
 
+  if (!Preferences::enableHighlightStep && !setupHighlightStep)
+    return false;
+
+  result.clear();
   highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(0x|#)([\\da-fA-F]+)\"");
   if (stepContains(topLevelModel,highlightRx,result)) {
     result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(2));

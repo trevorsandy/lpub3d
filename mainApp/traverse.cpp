@@ -541,7 +541,8 @@ int Gui::drawPage(
                                                           Qt::ElideRight, charWidth * 30/*characters*/);
       Where where = topOfStep;
       bool fin = status == end;
-      bool stepGroup = fin ? multiStep : stepContains(where, QRegExp(" MULTI_STEP BEGIN$"));
+      QRegExp multiStepRx(" MULTI_STEP BEGIN$");
+      bool stepGroup = fin ? multiStep : stepContains(where, multiStepRx);
       QString message = QString("%1 %2 draw-page for page %3, step %4, model '%5'%6")
                                 .arg(fin ? "Processed" : "Processing").arg(stepGroup ? "multi-step" : opts.calledOut ? "called out" : coverPage ? "cover page" : "single-step")
                                 .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");

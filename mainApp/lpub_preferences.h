@@ -135,6 +135,8 @@ class Preferences
     static void setBlenderExePathPreference(QString);
     static void setBlenderVersionPreference(QString);
     static void setDebugLogging(bool); 
+    static void resetFadeSteps();
+    static void resetHighlightStep();
 
     static int showMessage(Preferences::MsgID,
                            const QString &message,
@@ -375,6 +377,16 @@ class Preferences
     static int     editorLinesPerPage;
     static int     editorDecoration;
 
+    static bool    saveInitialFadeSteps;
+    static bool    saveEnableFadeSteps;
+    static bool    saveFadeStepsUseColour;
+    static int     saveFadeStepsOpacity;
+    static QString saveValidFadeStepsColour;
+
+    static bool    saveInitialHighlightStep;
+    static bool    saveEnableHighlightStep;
+    static int     saveHighlightStepLineWidth;
+    static QString saveHighlightStepColour;
 
     virtual ~Preferences() {}
 };

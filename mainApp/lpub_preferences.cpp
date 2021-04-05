@@ -496,6 +496,16 @@ int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT
 int     Preferences::editorLinesPerPage         = EDITOR_MIN_LINES_DEFAULT;
 int     Preferences::editorDecoration           = EDITOR_DECORATION_DEFAULT;
 
+bool    Preferences::saveInitialFadeSteps       = false;
+bool    Preferences::saveEnableFadeSteps        = false;
+bool    Preferences::saveFadeStepsUseColour     = false;
+int     Preferences::saveFadeStepsOpacity       = FADE_OPACITY_DEFAULT;
+QString Preferences::saveValidFadeStepsColour   = LEGO_FADE_COLOUR_DEFAULT;
+bool    Preferences::saveInitialHighlightStep   = false;
+bool    Preferences::saveEnableHighlightStep    = false;
+int     Preferences::saveHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+QString Preferences::saveHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
+
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
@@ -2017,6 +2027,8 @@ void Preferences::fadestepPreferences(bool persist)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),cValue);
     } else {
         validFadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
+        if (validFadeStepsColour.isEmpty())
+            Settings.remove(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey));
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")) || persist) {
@@ -2050,6 +2062,14 @@ void Preferences::fadestepPreferences(bool persist)
                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
             }
         }
+    }
+
+    if (!saveInitialFadeSteps) {
+        saveInitialFadeSteps     = true;
+        saveEnableFadeSteps      = enableFadeSteps;
+        saveFadeStepsUseColour   = fadeStepsUseColour;
+        saveFadeStepsOpacity     = fadeStepsOpacity;
+        saveValidFadeStepsColour = validFadeStepsColour;
     }
 }
 
@@ -2108,6 +2128,12 @@ void Preferences::highlightstepPreferences(bool persist)
                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
             }
         }
+    }
+    if (!saveInitialHighlightStep) {
+        saveInitialHighlightStep   = true;
+        saveEnableHighlightStep    = enableHighlightStep;
+        saveHighlightStepLineWidth = highlightStepLineWidth;
+        saveHighlightStepColour    = highlightStepColour;
     }
 }
 
@@ -4997,6 +5023,27 @@ void Preferences::getRequireds()
 
 void Preferences::setLPub3DLoaded(){
     lpub3dLoaded = true;
+}
+
+void Preferences::resetFadeSteps()
+{
+    saveInitialFadeSteps = false;
+    enableFadeSteps      = saveEnableFadeSteps;
+    fadeStepsUseColour   = saveFadeStepsUseColour;
+    fadeStepsOpacity     = saveFadeStepsOpacity;
+    validFadeStepsColour = saveValidFadeStepsColour;
+
+    fadestepPreferences(true/*persist*/);
+}
+
+void Preferences::resetHighlightStep()
+{
+    saveInitialHighlightStep = false;
+    enableHighlightStep      = saveEnableHighlightStep;
+    highlightStepLineWidth   = saveHighlightStepLineWidth;
+    highlightStepColour      = saveHighlightStepColour;
+
+    highlightstepPreferences(true/*persist*/);
 }
 
 /*
