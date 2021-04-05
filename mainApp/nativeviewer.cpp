@@ -391,8 +391,8 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
@@ -470,8 +470,8 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
-    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
@@ -566,8 +566,8 @@ void Gui::enable3DActions(bool enable)
     gMainWindow->mActions[LC_VIEW_SHADING_FLAT]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(enable);
     //View
-    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(enable);
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(enable);
     gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(enable);

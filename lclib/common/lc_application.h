@@ -105,6 +105,10 @@ public:
 	float mPartColorValueLDIndex;
 	bool  mAutomateEdgeColor;
 
+/*** LPub3D Mod - Zoom extents ***/
+	int mZoomExtents;
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - parts load order ***/
 	bool mPreferOfficialParts;
 /*** LPub3D Mod - ***/

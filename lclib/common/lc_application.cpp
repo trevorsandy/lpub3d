@@ -74,6 +74,10 @@ void lcPreferences::LoadDefaults()
 	mPartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 	mAutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
 
+/*** LPub3D Mod - Zoom extents ***/
+	mZoomExtents = lcGetProfileInt(LC_PROFILE_ZOOM_EXTENTS);
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - parts load order ***/
 	mPreferOfficialParts = lcGetProfileInt(LC_PROFILE_PREFER_OFFICIAL_PARTS);
 /*** LPub3D Mod - ***/
@@ -164,6 +168,10 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST, mPartEdgeContrast);
 	lcSetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX, mPartColorValueLDIndex);
 	lcSetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR, mAutomateEdgeColor);
+
+/*** LPub3D Mod - Zoom extents ***/
+	lcSetProfileInt(LC_PROFILE_ZOOM_EXTENTS, mZoomExtents);
+/*** LPub3D Mod - ***/
 
 /*** LPub3D Mod - parts load order ***/
 	lcSetProfileInt(LC_PROFILE_PREFER_OFFICIAL_PARTS, mPreferOfficialParts);

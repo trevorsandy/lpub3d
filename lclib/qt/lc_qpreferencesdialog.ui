@@ -122,8 +122,8 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>25</width>
-              <height>20</height>
+              <width>0</width>
+              <height>0</height>
              </size>
             </property>
            </spacer>
@@ -162,6 +162,45 @@
             <item>
              <property name="text">
               <string>Default</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_40">
+            <property name="text">
+             <string>Zoom Exetents: </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="ZoomExtentCombo">
+            <item>
+             <property name="text">
+              <string>Default</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>On Orthographic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Always</string>
              </property>
             </item>
            </widget>
@@ -2258,6 +2297,7 @@
   <tabstop>AutomateEdgeColorButton</tabstop>
   <tabstop>ViewpointsCombo</tabstop>
   <tabstop>ProjectionCombo</tabstop>
+  <tabstop>ZoomExtentCombo</tabstop>
   <tabstop>defaultCameraProperties</tabstop>
   <tabstop>cameraFoV</tabstop>
   <tabstop>resetFoV</tabstop>

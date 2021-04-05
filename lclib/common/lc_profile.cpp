@@ -149,6 +149,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "mPartColorValueLDIndex", 0.5f),                                // LC_PROFILE_PART_COLOR_VALUE_LD_INDEX
 	lcProfileEntry("Settings", "AutomateEdgeColor", 0),                                        // LC_PROFILE_AUTOMATE_EDGE_COLOR
 
+/*** LPub3D Mod - Zoom extents ***/
+	lcProfileEntry("Settings", "ZoomExtents", 0),                                              // LC_PROFILE_ZOOM_EXTENTS                               /*** LPub3D Mod - Zoom extents ***/
+/*** LPub3D Mod - ***/
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "PreviewEnabled", 1),                                           // LC_PROFILE_PREVIEW_ENABLED                            /*** LPub3D Mod - preview widget for LPub3D ***/
 	lcProfileEntry("Settings", "PreviewSize", 300),                                            // LC_PROFILE_PREVIEW_SIZE                               /*** LPub3D Mod - preview widget for LPub3D ***/

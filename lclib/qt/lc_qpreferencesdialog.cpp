@@ -97,6 +97,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->PreferOfficialParts->setChecked(mOptions->Preferences.mPreferOfficialParts);
 	ui->PreferOfficialParts->setEnabled(mOptions->HasUnofficialParts);
 /*** LPub3D Mod - ***/
+
+/*** LPub3D Mod - Zoom extents ***/
+	ui->ZoomExtentCombo->setCurrentIndex(mOptions->Preferences.mZoomExtents);
+/*** LPub3D Mod - ***/
+
 	if (!gSupportsShaderObjects)
 	{
 		ui->ConditionalLinesCheckBox->setChecked(false);
@@ -383,6 +388,10 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mAutomateEdgeColor = ui->AutomateEdgeColor->isChecked();
 /*** LPub3D Mod - parts load order ***/
 	mOptions->Preferences.mPreferOfficialParts = ui->PreferOfficialParts->isChecked();
+/*** LPub3D Mod - ***/
+
+/*** LPub3D Mod - Zoom extents ***/
+	mOptions->Preferences.mZoomExtents = ui->ZoomExtentCombo->currentIndex();
 /*** LPub3D Mod - ***/
 
 	int Language = ui->Language->currentIndex();
