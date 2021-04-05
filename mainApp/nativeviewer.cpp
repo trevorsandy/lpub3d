@@ -1922,22 +1922,63 @@ void Gui::reloadViewer(){
 
  void Gui::SetStudStyle(const NativeOptions* Options, bool value)
  {
-     gApplication->mPreferences.mPartColorValueLDIndex = Options->LightDarkIndex;
-     gApplication->mPreferences.mStudCylinderColor = Options->StudCylinderColor;
-     gApplication->mPreferences.mPartEdgeColor = Options->PartEdgeColor;
-     gApplication->mPreferences.mBlackEdgeColor = Options->BlackEdgeColor;
-     gApplication->mPreferences.mDarkEdgeColor = Options->DarkEdgeColor;
+     float  PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
+     quint32 StudCylinderColor = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
+     quint32 PartEdgeColor = lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
+     quint32 BlackEdgeColor = lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
+     quint32 DarkEdgeColor = lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
+     int StudStyle = lcGetProfileInt(LC_PROFILE_STUD_STYLE);
 
-     lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(Options->StudStyle), value);
+     if (Options) {
+          PartColorValueLDIndex = Options->LightDarkIndex;
+          StudCylinderColor = Options->StudCylinderColor;
+          PartEdgeColor = Options->PartEdgeColor;
+          BlackEdgeColor = Options->BlackEdgeColor;
+          DarkEdgeColor = Options->DarkEdgeColor;
+          StudStyle = Options->StudStyle;
+     }
+
+     bool ColorChanged  = GetStudStyle() != StudStyle;
+          ColorChanged |= GetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
+          ColorChanged |= GetPreferences().mStudCylinderColor != StudCylinderColor;
+          ColorChanged |= GetPreferences().mPartEdgeColor != PartEdgeColor;
+          ColorChanged |= GetPreferences().mBlackEdgeColor != BlackEdgeColor;
+          ColorChanged |= GetPreferences().mDarkEdgeColor != DarkEdgeColor;
+
+     gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+     gApplication->mPreferences.mStudCylinderColor = StudCylinderColor;
+     gApplication->mPreferences.mPartEdgeColor = PartEdgeColor;
+     gApplication->mPreferences.mBlackEdgeColor = BlackEdgeColor;
+     gApplication->mPreferences.mDarkEdgeColor = DarkEdgeColor;
+
+     lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value);
+
+     if (ColorChanged)
+         lcGetPiecesLibrary()->LoadColors();
  }
 
  void Gui::SetAutomateEdgeColor(const NativeOptions* Options)
  {
-     gApplication->mPreferences.mAutomateEdgeColor = Options->AutoEdgeColor;
-     gApplication->mPreferences.mPartEdgeContrast = Options->EdgeContrast;
-     gApplication->mPreferences.mPartColorValueLDIndex = Options->EdgeSaturation;
+     bool  AutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+     float PartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
+     float PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 
-     lcGetPiecesLibrary()->LoadColors();
+     if (Options) {
+          AutomateEdgeColor = Options->AutoEdgeColor;
+          PartEdgeContrast = Options->EdgeContrast;
+          PartColorValueLDIndex = Options->EdgeSaturation;
+     }
+
+     bool ColorChanged  = GetPreferences().mAutomateEdgeColor != AutomateEdgeColor;
+          ColorChanged |= GetPreferences().mPartEdgeContrast != PartEdgeContrast;
+          ColorChanged |= GetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
+
+     gApplication->mPreferences.mAutomateEdgeColor = AutomateEdgeColor;
+     gApplication->mPreferences.mPartEdgeContrast = PartEdgeContrast;
+     gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+
+     if (ColorChanged)
+         lcGetPiecesLibrary()->LoadColors();
  }
 
  void Gui::UpdateAllViews()

@@ -730,6 +730,9 @@ void Gui::closeModelFile(){
         emit clearViewerWindowSig();
         emit updateAllViewsSig();
     }
+    SetStudStyle(nullptr, true/*reload*/);
+    SetAutomateEdgeColor(nullptr);
+
     // Editor
     emit clearEditorWindowSig();
     // Gui

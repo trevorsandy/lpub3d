@@ -3369,7 +3369,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
 
-    if(Options->StudStyle != gui->GetStudStyle())
+    if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
         gui->SetStudStyle(Options, true/*reload*/);
 
     if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
@@ -3384,7 +3384,7 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
         return false;
     }
 
-    return RenderNativeView(Options,true/*exportImage*/);
+    return RenderNativeView(Options,true/*exportImage*/);;
 }
 
 bool Render::LoadViewer(const ViewerOptions *Options) {
@@ -3400,7 +3400,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
-    if(Options->StudStyle != gui->GetStudStyle())
+    if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
         gui->SetStudStyle(nativeOptions, true/*reload*/);
 
     if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
@@ -3434,7 +3434,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         return false;
     }
 
-    return RenderNativeView(nativeOptions);
+    return RenderNativeView(nativeOptions);;
 }
 
 bool Render::NativeExport(const NativeOptions *Options) {
@@ -3466,7 +3466,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
                 return rc;
         }
 
-        if(Options->StudStyle != gui->GetStudStyle())
+        if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
             gui->SetStudStyle(Options, true/*reload*/);
 
         if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
