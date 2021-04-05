@@ -3121,7 +3121,7 @@ PliBackgroundItem::PliBackgroundItem(
     } else {
       toolTip = "Part List";
     }
-  toolTip += QString("[%1 x %2 px] - right-click to modify")
+  toolTip += QString(" [%1 x %2 px] - right-click to modify")
                      .arg(width)
                      .arg(height);
 

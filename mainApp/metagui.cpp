@@ -1076,10 +1076,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   oks = attributeKeysOk[attributeType];
 
   // Display
-  parent->setCheckable(true);
-  parent->setChecked(meta->display.value());
-  connect(parent,SIGNAL(toggled(bool)),
-          this, SLOT(  toggled(bool)));
+  if (parent) {
+    parent->setCheckable(true);
+    parent->setChecked(meta->display.value());
+    connect(parent,SIGNAL(toggled(bool)),
+            this, SLOT(  toggled(bool)));
+  }
 
   // Section
   sectionLabel = new QLabel("Section",parent);
@@ -1393,10 +1395,12 @@ void PageAttributeTextGui::apply(
   oks = attributeKeysOk[attributeType];
 
   // Display
-  parent->setCheckable(true);
-  parent->setChecked(meta->display.value());
-  connect(parent,SIGNAL(toggled(bool)),
-          this, SLOT(  toggled(bool)));
+  if (parent) {
+    parent->setCheckable(true);
+    parent->setChecked(meta->display.value());
+    connect(parent,SIGNAL(toggled(bool)),
+            this, SLOT(  toggled(bool)));
+  }
 
   // Section
   sectionLabel = new QLabel("Section",parent);
@@ -2715,7 +2719,7 @@ void BackgroundGui::setGradient(bool){
     break;
     }
 
-  QGradient *g = new QLinearGradient(pts.at(0), pts.at(1));;
+  QGradient *g = nullptr;
   switch (backgroundData.gtype){
     case BackgroundData::LinearGradient:
       g = new QLinearGradient(pts.at(0), pts.at(1));
@@ -2742,6 +2746,9 @@ void BackgroundGui::setGradient(bool){
   for (int i=0; i<backgroundData.gstops.size(); ++i) {
       stops.append(backgroundData.gstops.at(i));
     }
+
+  if (!g)
+    g = new QLinearGradient(pts.at(0), pts.at(1));
 
   g->setStops(stops);
   g->setSpread(spread);
@@ -3048,6 +3055,7 @@ void BorderGui::enable(bool rotateArrow)
     case BorderData::BdrLnDot:
     case BorderData::BdrLnDashDot:
     case BorderData::BdrLnDashDotDot:
+    default:
     break;
     }
 }
@@ -6055,10 +6063,14 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
         QSpinBox * spinBox = new QSpinBox(dialog);
         spinBox->setRange(0,10000);
         spinBox->setSingleStep(1);
-        spinBox->setValue(targetValues[i]);
+        const int index = i < 3 ? i : 0;
+        spinBox->setValue(targetValues[index]);
         targetSpinBoxList << spinBox;
         targetSubform->addRow(label,spinBox);
     }
+
+    if (!targetSubform->rowCount())
+        targetSubform = nullptr;
 
     form->addRow(new QLabel("Rotate"));
     QGroupBox *rotateBox = new QGroupBox("Enter axis rotation");
@@ -6105,8 +6117,9 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
         QDoubleSpinBox * doubleSpinBox = new QDoubleSpinBox(dialog);
         doubleSpinBox->setRange(0.0,360.0);
         doubleSpinBox->setSingleStep(1.0);
-        doubleSpinBox->setDecimals(dec(rotateValues[i]));
-        doubleSpinBox->setValue(rotateValues[i]);
+        const int index = i < 3 ? i : 0;
+        doubleSpinBox->setDecimals(dec(rotateValues[index]));
+        doubleSpinBox->setValue(rotateValues[index]);
         rotateDoubleSpinBoxList << doubleSpinBox;
         rotateSubform->addRow(label,doubleSpinBox);
     }
@@ -6434,8 +6447,6 @@ void BuildModDialogGui::setBuildModActive(QListWidgetItem *item)
 
 void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 
-    QDialog *dialog = new QDialog();
-
     QString actionLabel;
     switch(action) {
     case BuildModApplyRc:
@@ -6453,6 +6464,9 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     default:
         return;
     }
+
+    QDialog *dialog = new QDialog();
+
     QFormLayout *form = new QFormLayout(dialog);
     form->addRow(new QLabel(QString("%1 Build Modifications").arg(actionLabel)));
     QGroupBox *buildModBox = new QGroupBox(QString("Select build modification to %1").arg(actionLabel.toLower()));
@@ -6625,6 +6639,9 @@ void POVRayRenderDialogGui::getRenderSettings(
         }
     }
 
+    if (!settingsSubform->rowCount())
+        settingsSubform = nullptr;
+
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                Qt::Horizontal, dialog);
     form->addRow(&buttonBox);
@@ -6649,17 +6666,16 @@ void POVRayRenderDialogGui::getRenderSettings(
 }
 
 int POVRayRenderDialogGui::numSettings(){
-  int size = 0;
-  if (!povraySettings[0].label.isEmpty())
-      size = sizeof(povraySettings)/sizeof(povraySettings[0]);
-  return size;
+    int size = 0;
+    if (!povraySettings[0].label.isEmpty())
+        size = sizeof(povraySettings)/sizeof(povraySettings[0]);
+    return size;
 }
 
 void POVRayRenderDialogGui::setLookAtTargetAndRotate()
 {
-    TargetRotateDialogGui *targetRotateDialogGui =
-            new TargetRotateDialogGui();
-    targetRotateDialogGui->getTargetAndRotateValues(editedCsiKeyList);
+    TargetRotateDialogGui dialog;
+    dialog.getTargetAndRotateValues(editedCsiKeyList);
 }
 
 void POVRayRenderDialogGui::setLdvLDrawPreferences()
@@ -6978,6 +6994,9 @@ void BlenderRenderDialogGui::getRenderSettings(
             settingsSubform->addRow(label,comboBox);
         }
     }
+
+    if (!settingsSubform->rowCount())
+        settingsSubform = nullptr;
 
     setModelSize(blenderSettings[LBL_CROP_IMAGE].value.toInt());
     setDefaultColor(blenderSettings[LBL_DEFAULT_COLOUR].value.toInt());

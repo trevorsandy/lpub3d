@@ -88,6 +88,7 @@ void PartWorker::ldsearchDirPreferences(){
       if (ldrawiniInfo.exists()) {
           Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
           Preferences::ldrawiniFound = true;
+          gui->addEditLDrawIniFileAction();
         } else {
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
           Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
@@ -97,6 +98,7 @@ void PartWorker::ldsearchDirPreferences(){
       if (ldrawiniInfo.exists()) {
           Preferences::ldrawiniFile = ldrawiniInfo.absoluteFilePath();
           Preferences::ldrawiniFound = true;
+          gui->addEditLDrawIniFileAction();
           Settings.setValue(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey), Preferences::ldrawiniFile);
           //qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
         } else {

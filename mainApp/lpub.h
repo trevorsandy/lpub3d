@@ -1069,6 +1069,7 @@ public:
 
   bool extractStepKey(Where &here, int &stepNumber, const QString &key = "");
   void clearWorkingFiles(const QStringList &filePaths);
+  void addEditLDrawIniFileAction();
 
   QMap<int, PgSizeData> getPageSizes()
   {

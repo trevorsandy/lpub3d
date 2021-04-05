@@ -5302,6 +5302,14 @@ void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
 }
 
+void Gui::addEditLDrawIniFileAction()
+{
+    if (Preferences::ldrawiniFound) {
+        editorMenu->insertAction(editNativePOVIniAct, editLdrawIniFileAct);
+        editParamsToolBar->insertAction(editNativePOVIniAct, editLdrawIniFileAct);
+    }
+}
+
 void Gui::enableActions()
 {
   saveAsAct->setEnabled(true);
@@ -5692,16 +5700,14 @@ void Gui::createMenus()
     editorMenu->addAction(editLD2RBColorsXRefAct);
     editorMenu->addAction(editLD2RBCodesXRefAct);
     editorMenu->addSeparator();
-    if (!Preferences::blenderExe.isEmpty())
-        editorMenu->addAction(editBlenderParametersAct);
-    if (Preferences::ldrawiniFound)
-      editorMenu->addAction(editLdrawIniFileAct);
     editorMenu->addAction(editNativePOVIniAct);
     editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);
     editorMenu->addAction(editPovrayConfAct);
+    if (!Preferences::blenderExe.isEmpty())
+        editorMenu->addAction(editBlenderParametersAct);
     editorMenu->addSeparator();
 
     configMenu->addAction(editModelFileAct);
@@ -5902,9 +5908,6 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(editBLCodesAct);
     editParamsToolBar->addAction(editLD2RBColorsXRefAct);
     editParamsToolBar->addAction(editLD2RBCodesXRefAct);
-    if (Preferences::ldrawiniFound){
-        editParamsToolBar->addAction(editLdrawIniFileAct);
-    }
     editParamsToolBar->addSeparator();
 #if defined Q_OS_WIN
     if (Preferences::portableDistribution){
@@ -5919,9 +5922,10 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(editLdgliteIniAct);
     editParamsToolBar->addAction(editLdviewIniAct);
     editParamsToolBar->addAction(editLdviewPovIniAct);
-    editParamsToolBar->addAction(editBlenderParametersAct);
     editParamsToolBar->addAction(editPovrayIniAct);
     editParamsToolBar->addAction(editPovrayConfAct);
+    if (!Preferences::blenderExe.isEmpty())
+        editParamsToolBar->addAction(editBlenderParametersAct);
     editParamsToolBar->addSeparator();
     editParamsToolBar->addAction(generateCustomColourPartsAct);
     editParamsToolBar->addSeparator();
