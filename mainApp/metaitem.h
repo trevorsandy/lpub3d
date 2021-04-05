@@ -53,6 +53,7 @@ enum ScanMask {
 };
 
 class StepGroup;
+class Page;
 
 class MetaItem
 {
@@ -558,6 +559,7 @@ public:
 
   int  numSteps(QString modelName);
 
+  void clearPageCache(PlacementType relativeType, Page *page, int option);
   void setLoadingFileFlag(bool);
   void reloadModelFile(bool = false);
   void clearCache(bool = false);

@@ -3350,7 +3350,7 @@ void Gui::deleteBuildModification()
             clearWorkingFiles(getBuildModPathsFromStep(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-            clearPageCSICache(relativeType, &page);
+            clearPageCache(relativeType, &page, Options::CSI);
         } else if (clearStep) {
             QString csiPngName = getViewerStepImagePath(buildModStepKey);
             clearStepCSICache(csiPngName);

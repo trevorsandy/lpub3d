@@ -4415,7 +4415,7 @@ void Gui::drawPage(
     } else if (option == "cp") {
       bool multiStepPage = isViewerStepMultiStep(stepKey);
       PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-      clearPageCSICache(relativeType, &page);
+      clearPageCache(relativeType, &page, Options::CSI);
     } else if (option == "cs") {
       QString csiPngName = getViewerStepImagePath(stepKey);
       clearStepCSICache(csiPngName);

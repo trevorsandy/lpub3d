@@ -3297,6 +3297,7 @@ void PliBackgroundItem::contextMenuEvent(
 
         QAction *splitBomAction  = nullptr;
         QAction *deleteBomAction = nullptr;
+        QAction *clearPageCacheAction = nullptr;
 
         QAction *povrayRendererArgumentsAction = nullptr;
         QAction *rendererArgumentsAction = nullptr;
@@ -3316,7 +3317,11 @@ void PliBackgroundItem::contextMenuEvent(
             }
         }
 
-        if (pli->bom) {
+        if (!pli->bom) {
+            clearPageCacheAction = menu.addAction("Reset Page Part List Image Cache");
+            clearPageCacheAction->setIcon(QIcon(":/resources/clearpagecache.png"));
+            clearPageCacheAction->setWhatsThis("Reset the PLI image and ldr cache files for this page.");
+        } else {
             splitBomAction = menu.addAction("Split Bill of Materials");
             splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
 
@@ -3451,6 +3456,9 @@ void PliBackgroundItem::contextMenuEvent(
                                  bottom,
                                  rendererNames[Render::getRenderer()],
                                  &pli->pliMeta.povrayParms);
+        } else if (selectedAction == clearPageCacheAction) {
+            Page *page = dynamic_cast<Page *>(pli->steps);
+            clearPageCache(parentRelativeType,page,Options::PLI);
         }
     }
 }

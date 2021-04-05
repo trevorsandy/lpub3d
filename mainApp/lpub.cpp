@@ -859,7 +859,7 @@ bool Gui::continuousPageDialog(PageDirection d)
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
       // Split page range values
-      Q_FOREACH (QString ranges,pageRanges){
+      Q_FOREACH (QString ranges,pageRanges) {
           // If n-n range, split into start through end pages
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
@@ -1564,7 +1564,7 @@ void Gui::reloadCurrentPage(){
 
 }
 
-void Gui::reloadCurrentModelFile(){ // EditModeWindow Update
+void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"No model file to reopen.");
         return;
@@ -2074,30 +2074,30 @@ void Gui::clearStepCSICache(QString &pngName) {
     displayPage();
 }
 
-void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
+void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
   if (page->list.size()) {
       if (relativeType == SingleStepType) {         // single step page
           Range *range = dynamic_cast<Range *>(page->list[0]);
           if (range->relativeType == RangeType) {
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
-                  clearPageCSIGraphicsItems(step);
+                  clearPageGraphicsItems(step, option);
               } // validate step (StepType) and process...
           } // validate RangeType - to cast step
       } else if (relativeType == StepGroupType) {  // multi-step page
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
-              for (int j = 0; j < range->list.size(); j++){
+              for (int j = 0; j < range->list.size(); j++) {
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
-                      if (step && step->relativeType == StepType){
-                          clearPageCSIGraphicsItems(step);
+                      if (step && step->relativeType == StepType) {
+                          clearPageGraphicsItems(step, option);
                       } // validate step (StepType) and process...
                   } // validate RangeType - to cast step
               } // for each step within divided group...=>list[AbstractRangeElement]->StepType
           } // for each divided group within page...=>list[AbstractStepsElement]->RangeType
       }
-      if (Preferences::enableFadeSteps) {
+      if (Preferences::enableFadeSteps && !option) {
           clearPrevStepPositions();
       }
       displayPage();
@@ -2108,35 +2108,51 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
  * Clear step image graphics items
  * This function recurses the step's model to clear images and associated model files.
  */
-void Gui::clearPageCSIGraphicsItems(Step *step) {
-    // Capture ldr and image names
-    QString tmpDirName   = QDir::currentPath() + "/" + Paths::tmpDir;
-    QString assemDirName = QDir::currentPath() + "/" + Paths::assemDir;
-    QString ldrName      = tmpDirName + "/csi.ldr";
-    // process step's image(s)
-    QFileInfo fileInfo(step->pngName);
-    QFile file(assemDirName + "/" + fileInfo.fileName());
-    if (file.exists()) {
-        if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(assemDirName + "/" + fileInfo.fileName()));
-#ifdef QT_DEBUG_MODE
-        else
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
-#endif
+void Gui::clearPageGraphicsItems(Step *step, int option) {
+    // Capture ldr and image file names
+    QStringList fileNames;
+    QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
+
+    if (option == Options::CSI) {
+        if (renderer->useLDViewSCall())
+            fileNames << QDir::toNativeSeparators(tmpDirName + "/" + QFileInfo(step->pngName).completeBaseName() + ".ldr");
+         else
+            fileNames << QDir::toNativeSeparators(tmpDirName + "/csi.ldr");
+        fileNames << step->pngName;
     }
-    if (renderer->useLDViewSCall())
-        ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
-    file.setFileName(ldrName);
-    if (file.exists()) {
-        if (!file.remove())
-            emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(fileInfo.fileName()));
-#ifdef QT_DEBUG_MODE
-        else
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.fileName()));
-#endif
+
+    if (option == Options::PLI) {
+        if (!renderer->useLDViewSCall())
+            fileNames << QDir::toNativeSeparators(tmpDirName + "/pli.ldr");
+        QHash<QString, PliPart*> pliParts;
+        step->pli.getParts(pliParts);
+        if (pliParts.size()) {
+            Q_FOREACH (PliPart* part, pliParts) {
+                QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName()).arg(part->color).arg(step->stepNumber.number);
+                if (gui->viewerStepContentExist(key)) {
+                    if (renderer->useLDViewSCall())
+                        fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
+                    fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
+                }
+            }
+        }
     }
-    // process callout step(s) image(s)
+
+    QFile file;
+    // process ldr and image files
+    Q_FOREACH (QString fileName, fileNames) {
+        file.setFileName(fileName);
+        if (file.exists()) {
+            if (!file.remove())
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1").arg(file.fileName()));
+#ifdef QT_DEBUG_MODE
+            else
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(file.fileName()));
+#endif
+        }
+    }
+
+    // process callout ldr and image files
     for (int k = 0; k < step->list.size(); k++) {
         if (step->list[k]->relativeType == CalloutType) {
             Callout *callout = dynamic_cast<Callout *>(step->list[k]);
@@ -2146,7 +2162,7 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[m]);
                         if (step && step->relativeType == StepType) {
-                            clearPageCSIGraphicsItems(step);
+                            clearPageGraphicsItems(step, option);
                         } // 1.6 validate if Step relativeType is StepType - to clear image, check for Callout
                     } // 1.5 validate if Range relativeType is RangeType - to cast as Step
                 } // 1.4 for each Step list-item within a Range...=>list[AbstractRangeElement]->StepType
