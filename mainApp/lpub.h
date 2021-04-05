@@ -1414,7 +1414,7 @@ public slots:
   void reloadCurrentPage();
   void reloadViewer();
   void loadTheme();
-  void restartApplication(bool changeLibrary = false);
+  void restartApplication(bool changeLibrary = false, bool prompt = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);
 
   bool removeDir(int &count,const QString &dirName);
@@ -1821,6 +1821,7 @@ private slots:
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
     void refreshLDrawOfficialParts();
+    void archivePartsOnDemand();
     void archivePartsOnLaunch();
     void writeGeneratedColorPartsToTemp();
 
@@ -2048,6 +2049,7 @@ private:
   QAction *refreshLDrawOfficialPartsAct;
 
   // archive
+  QAction *archivePartsOnDemandAct;
   QAction *archivePartsOnLaunchAct;
 
   // config menu

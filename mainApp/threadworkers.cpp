@@ -31,34 +31,35 @@
 #include <clocale>
 #endif // WIN32
 
-PartWorker::PartWorker(QString ldrawArchiveFile, QObject *parent) : QObject(parent)
+PartWorker::PartWorker(QString archiveFile, QObject *parent) : QObject(parent)
 {
-    _ldrawArchiveFile       = ldrawArchiveFile;
-    _endThreadNowRequested  = false;
+  _ldrawArchiveFile       = archiveFile;
+  _endThreadNowRequested  = false;
 }
 
-PartWorker::PartWorker(QObject *parent) : QObject(parent)
+PartWorker::PartWorker(bool onDemand, QObject *parent) : QObject(parent)
 {
-  setDoFadeStep(Preferences::enableFadeSteps);
-  setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
-
   _resetSearchDirSettings = false;
   _endThreadNowRequested  = false;
+  _ldrawCustomArchive     = Preferences::validLDrawCustomArchive;
 
-  _excludedSearchDirs << ".";
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("parts"));
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("p"));
-  if (Preferences::usingDefaultLibrary) {
+  if (! onDemand) {
+    _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
+    _lsynthPartsDir  = QDir::toNativeSeparators(QString("%1/LSynthParts").arg(Preferences::lpubDataPath));
+    _customPartDir   = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
+    _customPrimDir   = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
+
+    _excludedSearchDirs << ".";
+    _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("parts"));
+    _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("p"));
+    if (Preferences::usingDefaultLibrary) {
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/parts"));
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/p"));
+    }
+
+    setDoFadeStep(Preferences::enableFadeSteps);
+    setDoHighlightStep(Preferences::enableHighlightStep && !gui->suppressColourMeta());
   }
-  _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
-  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
-
-  _lsynthPartsDir = QDir::toNativeSeparators(QString("%1/LSynthParts").arg(Preferences::lpubDataPath));
-
-  _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
-  _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 
 /*
@@ -1261,7 +1262,7 @@ void PartWorker::requestEndThreadNow(){
 
 bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment, bool overwriteCustomParts){
 
-  // Used by refresh LDraw parts routine
+  // Used by refresh unofficial LDraw parts routine - Gui::refreshLDrawUnoffParts()
   if (Preferences::skipPartsArchive) {
       Preferences::skipPartsArchive = false;
       return true;
@@ -1296,27 +1297,28 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
   int partCount = 0;
   int totalPartCount = 0;
+  QString summary;
 
   tf.start();
-  for (int i = 0; i < ldPartsDirs.size() && endThreadNotRequested(); i++){
+
+  emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2")
+                          .arg(comment).arg(QDir::toNativeSeparators(ldPartsDirs[0])));
+
+  for (int i = 0; i < ldPartsDirs.size() && endThreadNotRequested(); i++) {
       t.start();
 
       QDir partDir(ldPartsDirs[i]);
 
       emit progressSetValueSig(i);
 
-      QString progressMessage = QString("Archiving custom parts...\nProcessing: " +
-                                        QDir::toNativeSeparators(ldPartsDirs[i]));
-      emit progressMessageSig(progressMessage);
-
-      emitSplashMessage(QString("60% - Archiving %1, please wait...")
-                                .arg(QDir(ldPartsDirs[i]).dirName()));
+      emitSplashMessage(tr("60% - Archiving %1, please wait...")
+                           .arg(QDir(ldPartsDirs[i]).dirName()));
 
       if (!archiveParts.Archive( archiveFile,
                                  partDir.absolutePath(),
                                  returnMessage,
                                  returnMessageSeverity,
-                                 QString("Append %1 parts").arg(comment),
+                                 tr("Append %1 parts").arg(comment),
                                  overwriteCustomParts))
       {
          if (returnMessageSeverity == 1)
@@ -1327,17 +1329,24 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       }
       bool ok;
       partCount = returnMessage.toInt(&ok);
-      QString summary;
       if (ok){
           totalPartCount += partCount;
           summary = totalPartCount == 0 ? "parts" :
                     totalPartCount == 1 ? tr("[Total %1] part").arg(totalPartCount) :
                                           tr("[Total %1] parts").arg(totalPartCount);
-
       }
-      emit gui->messageSig(LOG_INFO,tr("Archived %1 %2 from %3. %4")
-                                       .arg(partCount).arg(summary).arg(partDir.absolutePath())
-                                       .arg(gui->elapsedTime(t.elapsed())));
+
+      emit progressMessageSig(tr("Archiving %1 parts...\nProcessing: %2\nArchived %3 %4")
+                                 .arg(comment)
+                                 .arg(QDir::toNativeSeparators(ldPartsDirs[i]))
+                                 .arg(partCount)
+                                 .arg(summary));
+
+      emit gui->messageSig(LOG_INFO, tr("Archived %1 %2 from %3 %4")
+                                        .arg(partCount)
+                                        .arg(summary)
+                                        .arg(partDir.absolutePath())
+                                        .arg(gui->elapsedTime(t.elapsed())));
   }
 
   // Archive parts
@@ -1346,18 +1355,19 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       // Reload unofficial library parts into memory - only if initial library load already done !
       if (Preferences::lpub3dLoaded && reloadLibrary) {
           if (!gui->ReloadUnofficialPiecesLibrary()){
-              returnMessage = tr("Failed to reload custom %1 parts library into memory.")
+              returnMessage = tr("Failed to reload %1 archive parts library into memory.")
                                  .arg(Preferences::validLDrawLibrary);
               emit gui->messageSig(LOG_ERROR,returnMessage);
               return false;
           } else {
               partsLabel = totalPartCount == 1 ? "part" : "parts";
-              returnMessage = tr("Reloaded custom %1 parts library into memory with %2 new %3.")
+              returnMessage = tr("Reloaded %1 archive parts library into memory with %2 new %3.")
                                  .arg(Preferences::validLDrawLibrary).arg(totalPartCount).arg(partsLabel);
+              emit gui->messageSig(LOG_INFO,returnMessage);
           }
       }
       partsLabel = totalPartCount == 1 ? "part" : "parts";
-      returnMessage = tr("Finished. Archived %1 %2 %3. %4")
+      returnMessage = tr("Finished. Archived %1 %2 %3.\n%4")
                          .arg(totalPartCount).arg(comment).arg(partsLabel).arg(gui->elapsedTime(tf.elapsed()));
 
       emit partsArchiveResultSig(totalPartCount);
@@ -1367,19 +1377,27 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       _partsArchived = true;
 
   } else {
-      returnMessage = tr("Finished. Parts exist in custom %1 archive. No new %2 parts archived.")
+      returnMessage = tr("Finished. Parts exist in %1 archive library. No new %2 parts archived.")
                          .arg(Preferences::validLDrawLibrary).arg(comment);
 
       emitSplashMessage(QString("70% - Finished. No new %1 parts archived.").arg(comment));
 
       _partsArchived = false;
   }
-  emit gui->messageSig(LOG_INFO,returnMessage);
 
-  // time delay to display archive totals
-  dt = QTime::currentTime().addSecs(3);
-  while (QTime::currentTime() < dt)
-      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  emit progressMessageSig(returnMessage);
+
+  emit gui->messageSig(LOG_INFO,returnMessage.replace("\n", " "));
+
+  if (okToEmitToProgressBar()) {
+
+      // time delay to display archive totals
+      dt = QTime::currentTime().addSecs(3);
+      while (QTime::currentTime() < dt)
+          QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+  }
+
+  emit partsArchiveFinishedSig();
 
   return true;
 }

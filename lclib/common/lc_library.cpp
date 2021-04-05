@@ -2017,8 +2017,27 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 	else
 		return false;
 
-	//load categories
+	mLoadMutex.lock();
+
+	for (const auto& PieceIt : mPieces)
+	{
+		PieceInfo* Info = PieceIt.second;
+
+		if (Info->mState == LC_PIECEINFO_LOADED && Info->mZipFileType == lcZipFileType::Unofficial)
+		{
+			Info->Unload();
+			mLoadQueue.append(Info);
+			mLoadFutures.append(QtConcurrent::run([this]() { LoadQueuedPiece(); }));
+		}
+	}
+
+	mLoadMutex.unlock();
+
+	WaitForLoadQueue();
+
 	lcLoadDefaultCategories();
+	lcSynthInit();
+
 	return true;
 }
 /*** LPub3D Mod end ***/
@@ -2026,15 +2045,24 @@ bool lcPiecesLibrary::ReloadUnoffLib()
 /*** LPub3D Mod - unload Unofficial library ***/
 void lcPiecesLibrary::UnloadUnofficialLib()
 {
+	mLoadMutex.lock();
+
 	for (auto& Source : mSources)
 	{
 		const auto& SourceIt = std::find(mSources.begin(), mSources.end(), Source);
 		if (SourceIt != mSources.end() && Source->Type == lcLibrarySourceType::Unofficial)
 		{
+			for (const auto& PrimitiveIt : Source->Primitives)
+			{
+				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
+				Primitive->Unload();
+			}
 			mSources.erase(SourceIt);
 			break;
 		}
 	}
+
+	mLoadMutex.unlock();
 
 	if (mZipFiles[static_cast<int>(lcZipFileType::Unofficial)])
 		mZipFiles[static_cast<int>(lcZipFileType::Unofficial)].reset();
@@ -2046,15 +2074,24 @@ void lcPiecesLibrary::UnloadOfficialLib()
 {
 	mNumOfficialPieces = 0;
 
+	mLoadMutex.lock();
+
 	for (auto& Source : mSources)
 	{
 		const auto& SourceIt = std::find(mSources.begin(), mSources.end(), Source);
 		if (SourceIt != mSources.end() && Source->Type == lcLibrarySourceType::Official)
 		{
+			for (const auto& PrimitiveIt : Source->Primitives)
+			{
+				lcLibraryPrimitive* Primitive = PrimitiveIt.second;
+				Primitive->Unload();
+			}
 			mSources.erase(SourceIt);
 			break;
 		}
 	}
+
+	mLoadMutex.unlock();
 
 	if (mZipFiles[static_cast<int>(lcZipFileType::Official)])
 		mZipFiles[static_cast<int>(lcZipFileType::Official)].reset();

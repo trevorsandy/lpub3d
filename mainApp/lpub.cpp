@@ -1514,7 +1514,13 @@ void Gui::mpdComboChanged(int index)
   }
 }
 
-void  Gui::restartApplication(bool changeLibrary){
+void  Gui::restartApplication(bool changeLibrary, bool prompt) {
+    if (prompt && QMessageBox::question(this, tr(VER_PRODUCTNAME_STR),
+                                        tr("%1 must restart. Do you want to continue ?")
+                                        .arg(VER_PRODUCTNAME_STR),
+                                        QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
     QStringList args;
     if (! changeLibrary && ! getCurFile().isEmpty()){
         args = QApplication::arguments();
@@ -1528,8 +1534,8 @@ void  Gui::restartApplication(bool changeLibrary){
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
     QProcess::startDetached(QApplication::applicationFilePath(), args);
-    messageSig(LOG_INFO, QString("Restarted LPub3D with Command: %1 %2")
-               .arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+    messageSig(LOG_INFO, QString("Restarted %1 with Command: %2 %3")
+                                 .arg(VER_PRODUCTNAME_STR).arg(QApplication::applicationFilePath()).arg(args.join(" ")));
     QCoreApplication::quit();
 }
 
@@ -1806,7 +1812,7 @@ void Gui::clearCustomPartCache(bool silent)
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
                                  tr("%1 Do you want to delete the custom file cache?").arg(message),
-                                 QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
+                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
   }
 
   if (ret == QMessageBox::Cancel)
@@ -4033,6 +4039,96 @@ void Gui::archivePartsOnLaunch() {
     }
 }
 
+void Gui::archivePartsOnDemand() {
+     QStringList items = Preferences::ldSearchDirs;
+     if (items.count()) {
+         QString message = tr("Archiving unofficial parts. Please wait...");
+         emit messageSig(LOG_STATUS,message);
+         m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+         m_progressDialog->setWindowTitle(QString("Archive Library Update"));
+         m_progressDialog->progressBarSetLabelText(QString("Archiving search directory parts..."));
+         m_progressDialog->progressBarSetRange(0,items.count());
+         m_progressDialog->setAutoHide(true);
+         m_progressDialog->setModal(true);
+         m_progressDialog->show();
+
+         QThread *thread = new QThread(this);
+         PartWorker *job = new PartWorker(true/*OnDemand*/);
+         job->moveToThread(thread);
+         QEventLoop *wait = new QEventLoop();
+
+         disconnect (m_progressDialog, SIGNAL (cancelClicked()),
+                     this,  SLOT (cancelExporting()));
+         connect(thread, SIGNAL(started()),
+                 job, SLOT(processLDSearchDirParts()));
+         connect(thread, SIGNAL(finished()),
+                 thread, SLOT(deleteLater()));
+         connect(job, SIGNAL(progressSetValueSig(int)),
+                 m_progressDialog, SLOT(progressBarSetValue(int)));
+         connect(m_progressDialog, SIGNAL(cancelClicked()),
+                 job, SLOT(requestEndThreadNow()));
+         connect(job, SIGNAL(progressMessageSig (QString)),
+                 m_progressDialog, SLOT(progressBarSetLabelText(QString)));
+         connect(job, SIGNAL(partsArchiveResultSig(int)),
+                 this, SLOT(workerJobResult(int)));
+         connect(this, SIGNAL(requestEndThreadNowSig()),
+                 job, SLOT(requestEndThreadNow()));
+         connect(job, SIGNAL(partsArchiveFinishedSig()),
+                 thread, SLOT(quit()));
+         connect(job, SIGNAL(partsArchiveFinishedSig()),
+                 job, SLOT(deleteLater()));
+         wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
+                 wait, SLOT(quit()));
+
+         workerJobResult(0);
+         thread->start();
+         wait->exec();
+
+         m_progressDialog->progressBarSetValue(items.count());
+
+         QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
+         message = tr("Added %1 %2 into Unofficial library archive %3")
+                      .arg(m_workerJobResult)
+                      .arg(partsLabel)
+                      .arg(Preferences::validLDrawCustomArchive);
+         emit messageSig(LOG_INFO,message);
+
+         connect (m_progressDialog, SIGNAL (cancelClicked()),
+                  this, SLOT (cancelExporting()));
+
+         m_progressDialog->hide();
+     }
+
+     if (! getCurFile().isEmpty()) {
+         bool _continue;
+         if (Preferences::saveOnRedraw) {
+             _continue = maybeSave(false); // No prompt
+         } else {
+             _continue = maybeSave(true, SaveOnNone);
+         }
+         if (!_continue)
+             return;
+
+         timer.start();
+
+         clearPLICache();
+         clearCSICache();
+         clearSubmodelCache();
+         clearTempCache();
+
+         //reload current model file
+         int savePage = displayPageNum;
+         openFile(curFile);
+         displayPageNum = pa ? savePage + pa : savePage;
+         displayPage();
+         enableActions();
+
+         emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                         .arg(ldrawFile.getPartCount())
+                         .arg(elapsedTime(timer.elapsed())));
+     }
+}
+
 void Gui::refreshLDrawUnoffParts() {
 
     // Download unofficial archive
@@ -4057,7 +4153,7 @@ void Gui::refreshLDrawUnoffParts() {
     emit messageSig(LOG_STATUS,message);
 
     QStringList items = JlCompress::getFileList(newarchive);
-    m_progressDialog  = new ProgressDialog(nullptr);
+    m_progressDialog = new ProgressDialog(nullptr);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Unofficial parts from %1...")
@@ -4072,14 +4168,14 @@ void Gui::refreshLDrawUnoffParts() {
     job->moveToThread(thread);
     wait = new QEventLoop();
 
+    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+            this, SLOT (cancelExporting()));
     connect(thread, SIGNAL(started()),
             job, SLOT(doWork()));
     connect(thread, SIGNAL(finished()),
             thread, SLOT(deleteLater()));
     connect(job, SIGNAL(progressSetValue(int)),
             m_progressDialog, SLOT(progressBarSetValue(int)));
-    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
-            this, SLOT (cancelExporting()));
     connect(m_progressDialog, SIGNAL(cancelClicked()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(result(int)),
@@ -4113,7 +4209,7 @@ void Gui::refreshLDrawUnoffParts() {
 
    // Process custom and color parts if any
     items = Preferences::ldSearchDirs;
-    if (items.count()){
+    if (items.count()) {
         QString message = tr("Archiving custom parts. Please wait...");
         emit messageSig(LOG_STATUS,message);
         m_progressDialog->progressBarSetLabelText(QString("Archiving custom parts..."));
@@ -4169,6 +4265,8 @@ void Gui::refreshLDrawUnoffParts() {
     connect (m_progressDialog, SIGNAL (cancelClicked()),
              this, SLOT (cancelExporting()));
 
+     m_progressDialog->hide();
+
     // Unload LDraw Unofficial archive library
     UnloadUnofficialPiecesLibrary();
 
@@ -4219,7 +4317,6 @@ void Gui::refreshLDrawOfficialParts() {
     emit messageSig(LOG_INFO_STATUS,message);
 
     QStringList items = JlCompress::getFileList(newarchive);
-    m_progressDialog  = new ProgressDialog(nullptr);
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Official parts from %1...")
@@ -4234,14 +4331,14 @@ void Gui::refreshLDrawOfficialParts() {
     job->moveToThread(thread);
     wait = new QEventLoop();
 
+    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+            this, SLOT (cancelExporting()));
     connect(thread, SIGNAL(started()),
             job, SLOT(doWork()));
     connect(thread, SIGNAL(finished()),
             thread, SLOT(deleteLater()));
     connect(job, SIGNAL(progressSetValue(int)),
             m_progressDialog, SLOT(progressBarSetValue(int)));
-    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
-            this, SLOT (cancelExporting()));
     connect(m_progressDialog, SIGNAL(cancelClicked()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(result(int)),
@@ -4260,8 +4357,6 @@ void Gui::refreshLDrawOfficialParts() {
     wait->exec();
 
     m_progressDialog->progressBarSetValue(items.count());
-    connect (m_progressDialog, SIGNAL (cancelClicked()),
-             this, SLOT (cancelExporting()));
 
     if (m_workerJobResult) {
         message = tr("%1 of %2 Library files extracted to %3")
@@ -4274,6 +4369,11 @@ void Gui::refreshLDrawOfficialParts() {
                      .arg(QFileInfo(newarchive).fileName());
         emit messageSig(LOG_ERROR,message);
     }
+
+    connect (m_progressDialog, SIGNAL (cancelClicked()),
+             this, SLOT (cancelExporting()));
+
+     m_progressDialog->hide();
 
     // Unload LDraw Official archive libraries
     UnloadOfficialPiecesLibrary();
@@ -4947,19 +5047,24 @@ void Gui::createActions()
     clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache - Alt+C"));
     connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
-    archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Parts On Launch"), this);
-    archivePartsOnLaunchAct->setStatusTip(tr("Automatically trigger parts archive for LDraw search directories on application launch "));
+    archivePartsOnDemandAct = new QAction(QIcon(":/resources/archivefilesondemand.png"),tr("Archive Unofficial Parts"), this);
+    archivePartsOnDemandAct->setStatusTip(tr("Archive unofficial parts from LDraw search directories - Alt+Y"));
+    archivePartsOnDemandAct->setShortcut(tr("Alt+Y"));
+    connect(archivePartsOnDemandAct, SIGNAL(triggered()), this, SLOT(archivePartsOnDemand()));
+
+    archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Unofficial Parts On Launch"), this);
+    archivePartsOnLaunchAct->setStatusTip(tr("Automatically archive unofficial parts from LDraw search directories on next application launch"));
     archivePartsOnLaunchAct->setCheckable(true);
     archivePartsOnLaunchAct->setChecked(Preferences::archivePartsOnLaunch);
     connect(archivePartsOnLaunchAct, SIGNAL(triggered()), this, SLOT(archivePartsOnLaunch()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
-    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data"));
+    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data - restart required"));
     refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
     refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
-    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data"));
+    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data - restart required"));
     refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
     connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
 
@@ -5524,6 +5629,7 @@ void Gui::createMenus()
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     toolsMenu->addSeparator();
+    toolsMenu->addAction(archivePartsOnDemandAct);
     toolsMenu->addAction(archivePartsOnLaunchAct);
     toolsMenu->addSeparator();
 

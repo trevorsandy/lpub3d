@@ -82,7 +82,7 @@ class PartWorker: public QObject
    Q_OBJECT
 
 public:
-    explicit PartWorker(QObject *parent = nullptr);
+    explicit PartWorker(bool onDemand = false, QObject *parent = nullptr);
     PartWorker(QString archiveFile, QObject *parent = nullptr);
     ~PartWorker()
     {
