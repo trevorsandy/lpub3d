@@ -219,6 +219,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
+      ui.lineEditIniFile->setToolTip(tr("LDraw.ini file"));
       ui.pushButtonReset->hide();
       ui.textEditSearchDirs->setReadOnly(true);
       ui.textEditSearchDirs->setPalette(readOnlyPalette);
@@ -226,11 +227,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   } else {
       ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths. Use a new line for each entry.");
-      ui.textEditSearchDirs->setStatusTip("Added directories must be under the Unofficial directory.");
       ui.lineEditIniFile->setText(tr("%1")
                                   .arg(Preferences::ldSearchDirs.size() == 0 ?
                                          tr("Using default search. No search directories detected.") :
                                          tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR)));
+      ui.lineEditIniFile->setToolTip(tr("Default search"));
       ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
   }
 
@@ -406,12 +407,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors   = Preferences::showAnnotationErrors;
 
-#ifdef Q_OS_MACOS
-  resize(640, 835);
-#else
-  resize(510, 675);
-#endif
-  setMinimumSize(100, 100);
+//#ifdef Q_OS_MACOS
+//  resize(640, 835);
+//#else
+//  resize(510, 675);
+//#endif
+  setMinimumSize(500, 600);
   setSizeGripEnabled(true);
 }
 
