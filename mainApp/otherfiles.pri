@@ -9,6 +9,7 @@ extras/pliSubstituteParts.lst \
 extras/titleAnnotations.lst \
 extras/ldglite.ini \
 extras/ldvExport.ini \
+extras/LPub3D_Npp_UDL.xml \
 docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \

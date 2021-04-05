@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update February 14, 2021
+# Last Update April 02, 2021
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -241,6 +241,14 @@ fi
 
 # Prepare destination repository branch
 cd $HOME_DIR/$TO_REPO_NAME
+LP3D_GIT_VER_TAG_LONG=`git describe --tags --match v* --long`
+LP3D_GIT_VER_COMMIT_COUNT=`git rev-list HEAD --count`
+LP3D_GIT_VER_TAG_SHORT=`git describe --tags --match v* --abbrev=0`
+LP3D_VER_TMP=${LP3D_GIT_VER_TAG_LONG#*-}      # remove everything before and including "-"
+LP3D_REVISION_=${LP3D_VER_TMP%-*}             # remove everything after and including "-"
+LP3D_VERSION_=${LP3D_GIT_VER_TAG_SHORT/v/}    # replace v with ""
+LP3D_APP_VERSION="${LP3D_VERSION_}.${LP3D_REVISION_}.${LP3D_GIT_VER_COMMIT_COUNT}"
+LP3D_LAST_UPDATE=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 if [ -n "$(git status -s)" ]; then
     echo && echo "--INFO - Stashing uncommitted $TO_REPO_NAME changes..."
     git stash
@@ -308,6 +316,7 @@ for file in $(find . -type f -name "*${FROM_REPO_NAME}*" \
               -not -path "./qslog*" \
               -not -path "./quazip*" \
               -not -path "./waitingspinner*" \
+              -not -path "./mainApp/extras/LPub3D_Npp_UDL.xml" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               )
 do
@@ -479,7 +488,22 @@ sed -e s/'.dsc   - add'/'.dsc      - add'/g \
 && echo " -file $file updated." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "16-update github api_key for Travis CI"
+lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
+
+file=mainApp/extras/LPub3D_Npp_UDL.xml
+sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
+       -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_CHANGE_DATE_LONG}/" "${file}" \
+&& echo " -file $file updated." \
+|| echo " -ERROR - file $file NOT updated."
+
+echo "16-update LPub3D_Npp_UDL.xml"
+file=mainApp/extras/LPub3D_Npp_UDL.xml
+sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
+       -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_LAST_UPDATE}/" "${file}" \
+&& echo " -file $file updated." \
+|| echo " -ERROR - file $file NOT updated."
+
+echo "17-update github api_key for Travis CI"
 file=.travis.yml
 if   [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3d" ]]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
 elif [[ "$FROM_REPO_NAME" = "lpub3d-ci"  && "$TO_REPO_NAME" = "lpub3dnext" ]]; then sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_NEXT_SECURE_API_KEY}," -i $file; echo " -file $file updated.";
@@ -490,17 +514,17 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d"     && "$TO_REPO_NAME" = "lpub3d-ci" ]]; th
 else echo " -ERROR - file $file NOT updated.";
 fi
 
-echo "17-Add new files..."
+echo "18-Add new files..."
 git add . &>> $LOG
 git reset HEAD 'mainApp/docs/README.txt'
 
-echo "17-Create local tag in $TO_REPO_NAME repository"
+echo "19-Create local tag in $TO_REPO_NAME repository"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
 [ -n "$git_tag" ] && echo " -git tag $git_tag created."
 
-echo "18a-Stage and commit changed files..."
+echo "20a-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
@@ -508,12 +532,12 @@ pbEOF
 env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
 if [ -z "$RELEASE_COMMIT" ]; then
-   echo "18b-Delete local tag in $TO_REPO_NAME repository"
+   echo "20b-Delete local tag in $TO_REPO_NAME repository"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
 fi
 
-echo "19-Restore repository checked out state..."
+echo "21-Restore repository checked out state..."
 # Checkout master in source [in TO_REPO_NAME]
 if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     CHECKOUT_MASTER=1
