@@ -1816,7 +1816,7 @@ void Gui::reloadViewer(){
 
  lcModel* Gui::GetActiveModel()
  {
-     return GetActiveView()->GetActiveModel();
+     return gApplication->mProject->GetMainModel();
  }
 
  lcPartSelectionWidget* Gui::GetPartSelectionWidget()

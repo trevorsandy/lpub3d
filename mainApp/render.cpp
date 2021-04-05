@@ -3059,7 +3059,14 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
     lcView* ActiveView = gui->GetActiveView();
 
-    lcModel* ActiveModel = ActiveView->GetActiveModel();
+    lcModel* ActiveModel = nullptr;
+
+    if (ActiveView) {
+        ActiveModel = ActiveView->GetActiveModel();
+    } else {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active view."));
+        return false;
+    }
 
     lcCamera* Camera = nullptr;
 
