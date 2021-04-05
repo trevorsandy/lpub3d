@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2436 (05 04 2021 21:38:04)
+LPub3D 2.4.2.1.2437 (05 04 2021 21:38:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -12,6 +12,28 @@ Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://g
 Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
 
 Revisions:
+
+- Fix - Match XYZ axis, move and rotate overlay pointer colours #519
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.2.1.2432 (30 03 2021 21:58:03)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Global setting for callout pointer (and page pointer) border #510
+- Fix - Submodel image does not show at first step of Step Group #512
 
 --------------------------------------------------------------------------------------------------
 

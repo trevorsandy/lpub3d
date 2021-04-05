@@ -1274,10 +1274,12 @@ void lcView::DrawAxes() const
 	{
 		{  0.00f,  0.00f,  0.00f, Red }, { 20.00f,  0.00f,  0.00f, Red }, { 12.00f,  3.00f,  0.00f, Red }, { 12.00f,  2.12f,  2.12f, Red }, { 12.00f,  0.00f,  3.00f, Red },
 		{ 12.00f, -2.12f,  2.12f, Red }, { 12.00f, -3.00f,  0.00f, Red }, { 12.00f, -2.12f, -2.12f, Red }, { 12.00f,  0.00f, -3.00f, Red }, { 12.00f,  2.12f, -2.12f, Red },
-		{  0.00f,  0.00f,  0.00f, Green }, {  0.00f, 20.00f,  0.00f, Green }, {  3.00f, 12.00f,  0.00f, Green }, {  2.12f, 12.00f,  2.12f, Green }, {  0.00f, 12.00f,  3.00f, Green },
-		{ -2.12f, 12.00f,  2.12f, Green }, { -3.00f, 12.00f,  0.00f, Green }, { -2.12f, 12.00f, -2.12f, Green }, {  0.00f, 12.00f, -3.00f, Green }, {  2.12f, 12.00f, -2.12f, Green },
-		{  0.00f,  0.00f,  0.00f, Blue }, {  0.00f,  0.00f, 20.00f, Blue }, {  0.00f,  3.00f, 12.00f, Blue }, {  2.12f,  2.12f, 12.00f, Blue }, {  3.00f,  0.00f, 12.00f, Blue },
-		{  2.12f, -2.12f, 12.00f, Blue }, {  0.00f, -3.00f, 12.00f, Blue }, { -2.12f, -2.12f, 12.00f, Blue }, { -3.00f,  0.00f, 12.00f, Blue }, { -2.12f,  2.12f, 12.00f, Blue }
+/*** LPub3D Mod - Axis Arrows, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		{  0.00f,  0.00f,  0.00f, Blue }, {  0.00f, 20.00f,  0.00f, Blue }, {  3.00f, 12.00f,  0.00f, Blue }, {  2.12f, 12.00f,  2.12f, Blue }, {  0.00f, 12.00f,  3.00f, Blue },
+		{ -2.12f, 12.00f,  2.12f, Blue }, { -3.00f, 12.00f,  0.00f, Blue }, { -2.12f, 12.00f, -2.12f, Blue }, {  0.00f, 12.00f, -3.00f, Blue }, {  2.12f, 12.00f, -2.12f, Blue },
+		{  0.00f,  0.00f,  0.00f, Green }, {  0.00f,  0.00f, 20.00f, Green }, {  0.00f,  3.00f, 12.00f, Green }, {  2.12f,  2.12f, 12.00f, Green }, {  3.00f,  0.00f, 12.00f, Green },
+		{  2.12f, -2.12f, 12.00f, Green }, {  0.00f, -3.00f, 12.00f, Green }, { -2.12f, -2.12f, 12.00f, Green }, { -3.00f,  0.00f, 12.00f, Green }, { -2.12f,  2.12f, 12.00f, Green }
+/*** LPub3D Mod end ***/
 	};
 
 	const GLushort Indices[78] =
@@ -1311,10 +1313,10 @@ void lcView::DrawAxes() const
 	glEnable(GL_BLEND);
 
 	float TextBuffer[6 * 5 * 3];
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
 	gTexFont.GetGlyphTriangles(PosX.x, PosX.y, PosX.z, 'X', TextBuffer);
 	lcVector3 PosY = lcMul30(lcVector3(0.0f, 25.0f, 0.0f), WorldViewMatrix);
+/*** LPub3D Mod - Axis Letters, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	gTexFont.GetGlyphTriangles(PosY.x, PosY.y, PosY.z, 'Z', TextBuffer + 5 * 6);
 	lcVector3 PosZ = lcMul30(lcVector3(0.0f, 0.0f, 25.0f), WorldViewMatrix);
 	gTexFont.GetGlyphTriangles(PosZ.x, PosZ.y, PosZ.z, 'Y', TextBuffer + 5 * 6 * 2);
@@ -1386,7 +1388,9 @@ void lcView::DrawSelectMoveOverlay()
 			}
 			else if (mTrackButton == lcTrackButton::None)
 			{
-				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - Select Move Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+				mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/*** LPub3D Mod end ***/
 				mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 36 * 2);
 			}
 		}
@@ -1400,7 +1404,9 @@ void lcView::DrawSelectMoveOverlay()
 			}
 			else if (mTrackButton == lcTrackButton::None)
 			{
-				mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/*** LPub3D Mod - Select Move Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod end ***/
 				mContext->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 72 * 2);
 			}
 		}
@@ -1425,8 +1431,9 @@ void lcView::DrawSelectMoveOverlay()
 			if (mTrackTool == lcTrackTool::RotateY)
 				mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
 			else
-				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
-
+/ *** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction *** /
+				mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/ *** LPub3D Mod end *** /
 			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 120) * 2);
 		}
 
@@ -1435,7 +1442,9 @@ void lcView::DrawSelectMoveOverlay()
 			if (mTrackTool == lcTrackTool::RotateZ)
 				mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
 			else
-				mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+/ *** LPub3D Mod - Select Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction *** /
+				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+/ *** LPub3D Mod end *** /
 
 			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 240) * 2);
 		}
@@ -1560,12 +1569,14 @@ void lcView::DrawRotateOverlay()
 			Rotation = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 			break;
 		case lcTrackTool::RotateY:
-			mContext->SetColor(0.0f, 0.8f, 0.0f, 0.3f);
+/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+			mContext->SetColor(0.0f, 0.0f, 0.8f, 0.3f);
 			Angle = MouseToolDistance[1];
 			Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 			break;
 		case lcTrackTool::RotateZ:
-			mContext->SetColor(0.0f, 0.0f, 0.8f, 0.3f);
+			mContext->SetColor(0.0f, 0.8f, 0.0f, 0.3f);
+/*** LPub3D Mod end ***/
 			Angle = MouseToolDistance[2];
 			Rotation = lcVector4(90.0f, 0.0f, -1.0f, 0.0f);
 			break;
@@ -1691,12 +1702,14 @@ void lcView::DrawRotateOverlay()
 			case 0:
 				mContext->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
 				break;
+/*** LPub3D Mod - Rotate Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 			case 1:
-				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
-				break;
-			case 2:
 				mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
 				break;
+			case 2:
+				mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+				break;
+/*** LPub3D Mod end ***/
 			}
 		}
 
@@ -1746,22 +1759,31 @@ void lcView::DrawRotateOverlay()
 
 		lcVector4 Rotation;
 		float Angle;
+/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		char Axis[24];
+/*** LPub3D Mod end ***/
 
 		switch (mTrackTool)
 		{
 		case lcTrackTool::RotateX:
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+			strncpy(Axis, "X", 24);
 			Angle = MouseToolDistance[0];
 			Rotation = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 			break;
 		case lcTrackTool::RotateY:
+			strncpy(Axis, "Z", 24);
 			Angle = MouseToolDistance[1];
 			Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 			break;
 		case lcTrackTool::RotateZ:
+			strncpy(Axis, "Y", 24);
 			Angle = MouseToolDistance[2];
 			Rotation = lcVector4(90.0f, 0.0f, -1.0f, 0.0f);
 			break;
 		default:
+			strncpy(Axis, "", 24);
+/*** LPub3D Mod end ***/
 			Angle = 0.0f;
 			Rotation = lcVector4(0.0f, 0.0f, 1.0f, 0.0f);
 			break;
@@ -1807,12 +1829,29 @@ void lcView::DrawRotateOverlay()
 		glEnable(GL_BLEND);
 
 		char buf[32];
-		sprintf(buf, "[%.2f]", fabsf(Angle));
-
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		sprintf(buf, "[%s %.2f]", Axis, fabsf(Angle));
+/*** LPub3D Mod end ***/
 		int cx, cy;
 		gTexFont.GetStringDimensions(&cx, &cy, buf);
 
-		mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+		switch (mTrackTool)
+		{
+		case lcTrackTool::RotateX:
+			mContext->SetColor(0.8f, 0.0f, 0.0f, 1.0f);
+			break;
+		case lcTrackTool::RotateY:
+			mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
+			break;
+		case lcTrackTool::RotateZ:
+			mContext->SetColor(0.0f, 0.8f, 0.0f, 1.0f);
+			break;
+		default:
+			mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
+			break;
+		};
+/*** LPub3D Mod end ***/
 		gTexFont.PrintText(mContext, ScreenPos[0] - (cx / 2), ScreenPos[1] + (cy / 2), 0.0f, buf);
 
 		glDisable(GL_BLEND);
