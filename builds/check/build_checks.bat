@@ -104,6 +104,9 @@ IF NOT EXIST "%PKG_TARGET%" (
     ECHO -%PKG_TARGET_PDB% found.
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
     ECHO -Copying %PACKAGE%.pdb to log assets....
+    IF NOT EXIST %PKG_TARGET_RUNLOG% (
+      MKDIR %PKG_TARGET_RUNLOG%
+    )
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
@@ -198,9 +201,6 @@ IF NOT EXIST "%PKG_TARGET%" (
   IF EXIST %PKG_RUNLOG% (
     ECHO.
     ECHO   Copying %PKG_DISTRO_DIR%_RunLog.txt to log assets...
-    IF NOT EXIST %PKG_TARGET_RUNLOG% (
-      MKDIR %PKG_TARGET_RUNLOG%
-    )
     COPY /V /Y "%PKG_RUNLOG%" "%PKG_TARGET_RUNLOG%\%PKG_DISTRO_DIR%_RunLog.txt" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
@@ -262,7 +262,7 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
     IF NOT EXIST %PKG_TARGET_RUNLOG% (
       MKDIR %PKG_TARGET_RUNLOG%
     )
-    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_Check_!PKG_CHECK_FAIL!.dmp" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_Check_!PKG_CHECK_FAIL!_%PKG_PLATFORM%.dmp" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO. -WARNING - %PKG_DUMP_FILE% was not found.
   )
