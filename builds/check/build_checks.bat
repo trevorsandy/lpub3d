@@ -104,7 +104,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     ECHO -%PKG_TARGET_PDB% found.
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
     ECHO -Copying %PACKAGE%.pdb to log assets....
-    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
