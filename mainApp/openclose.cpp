@@ -711,8 +711,11 @@ void Gui::closeFile()
   Preferences::highlightstepPreferences();
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+  setupFadeSteps = false;
+  setupHighlightStep = false;
+  if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
       ldrawColourParts.clearGeneratedColorParts();
+      partWorkerLDSearchDirs.removeCustomDirs();
   }
   submodelIconsLoaded = false;
   SetSubmodelIconsLoaded(submodelIconsLoaded);

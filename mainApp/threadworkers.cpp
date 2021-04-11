@@ -439,16 +439,33 @@ void PartWorker::addCustomDirs() {
     bool customDirs = false;
     if (!Preferences::ldSearchDirs.contains(_customPartDir)) {
         Preferences::ldSearchDirs << _customPartDir;
-        emit gui->messageSig(LOG_INFO, QString("Add custom part directory: %1").arg(_customPartDir));
+        emit gui->messageSig(LOG_INFO, QString("Added custom part directory: %1").arg(_customPartDir));
         customDirs = true;
     }
     if (!Preferences::ldSearchDirs.contains(_customPrimDir)) {
         Preferences::ldSearchDirs << _customPrimDir;
-        emit gui->messageSig(LOG_INFO, QString("Add custom primitive directory: %1").arg(_customPrimDir));
+        emit gui->messageSig(LOG_INFO, QString("Added custom primitive directory: %1").arg(_customPrimDir));
         if (!customDirs)
             customDirs = true;
     }
     updateLDSearchDirs(true /*archive*/, customDirs);
+}
+
+/*
+ * Remove customPartDir and customPrim dir from ldSearchDirs
+ * when fade and highlight step is disabled
+ */
+
+void PartWorker::removeCustomDirs() {
+    if (Preferences::ldSearchDirs.contains(_customPartDir)) {
+        Preferences::ldSearchDirs.removeAll(_customPartDir);
+        emit gui->messageSig(LOG_INFO, QString("Removed custom part directory: %1").arg(_customPartDir));
+    }
+    if (Preferences::ldSearchDirs.contains(_customPrimDir)) {
+        Preferences::ldSearchDirs.removeAll(_customPrimDir);
+        emit gui->messageSig(LOG_INFO, QString("Removed custom primitive directory: %1").arg(_customPrimDir));
+    }
+    updateLDSearchDirs();
 }
 
 /*

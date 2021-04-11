@@ -126,6 +126,8 @@ public:
 
     void addCustomDirs();
 
+    void removeCustomDirs();
+
     QString getLSynthDir();
 
     QStringList                _partList;
