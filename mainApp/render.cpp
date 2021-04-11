@@ -861,7 +861,7 @@ int POVRay::renderCsi(
 
       QString workingDirectory = QDir::currentPath();
 
-      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));
+      arguments << QString("%1").arg(QDir::toNativeSeparators(ldrName));
 
       removeEmptyStrings(arguments);
 
@@ -903,7 +903,7 @@ int POVRay::renderCsi(
           addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
         }
 
-      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));;
+      arguments << QString("%1").arg(QDir::toNativeSeparators(ldrName));;
 
       removeEmptyStrings(arguments);
 
@@ -1220,7 +1220,7 @@ int POVRay::renderPli(
   if (Preferences::useNativePovGenerator) {
       QString workingDirectory = QDir::currentPath();
 
-      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrNames.first()));
+      arguments << QString("%1").arg(QDir::toNativeSeparators(ldrNames.first()));
 
       removeEmptyStrings(arguments);
 
@@ -1259,7 +1259,7 @@ int POVRay::renderPli(
           addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
         }
 
-      arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrNames.first()));
+      arguments << QString("%1").arg(QDir::toNativeSeparators(ldrNames.first()));
 
       removeEmptyStrings(arguments);
 
