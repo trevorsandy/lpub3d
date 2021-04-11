@@ -103,6 +103,8 @@ IF NOT EXIST "%PKG_TARGET%" (
   ) ELSE (
     ECHO -%PKG_TARGET_PDB% found.
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+    ECHO -Copying %PACKAGE%.pdb to log assets....
+    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
@@ -223,10 +225,6 @@ IF NOT EXIST "%PKG_TARGET%" (
   )
   IF !PKG_CHECK_FAIL! GTR 0 (
     SET PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL:~1!
-    IF EXIST "%PKG_TARGET_PDB%" (
-      ECHO   Copying %PACKAGE%.pdb to log assets....
-      COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\" /A | findstr /i /v /r /c:"copied\>"
-    )
   )
   CALL :ELAPSED_CHECK_TIME %overall_check_start%
   ECHO.
