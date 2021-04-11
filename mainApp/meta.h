@@ -195,6 +195,8 @@ enum Rc {
 
          IncludeRc,
 
+         IncludeFileErrorRc,
+
          InvalidLineRc,
 
          NoStepRc,

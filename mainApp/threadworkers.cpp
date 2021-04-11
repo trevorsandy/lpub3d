@@ -2158,7 +2158,7 @@ int CountPageWorker::countPage(
 
       // if reading include file, return to current line, do not advance
 
-      if (opts.flags.includeFileRc != EndOfIncludeFileRc) {
+      if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc && opts.flags.includeFileFound) {
          opts.current.lineNumber--;
       }
 
@@ -2314,15 +2314,15 @@ int CountPageWorker::countPage(
 
           // intercept include file flag
 
-          if (opts.flags.includeFileRc != EndOfIncludeFileRc) {
+          if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc) {
               if (opts.flags.resetIncludeRc) {
-                  rc = IncludeRc;                     // return to IncludeRc to parse another line
+                  rc = IncludeRc;                    // return to IncludeRc to parse another line
               } else {
-                  rc = Rc(opts.flags.includeFileRc);  // execute the Rc returned by include(...)
-                  opts.flags.resetIncludeRc = true;   // reset to run include(...) to parse another line
+                  rc = static_cast<Rc>(opts.flags.includeFileRc); // execute the Rc returned by include(...)
+                  opts.flags.resetIncludeRc = true;  // reset to run include(...) to parse another line
               }
           } else {
-              rc = meta.parse(line,opts.current); // continue
+              rc = meta.parse(line,opts.current);    // continue
           }
 
           switch (rc) {
@@ -2525,9 +2525,12 @@ int CountPageWorker::countPage(
                break;
 
             case IncludeRc:
-              opts.flags.includeFileRc = Rc(gui->includePub(meta,opts.flags.includeLineNum,opts.flags.includeFileFound)); // includeHere and inserted are include(...) vars
-              if (opts.flags.includeFileRc != EndOfIncludeFileRc) {                      // still reading so continue
-                  opts.flags.resetIncludeRc = false;                                     // do not reset, allow includeFileRc to execute
+              opts.flags.includeFileRc = gui->includePub(meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
+              if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
+                  opts.flags.includeFileRc = static_cast<int>(EndOfIncludeFileRc);
+                  gui->parseError(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
+              } else if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc) {  // still reading so continue
+                  opts.flags.resetIncludeRc = false;                                         // do not reset, allow includeFileRc to execute
                   continue;
               }
               break;
