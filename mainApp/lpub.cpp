@@ -6214,10 +6214,10 @@ void Gui::statusMessage(LogType logType, QString message) {
         Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
         if (!ok)
         {
-            QString Message = QString("Failed to set log level %1.\n"
-                                              "Logging is off - level set to OffLevel")
-                    .arg(Preferences::loggingLevel);
-            fprintf(stderr, "%s", Message.append("\n").toLatin1().constData());
+            message = QString("Failed to set log level %1.\n"
+                              "Logging is off - level set to OffLevel\n")
+                              .arg(Preferences::loggingLevel);
+            fprintf(stderr, "%s", qPrintable(message));
         }
         logger.setLoggingLevel(logLevel);
 
@@ -6232,78 +6232,78 @@ void Gui::statusMessage(LogType logType, QString message) {
         bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
         if (logType == LOG_STATUS ){
 
-            logStatus() << message.replace("<br>"," ");
+            logStatus() << qPrintable(message.replace("<br>"," "));
 
             if (guiEnabled) {
                 statusBarMsg(message);
             } else if (!Preferences::suppressStdOutToLog) {
-                fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                fprintf(stdout,"%s", qPrintable(QString(message).append("\n")));
                 fflush(stdout);
             }
         } else
             if (logType == LOG_INFO) {
 
-                logInfo() << message.replace("<br>"," ");
+                logInfo() << qPrintable(message.replace("<br>"," "));
 
                 if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                    fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                    fprintf(stdout,"%s", qPrintable(QString(message).append("\n")));
                     fflush(stdout);
                 }
 
             } else
               if (logType == LOG_NOTICE) {
 
-                  logNotice() << message.replace("<br>"," ");
+                  logNotice() << qPrintable(message.replace("<br>"," "));
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s", qPrintable(QString(message).append("\n")));
                       fflush(stdout);
                   }
 
             } else
               if (logType == LOG_TRACE) {
 
-                  logTrace() << message.replace("<br>"," ");
+                  logTrace() << qPrintable(message.replace("<br>"," "));
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s",qPrintable(QString(message).append("\n")));
                       fflush(stdout);
                   }
 
             } else
               if (logType == LOG_DEBUG) {
-                  logDebug() << message.replace("<br>"," ");
+                  logDebug() << qPrintable(message.replace("<br>"," "));
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s", qPrintable(QString(message).replace("<br>"," ").append("\n")));
                       fflush(stdout);
                   }
 
             } else
               if (logType == LOG_INFO_STATUS) {
 
-                  logInfo() << message.replace("<br>"," ");
+                  logInfo() << qPrintable(message.replace("<br>"," "));
 
                   if (guiEnabled) {
                       statusBarMsg(message);
                   } else if (!Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s", qPrintable(QString(message).append("\n")));
                       fflush(stdout);
                   }
 
             } else
               if (logType == LOG_ERROR) {
 
-                  logError() << QString(message).replace("<br>"," ");
+                  logError() << qPrintable(QString(message).replace("<br>"," "));
 
                   if (guiEnabled) {
                       if (ContinuousPage()) {
                           statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
                       } else {
-                          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+                          QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),message);
                       }
                   } else if (!Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s", qPrintable(QString(message).replace("<br>"," ").append("\n")));
                       fflush(stdout);
                   }
             }
