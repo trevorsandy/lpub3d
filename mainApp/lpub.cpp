@@ -3842,17 +3842,17 @@ void Gui::generateCustomColourPartsList(bool prompt)
 //                this,                 SLOT(  statusMessage(LogType,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
-                this,                 SLOT(  progressBarInit()));
+                this,                 SLOT(  progressBarPermInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString &)),
-                this,                 SLOT(  progressBarSetText(const QString &)));
+                this,                 SLOT(  progressBarPermSetText(const QString &)));
         connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
-                this,                 SLOT(  progressBarSetRange(int,int)));
+                this,                 SLOT(  progressBarPermSetRange(int,int)));
         connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
-                this,                 SLOT(  progressBarSetValue(int)));
+                this,                 SLOT(  progressBarPermSetValue(int)));
         connect(colourPartListWorker, SIGNAL(progressResetSig()),
-                this,                 SLOT(  progressBarReset()));
+                this,                 SLOT(  progressBarPermReset()));
         connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),
-                this,                 SLOT(  progressStatusRemove()));
+                this,                 SLOT(  progressPermStatusRemove()));
 
         listThread->start();
 
