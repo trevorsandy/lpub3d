@@ -611,6 +611,7 @@ public:
   float   tipHeight;  // in units [inches]
   bool    hideTip;
   bool    useDefault;
+  bool    parametricTip;
 
   BorderData()
   {
@@ -625,6 +626,7 @@ public:
     color      = "Black";
     hideTip    = true;
     useDefault = true;
+    parametricTip = true;
     if (map.size() == 0) {
       map["NONE"]         = BdrLnNone;
       map["SOLID"]        = BdrLnSolid;
@@ -672,6 +674,7 @@ class PointerAttribData
         tipData.tipWidth         = 0.125f*2.5f; // DEFAULT_TIP_HEIGHT
         tipData.tipHeight        = 0.125f;      // DEFAULT_TIP_WIDTH
         tipData.useDefault       = true;
+        tipData.parametricTip    = true;
 
         lineData.color           = "Black";
         lineData.type            = BorderData::BdrRound;

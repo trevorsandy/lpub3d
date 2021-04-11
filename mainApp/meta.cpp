@@ -1411,6 +1411,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                     _result.tipHere.modelName     = here.modelName;
                     _result.tipHere.lineNumber    = here.lineNumber;
                     _result.tipData.useDefault    = false;
+                    _result.tipData.parametricTip = false;
                 } else if (line || border) {
                     if (line) {
                         _result.attribType            = PointerAttribData::Line;
@@ -1432,6 +1433,15 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                         _result.borderHere.modelName  = here.modelName;
                         _result.borderHere.lineNumber = here.lineNumber;
                         _result.borderData.useDefault = false;
+                    }
+                    const float lineData = _result.lineData.thickness;
+                    const float borderData = _result.borderData.thickness;
+                    const float delta = lineData + borderData - DEFAULT_POINTER_THICKNESS;
+                    if (delta && _result.tipData.parametricTip) {
+                        const float tipHeight = DEFAULT_TIP_HEIGHT + delta;
+                        _result.tipData.tipWidth   = tipHeight * DEFAULT_TIP_RATIO;
+                        _result.tipData.tipHeight  = tipHeight;
+                        _result.tipData.useDefault = false;
                     }
                 }
 
@@ -1536,6 +1546,7 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
       _result.tipHere.modelName     = here.modelName;
       _result.tipHere.lineNumber    = here.lineNumber;
       _result.tipData.useDefault    = false;
+      _result.tipData.parametricTip = false;
   } else if (line || border) {
       if (line) {
           _result.attribType         = PointerAttribData::Line;
@@ -1557,6 +1568,14 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
           _result.borderData.useDefault = false;
           _result.borderHere.modelName  = here.modelName;
           _result.borderHere.lineNumber = here.lineNumber;
+      }
+      const float lineData = _result.lineData.thickness;
+      const float borderData = _result.borderData.thickness;
+      const float delta = lineData + borderData - DEFAULT_POINTER_THICKNESS;
+      if (delta && _result.tipData.parametricTip) {
+          const float tipHeight = DEFAULT_TIP_HEIGHT + delta;
+          _result.tipData.tipWidth  = tipHeight * DEFAULT_TIP_RATIO;
+          _result.tipData.tipHeight = tipHeight;
       }
   }
 
