@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2452 (11 04 2021 09:38:30)
+LPub3D 2.4.2.1.2453 (11 04 2021 09:39:05)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
 - Fix - Disable automatic insertion of page/model #517
+- Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 

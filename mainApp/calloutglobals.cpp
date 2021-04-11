@@ -234,16 +234,16 @@ GlobalCalloutDialog::GlobalCalloutDialog(
 
   QGroupBox * childBox = new QGroupBox("Border");
   childLayout->addWidget(childBox);
-  PointerAttribData pad = calloutMeta->divPointerAttrib.value();
+  PointerAttribData pad = calloutMeta->pointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
-  calloutMeta->divPointerAttrib.setValue(pad);
+  calloutMeta->pointerAttrib.setValue(pad);
   child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
   data->children.append(child);
 
   childBox = new QGroupBox("Line");
   childLayout->addWidget(childBox);
   pad.attribType = PointerAttribData::Line;
-  calloutMeta->divPointerAttrib.setValue(pad);
+  calloutMeta->pointerAttrib.setValue(pad);
   child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
   data->children.append(child);
 
