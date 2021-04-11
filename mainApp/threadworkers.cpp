@@ -217,8 +217,11 @@ bool PartWorker::loadLDrawSearchDirs(){
 
   setDoFadeStep(Preferences::enableFadeSteps);
   StringList  ldrawSearchDirs;
-  if (ldPartsDirs.loadLDrawSearchDirs("")){
+
+  if (ldPartsDirs.loadLDrawSearchDirs("")) {
       ldrawSearchDirs = ldPartsDirs.getLDrawSearchDirs();
+      if (_resetSearchDirSettings)
+          _saveLDSearchDirs = Preferences::ldSearchDirs;
       Preferences::ldSearchDirs.clear();
       bool foundUnofficialRootDir = false;
       bool customDirsIncluded = false;
@@ -367,6 +370,7 @@ bool PartWorker::loadLDrawSearchDirs(){
 
       if (_resetSearchDirSettings) {
           processLDSearchDirParts();
+          _saveLDSearchDirs.clear();
       }
 
     } else {
@@ -544,21 +548,29 @@ QString PartWorker::getLSynthDir(){
  */
 void PartWorker::processLDSearchDirParts(){
 
-  QStringList dirs;
+    QStringList dirs;
 
-  // Automatically load default LSynth when add to search directory is disabled
-  if (!Preferences::addLSynthSearchDir) {
-     QString dir;
-     if (!(dir = getLSynthDir()).isEmpty())
-        dirs.append(dir);
-  }
+    // Automatically load default LSynth when add to search directory is disabled
+    if (!Preferences::addLSynthSearchDir) {
+        QString dir = getLSynthDir();
+        if (!dir.isEmpty())
+            dirs.append(dir);
+    }
 
-  dirs += Preferences::ldSearchDirs;
+    if (_resetSearchDirSettings) {
+        Q_FOREACH (QString searchDir, Preferences::ldSearchDirs) {
+            if (_saveLDSearchDirs.contains(searchDir))
+                continue;
+            dirs.append(searchDir);
+        }
+    } else {
+        dirs += Preferences::ldSearchDirs;
+    }
 
-  if (dirs.size() > 0)
-    processPartsArchive(dirs, "search directory");
+    if (dirs.size())
+        processPartsArchive(dirs, "search directory");
 
-  // qDebug() << "\nFinished Processing Search Directory Parts.";
+    // qDebug() << "\nFinished Processing Search Directory Parts.";
 }
 
 /*

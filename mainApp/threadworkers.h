@@ -221,6 +221,7 @@ private:
    QStringList               _ldrawStaticColourParts;
    QStringList               _partFileContents;
    QStringList               _excludedSearchDirs;
+   QStringList               _saveLDSearchDirs;
    QString                   _customPartDir;
    QString                   _customPrimDir;
    QString                   _lsynthPartsDir;
