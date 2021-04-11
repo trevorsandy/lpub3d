@@ -2027,8 +2027,10 @@ void Preferences::fadestepPreferences(bool persist)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),cValue);
     } else {
         validFadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
-        if (validFadeStepsColour.isEmpty())
+        if (validFadeStepsColour.isEmpty()) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey));
+            validFadeStepsColour = LEGO_FADE_COLOUR_DEFAULT;
+        }
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity")) || persist) {
@@ -2088,6 +2090,10 @@ void Preferences::highlightstepPreferences(bool persist)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"),cValue);
     } else {
         highlightStepColour = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepColor")).toString();
+        if (highlightStepColour.isEmpty()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"));
+            highlightStepColour = HIGHLIGHT_COLOUR_DEFAULT;
+        }
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")) || persist) {
