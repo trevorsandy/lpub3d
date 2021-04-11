@@ -1160,7 +1160,7 @@ Rc BorderMeta::parse(QStringList &argv, int index,Where &here)
       argv[index+1].toInt(&ok[0]);
       argv[index+3].toFloat(&ok[1]);
       if (ok[0] && ok[1]) {
-          _value[pushed].hideTip = true;
+          _value[pushed].hideTip    = true;
           _value[pushed].type       = BorderData::BdrSquare;
           _value[pushed].line       = setBorderLine(argv[index+1]);
           _value[pushed].color      = argv[index+2];
@@ -1323,9 +1323,9 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
     int id = 0;
     Rc rc = FailureRc;
     QRegExp rx("^(GLOBAL|LOCAL)$");
-    bool adjusted = argv[index-1].contains(rx);
+    bool scoped = argv[index-1].contains(rx);
     rx.setPattern("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
-    bool valid  = argv[index-(adjusted ? 2 : 1)].contains(rx);
+    bool valid  = argv[index-(scoped ? 2 : 1)].contains(rx);
     bool tip    = argv[index] == "TIP";
     bool line   = argv[index] == "LINE";
     bool border = argv[index] == "BORDER";
@@ -1335,7 +1335,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
         bool ok = false;
         bool widthKey = false;
         int widthIndex = -1, heightIndex = -1, sizeIndex = -1, colorIndex = -1;
-        bool noParent = argv[index-(adjusted ? 3 : 2)] == "CALLOUT" || argv[index-(adjusted ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
+        bool noParent = argv[index-(scoped ? 3 : 2)] == "CALLOUT" || argv[index-(scoped ? 2 : 1)] == "DIVIDER_POINTER_ATTRIBUTE";
 
         BorderData::Line lineType = BorderData::BdrLnNone;
 
@@ -1376,10 +1376,12 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
         bool haveId = false;
         int tip_idIndex = -1, idIndex = -1;
         if (argv.size() > sizeIndex+1) {
-            bool tip_idKey = argv[sizeIndex+1] == (line ? "HIDE_TIP" : "ID");
+            rx.setPattern("^(HIDE_TIP|ID)$");
+            bool tip_idKey = argv[sizeIndex+1].contains(rx);
             tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;
-            if (argv[tip_idIndex] != "TRUE" && argv[tip_idIndex] != "FALSE") // if line (show/hide tip), else if border or tip (id)
-                id = argv[tip_idIndex].toInt(&ok);                           // hide tip/id integer
+            rx.setPattern("^(TRUE|FALSE)$");
+            if (!argv[tip_idIndex].contains(rx))   // if line (show/hide tip or id), else if border or tip (id)
+                id = argv[tip_idIndex].toInt(&ok); // hide tip/id integer
             else
                 ok = true;
             if (argv[sizeIndex+1] == "ID") {
@@ -1389,10 +1391,10 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
             rc = ok ? OkRc : FailureRc;
         }
 
-        if ((line || tip) && !haveId && !adjusted && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
+        if ((line || tip) && !haveId && !scoped && tip_idIndex > -1 && argv.size() > tip_idIndex+1) {
             bool idKey = argv[tip_idIndex+1] == "ID";
             idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;
-            id = argv[idIndex].toInt(&ok);                             // if line id
+            id = argv[idIndex].toInt(&ok);        // if line id
             rc = ok ? OkRc : FailureRc;
             haveId = true;
         }
@@ -1400,46 +1402,49 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
         bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
         if (ok && rc == OkRc) {
-            if (adjusted) {
+            if (scoped) {
                 _result = _value[pushed];
-                if (tip || line) {
-                    if (tip) {
-                        _result.attribType           = PointerAttribData::Tip;
-                        _result.tipData.tipWidth     = argv[widthIndex].toFloat();
-                        _result.tipData.tipHeight    = argv[heightIndex].toFloat();
-                        _result.tipHere.modelName    = here.modelName;
-                        _result.tipHere.lineNumber   = here.lineNumber;
-                        _result.tipData.useDefault   = false;
-                    } else if (line) {
-                        _result.attribType           = PointerAttribData::Line;
-                        _result.lineData.line        = lineType;
-                        _result.lineData.color       = argv[colorIndex];
-                        _result.lineData.thickness   = argv[widthIndex].toFloat();
+                if (tip) {
+                    _result.attribType            = PointerAttribData::Tip;
+                    _result.tipData.tipWidth      = argv[widthIndex].toFloat();
+                    _result.tipData.tipHeight     = argv[heightIndex].toFloat();
+                    _result.tipHere.modelName     = here.modelName;
+                    _result.tipHere.lineNumber    = here.lineNumber;
+                    _result.tipData.useDefault    = false;
+                } else if (line || border) {
+                    if (line) {
+                        _result.attribType            = PointerAttribData::Line;
+                        _result.lineData.line         = lineType;
+                        _result.lineData.color        = argv[colorIndex];
+                        _result.lineData.thickness    = argv[widthIndex].toFloat();
                         if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
-                            _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
+                            _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
                         else
-                            _result.lineData.hideTip = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
+                            _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to show/hide arrow tip
                         _result.lineHere.modelName    = here.modelName;
                         _result.lineHere.lineNumber   = here.lineNumber;
                         _result.lineData.useDefault   = false;
+                    } else if (border) {
+                        _result.attribType            = PointerAttribData::Border;
+                        _result.borderData.line       = lineType;
+                        _result.borderData.color      = argv[colorIndex];
+                        _result.borderData.thickness  = argv[widthIndex].toFloat();
+                        _result.borderHere.modelName  = here.modelName;
+                        _result.borderHere.lineNumber = here.lineNumber;
+                        _result.borderData.useDefault = false;
                     }
-                   _result.id                    = haveId ? argv[idIndex].toInt() : 0;
-                   _result.parent                = haveParent ? argv[idIndex+1] : "";
-                } else if (border) {
-                   _result.attribType            = PointerAttribData::Border;
-                   _result.borderData.line       = lineType;
-                   _result.borderData.color      = argv[colorIndex];
-                   _result.borderData.thickness  = argv[widthIndex].toFloat();
-                   _result.id                    = haveId ? argv[tip_idIndex].toInt() : 0;
-                   _result.parent                = haveParent ? argv[tip_idIndex+1] : "";
-                   _result.borderHere.modelName  = here.modelName;
-                   _result.borderHere.lineNumber = here.lineNumber;
-                   _result.borderData.useDefault = false;
                 }
-                setValueInches(_result);
+
+                _result.id     = haveId ? argv[idIndex].toInt() : 0;
+                _result.parent = haveParent ? argv[idIndex+1] : "";
+
+                _value[pushed] = _result;
                 _here[pushed] = here;
+
                 return rc;
-            }
+
+            } // scoped (GLOBAL or LOCAL)
+
             if (argv[index-2] == "CALLOUT") {
                 if (argv[index-1] == "POINTER_ATTRIBUTE")
                     rc = CalloutPointerAttribRc;
@@ -1455,12 +1460,13 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
             _here[pushed] = here;
         }
 
-        if (!id && !adjusted)
+        if (!id && !scoped)
         {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
           rc = FailureRc;
         }
     }
+
     return rc;
 }
 
@@ -1486,7 +1492,7 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
       heightIndex = heightKey ? widthIndex+2 : widthIndex+1;
       sizeIndex = heightIndex;
   } else {
-      if (_value[pushed].lineData.map.contains(argv[index+1])) { // line type word
+      if (_result.lineData.map.contains(argv[index+1])) { // line type word
           lineType = BorderData::Line(_result.lineData.map[argv[index+1]]);
       } else {
           bool ok = false;
@@ -1506,8 +1512,9 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
   bool haveId = false;
   int tip_idIndex = -1, idIndex = -1;
   if (argv.size() > sizeIndex+1) {
-      bool tip_idKey = argv[sizeIndex+1] == (line ? "HIDE_TIP" : "ID");
-      tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;       // if line (hide tip) else if border or tip (id)
+      rx.setPattern("^(HIDE_TIP|ID)$");
+      bool tip_idKey = argv[sizeIndex+1].contains(rx);
+      tip_idIndex = tip_idKey ? sizeIndex+2 : sizeIndex+1;       // if line (show/hide tip or id), else if border or tip (id)
       if (argv[sizeIndex+1] == "ID") {
           idIndex = tip_idIndex;
           haveId = true;
@@ -1515,22 +1522,22 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
   }
 
   if ((line || tip) && !haveId && tip_idIndex > -1 && argv.size() >= tip_idIndex+1) {
-      bool idKey = argv[index+tip_idIndex+1] == "ID";
+      bool idKey = argv[tip_idIndex+1] == "ID";
       idIndex = idKey ? tip_idIndex+2 : tip_idIndex+1;           // if line id
       haveId = true;
   }
 
   bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
-  if (tip || line) {
-      if (tip) {
-          _result.attribType         = PointerAttribData::Tip;
-          _result.tipData.tipWidth   = argv[widthIndex].toFloat();
-          _result.tipData.tipHeight  = argv[heightIndex].toFloat();
-          _result.tipHere.modelName  = here.modelName;
-          _result.tipHere.lineNumber = here.lineNumber;
-          _result.tipData.useDefault = false;
-      } else if (line) {
+  if (tip) {
+      _result.attribType            = PointerAttribData::Tip;
+      _result.tipData.tipWidth      = argv[widthIndex].toFloat();
+      _result.tipData.tipHeight     = argv[heightIndex].toFloat();
+      _result.tipHere.modelName     = here.modelName;
+      _result.tipHere.lineNumber    = here.lineNumber;
+      _result.tipData.useDefault    = false;
+  } else if (line || border) {
+      if (line) {
           _result.attribType         = PointerAttribData::Line;
           _result.lineData.line      = lineType;
           _result.lineData.color     = argv[colorIndex];
@@ -1538,24 +1545,24 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
           if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
               _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
           else
-              _result.lineData.hideTip = argv[tip_idIndex].toInt(); // used to hide tip
-          _result.lineHere.modelName   = here.modelName;
-          _result.lineHere.lineNumber  = here.lineNumber;
-          _result.lineData.useDefault  = false;
+              _result.lineData.hideTip  = argv[tip_idIndex].toInt(); // used to hide tip
+          _result.lineHere.modelName    = here.modelName;
+          _result.lineHere.lineNumber   = here.lineNumber;
+          _result.lineData.useDefault   = false;
+      } else if (border) {
+          _result.attribType            = PointerAttribData::Border;
+          _result.borderData.line       = lineType;
+          _result.borderData.color      = argv[colorIndex];
+          _result.borderData.thickness  = argv[widthIndex].toFloat();
+          _result.borderData.useDefault = false;
+          _result.borderHere.modelName  = here.modelName;
+          _result.borderHere.lineNumber = here.lineNumber;
       }
-     _result.id                    = haveId ? argv[idIndex].toInt() : 0;
-     _result.parent                = haveParent ? argv[idIndex+1] : "";
-  } else if (border) {
-     _result.attribType            = PointerAttribData::Border;
-     _result.borderData.line       = lineType;
-     _result.borderData.color      = argv[colorIndex];
-     _result.borderData.thickness  = argv[widthIndex].toFloat();
-     _result.id                    = haveId ? argv[tip_idIndex].toInt() : 0;
-     _result.parent                = haveParent ? argv[tip_idIndex+1] : "";
-     _result.borderData.useDefault = false;
-     _result.borderHere.modelName  = here.modelName;
-     _result.borderHere.lineNumber = here.lineNumber;
   }
+
+  _result.id     = haveId ? argv[idIndex].toInt() : 0;
+  _result.parent = haveParent ? argv[idIndex+1] : "";
+
   return _result;
 }
 
@@ -1566,31 +1573,30 @@ QString PointerAttribMeta::format(bool local, bool global)
     {
     case PointerAttribData::Tip:
         foo = QString("TIP WIDTH %1 HEIGHT %2")
-            .arg(double(_value[pushed].tipData.tipWidth),0,'f',3)
-            .arg(double(_value[pushed].tipData.tipHeight),0,'f',3);
+                .arg(double(_value[pushed].tipData.tipWidth),0,'f',3)
+                .arg(double(_value[pushed].tipData.tipHeight),0,'f',3);
         break;
     case PointerAttribData::Line:
-        foo = QString("LINE %1 COLOR %2 WIDTH %3 HIDE_TIP %4")
-            .arg(LineTypeNames[_value[pushed].lineData.line])
-            .arg(_value[pushed].lineData.color)
-            .arg(double(_value[pushed].lineData.thickness),0,'f',3)
-            .arg(_value[pushed].lineData.hideTip ? "TRUE" : "FALSE");
+        foo = QString("LINE %1 COLOR %2 WIDTH %3")
+                .arg(LineTypeNames[_value[pushed].lineData.line])
+                .arg(_value[pushed].lineData.color)
+                .arg(double(_value[pushed].lineData.thickness),0,'f',3);
+        if (_value[pushed].lineData.hideTip)
+            foo += QString(" HIDE_TIP TRUE");
         break;
     case PointerAttribData::Border:
         foo = QString("BORDER %1 COLOR %2 WIDTH %3")
-            .arg(LineTypeNames[_value[pushed].borderData.line])
-            .arg(_value[pushed].borderData.color)
-            .arg(double(_value[pushed].borderData.thickness),0,'f',3);
+                .arg(LineTypeNames[_value[pushed].borderData.line])
+                .arg(_value[pushed].borderData.color)
+                .arg(double(_value[pushed].borderData.thickness),0,'f',3);
         break;
     }
 
-    bool haveId     = _value[pushed].id;
-    bool haveParent = !_value[pushed].parent.isEmpty();
-
-    bar = QString("%1%2")
-                  .arg(haveParent || haveId ? QString(" ID %1").arg(_value[pushed].id) : "")
-                  .arg(haveParent ? QString(" %1").arg(_value[pushed].parent) : "");
-    foo += bar;
+    if (_value[pushed].id || !_value[pushed].parent.isEmpty()) {
+        foo += QString(" ID %1").arg(_value[pushed].id);
+        if (!_value[pushed].parent.isEmpty())
+            foo += QString(" %1").arg(_value[pushed].parent);
+    }
 
     return LeafMeta::format(local,global,foo);
 }
@@ -2741,7 +2747,7 @@ SepMeta::SepMeta() : LeafMeta()
   _value[pushed].type      = SepData::Default;
   _value[pushed].color     = "black";
   _value[pushed].length    = -1.0;
-  _value[pushed].thickness = DEFAULT_THICKNESS;
+  _value[pushed].thickness = DEFAULT_LINE_THICKNESS;
   _value[pushed].margin[0] = DEFAULT_MARGIN;
   _value[pushed].margin[1] = DEFAULT_MARGIN;
 }
@@ -3714,7 +3720,7 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   borderData.type = BorderData::BdrNone;
   borderData.line = BorderData::BdrLnNone;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -4773,7 +4779,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -4869,7 +4875,7 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   borderData.type = BorderData::BdrRound;
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius = 10;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -4880,7 +4886,7 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   arrowData.type = BorderData::BdrSquare;
   arrowData.line = BorderData::BdrLnSolid;
   arrowData.color = "Blue";
-  arrowData.thickness = DEFAULT_THICKNESS;
+  arrowData.thickness = DEFAULT_LINE_THICKNESS;
   arrowData.margin[0] = DEFAULT_MARGIN;
   arrowData.margin[1] = DEFAULT_MARGIN;
   arrow.setValueInches(arrowData);
@@ -5290,7 +5296,7 @@ PliMeta::PliMeta() : BranchMeta()
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -5425,7 +5431,7 @@ BomMeta::BomMeta() : PliMeta()
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -5602,12 +5608,12 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   stepNum.placement.setValue(LeftTopOutside,PartsListType);
-  sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
+  sep.setValueInches("Black",DEFAULT_LINE_THICKNESS,DEFAULT_MARGINS);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.thickness = DEFAULT_LINE_THICKNESS;
   borderData.radius    = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
@@ -5696,7 +5702,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   placement.setValue(CenterCenter,PageType);
-  sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
+  sep.setValue("black",DEFAULT_LINE_THICKNESS,DEFAULT_MARGINS);
   // subModelFont - default
   subModelFontColor.setValue("black");
   // freeform

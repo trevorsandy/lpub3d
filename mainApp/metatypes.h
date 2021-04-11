@@ -669,33 +669,33 @@ class PointerAttribData
 
     PointerAttribData()
     {
-        tipData.tipWidth      = 0.125f*2.5f;;
-        tipData.tipHeight     = 0.125f;
-        tipData.useDefault    = true;
+        tipData.tipWidth         = 0.125f*2.5f; // DEFAULT_TIP_HEIGHT
+        tipData.tipHeight        = 0.125f;      // DEFAULT_TIP_WIDTH
+        tipData.useDefault       = true;
 
-        lineData.color        = "Black";
-        lineData.type         = BorderData::BdrRound;
-        lineData.line         = BorderData::BdrLnSolid;
-        lineData.thickness    = 1.0f/32.0f;
-        lineData.radius       = 15.0f;
-        lineData.margin[0]    = 0.0f;
-        lineData.margin[1]    = 0.0f;
-        lineData.useDefault   = true;    // flag if using attribute meta
-        lineData.hideTip      = false;   // flag if pointer tip is hidden
+        lineData.color           = "Black";
+        lineData.type            = BorderData::BdrRound;
+        lineData.line            = BorderData::BdrLnSolid;
+        lineData.thickness       = 1.0f/32.0f;  // DEFAULT_LINE_THICKNESS
+        lineData.radius          = 15.0f;       // DEFAULT_ROUND_RADIUS
+        lineData.margin[0]       = 0.0f;
+        lineData.margin[1]       = 0.0f;
+        lineData.useDefault      = true;        // flag if settings unchanged
+        lineData.hideTip         = false;       // flag if pointer tip is hidden
 
-        borderData.color      = QString();
-        borderData.type       = BorderData::BdrRound;
-        borderData.line       = BorderData::BdrLnSolid;
-        borderData.thickness  = 1.0f/64.0f;
-        borderData.radius     = 15.0f;
-        borderData.margin[0]  = 0.0f;
-        borderData.margin[1]  = 0.0f;
-        borderData.useDefault = true;
-        lineData.hideTip      = true;
+        borderData.color         = QString();
+        borderData.type          = BorderData::BdrRound;
+        borderData.line          = BorderData::BdrLnSolid;
+        borderData.thickness     = 1.0f/64.0f;  // DEFAULT_BORDER_THICKNESS
+        borderData.radius        = 15.0f;       // DEFAULT_ROUND_RADIUS
+        borderData.margin[0]     = 0.0f;
+        borderData.margin[1]     = 0.0f;
+        borderData.useDefault    = true;
+        borderData.hideTip       = true;
 
-        attribType            = PointerAttribData::Line;
-        id                    = 0;
-        parent                = QString();
+        attribType               = PointerAttribData::Line;
+        id                       = 0;
+        parent                   = QString();
     }
 };
 

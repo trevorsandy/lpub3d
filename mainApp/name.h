@@ -549,8 +549,6 @@ enum ThemeColorType {
 
 #define THEME_DARK                             "Dark"    // Dark Theme
 
-
-
 #define Z_VALUE_DEFAULT                            0.0
 #define GRABBER_ZVALUE_DEFAULT                     100.0
 #define POINTER_ZVALUE_DEFAULT                    -1.0
@@ -629,6 +627,22 @@ enum ThemeColorType {
 #define DEFAULT                                 0
 #define NEXT                                    1
 #define PREVIOUS                                2
+
+#define DEFAULT_MARGIN                          0.05f
+#define DEFAULT_MARGINS                         DEFAULT_MARGIN,DEFAULT_MARGIN
+#define DEFAULT_MARGIN_RANGE                    0.0f,100.0f
+#define DEFAULT_ROUND_RADIUS                    15.0f
+#define DEFAULT_BORDER_THICKNESS                1.0f/64.0f                                        // 0.01562
+#define DEFAULT_LINE_THICKNESS                  1.0f/32.0f                                        // 0.03125
+#define DEFAULT_POINTER_THICKNESS               DEFAULT_LINE_THICKNESS + DEFAULT_BORDER_THICKNESS // 0.04687
+#define DEFAULT_TIP_RATIO                       2.5f                                              // Width to Height ratio
+#define DEFAULT_TIP_HEIGHT                      1.0f/8.0f                                         // 0.12500
+#define DEFAULT_TIP_WIDTH                       DEFAULT_TIP_HEIGHT * DEFAULT_TIP_RATIO            // 0.31250
+
+#define DEFAULT_SUBMODEL_COLOR_01               "#FFFFFF"
+#define DEFAULT_SUBMODEL_COLOR_02               "#FFFFCC"
+#define DEFAULT_SUBMODEL_COLOR_03               "#FFCCCC"
+#define DEFAULT_SUBMODEL_COLOR_04               "#CCCCFF"
 
 #define HIGH_CONTRAST_STUD_CYLINDER_DEFAULT     "27,42,52,255"
 #define HIGH_CONTRAST_PART_EDGE_DEFAULT         "0,0,0,255"

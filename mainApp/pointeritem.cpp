@@ -80,10 +80,10 @@ QPolygonF PointerHeadItem::createPolygon()
                              v
     */
 
-    float unitX = width/2.5;   // in pixels
-    float unitY = height/2;    // in pixels
+    float unitX = width/DEFAULT_TIP_RATIO; // in pixels
+    float unitY = height/2;                // in pixels
 
-    QPolygonF polyF;
+    QPolygonF polyF;                   // points
     polyF << QPointF(-2*unitX, 0);     // pA
     polyF << QPointF(-2*unitX, unitY); // pB
     polyF << QPointF(unitX/2 , 0);     // pC

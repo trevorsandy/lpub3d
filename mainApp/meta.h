@@ -49,6 +49,7 @@
 #include "where.h"
 #include "metatypes.h"
 #include "resolution.h"
+#include "name.h"
 
 class Meta;
 class BranchMeta;
@@ -212,17 +213,6 @@ enum Positions {
   PP_RIGHT,
   PP_POSITIONS
 };
-
-#define DEFAULT_MARGIN  0.05f
-#define DEFAULT_MARGINS DEFAULT_MARGIN,DEFAULT_MARGIN
-#define DEFAULT_MARGIN_RANGE 0.0f,100.0f
-#define DEFAULT_ROUND_RADIUS 15
-#define DEFAULT_THICKNESS 1.0f/32.0f
-
-#define DEFAULT_SUBMODEL_COLOR_01 "#ffffff"
-#define DEFAULT_SUBMODEL_COLOR_02 "#ffffcc"
-#define DEFAULT_SUBMODEL_COLOR_03 "#ffcccc"
-#define DEFAULT_SUBMODEL_COLOR_04 "#ccccff"
 
 /*
  * This abstract class is the root of all meta-command parsing
@@ -1330,7 +1320,7 @@ public:
   }
   BorderMeta() : LeafMeta()
   {
-    _value[0].thickness = DEFAULT_THICKNESS;
+    _value[0].thickness = DEFAULT_LINE_THICKNESS;
     _value[0].margin[0] = 0;
     _value[0].margin[1] = 0;
   }
@@ -1406,15 +1396,11 @@ public:
     if (_value[pushed].attribType == PointerAttribData::Line) {
         _value[pushed].borderData  = pointerAttribData.borderData;
         _value[pushed].borderHere  = pointerAttribData.borderHere;
-        _value[pushed].tipData     = pointerAttribData.tipData;
-        _value[pushed].tipHere     = pointerAttribData.tipHere;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Border) {
         _value[pushed].lineData    = pointerAttribData.lineData;
         _value[pushed].lineHere    = pointerAttribData.lineHere;
-        _value[pushed].tipData     = pointerAttribData.tipData;
-        _value[pushed].tipHere     = pointerAttribData.tipHere;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Tip) {
@@ -1479,10 +1465,10 @@ public:
 
   PointerAttribMeta() : LeafMeta()
   {
-    _value[0].borderData.thickness = 1.0f/64.0f;
-    _value[0].lineData.thickness   = 1.0f/32.0f;
-    _value[0].tipData.tipWidth     = 0.125f*2.5f;
-    _value[0].tipData.tipHeight    = 0.125f;
+    _value[0].borderData.thickness = DEFAULT_BORDER_THICKNESS;
+    _value[0].lineData.thickness   = DEFAULT_LINE_THICKNESS;
+    _value[0].tipData.tipWidth     = DEFAULT_TIP_WIDTH;
+    _value[0].tipData.tipHeight    = DEFAULT_TIP_HEIGHT;
   }
 
   PointerAttribMeta(const PointerAttribMeta &rhs) : LeafMeta(rhs)

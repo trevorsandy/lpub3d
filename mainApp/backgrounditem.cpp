@@ -84,7 +84,7 @@ void BackgroundItem::setBackground(
           Preferences::displayTheme == THEME_DARK ?
           borderData.color      = Preferences::themeColors[THEME_DARK_TRANS_PAGE_BORDER] :
           borderData.color      = Preferences::themeColors[THEME_DEFAULT_TRANS_PAGE_BORDER];
-          borderData.thickness  = 1.0f/48.0f;/*DEFAULT_THICKNESS*/;
+          borderData.thickness  = 1.0f/48.0f;/*DEFAULT_LINE_THICKNESS*/;
           borderData.radius     = 0;
           borderData.margin[0]  = DEFAULT_MARGIN;
           borderData.margin[1]  = DEFAULT_MARGIN;
