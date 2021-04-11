@@ -506,6 +506,15 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
 }
 
 /*
+ * SLOT instance of update ldSearch Directory list and archvie new parts if any
+ */
+
+void PartWorker::updateLDSearchDirsParts()
+{
+    updateLDSearchDirs(true);
+}
+
+/*
  * Get LSynth directory path
  */
 
@@ -774,25 +783,30 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
   }
 
   // summary stats
-  int secs = _timer.elapsed() / 1000;
-  int mins = (secs / 60) % 60;
-  secs = secs % 60;
-  int msecs = _timer.elapsed() % 1000;
+  qint64 elapsed = _timer.elapsed();
+  int milliseconds = int(elapsed % 1000);
+  elapsed /= 1000;
+  int seconds = int(elapsed % 60);
+  elapsed /= 60;
+  int minutes = int(elapsed % 60);
+  elapsed /= 60;
+  int hours = int(elapsed % 24);
 
-  QString time = QString("Elapsed time is %1:%2:%3")
-  .arg(mins, 2, 10, QLatin1Char('0'))
-  .arg(secs,  2, 10, QLatin1Char('0'))
-  .arg(msecs,  3, 10, QLatin1Char('0'));
+  const QString time = QString("Elapsed time is %1:%2:%3:%4")
+  .arg(hours, 2, 10, QLatin1Char('0'))
+  .arg(minutes, 2, 10, QLatin1Char('0'))
+  .arg(seconds,  2, 10, QLatin1Char('0'))
+  .arg(milliseconds,  3, 10, QLatin1Char('0'));
 
   int allCustomParts = _customParts += existingCustomParts;
 
-  QString fileStatus = allCustomParts > 0 ? QString("%1 %2 %3 created. Archive library %4. %5.")
-                                                    .arg(_customParts)
-                                                    .arg(nameMod)
-                                                    .arg(allCustomParts == 1 ? "part" : "parts")
-                                                    .arg(_partsArchived ? "updated" : "not updated, custom parts already archived")
-                                                    .arg(time) :
-                                             QString("No %2 parts created.").arg(nameMod);
+  const QString fileStatus = allCustomParts > 0 ? QString("%1 %2 %3 created. Archive library %4. %5.")
+                                                          .arg(_customParts)
+                                                          .arg(nameMod)
+                                                          .arg(allCustomParts == 1 ? "part" : "parts")
+                                                          .arg(_partsArchived ? "updated" : "not updated, custom parts already archived")
+                                                          .arg(time) :
+                                                 QString("No %2 parts created.").arg(nameMod);
 
   //emit progressStatusRemoveSig();
   emit customColourFinishedSig();
@@ -1522,7 +1536,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     Q_FOREACH (QString archiveFile, archiveFiles) {
        if(!processArchiveParts(archiveFile)){
            QString error = QString("Process color parts list failed!.");
-           emit messageSig(LOG_ERROR,error);
+           emit gui->messageSig(LOG_ERROR,error);
            emit progressStatusRemoveSig();
            emit colourPartListFinishedSig();
            return;
@@ -1533,18 +1547,23 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     writeLDrawColourPartFile(/*append=false*/);
 
-    int secs = _timer.elapsed() / 1000;
-    int mins = (secs / 60) % 60;
-    secs = secs % 60;
-    int msecs = _timer.elapsed() % 1000;
+    qint64 elapsed = _timer.elapsed();
+    int milliseconds = int(elapsed % 1000);
+    elapsed /= 1000;
+    int seconds = int(elapsed % 60);
+    elapsed /= 60;
+    int minutes = int(elapsed % 60);
+    elapsed /= 60;
+    int hours = int(elapsed % 24);
 
-    QString time = QString("Elapsed time is %1:%2:%3")
-    .arg(mins, 2, 10, QLatin1Char('0'))
-    .arg(secs,  2, 10, QLatin1Char('0'))
-    .arg(msecs,  3, 10, QLatin1Char('0'));
+    const QString time = QString("Elapsed time is %1:%2:%3:%4")
+    .arg(hours, 2, 10, QLatin1Char('0'))
+    .arg(minutes, 2, 10, QLatin1Char('0'))
+    .arg(seconds,  2, 10, QLatin1Char('0'))
+    .arg(milliseconds,  3, 10, QLatin1Char('0'));
 
-    QString fileStatus = QString("%1 Color Parts List successfully created with %2 entries. %3.")
-                                   .arg(Preferences::validLDrawLibrary).arg(QString::number(_cpLines)).arg(time);
+    const QString fileStatus = QString("%1 Color Parts List successfully created with %2 entries. %3.")
+                                       .arg(Preferences::validLDrawLibrary).arg(QString::number(_cpLines)).arg(time);
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
 
     writeLDrawColourPartFile(true/*append*/);
@@ -1556,6 +1575,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     emit progressStatusRemoveSig();
     emit colourPartListFinishedSig();
     emit messageSig(LOG_INFO_STATUS,fileStatus);
+    emit gui->messageSig(LOG_INFO_STATUS,fileStatus);
 }
 
 bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
@@ -1571,8 +1591,8 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 
     QuaZip zip(archiveFile);
     if (!zip.open(QuaZip::mdUnzip)) {
-        emit messageSig(LOG_ERROR, QString("Failed to open archive file %1. Error code [%2]")
-                             .arg(archiveFile).arg(zip.getZipError()));
+        emit gui->messageSig(LOG_ERROR, QString("Failed to open archive file %1. Error code [%2]")
+                                                .arg(archiveFile).arg(zip.getZipError()));
         return false;
     }
 
@@ -1589,7 +1609,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
             partCount++;
         }
     }
-    emit messageSig(LOG_INFO,QString("Processing Archive Parts for %1 - Parts Count: %2")
+    emit gui->messageSig(LOG_INFO,QString("Processing Archive Parts for %1 - Parts Count: %2")
                     .arg(library).arg(partCount));
 
     emit progressResetSig();
@@ -1613,7 +1633,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
                 qba = zipFile.readAll();
                 zipFile.close();
             } else {
-                emit messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(libFileName));
+                emit gui->messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(libFileName));
                 return false;
             }
 
@@ -1634,11 +1654,11 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
         }
     }
     emit progressSetValueSig(partCount);
-    emit messageSig(LOG_INFO,QString("Finished Processing %1 Parent Color Parts").arg(library));
+    emit gui->messageSig(LOG_INFO,QString("Finished Processing %1 Parent Color Parts").arg(library));
 
     zip.close();
     if (zip.getZipError() != UNZ_OK) {
-        emit messageSig(LOG_ERROR, QString("zip.close() zipError(): %1").arg(zip.getZipError()));
+        emit gui->messageSig(LOG_ERROR, QString("zip.close() zipError(): %1").arg(zip.getZipError()));
         return false;
     }
     return true;
@@ -1664,7 +1684,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
         QString line = _partFileContents[i];
         QStringList tokens;
 
-        //emit messageSig(LOG_INFO, QString("File contents CHECK: %1").arg(line));
+        //emit gui->messageSig(LOG_INFO, QString("File contents CHECK: %1").arg(line));
         split(line,tokens);
         if (tokens.size() == 3 && line.contains("Name:", Qt::CaseInsensitive))
             fileName  = tokens[tokens.size()-1];
@@ -1682,13 +1702,13 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
             } else {
                 hasColour = true;
 //#ifdef QT_DEBUG_MODE
-//                emit messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
+//                emit gui->messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
 //#endif
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
-                    emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
-                                                      "You may want to update the part content and custom color parts list.")
-                                                      .arg(fileName).arg(libFileName));
+                    emit gui->messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
+                                                           "You may want to update the part content and custom color parts list.")
+                                                           .arg(fileName).arg(libFileName));
                 }
                 fileEntry = QString("%1:::%2:::%3").arg(fileName).arg(libType).arg(_partFileContents[0].remove(0,2));
                 remove(libFileName);
@@ -1716,7 +1736,7 @@ void ColourPartListWorker::processChildren(){
     emit progressResetSig();
     emit progressMessageSig("Processing Child Color Parts...");
     emit progressRangeSig(1, _partList.size());
-    emit messageSig(LOG_INFO,QString("Processing Child Color Parts - Count: %1").arg(_partList.size()));
+    emit gui->messageSig(LOG_INFO,QString("Processing Child Color Parts - Count: %1").arg(_partList.size()));
 
     QString     filePath = "";
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++){
@@ -1758,7 +1778,7 @@ void ColourPartListWorker::processChildren(){
                             _ldrawStaticColourParts  << fileEntry.toLower();
                             if (parentFileNameStr.size() > _colWidthFileName)
                                 _colWidthFileName = parentFileNameStr.size();
-                            //emit messageSig(LOG_INFO,QString("ADD CHILD COLOUR PART: %1").arg(libFileName));
+                            //emit gui->messageSig(LOG_INFO,QString("ADD CHILD COLOUR PART: %1").arg(libFileName));
                             gotoMainLoop = true;
                         }
                     }
@@ -1767,7 +1787,7 @@ void ColourPartListWorker::processChildren(){
         }
     }
     emit progressSetValueSig(_partList.size());
-    emit messageSig(LOG_INFO,QString("Finished Processing Child Color Parts."));
+    emit gui->messageSig(LOG_INFO,QString("Finished Processing Child Color Parts."));
 }
 
 void ColourPartListWorker::writeLDrawColourPartFile(bool append){
@@ -1776,7 +1796,7 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
     {
         QFile file(Preferences::ldrawColourPartsFile);
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
-            emit messageSig(LOG_ERROR,QString("Failed to OPEN colour parts file %1 for writing:<br>%2").arg(file.fileName()).arg(file.errorString()));
+            emit gui->messageSig(LOG_ERROR,QString("Failed to OPEN colour parts file %1 for writing:<br>%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);
@@ -1802,9 +1822,9 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
         file.close();
 
         if(!append) {
-            messageSig(LOG_INFO,QString("Lines written to %1: %2")
-                         .arg(Preferences::validLDrawColorParts)
-                         .arg(_ldrawStaticColourParts.size()+5));
+            gui->messageSig(LOG_INFO,QString("Lines written to %1: %2")
+                                             .arg(Preferences::validLDrawColorParts)
+                                             .arg(_ldrawStaticColourParts.size()+5));
         }
         _ldrawStaticColourParts.clear();
     }

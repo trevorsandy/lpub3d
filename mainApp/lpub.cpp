@@ -2959,7 +2959,7 @@ void Gui::preferences()
             for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
                 emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
             }
-            gui->partWorkerLDSearchDirs.updateLDSearchDirs(true);
+            loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
         }
 
         if (lgeoPathChanged && !ldrawPathChanged)
@@ -3807,121 +3807,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
         clearAndReloadModelFile();
 }
 
-void Gui::generateCustomColourPartsList(bool prompt)
-{
-    QMessageBox::StandardButton ret = QMessageBox::Cancel;
-    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::validLDrawLibrary);
 
-    if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
-            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-                                   tr("%1 Do you want to continue ?").arg(message),
-                                   QMessageBox::Yes | QMessageBox::Cancel);
-    }
-
-    if (ret == QMessageBox::Yes || ! prompt || !Preferences::lpub3dLoaded) {
-        emit messageSig(LOG_INFO,message);
-
-        QThread *listThread   = new QThread();
-        colourPartListWorker  = new ColourPartListWorker();
-        colourPartListWorker->moveToThread(listThread);
-
-        connect(listThread,           SIGNAL(started()),
-                colourPartListWorker, SLOT(  generateCustomColourPartsList()));
-        connect(listThread,           SIGNAL(finished()),
-                listThread,           SLOT(  deleteLater()));
-        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
-                this,                 SLOT(  reloadModelFileAfterColorFileGen()));
-        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
-                listThread,           SLOT(  quit()));
-        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
-                colourPartListWorker, SLOT(  deleteLater()));
-        connect(this,                 SIGNAL(requestEndThreadNowSig()),
-                colourPartListWorker, SLOT(  requestEndThreadNow()));
-//      uses gui signal
-//        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),
-//                this,                 SLOT(  statusMessage(LogType,QString)));
-
-        connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
-                this,                 SLOT(  progressBarPermInit()));
-        connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString &)),
-                this,                 SLOT(  progressBarPermSetText(const QString &)));
-        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
-                this,                 SLOT(  progressBarPermSetRange(int,int)));
-        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
-                this,                 SLOT(  progressBarPermSetValue(int)));
-        connect(colourPartListWorker, SIGNAL(progressResetSig()),
-                this,                 SLOT(  progressBarPermReset()));
-        connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),
-                this,                 SLOT(  progressPermStatusRemove()));
-
-        listThread->start();
-
-        if (!Preferences::modeGUI) {
-            QEventLoop  *wait = new QEventLoop();
-            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),         wait, SLOT(quit()));
-            wait->exec();
-        }
-
-    } else {
-      return;
-    }
-}
-
-void Gui::processFadeColourParts(bool overwrite, bool setup)
-{
-    partWorkerCustomColour = new PartWorker();
-
-    connect(this,                   SIGNAL(operateFadeParts(bool, bool)),
-            partWorkerCustomColour, SLOT(processFadeColourParts(bool, bool)));
-
-    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-            this,                   SLOT( progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-            this,                   SLOT( progressBarSetText(const QString &)));
-    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-            this,                   SLOT( progressBarSetRange(int,int)));
-    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-            this,                   SLOT( progressBarSetValue(int)));
-    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-            this,                   SLOT( progressBarReset()));
-    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-            this,                   SLOT( progressStatusRemove()));
-
-    //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwrite ? "True" : "False"));
-    partWorkerCustomColour->setDoFadeStep(setup);
-    emit operateFadeParts(overwrite, setup);
-}
-
-void Gui::processHighlightColourParts(bool overwrite, bool setup)
-{
-    partWorkerCustomColour = new PartWorker();
-
-    connect(this,                   SIGNAL(operateHighlightParts(bool, bool)),
-            partWorkerCustomColour, SLOT(  processHighlightColourParts(bool, bool)));
-
-    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
-            this,                   SLOT(  progressBarInit()));
-    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
-            this,                   SLOT(  progressBarSetText(const QString &)));
-    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
-            this,                   SLOT(  progressBarSetRange(int,int)));
-    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
-            this,                   SLOT(  progressBarSetValue(int)));
-    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
-            this,                   SLOT(  progressBarReset()));
-    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
-            this,                   SLOT(  progressStatusRemove()));
-
-    //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
-    partWorkerCustomColour->setDoHighlightStep(setup);
-    emit operateHighlightParts(overwrite, setup);
-}
-
-// Update parts archive from LDSearch directories
-void Gui::loadLDSearchDirParts() {
-  partWorkerLDSearchDirs.ldsearchDirPreferences();
-  partWorkerLDSearchDirs.processLDSearchDirParts();
-}
 
 // left side progress bar - no longer used
 void Gui::progressBarInit(){
@@ -4045,93 +3931,218 @@ void Gui::archivePartsOnLaunch() {
 }
 
 void Gui::archivePartsOnDemand() {
-     QStringList items = Preferences::ldSearchDirs;
-     if (items.count()) {
-         QString message = tr("Archiving unofficial parts. Please wait...");
-         emit messageSig(LOG_STATUS,message);
-         m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-         m_progressDialog->setWindowTitle(QString("Archive Library Update"));
-         m_progressDialog->progressBarSetLabelText(QString("Archiving search directory parts..."));
-         m_progressDialog->progressBarSetRange(0,items.count());
-         m_progressDialog->setAutoHide(true);
-         m_progressDialog->setModal(true);
-         m_progressDialog->show();
+    loadLDSearchDirParts(false/*Process*/, true/*OnDemand*/, false/*Update*/);
+}
 
-         QThread *thread = new QThread(this);
-         PartWorker *job = new PartWorker(true/*OnDemand*/);
-         job->moveToThread(thread);
-         QEventLoop *wait = new QEventLoop();
+void Gui::generateCustomColourPartsList(bool prompt)
+{
+    QMessageBox::StandardButton ret = QMessageBox::Cancel;
+    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::validLDrawLibrary);
 
-         disconnect (m_progressDialog, SIGNAL (cancelClicked()),
-                     this,  SLOT (cancelExporting()));
-         connect(thread, SIGNAL(started()),
-                 job, SLOT(processLDSearchDirParts()));
-         connect(thread, SIGNAL(finished()),
-                 thread, SLOT(deleteLater()));
-         connect(job, SIGNAL(progressSetValueSig(int)),
-                 m_progressDialog, SLOT(progressBarSetValue(int)));
-         connect(m_progressDialog, SIGNAL(cancelClicked()),
-                 job, SLOT(requestEndThreadNow()));
-         connect(job, SIGNAL(progressMessageSig (QString)),
-                 m_progressDialog, SLOT(progressBarSetLabelText(QString)));
-         connect(job, SIGNAL(partsArchiveResultSig(int)),
-                 this, SLOT(workerJobResult(int)));
-         connect(this, SIGNAL(requestEndThreadNowSig()),
-                 job, SLOT(requestEndThreadNow()));
-         connect(job, SIGNAL(partsArchiveFinishedSig()),
-                 thread, SLOT(quit()));
-         connect(job, SIGNAL(partsArchiveFinishedSig()),
-                 job, SLOT(deleteLater()));
-         wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
-                 wait, SLOT(quit()));
+    if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
+            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                                   tr("%1 Do you want to continue ?").arg(message),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
+    }
 
-         workerJobResult(0);
-         thread->start();
-         wait->exec();
+    if (ret == QMessageBox::Yes || ! prompt || !Preferences::lpub3dLoaded) {
+        emit messageSig(LOG_INFO,message);
 
-         m_progressDialog->progressBarSetValue(items.count());
+        QThread *listThread   = new QThread();
+        colourPartListWorker  = new ColourPartListWorker();
+        colourPartListWorker->moveToThread(listThread);
 
-         QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
-         message = tr("Added %1 %2 into Unofficial library archive %3")
-                      .arg(m_workerJobResult)
-                      .arg(partsLabel)
-                      .arg(Preferences::validLDrawCustomArchive);
-         emit messageSig(LOG_INFO,message);
+        connect(listThread,           SIGNAL(started()),
+                colourPartListWorker, SLOT(  generateCustomColourPartsList()));
+        connect(listThread,           SIGNAL(finished()),
+                listThread,           SLOT(  deleteLater()));
+        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
+                this,                 SLOT(  reloadModelFileAfterColorFileGen()));
+        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
+                listThread,           SLOT(  quit()));
+        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
+                colourPartListWorker, SLOT(  deleteLater()));
+        connect(this,                 SIGNAL(requestEndThreadNowSig()),
+                colourPartListWorker, SLOT(  requestEndThreadNow()));
+//      uses gui signal
+//        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),
+//                this,                 SLOT(  statusMessage(LogType,QString)));
 
-         connect (m_progressDialog, SIGNAL (cancelClicked()),
-                  this, SLOT (cancelExporting()));
+        connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
+                this,                 SLOT(  progressBarPermInit()));
+        connect(colourPartListWorker, SIGNAL(progressMessageSig(const QString &)),
+                this,                 SLOT(  progressBarPermSetText(const QString &)));
+        connect(colourPartListWorker, SIGNAL(progressRangeSig(int,int)),
+                this,                 SLOT(  progressBarPermSetRange(int,int)));
+        connect(colourPartListWorker, SIGNAL(progressSetValueSig(int)),
+                this,                 SLOT(  progressBarPermSetValue(int)));
+        connect(colourPartListWorker, SIGNAL(progressResetSig()),
+                this,                 SLOT(  progressBarPermReset()));
+        connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),
+                this,                 SLOT(  progressPermStatusRemove()));
 
-         m_progressDialog->hide();
-     }
+        listThread->start();
 
-     if (! getCurFile().isEmpty()) {
-         bool _continue;
-         if (Preferences::saveOnRedraw) {
-             _continue = maybeSave(false); // No prompt
-         } else {
-             _continue = maybeSave(true, SaveOnNone);
-         }
-         if (!_continue)
-             return;
+        if (!Preferences::modeGUI) {
+            QEventLoop  *wait = new QEventLoop();
+            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),         wait, SLOT(quit()));
+            wait->exec();
+        }
 
-         timer.start();
+    } else {
+      return;
+    }
+}
 
-         clearPLICache();
-         clearCSICache();
-         clearSubmodelCache();
-         clearTempCache();
+void Gui::processFadeColourParts(bool overwrite, bool setup)
+{
+    partWorkerCustomColour = new PartWorker();
 
-         //reload current model file
-         int savePage = displayPageNum;
-         openFile(curFile);
-         displayPageNum = pa ? savePage + pa : savePage;
-         displayPage();
-         enableActions();
+    connect(this,                   SIGNAL(operateFadeParts(bool, bool)),
+            partWorkerCustomColour, SLOT(processFadeColourParts(bool, bool)));
 
-         emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                         .arg(ldrawFile.getPartCount())
-                         .arg(elapsedTime(timer.elapsed())));
-     }
+    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
+            this,                   SLOT( progressBarInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
+            this,                   SLOT( progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
+            this,                   SLOT( progressBarSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
+            this,                   SLOT( progressBarSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
+            this,                   SLOT( progressBarReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
+            this,                   SLOT( progressStatusRemove()));
+
+    //qDebug() << qPrintable(QString("Sent overwrite fade parts = %1").arg(overwrite ? "True" : "False"));
+    partWorkerCustomColour->setDoFadeStep(setup);
+    emit operateFadeParts(overwrite, setup);
+}
+
+void Gui::processHighlightColourParts(bool overwrite, bool setup)
+{
+    partWorkerCustomColour = new PartWorker();
+
+    connect(this,                   SIGNAL(operateHighlightParts(bool, bool)),
+            partWorkerCustomColour, SLOT(  processHighlightColourParts(bool, bool)));
+
+    connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),
+            this,                   SLOT(  progressBarInit()));
+    connect(partWorkerCustomColour, SIGNAL(progressMessageSig(const QString &)),
+            this,                   SLOT(  progressBarSetText(const QString &)));
+    connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),
+            this,                   SLOT(  progressBarSetRange(int,int)));
+    connect(partWorkerCustomColour, SIGNAL(progressSetValueSig(int)),
+            this,                   SLOT(  progressBarSetValue(int)));
+    connect(partWorkerCustomColour, SIGNAL(progressResetSig()),
+            this,                   SLOT(  progressBarReset()));
+    connect(partWorkerCustomColour, SIGNAL(progressStatusRemoveSig()),
+            this,                   SLOT(  progressStatusRemove()));
+
+    //qDebug() << qPrintable(QString("Sent overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+    partWorkerCustomColour->setDoHighlightStep(setup);
+    emit operateHighlightParts(overwrite, setup);
+}
+
+// Update parts archive from LDSearch directories
+
+void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
+  if (Process)
+    partWorkerLDSearchDirs.ldsearchDirPreferences();
+
+  QStringList items = Preferences::ldSearchDirs;
+  if (items.count()) {
+      QString message = tr("Archiving unofficial parts. Please wait...");
+      emit messageSig(LOG_STATUS,message);
+      m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+      m_progressDialog->setWindowTitle(QString("Archive Library Update"));
+      m_progressDialog->progressBarSetLabelText(QString("Archiving search directory parts..."));
+      m_progressDialog->progressBarSetRange(0,items.count());
+      m_progressDialog->setAutoHide(true);
+      m_progressDialog->setModal(true);
+      m_progressDialog->show();
+
+      QThread *thread = new QThread(this);
+      PartWorker *job = &partWorkerLDSearchDirs;
+      if (OnDemand)
+          job = new PartWorker(true/*OnDemand*/);
+      job->moveToThread(thread);
+      QEventLoop *wait = new QEventLoop();
+
+      disconnect (m_progressDialog, SIGNAL (cancelClicked()),
+                  this,  SLOT (cancelExporting()));
+      if (Update)
+          connect(thread, SIGNAL(started()),
+                  job, SLOT(updateLDSearchDirsParts()));
+      else
+          connect(thread, SIGNAL(started()),
+                  job, SLOT(processLDSearchDirParts()));
+      connect(thread, SIGNAL(finished()),
+              thread, SLOT(deleteLater()));
+      connect(job, SIGNAL(progressSetValueSig(int)),
+              m_progressDialog, SLOT(progressBarSetValue(int)));
+      connect(m_progressDialog, SIGNAL(cancelClicked()),
+              job, SLOT(requestEndThreadNow()));
+      connect(job, SIGNAL(progressMessageSig (QString)),
+              m_progressDialog, SLOT(progressBarSetLabelText(QString)));
+      connect(job, SIGNAL(partsArchiveResultSig(int)),
+              this, SLOT(workerJobResult(int)));
+      connect(this, SIGNAL(requestEndThreadNowSig()),
+              job, SLOT(requestEndThreadNow()));
+      connect(job, SIGNAL(partsArchiveFinishedSig()),
+              thread, SLOT(quit()));
+      connect(job, SIGNAL(partsArchiveFinishedSig()),
+              job, SLOT(deleteLater()));
+      wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
+              wait, SLOT(quit()));
+
+      workerJobResult(0);
+      thread->start();
+      wait->exec();
+
+      m_progressDialog->progressBarSetValue(items.count());
+
+      QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
+      message = tr("Added %1 %2 into Unofficial library archive %3")
+                   .arg(m_workerJobResult)
+                   .arg(partsLabel)
+                   .arg(Preferences::validLDrawCustomArchive);
+      emit messageSig(LOG_INFO,message);
+
+      connect (m_progressDialog, SIGNAL (cancelClicked()),
+               this, SLOT (cancelExporting()));
+
+      m_progressDialog->hide();
+  }
+
+  if (! getCurFile().isEmpty()) {
+      bool _continue;
+      if (Preferences::saveOnRedraw) {
+          _continue = maybeSave(false); // No prompt
+      } else {
+          _continue = maybeSave(true, SaveOnNone);
+      }
+      if (!_continue)
+          return;
+
+      timer.start();
+
+      clearPLICache();
+      clearCSICache();
+      clearSubmodelCache();
+      clearTempCache();
+
+      //reload current model file
+      int savePage = displayPageNum;
+      openFile(curFile);
+      displayPageNum = pa ? savePage + pa : savePage;
+      displayPage();
+      enableActions();
+
+      emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                      .arg(ldrawFile.getPartCount())
+                      .arg(elapsedTime(timer.elapsed())));
+  }
 }
 
 void Gui::refreshLDrawUnoffParts() {
@@ -6375,7 +6386,7 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
       for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
           emit gui->messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
       }
-      gui->partWorkerLDSearchDirs.updateLDSearchDirs(true);
+      gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
     }
   }
 }

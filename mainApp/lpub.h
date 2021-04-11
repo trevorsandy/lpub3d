@@ -1423,10 +1423,9 @@ public slots:
 
   void processFadeColourParts(bool overwrite, bool setup);
   void processHighlightColourParts(bool overwrite, bool setup);
-  void loadLDSearchDirParts();
+  void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false);
   bool loadFile(const QString &file);
   int processCommandLine();
-
 
   void showRenderDialog();
 

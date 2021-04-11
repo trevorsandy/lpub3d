@@ -133,6 +133,8 @@ public:
     QStringList                _partList;
 
 public slots:
+     void updateLDSearchDirsParts();
+
      void processFadeColourParts(bool overwrite, bool setup);      // scan LDraw library files for static colored parts and create fade copy
 
      void processHighlightColourParts(bool overwrite, bool setup); // scan LDraw library files for static colored parts and create highlight copy
