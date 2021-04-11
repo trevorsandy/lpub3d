@@ -80,7 +80,7 @@ public:
   void unnestCallouts(         const QString &);
   void updatePointer(          const Where &,   PointerMeta *pointer);
   void deletePointerAttribute( const Where &, bool = false);
-  void deletePointer(          const Where &, bool, bool);
+  void deletePointer(          const Where &, bool, bool, bool);
   void changeRotation(         const Where &);
 
   int countInstancesInModel(   Meta *, const QString &);

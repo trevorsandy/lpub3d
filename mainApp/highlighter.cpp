@@ -618,6 +618,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bTEXT_PLACEMENT\\b"
     << "\\bTHICKNESS\\b"
     << "\\bTILE\\b"
+    << "\\bTIP\\b"
     << "\\bTOGGLE_PAGE_NUMBER_PLACEMENT\\b"
     << "\\bTOP\\b"
     << "\\bTOP_LEFT\\b"

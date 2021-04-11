@@ -4541,12 +4541,14 @@ void MetaItem::updatePointer(
   }
 }
 
-void MetaItem::deletePointer(const Where &here, bool line, bool border)
+void MetaItem::deletePointer(const Where &here, bool line, bool border, bool tip)
 {
    Where _here = here;
    if (line)
        deletePointerAttribute(_here,true);
    if (border)
+       deletePointerAttribute(_here,true);
+   if (tip)
        deletePointerAttribute(_here,true);
    deleteMeta(_here);
 }

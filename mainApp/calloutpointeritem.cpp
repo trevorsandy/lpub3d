@@ -181,7 +181,7 @@ CalloutPointerItem::CalloutPointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new PointerHeadItem(poly, this);
+  head = new PointerHeadItem(pad->tipData.tipWidth, pad->tipData.tipHeight, poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);

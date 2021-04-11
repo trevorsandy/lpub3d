@@ -3075,6 +3075,7 @@ void BorderGui::typeChange(QString const &type)
   enable();
   modified = true;
 }
+
 void BorderGui::lineChange(QString const &line)
 {
   BorderData border = meta->value();
@@ -3242,94 +3243,136 @@ void PlacementGui::apply(QString &topLevelFile)
   meta   = _meta;
 
   isLine = meta->value().attribType == PointerAttribData::Line;
+  isTip  = meta->value().attribType == PointerAttribData::Tip;
 
-  QString        string;
+  tip.attribType = PointerAttribData::Tip;
+  line.attribType = PointerAttribData::Line;
+  border.attribType = PointerAttribData::Border;
+
   QGridLayout   *grid;
+  QLabel        *label;
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
 
   /*  Attributes */
 
-  int index;
+  int index = 0;
   bool hideTip = false;
   QString title;
-  QString thickness;
+  QString size;
   QString color;
-  if (isLine) {
-      line = meta->value();
-      title = "Line";
-      index = (int)line.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
-      thickness = QString("%1") .arg(line.lineData.thickness,5,'f',4);
-      color = line.lineData.color;
-      hideTip = line.lineData.hideTip;
-  } else {
-      border = meta->value();
-      title = "Border";
-      index = (int)border.borderData.line - 1;
-      thickness = QString("%1") .arg(border.borderData.thickness,5,'f',4);
-      color = border.borderData.color.isEmpty() ? border.lineData.color : border.borderData.color;
-  }
+  QString units = QString("Units in %1").arg(Preferences::preferCentimeters ? "centimetres" : "inches");
+
+  if (!isTip) {
+    if (isLine) {
+        line = meta->value();
+        title = "Line";
+        index = (int)line.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
+        size = QString("%1") .arg(line.lineData.thickness,5,'f',4);
+        color = line.lineData.color;
+        hideTip = line.lineData.hideTip;
+    } else {
+        border = meta->value();
+        title = "Border";
+        index = (int)border.borderData.line - 1;
+        size = QString("%1") .arg(border.borderData.thickness,5,'f',4);
+        color = border.borderData.color.isEmpty() ? border.lineData.color : border.borderData.color;
+    }
 
     /* Line Combo */
 
-  lineCombo = new QComboBox(parent);
-  lineCombo->addItem("Solid Line");
-  lineCombo->addItem("Dash Line");
-  lineCombo->addItem("Dotted Line");
-  lineCombo->addItem("Dot-Dash Line");
-  lineCombo->addItem("Dot-Dot-Dash Line");
-  lineCombo->setCurrentIndex(index); //
-  connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,       SLOT(  lineChange(       QString const &)));
-  grid->addWidget(lineCombo,0,0);
-  grid->setColumnStretch(0,1);
-  grid->setColumnStretch(1,1);
+    lineCombo = new QComboBox(parent);
+    lineCombo->addItem("Solid Line");
+    lineCombo->addItem("Dash Line");
+    lineCombo->addItem("Dotted Line");
+    lineCombo->addItem("Dot-Dash Line");
+    lineCombo->addItem("Dot-Dot-Dash Line");
+    lineCombo->setCurrentIndex(index); //
+    connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
+            this,       SLOT(  lineChange(       QString const &)));
+    grid->addWidget(lineCombo,0,0);
+    grid->setColumnStretch(0,1);
+    grid->setColumnStretch(1,1);
+
     /*  Width */
 
-  thicknessLabel = new QLabel(title+" Width",parent);
-  grid->addWidget(thicknessLabel,0,1);
+    label = new QLabel(title+" Width",parent);
+    grid->addWidget(label,0,1);
 
-  string = thickness;
-  thicknessEdit = new QLineEdit(string,parent);
-  thicknessEdit->setInputMask("9.9000");
-  thicknessEdit->setToolTip(QString("In %1)")
-                            .arg(Preferences::preferCentimeters ? "centimetres" : "inches"));
-  connect(thicknessEdit,SIGNAL(textEdited(   QString const &)),
-          this,         SLOT(thicknessChange(QString const &)));
-  grid->addWidget(thicknessEdit,0,2);
+    thicknessEdit = new QLineEdit(size,parent);
+    thicknessEdit->setInputMask("9.9000");
+    thicknessEdit->setToolTip(units);
+    connect(thicknessEdit,SIGNAL(textEdited(QString const &)),
+            this,         SLOT(  sizeChange(QString const &)));
+    grid->addWidget(thicknessEdit,0,2);
 
-  /*  Color */
+    /*  Color */
 
-  QLabel *Label = new QLabel(title+" Color",parent);
-  grid->addWidget(Label,1,0);
+    label = new QLabel(title+" Color",parent);
+    grid->addWidget(label,1,0);
 
-  colorExample = new QLabel(parent);
-  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  QColor c = QColor(color);
-  QString StyleSheet =
-      QString("QLabel { background-color: %1; }")
-      .arg(color.isEmpty() ? "transparent" :
-           QString("rgb(%1, %2, %3)")
-           .arg(c.red()).arg(c.green()).arg(c.blue()));
-  colorExample->setAutoFillBackground(true);
-  colorExample->setStyleSheet(StyleSheet);
-  grid->addWidget(colorExample,1,1);
+    colorExample = new QLabel(parent);
+    colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+    QColor c = QColor(color);
+    QString StyleSheet =
+            QString("QLabel { background-color: %1; }")
+            .arg(color.isEmpty() ? "transparent" :
+                                   QString("rgb(%1, %2, %3)")
+                                   .arg(c.red()).arg(c.green()).arg(c.blue()));
+    colorExample->setAutoFillBackground(true);
+    colorExample->setStyleSheet(StyleSheet);
+    grid->addWidget(colorExample,1,1);
 
-  colorButton = new QPushButton("Change",parent);
-  connect(colorButton,SIGNAL(clicked(   bool)),
-          this,        SLOT(browseColor(bool)));
-  grid->addWidget(colorButton,1,2);
+    colorButton = new QPushButton("Change",parent);
+    connect(colorButton,SIGNAL(clicked(   bool)),
+            this,        SLOT(browseColor(bool)));
+    grid->addWidget(colorButton,1,2);
 
-  /* hide arrows [optional] */
-  if (isLine && !_isCallout) {
-      hideTipBox = new QCheckBox("Hide Pointer Tip", parent);
-      hideTipBox->setChecked(hideTip);
-      connect(hideTipBox,SIGNAL(clicked(    bool)),
-              this,      SLOT(hideTipChange(bool)));
-      grid->addWidget(hideTipBox,2,0,1,3);
+    /* hide arrows [optional] */
+
+    if (isLine && !_isCallout) {
+        hideTipBox = new QCheckBox("Hide Pointer Tip", parent);
+        hideTipBox->setChecked(hideTip);
+        connect(hideTipBox,SIGNAL(clicked(    bool)),
+                this,      SLOT(hideTipChange(bool)));
+        grid->addWidget(hideTipBox,2,0,1,3);
+    }
+
+  } else {
+
+    title = "Tip";
+    tip = meta->value();
+
+    /*  Width */
+
+    label = new QLabel(title+" Width",parent);
+    grid->addWidget(label,0,0);
+    size = QString("%1") .arg(tip.tipData.tipWidth,5,'f',4);
+
+    widthEdit = new QLineEdit(size,parent);
+    widthEdit->setInputMask("9.9000");
+    widthEdit->setToolTip(units);
+    connect(widthEdit,SIGNAL(textEdited(QString const &)),
+            this,       SLOT(sizeChange(QString const &)));
+
+    grid->addWidget(widthEdit,0,1);
+
+    /*  Height */
+
+    label = new QLabel(title+" Height",parent);
+    grid->addWidget(label,0,2);
+    size = QString("%1") .arg(tip.tipData.tipHeight,5,'f',4);
+
+    heightEdit = new QLineEdit(size,parent);
+    heightEdit->setInputMask("9.9000");
+    heightEdit->setToolTip(units);
+    connect(heightEdit,SIGNAL(textEdited(   QString const &)),
+            this,      SLOT(sizeChange(QString const &)));
+
+    grid->addWidget(heightEdit,0,3);
   }
-
+  tipModified = false;
   lineModified = false;
   borderModified = false;
 }
@@ -3362,18 +3405,28 @@ void PointerAttribGui::lineChange(QString const &_line)
   modified = lineModified || borderModified;
 }
 
-void PointerAttribGui::thicknessChange(QString const &thickness)
+void PointerAttribGui::sizeChange(QString const &size)
 {
-  if (isLine) {
+  if (isTip) {
+    if (sender() == widthEdit) {
+      if (!tipModified)
+        tipModified = tip.tipData.tipWidth != size.toFloat();
+      tip.tipData.tipWidth = size.toFloat();
+    } else if (sender() == heightEdit) {
+      if (!tipModified)
+        tipModified = tip.tipData.tipHeight != size.toFloat();
+      tip.tipData.tipHeight = size.toFloat();
+    }
+  } else if (isLine) {
     if (!lineModified)
-      lineModified = line.lineData.thickness != thickness.toFloat();
-    line.lineData.thickness = thickness.toFloat();
+      lineModified = line.lineData.thickness != size.toFloat();
+    line.lineData.thickness = size.toFloat();
   } else {
     if (!borderModified)
-      borderModified = border.borderData.thickness != thickness.toFloat();
-    border.borderData.thickness = thickness.toFloat();
+      borderModified = border.borderData.thickness != size.toFloat();
+    border.borderData.thickness = size.toFloat();
   }
-  modified = lineModified || borderModified;
+  modified = tipModified || lineModified || borderModified;
 }
 
 void PointerAttribGui::browseColor(bool)
@@ -3416,13 +3469,18 @@ void PointerAttribGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;
-    if (lineModified) {
-       meta->setValue(line);
-       mi.setGlobalMeta(modelName,meta);
-    }
-    if (borderModified) {
-       meta->setValue(border);
-       mi.setGlobalMeta(modelName,meta);
+    if (tipModified) {
+      meta->setValue(tip);
+      mi.setGlobalMeta(modelName,meta);
+    } else {
+      if (lineModified) {
+        meta->setValue(line);
+        mi.setGlobalMeta(modelName,meta);
+      }
+      if (borderModified) {
+        meta->setValue(border);
+        mi.setGlobalMeta(modelName,meta);
+      }
     }
   }
 }

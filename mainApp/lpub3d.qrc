@@ -214,6 +214,7 @@
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
+        <file alias="resettipattributes.png">resources/resettipattributes.png</file>
         <file alias="resetviewerimage.png">resources/resetviewerimage.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
@@ -255,6 +256,7 @@
         <file alias="tools.png">resources/tools.png</file>
         <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
+        <file alias="tipattributes.png">resources/tipattributes.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="underline.png">resources/underline.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>

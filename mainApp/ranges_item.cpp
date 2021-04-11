@@ -516,19 +516,24 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       if (pointer->stepNum   == parentStep->stepNumber.number) {
         modelName             = pointer->here.modelName;
         PointerAttribData pad = pointer->pointerAttrib.value();
-        Where lineAttribTop   = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
-        Where borderAttribTop = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
         // for each pointer load the pointer...
         hash.insert(pointer->here.lineNumber,MetaCmd);
         lineNumbers << pointer->here.lineNumber;
-        // load pointer attributes if any...
+        // load pointer attributes if any..
+        Where lineAttribTop = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
         if (lineAttribTop != undefined){
             hash.insert(lineAttribTop.lineNumber,Attribute);
             lineNumbers << lineAttribTop.lineNumber;
         }
+        Where borderAttribTop = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
         if (borderAttribTop != undefined){
             hash.insert(borderAttribTop.lineNumber,Attribute);
             lineNumbers << borderAttribTop.lineNumber;
+        }
+        Where tipAttribTop = Where(pad.tipHere.modelName,pad.tipHere.lineNumber);
+        if (tipAttribTop != undefined){
+            hash.insert(tipAttribTop.lineNumber,Attribute);
+            lineNumbers << tipAttribTop.lineNumber;
         }
       }
     }

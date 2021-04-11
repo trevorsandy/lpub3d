@@ -42,7 +42,7 @@ PointerAttribDialog::PointerAttribDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Pointer Attributes",this);
+  QGroupBox *box = new QGroupBox(_name.replace("Pointer ",""),this);
   layout->addWidget(box);
   pointerAttrib = new PointerAttribGui(&meta,box,isCallout);
 
@@ -74,6 +74,8 @@ bool PointerAttribDialog::getPointerAttrib(
       dialog->meta.setValue(dialog->pointerAttrib->line);
     if (dialog->pointerAttrib->borderModified)
       dialog->meta.setValue(dialog->pointerAttrib->border);
+    if (dialog->pointerAttrib->tipModified)
+      dialog->meta.setValue(dialog->pointerAttrib->tip);
     goods = dialog->meta.value();
   }
   return ok;

@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2461 (11 04 2021 09:45:58)
+LPub3D 2.4.2.1.2462 (11 04 2021 09:46:36)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,8 +15,9 @@ Revisions:
 
 - Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
-- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
+- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
+- Enhancement - Resizeable pointer tip #528
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497

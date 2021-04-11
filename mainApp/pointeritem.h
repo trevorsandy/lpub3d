@@ -174,12 +174,16 @@ protected:
 
 class PointerHeadItem : public QGraphicsPolygonItem
 {
+  struct Point { float x = 0, y = 0; };
 public:
   int stepNumber;
+  float width, height;
   Where top,bottom;
-  PointerHeadItem(const QPolygonF &poly,
-                  QGraphicsItem *parent = nullptr)
-      :QGraphicsPolygonItem(poly, parent){}
+  PointerHeadItem(const float _width,
+                  const float _height,
+                  const QPolygonF &_poly,
+                  QGraphicsItem   *_parent = nullptr);
+  QPolygonF createPolygon();
 };
 
 #endif

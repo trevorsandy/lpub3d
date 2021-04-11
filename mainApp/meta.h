@@ -1371,8 +1371,10 @@ public:
   PointerAttribData &valuePixels()
   {
     _result = _value[pushed];
-    _result.lineData.thickness  *=resolution();
     _result.borderData.thickness*=resolution();
+    _result.lineData.thickness  *=resolution();
+    _result.tipData.tipWidth    *=resolution();
+    _result.tipData.tipHeight   *=resolution();
     return _result;
   }
 
@@ -1380,8 +1382,10 @@ public:
   {
     _result = _value[pushed];
     if (resolutionType() == DPCM) {
-      _result.lineData.thickness   = inches2centimeters(_result.lineData.thickness);
       _result.borderData.thickness = inches2centimeters(_result.borderData.thickness);
+      _result.lineData.thickness   = inches2centimeters(_result.lineData.thickness);
+      _result.tipData.tipWidth     = inches2centimeters(_result.tipData.tipWidth);
+      _result.tipData.tipHeight    = inches2centimeters(_result.tipData.tipHeight);
     }
     return _result;
   }
@@ -1389,8 +1393,10 @@ public:
   void setValue(PointerAttribData pointerAttribData)
   {
     if (resolutionType() == DPCM) {
-      pointerAttribData.lineData.thickness   = centimeters2inches(pointerAttribData.lineData.thickness);
       pointerAttribData.borderData.thickness = centimeters2inches(pointerAttribData.borderData.thickness);
+      pointerAttribData.lineData.thickness   = centimeters2inches(pointerAttribData.lineData.thickness);
+      pointerAttribData.tipData.tipWidth     = centimeters2inches(pointerAttribData.tipData.tipWidth);
+      pointerAttribData.tipData.tipHeight    = centimeters2inches(pointerAttribData.tipData.tipHeight);
     }
     _value[pushed] = pointerAttribData;
   }
@@ -1400,11 +1406,22 @@ public:
     if (_value[pushed].attribType == PointerAttribData::Line) {
         _value[pushed].borderData  = pointerAttribData.borderData;
         _value[pushed].borderHere  = pointerAttribData.borderHere;
+        _value[pushed].tipData     = pointerAttribData.tipData;
+        _value[pushed].tipHere     = pointerAttribData.tipHere;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Border) {
         _value[pushed].lineData    = pointerAttribData.lineData;
         _value[pushed].lineHere    = pointerAttribData.lineHere;
+        _value[pushed].tipData     = pointerAttribData.tipData;
+        _value[pushed].tipHere     = pointerAttribData.tipHere;
+    }
+    else
+    if (_value[pushed].attribType == PointerAttribData::Tip) {
+        _value[pushed].lineData    = pointerAttribData.lineData;
+        _value[pushed].lineHere    = pointerAttribData.lineHere;
+        _value[pushed].borderData  = pointerAttribData.borderData;
+        _value[pushed].borderHere  = pointerAttribData.borderHere;
     }
   }
 
@@ -1464,13 +1481,15 @@ public:
   {
     _value[0].borderData.thickness = 1.0f/64.0f;
     _value[0].lineData.thickness   = 1.0f/32.0f;
+    _value[0].tipData.tipWidth     = 0.125f*2.5f;
+    _value[0].tipData.tipHeight    = 0.125f;
   }
 
   PointerAttribMeta(const PointerAttribMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
-    _result = rhs._result;
+    _result   = rhs._result;
   }
 
 //  virtual ~PointerAttribMeta() {}

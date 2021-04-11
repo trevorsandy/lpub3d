@@ -247,6 +247,13 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
   data->children.append(child);
 
+  childBox = new QGroupBox("Tip");
+  childLayout->addWidget(childBox);
+  pad.attribType = PointerAttribData::Tip;
+  multiStepMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&multiStepMeta->divPointerAttrib,childBox);
+  data->children.append(child);
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

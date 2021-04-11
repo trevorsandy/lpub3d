@@ -69,7 +69,7 @@ GlobalPageDialog::GlobalPageDialog(
   QVBoxLayout    *layout      = new QVBoxLayout();
   QTabWidget     *childtab;
   QVBoxLayout    *childlayout;
-  QSpacerItem    *vSpacer     = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  QSpacerItem    *vSpacer;
 
   QWidget        *widget      = new QWidget();
   QWidget        *childwidget;
@@ -176,6 +176,13 @@ GlobalPageDialog::GlobalPageDialog(
   child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
   data->children.append(child);
 
+  box = new QGroupBox("Tip");
+  childlayout->addWidget(box);
+  pad.attribType = PointerAttribData::Tip;
+  pageMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&pageMeta->pointerAttrib,box);
+  data->children.append(child);
+
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   childlayout->addSpacerItem(vSpacer);
@@ -211,7 +218,7 @@ GlobalPageDialog::GlobalPageDialog(
   childTextGui->contentEdit->setToolTip("Enter model title");
   data->children.append(titleChildFront);
   connect(titleChildFront, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
+          this,            SLOT(indexChanged(int)));
 
   titleBoxBack = new QGroupBox(tr("Display Title Back Cover"));
   childlayout->addWidget(titleBoxBack);
@@ -222,7 +229,7 @@ GlobalPageDialog::GlobalPageDialog(
   childTextGui->contentEdit->setToolTip("Enter model title");
   data->children.append(titleChildBack);
   connect(titleChildBack, SIGNAL(indexChanged(int)),
-          SLOT(indexChanged(int)));
+          this,             SLOT(indexChanged(int)));
   //child body end
 
   //spacer

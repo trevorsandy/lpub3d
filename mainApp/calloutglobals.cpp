@@ -227,51 +227,79 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Callout Pointers");
-  vlayout->addWidget(box);
-  QVBoxLayout *childLayout = new QVBoxLayout(nullptr);
-  box->setLayout(childLayout);
+  QTabWidget *grandChildTab = new QTabWidget();
+  vlayout->addWidget(grandChildTab);
+  childtab->addTab(widget, "Pointers");
 
-  QGroupBox * childBox = new QGroupBox("Border");
-  childLayout->addWidget(childBox);
+  /*
+   * Callout Pointers Tab
+   */
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Border");
+  vlayout->addWidget(box);
   PointerAttribData pad = calloutMeta->pointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
   calloutMeta->pointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,box,true/*callout*/);
   data->children.append(child);
 
-  childBox = new QGroupBox("Line");
-  childLayout->addWidget(childBox);
+  box = new QGroupBox("Line");
+  vlayout->addWidget(box);
   pad.attribType = PointerAttribData::Line;
   calloutMeta->pointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&calloutMeta->pointerAttrib,childBox,true/*callout*/);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,box,true/*callout*/);
   data->children.append(child);
 
-  box = new QGroupBox("Callout Divider Pointers");
+  box = new QGroupBox("Tip");
   vlayout->addWidget(box);
-  childLayout = new QVBoxLayout(nullptr);
-  box->setLayout(childLayout);
+  pad.attribType = PointerAttribData::Tip;
+  calloutMeta->pointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->pointerAttrib,box,true/*callout*/);
+  data->children.append(child);
 
-  childBox = new QGroupBox("Border");
-  childLayout->addWidget(childBox);
+    //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  grandChildTab->addTab(widget,"Callout Pointers");
+
+  /*
+   * Divider Pointers Tab
+   */
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Border");
+  vlayout->addWidget(box);
   pad = calloutMeta->divPointerAttrib.value();
   pad.attribType = PointerAttribData::Border;
   calloutMeta->divPointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,childBox);
+  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,box,true/*callout*/);
   data->children.append(child);
 
-  childBox = new QGroupBox("Line");
-  childLayout->addWidget(childBox);
+  box = new QGroupBox("Line");
+  vlayout->addWidget(box);
   pad.attribType = PointerAttribData::Line;
   calloutMeta->divPointerAttrib.setValue(pad);
-  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,childBox);
+  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,box,true/*callout*/);
+  data->children.append(child);
+
+  box = new QGroupBox("Tip");
+  vlayout->addWidget(box);
+  pad.attribType = PointerAttribData::Tip;
+  calloutMeta->divPointerAttrib.setValue(pad);
+  child = new PointerAttribGui(&calloutMeta->divPointerAttrib,box,true/*callout*/);
   data->children.append(child);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Pointers");
+  grandChildTab->addTab(widget,"Divider Pointers");
 
   /*
    * Submodel colors

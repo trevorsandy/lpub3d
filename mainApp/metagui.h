@@ -985,22 +985,30 @@ public:
   PointerAttribGui(
     PointerAttribMeta *meta,
     QGroupBox         *parent    = nullptr,
-    bool               _isCallout= false);
+    bool              _isCallout = false);
   ~PointerAttribGui() {}
 
   virtual void apply(QString &modelName);
 
-  PointerAttribData  line;
-  PointerAttribData  border;
+  QCheckBox *getHideTipCheck() { return hideTipBox; }
+
+  PointerAttribData tip;
+  PointerAttribData line;
+  PointerAttribData border;
+
+  bool        tipModified;
   bool        lineModified;
   bool        borderModified;
 
 private:
   bool        isLine;
+  bool        isTip;
+
   PointerAttribMeta *meta;
 
+  QLineEdit   *widthEdit;
+  QLineEdit   *heightEdit;
   QLineEdit   *thicknessEdit;
-  QLabel      *thicknessLabel;
   QLabel      *colorExample;
   QPushButton *colorButton;
   QComboBox   *lineCombo;
@@ -1008,7 +1016,7 @@ private:
 
 public slots:
   void lineChange(QString const &);
-  void thicknessChange(QString const &);
+  void sizeChange(QString const &);
   void browseColor(bool);
   void hideTipChange(bool);
 };

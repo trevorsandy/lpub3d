@@ -40,8 +40,6 @@
 #include "borderedlineitem.h"
 #include "commonmenus.h"
 
-
-
 /* calculate the parameters for the equation of line from two points */
 
 bool rectLineIntersect(
@@ -55,6 +53,47 @@ bool rectLineIntersect(
 
 //---------------------------------------------------------------------------
 
+PointerHeadItem::PointerHeadItem(
+    const float _width,
+    const float _height,
+    const QPolygonF &_poly,
+    QGraphicsItem   *_parent) :
+    QGraphicsPolygonItem(_poly, _parent),
+    width(_width),
+    height(_height)
+{}
+
+QPolygonF PointerHeadItem::createPolygon()
+{
+    /*
+     * Head Polygon
+                           Height
+                             |
+     <-------ux * 2.5----------Width
+                             |
+          pB        |        |
+                    |        |
+     --pE/pA--------|----pC--uy
+                    |        |
+          pD        |        |
+                             |
+                             v
+    */
+
+    float unitX = width/2.5;   // in pixels
+    float unitY = height/2;    // in pixels
+
+    QPolygonF polyF;
+    polyF << QPointF(-2*unitX, 0);     // pA
+    polyF << QPointF(-2*unitX, unitY); // pB
+    polyF << QPointF(unitX/2 , 0);     // pC
+    polyF << QPointF(-2*unitX,-unitY); // pD
+    polyF << QPointF(-2*unitX, 0);     // pE
+    return polyF;
+}
+
+//---------------------------------------------------------------------------
+
 PointerItem::PointerItem(QGraphicsItem *parent)
     : QGraphicsItemGroup(parent)
 {}
@@ -65,15 +104,10 @@ PointerItem::~PointerItem(){
 
 void PointerItem::drawPointerPoly()
 {
-  // head
-  QPolygonF poly;
 
-  poly << QPointF(-2*grabSize(), 0);
-  poly << QPointF(-2*grabSize(),grabSize()/2);
-  poly << QPointF(grabSize()/2,0);
-  poly << QPointF(-2*grabSize(),-grabSize()/2);
-  poly << QPointF(-2*grabSize(),0);
-  float headWidth = float(poly.boundingRect().width());
+  QPolygonF polyF = head->createPolygon();
+
+  float headWidth = polyF.boundingRect().width();
 
   enum Seg { first, second, third };
 
@@ -187,7 +221,7 @@ void PointerItem::drawPointerPoly()
 
           removeFromGroup(head);
 
-          head->setPolygon(poly);
+          head->setPolygon(polyF);
           head->top        = pointerTop;
           head->bottom     = pointerBottom;
           head->stepNumber = stepNumber;
@@ -662,7 +696,10 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where undefined;
   bool isCallout = pointerParentType == CalloutType;
   PointerAttribData pad = pointer.pointerAttrib.value();
+  QString units = QString(" in %1").arg(Preferences::preferCentimeters ? "centimetres" : "inches");
 
+  Where tipAttribTop       = Where(pad.tipHere.modelName,pad.tipHere.lineNumber);
+  Where tipAttribBottom    = tipAttribTop;
   Where lineAttribTop      = Where(pad.lineHere.modelName,pad.lineHere.lineNumber);
   Where lineAttribBottom   = lineAttribTop;
   Where borderAttribTop    = Where(pad.borderHere.modelName,pad.borderHere.lineNumber);
@@ -671,12 +708,17 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *setLineAttributesAction = menu.addAction("Edit Line Attributes");
   setLineAttributesAction->setIcon(QIcon(":/resources/lineattributes.png"));
   setLineAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
-                                         "Edit the pointer line color, thickness, and type");
+                                         "Edit the pointer line color, thickness, and type"+units);
 
   QAction *setBorderAttributesAction = menu.addAction("Edit Border Attributes");
   setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
   setBorderAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
-                                           "Edit the pointer border color, thickness, and line type");
+                                           "Edit the pointer border color, thickness, and line type"+units);
+
+  QAction *setTipAttributesAction = menu.addAction("Edit Tip Attributes");
+  setTipAttributesAction->setIcon(QIcon(":/resources/tipattributes.png"));
+  setTipAttributesAction->setWhatsThis( "Edit pointer Tip attributes:\n"
+                                        "Edit the pointer Tip width, and height"+units);
 
   QAction *resetLineAttributesAction = nullptr;
   if (! pad.lineData.useDefault) {
@@ -690,6 +732,13 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       resetBorderAttributesAction = menu.addAction("Reset Border Attributes");
       resetBorderAttributesAction->setIcon(QIcon(  ":/resources/resetborderattributes.png"));
       resetBorderAttributesAction->setWhatsThis(   "Reset pointer line attributes");
+  }
+
+  QAction *resetTipAttributesAction = nullptr;
+  if (! pad.tipData.useDefault) {
+      resetTipAttributesAction = menu.addAction("Reset Tip Attributes");
+      resetTipAttributesAction->setIcon(QIcon(  ":/resources/resettipattributes.png"));
+      resetTipAttributesAction->setWhatsThis(   "Reset pointer Tip attributes");
   }
 
   QAction *removeAction = menu.addAction("Delete Pointer");
@@ -769,6 +818,21 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                        &pointer.pointerAttrib,false,1,false,isCallout);
   }
   else
+  if (selectedAction == setTipAttributesAction) {
+      pad.attribType = PointerAttribData::Tip;
+      pointer.pointerAttrib.setValue(pad);
+      if(tipAttribTop == undefined) {
+         tipAttribTop = pointer.here;
+         tipAttribBottom = tipAttribTop;
+      } else {
+         pointer.pointerAttrib.setWhere(tipAttribTop);
+      }
+      setPointerAttrib("Pointer Tip Attributes",
+                        tipAttribTop,
+                        tipAttribBottom,
+                       &pointer.pointerAttrib,false,1,false,isCallout);
+  }
+  else
   if (selectedAction == resetLineAttributesAction) {
     deletePointerAttribute(lineAttribTop);
   }
@@ -777,10 +841,15 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     deletePointerAttribute(borderAttribTop);
   }
   else
+  if (selectedAction == resetTipAttributesAction) {
+    deletePointerAttribute(tipAttribTop);
+  }
+  else
   if (selectedAction == removeAction) {
     bool line   = lineAttribTop   != undefined;
     bool border = borderAttribTop != undefined;
-    deletePointer(pointer.here,line,border);
+    bool tip    = tipAttribTop    != undefined;
+    deletePointer(pointer.here,line,border,tip);
   }
   else
   if (selectedAction == addSegmentAction) {

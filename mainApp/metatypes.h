@@ -602,23 +602,28 @@ public:
     BdrLnDashDotDot,
     BdrNumLines
   } line;
+
   QString color;
   float   thickness;  // in units [inches]
   float   radius;     // in units [inches]
   float   margin[2];  // in units [inches]
+  float   tipWidth;   // in units [inches]
+  float   tipHeight;  // in units [inches]
   bool    hideTip;
   bool    useDefault;
 
   BorderData()
   {
-    thickness  = 0.125;
-    margin[0]  = 0;
-    margin[1]  = 0;
-    radius     = 15;
+    thickness  = 0.125f;
+    margin[0]  = 0.0f;
+    margin[1]  = 0.0f;
+    radius     = 15.0f;
+    tipWidth   = 0.0f;
+    tipHeight  = 0.0f;
     type       = BdrNone;
     line       = BdrLnNone;
     color      = "Black";
-    hideTip = false;
+    hideTip    = true;
     useDefault = true;
     if (map.size() == 0) {
       map["NONE"]         = BdrLnNone;
@@ -646,7 +651,8 @@ class PointerAttribData
    public:
     enum Attribute {
       Line,
-      Border
+      Border,
+      Tip
     } attribType;
     struct Here {
       QString modelName  = "undefined";
@@ -654,6 +660,8 @@ class PointerAttribData
     };
     int id;
     QString parent;
+    BorderData tipData;
+    Here       tipHere;
     BorderData lineData;
     Here       lineHere;
     BorderData borderData;
@@ -661,25 +669,29 @@ class PointerAttribData
 
     PointerAttribData()
     {
+        tipData.tipWidth      = 0.125f*2.5f;;
+        tipData.tipHeight     = 0.125f;
+        tipData.useDefault    = true;
+
         lineData.color        = "Black";
         lineData.type         = BorderData::BdrRound;
         lineData.line         = BorderData::BdrLnSolid;
         lineData.thickness    = 1.0f/32.0f;
-        lineData.radius       = 15;
-        lineData.margin[0]    = 0;
-        lineData.margin[1]    = 0;
+        lineData.radius       = 15.0f;
+        lineData.margin[0]    = 0.0f;
+        lineData.margin[1]    = 0.0f;
         lineData.useDefault   = true;    // flag if using attribute meta
-        lineData.hideTip   = false;   // flag if pointer tip is hidden
+        lineData.hideTip      = false;   // flag if pointer tip is hidden
 
         borderData.color      = QString();
         borderData.type       = BorderData::BdrRound;
         borderData.line       = BorderData::BdrLnSolid;
         borderData.thickness  = 1.0f/64.0f;
-        borderData.radius     = 15;
-        borderData.margin[0]  = 0;
-        borderData.margin[1]  = 0;
+        borderData.radius     = 15.0f;
+        borderData.margin[0]  = 0.0f;
+        borderData.margin[1]  = 0.0f;
         borderData.useDefault = true;
-        borderData.hideTip = false;
+        lineData.hideTip      = true;
 
         attribType            = PointerAttribData::Line;
         id                    = 0;
