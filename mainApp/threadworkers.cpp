@@ -1574,7 +1574,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     emit progressStatusRemoveSig();
     emit colourPartListFinishedSig();
-    emit messageSig(LOG_INFO_STATUS,fileStatus);
+    emit colorPartsListResultSig(_cpLines);
     emit gui->messageSig(LOG_INFO_STATUS,fileStatus);
 }
 

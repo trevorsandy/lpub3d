@@ -1087,9 +1087,8 @@ void Preferences::lpubPreferences()
     QFileInfo paramFile(QString("%1/%2").arg(extrasDir.absolutePath(), validLDrawColorParts));
     QFileInfo dataFile(dataLocation + paramFile.fileName());
     if (!paramFile.exists()) {
-        if (!dataFile.exists())
-            dataFile.setFile(dataLocation + VER_LPUB3D_COLOR_PARTS);
-        QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+        const QString fileName = dataFile.exists() ? paramFile.fileName() : VER_LPUB3D_COLOR_PARTS;
+        QFile::copy(dataLocation + fileName, paramFile.absoluteFilePath());
     }
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_FREEFOM_ANNOTATIONS_FILE));
     if (!paramFile.exists())

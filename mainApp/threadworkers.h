@@ -297,6 +297,7 @@ signals:
 
      void progressStatusRemoveSig();
      void colourPartListFinishedSig();
+     void colorPartsListResultSig(int);
 
      //not used
      void requestFinishSig();

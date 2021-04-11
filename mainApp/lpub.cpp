@@ -3784,7 +3784,7 @@ void Gui::ldrawColorPartsLoad()
     }
 }
 
-void Gui::reloadModelFileAfterColorFileGen(){
+void Gui::reloadModelFileAfterColorFileGen() {
     if (Preferences::modeGUI) {
         QPixmap _icon = QPixmap(":/icons/lpub96.png");
         QMessageBoxResizable box;
@@ -3794,17 +3794,54 @@ void Gui::reloadModelFileAfterColorFileGen(){
         box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::validLDrawLibrary));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         box.setMinimumSize(10,10);
-        QString message = QString("The %1 LDraw Color Parts File has finished building.")
-                .arg(Preferences::validLDrawLibrary);
-        QString body = QMessageBox::tr ("The opened model must be reloaded.");
+        QString entries;
+        if (m_workerJobResult)
+            entries = tr(" with %1 entries").arg(m_workerJobResult);
+        QString message = QString("The %1 LDraw Color Parts File has finished building%2.")
+                                  .arg(Preferences::validLDrawLibrary).arg(entries);
         box.setText (message);
-        box.setInformativeText (body);
-        box.setStandardButtons (QMessageBox::Ok);
-        box.setDefaultButton   (QMessageBox::Ok);
-        box.exec();
+
+        bool enableFadeSteps = setupFadeSteps || Preferences::enableFadeSteps;
+        bool enableHighlightSttep = setupHighlightStep || Preferences::enableHighlightStep;
+
+        if (enableFadeSteps || enableHighlightSttep) {
+            QString body = QMessageBox::tr ("The color file list and current model must be reloaded.<br>Do you want to continue ?");
+            box.setInformativeText (body);
+
+            box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+            if (box.exec() == QMessageBox::Ok && ! getCurFile().isEmpty()) {
+                bool _continue;
+                if (Preferences::saveOnRedraw) {
+                    _continue = maybeSave(false); // No prompt
+                } else {
+                    _continue = maybeSave(true, SaveOnNone);
+                }
+                if (!_continue)
+                    return;
+
+                timer.start();
+
+                clearPLICache();
+                clearCSICache();
+                clearSubmodelCache();
+                clearTempCache();
+
+                //reload current model file
+                int savePage = displayPageNum;
+                openFile(curFile);
+                displayPageNum = pa ? savePage + pa : savePage;
+                displayPage();
+                enableActions();
+
+                emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                                .arg(ldrawFile.getPartCount())
+                                .arg(elapsedTime(timer.elapsed())));
+            }
+        } else {
+            box.setDefaultButton   (QMessageBox::Ok);
+            box.exec();
+        }
     }
-    if (!getCurFile().isEmpty())
-        clearAndReloadModelFile();
 }
 
 
@@ -3954,6 +3991,8 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
         connect(listThread,           SIGNAL(started()),
                 colourPartListWorker, SLOT(  generateCustomColourPartsList()));
+        connect(colourPartListWorker, SIGNAL(colorPartsListResultSig(int)),
+                this,                 SLOT(  workerJobResult(int)));
         connect(listThread,           SIGNAL(finished()),
                 listThread,           SLOT(  deleteLater()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),
@@ -3964,9 +4003,6 @@ void Gui::generateCustomColourPartsList(bool prompt)
                 colourPartListWorker, SLOT(  deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),
                 colourPartListWorker, SLOT(  requestEndThreadNow()));
-//      uses gui signal
-//        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),
-//                this,                 SLOT(  statusMessage(LogType,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),
                 this,                 SLOT(  progressBarPermInit()));
@@ -3985,7 +4021,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
         if (!Preferences::modeGUI) {
             QEventLoop  *wait = new QEventLoop();
-            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),         wait, SLOT(quit()));
+            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()), wait, SLOT(quit()));
             wait->exec();
         }
 
