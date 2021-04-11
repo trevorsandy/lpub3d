@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2465 (11 04 2021 09:48:30)
+LPub3D 2.4.2.1.2466 (11 04 2021 09:49:08)
 
 Features, enhancements, fixes and changes
 ------------
@@ -22,6 +22,7 @@ Revisions:
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
+- Fix - POV-Ray render issue when directory name contains a space #525
 - Fix - Unable to generate ldraw color parts file #527
 - Fix - Using 'Remove LPub formatting' causes a crash #526
 

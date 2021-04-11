@@ -803,8 +803,9 @@ void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
 
 void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &currentText)
 {
-      bool ldviewEnabled = (currentText == rendererNames[RENDERER_LDVIEW]);
-      bool povrayEnabled = (currentText == rendererNames[RENDERER_POVRAY]);
+      bool ldviewEnabled  = (currentText == rendererNames[RENDERER_LDVIEW]);
+      bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
+      bool ldgliteEnabled = (currentText == rendererNames[RENDERER_LDGLITE]);
       ui.povNativeGenBox->setEnabled(povrayEnabled);
       ui.ldvPOVSettingsBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
@@ -820,7 +821,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
           ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
       else if (povrayEnabled)
           ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
-      else if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+      else if (ldgliteEnabled)
           ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab); 
 
       bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
