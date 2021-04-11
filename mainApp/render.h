@@ -81,11 +81,12 @@ public:
                                       QString &hs, QString &hp, QString &hb, QString &hd);
 
   static bool            createSnapshotsList(const QStringList &, const QString &);
-  static void            addArgument(QStringList &arguments,
-                                     const QString &arg,
-                                     const QString &argChk = QString(),
+  static void            addArgument(QStringList &_arguments,
+                                     const QString &_newArg,
+                                     const QString &_argChk = QString(),
                                      const int povGenerator = 0,/*0=POV-Ray,1=POVGenerator*/
-                                     const int additionalArgs = 1);
+                                     const int additionalArgs = 1,
+                                     const bool quoteNewArg = false);
   static bool            doLDVCommand(const QStringList &args,
                                     int = -1 /*EXPORT_NONE*/,
                                     int = 6 /*NumIniFiles*/);

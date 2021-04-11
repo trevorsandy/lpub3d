@@ -103,6 +103,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   ) ELSE (
     ECHO -%PKG_TARGET_PDB% found.
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+    ECHO.
     ECHO -Copying %PACKAGE%.pdb to log assets....
     IF NOT EXIST %PKG_TARGET_RUNLOG% (
       MKDIR %PKG_TARGET_RUNLOG%

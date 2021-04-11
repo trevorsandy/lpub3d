@@ -364,14 +364,26 @@ bool Render::clipImage(QString const &pngName) {
  }
 
 void Render::addArgument(
-        QStringList   &arguments,
-        const QString &newArg,
-        const QString &argChk,
+        QStringList   &_arguments,
+        const QString &_newArg,
+        const QString &_argChk,
         const int      povGenerator,
-        const int      additionalArgs) {
+        const int      additionalArgs,
+        const bool     quoteNewArg) {
+
+    QString newArg = _newArg;
+
+    int insertIndex = -1;
+    if (quoteNewArg) {
+        insertIndex = newArg.indexOf("=");
+        if (insertIndex < 0)
+            newArg = QString("\"%1\"").arg(_newArg);
+        else
+            newArg = QString(_newArg).insert(insertIndex+1,"\"").append("\"");
+    }
 
     if (!additionalArgs) {
-        arguments.append(newArg);
+        _arguments.append(newArg);
         return;
     }
 
@@ -402,29 +414,28 @@ void Render::addArgument(
         return false;
     };
 
-    int insertIndex = -1;
-    for (int i = 0; i < arguments.size(); i++) {
-        if (arguments[i] != "" && arguments[i] != " ") {
-            if (argChk.isEmpty()) {
+    insertIndex = -1;
+    for (int i = 0; i < _arguments.size(); i++) {
+        if (_arguments[i] != "" && _arguments[i] != " ") {
+            if (_argChk.isEmpty()) {
                 if (!(getRenderer() == RENDERER_POVRAY && !povGenerator)){
-                    if (isMatch(arguments[i]) ||
-                        arguments[i].startsWith(newArg.left(newArg.indexOf("=")))) {
-                        insertIndex = arguments.indexOf(arguments[i]);
+                    if (isMatch(_arguments[i]) ||
+                        _arguments[i].startsWith(newArg.left(newArg.indexOf("=")))) {
+                        insertIndex = _arguments.indexOf(_arguments[i]);
                         break;
                     }
                 }
-            } else
-            if (arguments[i].contains(argChk)) {
-                insertIndex = arguments.indexOf(arguments[i]);
+            } else if (_arguments[i].contains(_argChk)) {
+                insertIndex = _arguments.indexOf(_arguments[i]);
                 break;
             }
         }
     }
 
     if (insertIndex < 0) {
-        arguments.append(newArg);
+        _arguments.append(newArg);
     } else {
-        arguments.replace(insertIndex,newArg);
+        _arguments.replace(insertIndex,newArg);
     }
 }
 
@@ -701,7 +712,7 @@ int POVRay::renderCsi(
   Q_UNUSED(nType)
 
   /* Create the CSI DAT file */
-  QString message;
+  QString message, newArg;
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
 
@@ -830,10 +841,6 @@ int POVRay::renderCsi(
   getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=\"%1\"") .arg(povName);
-  QString l  = QString("-LDrawDir=\"%1\"") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
-  QString o  = QString("-HaveStdOut=1");
-  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;
@@ -848,22 +855,20 @@ int POVRay::renderCsi(
   arguments << hd;  // dark edge color
   arguments << w;
   arguments << h;
-  arguments << f;
-  arguments << l;
-
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-     QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
-     addArgument(arguments, altldc, "-LDConfig", 0, parmsArgs.size());
-  }
 
   // Native (LDV) POV Generator block
   if (Preferences::useNativePovGenerator) {
 
-      QString workingDirectory = QDir::currentPath();
+      if (!Preferences::altLDConfigPath.isEmpty())
+          arguments << QString("-LDConfig=\"%1\"") .arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+      arguments << QString("-ExportFile=\"%1\"") .arg(QDir::toNativeSeparators(povName));
+      arguments << QString("-LDrawDir=\"%1\"") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
 
       arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));
 
       removeEmptyStrings(arguments);
+
+      QString workingDirectory = QDir::currentPath();
 
       emit gui->messageSig(LOG_STATUS, "Native CSI POV file generation...");
 
@@ -891,16 +896,24 @@ int POVRay::renderCsi(
   }
   else // LDView  POV generator block
   {
-      addArgument(arguments, o, "-HaveStdOut", 0, parmsArgs.size());
-      addArgument(arguments, v, "-vv", 0, parmsArgs.size());
+      if (!Preferences::altLDConfigPath.isEmpty())
+          arguments << QString("-LDConfig=%1") .arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+      arguments << QString("-ExportFile=%1") .arg(QDir::toNativeSeparators(povName));
+      arguments << QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
+
+      QString o("-HaveStdOut=1");
+      QString v("-vv");
+
+      addArgument(arguments, o, "-HaveStdOut", 0/*POVGen*/, parmsArgs.size());
+      addArgument(arguments, v, "-vv", 0/*POVGen*/, parmsArgs.size());
 
 //      if (Preferences::enableFadeSteps)
 //        arguments <<  QString("-SaveZMap=1");
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
-          QString ini  = QString("-IniFile=\"%1\"") .arg(QDir::toNativeSeparators(Preferences::ldviewPOVIni));
-          addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
+          newArg  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, parmsArgs.size());
         }
 
       arguments << QString("%1").arg(QDir::toNativeSeparators(ldrName));;
@@ -980,7 +993,7 @@ int POVRay::renderCsi(
   parmsArgs = meta.LPub.assem.povrayParms.value().split(' ');
   for (int i = 0; i < parmsArgs.size(); i++) {
       if (parmsArgs[i] != "" && parmsArgs[i] != " ") {
-          addArgument(povArguments, parmsArgs[i], QString(), true);
+          addArgument(povArguments, parmsArgs[i], QString(), 1/*POVGen*/);
         }
     }
   if (parmsArgs.size())
@@ -1047,7 +1060,7 @@ int POVRay::renderPli(
   }
 
   //  QStringList list;
-  QString message;
+  QString message, newArg;
   QString povName = ldrNames.first() +".pov";
 
   // Populate render attributes
@@ -1190,10 +1203,6 @@ int POVRay::renderPli(
   getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString f  = QString("-ExportFile=\"%1\"") .arg(povName);  // -ExportSuffix not required
-  QString l  = QString("-LDrawDir=\"%1\"") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
-  QString o  = QString("-HaveStdOut=1");
-  QString v  = QString("-vv");
 
   QStringList arguments;
   arguments << CA;             // Camera Angle (i.e. Field of Veiw)
@@ -1208,21 +1217,20 @@ int POVRay::renderPli(
   arguments << hd;             // dark edge color
   arguments << w;
   arguments << h;
-  arguments << f;
-  arguments << l;
-
-  if (!Preferences::altLDConfigPath.isEmpty()) {
-     QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
-     addArgument(arguments, altldc, "-LDConfig", 0, parmsArgs.size());
-  }
 
   // Native (LDV) POV generator block begin
   if (Preferences::useNativePovGenerator) {
-      QString workingDirectory = QDir::currentPath();
+
+      if (!Preferences::altLDConfigPath.isEmpty())
+          arguments << QString("-LDConfig=\"%1\"") .arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+      arguments << QString("-ExportFile=\"%1\"") .arg(QDir::toNativeSeparators(povName));
+      arguments << QString("-LDrawDir=\"%1\"") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
 
       arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrNames.first()));
 
       removeEmptyStrings(arguments);
+
+      QString workingDirectory = QDir::currentPath();
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
@@ -1250,13 +1258,21 @@ int POVRay::renderPli(
   }
   else // LDView POV generator block
   {
-      addArgument(arguments, o, "-HaveStdOut", 0, parmsArgs.size());
-      addArgument(arguments, v, "-vv", 0, parmsArgs.size());
+      if (!Preferences::altLDConfigPath.isEmpty())
+          arguments << QString("-LDConfig=%1") .arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+      arguments << QString("-ExportFile=%1") .arg(QDir::toNativeSeparators(povName));
+      arguments << QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
+
+      QString o("-HaveStdOut=1");
+      QString v("-vv");
+
+      addArgument(arguments, o, "-HaveStdOut", 0/*POVGen*/, parmsArgs.size());
+      addArgument(arguments, v, "-vv", 0/*POVGen*/, parmsArgs.size());
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
-          QString ini  = QString("-IniFile=\"%1\"") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-          addArgument(arguments, ini, "-IniFile", 0, parmsArgs.size());
+          newArg  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
+          addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, parmsArgs.size());
         }
 
       arguments << QString("%1").arg(QDir::toNativeSeparators(ldrNames.first()));
@@ -1337,7 +1353,7 @@ int POVRay::renderPli(
   parmsArgs = meta.LPub.assem.povrayParms.value().split(' ');
   for (int i = 0; i < parmsArgs.size(); i++) {
       if (parmsArgs[i] != "" && parmsArgs[i] != " ") {
-          addArgument(povArguments, parmsArgs[i], QString(), true);
+          addArgument(povArguments, parmsArgs[i], QString(), 1/*POVGen*/);
         }
     }
   if (parmsArgs.size())
@@ -1499,7 +1515,7 @@ int LDGLite::   renderCsi(
   // Add ini arguments if not already in additional parameters
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
-        addArgument(arguments, Preferences::ldgliteParms[i], "", 0, list.size());
+        addArgument(arguments, Preferences::ldgliteParms[i], QString(), 0/*POVGen*/, list.size());
       }
   }
 
@@ -1669,13 +1685,13 @@ int LDGLite::renderPli(
   // Add ini parms if not already added from meta
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
-        addArgument(arguments, Preferences::ldgliteParms[i], "", 0, list.size());
+        addArgument(arguments, Preferences::ldgliteParms[i], QString(), 0/*POVGen*/, list.size());
       }
   }
 
   // add custom color file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
-    addArgument(arguments, QString("-ldcF%1").arg(Preferences::altLDConfigPath), "-ldcF", 0, list.size());
+    addArgument(arguments, QString("-ldcF%1").arg(Preferences::altLDConfigPath), "-ldcF", 0/*POVGen*/, list.size());
   }
 
   arguments << QDir::toNativeSeparators(mf);
@@ -2155,15 +2171,15 @@ int LDView::renderCsi(
     arguments << v;  // -vv (Verbose)
 
     QString ini;
-    if(Preferences::ldviewIni != ""){
+    if(!Preferences::ldviewIni.isEmpty()) {
         ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-        addArgument(arguments, ini, "-IniFile", 0, ldviewParmsArgs.size());
+        addArgument(arguments, ini, "-IniFile", 0/*POVGen*/, ldviewParmsArgs.size());
     }
 
     QString altldc;
     if (!Preferences::altLDConfigPath.isEmpty()) {
         altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
-        addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmsArgs.size());
+        addArgument(arguments, altldc, "-LDConfig", 0/*POVGen*/, ldviewParmsArgs.size());
     }
 
     if (haveLdrNames) {
@@ -2207,7 +2223,9 @@ int LDView::renderCsi(
                 im_arguments << ldviewParmslist[i]; // 10. ldviewParms [usually empty]
             }
         }
-        im_arguments << ini;                        // 11. LDView.ini
+        if (!ini.isEmpty())
+            im_arguments << ini;                    // 11. LDView.ini
+
         if (!altldc.isEmpty())
             im_arguments << altldc;                 // 12.Alternate LDConfig
 
@@ -2634,16 +2652,15 @@ int LDView::renderPli(
   arguments << o;  // -HaveStdOut
   arguments << v;  // -vv (Verbose)
 
+  QString newArg;
   if(!Preferences::ldviewIni.isEmpty()){
-      QString ini;
-      ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-      addArgument(arguments, ini, "-IniFile", 0, ldviewParmsArgs.size());
+      newArg = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
+      addArgument(arguments, newArg, "-IniFile", 0/*POVGen*/, ldviewParmsArgs.size());
   }
 
-  QString altldc;
   if (!Preferences::altLDConfigPath.isEmpty()) {
-      altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
-      addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmsArgs.size());
+      newArg = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
+      addArgument(arguments, newArg, "-LDConfig", 0/*POVGen*/, ldviewParmsArgs.size());
   }
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
@@ -2886,8 +2903,6 @@ int Native::renderCsi(
               getStudStyleAndAutoEdgeSettings(ssm, hccm, aecm, ss, ae, ac, ai, hs, hp, pb, hd);
               QString w  = QString("-SaveWidth=%1") .arg(double(Options->ImageWidth));
               QString h  = QString("-SaveHeight=%1") .arg(double(Options->ImageHeight));
-              QString f  = QString("-ExportFile=%1") .arg(Options->ExportFileName);
-              QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
               QString o  = QString("-HaveStdOut=1");
               QString v  = QString("-vv");
 
@@ -2904,14 +2919,16 @@ int Native::renderCsi(
               arguments << hd; // dark edge color
               arguments << w;
               arguments << h;
-              arguments << f;
-              arguments << l;
 
-              if (!Preferences::altLDConfigPath.isEmpty()) {
-                  arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-              }
+              if (!Preferences::altLDConfigPath.isEmpty())
+                  arguments << QString("-LDConfig=\"%1\"").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+              arguments << QString("-ExportFile=\"%1\"") .arg(QDir::toNativeSeparators(Options->ExportFileName));
+              arguments << QString("-LDrawDir\"%1\"") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
 
-              arguments << QDir::toNativeSeparators(ldrName);
+              arguments << QString("\"%1\"").arg(QDir::toNativeSeparators(ldrName));
+
+              arguments << o;
+              arguments << v;
 
               removeEmptyStrings(arguments);
 
