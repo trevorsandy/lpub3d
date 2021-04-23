@@ -4778,7 +4778,7 @@ int Gui::setBuildModForNextStep(
         topOfStep  = topOfSubmodel;
 
 #ifdef QT_DEBUG_MODE
-        statusMessage(LOG_DEBUG, QString("Build Modification Step Check - Submodel: '%1'...")
+        statusMessage(LOG_NOTICE, QString("Build Modification Step Check - Submodel: '%1'...")
                                          .arg(topOfSubmodel.modelName));
 #endif
 

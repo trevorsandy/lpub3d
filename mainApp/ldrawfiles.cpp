@@ -2882,10 +2882,10 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
                                               .arg(actionStepIndex)
                                               .arg(buildModKey));
   else
-      emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, StepIndex: %3, ActionStepIndex: %4, BuildModKey: %5")
+      emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, %3ActionStepIndex: %4, BuildModKey: %5")
                                               .arg(insert)
                                               .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
-                                              .arg(stepIndex)
+                                              .arg(stepIndex >= 0 ? QString("StepIndex: %1, ").arg(stepIndex) : "")
                                               .arg(actionStepIndex)
                                               .arg(buildModKey));
 #endif
@@ -3032,13 +3032,15 @@ int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
 
     int lineNumber = 0;
     if (stepIndex  > BM_INVALID_INDEX && stepIndex < _buildModStepIndexes.size()) {
-        if( stepIndex < _buildModStepIndexes.size() - 1) {
-            if (bottom) {
-                lineNumber = _buildModStepIndexes.at(stepIndex + 1).at(BM_LINE_NUMBER);
-            } else /*if (top)*/ {
-                lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
-            }
-        } else if (stepIndex == _buildModStepIndexes.size() - 1) { // last step of model
+        if (bottom) {
+            const int bottomStepIndex = stepIndex + 1;
+            const int topModelIndex = _buildModStepIndexes.at(stepIndex).at(BM_STEP_MODEL_KEY);
+            const int bottomModelIndex = _buildModStepIndexes.at(bottomStepIndex).at(BM_STEP_MODEL_KEY);
+            if (bottomModelIndex != topModelIndex) // bottom of step so return number of lines
+                lineNumber = size(getSubmodelName(topModelIndex));
+            else
+                lineNumber = _buildModStepIndexes.at(bottomStepIndex).at(BM_LINE_NUMBER);
+        } else /*if (top)*/ {
             lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
         }
 #ifdef QT_DEBUG_MODE
