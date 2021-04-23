@@ -610,8 +610,6 @@ void EditWindow::createToolBars()
         mpdCombo->setStatusTip("Use dropdown to go to submodel");
         connect(mpdCombo,SIGNAL(activated(int)),
                 this,    SLOT(mpdComboChanged(int)));
-
-        editToolBar->addAction(preferencesAct);
         editToolBar->addSeparator();
         editToolBar->addAction(exitAct);
         editToolBar->addAction(saveAct);
@@ -640,11 +638,9 @@ void EditWindow::createToolBars()
         }
         editToolBar->addAction(openWithToolbarAct);
         editToolBar->addSeparator();
-    } else {
-        editToolBar->addAction(preferencesAct);
     }
-    editToolBar->addAction(topAct);
-    editToolBar->addAction(bottomAct);
+    editToolBar->addAction(updateAct);
+    editToolBar->addAction(redrawAct);
     editToolBar->addAction(toggleCmmentAct);
 //    editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(selAllAct);
@@ -653,8 +649,9 @@ void EditWindow::createToolBars()
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
     editToolBar->addAction(delAct);
-    editToolBar->addAction(updateAct);
-    editToolBar->addAction(redrawAct);
+    editToolBar->addAction(topAct);
+    editToolBar->addAction(bottomAct);
+    editToolBar->addAction(preferencesAct);
 
     toolsToolBar = addToolBar(tr("Editor Tools Toolbar"));
     toolsToolBar->setObjectName("EditorToolsToolbar");
@@ -866,12 +863,12 @@ void EditWindow::showContextMenu(const QPoint &pt)
         menu->addSeparator();
     }
 
-    menu->addAction(topAct);
-    menu->addAction(bottomAct);
-    menu->addAction(toggleCmmentAct);
-    menu->addAction(findAct);
     menu->addAction(updateAct);
     menu->addAction(redrawAct);
+    menu->addAction(toggleCmmentAct);
+    menu->addAction(findAct);
+    menu->addAction(topAct);
+    menu->addAction(bottomAct);
     menu->exec(_textEdit->mapToGlobal(pt));
     delete menu;
 }
