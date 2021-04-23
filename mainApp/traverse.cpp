@@ -1005,12 +1005,8 @@ int Gui::drawPage(
                               opts.assembledCallout,
                               true               /*calledOut*/
                               );
+
                   int drc = drawPage(view, scene, callout, line, calloutOpts);
-                  if (drc == HitBuildModAction) {
-                      // return to init drawPage to rerun findPage to regenerate content
-                      pageProcessRunning = PROC_DISPLAY_PAGE;
-                      return drc;
-                  }
 
                   callout->meta = saveMeta;
 
@@ -1019,15 +1015,18 @@ int Gui::drawPage(
 
                   buildModPliIgnore = calloutPliPerStep || pliIgnore;
 
-                  if (! calloutPliPerStep && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin &&
-                      calloutMode == CalloutBeginMeta::Unassembled) {
-
+                  if (! calloutPliPerStep && ! pliIgnore && ! buildModPliIgnore && ! partIgnore && ! synthBegin && calloutMode == CalloutBeginMeta::Unassembled) {
                       opts.pliParts += calloutParts;
                   }
 
                   if (drc) {
                       steps->placement = steps->meta.LPub.assem.placement;
-                      pageProcessRunning = PROC_FIND_PAGE;
+                      if (drc == HitBuildModAction)
+                          // return to init drawPage to rerun findPage to regenerate content
+                          pageProcessRunning = PROC_DISPLAY_PAGE;
+                      else
+                          // return to init findPage
+                          pageProcessRunning = PROC_FIND_PAGE;
                       return drc;
                   }
               } else {
@@ -3056,7 +3055,12 @@ int Gui::findPage(
                                               opts.contStepNumber,
                                               opts.groupStepNumber,
                                               opts.current.modelName /*renderParentModel*/);
-                                  findPage(view, scene, meta, line, submodelOpts);
+
+                                  if (findPage(view, scene, meta, line, submodelOpts) == HitBuildModAction) {
+                                      // return to init drawPage to rerun findPage to regenerate content
+                                      pageProcessRunning = PROC_DISPLAY_PAGE;
+                                      return HitBuildModAction;
+                                  }
 
                                   saveStepPageNum = stepPageNum;
                                   buildMod = saveBuildMod2;                 // restore old buildMod
@@ -3432,8 +3436,6 @@ int Gui::findPage(
                             writeFindPartsFile("b_find_save_csi_parts");
 #endif
                             if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
-                                // Set opts.current to topOfStep
-                                opts.current = pageOptions.current;
                                 // Set processing state
                                 pageProcessRunning = PROC_DISPLAY_PAGE;
                                 // rerun findPage to reflect change in pre-displayPageNum csiParts
@@ -3826,8 +3828,6 @@ int Gui::findPage(
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
           if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
-              // Set opts.current to topOfStep
-              opts.current = pageOptions.current;
               // Set processing state
               pageProcessRunning = PROC_DISPLAY_PAGE;
               // rerun findPage to reflect change in pre-displayPageNum csiParts
