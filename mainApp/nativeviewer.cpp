@@ -598,39 +598,26 @@ void Gui::halt3DViewer(bool enable)
         gMainWindow->menuBar()->setEnabled(true);
     }
 
-    messageSig(LOG_INFO, QString("3D Viewer %1").arg(enable ? "stopped" :"resumed"));
+    messageSig(LOG_INFO, QString("3DViewer %1").arg(enable ? "stopped" :"resumed"));
 }
 
 void Gui::create3DDockWindows()
 {
-    viewerDockWindow = new QDockWidget(trUtf8("3DViewer"), this);
-    viewerDockWindow->setObjectName("ModelDockWindow");
-    viewerDockWindow->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    viewerDockWindow->setWidget(gMainWindow);
-    addDockWidget(Qt::RightDockWidgetArea, viewerDockWindow);
-    viewMenu->addAction(viewerDockWindow->toggleViewAction());
-
-    tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
-
-    //Part Selection
-    gMainWindow->GetPartsToolBar()->setWindowTitle(trUtf8("Parts"));
-    gMainWindow->GetPartsToolBar()->setObjectName("PartsToolbar");
-    gMainWindow->GetPartsToolBar()->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetPartsToolBar());
-    viewMenu->addAction(gMainWindow->GetPartsToolBar()->toggleViewAction());
-
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetPropertiesToolBar()*/, gMainWindow->GetPartsToolBar());
-
-    //Colors Selection
-    gMainWindow->GetColorsToolBar()->setWindowTitle(trUtf8("Colors"));
-    gMainWindow->GetColorsToolBar()->setObjectName("ColorsToolbar");
-    gMainWindow->GetColorsToolBar()->setAllowedAreas(
+    //Timeline
+    gMainWindow->GetTimelineToolBar()->setWindowTitle(trUtf8("Timeline"));
+    gMainWindow->GetTimelineToolBar()->setObjectName("TimelineToolbar");
+    gMainWindow->GetTimelineToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetColorsToolBar());
-    viewMenu->addAction(gMainWindow->GetColorsToolBar()->toggleViewAction());
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetTimelineToolBar());
+    viewMenu->addAction(gMainWindow->GetTimelineToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetPartsToolBar()*/, gMainWindow->GetColorsToolBar());
+    // split the space covered commandEditDockWindow into two parts, move visualEditDockWindow into the second part.
+    splitDockWidget(commandEditDockWindow, gMainWindow->GetTimelineToolBar(), Qt::Vertical);
+
+    // Preview
+    if (GetPreferences().mPreviewPosition == lcPreviewPosition::Dockable)
+        createPreviewWidget();
 
     //Properties
     gMainWindow->GetPropertiesToolBar()->setWindowTitle(trUtf8("Properties"));
@@ -641,26 +628,45 @@ void Gui::create3DDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetPropertiesToolBar());
     viewMenu->addAction(gMainWindow->GetPropertiesToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetTimelineToolBar()*/, gMainWindow->GetPropertiesToolBar());
+    tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetPropertiesToolBar());
 
-    //Timeline
-    gMainWindow->GetTimelineToolBar()->setWindowTitle(trUtf8("Timeline"));
-    gMainWindow->GetTimelineToolBar()->setObjectName("TimelineToolbar");
-    gMainWindow->GetTimelineToolBar()->setAllowedAreas(
+    //Colors Selection
+    gMainWindow->GetColorsToolBar()->setWindowTitle(trUtf8("Colors"));
+    gMainWindow->GetColorsToolBar()->setObjectName("ColorsToolbar");
+    gMainWindow->GetColorsToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetTimelineToolBar());
-    viewMenu->addAction(gMainWindow->GetTimelineToolBar()->toggleViewAction());
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetColorsToolBar());
+    viewMenu->addAction(gMainWindow->GetColorsToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow, gMainWindow->GetTimelineToolBar());
+    tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetColorsToolBar());
 
-    // Preview
-    if (GetPreferences().mPreviewPosition == lcPreviewPosition::Dockable)
-        createPreviewWidget();
+    //Part Selection
+    gMainWindow->GetPartsToolBar()->setWindowTitle(trUtf8("Parts"));
+    gMainWindow->GetPartsToolBar()->setObjectName("PartsToolbar");
+    gMainWindow->GetPartsToolBar()->setAllowedAreas(
+                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetPartsToolBar());
+    viewMenu->addAction(gMainWindow->GetPartsToolBar()->toggleViewAction());
+
+    tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetPartsToolBar());
+
+    //3DViewer
+    visualEditDockWindow = new QDockWidget(trUtf8("3DViewer"), this);
+    visualEditDockWindow->setObjectName("ModelDockWindow");
+    visualEditDockWindow->setAllowedAreas(
+                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    visualEditDockWindow->setWidget(gMainWindow);
+    addDockWidget(Qt::RightDockWidgetArea, visualEditDockWindow);
+    viewMenu->addAction(visualEditDockWindow->toggleViewAction());
+
+    tabifyDockWidget(gMainWindow->GetTimelineToolBar(), visualEditDockWindow);
 
     // Status Bar and Window Flags
-    connect(viewerDockWindow,                    SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
-    connect(viewerDockWindow,                    SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
+    connect(visualEditDockWindow,                SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
+    connect(visualEditDockWindow,                SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
     connect(gMainWindow->GetTimelineToolBar(),   SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
     connect(gMainWindow->GetPropertiesToolBar(), SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
     connect(gMainWindow->GetColorsToolBar(),     SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
@@ -672,15 +678,17 @@ bool Gui::createPreviewWidget()
     gMainWindow->CreatePreviewWidget();
 
     if (gMainWindow->GetPreviewWidget()) {
-        previewDockWindow = new QDockWidget(tr("3DPreview"), this);
-        previewDockWindow->setWindowTitle(tr("3DPreview"));
+        previewDockWindow = new QDockWidget(tr("Preview"), this);
+        previewDockWindow->setWindowTitle(tr("Preview"));
         previewDockWindow->setObjectName("PreviewDockWindow");
-        previewDockWindow->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+        previewDockWindow->setAllowedAreas(
+                    Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                    Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         previewDockWindow->setWidget(gMainWindow->GetPreviewWidget());
         addDockWidget(Qt::RightDockWidgetArea, previewDockWindow);
         viewMenu->addAction(previewDockWindow->toggleViewAction());
 
-        tabifyDockWidget(viewerDockWindow, previewDockWindow);
+        tabifyDockWidget(gMainWindow->GetTimelineToolBar(), previewDockWindow);
 
         connect(previewDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
 
@@ -734,7 +742,7 @@ void Gui::togglePreviewWidget(bool visible)
             previewDockWindow->hide();
         QList<QAction*> viewActions = viewMenu->actions();
         Q_FOREACH (QAction *viewAct, viewActions) {
-            if (viewAct->text() == "3DPreview") {
+            if (viewAct->text() == "Preview") {
                 viewAct->setChecked(visible);
                 viewAct->setVisible(visible);
                 messageSig(LOG_DEBUG, QString("%1 window %2.")
@@ -796,7 +804,7 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
 
 void Gui::showLCStatusMessage()
 {
-    if(!viewerDockWindow->isFloating())
+    if(!visualEditDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
@@ -804,7 +812,7 @@ void Gui::toggleLCStatusBar(bool topLevel)
 {
     Q_UNUSED(topLevel);
 
-    if(viewerDockWindow->isFloating())
+    if(visualEditDockWindow->isFloating())
         gMainWindow->statusBar()->show();
     else
         gMainWindow->statusBar()->hide();

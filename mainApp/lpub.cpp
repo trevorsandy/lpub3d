@@ -6039,27 +6039,19 @@ void Gui::statusBarMsg(QString msg)
 
 void Gui::createDockWindows()
 {
-    fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 Editor")), this);
-    fileEditDockWindow->setObjectName("LDrawFileDockWindow");
-    fileEditDockWindow->setAllowedAreas(
+    commandEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("Command Editor")), this);
+    commandEditDockWindow->setObjectName("CommandEditorDockWindow");
+    commandEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    fileEditDockWindow->setWidget(editWindow);
-    addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
-    viewMenu->addAction(fileEditDockWindow->toggleViewAction());
+    commandEditDockWindow->setWidget(editWindow);
+    addDockWidget(Qt::RightDockWidgetArea, commandEditDockWindow);
+    viewMenu->addAction(commandEditDockWindow->toggleViewAction());
 
-    connect(fileEditDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
+    connect(commandEditDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
 
     if (Preferences::modeGUI)
         create3DDockWindows();
-
-    // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
-    fileEditDockWindow->raise();
-//#ifdef Q_OS_MACOS
-//    fileEditDockWindow->raise();
-//#else
-//    viewerDockWindow->raise();
-//#endif
 }
 
 void Gui::importToolBarVisibilityChanged(bool visible)

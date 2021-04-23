@@ -1880,8 +1880,8 @@ private:
   void writeNativeSettings();
   bool createPreviewWidget();
 
-  QDockWidget       *fileEditDockWindow;
-  QDockWidget       *viewerDockWindow;
+  QDockWidget       *commandEditDockWindow;
+  QDockWidget       *visualEditDockWindow;
   QDockWidget       *previewDockWindow;
 
   // Menus
