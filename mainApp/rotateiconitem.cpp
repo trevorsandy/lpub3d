@@ -90,7 +90,8 @@ void RotateIconItem::setAttributes(
   delete pixmap;
 }
 
-RotateIconItem::RotateIconItem(){
+RotateIconItem::RotateIconItem()
+{
   relativeType       = RotateIconType;
   step               = nullptr;
   pixmap             = nullptr;
@@ -105,7 +106,6 @@ RotateIconItem::RotateIconItem(
     isHovered(false),
     mouseIsDown(false)
 {
-
   setAttributes(
         _step,
         _parentRelativeType,

@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2477 (23 04 2021 06:43:14)
+LPub3D 2.4.2.1.2478 (23 04 2021 06:43:46)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
 - Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Parametric and manually resizeable pointer tip #528
+- Change - Rotate icon display pointer tip default restored to enabled #528
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497

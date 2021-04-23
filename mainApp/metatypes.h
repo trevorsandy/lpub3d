@@ -624,7 +624,7 @@ public:
     type       = BdrNone;
     line       = BdrLnNone;
     color      = "Black";
-    hideTip    = true;
+    hideTip    = false;
     useDefault = true;
     parametricTip = true;
     if (map.size() == 0) {
@@ -675,6 +675,7 @@ class PointerAttribData
         tipData.tipWidth         = 0.125f*2.5f; // DEFAULT_TIP_HEIGHT
         tipData.tipHeight        = 0.125f;      // DEFAULT_TIP_WIDTH
         tipData.useDefault       = true;
+        tipData.hideTip          = true;
         tipData.parametricTip    = true;
 
         lineData.color           = "Black";
