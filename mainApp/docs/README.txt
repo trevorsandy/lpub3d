@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2493 (23 04 2021 06:52:20)
+LPub3D 2.4.2.1.2494 (23 04 2021 06:52:55)
 
 Features, enhancements, fixes and changes
 ------------
@@ -24,6 +24,7 @@ Revisions:
 - Change - Rotate icon display pointer tip default restored to enabled #528
 - Change - Viewport divider reset on page load #534
 - Change - Visual editor not loading multi-step page last step or callout CSI #536
+- How To - How to create a text URL with html using rich text edit and export to PDF #539
 - Fix - Abnormal end when deleting lines in the LDraw Editor #530
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520

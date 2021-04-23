@@ -44,7 +44,7 @@ TextItem::TextItem(InsertMeta meta,
   if (meta.value().placementCommand) {
       QString line = gui->readLine(meta.here());
       emit gui->messageSig(LOG_ERROR, QString("Text placement command must come after an 'Add Text' command.<br>Line: %1")
-                           .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName).arg(line.isEmpty() ? "" : line)));
+                           .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName).arg(line.isEmpty() ? "" : line)));      
       return;
   }
 
@@ -95,6 +95,11 @@ TextItem::TextItem(InsertMeta meta,
   }
 
   margin.setValues(0.0,0.0);
+
+  setToolTip(QString("%1 [%2 x %3 px] - right-click to modify")
+             .arg(richText ? "Rich Text" : "Text")
+             .arg(boundingRect().width())
+             .arg(boundingRect().height()));
 
   setTextInteractionFlags(Qt::TextEditorInteraction);
   setAcceptHoverEvents(true);
