@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2485 (23 04 2021 06:47:38)
+LPub3D 2.4.2.1.2486 (23 04 2021 06:48:10)
 
 Features, enhancements, fixes and changes
 ------------
@@ -16,6 +16,7 @@ Revisions:
 - Enhancement - Add archive parts on demand action #521
 - Enhancement - Add part list to reset page image cache #522
 - Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
+- Enhancement - Auto update Open With Programs #420
 - Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
 - Enhancement - Parametric and manually resizeable pointer tip #528
 - Enhancement - Parse single step NOSTEP command #535

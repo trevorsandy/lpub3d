@@ -1740,6 +1740,7 @@ private:
     int                  maxPrograms;
     QStringList          programEntries;
     QGridLayout         *programsLayout;
+    QGridLayout         *systemEditorLayout;
     QDialog             *dialog;
     QLineEdit           *systemEditorEdit;
     QPushButton         *systemEditorButton;

@@ -6222,22 +6222,30 @@ OpenWithProgramDialogGui::OpenWithProgramDialogGui(){
 }
 
 void OpenWithProgramDialogGui::validateProgramEntries(){
-    int lastEntry = programEntries.size();;
+    int lastEntry = programEntries.size();
     if (lastEntry < maxPrograms){
         for (int i = lastEntry; i < maxPrograms; i++)
             programEntries.append(QString("Program %1|").arg(++lastEntry));
     } else {
         for (int i = lastEntry; i > maxPrograms; i--) {
-            programEntries.removeLast();
-            programsLayout->removeWidget(programNameEditList.last());
-            programsLayout->removeWidget(programPathEditList.last());
-            programsLayout->removeWidget(programBrowseButtonList.last());
-            delete programNameEditList.last();
-            delete programPathEditList.last();
-            delete programBrowseButtonList.last();
-            programNameEditList.removeLast();
-            programPathEditList.removeLast();
-            programBrowseButtonList.removeLast();
+            if (programEntries.size() == i) {
+                programEntries.removeLast();
+            }
+            if (programNameEditList.size() == i) {
+                programsLayout->removeWidget(programNameEditList.last());
+                delete programNameEditList.last();
+                programNameEditList.removeLast();
+            }
+            if (programPathEditList.size() == i) {
+                programsLayout->removeWidget(programPathEditList.last());
+                delete programPathEditList.last();
+                programPathEditList.removeLast();
+            }
+            if (programBrowseButtonList.size() == i) {
+                programsLayout->removeWidget(programBrowseButtonList.last());
+                delete programBrowseButtonList.last();
+                programBrowseButtonList.removeLast();
+            }
         }
     }
 }
@@ -6270,6 +6278,7 @@ void OpenWithProgramDialogGui::setProgramEntries() {
         return QIcon(iconFile);
     };
 
+    // open with programs
     for(int i = 0; i < maxPrograms; ++i) {
         programName = programEntries.at(i).split("|").first();
         programPath = QDir::toNativeSeparators(programEntries.at(i).split("|").last());
@@ -6315,6 +6324,22 @@ void OpenWithProgramDialogGui::setProgramEntries() {
         programsLayout->addWidget(programBrowseButton,i,3);
         QObject::connect(programBrowseButton, SIGNAL(clicked(bool)), this, SLOT(browseOpenWithProgram(bool)));
     }
+
+    // system editor box
+    programPath = Preferences::systemEditor;
+    QLabel *systemEditorLabel = new QLabel("",dialog);
+    systemEditorLabel->setPixmap(getProgramIcon().pixmap(16,16));
+    systemEditorLayout->addWidget(systemEditorLabel,0,0);
+    systemEditorEdit = new QLineEdit(programPath, dialog);
+#ifdef Q_OS_MACOS
+    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use 'open -e' - TextEdit");
+#else
+    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use the operating system designated editor");
+#endif
+    systemEditorLayout->addWidget(systemEditorEdit,0,1);
+    systemEditorButton = new QPushButton(QString("Browse..."), dialog);
+    systemEditorLayout->addWidget(systemEditorButton,0,2);
+    QObject::connect(systemEditorButton, SIGNAL(clicked(bool)), this, SLOT(browseSystemEditor(bool)));
 }
 
 void OpenWithProgramDialogGui::setOpenWithProgram()
@@ -6346,44 +6371,40 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
     maxProgramsLayout->addItem(  horizontalSpacer);
 
     // program box
-    QGroupBox *programBbox = new QGroupBox("Open With Programs",dialog);
-    mainLayout->addWidget(programBbox);
-    programsLayout = new QGridLayout(programBbox);
+    QGroupBox *programBox = new QGroupBox("Open With Programs",dialog);
+    mainLayout->addWidget(programBox);
+    programsLayout = new QGridLayout(programBox);
     programsLayout->setColumnStretch(1,10);
     programsLayout->setColumnStretch(2,30);
-    programBbox->setLayout(programsLayout);
+    programBox->setLayout(programsLayout);
+
+    // system editor box
+    QGroupBox *systemEditorBox = new QGroupBox("System Editor", dialog);
+    mainLayout->addWidget(systemEditorBox);
+    systemEditorLayout = new QGridLayout(systemEditorBox);
+    systemEditorBox->setLayout(systemEditorLayout);
 
     QSettings Settings;
     QString const openWithProgramListKey("OpenWithProgramList");
     QString const maxOpenWithProgramsKey("MaxOpenWithPrograms");
 
-    // load entries
+    // open with programs
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
         for (int i = 0; i < maxPrograms; i++)
             programEntries.append(QString("Program %1|").arg(i + 1));
         Settings.setValue(QString("%1/%2").arg(SETTINGS,openWithProgramListKey), programEntries);
     } else {
         programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+        if (programEntries.size() > maxPrograms) {
+            maxPrograms = programEntries.size();
+            disconnect(maxProgramsSpinBox,SIGNAL(valueChanged(int)), this,SLOT (maxProgramsValueChanged(int)));
+            maxProgramsSpinBox->setValue(maxPrograms);
+            gui->createOpenWithActions(maxPrograms);
+            connect(maxProgramsSpinBox,SIGNAL(valueChanged(int)), this,SLOT (maxProgramsValueChanged(int)));
+        }
     }
 
     setProgramEntries();
-
-    // system editor box
-    QGroupBox *systemEditorBox = new QGroupBox("System Editor", dialog);
-    mainLayout->addWidget(systemEditorBox);
-    QHBoxLayout *systemEditorLayout = new QHBoxLayout(systemEditorBox);
-    systemEditorBox->setLayout(systemEditorLayout);
-
-    systemEditorEdit = new QLineEdit(Preferences::systemEditor, dialog);
-#ifdef Q_OS_MACOS
-    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use 'open -e' - TextEdit");
-#else
-    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use the operating system designated editor");
-#endif
-    systemEditorLayout->addWidget(systemEditorEdit);
-    systemEditorButton = new QPushButton(QString("Browse..."), dialog);
-    systemEditorLayout->addWidget(systemEditorButton);
-    QObject::connect(systemEditorButton, SIGNAL(clicked(bool)), this, SLOT(browseSystemEditor(bool)));
 
     // ok cancel button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,

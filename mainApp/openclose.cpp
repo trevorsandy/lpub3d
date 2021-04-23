@@ -226,7 +226,10 @@ void Gui::updateOpenWithActions()
       programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
       numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+
+#ifdef QT_DEBUG_MODE
       messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numPrograms));
+#endif
 
       QString programData, programName, programPath;
 
@@ -273,21 +276,32 @@ void Gui::updateOpenWithActions()
           --numPrograms;
         }
       }
+
+#ifdef QT_DEBUG_MODE
       messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
+#endif
 
       // hide empty program actions
-      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++) {
+      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++)
         openWithActList[j]->setVisible(false);
-      }
+
+      // clear old menu actions
+      if (openWithMenu->actions().size())
+          openWithMenu->clear();
+
+      // add menu actions from updated list
+      for (int k = 0; k < numPrograms; k++)
+        openWithMenu->addAction(openWithActList.at(k));
+
+      // enable menu accordingly
       openWithMenu->setEnabled(numPrograms > 0);
     }
 }
 
 void Gui::openWithSetup()
 {
-    OpenWithProgramDialogGui *openWithProgramDialogGui =
-                              new OpenWithProgramDialogGui();
-    openWithProgramDialogGui->setOpenWithProgram();
+    OpenWithProgramDialogGui openWithProgramDialogGui;
+    openWithProgramDialogGui.setOpenWithProgram();
     updateOpenWithActions();
 }
 
