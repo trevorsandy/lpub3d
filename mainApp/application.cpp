@@ -378,7 +378,7 @@ void Application::setTheme(bool appStarted)
                   darkTheme ? Preferences::themeColors[THEME_DARK_GUIDE_PEN] :
                               Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN]);
 
-  // Set 3DViewer interface colours
+  // Set Visual Editor interface colours
   setViewerThemeColor(LC_PROFILE_AXES_COLOR,
                       Preferences::themeColors[THEME_DARK_AXES_COLOR],
                       Preferences::themeColors[THEME_DEFAULT_AXES_COLOR]);
@@ -427,7 +427,7 @@ void Application::setTheme(bool appStarted)
                       Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM],
                       Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM]);
 
-  // Set 3DViewer colour theme - apply after interface colour update
+  // Set Visual Editor colour theme - apply after interface colour update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
 }
 
@@ -573,12 +573,12 @@ void Application::initialize()
               return;
             }
             else
-            // 3DViewer (LeoCAD) version output
+            // Visual Editor (LeoCAD) version output
             if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "3DViewer - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
+              fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
               return;
@@ -632,7 +632,7 @@ void Application::initialize()
                 fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
                 fprintf(stdout, "  -x, --clear-cache: Reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
                 fprintf(stdout, "\n");
-                fprintf(stdout, "[3DViewer commands]\n");
+                fprintf(stdout, "[Visual Editor commands]\n");
                 fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
                 fprintf(stdout, "  -f, --from <step>: Set the first step to save pictures.\n");
                 fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
@@ -640,7 +640,7 @@ void Application::initialize()
                 fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
                 fprintf(stdout, "  -t, --to <step>: Set the last step to save pictures.\n");
                 fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-                fprintf(stdout, "  -vv, --viewer-version: Output 3DViewer - by LeoCAD version information and exit.\n");
+                fprintf(stdout, "  -vv, --viewer-version: Output Visual Editor - by LeoCAD version information and exit.\n");
                 fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
                 fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
                 fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
@@ -949,7 +949,7 @@ void Application::initialize()
 
 /* load sequence
 * Gui::gui()                                             (gui)           [LPub3D]
-* lcApplication::lcApplication()                         (gApplication)  [3DViewer]
+* lcApplication::lcApplication()                         (gApplication)  [Visual Editor]
 * lcApplication::LoadDefaults                            (gApplication)
 * lcApplication::Initialize()                            (gApplication->Initialize)
 * Initialize::gMainWindow                                (gApplication->gMainWindow)
@@ -1082,7 +1082,7 @@ int Application::run()
   return ExecReturn;
 }
 
-// the next four calls are used by the 3DViewer
+// the next four calls are used by the Visual Editor
 void clearAndReloadModelFile(bool global)
 {
     gui->clearAndReloadModelFile(global);

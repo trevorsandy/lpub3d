@@ -3414,7 +3414,7 @@ void LDrawFile::clearBuildModSteps()
     _buildModSteps.clear();
 }
 
-/* 3DViewer routines */
+/* Visual Editor routines */
 
 void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  const QStringList &rotatedContents,

@@ -342,8 +342,8 @@ void Gui::create3DMenus()
      gMainWindow->GetViewpointMenu()->insertSeparator(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
 
      // Viewer menus
-     ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
-     // 3DViewer Preferences menu
+     ViewerMenu = menuBar()->addMenu(tr("&Visual Editor"));
+     // Visual Editor Preferences menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
      ViewerMenu->addSeparator();
      // Render menu
@@ -423,7 +423,7 @@ void Gui::create3DMenus()
      ViewerZoomSliderMenu->addAction(viewerZoomSliderAct);
      gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setMenu(ViewerZoomSliderMenu);
      ViewerMenu->addSeparator();
-     // 3DViewer about menu
+     // Visual Editor about menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 
      rotateActionMenu = new QMenu(tr("Edit Rotate"),this);
@@ -598,7 +598,7 @@ void Gui::halt3DViewer(bool enable)
         gMainWindow->menuBar()->setEnabled(true);
     }
 
-    messageSig(LOG_INFO, QString("3DViewer %1").arg(enable ? "stopped" :"resumed"));
+    messageSig(LOG_INFO, QString("Visual Editor %1").arg(enable ? "stopped" :"resumed"));
 }
 
 void Gui::create3DDockWindows()
@@ -652,8 +652,8 @@ void Gui::create3DDockWindows()
 
     tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetPartsToolBar());
 
-    //3DViewer
-    visualEditDockWindow = new QDockWidget(trUtf8("3DViewer"), this);
+    //Visual Editor
+    visualEditDockWindow = new QDockWidget(trUtf8("Visual Editor"), this);
     visualEditDockWindow->setObjectName("ModelDockWindow");
     visualEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -1800,7 +1800,7 @@ void Gui::reloadViewer(){
      {
          Project* LoadedProject = new Project();
 
-         if (LoadedProject->Load(FileName))
+         if (LoadedProject->Load(FileName, false/*ShowErrors*/))
          {
              gApplication->SetProject(LoadedProject);
              ProjectLoaded = true;
@@ -2131,7 +2131,7 @@ void Gui::createBuildModification()
                             .arg(statusLabel)
                             .arg(currentStep->stepNumber.number));
 
-            // 'load...' default lines from modelFile and 'save...' buildMod lines from 3DViewer
+            // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
             lcArray<lcGroup*>  mGroups;
             lcArray<lcCamera*> mCameras;
             lcArray<lcLight*>  mLights;
@@ -3156,7 +3156,7 @@ void Gui::loadBuildModification()
     QStringList keys = getViewerStepKeys(true/ *get Name* /, false/ *pliPart* /, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     QString text  = "This action will load build modification '" + buildModKey + "' "
-                     ", step " + step + ", model '" + model + "' into the 3DViewer "
+                     ", step " + step + ", model '" + model + "' into the Visual Editor "
                     "to allow editing.<br><br>Are you sure ?<br>";
     QString type  = "load build modification";
     QString title = "Build Modification";
@@ -3275,7 +3275,7 @@ void Gui::deleteBuildModification()
     /*
     QString text  = "This action will permanently delete build modification '" + buildModKey + "' "
                     "from '" + model + "' at step " + step + "' and cannot be completelly undone using the Undo menu action.<br><br>"
-                    "The modified CSI image and 3DViewer entry will be parmanently deleted.<br>"
+                    "The modified CSI image and Visual Editor entry will be parmanently deleted.<br>"
                     "However, you can use 'Reload' menu action to restore all deleted content.<br><br>"
                     "Do you want to continue ?<br>";
     QString type  = "delete build modification";

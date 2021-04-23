@@ -479,7 +479,7 @@ bool Gui::exportAsDialog(ExportMode m)
       switch (m)
       {
       case EXPORT_PDF:
-        // send signal to halt 3DViewer
+        // send signal to halt Visual Editor
         emit setExportingSig(true);
         exportAsPdf();
       break;
@@ -550,7 +550,7 @@ void Gui::exportAsHtml()
 {
     NativeOptions *Options     = new NativeOptions();
     Options->ExportMode        = EXPORT_HTML_PARTS;
-    // 3DViewer only
+    // Visual Editor only
     Options->ImageType         = Options::CSI;
     Options->ExportFileName    = QFileInfo(curFile).absolutePath();
     // LDV only
@@ -1667,7 +1667,7 @@ void Gui::Print(QPrinter* Printer)
       Ascending = false;
     }
 
-  // send signal to halt 3DViewer
+  // send signal to halt Visual Editor
   setExportingSig(true);
 
   LGraphicsScene scene;

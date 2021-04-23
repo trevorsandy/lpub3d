@@ -1991,7 +1991,7 @@ int Gui::drawPage(
                                              .arg(stepPageNum));
                   }
 
-                  // load the 3DViewer with the last step of the step group
+                  // load the Visual Editor with the last step of the step group
                   Step *lastStep = step;
                   if (!lastStep) {
                       Range *lastRange = range;
@@ -2592,7 +2592,7 @@ int Gui::drawPage(
                                                            .arg(stepPageNum));
                           }
 
-                          // Load the 3DViewer -  callouts and multistep Steps are not loaded
+                          // Load the Visual Editor -  callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {

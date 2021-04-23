@@ -134,7 +134,7 @@ void SubModel::setSubModel(
   QString color = "0";
   subModelMeta  = _meta.LPub.subModel;
 
-  // setup 3DViewer entry
+  // setup Visual Editor entry
   switch (parentRelativeType) {
   case CalloutType:
       top     = topOfCallout();
@@ -462,7 +462,7 @@ int SubModel::createSubModelImage(
       }
   }
 
-  // Generate the 3DViewer Submodel entry
+  // Generate the Visual Editor Submodel entry
   if (! gui->exportingObjects()) {
 
       // Viewer submodel does not yet exist in repository
@@ -481,14 +481,14 @@ int SubModel::createSubModelImage(
                   << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(submodelName);
           QStringList rotatedSubmodel = subModel;
 
-          // RotateParts #3 - 5 parms, submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
+          // RotateParts #3 - 5 parms, submodel for Visual Editor, apply ROTSTEP without camera angles - this routine returns a list
           if ((rc = renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedSubmodel,cameraAngles,false)) != 0)
               emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
 
-          // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
+          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
-          // header and closing meta for 3DViewer
+          // header and closing meta for Visual Editor
           renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::SMP,false/*displayModel*/);
 
           // consolidate submodel subfiles into single file

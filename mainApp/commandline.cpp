@@ -21,7 +21,7 @@
 
 int Gui::processCommandLine()
 {
-  // 3DViewer
+  // Visual Editor
   int viewerCommand = Process3DViewerCommandLine();
   if (viewerCommand < 0)
      return 1;
@@ -36,7 +36,7 @@ int Gui::processCommandLine()
     << "-ll" << "--liblego"
     << "-lt" << "--libtente"
     << "-lv" << "--libvexiq"
-    // 3DViewer arguments
+    // Visual Editor arguments
     << "-l" << "--libpath"
     << "-i" << "--image"
     << "-w" << "--width"

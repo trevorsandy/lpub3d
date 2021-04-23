@@ -279,7 +279,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
          baseName = baseName.append(QString("-%1").arg(smi.replace(smi.indexOf(smi.at(0)),1,smi.at(0).toUpper())));
     }
 
-    // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround 3DViewer abend
+    // case where PLI is an MPD - i.e. LDCad generated part, append name to to workaround Visual Editor abend
     QString modelName = _modelName;
     if (imageType == Options::PLI && isMPD) {
         modelName.prepend("Pli_");
@@ -3372,7 +3372,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         removeEmptyStrings(arguments);
 
         QString message = QString("%1 %2 Arguments: %3")
-                                .arg(RenderImage ? "Native Renderer" : "3DViewer")
+                                .arg(RenderImage ? "Native Renderer" : "Visual Editor")
                                 .arg(ImageType)
                                 .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
@@ -3442,14 +3442,14 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
     }
 
     Project* Loader = new Project();
-    if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType))
+    if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType, true/*ShowErrors*/))
     {
         gApplication->SetProject(Loader);
         lcView::UpdateAllViews();
     }
     else
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer for step key %1.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load Visual Editor for step key %1.")
                              .arg(Options->ViewerStepKey));
         gui->setViewerStepKey(QString(),0);
         delete Loader;

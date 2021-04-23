@@ -5455,8 +5455,8 @@ void Gui::enableActions()
   povrayRenderAct->setEnabled(true);
   copyFilePathToClipboardAct->setEnabled(true);
 
-  //3DViewer
-  //ViewerExportMenu->setEnabled(true); // Hide 3DViewer step export functions
+  //Visual Editor
+  //ViewerExportMenu->setEnabled(true); // Hide Visual Editor step export functions
 
 }
 
@@ -5532,8 +5532,8 @@ void Gui::disableActions()
   povrayRenderAct->setEnabled(false);
   copyFilePathToClipboardAct->setEnabled(false);
 
-  // 3DViewer
-  // ViewerExportMenu->setEnabled(false); // Hide 3DViewer step export functions
+  // Visual Editor
+  // ViewerExportMenu->setEnabled(false); // Hide Visual Editor step export functions
 
 }
 
@@ -5763,7 +5763,7 @@ void Gui::createMenus()
     configMenu->addAction(openWithSetupAct);
     configMenu->addAction(preferencesAct);
 
-    // 3DViewer
+    // Visual Editor
 
     if (Preferences::modeGUI)
         create3DMenus();

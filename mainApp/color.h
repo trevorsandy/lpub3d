@@ -52,7 +52,7 @@ class LDrawColor {
     LDrawColor()
     {}
     /*
-     * This function extracts colours loaded by the 3DViewer  to
+     * This function extracts colours loaded by the Visual Editor  to
      * extract the color codes, color names, and color values and puts
      * them in the xlate (name to color translate) hash table.
      */

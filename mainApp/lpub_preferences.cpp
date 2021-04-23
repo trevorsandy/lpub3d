@@ -1335,7 +1335,7 @@ void Preferences::lpub3dLibPreferences(bool browse)
         Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
     }
 
-    // If we have a valid library archive file, update the 3DViewer parts_library variable, else clear the registry value
+    // If we have a valid library archive file, update the Visual Editor parts_library variable, else clear the registry value
     if (! lpub3dLibFile.isEmpty() && ! browse) {
         fileInfo.setFile(lpub3dLibFile);
 
@@ -3237,7 +3237,7 @@ void Preferences::editorPreferences()
         editorHighlightLines = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines")).toBool();
     }
 
-    // Load the first step (on multi-line select) of selected lines in the 3DViewer
+    // Load the first step (on multi-line select) of selected lines in the Visual Editor
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"))) {
         QVariant uValue(editorLoadSelectionStep);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),uValue);

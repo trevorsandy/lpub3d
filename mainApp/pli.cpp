@@ -265,7 +265,7 @@ void Pli::setParts(
   bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
   bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
 
-  // setup 3DViewer entry
+  // setup Visual Editor entry
   switch (parentRelativeType) {
   case CalloutType:
       top     = topOfCallout();
@@ -992,7 +992,7 @@ int Pli::createPartImage(
         ia.baseName[pT] = QFileInfo(type).completeBaseName();
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
-        // assemble 3DViewer name key - create unique file when a value that impacts the image changes
+        // assemble Visual Editor name key - create unique file when a value that impacts the image changes
         QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
 
         QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
@@ -1114,7 +1114,7 @@ int Pli::createPartImage(
             }
         }
 
-        // Set 3DViewer PLI part entry
+        // Set Visual Editor PLI part entry
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
             StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
             AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
@@ -2434,7 +2434,7 @@ int Pli::partSizeLDViewSCall() {
                 ia.baseName[pT] = QFileInfo(pliPart->type).completeBaseName();
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
-                // assemble 3DViewer name key - create unique file when a value that impacts the image changes
+                // assemble Visual Editor name key - create unique file when a value that impacts the image changes
                 QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
 
                 QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
@@ -2569,7 +2569,7 @@ int Pli::partSizeLDViewSCall() {
 
                 } else { ia.ldrNames[pT] << QStringList(); } // part already exist
 
-                // Set 3DViewer PLI part entry
+                // Set Visual Editor PLI part entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
                     StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
                     AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;

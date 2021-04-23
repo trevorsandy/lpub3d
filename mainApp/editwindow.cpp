@@ -394,8 +394,8 @@ void EditWindow::createActions()
     connect(previewLineAct, SIGNAL(triggered()), this, SLOT(previewLine()));
 
 #ifdef QT_DEBUG_MODE
-    previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview 3DViewer file..."), this);
-    previewViewerFileAct->setStatusTip(tr("Display 3DViewer file in a popup 3D viewer"));
+    previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Visual Editor file..."), this);
+    previewViewerFileAct->setStatusTip(tr("Display Visual Editor file in a popup 3D viewer"));
     connect(previewViewerFileAct, SIGNAL(triggered()), this, SLOT(previewViewerFile()));
 #endif
 
@@ -2086,8 +2086,8 @@ void EditWindow::preferences()
         editorHighlightLinesBox->setChecked(editorHighlightLines);
         editorSelectedItemsSubform->addRow(editorHighlightLinesBox);
 
-        editorLoadSelectionStepBox = new QCheckBox(tr("Load Selection Step in 3DViewer"), dialog);
-        editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the 3DViewer"));
+        editorLoadSelectionStepBox = new QCheckBox(tr("Load Selection Step in Visual Editor"), dialog);
+        editorLoadSelectionStepBox->setToolTip(tr("Load the first step (on multi-line select) of selected lines in the Visual Editor"));
         editorLoadSelectionStepBox->setChecked(editorLoadSelectionStep);
         editorSelectedItemsSubform->addRow(editorLoadSelectionStepBox);
     } // modelFileEdit()
@@ -2136,7 +2136,7 @@ void EditWindow::preferences()
             Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
             if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
-                emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in 3DViewer changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
+                emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in Visual Editor changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
             }
         } // ! modelFileEdit()
         else {

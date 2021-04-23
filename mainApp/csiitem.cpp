@@ -125,7 +125,7 @@ void CsiItem::partLine(
    int            lineNumber,
    Rc             rc)
 {
-    // All 3DViewer (LeoCad) metas are written to csiParts
+    // All Visual Editor (LeoCad) metas are written to csiParts
     // for group meta lines, substitute lineNumber with Rc
     int index;
     switch (rc){
@@ -597,8 +597,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   viewCSIFileAction->setIcon(QIcon(":/resources/editldraw.png"));
 
 #ifdef QT_DEBUG_MODE
-  QAction *view3DViewerFileAction = menu.addAction(QString("View Step %1 CSI 3DViewer File").arg(step->stepNumber.number));
-  view3DViewerFileAction->setWhatsThis("View the current LDraw 3DViewer file in read-only mode");
+  QAction *view3DViewerFileAction = menu.addAction(QString("View Step %1 CSI Visual Editor File").arg(step->stepNumber.number));
+  view3DViewerFileAction->setWhatsThis("View the current LDraw Visual Editor file in read-only mode");
   view3DViewerFileAction->setIcon(QIcon(":/resources/editldraw.png"));
 #endif
 

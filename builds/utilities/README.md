@@ -2,7 +2,7 @@
 
 If you prefer to build your own LPub3D install package, these notes might be helpful.
 
-Starting with **v2.0.0**, LPub3D build scripts builds the core applicaiton (LPub3D), 3DViewer (based on LeoCAD), LDV (based on LDView) along with its three bundled 3rd-party image renderers - [LDGlite][ldglite], [LDView][ldview] and [LPub3D-Trace (POV-Ray)][povray]. Furthermore, the LPub3D build process is now fully cloud-enabled and optimized for containerized builds. This means the build process is highly automated requiring zero intervention between pushing a build tag and downloading the built installation assets.  
+Starting with **v2.0.0**, LPub3D build scripts builds the core applicaiton (LPub3D), Visual Editor (based on LeoCAD), LDV (based on LDView) along with its three bundled 3rd-party image renderers - [LDGlite][ldglite], [LDView][ldview] and [LPub3D-Trace (POV-Ray)][povray]. Furthermore, the LPub3D build process is now fully cloud-enabled and optimized for containerized builds. This means the build process is highly automated requiring zero intervention between pushing a build tag and downloading the built installation assets.  
 
 However, as the build process is specifically designed to exploit cloud-based CI services and tools like [Travis-ci][travis-ci], [AppVeyor][appveyor-ci]  
 and [Docker][dockerrepo], building LPub3D locally may require some presets and dependencies likely not availabe on your build environment. The details below hopefully address the necessary procedures to complete your build process but, it also goes without saying, that your local environment may present uinque configuration requirements not addressed in the steps below.

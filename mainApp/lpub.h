@@ -1495,15 +1495,15 @@ public:
   LDrawColourParts       ldrawColourParts;            // load the LDraw color parts list
 
 protected:
-  // capture camera rotation from 3DViewer module
+  // capture camera rotation from Visual Editor module
   QVector<float>         mStepRotation;
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
-  QString                viewerStepKey;        // currently loaded CSI in 3DViewer
-  QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the 3DViewer timeline view
-  QVector<int>           mBuildModRange;       // begin and end range of modified parts from 3DViewer
+  QString                viewerStepKey;        // currently loaded CSI in Visual Editor
+  QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
+  QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
 
   QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
 
@@ -1533,7 +1533,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  Step                  *currentStep;        // the current step as loaded in the 3DViewer
+  Step                  *currentStep;        // the current step as loaded in the Visual Editor
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
   QFutureWatcher<int>    futureWatcher;

@@ -471,7 +471,7 @@ int Step::createCsi(
      }
   }
 
-  // Generate 3DViewer CSI entry
+  // Generate Visual Editor CSI entry
   if (! gui->exportingObjects()) {
 
       // Viewer Csi does not yet exist in repository
@@ -487,11 +487,11 @@ int Step::createCsi(
           // set rotated parts
           QStringList rotatedParts = csiParts;
 
-          // RotateParts #3 - 5 parms, rotate parts for 3DViewer, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
+          // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
           if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
               emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
-          // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
+          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
           rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
           // header and closing meta
