@@ -1413,11 +1413,18 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                     _result.tipData.useDefault    = false;
                     _result.tipData.parametricTip = false;
                 } else if (line || border) {
+                    float tipHeight               = DEFAULT_TIP_HEIGHT;
+                    float lineThickness           = DEFAULT_LINE_THICKNESS;
+                    float borderThickness         = DEFAULT_BORDER_THICKNESS;
+                    const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
+                    const float tipRatio          = DEFAULT_TIP_RATIO;
+                    const double epsilon          = 0.0001;
                     if (line) {
+                        lineThickness                 = argv[widthIndex].toFloat();
                         _result.attribType            = PointerAttribData::Line;
                         _result.lineData.line         = lineType;
                         _result.lineData.color        = argv[colorIndex];
-                        _result.lineData.thickness    = argv[widthIndex].toFloat();
+                        _result.lineData.thickness    = lineThickness;
                         if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
                             _result.lineData.hideTip  = argv[tip_idIndex] == "TRUE";
                         else
@@ -1426,22 +1433,21 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                         _result.lineHere.lineNumber   = here.lineNumber;
                         _result.lineData.useDefault   = false;
                     } else if (border) {
+                        borderThickness               = argv[widthIndex].toFloat();
                         _result.attribType            = PointerAttribData::Border;
                         _result.borderData.line       = lineType;
                         _result.borderData.color      = argv[colorIndex];
-                        _result.borderData.thickness  = argv[widthIndex].toFloat();
+                        _result.borderData.thickness  = borderThickness;
                         _result.borderHere.modelName  = here.modelName;
                         _result.borderHere.lineNumber = here.lineNumber;
                         _result.borderData.useDefault = false;
                     }
-                    const float lineData = _result.lineData.thickness;
-                    const float borderData = _result.borderData.thickness;
-                    const float delta = lineData + borderData - DEFAULT_POINTER_THICKNESS;
-                    if (delta && _result.tipData.parametricTip) {
-                        const float tipHeight = DEFAULT_TIP_HEIGHT + delta;
-                        _result.tipData.tipWidth   = tipHeight * DEFAULT_TIP_RATIO;
-                        _result.tipData.tipHeight  = tipHeight;
-                        _result.tipData.useDefault = false;
+                    float delta = (lineThickness  + borderThickness) - defaultThickness;
+                    if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
+                        tipHeight                += delta;
+                        _result.tipData.thickness = borderThickness;
+                        _result.tipData.tipWidth  = tipHeight * tipRatio;
+                        _result.tipData.tipHeight = tipHeight;
                     }
                 }
 
@@ -1548,11 +1554,18 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
       _result.tipData.useDefault    = false;
       _result.tipData.parametricTip = false;
   } else if (line || border) {
+      float tipHeight               = DEFAULT_TIP_HEIGHT;
+      float lineThickness           = DEFAULT_LINE_THICKNESS;
+      float borderThickness         = DEFAULT_BORDER_THICKNESS;
+      const float defaultThickness  = DEFAULT_POINTER_THICKNESS;
+      const float tipRatio          = DEFAULT_TIP_RATIO;
+      const double epsilon          = 0.0001;
       if (line) {
+          lineThickness              = argv[widthIndex].toFloat();
           _result.attribType         = PointerAttribData::Line;
           _result.lineData.line      = lineType;
           _result.lineData.color     = argv[colorIndex];
-          _result.lineData.thickness = argv[widthIndex].toFloat();
+          _result.lineData.thickness = lineThickness;
           if (argv[tip_idIndex]  != "TRUE" && argv[tip_idIndex] != "FALSE")
               _result.lineData.hideTip = argv[tip_idIndex] == "TRUE";
           else
@@ -1561,20 +1574,20 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
           _result.lineHere.lineNumber   = here.lineNumber;
           _result.lineData.useDefault   = false;
       } else if (border) {
+          borderThickness               = argv[widthIndex].toFloat();
           _result.attribType            = PointerAttribData::Border;
           _result.borderData.line       = lineType;
           _result.borderData.color      = argv[colorIndex];
-          _result.borderData.thickness  = argv[widthIndex].toFloat();
+          _result.borderData.thickness  = borderThickness;
           _result.borderData.useDefault = false;
           _result.borderHere.modelName  = here.modelName;
           _result.borderHere.lineNumber = here.lineNumber;
       }
-      const float lineData = _result.lineData.thickness;
-      const float borderData = _result.borderData.thickness;
-      const float delta = lineData + borderData - DEFAULT_POINTER_THICKNESS;
-      if (delta && _result.tipData.parametricTip) {
-          const float tipHeight = DEFAULT_TIP_HEIGHT + delta;
-          _result.tipData.tipWidth  = tipHeight * DEFAULT_TIP_RATIO;
+      float delta = (lineThickness  + borderThickness) - defaultThickness;
+      if (_result.tipData.parametricTip && (trunc(1000. * delta) != trunc(1000. * epsilon))) {
+          tipHeight                += delta;
+          _result.tipData.thickness = borderThickness;
+          _result.tipData.tipWidth  = tipHeight * tipRatio;
           _result.tipData.tipHeight = tipHeight;
       }
   }
@@ -1583,6 +1596,32 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
   _result.parent = haveParent ? argv[idIndex+1] : "";
 
   return _result;
+}
+
+void PointerAttribMeta::setOtherDataInches(PointerAttribData pointerAttribData)
+{
+
+  if (_value[pushed].attribType == PointerAttribData::Tip) {
+      _value[pushed].lineData    = pointerAttribData.lineData;
+      _value[pushed].lineHere    = pointerAttribData.lineHere;
+      _value[pushed].borderData  = pointerAttribData.borderData;
+      _value[pushed].borderHere  = pointerAttribData.borderHere;
+  } else {
+      if (_value[pushed].attribType == PointerAttribData::Line) {
+          _value[pushed].borderData  = pointerAttribData.borderData;
+          _value[pushed].borderHere  = pointerAttribData.borderHere;
+      }
+      else if (_value[pushed].attribType == PointerAttribData::Border) {
+          _value[pushed].lineData    = pointerAttribData.lineData;
+          _value[pushed].lineHere    = pointerAttribData.lineHere;
+      }
+      if (_value[pushed].tipData.thickness == DEFAULT_BORDER_THICKNESS)
+          _value[pushed].tipData.thickness  = pointerAttribData.tipData.thickness;
+      if (_value[pushed].tipData.tipWidth  == DEFAULT_TIP_WIDTH)
+          _value[pushed].tipData.tipWidth   = pointerAttribData.tipData.tipWidth;
+      if (_value[pushed].tipData.tipHeight == DEFAULT_TIP_HEIGHT)
+          _value[pushed].tipData.tipHeight  = pointerAttribData.tipData.tipHeight;
+  }
 }
 
 QString PointerAttribMeta::format(bool local, bool global)
@@ -1596,17 +1635,29 @@ QString PointerAttribMeta::format(bool local, bool global)
                 .arg(double(_value[pushed].tipData.tipHeight),0,'f',3);
         break;
     case PointerAttribData::Line:
-        foo = QString("LINE %1 COLOR %2 WIDTH %3")
-                .arg(LineTypeNames[_value[pushed].lineData.line])
-                .arg(_value[pushed].lineData.color)
-                .arg(double(_value[pushed].lineData.thickness),0,'f',3);
+        foo = QString("LINE %1")
+                      .arg(LineTypeNames[_value[pushed].lineData.line]);
+        if (_value[pushed].lineData.color[0] == "#")
+            foo += QString(" COLOR %1")
+                      .arg(_value[pushed].lineData.color);
+        else
+            foo += QString(" COLOR \"%1\"")
+                      .arg(_value[pushed].lineData.color);
+        foo += QString(" WIDTH %1")
+                      .arg(double(_value[pushed].lineData.thickness),0,'f',3);
         if (_value[pushed].lineData.hideTip)
             foo += QString(" HIDE_TIP TRUE");
         break;
     case PointerAttribData::Border:
-        foo = QString("BORDER %1 COLOR %2 WIDTH %3")
-                .arg(LineTypeNames[_value[pushed].borderData.line])
-                .arg(_value[pushed].borderData.color)
+        foo = QString("BORDER %1")
+                     .arg(LineTypeNames[_value[pushed].borderData.line]);
+        if (_value[pushed].borderData.color[0] == "#")
+            foo += QString(" COLOR %1")
+                     .arg(_value[pushed].borderData.color);
+        else
+            foo += QString(" COLOR \"%1\"")
+                     .arg(_value[pushed].borderData.color);
+        foo += QString(" WIDTH %1")
                 .arg(double(_value[pushed].borderData.thickness),0,'f',3);
         break;
     }

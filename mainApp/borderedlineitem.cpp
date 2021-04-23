@@ -31,11 +31,13 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-BorderedLineItem::BorderedLineItem(const QLineF &line, PointerAttribData* paData, QGraphicsItem *parent):
-    QGraphicsLineItem(line, parent),pad(paData){
-
-    setFlags(QGraphicsItem::ItemIsSelectable
-             |QGraphicsItem::ItemIsMovable);
+BorderedLineItem::BorderedLineItem(
+    const QLineF      &line,
+    PointerAttribData *paData,
+    QGraphicsItem     *parent) :
+    QGraphicsLineItem(line, parent), pad(paData)
+{
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
 }
 
 void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
@@ -50,14 +52,33 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
     QPointF p2offset;
     QPointF offset1;
     QPointF offset2;
-    QPolygonF nPolygon;
+    QPointF pA, pB, pC, pD;
+    borderPolygon.clear();
 
     if (!useDefault) {
+        /*
+              Head Polygon
+                                   Height
+                                      |
+         <---------------ux * 2.5-----------Width
+                                   uy * 1
+              pB            |         |
+                            |(0,0)    |
+         <----pA------------|---pC--------
+                            |         |
+              pD            |         |
+                            |         |
+         <--------80%------>|<--20%-->|
+                                      v
+         From the base of the head triangle (pA) to the Y center line (0,0) is 80% of the head
+         width so, to calculate the bordered offset, we adjust the head segment line to that amount
+         by ending the setment at the base of the head (versus its original position at the Y center line)
+        */
         if (segment == segments)
-            _bLine.setLength(bLine.length() - (headWidth / 2));
+            _bLine.setLength(bLine.length() - (headWidth * 0.8f));
 
         setLine(_bLine);
-        radAngle = line().angle()* M_PI / 180;
+        radAngle = line().angle() * M_PI / 180;
         dx       = (ft) * sin(radAngle);
         dy       = (ft) * cos(radAngle);
         offset1  = QPointF(dx, dy);
@@ -66,46 +87,73 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
         p1offset = getLineP1Offset();
         p2offset = getLineP2Offset();
 
-        nPolygon << p1offset + offset1
-                 << p1offset + offset2
-                 << p2offset + offset2
-                 << p2offset + offset1;
+        /*
+        Once calculated, we adjust again the head segment line to extend it past the base (10%)
+        towards the head tip. This is done to avoid exposing the rounded line and border cap.
+        */
+        if (segment == segments) {
+            _bLine.setLength(line().length() + (headWidth * 0.1f));
+            setLine(_bLine);
+        }
+
+        pA = p1offset + offset1;
+        pB = p1offset + offset2;
+        pC = p2offset + offset2;
+        pD = p2offset + offset1;
     } else {
+        _bLine.setLength(bLine.length() - (headWidth * 0.65f));
         setLine(_bLine);
-        radAngle = line().angle()* M_PI / 180;
+        radAngle = line().angle() * M_PI / 180;
         dx       = (ft) * sin(radAngle);
         dy       = (ft) * cos(radAngle);
         offset1  = QPointF(dx, dy);
         offset2  = QPointF(-dx, -dy);
 
-        nPolygon << line().p1() + offset1
-                 << line().p1() + offset2
-                 << line().p2() + offset2
-                 << line().p2() + offset1;
+        pA = line().p1() + offset1;
+        pB = line().p1() + offset2;
+        pC = line().p2() + offset2;
+        pD = line().p2() + offset1;
     }
-//#ifdef QT_DEBUG_MODE
-//        logTrace() << "\n[DEBUG BORDERED-LINE THICKNESS -" << (resolutionType() == DPCM ? "CENTIMETERS]:" : "INCHES]:")
-//                   << "LINE THICKNESS:" << QString::number(pad->lineData.thickness)
-//                   << "BORDER THICKNESS:" << QString::number(pad->borderData.thickness)
-//        ;
-//        logTrace() << "\n[DEBUG BORDERED POLYGON]:"
-//                   << "\nSEGMENT:    " << segment
-//                   << "\nUSE_DEFAULT:" << (useDefault ? "TRUE" : "FALSE")
-//                   << "\nLINE:       " << line().length()
-//                   << "\nLINE_ADJUST:" << bLine.length() - line().length()
-//                   << "\nHEAD_WIDTH: " << headWidth
-//                   << "\nTIP_WIDTH : " << pad->tipData.tipWidth
-//                   << "\nTIP_HEIGHT: " << pad->tipData.tipHeight
-//                   << "\nP1OFFSET:   " << p1offset
-//                   << "\nP2OFFSET:   " << p2offset
-//                   << "\nPOLYGON:    "
-//                   << p1offset + offset1
-//                   << p1offset + offset2
-//                   << p2offset + offset2
-//                   << p2offset + offset1
-//        ;
-//#endif
-    borderPolygon = nPolygon;
+
+    borderPolygon << pA << pB << pC << pD;
+
+#ifdef QT_DEBUG_MODE
+    /*
+     Border Polygon
+
+                  Height
+                    |
+          pD        |        pA
+                    |
+     <--------------|------------Width
+                    |
+          pC        |        pB
+                    |
+                    v
+    */
+    /*
+    logTrace() << "\n[DEBUG BORDERED POLYGON]:"
+               << "\nUNITS:........       " << (resolutionType() == DPCM ? "CENTIMETERS:" : "INCHES:")
+               << "\nSEGMENT:             " << segment
+               << "\nUSE_DEFAULT:         " << (useDefault ? "TRUE" : "FALSE")
+               << "\nBORDER:              " << line().length()
+               << "\nBORDER_ADJUSTMENT:   " << bLine.length() - line().length()
+               << "\nBORDER_THICKNESS:    " << pad->borderData.thickness
+               << "\nLINE_THICKNESS:      " << pad->lineData.thickness
+               << "\nTIP_BORDER_THICKNESS:" << pad->tipData.thickness
+               << "\nTIP_WIDTH :          " << pad->tipData.tipWidth
+               << "\nTIP_HEIGHT:          " << pad->tipData.tipHeight
+               << "\nHEAD_WIDTH:          " << headWidth
+               << "\nPOINT_1_OFFSET:      " << p1offset
+               << "\nPOINT_2_OFFSET:      " << p2offset
+               << "\nBORDER LINE POLYGON: "
+               << "\nBORDER_POINT_A:      " << pA
+               << "\nBORDER_POINT_B:      " << pB
+               << "\nBORDER_POINT_C:      " << pC
+               << "\nBORDER_POINT_D:      " << pD
+                  ;
+    */
+#endif
     update();
 }
 
@@ -116,7 +164,7 @@ QPointF BorderedLineItem::getLineP1Offset(){
     if (segment == 1 && ! hideTip)
         return line().p1();
 
-    qreal ft = (pad->lineData.thickness/2 + (hideTip ? 1 : 0));
+    qreal ft = (pad->tipData.thickness / 2);
 
     const QPointF lp1 = line().p1();
     const QPointF lp2 = line().p2();
@@ -154,13 +202,12 @@ QPointF BorderedLineItem::getLineP1Offset(){
     return offset;
 }
 
-QPointF BorderedLineItem::getLineP2Offset(){
+QPointF BorderedLineItem::getLineP2Offset() {
 
     const QPointF lp1 = line().p1();
     const QPointF lp2 = line().p2();
 
-    // Adjust by 1 pixel
-    qreal ft = (pad->lineData.thickness/2) + 1;
+    qreal ft = (pad->tipData.thickness / 2);
 
     QPointF offset;
     if (lp2.x() == lp1.x())                 // vertical line, adjust the y axis
@@ -199,14 +246,14 @@ QRectF BorderedLineItem::boundingRect() const {
     return borderPolygon.boundingRect();
 }
 
-QPainterPath BorderedLineItem::shape() const{
+QPainterPath BorderedLineItem::shape() const {
     QPainterPath ret;
     ret.addPolygon(borderPolygon);
     return ret;
 }
 
 void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                             QWidget *widget){
+                             QWidget *widget) {
     Q_UNUSED(option);
     Q_UNUSED(widget);
 

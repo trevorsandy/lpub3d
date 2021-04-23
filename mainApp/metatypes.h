@@ -671,6 +671,7 @@ class PointerAttribData
 
     PointerAttribData()
     {
+        tipData.thickness        = 1.0f/64.0f;  // DEFAULT_BORDER_THICKNESS
         tipData.tipWidth         = 0.125f*2.5f; // DEFAULT_TIP_HEIGHT
         tipData.tipHeight        = 0.125f;      // DEFAULT_TIP_WIDTH
         tipData.useDefault       = true;

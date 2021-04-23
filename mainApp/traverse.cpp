@@ -365,7 +365,7 @@ void Gui::set_divider_pointers(
                 break;
             }
             if (p && pam.value().id == p->id) {
-                pam.setAltValueInches(p->getPointerAttribInches());
+                pam.setOtherDataInches(p->getPointerAttribInches());
                 p->setPointerAttribInches(pam);
                 if (rd)
                     range->rangeDividerPointerList.replace(i,p);
@@ -1657,7 +1657,7 @@ int Gui::drawPage(
                           break;
                       }
                       if (p && pam.value().id == p->id) {
-                          pam.setAltValueInches(p->getPointerAttribInches());
+                          pam.setOtherDataInches(p->getPointerAttribInches());
                           p->setPointerAttribInches(pam);
                           pp->pointerList.replace(i,p);
                           pagePointers.remove(position);
@@ -1706,7 +1706,7 @@ int Gui::drawPage(
                       break;
                   }
                   if (p && pam.value().id == p->id) {
-                      pam.setAltValueInches(p->getPointerAttribInches());
+                      pam.setOtherDataInches(p->getPointerAttribInches());
                       p->setPointerAttribInches(pam);
                       callout->pointerList.replace(i,p);
                   }

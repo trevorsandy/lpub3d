@@ -1363,6 +1363,7 @@ public:
     _result = _value[pushed];
     _result.borderData.thickness*=resolution();
     _result.lineData.thickness  *=resolution();
+    _result.tipData.thickness   *=resolution();
     _result.tipData.tipWidth    *=resolution();
     _result.tipData.tipHeight   *=resolution();
     return _result;
@@ -1374,6 +1375,7 @@ public:
     if (resolutionType() == DPCM) {
       _result.borderData.thickness = inches2centimeters(_result.borderData.thickness);
       _result.lineData.thickness   = inches2centimeters(_result.lineData.thickness);
+      _result.tipData.thickness    = inches2centimeters(_result.tipData.thickness);
       _result.tipData.tipWidth     = inches2centimeters(_result.tipData.tipWidth);
       _result.tipData.tipHeight    = inches2centimeters(_result.tipData.tipHeight);
     }
@@ -1385,31 +1387,14 @@ public:
     if (resolutionType() == DPCM) {
       pointerAttribData.borderData.thickness = centimeters2inches(pointerAttribData.borderData.thickness);
       pointerAttribData.lineData.thickness   = centimeters2inches(pointerAttribData.lineData.thickness);
+      pointerAttribData.tipData.thickness    = centimeters2inches(pointerAttribData.tipData.thickness);
       pointerAttribData.tipData.tipWidth     = centimeters2inches(pointerAttribData.tipData.tipWidth);
       pointerAttribData.tipData.tipHeight    = centimeters2inches(pointerAttribData.tipData.tipHeight);
     }
     _value[pushed] = pointerAttribData;
   }
 
-  void setAltValueInches(PointerAttribData pointerAttribData)
-  {
-    if (_value[pushed].attribType == PointerAttribData::Line) {
-        _value[pushed].borderData  = pointerAttribData.borderData;
-        _value[pushed].borderHere  = pointerAttribData.borderHere;
-    }
-    else
-    if (_value[pushed].attribType == PointerAttribData::Border) {
-        _value[pushed].lineData    = pointerAttribData.lineData;
-        _value[pushed].lineHere    = pointerAttribData.lineHere;
-    }
-    else
-    if (_value[pushed].attribType == PointerAttribData::Tip) {
-        _value[pushed].lineData    = pointerAttribData.lineData;
-        _value[pushed].lineHere    = pointerAttribData.lineHere;
-        _value[pushed].borderData  = pointerAttribData.borderData;
-        _value[pushed].borderHere  = pointerAttribData.borderHere;
-    }
-  }
+  void setOtherDataInches(PointerAttribData pointerAttribData);
 
   PointerAttribData valueInches()
   {
@@ -1467,6 +1452,7 @@ public:
   {
     _value[0].borderData.thickness = DEFAULT_BORDER_THICKNESS;
     _value[0].lineData.thickness   = DEFAULT_LINE_THICKNESS;
+    _value[0].tipData.thickness    = DEFAULT_BORDER_THICKNESS;
     _value[0].tipData.tipWidth     = DEFAULT_TIP_WIDTH;
     _value[0].tipData.tipHeight    = DEFAULT_TIP_HEIGHT;
   }

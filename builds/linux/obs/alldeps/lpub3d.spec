@@ -731,5 +731,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Apr 11 2021 - trevor.dot.sandy.at.gmail.dot.com 2.4.2.2473
+* Fri Apr 23 2021 - trevor.dot.sandy.at.gmail.dot.com 2.4.2.2473
 - LPub3D Linux package (rpm) release

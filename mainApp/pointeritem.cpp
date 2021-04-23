@@ -66,29 +66,30 @@ PointerHeadItem::PointerHeadItem(
 QPolygonF PointerHeadItem::createPolygon()
 {
     /*
-     * Head Polygon
-                           Height
-                             |
-     <-------ux * 2.5----------Width
-                             |
-          pB        |        |
-                    |        |
-     --pE/pA--------|----pC--uy
-                    |        |
-          pD        |        |
-                             |
-                             v
+          Head Polygon
+                               Height
+                                 |
+     <---------------ux * 2.5----------Width
+                              uy * 1
+          pB            |        |
+                        |        |
+     <----pA------------|---pC-------
+                        |        |
+          pD            |        |
+                                 |
+                                 v
     */
 
-    float unitX = width/DEFAULT_TIP_RATIO; // in pixels
-    float unitY = height/2;                // in pixels
+    const float unitX = width / DEFAULT_TIP_RATIO; // in pixels
+    const float unitY = height / 2;                // in pixels
 
-    QPolygonF polyF;                   // points
-    polyF << QPointF(-2*unitX, 0);     // pA
-    polyF << QPointF(-2*unitX, unitY); // pB
-    polyF << QPointF(unitX/2 , 0);     // pC
-    polyF << QPointF(-2*unitX,-unitY); // pD
-    polyF << QPointF(-2*unitX, 0);     // pE
+    QPolygonF polyF;
+    polyF << QPointF(-2*unitX, 0);
+    polyF << QPointF(-2*unitX, unitY);
+    polyF << QPointF(unitX/2 , 0);
+    polyF << QPointF(-2*unitX,-unitY);
+    polyF << QPointF(-2*unitX, 0);
+
     return polyF;
 }
 
@@ -105,19 +106,19 @@ PointerItem::~PointerItem(){
 void PointerItem::drawPointerPoly()
 {
 
-  QPolygonF polyF = head->createPolygon();
+  const QPolygonF polyF = head->createPolygon();
 
-  float headWidth = polyF.boundingRect().width();
+  const qreal headWidth = polyF.boundingRect().width();
 
   enum Seg { first, second, third };
 
   for (int i = 0; i < segments(); i++) {
 
-      QLineF linef;
+      QLineF lineF;
       switch (segments()) {
       case OneSegment:
       {
-          linef = QLineF(points[Base],points[Tip]);
+          lineF = QLineF(points[Base],points[Tip]);
           removeFromGroup(shaftSegments[i]);
           BorderedLineItem *shaft = shaftSegments[i];
           shaft->top        = pointerTop;
@@ -126,7 +127,7 @@ void PointerItem::drawPointerPoly()
           shaft->setSegment(OneSegment);
           shaft->setSegments(segments());
           shaft->setHeadWidth(headWidth);
-          shaft->setBorderedLine(linef);
+          shaft->setBorderedLine(lineF);
           shaft->setData(ObjectId, PointerFirstSegObj);
           shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
           addToGroup(shaft);
@@ -135,7 +136,7 @@ void PointerItem::drawPointerPoly()
       case TwoSegments:
       {
           if (i == Seg::first) {
-              linef = QLineF(points[Base],points[MidBase]);
+              lineF = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
               shaft->top        = pointerTop;
@@ -143,13 +144,12 @@ void PointerItem::drawPointerPoly()
               shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
-              shaft->setHeadWidth(headWidth);
-              shaft->setBorderedLine(linef);
+              shaft->setBorderedLine(lineF);
               shaft->setData(ObjectId, PointerFirstSegObj);
               shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::second) {
-              linef = QLineF(points[MidBase],points[Tip]);
+              lineF = QLineF(points[MidBase],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
               shaft->top        = pointerTop;
@@ -158,7 +158,7 @@ void PointerItem::drawPointerPoly()
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
-              shaft->setBorderedLine(linef);
+              shaft->setBorderedLine(lineF);
               shaft->setData(ObjectId, PointerSecondSegObj);
               shaft->setZValue(zValue()+POINTERSECONDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
@@ -168,7 +168,7 @@ void PointerItem::drawPointerPoly()
       case ThreeSegments:
       {
           if (i == Seg::first) {
-              linef = QLineF(points[Base],points[MidBase]);
+              lineF = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
               shaft->top        = pointerTop;
@@ -176,13 +176,12 @@ void PointerItem::drawPointerPoly()
               shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
-              shaft->setHeadWidth(headWidth);
-              shaft->setBorderedLine(linef);
+              shaft->setBorderedLine(lineF);
               shaft->setData(ObjectId, PointerFirstSegObj);
               shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::second) {
-              linef = QLineF(points[MidBase],points[MidTip]);
+              lineF = QLineF(points[MidBase],points[MidTip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
               shaft->top        = pointerTop;
@@ -190,13 +189,12 @@ void PointerItem::drawPointerPoly()
               shaft->stepNumber = stepNumber;
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
-              shaft->setHeadWidth(headWidth);
-              shaft->setBorderedLine(linef);
+              shaft->setBorderedLine(lineF);
               shaft->setData(ObjectId, PointerSecondSegObj);
               shaft->setZValue(zValue()+POINTERSECONDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::third) {
-              linef = QLineF(points[MidTip],points[Tip]);
+              lineF = QLineF(points[MidTip],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
               shaft->top        = pointerTop;
@@ -205,7 +203,7 @@ void PointerItem::drawPointerPoly()
               shaft->setSegment(ThreeSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
-              shaft->setBorderedLine(linef);
+              shaft->setBorderedLine(lineF);
               shaft->setData(ObjectId, PointerThirdSegObj);
               shaft->setZValue(zValue()+POINTERTHIRDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
@@ -245,9 +243,7 @@ void PointerItem::drawPointerPoly()
               break;
           }
 
-          qreal h = sqrt(x*x+y*y);
-          qreal angle = 180*acos(x/h);
-
+          qreal angle = 0;
           qreal pi = 22.0/7;
 
           if (x == 0.0) {
