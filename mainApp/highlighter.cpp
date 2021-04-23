@@ -942,22 +942,48 @@ void Highlighter::highlightBlock(const QString &text)
         return;
 
     QStringList tt = text.mid(index).trimmed().split(" ",QString::SkipEmptyParts);
-    QString part;
-    for (int t = 14; t < tt.size(); t++)
-        part += (tt[t]+" ");
-    QStringList tokens;
-    tokens  << tt[0]                             // - part type
-            << tt[1]                             // - color
-            << tt[2]+" "+tt[3]+" "+tt[4]         // - position
-            << tt[5]+" "+tt[6]+" "+tt[7]         // - transform
-            << tt[8]+" "+tt[9]+" "+tt[10]        // - transform
-            << tt[11]+" "+tt[12]+" "+tt[13]      // - transform
-            << part.trimmed();                   // - part
-
-    for (int i = 0; i < tokens.size(); i++) {
-        if (index >= 0 && index < text.length()) {
-            setFormat(index, tokens[i].length(), lineType1Formats[i]);
-            index += tokens[i].length() + 1;     // add 1 position for the space
+    if (tt.size()) {
+        QString part;
+        for (int t = 14; t < tt.size(); t++)
+            part += (tt[t]+" ");
+        QStringList tokens;
+        if (tt.size() > 14) {
+            tokens  << tt[0]                         //  1 - part type
+                    << tt[1]                         //  2 - color
+                    << tt[ 2]+" "+tt[ 3]+" "+tt[ 4]  //  5 - position
+                    << tt[ 5]+" "+tt[ 6]+" "+tt[ 7]  //  8 - transform
+                    << tt[ 8]+" "+tt[ 9]+" "+tt[10]  // 11 - transform
+                    << tt[11]+" "+tt[12]+" "+tt[13]  // 14 - transform
+                    << part.trimmed();               // 15 - part
+        } else {
+            for (int i = 0; i < tt.size(); i++) {
+                if (i < 2)
+                    tokens << tt[i];
+                if (tt.size() < 2)
+                    break;
+                if (i == 4)
+                    tokens << tt[2] +" "+tt[3] +" "+tt[4];
+                if (tt.size() < 5)
+                    break;
+                if (i == 7)
+                    tokens << tt[5] +" "+tt[6] +" "+tt[7];
+                if (tt.size() < 8)
+                    break;
+                if (i == 10)
+                    tokens << tt[8] +" "+tt[9] +" "+tt[10];
+                if (tt.size() < 11)
+                    break;
+                if (i == 13)
+                    tokens << tt[11]+" "+tt[12]+" "+tt[13];
+                if (tt.size() < 14)
+                    break;
+            }
+        }
+        for (int i = 0; i < tokens.size(); i++) {
+            if (index >= 0 && index < text.length()) {
+                setFormat(index, tokens[i].length(), lineType1Formats[i]);
+                index += tokens[i].length() + 1;     // add 1 position for the space
+            }
         }
     }
 }

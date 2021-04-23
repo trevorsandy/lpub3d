@@ -703,12 +703,12 @@ bool EditWindow::setValidPartLine()
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
-    bool colorOk = false, isSubstitute = false;
+    bool colorOk = false/*, isSubstitute = false*/;
 
     toolsToolBar->setEnabled(false);
     editColorAct->setText(tr("Edit color"));
     editPartAct->setText(tr("Edit part"));
-/*    substitutePartAct->setText(tr("Substitute part")); */
+//    substitutePartAct->setText(tr("Substitute part"));
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
@@ -733,7 +733,7 @@ bool EditWindow::setValidPartLine()
 
         selection.append("|sub");
 
-        isSubstitute = true;
+//        isSubstitute = true;
 
     } else {
         return false;
@@ -749,9 +749,11 @@ bool EditWindow::setValidPartLine()
 
     partType = partType.trimmed();
 
+#ifdef QT_DEBUG_MODE
     emit lpubAlert->messageSig(LOG_DEBUG,
                                QString("Editor PartType: %1, ColorCode: %2, Line: %3")
                                .arg(partType).arg(colorCode).arg(selection));
+#endif
 
     QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
 
@@ -1773,6 +1775,9 @@ void EditWindow::displayFile(
   } // Detached Editor
   else
   {
+
+    if (!ldrawFile)
+        return;
 
     waitingSpinnerStart();
 
