@@ -2745,12 +2745,12 @@ int Gui::findPage(
     QString const   &addLine,
     FindPageOptions &opts)
 {
-  bool isPreDisplayPage   = true;
-  bool isDisplayPage      = false;
+  bool isPreDisplayPage = true;
+  bool isDisplayPage    = false;
 
-  opts.pageDisplayed      = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
+  opts.pageDisplayed    = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
 
-  pageProcessRunning      = PROC_FIND_PAGE;
+  pageProcessRunning    = PROC_FIND_PAGE;
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
@@ -2934,7 +2934,7 @@ int Gui::findPage(
    */
 
   for ( ;
-        opts.current.lineNumber < opts.flags.numLines && !opts.pageDisplayed;
+        opts.current.lineNumber < opts.flags.numLines && ! opts.pageDisplayed;
         opts.current.lineNumber++) {
 
       // if reading include file, return to current line, do not advance
@@ -3069,6 +3069,7 @@ int Gui::findPage(
                                   }
 
                                   opts.pageDisplayed = submodelOpts.pageDisplayed;
+
                                   saveStepPageNum = stepPageNum;
                                   buildMod = saveBuildMod2;                 // restore old buildMod
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
@@ -3234,7 +3235,6 @@ int Gui::findPage(
                           return HitBuildModAction;
                       }
 
-                      opts.pageDisplayed = true;
                       lineTypeIndexes.clear();
                       csiParts.clear();
 
@@ -3270,13 +3270,18 @@ int Gui::findPage(
                   } // Exporting
 
                   ++opts.pageNum;
+                  opts.flags.addCountPage = true;
                   topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   saveStepPageNum = ++stepPageNum;
 
                   opts.flags.noStep2 = false;
 
                 } // StepGroup && ! NoStep2
-                  opts.flags.noStep2 = false;
+
+                if (opts.current.modelName == topLevelFile())
+                    opts.pageDisplayed = opts.pageNum > displayPageNum;
+
+                opts.flags.noStep2 = false;
                 break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
@@ -3449,7 +3454,6 @@ int Gui::findPage(
                                 return HitBuildModAction;
                             }
 
-                            opts.pageDisplayed = true;
                             saveCurrent.modelName.clear();
                             saveCurrent.modelIndex = -1;
                             saveCsiParts.clear();
@@ -3484,26 +3488,12 @@ int Gui::findPage(
                             } // Exporting
 
                             ++opts.pageNum;
+                            opts.flags.addCountPage = true;
                             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
-
                         } // ! opts.flags.noStep
 
                         // if page displayed, save state
                         if (opts.pageDisplayed) {
-                            // if submodel, save where we stopped in the parent model
-                            if (meta.submodelStack.size()) {
-                                // add parent model positions - excpet positions in the top level model
-                                Q_FOREACH (SubmodelStack tos, meta.submodelStack) {
-                                   if (getSubmodelIndex(tos.modelName) > 0) {
-                                        ModelStack toms(tos.modelName,tos.lineNumber,tos.stepNumber);
-                                        modelStack.append(toms);
-                                   }
-                               }
-                                // lastly, add the current where position
-                                ModelStack toms(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                                modelStack.append(toms);
-                            } // SubmodelStack
-
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     parseError(QString("Required meta BUILD_MOD END not found"),
@@ -3545,17 +3535,13 @@ int Gui::findPage(
                   saveCurrent = opts.current;
                 } // ! StepGroup
 
+              if (opts.current.modelName == topLevelFile())
+                  opts.pageDisplayed = opts.pageNum > displayPageNum;
+
               buildMod.clear();
               meta.LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
-
-              // if page displayed end processing
-              if (opts.pageDisplayed) {
-                  // set processing state
-                  pageProcessRunning = PROC_DISPLAY_PAGE;
-                  return OkRc;
-              }
               break;
 
             case CalloutBeginRc:
@@ -3689,7 +3675,7 @@ int Gui::findPage(
               break;
 
             case CountInstanceRc:
-              if (isPreDisplayPage/*opts.pageNum < displayPageNum*/)
+              if (! opts.pageDisplayed)
                   countInstances = meta.LPub.countInstance.value();
               break;
 
@@ -3792,7 +3778,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (opts.flags.partsAdded && !opts.pageDisplayed && (! opts.flags.noStep || opts.flags.parseNoStep)) {
+  if (opts.flags.partsAdded && (! opts.flags.noStep || opts.flags.parseNoStep)) {
       isPreDisplayPage = opts.pageNum < displayPageNum;
       isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
@@ -3848,6 +3834,7 @@ int Gui::findPage(
               // rerun findPage to reflect change in pre-displayPageNum csiParts
               return HitBuildModAction;
           }
+
       } // IsDisplayPage
 
       if (! opts.flags.noStep) {
@@ -3878,12 +3865,18 @@ int Gui::findPage(
           ++stepPageNum;
           topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
 
+          if (opts.current.modelName == topLevelFile()) {
+              if (! opts.pageDisplayed) {
+                  opts.pageDisplayed = opts.pageNum > displayPageNum;
+                  opts.flags.addCountPage = true;
+              }
+          }
       } // ! opts.flags.noStep
 
-    }  // Last Step in Submodel
+      // Clear parts added so we dont count again in countPage;
+      opts.flags.partsAdded = 0;
 
-  // Clear parts added so we dont count again in countPage;
-  opts.flags.partsAdded = 0;
+    }  // Last Step in Submodel
 
   // Set processing state
   pageProcessRunning = PROC_DISPLAY_PAGE;
@@ -4342,7 +4335,6 @@ void Gui::countPages()
       lastStepPageNum    = -1;       // for back cover page
       maxPages           =  1 + pa;
       stepPageNum        =  maxPages;
-      modelStack.clear();
 
       Meta meta;
       QString empty;
@@ -4364,7 +4356,7 @@ void Gui::countPages()
                   0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
 
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, meta, &ldrawFile, modelStack, findOptions);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &page.meta, &ldrawFile, findOptions);
       future.waitForFinished();
       pagesCounted();
    }
@@ -4456,7 +4448,6 @@ void Gui::drawPage(
   savePrevStepPosition =  0;
   saveGroupStepNum     =  1 + sa;
   saveContStepNum      =  1 + sa;
-  modelStack.clear();
 
   Meta meta;
   QString empty;
@@ -4503,35 +4494,7 @@ void Gui::drawPage(
 
   } else {
 
-    // For submodels, save where findPage stopped in the parent model
-    if (modelStack.size()) {
-
-      /* Switch findOptions.current stepNumber and renderParentModel with top modelStack item */
-
-      // get last modelStack item (where we stopped in findPage) - step number and current where
-      int newStepNumber = modelStack.last().stepNumber;
-      Where newCurrent(modelStack.last().modelName,
-                       getSubmodelIndex(modelStack.last().modelName),
-                       modelStack.last().lineNumber);
-
-      // remove last modelStack item
-      modelStack.pop_back();
-
-      // save current where position to the modelStack
-      ModelStack toms(findOptions.current.modelName,
-                      findOptions.current.lineNumber,
-                      findOptions.stepNumber);
-
-      // set new current where, new step number and renderParentModel from next up modelStack modelName or top model
-      findOptions.current = newCurrent;
-      findOptions.stepNumber = newStepNumber;
-      findOptions.renderParentModel = modelStack.size() ? modelStack.last().modelName : topLevelFile();
-
-      // insert last modelStack item from current
-      modelStack.append(toms);
-    }
-
-    QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, meta, &ldrawFile, modelStack, findOptions);
+    QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &page.meta, &ldrawFile, findOptions);
     if (exporting() || ContinuousPage() || mloadingFile) {
       future.waitForFinished();
       pagesCounted();

@@ -242,6 +242,8 @@ public:
     bool noStep2;
     bool stepGroupBfxStore2;
     bool pageSizeUpdate;
+    bool addCountPage;
+    bool countPageContains;
     bool resetIncludeRc;
     bool includeFileFound;
     int  includeFileRc;
@@ -262,6 +264,8 @@ public:
           noStep2           (false),
           stepGroupBfxStore2(false),
           pageSizeUpdate    (false),
+          addCountPage      (false),
+          countPageContains (false),
           resetIncludeRc    (false),
           includeFileFound  (false),
           includeFileRc     (-1),    // EndOfIncludeFileRc

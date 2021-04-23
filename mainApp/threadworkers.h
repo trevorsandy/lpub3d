@@ -335,9 +335,8 @@ class CountPageWorker : public QObject
 
 public slots:
     static int countPage(
-            Meta meta,
-            LDrawFile *ldrawFile,
-            QList<ModelStack> &modelStack,
+            Meta            *meta,
+            LDrawFile       *ldrawFile,
             FindPageOptions &opts);
 private:
     static void statusMessage(const LogType, const QString &);

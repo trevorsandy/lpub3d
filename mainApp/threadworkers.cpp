@@ -2146,24 +2146,16 @@ void CountPageWorker::removePageSize(const int i)
 }
 
 int CountPageWorker::countPage(
-    Meta             meta,
+    Meta            *meta,
     LDrawFile       *ldrawFile,
-    QList<ModelStack>&modelStack,
     FindPageOptions  &opts)
 {
   QMutex countPageMutex;
   countPageMutex.lock();
 
-  gui->pageProcessRunning = PROC_COUNT_PAGE;
+  int countInstances = meta->LPub.countInstance.value();
 
-  auto documentPageCount = [&opts] ()
-  {
-      if (Preferences::modeGUI && ! gui->exporting()) {
-          statusMessage(LOG_STATUS, QString("Counting document page %1...")
-                                            .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
-          QApplication::processEvents();
-      }
-  };
+  gui->pageProcessRunning = PROC_COUNT_PAGE;
 
   if (opts.pageNum == 1 + gui->pa) {
       if (!opts.stepNumber)
@@ -2175,31 +2167,36 @@ int CountPageWorker::countPage(
   Rc rc;
   BuildModFlags buildMod;
 
-  int countInstances = meta.LPub.countInstance.value();
-  bool localSubmodel = opts.current.lineNumber == 0;
-  bool alreadyRendered = ! localSubmodel &&  ! meta.submodelStack.size();
-
-  if (! alreadyRendered) {
-      if (localSubmodel)
-          gui->skipHeader(opts.current);
-      ldrawFile->setRendered(opts.current.modelName,
-                             opts.isMirrored,
-                             opts.renderParentModel,
-                             opts.stepNumber,
-                             countInstances,
-                             true/*countPage*/);
-  }
-
-  Where topOfStep = opts.current;
-  Where stepGroupCurrent;
-
   gui->saveStepPageNum = gui->stepPageNum;
 
   // buffer exchange and part group vars
   QStringList             bfxParts;
   QList<PliPartGroupMeta> emptyPartGroups;
 
+  if (opts.flags.countPageContains) {
+      gui->skipHeader(opts.current);
+      ldrawFile->setRendered(opts.current.modelName,
+                             opts.isMirrored,
+                             opts.renderParentModel,
+                             opts.stepNumber,
+                             countInstances,
+                             true/*countPage*/);
+      opts.flags.countPageContains = false;
+      opts.flags.addCountPage = true;
+  }
+
+  Where topOfStep = opts.current;
+  Where stepGroupCurrent;
+
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
+
+  auto documentPageCount = [&opts] ()
+  {
+      if (Preferences::modeGUI && ! gui->exporting()) {
+          statusMessage(LOG_STATUS, QString("Counting document page %1...")
+                                            .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+      }
+  };
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;
@@ -2240,8 +2237,9 @@ int CountPageWorker::countPage(
                   QString type = token[token.size()-1];
                   QString colorType = token[1]+type;
 
-                  bool contains   = gui->isSubmodel(type);
-                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                  int contains = gui->isSubmodel(type);
+
+                  CalloutBeginMeta::CalloutMode calloutMode = meta->LPub.callout.begin.value();
 
                   // if submodel
                   if (contains) {
@@ -2259,7 +2257,7 @@ int CountPageWorker::countPage(
                                                               opts.current.modelName,
                                                               opts.stepNumber,
                                                               countInstances,
-                                                              (alreadyRendered ? false : true /*countPage*/));
+                                                              true /*countPage*/);
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -2270,18 +2268,19 @@ int CountPageWorker::countPage(
 
                                   // add submodel to the model modelStack - it can't be a callout
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
-                                  meta.submodelStack << tos;
+                                  meta->submodelStack << tos;
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
                                   FindPageFlags saveFlags2 = opts.flags;
-                                  FindPageFlags flags2;
                                   BuildModFlags saveBuildMod2 = buildMod;
+                                  FindPageFlags flags2;
+                                  flags2.countPageContains = contains;
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
                                   // save rotStep, clear it, and restore it afterwards
                                   // since rotsteps don't affect submodels
-                                  RotStepMeta saveRotStep2 = meta.rotStep;
-                                  meta.rotStep.clear();
+                                  RotStepMeta saveRotStep2 = meta->rotStep;
+                                  meta->rotStep.clear();
 
                                   // save Default pageSize information
                                   PgSizeData pageSize2;
@@ -2311,13 +2310,13 @@ int CountPageWorker::countPage(
                                               opts.contStepNumber,
                                               opts.groupStepNumber,
                                               opts.current.modelName /*renderParentModel*/);
-                                  countPage(meta, ldrawFile, modelStack, submodelOpts);
+                                  countPage(meta, ldrawFile, submodelOpts);
 
                                   gui->saveStepPageNum = gui->stepPageNum;
                                   buildMod = saveBuildMod2;                 // restore old buildMod
                                   opts.flags = saveFlags2;                  // restore old flags
-                                  meta.rotStep = saveRotStep2;              // restore old rotstep
-                                  meta.submodelStack.pop_back();
+                                  meta->rotStep = saveRotStep2;             // restore old rotstep
+                                  meta->submodelStack.pop_back();
 
                                   if (gui->exporting()) {
                                       removePageSize(DEF_SIZE);
@@ -2355,7 +2354,7 @@ int CountPageWorker::countPage(
         case '3':
         case '4':
         case '5':
-          if (! buildMod.ignore) {
+          if (! buildMod.ignore && opts.flags.addCountPage) {
               ++opts.flags.partsAdded;
             } // ! BuildModIgnore, for each line
             break;
@@ -2372,7 +2371,7 @@ int CountPageWorker::countPage(
                   opts.flags.resetIncludeRc = true;  // reset to run include(...) to parse another line
               }
           } else {
-              rc = meta.parse(line,opts.current);    // continue
+              rc = meta->parse(line,opts.current);    // continue
           }
 
           switch (rc) {
@@ -2389,6 +2388,7 @@ int CountPageWorker::countPage(
             case StepGroupEndRc:
               if (opts.flags.stepGroup && ! opts.flags.noStep2) {
                   opts.flags.stepGroup = false;
+                  opts.flags.addCountPage = true;
 
                   // ignored when processing buildMod display
                   if (gui->exporting()) {
@@ -2429,7 +2429,7 @@ int CountPageWorker::countPage(
                   buildMod.ignore = true;
                   break;
               }
-              buildMod.key = meta.LPub.buildMod.key();
+              buildMod.key = meta->LPub.buildMod.key();
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
               buildMod.action = BuildModApplyRc;
               buildMod.ignore = false;
@@ -2494,11 +2494,11 @@ int CountPageWorker::countPage(
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
                       documentPageCount();
 
-                    } // ! StepGroup
+                    } // ! StepGroup (Single step)
 
                   topOfStep = opts.current;
                   opts.flags.partsAdded = 0;
-                  meta.pop();
+                  meta->pop();
                   opts.flags.coverPage = false;
                   opts.flags.stepPage = false;
                   opts.flags.bfxStore2 = opts.flags.bfxStore1;
@@ -2512,8 +2512,13 @@ int CountPageWorker::countPage(
                   } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
 
+              if ( ! opts.flags.stepGroup && ! opts.flags.noStep) {
+                  // Enable partsAdded flag to trigger pageNum increment
+                  opts.flags.addCountPage = true;
+                } // ! StepGroup
+
               buildMod.clear();
-              meta.LPub.buildMod.clear();
+              meta->LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
               break;
@@ -2524,7 +2529,7 @@ int CountPageWorker::countPage(
 
             case CalloutEndRc:
               opts.flags.callout = false;
-              meta.LPub.callout.placement.clear();
+              meta->LPub.callout.placement.clear();
               break;
 
             case InsertCoverPageRc:
@@ -2575,7 +2580,7 @@ int CountPageWorker::countPage(
                break;
 
             case IncludeRc:
-              opts.flags.includeFileRc = gui->includePub(meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
+              opts.flags.includeFileRc = gui->includePub(*meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
               if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
                   opts.flags.includeFileRc = static_cast<int>(EndOfIncludeFileRc);
                   gui->parseError(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
@@ -2590,9 +2595,9 @@ int CountPageWorker::countPage(
                 if (gui->exporting()) {
                     opts.flags.pageSizeUpdate  = true;
 
-                    opts.pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
-                    opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
-                    opts.pageSize.sizeID = meta.LPub.page.size.valueSizeID();
+                    opts.pageSize.sizeW  = meta->LPub.page.size.valueInches(0);
+                    opts.pageSize.sizeH  = meta->LPub.page.size.valueInches(1);
+                    opts.pageSize.sizeID = meta->LPub.page.size.valueSizeID();
 
                     removePageSize(DEF_SIZE);
                     insertPageSize(DEF_SIZE,opts.pageSize);
@@ -2608,7 +2613,7 @@ int CountPageWorker::countPage(
               break;
 
             case CountInstanceRc:
-              countInstances = meta.LPub.countInstance.value();
+              countInstances = meta->LPub.countInstance.value();
               break;
 
             case PageOrientationRc:
@@ -2622,7 +2627,7 @@ int CountPageWorker::countPage(
                       opts.pageSize.sizeH    = gui->getPageSize(DEF_SIZE).sizeH;
                     if (opts.pageSize.sizeID.isEmpty())
                       opts.pageSize.sizeID   = gui->getPageSize(DEF_SIZE).sizeID;
-                    opts.pageSize.orientation= meta.LPub.page.orientation.value();
+                    opts.pageSize.orientation= meta->LPub.page.orientation.value();
 
                     removePageSize(DEF_SIZE);
                     insertPageSize(DEF_SIZE,opts.pageSize);
@@ -2680,46 +2685,7 @@ int CountPageWorker::countPage(
       gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)
       documentPageCount();
 
-    }  // Last Step in Submodel
-
-  // if submodel, load where findPage stopped in the parent model
-  if (opts.current.lineNumber == opts.flags.numLines && modelStack.size()) {
-
-      /* Save settings, set last modelStack, stepNumber, renderParentModel, and initialize buildMod, and flags*/
-
-      int stepNumber2 = modelStack.last().stepNumber;
-      Where current2(modelStack.last().modelName, modelStack.last().lineNumber);
-      current2.setModelIndex(ldrawFile->getSubmodelIndex(current2.modelName));
-      QString renderParentModel2 = modelStack.size() ? current2.modelName : QString();
-      RotStepMeta saveRotStep2 = meta.rotStep;
-      BuildModFlags saveBuildMod2 = buildMod;
-      FindPageFlags saveFlags2 = opts.flags;
-      FindPageFlags flags2;
-
-      // remove last modelStack item
-      modelStack.pop_back();
-
-      // set curent, stepNumber and renderParentModel from next up modelStack modelName
-      FindPageOptions parentOpts(
-                  opts.pageNum,
-                  current2,
-                  opts.pageSize,
-                  flags2,
-                  opts.pageDisplayed,
-                  opts.updateViewer,
-                  opts.isMirrored,
-                  opts.printing,
-                  stepNumber2,
-                  opts.contStepNumber,
-                  opts.groupStepNumber,
-                  renderParentModel2);
-      countPage(meta, ldrawFile, modelStack, parentOpts);
-
-      //gui->saveStepPageNum = gui->stepPageNum;
-      buildMod = saveBuildMod2;    // restore saved buildMod
-      opts.flags = saveFlags2;     // restore saved flags
-      meta.rotStep = saveRotStep2; // restore saved rotstep
-  }
+    } // Last Step in Submodel
 
   countPageMutex.unlock();
 

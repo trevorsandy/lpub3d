@@ -54,12 +54,12 @@ enum JustifyStepEnc {
 };
 
 enum CountInstanceEnc {
-    CountFalse = 0,
-    CountTrue,
-    CountAtModel,
-    CountAtStep,
-    CountAtTop,
-    CountAtOptions
+    CountFalse     = 0,
+    CountTrue,     //1
+    CountAtModel,  //2
+    CountAtStep,   //3
+    CountAtTop,    //4
+    CountAtOptions //5
 };
 
 enum ContStepNumEnc {
