@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>3DViewer Preferences</string>
+   <string>Visual Editor Preferences</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_8">
    <item>

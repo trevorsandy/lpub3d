@@ -71,8 +71,8 @@ void lcQArrayDialog::accept()
 
 	if (Counts[0] * Counts[1] * Counts[2] < 2)
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(this, "3DViewer", tr("Array is empty."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(this, "Visual Editor", tr("Array is empty."));
 /*** LPub3D Mod end ***/
 		return;
 	}

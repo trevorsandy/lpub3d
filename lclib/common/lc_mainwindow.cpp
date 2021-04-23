@@ -1321,7 +1321,7 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 	// LPub3D Step (createCsi) and Submodel (createSubModelImage) routines.
 	// Here we are only setting the ROTSTEP angles and transform variables
 	// mExistingRotStep and mRotStepTransform for consumption when parts
-	// are manually user-rotated from the 3DViewer
+	// are manually user-rotated from the Visual Editor
 	while (!LineStream.atEnd())
 	{
 		mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
@@ -1476,7 +1476,7 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 	{
 		Project* NewProject = new Project;
 
-		if (NewProject->Load(Path))
+		if (NewProject->Load(Path, true))
 		{
 			QByteArray TabLayout = GetTabLayout();
 			gApplication->SetProject(NewProject);
@@ -1489,7 +1489,7 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 		PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(FileInfo.fileName().toLatin1(), CurrentProject, false, true);
 
 		if (Info && Info->IsProject())
-			Info->GetProject()->Load(Path);
+			Info->GetProject()->Load(Path, true);
 	}
 }
 
@@ -2884,7 +2884,7 @@ bool lcMainWindow::OpenProjectFile(const QString& FileName)
 {
 	Project* NewProject = new Project();
 
-	if (NewProject->Load(FileName))
+	if (NewProject->Load(FileName, true))
 	{
 		gApplication->SetProject(NewProject);
 /*** LPub3D Mod - suppress recent files dropdown ***/
@@ -2915,16 +2915,16 @@ void lcMainWindow::MergeProject()
 
 	Project* NewProject = new Project();
 
-	if (NewProject->Load(LoadFileName))
+	if (NewProject->Load(LoadFileName, true))
 	{
 		int NumModels = NewProject->GetModels().GetSize();
 
 		lcGetActiveProject()->Merge(NewProject);
 
 		if (NumModels == 1)
-			QMessageBox::information(this, tr("3DViewer"), tr("Merged 1 submodel."));
+			QMessageBox::information(this, tr("Visual Editor"), tr("Merged 1 submodel."));
 		else
-			QMessageBox::information(this, tr("3DViewer"), tr("Merged %1 submodels.").arg(NumModels));
+			QMessageBox::information(this, tr("Visual Editor"), tr("Merged %1 submodels.").arg(NumModels));
 
 		UpdateModels();
 	}

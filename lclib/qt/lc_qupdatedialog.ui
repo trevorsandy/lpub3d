@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>3DViewer Updates</string>
+   <string>Visual Editor Updates</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

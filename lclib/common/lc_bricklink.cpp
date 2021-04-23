@@ -7,6 +7,8 @@
 #include "annotations.h"
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - use LPub3D exportable BrickLink tables ***/
+/***
 static QJsonDocument lcLoadBrickLinkMapping()
 {
 	std::map<std::string, std::string> Remapping;
@@ -42,6 +44,9 @@ static int lcGetBrickLinkColor(const QJsonObject& ColorMapping, int ColorIndex)
 	return (ColorIt != ColorMapping.end()) ? ColorIt.value().toString().toInt() : 0;
 }
 
+***/
+/*** LPub3D Mod end ***/
+
 class lcBrickLinkItem
 {
 public:
@@ -63,9 +68,6 @@ public:
 bool lcExportBrickLink(const QString& SaveFileName, const lcPartsList& PartsList)
 {
 /*** LPub3D Mod - use LPub3D exportable BrickLink tables ***/
-	Q_UNUSED(lcLoadBrickLinkMapping)
-	Q_UNUSED(lcGetBrickLinkPart)
-	Q_UNUSED(lcGetBrickLinkColor)
 /***
 	QJsonDocument Document = lcLoadBrickLinkMapping();
 	QJsonObject Root = Document.object();
@@ -80,7 +82,7 @@ bool lcExportBrickLink(const QString& SaveFileName, const lcPartsList& PartsList
 	if (!BrickLinkFile.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - export ***/
-		QMessageBox::warning(gMainWindow, QObject::tr("3DViewer"), QObject::tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		QMessageBox::warning(gMainWindow, QObject::tr("Visual Editor"), QObject::tr("Could not open file '%1' for writing.").arg(SaveFileName));
 		return false;
 /*** LPub3D Mod end ***/
 	}

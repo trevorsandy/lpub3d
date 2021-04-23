@@ -13,8 +13,8 @@ lcQAboutDialog::lcQAboutDialog(QWidget *parent) :
 	ui->setupUi(this);
 
 /*** LPub3D Mod - vesion build ***/
-	ui->version->setText(tr("3DViewer is a customized instance of LeoCAD specifically modified for LPub3D\n"
-							"3DViewer uses LeoCAD Version %1 - Sha %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
+	ui->version->setText(tr("Visual Editor is a customized instance of LeoCAD specifically modified for LPub3D\n"
+							"Visual Editor uses LeoCAD Version %1 - Sha %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
 																	   .arg(QString::fromLatin1(LC_VERSION_SHA)));
 /*** LPub3D Mod end ***/
 

@@ -260,12 +260,17 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			}
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Set color only if hidden otherwise use default - original behaviour not playing well with Dark Theme ***/
-			if (Piece->IsHidden()) {
-				QColor Color = PieceItem->textColor(0);
+			QColor Color = palette().text().color();
+
+			if (Piece->mPieceInfo->IsPlaceholder())
+				Color = QColor(208, 0, 0);
+/*** LPub3D Mod - Set color only if hidden otherwise use default ***/				
+			else if (Piece->IsHidden()) 
+			{
+				Color = PieceItem->textColor(0);
 				Color.setAlpha(128);
-				PieceItem->setForeground(0, Color);
-			  }
+			}
+			PieceItem->setForeground(0, Color);
 /*** LPub3D Mod end ***/
 		}
 

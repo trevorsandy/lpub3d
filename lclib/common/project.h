@@ -164,9 +164,9 @@ public:
 	{
 		return mIsPreview;
 	}
-	bool Load(const QString& LoadFileName, const QString& StepKey, int Type);
+	bool Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors);
 /*** LPub3D Mod end ***/
-	bool Load(const QString& FileName);
+	bool Load(const QString& FileName, bool ShowErrors);
 	bool Save(const QString& FileName);
 	bool Save(QTextStream& Stream);
 	void Merge(Project* Other);

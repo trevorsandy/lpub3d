@@ -426,12 +426,12 @@ void Project::SetFileName(const QString& FileName)
 }
 
 /*** LPub3D Mod - preview widget ***/
-bool Project::Load(const QString& FileName)
+bool Project::Load(const QString& FileName, bool ShowErrors)
 {
-	return Load(FileName, QString(), 0);
+	return Load(FileName, QString(), 0, ShowErrors);
 }
 
-bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type)
+bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors)
 {
 	QString FileName = LoadFileName;
 	bool IsLPubModel = false;
@@ -447,7 +447,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		QFile File(FileName);
 		if (!File.open(QIODevice::ReadOnly))
 		{
-			QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
+			if (ShowErrors)
+				QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
 			return false;
 		}
 		FileData = File.readAll();
@@ -466,7 +467,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 			if (FileName.isEmpty())
 			{
-				QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for %1.").arg(FileName));
+				if (ShowErrors)
+					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for %1.").arg(FileName));
 				return false;
 			}
 
@@ -475,7 +477,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 		if (Content.isEmpty())
 		{
-			QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
+			if (ShowErrors)
+				QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
 			return false;
 		}
 
@@ -526,7 +529,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 													   .arg(Keys.at(2)));  // Step Number
 			QFile file(outfileName);
 			if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-				QMessageBox::critical(parent, tr("Error"), tr("Cannot open 3DViewer file %1 for writing: %2")
+				QMessageBox::critical(parent, tr("Error"), tr("Cannot open Visual Editor file %1 for writing: %2")
 									  .arg(outfileName) .arg(file.errorString()));
 			}
 			QTextStream out(&file);
@@ -540,7 +543,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	}
 	else
 	{
-	   QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
+		if (ShowErrors)
+			QMessageBox::critical(parent, tr("Error"), tr("Error accessing model data - no valid input"));
 	}
 
 	mModels.DeleteAll();
@@ -617,7 +621,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 	if (mModels.IsEmpty())
 	{
-		QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
+		if (ShowErrors)
+			QMessageBox::warning(parent, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
 		return false;
 	}
 
@@ -867,8 +872,8 @@ bool Project::Export3DStudio(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -882,8 +887,8 @@ bool Project::Export3DStudio(const QString& FileName)
 
 	if (!File.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1317,8 +1322,8 @@ bool Project::ExportBrickLink()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
 		return false;
@@ -1341,8 +1346,8 @@ bool Project::ExportCOLLADA(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1356,8 +1361,8 @@ bool Project::ExportCOLLADA(const QString& FileName)
 
 	if (!File.open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1370,8 +1375,8 @@ bool Project::ExportCOLLADA(const QString& FileName)
 	Stream << "<asset>\r\n";
 	Stream << "\t<created>" << QDateTime::currentDateTime().toString(Qt::ISODate) << "</created>\r\n";
 	Stream << "\t<modified>" << QDateTime::currentDateTime().toString(Qt::ISODate) << "</modified>\r\n";
-/*** LPub3D Mod - set 3DViewer label ***/
-	Stream << "<unit name=\"3DViewer\" meter=\"0.0004\" />\r\n";
+/*** LPub3D Mod - set Visual Editor label ***/
+	Stream << "<unit name=\"Visual Editor\" meter=\"0.0004\" />\r\n";
 /*** LPub3D Mod end ***/
 	Stream << "\t<up_axis>Z_UP</up_axis>\r\n";
 	Stream << "</asset>\r\n";
@@ -1624,8 +1629,8 @@ bool Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
 		return false;
@@ -1644,8 +1649,8 @@ bool Project::ExportCSV()
 
 	if (!CSVFile.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
 		return false;
@@ -1758,8 +1763,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 			if (Options.PartsListEnd)
 				AddPartsListImage(Stream, Model, 0, BaseName);
 
-/*** LPub3D Mod - set 3DViewer URL ***/
-			Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d\">LPub3D 3DViewer - by LeoCAD</A></I></B><BR></HTML>\r\n");
+/*** LPub3D Mod - set Visual Editor URL ***/
+			Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d\">LPub3D Visual Editor - by LeoCAD</A></I></B><BR></HTML>\r\n");
 /*** LPub3D Mod end ***/
 		}
 		else
@@ -1786,8 +1791,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 				if (Options.PartsListEnd)
 					Stream << QString::fromLatin1("<A HREF=\"%1-pieces.html\">Pieces Used</A><BR>\r\n").arg(BaseName);
-/*** LPub3D Mod - set 3DViewer URL ***/
-				Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d\">LPub3D 3DViewer - by LeoCAD</A></B></I><BR></HTML>\r\n");
+/*** LPub3D Mod - set Visual Editor URL ***/
+				Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d\">LPub3D Visual Editor - by LeoCAD</A></B></I><BR></HTML>\r\n");
 /*** LPub3D Mod end ***/
 			}
 
@@ -1908,8 +1913,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 					Stream << QString::fromLatin1("<A HREF=\"%1-pieces.html\">Pieces Used</A><BR>\r\n").arg(BaseName);
 			}
 		}
-/*** LPub3D Mod - set 3DViewer URL ***/
-		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d/\">LPub3D 3DViewer - by LeoCAD</A></B></I><BR></HTML>\r\n");
+/*** LPub3D Mod - set Visual Editor URL ***/
+		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d/\">LPub3D Visual Editor - by LeoCAD</A></B></I><BR></HTML>\r\n");
 /*** LPub3D Mod end ***/
 	}
 
@@ -1924,8 +1929,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1939,8 +1944,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (!POVFile.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1980,8 +1985,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!TableFile.Open(QIODevice::ReadOnly))
 		{
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod - set Visual Editor label ***/
+			QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
@@ -2028,8 +2033,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 		if (!ColorFile.Open(QIODevice::ReadOnly))
 		{
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+/*** LPub3D Mod - set Visual Editor label ***/
+			QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
@@ -2265,16 +2270,16 @@ bool Project::ExportWavefront(const QString& FileName)
 
 	if (!OBJFile.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
 
 	quint32 vert = 1;
 
-/*** LPub3D Mod - set 3DViewer label ***/
-	OBJFile.WriteLine("# Model exported from 3DViewer\n");
+/*** LPub3D Mod - set Visual Editor label ***/
+	OBJFile.WriteLine("# Model exported from Visual Editor\n");
 /*** LPub3D Mod end ***/
 	QFileInfo SaveInfo(SaveFileName);
 	QString MaterialFileName = QDir(SaveInfo.absolutePath()).absoluteFilePath(SaveInfo.completeBaseName() + QLatin1String(".mtl"));
@@ -2285,14 +2290,14 @@ bool Project::ExportWavefront(const QString& FileName)
 	lcDiskFile MaterialFile(MaterialFileName);
 	if (!MaterialFile.Open(QIODevice::WriteOnly))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
 
-/*** LPub3D Mod - set 3DViewer label ***/
-	MaterialFile.WriteLine("# Colors used by 3DViewer\n\n");
+/*** LPub3D Mod - set Visual Editor label ***/
+	MaterialFile.WriteLine("# Colors used by Visual Editor\n\n");
 /*** LPub3D Mod end ***/
 	for (const lcColor& Color : gColorList)
 	{

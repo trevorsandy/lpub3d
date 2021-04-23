@@ -1388,8 +1388,8 @@ QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 
 	if (!View.BeginRenderToImage(Width, Height))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Error creating images."));
 /*** LPub3D Mod end ***/
 		return QImage();
 	}
@@ -1469,8 +1469,8 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 
 	if (!View.BeginRenderToImage(ThumbnailSize, ThumbnailSize))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Error creating images."));
 /*** LPub3D Mod end ***/
 		return QImage();
 	}
@@ -1950,8 +1950,8 @@ void lcModel::GroupSelection()
 {
 	if (!AnyPiecesSelected())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("No pieces selected."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -2768,8 +2768,8 @@ void lcModel::InlineSelectedModels()
 
 	if (!NewPieces.GetSize())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No models selected."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("No models selected."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -4787,8 +4787,8 @@ void lcModel::ShowSelectByNameDialog()
 {
 	if (mPieces.IsEmpty() && mCameras.IsEmpty() && mLights.IsEmpty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to select."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to select."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -4807,8 +4807,8 @@ void lcModel::ShowArrayDialog()
 
 	if (!GetPieceFocusOrSelectionCenter(Center))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("No pieces selected."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("No pieces selected."));
 		return;
 /*** LPub3D Mod end ***/
 	}
@@ -4820,8 +4820,8 @@ void lcModel::ShowArrayDialog()
 
 	if (Dialog.mCounts[0] * Dialog.mCounts[1] * Dialog.mCounts[2] < 2)
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Array only has 1 element or less, no pieces added."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Array only has 1 element or less, no pieces added."));
 /*** LPub3D Mod end ***/
 		return;
 	}

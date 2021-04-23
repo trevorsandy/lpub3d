@@ -59,8 +59,8 @@ void lcSetsDatabaseDialog::accept()
 	QTreeWidgetItem* Current = ui->SetsTree->currentItem();
 	if (!Current)
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(this, "3DViewer", tr("Please select a set from the list."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(this, "Visual Editor", tr("Please select a set from the list."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -113,8 +113,8 @@ void lcSetsDatabaseDialog::on_SearchButton_clicked()
 
 	if (Keyword.isEmpty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(this, "3DViewer", tr("Keyword cannot be empty."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(this, "Visual Editor", tr("Keyword cannot be empty."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -179,8 +179,8 @@ void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 
 		if (mKeys.isEmpty())
 		{
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(this, "3DViewer", tr("Error connecting to server."));
+/*** LPub3D Mod - set Visual Editor label ***/
+			QMessageBox::information(this, "Visual Editor", tr("Error connecting to server."));
 /*** LPub3D Mod end ***/
 			close();
 		}
@@ -228,8 +228,8 @@ void lcSetsDatabaseDialog::DownloadFinished(lcHttpReply* Reply)
 		if (!Reply->error())
 			mInventory = Reply->readAll();
 		else
-/*** LPub3D Mod - set 3DViewer label ***/
-			QMessageBox::information(this, "3DViewer", tr("Error downloading set inventory."));
+/*** LPub3D Mod - set Visual Editor label ***/
+			QMessageBox::information(this, "Visual Editor", tr("Error downloading set inventory."));
 /*** LPub3D Mod end ***/
 
 		mInventoryReply = nullptr;

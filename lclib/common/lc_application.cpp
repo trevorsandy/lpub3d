@@ -1174,7 +1174,7 @@ int lcApplication::Process3DViewerCommandLine()
 		{
 			Project* LoadedProject = new Project();
 
-			if (LoadedProject->Load(Options.ProjectName))
+			if (LoadedProject->Load(Options.ProjectName, false))
 			{
 				SetProject(LoadedProject);
 				ProjectLoaded = true;
@@ -1403,7 +1403,7 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 
 	if (!lcContext::InitializeRenderer())
 	{
-		StdErr << tr("3DViewer error creating OpenGL context.\n");
+		StdErr << tr("Visual Editor error creating OpenGL context.\n");
 		return lcStartupMode::Error;
 	}
 
@@ -1422,12 +1422,12 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		QString Message;
 
 		if (mLibrary->LoadBuiltinPieces())
-			Message = tr("3DViewer could not find a compatible Parts Library so only a small number of parts will be available.\n");
+			Message = tr("Visual Editor could not find a compatible Parts Library so only a small number of parts will be available.\n");
 		else
-			Message = tr("3DViewer could not load Parts Library.\n");
+			Message = tr("Visual Editor could not load Parts Library.\n");
 
 		if (gMainWindow)
-			QMessageBox::information(gMainWindow, tr("3DViewer"), Message);
+			QMessageBox::information(gMainWindow, tr("Visual Editor"), Message);
 		else
 		{
 			StdErr << Message << "\n";
@@ -1540,7 +1540,7 @@ void lcApplication::ShowPreferencesDialog()
 		return;
 
 /*** LPub3D Mod - preferences save message ***/
-	lpubAlert->messageSig(LOG_STATUS, QString("Saving 3DViewer preferences. Please wait..."));
+	lpubAlert->messageSig(LOG_STATUS, QString("Saving Visual Editor preferences. Please wait..."));
 /*** LPub3D Mod end ***/
 
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);
@@ -1816,7 +1816,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
-	lpubAlert->messageSig(LOG_STATUS, QString("3DViewer preferences saved..."));
+	lpubAlert->messageSig(LOG_STATUS, QString("Visual Editor preferences saved..."));
 	if (restartApp) {
 		restartApplication();
 	}

@@ -767,7 +767,7 @@ const lcCommand gCommands[] =
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Preferences"),
 		QT_TRANSLATE_NOOP("Menu", "P&references..."),
-		QT_TRANSLATE_NOOP("Status", "Set your preferences for the 3DViewer, 3DPreview and Parts displays"), /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Set your preferences for the Visual Editor, 3DPreview and Parts displays"), /*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_VIEW_ZOOM_IN
@@ -1795,28 +1795,28 @@ const lcCommand gCommands[] =
 	// LC_HELP_HOMEPAGE
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
-		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),
+		QT_TRANSLATE_NOOP("Menu", "Visual Editor &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's home page on the internet using your default web browser"),
 		""
 	},
 	// LC_HELP_BUG_REPORT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.BugReport"),
 		QT_TRANSLATE_NOOP("Menu", "Report a Bug"),
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),            /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Status", "Open Visual Editor's bug report form on your default web browser"),            /*** LPub3D Mod - support ***/
 		""
 	},
 	// LC_HELP_UPDATES
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.Updates"),
 		QT_TRANSLATE_NOOP("Menu", "Check for &Updates..."),
-		QT_TRANSLATE_NOOP("Status", "Check if a newer 3DViewer version or parts library has been released"),   /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Status", "Check if a newer Visual Editor version or parts library has been released"),   /*** LPub3D Mod - support ***/
 		""
 	},
 	// LC_HELP_ABOUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.About"),
-		QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),                                           /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Menu", "&About Visual Editor - by LeoCAD..."),                                           /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		""
 	},

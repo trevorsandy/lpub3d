@@ -155,11 +155,8 @@ bool lcPreview::SetCurrentPiece(const QString& PartType, int ColorCode)
 		QString ModelPath = QString("%1%2%3").arg(Path).arg(QDir::separator()).arg(PartType);
 /*** LPub3D Mod end ***/
 
-		if (!mLoader->Load(ModelPath))
-		{
-			QMessageBox::warning(nullptr, QMessageBox::tr("Error"), QMessageBox::tr("Failed to load '%1'.").arg(ModelPath));
+		if (!mLoader->Load(ModelPath, false))
 			return false;
-		}
 
 		mLoader->SetActiveModel(0);
 		lcGetPiecesLibrary()->RemoveTemporaryPieces();

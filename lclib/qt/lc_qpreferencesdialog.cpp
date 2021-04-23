@@ -371,8 +371,8 @@ void lcQPreferencesDialog::accept()
 	int gridLineSpacing = ui->gridLineSpacing->text().toInt();
 	if (gridLineSpacing < 1)
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(this, "3DViewer", tr("Grid spacing must be greater than 0."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(this, "Visual Editor", tr("Grid spacing must be greater than 0."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -973,8 +973,8 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 		return;
 
 	QString question = tr("Are you sure you want to delete the category '%1'?").arg(mOptions->Categories[categoryIndex].Name);
-/*** LPub3D Mod - set 3DViewer label ***/
-	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+/*** LPub3D Mod - set Visual Editor label ***/
+	if (QMessageBox::question(this, "Visual Editor", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 /*** LPub3D Mod end ***/
 
@@ -995,8 +995,8 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 	std::vector<lcLibraryCategory> Categories;
 	if (!lcLoadCategories(FileName, Categories))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(this, "3DViewer", tr("Error loading categories file."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(this, "Visual Editor", tr("Error loading categories file."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -1015,8 +1015,8 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 
 	if (!lcSaveCategories(FileName, mOptions->Categories))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(this, "3DViewer", tr("Error saving categories file."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(this, "Visual Editor", tr("Error saving categories file."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -1024,8 +1024,8 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 
 void lcQPreferencesDialog::on_resetCategories_clicked()
 {
-/*** LPub3D Mod - set 3DViewer label ***/
-	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+/*** LPub3D Mod - set Visual Editor label ***/
+	if (QMessageBox::question(this, "Visual Editor", tr("Are you sure you want to load the default categories?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 /*** LPub3D Mod end ***/
 
@@ -1290,8 +1290,8 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 	lcKeyboardShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(this, "3DViewer", tr("Error loading keyboard shortcuts file."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(this, "Visual Editor", tr("Error loading keyboard shortcuts file."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -1311,8 +1311,8 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 
 	if (!mOptions->KeyboardShortcuts.Save(FileName))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(this, "3DViewer", tr("Error saving keyboard shortcuts file."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(this, "Visual Editor", tr("Error saving keyboard shortcuts file."));
 /*** LPub3D Mod end ***/
 		return;
 	}
@@ -1320,8 +1320,8 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 
 void lcQPreferencesDialog::on_shortcutsReset_clicked()
 {
-/*** LPub3D Mod - set 3DViewer label ***/
-	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+/*** LPub3D Mod - set Visual Editor label ***/
+	if (QMessageBox::question(this, "Visual Editor", tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 /*** LPub3D Mod end ***/
 
@@ -1488,8 +1488,8 @@ void lcQPreferencesDialog::on_MouseImportButton_clicked()
 	lcMouseShortcuts Shortcuts;
 	if (!Shortcuts.Load(FileName))
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(this, "3DViewer", tr("Error loading mouse shortcuts file."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::warning(this, "Visual Editor", tr("Error loading mouse shortcuts file."));
 		return;
 /*** LPub3D Mod end ***/
 	}
@@ -1514,8 +1514,8 @@ void lcQPreferencesDialog::on_MouseExportButton_clicked()
 
 void lcQPreferencesDialog::on_mouseReset_clicked()
 {
-/*** LPub3D Mod - set 3DViewer label ***/
-	if (QMessageBox::question(this, "3DViewer", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+/*** LPub3D Mod - set Visual Editor label ***/
+	if (QMessageBox::question(this, "Visual Editor", tr("Are you sure you want to load the default mouse shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 /*** LPub3D Mod end ***/
 
@@ -1577,7 +1577,7 @@ void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 void lcQPreferencesDialog::on_ResetColorsButton_clicked()
 {
 	QString question = tr("Are you sure you want to reset interface colors to theme default ?");
-	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+	if (QMessageBox::question(this, "Visual Editor", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
 	mOptions->Preferences.SetInterfaceColors(mOptions->Preferences.mColorTheme);

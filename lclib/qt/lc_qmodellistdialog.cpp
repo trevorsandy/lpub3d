@@ -186,8 +186,8 @@ void lcQModelListDialog::on_ExportModel_clicked()
 
 	if (SelectedItems.isEmpty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(this, tr("3DViewer"), tr("No submodel selected.."));
+/*** LPub3D Mod - set Visual Editor label ***/
+		QMessageBox::information(this, tr("Visual Editor"), tr("No submodel selected.."));
 /*** LPub3D Mod end ***/		
 		QMessageBox::information(this, tr("Export Submodel"), tr("No submodel selected."));
 		return;

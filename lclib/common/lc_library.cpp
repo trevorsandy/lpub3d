@@ -195,7 +195,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 			Project* NewProject = new Project(Preview);
 /*** LPub3D Mod end ***/
 
-			if (NewProject->Load(ProjectFile.absoluteFilePath()))
+			if (NewProject->Load(ProjectFile.absoluteFilePath(), false))
 			{
 				PieceInfo* Info = new PieceInfo();
 
