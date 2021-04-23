@@ -483,7 +483,15 @@ void Gui::create3DToolBars()
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
 }
 
-void Gui::initiaizeNativeViewer()
+bool Gui::eventFilter(QObject *object, QEvent *event)
+{
+    if ( object == gMainWindow)
+        if (event->type() == QEvent::Show || event->type() == QEvent::Show)
+            emit visualEditorVisibleSig(gMainWindow->isVisible());
+    return QMainWindow::eventFilter(object, event);
+}
+
+void Gui::initiaizeVisualEditor()
 {
     connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
     connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
@@ -500,6 +508,10 @@ void Gui::initiaizeNativeViewer()
     connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
 
     enable3DActions(false);
+
+    gMainWindow->installEventFilter(gui);
+
+    emit visualEditorVisibleSig(gMainWindow->isVisible());
 }
 
 void Gui::enable3DActions(bool enable)

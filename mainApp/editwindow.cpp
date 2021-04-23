@@ -101,6 +101,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     showLineType    = LINE_HIGHLIGHT;
     isReadOnly      = false;
+    visualEditorVisible = false;
 
     createActions();
     updateOpenWithActions();
@@ -1322,7 +1323,10 @@ void EditWindow::updateSelectedParts() {
 
     toolsToolBar->setEnabled(setValidPartLine());
 
-    if (modelFileEdit() || !gMainWindow || !gMainWindow->isVisible())
+    if (modelFileEdit())
+        return;
+
+    if (!visualEditorVisible)
         return;
 
     int lineNumber = 0;
@@ -1704,6 +1708,14 @@ void EditWindow::setLineScope(const StepLines& lineScope)
 void EditWindow::setLineCount(int count)
 {
     lineCount = count;
+}
+
+void EditWindow::setVisualEditorVisible(bool value)
+{
+    visualEditorVisible = value;
+#ifdef QT_DEBUG_MODE
+        emit lpubAlert->messageSig(LOG_DEBUG,QMessageBox::tr("Visual Editor (from Command Editor) visible: %1").arg(value ? "TRUE" : "FALSE"));
+#endif
 }
 
 void EditWindow::displayFile(

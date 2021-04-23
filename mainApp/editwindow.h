@@ -162,6 +162,7 @@ private slots:
     void updateSelectedParts();
     void preferences();
     void verticalScrollValueChanged(int action);
+    void setVisualEditorVisible(bool);
     void openFolder();
 #ifndef QT_NO_CLIPBOARD
     void updateClipboard();
@@ -211,6 +212,7 @@ protected:
     int                fileOrderIndex;
     QAtomicInt         lineCount;
     bool               isIncludeFile;
+    bool               visualEditorVisible;
     bool               isReadOnly;
     bool               reloaded;
     bool               _modelFileEdit;

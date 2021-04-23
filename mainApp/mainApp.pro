@@ -527,7 +527,6 @@ SOURCES += \
     metagui.cpp \
     metaitem.cpp \
     multistepglobals.cpp \
-    nativeviewer.cpp \
     numberitem.cpp \
     openclose.cpp \
     pageattributepixmapitem.cpp \
@@ -588,7 +587,8 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     undoredo.cpp \
-    updatecheck.cpp
+    updatecheck.cpp \
+    visualeditor.cpp
 
 FORMS += \
     aboutdialog.ui \

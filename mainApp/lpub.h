@@ -1030,7 +1030,7 @@ public:
 
   void getRequireds();
   void initialize();
-  void initiaizeNativeViewer();
+  void initiaizeVisualEditor();
 
   void displayFile(LDrawFile *ldrawFile, const Where &here, bool editModelFile = false, bool displayStartPage = false);
   void displayParmsFile(const QString &fileName);
@@ -1455,6 +1455,7 @@ signals:
   void setContinuousPageSig(bool);
   void hidePreviewDialogSig();
   void showExportedFileSig(int);
+  void visualEditorVisibleSig(bool);
 
   // right side progress bar
   void progressBarInitSig();
@@ -1879,6 +1880,8 @@ private:
   void readNativeSettings();
   void writeNativeSettings();
   bool createPreviewWidget();
+
+  bool eventFilter(QObject *object, QEvent *event);
 
   QDockWidget       *commandEditDockWindow;
   QDockWidget       *visualEditDockWindow;

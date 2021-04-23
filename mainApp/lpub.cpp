@@ -3487,6 +3487,9 @@ Gui::Gui()
     connect(this,           SIGNAL(setSubFilesSig(const QStringList &)),
             editWindow,     SLOT(  setSubFiles(   const QStringList &)));
 
+    connect(this,           SIGNAL(visualEditorVisibleSig(bool)),
+            editWindow,     SLOT(setVisualEditorVisible(bool)));
+
     // Edit Window - Gui
     connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
             this,           SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
@@ -3676,7 +3679,7 @@ void Gui::initialize()
   createStatusBar();
   createDockWindows();
   if (Preferences::modeGUI) {
-      initiaizeNativeViewer();
+      initiaizeVisualEditor();
       toggleLCStatusBar(true);
   }
 
