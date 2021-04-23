@@ -80,7 +80,7 @@ CsiItem::CsiItem(
 
   setTransformationMode(Qt::SmoothTransformation);
 
-  setToolTip(QString("%1 assembly [%2 x %3 px] - right-click to modify")
+  setToolTip(QString("Assembly (%1) [%2 x %3 px] - right-click to modify")
              .arg(step->path())
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
