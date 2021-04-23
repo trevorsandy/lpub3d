@@ -486,7 +486,7 @@ void Gui::create3DToolBars()
 bool Gui::eventFilter(QObject *object, QEvent *event)
 {
     if ( object == gMainWindow)
-        if (event->type() == QEvent::Show || event->type() == QEvent::Show)
+        if (event->type() == QEvent::Show || event->type() == QEvent::Hide)
             emit visualEditorVisibleSig(gMainWindow->isVisible());
     return QMainWindow::eventFilter(object, event);
 }
