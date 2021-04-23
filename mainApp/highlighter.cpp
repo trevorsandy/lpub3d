@@ -478,6 +478,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPAGE_LENGTH\\b"
     << "\\bPAGE_POINTER\\b"
     << "\\bPANEL\\b"
+    << "\\bPARSE_NOSTEP\\b"
     << "\\bPART\\b"
     << "\\bPART_CATEGORY\\b"
     << "\\bPART_COLOR\\b"

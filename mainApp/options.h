@@ -236,6 +236,7 @@ public:
     bool stepPage;
     bool bfxStore1;
     bool bfxStore2;
+    bool parseNoStep;
     bool callout;
     bool noStep;
     bool noStep2;
@@ -255,6 +256,7 @@ public:
           stepPage          (false),
           bfxStore1         (false),
           bfxStore2         (false),
+          parseNoStep       (false),
           callout           (false),
           noStep            (false),
           noStep2           (false),

@@ -5998,6 +5998,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   startPageNumber.setValue(1);
   startStepNumber.setRange(1,10000);
   startStepNumber.setValue(1);
+  parseNoStep.setValue(false);
   // stepNumber - default
 }
 
@@ -6029,6 +6030,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   rotateIcon               .init(this,"ROTATE_ICON");
   studStyle                .init(this,"STUD_STYLE");
   highContrast             .init(this,"HIGH_CONTRAST");
+  parseNoStep              .init(this,"PARSE_NOSTEP");
   autoEdgeColor            .init(this,"AUTOMATE_EDGE_COLOR");
   countInstance            .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");

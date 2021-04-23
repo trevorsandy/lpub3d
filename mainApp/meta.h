@@ -3879,6 +3879,7 @@ public:
   StudStyleMeta        studStyle;
   AutoEdgeColorMeta    autoEdgeColor;
   HighContrastColorMeta highContrast;
+  BoolMeta             parseNoStep;
 
   LeoCadGroupMeta      group;
   LightMeta            light;

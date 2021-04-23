@@ -3348,7 +3348,7 @@ int Gui::findPage(
 
             case RotStepRc:
             case StepRc:
-              if (opts.flags.partsAdded && ! opts.flags.noStep) {
+              if (opts.flags.partsAdded && (! opts.flags.noStep || opts.flags.parseNoStep)) {
                   if (! buildMod.ignore) {
                     if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                         if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ &&
@@ -3455,32 +3455,35 @@ int Gui::findPage(
 
                           } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
-                        if (exporting()) {
-                            pageSizes.remove(opts.pageNum);
-                            if (opts.flags.pageSizeUpdate) {
-                                opts.flags.pageSizeUpdate = false;
-                                pageSizes.insert(opts.pageNum,opts.pageSize);
+                        if (! opts.flags.noStep) {
+                            if (exporting()) {
+                                pageSizes.remove(opts.pageNum);
+                                if (opts.flags.pageSizeUpdate) {
+                                    opts.flags.pageSizeUpdate = false;
+                                    pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
-                                logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                                           << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                                           << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                                           << "ID:"   << opts.pageSize.sizeID
-                                           << "Model:" << opts.current.modelName;
+                                    logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                                               << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                                               << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                               << "ID:"   << opts.pageSize.sizeID
+                                               << "Model:" << opts.current.modelName;
 #endif
-                              } else {
-                                pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                                } else {
+                                    pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
 #ifdef PAGE_SIZE_DEBUG
-                                logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                           << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                           << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                           << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                           << "Model:" << opts.current.modelName;
+                                    logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                                               << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                                               << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                               << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                               << "Model:" << opts.current.modelName;
 #endif
-                              }
-                          } // Exporting
+                                }
+                            } // Exporting
 
-                        ++opts.pageNum;
-                        topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
+                            ++opts.pageNum;
+                            topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
+
+                        } // ! opts.flags.noStep
 
                         // if page displayed, save state
                         if (opts.pageDisplayed) {
@@ -3513,19 +3516,24 @@ int Gui::findPage(
 
                     topOfStep = opts.current;  // Set next step
                     opts.flags.partsAdded = 0;
-                    meta.pop();
                     opts.flags.coverPage = false;
                     opts.flags.stepPage = false;
                     opts.flags.bfxStore2 = opts.flags.bfxStore1;
                     opts.flags.bfxStore1 = false;
                     if ( ! opts.flags.bfxStore2) {
                         bfxParts.clear();
-                      } // ! BfxStore2
+                        opts.flags.parseNoStep = false;
+                    } else if (bfx.size()) {
+                        opts.flags.parseNoStep = ! opts.pageDisplayed && meta.LPub.parseNoStep.value();
+                    } // ! BfxStore2
+                    meta.pop();
                   } // ! buildMod.ignore
                   buildMod.ignore2 = buildMod.ignore;
                   if ( ! buildMod.ignore2) {
                       ldrawFile.clearBuildModRendered();
-                    } // ! BuildMod.ignore2
+                  } else {
+                      opts.flags.parseNoStep = ! opts.pageDisplayed && Preferences::buildModEnabled;
+                  } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
               else if ( ! opts.flags.stepGroup)
                 {
@@ -3781,7 +3789,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (opts.flags.partsAdded && !opts.pageDisplayed && ! opts.flags.noStep) {
+  if (opts.flags.partsAdded && !opts.pageDisplayed && (! opts.flags.noStep || opts.flags.parseNoStep)) {
       isPreDisplayPage = opts.pageNum < displayPageNum;
       isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
@@ -3839,32 +3847,35 @@ int Gui::findPage(
           }
       } // IsDisplayPage
 
-      if (exporting()) {
-          pageSizes.remove(opts.pageNum);
-          if (opts.flags.pageSizeUpdate) {
-              pageSizes.insert(opts.pageNum,opts.pageSize);
+      if (! opts.flags.noStep) {
+          if (exporting()) {
+              pageSizes.remove(opts.pageNum);
+              if (opts.flags.pageSizeUpdate) {
+                  pageSizes.insert(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
-              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << opts.pageSize.sizeID
-                         << "Model:" << opts.current.modelName;
+                  logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
+                             << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
+                             << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:"   << opts.pageSize.sizeID
+                             << "Model:" << opts.current.modelName;
 #endif
-            } else {
-              pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+              } else {
+                  pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
 #ifdef PAGE_SIZE_DEBUG
-              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                         << "Model:" << opts.current.modelName;
+                  logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                             << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                             << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                             << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                             << "Model:" << opts.current.modelName;
 #endif
-            }
-      } // Exporting
+              }
+          } // Exporting
 
-      ++opts.pageNum;
-      ++stepPageNum;
-      topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
+          ++opts.pageNum;
+          ++stepPageNum;
+          topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
+
+      } // ! opts.flags.noStep
 
     }  // Last Step in Submodel
 

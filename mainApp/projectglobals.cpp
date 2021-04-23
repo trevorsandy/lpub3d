@@ -63,19 +63,34 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   setWindowTitle(tr("Project Globals Setup"));
 
+  QTabWidget  *tab = new QTabWidget();
   QVBoxLayout *layout = new QVBoxLayout(this);
-  QGridLayout *boxGrid;
 
   setLayout(layout);
+  layout->addWidget(tab);
 
-  QGroupBox *box = new QGroupBox("Renderer");
-  layout->addWidget(box);
+  QWidget     *widget;
+  QGroupBox   *box;
+  QGridLayout *boxGrid;
+  QVBoxLayout *vlayout;
+  QSpacerItem *vSpacer;
+
+  /*
+   * Render options tab
+   */
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Renderer");
+  vlayout->addWidget(box);
   PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
   connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
   data->children.append(rendererChild);
 
   box = new QGroupBox("Resolution");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -86,35 +101,56 @@ GlobalProjectDialog::GlobalProjectDialog(
   data->children.append(child);
 
   box = new QGroupBox("Stud Style and Automate Edge Color");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
   childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Render Options");
+
+  /*
+   * Parse options tab
+   */
+
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
   box = new QGroupBox("Build Modifications");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   BuildModEnabledGui *childBuildModEnabled = new BuildModEnabledGui("Enable build modifications",&lpubMeta->buildModEnabled,box);
   box->setToolTip("Enable Build Modification meta commands. This functionality replaces or accompanies MLCad BUFEXCHG framework.");
   data->children.append(childBuildModEnabled);
   connect (childBuildModEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
+  box = new QGroupBox("Buffer Exchange");
+  vlayout->addWidget(box);
+  CheckBoxGui *childParseNoStep = new CheckBoxGui("Parse Single Step with NOSTEP and BUFEXCHG commands",&lpubMeta->parseNoStep,box);
+  box->setToolTip("Parse single steps containing NOSTEP and BUFEXCHG commands. Multi-step groups are automatically parsed.");
+  data->children.append(childParseNoStep);
+  connect (childParseNoStep->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+
   box = new QGroupBox("Submodel Instances");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
   box->setToolTip("Consolidate submodel instances on first occurrence");
   data->children.append(childCountInstance);
   connect (childCountInstance, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Continuous Step Numbers");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
 
   box = new QGroupBox("Start Numbers");
-  layout->addWidget(box);
+  vlayout->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -125,6 +161,12 @@ GlobalProjectDialog::GlobalProjectDialog(
   childStartPageNumberSpin = new SpinGui("Page number", &lpubMeta->startPageNumber,0,10000,1);
   data->children.append(childStartPageNumberSpin);
   boxGrid->addWidget(childStartPageNumberSpin,0,1);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Parse Options");
 
   QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);
