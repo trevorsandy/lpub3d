@@ -2744,7 +2744,9 @@ int Gui::findPage(
 {
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
-  bool pageDisplayed      = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
+
+  opts.pageDisplayed      = (opts.pageNum > displayPageNum) && (opts.printing ? displayPageNum : true);
+
   pageProcessRunning      = PROC_FIND_PAGE;
 
   emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
@@ -2929,7 +2931,7 @@ int Gui::findPage(
    */
 
   for ( ;
-        opts.current.lineNumber < opts.flags.numLines && !pageDisplayed;
+        opts.current.lineNumber < opts.flags.numLines && !opts.pageDisplayed;
         opts.current.lineNumber++) {
 
       // if reading include file, return to current line, do not advance
@@ -3048,6 +3050,7 @@ int Gui::findPage(
                                               current2,
                                               opts.pageSize,
                                               flags2,
+                                              opts.pageDisplayed,
                                               opts.updateViewer,
                                               opts.isMirrored,
                                               opts.printing,
@@ -3062,6 +3065,7 @@ int Gui::findPage(
                                       return HitBuildModAction;
                                   }
 
+                                  opts.pageDisplayed = submodelOpts.pageDisplayed;
                                   saveStepPageNum = stepPageNum;
                                   buildMod = saveBuildMod2;                 // restore old buildMod
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
@@ -3136,7 +3140,7 @@ int Gui::findPage(
             case StepGroupBeginRc:
               opts.flags.stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (!pageDisplayed) {
+              if (! opts.pageDisplayed) {
                   if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
                       int showStepNum = opts.contStepNumber == 1 + sa ? opts.stepNumber : opts.contStepNumber;
                       if (opts.pageNum == 1 + pa) {
@@ -3227,7 +3231,7 @@ int Gui::findPage(
                           return HitBuildModAction;
                       }
 
-                      pageDisplayed = true;
+                      opts.pageDisplayed = true;
                       lineTypeIndexes.clear();
                       csiParts.clear();
 
@@ -3281,7 +3285,7 @@ int Gui::findPage(
                 buildMod.key = meta.LPub.buildMod.key();
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 buildModInsert = ! buildModContains(buildMod.key);
-                if (! pageDisplayed) {
+                if (! opts.pageDisplayed) {
                     if (! buildModInsert)
                         buildModActions.insert(buildMod.level,
                                                getBuildModAction(buildMod.key, getBuildModNextStepIndex(), BM_PREVIOUS_ACTION));
@@ -3306,7 +3310,7 @@ int Gui::findPage(
                     buildMod.ignore = getLevel(QString(), BM_END);
                     break;
                 }
-                if (! pageDisplayed) {
+                if (! opts.pageDisplayed) {
                     if (buildModActions.value(buildMod.level) == BuildModApplyRc)
                         buildMod.ignore = true;
                     else if (buildModActions.value(buildMod.level) == BuildModRemoveRc)
@@ -3328,7 +3332,7 @@ int Gui::findPage(
               case BuildModEndRc:
                 if (!Preferences::buildModEnabled)
                     break;
-                if (! pageDisplayed) {
+                if (! opts.pageDisplayed) {
                     buildMod.level = getLevel(QString(), BM_END);
                     if (buildMod.level == BM_BEGIN)
                         buildMod.ignore = false;
@@ -3442,7 +3446,7 @@ int Gui::findPage(
                                 return HitBuildModAction;
                             }
 
-                            pageDisplayed = true;
+                            opts.pageDisplayed = true;
                             saveCurrent.modelName.clear();
                             saveCurrent.modelIndex = -1;
                             saveCsiParts.clear();
@@ -3479,7 +3483,7 @@ int Gui::findPage(
                         topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
 
                         // if page displayed, save state
-                        if (pageDisplayed) {
+                        if (opts.pageDisplayed) {
                             // if submodel, save where we stopped in the parent model
                             if (meta.submodelStack.size()) {
                                 // add parent model positions - excpet positions in the top level model
@@ -3536,7 +3540,7 @@ int Gui::findPage(
               opts.flags.noStep = false;
 
               // if page displayed end processing
-              if (pageDisplayed) {
+              if (opts.pageDisplayed) {
                   // set processing state
                   pageProcessRunning = PROC_DISPLAY_PAGE;
                   return OkRc;
@@ -3777,7 +3781,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (opts.flags.partsAdded && ! opts.flags.noStep) {
+  if (opts.flags.partsAdded && !opts.pageDisplayed && ! opts.flags.noStep) {
       isPreDisplayPage = opts.pageNum < displayPageNum;
       isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
@@ -4337,6 +4341,7 @@ void Gui::countPages()
                   current,
                   emptyPageSize,
                   flags,
+                  false          /*pageDisplayed*/,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
                   false          /*printing*/,
@@ -4467,6 +4472,7 @@ void Gui::drawPage(
               pageSize,
               flags,
               updateViewer,
+              false        /*pageDisplayed*/,
               false        /*mirrored*/,
               printing,
               0            /*stepNumber*/,

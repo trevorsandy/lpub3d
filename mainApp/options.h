@@ -279,6 +279,7 @@ public:
             PgSizeData      &_pageSize,
             FindPageFlags   &_flags,
 
+            bool             _pageDisplayed,
             bool             _updateViewer,
             bool             _isMirrored,
             bool             _printing,
@@ -292,6 +293,7 @@ public:
           pageSize          (_pageSize),
           flags             (_flags),
 
+          pageDisplayed     (_pageDisplayed),
           updateViewer      (_updateViewer),
           isMirrored        (_isMirrored),
           printing          (_printing),
@@ -305,6 +307,7 @@ public:
     PgSizeData    &pageSize;
     FindPageFlags &flags;
 
+    bool           pageDisplayed;
     bool           updateViewer;
     bool           isMirrored;
     bool           printing;
