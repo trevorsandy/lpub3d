@@ -564,7 +564,7 @@ int Step::createCsi(
 }
 
 bool Step::loadTheViewer(){
-    if (Preferences::modeGUI && ! gui->exporting() && updateViewer) {
+    if (Preferences::modeGUI && ! gui->exporting()) {
         viewerOptions->ImageWidth  = csiPixmap.width();
         viewerOptions->ImageHeight = csiPixmap.height();
         if (! renderer->LoadViewer(viewerOptions)) {
