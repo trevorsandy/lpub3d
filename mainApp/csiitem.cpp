@@ -602,22 +602,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   view3DViewerFileAction->setIcon(QIcon(":/resources/editldraw.png"));
 #endif
 
-  Where top, bottom;
-  switch (parentRelativeType) {
-    case StepGroupType:
-      top = topOfSteps;
-      bottom = bottomOfSteps;
-      break;
-    case CalloutType:
-      top = callout->topOfCallout();
-      bottom = callout->bottomOfCallout();
-      break;
-    default: /*SingleStepType*/
-      top = topOfStep;
-      bottom = bottomOfStep;
-      break;
-  }
-
   QAction *selectedAction = menu.exec(event->screenPos());
 
   if ( ! selectedAction ) {

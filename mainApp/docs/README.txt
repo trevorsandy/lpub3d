@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2478 (23 04 2021 06:43:46)
+LPub3D 2.4.2.1.2479 (23 04 2021 06:44:23)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 - Fix - POV-Ray render issue when directory name contains a space #525
 - Fix - Unable to generate ldraw color parts file #527
+- Fix - Updating rotate icon in a callout adds the command to the parent #532
 - Fix - Using 'Remove LPub formatting' causes a crash #526
 
 --------------------------------------------------------------------------------------------------

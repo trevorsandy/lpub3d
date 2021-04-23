@@ -492,19 +492,8 @@ void RotateIconItem::contextMenuEvent(
       return;
     }
 
-  Where top;
-  Where bottom;
-
-  switch (parentRelativeType) {
-    case CalloutType:
-      top    = step->topOfCallout();
-      bottom = step->bottomOfCallout();
-    break;
-    default:
-      top    = step->topOfStep();
-      bottom = step->bottomOfStep();
-    break;
-  }
+  Where top    = step->topOfStep();
+  Where bottom = step->bottomOfStep();
 
   if (selectedAction == placementAction) {
 
@@ -611,16 +600,7 @@ void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-        Where top;
-
-        switch (parentRelativeType) {
-        case CalloutType:
-            top    = step->topOfCallout();
-            break;
-        default:
-            top    = step->topOfStep();
-            break;
-        }
+        Where top = step->topOfStep();
 
         if (positionChanged) {
 
@@ -700,19 +680,8 @@ void RotateIconItem::change()
 {
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-      Where top;
-      Where bottom;
-
-      switch (parentRelativeType) {
-        case CalloutType:
-          top    = step->topOfCallout();
-          bottom = step->bottomOfCallout();
-        break;
-        default:
-          top    = step->topOfStep();
-          bottom = step->bottomOfStep();
-        break;
-      }
+      Where top    = step->topOfStep();
+      Where bottom = step->bottomOfStep();
 
       if (sizeChanged) {
 
