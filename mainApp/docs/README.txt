@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2489 (23 04 2021 06:49:46)
+LPub3D 2.4.2.1.2490 (23 04 2021 06:50:19)
 
 Features, enhancements, fixes and changes
 ------------
@@ -36,6 +36,7 @@ Revisions:
 - Fix - Unable to generate ldraw color parts file #527
 - Fix - Updating rotate icon in a callout adds the command to the parent #532
 - Fix - Using 'Remove LPub formatting' causes a crash #526
+- Fix - Wrong instance count in sub submodels #537
 
 --------------------------------------------------------------------------------------------------
 

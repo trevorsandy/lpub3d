@@ -56,6 +56,7 @@ class LDrawSubFile {
     QStringList  _mirrorRenderedKeys;
     QVector<int> _lineTypeIndexes;
     QVector<int> _prevStepPosition;
+    QVector<int> _subFileIndexes;
     int          _numSteps;
     bool         _beenCounted;
     int          _instances;

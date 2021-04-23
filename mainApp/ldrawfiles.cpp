@@ -148,6 +148,7 @@ LDrawSubFile::LDrawSubFile(
   _includeFile = includeFile;
   _startPageNumber = 0;
   _lineTypeIndexes.clear();
+  _subFileIndexes.clear();
   _prevStepPosition = { 0,0,0 };
 }
 
@@ -1884,12 +1885,21 @@ void LDrawFile::countInstances(
 
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
   if (f != _subFiles.end()) {
-    // count mirrored instance automatically
     if (f->_beenCounted) {
       if (isMirrored) {
         ++f->_mirrorInstances;
       } else {
         ++f->_instances;
+      }
+      for (int i = 0; i < f->_subFileIndexes.size(); i++) {
+        QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(getSubmodelName(f->_subFileIndexes.at(i)));
+        if (s != _subFiles.end()) {
+          if (isMirrored) {
+            ++s->_mirrorInstances;
+          } else {
+            ++s->_instances;
+          }
+        }
       }
       countMutex.unlock();
       return;
@@ -1931,6 +1941,9 @@ void LDrawFile::countInstances(
             split(f->_contents[i],tokens);
             if (tokens.size() == 15 && tokens[0] == "1") {
               if (contains(tokens[14]) && ! stepIgnore && ! buildModIgnore) {
+                const int subFileIndex = getSubmodelIndex(tokens[14]);
+                if (modelIndex && !f->_subFileIndexes.contains(subFileIndex))
+                    f->_subFileIndexes.append(subFileIndex);
                 countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
               }
             } else if (tokens.size() == 4 && tokens[0] == "0" &&
@@ -1980,7 +1993,10 @@ void LDrawFile::countInstances(
         // check if subfile and process
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
         if (contains(tokens[14]) && ! stepIgnore && ! buildModIgnore) {
-            countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
+          const int subFileIndex = getSubmodelIndex(tokens[14]);
+          if (modelIndex && !f->_subFileIndexes.contains(subFileIndex))
+            f->_subFileIndexes.append(subFileIndex);
+          countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
         }
         partsAdded = true;
       }
@@ -2003,8 +2019,8 @@ void LDrawFile::countInstances(
         ++f->_instances;
       }
     }
+  } // subfile end
 
-  } // file end
   f->_beenCounted = true;
   countMutex.unlock();
 }
