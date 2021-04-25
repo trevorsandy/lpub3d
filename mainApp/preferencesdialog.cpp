@@ -92,8 +92,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
-  ui.ldviewBox->setEnabled(                      Preferences::ldviewInstalled);
-  ui.ldviewBox->setTitle(                        Preferences::ldviewInstalled ? tr("LDView is installed") : tr("LDView is not installed"));
+  ui.ldviewBox->setVisible(                      Preferences::ldviewInstalled);
   ui.ldviewInstallBox->setVisible(              !Preferences::ldviewInstalled);
 
   ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
@@ -101,13 +100,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
 
   ui.ldglitePath->setText(                       Preferences::ldgliteExe);
-  ui.ldgliteBox->setEnabled(                     Preferences::ldgliteInstalled);
-  ui.ldgliteBox->setTitle(                       Preferences::ldviewInstalled ? tr("LDGLite is installed") : tr("LDGLite is not installed"));
+  ui.ldgliteBox->setVisible(                     Preferences::ldgliteInstalled);
   ui.ldgliteInstallBox->setVisible(             !Preferences::ldgliteInstalled);
 
   ui.povrayPath->setText(                        Preferences::povrayExe);
-  ui.povrayBox->setEnabled(                      Preferences::povRayInstalled);
-  ui.povrayBox->setTitle(                        Preferences::ldviewInstalled ? tr("POV-Ray is installed") : tr("POV-Ray is not installed"));
+  ui.povrayBox->setVisible(                      Preferences::povRayInstalled);
   ui.povrayInstallBox->setVisible(              !Preferences::povRayInstalled);
 
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
@@ -119,52 +116,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
   ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
 
-  ui.preferredRenderer->setMaxCount(0);
-  ui.preferredRenderer->setMaxCount(4);
+  setRenderers();
 
-  QFileInfo fileInfo(Preferences::povrayExe);
-  int povRayIndex = ui.preferredRenderer->count();
-  bool povRayExists = fileInfo.exists();
-  povRayExists &= fileInfo.exists();
-  if (povRayExists) {
-      ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
-    }
-
-  fileInfo.setFile(Preferences::ldgliteExe);
-  int ldgliteIndex = ui.preferredRenderer->count();
-  bool ldgliteExists = fileInfo.exists();
-  if (ldgliteExists) {
-    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
-  }
-
-  fileInfo.setFile(Preferences::ldviewExe);
-  int ldviewIndex = ui.preferredRenderer->count();
-  bool ldviewExists = fileInfo.exists();
-  if (ldviewExists) {
-    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
-  }
-
-  int nativeIndex = ui.preferredRenderer->count();
-  ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
-
-  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
-    ui.preferredRenderer->setCurrentIndex(ldviewIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
-  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
-    ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
-  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
-    ui.preferredRenderer->setCurrentIndex(povRayIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
-  } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-    ui.preferredRenderer->setCurrentIndex(nativeIndex);
-    ui.preferredRenderer->setEnabled(true);
-  } else {
-    ui.preferredRenderer->setEnabled(false);
-  }
   // end preferred renderer
 
   ui.preferencesTabWidget->setCurrentIndex(0);
@@ -431,6 +384,119 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 PreferencesDialog::~PreferencesDialog()
 {}
 
+void PreferencesDialog::setRenderers()
+{
+    bool ldgliteExists = false;
+    bool povRayExists = false;
+    bool ldviewExists = false;
+
+    int povRayIndex = -1;
+    int ldgliteIndex = -1;
+    int ldviewIndex = -1;
+
+    QFileInfo fileInfo;
+
+    ui.preferredRenderer->setMaxCount(0);
+    ui.preferredRenderer->setMaxCount(4);
+
+    if (Preferences::povRayInstalled) {
+      fileInfo.setFile(Preferences::povrayExe);
+      povRayIndex = ui.preferredRenderer->count();
+      povRayExists = fileInfo.exists();
+      povRayExists &= fileInfo.exists();
+      if (povRayExists) {
+          ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
+        }
+    } else {
+      connect(ui.povrayInstall, SIGNAL(clicked()), this, SLOT(installRenderer()));
+    }
+
+    if (Preferences::ldgliteInstalled) {
+      fileInfo.setFile(Preferences::ldgliteExe);
+      ldgliteIndex = ui.preferredRenderer->count();
+      ldgliteExists = fileInfo.exists();
+      if (ldgliteExists) {
+        ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
+      }
+    } else {
+      connect(ui.ldgliteInstall, SIGNAL(clicked()), this, SLOT(installRenderer()));
+    }
+
+    if (Preferences::ldviewInstalled) {
+      fileInfo.setFile(Preferences::ldviewExe);
+      ldviewIndex = ui.preferredRenderer->count();
+      ldviewExists = fileInfo.exists();
+      if (ldviewExists) {
+        ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
+      }
+    } else {
+      connect(ui.ldviewInstall, SIGNAL(clicked()), this, SLOT(installRenderer()));
+    }
+
+    int nativeIndex = ui.preferredRenderer->count();
+    ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
+
+    if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
+      ui.preferredRenderer->setCurrentIndex(ldviewIndex);
+      ui.preferredRenderer->setEnabled(true);
+      ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+    } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
+      ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
+      ui.preferredRenderer->setEnabled(true);
+      ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
+    }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
+      ui.preferredRenderer->setCurrentIndex(povRayIndex);
+      ui.preferredRenderer->setEnabled(true);
+      ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
+    } else {
+        ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+        if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+          ui.preferredRenderer->setCurrentIndex(nativeIndex);
+          ui.preferredRenderer->setEnabled(true);
+        } else {
+          ui.preferredRenderer->setEnabled(false);
+        }
+    }
+}
+
+void PreferencesDialog::installRenderer()
+{
+    ui.RenderMessage->setText("");
+
+    int which = -1;
+    if (sender() == ui.ldgliteInstall)
+        which = RENDERER_LDGLITE;
+    else if (sender() == ui.ldviewInstall)
+        which = RENDERER_LDVIEW;
+    else if (sender() == ui.povrayInstall)
+        which = RENDERER_POVRAY;
+
+    if (gui->installRenderer(which)) {
+        setRenderers();
+        switch (which)
+        {
+        case RENDERER_LDVIEW:
+            ui.ldviewPath->setText(           Preferences::ldviewExe);
+            ui.ldviewBox->setVisible(         Preferences::ldviewInstalled);
+            ui.ldviewInstallBox->setVisible( !Preferences::ldviewInstalled);
+            break;
+        case RENDERER_LDGLITE:
+            ui.ldglitePath->setText(          Preferences::ldgliteExe);
+            ui.ldgliteBox->setVisible(        Preferences::ldgliteInstalled);
+            ui.ldgliteInstallBox->setVisible(!Preferences::ldgliteInstalled);
+            break;
+        case RENDERER_POVRAY:
+            ui.povrayPath->setText(           Preferences::povrayExe);
+            ui.povrayBox->setVisible(         Preferences::povRayInstalled);
+            ui.povrayInstallBox->setVisible( !Preferences::povRayInstalled);
+            break;
+        default:
+            break;
+        }
+        ui.RenderMessage->setText(tr("%1 renderer installed successfully.").arg(rendererNames[which]));
+    }
+}
+
 void PreferencesDialog::sceneColorButtonClicked()
 {
     QObject *button = sender();
@@ -692,7 +758,7 @@ void PreferencesDialog::on_ldgliteBox_clicked(bool checked)
     }
 }
 
-void PreferencesDialog::on_POVRayBox_clicked(bool checked)
+void PreferencesDialog::on_povrayBox_clicked(bool checked)
 {
   if (! checked) {
       QMessageBox box;

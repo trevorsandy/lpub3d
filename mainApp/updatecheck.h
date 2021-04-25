@@ -21,6 +21,9 @@
 
 enum updateType{
     SoftwareUpdate = 0,                 //0
+    LDViewRendererDownload,
+    LDGLiteRendererDownload,
+    POVRayRendererDownload,
     LDrawOfficialLibraryDownload,       //1    UI menu initiated download
     LDrawUnofficialLibraryDownload,     //2    UI menu initiated download
     LDrawOfficialLibraryDirectDownload, //3    System load prompt initiated download
@@ -44,24 +47,32 @@ public:
 signals:
    void checkingFinished (const QString& url);
    void downloadFinished (const QString& url, const QString& filepath);
+   void rendererDownloadFinished (const QString& url);
    void cancel();
 
 public slots:
    void updateChangelog (const QString& url);
-   void setCancelled(){
+   void setCancelled() {
      m_cancelled = true;
      emit cancel();
    }
+   void getDownloadReturn(QString &path) {
+     path = m_downloadReturnPath;
+   }
+
+private slots:
+   void downloadReturn(QString url, QString path);
 
 private:
    void applyGeneralSettings (const QString& url);
-
     bool                     m_cancelled;
     int                      m_option;
 
     QString                  DEFS_URL;
     QString                  m_changeLog;
     QString                  m_latestVersion;
+    QString                  m_downloadReturnUrl;
+    QString                  m_downloadReturnPath;
     QSimpleUpdater          *m_updater;
 };
 

@@ -1,0 +1,34 @@
+{
+  "updates": {
+    "windows-exe": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    },
+    "macos-dmg": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    },
+    "linux-deb": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    },
+    "linux-rpm": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    },
+    "linux-pkg": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    },
+    "linux-api": {
+	  "download-name": "LDView-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldview/releases/tag/v4.4.0",
+	  "download-url": "https://github.com/trevorsandy/ldview/releases/download/v4.4.0/LDView-win-x86.zip"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "updates": {
+    "windows-exe": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    },
+    "macos-dmg": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    },
+    "linux-deb": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    },
+    "linux-rpm": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    },
+    "linux-pkg": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    },
+    "linux-api": {
+	  "download-name": "LDGLite-win-x86.zip",
+      "open-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6",
+	  "download-url": "https://github.com/trevorsandy/ldglite/releases/download/v1.3.6/LDGLite-win-x86.zip"
+    }
+  }
+}

@@ -257,6 +257,7 @@ QString Preferences::lpub3dExtrasResourcePath   = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
+QString Preferences::lpub3d3rdPartyAppExeDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dLDVConfigDir         = DOT_PATH_DEFAULT;
 QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
 QString Preferences::lpubConfigPath             = DOT_PATH_DEFAULT;
@@ -2247,7 +2248,11 @@ void Preferences::rendererPreferences()
 
     logInfo() << QString("Image renderers...");
 #ifdef Q_OS_WIN
-    lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
+        lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
+    } else {
+        lpub3d3rdPartyAppDir = QString("%1/3rdParty").arg(lpub3dPath);
+    }
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite.exe").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
 #if defined __i386__ || defined _M_IX86
@@ -2258,17 +2263,29 @@ void Preferences::rendererPreferences()
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui64.exe").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #endif
 #elif defined Q_OS_MAC
-    lpub3d3rdPartyAppDir = QString("%1/%2.app/Contents/3rdParty").arg(lpub3dPath).arg(lpub3dAppName);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
+        lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
+    } else {
+        lpub3d3rdPartyAppDir = QString("%1/%2.app/Contents/3rdParty").arg(lpub3dPath).arg(lpub3dAppName);
+    }
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #else
-    QDir appDir(QString("%1/../share").arg(lpub3dPath));
-    lpub3d3rdPartyAppDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
+        lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
+    } else {
+        QDir appDir(QString("%1/../share").arg(lpub3dPath));
+        lpub3d3rdPartyAppDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
+    }
 
-    appDir.setPath(QString("%1/../../opt").arg(lpub3dPath));
-    QString lpub3d3rdPartyAppExeDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"))) {
+        lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();;
+    } else {
+        appDir.setPath(QString("%1/../../opt").arg(lpub3dPath));
+        lpub3d3rdPartyAppExeDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
+    }
 
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppExeDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/ldview").arg(lpub3d3rdPartyAppExeDir, VER_LDVIEW_STR));

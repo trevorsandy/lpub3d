@@ -30,17 +30,20 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 
     m_updater = QSimpleUpdater::getInstance();
 
-    connect (m_updater, SIGNAL (checkingFinished (QString)),
-             this,        SLOT (updateChangelog  (QString)));
+    connect (m_updater, SIGNAL(checkingFinished(QString)),
+             this,      SLOT(  updateChangelog(QString)));
 
-    connect (m_updater, SIGNAL (checkingFinished (QString)),
-             this,      SIGNAL (checkingFinished (QString)));
+    connect (m_updater, SIGNAL(checkingFinished(QString)),
+             this,      SIGNAL(checkingFinished(QString)));
 
-    connect (m_updater, SIGNAL (downloadFinished (QString, QString)),
-             this,      SIGNAL (downloadFinished (QString, QString)));
+    connect (m_updater, SIGNAL(downloadFinished(QString,QString)),
+             this,      SLOT(  downloadReturn(QString,QString)));
 
-    connect (m_updater, SIGNAL (cancel ()),
-             this,      SLOT   (setCancelled ()));
+    connect (m_updater, SIGNAL(downloadFinished(QString,QString)),
+             this,      SIGNAL(downloadFinished(QString,QString)));
+
+    connect (m_updater, SIGNAL(cancel()),
+             this,      SLOT(  setCancelled()));
 
     /* Run check for updates if sofware update */
     if (m_option == SoftwareUpdate) {
@@ -106,6 +109,21 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
             applyGeneralSettings(DEFS_URL);
             m_updater->setDirectDownload(DEFS_URL,enabled);
             break;
+        case LDViewRendererDownload:
+            DEFS_URL = VER_LDVIEW_ARCHIVE_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setDirectDownload(DEFS_URL,enabled);
+            break;
+        case LDGLiteRendererDownload:
+            DEFS_URL = VER_LDGLITE_ARCHIVE_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setDirectDownload(DEFS_URL,enabled);
+            break;
+        case POVRayRendererDownload:
+            DEFS_URL = VER_POVRAY_ARCHIVE_JSON_URL;
+            applyGeneralSettings(DEFS_URL);
+            m_updater->setDirectDownload(DEFS_URL,enabled);
+            break;
         }
         m_updater->setCustomProcedure(DEFS_URL,enabled);
         m_updater->setDownloadDir(DEFS_URL,localPath);
@@ -113,9 +131,14 @@ void UpdateCheck::requestDownload(const QString &url, const QString &localPath)
     }
 }
 
+void UpdateCheck::downloadReturn(QString url, QString path) {
+    m_downloadReturnPath = path;
+    emit rendererDownloadFinished(url);
+}
+
 void UpdateCheck::updateChangelog (const QString &url) {
     if (url == DEFS_URL) {
-        m_latestVersion = m_updater->getLatestVersion (url);
+        m_latestVersion = m_updater->getLatestVersion(url);
         m_changeLog = m_updater->getChangelog (url);
     }
 }
@@ -165,8 +188,8 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
   m_updater->setNotifyOnFinish(DEFS_URL, false);
   m_updater->setNotifyOnUpdate (DEFS_URL, false);
 
-  connect (m_updater, SIGNAL (checkingFinished (QString)),
-           this,      SLOT (setAvailableVersions (QString)));
+  connect (m_updater, SIGNAL(checkingFinished(QString)),
+           this,      SLOT(setAvailableVersions(QString)));
 
   m_updater->retrieveAvailableVersions(DEFS_URL);
 

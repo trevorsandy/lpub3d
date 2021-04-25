@@ -152,7 +152,7 @@ class PreferencesDialog : public QDialog
 
     void on_ldviewBox_clicked(bool checked);
     void on_ldgliteBox_clicked(bool checked);
-    void on_POVRayBox_clicked(bool checked);
+    void on_povrayBox_clicked(bool checked);
 
     void on_highlightStepBox_clicked(bool checked);
     void on_fadeStepBox_clicked(bool checked);
@@ -178,6 +178,8 @@ class PreferencesDialog : public QDialog
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
 
+    void installRenderer();
+    void setRenderers();
     void messageManagement();
     void sceneColorButtonClicked();
     void updateChangelog (QString url);

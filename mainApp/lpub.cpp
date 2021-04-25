@@ -4069,6 +4069,170 @@ void Gui::processHighlightColourParts(bool overwrite, bool setup)
     emit operateHighlightParts(overwrite, setup);
 }
 
+bool Gui::installRenderer(int which)
+{
+    bool result = false;
+
+    const QString renderer = rendererNames[which];
+
+#if defined Q_OS_WIN
+    if (!Preferences::portableDistribution) {
+        QSettings Settings;
+        if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
+            Preferences::lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
+        } else {
+            QString userLocalDataPath;
+            QStringList dataPathList;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+            dataPathList = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+            dataPathList = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+#else
+            dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+#endif
+            userLocalDataPath = dataPathList.first();
+#endif
+            Preferences::lpub3d3rdPartyAppDir = QFileDialog::getExistingDirectory(nullptr,
+                                                                                  QFileDialog::tr("Select Renderer Directory"),
+                                                                                  userLocalDataPath,
+                                                                                  QFileDialog::ShowDirsOnly |
+                                                                                  QFileDialog::DontResolveSymlinks);
+
+            if (Preferences::lpub3d3rdPartyAppDir.isEmpty() || !QDir(Preferences::lpub3d3rdPartyAppDir).exists())
+                return result;
+        }
+    }
+#elif defined Q_OS_LINUX
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"))) {
+        Preferences::lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();;
+    } else {
+        Preferences::lpub3d3rdPartyAppExeDir = Preferences::lpub3d3rdPartyAppDir;
+    }
+#endif
+
+    // Download 3rd party renderer
+    emit messageSig(LOG_STATUS, QString("Download renderer %1...").arg(renderer));
+    QTemporaryDir tempDir;
+    QString downloadPath = tempDir.path();
+    UpdateCheck *rendererDownload;
+    QString rendererArchive, destination;
+
+    switch (which)
+    {
+    case RENDERER_LDVIEW:
+        rendererDownload = new UpdateCheck(this, (void*)LDViewRendererDownload);
+        destination = QDir::toNativeSeparators(tr("%1/%2").arg(Preferences::lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
+        break;
+    case RENDERER_LDGLITE:
+        rendererDownload = new UpdateCheck(this, (void*)LDGLiteRendererDownload);
+        destination = QDir::toNativeSeparators(tr("%1/%2").arg(Preferences::lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
+        break;
+    case RENDERER_POVRAY:
+        rendererDownload = new UpdateCheck(this, (void*)POVRayRendererDownload);
+        destination = QDir::toNativeSeparators(tr("%1/%2").arg(Preferences::lpub3d3rdPartyAppDir, VER_POVRAY_STR));
+        break;
+    default:
+        return result;
+    }
+
+    QEventLoop *wait = new QEventLoop();
+    wait->connect(rendererDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
+    wait->connect(rendererDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    rendererDownload->requestDownload(rendererDownload->getDEFS_URL(), downloadPath);
+    wait->exec();
+    if (rendererDownload->getCancelled()) {
+        return result;
+    }
+    rendererDownload->getDownloadReturn(rendererArchive);
+    if (!QFileInfo(rendererArchive).exists()) {
+        return result;
+    }
+
+    // Automatically extract renderer archive
+    QString message   = tr("Extracting renderer %1. Please wait...").arg(renderer);
+    emit messageSig(LOG_STATUS,message);
+
+    QStringList items = JlCompress::getFileList(rendererArchive);
+    m_progressDialog = new ProgressDialog(nullptr);
+    m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+    m_progressDialog->setWindowTitle(QString("Installing renderer %1").arg(renderer));
+    m_progressDialog->progressBarSetLabelText(QString("Extracting renderer %1 from %2...")
+                                              .arg(renderer)
+                                              .arg(QFileInfo(rendererArchive).fileName()));
+    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setAutoHide(true);
+    m_progressDialog->setModal(true);
+    m_progressDialog->show();
+
+    QThread *thread    = new QThread(this);
+    ExtractWorker *job = new ExtractWorker(rendererArchive,destination);
+    job->moveToThread(thread);
+    wait = new QEventLoop();
+
+    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+            this, SLOT (cancelExporting()));
+    connect(thread, SIGNAL(started()),
+            job, SLOT(doWork()));
+    connect(thread, SIGNAL(finished()),
+            thread, SLOT(deleteLater()));
+    connect(job, SIGNAL(progressSetValue(int)),
+            m_progressDialog, SLOT(progressBarSetValue(int)));
+    connect(m_progressDialog, SIGNAL(cancelClicked()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(result(int)),
+            this, SLOT(workerJobResult(int)));
+    connect(this, SIGNAL(requestEndThreadNowSig()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(finished()),
+            thread, SLOT(quit()));
+    connect(job, SIGNAL(finished()),
+            job, SLOT(deleteLater()));
+    wait->connect(job, SIGNAL(finished()),
+            wait, SLOT(quit()));
+
+    workerJobResult(0);
+    thread->start();
+    wait->exec();
+
+    m_progressDialog->progressBarSetValue(items.count());
+
+    if (m_workerJobResult) {
+        message = tr("%1 of %2 %3 renderer files installed to %4")
+                     .arg(m_workerJobResult)
+                     .arg(items.count())
+                     .arg(renderer)
+                     .arg(destination);
+        emit messageSig(LOG_INFO,message);
+
+        result = true;
+
+#if defined Q_OS_WIN
+    if (!Preferences::portableDistribution){
+        QSettings Settings;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"),Preferences::lpub3d3rdPartyAppDir);
+    }
+#elif defined Q_OS_LINUX
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"),Preferences::lpub3d3rdPartyAppExeDir);
+#endif
+
+        Preferences::rendererPreferences();
+
+    } else {
+        message = tr("Failed to extract %1 %2 renderer files")
+                     .arg(QFileInfo(rendererArchive).fileName()
+                     .arg(renderer));
+        emit messageSig(LOG_ERROR,message);
+    }
+
+    connect (m_progressDialog, SIGNAL(cancelClicked()),
+             this,             SLOT(  cancelExporting()));
+
+    m_progressDialog->hide();
+
+    return result;
+}
+
 // Update parts archive from LDSearch directories
 
 void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
@@ -4180,16 +4344,20 @@ void Gui::refreshLDrawUnoffParts() {
     UpdateCheck *libraryDownload;
     libraryDownload      = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
     QEventLoop  *wait    = new QEventLoop();
-    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (libraryDownload->getCancelled()) {
         return;
     }
+    QString newarchive;
+    libraryDownload->getDownloadReturn(newarchive);
+    if (!QFileInfo(newarchive).exists()) {
+        return;
+    }
 
     // Automatically extract Unofficial archive
-    QString newarchive  = QDir::toNativeSeparators(tr("%1/%2").arg(downloadPath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
     QString destination = QDir::toNativeSeparators(tr("%1/unofficial").arg(Preferences::ldrawLibPath));
     QString message     = tr("Extracting Unofficial archive library. Please wait...");
     emit messageSig(LOG_STATUS,message);
@@ -4343,16 +4511,20 @@ void Gui::refreshLDrawOfficialParts() {
     UpdateCheck *libraryDownload;
     libraryDownload      = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
     QEventLoop  *wait    = new QEventLoop();
-    wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
+    wait->connect(libraryDownload, SIGNAL(rendererDownloadFinished(QString)), wait, SLOT(quit()));
     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
     wait->exec();
     if (libraryDownload->getCancelled()) {
         return;
     }
+    QString newarchive;
+    libraryDownload->getDownloadReturn(newarchive);
+    if (!QFileInfo(newarchive).exists()) {
+        return;
+    }
 
     // Automatically extract Official archive
-    QString newarchive  = QDir::toNativeSeparators(tr("%1/%2").arg(downloadPath).arg(VER_LDRAW_OFFICIAL_ARCHIVE));
     QString destination = QDir::toNativeSeparators(Preferences::ldrawLibPath);
     destination         = destination.remove(destination.size() - 6,6);
     QString message = tr("Extracting Official archive library. Please wait...");

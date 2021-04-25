@@ -1021,6 +1021,7 @@ public:
   bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
   bool stepContains(Where &here, QRegExp &lineRx);
   bool stepContains(Where &here, const QString value);
+  bool installRenderer(const int which);
 
   QString topLevelFile();
 

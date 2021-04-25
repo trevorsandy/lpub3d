@@ -32,8 +32,9 @@
 #define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
+#define VER_GITHUB_USER_STR                 "https://github.com/trevorsandy"
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_BUILD_STR
-#define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues"
+#define VER_PUBLISHER_SUPPORT_STR           VER_GITHUB_USER_STR "/lpub3d/issues"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #ifdef QT_DEBUG_MODE
   #define COMPANYNAME_STR                   "LPub3D Software Maint"
@@ -64,6 +65,10 @@
 #define VER_LDVIEW_STR                      VER_LDVIEW
 #define VER_LDGLITE_STR                     VER_LDGLITE
 #define VER_POVRAY_STR                      VER_POVRAY
+
+#define VER_LDVIEW_WIN_X86                 "LDView-win-x86.zip"
+#define VER_LDGLITE_WIN_X86                "LDGLite-win-x86.zip"
+#define VER_POVRAY_WIN_X86                 "lpub3d_trace_cui-win-x86.zip"
 
 #define VER_LDVIEW_INI_FILE                 "ldview.ini"      // LDView renderer config settings
 #define VER_LDVIEW_POV_INI_FILE             "ldviewPOV.ini"   // LDView POV file generation config settings
@@ -169,13 +174,17 @@
 // ~~~~~~ Resource Locators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #define VER_HOMEPAGE_GITHUB_STR             "https://trevorsandy.github.io/lpub3d/"
-#define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
-#define VER_BLENDER_RENDER_STR              "https://github.com/trevorsandy/blenderldrawrender/"
+#define VER_SOURCE_GITHUB_STR               VER_GITHUB_USER_STR "/lpub3d/"
+#define VER_BLENDER_RENDER_STR              VER_GITHUB_USER_STR "/blenderldrawrender/"
+
 #define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
 
 #define VER_QT_URL                          "https://www.qt.io/product"
 #define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 #define VER_REBRICKABLE_API_URL             "https://rebrickable.com/api/v3/lego"
+#define VER_LDVIEW_ARCHIVE_JSON_URL         VER_SOURCEFORGE_STR "ldview_renderers.json"
+#define VER_LDGLITE_ARCHIVE_JSON_URL        VER_SOURCEFORGE_STR "ldglite_renderers.json"
+#define VER_POVRAY_ARCHIVE_JSON_URL         VER_SOURCEFORGE_STR "povray_renderers.json"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       VER_SOURCEFORGE_STR "complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     VER_SOURCEFORGE_STR "lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  VER_SOURCEFORGE_STR "change_log.txt"

@@ -163,6 +163,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
+    static QString lpub3d3rdPartyAppExeDir;
     static QString lpub3dLDVConfigDir;
     static QString highlightStepColour;
     static QString defaultAuthor;
