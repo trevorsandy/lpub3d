@@ -199,10 +199,12 @@ enum NameKeyAttributes {
     nResType,         // 4
     nModelScale,      // 5
     nCameraFoV,       // 6
+    nAdjustedBaseAttributes = nCameraFoV,
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
     nBaseAttributes      = nCameraAngleYY,  // 8th element
     nTargetX,         // 9
+    nAdjustedTarget      = nTargetX,
     nRotX                = nTargetX,
     nTargetY,         // 10
     nRotY                = nTargetY,

@@ -945,7 +945,7 @@ int Pli::createPartImage(
     // create name key list
     QStringList nameKeys = nameKey.split("_");
 
-    // treat parts with '_' in the name
+    // treat parts with '_' in the name - decode
     if (nameKeys.at(nType).count(";")) {
         nameKeys[nType].replace(";", "_");
         nameKey.replace(";", "_");
@@ -2129,15 +2129,11 @@ int Pli::partSize()
                   return -1;
                 }
 
-              // treat parts with '_' in the name
+              // treat parts with '_' in the name - encode
               QString nameKey = part->nameKey;
-              if (key.count("_") > 1) {
-                  QString rep = key;
-                  QString code = rep.right(rep.size() - rep.lastIndexOf("_"));
-                  rep.chop(code.size());
-                  rep.replace("_", ";");
-                  rep.append(code);
-                  nameKey.replace(key,rep);
+              if (part->type.count("_")) {
+                  const QString type = QFileInfo(part->type).completeBaseName();
+                  nameKey.replace(type, QString(type).replace("_", ";"));
               }
 
               if (createPartImage(nameKey,part->type,part->color,pixmap,part->subType)) {
@@ -2366,15 +2362,11 @@ int Pli::partSizeLDViewSCall() {
 
             bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
 
-            // treat parts with '_' in the name
+            // treat parts with '_' in the name - encode
             QString nameKey = pliPart->nameKey;
-            if (key.count("_") > 1) {
-                QString rep = key;
-                QString code = rep.right(rep.size() - rep.lastIndexOf("_"));
-                rep.chop(code.size());
-                rep.replace("_", ";");
-                rep.append(code);
-                nameKey.replace(key,rep);
+            if (pliPart->type.count("_")) {
+                const QString type = QFileInfo(pliPart->type).completeBaseName();
+                nameKey.replace(type, QString(type).replace("_", ";"));
             }
 
             // set key substitute flag when there is a namekey change
@@ -2389,7 +2381,7 @@ int Pli::partSizeLDViewSCall() {
             // create name key list
             QStringList nameKeys = nameKey.split("_");
 
-            // treat parts with '_' in the name
+            // treat parts with '_' in the name - decode
             if (nameKeys.at(nType).count(";")) {
                 nameKeys[nType].replace(";", "_");
                 nameKey.replace(";", "_");
@@ -3864,14 +3856,25 @@ void PGraphicsPixmapItem::contextMenuEvent(
                                      .arg(double(this->pli->pliMeta.target.z()))).split(" "));
           defaultList.append(QString(renderer->getRotstepMeta(this->pli->pliMeta.rotStep,true)).split("_"));
       }
-      QStringList attributes = this->part->nameKey.split("_");
+
+      QStringList attributes;
+      // treat parts with '_' in the name - encode
+      if (this->part->type.count("_")) {
+          QString nameKey = this->part->nameKey;
+          const QString type = QFileInfo(this->part->type).completeBaseName();
+          nameKey.replace(type, QString(type).replace("_", ";"));
+          attributes = nameKey.split("_");
+          attributes.replace(0,type);
+      } else {
+          attributes = this->part->nameKey.split("_");
+      }
       attributes.removeAt(nResType);
       attributes.removeAt(nResolution);
       attributes.removeAt(nPageWidth);
       attributes.replace(nType,this->part->type);
-      if (attributes.size() == 6      /*BaseAttributes - removals*/)
+      if (attributes.size() == nAdjustedBaseAttributes        /*BaseAttributes - removals*/)
           attributes.append(QString("0 0 0 0 0 0 REL").split(" "));
-      else if (attributes.size() == 9 /*Target - removals*/)
+      else if (attributes.size() == nAdjustedTarget           /*Target - removals*/)
           attributes.append(QString("0 0 0 REL").split(" ")); /*13 items total without substituted part [new substitution]*/
       if (!part->subOriginalType.isEmpty())
           attributes.append(part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
