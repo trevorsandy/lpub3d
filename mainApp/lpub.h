@@ -1487,7 +1487,6 @@ public:
 
   // multi-thread worker classes
   PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
-  PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
   ParmsWindow           *parmsWindow;                 // the parameter file editor

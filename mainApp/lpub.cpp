@@ -3117,7 +3117,7 @@ void Gui::preferences()
 
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-                partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
+                partWorkerLDSearchDirs.populateLdgLiteSearchDirs();
         }
 
         if (povFileGeneratorChanged)
@@ -6448,31 +6448,68 @@ void LDrawSearchDirDialog::getLDrawSearchDirDialog()
   dialog->setMinimumWidth(500);
 
   if (dialog->exec() == QDialog::Accepted) {
-    QStringList validContent;
+
     QStringList searchDirs = textEditSearchDirs->toPlainText().split("\n");
+
     if (searchDirs.size() && searchDirs != Preferences::ldSearchDirs) {
-      QStringList searchDirsCompare = Preferences::ldSearchDirs;
-      Q_FOREACH (QString excludedDir, excludedSearchDirs) {
-        for (int i = 0; i < searchDirs.size(); i++) {
-          const QString newDir = QDir::toNativeSeparators(searchDirs.at(i));
-          if (newDir.toLower() == excludedDir.toLower()) {
-            QMessageBox::warning(dialog, tr("Search Directories"), tr("Invalid Search Directory %1.").arg(newDir));
-          } else {
-            validContent << newDir;
+      QStringList validDirs, invalidDirs, newDirs;
+
+      Q_FOREACH (const QString &searchDir, searchDirs) {
+
+        bool match = false;
+        const QString dir = QDir::toNativeSeparators(searchDir);
+
+        Q_FOREACH (const QString &ldDir, Preferences::ldSearchDirs) {
+          if (dir.toLower() == ldDir.toLower()) {
+            match = true;
+            break;
+          }
+        }
+
+        if (match) {
+          validDirs << dir;
+        } else {
+          match = false;
+          Q_FOREACH (QString excludedDir, excludedSearchDirs) {
+            if (dir.toLower() == excludedDir.toLower()) {
+              invalidDirs << dir;
+              match = true;
+              break;
+            }
+          }
+          if (!match) {
+            if (QFileInfo(dir).exists()) {
+              newDirs << dir;
+              validDirs << dir;
+            } else {
+              invalidDirs << dir;
+            }
           }
         }
       }
-      Preferences::ldSearchDirs = validContent;
-      emit gui->messageSig(LOG_INFO,QString("LDraw search directories has changed"));
-      emit gui->messageSig(LOG_INFO,QString("Previous Directories:"));
-      Q_FOREACH (const QString &dir, searchDirsCompare) {
-        emit gui->messageSig(LOG_INFO,QString("    - %1").arg(dir));
+
+      Preferences::ldSearchDirs = validDirs;
+
+      if (!invalidDirs.isEmpty()) {
+        const QString message("The search directory list contains excluded or invalid paths which will not be saved.");
+        QMessageBox::warning(dialog, tr("Search Directories"), tr("%1<br>%2").arg(message).arg(invalidDirs.join("<br>")));
+        emit gui->messageSig(LOG_INFO, message);
+        Q_FOREACH (const QString &dir, invalidDirs) {
+          emit gui->messageSig(LOG_INFO, QString("    - %1").arg(dir));
+        }
       }
-      emit gui->messageSig(LOG_INFO,QString("Updated Directories:"));
-      Q_FOREACH (const QString &dir, Preferences::ldSearchDirs) {
-        emit gui->messageSig(LOG_INFO,QString("    - %1").arg(dir));
+
+      if (!validDirs.isEmpty()) {
+        emit gui->messageSig(LOG_INFO, QString("Updated LDraw Directories:"));
+        Q_FOREACH (const QString &dir, validDirs) {
+          emit gui->messageSig(LOG_INFO,QString("    - %1").arg(dir));
+        }
       }
-      gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
+
+      if (newDirs.size()) {
+        gui->partWorkerLDSearchDirs.populateUpdateSearcDirs(newDirs);
+        gui->loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
+      }
     }
   }
 }

@@ -495,10 +495,14 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
 
     // Archive search directory parts
     if (archive) {
+       QStringList dirs;
        if (custom) {
-           QStringList dirs;
            dirs << _customPartDir << _customPrimDir;
            processPartsArchive(dirs, "custom directory");
+       } else if (_updateLDSearchDirs.size()) {
+           dirs << _updateLDSearchDirs;
+           _updateLDSearchDirs.clear();
+           processPartsArchive(dirs, "update search directory");
        } else {
            processLDSearchDirParts();
        }

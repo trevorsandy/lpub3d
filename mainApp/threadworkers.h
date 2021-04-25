@@ -118,6 +118,11 @@ public:
       ldsearchDirPreferences();
     }
 
+    void populateUpdateSearcDirs(const QStringList &searchDirs)
+    {
+      _updateLDSearchDirs = searchDirs;
+    }
+
     void ldsearchDirPreferences();
 
     bool loadLDrawSearchDirs();
@@ -224,6 +229,7 @@ private:
    QStringList               _partFileContents;
    QStringList               _excludedSearchDirs;
    QStringList               _saveLDSearchDirs;
+   QStringList               _updateLDSearchDirs;
    QString                   _customPartDir;
    QString                   _customPrimDir;
    QString                   _lsynthPartsDir;
