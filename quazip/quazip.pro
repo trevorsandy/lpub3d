@@ -5,9 +5,9 @@ unix:!macx: CONFIG += staticlib
 win32-msvc*: CONFIG  += staticlib
 
 # The ABI version.
-VER_MAJ = 0
-VER_MIN = 7
-VER_PAT = 3
+VER_MAJ = 1
+VER_MIN = 1
+VER_PAT = 0
 VER_BLD = 0
 win32: VERSION = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT"."$$VER_BLD  # major.minor.patch.build
 else: VERSION  = $$VER_MAJ"."$$VER_MIN"."$$VER_PAT              # major.minor.patch

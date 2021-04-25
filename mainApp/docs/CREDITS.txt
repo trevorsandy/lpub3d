@@ -37,19 +37,19 @@ Qt-History-LineEdit c6c6992
 https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
 Mattia Basaglia <mattia.basaglia@gmail.com>
 
-qSLog 2.0.0
+qSLog 2.0.0 b4
 Razvan Petru
 
 QtWaitingSpinner commit bb8f898
 https://github.com/snowwlex/QtWaitingSpinner
 Alex Turkin 
 
-QuaZip 0.7.3
-https://github.com/stachenov/quazip
+QuaZip 1.1.0
+https://github.com/stachenov/quazip/releases/tag/v1.1
 Sergey A. Tachenov
 
 QSimpleUpdater 2.0 a3e9ef2
-https://github.com/trevorsandy/QSimpleUpdater
+https://github.com/alex-spataru/QSimpleUpdater
 Alex Spataru
 
 WPngImage 1.4.0
@@ -63,6 +63,7 @@ Peter Bartfai <pbartfai@stardust.hu>
 
 Other Contributors (in alphabetical order):
 Daniele Benedettelli
+Jaco van der Molen
 
 Dropbox Uploader script
 https://github.com/andreafabrizi/Dropbox-Uploader a3df727
