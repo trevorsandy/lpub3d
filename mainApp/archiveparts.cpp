@@ -173,7 +173,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
 
       if (setTexDir){
         fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
-        qDebug() << "Adjusted Texture fileNameWithRelativePath: " << fileNameWithRelativePath;
+        //qDebug() << "Adjusted Texture fileNameWithRelativePath: " << fileNameWithRelativePath;
       } else if (setPartsDir){
         fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
         //qDebug() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;

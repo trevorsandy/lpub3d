@@ -6,6 +6,7 @@
         <file alias="add.png">resources/add.png</file>
         <file alias="addassembledimage.png">resources/addassembledimage.png</file>
         <file alias="addbom.png">resources/addbom.png</file>
+        <file alias="adddirectory.png">resources/adddirectory.png</file>
         <file alias="adddividerpointer.png">resources/adddividerpointer.png</file>
         <file alias="addnext.png">resources/addnext.png</file>
         <file alias="addpartannotation.png">resources/addpartannotation.png</file>
@@ -169,6 +170,8 @@
         <file alias="nextstep.png">resources/nextstep.png</file>
         <file alias="nextsteps.png">resources/nextsteps.png</file>
         <file alias="nopartslist.png">resources/nopartslist.png</file>
+        <file alias="movedirectorydown.png">resources/movedirectorydown.png</file>
+        <file alias="movedirectoryup.png">resources/movedirectoryup.png</file> 
         <file alias="obj32.png">resources/obj32.png</file>
         <file alias="onlinemanual.png">resources/onlinemanual.png</file>
         <file alias="open.png">resources/open.png</file>

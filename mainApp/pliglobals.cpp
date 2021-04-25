@@ -70,7 +70,6 @@ GlobalPliDialog::GlobalPliDialog(
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
 
   setLayout(layout);
   layout->addWidget(tab);
@@ -78,6 +77,7 @@ GlobalPliDialog::GlobalPliDialog(
   QWidget *widget;
   QVBoxLayout *vlayout;
   QVBoxLayout *svlayout;
+  QSpacerItem *vSpacer;
 
   MetaGui *child;
   QGroupBox *box;

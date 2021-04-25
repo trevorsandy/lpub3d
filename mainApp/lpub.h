@@ -2173,6 +2173,10 @@ private:
     QLineEdit   *lineEditIniFile;
     QTextEdit   *textEditSearchDirs;
     QPushButton *pushButtonReset;
+    QPushButton *pushButtonMoveUp;
+    QPushButton *pushButtonMoveDown;
+    QPushButton *pushButtonAddDirectory;
+    QStringList excludedSearchDirs;
 };
 
 extern QHash<SceneObject, QString> soMap;
