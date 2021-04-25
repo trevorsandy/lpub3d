@@ -92,16 +92,24 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   // preferred renderer
   ui.ldviewPath->setText(                        Preferences::ldviewExe);
-  ui.ldviewBox->setChecked(                      Preferences::ldviewInstalled);
+  ui.ldviewBox->setEnabled(                      Preferences::ldviewInstalled);
+  ui.ldviewBox->setTitle(                        Preferences::ldviewInstalled ? tr("LDView is installed") : tr("LDView is not installed"));
+  ui.ldviewInstallBox->setVisible(              !Preferences::ldviewInstalled);
+
   ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
   ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
 
   ui.ldglitePath->setText(                       Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(                     Preferences::ldgliteInstalled);
+  ui.ldgliteBox->setEnabled(                     Preferences::ldgliteInstalled);
+  ui.ldgliteBox->setTitle(                       Preferences::ldviewInstalled ? tr("LDGLite is installed") : tr("LDGLite is not installed"));
+  ui.ldgliteInstallBox->setVisible(             !Preferences::ldgliteInstalled);
 
   ui.povrayPath->setText(                        Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                      Preferences::povRayInstalled);
+  ui.povrayBox->setEnabled(                      Preferences::povRayInstalled);
+  ui.povrayBox->setTitle(                        Preferences::ldviewInstalled ? tr("POV-Ray is installed") : tr("POV-Ray is not installed"));
+  ui.povrayInstallBox->setVisible(              !Preferences::povRayInstalled);
+
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
   ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
@@ -1173,7 +1181,7 @@ QString const PreferencesDialog::altLDConfigPath()
 
 QString const PreferencesDialog::lgeoPath()
 {
-    if (ui.POVRayBox->isChecked() && ui.lgeoBox->isChecked()){
+    if (ui.povrayBox->isChecked() && ui.lgeoBox->isChecked()){
         return ui.lgeoPath->displayText();
     }
     return "";
@@ -1205,7 +1213,7 @@ QString const PreferencesDialog::ldgliteExe()
 
 QString const PreferencesDialog::povrayExe()
 {
-    if (ui.POVRayBox->isChecked()) {
+    if (ui.povrayBox->isChecked()) {
         return ui.povrayPath->displayText();
     }
     return "";

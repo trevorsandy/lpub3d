@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -936,7 +936,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="LDViewTab">
           <attribute name="title">
@@ -961,75 +961,24 @@
               <string>LDView is installed</string>
              </property>
              <property name="checkable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="checked">
               <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_10">
-              <item row="2" column="1">
-               <widget class="QCheckBox" name="ldviewSnaphsotsList_Chk">
-                <property name="toolTip">
-                 <string>Consolidate render files as a single list appended to the LDView command</string>
+              <item row="8" column="1" colspan="3">
+               <spacer name="verticalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
                 </property>
-                <property name="statusTip">
-                 <string>Consolidate render files as a single list appended to the LDView command.</string>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
-                <property name="text">
-                 <string>Use Snapshots List file</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2" rowspan="2" colspan="2">
-               <widget class="QGroupBox" name="ldvSettingsBox">
-                <property name="title">
-                 <string>LDView Renderer settings</string>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_16">
-                 <item>
-                  <spacer name="horizontalSpacer_8">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="ldvPreferencesBtn">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="toolTip">
-                    <string>Open Native POV options dialogue</string>
-                   </property>
-                   <property name="text">
-                    <string>Preferences...</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_9">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
+               </spacer>
               </item>
               <item row="1" column="1">
                <widget class="QCheckBox" name="ldviewSingleCall_Chk">
@@ -1095,18 +1044,98 @@
                 </layout>
                </widget>
               </item>
-              <item row="7" column="1" colspan="3">
-               <spacer name="verticalSpacer_10">
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="ldviewSnaphsotsList_Chk">
+                <property name="toolTip">
+                 <string>Consolidate render files as a single list appended to the LDView command</string>
+                </property>
+                <property name="statusTip">
+                 <string>Consolidate render files as a single list appended to the LDView command.</string>
+                </property>
+                <property name="text">
+                 <string>Use Snapshots List file</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2" rowspan="2" colspan="2">
+               <widget class="QGroupBox" name="ldvSettingsBox">
+                <property name="title">
+                 <string>LDView Renderer settings</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <item>
+                  <spacer name="horizontalSpacer_8">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="ldvPreferencesBtn">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip">
+                    <string>Open Native POV options dialogue</string>
+                   </property>
+                   <property name="text">
+                    <string>Preferences...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_9">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="ldviewInstallBox">
+             <property name="title">
+              <string>Download and install LDView</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <spacer name="horizontalSpacer_12">
                 <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>0</width>
-                  <height>0</height>
+                  <width>40</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ldviewInstall">
+                <property name="text">
+                 <string>Install...</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -1119,7 +1148,7 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QGroupBox" name="POVRayBox">
+            <widget class="QGroupBox" name="povrayBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                <horstretch>0</horstretch>
@@ -1136,7 +1165,7 @@
               <string>POV-Ray is installed</string>
              </property>
              <property name="checkable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="checked">
               <bool>false</bool>
@@ -1431,6 +1460,35 @@
              </layout>
             </widget>
            </item>
+           <item>
+            <widget class="QGroupBox" name="povrayInstallBox">
+             <property name="title">
+              <string>Download and install POV-Ray</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_21">
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="povrayInstall">
+                <property name="text">
+                 <string>Install...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="LDGLiteTab">
@@ -1438,6 +1496,19 @@
            <string>LDGLite</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_16">
+           <item row="1" column="0">
+            <spacer name="verticalSpacer_12">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item row="0" column="0">
             <widget class="QGroupBox" name="ldgliteBox">
              <property name="sizePolicy">
@@ -1450,7 +1521,7 @@
               <string>LDGLite is installed</string>
              </property>
              <property name="checkable">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="checked">
               <bool>false</bool>
@@ -1521,18 +1592,34 @@
              </layout>
             </widget>
            </item>
-           <item row="1" column="0">
-            <spacer name="verticalSpacer_12">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="ldgliteInstallBox">
+             <property name="title">
+              <string>Download and install LDGLite</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
+             <layout class="QHBoxLayout" name="horizontalLayout_24">
+              <item>
+               <spacer name="horizontalSpacer_17">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ldgliteInstall">
+                <property name="text">
+                 <string>Install...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -2788,7 +2875,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>ldvPreferencesBtn</tabstop>
   <tabstop>ldviewPath</tabstop>
   <tabstop>browseLDView</tabstop>
-  <tabstop>POVRayBox</tabstop>
+  <tabstop>ldviewInstall</tabstop>
+  <tabstop>povrayBox</tabstop>
   <tabstop>povrayRenderQualityCombo</tabstop>
   <tabstop>povrayAutoCropBox</tabstop>
   <tabstop>povrayDisplay_Chk</tabstop>
@@ -2801,9 +2889,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>lgeoBox</tabstop>
   <tabstop>lgeoPath</tabstop>
   <tabstop>browseLGEO</tabstop>
+  <tabstop>povrayInstall</tabstop>
   <tabstop>ldgliteBox</tabstop>
   <tabstop>ldglitePath</tabstop>
   <tabstop>browseLDGLite</tabstop>
+  <tabstop>ldgliteInstall</tabstop>
   <tabstop>archiveLSynthPartsBox</tabstop>
   <tabstop>addLSynthSearchDirBox</tabstop>
   <tabstop>pageDisplayPauseSpin</tabstop>
@@ -2829,10 +2919,10 @@ p, li { white-space: pre-wrap; }
   <tabstop>loggingGrpBox</tabstop>
   <tabstop>logPathEdit</tabstop>
   <tabstop>includeLogLevelBox</tabstop>
-  <tabstop>includeLineNumberBox</tabstop>
-  <tabstop>includeFunctionBox</tabstop>
   <tabstop>includeTimestampBox</tabstop>
+  <tabstop>includeLineNumberBox</tabstop>
   <tabstop>includeFileNameBox</tabstop>
+  <tabstop>includeFunctionBox</tabstop>
   <tabstop>includeAllLogAttribBox</tabstop>
   <tabstop>logLevelGrpBox</tabstop>
   <tabstop>logLevelCombo</tabstop>
