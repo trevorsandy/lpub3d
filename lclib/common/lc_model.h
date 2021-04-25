@@ -370,7 +370,7 @@ public:
 /*** LPub3D Mod end ***/
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);
 	void UpdateCameraTool(const lcVector3& Position);
-	void UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag);
+	void UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag);
 	void UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag);
 	void UpdateScaleTool(const float Scale);
 	void EraserToolClicked(lcObject* Object);
@@ -393,12 +393,12 @@ public:
 /*** LPub3D Mod - Selected Parts ***/
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
 /*** LPub3D Mod end ***/
-	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
+	void MoveSelectedObjects(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
 	{
-		MoveSelectedObjects(Distance, Distance, Relative, AlternateButtonDrag, Update, Checkpoint);
+		MoveSelectedObjects(Distance, Distance, AllowRelative, AlternateButtonDrag, Update, Checkpoint);
 	}
 
-	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
+	void MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool AllowRelative, bool AlternateButtonDrag, bool Update, bool Checkpoint);
 	void RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool RotatePivotPoint, bool Update, bool Checkpoint);
 	void ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoint);
 	void TransformSelectedObjects(lcTransformType TransformType, const lcVector3& Transform);
