@@ -275,6 +275,7 @@ QMAKE_CFLAGS_WARN_ON =  \
       -Wno-comment \
       -Wno-deprecated-declarations \
       -Wno-deprecated-copy \
+      -Wno-format-security \
       -Wno-format \
       -Wno-parentheses \
       -Wno-return-type \
