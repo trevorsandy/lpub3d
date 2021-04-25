@@ -44,8 +44,8 @@ QtWaitingSpinner commit bb8f898
 https://github.com/snowwlex/QtWaitingSpinner
 Alex Turkin 
 
-QuaZip 1.1.0
-https://github.com/stachenov/quazip/releases/tag/v1.1
+QuaZip 1.1.0 commit de8125c
+https://github.com/stachenov/quazip/commit/de8125cf8cf8422dae5df87ed6b5be9305219594
 Sergey A. Tachenov
 
 QSimpleUpdater 2.0 a3e9ef2
