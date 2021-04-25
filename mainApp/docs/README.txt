@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2498 (25 04 2021 10:03:50)
+LPub3D 2.4.2.1.2499 (25 04 2021 10:04:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -29,6 +29,7 @@ Revisions:
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Build Modification - page count for multi-step page with submodel #520
+- Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497

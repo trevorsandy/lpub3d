@@ -4130,8 +4130,9 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
               job, SLOT(requestEndThreadNow()));
       connect(job, SIGNAL(partsArchiveFinishedSig()),
               thread, SLOT(quit()));
-      connect(job, SIGNAL(partsArchiveFinishedSig()),
-              job, SLOT(deleteLater()));
+      if (OnDemand)
+          connect(job, SIGNAL(partsArchiveFinishedSig()),
+                  job, SLOT(deleteLater()));
       wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
               wait, SLOT(quit()));
 
