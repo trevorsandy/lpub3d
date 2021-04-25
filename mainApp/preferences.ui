@@ -790,7 +790,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tabRenderers">
+     <widget class="QWidget" name="tabRendering">
       <attribute name="title">
        <string>Renderers</string>
       </attribute>
@@ -2894,7 +2894,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>preferredRenderer</tabstop>
   <tabstop>projectionCombo</tabstop>
   <tabstop>rendererTimeout</tabstop>
-  <tabstop>tabRenderers</tabstop>
+  <tabstop>tabRendering</tabstop>
   <tabstop>ldviewBox</tabstop>
   <tabstop>ldviewSingleCall_Chk</tabstop>
   <tabstop>ldviewSnaphsotsList_Chk</tabstop>
