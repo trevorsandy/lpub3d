@@ -482,15 +482,15 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
     Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
     // Update LDView extra search directories
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+    if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
        emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+    if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
        emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
+    if (Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
        emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
 
     // Update LDGLite extra search directories
-    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+    if (Preferences::ldgliteInstalled && Preferences::preferredRenderer == RENDERER_LDGLITE)
        populateLdgLiteSearchDirs();
 
     // Archive search directory parts
@@ -759,13 +759,13 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
-                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+                  if (Preferences::ldviewInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
                       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
-                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+                  if (Preferences::ldviewInstalled && Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
-                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
+                  if (Preferences::povRayInstalled && !Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
                       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
-                  updateLDGLiteSearchDirs = Preferences::preferredRenderer == RENDERER_LDGLITE;
+                  updateLDGLiteSearchDirs = Preferences::ldgliteInstalled && Preferences::preferredRenderer == RENDERER_LDGLITE;
               }
           }
           if (updateLDGLiteSearchDirs)

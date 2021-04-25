@@ -2283,7 +2283,7 @@ void Preferences::rendererPreferences()
         ldgliteExe = QDir::toNativeSeparators(ldgliteInfo.absoluteFilePath());
         logInfo() << QString("LDGLite : %1").arg(ldgliteExe);
     } else {
-        logError() << QString("LDGLite : %1 not found").arg(ldgliteInfo.absoluteFilePath());
+        logNotice() << QString("LDGLite : %1 not installed").arg(ldgliteInfo.absoluteFilePath());
     }
 
 #ifdef Q_OS_MAC
@@ -2392,7 +2392,7 @@ void Preferences::rendererPreferences()
         }
 #endif
     } else {
-        logError() << QString("LDView   : %1 not found").arg(ldviewInfo.absoluteFilePath());
+        logNotice() << QString("LDView   : %1 not installed").arg(ldviewInfo.absoluteFilePath());
     }
 
     if (povrayInfo.exists()) {
@@ -2485,7 +2485,7 @@ void Preferences::rendererPreferences()
         emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 #endif
     } else {
-        logError() << QString("POVRay  : %1 not found").arg(povrayInfo.absoluteFilePath());
+        logNotice() << QString("POVRay  : %1 not installed").arg(povrayInfo.absoluteFilePath());
     }
 
     // Set valid preferred renderer preferences
@@ -2505,35 +2505,6 @@ void Preferences::rendererPreferences()
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust"),rendererTimeout);
     } else {
         nativeImageCameraFoVAdjust = Settings.value(QString("%1/%2").arg(SETTINGS,"NativeImageCameraFoVAdjust")).toInt();
-    }
-
-    // Display povray image during rendering [experimental]
-    QString const povrayDisplayKey("POVRayDisplay");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
-        QVariant uValue(false);
-        povrayDisplay = false;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayDisplayKey),uValue);
-    } else {
-        povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
-    }
-
-    // Set POV-Ray render quality
-    QString const povrayRenderQualityKey("PovrayRenderQuality");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey))) {
-        povrayRenderQuality = POVRAY_RENDER_QUALITY_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey),povrayRenderQuality);
-    } else {
-        povrayRenderQuality = Settings.value(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey)).toInt();
-    }
-
-    // Automatically crop POV-Ray rendered images
-    QString const povrayAutoCropKey("PovrayAutoCrop");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey))) {
-        QVariant uValue(true);
-        povrayAutoCrop = true;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey),uValue);
-    } else {
-        povrayAutoCrop = Settings.value(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey)).toBool();
     }
 
     // Image matting [future use]
@@ -2623,6 +2594,38 @@ void Preferences::rendererPreferences()
     }
 
     // Populate POVRay Library paths
+    if (!povRayInstalled)
+        return;
+
+    // Display povray image during rendering [experimental]
+    QString const povrayDisplayKey("POVRayDisplay");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
+        QVariant uValue(false);
+        povrayDisplay = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayDisplayKey),uValue);
+    } else {
+        povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
+    }
+
+    // Set POV-Ray render quality
+    QString const povrayRenderQualityKey("PovrayRenderQuality");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey))) {
+        povrayRenderQuality = POVRAY_RENDER_QUALITY_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey),povrayRenderQuality);
+    } else {
+        povrayRenderQuality = Settings.value(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey)).toInt();
+    }
+
+    // Automatically crop POV-Ray rendered images
+    QString const povrayAutoCropKey("PovrayAutoCrop");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey))) {
+        QVariant uValue(true);
+        povrayAutoCrop = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey),uValue);
+    } else {
+        povrayAutoCrop = Settings.value(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey)).toBool();
+    }
+
     QFileInfo resourceFile;
     resourceFile.setFile(QString("%1/%2/resources/ini/%3").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR, VER_POVRAY_INI_FILE));
     if (resourceFile.exists())
@@ -2651,6 +2654,9 @@ void Preferences::rendererPreferences()
 
 void Preferences::setLDGLiteIniParams()
 {
+    if (!ldgliteInstalled)
+        return;
+
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut;
@@ -2796,6 +2802,9 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
 
 void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
 {
+    if (!ldviewInstalled)
+        return;
+
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -2866,6 +2875,9 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
 
 void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
 {
+     if (!ldviewInstalled || !povRayInstalled)
+         return;
+
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -2942,6 +2954,9 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
 
 void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
 {
+    if (!povRayInstalled)
+        return;
+
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -3136,6 +3151,9 @@ void Preferences::updatePOVRayConfigFiles(){
 
 void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
 {
+    if (!povRayInstalled)
+        return;
+
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
@@ -4374,7 +4392,7 @@ void Preferences::viewerPreferences()
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
 
-    if (!povrayExe.isEmpty())
+    if (povRayInstalled)
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);
 
     if (!lgeoPath.isEmpty())
@@ -5003,6 +5021,9 @@ void Preferences::resetHighlightStep()
  * - Archiving Custom Color parts where Custom dirs were not in search dirs list: PartWorker::processCustomColourParts()
  */
 bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
+    if (!ldviewInstalled)
+        return true;
+
     bool retVal = true;
     QFile confFile(iniFile);
     QFileInfo confFileInfo(iniFile);

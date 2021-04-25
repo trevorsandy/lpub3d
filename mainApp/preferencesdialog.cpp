@@ -89,24 +89,83 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
   ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
+
+  // preferred renderer
+  ui.ldviewPath->setText(                        Preferences::ldviewExe);
+  ui.ldviewBox->setChecked(                      Preferences::ldviewInstalled);
+  ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
+  ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
+  ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
+
+  ui.ldglitePath->setText(                       Preferences::ldgliteExe);
+  ui.ldgliteBox->setChecked(                     Preferences::ldgliteInstalled);
+
+  ui.povrayPath->setText(                        Preferences::povrayExe);
+  ui.POVRayBox->setChecked(                      Preferences::povRayInstalled);
+  ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
+  ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
+  ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
+
+  ui.lgeoBox->setEnabled(                        Preferences::usingDefaultLibrary);
+  ui.lgeoPath->setText(                          Preferences::lgeoPath);
+  ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
+  ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
+
+  ui.preferredRenderer->setMaxCount(0);
+  ui.preferredRenderer->setMaxCount(4);
+
+  QFileInfo fileInfo(Preferences::povrayExe);
+  int povRayIndex = ui.preferredRenderer->count();
+  bool povRayExists = fileInfo.exists();
+  povRayExists &= fileInfo.exists();
+  if (povRayExists) {
+      ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
+    }
+
+  fileInfo.setFile(Preferences::ldgliteExe);
+  int ldgliteIndex = ui.preferredRenderer->count();
+  bool ldgliteExists = fileInfo.exists();
+  if (ldgliteExists) {
+    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
+  }
+
+  fileInfo.setFile(Preferences::ldviewExe);
+  int ldviewIndex = ui.preferredRenderer->count();
+  bool ldviewExists = fileInfo.exists();
+  if (ldviewExists) {
+    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
+  }
+
+  int nativeIndex = ui.preferredRenderer->count();
+  ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
+
+  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
+    ui.preferredRenderer->setCurrentIndex(ldviewIndex);
+    ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
+    ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
+    ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
+  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
+    ui.preferredRenderer->setCurrentIndex(povRayIndex);
+    ui.preferredRenderer->setEnabled(true);
+    ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
+  } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+    ui.preferredRenderer->setCurrentIndex(nativeIndex);
+    ui.preferredRenderer->setEnabled(true);
+  } else {
+    ui.preferredRenderer->setEnabled(false);
+  }
+  // end preferred renderer
+
+  ui.preferencesTabWidget->setCurrentIndex(0);
+
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
   ui.pliControlEdit->setText(                    Preferences::pliControlFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
   ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
   ui.pliControlBox->setChecked(                  Preferences::pliControlFile != "");
-  ui.ldglitePath->setText(                       Preferences::ldgliteExe);
-  ui.ldgliteBox->setChecked(                     Preferences::ldgliteExe != "");
-  ui.povrayPath->setText(                        Preferences::povrayExe);
-  ui.POVRayBox->setChecked(                      Preferences::povrayExe != "");
-  ui.lgeoBox->setEnabled(                        Preferences::usingDefaultLibrary);
-  ui.lgeoPath->setText(                          Preferences::lgeoPath);
-  ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
-  ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
-  ui.ldviewPath->setText(                        Preferences::ldviewExe);
-  ui.ldviewBox->setChecked(                      Preferences::ldviewExe != "");
-  ui.ldviewSingleCall_Chk->setChecked(           useLDViewSCall);
-  ui.ldviewSnaphsotsList_Chk->setChecked(        Preferences::enableLDViewSnaphsotList && useLDViewSCall);
-  ui.ldviewSnaphsotsList_Chk->setEnabled(        useLDViewSCall);
   ui.publishLogoBox->setChecked(                 Preferences::documentLogoFile != "");
   ui.publishLogoPath->setText(                   Preferences::documentLogoFile);
   ui.authorName_Edit->setText(                   Preferences::defaultAuthor);
@@ -127,13 +186,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.checkUpdateFrequency_Combo->setCurrentIndex(Preferences::checkUpdateFrequency);
   ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
   ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
-  ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
-  ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
+
   ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
   ui.extendedSubfileSearchCheck->setChecked(     Preferences::extendedSubfileSearch);
   ui.ldrawFilesLoadMsgsCombo->setCurrentIndex(   Preferences::ldrawFilesLoadMsgs);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
-  ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
+
   ui.saveOnRedrawChkBox->setChecked(             Preferences::saveOnRedraw);
   ui.saveOnUpdateChkBox->setChecked(             Preferences::saveOnUpdate);
 
@@ -238,55 +296,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
         ui.textEditSearchDirs->append(searchDir);
   }
   //end search Dirs
-
-  ui.preferredRenderer->setMaxCount(0);
-  ui.preferredRenderer->setMaxCount(4);
-
-  QFileInfo fileInfo(Preferences::povrayExe);
-  int povRayIndex = ui.preferredRenderer->count();
-  bool povRayExists = fileInfo.exists();
-  povRayExists &= fileInfo.exists();
-  if (povRayExists) {
-      ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
-    }
-
-  fileInfo.setFile(Preferences::ldgliteExe);
-  int ldgliteIndex = ui.preferredRenderer->count();
-  bool ldgliteExists = fileInfo.exists();
-  if (ldgliteExists) {
-    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
-  }
-
-  fileInfo.setFile(Preferences::ldviewExe);
-  int ldviewIndex = ui.preferredRenderer->count();
-  bool ldviewExists = fileInfo.exists();
-  if (ldviewExists) {
-    ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
-  }
-
-  int nativeIndex = ui.preferredRenderer->count();
-  ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
-
-  if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
-    ui.preferredRenderer->setCurrentIndex(ldviewIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
-  } else if (Preferences::preferredRenderer == RENDERER_LDGLITE && ldgliteExists) {
-    ui.preferredRenderer->setCurrentIndex(ldgliteIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
-  }  else if (Preferences::preferredRenderer == RENDERER_POVRAY && povRayExists) {
-    ui.preferredRenderer->setCurrentIndex(povRayIndex);
-    ui.preferredRenderer->setEnabled(true);
-    ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
-  } else if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-    ui.preferredRenderer->setCurrentIndex(nativeIndex);
-    ui.preferredRenderer->setEnabled(true);
-  } else {
-    ui.preferredRenderer->setEnabled(false);
-  }
-
-  ui.preferencesTabWidget->setCurrentIndex(0);
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);

@@ -3777,11 +3777,11 @@ PreferredRendererGui::PreferredRendererGui(
 
   combo = new QComboBox(parent);
   combo->addItem(rendererNames[RENDERER_NATIVE]);
-  if (!Preferences::ldgliteExe.isEmpty())
+  if (Preferences::ldgliteInstalled)
     combo->addItem(rendererNames[RENDERER_LDGLITE]);
-  if (!Preferences::ldviewExe.isEmpty())
+  if (Preferences::ldviewInstalled)
     combo->addItem(rendererNames[RENDERER_LDVIEW]);
-  if (!Preferences::povrayExe.isEmpty())
+  if (Preferences::povRayInstalled)
     combo->addItem(rendererNames[RENDERER_POVRAY]);
   combo->setCurrentIndex(int(combo->findText(rendererNames[meta->value().renderer])));
 
