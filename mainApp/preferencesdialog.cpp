@@ -217,22 +217,19 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.textEditSearchDirs->setWordWrapMode(QTextOption::WordWrap);
   ui.textEditSearchDirs->setLineWrapMode(QTextEdit::FixedColumnWidth);
   ui.textEditSearchDirs->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
+  ui.textEditSearchDirs->setReadOnly(true);
+  ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   if (Preferences::ldrawiniFound) {
       ui.lineEditIniFile->setText(QString("Using LDraw.ini File: %1").arg(Preferences::ldrawiniFile));
       ui.lineEditIniFile->setToolTip(tr("LDraw.ini file"));
-      ui.pushButtonReset->hide();
-      ui.textEditSearchDirs->setReadOnly(true);
       ui.textEditSearchDirs->setPalette(readOnlyPalette);
       ui.textEditSearchDirs->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-      ui.textEditSearchDirs->setToolTip("Read only list of LDraw.ini search directories.");
   } else {
-      ui.textEditSearchDirs->setToolTip("Editable list of search directories - add or edit search paths. Use a new line for each entry.");
       ui.lineEditIniFile->setText(tr("%1")
                                   .arg(Preferences::ldSearchDirs.size() == 0 ?
                                          tr("Using default search. No search directories detected.") :
                                          tr("Using default %1 search.").arg(VER_PRODUCTNAME_STR)));
       ui.lineEditIniFile->setToolTip(tr("Default search"));
-      ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
   }
 
   ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
@@ -240,8 +237,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
   }
-
-  connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
   //end search Dirs
 
   ui.preferredRenderer->setMaxCount(0);
@@ -607,35 +602,6 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
       filePath = QDir::toNativeSeparators(filePath);
       ui.publishLogoPath->setText(filePath);
       ui.publishLogoBox->setChecked(true);
-    }
-}
-
-void PreferencesDialog::on_pushButtonReset_clicked()
-{
-  QMessageBox box;
-  box.setIcon (QMessageBox::Question);
-  box.setWindowTitle(tr ("Reset Search Directories?"));
-  box.setDefaultButton   (QMessageBox::Yes);
-  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-  box.setText (tr("This action will reset your search directory settings to the LPub3D default.\n"
-                  "Are you sure you want to continue? "));
-
-  if (box.exec() == QMessageBox::Yes) {
-
-      // get enable fade step setting
-      Preferences::enableFadeSteps = ui.fadeStepBox->isChecked();
-      // get enable highlight step setting
-      Preferences::enableHighlightStep = ui.highlightStepBox->isChecked();
-      gui->partWorkerLDSearchDirs.resetSearchDirSettings();
-      ui.textEditSearchDirs->clear();
-      Q_FOREACH (QString searchDir, Preferences::ldSearchDirs)
-        ui.textEditSearchDirs->append(searchDir);
-
-      box.setIcon (QMessageBox::Information);
-      box.setStandardButtons (QMessageBox::Ok);
-      box.setText( tr("Search directories have been reset with %1 entries.").arg(Preferences::ldSearchDirs.size()));
-      emit gui->messageSig(LOG_STATUS,box.text());
-      box.exec();
     }
 }
 
@@ -1183,11 +1149,6 @@ void PreferencesDialog::messageManagement()
     messageButtonBox->button(QDialogButtonBox::Cancel)->setEnabled(!cleared);
 }
 
-void PreferencesDialog::pushButtonReset_SetState()
-{
-  ui.pushButtonReset->setEnabled(true);
-}
-
 QString const PreferencesDialog::ldrawLibPath()
 {
   return ui.ldrawLibPathEdit->displayText();
@@ -1608,16 +1569,6 @@ bool PreferencesDialog::fatalLevel()
 bool PreferencesDialog::allLogLevels()
 {
   return ui.allLogLevelsBox->isChecked();
-}
-
-QStringList const PreferencesDialog::searchDirSettings()
-{
-    QString textEditContents = ui.textEditSearchDirs->toPlainText();
-    QStringList newContent;
-    if (! textEditContents.isEmpty()) {
-        newContent = textEditContents.split("\n");
-    }
-    return newContent;
 }
 
 void PreferencesDialog::updateChangelog (QString url) {

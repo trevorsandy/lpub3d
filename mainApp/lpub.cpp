@@ -2841,7 +2841,6 @@ void Gui::preferences()
     QString sceneRulerTickColorCompare     = Preferences::sceneRulerTickColor;
     QString sceneRulerTrackingColorCompare = Preferences::sceneRulerTrackingColor;
     QString sceneGuideColorCompare         = Preferences::sceneGuideColor;
-    QStringList ldSearchDirsCompare        = Preferences::ldSearchDirs;
 
     // 'LDView INI settings
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
@@ -2904,7 +2903,6 @@ void Gui::preferences()
         bool sceneRulerTrackingColorChanged= Preferences::sceneRulerTrackingColor.toLower()      != sceneRulerTrackingColorCompare.toLower();
         bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
         bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
-        bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
 
         bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
         bool showInsertErrorsChanged       = Preferences::showInsertErrors                       != showInsertErrorsCompare;
@@ -2924,7 +2922,7 @@ void Gui::preferences()
         }
 
         if (defaultUnitsChanged     )
-                    emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
+            emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
@@ -2942,25 +2940,12 @@ void Gui::preferences()
         }
 
         if (ldrawFilesLoadMsgsChanged     )
-                    emit messageSig(LOG_INFO,QString("LDraw file load status dialogue set to %1").arg(
-                        Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
-                        Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
-                        Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
-                        Preferences::ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
-                        "Always Show"));
-
-        if (ldSearchDirsChanged) {
-            emit messageSig(LOG_INFO,QString("LDraw search directories has changed"));
-            emit messageSig(LOG_INFO,QString("Previous Directories:"));
-            for(int i =0; i < ldSearchDirsCompare.size(); i++) {
-                emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(ldSearchDirsCompare.at(i))));
-            }
-            emit messageSig(LOG_INFO,QString("Updated Directories:"));
-            for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
-                emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
-            }
-            loadLDSearchDirParts(false/*Process*/, false/*OnDemand*/, true/*Update*/);
-        }
+            emit messageSig(LOG_INFO,QString("LDraw file load status dialogue set to %1").arg(
+                Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
+                Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
+                Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
+                Preferences::ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
+                "Always Show"));
 
         if (lgeoPathChanged && !ldrawPathChanged)
             emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
@@ -2988,7 +2973,7 @@ void Gui::preferences()
                             .arg(Preferences::sceneGridColor));
 
         if (showDownloadRedirectsChanged)
-                    emit messageSig(LOG_INFO,QString("Show download redirects is %1").arg(Preferences::showDownloadRedirects? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Show download redirects is %1").arg(Preferences::showDownloadRedirects? "ON" : "OFF"));
 
         if (sceneGuideColorChanged && !ldrawPathChanged)
             emit messageSig(LOG_INFO,QString("Scene Guide Color changed from %1 to %2")
@@ -3024,24 +3009,25 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
 
         if (highlightFirstStepChanged     )
-                    emit messageSig(LOG_INFO,QString("Highlight First Step is %1").arg(Preferences::highlightFirstStep ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Highlight First Step is %1").arg(Preferences::highlightFirstStep ? "ON" : "OFF"));
 
         if (loadLastOpenedFileChanged)
-                    emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
 
         if (extendedSubfileSearchChanged     )
-                    emit messageSig(LOG_INFO,QString("Extended Subfile Search is %1").arg(Preferences::extendedSubfileSearch ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Extended Subfile Search is %1").arg(Preferences::extendedSubfileSearch ? "ON" : "OFF"));
 
         if (povrayRenderQualityChanged)
-                    emit messageSig(LOG_INFO,QString("Povray Render Quality changed from %1 to %2")
-                                    .arg(povrayRenderQualityCompare == 0 ? "High" :
-                                         povrayRenderQualityCompare == 1 ? "Medium" : "Low")
-                                    .arg(Preferences::povrayRenderQuality == 0 ? "High" :
-                                         Preferences::povrayRenderQuality == 1 ? "Medium" : "Low"));
+            emit messageSig(LOG_INFO,QString("Povray Render Quality changed from %1 to %2")
+                            .arg(povrayRenderQualityCompare == 0 ? "High" :
+                                 povrayRenderQualityCompare == 1 ? "Medium" : "Low")
+                            .arg(Preferences::povrayRenderQuality == 0 ? "High" :
+                                 Preferences::povrayRenderQuality == 1 ? "Medium" : "Low"));
+
         povrayRenderQualityChanged = (povrayRenderQualityChanged && Preferences::preferredRenderer == RENDERER_POVRAY);
 
         if (povrayAutoCropChanged)
-                    emit messageSig(LOG_INFO,QString("Povray AutoCrop is %1").arg(Preferences::povrayAutoCrop ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Povray AutoCrop is %1").arg(Preferences::povrayAutoCrop ? "ON" : "OFF"));
 
         if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
             emit messageSig(LOG_INFO,QString("Highlight Step line width changed from %1 to %2")
@@ -3057,16 +3043,16 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF"));
 
         if (perspectiveProjectionChanged) {
-           lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Preferences::perspectiveProjection ? 0 : 1);
-           LoadDefaults();
-           emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
+            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Preferences::perspectiveProjection ? 0 : 1);
+            LoadDefaults();
+            emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
         }
 
         if (saveOnRedrawChanged     )
-                    emit messageSig(LOG_INFO,QString("Save On Redraw is %1").arg(Preferences::saveOnRedraw? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Save On Redraw is %1").arg(Preferences::saveOnRedraw? "ON" : "OFF"));
 
         if (saveOnUpdateChanged     )
-                    emit messageSig(LOG_INFO,QString("Save On Update is %1").arg(Preferences::saveOnUpdate? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Save On Update is %1").arg(Preferences::saveOnUpdate? "ON" : "OFF"));
 
         if (pageDisplayPauseChanged)
             emit messageSig(LOG_INFO,QString("Continuous process page display pause changed from %1 to %2")
@@ -3074,13 +3060,13 @@ void Gui::preferences()
                             .arg(Preferences::pageDisplayPause));
 
         if (addLSynthSearchDirChanged)
-                    emit messageSig(LOG_INFO,QString("Add LSynth Search Directory is %1").arg(Preferences::addLSynthSearchDir? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Add LSynth Search Directory is %1").arg(Preferences::addLSynthSearchDir? "ON" : "OFF"));
 
         if (archiveLSynthPartsChanged)
-                    emit messageSig(LOG_INFO,QString("Archive LSynth Parts is %1").arg(Preferences::archiveLSynthParts? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Archive LSynth Parts is %1").arg(Preferences::archiveLSynthParts? "ON" : "OFF"));
 
         if ((addLSynthSearchDirChanged || archiveLSynthPartsChanged) && Preferences::archiveLSynthParts)
-                loadLDSearchDirParts();
+            loadLDSearchDirParts();
 
         if (doNotShowPageProcessDlgChanged)
             emit messageSig(LOG_INFO,QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF"));
@@ -3132,14 +3118,14 @@ void Gui::preferences()
         }
 
         if (lineParseErrorsChanged)
-                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
 
         if (showAnnotationErrorsChanged)
-                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationErrors? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationErrors? "ON" : "OFF"));
 
 
         if (showInsertErrorsChanged)
-                   emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
 
         bool sceneDisplayChanged =
             displayThemeChanged         ||

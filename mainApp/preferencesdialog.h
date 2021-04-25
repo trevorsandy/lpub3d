@@ -62,7 +62,6 @@ class PreferencesDialog : public QDialog
     QString const sceneRulerTrackingColor();
     QString const sceneGuideColor();
     QString const displayTheme();
-    QStringList const searchDirSettings();
     QMap<int, QString> const themeColours();
     bool          useNativePovGenerator();
     bool          displayAllAttributes();
@@ -140,7 +139,6 @@ class PreferencesDialog : public QDialog
     void on_browseLGEO_clicked();
     void on_browsePli_clicked();
     void on_browsePublishLogo_clicked();
-    void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
     void on_ldrawLibPathEdit_editingFinished();
@@ -182,7 +180,6 @@ class PreferencesDialog : public QDialog
 
     void messageManagement();
     void sceneColorButtonClicked();
-    void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
     void updaterCancelled();

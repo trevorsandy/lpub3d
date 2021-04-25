@@ -4505,61 +4505,6 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovrayAutoCrop"),povrayAutoCrop);
         }
 
-        if (ldSearchDirs != dialog->searchDirSettings()) {
-            if (! dialog->searchDirSettings().isEmpty()) {
-                ldSearchDirs.clear();
-                QStringList excludedEntries;
-                QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
-                Q_FOREACH (QString searchDir, dialog->searchDirSettings()) {
-                    bool entryHasExcludedPath = false;
-                    QString formattedDir = QDir::toNativeSeparators(searchDir);
-                    Q_FOREACH (QString excludedPath, excludedPaths) {
-                        QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(ldrawLibPath).arg(excludedPath));
-                        if ((entryHasExcludedPath = (formattedDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
-                            break;
-                        }
-                    }
-                    if (entryHasExcludedPath){
-                        excludedEntries << formattedDir;
-                    } else {
-                        ldSearchDirs << searchDir;
-                    }
-                }
-                if (! excludedEntries.isEmpty()) {
-                    QString message =
-                    QString("The search directory list contains paths excluded from search."
-                            "%1 will not be saved. %2")
-                            .arg(excludedEntries.size() > 1 ? "These paths" : "This path")
-                            .arg(excludedEntries.join(" "));
-                    if (modeGUI) {
-                        QMessageBox box;
-                        box.setMinimumSize(40,20);
-                        box.setIcon (QMessageBox::Information);
-                        box.setDefaultButton   (QMessageBox::Ok);
-                        box.setStandardButtons (QMessageBox::Ok);
-                        box.setText (message);
-                        box.exec();
-                    } else {
-                        fprintf(stdout,"%s\n",message.toLatin1().constData());
-                        fflush(stdout);
-                    }
-                }
-                if (! ldSearchDirs.isEmpty())
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey),ldSearchDirs);
-                else
-                    Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey));
-            } else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,ldrawSearchDirsKey));
-            }
-            // update LDView ExtraSearchDirs in ini files
-            if (!setLDViewExtraSearchDirs(ldviewIni))
-               logError() << QString("Could not update %1").arg(ldviewIni);
-            if (!setLDViewExtraSearchDirs(ldviewPOVIni))
-               logError() << QString("Could not update %1").arg(ldviewPOVIni);
-            if (!setLDViewExtraSearchDirs(nativeExportIni))
-               logError() << QString("Could not update %1").arg(nativeExportIni);
-        }
-
         if (rendererTimeout != dialog->rendererTimeout()) {
             rendererTimeout = dialog->rendererTimeout();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
