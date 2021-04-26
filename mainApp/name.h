@@ -740,6 +740,7 @@ enum ThemeColorType {
 #define POVRAY_RENDER_QUALITY_DEFAULT           0    // 0=High, 1-Medium, 2=Low
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
 
+#define PAGE_CYCLE_DISPLAY_DEFAULT              1    // measured in seconds
 #define PAGE_DISPLAY_PAUSE_DEFAULT              3    // measured in seconds
 #define MAX_OPEN_WITH_PROGRAMS_DEFAULT          3    // maximum open with programs entries
 #define MESSAGE_LINE_WIDTH_DEFAULT             80    // default width of message line in characters

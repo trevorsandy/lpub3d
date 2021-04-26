@@ -453,23 +453,77 @@ void Gui::displayPage()
   }
 }
 
+void Gui::cyclePageDisplay(const int inputPageNum, bool reload)
+{
+  int move = 0;
+  int goToPageNum = inputPageNum;
+  auto cycleDisplay = [this, &goToPageNum] ()
+  {
+    pageDirection = PAGE_NEXT;
+    setContinuousPage(displayPageNum);
+    while (displayPageNum < goToPageNum) {
+      ++displayPageNum;
+      displayPage();
+      secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
+    }
+    cancelContinuousPage();
+  };
+
+  auto setDirection = [this, &goToPageNum] (int &move)
+  {
+    move = goToPageNum - displayPageNum;
+    if (move > 1)
+      pageDirection = PAGE_JUMP_FORWARD;
+    else if (move == 1)
+      pageDirection = PAGE_NEXT;
+    else if (move < -1)
+      pageDirection = PAGE_JUMP_BACKWARD;
+    else if (move == -1)
+      pageDirection = PAGE_PREVIOUS;
+  };
+
+  if (reload) {
+    int savePage = displayPageNum;
+    if (openFile(curFile)) {
+      goToPageNum = pa ? savePage + pa : savePage;
+      displayPageNum = 1 + pa;
+      setDirection(move);
+      if (move > 1 && Preferences::buildModEnabled) {
+        cycleDisplay();
+      } else {
+        displayPageNum = goToPageNum;
+        displayPage();
+      }
+      enableActions();
+    }
+  } else {
+    setDirection(move);
+    if (move > 1 && Preferences::buildModEnabled) {
+      cycleDisplay();
+    } else {
+      displayPageNum = goToPageNum;
+      displayPage();
+    }
+  }
+}
+
 void Gui::enableNavigationActions(bool enable)
 {
-    setPageLineEdit->setEnabled(enable);
-    setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
-    mpdCombo->setEnabled(mpdCombo->count() && enable);
+  setPageLineEdit->setEnabled(enable);
+  setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
+  mpdCombo->setEnabled(mpdCombo->count() && enable);
 
-    firstPageAct->setEnabled(enable);
-    lastPageAct->setEnabled(enable);
+  firstPageAct->setEnabled(enable);
+  lastPageAct->setEnabled(enable);
 
-    if (!nextPageContinuousIsRunning  && !previousPageContinuousIsRunning) {
-        nextPageAct->setEnabled(enable);
-        previousPageAct->setEnabled(enable);
-        nextPageComboAct->setEnabled(enable);
-        previousPageComboAct->setEnabled(enable);
-        nextPageContinuousAct->setEnabled(enable);
-        previousPageContinuousAct->setEnabled(enable);
-    }
+  if (!nextPageContinuousIsRunning  && !previousPageContinuousIsRunning) {
+    nextPageAct->setEnabled(enable);
+    previousPageAct->setEnabled(enable);
+    nextPageComboAct->setEnabled(enable);
+    previousPageComboAct->setEnabled(enable);
+    nextPageContinuousAct->setEnabled(enable);
+    previousPageContinuousAct->setEnabled(enable);
+  }
 }
 
 void Gui::nextPage()
@@ -477,38 +531,34 @@ void Gui::nextPage()
   QString string = setPageLineEdit->displayText();
   QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
-      bool ok;
-      int inputPageNum;
-      inputPageNum = rx.cap(1).toInt(&ok);
-      if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
-          countPages();
-          if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
-              if (!saveBuildModification())
-                  return;
-              bool jumpForward = inputPageNum - displayPageNum > 1;
-              pageDirection = jumpForward ? PAGE_JUMP_FORWARD : PAGE_NEXT;
-              displayPageNum = inputPageNum;
-              displayPage();
-              return;
-            } else {
-              statusBarMsg("Page number entered is higher than total pages");
-            }
-          string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-          setPageLineEdit->setText(string);
+    bool ok;
+    int inputPageNum = rx.cap(1).toInt(&ok);
+    if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+      countPages();
+      if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
+        if (!saveBuildModification())
           return;
-        } else {						// numbers are same so goto next page
-          countPages();
-          if (displayPageNum < maxPages) {
-              if (!saveBuildModification())
-                  return;
-              pageDirection = PAGE_NEXT;
-              ++displayPageNum;
-              displayPage();
-            } else {
-              statusBarMsg("You are on the last page");
-            }
-        }
+        cyclePageDisplay(inputPageNum);
+        return;
+      } else {
+        statusBarMsg("Page number entered is higher than total pages");
+      }
+      string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      setPageLineEdit->setText(string);
+      return;
+  } else {						// numbers are same so goto next page
+      countPages();
+      if (displayPageNum < maxPages) {
+        if (!saveBuildModification())
+          return;
+        pageDirection = PAGE_NEXT;
+        ++displayPageNum;
+        displayPage();
+      } else {
+        statusBarMsg("You are on the last page");
+      }
     }
+  }
 }
 
 void Gui::nextPageContinuous()
@@ -527,27 +577,27 @@ void Gui::nextPageContinuous()
 
   // Request to terminate Next page process while it is still running
   if (!nextPageContinuousIsRunning) {
-      box.setIcon (QMessageBox::Warning);
-      title = "<b> Stop next page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-      message = QString("Next page continuous processing has not completed.\n"
-                        "Do you want to terminate this process ?");
-      box.setText (title);
-      box.setInformativeText (message);
+    box.setIcon (QMessageBox::Warning);
+    title = "<b> Stop next page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+    message = QString("Next page continuous processing has not completed.\n"
+                      "Do you want to terminate this process ?");
+    box.setText (title);
+    box.setInformativeText (message);
 
-      if (box.exec() == QMessageBox::Yes)  // Yes, let's terminate
-          return;
-      else                                 // Oops, do not want to terminate
-          setPageContinuousIsRunning(true, PAGE_NEXT);
-    }
+    if (box.exec() == QMessageBox::Yes)  // Yes, let's terminate
+      return;
+    else                                 // Oops, do not want to terminate
+      setPageContinuousIsRunning(true, PAGE_NEXT);
+  }
   // If user clicks Next page process while Previous page process is still running
   else if (previousPageContinuousIsRunning && nextPageContinuousIsRunning) {
-      box.setIcon (QMessageBox::Warning);
-      title = "<b>       Stop Previous page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
-      message = QString("Previous page continuous processing is running.\n"
-                        "Do you want to stop this process and start Next page processing ?");
+    box.setIcon (QMessageBox::Warning);
+    title = "<b>       Stop Previous page continuous processing ?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>";
+    message = QString("Previous page continuous processing is running.\n"
+                      "Do you want to stop this process and start Next page processing ?");
 
-      box.setText (title);
-      box.setInformativeText (message);
+    box.setText (title);
+    box.setInformativeText (message);
 
     // User wants to stop Previous page process
     if (box.exec() == QMessageBox::Yes){
@@ -556,9 +606,9 @@ void Gui::nextPageContinuous()
       }
     // User wants to continue running Previous page process so stop Next
     else {
-        setPageContinuousIsRunning(false, PAGE_NEXT);
-        return;
-      }
+      setPageContinuousIsRunning(false, PAGE_NEXT);
+      return;
+    }
   // No conflicts, everything looks good, let's go
   } else {
       continuousPageDialog(PAGE_NEXT);
@@ -570,37 +620,37 @@ void Gui::previousPage()
   QString string = setPageLineEdit->displayText();
   QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
-      bool ok;
-      int inputPageNum;
-      inputPageNum = rx.cap(1).toInt(&ok);
-      if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
-          countPages();
-          if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
-              if (!saveBuildModification())
-                  return;
-              bool jumpBackward = inputPageNum - displayPageNum < -1;
-              pageDirection  = jumpBackward ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
-              displayPageNum = inputPageNum;
-              displayPage();
-              return;
-            } else {
-              statusBarMsg("Page number entered is invalid");
-            }
-          string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
-          setPageLineEdit->setText(string);
+    bool ok;
+    int inputPageNum;
+    inputPageNum = rx.cap(1).toInt(&ok);
+    if (ok && (inputPageNum != displayPageNum)) {		// numbers are different so jump to page
+      countPages();
+      if (inputPageNum >= 1 + pa && inputPageNum != displayPageNum) {
+        if (!saveBuildModification())
           return;
-        } else {						// numbers are same so goto previous page
-          if (displayPageNum > 1 + pa) {
-              if (!saveBuildModification())
-                  return;
-              pageDirection = PAGE_PREVIOUS;
-              displayPageNum--;
-              displayPage();
-            } else {
-              statusBarMsg("You are on the first page");
-            }
-        }
+        const int move = inputPageNum - displayPageNum;
+        pageDirection  = move < -1 ? PAGE_JUMP_BACKWARD : PAGE_PREVIOUS;
+        displayPageNum = inputPageNum;
+        displayPage();
+        return;
+      } else {
+        statusBarMsg("Page number entered is invalid");
+      }
+      string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
+      setPageLineEdit->setText(string);
+      return;
+    } else {						// numbers are same so goto previous page
+      if (displayPageNum > 1 + pa) {
+        if (!saveBuildModification())
+          return;
+        pageDirection = PAGE_PREVIOUS;
+        displayPageNum--;
+        displayPage();
+      } else {
+        statusBarMsg("You are on the first page");
+      }
     }
+  }
 }
 
 void Gui::previousPageContinuous()
@@ -1026,13 +1076,8 @@ void Gui::lastPage()
   } else {
     countPages();
     if (!saveBuildModification())
-        return;
-    if (maxPages - displayPageNum > 1)
-        pageDirection = PAGE_JUMP_FORWARD;
-    else if (maxPages - displayPageNum == 1)
-        pageDirection = PAGE_NEXT;
-    displayPageNum = maxPages;
-    displayPage();
+      return;
+    cyclePageDisplay(maxPages);
   }
 }
 
@@ -1042,24 +1087,14 @@ void Gui::setPage()
   QRegExp rx("^(\\d+).*$");
   if (string.contains(rx)) {
     bool ok;
-    int inputPage;
-    inputPage = rx.cap(1).toInt(&ok);
+    const int inputPageNum = rx.cap(1).toInt(&ok);
     if (ok) {
       countPages();
-      if (inputPage <= maxPages && inputPage != displayPageNum) {
-          if (!saveBuildModification())
-              return;
-          if (inputPage - displayPageNum > 1)
-              pageDirection = PAGE_JUMP_FORWARD;
-          else if (inputPage - displayPageNum < -1)
-              pageDirection = PAGE_JUMP_BACKWARD;
-          else if (inputPage - displayPageNum == 1)
-              pageDirection = PAGE_NEXT;
-          else if (inputPage - displayPageNum == -1)
-              pageDirection = PAGE_PREVIOUS;
-          displayPageNum = inputPage;
-          displayPage();
+      if (inputPageNum <= maxPages && inputPageNum != displayPageNum) {
+        if (!saveBuildModification())
           return;
+        cyclePageDisplay(inputPageNum);
+        return;
       } else {
         statusBarMsg("Page number entered is higher than total pages");
       }
@@ -1071,22 +1106,13 @@ void Gui::setPage()
 
 void Gui::setGoToPage(int index)
 {
-  int goToPageNum = index+1;
+  const int goToPageNum = index+1;
   countPages();
   if (goToPageNum <= maxPages && goToPageNum != displayPageNum) {
-        if (!saveBuildModification())
-            return;
-        if (goToPageNum - displayPageNum > 1)
-            pageDirection = PAGE_JUMP_FORWARD;
-        else if (goToPageNum - displayPageNum < -1)
-            pageDirection = PAGE_JUMP_BACKWARD;
-        else if (goToPageNum - displayPageNum == 1)
-            pageDirection = PAGE_NEXT;
-        else if (goToPageNum - displayPageNum == -1)
-            pageDirection = PAGE_PREVIOUS;
-        displayPageNum = goToPageNum;
-        displayPage();
-    }
+    if (!saveBuildModification())
+      return;
+    cyclePageDisplay(goToPageNum);
+  }
 
   QString string = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
   setPageLineEdit->setText(string);
@@ -1489,14 +1515,13 @@ void Gui::mpdComboChanged(int index)
     bool callDisplayFile = isIncludeFile;
 
     if (!callDisplayFile) {
-      int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
+      const int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
       countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
         if (!saveBuildModification())
           return;
         messageSig(LOG_INFO, QString( "Select subModel: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
-        displayPageNum = modelPageNum;
-        displayPage();
+        cyclePageDisplay(modelPageNum);
       } else {
         callDisplayFile = true;
       }
@@ -1595,11 +1620,8 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
 
     timer.start();
 
-    int savePage = displayPageNum;
-    openFile(curFile);
-    displayPageNum = pa ? savePage + pa : savePage;
-    displayPage();
-    enableActions();
+    //reload current model
+    cyclePageDisplay(displayPageNum, true/*reload*/);
 
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
@@ -1699,12 +1721,8 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     clearSubmodelCache();
     clearTempCache();
 
-    //reload current model file
-    int savePage = displayPageNum;
-    openFile(curFile);
-    displayPageNum = pa ? savePage + pa : savePage;
-    displayPage();
-    enableActions();
+    //reload current model
+    cyclePageDisplay(displayPageNum, true/*reload*/);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
@@ -1779,12 +1797,8 @@ void Gui::clearAllCaches(bool global)
         Preferences::saveOnRedraw = false;
     }
 
-    //reload current model file
-    int savePage = displayPageNum;
-    openFile(curFile);
-    displayPageNum = pa ? savePage + pa : savePage;
-    displayPage();
-    enableActions();
+    //reload current model
+    cyclePageDisplay(displayPageNum, true/*reload*/);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                         .arg(ldrawFile.getPartCount())
@@ -1845,7 +1859,7 @@ void Gui::clearCustomPartCache(bool silent)
   if (Preferences::enableHighlightStep)
       processHighlightColourParts(overwrite, setup);  // (re)generate and archive highlight parts based on the loaded model file
   if (!getCurFile().isEmpty() && Preferences::modeGUI){
-      displayPage();
+      cyclePageDisplay(displayPageNum, true/*reload*/);
   }
 }
 
@@ -2082,8 +2096,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
     if (Preferences::enableFadeSteps)
         clearPrevStepPositions();
-
-    displayPage();
+    cyclePageDisplay(displayPageNum, true/*reload*/);
 }
 
 void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
@@ -2112,7 +2125,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
       if (Preferences::enableFadeSteps && !option) {
           clearPrevStepPositions();
       }
-      displayPage();
+      cyclePageDisplay(displayPageNum, true/*reload*/);
    }
 }
 

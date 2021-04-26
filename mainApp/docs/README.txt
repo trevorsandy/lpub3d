@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2516 (26 04 2021 15:47:49)
+LPub3D 2.4.2.1.2517 (26 04 2021 15:48:22)
 
 Features, enhancements, fixes and changes
 ------------
@@ -27,15 +27,18 @@ Revisions:
 - Change - Visual editor not loading multi-step page last step or callout CSI #536
 - How To - How to create a text URL with html using rich text edit and export to PDF #539
 - Fix - Abnormal end when deleting lines in the LDraw Editor #530
+- Fix - Build Modification - increment page display on forward jump and redraw #520
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Build Modification - page count for multi-step page with submodel #520
+- Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
 - Fix - POV-Ray render issue when directory name contains a space #525
+- Fix - Rewrite submodel preview update for build modifications #512
 - Fix - Selecting substitute part in PLI for a custom part causes LPub3D to crash #538
 - Fix - Treat (partially) selection error when marking a line in the command editor #515
 - Fix - Unable to generate ldraw color parts file #527
