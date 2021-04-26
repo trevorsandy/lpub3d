@@ -2273,10 +2273,11 @@ void Preferences::rendererPreferences()
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
 #else
+    QDir appDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
         lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
     } else {
-        QDir appDir(QString("%1/../share").arg(lpub3dPath));
+        appDir.setPath(QString("%1/../share").arg(lpub3dPath));
         lpub3d3rdPartyAppDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
     }
 

@@ -4230,6 +4230,8 @@ bool Gui::installRenderer(int which)
 
     m_progressDialog->hide();
 
+    emit messageSig(LOG_STATUS, QString("Download renderer %1 completed.").arg(renderer));
+
     return result;
 }
 
@@ -4241,7 +4243,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
 
   QStringList items = Preferences::ldSearchDirs;
   if (items.count()) {
-      QString message = tr("Archiving unofficial parts. Please wait...");
+      QString message = tr("Archiving search directory parts. Please wait...");
       emit messageSig(LOG_STATUS,message);
       m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
       m_progressDialog->setWindowTitle(QString("Archive Library Update"));
@@ -4328,11 +4330,10 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       displayPageNum = pa ? savePage + pa : savePage;
       displayPage();
       enableActions();
-
-      emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                      .arg(ldrawFile.getPartCount())
-                      .arg(elapsedTime(timer.elapsed())));
   }
+  emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                  .arg(ldrawFile.getPartCount())
+                  .arg(elapsedTime(timer.elapsed())));
 }
 
 void Gui::refreshLDrawUnoffParts() {
