@@ -4103,6 +4103,7 @@ bool Gui::installRenderer(int which)
         }
     }
 #elif defined Q_OS_LINUX
+    QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"))) {
         Preferences::lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();;
     } else {
@@ -4212,7 +4213,6 @@ bool Gui::installRenderer(int which)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"),Preferences::lpub3d3rdPartyAppDir);
     }
 #elif defined Q_OS_LINUX
-    QSettings Settings;
     Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"),Preferences::lpub3d3rdPartyAppExeDir);
 #endif
 
