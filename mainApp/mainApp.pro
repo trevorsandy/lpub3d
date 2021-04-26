@@ -159,6 +159,7 @@ static {                                     # everything below takes effect wit
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
 # If quazip is already installed, set CONFIG+=quazipnobuild to use installed library
+# NOTE: Remember to update MacOS library links on major version change - see build_checks.sh and CreateDmg.sh
 
 CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG_MODE
