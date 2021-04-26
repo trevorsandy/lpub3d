@@ -149,6 +149,7 @@ LDrawSubFile::LDrawSubFile(
   _startPageNumber = 0;
   _lineTypeIndexes.clear();
   _subFileIndexes.clear();
+  _smiContents.clear();
   _prevStepPosition = { 0,0,0 };
 }
 
@@ -498,6 +499,28 @@ void LDrawFile::setContents(const QString     &mcFileName,
     //i.value()._datetime = QDateTime::currentDateTime();
     i.value()._contents = contents;
     i.value()._changedSinceLastWrite = true;
+  }
+}
+
+void LDrawFile::setSmiContent(const QString &mcFileName, const QStringList &smiContents)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+
+  if (i != _subFiles.end()) {
+    i.value()._smiContents = smiContents;
+  }
+}
+
+QStringList LDrawFile::smiContents(const QString &mcFileName)
+{
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+
+  if (i != _subFiles.end()) {
+    return i.value()._smiContents;
+  } else {
+    return _emptyList;
   }
 }
 

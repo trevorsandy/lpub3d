@@ -236,9 +236,14 @@ int Render::rotateParts(
       setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
       // consolidate subfiles and parts into single file
-      if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType) != 0))
-          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native %1 parts")
-                    .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
+      int rc = 0;
+      if (Preferences::buildModEnabled && imageType == Options::SMP)
+          rc = mergeSubmodelContent(rotatedParts);
+      else
+          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
+      if (rc)
+          emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
+                               .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
   }
 
   // Write parts to file

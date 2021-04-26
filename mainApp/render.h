@@ -99,6 +99,7 @@ public:
                                      bool doFadeStep,
                                      bool doHighlightStep,
                                      int imageType = 0);
+  static int            mergeSubmodelContent(QStringList &);
   static int            setLDrawHeaderAndFooterMeta(QStringList &lines,
                                      const QString &modelName,
                                      int imageType,

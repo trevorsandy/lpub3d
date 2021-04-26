@@ -49,6 +49,7 @@ extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 class LDrawSubFile {
   public:
     QStringList  _contents;
+    QStringList  _smiContents;
     QString      _subFilePath;
     bool         _modified;
     QDateTime    _datetime;
@@ -83,6 +84,7 @@ class LDrawSubFile {
     ~LDrawSubFile()
     {
       _contents.clear();
+      _smiContents.clear();
     }
 };
 
@@ -313,6 +315,7 @@ class LDrawFile {
     QStringList getSubModels();
     QStringList getSubFilePaths();
     QStringList contents(const QString &fileName);
+    QStringList smiContents(const QString &fileName);
     void normalizeHeader(const QString &fileName,
                          int missing = 0);
     void setSubFilePath(const QString &mcFileName,
@@ -397,6 +400,7 @@ class LDrawFile {
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
 
+    void setSmiContent(const QString &fileName, const QStringList &smiContents);
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
     int getStepIndex(const QString &modelName, const int &lineNumber);

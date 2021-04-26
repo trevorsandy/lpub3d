@@ -562,6 +562,10 @@ public:
   {
       return ldrawFile.contents(modelName);
   }
+  QStringList smiContents(const QString &modelName)
+  {
+      return ldrawFile.smiContents(modelName);
+  }
   bool changedSinceLastWrite(QString &modelName)
   {
       return ldrawFile.changedSinceLastWrite(modelName);
@@ -1012,6 +1016,8 @@ public:
   {
     return false; // Preferences::preferredRenderer == RENDERER_NATIVE;
   }
+
+  void writeSmiContent(QStringList *content, const QString &fileName);
 
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);

@@ -3837,9 +3837,7 @@ int Render::mergeNativeSubModels(QStringList &subModels,
   QStringList nativeSubModels        = subModels;
   QStringList nativeSubModelParts    = subModelParts;
   QStringList newSubModels;
-
   QStringList argv;
-  int         rc;
 
   if (nativeSubModels.size()) {
 
@@ -3931,6 +3929,7 @@ int Render::mergeNativeSubModels(QStringList &subModels,
       /* recurse and process any identified submodel files */
       if (newSubModels.size() > 0){
           newSubModels.removeDuplicates();
+          int rc;
           if ((rc = mergeNativeSubModels(newSubModels, nativeSubModelParts, doFadeStep, doHighlightStep,imageType)) != 0){
               emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer submodels"));
               return rc;
@@ -3939,4 +3938,49 @@ int Render::mergeNativeSubModels(QStringList &subModels,
       subModelParts = nativeSubModelParts;
     }
   return 0;
+}
+
+int Render::mergeSubmodelContent(QStringList &submodelParts)
+{
+    auto writeContent = [] (const QStringList &content, QStringList &submodels) {
+        if (content.size()) {
+            for (int i = 0; i < content.size(); i++) {
+                QString line = content[i];
+                QStringList tokens;
+                split(line,tokens);
+                if (tokens.size() == 15) {
+                    if (gui->isSubmodel(tokens[14])) {
+                        submodels << tokens[14];
+                    }
+                }
+            }
+            return 0;
+        }
+        return 1;
+    };
+
+    QStringList submodels, parsedModels;
+    if (writeContent(submodelParts, submodels) != 0)
+        return 1;
+
+    while (!submodels.isEmpty()) {
+        const QString submodel = submodels.takeFirst();
+        if (! parsedModels.contains(submodel)) {
+            const QStringList &content = gui->getLDrawFile().smiContents(submodel);
+            if (content.size()) {
+                QString modelName = QFileInfo(submodel).completeBaseName();
+                modelName = modelName.replace(
+                            modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+                submodelParts << QString("0 FILE %1").arg(submodel);
+                submodelParts << QString("0 %1").arg(modelName);
+                submodelParts << QString("0 Name: %1").arg(submodel);
+                submodelParts << content;
+                submodelParts << "0 NOFILE";
+                if (writeContent(content, submodels) != 0)
+                    return 1;
+            }
+        }
+        parsedModels << submodel;
+    }
+    return 0;
 }
