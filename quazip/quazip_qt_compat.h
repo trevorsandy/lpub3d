@@ -138,8 +138,14 @@ inline qint64 quazip_to_time64_t(const QDateTime &time) {
 // and another stupid move
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 const auto quazip_endl = Qt::endl;
+/*
+ * Not used and causing build break:
+./quazip/quazip_qt_compat.h:142:26: error: unable to deduce 'const auto' from 'std::endl'
+ const auto quazip_endl = endl;
+../quazip/quazip_qt_compat.h:142:26: note:   couldn't deduce template parameter 'auto'
 #else
 const auto quazip_endl = endl;
+*/
 #endif
 
 #endif // QUAZIP_QT_COMPAT_H
