@@ -1045,9 +1045,9 @@ int Gui::drawPage(
           // STEP - Set display submodel at first submodel step
 
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool topModel       = (ldrawFile.topLevelFile() == topOfStep.modelName);
-              bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
-              bool showStepOk     = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
+              bool topModel     = (ldrawFile.topLevelFile() == topOfStep.modelName);
+              bool showTopModel = (steps->meta.LPub.subModel.showTopModel.value());
+              bool showStepOk   = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
               if (showStepOk && !opts.calledOut && (!topModel || showTopModel)){
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
                       previewNotPerStep = !previewNotPerStep ? true : previewNotPerStep;
@@ -3145,12 +3145,14 @@ int Gui::findPage(
               opts.flags.stepGroup = true;
               stepGroupCurrent = topOfStep;
               if (! opts.pageDisplayed) {
-                  if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
-                      int showStepNum = opts.contStepNumber == 1 + sa ? opts.stepNumber : opts.contStepNumber;
-                      if (opts.pageNum == 1 + pa) {
-                          meta.LPub.subModel.showStepNum.setValue(showStepNum);
-                      } else {
-                          saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
+                  if (opts.contStepNumber) {    // save starting step group continuous step number to pass to drawPage for submodel preview
+                      if (opts.stepNumber == 1 + sa) {
+                          int showStepNum = opts.contStepNumber == 1 + sa ? opts.stepNumber : opts.contStepNumber;
+                          if (opts.pageNum == 1 + pa) {
+                              meta.LPub.subModel.showStepNum.setValue(showStepNum);
+                          } else {
+                              saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
+                          }
                       }
                   }
 
