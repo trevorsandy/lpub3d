@@ -434,7 +434,7 @@ void EditWindow::createActions()
     delAct->setShortcut(tr("DEL"));
     delAct->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     delAct->setStatusTip(tr("Delete the selection - DEL"));
-    connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
+    connect(delAct, SIGNAL(triggered()), this, SLOT(deleteSelection()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setShortcut(tr("Ctrl+A"));
@@ -1966,6 +1966,11 @@ void EditWindow::update(bool state)
       saveFile();
   updateDisabled(state);
   updateSig();
+}
+
+void EditWindow::deleteSelection() {
+    _textEdit->cut();
+    _textEdit->textCursor().deleteChar();
 }
 
 void EditWindow::clearWindow() {

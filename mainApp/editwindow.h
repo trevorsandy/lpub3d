@@ -147,6 +147,7 @@ private slots:
     bool saveFileCopy();
     void redraw();
     void update(bool state);
+    void deleteSelection();
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();
