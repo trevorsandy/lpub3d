@@ -1553,6 +1553,11 @@ void lcView::DrawRotateOverlay()
 	lcVector3 MouseToolDistance = ActiveModel->SnapRotation(ActiveModel->GetMouseToolDistance());
 	bool HasAngle = false;
 
+	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+
+	if (ActiveModel != mModel)
+		WorldMatrix = lcMul(WorldMatrix, mActiveSubmodelTransform);
+
 	// Draw a disc showing the rotation amount.
 	if (MouseToolDistance.LengthSquared() != 0.0f && (mTrackButton != lcTrackButton::None))
 	{
@@ -1598,10 +1603,9 @@ void lcView::DrawRotateOverlay()
 
 		if (fabsf(Angle) >= fabsf(Step))
 		{
-			lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
-			WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
+			lcMatrix44 RotatedWorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
 
-			mContext->SetWorldMatrix(WorldMatrix);
+			mContext->SetWorldMatrix(RotatedWorldMatrix);
 
 			glEnable(GL_BLEND);
 
@@ -1653,7 +1657,7 @@ void lcView::DrawRotateOverlay()
 	if (gMainWindow->GetTool() == lcTool::Rotate && !HasAngle && mTrackButton == lcTrackButton::None)
 	{
 		lcMatrix44 Mat = lcMatrix44AffineInverse(mCamera->mWorldView);
-		Mat.SetTranslation(OverlayCenter);
+		Mat.SetTranslation(WorldMatrix.GetTranslation());
 
 		lcVector3 Verts[32];
 
@@ -1681,9 +1685,9 @@ void lcView::DrawRotateOverlay()
 	ViewDir.Normalize();
 
 	// Transform ViewDir to local space.
-	ViewDir = lcMul(ViewDir, lcMatrix33AffineInverse(RelativeRotation));
+	ViewDir = lcMul(ViewDir, lcMatrix33AffineInverse(lcMatrix33(WorldMatrix)));
 
-	mContext->SetWorldMatrix(lcMatrix44(RelativeRotation, OverlayCenter));
+	mContext->SetWorldMatrix(WorldMatrix);
 
 	// Draw each axis circle.
 	for (int i = 0; i < 3; i++)
@@ -1789,9 +1793,8 @@ void lcView::DrawRotateOverlay()
 			break;
 		};
 
-		lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
-		WorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
-		mContext->SetWorldMatrix(WorldMatrix);
+		lcMatrix44 RotatedWorldMatrix = lcMul(lcMatrix44FromAxisAngle(lcVector3(Rotation[1], Rotation[2], Rotation[3]), Rotation[0] * LC_DTOR), WorldMatrix);
+		mContext->SetWorldMatrix(RotatedWorldMatrix);
 
 		mContext->SetColor(0.8f, 0.8f, 0.0f, 1.0f);
 
@@ -1819,7 +1822,7 @@ void lcView::DrawRotateOverlay()
 		}
 
 		// Draw text.
-		lcVector3 ScreenPos = ProjectPoint(OverlayCenter);
+		lcVector3 ScreenPos = ProjectPoint(WorldMatrix.GetTranslation());
 
 		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetWorldMatrix(lcMatrix44Identity());
@@ -2262,11 +2265,16 @@ float lcView::GetOverlayScale() const
 	lcModel* ActiveModel = GetActiveModel();
 	ActiveModel->GetMoveRotateTransform(OverlayCenter, RelativeRotation);
 
-	lcVector3 ScreenPos = ProjectPoint(OverlayCenter);
+	lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+
+	if (ActiveModel != mModel)
+		WorldMatrix = lcMul(WorldMatrix, mActiveSubmodelTransform);
+
+	lcVector3 ScreenPos = ProjectPoint(WorldMatrix.GetTranslation());
 	ScreenPos[0] += 10.0f;
 	lcVector3 Point = UnprojectPoint(ScreenPos);
 
-	lcVector3 Dist(Point - OverlayCenter);
+	lcVector3 Dist(Point - WorldMatrix.GetTranslation());
 	return Dist.Length() * 5.0f;
 }
 
@@ -3823,9 +3831,16 @@ void lcView::OnMouseMove()
 			const lcVector3& MouseDownStart = Points[2];
 			const lcVector3& MouseDownEnd = Points[3];
 
-			lcVector3 Center;
+			lcVector3 OverlayCenter;
 			lcMatrix33 RelativeRotation;
-			ActiveModel->GetMoveRotateTransform(Center, RelativeRotation);
+			ActiveModel->GetMoveRotateTransform(OverlayCenter, RelativeRotation);
+
+			lcMatrix44 WorldMatrix = lcMatrix44(RelativeRotation, OverlayCenter);
+
+			if (ActiveModel != mModel)
+				WorldMatrix = lcMul(WorldMatrix, mActiveSubmodelTransform);
+
+			const lcVector3 Center = WorldMatrix.GetTranslation();
 
 			if (mTrackTool == lcTrackTool::MoveX || mTrackTool == lcTrackTool::MoveY || mTrackTool == lcTrackTool::MoveZ)
 			{
@@ -3837,7 +3852,7 @@ void lcView::OnMouseMove()
 				else
 					Direction = lcVector3(0.0f, 0.0f, 1.0f);
 
-				Direction = lcMul(Direction, RelativeRotation);
+				Direction = lcMul30(Direction, WorldMatrix);
 
 				lcVector3 Intersection;
 				lcClosestPointsBetweenLines(Center, Center + Direction, CurrentStart, CurrentEnd, &Intersection, nullptr);
@@ -3846,7 +3861,7 @@ void lcView::OnMouseMove()
 				lcClosestPointsBetweenLines(Center, Center + Direction, MouseDownStart, MouseDownEnd, &MoveStart, nullptr);
 
 				lcVector3 Distance = Intersection - MoveStart;
-				Distance = lcMul(Distance, lcMatrix33AffineInverse(RelativeRotation));
+				Distance = lcMul(Distance, lcMatrix33AffineInverse(lcMatrix33(WorldMatrix)));
 				ActiveModel->UpdateMoveTool(Distance, true, mTrackButton != lcTrackButton::Left);
 			}
 			else if (mTrackTool == lcTrackTool::MoveXY || mTrackTool == lcTrackTool::MoveXZ || mTrackTool == lcTrackTool::MoveYZ)
@@ -3860,7 +3875,7 @@ void lcView::OnMouseMove()
 				else
 					PlaneNormal = lcVector3(1.0f, 0.0f, 0.0f);
 
-				PlaneNormal = lcMul(PlaneNormal, RelativeRotation);
+				PlaneNormal = lcMul30(PlaneNormal, WorldMatrix);
 				lcVector4 Plane(PlaneNormal, -lcDot(PlaneNormal, Center));
 				lcVector3 Intersection;
 
@@ -3871,7 +3886,7 @@ void lcView::OnMouseMove()
 					if (lcLineSegmentPlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
 					{
 						lcVector3 Distance = Intersection - MoveStart;
-						Distance = lcMul(Distance, lcMatrix33AffineInverse(RelativeRotation));
+						Distance = lcMul(Distance, lcMatrix33AffineInverse(lcMatrix33(WorldMatrix)));
 						ActiveModel->UpdateMoveTool(Distance, true, mTrackButton != lcTrackButton::Left);
 					}
 				}
@@ -3890,7 +3905,7 @@ void lcView::OnMouseMove()
 				else
 					Direction = lcVector3(-1.0f, 0.0f, 0.0f);
 
-				Direction = lcMul(Direction, RelativeRotation);
+				Direction = lcMul30(Direction, WorldMatrix);
 
 				lcVector3 Intersection;
 				lcClosestPointsBetweenLines(Center, Center + Direction, CurrentStart, CurrentEnd, &Intersection, nullptr);
