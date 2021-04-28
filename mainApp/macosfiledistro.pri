@@ -19,7 +19,7 @@ macx {
 
     # libraries
     libquazip.files += \
-        $$DESTDIR/../../quazip/$$join(ARCH,,,$$ARCH_BLD)/lib$${QUAZIP_LIB}.0.dylib
+        $$DESTDIR/../../quazip/$$join(ARCH,,,$$ARCH_BLD)/lib$${QUAZIP_LIB}.1.dylib
     libquazip.path = Contents/Libs
 
     libldrawini.files += \
