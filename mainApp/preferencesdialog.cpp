@@ -323,15 +323,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
   ui.imageMattingChk->setEnabled((Preferences::preferredRenderer == RENDERER_LDVIEW) && Preferences::enableFadeSteps);
 
-  /* QSimpleUpdater start */
-  m_updaterCancelled = false;
-  m_updater = QSimpleUpdater::getInstance();
-  connect (m_updater, SIGNAL (checkingFinished (QString)),
-           this,        SLOT (updateChangelog  (QString)));
-
-  connect (m_updater, SIGNAL (cancel()),
-           this,        SLOT (updaterCancelled()));
-
   QString version = qApp->applicationVersion();
   QString revision = QString::fromLatin1(VER_REVISION_STR);
   QStringList updatableVersions = Preferences::availableVersions.split(",");
@@ -353,17 +344,17 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
   ui.changeLog_txbr->setOpenExternalLinks(true);
 
+  /* QSimpleUpdater start */
+  m_updaterCancelled = false;
+  m_updater = QSimpleUpdater::getInstance();
+  connect (m_updater, SIGNAL(checkingFinished (QString)),
+           this,        SLOT(updateChangelog  (QString)));
+
+  connect (m_updater, SIGNAL(cancel()),
+           this,        SLOT(updaterCancelled()));
   //populate readme from the web
-  bool processing = true;
-  auto processRequest = [this, &processing] ()
-  {
-      m_updater->setChangelogOnly(DEFS_URL, true);
-      m_updater->checkForUpdates (DEFS_URL);
-      processing = false;
-  };
-  processRequest();
-  while (processing)
-      QApplication::processEvents();
+  m_updater->setChangelogOnly(DEFS_URL, true);
+  m_updater->checkForUpdates (DEFS_URL);
 
   // show message options
   mShowLineParseErrors    = Preferences::lineParseErrors;
