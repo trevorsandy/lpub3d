@@ -4403,7 +4403,7 @@ void Gui::drawPage(
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
       displayPageIndx    = exporting() ? displayPageNum : displayPageNum - 1;
-      firstPage          = !topOfPages.size() || topOfPages.size() < displayPageIndx;
+      firstPage          = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
       if (!firstPage)
         topOfStep        = topOfPages[displayPageIndx];
       if (!topOfStep.lineNumber)
@@ -4430,9 +4430,12 @@ void Gui::drawPage(
         setBuildModNextStepIndex(topOfStep);
       }
 
+      // if page direction is jump forward, reset vars that may be updated by the count page call
+      parseBuildModsAtCount = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
+
       Where saveCurrent = current;
 
-      parseBuildModsAtCount = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
+      int saveTopOfPages = topOfPages.size();
 
       setBuildModForNextStep(topOfStep);
 
@@ -4443,6 +4446,8 @@ void Gui::drawPage(
           maxPages    = 1 + pa;
           stepPageNum = maxPages;
           ldrawFile.unrendered();
+          while (topOfPages.size() > saveTopOfPages)
+              topOfPages.takeLast();
       }
     }
   }
@@ -4959,6 +4964,8 @@ int Gui::setBuildModForNextStep(
                 break;
 
             // Search until next occurrence of step/rotstep meta or bottom of step
+            // We only need the next STEP build mod even if the next step is in a
+            // callout or step group.
             case RotStepRc:
             case StepRc:
                 if (buildModKeys.size()) {
@@ -4968,7 +4975,7 @@ int Gui::setBuildModForNextStep(
                     Q_FOREACH (int buildModLevel, buildModKeys.keys())
                         insertBuildModification(buildModLevel);
                 }
-                bottomOfStep = partsAdded /*&& ! submodel*/;
+                bottomOfStep = partsAdded;
                 topOfStep = walk;
                 buildModKeys.clear();
                 buildModAttributes.clear();
@@ -4997,7 +5004,7 @@ int Gui::setBuildModForNextStep(
                     if (isSubmodel(modelName)) {
                         Where topOfSubmodel(modelName, getSubmodelIndex(modelName), 0);
                         setBuildModForNextStep(topOfNextStep, topOfSubmodel);
-                        bottomOfStep = ! buildModKeys.size() /*&& ! submodel*/;
+                        bottomOfStep = ! buildModKeys.size();
                     }
                 }
             }

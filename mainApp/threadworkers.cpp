@@ -2168,8 +2168,6 @@ int CountPageWorker::countPage(
       gui->topOfPages.append(opts.current);
   }
 
-  Rc rc;
-
   gui->saveStepPageNum = gui->stepPageNum;
 
   // buffer exchange and part group vars
@@ -2188,6 +2186,7 @@ int CountPageWorker::countPage(
       opts.flags.addCountPage = true;
   }
 
+  Rc rc;
   Where topOfStep = opts.current;
   Where stepGroupCurrent;
 
@@ -2340,10 +2339,8 @@ int CountPageWorker::countPage(
                                   meta->submodelStack << tos;
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
                                   FindPageFlags saveFlags2 = opts.flags;
+                                  opts.flags.countPageContains = contains;
                                   BuildModFlags saveBuildMod2 = buildMod;
-                                  FindPageFlags flags2 =  opts.flags; // DEBUG
-                                  flags2.countPageContains = contains;
-                                  // flags2.parseBuildMods = opts.flags.parseBuildMods; // DEBUG
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -2371,7 +2368,7 @@ int CountPageWorker::countPage(
                                               opts.pageNum,
                                               current2,
                                               opts.pageSize,
-                                              flags2,
+                                              opts.flags,
                                               opts.pageDisplayed,
                                               opts.updateViewer,
                                               opts.isMirrored,
@@ -2596,7 +2593,8 @@ int CountPageWorker::countPage(
                   opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
                   gui->stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
-                  if ( ! opts.flags.stepGroup) {
+                  // Added callout step parse for parse build modifications so exclude form page number increment
+                  if ( ! opts.flags.stepGroup && ! opts.flags.callout) {
                       if (gui->exporting()) {
                           gui->getPageSizes().remove(opts.pageNum);
                           if (opts.flags.pageSizeUpdate) {
@@ -2618,14 +2616,14 @@ int CountPageWorker::countPage(
                                          << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
                                          << "Model:" << opts.current.modelName;
 #endif
-                            }
-                        } // Exporting
+                          }
+                      } // Exporting
 
                       ++opts.pageNum;
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
                       documentPageCount();
 
-                    } // ! StepGroup (Single step)
+                  } // ! StepGroup and ! Callout (Single step)
 
                   topOfStep = opts.current;
                   opts.flags.partsAdded = 0;
@@ -2641,12 +2639,12 @@ int CountPageWorker::countPage(
                   if ( ! buildMod.ignore2) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore2
-                } // PartsAdded && ! NoStep
+               } // PartsAdded && ! NoStep
 
-              if ( ! opts.flags.stepGroup && ! opts.flags.noStep) {
-                  // Enable partsAdded flag to trigger pageNum increment
+              if ( ! opts.flags.stepGroup && ! opts.flags.callout && ! opts.flags.noStep) {
+                  // Enable partsAdded flag update needed to trigger pageNum increment
                   opts.flags.addCountPage = true;
-                } // ! StepGroup
+              } // ! StepGroup
 
               buildMod.clear();
               meta->LPub.buildMod.clear();

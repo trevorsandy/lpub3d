@@ -469,6 +469,8 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option)
     cancelContinuousPage();
   };
 
+Q_UNUSED(cycleDisplay)
+
   auto setDirection = [this, &goToPageNum] (int &move)
   {
     move = goToPageNum - displayPageNum;
@@ -488,22 +490,22 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option)
       goToPageNum = pa ? savePage + pa : savePage;
       displayPageNum = 1 + pa;
       setDirection(move);
-      if (move > 1 && Preferences::buildModEnabled) {
-        cycleDisplay();
-      } else {
+//      if (move > 1 && Preferences::buildModEnabled) {
+//        cycleDisplay();
+//      } else {
         displayPageNum = goToPageNum;
         displayPage();
-      }
+//      }
       enableActions();
     }
   } else {
     setDirection(move);
-    if (move > 1 && Preferences::buildModEnabled) {
-      cycleDisplay();
-    } else {
+//    if (move > 1 && Preferences::buildModEnabled) {
+//      cycleDisplay();
+//    } else {
       displayPageNum = goToPageNum;
       displayPage();
-    }
+//    }
   }
 }
 
