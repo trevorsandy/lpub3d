@@ -453,7 +453,7 @@ void Gui::displayPage()
   }
 }
 
-void Gui::cyclePageDisplay(const int inputPageNum, bool reload)
+void Gui::cyclePageDisplay(const int inputPageNum, int option)
 {
   int move = 0;
   int goToPageNum = inputPageNum;
@@ -482,7 +482,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, bool reload)
       pageDirection = PAGE_PREVIOUS;
   };
 
-  if (reload) {
+  if (option == FILE_RELOAD) {
     int savePage = displayPageNum;
     if (openFile(curFile)) {
       goToPageNum = pa ? savePage + pa : savePage;
@@ -1411,11 +1411,9 @@ void Gui::displayFile(
 
             if (displayStartPage) {
                countPages();
-               int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
-               if (modelPageNum && displayPageNum != modelPageNum) {
-                   displayPageNum = modelPageNum;
-                   displayPage();
-               }
+               int inputPageNum = ldrawFile->getModelStartPageNumber(modelName);
+               if (inputPageNum && displayPageNum != inputPageNum)
+                   cyclePageDisplay(inputPageNum);
             }
 
             int saveIndex = mpdCombo->currentIndex();
@@ -1594,7 +1592,9 @@ void Gui::reloadCurrentPage(){
     }
 
     timer.start();
+
     displayPage();
+
     emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
                     .arg(displayPageNum)
                     .arg(elapsedTime(timer.elapsed())));
@@ -1621,7 +1621,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     timer.start();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, true/*reload*/);
+    cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
@@ -1722,7 +1722,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     clearTempCache();
 
     //reload current model
-    cyclePageDisplay(displayPageNum, true/*reload*/);
+    cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
@@ -1798,7 +1798,7 @@ void Gui::clearAllCaches(bool global)
     }
 
     //reload current model
-    cyclePageDisplay(displayPageNum, true/*reload*/);
+    cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                         .arg(ldrawFile.getPartCount())
@@ -1859,7 +1859,7 @@ void Gui::clearCustomPartCache(bool silent)
   if (Preferences::enableHighlightStep)
       processHighlightColourParts(overwrite, setup);  // (re)generate and archive highlight parts based on the loaded model file
   if (!getCurFile().isEmpty() && Preferences::modeGUI){
-      cyclePageDisplay(displayPageNum, true/*reload*/);
+      cyclePageDisplay(displayPageNum, FILE_RELOAD);
   }
 }
 
@@ -2096,7 +2096,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
     if (Preferences::enableFadeSteps)
         clearPrevStepPositions();
-    cyclePageDisplay(displayPageNum, true/*reload*/);
+    cyclePageDisplay(displayPageNum, FILE_RELOAD);
 }
 
 void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
@@ -2125,7 +2125,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
       if (Preferences::enableFadeSteps && !option) {
           clearPrevStepPositions();
       }
-      cyclePageDisplay(displayPageNum, true/*reload*/);
+      cyclePageDisplay(displayPageNum, FILE_RELOAD);
    }
 }
 
@@ -3829,11 +3829,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 clearTempCache();
 
                 //reload current model file
-                int savePage = displayPageNum;
-                openFile(curFile);
-                displayPageNum = pa ? savePage + pa : savePage;
-                displayPage();
-                enableActions();
+                cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
                 emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                 .arg(ldrawFile.getPartCount())
@@ -4338,15 +4334,12 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       clearTempCache();
 
       //reload current model file
-      int savePage = displayPageNum;
-      openFile(curFile);
-      displayPageNum = pa ? savePage + pa : savePage;
-      displayPage();
-      enableActions();
+      cyclePageDisplay(displayPageNum, FILE_RELOAD);
+
+      emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                      .arg(ldrawFile.getPartCount())
+                      .arg(elapsedTime(timer.elapsed())));
   }
-  emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                  .arg(ldrawFile.getPartCount())
-                  .arg(elapsedTime(timer.elapsed())));
 }
 
 void Gui::refreshLDrawUnoffParts() {

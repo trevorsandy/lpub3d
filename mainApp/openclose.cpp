@@ -421,13 +421,15 @@ bool Gui::loadFile(const QString &file)
         }
         // check if possible to load page number
         QSettings Settings;
+        int inputPageNum = displayPageNum;
         if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY))) {
-            displayPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY)).toInt();
+            inputPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY)).toInt();
             Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
         }
         Paths::mkDirs();
-        displayPage();
+        cyclePageDisplay(inputPageNum);
         enableActions();
+
         ldrawFile.showLoadMessages();
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :

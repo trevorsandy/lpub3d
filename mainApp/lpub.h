@@ -1420,7 +1420,7 @@ public slots:
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage();
   void reloadViewer();
-  void cyclePageDisplay(const int inputPageNum, bool reload = false);
+  void cyclePageDisplay(const int inputPageNum, int option = FILE_DEFAULT);
   void loadTheme();
   void restartApplication(bool changeLibrary = false, bool prompt = false);
   void resetModelCache(QString file = QString(), bool commandLine = false);

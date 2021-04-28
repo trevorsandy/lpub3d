@@ -77,8 +77,10 @@ enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
 enum PageDirection { DIRECTION_NOT_SET,
-                     PAGE_FORWARD,
-                     PAGE_NEXT = PAGE_FORWARD,
+                     FILE_DEFAULT  = DIRECTION_NOT_SET,
+                     FILE_RELOAD,
+                     PAGE_FORWARD  = FILE_RELOAD,
+                     PAGE_NEXT     = PAGE_FORWARD,
                      PAGE_JUMP_FORWARD,
                      PAGE_BACKWARD,
                      PAGE_PREVIOUS = PAGE_BACKWARD,
