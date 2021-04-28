@@ -79,7 +79,6 @@ QPolygonF PointerHeadItem::createPolygon()
                                  |
                                  v
     */
-
     const float unitX = width / DEFAULT_TIP_RATIO; // in pixels
     const float unitY = height / 2;                // in pixels
 
@@ -89,6 +88,23 @@ QPolygonF PointerHeadItem::createPolygon()
     polyF << QPointF(unitX/2 , 0);
     polyF << QPointF(-2*unitX,-unitY);
     polyF << QPointF(-2*unitX, 0);
+
+#ifdef QT_DEBUG_MODE
+    /*
+    logTrace() << "\n[DEBUG POINTER TIP POLYGON]:"
+               << "\nUNITS:       " << (resolutionType() == DPCM ? "CENTIMETERS:" : "INCHES:")
+               << "\nUNIT_X:      " << unitX
+               << "\nUNIT_Y:      " << unitY
+               << "\nTIP_WIDTH :  " << width
+               << "\nTIP_HEIGHT:  " << height
+               << "\nPOLY_POINT_A:" << polyF.at(0)
+               << "\nPOLY_POINT_B:" << polyF.at(1)
+               << "\nPOLY_POINT_C:" << polyF.at(2)
+               << "\nPOLY_POINT_D:" << polyF.at(3)
+               << "\nPOLY_POINT_E:" << polyF.at(4)
+                  ;
+    */
+#endif
 
     return polyF;
 }

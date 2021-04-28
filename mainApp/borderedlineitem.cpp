@@ -119,7 +119,6 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
 
     borderPolygon << pA << pB << pC << pD;
 
-#ifdef QT_DEBUG_MODE
     /*
      Border Polygon
 
@@ -133,6 +132,7 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
                     |
                     v
     */
+#ifdef QT_DEBUG_MODE
     /*
     logTrace() << "\n[DEBUG BORDERED POLYGON]:"
                << "\nUNITS:........       " << (resolutionType() == DPCM ? "CENTIMETERS:" : "INCHES:")

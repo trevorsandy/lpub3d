@@ -1451,6 +1451,28 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                     }
                 }
 
+                if (_result.attribType == PointerAttribData::Tip) {
+                    _result.lineData    = _value[pushed].lineData;
+                    _result.lineHere    = _value[pushed].lineHere;
+                    _result.borderData  = _value[pushed].borderData;
+                    _result.borderHere  = _value[pushed].borderHere;
+                } else {
+                    if (_result.attribType == PointerAttribData::Line) {
+                        _result.borderData  = _value[pushed].borderData;
+                        _result.borderHere  = _value[pushed].borderHere;
+                    }
+                    else if (_result.attribType == PointerAttribData::Border) {
+                        _result.lineData    = _value[pushed].lineData;
+                        _result.lineHere    = _value[pushed].lineHere;
+                    }
+                    if (_result.tipData.thickness == DEFAULT_BORDER_THICKNESS)
+                        _result.tipData.thickness  = _value[pushed].tipData.thickness;
+                    if (_result.tipData.tipWidth  == DEFAULT_TIP_WIDTH)
+                        _result.tipData.tipWidth   = _value[pushed].tipData.tipWidth;
+                    if (_result.tipData.tipHeight == DEFAULT_TIP_HEIGHT)
+                        _result.tipData.tipHeight  = _value[pushed].tipData.tipHeight;
+                }
+
                 _result.id     = haveId ? argv[idIndex].toInt() : 0;
                 _result.parent = haveParent ? argv[idIndex+1] : "";
 
@@ -1600,7 +1622,6 @@ PointerAttribData &PointerAttribMeta::parseAttributes(const QStringList &argv,Wh
 
 void PointerAttribMeta::setOtherDataInches(PointerAttribData pointerAttribData)
 {
-
   if (_value[pushed].attribType == PointerAttribData::Tip) {
       _value[pushed].lineData    = pointerAttribData.lineData;
       _value[pushed].lineHere    = pointerAttribData.lineHere;
