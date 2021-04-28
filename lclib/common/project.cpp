@@ -19,6 +19,7 @@
 #include "lc_bricklink.h"
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
+using namespace std;
 /*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)

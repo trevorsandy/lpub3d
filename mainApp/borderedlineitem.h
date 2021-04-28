@@ -35,8 +35,6 @@
 
 #include <cmath>
 
-using namespace std;
-
 class BorderedLineItem : public QGraphicsLineItem
 {
 public:

@@ -28,6 +28,8 @@
 #include "resolution.h"
 #include "QsLog.h"
 
+using namespace std;
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 
