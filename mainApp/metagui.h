@@ -1720,7 +1720,7 @@ public:
  *
  **********************************************************************/
 
-class OpenWithProgramDialogGui : public QObject
+class OpenWithProgramDialogGui : public QWidget
 {
     Q_OBJECT
 public:
@@ -1728,10 +1728,13 @@ public:
     ~OpenWithProgramDialogGui() {}
 
     void setOpenWithProgram();
-    void setProgramEntries();
+    void setProgramEntry(int i);
     void validateProgramEntries();
 
+    QIcon getProgramIcon(const QString &programPath);
+
 public slots:
+    void adjustWidget();
     void browseOpenWithProgram(bool);
     void browseSystemEditor(bool);
     void maxProgramsValueChanged(int);
