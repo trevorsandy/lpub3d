@@ -1401,7 +1401,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 
         bool haveParent = !noParent && idIndex > -1 && !argv[tip_idIndex+1].isEmpty();
 
-        if (ok && rc == OkRc) {
+        if (rc == OkRc) {
             if (scoped) {
                 _result = _value[pushed];
                 if (tip) {

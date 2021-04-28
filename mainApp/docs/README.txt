@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2519 (28 04 2021 13:45:00)
+LPub3D 2.4.2.1.2520 (28 04 2021 13:45:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517
+- Fix - Global callout pointer tip size settings don't have an effect #543
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497
 - Fix - Match XYZ axis, move and rotate overlay pointer colours #519
