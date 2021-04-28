@@ -6735,12 +6735,16 @@ void LDrawSearchDirDialog::buttonClicked()
     cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
     numChars = origPosition - cursor.position();
     if (sender() == pushButtonMoveUp) {
-      if (cursor.atStart())
+      if (cursor.atStart()) {
+        cursor.endEditBlock();
         return;
+      }
     } else if (sender() == pushButtonMoveDown) {
       cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-      if (cursor.atEnd())
+      if (cursor.atEnd()) {
+        cursor.endEditBlock();
         return;
+      }
       cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
       cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor);
     }
