@@ -468,6 +468,7 @@ public:
   int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
   int             saveGroupStepNum; // saved step group step number when pli per step is false
   int             saveDisplayPageNum; // saved display page number when counting pages
+  int             saveMaxPages;     // saved page count when count (actually parse) build mods requested
   int             firstStepPageNum; // the first Step page number - used to specify frontCover page
   int             lastStepPageNum;  // the last Step page number - used to specify backCover page
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
@@ -484,6 +485,7 @@ public:
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
   bool            resetCache;        // reset model, fade and highlight parts
+  bool            parseBuildModsAtCount; // parse build mods in countPage call - special case for jump forward
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
 

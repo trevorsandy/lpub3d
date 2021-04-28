@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2526 (28 04 2021 13:48:59)
+LPub3D 2.4.2.1.2527 (28 04 2021 13:49:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -31,6 +31,7 @@ Revisions:
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Build Modification - page count for multi-step page with submodel #520
+- Fix - Build modification - parse build mods from countPage call #520
 - Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517

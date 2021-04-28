@@ -719,6 +719,7 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
+  parseBuildModsAtCount = false;
   pageDirection = PAGE_NEXT;
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
@@ -794,6 +795,7 @@ bool Gui::openFile(QString &fileName)
 
   disableWatcher();
 
+  parseBuildModsAtCount = false;
   pageDirection = PAGE_NEXT;
   mloadingFile = true;
   parsedMessages.clear();

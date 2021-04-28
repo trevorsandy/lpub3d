@@ -3303,8 +3303,8 @@ Gui::Gui()
     qRegisterMetaType<LoadMsgType>("LoadMsgType");
     qRegisterMetaType<LogType>("LogType");
     qRegisterMetaType<MissingHeader>("MissingHeader");
-    qRegisterMetaType<Preferences::MsgKey>("MsgKey");
-    qRegisterMetaType<Preferences::MsgID>("MsgID");
+    qRegisterMetaType<Preferences::MsgKey>("Preferences::MsgKey");
+    qRegisterMetaType<Preferences::MsgID>("Preferences::MsgID");
     qRegisterMetaType<NameKeyAttributes>("NameKeyAttributes");
     qRegisterMetaType<NameKeyAttributes2>("NameKeyAttributes2");
     qRegisterMetaType<NativeType>("NativeType");

@@ -243,6 +243,7 @@ public:
     bool stepGroupBfxStore2;
     bool pageSizeUpdate;
     bool addCountPage;
+    bool parseBuildMods;
     bool countPageContains;
     bool resetIncludeRc;
     bool includeFileFound;
@@ -265,6 +266,7 @@ public:
           stepGroupBfxStore2(false),
           pageSizeUpdate    (false),
           addCountPage      (false),
+          parseBuildMods    (false),
           countPageContains (false),
           resetIncludeRc    (false),
           includeFileFound  (false),

@@ -337,6 +337,7 @@ class LDrawFile {
     void loadLDRFile(const QString &path, const QString &fileName);
     QStringList subFileOrder();
     QStringList includeFileList();
+    QVector<int> getSubmodelIndexes(const QString &fileName);
     
     QString readLine(const QString &fileName, int lineNumber);
     void insertLine( const QString &fileName, int lineNumber, const QString &line);
