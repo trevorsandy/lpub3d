@@ -568,7 +568,7 @@ bool Step::loadTheViewer(){
         viewerOptions->ImageWidth  = csiPixmap.width();
         viewerOptions->ImageHeight = csiPixmap.height();
         if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
+            emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with CSI key: %1")
                                  .arg(viewerStepKey));
             return false;
         }

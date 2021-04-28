@@ -57,7 +57,7 @@
 #include "progress_dialog.h"
 #include "waitingspinnerwidget.h"
 
-//3D Viewer
+//Visual Editor
 #include "camera.h"
 #include "lc_view.h"
 #include "piece.h"

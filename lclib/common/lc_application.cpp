@@ -1399,7 +1399,7 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 
 	bool OnlyUsePaths = false;
 
-	emit Application::instance()->splashMsgSig("45% - 3D Viewer widgets loading...");
+	emit Application::instance()->splashMsgSig("45% - Visual Editor widgets loading...");
 
 	if (!lcContext::InitializeRenderer())
 	{

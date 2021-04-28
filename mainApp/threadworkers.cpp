@@ -1323,7 +1323,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       }
   };
 
-  // Append custom parts to custom parts library for 3D Viewer's consumption
+  // Append custom parts to custom parts library for Visual Editor's consumption
   QTime dt;
   QElapsedTimer t, tf;
   bool reloadLibrary = true;

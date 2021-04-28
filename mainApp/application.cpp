@@ -982,18 +982,18 @@ void Application::initialize()
     // Check if preferred renderer set and launch Preference dialogue if not to set Renderer
     gui->getRequireds();
 
-    emit splashMsgSig("30% - 3D Viewer loading...");
+    emit splashMsgSig("30% - Visual Editor loading...");
 
     gApplication = new lcApplication();
 
-    emit splashMsgSig("35% - 3D Viewer defaults loading...");
+    emit splashMsgSig("35% - Visual Editor defaults loading...");
 
     Preferences::viewerPreferences();
 
-    emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
+    emit splashMsgSig(QString("40% - Visual Editor initialization..."));
 
     if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
-        emit gui->messageSig(LOG_ERROR, QString("Unable to initialize 3D Viewer."));
+        emit gui->messageSig(LOG_ERROR, QString("Unable to initialize Visual Editor."));
         gApplication->Shutdown();
         throw InitException{};
     } else {

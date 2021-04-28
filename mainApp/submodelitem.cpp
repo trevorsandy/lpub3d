@@ -1115,7 +1115,7 @@ void SubModel::getRightEdge(
 bool SubModel::loadTheViewer(){
     if (! gui->exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with Submodel key: %1")
+            emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Submodel key: %1")
                                  .arg(viewerSubmodelKey));
             return false;
         }

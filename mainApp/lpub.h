@@ -1922,7 +1922,7 @@ private:
   QMenu    *buildModMenu;
   QMenu    *rotateActionMenu;
 
-  // 3D Viewer Menus
+  // Visual Editor Menus
   QMenu* ViewerMenu;
   QMenu* FileMenuViewer;
   QMenu* ViewerExportMenu;

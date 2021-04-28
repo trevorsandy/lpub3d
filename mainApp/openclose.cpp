@@ -745,7 +745,7 @@ void Gui::closeModelFile(){
     disableWatcher();
     QString topModel = ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...
-    //3D Viewer
+    //Visual Editor
     if (Preferences::modeGUI) {
         enableBuildModMenuAndActions();
         enable3DActions(false);

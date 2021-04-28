@@ -739,7 +739,7 @@ void Gui::exportAsPdf()
             tr("PDF (*.pdf)"));
 
       if (fileName == "") {
-          // release 3D Viewer
+          // release Visual Editor
           emit setExportingSig(false);
           return;
         }
@@ -784,7 +784,7 @@ void Gui::exportAsPdf()
           if ( ! printFile.open(QFile::ReadWrite))
             return;
         } else {
-          // release 3D Viewer
+          // release Visual Editor
           emit setExportingSig(false);
           emit messageSig(LOG_STATUS, QString("Cannot open file. %1").arg(text));
           return;
@@ -1210,7 +1210,7 @@ void Gui::exportAsPdf()
   if (Preferences::modeGUI)
       m_progressDialog->hide();
 
-  // release 3D Viewer
+  // release Visual Editor
   emit setExportingSig(false);
 
   // return to whatever page we were viewing before printing
@@ -1318,7 +1318,7 @@ void Gui::exportAs(const QString &_suffix)
             QDir::currentPath(),
             QFileDialog::ShowDirsOnly);
       if (directoryName == "") {
-          // release 3D Viewer
+          // release Visual Editor
           emit setExportingSig(false);
           return;
       }
@@ -1575,7 +1575,7 @@ void Gui::exportAs(const QString &_suffix)
       restorePreferredRenderer();
   }
 
-  // release 3D Viewer
+  // release Visual Editor
   emit setExportingSig(false);
 
   // return to whatever page we were viewing before output
@@ -1932,7 +1932,7 @@ void Gui::Print(QPrinter* Printer)
         }
     }
 
-  // release 3D Viewer
+  // release Visual Editor
   setExportingSig(false);
 
   // return to whatever page we were viewing before output
