@@ -4796,6 +4796,8 @@ int Gui::setBuildModForNextStep(
         statusMessage(LOG_INFO_STATUS, QString("Build Modification Step Check - Model: '%1', Line '%2'...")
                                                .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
+        deleteBuildMods(buildModNextStepIndex);              // clear all build mods at and after next step index - used after jump ahead
+
         startLine = topOfStep.lineNumber;                    // set starting line number
 
 #ifdef QT_DEBUG_MODE

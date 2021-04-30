@@ -2637,10 +2637,9 @@ void LDrawFile::clearBuildModSteps(const QString &buildModKey)
         else
         {
             int action = i.value()._buildModAction;
-            emit gui->messageSig(LOG_TRACE, QString("Step Index: %1, Action: %2")
+            emit gui->messageSig(LOG_TRACE, QString("Removed Step Index: %1, Action: %2")
                                  .arg(i.value()._buildModStepIndex)
                                  .arg(action == BuildModApplyRc ? "Apply(64)" : action == BuildModRemoveRc ? "Remove(65)" : action == BuildModSourceRc ? "Source(67)" : "None(0)"));
-
         }
 #endif
         i++;
@@ -3146,6 +3145,16 @@ int LDrawFile::getBuildModStepIndex(const QString &buildModKey)
     }
 
     return -1;
+}
+
+void LDrawFile::deleteBuildMods(const int stepIndex)
+{
+    Q_FOREACH(const QString &key, getBuildModsList()) {
+        const int index = getBuildModStepIndex(key);
+        if (index >= stepIndex) {
+            deleteBuildMod(key);
+        }
+    }
 }
 
 bool LDrawFile::getBuildModStepIndexWhere(const int stepIndex, QString &modelName,int &modelIndex, int &lineNumber)

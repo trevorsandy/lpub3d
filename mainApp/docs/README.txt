@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2530 (30 04 2021 07:49:19)
+LPub3D 2.4.2.1.2531 (30 04 2021 07:49:55)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,10 +28,13 @@ Revisions:
 - How To - How to create a text URL with html using rich text edit and export to PDF #539
 - Fix - Abnormal end when deleting lines in the LDraw Editor #530
 - Fix - Build Modification - increment page display on forward jump and redraw #520
+- Fix - Build modification - insert build mod at countPage if not exist #520
 - Fix - Build Modification - line number when step bottom is new submodel #520
 - Fix - Build Modification - multi-step page with submodel invalid assembly #520
 - Fix - Build Modification - page count for multi-step page with submodel #520
 - Fix - Build modification - parse build mods from countPage call #520
+- Fix - Build modification - recursively get submodel indexes #520
+- Fix - Build modification - remove forward build mods after jump ahead #520
 - Fix - Build Modification - submodel preview display at first step-group step #520
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517

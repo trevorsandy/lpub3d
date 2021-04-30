@@ -956,6 +956,11 @@ public:
       return ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
+  void deleteBuildMods(const int &stepIndex)
+  {
+      ldrawFile.deleteBuildMods(stepIndex);
+  }
+
   QString getBuildModChangeKey()
   {
       return buildModChangeKey;
