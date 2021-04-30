@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2532 (30 04 2021 07:50:38)
+LPub3D 2.4.2.1.2533 (30 04 2021 07:51:13)
 
 Features, enhancements, fixes and changes
 ------------
@@ -37,6 +37,7 @@ Revisions:
 - Fix - Build modification - recursively get submodel indexes #520
 - Fix - Build modification - remove forward build mods after jump ahead #520
 - Fix - Build Modification - submodel preview display at first step-group step #520
+- Fix - Click and drag MULTI_STEP doesn't persist #544
 - Fix - Crash on add search directory #540
 - Fix - Disable automatic insertion of page/model #517
 - Fix - Global callout pointer tip size settings don't have an effect #543

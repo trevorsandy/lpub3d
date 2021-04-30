@@ -1536,7 +1536,8 @@ private:
   LGraphicsView         *KpageView;          // the visual representation of the scene
   WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
-  Where                  current;             // current line being parsed by drawPage
+  Meta                   meta;               // meta command container
+  Where                  current;            // current line being parsed by drawPage
   QString                curFile;            // the file name for MPD, or top level file
   QString                exportedFile;       // the print preview produced pdf file
   QElapsedTimer          timer;              // measure elapsed time for slow functions

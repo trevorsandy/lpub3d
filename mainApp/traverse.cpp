@@ -4359,7 +4359,7 @@ void Gui::countPages()
                   0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
 
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &page.meta, &ldrawFile, findOptions);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
       future.waitForFinished();
       pagesCounted();
    }
@@ -4391,6 +4391,7 @@ void Gui::drawPage(
     bool firstPage       = true;
     bool adjustTopOfStep = false;
     Where topOfStep      = current;
+    meta                 = Meta();
 
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
@@ -4472,7 +4473,6 @@ void Gui::drawPage(
   saveGroupStepNum     =  1 + sa;
   saveContStepNum      =  1 + sa;
 
-  Meta meta;
   QString empty;
   FindPageFlags flags;
 
@@ -4517,7 +4517,7 @@ void Gui::drawPage(
 
   } else {
 
-    QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &page.meta, &ldrawFile, findOptions);
+    QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
     if (exporting() || ContinuousPage() || mloadingFile) {
       future.waitForFinished();
       pagesCounted();
