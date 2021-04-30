@@ -410,6 +410,7 @@ bool    Preferences::archiveLSynthParts         = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::extendedSubfileSearch      = false;
+bool    Preferences::cycleEachPage              = false;
 
 bool    Preferences::pdfPageImage               = false;
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
@@ -3642,6 +3643,15 @@ void Preferences::userInterfacePreferences()
   if (!systemEditorInfo.exists()) {
       systemEditor.clear();
       Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
+  }
+
+  // check if cycle each step when navigating forward by more than one step is enabled
+  QString const cycleEachPageKey("CycleEachPage");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,cycleEachPageKey))) {
+      cycleEachPage = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,cycleEachPageKey),cycleEachPage);
+  } else {
+      cycleEachPage = Settings.value(QString("%1/%2").arg(SETTINGS,cycleEachPageKey)).toBool();
   }
 }
 

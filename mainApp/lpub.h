@@ -1787,6 +1787,7 @@ private slots:
     void addText();
     void addBom();
     void removeLPubFormatting();
+    void cycleEachPage();
 
     void nextPage();
     void nextPageContinuous();
@@ -1994,6 +1995,8 @@ private:
   QAction  *addTextAct;
   QAction  *addBomAct;
   QAction  *removeLPubFormattingAct;
+  QAction  *cycleEachPageAct;
+
 
   // view
   // zoom toolbar

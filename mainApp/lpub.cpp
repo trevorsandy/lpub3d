@@ -469,8 +469,6 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option)
     cancelContinuousPage();
   };
 
-Q_UNUSED(cycleDisplay)
-
   auto setDirection = [this, &goToPageNum] (int &move)
   {
     move = goToPageNum - displayPageNum;
@@ -490,23 +488,37 @@ Q_UNUSED(cycleDisplay)
       goToPageNum = pa ? savePage + pa : savePage;
       displayPageNum = 1 + pa;
       setDirection(move);
-//      if (move > 1 && Preferences::buildModEnabled) {
-//        cycleDisplay();
-//      } else {
+      if (move > 1) {
+        cycleDisplay();
+      } else {
         displayPageNum = goToPageNum;
         displayPage();
-//      }
+      }
       enableActions();
     }
   } else {
     setDirection(move);
-//    if (move > 1 && Preferences::buildModEnabled) {
-//      cycleDisplay();
-//    } else {
+    if (move > 1 && Preferences::cycleEachPage) {
+      cycleDisplay();
+    } else {
       displayPageNum = goToPageNum;
       displayPage();
-//    }
+    }
   }
+}
+
+void Gui::cycleEachPage()
+{
+    bool cycleEachPageCompare  = Preferences::cycleEachPage;
+    Preferences::cycleEachPage = cycleEachPageAct->isChecked();
+    bool cycleEachPageChanged  = Preferences::cycleEachPage  != cycleEachPageCompare;
+
+    if (cycleEachPageChanged) {
+        QSettings Settings;
+        QString const cycleEachPageKey("CycleEachPage");
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,cycleEachPageKey), Preferences::cycleEachPage);
+        emit messageSig(LOG_INFO,QString("Cycle each page step(s) when navigating forward by more than one page is %1").arg(Preferences::cycleEachPage? "ON" : "OFF"));
+    }
 }
 
 void Gui::enableNavigationActions(bool enable)
@@ -5182,6 +5194,12 @@ void Gui::createActions()
     zoomOutComboAct->setEnabled(false);
     connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
+    cycleEachPageAct = new QAction(QIcon(":/resources/cycleeachpage.png"),tr("Cycle Each Page"), this);
+    cycleEachPageAct->setStatusTip(tr("Cycle each page step(s) when navigating forward by more than one page - click to enable"));
+    cycleEachPageAct->setCheckable(true);
+    cycleEachPageAct->setChecked(Preferences::cycleEachPage);
+    connect(cycleEachPageAct, SIGNAL(triggered()), this, SLOT(cycleEachPage()));
+
     // firstPage,lastPage,nextPage,previousPage
     firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
     firstPageAct->setShortcut(tr("Ctrl+P"));
@@ -5824,6 +5842,8 @@ void Gui::createMenus()
     editMenu->addAction(addTextAct);
     editMenu->addAction(addBomAct);
     editMenu->addAction(removeLPubFormattingAct);
+    editMenu->addSeparator();
+    editMenu->addAction(cycleEachPageAct);
     editMenu->addSeparator();
 
     viewMenu = menuBar()->addMenu(tr("&View"));

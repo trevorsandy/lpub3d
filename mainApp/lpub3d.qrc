@@ -77,6 +77,7 @@
         <file alias="convertcalloutwithoutpointer16.png">resources/convertcalloutwithoutpointer16.png</file>
         <file alias="copy.png">resources/copy.png</file>
         <file alias="copytoclipboard.png">resources/copytoclipboard.png</file>
+        <file alias="cycleeachpage.png">resources/cycleeachpage.png</file>
         <file alias="csv32.png">resources/csv32.png</file>
         <file alias="cut.png">resources/cut.png</file>
         <file alias="dae32.png">resources/dae32.png</file>

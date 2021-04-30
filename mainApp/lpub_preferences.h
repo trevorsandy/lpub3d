@@ -296,6 +296,7 @@ class Preferences
     static bool    blenderIs28OrLater;
     static bool    buildModEnabled;
     static bool    finalModelEnabled;
+    static bool    cycleEachPage;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;
