@@ -602,42 +602,26 @@ int Gui::drawPage(
   auto insertBuildModification =
           [this,
           &opts,
-          &step,
           &buildModAttributes,
           &buildModKeys,
           &topOfStep] (int buildModLevel)
   {
-      int stepCsiParts      = opts.csiParts.size();
-      int fileNameIndex     = topOfStep.modelIndex;
-      int lineNumber        = topOfStep.lineNumber;
-      int stepNumber        = opts.stepNum;
       int buildModStepIndex = getBuildModStepIndex(topOfStep);
       QString buildModKey   = buildModKeys.value(buildModLevel);
+      QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
 
-      /* block below may be redundant */
-      QStringList stepKeys  = step->viewerStepKey.split(";");
-      if (stepKeys.size() < BM_STEP_KEYS) {
-          messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
-      } else {
-          bool ok[3];
-          fileNameIndex     = stepKeys[BM_STEP_MODEL_KEY].toInt(&ok[0]);
-          lineNumber        = stepKeys[BM_STEP_LINE_KEY].toInt(&ok[1]);
-          stepNumber        = stepKeys[BM_STEP_NUM_KEY].toInt(&ok[2]);
-          if (!ok[0] || !ok[1] || !ok[2])
-              messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(step->viewerStepKey));
-      }
-      /* block above may be redundant */
-
-      QVector<int> modAttributes = { 0, 0, 0, displayPageNum, stepCsiParts, fileNameIndex, lineNumber, stepNumber };
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-      if (i != buildModAttributes.end()) {
-          modAttributes = i.value();
-          modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
-          modAttributes[BM_STEP_PIECES]      = stepCsiParts;
-          modAttributes[BM_MODEL_NAME_INDEX] = fileNameIndex;
-          modAttributes[BM_MODEL_LINE_NUM]   = lineNumber;
-          modAttributes[BM_MODEL_STEP_NUM]   = stepNumber;
+      if (i == buildModAttributes.end()) {
+          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          return;
       }
+      modAttributes = i.value();
+
+      modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+      modAttributes[BM_STEP_PIECES]      = opts.csiParts.size();
+      modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+      modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNum;
 
 #ifdef QT_DEBUG_MODE
       emit messageSig(LOG_DEBUG, QString(
@@ -2120,7 +2104,7 @@ int Gui::drawPage(
                   buildMod.ignore = getLevel(QString(), BM_END);
                   break;
               }
-              if (buildMod.level > 1 && curMeta.LPub.buildMod.key().isEmpty())
+              if (buildMod.level > 1 && buildMod.key.isEmpty())
                   parseError("Key required for nested build mod meta command",
                              opts.current,Preferences::BuildModErrors);
               if (buildMod.state != BM_BEGIN)
@@ -2823,27 +2807,33 @@ int Gui::findPage(
 
   auto insertBuildModification =
          [this,
+          &opts,
           &buildModAttributes,
           &buildModKeys,
           &topOfStep] (int buildModLevel)
   {
       int buildModStepIndex = getBuildModStepIndex(topOfStep);
       QString buildModKey = buildModKeys.value(buildModLevel);
-      QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
+      QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-      if (i != buildModAttributes.end()) {
-          modAttributes = i.value();
-          modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
-          modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
-          modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      if (i == buildModAttributes.end()) {
+          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          return;
       }
+      modAttributes = i.value();
+
+      modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+      modAttributes[BM_STEP_PIECES]      = opts.flags.partsAdded;
+      modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+      modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
 
 #ifdef QT_DEBUG_MODE
     statusMessage(LOG_DEBUG, QString(
                   "Insert FindPage BuildMod StepIndex: %1, "
                   "Action: Apply(64), "
-                  "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                  "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
                   "ModKey: %10, "
                   "Level: %11")
                   .arg(buildModStepIndex)                      // Attribute Default Initial:
@@ -2851,10 +2841,10 @@ int Gui::findPage(
                   .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                   .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
                   .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
-                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
                   .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
                   .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
                   .arg(buildModKey)
                   .arg(buildModLevel));
 #endif
@@ -3306,6 +3296,7 @@ int Gui::findPage(
                     else if (buildModActions.value(buildMod.level) == BuildModRemoveRc)
                         buildMod.ignore = true;
                 }
+                // special case where callout or submodel is in a Build Mod
                 buildModInsert &= !isPreDisplayPage;
                 if (buildModInsert) {
                     buildModKeys.insert(buildMod.level, buildMod.key);
@@ -3494,8 +3485,9 @@ int Gui::findPage(
                             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
                         } // ! opts.flags.noStep
 
-                        // if page displayed, save state
+                        // if page displayed
                         if (opts.pageDisplayed) {
+                            // insert build modification
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     parseError(QString("Required meta BUILD_MOD END not found"),
@@ -4345,7 +4337,7 @@ void Gui::countPages()
       if (parseBuildModsAtCount) {
           flags.parseBuildMods = true;
           stepPageNum    = -1;
-          message = tr("Parsing build mods from countPage for jump to page %1...").arg(displayPageNum);
+          message = tr("Parsing build mods from countPage for jump to page %1...").arg(saveDisplayPageNum);
       } else {
           stepPageNum    = 1 + pa;
           writeToTmp();
@@ -4856,21 +4848,26 @@ int Gui::setBuildModForNextStep(
 
     auto insertBuildModification =
            [this,
+            &partsAdded,
             &buildModAttributes,
             &buildModKeys,
             &topOfStep] (int buildModLevel)
     {
         int buildModStepIndex = getBuildModStepIndex(topOfStep);
         QString buildModKey = buildModKeys.value(buildModLevel);
-        QVector<int> modAttributes = { 0, 0, 0, displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
+        QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
 
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-        if (i != buildModAttributes.end()) {
-            modAttributes = i.value();
-            modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
-            modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
-            modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+        if (i == buildModAttributes.end()) {
+            gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+            return;
         }
+        modAttributes = i.value();
+
+        modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+        modAttributes[BM_STEP_PIECES]      = partsAdded;
+        modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+        modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
 
 #ifdef QT_DEBUG_MODE
       statusMessage(LOG_DEBUG, QString(

@@ -3039,8 +3039,6 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
               s.value()._modified = true;
               s.value()._changedSinceLastWrite = true;
             }
-        }
-
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_TRACE, QString("Remove BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
                                                 .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
@@ -3048,6 +3046,7 @@ void LDrawFile::clearBuildModAction(const QString &buildModKey,const int stepInd
                                                 .arg(change ? "True" : "False")
                                                 .arg(modFileName));
 #endif
+        }
     }
 }
 

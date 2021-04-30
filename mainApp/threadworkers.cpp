@@ -2170,7 +2170,6 @@ int CountPageWorker::countPage(
 
   gui->saveStepPageNum = gui->stepPageNum;
 
-  // buffer exchange and part group vars
   QStringList             bfxParts;
   QList<PliPartGroupMeta> emptyPartGroups;
 
@@ -2196,7 +2195,8 @@ int CountPageWorker::countPage(
   QMap<int, QString>      buildModKeys;
   QMap<int, QVector<int>> buildModAttributes;
 
-  int buildModStepIndex;
+  int  buildModStepIndex  = -1;
+  bool buildModExists     = false;
 
   auto insertAttribute =
           [&buildMod,
@@ -2215,28 +2215,34 @@ int CountPageWorker::countPage(
   };
 
   auto insertBuildModification =
-         [&ldrawFile,
+         [&opts,
+          &ldrawFile,
           &buildModAttributes,
           &buildModKeys,
           &topOfStep] (int buildModLevel)
   {
       int buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
       QString buildModKey = buildModKeys.value(buildModLevel);
-      QVector<int> modAttributes = { 0, 0, 0, gui->displayPageNum, 0, topOfStep.modelIndex, topOfStep.lineNumber, 0 };
+      QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
-      if (i != buildModAttributes.end()) {
-          modAttributes = i.value();
-          modAttributes[BM_DISPLAY_PAGE_NUM] = gui->displayPageNum;
-          modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
-          modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      if (i == buildModAttributes.end()) {
+          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          return;
       }
+      modAttributes = i.value();
+
+      modAttributes[BM_DISPLAY_PAGE_NUM] = gui->saveDisplayPageNum;
+      modAttributes[BM_STEP_PIECES]      = opts.flags.partsAdded;
+      modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+      modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+      modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
 
 #ifdef QT_DEBUG_MODE
     gui->statusMessage(LOG_TRACE, QString(
                   "Insert CountPage BuildMod StepIndex: %1, "
                   "Action: Apply(64), "
-                  "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                  "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
                   "ModKey: %10, "
                   "Level: %11")
                   .arg(buildModStepIndex)                      // Attribute Default Initial:
@@ -2244,10 +2250,10 @@ int CountPageWorker::countPage(
                   .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                   .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
                   .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
-                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
                   .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
                   .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
                   .arg(buildModKey)
                   .arg(buildModLevel));
 #endif
@@ -2525,8 +2531,11 @@ int CountPageWorker::countPage(
               buildMod.ignore = false;
               // parse build mofifications
               if ( opts.flags.parseBuildMods) {
-                  buildModKeys.insert(buildMod.level, buildMod.key);
-                  insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
+                  buildModExists = ldrawFile->buildModContains(buildMod.key);
+                  if (! buildModExists && ! buildModKeys.contains(buildMod.level)) {
+                    buildModKeys.insert(buildMod.level, buildMod.key);
+                    insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, opts.current);
+                  }
               }
               buildMod.state = BM_BEGIN;
               break;
@@ -2573,12 +2582,13 @@ int CountPageWorker::countPage(
             case RotStepRc:
             case StepRc:
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
-
-                  // terminate build modification parse at end of simple step, callout step or step group
+                  // parse build modifications
                   if ( opts.flags.parseBuildMods) {
+                      // terminate build modification parse at end of simple step, callout step or step group
                       opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
                       if (! opts.flags.parseBuildMods && (! opts.flags.callout && ! opts.flags.stepGroup))
                          opts.flags.numLines = opts.current.lineNumber;
+                      // BuildMod create
                       if (buildModKeys.size()) {
                           if (buildMod.state != BM_END)
                               gui->parseError(QString("Required meta BUILD_MOD END not found"),
