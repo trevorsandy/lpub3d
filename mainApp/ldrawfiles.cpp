@@ -689,12 +689,35 @@ int LDrawFile::getSubmodelIndex(const QString &mcFileName)
 
 QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
 {
+    QVector<int> indexes, parsedIndexes;
+
+    if (fileName == topLevelFile())
+        return parsedIndexes;
+
+    auto getIndexes = [this, &parsedIndexes] (const QString &mcFileName, QVector<int> &indexes)
+    {
+        QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(mcFileName);
+        if (it != _subFiles.end()) {
+            Q_FOREACH(int i, it.value()._subFileIndexes) {
+                if (!indexes.contains(i) && !parsedIndexes.contains(i))
+                    indexes << i;
+            }
+        }
+    };
+
     QString mcFileName = fileName.toLower();
-    QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(mcFileName);
-    if (i != _subFiles.end()) {
-        return i.value()._subFileIndexes;
+    getIndexes(mcFileName, indexes);
+
+    while (! indexes.isEmpty()) {
+        const int modelIndex = indexes.takeFirst();
+        if (! parsedIndexes.contains(modelIndex)) {
+            mcFileName = getSubmodelName(modelIndex).toLower();
+            getIndexes(mcFileName, indexes);
+        }
+        parsedIndexes << modelIndex;
     }
-    return QVector<int>();
+
+    return parsedIndexes;
 }
 
 // The Line Type Index is the position of the type 1 line in the parsed subfile written to temp
