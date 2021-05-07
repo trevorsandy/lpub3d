@@ -4,44 +4,44 @@
   images:
     - title: Cover page with image
       alt: Cover Page
-      src: /assets/images/slider/1.png
-      data-src-2x: /assets/images/slider/1@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/1.png
+      src: /assets/images/screenshots/1.png
+      data-src-2x: /assets/images/screenshots/1@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/1.png
     - title: Fade previous step
       alt: Fade Step
-      data-src: /assets/images/slider/2.png
-      data-src-2x: /assets/images/slider/2@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/2.png
+      data-src: /assets/images/screenshots/2.png
+      data-src-2x: /assets/images/screenshots/2@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/2.png
     - title: Rotate step image
       alt: 3D Image Viewer
-      data-src: /assets/images/slider/3.png
-      data-src-2x: /assets/images/slider/3@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/3.png
+      data-src: /assets/images/screenshots/3.png
+      data-src-2x: /assets/images/screenshots/3@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/3.png
     - title: Split BOM across pages
       alt: BOM
-      data-src: /assets/images/slider/4.png
-      data-src-2x: /assets/images/slider/4@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/4.png
+      data-src: /assets/images/screenshots/4.png
+      data-src-2x: /assets/images/screenshots/4@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/4.png
     - title: Page setup dialogue
       alt: Page Setup
-      data-src: /assets/images/slider/5.png
-      data-src-2x: /assets/images/slider/5@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/5.png
+      data-src: /assets/images/screenshots/5.png
+      data-src-2x: /assets/images/screenshots/5@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/5.png
     - title: Realistic image rendering
       alt: POV-Ray Rendering
-      data-src: /assets/images/slider/6.png
-      data-src-2x: /assets/images/slider/6@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/6.png
+      data-src: /assets/images/screenshots/6.png
+      data-src-2x: /assets/images/screenshots/6@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/6.png
     - title: Edit renderer settings
       alt: Edit settings
-      data-src: /assets/images/slider/7.png
-      data-src-2x: /assets/images/slider/7@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/7.png
+      data-src: /assets/images/screenshots/7.png
+      data-src-2x: /assets/images/screenshots/7@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/7.png
     - title: Preference dialogue
       alt: Preferences
-      data-src: /assets/images/slider/8.png
-      data-src-2x: /assets/images/slider/8@2x.png
-      href: https://trevorsandy.github.io/lpub3d/assets/images/slider/8.png
+      data-src: /assets/images/screenshots/8.png
+      data-src-2x: /assets/images/screenshots/8@2x.png
+      href: https://trevorsandy.github.io/lpub3d/assets/images/screenshots/8.png
   settings:
     height: "'auto'"
     effect: "'fade'"

@@ -14,7 +14,7 @@ exclude:
 defaults:
   - scope:
       path: "/assets/images"
-      path: "/assets/images/slider"
+      path: "/assets/images/screenshots"
     values:
       image: true
 
