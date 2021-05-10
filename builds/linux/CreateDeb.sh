@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Sep 10, 2019
+# Last Update May 01, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -212,6 +212,10 @@ then
             LP3D_PLATFORM_NAME="disco" ;;
         19.10)
             LP3D_PLATFORM_NAME="eoan" ;;
+        20.04)
+            LP3D_PLATFORM_NAME="groovy" ;;
+        20.10)
+            LP3D_PLATFORM_NAME="focal" ;;
         *)
             LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
