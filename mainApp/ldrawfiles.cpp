@@ -613,13 +613,16 @@ void LDrawFile::setPrevStepPosition(
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
-    int lastStepPosition  = i.value()._prevStepPosition.at(PS_POS);
-    if (lastStepPosition != prevStepPosition) {
-        //i.value()._modified = true;
-        QVector<int> stepPositions = { prevStepPosition, lastStepPosition ,mcStepNumber };
+    int lastStepPosition = 0;
+    QVector<int> stepPositions = { prevStepPosition, lastStepPosition, mcStepNumber };
+    if (!i.value()._prevStepPosition.size())  {
         i.value()._prevStepPosition = stepPositions;
-        //i.value()._datetime = QDateTime::currentDateTime();
-        //i.value()._changedSinceLastWrite = true;  // remarked on build 491 28/12/2015
+    } else {
+      lastStepPosition = i.value()._prevStepPosition.at(PS_POS);
+      if (lastStepPosition && lastStepPosition != prevStepPosition) {
+          stepPositions = { prevStepPosition, lastStepPosition ,mcStepNumber };
+          i.value()._prevStepPosition = stepPositions;
+      }
     }
   }
 }
