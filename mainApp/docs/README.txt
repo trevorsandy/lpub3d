@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2541 (10 05 2021 22:57:49)
+LPub3D 2.4.2.1.2542 (10 05 2021 22:58:23)
 
 Features, enhancements, fixes and changes
 ------------
@@ -42,6 +42,7 @@ Revisions:
 - Fix - Crash on add search directory #540
 - Fix - Crash when adding pointers to callouts #550
 - Fix - Disable automatic insertion of page/model #517
+- Fix - Erroneous fade/highlight step meta command ignored message #505
 - Fix - Global callout pointer tip size settings don't have an effect #543
 - Fix - Global setting for callout pointer generating line instead of border meta #510
 - Fix - Image not updated on setting Stud Style from Global Setup #497

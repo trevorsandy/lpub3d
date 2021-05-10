@@ -1161,12 +1161,13 @@ int Gui::drawPage(
             case EnableFadeStepsCalloutAssemRc:
             case EnableFadeStepsGroupAssemRc:
             case EnableFadeStepsAssemRc:
-            case EnableFadeStepsRc:
               if ((rc == EnableFadeStepsCalloutAssemRc ? curMeta.LPub.callout.csi.fadeStep.enable.value() :
                    rc == EnableFadeStepsGroupAssemRc ? curMeta.LPub.multiStep.csi.fadeStep.enable.value() :
                    rc == EnableFadeStepsAssemRc ? curMeta.LPub.assem.fadeStep.enable.value() :
                          curMeta.LPub.fadeStep.enable.value()) && !setupFadeSteps) {
-                      parseError(tr("Fade previous steps command ignored. %1 must be set to TRUE.").arg(curMeta.LPub.fadeStep.enable.value() ? "FADE_STEP ENABLED" : "FADE_STEP SETUP (in the first step of the main model)"),opts.current);
+                      parseError(tr("Fade previous steps command ignored. %1 must be set to TRUE.")
+                                    .arg(curMeta.LPub.fadeStep.enable.value() ? "FADE_STEP ENABLED" :
+                                                                                "FADE_STEP SETUP (in the first step of the main model)"),opts.current);
               } else if (rc == EnableFadeStepsCalloutAssemRc) {
                   curMeta.LPub.callout.csi.fadeStep.setPreferences();
                   if (step)
@@ -1179,20 +1180,22 @@ int Gui::drawPage(
                   curMeta.LPub.assem.fadeStep.setPreferences();
                   if (step)
                       step->csiStepMeta.fadeStep = curMeta.LPub.assem.fadeStep;
-              } else {
-                  curMeta.LPub.fadeStep.setPreferences();
               }
+              break;
+            case EnableFadeStepsRc:
+                  curMeta.LPub.fadeStep.setPreferences();
               break;
 
             case EnableHighlightStepCalloutAssemRc:
             case EnableHighlightStepGroupAssemRc:
             case EnableHighlightStepAssemRc:
-            case EnableHighlightStepRc:
               if ((rc == EnableHighlightStepCalloutAssemRc ? curMeta.LPub.callout.csi.highlightStep.enable.value() :
                    rc == EnableHighlightStepGroupAssemRc ? curMeta.LPub.multiStep.csi.highlightStep.enable.value() :
                    rc == EnableHighlightStepAssemRc ? curMeta.LPub.assem.highlightStep.enable.value() :
                          curMeta.LPub.highlightStep.enable.value()) && !setupHighlightStep) {
-                  parseError(tr("Highlight current step command ignored. %1 must be set to TRUE.").arg(curMeta.LPub.highlightStep.enable.value() ? "HIGHLIGHT_STEP ENABLED" : "HIGHLIGHT_STEP SETUP (in the first STEP of the main model)"),opts.current);
+                  parseError(tr("Highlight current step command ignored. %1 must be set to TRUE.")
+                                .arg(curMeta.LPub.highlightStep.enable.value() ? "HIGHLIGHT_STEP ENABLED" :
+                                                                                 "HIGHLIGHT_STEP SETUP (in the first STEP of the main model)"),opts.current);
               } else if (rc == EnableHighlightStepCalloutAssemRc) {
                   curMeta.LPub.callout.csi.highlightStep.setPreferences();
                   if (step)
@@ -1205,9 +1208,11 @@ int Gui::drawPage(
                   curMeta.LPub.assem.highlightStep.setPreferences();
                   if (step)
                       step->csiStepMeta.highlightStep = curMeta.LPub.assem.highlightStep;
-              } else {
-                  curMeta.LPub.highlightStep.setPreferences();
               }
+              break;
+           case EnableHighlightStepRc:
+
+                  curMeta.LPub.highlightStep.setPreferences();
               break;
 
               /* Buffer exchange */
