@@ -86,15 +86,15 @@ The LPub3D build process automatically resolves required build dependencies acro
 * [QtMinGW][mingw64]: Qt MinGW (Up to v2.3.2)
 * [MSBuild - Visual Studio 2017][vs2017]: VS2017 is required to build LPub3D plus image renderers [LDView][ldview] and [LPub3D-Trace (POV-Ray)][povray]
 
-**Note:** From v2.3.3, the OOTB Windows build script [AutoBuild.cmd][autobuild] expects [Qt][qtwebsite] msvc2015 and msvc2015_64 at the following locations:
+**Note:** From v2.3.3, the OOTB Windows build script [AutoBuild.bat][autobuild] expects [Qt][qtwebsite] msvc2015 and msvc2015_64 at the following locations:
 * C:\Qt\IDE\5.11.3\msvc2015\bin
 * C:\Qt\IDE\5.11.3\msvc2015_64\bin
 
-**Note:** Up to v2.3.2, the OOTB Windows build script [AutoBuild.cmd][autobuild] expects [MSYS2][msys2]/[Mingw32][mingw64] and [Mingw64][mingw64] [Qt][qtwebsite] at the following locations:
+**Note:** Up to v2.3.2, the OOTB Windows build script [AutoBuild.bat][autobuild] expects [MSYS2][msys2]/[Mingw32][mingw64] and [Mingw64][mingw64] [Qt][qtwebsite] at the following locations:
 * C:\Msys2\Msys64\mingw32\bin
 * C:\Msys2\Msys64\mingw64\bin
 
-However, you may choose to download and install [Qt][qtwebsite] elsewhere, in which case you must change the [AutoBuild.cmd][autobuild] script paths above to the Qt install path. Also be sure to **not** select the **-all** install parameter if you do not have both 64 and 32bit Qt platforms installed.
+However, you may choose to download and install [Qt][qtwebsite] elsewhere, in which case you must change the [AutoBuild.bat][autobuild] script paths above to the Qt install path. Also be sure to **not** select the **-all** install parameter if you do not have both 64 and 32bit Qt platforms installed.
 
 **Note:** I use [Visual Studio 2017][vs2017], but it is possible to use other versions - for example Visual Studio 2015. Furthermore, there is a [msvc2017_64 bug][msvc2017-bug] that produces a [Qt bug][qtmscv2017-64-bug] (fixed in Visual Stuio 2019) which breaks the build. So for consistency, I build both 32 and 64bit distributions on msvc2015.
 
@@ -104,7 +104,7 @@ However, you may choose to download and install [Qt][qtwebsite] elsewhere, in wh
 - [ ] 2. get lpub3d source  
 `> git clone https:\\github.com\trevorsandy\lpub3d.git`
 - [ ] 3. enter source directory and execute package script  
-`> CD lpub3d & CALL builds\windows\AutoBuild.cmd -x86 -3rd -ins -chk`
+`> CD lpub3d & CALL builds\windows\AutoBuild.bat -x86 -3rd -ins -chk`
 - [ ] 4. copy builds\windows\release\LPub3D-Any-2.3.9.0.1228_20190418\LPub3D_x86\* to final destination
 `> XCOPY /Q /S /I /E /V /Y builds\windows\release\LPub3D-Any-2.3.9.0.1228_20190418\LPub3D_x86 %USERPROFILE%`
 - [ ] 5. have a :beer:
@@ -143,7 +143,7 @@ However, you may choose to download and install [Qt][qtwebsite] elsewhere, in wh
 [createrpm]:	     https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateRpm.sh
 [createpkg]:	     https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreatePkg.sh
 [createdeb]:	     https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/CreateDeb.sh
-[autobuild]:         https://github.com/trevorsandy/lpub3d/blob/master/builds/windows/AutoBuild.cmd
+[autobuild]:         https://github.com/trevorsandy/lpub3d/blob/master/builds/windows/AutoBuild.bat
 [msys2]:             http://www.msys2.org/
 [mingw64]:           https://github.com/Alexpux/mingw-w64
 [dockerinstall]:     https://www.docker.com/get-docker

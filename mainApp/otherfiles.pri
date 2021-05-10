@@ -96,7 +96,7 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/update-config-files.sh \
 ../builds/utilities/GetWindowsOpenSSL.bat \
 ../builds/utilities/version.info \
-../builds/windows/AutoBuild.cmd \
-../builds/windows/CreateExePkg.cmd \
+../builds/windows/AutoBuild.bat \
+../builds/windows/CreateExePkg.bat \
 ../builds/windows/RunBuildCheck.bat \
 ../.github/ISSUE_TEMPLATE.md

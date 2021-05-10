@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 29, 2020
+# Last Update: May 01, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -260,13 +260,13 @@ build_script:
       write-host "  Distribution Directory.........[$env:LP3D_PACKAGE_PATH]"
       write-host "  Working Directory..............[$PWD]"
       If ($env:LP3D_BUILD_PKG -eq "yes") {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -ins -chk 2`>`&1
+        cmd.exe /c builds\windows\AutoBuild.bat -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
         write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
       } ElseIf ($env:LP3D_COMPILE_SOURCE -eq "true") {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
+        cmd.exe /c builds\windows\AutoBuild.bat -all -3rd -chk 2`>`&1
       } ElseIf ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -ren 2`>`&1
+        cmd.exe /c builds\windows\AutoBuild.bat -all -ren 2`>`&1
       }
 
 test: off
@@ -281,7 +281,7 @@ test: off
 after_build:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes" -And [int]$env:LP3D_ARTEFACT_ITEM_COUNT -gt 350) {
-        cmd.exe /c builds\windows\CreateExePkg.cmd 2`>`&1
+        cmd.exe /c builds\windows\CreateExePkg.bat 2`>`&1
         builds\utilities\ci\set_ps_vars.ps1
         Get-ChildItem Env:* -Include ("LP3D_BUILD_*","LP3D_VERSION*","LP3D_APP_*", "LP3D_DOWNLOAD_*") | Sort-Object name
         write-host "`n"
