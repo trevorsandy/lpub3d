@@ -1562,8 +1562,8 @@ private:
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
   QStringList            programEntries;      // list of 'open with' programs populated on startup
 
-  bool                   setupFadeSteps;
-  bool                   setupHighlightStep;
+  bool                   mSetupFadeSteps;
+  bool                   mSetupHighlightStep;
 
   int                    m_workerJobResult;
 

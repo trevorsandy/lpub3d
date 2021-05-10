@@ -3039,9 +3039,9 @@ void Gui::preferences()
                             .arg(fadeStepsColourCompare.replace("_"," "))
                             .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
 
-        if (enableHighlightStepChanged)
+        if (enableHighlightStepChanged) {
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
-
+        }
         if (highlightFirstStepChanged     )
             emit messageSig(LOG_INFO,QString("Highlight First Step is %1").arg(Preferences::highlightFirstStep ? "ON" : "OFF"));
 
@@ -3134,7 +3134,6 @@ void Gui::preferences()
                                                                                      Preferences::enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
                                                                                                                              QString(" (Single Call)") :
                                                                                                                              QString() : QString()));
-
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
                 partWorkerLDSearchDirs.populateLdgLiteSearchDirs();
@@ -3642,6 +3641,9 @@ Gui::~Gui()
 
 void Gui::closeEvent(QCloseEvent *event)
 {
+  Preferences::resetFadeSteps();
+  Preferences::resetHighlightStep();
+  Preferences::resetPreferredRenderer();
 
   writeSettings();
 
@@ -3706,6 +3708,10 @@ void Gui::initialize()
   emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
 
   LDrawColor::LDrawColorInit();
+
+  Preferences::setInitFadeSteps();
+  Preferences::setInitHighlightStep();
+  Preferences::setInitPreferredRenderer();
 
   setCurrentFile("");
   updateOpenWithActions();
@@ -3824,8 +3830,8 @@ void Gui::reloadModelFileAfterColorFileGen() {
                                   .arg(Preferences::validLDrawLibrary).arg(entries);
         box.setText (message);
 
-        bool enableFadeSteps = setupFadeSteps || Preferences::enableFadeSteps;
-        bool enableHighlightSttep = setupHighlightStep || Preferences::enableHighlightStep;
+        bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
+        bool enableHighlightSttep = mSetupHighlightStep || Preferences::enableHighlightStep;
 
         if (enableFadeSteps || enableHighlightSttep) {
             QString body = QMessageBox::tr ("The color file list and current model must be reloaded.<br>Do you want to continue ?");

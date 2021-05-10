@@ -498,15 +498,16 @@ int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT
 int     Preferences::editorLinesPerPage         = EDITOR_MIN_LINES_DEFAULT;
 int     Preferences::editorDecoration           = EDITOR_DECORATION_DEFAULT;
 
-bool    Preferences::saveInitialFadeSteps       = false;
-bool    Preferences::saveEnableFadeSteps        = false;
-bool    Preferences::saveFadeStepsUseColour     = false;
-int     Preferences::saveFadeStepsOpacity       = FADE_OPACITY_DEFAULT;
-QString Preferences::saveValidFadeStepsColour   = LEGO_FADE_COLOUR_DEFAULT;
-bool    Preferences::saveInitialHighlightStep   = false;
-bool    Preferences::saveEnableHighlightStep    = false;
-int     Preferences::saveHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-QString Preferences::saveHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
+bool    Preferences::initEnableFadeSteps        = false;
+bool    Preferences::initFadeStepsUseColour     = false;
+int     Preferences::initFadeStepsOpacity       = FADE_OPACITY_DEFAULT;
+QString Preferences::initValidFadeStepsColour   = LEGO_FADE_COLOUR_DEFAULT;
+
+bool    Preferences::initEnableHighlightStep    = false;
+int     Preferences::initHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+QString Preferences::initHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
+
+int     Preferences::initPreferredRenderer      = RENDERER_NATIVE;
 
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
@@ -2057,13 +2058,6 @@ void Preferences::fadestepPreferences(bool persist)
         }
     }
 
-    if (!saveInitialFadeSteps) {
-        saveInitialFadeSteps     = true;
-        saveEnableFadeSteps      = enableFadeSteps;
-        saveFadeStepsUseColour   = fadeStepsUseColour;
-        saveFadeStepsOpacity     = fadeStepsOpacity;
-        saveValidFadeStepsColour = validFadeStepsColour;
-    }
 }
 
 void Preferences::highlightstepPreferences(bool persist)
@@ -2125,12 +2119,6 @@ void Preferences::highlightstepPreferences(bool persist)
                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawColourPartsFile"),cValue);
             }
         }
-    }
-    if (!saveInitialHighlightStep) {
-        saveInitialHighlightStep   = true;
-        saveEnableHighlightStep    = enableHighlightStep;
-        saveHighlightStepLineWidth = highlightStepLineWidth;
-        saveHighlightStepColour    = highlightStepColour;
     }
 }
 
@@ -4486,6 +4474,7 @@ bool Preferences::getPreferences()
 
         if (preferredRenderer != dialog->preferredRenderer()) {
             preferredRenderer = dialog->preferredRenderer();
+            initPreferredRenderer = preferredRenderer;
             if (preferredRenderer == RENDERER_INVALID) {
                 Settings.remove(QString("%1/%2").arg(SETTINGS,"PreferredRenderer"));
             } else {
@@ -4598,7 +4587,8 @@ bool Preferences::getPreferences()
 
         if (enableFadeSteps != dialog->enableFadeSteps())
         {
-            enableFadeSteps = dialog->enableFadeSteps();
+            enableFadeSteps     = dialog->enableFadeSteps();
+            initEnableFadeSteps = enableFadeSteps;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
         }
 
@@ -4647,36 +4637,42 @@ bool Preferences::getPreferences()
         if (fadeStepsOpacity != dialog->fadeStepsOpacity())
         {
             fadeStepsOpacity = dialog->fadeStepsOpacity();
+            initFadeStepsOpacity = fadeStepsOpacity;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"),fadeStepsOpacity);
         }
 
         if (fadeStepsUseColour != dialog->fadeStepsUseColour())
         {
             fadeStepsUseColour = dialog->fadeStepsUseColour();
+            initFadeStepsUseColour = fadeStepsUseColour;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour"),fadeStepsUseColour);
         }
 
         if (validFadeStepsColour != dialog->fadeStepsColour())
         {
             validFadeStepsColour = dialog->fadeStepsColour();
+            initValidFadeStepsColour = validFadeStepsColour;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),validFadeStepsColour);
         }
 
         if (highlightStepColour != dialog->highlightStepColour())
         {
             highlightStepColour = dialog->highlightStepColour();
+            initHighlightStepColour = highlightStepColour;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepColor"),highlightStepColour);
         }
 
         if (enableHighlightStep != dialog->enableHighlightStep())
         {
             enableHighlightStep = dialog->enableHighlightStep();
+            initEnableHighlightStep = enableHighlightStep;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableHighlightStep"),enableHighlightStep);
         }
 
         if (enableHighlightStep && (highlightStepLineWidth != dialog->highlightStepLineWidth()))
         {
             highlightStepLineWidth = dialog->highlightStepLineWidth();
+            initHighlightStepLineWidth = highlightStepLineWidth;
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),highlightStepLineWidth);
         }
 
@@ -5007,29 +5003,63 @@ void Preferences::getRequireds()
     }
 }
 
-void Preferences::setLPub3DLoaded(){
-    lpub3dLoaded = true;
+void Preferences::setInitFadeSteps()
+{
+    initEnableFadeSteps      = enableFadeSteps;
+    initFadeStepsUseColour   = fadeStepsUseColour;
+    initFadeStepsOpacity     = fadeStepsOpacity;
+    initValidFadeStepsColour = validFadeStepsColour;
 }
 
+void Preferences::setInitHighlightStep()
+{
+    initEnableHighlightStep    = enableHighlightStep;
+    initHighlightStepLineWidth = highlightStepLineWidth;
+    initHighlightStepColour    = highlightStepColour;
+}
+
+void Preferences::setInitPreferredRenderer()
+{
+    initPreferredRenderer = preferredRenderer;
+}
+
+// source reset calls
 void Preferences::resetFadeSteps()
 {
-    saveInitialFadeSteps = false;
-    enableFadeSteps      = saveEnableFadeSteps;
-    fadeStepsUseColour   = saveFadeStepsUseColour;
-    fadeStepsOpacity     = saveFadeStepsOpacity;
-    validFadeStepsColour = saveValidFadeStepsColour;
+    if (enableFadeSteps      != initEnableFadeSteps)
+        enableFadeSteps       = initEnableFadeSteps;
+    if (fadeStepsUseColour   != initFadeStepsUseColour)
+        fadeStepsUseColour    = initFadeStepsUseColour;
+    if (fadeStepsOpacity     != initFadeStepsOpacity)
+        fadeStepsOpacity      = initFadeStepsOpacity;
+    if (validFadeStepsColour != initValidFadeStepsColour)
+        validFadeStepsColour  = initValidFadeStepsColour;
 
     fadestepPreferences(true/*persist*/);
 }
 
 void Preferences::resetHighlightStep()
 {
-    saveInitialHighlightStep = false;
-    enableHighlightStep      = saveEnableHighlightStep;
-    highlightStepLineWidth   = saveHighlightStepLineWidth;
-    highlightStepColour      = saveHighlightStepColour;
+    if (enableHighlightStep    != initEnableHighlightStep)
+        enableHighlightStep     = initEnableHighlightStep;
+    if (highlightStepLineWidth != initHighlightStepLineWidth)
+        highlightStepLineWidth  = initHighlightStepLineWidth;
+    if (highlightStepColour    != initHighlightStepColour)
+        highlightStepColour     = initHighlightStepColour;
 
     highlightstepPreferences(true/*persist*/);
+}
+
+void Preferences::resetPreferredRenderer()
+{
+    if (preferredRenderer != initPreferredRenderer)
+        preferredRenderer = initPreferredRenderer;
+
+    preferredRendererPreferences(true/*persist*/);
+}
+
+void Preferences::setLPub3DLoaded(){
+    lpub3dLoaded = true;
 }
 
 /*

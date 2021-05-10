@@ -719,17 +719,18 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
-  parseBuildModsAtCount = false;
   pageDirection = PAGE_NEXT;
+  parseBuildModsAtCount = false;
+  Preferences::resetFadeSteps();
+  Preferences::resetHighlightStep();
+  Preferences::resetPreferredRenderer();
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
   Preferences::preferredRendererPreferences();
   Preferences::fadestepPreferences();
   Preferences::highlightstepPreferences();
-  Preferences::resetFadeSteps();
-  Preferences::resetHighlightStep();
-  setupFadeSteps = false;
-  setupHighlightStep = false;
+  mSetupFadeSteps = false;
+  mSetupHighlightStep = false;
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
       ldrawColourParts.clearGeneratedColorParts();
       partWorkerLDSearchDirs.removeCustomDirs();
@@ -799,6 +800,9 @@ bool Gui::openFile(QString &fileName)
   pageDirection = PAGE_NEXT;
   mloadingFile = true;
   parsedMessages.clear();
+  Preferences::setInitFadeSteps();
+  Preferences::setInitHighlightStep();
+  Preferences::setInitPreferredRenderer();
   clearPage(KpageView,KpageScene,true);
   closeFile();
   if (GetViewPieceIcons())
@@ -817,11 +821,11 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
-  setupFadeSteps = setFadeStepsFromCommand();
-  setupHighlightStep = setHighlightStepFromCommand();
-  bool enableFadeSteps = setupFadeSteps || Preferences::enableFadeSteps;
-  bool enableHighlightSttep = setupHighlightStep || Preferences::enableHighlightStep;
-  if (enableFadeSteps || enableHighlightSttep) {
+  mSetupFadeSteps = setFadeStepsFromCommand();
+  mSetupHighlightStep = setHighlightStepFromCommand();
+  bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
+  bool enableHighlightStep = mSetupHighlightStep || Preferences::enableHighlightStep;
+  if (enableFadeSteps || enableHighlightStep) {
     ldrawColorPartsLoad();
     writeGeneratedColorPartsToTemp();
     // archive fade/highlight colour parts
@@ -833,10 +837,10 @@ bool Gui::openFile(QString &fileName)
       partWorkerLDSearchDirs.setDoFadeStep(true);
       processFadeColourParts(false/*overwrite*/, enableFadeSteps);
     }
-    if (enableHighlightSttep) {
+    if (enableHighlightStep) {
       emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
       partWorkerLDSearchDirs.setDoHighlightStep(true);
-      processHighlightColourParts(false/*overwrite*/, enableHighlightSttep);
+      processHighlightColourParts(false/*overwrite*/, enableHighlightStep);
     }
   }
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
@@ -1010,7 +1014,6 @@ void Gui::writeGeneratedColorPartsToTemp() {
 bool Gui::setFadeStepsFromCommand()
 {
   QString result;
-
   Where topLevelModel(gui->topLevelFile(),0);
   QRegExp fadeRx = QRegExp("FADE_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableFadeSteps) {
@@ -1032,8 +1035,11 @@ bool Gui::setFadeStepsFromCommand()
     }
   }
 
-  emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps %1.")
-                                          .arg(Preferences::enableFadeSteps ? "is ON" : setupFadeSteps ? "Setup is Enabled" : "is OFF"));
+  if (Preferences::enableFadeSteps != Preferences::initEnableFadeSteps)
+    emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
+                                            .arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
+  if (setupFadeSteps)
+     emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
 
   if (!Preferences::enableFadeSteps && !setupFadeSteps)
     return false;
@@ -1047,7 +1053,7 @@ bool Gui::setFadeStepsFromCommand()
     Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
-      emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
+      emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
                                        .arg(fadeStepsOpacityCompare)
                                        .arg(Preferences::fadeStepsOpacity));
   }
@@ -1060,12 +1066,12 @@ bool Gui::setFadeStepsFromCommand()
     bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
     Preferences::fadeStepsUseColour = ParsedColor.isValid();
     if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
-      emit messageSig(LOG_INFO,QString("Use Fade Color is %1")
+      emit messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
                                        .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
-      emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
+      emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
                                        .arg(fadeStepsColourCompare.replace("_"," "))
                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
@@ -1097,8 +1103,11 @@ bool Gui::setHighlightStepFromCommand()
     }
   }
 
-  messageSig(LOG_INFO,QString("Highlight Current Step %1.")
-                              .arg(Preferences::enableHighlightStep ? "is ON" : setupHighlightStep ? "Setup is Enabled" : "is OFF"));
+  if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
+    emit messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
+                                            .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
+  if (setupHighlightStep)
+     emit messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
 
   if (!Preferences::enableHighlightStep && !setupHighlightStep)
     return false;
@@ -1112,7 +1121,7 @@ bool Gui::setHighlightStepFromCommand()
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
-      messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
+      messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
                                   .arg(highlightStepColourCompare)
                                   .arg(Preferences::highlightStepColour));
   }
@@ -1125,7 +1134,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
   if (preferredRenderer.isEmpty())
       return false;
 
-  int renderer = RENDERER_INVALID;
+  int renderer = Preferences::preferredRenderer;
   bool useLDVSingleCall = false;
   bool useLDVSnapShotList = false;
   bool useNativeGenerator = true;
@@ -1153,8 +1162,6 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
     emit messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
     return rendererChanged;
   }
-
-  rendererChanged = Preferences::preferredRenderer != renderer;
 
   if (renderer == RENDERER_LDVIEW) {
     if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
@@ -1188,6 +1195,15 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
     }
   }
 
+  rendererChanged = renderer != Preferences::preferredRenderer;
+
+  if (rendererChanged) {
+    Preferences::preferredRenderer = renderer;
+    Render::setRenderer(Preferences::preferredRenderer);
+    Preferences::preferredRendererPreferences(true/*global*/);
+    Preferences::updatePOVRayConfigFiles();
+  }
+
   if (rendererChanged || renderFlagChanged) {
     message = QString("Renderer preference changed from %1 to %2%3.")
                       .arg(rendererNames[Preferences::preferredRenderer])
@@ -1199,13 +1215,6 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
                                                                               QString(" (Single Call)") :
                                                                               QString() : QString());
     emit messageSig(LOG_INFO,message);
-  }
-
-  if (rendererChanged) {
-    Preferences::preferredRenderer = renderer;
-    Render::setRenderer(Preferences::preferredRenderer);
-    Preferences::preferredRendererPreferences(true/*global*/);
-    Preferences::updatePOVRayConfigFiles();
   }
 
   return rendererChanged;
