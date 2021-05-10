@@ -611,18 +611,11 @@ void LDrawFile::setPrevStepPosition(
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-
   if (i != _subFiles.end()) {
-    int lastStepPosition = 0;
-    QVector<int> stepPositions = { prevStepPosition, lastStepPosition, mcStepNumber };
-    if (!i.value()._prevStepPosition.size())  {
+    const int lastStepPosition = i.value()._prevStepPosition.size() ? i.value()._prevStepPosition.at(PS_POS) : PS_POS ;
+    if (lastStepPosition != prevStepPosition) {
+        QVector<int> stepPositions = { prevStepPosition, lastStepPosition, mcStepNumber };
         i.value()._prevStepPosition = stepPositions;
-    } else {
-      lastStepPosition = i.value()._prevStepPosition.at(PS_POS);
-      if (lastStepPosition && lastStepPosition != prevStepPosition) {
-          stepPositions = { prevStepPosition, lastStepPosition ,mcStepNumber };
-          i.value()._prevStepPosition = stepPositions;
-      }
     }
   }
 }
@@ -1527,7 +1520,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 {
     if (_subFiles[fileName]._contents.isEmpty()) {
-
         QString fullName(path + QDir::separator() + fileName);
 
         QFile file(fullName);
@@ -1747,7 +1739,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
                     if (subFileFound) {
                         emit gui->messageSig(LOG_NOTICE, QString("Subfile %1 detected").arg(subFileInfo.fileName()));
-                        topLevelModel         = false;
+                        topLevelModel     = false;
                         hdrNameNotFound   = true;
                         hdrAuthorNotFound = true;
                         loadLDRFile(subFileInfo.absolutePath(),subFileInfo.fileName());

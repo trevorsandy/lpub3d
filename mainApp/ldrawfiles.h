@@ -73,6 +73,7 @@ class LDrawSubFile {
     LDrawSubFile()
     {
       _unofficialPart = 0;
+      _prevStepPosition = { 0,0,0 };
     }
     LDrawSubFile(
             const QStringList &contents,
@@ -85,6 +86,11 @@ class LDrawSubFile {
     {
       _contents.clear();
       _smiContents.clear();
+      _lineTypeIndexes.clear();
+      _subFileIndexes.clear();
+      _prevStepPosition.clear();
+      _renderedKeys.clear();
+      _mirrorRenderedKeys.clear();
     }
 };
 
