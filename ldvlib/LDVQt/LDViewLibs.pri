@@ -187,6 +187,7 @@ contains(LOAD_LDVLIBS,True) {
         JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-vs2015.lib )
         ZLIB_DEP          = $$system_path( $${LDVLIBRARY}/zlib-vs2015.lib )
     } else {
+        unix:!macx: IS_LINUX = True
         # source paths
         _LDLIB_DEP        = $$system_path( $${LDVLIBDIR}/libLDraw-osmesa.a )
         _LDEXPORTER_DEP   = $$system_path( $${LDVLIBDIR}/libLDExporter-osmesa.a )
@@ -199,12 +200,7 @@ contains(LOAD_LDVLIBS,True) {
         _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds.a )
         _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng.a )
         _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
-        macx {
-            _MINIZIP_DEP  = $$system_path( $${LDVLIBDIR}/libminizip.a )
-        } else {
-            _MINIZIP_DEP  =
-            IS_LINUX      = True
-        }
+        _MINIZIP_DEP      =
 
         # library name
         LDLIB_LIB        = -lLDraw-osmesa
@@ -257,8 +253,7 @@ contains(LOAD_LDVLIBS,True) {
          !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
 #        else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
     } else {
-         contains(IS_LINUX,True): USE_LOCAL_MINIZIP_LIB = False \
-         else: !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
+         USE_LOCAL_MINIZIP_LIB = False
 #        else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
     }
 
