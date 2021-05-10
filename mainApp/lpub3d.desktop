@@ -8,5 +8,5 @@ Terminal=false
 Type=Application
 Icon=lpub3d
 MimeType=application/x-ldraw;application/x-multi-part-ldraw;application/x-multipart-ldraw;
-Keywords=;Instructions;Building;CAD;CAI;LEGO;LDraw;Renderer;Viewer;POVRay;LDView;LDGLite;Editor;
-Categories=Graphics;3DGraphics;Publishing;Viewer;Education;Engineering;
+Categories=Graphics;3DGraphics;Publishing;Engineering;
+Keywords=;Building;CAD;CAI;Editor;Education;Instructions;LDraw;LEGO;Publishing;Renderer;Viewer;

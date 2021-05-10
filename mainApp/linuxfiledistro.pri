@@ -22,25 +22,35 @@ unix:!macx {
 
     # These defines point LPub3D to the platform-specific content
     # when performing 'check for update' downloads
-    # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|dmg> accordingly
+    # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|flp|dmg> accordingly
 
     # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
     deb: BUILD_CODE = deb
     rpm: BUILD_CODE = rpm
     pkg: BUILD_CODE = pkg
     api: BUILD_CODE = api
+    flp: {
+        BUILD_CODE = flp
+        _PLATFORM_CODE = osl
+        COPY_CMD = cp -f
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/) )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/) )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/ ) )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/ ) )
+    }
 
     _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")
     if (contains(_PLATFORM_ID, ubuntu)|contains(_PLATFORM_ID, debian)) {
-       HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
        contains(_PLATFORM_ID, ubuntu): _PLATFORM_CODE = ubu
        else: _PLATFORM_CODE = db
        contains(QT_ARCH, x86_64): _TARGET_CPU = amd64
        else: _TARGET_CPU = i386
     } else {
-       _PLATFORM_CODE = $$(PLATFORM_CODE)
+       isEmpty(_PLATFORM_CODE): _PLATFORM_CODE = $$(PLATFORM_CODE)
        _TARGET_CPU = $${BUILD_ARCH}
+       contains(BUILD_ARCH, UNKNOWN ARCH): _TARGET_CPU =
     }
+
     isEmpty(HOST_VERSION):   message("~~~ ERROR - PLATFORM_VERSION NOT DETECTED ~~~")
     isEmpty(_PLATFORM_CODE): message("~~~ ERROR - PLATFORM_CODE NOT DETECTED ~~~")
     isEmpty(_TARGET_CPU):    message("~~~ ERROR - PLATFORM_CPU NOT DETECTED ~~~")
@@ -53,19 +63,24 @@ unix:!macx {
     MAN_PAGE = $$join(MAN_PAGE,,,.1)
 
     # These settings are used for package distributions that will require elevated rights to install
-    isEmpty(INSTALL_PREFIX):INSTALL_PREFIX = /usr
-    isEmpty(SHARE_DIR):SHARE_DIR = $$INSTALL_PREFIX/share
+    isEmpty(INSTALL_PREFIX): INSTALL_PREFIX = /usr
+    
+    isEmpty(BIN_DIR): BIN_DIR               = $$INSTALL_PREFIX/bin
+    isEmpty(SHARE_DIR): SHARE_DIR           = $$INSTALL_PREFIX/share
+    isEmpty(THIRD_PARTY_EXE_DIR):  flp: \
+    THIRD_PARTY_EXE_DIR                     = $$INSTALL_PREFIX/opt/$$DIST_TARGET
+    else: isEmpty(THIRD_PARTY_EXE_DIR): \
+    THIRD_PARTY_EXE_DIR                     = /opt/$$DIST_TARGET
 
-    isEmpty(BIN_DIR):BIN_DIR               = $$INSTALL_PREFIX/bin
-
-    isEmpty(DOCS_DIR):DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
-    isEmpty(ICON_DIR):ICON_DIR             = $$SHARE_DIR/icons
-    isEmpty(APPDATA_DIR):APPDATA_DIR       = $$SHARE_DIR/metainfo
-    isEmpty(MAN_DIR):MAN_DIR               = $$SHARE_DIR/man/man1
-    isEmpty(DESKTOP_DIR):DESKTOP_DIR       = $$SHARE_DIR/applications
-    isEmpty(MIME_DIR):MIME_DIR             = $$SHARE_DIR/mime/packages
-    isEmpty(MIME_ICON_DIR):MIME_ICON_DIR   = $$SHARE_DIR/icons/hicolor/scalable/mimetypes
-    isEmpty(RESOURCE_DIR):RESOURCE_DIR     = $$SHARE_DIR/$$DIST_TARGET
+    isEmpty(DOCS_DIR): DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
+    isEmpty(ICON_DIR): ICON_DIR             = $$SHARE_DIR/icons
+    isEmpty(APPDATA_DIR): APPDATA_DIR       = $$SHARE_DIR/metainfo
+    isEmpty(MAN_DIR): MAN_DIR               = $$SHARE_DIR/man/man1   
+    isEmpty(DESKTOP_DIR): DESKTOP_DIR       = $$SHARE_DIR/applications
+    isEmpty(MIME_DIR): MIME_DIR             = $$SHARE_DIR/mime/packages
+    isEmpty(MIME_ICON_DIR): MIME_ICON_DIR   = $$SHARE_DIR/icons/hicolor/scalable/mimetypes
+   
+    isEmpty(RESOURCE_DIR): RESOURCE_DIR     = $$SHARE_DIR/$$DIST_TARGET
 
     target.path = $$BIN_DIR
 
@@ -79,22 +94,20 @@ unix:!macx {
     desktop.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.desktop)
     desktop.path = $$DESKTOP_DIR
 
-    api {
-        # org.trevorsandy.lpub3d.appdata.xml
-        appstream_appdata.files += $$_PRO_FILE_PWD_/org.trevorsandy.$$join(DIST_TARGET,,,.appdata.xml)
-        appstream_appdata.path = $$APPDATA_DIR
-    }
+    # lpub3d.appdata.xml
+    appstream_appdata.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.appdata.xml)
+    appstream_appdata.path = $$APPDATA_DIR
     
     icons.path   = $$ICON_DIR/hicolor
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/128x128
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/16x16
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/24x24
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/256x256
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/32x32
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/48x48
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/512x512
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/64x64
-	icons.files += $$_PRO_FILE_PWD_/resources/icon/scalable
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/128x128
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/16x16
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/24x24
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/256x256
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/32x32
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/48x48
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/512x512
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/64x64
+    icons.files += $$_PRO_FILE_PWD_/resources/icon/scalable
 
     mime.files += $$_PRO_FILE_PWD_/$$join(DIST_TARGET,,,.xml)
     mime.path = $$MIME_DIR
@@ -172,15 +185,22 @@ unix:!macx {
     ldv_messages_ini
 
     api {
-# On OBS, this appdata scheme is fucked!
-# No matter what I try, validation across x86 and ARM AppImage builds fail on OBS.
-# On Ubuntu (Travis) there is no evidence of validation but builds are successful.
-# On x86_64 builds validation is reported as successful but there is also a message
-# stating no appstream meta info was found. On ARM builds validation fails with
-# invalid tag 'launchable' - this tag is valid. I spent 2 days on this and zero.
-# I give up!
-#        INSTALLS += \
-#        appstream_appdata
+    # On OBS, the AppImage appstream appdata scheme is fucked!
+    # No matter what I try, validation across x86 and ARM AppImage builds fail.
+    # On x86_64 build validation is reported as successful but there is also a message
+    # stating no appstream meta info was found. On ARM builds validation fails with
+    # invalid tag 'launchable' - this tag is valid. I spent 2 days on this and zero.
+    # See this going forward: https://github.com/AppImage/AppImageKit/issues/603#issuecomment-355105387
+    # I give up!
+    # On Travis-CI (Ubuntu 16.04) there is no evidence of validation but builds are successful.
+        TRAVIS_COMMIT = $$(TRAVIS_COMMIT)
+        !isEmpty(TRAVIS_COMMIT) {
+            INSTALLS += \
+                appstream_appdata     
+        }
+    } else:flp {
+        INSTALLS += \
+        appstream_appdata
     }
 
     # The package distribution settings below requires a specific dev env configuration.
@@ -218,7 +238,6 @@ unix:!macx {
     isEmpty(RAYTRACE_INS_RES):RAYTRACE_INS_RES = $$THIRD_PARTY_SRC/$$VER_POVRAY/resources
 
     # installed data directories - 3rd party renderer executables
-    isEmpty(THIRD_PARTY_EXE_DIR):THIRD_PARTY_EXE_DIR   = /opt/$$DIST_TARGET
     isEmpty(LDGLITE_INS_DIR):LDGLITE_INS_DIR           = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDGLITE/bin
     isEmpty(LDVIEW_INS_DIR):LDVIEW_INS_DIR             = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_LDVIEW/bin
     isEmpty(RAYTRACE_INS_DIR):RAYTRACE_INS_DIR         = $$THIRD_PARTY_EXE_DIR/3rdParty/$$VER_POVRAY/bin

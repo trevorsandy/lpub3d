@@ -81,7 +81,7 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         else
           echo "ERROR - could not copy LDraw vexiqparts.zip archive."
         fi
-        qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=api;
+        qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
         make -j$(nproc);
         make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
         [ ! -e linuxdeployqt-continuous-x86_64.AppImage ] && \

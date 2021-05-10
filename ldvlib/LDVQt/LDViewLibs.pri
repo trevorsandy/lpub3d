@@ -9,7 +9,7 @@ win32 {
     COPY_CMD = cp -f
 }
 
-contains(LOAD_LDV_HEADERS,True) {
+equals(LOAD_LDV_HEADERS, True) {
     isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( $$PWD/include ) )
 
     VER_LDVIEW                = ldview-4.4
@@ -44,7 +44,7 @@ contains(LOAD_LDV_HEADERS,True) {
     system( $$DELETE_HDR_DIRS_CMD )
     system( $$CREATE_HDR_DIRS_CMD )
 
-    # Copy headers from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
+    # Copy headers from LDView LDVHDRDIR (lpub3d_<platform>_3rdParty) to LDVINCLUDE
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/) )
@@ -52,6 +52,49 @@ contains(LOAD_LDV_HEADERS,True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
     
+    if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
+        message("~~~ lib$${TARGET} system library tinyxml found ~~~")
+    } else:exists($$PWD/include/3rdParty/tinyxml.h) {
+        message("~~~ lib$${TARGET} local library tinyxml found ~~~")
+    } else {
+        message("~~~ ERROR: Library header for tinyxml not found ~~~")
+    }
+    if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) {
+        message("~~~ lib$${TARGET} system library gl2ps found ~~~")
+    } else:exists($$PWD/include/3rdParty/gl2ps.h) {
+        message("~~~ lib$${TARGET} local library gl2ps found ~~~")
+    } else {
+        message("~~~ ERROR: Library header for gl2ps not found, using local ~~~")
+    }
+    if (unix:exists(/usr/include/lib3ds.h)|exists(/usr/local/include/lib3ds.h)){
+        message("~~~ lib$${TARGET} system library 3ds found ~~~")
+    } else:exists($$PWD/include/3rdParty/lib3ds.h) {
+        message("~~~ lib$${TARGET} local library 3ds found ~~~")
+    } else {
+        message("~~~ ERROR: Library header for 3ds not found ~~~")
+    }
+    if (unix:macx:exists(/usr/include/zip.h)|exists(/usr/local/include/minizip/zip.h)) {
+        message("~~~ lib$${TARGET} system library minizip found ~~~")
+    } else:exists($$PWD/include/3rdParty/zip.h) {
+        message("~~~ lib$${TARGET} local library minizip found ~~~")
+    } else:macx {
+        message("~~~ ERROR: Library header for minizip not found ~~~")
+    }
+    if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)) {
+        message("~~~ lib$${TARGET} system library png found ~~~")
+    } else:exists($$PWD/include/3rdParty/png.h) {
+        message("~~~ lib$${TARGET} local library png found ~~~")
+    } else {
+        message("~~~ ERROR: Library header for png not found ~~~")
+    }
+    if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
+        message("~~~ lib$${TARGET} system library jpeg found ~~~")
+    } else:exists($$PWD/include/3rdParty/gl2ps.h) {
+        message("~~~ lib$${TARGET} local library jpeg found ~~~")
+    } else {
+        message("~~~ ERROR: Library header for jpeg not found ~~~")
+    }
+
     if (contains(ARM_BUILD_ARCH,True)) {
         if(!contains(DEFINES,ARM_SKIP_GL_HEADERS)) {
             system( touch $$system_path( $${LDVHDRDIR}/GL/glext.h ) )
@@ -214,12 +257,13 @@ contains(LOAD_LDVLIBS,True) {
          !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
 #        else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
     } else {
-         !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
+         contains(IS_LINUX,True): USE_LOCAL_MINIZIP_LIB = False \
+         else: !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
 #        else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
     }
 
 # This block is executed by LPub3D mainApp
-contains(DO_COPY_LDVLIBS,True) {
+equals(COPY_LDV_LIBS,True) {
         # Copy libraries from LDView
         LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
         LDEXPORTER_LIB_cmd        = $$COPY_CMD $${_LDEXPORTER_DEP} $${LDVLIBRARY}

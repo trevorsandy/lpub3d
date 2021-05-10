@@ -46,12 +46,24 @@ HOST_VERSION   = $$(PLATFORM_VER)
 BUILD_TARGET   = $$(TARGET_VENDOR)
 BUILD_ARCH     = $$(TARGET_CPU)
 
+# platform architecture, name and version fallback
+!contains(QT_ARCH, unknown): BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):   BUILD_ARCH = $$system(uname -m)
+isEmpty(BUILD_ARCH):         BUILD_ARCH = UNKNOWN ARCH
+isEmpty(BUILD_TARGET) {
+    win32:BUILD_TARGET = $$system(systeminfo | findstr /B /C:\"OS Name\")
+    unix:!macx:BUILD_TARGET = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
+    macx:BUILD_TARGET = $$system(echo `sw_vers -productName`)
+}
+isEmpty(HOST_VERSION) {
+    win32:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
+    unix:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+    macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
+}
+
 message("~~~ LPUB3D $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 
 # for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
-!contains(QT_ARCH, unknown):  BUILD_ARCH = $$QT_ARCH
-else: isEmpty(BUILD_ARCH):    BUILD_ARCH = UNKNOWN ARCH
-contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): DEFINES += OPENSUSE_1320_ARM
 if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH     = 64
     STG_ARCH = x86_64
@@ -61,9 +73,18 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     STG_ARCH = x86
     LIB_ARCH =
 }
-if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)): CHIPSET = ARM
-else:                                                                               CHIPSET = X86
+
+# define chipset
+if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)): \
+CHIPSET = ARM
+else: \
+CHIPSET = x86
+
 DEFINES     += VER_ARCH=\\\"$$ARCH\\\"
+
+# special case for OpenSuse 1320
+contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): \
+DEFINES     += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -201,7 +222,7 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
     # enable this to copy LDView libraries to DESTDIR - a one-time action
-    DO_COPY_LDVLIBS = True
+    COPY_LDV_LIBS = True
 
     # enable copy ldvMessages to OUT_PWD/mainApp/extras (except macOS)
     !macx:DEVL_LDV_MESSAGES_INI = True
@@ -243,7 +264,7 @@ CONFIG(debug, debug|release) {
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 
    # copy LDView libraries to DESTDIR
-    DO_COPY_LDVLIBS = True
+    COPY_LDV_LIBS = True
 }
 BUILD += $$BUILD_CONF
 
@@ -253,7 +274,7 @@ DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 #manpage
 MAN_PAGE = $$join(TARGET,,,.1)
 
-message("~~~ $${TARGET} $$join(ARCH,,,bit) $${BUILD} $${CHIPSET} ~~~")
+message("~~~ LPUB3D $$join(ARCH,,,bit) $${BUILD} ($${TARGET}) $${CHIPSET} Chipset ~~~")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -270,8 +291,15 @@ UI_DIR          = $$DESTDIR/.ui
 # Projects/Build Steps/Qmake/'Additional arguments' because,
 # macOS build will also bundle all deliverables.
 
-THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NotDefined
+!isEmpty(LPUB3D_3RD_PARTY) {
+    THIRD_PARTY_DIST_DIR_PATH = $$LPUB3D_3RD_PARTY
+    LPUB3D_DIST_DIR = LPUB3D_3RD_PARTY
+} else {
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    LPUB3D_DIST_DIR = LP3D_DIST_DIR_PATH
+}
+
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:macx: DIST_DIR       = lpub3d_macos_3rdparty
@@ -281,18 +309,35 @@ isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NotDefined
     message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
     else: \
     message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
+    LPUB3D_DIST_DIR = LOCAL_DIR
 }
-message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+
+isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NOT_DEFINED
+
+message("~~~ 3RD PARTY DISTRIBUTION REPO ($$LPUB3D_DIST_DIR): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
 build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
-if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
-    args = deb rpm pkg dmg exe
+if(deb|rpm|pkg|dmg|exe|api|flp|contains(build_package, yes)) {
+    args = deb rpm pkg dmg exe flp
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
+        contains(opt, api) {
+            DEFINES += LP3D_APPIMAGE
+            DISTRO_PACKAGE = APPIMAGE
+        } else:contains(opt, flp) {
+            DEFINES += LP3D_FLATPACK
+            DISTRO_PACKAGE = FLATPACK
+        }  
+        DISTRO_PACKAGE += ($$opt)  
     }
-    isEmpty(opt): opt = $$build_package
-    message("~~~ BUILD DISTRIBUTION PACKAGE: $$opt ~~~")
+    
+    isEmpty(opt) {
+        opt = $$build_package
+        DISTRO_PACKAGE = ($$opt)
+    }
+
+    message("~~~ BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
 
     if (unix|copy3rd) {
         CONFIG+=copy3rdexe
@@ -314,20 +359,20 @@ DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
 DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
 DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
 
+#~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 win32:include(winfiledistro.pri)
 macx:include(macosfiledistro.pri)
 unix:!macx:include(linuxfiledistro.pri)
-
-#~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-contains(DO_COPY_LDVLIBS,True) {
-    LDVIEW_LIBRARY_PATH = $$system_path( $$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR))
-    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO $$LDVIEW_LIBRARY_PATH ~~~ ")
+equals(COPY_LDV_LIBS,True) {
+    LDVIEW_LIBRARY_PATH = $$system_path($$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR))
+    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO: $$LDVIEW_LIBRARY_PATH ~~~ ")
 }
 
 # needed to access ui header from LDVQt
@@ -363,7 +408,7 @@ win32 {
 
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 contains(DEVL_LDV_MESSAGES_INI,True) {
-    message("~~~ ENABLE COPY LDVMESSAGES.INI TO $$OUT_PWD/extras ~~~ ")
+    message("~~~ ENABLE COPY LDVMESSAGES.INI TO: $$system_path($$OUT_PWD/extras) ~~~ ")
 }
 
 # set config to enable/disable initial update check
@@ -611,10 +656,10 @@ OTHER_FILES += \
     ../README.md \
     Info.plist \
     lpub3d.1 \
-    lpub3d.desktop \
     lpub3d.sh \
     lpub3d.xml \
-    org.trevorsandy.lpub3d.appdata.xml
+    lpub3d.desktop \
+    lpub3d.appdata.xml
 
 include(otherfiles.pri)
 

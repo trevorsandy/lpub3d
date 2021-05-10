@@ -35,7 +35,6 @@ if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS
   echo "ERROR - AppImage not copied to check folder.";
   
   source ${SOURCE_DIR}/builds/check/build_checks.sh
-  
 fi
 
 cd $LP3D_BUILD_FOLDER

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 22, 2019
+# Last Update May 06, 2021
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -97,7 +97,7 @@ then
     lp3d_git_build_type=`git tag --points-at HEAD`                                    # continuous build check
     lp3d_git_ver_tag_long=`git describe --tags --match v* --long`
     lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0`
-    lp3d_git_ver_commit_count=`git rev-list HEAD --count`
+    lp3d_git_ver_commit_count=`git rev-list --count HEAD`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
     cd "${LP3D_CALL_DIR}"
     lp3d_ver_tmp=${lp3d_git_ver_tag_long#*-}                                          # remove everything before and including "-"
@@ -267,7 +267,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/org.trevorsandy.lpub3d.appdata.xml"
+FILE="$LP3D_PWD/lpub3d.appdata.xml"
 Info "6. update appdata info    - add version and date  [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -378,6 +378,29 @@ then
         sed -i "" "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
     else
         sed -i "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
+FILE="$LP3D_PWD/../gitversion.pri"
+Info "13.update gitversion pri  - add version and revision [$FILE]"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if test -n "$LP3D_VER_SUFFIX"; then
+        LP3D_DOT_VER_SUFFIX=".${LP3D_VER_SUFFIX}"
+    fi
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
+                  -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
+                  -e "s/^            GIT_COMMIT_COUNT = [0-9].*$/            GIT_COMMIT_COUNT = ${LP3D_VER_BUILD}/g" \
+                  -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
+    else
+        sed -i -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
+               -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
+               -e "s/^            GIT_COMMIT_COUNT = [0-9].*$/            GIT_COMMIT_COUNT = ${LP3D_VER_BUILD}/g" \
+               -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

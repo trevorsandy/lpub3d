@@ -15,6 +15,7 @@ DEPENDPATH  += .
 INCLUDEPATH += .
 DEPENDPATH  += ./include
 INCLUDEPATH += ./include
+INCLUDEPATH += ./include/3rdParty
 INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
@@ -33,13 +34,28 @@ DEFINES += EXPORT_3DS
 unix: !macx: TARGET = ldvqt
 else:        TARGET = LDVQt
 
-# platform architecture
-# get CPU arch - QT_ARCH returns x86_64, arm64 for aarch64, and arm for arm7l
-!contains(QT_ARCH,unknown): BUILD_ARCH = $$QT_ARCH       # Target CPU
-else:                       BUILD_ARCH = $$(TARGET_CPU) 
-isEmpty(BUILD_ARCH):        BUILD_ARCH = UNKNOWN ARCH
+# platform name and version
+BUILD_TARGET   = $$(TARGET_VENDOR)  # Platform ID
+HOST_VERSION   = $$(PLATFORM_VER)   # Platform Version
+BUILD_ARCH     = $$(TARGET_CPU)
 
-if (contains(BUILD_ARCH,x86_64)|contains(BUILD_ARCH,arm64)) {
+# platform architecture, name and version fallback
+!contains(QT_ARCH, unknown): BUILD_ARCH = $$QT_ARCH
+else: isEmpty(BUILD_ARCH):   BUILD_ARCH = $$system(uname -m)
+isEmpty(BUILD_ARCH):         BUILD_ARCH = UNKNOWN ARCH
+isEmpty(BUILD_TARGET) {
+    win32:BUILD_TARGET = $$system(systeminfo | findstr /B /C:\"OS Name\")
+    unix:!macx:BUILD_TARGET = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
+    macx:BUILD_TARGET = $$system(echo `sw_vers -productName`)
+}
+isEmpty(HOST_VERSION) {
+    win32:HOST_VERSION = $$system(systeminfo | findstr /B /C:\"OS Version\")
+    unix:!macx:HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo \"$VERSION_ID\")
+    macx:HOST_VERSION = $$system(echo `sw_vers -productVersion`)
+}
+
+# for aarch64, QT_ARCH = arm64, for arm7l, QT_ARCH = arm
+if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)) {
     ARCH  = 64
     LIB_ARCH = 64
 } else {
@@ -47,29 +63,9 @@ if (contains(BUILD_ARCH,x86_64)|contains(BUILD_ARCH,arm64)) {
     LIB_ARCH =
 }
 
-# platform name and version
-BUILD_TARGET   = $$(TARGET_VENDOR)  # Platform ID
-HOST_VERSION   = $$(PLATFORM_VER)   # Platform Version
-
-# platform name and version fallback
-unix:!macx:isEmpty(BUILD_TARGET):BUILD_TARGET = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo $ID || echo 'undefined')
-unix:!macx:isEmpty(HOST_VERSION):HOST_VERSION = $$system(. /etc/os-release 2>/dev/null; [ -n \"$VERSION_ID\" ] && echo $VERSION_ID || echo 'undefined')
-
 # specify define for OBS ARM platforms that need to use OpenGL headers
 contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
 ARM_BUILD_ARCH = True
-
-# specify define for OBS ARM platforms that need to suppress local glext.h header
-contains(BUILD_TARGET,suse): \
-ARM_BUILD_TARGET = True
-contains(HOST_VERSION,1320): \
-ARM_HOST_VERSION = True
-contains(ARM_BUILD_TARGET,True):contains(ARM_HOST_VERSION,True) {
-    DEFINES += ARM_SKIP_GL_HEADERS
-    message("~~~ $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define ARM_SKIP_GL_HEADERS ~~~")
-} else {
-    message("~~~ $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
-}
 
 # The ABI version.
 VER_MAJ = 4
@@ -98,7 +94,7 @@ CONFIG(debug, debug|release) {
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
     LOAD_LDV_SOURCE_FILES = #True
     # This line points to ldview git extract folder name, you can set as you like
-    VER_LDVSRC            = ldview
+    VER_LDVSRC            = ldview_vsbuild
     # This line defines the path of the ldview git extract relative to this project file
     LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
 } else {
@@ -114,6 +110,18 @@ contains(LOAD_LDV_HEADERS,True): \
 include(LDViewLibs.pri)
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
+
+# specify define for OBS ARM platforms that need to suppress local glext.h header
+contains(BUILD_TARGET,suse): \
+ARM_BUILD_TARGET = True
+contains(HOST_VERSION,1320): \
+ARM_HOST_VERSION = True
+contains(ARM_BUILD_TARGET,True):contains(ARM_HOST_VERSION,True) {
+    DEFINES += ARM_SKIP_GL_HEADERS
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define ARM_SKIP_GL_HEADERS ~~~")
+} else {
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
+}
 
 PRECOMPILED_DIR = $$DESTDIR/.pch
 OBJECTS_DIR     = $$DESTDIR/.obj
@@ -145,7 +153,7 @@ unix:!macx {
 
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-contains(LOAD_LDV_SOURCE_FILES,True) {
+equals(LOAD_LDV_SOURCE_FILES,True) {
     exists($$LDVSRCPATH) {
       message("~~~ lib$${TARGET} Enable copy LDView sources to $$LDVINCLUDE ~~~ ")
     } else {
@@ -226,7 +234,7 @@ OTHER_FILES += \
     $$PWD/../../mainApp/extras/ldvMessages.ini
 
 # These includes are only processed in debug on Windows mode
-win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
+win32-msvc*:equals(LOAD_LDV_SOURCE_FILES,True) {
     include(include/LDExporter/LDExporter.pri)
     include(include/LDLib/LDLib.pri)
     include(include/LDLoader/LDLoader.pri)

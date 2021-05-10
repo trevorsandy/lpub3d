@@ -2,12 +2,12 @@
 if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
     win32: THIRD_PARTY_DEST = $$LPUB3D_INS_CONTENT_PATH
      macx: THIRD_PARTY_DEST = $$DESTDIR/$${TARGET}.app/Contents/3rdParty
-    message("~~~ 3RD_INSTALL FROM REPO $$THIRD_PARTY_SRC ~~~")
+    message("~~~ 3RD_INSTALL FROM REPO: $$THIRD_PARTY_SRC ~~~")
     unix:!macx {
         THIRD_PARTY_DEST = $$RESOURCE_DIR/3rdParty
-        message("~~~ 3RD_INSTALL TO EXE DEST $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
+        message("~~~ 3RD_INSTALL TO EXE DEST: $$THIRD_PARTY_EXE_DIR/3rdParty ~~~")
     }
-    message("~~~ 3RD_INSTALL TO DEST $$THIRD_PARTY_DEST ~~~")
+    message("~~~ 3RD_INSTALL TO DEST: $$THIRD_PARTY_DEST ~~~")
 }
 
 copy3rdexe {

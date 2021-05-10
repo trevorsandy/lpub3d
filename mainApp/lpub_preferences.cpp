@@ -1640,16 +1640,17 @@ void Preferences::ldrawPreferences(bool browse)
 
                             ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
 
+                            QString message = QString("The %1 LDraw library was not found.").arg(validLDrawLibrary);
+                            
                             if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // manual prompt for LDraw Library location
                                 ldrawLibPath.clear();
 
-                                QString searchDetail;
-                                searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")
+                                const QString searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")
                                         .arg(portableDistribution ?
-                                            QString("%1\n\t%2")
+                                                 QString("%1\n\t%2")
                                                  .arg(QDir::toNativeSeparators(QString("%1/%2").arg(lpubDataPath).arg(validLDrawDir)))
                                                  .arg(QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir))) :
-                                            QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir)))
+                                                 QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir)))
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(validLDrawDir)))
 #if defined Q_OS_WIN || defined Q_OS_MAC
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(1)).arg(validLDrawDir)))
@@ -1657,6 +1658,20 @@ void Preferences::ldrawPreferences(bool browse)
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(validLDrawDir)))
 #endif
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir)));
+
+// For AppImage, Flatpak or Snap, automatically install LDraw library (user notified if install failed)
+#if defined (LP3D_FLATPACK) || defined (LP3D_APPIMAGE)
+                            if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {
+                                ldrawLibPath.clear();
+                                if (!extractLDrawLib())
+                                    message = QString("%1 LDraw library was not found and bundled archive parts failed to extract.").arg(validLDrawLibrary);
+                                else
+                                    message = QString("%1 LDraw library was not found but the bundled archive parts were extracted.").arg(validLDrawLibrary);
+                                message += QString("\nThe following locations were searched for the LDraw library:\n%2.\n").arg(validLDrawLibrary).arg(searchDetail);
+                                fprintf(stdout,"%s\n",message.toLatin1().constData());
+                                fflush(stdout);
+                            }
+#endif
 
                                 if (modeGUI) {
 #ifdef Q_OS_MAC
@@ -1671,85 +1686,60 @@ void Preferences::ldrawPreferences(bool browse)
                                     box.setWindowTitle(QMessageBox::tr ("LDraw Library"));
                                     box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-                                    QString header;
-                                    QString body;
-                                    QString detail;
+                                    QAbstractButton* extractButton = box.addButton(QMessageBox::tr("Extract Archive"),QMessageBox::YesRole);
+                                    QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select Folder"),QMessageBox::YesRole);
 
-                                    if (isAppImagePayload ) { // For AppImage, automatically install LDraw library (and notify user) if library not found
+                                    const QString header = "<b> " + message + "</b>";
+                                    const QString body = QMessageBox::tr ("You may select your LDraw folder or extract it from the bundled %1 %2.\n"
+                                                                           "Would you like to extract the library or select the LDraw folder?")
+                                                                           .arg(validLDrawLibrary).arg(usingDefaultLibrary ? "archives" : "archive");
+                                    const QString detail = QMessageBox::tr ("The following locations were searched for the LDraw library:\n%1\n"
+                                                                            "You must select an LDraw library folder or extract the library.\n"
+                                                                            "It is possible to create your library folder from the %2 file (%3) "
+                                                                            "and the %4 parts archive file %5. The extracted library folder will "
+                                                                            "be located at '%6'").arg(searchDetail)
+                                                                            .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + validLDrawLibrary + " archive.")
+                                                                            .arg(validLDrawPartsArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
+                                                                            .arg(validLDrawCustomArchive).arg(ldrawLibPath);
+                                    box.setText (header);
+                                    box.setInformativeText (body);
+                                    box.setDetailedText(detail);
+                                    box.setStandardButtons (QMessageBox::Cancel);
+                                    box.exec();
 
-                                        if (extractLDrawLib()) {
+                                    if (box.clickedButton()==selectButton) {
+                                        emit Application::instance()->splashMsgSig("10% - Selecting LDraw folder...");
 
-                                            header = "<b> " + QMessageBox::tr ("%1 LDraw library installed").arg(validLDrawLibrary) + "</b>";
-                                            body = QMessageBox::tr ("LDraw library was not found. The bundled library archives were installed at\n"
-                                                                    "%1").arg(ldrawLibPath);
-                                            detail = QMessageBox::tr ("The following locations were searched for the LDraw library.\n%1\n"
-                                                                      "You can change the library path in the Preferences dialogue.").arg(searchDetail);
-                                            box.setText (header);
-                                            box.setInformativeText (body);
-                                            box.setDetailedText(detail);
-                                            box.setStandardButtons (QMessageBox::Close);
-                                            box.exec();
+                                        ldrawLibPath = QFileDialog::getExistingDirectory(nullptr,
+                                                                                         QFileDialog::tr("Select LDraw library folder"),
+                                                                                         "/",
+                                                                                         QFileDialog::ShowDirsOnly |
+                                                                                         QFileDialog::DontResolveSymlinks);
 
-                                        }
-
-                                    } else { // For all except AppImage, prompt user to select or install LDraw library if not found
-
-                                        QAbstractButton* extractButton = box.addButton(QMessageBox::tr("Extract Archive"),QMessageBox::YesRole);
-                                        QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select Folder"),QMessageBox::YesRole);
-
-                                        header = "<b> " + QMessageBox::tr ("%1 LDraw library folder not found!").arg(validLDrawLibrary) + "</b>";
-                                        body = QMessageBox::tr ("You may select your LDraw folder or extract it from the bundled %1 %2.\n"
-                                                                "Would you like to extract the library or select the LDraw folder?")
-                                                                 .arg(validLDrawLibrary).arg(usingDefaultLibrary ? "archives" : "archive");
-                                        detail = QMessageBox::tr ("The following locations were searched for the LDraw library:\n%1\n"
-                                                                  "You must select an LDraw library folder or extract the library.\n"
-                                                                  "It is possible to create your library folder from the %2 file (%3) "
-                                                                  "and the %4 parts archive file %5. The extracted library folder will "
-                                                                  "be located at '%6'").arg(searchDetail)
-                                                                   .arg(usingDefaultLibrary ? "official LDraw LEGO archive" : "LDraw " + validLDrawLibrary + " archive.")
-                                                                   .arg(validLDrawPartsArchive).arg(usingDefaultLibrary ? "unofficial" : "custom")
-                                                                   .arg(validLDrawCustomArchive).arg(ldrawLibPath);
-                                        box.setText (header);
-                                        box.setInformativeText (body);
-                                        box.setDetailedText(detail);
-                                        box.setStandardButtons (QMessageBox::Cancel);
-                                        box.exec();
-
-                                        if (box.clickedButton()==selectButton) {
-                                            emit Application::instance()->splashMsgSig("10% - Selecting LDraw folder...");
-
-                                            ldrawLibPath = QFileDialog::getExistingDirectory(nullptr,
-                                                                                          QFileDialog::tr("Select LDraw library folder"),
-                                                                                          "/",
-                                                                                          QFileDialog::ShowDirsOnly |
-                                                                                          QFileDialog::DontResolveSymlinks);
-
-                                            if (! ldrawLibPath.isEmpty()) {
-                                                if (checkLDrawLibrary(ldrawLibPath)) {
-                                                    Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
-                                                } else {
-                                                    ldrawLibPath.clear();
-                                                    returnMessage = QMessageBox::tr ("The selected path [%1] does not "
-                                                                                     "appear to be a valid LDraw Library.")
-                                                                                     .arg(ldrawLibPath);
-                                                }
-                                            }
-
-                                        } else {
-                                            if (box.clickedButton()==extractButton) {
-                                                extractLDrawLib();
+                                        if (! ldrawLibPath.isEmpty()) {
+                                            if (checkLDrawLibrary(ldrawLibPath)) {
+                                                Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
                                             } else {
                                                 ldrawLibPath.clear();
+                                                returnMessage = QMessageBox::tr ("The selected path [%1] does not "
+                                                                                     "appear to be a valid LDraw Library.")
+                                                        .arg(ldrawLibPath);
                                             }
                                         }
-                                    }
 
+                                    } else {
+                                        if (box.clickedButton()==extractButton) {
+                                            extractLDrawLib();
+                                        } else {
+                                            ldrawLibPath.clear();
+                                        }
+                                    }
                                 } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
-                                    QString message = QString("The %1 LDraw library was not found.\n"
-                                                              "The following locations were searched for the LDraw library:\n%2.\n").arg(validLDrawLibrary).arg(searchDetail);
+                                    const bool okToExtract = !message.endsWith("failed to extract.");
+                                    message += QString("\nThe following locations were searched for the LDraw library:\n%2.\n").arg(validLDrawLibrary).arg(searchDetail);
                                     fprintf(stdout,"%s\n",message.toLatin1().constData());
-                                    if (extractLDrawLib()) {
-                                        message = QString("The bundled %1 LDraw archive library was extracted to:\n%2\n"
+                                    if (okToExtract && extractLDrawLib()) {
+                                        message = QString("The bundled %1 LDraw library archives were extracted to:\n%2\n"
                                                           "You can edit the library path in the Preferences dialogue.\n").arg(validLDrawLibrary).arg(ldrawLibPath);
                                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     }
@@ -1761,7 +1751,7 @@ void Preferences::ldrawPreferences(bool browse)
                 }
             }
 
-            if (/*! ldrawLibPath.isEmpty() && */ browse && modeGUI) { // fourth check - browse
+            if (/* ! ldrawLibPath.isEmpty() && */ browse && modeGUI) { // fourth check - browse
 #ifdef Q_OS_MAC
                 if (! lpub3dLoaded && Application::instance()->splash->isVisible())
                     Application::instance()->splash->hide();
@@ -1782,7 +1772,7 @@ void Preferences::ldrawPreferences(bool browse)
                 }
             }
 
-            if (! ldrawLibPath.isEmpty()) {
+            if (! ldrawLibPath.isEmpty()) { // third or fourth check successful - return
 
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
 
@@ -1825,10 +1815,10 @@ void Preferences::ldrawPreferences(bool browse)
 
                 } else {
                     fprintf(stderr, "No LDraw library defined! The application will terminate.\n");
+                    fflush(stdout);
                     exit(-1);
                 }
-            }
-
+            } // final - retry or exit
         } else {                                 // second check successful - return
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
         }
