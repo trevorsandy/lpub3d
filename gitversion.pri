@@ -54,7 +54,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT_COUNT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT_COUNT) {
-            GIT_COMMIT_COUNT = 2538
+            GIT_COMMIT_COUNT = 2539
             message("~~~ ERROR! GIT_COMMIT_COUNT NOT DEFINED, USING $$GIT_COMMIT_COUNT ~~~")
         }
 
@@ -100,7 +100,7 @@ equals(USE_GIT_VER_FILE, true) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {
         message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.1.2538.7caa4cb
+        GIT_VERSION = $${VERSION}.1.2539.7492c0d
         message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
         GIT_VERSION ~= s/\./" "
     }

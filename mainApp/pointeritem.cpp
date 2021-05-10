@@ -699,7 +699,7 @@ void PointerItem::addPointerMeta()
   QString metaString = pointer.pointerMeta.format(false,false);
   Where here = pointer.here+1;
   insertMeta(here,metaString);
-  gui->displayPage();
+  //gui->displayPage(); redundant - as page is displayed again at InsertLineCommand::redo()
 }
 
 void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
