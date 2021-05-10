@@ -3,7 +3,7 @@ macx {
     INFO_PLIST_FILE = $$_PRO_FILE_PWD_/Info.plist
     PLIST_COMMAND = /usr/libexec/PlistBuddy -c
     system( $$PLIST_COMMAND \"Set :CFBundleShortVersionString $${VERSION}\" \"$${INFO_PLIST_FILE}\" )
-    system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VERSION}.$${VER_BUILD_STR}-$${VER_SHA_HASH_STR}\" \"$${INFO_PLIST_FILE}\" )
+    system( $$PLIST_COMMAND \"Set :CFBundleVersion $${VERSION}.$${VER_COMMIT}-$${VER_GIT_SHA}\" \"$${INFO_PLIST_FILE}\" )
     system( $$PLIST_COMMAND \"Set :CFBundleExecutable $${TARGET}\" \"$${INFO_PLIST_FILE}\" )
     system( $$PLIST_COMMAND \"Set :CFBundleName $${TARGET}\" \"$${INFO_PLIST_FILE}\" )
     system( $$PLIST_COMMAND \"Set :CFBundleDisplayName $${TARGET}\" \"$${INFO_PLIST_FILE}\" )

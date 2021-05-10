@@ -40,12 +40,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->contentGroupBox->hide();
 
     ui->version->setTextFormat(Qt::RichText);
-    ui->version->setText(tr("%1 <b>%2</b> Revision <b>%3</b> Build <b>%4</b> Hash <b>%5</b>")
+    ui->version->setText(tr("%1 <b>%2</b> Revision <b>%3</b> Build <b>%4</b> SHA <b>%5</b>")
                          .arg(QString::fromLatin1(VER_BUILD_TYPE_STR))
                          .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR))
                          .arg(QString::fromLatin1(VER_REVISION_STR))
-                         .arg(QString::fromLatin1(VER_BUILD_STR))
-                         .arg(QString::fromLatin1(VER_SHA_HASH_STR)));
+                         .arg(QString::fromLatin1(VER_COMMIT_STR))
+                         .arg(QString::fromLatin1(VER_GIT_SHA_STR)));
     ui->description->setTextFormat(Qt::RichText);
     ui->description->setText(tr("<p><b>%1</b> an LDraw&trade; building instruction editor.<br><br>"
                                 "%2</p>").arg(QString::fromLatin1(VER_PRODUCTNAME_STR))

@@ -39,11 +39,11 @@ equals(GIT_DIR, undefined) {
     # Check if we do not have a valid version number (i.e. no version tag found)
     isEmpty(GIT_VERSION) {
         GIT_REVISION = 1
-        GIT_COMMIT_SHA = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
-        GIT_COMMIT_COUNT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
-        GIT_VERSION = v$${VERSION}-$${GIT_REVISION}-$${GIT_COMMIT_SHA}
+        GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
+        GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
+        GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
         contains(CONFIG, flp): GIT_DIR_ENV = FLATPAK
-        if(isEmpty(GIT_COMMIT_SHA)|equals(GIT_DIR_ENV, FLATPAK)) {
+        if(isEmpty(GIT_SHA)|equals(GIT_DIR_ENV, FLATPAK)) {
             USE_GIT_VER_FILE = true
         } else {
             message("~~~ ALERT! GIT TAG NOT DEFINED, USING HEAD $$GIT_VERSION ~~~")
@@ -52,14 +52,14 @@ equals(GIT_DIR, undefined) {
 
     !equals(USE_GIT_VER_FILE, true) {
         # Get commit count
-        GIT_COMMIT_COUNT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
-        isEmpty(GIT_COMMIT_COUNT) {
-            GIT_COMMIT_COUNT = 2548
-            message("~~~ ERROR! GIT_COMMIT_COUNT NOT DEFINED, USING $$GIT_COMMIT_COUNT ~~~")
+        GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
+        isEmpty(GIT_COMMIT) {
+            GIT_COMMIT = 2549
+            message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
         # Append commit count
-        GIT_VERSION = g$$GIT_VERSION-$$GIT_COMMIT_COUNT
+        GIT_VERSION = g$$GIT_VERSION-$$GIT_COMMIT
 
         # Token position       0 1 2 3 4       5    [6]
         # Version string       2 4 3 1 410fdd7 2220 beta1
@@ -71,20 +71,20 @@ equals(GIT_DIR, undefined) {
         #message(~~~ DEBUG ~~ GIT_VERSION [FORMATTED]: $$GIT_VERSION)
 
         # Separate the build number into major, minor and service pack etc.
-        VER_MAJOR        = $$section(GIT_VERSION, ., 0, 0)
-        VER_MINOR        = $$section(GIT_VERSION, ., 1, 1)
-        VER_PATCH        = $$section(GIT_VERSION, ., 2, 2)
-        VER_REVISION     = $$section(GIT_VERSION, ., 3, 3)
-        VER_SHA_HASH     = $$section(GIT_VERSION, ., 4, 4)
-        VER_COMMIT_COUNT = $$section(GIT_VERSION, ., 5, 5)
+        VER_MAJOR      = $$section(GIT_VERSION, ., 0, 0)
+        VER_MINOR      = $$section(GIT_VERSION, ., 1, 1)
+        VER_PATCH      = $$section(GIT_VERSION, ., 2, 2)
+        VER_REVISION   = $$section(GIT_VERSION, ., 3, 3)
+        VER_GIT_SHA    = $$section(GIT_VERSION, ., 4, 4)
+        VER_COMMIT     = $$section(GIT_VERSION, ., 5, 5)
         # Capture and convert version suffix - everything after "_" if it exist
-        VER_PATCH_TEMP   = $$section(GIT_VERSION, ., 2, 2)
-        VER_SUFFIX       = $$section(VER_PATCH_TEMP, _, 1)
+        VER_PATCH_TEMP = $$section(GIT_VERSION, ., 2, 2)
+        VER_SUFFIX     = $$section(VER_PATCH_TEMP, _, 1)
         !isEmpty(VER_SUFFIX): \
-            VER_PATCH    = $$section(VER_PATCH_TEMP, _, 0, 0)
+            VER_PATCH  = $$section(VER_PATCH_TEMP, _, 0, 0)
 
         # Strip leading 'g' from sha hash
-        VER_SHA_HASH ~= s/g/""
+        VER_GIT_SHA ~= s/g/""
     }
 
     # Get the git repository name
@@ -100,7 +100,7 @@ equals(USE_GIT_VER_FILE, true) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {
         message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.1.2548.4860688
+        GIT_VERSION = $${VERSION}.1.2549.fd3db8f
         message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
         GIT_VERSION ~= s/\./" "
     }
@@ -110,16 +110,16 @@ equals(USE_GIT_VER_FILE, true) {
     #message("~~~ DEBUG ~~ GIT_VERSION [FILE]: $$GIT_VERSION")
 
     # Separate version info into major, minor, patch, revision etc...
-    VER_MAJOR        = $$section(GIT_VERSION, " ", 0, 0)
-    VER_MINOR        = $$section(GIT_VERSION, " ", 1, 1)
-    VER_PATCH        = $$section(GIT_VERSION, " ", 2, 2)
-    VER_REVISION     = $$section(GIT_VERSION, " ", 3, 3)
-    VER_COMMIT_COUNT = $$section(GIT_VERSION, " ", 4, 4)
-    !isEmpty(GIT_COMMIT_SHA): \
-    VER_SHA_HASH     = $$GIT_COMMIT_SHA
+    VER_MAJOR    = $$section(GIT_VERSION, " ", 0, 0)
+    VER_MINOR    = $$section(GIT_VERSION, " ", 1, 1)
+    VER_PATCH    = $$section(GIT_VERSION, " ", 2, 2)
+    VER_REVISION = $$section(GIT_VERSION, " ", 3, 3)
+    VER_COMMIT   = $$section(GIT_VERSION, " ", 4, 4)
+    !isEmpty(GIT_SHA): \
+    VER_GIT_SHA  = $$GIT_SHA
     else: \
-    VER_SHA_HASH     = $$section(GIT_VERSION, " ", 5, 5)
-    VER_SUFFIX       = $$section(GIT_VERSION, " ", 6, 6)
+    VER_GIT_SHA  = $$section(GIT_VERSION, " ", 5, 5)
+    VER_SUFFIX   = $$section(GIT_VERSION, " ", 6, 6)
 }
 
 # Here we process the build date and time
@@ -183,11 +183,11 @@ DEFINES += DATE_YY=\\\"$$DATE_YY\\\"
 DEFINES += DATE_MM=\\\"$$DATE_MM\\\"
 DEFINES += DATE_DD=\\\"$$DATE_DD\\\"
 
-DEFINES += VER_BUILD_STR=\\\"$$VER_COMMIT_COUNT\\\"
-DEFINES += VER_SHA_HASH_STR=\\\"$$VER_SHA_HASH\\\"
+DEFINES += VER_COMMIT_STR=\\\"$$VER_COMMIT\\\"
+DEFINES += VER_GIT_SHA_STR=\\\"$$VER_GIT_SHA\\\"
 DEFINES += VER_REVISION_STR=\\\"$$VER_REVISION\\\"
 
-LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION $$VER_COMMIT_COUNT $$VER_SHA_HASH
+LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION $$VER_COMMIT $$VER_GIT_SHA
 !isEmpty(VER_SUFFIX) {
     DEFINES += VER_SUFFIX=\\\"$$VER_SUFFIX\\\"
     LP3D_VERSION_INFO += $$VER_SUFFIX

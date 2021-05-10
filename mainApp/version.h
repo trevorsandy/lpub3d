@@ -33,7 +33,7 @@
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
 #define VER_GITHUB_USER_STR                 "https://github.com/trevorsandy"
-#define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_BUILD_STR
+#define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_COMMIT_STR
 #define VER_PUBLISHER_SUPPORT_STR           VER_GITHUB_USER_STR "/lpub3d/issues"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #ifdef QT_DEBUG_MODE

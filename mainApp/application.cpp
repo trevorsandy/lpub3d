@@ -567,7 +567,7 @@ void Application::initialize()
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "%s, %s %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
+              fprintf(stdout, "%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
               return;
@@ -578,7 +578,7 @@ void Application::initialize()
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, ShaHash %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
+              fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, SHA %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
               return;

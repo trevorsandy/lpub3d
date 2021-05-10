@@ -322,21 +322,22 @@ if(deb|rpm|pkg|dmg|exe|api|flp|contains(build_package, yes)) {
     args = deb rpm pkg dmg exe flp
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
-        contains(opt, api) {
-            DEFINES += LP3D_APPIMAGE
-            DISTRO_PACKAGE = APPIMAGE
-        } else:contains(opt, flp) {
-            DEFINES += LP3D_FLATPACK
-            DISTRO_PACKAGE = FLATPACK
-        }  
-        DISTRO_PACKAGE += ($$opt)  
-    }
-    
-    isEmpty(opt) {
-        opt = $$build_package
-        DISTRO_PACKAGE = ($$opt)
     }
 
+    isEmpty(opt) {
+        opt = $$build_package
+    }
+
+    contains(opt, api) {
+        DEFINES += LP3D_APPIMAGE
+        DISTRO_PACKAGE = APPIMAGE ($$opt)
+    } else:contains(opt, flp) {
+        DEFINES += LP3D_FLATPACK
+        DISTRO_PACKAGE = FLATPACK ($$opt)
+    } else {
+        DISTRO_PACKAGE = ($$opt)
+    }
+    
     message("~~~ BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
 
     if (unix|copy3rd) {

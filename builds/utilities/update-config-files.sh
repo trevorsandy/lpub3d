@@ -394,12 +394,12 @@ then
     then
         sed -i "" -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
                   -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
-                  -e "s/^            GIT_COMMIT_COUNT = [0-9].*$/            GIT_COMMIT_COUNT = ${LP3D_VER_BUILD}/g" \
+                  -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
                   -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
     else
         sed -i -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
                -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
-               -e "s/^            GIT_COMMIT_COUNT = [0-9].*$/            GIT_COMMIT_COUNT = ${LP3D_VER_BUILD}/g" \
+               -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
                -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
     fi
 else
