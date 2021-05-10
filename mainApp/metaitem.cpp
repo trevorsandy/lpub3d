@@ -253,7 +253,6 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   QString firstLine;
   Where lastInstance, firstInstance;
 
-  Rc rc;
   int buildModLevel = 0;
   bool ignorePartLine = false;
   Where walkBack = step;
@@ -269,11 +268,23 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         if (argv[1] == "STEP" || argv[1] == "ROTSTEP") {
           break;
         }
-        rc = meta->parse(line,walkBack);
         // part substitutions are not counted
-        if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
+        if ((argv.size() == 5 && argv[0] == "0" &&
+                (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+                (argv[2] == "PART"  || argv[2] == "PLI") &&
+                 argv[3] == "BEGIN"  &&
+                 argv[4] == "IGN") ||
+                (argv.size() == 3 && argv[0] == "0" &&
+                 argv[1] == "MLCAD" &&
+                 argv[2] == "SKIP_BEGIN"))
             ignorePartLine = true;
-        if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
+        if ((argv.size() == 4 && argv[0] == "0" &&
+                (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+                (argv[2] == "PART" || argv[2] == "PLI") &&
+                 argv[3] == "END") ||
+                (argv.size() == 3 && argv[0] == "0" &&
+                 argv[1] == "MLCAD" &&
+                 argv[2] == "SKIP_END"))
             ignorePartLine = false;
         // Sorry, models that are callouts are not counted as instances
         if (argv.size() == 4 && argv[0] == "0" &&
@@ -342,11 +353,23 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
       if (argv[1] == "STEP" || argv[1] == "ROTSTEP") {
         break;
       }
-      rc = meta->parse(line,walk);
       // part substitutions are not counted
-      if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
+      if ((argv.size() == 5 && argv[0] == "0" &&
+              (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+              (argv[2] == "PART"  || argv[2] == "PLI") &&
+               argv[3] == "BEGIN"  &&
+               argv[4] == "IGN") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_BEGIN"))
           ignorePartLine = true;
-      if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
+      if ((argv.size() == 4 && argv[0] == "0" &&
+              (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+              (argv[2] == "PART" || argv[2] == "PLI") &&
+               argv[3] == "END") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_END"))
           ignorePartLine = false;
       // models that are callouts are not counted as instances
       if (argv.size() == 4 && argv[0] == "0" &&
@@ -429,7 +452,6 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
   QString firstLine;
   Where lastInstance, firstInstance;
 
-  Rc rc;
   int buildModLevel = 0;
   bool ignorePartLine = false;
   walk = subModel;
@@ -440,11 +462,23 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
-      rc = meta->parse(line,walk);
       // part substitutions are not counted
-      if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
+      if ((argv.size() == 5 && argv[0] == "0" &&
+              (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+              (argv[2] == "PART"  || argv[2] == "PLI") &&
+               argv[3] == "BEGIN"  &&
+               argv[4] == "IGN") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_BEGIN"))
           ignorePartLine = true;
-      if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
+      if ((argv.size() == 4 && argv[0] == "0" &&
+              (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
+              (argv[2] == "PART" || argv[2] == "PLI") &&
+               argv[3] == "END") ||
+              (argv.size() == 3 && argv[0] == "0" &&
+               argv[1] == "MLCAD" &&
+               argv[2] == "SKIP_END"))
           ignorePartLine = false;
       // models that are callouts are not counted as instances
       if (argv.size() == 4 && argv[0] == "0" &&
