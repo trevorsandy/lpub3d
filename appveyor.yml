@@ -365,7 +365,7 @@ deploy:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
    release: $(LP3D_RELEASE_LABEL)
    artifact: $(LP3D_PACKAGE)-download-package
-   prerelease: true
+   prerelease: false
    force_update: true
    on:
      branch: $(APPVEYOR_REPO_BRANCH)
