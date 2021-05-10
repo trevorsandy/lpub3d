@@ -374,9 +374,9 @@ void Gui::insertNumberedPage()
 void Gui::appendNumberedPage()
 {
   mi->appendNumberedPage();
-  //countPages();
-  //++displayPageNum;
-  //displayPage();  // display the page we just added
+//countPages();
+//++displayPageNum;
+//displayPage();    // display the page we just added
 }
 
 void Gui::deletePage()

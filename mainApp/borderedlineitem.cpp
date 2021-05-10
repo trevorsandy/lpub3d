@@ -28,8 +28,6 @@
 #include "resolution.h"
 #include "QsLog.h"
 
-using namespace std;
-
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -72,9 +70,9 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
                             |         |
          <--------80%------>|<--20%-->|
                                       v
-         From the base of the head triangle (pA) to the Y center line (0,0) is 80% of the head
-         width so, to calculate the bordered offset, we adjust the head segment line to that amount
-         by ending the setment at the base of the head (versus its original position at the Y center line)
+         From the base of the head triangle (pA) to the Y center line (0,0) is 80% of the head width so,
+         to calculate the bordered offset, we adjust the head segment line to that amount by ending the
+         segment at the base of the head (pA), versus its original position at the Y center line (0,0).
         */
         if (segment == segments)
             _bLine.setLength(bLine.length() - (headWidth * 0.8f));
@@ -90,8 +88,10 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
         p2offset = getLineP2Offset();
 
         /*
-        Once calculated, we adjust again the head segment line to extend it past the base (10%)
-        towards the head tip. This is done to avoid exposing the rounded line and border cap.
+        Once the bordered offset is calculated, we adjust again the head segment line to extend it past the
+        base (pA), by 10%, towards the head tip. This is done to avoid exposing the rounded line and border cap.
+        This adjustment reduces the overall length of the head segment by 70% of the head width.
+        So for the head segment:
         */
         if (segment == segments) {
             _bLine.setLength(line().length() + (headWidth * 0.1f));
@@ -103,8 +103,13 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
         pC = p2offset + offset2;
         pD = p2offset + offset1;
     } else {
-        _bLine.setLength(bLine.length() - (headWidth * 0.65f));
+        /*
+        Automatically reduce the overall length of the head segment by 80% of the head width.
+        */
+        if (segment == segments)
+            _bLine.setLength(bLine.length() - (headWidth * 0.80f));
         setLine(_bLine);
+
         radAngle = line().angle() * M_PI / 180;
         dx       = (ft) * sin(radAngle);
         dy       = (ft) * cos(radAngle);
@@ -254,13 +259,11 @@ QPainterPath BorderedLineItem::shape() const {
     return ret;
 }
 
-void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                             QWidget *widget) {
+void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
     Q_UNUSED(option);
     Q_UNUSED(widget);
-
     if (! pad->borderData.useDefault) {
-
         QPen borderPen(pad->borderData.color);
         borderPen.setWidth(pad->borderData.thickness);
         borderPen.setCapStyle(Qt::RoundCap);
@@ -281,14 +284,10 @@ void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             borderPen.setStyle(Qt::DashDotDotLine);
         }
         painter->setPen(borderPen);
-
     } else {
-
         QPen borderPen(Qt::NoPen);
         painter->setPen(borderPen);
-
     }
-
     painter->drawPolygon(borderPolygon);
     painter->setPen(pen());
     painter->drawLine(line());
