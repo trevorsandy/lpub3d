@@ -89,13 +89,13 @@ environment:
 # Automatically deploy to GitHub Release and Sourceforge.net.
 # Skip Sourceforge.net if git annotation contains [skip sfr]
 init:
+ - ps: cmd.exe /c %windir%\system32\tzutil.exe /s "Central Europe Standard Time"
+ - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: |
       If ($env:LP3D_SKIP_APPVEYOR_VAR -eq "true") {
          write-host "Skip Appveyor build detected in environment variable."
          Exit-AppveyorBuild
       }
- - ps: cmd.exe /c %windir%\system32\tzutil.exe /s "Central Europe Standard Time"
- - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: write-host "Windows Version:" (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.FileVersion
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
@@ -262,7 +262,7 @@ build_script:
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         cmd.exe /c builds\windows\AutoBuild.bat -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
-        write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
+        write-host "`n  Build Archive Asset Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
       } ElseIf ($env:LP3D_COMPILE_SOURCE -eq "true") {
         cmd.exe /c builds\windows\AutoBuild.bat -all -3rd -chk 2`>`&1
       } ElseIf ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
@@ -339,6 +339,8 @@ after_build:
             $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Development Release"
           }
         }
+      } ElseIf ($env:LP3D_BUILD_PKG -eq "yes") {
+          Write-Error -Message "`n  Minimum asset count [$env:LP3D_ARTEFACT_ITEM_COUNT]/350 was not met. Ensure required assets are available." -ErrorAction Stop
       }
 
 # Nothing special here, just the standard GitHub providers
