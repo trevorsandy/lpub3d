@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2543 (10 05 2021 22:58:56)
+LPub3D 2.4.2.1.2544 (10 05 2021 22:59:29)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,6 +28,7 @@ Revisions:
 - Change - Viewport divider reset on page load #534
 - Change - Visual editor not loading multi-step page last step or callout CSI #536
 - How To - How to create a text URL with html using rich text edit and export to PDF #539
+- Fix - 3D preview - submodel preview loading placholder part #411
 - Fix - Abnormal end when deleting lines in the LDraw Editor #530
 - Fix - Build Modification - increment page display on forward jump and redraw #520
 - Fix - Build modification - insert build mod at countPage if not exist #520

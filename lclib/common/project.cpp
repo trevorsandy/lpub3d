@@ -438,9 +438,12 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	bool IsLPubModel = false;
 	QWidget* parent = nullptr;
 	if (mIsPreview)
-		IsLPubModel = gui->isSubmodel(QFileInfo(FileName).fileName()) || gui->isUnofficialPart(QFileInfo(FileName).fileName());
-	else
+	{
+		if (FileName.isEmpty())
+			IsLPubModel = gui->isSubmodel(QFileInfo(FileName).fileName()) || gui->isUnofficialPart(QFileInfo(FileName).fileName());
+	} else {
 		parent = gMainWindow;
+	}
 
 	QByteArray FileData;
 	if (!FileName.isEmpty() && !IsLPubModel)
