@@ -51,6 +51,7 @@
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
 
+#include "pairdialog.h"
 #include "aboutdialog.h"
 #include "dialogexportpages.h"
 #include "numberitem.h"
@@ -1812,7 +1813,10 @@ void Gui::clearAllCaches(bool global)
     }
 
     //reload current model
-    cyclePageDisplay(displayPageNum, FILE_RELOAD);
+    bool cycleEachPage = Preferences::cycleEachPage;
+    if (!cycleEachPage && displayPageNum > 1)
+      cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+    cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                         .arg(ldrawFile.getPartCount())
@@ -1872,8 +1876,11 @@ void Gui::clearCustomPartCache(bool silent)
       processFadeColourParts(overwrite, setup);       // (re)generate and archive fade parts based on the loaded model file
   if (Preferences::enableHighlightStep)
       processHighlightColourParts(overwrite, setup);  // (re)generate and archive highlight parts based on the loaded model file
-  if (!getCurFile().isEmpty() && Preferences::modeGUI){
-      cyclePageDisplay(displayPageNum, FILE_RELOAD);
+  if (!getCurFile().isEmpty() && Preferences::modeGUI) {
+      bool cycleEachPage = Preferences::cycleEachPage;
+      if (!cycleEachPage && displayPageNum > 1)
+        cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+      cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
   }
 }
 
@@ -2110,7 +2117,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
     if (Preferences::enableFadeSteps)
         clearPrevStepPositions();
-    cyclePageDisplay(displayPageNum, FILE_RELOAD);
+    cyclePageDisplay(displayPageNum);
 }
 
 void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
@@ -2139,7 +2146,7 @@ void Gui::clearPageCache(PlacementType relativeType, Page *page, int option) {
       if (Preferences::enableFadeSteps && !option) {
           clearPrevStepPositions();
       }
-      cyclePageDisplay(displayPageNum, FILE_RELOAD);
+      cyclePageDisplay(displayPageNum);
    }
 }
 
@@ -3843,7 +3850,10 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 clearTempCache();
 
                 //reload current model file
-                cyclePageDisplay(displayPageNum, FILE_RELOAD);
+                bool cycleEachPage = Preferences::cycleEachPage;
+                if (!cycleEachPage && displayPageNum > 1)
+                  cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+                cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
                 emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
                                 .arg(ldrawFile.getPartCount())

@@ -1,4 +1,4 @@
-LPub3D 2.4.2.1.2536 (10 05 2021 22:55:01)
+LPub3D 2.4.2.1.2537 (10 05 2021 22:55:34)
 
 Features, enhancements, fixes and changes
 ------------
@@ -24,6 +24,7 @@ Revisions:
 - Enhancement - Parse single step NOSTEP command #535
 - Change - Enable instance count on manual override #298
 - Change - Rotate icon display pointer tip default restored to enabled #528
+- Change - Using the redraw button iterates through every page #546
 - Change - Viewport divider reset on page load #534
 - Change - Visual editor not loading multi-step page last step or callout CSI #536
 - How To - How to create a text URL with html using rich text edit and export to PDF #539
