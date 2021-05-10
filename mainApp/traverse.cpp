@@ -3462,8 +3462,8 @@ int Gui::findPage(
 
                           } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
-                        if (! opts.flags.noStep) {
-                            if (exporting()) {
+                        if (! opts.flags.noStep || opts.flags.parseNoStep) {
+                            if (exporting() && ! opts.flags.noStep) {
                                 pageSizes.remove(opts.pageNum);
                                 if (opts.flags.pageSizeUpdate) {
                                     opts.flags.pageSizeUpdate = false;
