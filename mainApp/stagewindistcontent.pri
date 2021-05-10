@@ -96,7 +96,7 @@ win32: stagewindistcontent {
     stage3rdexe {
         # renderer executables
         CONFIG(release, debug|release) {
-            release: message("~~~ RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$LPUB3D_STG_3RD_PATH ~~~")
+            release: message("~~~ RELEASE BUILD - 3RD PARTY EXEs STAGED TO: $$system_path( $$absolute_path($$LPUB3D_STG_3RD_PATH) ) ~~~")
             ldglite_stg.files += $$LDGLITE_INS_EXE
             ldglite_stg.path = $$LDGLITE_STG_DIR
 

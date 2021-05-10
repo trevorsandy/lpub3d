@@ -372,8 +372,7 @@ include(../qsimpleupdater/QSimpleUpdater.pri)
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 equals(COPY_LDV_LIBS,True) {
-    LDVIEW_LIBRARY_PATH = $$system_path($$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR))
-    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO: $$LDVIEW_LIBRARY_PATH ~~~ ")
+    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO: $$system_path( $$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR) ) ~~~ ")
 }
 
 # needed to access ui header from LDVQt
