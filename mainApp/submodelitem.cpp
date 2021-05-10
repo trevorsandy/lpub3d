@@ -1140,7 +1140,7 @@ SMInstanceTextItem::SMInstanceTextItem(
     mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
-  QString toolTip(tr("Times used - right-click to modify"));
+  QString toolTip(tr("%1 times used - right-click to modify").arg(_part->type));
   setText(_subModel,_part,text,fontString,toolTip);
   QColor color(colorString);
   setDefaultTextColor(color);
