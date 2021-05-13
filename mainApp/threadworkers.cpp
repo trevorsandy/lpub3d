@@ -2266,8 +2266,8 @@ int CountPageWorker::countPage(
   auto documentPageCount = [&opts] ()
   {
       if (Preferences::modeGUI && ! gui->exporting()) {
-          statusMessage(LOG_STATUS, QString("Counting document page %1...")
-                                            .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+          statusMessage(LOG_COUNT_STATUS, QString("Counting document page %1...")
+                                                  .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
       }
   };
 
