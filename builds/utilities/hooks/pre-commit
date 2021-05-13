@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: May 08, 2021
+#  Last Update: May 14, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 ## Automatically generate git revision info
@@ -99,6 +99,7 @@ if test x"$update_config_files" = x"yes" && \
   git add mainApp/lpub3d.appdata.xml
   git add README.md
   git add gitversion.pri
+  git add snapcraft.yaml
 
   git add builds/linux/obs/alldeps/PKGBUILD
   git add builds/linux/obs/alldeps/lpub3d.spec

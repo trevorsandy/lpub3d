@@ -1,0 +1,177 @@
+# Build and check LPub3D Snap
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: May 14, 2021
+# Copyright (c) 2017 - 2021 by Trevor SANDY
+#
+name: lpub3d
+adopt-info: lpub3d
+
+grade: stable
+confinement: strict
+base: core18
+
+architectures:
+- build-on: amd64
+- build-on: arm64
+
+apps:
+  lpub3d:
+    common-id: io.github.trevorsandy.LPub3D
+    desktop: usr/share/applications/lpub3d.desktop
+    command: lpub3d24
+    plugs:
+      - home
+      - opengl
+      - network
+    extensions:
+      - kde-neon
+
+parts:
+  ldraw-libraries:
+    plugin: nil
+    build-environment:
+      - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
+      - LIB_URL: https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1
+    build-packages:
+      - wget
+      - unzip
+    override-build: |
+      wget --quiet ${LIB_URL}/tenteparts.zip -O tenteparts.zip
+      wget --quiet ${LIB_URL}/vexiqparts.zip -O vexiqparts.zip
+      wget --quiet ${LIB_URL}/lpub3dldrawunf-01-04-21.zip -O lpub3dldrawunf.zip
+      wget --quiet ${LIB_URL}/complete-20-03.zip -O complete.zip
+    override-stage: |
+      test -d ${STAGE_DIR} && rm -rf ${STAGE_DIR}; mkdir ${STAGE_DIR}
+      test -f ${SNAPCRAFT_PART_BUILD}/complete.zip && mv -f ${SNAPCRAFT_PART_BUILD}/complete.zip ${STAGE_DIR}/
+      test -f ${STAGE_DIR}/complete.zip && echo \"Official LDraw library staged to ${STAGE_DIR}/complete.zip\"
+      test -f ${SNAPCRAFT_PART_BUILD}/lpub3dldrawunf.zip && mv -f ${SNAPCRAFT_PART_BUILD}/lpub3dldrawunf.zip ${STAGE_DIR}/
+      test -f ${STAGE_DIR}/lpub3dldrawunf.zip && echo \"Unofficial LDraw library staged to ${STAGE_DIR}/lpub3dldrawunf.zip\"
+      test -f ${SNAPCRAFT_PART_BUILD}/vexiqparts.zip && mv -f ${SNAPCRAFT_PART_BUILD}/vexiqparts.zip ${STAGE_DIR}/
+      test -f ${STAGE_DIR}/vexiqparts.zip && echo \"VEX LDraw library staged to ${STAGE_DIR}/vexiqparts.zip\"
+      test -f ${SNAPCRAFT_PART_BUILD}/tenteparts.zip && mv -f ${SNAPCRAFT_PART_BUILD}/tenteparts.zip ${STAGE_DIR}/
+      test -f ${STAGE_DIR}/tenteparts.zip && echo \"TENTE LDraw library staged to ${STAGE_DIR}/tenteparts.zip\"
+      test -f ${STAGE_DIR}/complete.zip && unzip -od  ${STAGE_DIR}/ -q  ${STAGE_DIR}/complete.zip
+      test -d ${STAGE_DIR}/ldraw && echo \"LDraw library extracted to ${STAGE_DIR}/ldraw.\" || true    
+
+  source-and-renderers:
+    after: [ldraw-libraries]
+    plugin: nil
+    source: https://github.com/trevorsandy/lpub3d/archive/v2.4.3.tar.gz
+    build-environment:
+      - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
+      - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
+      - LDRAWDIR: ${SNAPCRAFT_STAGE}/build_staging/ldraw
+      - LP3D_3RD_DIST_DIR: build_staging
+      - PLATFORM_VER: $(lsb_release -sr)      
+      - TARGET_CPU: $(uname -m)
+      - PLATFORM_CODE: ubu
+      - LP3D_BUILD_OS: snap
+      - LDGLITE: ldglite-1.3
+      - LDVIEW: ldview-4.4
+      - POVRAY: lpub3d_trace_cui-3.8
+      - LPUB3D: ${PWD##*/}
+      - WD: $(cd ../ && echo $PWD)
+    build-packages:
+      - freeglut3-dev
+      - libboost-all-dev
+      - libgl2ps-dev
+      - libjpeg-dev
+      - libopenexr-dev
+      - libosmesa6-dev
+      - libpng-dev
+      - libsdl2-dev
+      - libtiff-dev
+      - libtinyxml-dev
+      - qtbase5-dev
+      - qttools5-dev-tools
+      - zlib1g-dev
+    stage-packages:
+      - freeglut3
+      - libgl2ps1.4
+      - libjpeg-turbo8
+      - libopenexr22
+      - libosmesa6
+      - libpng16-16
+      - libsdl2-2.0-0
+      - libtiff5
+      - libtinyxml2.6.2v5
+      - zlib1g
+    override-build: |
+      test -d ${WORK_DIR} || mkdir -p ${WORK_DIR}
+      test -f ${WORK_DIR}/complete.zip || ln -s ${STAGE_DIR}/complete.zip ${WORK_DIR}/complete.zip
+      test -f ${WORK_DIR}/lpub3dldrawunf.zip || ln -s ${STAGE_DIR}/lpub3dldrawunf.zip ${WORK_DIR}/lpub3dldrawunf.zip
+      test -f builds/utilities/CreateRenderers.sh && chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh || false
+    override-stage: |
+      test -d ${STAGE_DIR}/lpub3d && rm -rf ${STAGE_DIR}/lpub3d; mkdir ${STAGE_DIR}/lpub3d
+      test -n $(ls -A {SNAPCRAFT_PART_SRC}) && mv -f ${SNAPCRAFT_PART_SRC}/* ${STAGE_DIR}/lpub3d
+      test -n $(ls -A ${STAGE_DIR}/lpub3d) && echo \"LPub3D source staged to ${STAGE_DIR}/lpub3d/\"
+      test -d ${STAGE_DIR}/${LDGLITE} && rm -rf ${STAGE_DIR}/${LDGLITE}; mv -f ${WORK_DIR}/${LDGLITE} ${STAGE_DIR}/
+      test -d ${STAGE_DIR}/${LDVIEW} && rm -rf ${STAGE_DIR}/${LDVIEW}; mv -f ${WORK_DIR}/${LDVIEW} ${STAGE_DIR}/
+      test -d ${STAGE_DIR}/${POVRAY} && rm -rf ${STAGE_DIR}/${POVRAY}; mv -f ${WORK_DIR}/${POVRAY} ${STAGE_DIR}/
+      test -d ${STAGE_DIR}/${LDGLITE} && echo \"LDGLite renderer staged to ${STAGE_DIR}/\"
+      test -d ${STAGE_DIR}/${LDVIEW} && echo \"LDView renderer staged to ${STAGE_DIR}/\"
+      test -d ${STAGE_DIR}/${POVRAY} && echo \"POV-Ray renderer staged to ${STAGE_DIR}/\" || true
+    override-prime: |
+      echo "Renderers are not primed. Nothing to do."
+
+  lpub3d:
+    after: [source-and-renderers]
+    plugin: qmake
+    source: ${SNAPCRAFT_STAGE}/build_staging/lpub3d
+    source-type: local
+    parse-info: [usr/share/metainfo/lpub3d.appdata.xml]
+    options:
+      - CONFIG+=snp
+      - CONFIG+=release
+      - CONFIG-=debug_and_release
+    build-environment:
+      - LP3D_DIST_DIR_PATH: ${SNAPCRAFT_STAGE}/build_staging
+    build-packages:
+      - qtbase5-dev
+      - qttools5-dev-tools
+      - libqt5opengl5-dev
+      - zlib1g-dev
+    stage-packages:
+      - freeglut3
+      - libasound2
+      - libasyncns0
+      - libflac8
+      - libgl2ps1.4
+      - libglu1-mesa
+      - libilmbase12
+      - libjbig0
+      - libogg0
+      - libopenexr22
+      - libosmesa6
+      - libpulse0
+      - libqt5concurrent5
+      - libqt5gui5
+      - libqt5opengl5
+      - libqt5printsupport5
+      - libqt5xml5
+      - libsdl2-2.0-0
+      - libsndfile1
+      - libsndio6.1
+      - libtiff5
+      - libtinyxml2.6.2v5
+      - libvorbis0a
+      - libvorbisenc2
+      - libwayland-cursor0
+      - libwayland-egl1
+      - libxcursor1
+      - libxinerama1
+      - libxrandr2
+      - libxrender1
+      - libxss1
+
+  build-check:
+    after: [lpub3d]
+    plugin: nil
+    build-environment:
+      - LDRAWDIR: ${SNAPCRAFT_STAGE}/build_staging/ldraw        
+      - SOURCE_DIR: ${SNAPCRAFT_STAGE}/build_staging/lpub3d    
+      - LPUB3D_DEST: ${SNAPCRAFT_PRIME}/usr
+      - LP3D_BUILD_OS: snap      
+    build-packages: [xvfb]
+    override-prime: |
+      cd ${SNAPCRAFT_STAGE}/build_staging/lpub3d && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh

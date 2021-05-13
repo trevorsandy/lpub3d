@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 19, 2020
+# Last Update May 14, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
@@ -103,6 +103,7 @@ tar -czf ../${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/README.md" \
         --exclude="${WORK_DIR}/_config.yml" \
         --exclude="${WORK_DIR}/.gitignore" \
+        --exclude="${WORK_DIR}/snapcraft.yaml" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 echo "5. copy PKGBUILD"

@@ -20,6 +20,7 @@
       <param name="exclude">LPub3D.pro.user</param>
       <param name="exclude">README.md</param>
       <param name="exclude">_config.yml</param>
+      <param name="exclude">snapcraft.yaml</param>
       <param name="exclude">appveyor.yml</param>
       <param name="version">git-master</param>
       <param name="versionformat">git</param>

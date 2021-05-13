@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 06, 2021
+# Last Update May 14, 2021
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -401,6 +401,20 @@ then
                -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
                -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
                -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
+FILE="$LP3D_PWD/../snapcraft.yaml"
+Info "14.update snapcraft.yaml  - add version suffix    [$FILE]"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+    else
+        sed -i "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

@@ -1,12 +1,12 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 08, 2021
+# Last Update May 14, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
 #       $BUILD_OPT = compile   (macOS only)
 #       $XSERVER = true|false  (used when running local XServer)
-#       $LP3D_BUILD_OS = appimage|flatpak,
+#       $LP3D_BUILD_OS = appimage|flatpak|snap,
 #       $SOURCE_DIR = <lpub3d source folder>
 #       $LPUB3D_EXE = <lpub3d executable path>
 
@@ -33,7 +33,6 @@ function show_settings
     echo "--LP3D_BUILD_OS......$LP3D_BUILD_OS"
     echo "--LPUB3D_EXE.........$LPUB3D_EXE"
     echo "--SOURCE_DIR.........$SOURCE_DIR"
-    echo "--WORKING_DIR .......$HOME_DIR"
     echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
     [ "${USE_XVFB}" = "true" ] && echo "--USE_XVFB...........YES" || true
     [ "${XSERVER}" = "true" ] && echo "--XSERVER............YES" || true
@@ -42,7 +41,6 @@ function show_settings
     echo "--LP3D_TARGET_ARCH...$LP3D_TARGET_ARCH"
     echo "--LP3D_PLATFORM......$LP3D_PLATFORM"
     [ -n "$SCRIPT_NAME" ] && echo "--SCRIPT_NAME........$SCRIPT_NAME" || true
-    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS........$SCRIPT_ARGS" || true
     echo
 }
 
@@ -79,17 +77,17 @@ else
 fi
 
 # Flatpak validate and set executable permissions
-if [[ "$LP3D_BUILD_OS" = "flatpak" ]]; then
-    LPUB3D_EXE=$(find ${FLATPAK_DEST}/bin -name lpub3d* -type f)  
+if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
+    LPUB3D_EXE=$(find ${LPUB3D_DEST}/bin -name lpub3d* -type f)
     if [[ -f "$LPUB3D_EXE" ]]; then 
         if [[ -f "$SOURCE_DIR/LPub3D.pro" ]]; then
             chmod u+x ${LPUB3D_EXE}
             cd ${SOURCE_DIR}
         else
-            show_settings_and_exit "ERROR - Invalid source path specified. Build chack cannot be executed."
+            show_settings_and_exit "ERROR - Invalid source path specified. Build check cannot be executed."
         fi   
     else
-        show_settings_and_exit "ERROR - LPub3D executable was not found. Build chack cannot be executed."
+        show_settings_and_exit "ERROR - LPub3D executable was not found. Build check cannot be executed."
     fi
 fi  
 

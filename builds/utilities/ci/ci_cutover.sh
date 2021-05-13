@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 11, 2021
+# Last Update May 14, 2021
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -366,6 +366,7 @@ for file in $(find . -type f \
               -not -path "./builds/utilities/ci/ci_cutover.sh" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
               -not -path "./gitversion.pri" \
+              -not -path "./snapcraft.yaml" \
               -not -path "./appveyor.yml" \
               -not -path "./travis.yml" \
               )
@@ -376,7 +377,8 @@ do
 done
 backslash='\\'
 prerelease='true'
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then prerelease='false'; fi
+# This is corrupting my versioning scheme so i'll disable for now
+#if [ "$TO_REPO_NAME" = "lpub3d" ]; then prerelease='false'; fi
 file=appveyor.yml
 sed -e "s,clone_folder: c:${backslash}projects${backslash}$FROM_REPO_NAME,clone_folder: c:${backslash}projects${backslash}$TO_REPO_NAME," \
     -e "s,^   repository: trevorsandy/$FROM_REPO_NAME,   repository: trevorsandy/$TO_REPO_NAME," \

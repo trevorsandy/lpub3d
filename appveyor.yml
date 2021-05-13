@@ -16,7 +16,7 @@ clone_script: echo skip
 cache:
  - '$(APPVEYOR_BUILD_FOLDER)\LDraw'
  - '$(APPVEYOR_BUILD_FOLDER)\LDrawLibs'
- - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)'
+ - '$(APPVEYOR_BUILD_FOLDER)\$(LP3D_3RD_DIST_DIR)'
 
 #shallow_clone: true
 
@@ -64,8 +64,8 @@ environment:
   LP3D_PACKAGE: LPub3D
   LP3D_GIT_DEPTH: 150000
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
-  LP3D_DIST_DIR: lpub3d_windows_3rdparty
-  LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
+  LP3D_3RD_DIST_DIR: lpub3d_windows_3rdparty
+  LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_3RD_DIST_DIR)
   LP3D_SECURE_DIR: builds\utilities\ci\secure
   LP3D_RELEASE_DESCRIPTION: "LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
   SECURE_AV_SECRET:

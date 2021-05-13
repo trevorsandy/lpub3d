@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 01, 2021
+# Last Update May 14, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -115,6 +115,7 @@ tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
         --exclude="${SOURCE_DIR}/README.md" \
         --exclude="${SOURCE_DIR}/_config.yml" \
         --exclude="${SOURCE_DIR}/.gitignore" \
+        --exclude="${SOURCE_DIR}/snapcraft.yaml" \
         --exclude="${SOURCE_DIR}/appveyor.yml"
 
 echo "6. download LDraw archive libraries to SOURCES/..."

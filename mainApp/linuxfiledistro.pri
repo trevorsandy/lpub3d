@@ -22,15 +22,17 @@ unix:!macx {
 
     # These defines point LPub3D to the platform-specific content
     # when performing 'check for update' downloads
-    # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|flp|dmg> accordingly
+    # Don't forget to set CONFIG+=<deb|rpm|pkg|exe|api|snp|flp|dmg> accordingly
 
     # <BUILD_CODE>-<PLATFORM_CODE>-<HOST_VERSION>-<TARGET_CPU>
     deb: BUILD_CODE = deb
     rpm: BUILD_CODE = rpm
     pkg: BUILD_CODE = pkg
     api: BUILD_CODE = api
-    flp: {
-        BUILD_CODE = flp
+    snp: BUILD_CODE = snp
+    flp: BUILD_CODE = flp
+    if (snp|flp) {
+        THIRD_PARTY_EXE_DIR = $$(LP3D_3RD_EXE_DIR)
         _PLATFORM_CODE = osl
         COPY_CMD = cp -f
         system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/) )
@@ -67,10 +69,11 @@ unix:!macx {
     
     isEmpty(BIN_DIR): BIN_DIR               = $$INSTALL_PREFIX/bin
     isEmpty(SHARE_DIR): SHARE_DIR           = $$INSTALL_PREFIX/share
-    isEmpty(THIRD_PARTY_EXE_DIR):  flp: \
-    THIRD_PARTY_EXE_DIR                     = $$INSTALL_PREFIX/opt/$$DIST_TARGET
-    else: isEmpty(THIRD_PARTY_EXE_DIR): \
-    THIRD_PARTY_EXE_DIR                     = /opt/$$DIST_TARGET
+
+    isEmpty(THIRD_PARTY_EXE_DIR) {
+    flp:  THIRD_PARTY_EXE_DIR               = $$INSTALL_PREFIX/opt/$$DIST_TARGET
+    else: THIRD_PARTY_EXE_DIR               = /opt/$$DIST_TARGET
+    }
 
     isEmpty(DOCS_DIR): DOCS_DIR             = $$SHARE_DIR/doc/$$DIST_TARGET
     isEmpty(ICON_DIR): ICON_DIR             = $$SHARE_DIR/icons
@@ -195,12 +198,12 @@ unix:!macx {
     # On Travis-CI (Ubuntu 16.04) there is no evidence of validation but builds are successful.
         TRAVIS_COMMIT = $$(TRAVIS_COMMIT)
         !isEmpty(TRAVIS_COMMIT) {
-            INSTALLS += \
-                appstream_appdata     
+            INSTALLS += appstream_appdata
         }
-    } else:flp {
-        INSTALLS += \
-        appstream_appdata
+    } else {
+        if (snp|flp) {
+            INSTALLS += appstream_appdata
+        }
     }
 
     # The package distribution settings below requires a specific dev env configuration.

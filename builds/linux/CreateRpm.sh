@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 25, 2019
+# Last Update May 14, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -143,6 +143,7 @@ tar -czf ${WORK_DIR}.tar.gz \
         --exclude="${WORK_DIR}/README.md" \
         --exclude="${WORK_DIR}/_config.yml" \
         --exclude="${WORK_DIR}/.gitignore" \
+        --exclude="${WORK_DIR}/snapcraft.yaml" \
         --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
 
 cd ${BUILD_DIR}/SPECS

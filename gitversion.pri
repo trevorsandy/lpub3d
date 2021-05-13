@@ -1,5 +1,5 @@
 # If there is no version tag in git this one will be used
-VERSION = 2.4.2
+VERSION = continuous.4.2787
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -20,6 +20,8 @@ equals(GIT_DIR, undefined) {
     OPEN_BUILD_SERVICE = $$(OBS)
     contains(OPEN_BUILD_SERVICE, true) {
         GIT_DIR_ENV = OBS
+    } else:contains(CONFIG, snp) {
+        GIT_DIR_ENV = SNAP
     } else:contains(CONFIG, flp) {
         GIT_DIR_ENV = FLATPAK
     } else {
@@ -42,8 +44,9 @@ equals(GIT_DIR, undefined) {
         GIT_SHA      = $$system($$GIT_BASE_COMMAND rev-parse --short HEAD 2> $$NULL_DEVICE)
         GIT_COMMIT   = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         GIT_VERSION  = v$${VERSION}-$${GIT_REVISION}-$${GIT_SHA}
+        contains(CONFIG, snp): GIT_DIR_ENV = SNAP
         contains(CONFIG, flp): GIT_DIR_ENV = FLATPAK
-        if(isEmpty(GIT_SHA)|equals(GIT_DIR_ENV, FLATPAK)) {
+        if(isEmpty(GIT_SHA)|equals(GIT_DIR_ENV, SNAP)|equals(GIT_DIR_ENV, FLATPAK)) {
             USE_GIT_VER_FILE = true
         } else {
             message("~~~ ALERT! GIT TAG NOT DEFINED, USING HEAD $$GIT_VERSION ~~~")
@@ -54,7 +57,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 2556
+            GIT_COMMIT = 
             message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -100,7 +103,7 @@ equals(USE_GIT_VER_FILE, true) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {
         message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.1.2556.c2cd042
+        GIT_VERSION = $${VERSION}.1.2557.be7016f
         message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
         GIT_VERSION ~= s/\./" "
     }

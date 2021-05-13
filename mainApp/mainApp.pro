@@ -291,13 +291,13 @@ UI_DIR          = $$DESTDIR/.ui
 # Projects/Build Steps/Qmake/'Additional arguments' because,
 # macOS build will also bundle all deliverables.
 
-!isEmpty(LPUB3D_3RD_PARTY) {
-    THIRD_PARTY_DIST_DIR_PATH = $$LPUB3D_3RD_PARTY
-    LPUB3D_DIST_DIR = LPUB3D_3RD_PARTY
+!isEmpty(LP3D_3RD_DIST_DIR) {
+    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
+    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
 } else {
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
     !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    LPUB3D_DIST_DIR = LP3D_DIST_DIR_PATH
+    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
 }
 
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
@@ -309,17 +309,17 @@ UI_DIR          = $$DESTDIR/.ui
     message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
     else: \
     message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
-    LPUB3D_DIST_DIR = LOCAL_DIR
+    3RD_DI3RD_DIR_SOURCEST_DIR_SOURCE = LOCAL_DIR
 }
 
 isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NOT_DEFINED
 
-message("~~~ 3RD PARTY DISTRIBUTION REPO ($$LPUB3D_DIST_DIR): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
+message("~~~ 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
 build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
-if(deb|rpm|pkg|dmg|exe|api|flp|contains(build_package, yes)) {
-    args = deb rpm pkg dmg exe flp
+if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
+    args = deb rpm pkg dmg exe snp flp
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
     }
@@ -331,6 +331,9 @@ if(deb|rpm|pkg|dmg|exe|api|flp|contains(build_package, yes)) {
     contains(opt, api) {
         DEFINES += LP3D_APPIMAGE
         DISTRO_PACKAGE = APPIMAGE ($$opt)
+    } else:contains(opt, snp) {
+        DEFINES += LP3D_SNAP
+        DISTRO_PACKAGE = SNAP ($$opt)
     } else:contains(opt, flp) {
         DEFINES += LP3D_FLATPACK
         DISTRO_PACKAGE = FLATPACK ($$opt)
@@ -653,6 +656,7 @@ OTHER_FILES += \
     ../.gitignore \
     ../.travis.yml \
     ../appveyor.yml \
+    ../snapcraft.yaml \
     ../README.md \
     Info.plist \
     lpub3d.1 \

@@ -3,16 +3,23 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 20, 2021
+# Last Update Maty 12, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
-# sample commands [call from root build directory - e.g. lpub3d]:
-# -export WD=$PWD; export DOCKER=true; chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# -export OBS=false; source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
-
-# NOTE: OBS flag is 'ON' by default, if not using DOCKER, be sure to set this flag in your build command accordingly
-# NOTE: elevated access required for dnf builddeps, execute with sudo if running noninteractive
+# sample commands - called from root of repository directory - e.g. lpub3d
+# $ env [environment variables] chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
+# $ export OBS=false; source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
+#
+# Environment variables:
+# WD=$PWD 
+# OBS=false|false
+# DOCKER=true|false
+# LP3D_3RD_DIST_DIR=<path relative to $WD>|lpub3d_linux_3rdparty|lpub3d_macos_3rdparty
+# 
+# NOTES: $WD (Working Director) must be outside the repository diretory
+#        OBS flag is 'ON' by default if not using DOCKER, be sure to set it false to disable in your build command accordingly
+#        elevated access required for dnf builddeps, execute with sudo if running noninteractive
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
@@ -343,6 +350,7 @@ InstallDependencies() {
 ApplyLDViewStdlibHack(){
   Info "Apply stdlib error patch to LDViewGlobal.pri on $platform_pretty v$([ -n "$platform_ver" ] && [ "$platform_ver" != "undefined" ] && echo $platform_ver || true) ..."
   sed s/'    # detect system libraries paths'/'    # Suppress fatal error: stdlib.h: No such file or directory\n    QMAKE_CFLAGS_ISYSTEM = -I\n\n    # detect system libraries paths'/ -i LDViewGlobal.pri
+  Info
 }
 
 # args: 1 = <build type (release|debug)>, 2 = <build log>
@@ -389,9 +397,11 @@ BuildLDView() {
     ApplyLDViewStdlibHack
     ;;
   ubuntu)
-    if [[ "${DOCKER}" = "true" && "${platform_ver}" = "18.04" ]]; then
-      ApplyLDViewStdlibHack
-    fi
+    case ${platform_ver} in
+     18.04)
+       ApplyLDViewStdlibHack
+       ;;
+    esac
     ;;
   esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
@@ -501,6 +511,7 @@ CallDir=$PWD
 curlopts="-sL -C -"
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
+Info "LPub3D Build Folder......[$LPUB3D]"
 OS_NAME=$(uname)
 
 # Check for required 'WD' variable
@@ -522,7 +533,7 @@ if [ "${WD}" = "" ]; then
 fi
 
 # Initialize OBS if not in command line input
-if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
+if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${TRAVIS}" = "" && "${SNAP}" = "" ]]; then
   OBS=true
 fi
 
@@ -571,9 +582,11 @@ fi
 TARGET_CPU=$(uname -m)
 
 # Display platform settings
-Info "Working Directory........[${CallDir}]"
+Info "Build Working Directory..[${CallDir}]"
 Info "Platform ID..............[${platform_id}]"
-if [ "$LP3D_BUILD_OS" = "appimage" ]; then
+if [ "$LP3D_BUILD_OS" = "snap" ]; then
+  platform_pretty="Snap (using $platform_pretty)"
+elif [ "$LP3D_BUILD_OS" = "appimage" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
 fi
 if [ "${DOCKER}" = "true" ]; then
@@ -600,20 +613,26 @@ elif [ "${OBS}" = "true" ]; then
 else
   Info "Platform Pretty Name.....[${platform_pretty}]"
 fi
+
 Info "Platform Version.........[$platform_ver]"
 
-Info "Working Directory........[$WD]"
+Info "Dist Working Directory...[$WD]"
 
 # Distribution directory
-if [ "$OS_NAME" = "Darwin" ]; then
-  DIST_DIR=lpub3d_macos_3rdparty
-else
-  DIST_DIR=lpub3d_linux_3rdparty
+DIST_DIR=${LP3D_3RD_DIST_DIR:-}
+if [ -z "$DIST_DIR" ]; then
+  if [ "$OS_NAME" = "Darwin" ]; then
+    DIST_DIR=lpub3d_macos_3rdparty
+  else
+    DIST_DIR=lpub3d_linux_3rdparty
+  fi
 fi
 DIST_PKG_DIR=${WD}/${DIST_DIR}
 if [ ! -d "${DIST_PKG_DIR}" ]; then
   mkdir -p ${DIST_PKG_DIR}
 fi
+export DIST_PKG_DIR="${DIST_PKG_DIR}"
+
 Info "Dist Directory...........[${DIST_PKG_DIR}]"
 
 # Change to Working directory
@@ -625,12 +644,16 @@ LOG_PATH=${WD}
 Info "Log Path.................[${LOG_PATH}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
-if [ "$OS_NAME" = "Darwin" ]; then
-  LDRAWDIR_ROOT=${HOME}/Library
-else
-  LDRAWDIR_ROOT=${HOME}
+if [ -z "$LDRAWDIR" ]; then
+  if [ "$OS_NAME" = "Darwin" ]; then
+    LDRAWDIR_ROOT=${HOME}/Library
+  else
+    LDRAWDIR_ROOT=${HOME}
+  fi
+  LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
+  export LDRAWDIR=${LDRAWDIR}
 fi
-export LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
+
 if [ "$OBS" != "true" ]; then
   if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
     Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}. Downloading archive..."

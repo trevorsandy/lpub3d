@@ -89,14 +89,14 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   if [[ (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     sudo apt-get update -qq;
   fi;
-  export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
+  export LP3D_3RD_DIST_DIR=lpub3d_linux_3rdparty;
 elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
     brew install gl2ps jpeg minizip;
   fi;
 #  brew install ccache
   export PATH="/usr/local/opt/ccache/libexec:$PATH";
-  export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
+  export LP3D_3RD_DIST_DIR=lpub3d_macos_3rdparty;
 fi
 # Decrypt and extract encrypted files
 if [ "$LP3D_BUILD_PKG" = "yes" ]; then

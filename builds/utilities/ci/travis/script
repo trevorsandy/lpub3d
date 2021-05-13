@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 20, 2021
+# Last Update May 12, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -15,11 +15,11 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     # build linux Docker packages
     if [[ "$TRAVIS_OS_NAME" = "linux" && -z "$LP3D_BUILD_APPIMAGE" ]]; then
       # setup Docker compose directory
-      if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
-        if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
+      if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}" && \
+        if test -d "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}"; fi;
       else
-        echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}";
+        echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}";
       fi;
       # Docker builds
       if [ -n "$LP3D_BUILD_OS" ]; then
@@ -29,11 +29,11 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     fi;
     # build macOS packages
     if [ "$LP3D_BUILD_OS" = "macos" ]; then
-      if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
-        if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
+      if [ ! -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" && \
+        if test -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; fi;
       else
-        echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
+        echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}";
       fi;
       chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
       echo "Package Files:" && find $DmgBuildPath/DMGS -type f;
@@ -44,13 +44,13 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         ("$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage") ]]; then
     # Linux
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-      export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="16.04"
+      export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER=$(lsb_release -sr)
       export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
-      if [ ! -d "${WD}/${LP3D_DIST_DIR}" ]; then
-        ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_DIST_DIR}" && \
-        if test -d "${WD}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_DIST_DIR}"; fi;
+      if [ ! -d "${WD}/${LP3D_3RD_DIST_DIR}" ]; then
+        ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_3RD_DIST_DIR}" && \
+        if test -d "${WD}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_3RD_DIST_DIR}"; fi;
       else
-        echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
+        echo "Using cached 3rd Party repository ${WD}/${LP3D_3RD_DIST_DIR}";
       fi;
       if [ -n "$LP3D_BUILD_RENDERERS" ]; then
             echo "Building Renderers for Linux";
@@ -61,23 +61,23 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
 
       # build AppImage
       if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" ]]; then
-        if [ -f "${WD}/${LP3D_DIST_DIR}/complete.zip" ]; then
-          cp -f "${WD}/${LP3D_DIST_DIR}/complete.zip" "mainApp/extras"
+        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/complete.zip" ]; then
+          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/complete.zip" "mainApp/extras"
         else
           echo "ERROR - could not copy LDraw complete.zip archive."
         fi
-        if [ -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" ]; then
-          cp -f "${WD}/${LP3D_DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras"
+        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/lpub3dldrawunf.zip" ]; then
+          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras"
         else
           echo "ERROR - could not copy LDraw lpub3dldrawunf.zip.zip archive."
         fi
-        if [ -f "${WD}/${LP3D_DIST_DIR}/tenteparts.zip" ]; then
-          cp -f "${WD}/${LP3D_DIST_DIR}/tenteparts.zip" "mainApp/extras"
+        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/tenteparts.zip" ]; then
+          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/tenteparts.zip" "mainApp/extras"
         else
           echo "ERROR - could not copy LDraw tenteparts.zip archive."
         fi
-        if [ -f "${WD}/${LP3D_DIST_DIR}/vexiqparts.zip" ]; then
-          cp -f "${WD}/${LP3D_DIST_DIR}/vexiqparts.zip" "mainApp/extras"
+        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/vexiqparts.zip" ]; then
+          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/vexiqparts.zip" "mainApp/extras"
         else
           echo "ERROR - could not copy LDraw vexiqparts.zip archive."
         fi
@@ -112,11 +112,11 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
       fi
     # macOS compile source code
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-        if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
-            ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
-            if test -d "${DmgBuildPath}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_DIST_DIR}"; fi;
+        if [ ! -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" ]; then
+            ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" && \
+            if test -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; fi;
         else
-            echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
+            echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}";
         fi;
         if [ -z "$LP3D_BUILD_RENDERERS" ]; then
            export BUILD_OPT="compile";
