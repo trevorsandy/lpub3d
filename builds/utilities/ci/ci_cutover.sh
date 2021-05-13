@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update April 02, 2021
+# Last Update May 11, 2021
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -242,7 +242,7 @@ fi
 # Prepare destination repository branch
 cd $HOME_DIR/$TO_REPO_NAME
 LP3D_GIT_VER_TAG_LONG=`git describe --tags --match v* --long`
-LP3D_GIT_VER_COMMIT_COUNT=`git rev-list HEAD --count`
+LP3D_GIT_VER_COMMIT_COUNT=`git rev-list --count HEAD`
 LP3D_GIT_VER_TAG_SHORT=`git describe --tags --match v* --abbrev=0`
 LP3D_VER_TMP=${LP3D_GIT_VER_TAG_LONG#*-}      # remove everything before and including "-"
 LP3D_REVISION_=${LP3D_VER_TMP%-*}             # remove everything after and including "-"
@@ -375,9 +375,12 @@ do
     && echo " -file updated: $file" || true
 done
 backslash='\\'
+prerelease='true'
+if [ "$TO_REPO_NAME" = "lpub3d" ]; then prerelease='false'; fi
 file=appveyor.yml
 sed -e "s,clone_folder: c:${backslash}projects${backslash}$FROM_REPO_NAME,clone_folder: c:${backslash}projects${backslash}$TO_REPO_NAME," \
-    -e "s,^   repository: trevorsandy/$FROM_REPO_NAME,   repository: trevorsandy/$TO_REPO_NAME," -i $file \
+    -e "s,^   repository: trevorsandy/$FROM_REPO_NAME,   repository: trevorsandy/$TO_REPO_NAME," \
+    -e "s,^   prerelease: true,   prerelease: ${prerelease}," -i $file \
 && echo " -file updated: $file" || echo " -ERROR - file $file NOT updated."
 
 echo "6-Update 'dry-run' flag in sfdeploy.sh"
@@ -489,12 +492,6 @@ sed -e s/'.dsc   - add'/'.dsc      - add'/g \
 || echo " -ERROR - file $file NOT updated."
 
 lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
-
-file=mainApp/extras/LPub3D_Npp_UDL.xml
-sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
-       -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_CHANGE_DATE_LONG}/" "${file}" \
-&& echo " -file $file updated." \
-|| echo " -ERROR - file $file NOT updated."
 
 echo "16-update LPub3D_Npp_UDL.xml"
 file=mainApp/extras/LPub3D_Npp_UDL.xml
