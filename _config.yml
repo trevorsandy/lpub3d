@@ -5,6 +5,7 @@ theme: jekyll-theme-minimal
 timezone: Europe/Paris
 baseurl: /lpub3d
 permalink: none
+port: 8098
 
 # Build settings
 exclude:
