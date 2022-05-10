@@ -170,7 +170,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - Automated build and deploy from Cloud CI Service: [Travis-CI][travis-url], [AppVeyor][appveyor-url] and [Open Build Service][obs-url]
  - [Docker][dockerinstall] container builds using [Docker Compose][dockercomposefile] available for [Arch][dockerarch], [Xenial][dockerubuntu] and [Fedora 26][dockerfedora] Linux distros
 
- Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2020 Leonardo Zide, LDView© 2020 Travis Cobbs & Peter Bartfai and additional third party components. See [Credits][docs-lpub3d-credits] for full details on contributing content.
+ Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague, LeoCAD© 2022 Leonardo Zide, LDView© 2022 Travis Cobbs & Peter Bartfai and additional third party components. See [Credits][docs-lpub3d-credits] for full details on contributing content.
 
  [![Built-With-Qt-Logo][builtwithqt-logo]][qt-url]
 
