@@ -51,7 +51,7 @@ equals(LOAD_LDV_HEADERS, True) {
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.h) $$system_path( $${LDVINCLUDE}/TRE/) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.h) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/3rdParty/*.h) $$system_path( $${LDVINCLUDE}/3rdParty/ ) )
-    
+
     if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
         message("~~~ lib$${TARGET} system library tinyxml found ~~~")
     } else:exists($$PWD/include/3rdParty/tinyxml.h) {
@@ -134,6 +134,7 @@ equals(LOAD_LDV_HEADERS, True) {
 win32 {
     BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
     isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
+    !contains(LOAD_LDVLIBS,True): \
     message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
     equals(BUILD_WORKER_VERSION, 2019) {
         contains(QT_ARCH,i386): VSVER=vs2017
@@ -141,6 +142,7 @@ win32 {
     } else {
         VSVER=vs2015
     }
+    !contains(LOAD_LDVLIBS,True): \
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) VS library version: $$VSVER ~~~")
 }
 
@@ -278,7 +280,7 @@ equals(COPY_LDV_LIBS,True) {
         LDLOADER_LIB_cmd          = $$COPY_CMD $${_LDLOADER_DEP} $${LDVLIBRARY}
         TRE_LIB_cmd               = $$COPY_CMD $${_TRE_DEP} $${LDVLIBRARY}
         TCFOUNDATION_LIB_cmd      = $$COPY_CMD $${_TCFOUNDATION_DEP} $${LDVLIBRARY}
-    
+
         TINYXML_LIB_cmd           = $$COPY_CMD $${_TINYXML_DEP} $${LDVLIBRARY}
         GL2PS_LIB_cmd             = $$COPY_CMD $${_GL2PS_DEP} $${LDVLIBRARY}
         3DS_LIB_cmd               = $$COPY_CMD $${_3DS_DEP} $${LDVLIBRARY}
@@ -286,39 +288,39 @@ equals(COPY_LDV_LIBS,True) {
         PNG_LIB_cmd               = $$COPY_CMD $${_PNG_DEP} $${LDVLIBRARY}
         JPEG_LIB_cmd              = $$COPY_CMD $${_JPEG_DEP} $${LDVLIBRARY}
         ZLIB_LIB_cmd              = $$COPY_CMD $${_ZLIB_DEP} $${LDVLIBRARY}
-    
+
         LDLib_lib.target          = $$LDLIB_DEP
         LDLib_lib.commands        = $$LDLIB_LIB_cmd
         LDLib_lib.depends         = LDLib_lib_msg LDExporter_lib
         LDLib_lib_msg.commands    = @echo Copying LDLib library...
-    
+
         LDExporter_lib.target     = $$LDEXPORTER_DEP
         LDExporter_lib.commands   = $$LDEXPORTER_LIB_cmd
         LDExporter_lib.depends    = LDExporter_lib_msg LDLoader_lib
         LDExporter_lib_msg.commands = @echo Copying LDExporter library...
-    
+
         LDLoader_lib.target       = $$LDLOADER_DEP
         LDLoader_lib.commands     = $$LDLOADER_LIB_cmd
         LDLoader_lib.depends      = LDLoader_lib_msg TRE_lib
         LDLoader_lib_msg.commands = @echo Copying LDLoader library...
-    
+
         TRE_lib.target            = $$TRE_DEP
         TRE_lib.commands          = $$TRE_LIB_cmd
         TRE_lib.depends           = TRE_lib_msg TCFoundation_lib
         TRE_lib_msg.commands      = @echo Copying TRE library...
-    
+
         TCFoundation_lib.target   = $$TCFOUNDATION_DEP
         TCFoundation_lib.commands = $$TCFOUNDATION_LIB_cmd
         TCFoundation_lib.depends  = TCFoundation_lib_msg
         TCFoundation_lib_msg.commands = @echo Copying TCFoundation library...
-    
+
         QMAKE_EXTRA_TARGETS += \
             LDLib_lib LDLib_lib_msg \
             LDExporter_lib LDExporter_lib_msg \
             LDLoader_lib LDLoader_lib_msg \
             TRE_lib TRE_lib_msg \
             TCFoundation_lib TCFoundation_lib_msg
-    
+
         if (!contains(USE_LOCAL_TINYXML_LIB,False)) {
         Tinyxml_lib.target       = $$TINYXML_DEP
         Tinyxml_lib.commands     = $$TINYXML_LIB_cmd
@@ -326,7 +328,7 @@ equals(COPY_LDV_LIBS,True) {
         Tinyxml_lib_msg.commands = @echo Copying Tinyxml library...
         QMAKE_EXTRA_TARGETS     += Tinyxml_lib Tinyxml_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_GL2PS_LIB,False)) {
         Gl2ps_lib.target       = $$GL2PS_DEP
         Gl2ps_lib.commands     = $$GL2PS_LIB_cmd
@@ -334,7 +336,7 @@ equals(COPY_LDV_LIBS,True) {
         Gl2ps_lib_msg.commands = @echo Copying Gl2ps library...
         QMAKE_EXTRA_TARGETS   += Gl2ps_lib Gl2ps_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_3DS_LIB,False)) {
         3ds_lib.target       = $$3DS_DEP
         3ds_lib.commands     = $$3DS_LIB_cmd
@@ -342,7 +344,7 @@ equals(COPY_LDV_LIBS,True) {
         3ds_lib_msg.commands = @echo Copying 3ds library...
         QMAKE_EXTRA_TARGETS += 3ds_lib 3ds_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_MINIZIP_LIB,False):!contains(IS_LINUX,True)) {
         Minizip_lib.target       = $$MINIZIP_DEP
         Minizip_lib.commands     = $$MINIZIP_LIB_cmd
@@ -350,7 +352,7 @@ equals(COPY_LDV_LIBS,True) {
         Minizip_lib_msg.commands = @echo Copying Minizip library...
         QMAKE_EXTRA_TARGETS     += Minizip_lib Minizip_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_PNG_LIB,False)) {
         Png_lib.target       = $$PNG_DEP
         Png_lib.commands     = $$PNG_LIB_cmd
@@ -358,7 +360,7 @@ equals(COPY_LDV_LIBS,True) {
         Png_lib_msg.commands = @echo Copying Png library...
         QMAKE_EXTRA_TARGETS += Png_lib Png_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_JPEG_LIB,False)) {
         Jpeg_lib.target       = $$JPEG_DEP
         Jpeg_lib.commands     = $$JPEG_LIB_cmd
@@ -366,7 +368,7 @@ equals(COPY_LDV_LIBS,True) {
         Jpeg_lib_msg.commands = @echo Copying Jpeg library...
         QMAKE_EXTRA_TARGETS  += Jpeg_lib Jpeg_lib_msg
         }
-    
+
         if (!contains(USE_LOCAL_ZLIB_LIB,False)) {
         Zlib_lib.target       = $$ZLIB_DEP
         Zlib_lib.commands     = $$ZLIB_LIB_cmd
@@ -374,14 +376,14 @@ equals(COPY_LDV_LIBS,True) {
         Zlib_lib_msg.commands = @echo Copying Zlib library...
         QMAKE_EXTRA_TARGETS  += Zlib_lib Zlib_lib_msg
         }
-        
+
         PRE_TARGETDEPS += \
         $${LDLIB_DEP} \
         $${LDEXPORTER_DEP} \
         $${LDLOADER_DEP} \
         $${TRE_DEP} \
         $${TCFOUNDATION_DEP}
-        
+
         QMAKE_CLEAN += \
         $${LDLIB_DEP} \
         $${LDEXPORTER_DEP} \

@@ -64,6 +64,7 @@ rem Visual C++ 2017 -vcvars_ver=14.1
 rem Visual C++ 2019 -vcvars_ver=14.2
 SET LP3D_VCVARSALL=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
 SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
+SET LP3D_VCTOOLSET=v140
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -79,7 +80,7 @@ SET BUILD_THIRD=unknown
 SET INSTALL=unknown
 SET INSTALL_32BIT=unknown
 SET INSTALL_64BIT=unknown
-SET PLATFORM=unknown
+SET ARCHITECTURE=unknown
 SET LDCONFIG_FILE=unknown
 SET CHECK=unknown
 
@@ -98,26 +99,26 @@ rem Parse platform input flags
 IF [%1]==[] (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM=-all
+  SET ARCHITECTURE=-all
   GOTO :SET_CONFIGURATION
 )
 
 IF /I "%1"=="x86" (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM=x86
+  SET ARCHITECTURE=x86
   GOTO :SET_CONFIGURATION
 )
 
 IF /I "%1"=="x86_64" (
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM=x86_64
+  SET ARCHITECTURE=x86_64
   GOTO :SET_CONFIGURATION
 )
 
 IF /I "%1"=="-all" (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
-  SET PLATFORM=-all
+  SET ARCHITECTURE=-all
   GOTO :SET_CONFIGURATION
 )
 
@@ -217,6 +218,8 @@ ECHO.
 IF "%APPVEYOR%" EQU "True" (
   ECHO   BUILD_HOST.....................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
   ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
+  ECHO   BUILD_PLATFORM_QT32_MSVC.......[%LP3D_QT32_MSVC%]
+  ECHO   BUILD_PLATFORM_QT64_MSVC.......[%LP3D_QT64_MSVC%]
   ECHO   BUILD_ID.......................[%APPVEYOR_BUILD_ID%]
   ECHO   BUILD_BRANCH...................[%APPVEYOR_REPO_BRANCH%]
   ECHO   PROJECT_NAME...................[%APPVEYOR_PROJECT_NAME%]
@@ -226,8 +229,8 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
-ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%]
-ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%]
+ECHO   BUILD_PLATFORM_QT32_MSVC.......[%LP3D_QT32_MSVC%]
+ECHO   BUILD_PLATFORM_QT64_MSVC.......[%LP3D_QT64_MSVC%]
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
@@ -238,6 +241,9 @@ ECHO.
 rem set application version variables
 SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
 CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
+IF %ERRORLEVEL% NEQ 0 (
+   GOTO :END
+)
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
@@ -287,19 +293,29 @@ IF /I %CHECK%==1 (
   SET INSTALL=1
 )
 
+rem set debug suffix
+IF NOT [%CONFIGURATION%]==[] (
+  IF "%CONFIGURATION%"=="release" (
+    SET d=
+  )
+  IF "%CONFIGURATION%"=="debug" (
+    SET d=d
+  )
+)
+
 rem Check if build renderers
 IF /I "%RENDERERS_ONLY%"=="1" (
   GOTO :BUILD_RENDERERS
 )
 
 rem Check if build all platforms
-IF /I "%PLATFORM%"=="-all" (
+IF /I "%ARCHITECTURE%"=="-all" (
   GOTO :BUILD_ALL
 )
 
 rem Check if build Win32 and vs2019, set to vs2017 for WinXP compat
 IF "%LP3D_VSVERSION%"=="2019" (
-  CALL :CONFIGURE_VCTOOLSET %PLATFORM%
+  CALL :CONFIGURE_LP3D_VCTOOLSET %ARCHITECTURE%
 )
 
 SET platform_build_start=%time%
@@ -308,9 +324,12 @@ rem Configure build arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
 ECHO.
-ECHO -Building %PACKAGE% %PLATFORM% platform, %CONFIGURATION% configuration...
+ECHO -Building %PACKAGE% %ARCHITECTURE% architecture, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
-IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %PLATFORM%
+IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %ARCHITECTURE%
+IF %ERRORLEVEL% NEQ 0 (
+   GOTO :END
+)
 rem Display QMake version
 ECHO.
 qmake -v & ECHO.
@@ -322,21 +341,21 @@ rem Package 3rd party install content - this must come before check so check can
 IF %INSTALL%==1 CALL :STAGE_INSTALL
 CALL :ELAPSED_BUILD_TIME %platform_build_start%
 ECHO.
-ECHO -Elapsed %PLATFORM% package build time %LP3D_ELAPSED_BUILD_TIME%
+ECHO -Elapsed %ARCHITECTURE% package build time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
-IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM%
+IF %CHECK%==1 CALL :BUILD_CHECK %ARCHITECTURE%
 GOTO :END
 
 :BUILD_ALL
-rem Launch qmake/make across all platform builds
+rem Launch qmake/make across all architecture builds
 ECHO.
 ECHO -Build LPub3D x86 and x86_64 platforms...
 FOR %%P IN ( x86, x86_64 ) DO (
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET platform_build_start=%time%
-  SET PLATFORM=%%P
+  SET ARCHITECTURE=%%P
   IF "%LP3D_VSVERSION%"=="2019" (
-    CALL :CONFIGURE_VCTOOLSET %%P
+    CALL :CONFIGURE_LP3D_VCTOOLSET %%P
   )
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
@@ -345,8 +364,11 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %BUILD_THIRD%==1 ECHO.
   IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
   IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %%P
+  IF %ERRORLEVEL% NEQ 0 (
+    GOTO :END
+  )
   ECHO.
-  ECHO -Building  %PACKAGE% %%P platform, %CONFIGURATION% configuration...
+  ECHO -Building  %PACKAGE% %%P architecture, %CONFIGURATION% configuration...
   ECHO.
   rem Display QMake version
   qmake -v & ECHO.
@@ -357,16 +379,16 @@ FOR %%P IN ( x86, x86_64 ) DO (
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
-  REM IF %%P == x64 (
-  REM   SET EXE=Build\%CONFIGURATION%64\%PACKAGE%64.exe
-  REM ) ELSE (
-  REM   SET EXE=Build\%CONFIGURATION%\%PACKAGE%.exe
-  REM )
-  REM IF NOT EXIST "!EXE!" (
-  REM   ECHO.
-  REM   ECHO "-ERROR - !EXE! was not successfully built - build will trminate."
-  REM   GOTO :END
-  REM )
+  IF %%P == x64 (
+    SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe
+  ) ELSE (
+    SET EXE=mainApp\32bit_%CONFIGURATION%\%PACKAGE%%d%.exe
+  )
+  IF NOT EXIST "!EXE!" (
+    ECHO.
+    ECHO " -ERROR - !EXE! was not successfully built - build will trminate."
+    GOTO :END
+  )
   SETLOCAL DISABLEDELAYEDEXPANSION
   rem Perform build check if specified
   IF %CHECK%==1 CALL :BUILD_CHECK %%P
@@ -375,7 +397,7 @@ GOTO :END
 
 :BUILD_RENDERERS
 rem Check if build all platforms
-IF /I "%PLATFORM%"=="-all" (
+IF /I "%ARCHITECTURE%"=="-all" (
   GOTO :BUILD_ALL_RENDERERS
 )
 
@@ -384,37 +406,44 @@ CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
 rem Build renderer from source
 ECHO.
-ECHO -Building Renderers for %PLATFORM% platform, %CONFIGURATION% configuration...
+ECHO -Building Renderers for %ARCHITECTURE% architecture, %CONFIGURATION% configuration...
 ECHO -----------------------------------------------------
-CALL builds\utilities\CreateRenderers.bat %PLATFORM%
+CALL builds\utilities\CreateRenderers.bat %ARCHITECTURE%
+IF %ERRORLEVEL% NEQ 0 (
+  GOTO :END
+)
 GOTO :END
 
 :BUILD_ALL_RENDERERS
 FOR %%P IN ( x86, x86_64 ) DO (
-  SET PLATFORM=%%P
+  SET ARCHITECTURE=%%P
   rem Configure build arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
   CD /D "%ABS_WD%"
   rem Build renderer from source
   ECHO.
-  ECHO -Building Renderers for %%P platform, %CONFIGURATION% configuration...
+  ECHO -Building Renderers for %%P architecture, %CONFIGURATION% configuration...
   ECHO -----------------------------------------------------
   CALL builds\utilities\CreateRenderers.bat %%P
+  IF %ERRORLEVEL% NEQ 0 (
+    GOTO :END
+  )
 )
 GOTO :END
 
-:CONFIGURE_VCTOOLSET
-IF %1==x64 (
+:CONFIGURE_LP3D_VCTOOLSET
+IF %1==x86_64 (
   SET LP3D_VCVARSALL_VER=-vcvars_ver=14.2
-  SET VCTOOLSET=v142
+  SET LP3D_VCTOOLSET=v142
 )
-ECHO -Set %1 MSBuild platform toolset to %VCTOOLSET%
+ECHO.
+ECHO -Set %1 MSBuild architecture toolset to %LP3D_VCTOOLSET%
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
 ECHO.
-ECHO -Configure LPub3D %PLATFORM% build environment...
+ECHO -Configure LPub3D %ARCHITECTURE% build environment...
 ECHO.
 ECHO -Cleanup any previous LPub3D qmake config files...
 FOR /R %%I IN (
@@ -427,7 +456,7 @@ FOR /R %%I IN (
   "quazip\Makefile*"
 ) DO DEL /S /Q "%%~I" >NUL 2>&1
 ECHO.
-ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
+ECHO   ARCHITECTURE (BUILD_ARCH)..........[%ARCHITECTURE%]
 SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
 IF "%APPVEYOR%" EQU "True" (
@@ -446,7 +475,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 rem Set vcvars for AppVeyor or local build environments
-IF %PLATFORM% EQU x86 (
+IF %ARCHITECTURE% EQU x86 (
   ECHO.
   CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
   CALL "%LP3D_VCVARSALL%\vcvars32.bat" %LP3D_VCVARSALL_VER%
@@ -475,7 +504,7 @@ ECHO.
 ECHO -%PACKAGE% Build Check...
 IF [%1] EQU [] (
   ECHO.
-  ECHO -ERROR - No PLATFORM defined, build check will exit.
+  ECHO -ERROR - No ARCHITECTURE defined, build check will exit.
   EXIT /b
 )
 IF NOT EXIST "%DIST_DIR%" (
@@ -828,7 +857,7 @@ EXIT /b
 ECHO.
 CALL :USAGE
 ECHO.
-ECHO -01. (FLAG ERROR) Platform or usage flag is invalid. Use x86, x86_64 or -all [%~nx0 %*].
+ECHO -01. (FLAG ERROR) Architecture or usage flag is invalid. Use x86, x86_64 or -all [%~nx0 %*].
 ECHO      See Usage.
 GOTO :END
 
@@ -902,8 +931,8 @@ ECHO ----------------------------------------------------------------
 ECHO ^| Flag     ^| Pos  ^| Type              ^| Description
 ECHO ----------------------------------------------------------------
 ECHO  -help.......1........Useage flag         [Default=Off] Display useage.
-ECHO  x86.........1........Platform flag       [Default=Off] Build 32bit architecture.
-ECHO  x86_64......1........Platform flag       [Default=Off] Build 64bit architecture.
+ECHO  x86.........1........Architecture flag   [Default=Off] Build 32bit architecture.
+ECHO  x86_64......1........Architecture flag   [Default=Off] Build 64bit architecture.
 ECHO  -all........1........Configuraiton flag  [Default=On ] Build both 32bit and 64bit architectures - Requries Qt libraries for both architectures.
 ECHO  -3rd..........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ren..........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
@@ -920,7 +949,7 @@ ECHO Be sure the set your LDraw directory in the variables section above if you 
 ECHO.
 ECHO Flags are case sensitive, use lowere case.
 ECHO.
-ECHO If no flag is supplied, 64bit platform, Release Configuration built by default.
+ECHO If no flag is supplied, 64bit architecture, Release Configuration built by default.
 ECHO ----------------------------------------------------------------
 EXIT /b
 

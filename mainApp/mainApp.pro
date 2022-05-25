@@ -342,7 +342,7 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
     } else {
         DISTRO_PACKAGE = ($$opt)
     }
-    
+
     message("~~~ BUILD DISTRIBUTION PACKAGE: $$DISTRO_PACKAGE ~~~")
 
     if (unix|copy3rd) {

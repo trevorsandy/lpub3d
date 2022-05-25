@@ -127,6 +127,7 @@ GOTO :END
 IF %BUILD_ARCH% EQU x86 (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe
   SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe
+  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386\
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     SET PATH=%LP3D_QT32_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
@@ -134,6 +135,7 @@ IF %BUILD_ARCH% EQU x86 (
 ) ELSE (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe
   SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe
+  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     SET PATH=%LP3D_QT64_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
@@ -149,7 +151,12 @@ IF "%PATH_PREPENDED%" EQU "True" (
 )
 ENDLOCAL
 CALL :SET_BUILD_ARGS
-FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO CALL :%%I_BUILD
+FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
+  CALL :%%I_BUILD
+  IF ERRORLEVEL 1 (
+    GOTO :FATAL_ERROR
+  )
+)
 GOTO :END
 
 :SET_BUILD_ARGS
@@ -176,6 +183,10 @@ SET ARCHIVE_FILE_DIR=ldglite-master
 SET WebNAME=https://github.com/trevorsandy/ldglite/archive/master.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDGLITE_BUILD_ARGS%
+IF NOT EXIST "%LP3D_LDGLITE%" (
+  ECHO  ERROR - Renderer %VER_LDGLITE% was not successfully built.
+  EXIT /b 1
+)
 EXIT /b
 
 :LDVIEW_BUILD
@@ -183,6 +194,10 @@ ECHO.
 ECHO -Build %VER_LDVIEW%...
 IF EXIST "%LP3D_LDVIEW%" (
   ECHO - Renderer %VER_LDVIEW% exist - build skipped.
+  PUSHD "%LP3D_LDVIEW_BIN%"
+  ECHO - Renderer %VER_LDVIEW% bin contents:
+  FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO - %%f
+  POPD
   EXIT /b
 )
 SET BUILD_DIR=ldview
@@ -191,6 +206,15 @@ SET ARCHIVE_FILE_DIR=ldview-qmake-build
 SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
+IF NOT EXIST "%VER_LDVIEW%" (
+  ECHO  ERROR - Renderer %VER_LDVIEW% was not successfully built.
+  EXIT /b 1
+)
+ECHO - Renderer %VER_LDVIEW% bin contents:
+PUSHD "%LP3D_LDVIEW_BIN%"
+ECHO - Renderer %VER_LDVIEW% bin contents:
+FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO  - %%f
+POPD
 EXIT /b
 
 :POVRAY_BUILD
@@ -207,6 +231,10 @@ SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.z
 CALL :CONFIGURE_BUILD_ENV
 CD /D %VALID_SDIR%\vs2015
 CALL autobuild.cmd %POVRAY_BUILD_ARGS%
+IF NOT EXIST "%VER_POVRAY%" (
+  ECHO  ERROR - Renderer %VER_POVRAY% was not successfully built.
+  EXIT /b 1
+)
 EXIT /b
 
 :CONFIGURE_BUILD_ENV
@@ -430,11 +458,15 @@ EXIT /b
 
 :COMMAND_ERROR
 ECHO.
-CALL :USAGE
-ECHO.
 ECHO -01. (COMMAND ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
-GOTO :END
+CALL :USAGE
+ECHO.
+
+:FATAL_ERROR
+ECHO  %LP3D_ME% execution failed.
+CALL :FINISHED
+EXIT /b 1
 
 :USAGE
 ECHO ----------------------------------------------------------------
@@ -479,6 +511,10 @@ EXIT /b
 :END
 ECHO.
 ECHO -%~nx0 [platform %*] finished.
+CALL :FINISHED
+EXIT /b
+
+:FINISHED
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100

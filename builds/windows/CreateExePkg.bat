@@ -5,6 +5,10 @@ rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: June 11, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
+rem This script is distributed in the hope that it will be useful,
+rem but WITHOUT ANY WARRANTY; without even the implied warranty of
+rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 SETLOCAL
 @break off
 @color 0a
@@ -129,9 +133,9 @@ SET LPUB3D_TRACE_EXE=lpub3d_trace_cui
 
 SET OPENSSL_LIB=OpenSSL
 IF "%VS_VER%" EQU "2019" (
-SET OPENSSL_VER=v1.0
+  SET OPENSSL_VER=v1.1
 ) ELSE (
-SET OPENSSL_VER=v1.1
+  SET OPENSSL_VER=v1.0
 )
 
 SET TimeStamp=http://timestamp.digicert.com
@@ -246,6 +250,8 @@ SET LP3D_ALTERNATE_VERSIONS_deb=unknown
 SET LP3D_ALTERNATE_VERSIONS_rpm=unknown
 SET LP3D_ALTERNATE_VERSIONS_pkg=unknown
 SET LP3D_ALTERNATE_VERSIONS_api=unknown
+SET LP3D_ALTERNATE_VERSIONS_snp=unknown
+SET LP3D_ALTERNATE_VERSIONS_flp=unknown
 
 SET LP3D_AVAILABLE_VERSIONS_exe=unknown
 SET LP3D_AVAILABLE_VERSIONS_dmg=unknown
@@ -253,6 +259,7 @@ SET LP3D_AVAILABLE_VERSIONS_deb=unknown
 SET LP3D_AVAILABLE_VERSIONS_rpm=unknown
 SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
 SET LP3D_AVAILABLE_VERSIONS_api=unknown
+SET LP3D_AVAILABLE_VERSIONS_snp=unknown
 SET LP3D_AVAILABLE_VERSIONS_flp=unknown
 
 SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
@@ -267,6 +274,9 @@ CD /D "%utilitiesPath%"
 SET LP3D_ICON_DIR=%CD%\icons
 
 CALL update-config-files.bat %_PRO_FILE_PWD_%
+IF %ERRORLEVEL% NEQ 0 (
+   GOTO :END
+)
 
 IF /I "%APPVEYOR%" EQU "True" (
 
@@ -288,6 +298,7 @@ FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_rpm=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_pkg=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_api=%%i,%%j,%%k
+FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_snp=%%i,%%j,%%k
 FOR /F "tokens=1,2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_flp=%%i,%%j
 
 FOR /F "tokens=2*  delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_exe%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
@@ -296,6 +307,7 @@ FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_deb%") DO SET LP3
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_rpm%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_pkg%") DO SET LP3D_ALTERNATE_VERSIONS_pkg=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_api%") DO SET LP3D_ALTERNATE_VERSIONS_api=%%i,%%j
+FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_snp%") DO SET LP3D_ALTERNATE_VERSIONS_snp=%%i,%%j
 FOR /F "tokens=2   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_flp%") DO SET LP3D_ALTERNATE_VERSIONS_flp=%%i
 
 CD /D "%WIN_PKG_DIR%"
@@ -388,9 +400,11 @@ ECHO   LP3D_DATE_TIME.................[%LP3D_DATE_TIME%]
 ECHO   LP3D_DOWNLOAD_PRODUCT..........[%LP3D_DOWNLOAD_PRODUCT%]
 ECHO   LP3D_PRODUCT_DIR...............[%LP3D_PRODUCT_DIR%]
 ECHO   LP3D_BUILD_FILE................[%LP3D_BUILD_FILE%]
+ECHO.
 IF "%APPVEYOR%" EQU "True" (
 ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
 )
+ECHO.  OPEN_SSL_VERSION...............[%OPENSSL_VER%]
 ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe....[%LP3D_AVAILABLE_VERSIONS_exe%]
 ECHO   LP3D_AVAILABLE_VERSIONS_dmg....[%LP3D_AVAILABLE_VERSIONS_dmg%]
@@ -398,6 +412,8 @@ ECHO   LP3D_AVAILABLE_VERSIONS_deb....[%LP3D_AVAILABLE_VERSIONS_deb%]
 ECHO   LP3D_AVAILABLE_VERSIONS_rpm....[%LP3D_AVAILABLE_VERSIONS_rpm%]
 ECHO   LP3D_AVAILABLE_VERSIONS_pkg....[%LP3D_AVAILABLE_VERSIONS_pkg%]
 ECHO   LP3D_AVAILABLE_VERSIONS_api....[%LP3D_AVAILABLE_VERSIONS_api%]
+ECHO   LP3D_AVAILABLE_VERSIONS_snp....[%LP3D_AVAILABLE_VERSIONS_snp%]
+ECHO   LP3D_AVAILABLE_VERSIONS_flp....[%LP3D_AVAILABLE_VERSIONS_flp%]
 ECHO.
 ECHO   LP3D_ALTERNATE_VERSIONS_exe....[%LP3D_ALTERNATE_VERSIONS_exe%]
 ECHO   LP3D_ALTERNATE_VERSIONS_dmg....[%LP3D_ALTERNATE_VERSIONS_dmg%]
@@ -405,8 +421,11 @@ ECHO   LP3D_ALTERNATE_VERSIONS_deb....[%LP3D_ALTERNATE_VERSIONS_deb%]
 ECHO   LP3D_ALTERNATE_VERSIONS_rpm....[%LP3D_ALTERNATE_VERSIONS_rpm%]
 ECHO   LP3D_ALTERNATE_VERSIONS_PKG....[%LP3D_ALTERNATE_VERSIONS_PKG%]
 ECHO   LP3D_ALTERNATE_VERSIONS_api....[%LP3D_ALTERNATE_VERSIONS_api%]
+ECHO   LP3D_ALTERNATE_VERSIONS_snp....[%LP3D_ALTERNATE_VERSIONS_snp%]
+ECHO   LP3D_ALTERNATE_VERSIONS_flp....[%LP3D_ALTERNATE_VERSIONS_flp%]
 
 IF %UNIVERSAL_BUILD% NEQ 1 (
+  REM SINGLE ARCH BUILD
   IF /I "%APPVEYOR%" EQU "True" (
     SET LP3D_ARCH=%build%
   ) ELSE (
@@ -430,6 +449,11 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
       )
     )
   )
+  IF "%LP3D_ARCH%" EQU "x86_64" (
+    SET LP3D_ARCH_EXT=x64
+  ) ELSE (
+    SET LP3D_ARCH_EXT=x32
+  )
   SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%
   SET PKG_DISTRO_PORTABLE_DIR=%LP3D_PRODUCT%_%LP3D_ARCH%-%LP3D_APP_VERSION_LONG%
   ECHO.
@@ -452,6 +476,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   FOR %%A IN ( x86_64, x86 ) DO (
     SET LP3D_ARCH=%%A
     SET PKG_DISTRO_DIR=%LP3D_PRODUCT%_%%A
+
     ECHO.
     ECHO - Configuring %LP3D_PRODUCT% %%A build...
     ECHO.
@@ -461,6 +486,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     CALL :DOWNLOADMSVCREDIST %%A
     CALL :COPYFILES
   )
+  REM LP3D_ARCH_EXT is no longer used, it's just a placholder for AppVersion.nsh
+  SET LP3D_ARCH_EXT=x32
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
   IF %RUN_NSIS% == 1 CALL :NSISBUILD
@@ -855,7 +882,6 @@ SET genLatest=%latestFile% ECHO
 :GENERATE latest.txt file
 >%genLatest% %LP3D_VERSION%
 EXIT /b
-
 :GENERATE_ALT_VERSION_INSERTS
 SET "LP3D_EXT=%1"
 SET "exe=.%LP3D_EXT%"
@@ -941,7 +967,11 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   )
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
-ECHO   Generated %1 json version insert
+IF EXIST "%versionInsert%" (
+  ECHO   Generated %1 json version insert.
+) ELSE (
+  ECHO   %1 json version insert [%versionInsert%] was not generated.
+)
 EXIT /b
 
 :DOWNLOADOPENSSLLIBS
@@ -984,7 +1014,7 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
   )
 )
 IF "%OPENSSL_VER%" EQU "v1.1" (
-  SET OpensslCONTENT=libcrypto-1_1-x64.dll 
+  SET OpensslCONTENT=libcrypto-1_1-x64.dll
   SET OpensslVERIFIED=libcrypto-1_1-x64.dll
   IF "%1" EQU "x86" (
     SET OpensslCONTENT=libcrypto-1_1.dll
@@ -1002,7 +1032,7 @@ IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
   ECHO - %OPENSSL_LIB% %OPENSSL_VER% %1 library %OpensslVERIFIED% exist. Nothing to do.
 )
 
-CALL :SET_OPENSSL_LIB %1 
+CALL :SET_OPENSSL_LIB %1
 
 REM For libSSL
 IF "%OPENSSL_VER%" EQU "v1.0" (
@@ -1072,11 +1102,12 @@ IF NOT EXIST "%PKG_TARGET_DIR%\" (
 
 IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
   ECHO.
-  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1...
+  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% for Architecture %1...
   ECHO - From: %OPENSSL_LIB_DIR%
   ECHO - To:   %PKG_TARGET_DIR%
   IF EXIST "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" (
     COPY /V /Y "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+    ECHO - %OpensslVERIFIED% copied to "%PKG_TARGET_DIR%\%OpensslVERIFIED%"
   ) ELSE (
     ECHO.
     ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 does not exist in %OPENSSL_LIB_DIR%\.

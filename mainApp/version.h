@@ -26,7 +26,7 @@
 #define VER_COMPILE_DATE_STR                DATE_YY " " DATE_MM " " DATE_DD " " BUILD_TIME
 #define VER_PRODUCTVERSION_STR              VER_MAJOR "." VER_MINOR "." VER_PATCH
 #define VER_PRODUCTNAME_STR                 "LPub3D"
-#define VER_COMPANYDOMAIN_STR               "LPub3D.org"
+#define VER_COMPANYDOMAIN_STR               "io.github.trevorsandy.LPub3D"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
 #define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
 #define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2021 by Trevor SANDY"
@@ -35,7 +35,7 @@
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
 #define VER_GITHUB_USER_STR                 "https://github.com/trevorsandy"
 #define VER_FILEVERSION_STR                 STRING(VER_MAJOR) "." STRING(VER_MINOR) "." STRING(VER_PATCH) "." VER_REVISION_STR "." VER_COMMIT_STR
-#define VER_PUBLISHER_SUPPORT_STR           VER_GITHUB_USER_STR "/lpub3d/issues"
+#define VER_PUBLISHER_SUPPORT_STR           "https://github.com/trevorsandy/lpub3d/issues"
 #define VER_LICENSE_INFO_STR                "http://www.gnu.org/licenses/gpl-3.0.html"
 #ifdef OPT_PREFIX
   #define VER_OPT_PREFIX_STR                OPT_PREFIX

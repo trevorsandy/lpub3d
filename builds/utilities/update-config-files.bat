@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 20, 2021
+rem  Last Update: June 11, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 rem --
@@ -23,7 +23,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   ECHO Error: Did not receive required argument _PRO_FILE_PWD_
   ECHO %LP3D_ME% terminated!
   ECHO.
-  GOTO :END
+  GOTO :FATAL_ERROR
 )
 
 SET LINE_README_TXT=1
@@ -40,6 +40,9 @@ ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
   ECHO  capture version info using git queries...
   CALL :GET_GIT_VERSION
+  IF ERRORLEVEL 1 (
+    GOTO :FATAL_ERROR
+  )
 ) ELSE (
   ECHO  capture version info using version arguments...
   SET LP3D_VER_MAJOR=%2
@@ -175,6 +178,14 @@ EXIT /b
 
 :GET_GIT_VERSION
 CD /D "%LP3D_BUILDS_DIR%\.."
+
+REM Test for .git folder
+IF "%APPVEYOR%" NEQ "True" (
+  IF NOT EXIST ".git" (
+    ECHO  ERROR: .git folder not found.
+    EXIT /b 1
+  )
+)
 
 REM Get build type
 FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0 2^> nul`) DO SET LP3D_BUILD_TYPE=%%G
@@ -342,3 +353,7 @@ ENDLOCAL & (
   SET LP3D_BUILD_VERSION=%LP3D_VERSION%.%LP3D_VER_REVISION%.%LP3D_VER_BUILD% ^(%LP3D_BUILD_DATE_TIME%^)
 )
 EXIT /b 0
+
+:FATAL_ERROR
+ECHO  %LP3D_ME% execution failed.
+EXIT /b 1
