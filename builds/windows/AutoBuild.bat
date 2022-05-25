@@ -410,21 +410,26 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 rem Set vcvars for AppVeyor or local build environments
+rem Visual C++ 2012 -vcvars_ver=11.0
+rem Visual C++ 2013 -vcvars_ver=12.0
+rem Visual C++ 2015 -vcvars_ver=14.0
+rem Visual C++ 2017 -vcvars_ver=14.1
+rem Visual C++ 2019 -vcvars_ver=14.2
 IF %PLATFORM% EQU x86 (
   ECHO.
   CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
   IF "%APPVEYOR%" EQU "True" (
-    CALL "%LP3D_VCVARSALL%\bin\vcvars32.bat"
+    CALL "%LP3D_VCVARSALL%\vcvars32.bat"
   ) ELSE (
-    CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.0
+    CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.2
   )
 ) ELSE (
   ECHO.
   CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
   IF "%APPVEYOR%" EQU "True" (
-    CALL "%LP3D_VCVARSALL%\bin\amd64\vcvars64.bat"
+    CALL "%LP3D_VCVARSALL%\vcvars64.bat"
   ) ELSE (
-    CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.0
+    CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.2
   )
 )
 rem Display MSVC Compiler settings
