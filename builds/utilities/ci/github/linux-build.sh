@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 26, 2021
+# Last Update August 01, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -60,13 +60,38 @@ case "${LP3D_APPIMAGE}" in
         export LP3D_APPIMAGE=${build_appimage} ;;
 esac
 
+# automatic logging
+WRITE_LOG=${WRITE_LOG:-true}
+if [ "${WRITE_LOG}" = "true" ]; then
+    [ ! -d "${LP3D_BUILDPKG_PATH}" ] && mkdir -p ${LP3D_BUILDPKG_PATH} || :
+    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_BUILDPKG_PATH || :
+    f="${0##*/}"; f="${f%.*}"; f="${f}-${build_base}-${build_arch}"
+    [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
+    f="${LP3D_LOG_PATH}/${f}"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+        i=1
+        f="${f%.*}";
+        while [[ -e "${f}_${i}${ext}" ]]; do
+            let i++
+        done
+        f="${f}_${i}${ext}"
+    else
+        f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
+fi
+
 case "${LP3D_BASE}" in
     "ubuntu"|"fedora"|"archlinux")
         export BUILD_OPT="default"
         export BUILD="${LP3D_BASE}"
         if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
             if [ "${LP3D_QEMU}" = "false" ]; then
-                [ "${CI}" != "false" ] && export BUILD_OPT="verify" || :
+                [ "${LP3D_APPIMAGE}" != "true" ] && export BUILD_OPT="verify" || :
                 source builds/utilities/ci/github/linux-multiarch-build.sh
             else
                 echo "Unsupported option set QEMU: ${LP3D_QEMU}, GITHUB_EVENT: ${GITHUB_EVENT_NAME}, COMMIT_MSG: ${LP3D_COMMIT_MSG}"

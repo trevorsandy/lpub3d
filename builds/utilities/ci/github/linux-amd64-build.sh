@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 27, 2021
+# Last Update July 31, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -15,13 +15,13 @@ fi
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
 FinishElapsedTime() {
-  # Elapsed execution time
-  set +x
-  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-  echo "----------------------------------------------------"
-  echo "${ME} for (${docker_base}-${docker_dist}-${docker_arch}) Finished!"
-  echo "$ELAPSED"
-  echo "----------------------------------------------------"
+    # Elapsed execution time
+    set +x
+    ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+    echo "----------------------------------------------------"
+    echo "${ME} for (${docker_base}-${docker_dist}-${docker_arch}) Finished!"
+    echo "$ELAPSED"
+    echo "----------------------------------------------------"
 }
 
 trap FinishElapsedTime EXIT
@@ -55,7 +55,9 @@ case "${docker_base}" in
         ;;
 esac
 
-# format the log name
+# format the log name - SOURCED if $1 is empty 
+WRITE_LOG=${WRITE_LOG:-true}
+[ "$1" = "" ] && WRITE_LOG="false" && ME="linux-amd64-build" || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 # make sure we're in the repository root directory
@@ -72,7 +74,6 @@ mkdir -p ${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch} || :
 base_path="${LP3D_3RD_PARTY_PATH}/${docker_base}_${docker_arch}"
 
 # automatic logging
-WRITE_LOG=${WRITE_LOG:-true}
 if [ "${WRITE_LOG}" = "true" ]; then
     f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
     f="${out_path}/${f}"
@@ -105,13 +106,13 @@ wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tent
 [ ! -f "${dist_path}/vexiqparts.zip" ] && \
 wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O ${dist_path}/vexiqparts.zip || :
 if [ ! -d "${ldraw_path}/parts" ]; then
-  [ ! -d "${ldraw_path}" ] && mkdir -p ${ldraw_path} || :
-  (cd ${dist_path} && unzip -od ./ -q complete.zip)
-  if [ -d "${ldraw_path}/parts" ]; then
-    echo "LDraw library extracted."
-  else
-    echo "ERROR - LDraw library was not extracted."
-  fi
+    [ ! -d "${ldraw_path}" ] && mkdir -p ${ldraw_path} || :
+    (cd ${dist_path} && unzip -od ./ -q complete.zip)
+    if [ -d "${ldraw_path}/parts" ]; then
+        echo "LDraw library extracted."
+    else
+        echo "ERROR - LDraw library was not extracted."
+    fi
 fi
 
 # Link LDraw libraries to base path
@@ -190,7 +191,6 @@ cd ~/ \\
   ls -al ./debbuild/lpub3d_linux_3rdparty/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.deb* /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.xz /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./debbuild/*.gz /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.buildinfo /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.dsc /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*.changes /buildpkg/ 2>/dev/null || :; \\
@@ -234,16 +234,16 @@ cd ~/ \\
 && sudo ln -s //lib64/libXext.so.6.4.0 /usr/lib/libXext.so 2>/dev/null || : \\
 && chmod a+x CreateRpm.sh && ./CreateRpm.sh \\
 && if test -d /buildpkg; then \\
-  cd ~/; \\
-  ls -al ./; \\
-  ls -al ./rpmbuild/; \\
-  ls -al ./rpmbuild/RPMS/; \\
-  ls -al ./rpmbuild/BUILD/; \\
-  ls -al ./rpmbuild/BUILD/lpub3d_linux_3rdparty/; \\
-  sudo mv -f ./rpmbuild/RPMS/$(uname -m)/*.rpm* /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./rpmbuild/BUILD/*.log /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
-  ls -al /buildpkg; \\
+    cd ~/; \\
+    ls -al ./; \\
+    ls -al ./rpmbuild/; \\
+    ls -al ./rpmbuild/RPMS/; \\
+    ls -al ./rpmbuild/BUILD/; \\
+    ls -al ./rpmbuild/BUILD/lpub3d_linux_3rdparty/; \\
+    sudo mv -f ./rpmbuild/RPMS/$(uname -m)/*.rpm* /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./rpmbuild/BUILD/*.log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    ls -al /buildpkg; \\
 pbEOF
         ;;
     "archlinux")
@@ -282,15 +282,15 @@ cd ~/ \\
 && sudo chown -R ${name}:${name} ./pkgbuild/.* \\
 && chmod a+x CreatePkg.sh && ./CreatePkg.sh \\
 && if test -d /buildpkg; then \\
-  cd ~/; \\
-  ls -al ./; \\
-  ls -al ./pkgbuild/; \\
-  ls -al ./pkgbuild/src/; \\
-  ls -al ./pkgbuild/src/lpub3d_linux_3rdparty/; \\
-  sudo mv -f ./pkgbuild/*.zst* /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./pkgbuild/src/*.log /buildpkg/ 2>/dev/null || :; \\
-  sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
-  ls -al /buildpkg/; \\
+    cd ~/; \\
+    ls -al ./; \\
+    ls -al ./pkgbuild/; \\
+    ls -al ./pkgbuild/src/; \\
+    ls -al ./pkgbuild/src/lpub3d_linux_3rdparty/; \\
+    sudo mv -f ./pkgbuild/*.zst* /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./pkgbuild/src/*.log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    ls -al /buildpkg/; \\
 pbEOF
         ;;
     *)
@@ -315,7 +315,7 @@ echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password
 
 # reporitory
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
-LPUB3D=${SLUG_PARTS[1]}
+LPUB3D=${LP3D_SLUGS[1]}
 
 # build docker image
 docker_build_opts=(${docker_platform})

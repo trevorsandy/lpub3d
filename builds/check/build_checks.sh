@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 29, 2021
+# Last Update July 28, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -186,50 +186,57 @@ if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
     find ${LPUB3D_LDD_EXE} -executable -type f -exec ldd {} \;
 fi
 
+LP3D_BUILD_CHECK_LIST=( CHECK01 CHECK02 CHECK03 CHECK04 CHECK05  )
+# Skip long running checks when running in QEMU
+if [ "${LP3D_QEMU}" != "true" ]; then
+    LP3D_BUILD_CHECK_LIST+=( CHECK06 CHECK07 )
+fi
+NUM_CHECKS=${#LP3D_BUILD_CHECK_LIST[@]}
+
 echo && echo "------------Build Checks Start--------------" && echo
 
-for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07; do
+for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
     lp3d_check_start=$SECONDS
     case ${LP3D_BUILD_CHECK} in
     CHECK01)
         QT_DEBUG_PLUGINS=1
         LP3D_CHECK_LBL="Native File Process"
-        LP3D_CHECK_HDR="- Check 1 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 1 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
         LP3D_LOG_FILE="Check.1.out"
         LP3D_CHECK_STDLOG=
         ;;
     CHECK02)
         LP3D_CHECK_LBL="LDView File Process"
-        LP3D_CHECK_HDR="- Check 2 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 2 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         LP3D_LOG_FILE="Check.2.out"
         ;;
     CHECK03)
         LP3D_CHECK_LBL="LDView (Single Call) File Process"
-        LP3D_CHECK_HDR="- Check 3 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 3 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         LP3D_LOG_FILE="Check.3.out"
         ;;
     CHECK04)
         LP3D_CHECK_LBL="LDGLite Export Range"
-        LP3D_CHECK_HDR="- Check 4 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 4 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-ldglite"
         LP3D_LOG_FILE="Check.4.out"
         ;;
     CHECK05)
         LP3D_CHECK_LBL="Native POV Generation"
-        LP3D_CHECK_HDR="- Check 5 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 5 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-povray"
         LP3D_LOG_FILE="Check.5.out"
         ;;
     CHECK06)
         LP3D_CHECK_LBL="LDView TENTE Model"
-        LP3D_CHECK_HDR="- Check 6 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 6 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libtente --preferred-renderer ldview"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/TENTE/astromovil.ldr"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
@@ -237,7 +244,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         ;;
     CHECK07)
         LP3D_CHECK_LBL="LDView (Snapshot List) VEXIQ Model"
-        LP3D_CHECK_HDR="- Check 7 of 7: ${LP3D_CHECK_LBL} Check..."
+        LP3D_CHECK_HDR="- Check 7 of ${NUM_CHECKS}: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"

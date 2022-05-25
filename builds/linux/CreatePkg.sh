@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 26, 2021
+# Last Update August 06, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
@@ -26,7 +26,11 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
+# Format the log name - SOURCED if $1 is empty 
+WRITE_LOG=${WRITE_LOG:-true}
+[ "$1" = "" ] && WRITE_LOG="false" && ME="CreatePkg" || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+
 CWD=`pwd`
 export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by PKGBUILD
 
@@ -40,24 +44,26 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 curlopts="-sL -C -"
 
 # logging stuff - increment log file name
-f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
-[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
-f="${LP3D_LOG_PATH}/${f}"
-ext=".log"
-if [[ -e "$f$ext" ]] ; then
-  i=1
-  f="${f%.*}";
-  while [[ -e "${f}_${i}${ext}" ]]; do
-    let i++
-  done
-  f="${f}_${i}${ext}"
-else
-  f="${f}${ext}"
+if [ "${WRITE_LOG}" = "true" ]; then
+    f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
+    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+    f="${LP3D_LOG_PATH}/${f}"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+      i=1
+      f="${f%.*}";
+      while [[ -e "${f}_${i}${ext}" ]]; do
+        let i++
+      done
+      f="${f}_${i}${ext}"
+    else
+      f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
 fi
-# output log file
-LOG="$f"
-exec > >(tee -a ${LOG} )
-exec 2> >(tee -a ${LOG} >&2)
 
 echo "1. create PKG working directories in pkgbuild/"
 if [ ! -d pkgbuild/upstream ]
@@ -71,8 +77,8 @@ cd ${BUILD_DIR}/upstream
 
 if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
-        echo "2. copy ${LPUB3D} source to upstream/..."
-        cp -rf /in/. .
+        echo "2. copy input source to upstream/${LPUB3D}..."
+        mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
         echo "2. download ${LPUB3D} source to upstream/..."
         git clone https://github.com/trevorsandy/${LPUB3D}.git
@@ -234,11 +240,11 @@ then
         fi
         if [ "${LP3D_QEMU}" = "true" ]; then
             echo "9-4. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${LP3D_PKG_FILE}* /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || : 
+            mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
             mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
             mv -f ${CWD}/*.log /out/ 2>/dev/null || :
-            mv -f ./src/*.log /out/ 2>/dev/null || :
-            mv -f ./*.log /out/ 2>/dev/null || :
             mv -f ~/*.log /out/ 2>/dev/null || :
         fi
         echo "    Distribution package.: ${LP3D_PKG_FILE}"

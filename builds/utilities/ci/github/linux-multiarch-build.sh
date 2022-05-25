@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 27, 2021
+# Last Update August 06, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -63,8 +63,8 @@ case "$LP3D_ARCH" in
         ;;
     "amd32"|"i386"|"i686")
         export LP3D_ARCH="i686"
+        aik_arch="i686"
         docker_arch="i386"
-        aik_arch="${LP3D_ARCH}"
         docker_tag="i386/${docker_base}:${docker_dist}"
         docker_image="${docker_tag}"-"${docker_arch}"
         ;;
@@ -86,7 +86,9 @@ case "$LP3D_ARCH" in
         ;;
 esac
 
-# format the log name
+# format the log name - SOURCED if $1 is empty
+WRITE_LOG=${WRITE_LOG:-true}
+[ "$1" = "" ] && WRITE_LOG="false" && ME="linux-multiarch-build" || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 # make sure we're in the repository root directory
@@ -103,7 +105,6 @@ mkdir -p ${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH} || :
 base_path="${LP3D_3RD_PARTY_PATH}/${LP3D_BASE}_${LP3D_ARCH}"
 
 # automatic logging
-WRITE_LOG=${WRITE_LOG:-true}
 if [ "${WRITE_LOG}" = "true" ]; then
     f="${0##*/}"; f="${f%.*}"; f="${f}-${docker_base}-${docker_dist}-${docker_arch}"
     [ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage"
@@ -238,7 +239,7 @@ USER ${name}
 VOLUME ["/in", "/out", "/dist", "/${name}/ldraw"]
 pbEOF
 
-# If QEMU and not AppImage, set package build script
+# If QEMU and not AppImage, set package build script and pre-package check
 if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
     case "${docker_base}" in
         "ubuntu")
@@ -266,6 +267,7 @@ ADD CreatePkg.sh /${name}
 pbEOF
             ;;
     esac
+    LP3D_PRE_PACKAGE_CHECK=1
 fi
 
 cp -f builds/linux/CreateLinuxPkg.sh .
@@ -301,9 +303,18 @@ echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password
 # enable QEMU
 if [ "${LP3D_QEMU}" = "true" ]; then
     echo "Enable QEMU multiarch environment..."
+    if [ "${CI}" = "true" ]; then
+        sudo apt-get install -y gcc-${aik_arch}-linux-gnu zlib1g-dev
+    fi
+    export QEMU_LD_PREFIX=/usr/${aik_arch}-linux-gnu
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-    [ "${LP3D_APPIMAGE}" = "true" ] && LP3D_BUILD_AI_TOOLS=true || :
-
+    if [ "${LP3D_APPIMAGE}" = "true" ]; then
+        LP3D_BUILD_AI_TOOLS=1
+        # extract appimage payload is OFF
+        if [ -z "${LP3D_EXTRACT_PAYLOAD}" ]; then
+            [[ "${LP3D_COMMIT_MSG}" == *"EXTRACT_PAYLOAD"* ]] && LP3D_EXTRACT_PAYLOAD=1 || :
+        fi
+    fi
     # replace magic bytes default is ON
     if [ -z "${LP3D_AI_MAGIC_BYTES}" ]; then
         [[ "${LP3D_COMMIT_MSG}" == *"AI_MAGIC_BYTES"* ]] && LP3D_AI_MAGIC_BYTES=1 || :
@@ -312,117 +323,48 @@ fi
 
 # build appimage toolkit
 if [ -n "${LP3D_BUILD_AI_TOOLS}" ]; then
-    p=AppImageKit
-    t=appimagetool
-    ait=${base_path}/$t
+    p=appimagetool
+    k=AppImageKit
+    tools_path=${base_path}/AppDir/tools
+    ait=${tools_path}/$p
     if [ ! -f "${ait}" ]; then
-        cd ../ && [ -d "$p" ] && rm -rf $p || :
-        echo Building $p for ${aik_arch} at $PWD...
-        git clone --single-branch --recursive https://github.com/AppImage/AppImageKit $p && cd $p
-        ( export ARCH=${aik_arch} && \
+        cd ../ # && [ -d $k ] && rm -rf $k || :
+        mkdir -p ${tools_path}
+        echo && echo Building $k for ${aik_arch} at $PWD...
+        [ ! -d $k ] && \
+        git clone --single-branch --recursive https://github.com/AppImage/AppImageKit $k || :
+        ( cd $k && export ARCH=${aik_arch} && \
+          [ -z "$(ls -A ./out/)" ] && \
           chmod a+x ci/build.sh && ./ci/build.sh && \
-          ( [ -n "$(ls -A ./out/)" ] && mv -f ./out/* ${base_path}/ ) \
-        ) >$p.out 2>&1 && mv $p.out $p.ok
-        if [ -f $p.ok ]; then
-            echo Build $p succeeded
-            mv -f $p.ok ${base_path}
-            a=AppRun
-            r=runtime
-            ( cd ${base_path} && \
-              ait=$t-${aik_arch}.AppImage && \
-              [ -f "${ait}" ] && mv -f ${ait} $t && chmod a+x $t && \
-              ar=$a-${aik_arch} && \
-              [ -f "${ar}" ] && mv -f ${ar} $a && \
-              rt=$r-${aik_arch} && \
-              [ -f "${rt}" ] && mv -f ${rt} $r \
-            ) >$p.out 2>&1 && mv $p.out $p.ok
-            if [ -f $p.ok ]; then
-                cat $p.ok >> ${base_path}/$p.ok && rm $p.ok
-                ait=${base_path}/$t
-                if [ -z "$(which fusermount3)" ]; then
-                    ( ${ait} --appimage-extract \
-                    ) >$t.out 2>&1 && mv $t.out $t.ok
-                    if [ -f $t.ok ]; then
-                        ait="$(readlink -f ${PWD}/squashfs-root/usr/bin/$t)"
-                        cat $t.ok >> ${base_path}/$t.ok && rm $t.ok
-                        echo ${ait} extracted
-                    else
-                        echo Extract $t FAILED
-                        tail -80 $t.out
-                    fi
-                fi
-                ( [ "${LP3D_QEMU}" = "true" ] && \
-                  qemu-${aik_arch}-static -L /usr/${aik_arch}-linux-gnu ${ait} --version || ${ait} --version \
-                ) >$t.out 2>&1 && mv $t.out $t.ok
-                if [ ! -f $t.ok ]; then
-                    echo Version test $t FAILED
-                    tail -80 $t.out
-                    if [[ "${LP3D_QEMU}" = "true" && -z "${LP3D_AI_MAGIC_BYTES}" ]]; then
-                        mb="$(hexdump -Cv ${ait} | head -n 1 | grep '41 49 02 00')"
-                        if [ -n "${mb}" ]; then
-                            echo "$t magic bytes: ${mb}"
-                            echo "Patching $t magic bytes..."
-                            dd if=/dev/zero of="${ait}" bs=1 count=3 seek=8 conv=notrunc
-                            if [ -z "$(hexdump -Cv ${ait} | head -n 1 | grep '41 49 02 00')" ]; then
-                                echo "$t magic bytes patched $(hexdump -Cv ${ait} | head -n 1)"
-                                ( qemu-${aik_arch}-static -L /usr/${aik_arch}-linux-gnu ${ait} --version \
-                                ) >$t.out 2>&1 && mv $t.out $t.ok
-                                if [ -f $t.ok ]; then
-                                    cat $t.ok >> ${base_path}/$t.ok && rm $t.ok
-                                    echo $t is runnable
-                                else
-                                    echo Version check $t after magic bytes patch FAILED
-                                    tail -80 $t.out
-                                fi
-                            else
-                                echo Patch $t magic bytes FAILED
-                                hexdump -Cv ${ait} | head -n 3
-                                exit 9
-                            fi
-                        else
-                            echo "Magic bytes 'AI' not found in $t"
-                            hexdump -Cv ${ait} | head -n 3
-                        fi
-                    fi
-                else
-                    cat $t.ok >> ${base_path}/$t.ok && rm $t.ok
-                    echo $t is runnable
-                fi
+          [ -n "$(ls -A ./out/)" ] && mv -f ./out/* ${tools_path}/ || \
+          mv -f ./out/* ${tools_path}/ && echo "Skipped $p build" \
+        ) >$k.foo 2>&1 && mv $k.foo $k.ok
+        if [ -f $k.ok ]; then
+            echo Build $k succeeded
+            mv -f $k.ok ${out_path}
+            ait=$p-${aik_arch}.AppImage
+            ar=AppRun-${aik_arch}
+            rt=runtime-${aik_arch}
+            ( cd ${tools_path} && \
+              [ -f "${ait}" ] && mv -f ${ait} $p && chmod a+x $p && \
+              [ -f "${ar}" ] && mv -f ${ar} AppRun && \
+              [ -f "${rt}" ] && mv -f ${rt} runtime \
+            ) >$k.foo 2>&1 && mv $k.foo $k.ok
+            if [ -f $k.ok ]; then
+                cat $k.ok >> ${out_path}/$k.ok && rm $k.ok
             else
-                echo  Copy and rename $t, $a, $r FAILED
-                tail -80 $p.out
+                echo  Rename $p FAILED
+                tail -80 $k.foo
                 exit 9
             fi
         else
-            echo Build $p FAILED
-            tail -80 $p.out
+            echo Build $k FAILED
+            tail -80 $k.foo
             exit 9
         fi
-    else
-        cd ../ && mkdir -p $p && cd $p || :
-        if [ -z "$(which fusermount3)" ]; then
-            ( ${ait} --appimage-extract \
-            ) >$t.out 2>&1 && mv $t.out $t.ok
-            if [ -f $t.ok ]; then
-                cat $t.ok >> ${base_path}/$t.ok && rm $t.ok
-                ait="$(readlink -f ${PWD}/squashfs-root/usr/bin/$t)"
-                echo ${ait} extracted
-            else
-                echo Extract $t FAILED
-                tail -80 $t.out
-            fi
-        fi
-        ( [ "${LP3D_QEMU}" = "true" ] && \
-          qemu-${aik_arch}-static -L /usr/${aik_arch}-linux-gnu ${ait} --version || ${ait} --version \
-        ) >$t.out 2>&1 && mv $t.out $t.ok
-        if [ -f $t.ok ]; then
-            cat $t.ok >> ${base_path}/$t.ok && rm $t.ok
-            echo $t is runnable
-        else
-            echo Version check $t FAILED
-            tail -80 $t.out
-        fi
     fi
+
+    [ -f "${out_path}/$k.ok" ] && mv ${out_path}/$k.ok ${out_path}/$k.ok.log || :
 
     cd ${GITHUB_WORKSPACE}
 fi
@@ -434,7 +376,7 @@ fi
 
 # reporitory
 IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
-LPUB3D=${SLUG_PARTS[1]}
+LPUB3D=${LP3D_SLUGS[1]}
 
 # build docker image
 docker_build_opts=(${docker_platform})
@@ -476,7 +418,7 @@ common_docker_opts=(
 )
 
 # make ctrl-c work
-if [[ "${CI}" != "true" ]] && [[ "$TERM" != "" ]]; then
+if [[ "${CI}" != "true" ]] && [[ "${TERM}" != "" ]]; then
     common_docker_opts+=("-t")
 fi
 

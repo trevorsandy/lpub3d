@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 26, 2021
+# Last Update August 06, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -26,6 +26,9 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
+# Format the log name - SOURCED if $1 is empty 
+WRITE_LOG=${WRITE_LOG:-true}
+[ "$1" = "" ] && WRITE_LOG="false" && ME="CreateDeb" || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 CWD=`pwd`
@@ -41,24 +44,26 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 curlopts="-sL -C -"
 
 # logging stuff - increment log file name
-f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
-[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
-f="${LP3D_LOG_PATH}/${f}"
-ext=".log"
-if [[ -e "$f$ext" ]] ; then
-    i=1
-    f="${f%.*}";
-    while [[ -e "${f}_${i}${ext}" ]]; do
-      let i++
-    done
-    f="${f}_${i}${ext}"
-    else
-    f="${f}${ext}"
+if [ "${WRITE_LOG}" = "true" ]; then
+    f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
+    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+    f="${LP3D_LOG_PATH}/${f}"
+    ext=".log"
+    if [[ -e "$f$ext" ]] ; then
+        i=1
+        f="${f%.*}";
+        while [[ -e "${f}_${i}${ext}" ]]; do
+          let i++
+        done
+        f="${f}_${i}${ext}"
+        else
+        f="${f}${ext}"
+    fi
+    # output log file
+    LOG="$f"
+    exec > >(tee -a ${LOG} )
+    exec 2> >(tee -a ${LOG} >&2)
 fi
-# output log file
-LOG="$f"
-exec > >(tee -a ${LOG} )
-exec 2> >(tee -a ${LOG} >&2)
 
 # when running on Travis-CI, use this block...
 if [ "${TRAVIS}" = "true"  ]; then
@@ -79,8 +84,8 @@ cd ${BUILD_DIR}/SOURCES
 
 if [ "${TRAVIS}" != "true" ]; then
     if [ -d "/in" ]; then
-        echo "2. copy ${LPUB3D} source to SOURCES/..."
-        cp -rf /in/. .
+        echo "2. copy input source to SOURCES/${LPUB3D}..."
+        mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
         echo "2. download ${LPUB3D} source to SOURCES/..."
         git clone https://github.com/trevorsandy/${LPUB3D}.git
@@ -290,10 +295,11 @@ then
         fi
         if [ "${LP3D_QEMU}" = "true" ]; then
             echo "11-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${LP3D_DEB_FILE}* /out/ 2>/dev/null || :
-            mv -f ${PWD}/*.xz /buildpkg/ 2>/dev/null || :; \\
-            mv -f ${PWD}/*.gz /buildpkg/ 2>/dev/null || :; \\
-            mv -f ${PWD}/*.buildinfo /buildpkg/ 2>/dev/null || :; \\
+            mv -f ${BUILD_DIR}/*.deb* /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.xz /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.dsc /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.changes /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/*.buildinfo /out/ 2>/dev/null || :
             mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
             mv -f ${CWD}/*.log /out/ 2>/dev/null || :
             mv -f ./*.log /out/ 2>/dev/null || :

@@ -79,7 +79,8 @@ fi
 if [ "${SOURCED}" != "true" ]
 then
     # logging stuff
-    LOG="$LP3D_CALL_DIR/$LP3D_ME.log"
+    [ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$LP3D_CALL_DIR || :
+    LOG="$LP3D_LOG_PATH/$LP3D_ME.log"
     if [ -f ${LOG} -a -r ${LOG} ]
     then
         rm ${LOG}
@@ -191,6 +192,7 @@ if [[ "${CI}" = "true" || "${GITHUB}" = "true" ]]; then
     export LP3D_RELEASE_DATE=${LP3D_RELEASE_DATE}
     test -n "$LP3D_VER_SUFFIX" && export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX || :
     export LP3D_VERSION=${LP3D_VERSION}
+    export LP3D_VERSION_INFO=${LP3D_VERSION_INFO}
     export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
     export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
     export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}

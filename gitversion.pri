@@ -1,5 +1,5 @@
 # If no version info can be determined, VERSION (in LP3D_VERSION_INFO format) will be used
-VERSION = continuous.4.2787
+VERSION = 2.4.4
 
 # Need to discard STDERR so get path to NULL device
 win32 {
@@ -50,11 +50,16 @@ equals(GIT_DIR, undefined) {
             USE_GIT_VER_FILE = true
         } else {
             VERSION_INFO_VAR = $$(LP3D_VERSION_INFO)
+            USING_GITHUB = $$(GITHUB)
+            # equals(USING_GITHUB, true): message("~~~ DEBUG ~~ NOTICE: USING GITHUB ~~~")
             !isEmpty(VERSION_INFO_VAR) {
                 USE_VERSION_INFO_VAR = true
-                message("~~~ ALERT! GIT TAG NOT DEFINED, USING LP3D_VERSION_INFO $$VERSION_INFO_VAR ~~~")
+                message("~~~ ALERT! GIT TAG NOT FOUND, USING LP3D_VERSION_INFO $$VERSION_INFO_VAR ~~~")
+            } else: equals(USING_GITHUB, true) {
+                USE_GIT_VER_FILE = true
+                message("~~~ ALERT! GIT TAG AND LP3D_VERSION_INFO NOT FOUND ~~~")
             } else {
-                message("~~~ ALERT! GIT TAG NOT DEFINED, USING HEAD $$GIT_VERSION ~~~")
+                message("~~~ ALERT! GIT TAG AND LP3D_VERSION_INFO NOT FOUND, USING HEAD $$GIT_VERSION ~~~")
             }
         }
     }
@@ -63,7 +68,7 @@ equals(GIT_DIR, undefined) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 2633
+            GIT_COMMIT = 2634
             message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -110,7 +115,7 @@ if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
             GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
         } else {
             message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-            GIT_VERSION = $${VERSION}.1.2633.a4e06ddf
+            GIT_VERSION = $${VERSION}.1.2634.16d497f1
             message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
             GIT_VERSION ~= s/\./" "
         }

@@ -1,6 +1,6 @@
 # LPub3D security and quality analysis
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 24, 2021
+# Last Update: August, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 name: CodeQL
@@ -21,7 +21,7 @@ on:
 
 jobs:
   analyze:
-    #if: ${{ false }} # suspend job
+    #if: ${{ false }} # suspend
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
@@ -56,10 +56,11 @@ jobs:
         env: 
           LP3D_ANALYZE: 1          
       - name: Diagnostics
-        if: ${{ failure() }}
+        if: failure()
         uses: actions/upload-artifact@v2
         with:
           name: compile-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
+          if-no-files-found: ignore
       - name: Analysis
         uses: github/codeql-action/analyze@v1
