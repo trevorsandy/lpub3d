@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update May 12, 2021
+# Last Update May 27, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -84,15 +84,32 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
         make -j$(nproc);
         make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
-        [ ! -e linuxdeployqt-continuous-x86_64.AppImage ] && \
-        wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage";
-        chmod a+x linuxdeployqt-continuous-x86_64.AppImage;
+        if [ ! -e linuxdeployqt ]; then
+            if [ "$TRAVIS_CPU_ARCH" = "amd64" ]; then
+                wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage";
+                mv linuxdeployqt-x86_64.AppImage linuxdeployqt
+            elif [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
+                # Build linuxdeployqt
+                sudo apt-get -y install git g++ libgl1-mesa-dev
+                git clone https://github.com/probonopd/linuxdeployqt.git linuxdeployqt-build
+                (cd linuxdeployqt-build && qmake && make && \
+                [ -f bin/linuxdeployqt ] && mv bin/linuxdeployqt ../)
+                # Build patchelf
+                wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.bz2
+                tar xf patchelf-0.9.tar.bz2
+                ( cd patchelf-0.9/ && ./configure --prefix=/usr/local/ && make && sudo make install )
+                # Install appimagetool
+                sudo wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O /usr/local/bin/appimagetool
+                sudo chmod a+x /usr/local/bin/appimagetool
+            fi
+            chmod a+x linuxdeployqt;
+        fi
         renderers=$(find $AppImageBuildPath/opt -type f);
         for r in $renderers; do executables="$executables -executable=$r"; done;
         unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
         export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
-        ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
-        ./linuxdeployqt-continuous-x86_64.AppImage $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
+        ./linuxdeployqt $AppImageBuildPath/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2 > CreateAppImage.log 2>&1;
+        ./linuxdeployqt $AppImageBuildPath/usr/share/applications/*.desktop -appimage -verbose=2 >> CreateAppImage.log 2>&1;
         echo && echo "AppImage Dynamic Library Dependencies:" && \
         find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
         AppImageFile=$(ls LPub3D*.AppImage)

@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 20, 2021
+# Last Update May 27, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -14,7 +14,11 @@ source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
 if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
      ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-  if [ "$LP3D_QT_BASE" = "512" ]; then sudo apt-get install -qq qt512base; source /opt/qt512/bin/qt512-env.sh; fi
+    if [[ "$LP3D_QT_BASE" = "515" && "$TRAVIS_CPU_ARCH" = "amd64" ]]; then
+        sudo apt-get install -qq qt515base; source /opt/qt515/bin/qt515-env.sh;
+    elif [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
+        sudo apt-get install -qq qt5-default qtbase5-dev qttools5-dev-tools libqt5opengl5-dev zip;
+    fi
 fi
 # Setup 3rd party base distribution directory
 if [ ! -d "$LP3D_DIST_DIR_BASE" ]; then

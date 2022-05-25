@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 20, 2021
+# Last Update May 27, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
@@ -55,7 +55,7 @@ fi
 # Add private qt repositories
 if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
      ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-  if [ "$LP3D_QT_BASE" = "512" ]; then sudo add-apt-repository ppa:beineri/opt-qt-5.12.3-xenial -y; fi;
+  if [[ "$LP3D_QT_BASE" = "515" && "$TRAVIS_CPU_ARCH" = "amd64" ]]; then sudo add-apt-repository ppa:beineri/opt-qt-5.15.2-xenial -y; fi;
 fi
 # Parse the commit message for 3rd party build override. As 3rd party items are not expected to change often
 # we cache them to speed up the build. If/when it is necessary to build one of the items, we signa with 1 in the commit message.

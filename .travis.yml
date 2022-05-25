@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 19, 2021
+# Last Update: May 27, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 os: linux
@@ -35,7 +35,7 @@ cache:
 #
 env:
   global:
-  - LP3D_QT_BASE=512
+  - LP3D_QT_BASE=515
   - LP3D_LDRAW_DIR=${HOME}/ldraw
   - LP3D_BUILD_FOLDER=${TRAVIS_BUILD_DIR}
   - LP3D_RELEASES_DIR=${LP3D_BUILD_FOLDER}/builds/releases
@@ -103,31 +103,19 @@ jobs:
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build and Package
-    env: LP3D_BUILD_OS=archlinux
+    env: LP3D_BUILD_OS=appimage
     os: linux
-    compiler: gcc
-  - stage: Build and Package
-    env: LP3D_BUILD_OS=fedora
-    os: linux
-    compiler: gcc
-  - stage: Build and Package
-    env: LP3D_BUILD_OS=ubuntu
-    os: linux
+    name: AppImage AMD64
+    arch: amd64
+    dist: xenial
     compiler: gcc
   - stage: Build and Package
     env: LP3D_BUILD_OS=appimage
     os: linux
+    name: AppImage ARM64
+    arch: arm64
+    dist: xenial
     compiler: gcc
-  - stage: Build and Package
-    env: LP3D_BUILD_OS=macos
-    os: osx
-    osx_image: xcode11.3
-    compiler: clang
-    addons:
-      homebrew:
-        packages:
-          - grep
-          - qt5
   - stage: Compile Source
     env: LP3D_COMPILE_SOURCE=true
     os: linux
