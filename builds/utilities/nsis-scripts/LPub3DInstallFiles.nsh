@@ -134,8 +134,8 @@ ${Else}
      File "${Win32BuildDir}\ssleay32.dll"
    ${elseif} ${OpenSSLVer} == v1.1
    ;OpenSSL v1.1 - from Qt 5.12.10 to present
-     File "${Win32BuildDir}\libcrypto-1_1.dll
-     File "${Win32BuildDir}\libssl-1_1.dll
+     File "${Win32BuildDir}\libcrypto-1_1.dll"
+     File "${Win32BuildDir}\libssl-1_1.dll"
    ${EndIf}
 
     File "${Win32BuildDir}\Qt5Concurrent.dll"

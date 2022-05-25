@@ -87,7 +87,7 @@ ${Else}
     ;OpenSSL v1.1 - from Qt 5.12.10 to present
       Delete "$INSTDIR\libcrypto-1_1.dll"
       Delete "$INSTDIR\libssl-1_1.dll"
-    ${End
+    ${EndIf}
 
     ;32bit 3rd party renderer utility - LDView
     Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"

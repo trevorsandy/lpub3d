@@ -243,7 +243,7 @@ Section "Core Files (required)" SectionCoreFiles
     ${if} ${errors} ; stay in installer
       SetErrorLevel 2 ; Installation aborted by script
       BringToFront
-	  Call fnAskForceUninstall
+      Call fnAskForceUninstall
     ${else}
       ${Switch} $0
         ${Case} 0 ; uninstaller completed successfully - continue with installation
@@ -257,7 +257,7 @@ Section "Core Files (required)" SectionCoreFiles
           SetErrorLevel $0
           BringToFront
           ;Abort "Error executing uninstaller."
-		  Call fnAskForceUninstall
+          Call fnAskForceUninstall
       ${EndSwitch}
     ${endif}
 
@@ -409,7 +409,7 @@ SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
   SectionIn 3
-  
+
   !insertmacro MULTIUSER_GetCurrentUserString $0
   CreateShortCut "$STARTMENU\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
@@ -476,7 +476,7 @@ Function .onInit
 
   ; LPub3D Directives
   ; -------------------------------------
-  
+
   ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
   ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"
   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary"
@@ -527,7 +527,7 @@ Function PageReadmePre
   ${if} $InstallShowPagesBeforeComponents == 0
     Abort ; don't display the Readme page for the inner instance
   ${endif}
-  GetDlgItem $0 $HWNDPARENT 1                          ;Agree/Next/Install button           
+  GetDlgItem $0 $HWNDPARENT 1                          ;Agree/Next/Install button
   SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)"     ;Change 'I Agree' to 'Next'
 FunctionEnd
 
@@ -886,35 +886,35 @@ Function fnAskForceUninstall
 
   Proceed:
   DetailPrint "Removing all previously installed components of ${PRODUCT_NAME}..."
-  
+
   ; Clean up "Quick Launch Icon"
   ${if} ${AtLeastWin7}
     ${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromStart}
   ${else}
     !insertmacro DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
   ${endif}
-  
+
   ; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
   ${if} "$StartMenuFolder" != ""
       RMDir /r "$SMPROGRAMS\$StartMenuFolder"
   ${endif}
-    
+
   ; Clean up "Desktop Icon"
   !insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
-  
+
   ; Delete user data folder and all its contents
   ${if} ${DirExists} "${INSTDIR_AppDataProduct}\${COMPANY_NAME}"
       RMDir /r "${INSTDIR_LocalAppData}\${COMPANY_NAME}"
   ${EndIf}
-  
+
   ; Delete registry hive settings
   DeleteRegKey HKCU "Software\${COMPANY_NAME}"
-    
+
   ; Delete install folder and all its contents - this function is executed only when the normal uninstall fails and the user elects to force remove the application
   ${if} ${DirExists} "$INSTDIR"
       RMDir /r "$INSTDIR"
   ${EndIf}
-  
+
   ; Remove the uninstaller keys from registry
   !insertmacro MULTIUSER_RegistryRemoveInstallInfo
 FunctionEnd
