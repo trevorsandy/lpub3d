@@ -28,6 +28,7 @@ SET CONFIGURATION=release
 SET LDRAW_DIR=%USERPROFILE%\LDraw
 SET LDRAW_LIBS=%USERPROFILE%
 SET LDRAW_INSTALL_ROOT=%LDRAW_LIBS%
+SET SEVEN_ZIP_WIN64=C:\program files\7-zip
 CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
 
 SET OfficialCONTENT=complete.zip
@@ -155,13 +156,13 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
       SET CHECK=0
     )
   )
-  IF EXIST "%zipWin64%" (
+  IF EXIST "%SEVEN_ZIP_WIN64%" (
     ECHO.
-    ECHO -7zip exectutable found at "%zipWin64%"
+    ECHO -7zip exectutable found at "%SEVEN_ZIP_WIN64%"
     ECHO.
     ECHO -Extracting %OfficialCONTENT%...
     ECHO.
-    "%zipWin64%\7z.exe" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+    "%SEVEN_ZIP_WIN64%\7z.exe" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
     IF EXIST "%LDRAW_DIR%\parts" (
       ECHO.
       ECHO -LDraw directory %LDRAW_DIR% extracted.

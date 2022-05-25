@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 07, 2021
+# Last Update: July 03, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -329,7 +329,11 @@ after_build:
             cmd.exe /c appveyor-tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET% -salt %SECURE_SF_SALT%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
           } Else {
-            write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
+            If ((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -ne "") {
+              write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
+            } Else {
+              write-host "Skip Sourceforge deploy detected."
+            }
           }
         }
         If ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true") {

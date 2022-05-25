@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 11, 2021
+rem  Last Update: July 03, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 rem --
@@ -34,7 +34,6 @@ SET LP3D_GIT_DEPTH=150000
 SET LP3D_PAST_RELEASES=2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%
-
 
 ECHO  Start %LP3D_ME% execution at %CD%...
 IF [%3] EQU [] (
@@ -181,9 +180,11 @@ CD /D "%LP3D_BUILDS_DIR%\.."
 
 REM Test for .git folder
 IF "%APPVEYOR%" NEQ "True" (
-  IF NOT EXIST ".git" (
-    ECHO  ERROR: .git folder not found.
-    EXIT /b 1
+  IF "%APPVEYOR%" NEQ "True" (
+    IF NOT EXIST ".git" (
+      ECHO  ERROR: .git folder not found.
+      EXIT /b 1
+    )
   )
 )
 
@@ -191,7 +192,13 @@ REM Get build type
 FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0 2^> nul`) DO SET LP3D_BUILD_TYPE=%%G
 rem ECHO  DEBUG LP3D_BUILD_TYPE IS %LP3D_BUILD_TYPE%
 
-REM Update refs and tags
+REM Update Github refs and tags
+REM IF "%GITHUB%" EQU "True" (
+REM   git fetch -qfup --depth=%LP3D_GIT_DEPTH% origin +%GITHUB_REF% +refs/tags/*:refs/tags/*
+REM   git checkout -qf %GITHUB_SHA%
+REM )
+
+REM Update Appveyor refs and tags
 IF "%APPVEYOR%" EQU "True" (
   git fetch -qfup --depth=%LP3D_GIT_DEPTH% origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
   git checkout -qf %APPVEYOR_REPO_COMMIT%

@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 09, 2021
+rem  Last Update: July 01, 2021
 rem  Copyright (c) 2018 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -41,10 +41,11 @@ rem Check 4 of 7
 SET PKG_CHECK_OPTIONS=--no-console-redirect --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 5 of 7
-IF "%APPVEYOR%" EQU "True" (
-  SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray-ldv
-) ELSE (
-  SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray-ldv
+IF "%GITHUB%" NEQ "True" (
+  IF "%APPVEYOR%" NEQ "True" (
+    SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray
+  )
 )
 SET PKG_CHECK_POV_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 6 of 7
@@ -112,7 +113,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
-  ECHO   1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
+  ECHO -CHECK 1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
   SET QT_DEBUG_PLUGINS=1
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_NATIVE_COMMAND% > %PKG_LOG_FILE% 2>&1
@@ -125,7 +126,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   2 OF 7. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  ECHO -CHECK 2 OF 7. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_LDVIEW_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -137,7 +138,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   3 OF 7. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  ECHO -CHECK 3 OF 7. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -149,7 +150,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   4 OF 7. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
+  ECHO -CHECK 4 OF 7. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_RANGE_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -161,7 +162,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   5 OF 7. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
+  ECHO -CHECK 5 OF 7. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_POV_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -173,7 +174,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   6 OF 7. PKG_CHECK_TENTE_COMMAND......[%PKG_CHECK_TENTE_COMMAND%]
+  ECHO -CHECK 6 OF 7. PKG_CHECK_TENTE_COMMAND......[%PKG_CHECK_TENTE_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_TENTE_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -185,7 +186,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   7 OF 7. PKG_CHECK_VEXIQ_COMMAND......[%PKG_CHECK_VEXIQ_COMMAND%]
+  ECHO -CHECK 7 OF 7. PKG_CHECK_VEXIQ_COMMAND......[%PKG_CHECK_VEXIQ_COMMAND%]
   CALL :ELAPSED_CHECK_TIME Start
   CALL %PKG_CHECK_VEXIQ_COMMAND% > %PKG_LOG_FILE% 2>&1
   FOR %%R IN (%PKG_LOG_FILE%) DO (
@@ -196,7 +197,7 @@ IF NOT EXIST "%PKG_TARGET%" (
       ECHO. -ERROR - PKG_CHECK_VEXIQ NO OUTPUT
     )
   )
-  
+
   ECHO.
   ECHO   Build checks cleanup...
   IF EXIST %PKG_RUNLOG% (

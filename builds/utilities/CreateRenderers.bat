@@ -3,14 +3,14 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Jume 11, 2021
+rem  Last Update: July 03, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SET start=%time%
+CALL :ELAPSED_BUILD_TIME Start
 
 ECHO.
 ECHO -Start %~nx0 with commandline args: [%*]...
@@ -20,36 +20,50 @@ FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
   IF "%APPVEYOR%" EQU "True" (
-    CALL :WD_REL_TO_ABS ../../
+    CALL :WD_ABS_PATH ../../
   ) ELSE (
-    CALL :WD_REL_TO_ABS ../../../
+    CALL :WD_ABS_PATH ../../../
   )
 ) ELSE (
   rem get abs path to build 3rd party packages outside the LPub3D root dir
   IF "%APPVEYOR%" EQU "True" (
-  SET ABS_WD=%CD%
+    SET ABS_WD=%CD%
   ) ELSE (
-    CALL :WD_REL_TO_ABS ../
+    CALL :WD_ABS_PATH ../
   )
 )
 
 rem Variables - change these as required by your build environments
+SET LP3D_QTVERSION=5.15.2
+SET LP3D_VSVERSION=2019
+
+IF "%GITHUB%" EQU "True" (
+  SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
+  SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
+  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+  SET BUILD_ARCH=%LP3D_TARGET_ARCH%
+)
 IF "%APPVEYOR%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET BUILD_ARCH=%LP3D_TARGET_ARCH%
-) ELSE (
-  IF [%DIST_DIR%] == [] (
-    SET DIST_DIR=..\lpub3d_windows_3rdparty
-    ECHO.
-    ECHO  -WARNING: Distribution directory not specified. Using [%DIST_DIR%].
+)
+IF "%GITHUB%" NEQ "True" (
+  IF "%APPVEYOR%" NEQ "True" (
+    IF [%DIST_DIR%] == [] (
+      CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
+      ECHO.
+      SETLOCAL ENABLEDELAYEDEXPANSION
+      ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
+      SETLOCAL
+    )
+    SET BUILD_OUTPUT_PATH=%ABS_WD%
+    SET LDRAW_DIR=%USERPROFILE%\LDraw
+    SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
+    SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+    SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
   )
-  SET BUILD_OUTPUT_PATH=%ABS_WD%
-  SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.15.2\msvc2019\bin
-  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.15.2\msvc2019_64\bin
-  SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4
 SET VER_LDGLITE=LDGLite-1.3
@@ -76,7 +90,6 @@ ECHO   BUILD LPUB3D RENDERERS FOR %1 ARCHITECTURE...
 ECHO ======================================================
 ECHO.
 ECHO   WORKING_DIRECTORY_RENDERERS....[%ABS_WD%]
-ECHO   BUILD_OUTPUT_PATH..............[%BUILD_OUTPUT_PATH%]
 ECHO   DISTRIBUTION DIRECTORY.........[%DIST_DIR:/=\%]
 ECHO   LDRAW LIBRARY FOLDER...........[%LDRAW_DIR%]
 
@@ -85,7 +98,7 @@ IF EXIST "%ZIP_DIR_64%" (
   SET VALID_ZIP=1
 ) ELSE (
   ECHO   7-ZIP EXECUTABLE...............[ERROR - not found at %ZIP_DIR_64%]
-  GOTO :END
+  GOTO :ERROR_END
 )
 
 IF NOT EXIST "%DIST_DIR%\" (
@@ -153,9 +166,7 @@ ENDLOCAL
 CALL :SET_BUILD_ARGS
 FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
   CALL :%%I_BUILD
-  IF ERRORLEVEL 1 (
-    GOTO :FATAL_ERROR
-  )
+  IF ERRORLEVEL 1 (GOTO :FATAL_ERROR)
 )
 GOTO :END
 
@@ -185,7 +196,7 @@ CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDGLITE_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDGLITE%" (
   ECHO  ERROR - Renderer %VER_LDGLITE% was not successfully built.
-  EXIT /b 1
+  GOTO :ERROR_END
 )
 EXIT /b
 
@@ -206,11 +217,10 @@ SET ARCHIVE_FILE_DIR=ldview-qmake-build
 SET WebNAME=https://github.com/trevorsandy/ldview/archive/qmake-build.zip
 CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
-IF NOT EXIST "%VER_LDVIEW%" (
+IF NOT EXIST "%LP3D_LDVIEW%" (
   ECHO  ERROR - Renderer %VER_LDVIEW% was not successfully built.
-  EXIT /b 1
+  GOTO :ERROR_END
 )
-ECHO - Renderer %VER_LDVIEW% bin contents:
 PUSHD "%LP3D_LDVIEW_BIN%"
 ECHO - Renderer %VER_LDVIEW% bin contents:
 FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO  - %%f
@@ -231,9 +241,9 @@ SET WebNAME=https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.z
 CALL :CONFIGURE_BUILD_ENV
 CD /D %VALID_SDIR%\vs2015
 CALL autobuild.cmd %POVRAY_BUILD_ARGS%
-IF NOT EXIST "%VER_POVRAY%" (
+IF NOT EXIST "%LP3D_POVRAY%" (
   ECHO  ERROR - Renderer %VER_POVRAY% was not successfully built.
-  EXIT /b 1
+  GOTO :ERROR_END
 )
 EXIT /b
 
@@ -245,10 +255,12 @@ ECHO  ----------------------------------------------------
 ECHO   BUILD_ARCH.....................[%BUILD_ARCH%]
 ECHO   BUILD_DIRECTORY................[%BUILD_DIR%]
 ECHO   VALID_SUB_DIRECTORY............[%VALID_SDIR%]
-ECHO   ARCHIVE_FILE_DIRECTORY.........[%ARCHIVE_FILE_DIR%]
-ECHO   ARCHIVE_FILE...................[%ARCHIVE_FILE%]
+ECHO   REPOSITORHY_DIRECTORY..........[%ARCHIVE_FILE_DIR%]
+ECHO   BUILD_OUTPUT_PATH..............[%BUILD_OUTPUT_PATH%]
+ECHO   REPO_ARCHIVE_FILE..............[%ARCHIVE_FILE%]
 ECHO   DOWNLOAD_URL.(WebNAME).........[%WebNAME%]
 ECHO   DOWNLOAD_PATH.(WebCONTENT).....[%WebCONTENT%]
+ECHO   COMPLETE_BUILD_PATH............[%BUILD_OUTPUT_PATH%\%BUILD_DIR%]
 IF NOT EXIST "%BUILD_OUTPUT_PATH%\%BUILD_DIR%\%VALID_SDIR%" (
   IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" (
     ECHO.
@@ -271,8 +283,13 @@ EXIT /b
 ECHO.
 ECHO -Check for LDraw library (support image render tests)...
 SET BUILD_OUTPUT_PATH_SAVE=%BUILD_OUTPUT_PATH%
-IF "%APPVEYOR%" NEQ "True" (
-  SET BUILD_OUTPUT_PATH=%USERPROFILE%
+IF "%GITHUB%" EQU "True" (
+  SET BUILD_OUTPUT_PATH=%LP3D_3RD_PARTY_PATH%
+)
+IF "%GITHUB%" NEQ "True" (
+  IF "%APPVEYOR%" NEQ "True" (
+    SET BUILD_OUTPUT_PATH=%USERPROFILE%
+  )
 )
 SET ARCHIVE_FILE_DIR=%LDRAW_DIR%
 SET ARCHIVE_FILE=complete.zip
@@ -300,7 +317,7 @@ IF NOT EXIST "%LDRAW_DIR%\%VALID_SDIR%" (
     REM DEL /Q "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
   ) ELSE (
       ECHO.
-      ECHO -[ERROR] LDraw library folder %LDRAW_DIR% is not valid.
+      ECHO -WARNING: LDraw library folder %LDRAW_DIR% is not valid.
       SET BUILD_OUTPUT_PATH=%BUILD_OUTPUT_PATH_SAVE%
       EXIT /b
   )
@@ -324,8 +341,8 @@ IF NOT EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%" (
     IF %VALID_ZIP% EQU 1 "%ZIP_DIR_64%\7z.exe" x -o"%BUILD_OUTPUT_PATH%\" "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
   ) ELSE (
     ECHO.
-    ECHO -[ERROR] Could not find %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%.
-    GOTO :END
+    ECHO -ERROR: Could not find %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%.
+    GOTO :ERROR_END
   )
 )
 EXIT /b
@@ -342,8 +359,8 @@ IF EXIST "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR%\%VALID_SDIR%" (
   DEL /Q "%BUILD_OUTPUT_PATH%\%ARCHIVE_FILE%"
 ) ELSE (
   ECHO.
-  ECHO -[ERROR] Build folder %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR% is not valid.
-  GOTO :END
+  ECHO -ERROR: Build folder %BUILD_OUTPUT_PATH%\%ARCHIVE_FILE_DIR% is not valid.
+  GOTO :ERROR_END
 )
 EXIT /b
 
@@ -363,7 +380,7 @@ SET vbs=WebContentDownload.vbs
 SET t=%TEMP%\$\%vbs% ECHO
 
 IF EXIST %TEMP%\$\%vbs% (
- DEL %TEMP%\$\%vbs%
+  DEL %TEMP%\$\%vbs%
 )
 
 :WEB CONTENT SAVE-AS Download-- VBS
@@ -403,7 +420,6 @@ IF EXIST %TEMP%\$\%vbs% (
 >>%t% Else
 >>%t%  adoStream.SaveToFile target
 >>%t%  adoStream.Close
->>%t%  WScript.Echo "- Download successful!"
 >>%t% End If
 >>%t%.
 >>%t% 'WebContentDownload.vbs
@@ -416,20 +432,20 @@ ECHO.
 ECHO - VBS file "%vbs%" is done compiling
 
 :DO_DOWNLOAD
-ECHO.
-ECHO - File download path: %BUILD_OUTPUT_PATH%
+REM ECHO.
+REM ECHO - File download path: %BUILD_OUTPUT_PATH%
 ECHO.
 ECHO - [%date% %time%] Download file: %WebCONTENT%...
 
 IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
+  DEL %WebCONTENT%
 )
 
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
-IF ERRORLEVEL 1 GOTO :RETRY_DOWNLOAD
-IF NOT EXIST %ARCHIVE_FILE% GOTO :RETRY_DOWNLOAD
+IF ERRORLEVEL 1 (GOTO :RETRY_DOWNLOAD "Error level 1")
+IF NOT EXIST %WebCONTENT% (GOTO :RETRY_DOWNLOAD "File %ARCHIVE_FILE% not found")
 SET RETRIES=0
 EXIT /b
 
@@ -438,35 +454,35 @@ SET /a RETRIES=%RETRIES%+1
 IF %RETRIES% EQU %MAX_RETRIES% (GOTO :DOWNLOAD_ERROR)
 IF %RETRIES% LSS %MAX_RETRIES% (
   ECHO.
-  ECHO - WARNING - Download %ARCHIVE_FILE% failed. Attempting %RETRIES% of %MAX_RETRIES% retries...
+  ECHO - WARNING - Download %ARCHIVE_FILE% failed with message %1.
+  ECHO - Attempting %RETRIES% of %MAX_RETRIES% retries...
   GOTO :DO_DOWNLOAD
 )
+
+:WD_ABS_PATH
+IF [%1] EQU [] (EXIT /B) ELSE SET ABS_PATH=%~f1
+IF %ABS_PATH:~-1%==\ SET ABS_PATH=%ABS_PATH:~0,-1%
+EXIT /b
+
+:DIST_DIR_ABS_PATH
+IF [%1] EQU [] (EXIT /B) ELSE SET DIST_DIR=%~f1
+IF %DIST_DIR:~-1%==\ SET DIST_DIR=%DIST_DIR:~0,-1%
+EXIT /b
 
 :DOWNLOAD_ERROR
 ECHO.
 ECHO - [%date% %time%] - ERROR - Download %ARCHIVE_FILE% failed after %MAX_DOWNLOAD_ATTEMPTS% attempts.
-EXIT /b
+GOTO :ERROR_END
 
-:WD_REL_TO_ABS
-IF [%1] EQU [] (EXIT /b) ELSE (SET REL_WD=%1)
-SET REL_WD=%REL_WD:/=\%
-SET ABS_WD=
-PUSHD %REL_WD%
-SET ABS_WD=%CD%
-POPD
-EXIT /b
+:FATAL_ERROR
+ECHO  %LP3D_ME% execution failed.
+GOTO :ERROR_END
 
 :COMMAND_ERROR
 ECHO.
 ECHO -01. (COMMAND ERROR) Invalid command string [%~nx0 %*].
 ECHO      See Usage.
-CALL :USAGE
 ECHO.
-
-:FATAL_ERROR
-ECHO  %LP3D_ME% execution failed.
-CALL :FINISHED
-EXIT /b 1
 
 :USAGE
 ECHO ----------------------------------------------------------------
@@ -508,13 +524,15 @@ ECHO If no flag is supplied, 64bit platform, Release Configuration built by defa
 ECHO ----------------------------------------------------------------
 EXIT /b
 
-:END
-ECHO.
-ECHO -%~nx0 [platform %*] finished.
-CALL :FINISHED
-EXIT /b
-
-:FINISHED
+:ELAPSED_BUILD_TIME
+IF [%1] EQU [] (SET start=%build_start%) ELSE (
+  IF "%1"=="Start" (
+    SET build_start=%time%
+    EXIT /b
+  ) ELSE (
+    SET start=%1
+  )
+)
 SET end=%time%
 SET options="tokens=1-4 delims=:.,"
 FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
@@ -530,5 +548,19 @@ IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
 IF %hours% lss 0 SET /a hours = 24%hours%
 IF 1%ms% lss 100 SET ms=0%ms%
 ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
+ECHO ======================================================
+ECHO.
 ENDLOCAL
+EXIT /b
+
+:ERROR_END
+ECHO.
+ECHO -%~nx0 [platform %*] FAILED.
+CALL :ELAPSED_BUILD_TIME
+EXIT /b 3
+
+:END
+ECHO.
+ECHO -%~nx0 [platform %*] finished.
+CALL :ELAPSED_BUILD_TIME
 EXIT /b
