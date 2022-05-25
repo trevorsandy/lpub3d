@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 11, 2021
+# Last Update: June 07, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -20,7 +20,7 @@ cache:
 
 #shallow_clone: true
 
-image: Visual Studio 2015
+image: Visual Studio 2019
 
 skip_commits:
   files:
@@ -246,12 +246,14 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
  - ps: |
-       write-host "Download MSYS2 install script..." -NoNewline
-       $scriptUrl = "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/install_msys64.ps1"
-       $msys2InstallScript = "$($env:TEMP)\install_msys64.ps1"
-       (New-Object Net.WebClient).DownloadFile($scriptUrl, $msys2InstallScript)
-       write-host " - OK" -ForegroundColor Green
-       .$msys2InstallScript
+       If ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015") {
+         write-host "Download MSYS2 install script..." -NoNewline
+         $scriptUrl = "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/install_msys64.ps1"
+         $msys2InstallScript = "$($env:TEMP)\install_msys64.ps1"
+         (New-Object Net.WebClient).DownloadFile($scriptUrl, $msys2InstallScript)
+         write-host " - OK" -ForegroundColor Green
+         .$msys2InstallScript
+       }
 
 # There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'

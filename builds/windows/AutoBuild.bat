@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 01, 2021
+rem  Last Update: June 07, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -39,9 +39,8 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
-  SET LP3D_QT32_MSVC=C:\Qt\5.11.3\msvc2015\bin
-  SET LP3D_QT64_MSVC=C:\Qt\5.11.3\msvc2015_64\bin
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio 14.0\VC
+  SET LP3D_QT32_MSVC=C:\Qt\5.15.2\msvc2019\bin
+  SET LP3D_QT64_MSVC=C:\Qt\5.15.2\msvc2019_64\bin
   SET UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
 ) ELSE (
   CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
@@ -52,10 +51,10 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.3\msvc2015\bin
   SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.3\msvc2015_64\bin
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
   SET UPDATE_LDRAW_LIBS=unknown
 )
 
+SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
