@@ -174,6 +174,9 @@ rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
 echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
 
+# skip package build scripts when verifying
+[ "${BUILD_OPT}" = "verify" ] && skip_package_build_scripts=1 || :
+
 # run builds with privileged user account required to load dependent
 gid="$(id -g)"
 uid="$(id -u)"
@@ -185,6 +188,7 @@ FROM ${docker_tag}
 pbEOF
 case "${docker_base}" in
     "ubuntu")
+        cp -f builds/linux/obs/alldeps/debian/control .
 cat << pbEOF >>${out_path}/Dockerfile
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
@@ -196,6 +200,11 @@ RUN apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//
 pbEOF
         ;;
     "fedora")
+        [ -z "${skip_package_build_scripts}" ] && \
+        cp -f builds/linux/obs/lpub3d.rpmlintrc . || :
+        cp -f builds/linux/obs/alldeps/lpub3d.spec .
+        sed -e 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' \
+            -e 's/<B_CNT>/1/' -i lpub3d.spec
 cat << pbEOF >>${out_path}/Dockerfile
 ADD lpub3d.spec /
 RUN dnf install -y git wget unzip rsync which rpmlint ccache dnf-plugins-core rpm-build fuse fuse-devel
@@ -205,6 +214,7 @@ RUN dnf builddep -y /lpub3d.spec
 pbEOF
         ;;
     "archlinux")
+        cp -f builds/linux/obs/alldeps/PKGBUILD .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN pacman -Suy --noconfirm
 # WORKAROUND for glibc 2.33 and old Docker
@@ -238,7 +248,6 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
     case "${docker_base}" in
         "ubuntu")
             cp -f builds/linux/CreateDeb.sh .
-            cp -f builds/linux/obs/alldeps/debian/control .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN mkdir -p /${name}/debbuild/SOURCES
 ADD CreateDeb.sh /${name}
@@ -246,10 +255,6 @@ pbEOF
             ;;
         "fedora")
             cp -f builds/linux/CreateRpm.sh .
-            cp -f builds/linux/obs/lpub3d.rpmlintrc . && \
-            cp -f builds/linux/obs/alldeps/lpub3d.spec . && \
-            sed -e 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' \
-                -e 's/<B_CNT>/1/' -i lpub3d.spec
 cat << pbEOF >>${out_path}/Dockerfile
 RUN mkdir -p /${name}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 ADD CreateRpm.sh /${name}
@@ -259,7 +264,6 @@ pbEOF
             ;;
        "archlinux")
             cp -f builds/linux/CreatePkg.sh .
-            cp -f builds/linux/obs/alldeps/PKGBUILD .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN mkdir -p /${name}/pkgbuild/{src,upstream}
 ADD CreatePkg.sh /${name}
