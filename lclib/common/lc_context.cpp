@@ -135,64 +135,64 @@ lcContext* lcContext::GetGlobalOffscreenContext()
 
 bool lcContext::CreateOffscreenContext()
 {
-	qDebug() << "DEBUG Shared Context - CreateOffscreenContext";
+	fprintf(stdout, "DEBUG Shared Context - CreateOffscreenContext.\n");
 
 	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
 
 	if (!OffscreenContext)
 	{
-		qDebug() << "DEBUG Shared Context - [FAIL] Construct OpenGLContext.";
+		fprintf(stdout, "DEBUG Shared Context - [FAIL] Construct OpenGLContext.\n");
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Shared Context - [OK] Construct OpenGLContext.";
+		fprintf(stdout, "DEBUG Shared Context - [OK] Construct OpenGLContext.\n");
 	}
 
 	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
 
 	if (!OffscreenContext->create() || !OffscreenContext->isValid())
 	{
-		qDebug() << "DEBUG Shared Context - [FAIL] Create OpenGLContext.";
+		fprintf(stdout, "DEBUG Shared Context - [FAIL] Create OpenGLContext.\n");
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Shared Context - [OK] Create OpenGLContext.";
+		fprintf(stdout, "DEBUG Shared Context - [OK] Create OpenGLContext.\n");
 	}
 
 	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
 
 	if (!OffscreenSurface)
 	{
-		qDebug() << "DEBUG Shared Context - [FAIL] Construct OffscreenSurface.";
+		fprintf(stdout, "DEBUG Shared Context - [FAIL] Construct OffscreenSurface.\n");
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Shared Context - [OK] Construct OffscreenSurface.";
+		fprintf(stdout, "DEBUG Shared Context - [OK] Construct OffscreenSurface.\n");
 	}
 
 	OffscreenSurface->create();
 
 	if (!OffscreenSurface->isValid())
 	{
-		qDebug() << "DEBUG Shared Context - [FAIL] Create OffscreenSurface.";
+		fprintf(stdout, "DEBUG Shared Context - [FAIL] Create OffscreenSurface.\n");
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Shared Context - [OK] Create OffscreenSurface.";
+		fprintf(stdout, "DEBUG Shared Context - [OK] Create OffscreenSurface.\n");
 	}
 
 	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
 	{
-		qDebug() << "DEBUG Shared Context - [FAIL] Make current OffscreenContext.";
+		fprintf(stdout, "DEBUG Shared Context - [FAIL] Make current OffscreenContext.\n");
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Shared Context - [OK] Make current OffscreenContext.";
+		fprintf(stdout, "DEBUG Shared Context - [OK] Make current OffscreenContext.\n");
 	}
 /*
 	if (!OffscreenContext)
