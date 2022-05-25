@@ -162,6 +162,7 @@ LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
 LP3D_CHECK_STDLOG="$(realpath ${SOURCE_DIR})/builds/check/LPub3D"
 LP3D_CHECK_SUCCESS="Application terminated with return code 0."
 LP3D_XVFB_ERROR="xvfb-run: error: "
+LP3D_LOG_FILE="Check.out"
 LP3D_ERROR=0
 let LP3D_CHECK_PASS=0
 let LP3D_CHECK_FAIL=0
@@ -169,8 +170,14 @@ LP3D_CHECKS_PASS=
 LP3D_CHECKS_FAIL=
 
 # Applicatin status check (TODO - this command is throwing a segfault, check why)
-[ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
-${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2>/dev/null || true
+#[ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
+#${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2>/dev/null || true
+
+${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE}
+if [ $? -ne 0 ];then
+    echo "- LPub3D Status Log Trace..."
+    cat "${LP3D_LOG_FILE}"
+fi
 
 if [ -n "${LP3D_CHECK_LDD}" ]; then
     echo && echo "-----------Library Dependencies-------------" && echo
