@@ -28,18 +28,17 @@ fi
 if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" ]]; then
   echo "- build check LPub3D.AppImage bundle..."
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
-  export SOURCE_DIR=${LP3D_BUILD_FOLDER}
+  SOURCE_DIR=${LP3D_BUILD_FOLDER}
   # make check directory and copy AppImage
   if [ -n "$file_DPkg" ]; then
     mkdir appImage_Check && cp -f $file_DPkg appImage_Check/
-    export LPUB3D_EXE=$(find appImage_Check -name *.AppImage -type f)
+    LPUB3D_EXE=$(find appImage_Check -name *.AppImage -type f)
     if [ -f ${LPUB3D_EXE} ];then
       echo "- AppImage copied to ${PWD}/${LPUB3D_EXE}."
     else
       echo "ERROR - AppImage not copied to ${PWD}/appImage_Check/."
     fi
-    export LP3D_CHECK_STATUS="--version --app-paths"
-    #chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
+    LP3D_CHECK_STATUS="--version --app-paths"
     source ${SOURCE_DIR}/builds/check/build_checks.sh
   else
     echo "ERROR - AppImage was not found in $AppImageBuildPath/AppImage."
@@ -57,7 +56,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_OS" = "macos" ]; then
-    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/${LPUB3D}..."
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/DMGS..."
     file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
     file_Logs=$(find $DmgBuildPath/${LPUB3D} -name CreateDmg.sh.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";

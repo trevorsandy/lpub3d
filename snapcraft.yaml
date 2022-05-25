@@ -182,7 +182,7 @@ parts:
       - SOURCE_DIR: ${SNAPCRAFT_STAGE}/build_staging/lpub3d
       - LPUB3D_DEST: ${SNAPCRAFT_PRIME}/usr
       - LP3D_BUILD_OS: snap
-      - LP3D_CHECK_LDD: true
+      - LP3D_CHECK_LDD: enabled
     build-packages: [xvfb]
     override-prime:
       cd ${SNAPCRAFT_STAGE}/build_staging/lpub3d && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh

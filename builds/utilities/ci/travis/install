@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 04, 2021
+# Last Update June 07, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -49,15 +49,15 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
   # Asset extension
   case ${LP3D_BUILD_OS} in
   alpine|archlinux)
-      LP3D_ASSET_EXT="pkg.tar.zst";;
-  centos|fedora)
-      LP3D_ASSET_EXT="rpm";;
-  debian|ubuntu)
-      LP3D_ASSET_EXT="deb";;
-  osx)
-      LP3D_ASSET_EXT="dmg";;
+      LP3D_ASSET_EXT="pkg.tar.zst" ;;
   appimage)
-      LP3D_ASSET_EXT="AppImage";;
+      LP3D_ASSET_EXT="AppImage" ;;
+  centos|fedora)
+      LP3D_ASSET_EXT="rpm" ;;
+  debian|ubuntu)
+      LP3D_ASSET_EXT="deb" ;;
+  macos)
+      LP3D_ASSET_EXT="dmg" ;;
     esac
   export LP3D_ASSET_EXT
 

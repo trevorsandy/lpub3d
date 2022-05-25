@@ -92,7 +92,13 @@ if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
 fi
 
 # AppImage validate and set executable permissions
-if [[ "$LP3D_BUILD_OS" = "appimage" && -z "$LP3D_PRE_APPIMAGE_BUILD_CHECK_VAR" ]]; then
+case "${LPUB3D_EXE}" in
+*.AppImage)
+    VALID_APPIMAGE=1 ;;
+*)
+    VALID_APPIMAGE=0 ;;
+esac
+if [[ "$LP3D_BUILD_OS" = "appimage" && $VALID_APPIMAGE -eq 1 ]]; then
     if [[ -f "${LPUB3D_EXE}" ]]; then
         chmod u+x ${LPUB3D_EXE}
         cd ${SOURCE_DIR}
