@@ -38,8 +38,9 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS_
     else
       echo "ERROR - AppImage not copied to ${PWD}/appImage_Check/."
     fi
+    export LP3D_CHECK_STATUS="--version --app-paths"
     set +x
-    ./builds/check/build_checks.sh
+    chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
     set -x
   else
     echo "ERROR - AppImage was not found in $AppImageBuildPath/AppImage."
