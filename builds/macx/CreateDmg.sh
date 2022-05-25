@@ -44,8 +44,8 @@ realpath() {
 # Format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
 ME="CreateDmg"
-[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 
 CWD=`pwd`
 
