@@ -55,7 +55,9 @@ parts:
   source-and-renderers:
     after: [ldraw-libraries]
     plugin: nil
-    source: https://github.com/trevorsandy/lpub3d-ci/archive/v2.4.4.tar.gz
+    source: https://github.com/trevorsandy/lpub3d-ci.git
+    source-tag: v2.4.4
+    source-depth: 500
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
