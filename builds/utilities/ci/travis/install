@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update May 27, 2021
+# Last Update June 04, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -16,138 +16,137 @@ if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$L
      ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     if [[ "$LP3D_QT_BASE" = "515" && "$TRAVIS_CPU_ARCH" = "amd64" ]]; then
         sudo apt-get install -qq qt515base; source /opt/qt515/bin/qt515-env.sh;
-    elif [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
-        sudo apt-get install -qq qt5-default qtbase5-dev qttools5-dev-tools libqt5opengl5-dev zip;
     fi
 fi
 # Setup 3rd party base distribution directory
 if [ ! -d "$LP3D_DIST_DIR_BASE" ]; then
-  mkdir -p "$LP3D_DIST_DIR_BASE";
-  if test -d "$LP3D_DIST_DIR_BASE"; then echo "Created 3rd party base dir $LP3D_DIST_DIR_BASE"; fi;
+  mkdir -p "$LP3D_DIST_DIR_BASE"
+  if test -d "$LP3D_DIST_DIR_BASE"; then echo "Created 3rd party base dir $LP3D_DIST_DIR_BASE"; fi
 else
-  echo "Using cached 3rd party base dir $LP3D_DIST_DIR_BASE";
+  echo "Using cached 3rd party base dir $LP3D_DIST_DIR_BASE"
 fi
 # Setup ldraw parts library directory
 if [ ! -d "$LP3D_LDRAW_DIR" ]; then
-  mkdir -p "$LP3D_LDRAW_DIR";
-  if test -d "$LP3D_LDRAW_DIR"; then echo "Created LDraw library $LP3D_LDRAW_DIR"; fi;
+  mkdir -p "$LP3D_LDRAW_DIR"
+  if [ -d "$LP3D_LDRAW_DIR" ]; then
+    echo "Created LDraw library $LP3D_LDRAW_DIR"
+    find $LP3D_LDRAW_DIR -maxdepth 1 -type d
+  fi
 else
-  echo "Using cached LDraw library $LP3D_LDRAW_DIR";
+  echo "Using cached LDraw library $LP3D_LDRAW_DIR"
 fi
 # Setup releases directory
 if [ ! -d "$LP3D_RELEASES_DIR" ]; then
-  mkdir -p "${LP3D_RELEASES_DIR}/updates";
-  mkdir -p "${LP3D_RELEASES_DIR}/downloads";
-  mkdir -p "${LP3D_RELEASES_DIR}/logs";
-  if test -d "$LP3D_RELEASES_DIR"; then echo "Created release directory $LP3D_RELEASES_DIR"; fi;
+  mkdir -p "${LP3D_RELEASES_DIR}/updates"
+  mkdir -p "${LP3D_RELEASES_DIR}/downloads"
+  mkdir -p "${LP3D_RELEASES_DIR}/logs"
+  if test -d "${LP3D_RELEASES_DIR}"; then echo "Created release directory $LP3D_RELEASES_DIR"; fi
 else
-  echo "Using cached release directory $LP3D_RELEASES_DIR";
+  echo "Using cached release directory $LP3D_RELEASES_DIR"
+fi
+# setup platform-specific 3rd party distribution directory
+if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
+  # Asset extension
+  case ${LP3D_BUILD_OS} in
+  alpine|archlinux)
+      LP3D_ASSET_EXT="pkg.tar.zst";;
+  centos|fedora)
+      LP3D_ASSET_EXT="rpm";;
+  debian|ubuntu)
+      LP3D_ASSET_EXT="deb";;
+  osx)
+      LP3D_ASSET_EXT="dmg";;
+  appimage)
+      LP3D_ASSET_EXT="AppImage";;
+    esac
+  export LP3D_ASSET_EXT
+
+  # 3rd party distribution path specific for each distribution
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/${LP3D_BUILD_OS}_${TRAVIS_CPU_ARCH}
+  elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/${LP3D_BUILD_OS}_$TRAVIS_OSX_IMAGE}
+  fi
+  if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
+    mkdir -p "${LP3D_DIST_DIR_PATH}"
+  fi
+  export LP3D_DIST_DIR_PATH
+
+  # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
+  if [ -n "$LP3D_BUILD_3RD" ]; then
+    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDGLITE}
+    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDVIEW}
+    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_POVRAY}
+    LP3D_MESALIB_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_MESALIB}
+    if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted"
+    fi;
+    if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
+      sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted"
+    fi;
+    if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
+      sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted"
+    fi;
+    if [[ "$LP3D_BUILD_MESALIB" = 1 && -d "$LP3D_MESALIB_DIR" ]]; then
+      sudo rm -rf "$LP3D_MESALIB_DIR" && echo "cached $LP3D_MESALIB_DIR deleted"
+    fi
+  fi
+fi
+# Update docker-engine, docker-compose and define release folder path
+if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" != "appimage" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -
+    sudo add-apt-repository "deb [arch=amd64 https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    sudo apt-get update -qq
+    sudo apt-get -y install docker-ce
+    echo "Login to Docker Hub and set credentials for Compose..."
+    echo $DOCKER_HUB_TOKEN | docker login --username trevorsandy --password-stdin
+    docker version
+    sudo rm /usr/local/bin/docker-compose
+    curl -L https://github.com/docker/compose/releases/download/${LP3D_DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+    chmod +x docker-compose
+    sudo mv docker-compose /usr/local/bin
+    docker-compose version
+  fi;
+  # AppImage setup, download LDraw library archive files, and setup build directory
+  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    echo "Download AppImage archive libraries..."
+    if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
+       mkdir -p "${LP3D_DIST_DIR_PATH}"
+    fi
+    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_PATH}/lpub3dldrawunf.zip
+    if [ ! -f "${LP3D_DIST_DIR_PATH}/complete.zip" ]; then
+       wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_PATH}/complete.zip
+    fi
+    if [ ! -f "${LP3D_DIST_DIR_PATH}/tenteparts.zip" ]; then
+       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/tenteparts.zip
+    fi
+    if [ ! -f "${LP3D_DIST_DIR_PATH}/vexiqparts.zip" ]; then
+       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_PATH}/vexiqparts.zip
+    fi
+    if [ ! -d "../AppDir" ]; then
+       mkdir -p ../AppDir
+    fi
+    export AppImageBuildPath=$(cd ../ && echo "$PWD/AppDir")
+  fi
 fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "macos") ]]; then
     echo "Force linking to 'keg-only' instance of Qt..."
-    brew link --force qt5;
-    echo "Downloading archive libraries...";
-    wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
-    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip;
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip;
+    brew link --force qt5
+    echo "Downloading archive libraries..."
+    wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras
+    wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip
     if [ ! -d ${HOME}/Library/ldraw ]; then
       ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
-      if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
-    fi;
+      if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi
+    fi
     [ ! -d "../dmgbuild" ] && mkdir -p ../dmgbuild;
-    export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild");
-  fi;
-fi
-# Update docker-engine, docker-compose and define release folder path
-if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-  if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_BUILD_APPIMAGE" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-    curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | sudo apt-key add -;
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable";
-    sudo apt-get update -qq;
-    sudo apt-get -y install docker-ce;
-    echo "Login to Docker Hub and set credentials for Compose...";
-    echo $DOCKER_HUB_TOKEN | docker login --username trevorsandy --password-stdin
-    docker version;
-    sudo rm /usr/local/bin/docker-compose;
-    curl -L https://github.com/docker/compose/releases/download/${LP3D_DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
-    chmod +x docker-compose;
-    sudo mv docker-compose /usr/local/bin;
-    docker-compose version;
-  fi;
-# AppImage setup, download LDraw library archive files, and setup build directory
-  if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-    echo "Download AppImage archive libraries...";
-    if [ ! -d "${LP3D_DIST_DIR_BASE}/bionic" ]; then
-       mkdir -p "${LP3D_DIST_DIR_BASE}/bionic";
-       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_BASE}/bionic/lpub3dldrawunf.zip;
-       wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_BASE}/bionic/complete.zip;
-       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/bionic/tenteparts.zip;
-       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/bionic/vexiqparts.zip;
-    else
-       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_BASE}/bionic/lpub3dldrawunf.zip;
-       if [ ! -f "${LP3D_DIST_DIR_BASE}/bionic/complete.zip" ]; then
-          wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_BASE}/bionic/complete.zip;
-       fi
-       if [ ! -f "${LP3D_DIST_DIR_BASE}/bionic/tenteparts.zip" ]; then
-          wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/bionic/tenteparts.zip;
-       fi
-       if [ ! -f "${LP3D_DIST_DIR_BASE}/bionic/vexiqparts.zip" ]; then
-          wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/bionic/vexiqparts.zip;
-       fi
-    fi
-    if [ ! -d "../appimagebuild" ]; then
-       mkdir -p ../appimagebuild;
-    fi
-    export AppImageBuildPath=$(cd ../ && echo "$PWD/appimagebuild");
-  fi;
-fi
-# setup linux platform-specific 3rd party distribution directory
-if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
-  if [ "$LP3D_BUILD_OS" = "archlinux" ]; then
-    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
-    export LP3D_ASSET_EXT="pkg.tar.zst";
-  elif [ "$LP3D_BUILD_OS" = "fedora" ]; then
-    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/fedora;
-    export LP3D_ASSET_EXT="rpm"
-  elif [ "$LP3D_BUILD_OS" = "ubuntu" ]; then
-    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/debian;
-    export LP3D_ASSET_EXT="deb"
-  elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/macos;
-    export LP3D_ASSET_EXT="dmg"
-  else
-    export LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/bionic;
-    if [ "$LP3D_BUILD_OS" = "appimage" ]; then
-      export LP3D_ASSET_EXT="AppImage"
-    else
-      export LP3D_ASSET_EXT="deb"
-    fi
-  fi;
-  if [ ! -d "${LP3D_DIST_DIR_PATH}" ]; then
-    mkdir -p "${LP3D_DIST_DIR_PATH}";
-  fi;
-  # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
-  if [ -n "$LP3D_BUILD_3RD" ]; then
-    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDGLITE};
-    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDVIEW};
-    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_POVRAY};
-    LP3D_MESALIB_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_MESALIB};
-    if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
-      sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
-    fi;
-    if [[ "$LP3D_BUILD_LDVIEW" = 1 && -d "$LP3D_LDVIEW_DIR" ]]; then
-      sudo rm -rf "$LP3D_LDVIEW_DIR" && echo "cached $LP3D_LDVIEW_DIR deleted";
-    fi;
-    if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
-      sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
-    fi;
-    if [[ "$LP3D_BUILD_MESALIB" = 1 && -d "$LP3D_MESALIB_DIR" ]]; then
-      sudo rm -rf "$LP3D_MESALIB_DIR" && echo "cached $LP3D_MESALIB_DIR deleted";
-    fi;
-  fi;
+    export DmgBuildPath=$(cd ../ && echo "$PWD/dmgbuild")
+  fi
 fi
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done

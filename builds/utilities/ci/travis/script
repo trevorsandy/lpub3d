@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 03, 2021
+# Last Update June 04, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -13,11 +13,13 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
   # build packages
   if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" ]]; then
     # build linux Docker packages
-    if [[ "$TRAVIS_OS_NAME" = "linux" && -z "$LP3D_BUILD_APPIMAGE" ]]; then
-      # setup Docker compose directory
+    if [[ "$TRAVIS_OS_NAME" = "linux" && "$LP3D_BUILD_OS" != "appimage" ]]; then
+      # setup distribution directory link to 3rd_party_directory
       if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}" && \
-        if test -d "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}"; fi;
+        if [ -d "${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}" ]; then
+          echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}"
+        fi
       else
         echo "Using cached 3rd Party repository ${LP3D_COMPOSE_DIR}/${LP3D_3RD_DIST_DIR}";
       fi;
@@ -29,9 +31,12 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     fi;
     # build macOS packages
     if [ "$LP3D_BUILD_OS" = "macos" ]; then
+      # setup distribution directory link to 3rd_party_directory
       if [ ! -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" && \
-        if test -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"; fi;
+        if [ -d "${DmgBuildPath}/${LP3D_3RD_DIST_DIR}" ]; then
+          echo "$LP3D_DIST_DIR_PATH linked to ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}"
+        fi
       else
         echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_3RD_DIST_DIR}";
       fi;
@@ -46,6 +51,7 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER=$(lsb_release -sr)
       export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
+      # setup distribution directory link to 3rd_party_directory
       if [ ! -d "${WD}/${LP3D_3RD_DIST_DIR}" ]; then
         ln -sf "$LP3D_DIST_DIR_PATH" "${WD}/${LP3D_3RD_DIST_DIR}" && \
         if test -d "${WD}/${LP3D_3RD_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${WD}/${LP3D_3RD_DIST_DIR}"; fi;
@@ -56,7 +62,7 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
             echo "Building Renderers for Linux";
       fi
 
-      if [[ "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
+      if [[ "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
           export NO_DEPS="true"
       fi
 

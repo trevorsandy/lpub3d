@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 28, 2021
+# Last Update: June 04, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 os: linux
@@ -147,38 +147,40 @@ jobs:
     addons:
       apt:
         packages:
-          - debhelper
-          - unzip
-          - build-essential
-          - autotools-dev
           - autoconf
           - automake
-          - pkg-config
-          - libtool
+          - autotools-dev
+          - build-essential
           - cmake
-          - qtbase5-dev
-          - qt5-qmake
-          - qt5-default
-          - libqt5opengl5-dev
-          - libpng-dev
+          - debhelper
+          - freeglut3-dev
+          - libboost-date-time-dev
+          - libboost-dev
+          - libboost-thread-dev
+          - libgl1-mesa-dev
+          - libgl2ps-dev
           - libjpeg-dev
-          - zlib1g-dev
+          - libopenexr-dev
+          - libosmesa6-dev
+          - libpng-dev
+          - libqt5opengl5-dev
+          - libsdl2-dev
+          - libsndio-dev
+          - libtiff5-dev
+          - libtinyxml-dev
+          - libtool
+          - libx11-dev
+          - libxss-dev
+          - pkg-config
+          - qt5-default
+          - qt5-qmake
+          - qtbase5-dev
+          - qttools5-dev-tools
+          - unzip
           - x11proto-dri2-dev
           - x11proto-gl-dev
-          - libgl1-mesa-dev
-          - libopenexr-dev
-          - libboost-dev
-          - libboost-date-time-dev
-          - libboost-thread-dev
-          - libxss-dev
-          - libsdl2-dev
-          - libtiff5-dev
-          - libosmesa6-dev
-          - freeglut3-dev
-          - libtinyxml-dev
-          - libgl2ps-dev
-          - libx11-dev
-          - libsndio-dev
+          - zip
+          - zlib1g-dev
   - stage: Compile Source
     name: Ubuntu
     env: LP3D_COMPILE_SOURCE=true
