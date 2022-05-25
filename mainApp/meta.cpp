@@ -1658,7 +1658,7 @@ QString PointerAttribMeta::format(bool local, bool global)
     case PointerAttribData::Line:
         foo = QString("LINE %1")
                       .arg(LineTypeNames[_value[pushed].lineData.line]);
-        if (_value[pushed].lineData.color[0] == "#")
+        if (_value[pushed].lineData.color[0] == '#')
             foo += QString(" COLOR %1")
                       .arg(_value[pushed].lineData.color);
         else

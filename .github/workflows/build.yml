@@ -1,0 +1,112 @@
+# Build and check LPub3D AppImage on Ubuntu amd64 and arm64
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: June 01, 2021
+# Copyright (c) 2021 by Trevor SANDY
+#
+name: Build
+
+# When the action will run.
+on:
+  # Run workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Workflow run made with build and deploy jobs
+jobs:
+  # The build job
+  build:
+    # The job runner
+    runs-on: ubuntu-latest
+    # The job matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        ARCH: ['x86_64', 'aarch64']
+
+    # Build job environment variables
+    env:
+      ARCH: ${{ matrix.ARCH }}
+
+    # Step tasks that will be executed as part of the build job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v1
+        with:
+          path: |
+             ${{ github.workspace }}/../third-party
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
+      # Login to Docker Hub using the runers shell
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      # Setup QEMU multiarch environment using the runners shell
+      - name: Set up QEMU integration for Docker
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+      - name: Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          bash -ex builds/utilities/ci/github/multiarch-build.sh
+
+      - name: List files
+        run: |
+         ls -lh out/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: LPub3D*.AppImage*
+          path: out/
+
+
+  upload:
+
+    env:
+      LP3D_RELEASE_DESCRIPTION: "LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
+
+    name: Create release and upload artifacts
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set current date as env variable
+        run: |
+          echo "NOW::LPub3D $(date +'%Y-%m-%dT%H:%M:%S')" >> $LP3D_RELEASE_LABEL
+          echo "LP3D_RELEASE_LABEL       $LP3D_RELEASE_LABEL"
+          echo "LP3D_RELEASE_DESCRIPTION $LP3D_RELEASE_DESCRIPTION"
+      - name: Download artificts
+        uses: actions/download-artifact@v2
+      - name: Inspect directory after downloading artifacts
+        run: ls -alFR
+      - name: Create release and upload artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GHIHUB_TOKEN }}
+        run: |
+          curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
+          export LP3D_GREP_PATH=grep;
+          export LP3D_REMOTE=$(${LP3D_GREP_PATH} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
+          export LP3D_LOCAL=$(git rev-parse HEAD)
+          if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then echo "Build no longer current. $LP3D_REMOTE vs $LP3D_LOCAL - aborting upload."; exit 0; fi
+          wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+          if [ -f upload.sh -a -r upload.sh ]; then
+            IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
+            LP3D_GIT_VER_TAG_LONG=$(git describe --tags --match v* --long); LP3D_VER_TMP=${LP3D_GIT_VER_TAG_LONG#*-}; LP3D_VER_REVISION=${LP3D_VER_TMP%-*}
+            [ "${LP3D_SLUGS[1]}" != "lpub3d" ] && LP3D_TITLE="Build" || [ "${LP3D_SLUGS[1]}" = "lpub3dnext" ] && LP3D_TITLE="Next Build" || LP3D_TITLE="DevOps Build"
+            LP3D_RELEASE_LABEL="Continuous ${LP3D_TITLE:-Build} ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
+            sed -i "s/    RELEASE_TITLE=\"Continuous build\"/    RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
+          else
+            echo  "ERROR - Could not update release title in upload.sh"
+          fi
+          LP3D_RELEASE=$(find out/AppImage/ -name LPub3D*.AppImage -type f)
+          [ -f "${LP3D_RELEASE}" ] && bash upload.sh "${LP3D_RELEASE}" || echo "ERROR - ${LP3D_RELEASE} GitHub upload failed."
+          [ -f "${LP3D_RELEASE}.sha512" ] && bash upload.sh "${LP3D_RELEASE}.sha512" || echo "ERROR - ${LP3D_RELEASE}.sha512 GitHub upload failed."

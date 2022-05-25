@@ -1,14 +1,6 @@
 unix:!macx {
     DIST_TARGET = $$lower($$DIST_TARGET)
 
-    # For compiled builds on unix set C++11 standard appropriately
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.6) {
-        QMAKE_CXXFLAGS += -std=c++11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
-
     binarybuild {
         # To build a binary distribution that will not require elevated rights to install,
         # pass CONFIG+=binarybuild to qmake (i.e. in QtCreator, set in qmake Additional Arguments)
@@ -31,14 +23,19 @@ unix:!macx {
     api: BUILD_CODE = api
     snp: BUILD_CODE = snp
     flp: BUILD_CODE = flp
-    if (snp|flp) {
+    if (api|snp|flp) {
         THIRD_PARTY_EXE_DIR = $$(LP3D_3RD_EXE_DIR)
         _PLATFORM_CODE = osl
         COPY_CMD = cp -f
-        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/) )
-        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/) )
-        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/ ) )
-        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip) $$system_path( $${_PRO_FILE_PWD_}/extras/ ) )
+        EXTRAS_PATH = $$system_path( $${_PRO_FILE_PWD_}/extras)
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/complete.zip) $${EXTRAS_PATH}/ )
+        ! exists( $${EXTRAS_PATH}/complete.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/complete.zip not copied ~~~" )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/lpub3dldrawunf.zip) $${EXTRAS_PATH}/ )
+        ! exists( $${EXTRAS_PATH}/lpub3dldrawunf.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/lpub3dldrawunf.zip not copied ~~~" )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/tenteparts.zip) $${EXTRAS_PATH}/ )
+        ! exists( $${EXTRAS_PATH}/tenteparts.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/tenteparts.zip not copied ~~~" )
+        system( $$COPY_CMD $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/vexiqparts.zip) $${EXTRAS_PATH}/ )
+        ! exists( $${EXTRAS_PATH}/vexiqparts.zip ): message( "~~~ ERROR! $${EXTRAS_PATH}/vexiqparts.zip not copied ~~~" )
     }
 
     _PLATFORM_ID = $$system(. /etc/os-release 2>/dev/null; [ -n \"$ID\" ] && echo \"$ID\")
@@ -46,19 +43,22 @@ unix:!macx {
        contains(_PLATFORM_ID, ubuntu): _PLATFORM_CODE = ubu
        else: _PLATFORM_CODE = db
        contains(QT_ARCH, x86_64): _TARGET_CPU = amd64
-       else: _TARGET_CPU = i386
+       else: _TARGET_CPU = $$QT_ARCH
     } else {
        isEmpty(_PLATFORM_CODE): _PLATFORM_CODE = $$(PLATFORM_CODE)
        _TARGET_CPU = $${BUILD_ARCH}
        contains(BUILD_ARCH, UNKNOWN ARCH): _TARGET_CPU =
     }
 
+    contains(BUILD_ARCH, arm64): BUILD_ARCH_POVRAY = aarch64
+    else: BUILD_ARCH_POVRAY = $${BUILD_ARCH}
+
     isEmpty(HOST_VERSION):   message("~~~ ERROR - PLATFORM_VERSION NOT DETECTED ~~~")
     isEmpty(_PLATFORM_CODE): message("~~~ ERROR - PLATFORM_CODE NOT DETECTED ~~~")
     isEmpty(_TARGET_CPU):    message("~~~ ERROR - PLATFORM_CPU NOT DETECTED ~~~")
 
     DISTRO_PACKAGE = $${BUILD_CODE}-$${_PLATFORM_CODE}-$${HOST_VERSION}-$${_TARGET_CPU}
-    message("~~~ DISTRO_PACKAG_ID: $$DISTRO_PACKAGE ~~~")
+    message("~~~ DISTRO_PACKAGE_ID: $$DISTRO_PACKAGE ~~~")
     DEFINES += DISTRO_PACKAGE=\\\"$$DISTRO_PACKAGE\\\"
 
     MAN_PAGE = $$DIST_TARGET$$VER_MAJOR$$VER_MINOR
@@ -197,9 +197,8 @@ unix:!macx {
     # invalid tag 'launchable' - this tag is valid. I spent 2 days on this and zero.
     # See this going forward: https://github.com/AppImage/AppImageKit/issues/603#issuecomment-355105387
     # I give up!
-    # On Travis-CI (Ubuntu 16.04) there is no evidence of validation but builds are successful.
-        TRAVIS_COMMIT = $$(TRAVIS_COMMIT)
-        !isEmpty(TRAVIS_COMMIT) {
+        OPEN_BUILD_SERVICE = $$(OBS)
+        isEmpty(OPEN_BUILD_SERVICE) {
             INSTALLS += appstream_appdata
         }
     } else {
@@ -231,7 +230,7 @@ unix:!macx {
     # source executables - 3rd party components
     isEmpty(LDGLITE_INS_EXE):LDGLITE_INS_EXE   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/bin/$$BUILD_ARCH/ldglite
     isEmpty(LDVIEW_INS_EXE):LDVIEW_INS_EXE     = $$THIRD_PARTY_SRC/$$VER_LDVIEW/bin/$$BUILD_ARCH/ldview
-    isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH/lpub3d_trace_cui
+    isEmpty(RAYTRACE_INS_EXE):RAYTRACE_INS_EXE = $$THIRD_PARTY_SRC/$$VER_POVRAY/bin/$$BUILD_ARCH_POVRAY/lpub3d_trace_cui
 
     # source directories - 3rd party components
     isEmpty(LDGLITE_INS_DOC):LDGLITE_INS_DOC   = $$THIRD_PARTY_SRC/$$VER_LDGLITE/docs

@@ -365,6 +365,7 @@ for file in $(find . -type f \
               -not -path "./builds/utilities/ci/travis/releases" \
               -not -path "./builds/utilities/ci/ci_cutover.sh" \
               -not -path "./builds/utilities/ci/next_cutover.sh" \
+              -not -path './.github/workflows/build.yml' \
               -not -path "./gitversion.pri" \
               -not -path "./snapcraft.yaml" \
               -not -path "./appveyor.yml" \

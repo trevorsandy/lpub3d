@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 27, 2021
+# Last Update: May 28, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 os: linux
@@ -93,34 +93,99 @@ jobs:
   fast_finish: true
   include:
   - stage: Prepare Build Storage
+    name: Build Storage
     env: LP3D_BUILD_STORAGE=true
     os: linux
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Prepare Release Storage
+    name: Release Storage
     env: LP3D_DEPLOY_PACKAGES=true
     os: linux
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
   - stage: Build, Check and Package
+    name: macOS
+    env: LP3D_BUILD_OS=macos
+    os: osx
+    osx_image: xcode11.3
+    compiler: clang
+    addons:
+      homebrew:
+        packages:
+          - grep
+          - qt5
+  - stage: Build, Check and Package
+    name: Arch Linux
+    env: LP3D_BUILD_OS=archlinux
+    os: linux
+    compiler: gcc
+  - stage: Build, Check and Package
+    name: Fedora 26
+    env: LP3D_BUILD_OS=fedora
+    os: linux
+    compiler: gcc
+  - stage: Build, Check and Package
+    name: Ubuntu Bionic
+    env: LP3D_BUILD_OS=ubuntu
+    os: linux
+    compiler: gcc
+  - stage: Build, Check and Package
+    name: AppImage AMD64
     env: LP3D_BUILD_OS=appimage
     os: linux
-    name: AppImage AMD64
     arch: amd64
     dist: xenial
     compiler: gcc
   - stage: Build, Check and Package
+    name: AppImage ARM64
     env: LP3D_BUILD_OS=appimage
     os: linux
-    name: AppImage ARM64
     arch: arm64
-    dist: xenial
+    dist: bionic
     compiler: gcc
+    addons:
+      apt:
+        packages:
+          - debhelper
+          - unzip
+          - build-essential
+          - autotools-dev
+          - autoconf
+          - automake
+          - pkg-config
+          - libtool
+          - cmake
+          - qtbase5-dev
+          - qt5-qmake
+          - qt5-default
+          - libqt5opengl5-dev
+          - libpng-dev
+          - libjpeg-dev
+          - zlib1g-dev
+          - x11proto-dri2-dev
+          - x11proto-gl-dev
+          - libgl1-mesa-dev
+          - libopenexr-dev
+          - libboost-dev
+          - libboost-date-time-dev
+          - libboost-thread-dev
+          - libxss-dev
+          - libsdl2-dev
+          - libtiff5-dev
+          - libosmesa6-dev
+          - freeglut3-dev
+          - libtinyxml-dev
+          - libgl2ps-dev
+          - libx11-dev
+          - libsndio-dev
   - stage: Compile Source
+    name: Ubuntu
     env: LP3D_COMPILE_SOURCE=true
     os: linux
     compiler: gcc
   - stage: Compile Source
+    name: macOS
     env: LP3D_COMPILE_SOURCE=true
     os: osx
     osx_image: xcode11.3
@@ -131,6 +196,7 @@ jobs:
           - grep
           - qt5
   - stage: GitHub and Sourceforge Deploy
+    name: Deploy LPub3D
     env: LP3D_DEPLOY_PACKAGES=true
     script: source ${LP3D_CI_SCRIPT_DIR}/releases
     deploy:

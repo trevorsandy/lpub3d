@@ -64,6 +64,8 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/ci/travis/prepare_store \
 ../builds/utilities/ci/travis/releases \
 ../builds/utilities/ci/travis/script \
+../builds/utilities/ci/github/multiarch-build.sh \
+../builds/utilities/ci/github/build-binaries-and-appimage.sh \
 ../builds/utilities/cleanup.bat \
 ../builds/utilities/Copyright-Source-Header.txt \
 ../builds/utilities/create-dmg \
@@ -99,4 +101,5 @@ docs/RELEASE_NOTES.html \
 ../builds/windows/AutoBuild.bat \
 ../builds/windows/CreateExePkg.bat \
 ../builds/windows/RunBuildCheck.bat \
-../.github/ISSUE_TEMPLATE.md
+../.github/ISSUE_TEMPLATE.md \
+../.github/workflows/build.yml

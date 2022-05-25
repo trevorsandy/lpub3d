@@ -77,6 +77,7 @@ configure-stamp:
 		   -e "s/__arch__/${TARGET_CPU}/g" "$${BINARY_FILE_LIST}"; \
 	echo "Updated `pwd`/$${BINARY_FILE_LIST}:\n`cat $${BINARY_FILE_LIST}`"
 	# build 3rd-party renderers
+	export LPUB3D=lpub3d
 	export WD=$$(readlink -e ../); \
 	chmod +x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 override_dh_auto_configure:

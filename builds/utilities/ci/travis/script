@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update May 27, 2021
+# Last Update June 03, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -56,53 +56,52 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
             echo "Building Renderers for Linux";
       fi
 
+      if [[ "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
+          export NO_DEPS="true"
+          nproc="$(nproc --ignore=2)"
+      else
+          nproc="$(nproc)"
+      fi
+
       chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
       #echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f && echo;
 
       # build AppImage
       if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" ]]; then
-        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/complete.zip" ]; then
-          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/complete.zip" "mainApp/extras"
-        else
-          echo "ERROR - could not copy LDraw complete.zip archive."
-        fi
-        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/lpub3dldrawunf.zip" ]; then
-          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/lpub3dldrawunf.zip" "mainApp/extras"
-        else
-          echo "ERROR - could not copy LDraw lpub3dldrawunf.zip.zip archive."
-        fi
-        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/tenteparts.zip" ]; then
-          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/tenteparts.zip" "mainApp/extras"
-        else
-          echo "ERROR - could not copy LDraw tenteparts.zip archive."
-        fi
-        if [ -f "${WD}/${LP3D_3RD_DIST_DIR}/vexiqparts.zip" ]; then
-          cp -f "${WD}/${LP3D_3RD_DIST_DIR}/vexiqparts.zip" "mainApp/extras"
-        else
-          echo "ERROR - could not copy LDraw vexiqparts.zip archive."
-        fi
+        qmake -v;
         qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
         make -j$(nproc);
-        make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;
+        make INSTALL_ROOT=$AppImageBuildPath install;
+        echo && echo "Setup linuxdeployqt..."
         if [ ! -e linuxdeployqt ]; then
             if [ "$TRAVIS_CPU_ARCH" = "amd64" ]; then
-                wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage";
-                mv linuxdeployqt-x86_64.AppImage linuxdeployqt
+                echo "Insalling linuxdeployqt for amd64 arch..."
+                wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O linuxdeployqt
             elif [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
-                # Build linuxdeployqt
-                sudo apt-get -y install git g++ libgl1-mesa-dev
+                echo "Building linuxdeployqt for arm64 arch..."
+                export PATH="${AppImageBuildPath}/bin":"$PATH"
                 git clone https://github.com/probonopd/linuxdeployqt.git linuxdeployqt-build
-                (cd linuxdeployqt-build && qmake && make && \
-                [ -f bin/linuxdeployqt ] && mv bin/linuxdeployqt ../)
-                # Build patchelf
+                ( cd linuxdeployqt-build && qmake && make && cp -a ./bin/* ../ ) 
+                if [ -f linuxdeployqt ]; then
+                  echo "linuxdeployqt copied to ${AppImageBuildPath}"
+                else
+                  echo "ERROR - linuxdeployqt not found."
+                fi
+                echo "Building patchelf..."
                 wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.bz2
                 tar xf patchelf-0.9.tar.bz2
-                ( cd patchelf-0.9/ && ./configure --prefix=/usr/local/ && make && sudo make install )
-                # Install appimagetool
+                ( cd patchelf-0.9/ && ./configure && make && sudo make install )
+                echo "Installing appimagetool..."
                 sudo wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O /usr/local/bin/appimagetool
                 sudo chmod a+x /usr/local/bin/appimagetool
+                convertApp="$(which lconvert)"
+                if [ -n "$convertApp" ]; then
+                    ( mkdir bin && cd bin && ln -sf $convertApp lconvert ) && \
+                    echo "bin/lconvert linked to $convertApp"
+                fi
             fi
-            chmod a+x linuxdeployqt;
+            chmod a+x linuxdeployqt
+            echo "Setup linuxdeployqt completed" && echo
         fi
         renderers=$(find $AppImageBuildPath/opt -type f);
         for r in $renderers; do executables="$executables -executable=$r"; done;

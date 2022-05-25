@@ -3,16 +3,19 @@
 # Travis build [after_script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update March 20, 2021
+# Last Update June 02, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
+
+IFS='/' read -ra SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
+LPUB3D=${SLUG_PARTS[1]}
 
 # Compile source only build checks (package checks are in Create shell scripts)...
 if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
      echo "- build check LPub3D macOS..."
-     SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/lpub3d
+     SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/${LPUB3D}
      # TODO figure out why Linux check is locking up on Travis-CI
      source ${SOURCE_DIR}/builds/check/build_checks.sh
   elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
@@ -48,9 +51,9 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_OS" = "macos" ]; then
-    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/lpub3d..."
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} from $DmgBuildPath/${LPUB3D}..."
     file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.${LP3D_ASSET_EXT} -type f);
-    file_Logs=$(find $DmgBuildPath/lpub3d -name CreateDmg.sh.log -type f);
+    file_Logs=$(find $DmgBuildPath/${LPUB3D} -name CreateDmg.sh.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
     file_Logs=$(find $DmgBuildPath -name CreateRenderers.sh*.log -type f);
   fi;
@@ -95,7 +98,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   if [ "$LP3D_DEPLOY_PKG" != "yes" ]; then
     export GREP_PATH=grep;
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export GREP_PATH=ggrep; fi
-    curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/trevorsandy/lpub3d/commits/master -o repo.txt;
+    curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/${TRAVIS_REPO_SLUG}/commits/master -o repo.txt;
     export REMOTE=$($GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt);
     export LOCAL=$(git rev-parse HEAD);
     if [[ "$REMOTE" != "$LOCAL" ]]; then
@@ -115,9 +118,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     # Update  Release Title in upload.sh
     upload_script_file="$LP3D_BUILD_FOLDER/upload.sh"
     if [ -f ${upload_script_file} -a -r ${upload_script_file} ]; then
-      IFS='/' read -ra SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
-      if [ "${SLUG_PARTS[1]}" != "lpub3d" ]; then
-        if [ "${SLUG_PARTS[1]}" = "lpub3dnext" ]; then
+      if [ "${LPUB3D}" != "lpub3d" ]; then
+        if [ "${LPUB3D}" = "lpub3dnext" ]; then
           LP3D_RELEASE_LABEL="Continuous Next Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
         else
           LP3D_RELEASE_LABEL="Continuous DevOps Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"

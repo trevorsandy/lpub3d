@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update Maty 12, 2021
+# Last Update June 01, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
@@ -12,11 +12,11 @@
 # $ export OBS=false; source ${SOURCE_DIR}/builds/utilities/CreateRenderers.sh
 #
 # Environment variables:
-# WD=$PWD 
+# WD=$PWD
 # OBS=false|false
 # DOCKER=true|false
 # LP3D_3RD_DIST_DIR=<path relative to $WD>|lpub3d_linux_3rdparty|lpub3d_macos_3rdparty
-# 
+#
 # NOTES: $WD (Working Director) must be outside the repository diretory
 #        OBS flag is 'ON' by default if not using DOCKER, be sure to set it false to disable in your build command accordingly
 #        elevated access required for dnf builddeps, execute with sudo if running noninteractive
@@ -36,7 +36,8 @@ FinishElapsedTime() {
 Info () {
   if [ "${SOURCED}" = "true" ]
   then
-    echo "   renderers: ${*}" >&2
+    f="${0##*/}"; f="${f%.*}"
+    echo "   ${f}: ${*}" >&2
   else
     echo "-${*}" >&2
   fi
@@ -48,7 +49,7 @@ ExtractArchive() {
   mkdir -p $1 && tar -mxzf $1.tar.gz -C $1 --strip-components=1
   if [ -d $1/$2 ]; then
     Info "Archive $1.tar.gz successfully extracted."
-    rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info
+    [ "${NO_CLEANUP}" != "true" ] && rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info
     cd $1
   else
     Info "ERROR - $1.tar.gz did not extract properly." && Info
@@ -253,7 +254,7 @@ InstallDependencies() {
     fi
     Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
-    fedora)
+    fedora|centos)
       # Initialize install mesa
       case $1 in
       ldglite)
@@ -268,14 +269,18 @@ InstallDependencies() {
         specFile="$PWD/unix/obs/povray.spec"
        ;;
       esac;
-      rpmbuildDeps="See $depsLog..."
+      rpmbuildDeps=$(rpmbuild --nobuild ${specFile} 2>&1 | grep 'needed by'| awk ' {print $1}')
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
       if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info
-      $useSudo dnf builddep -y $specFile > $depsLog 2>&1
+      if [ "${platform_id}" = "fedora" ]; then
+        $useSudo dnf builddep -y $specFile > $depsLog 2>&1
+      elif [ "${platform_id}" = "centos" ]; then
+        $useSudo yum builddep -y $specFile > $depsLog 2>&1
+      fi
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
     arch)
@@ -397,8 +402,8 @@ BuildLDView() {
     ApplyLDViewStdlibHack
     ;;
   ubuntu)
-    case ${platform_ver} in
-     18.04)
+    case ${platform_ver,} in
+     18.04|20.04|20.10|21.04)
        ApplyLDViewStdlibHack
        ;;
     esac
@@ -511,7 +516,7 @@ CallDir=$PWD
 curlopts="-sL -C -"
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
-Info "LPub3D Build Folder......[$LPUB3D]"
+[ -n "$LPUB3D" ] && Info "LPub3D Build Folder......[$LPUB3D]"
 OS_NAME=$(uname)
 
 # Check for required 'WD' variable
@@ -519,12 +524,17 @@ if [ "${WD}" = "" ]; then
   parent_dir=${PWD##*/}
   if  [ "$parent_dir" = "utilities" ]; then
     if [ "$OS_NAME" = "Darwin" ]; then
-      chkdir="$PWD/../../../"
+      chkdir="$(cd /../../../ && echo $PWD)"
+    elif [ -n "$GITHUB_JOB" ]; then
+      chkdir="$(realpath ../../)"
     else
       chkdir="$(realpath ../../../)"
     fi
-    if [ -d "$chkdir" ]; then
+    if [[ -d "$chkdir" && -f "$chkdir/LPub3D.pro" ]]; then
       WD=$chkdir
+    else
+      Info "ERROR - 'WD' environment varialbe not specified. Usage: env WD=... bash $0"
+      exit 2
     fi
   else
     WD=$PWD
@@ -580,6 +590,11 @@ fi
 
 # get CPU arch - 'uname -m' returns x86_64, armv7l or aarch64
 TARGET_CPU=$(uname -m)
+# qmake CPU value for ARM 64bit is arm64
+TARGET_CPU_QMAKE=${TARGET_CPU}
+if [ "${TARGET_CPU}" = "aarch64" ]; then
+  TARGET_CPU_QMAKE="arm64"
+fi
 
 # Display platform settings
 Info "Build Working Directory..[${CallDir}]"
@@ -615,7 +630,7 @@ else
 fi
 
 Info "Platform Version.........[$platform_ver]"
-
+Info "Target CPU...............[${TARGET_CPU}]"
 Info "Dist Working Directory...[$WD]"
 
 # Distribution directory
@@ -640,16 +655,18 @@ Info "Dist Directory...........[${DIST_PKG_DIR}]"
 cd ${WD}
 
 # set log output path
-LOG_PATH=${WD}
+LOG_PATH=${LOG_PATH:-$WD}
 Info "Log Path.................[${LOG_PATH}]"
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
-if [ -z "$LDRAWDIR" ]; then
+if [ -z "$LDRAWDIR_ROOT" ]; then
   if [ "$OS_NAME" = "Darwin" ]; then
     LDRAWDIR_ROOT=${HOME}/Library
   else
     LDRAWDIR_ROOT=${HOME}
   fi
+fi
+if [ -z "$LDRAWDIR" ]; then
   LDRAWDIR=${LDRAWDIR_ROOT}/ldraw
   export LDRAWDIR=${LDRAWDIR}
 fi
@@ -700,6 +717,11 @@ else
   fi
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC=ldd
+  if [[ "$CI" != "" ]]; then
+      BUILD_CPUs="$(nproc)"
+  else
+      BUILD_CPUs="$(nproc --ignore=1)"
+  fi
   BUILD_CPUs=$(nproc)
 fi
 
@@ -725,7 +747,7 @@ if [ "$get_local_libs" = 1 ]; then
 fi
 
 # define build architecture and cached renderer paths
-if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" ]]; then
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "${TARGET_CPU}" = "arm64" ]]; then
   buildArch="64bit_release";
 else
   buildArch="32bit_release";
@@ -735,8 +757,8 @@ VER_LDGLITE=ldglite-1.3
 VER_LDVIEW=ldview-4.4
 VER_POVRAY=lpub3d_trace_cui-3.8
 # renderer paths
-LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU}/ldglite
-LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU}/ldview
+LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU_QMAKE}/ldglite
+LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU_QMAKE}/ldview
 LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
 
 # install build dependencies for MacOS
@@ -879,17 +901,20 @@ for buildDir in ldglite ldview povray; do
     Info && Info "Setup ${!artefactVer} source files..."
     Info "----------------------------------------------------"
     if [ ! -d "${buildDir}/${validSubDir}" ]; then
-      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-      if [ ! -f ${buildDir}.tar.gz ]; then
-        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+      # Check if build dependencies or no binary...
+      if [[ ! -f "${!artefactBinary}" || ! "$NO_DEPS" = "true" ]]; then
+        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+        if [ ! -f ${buildDir}.tar.gz ]; then
+          Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+          curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+        fi
+        ExtractArchive ${buildDir} ${validSubDir}
       fi
-      ExtractArchive ${buildDir} ${validSubDir}
     else
       cd ${buildDir}
     fi
     # Install build dependencies - even if binary exists...
-    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$NO_DEPS" = "true" ]]; then
       Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
       InstallDependencies ${buildDir}

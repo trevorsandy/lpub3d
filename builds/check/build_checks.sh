@@ -30,7 +30,7 @@ function show_settings
 {
     echo
     echo "--Buld Check Settings:"
-    echo "--LP3D_BUILD_OS......$LP3D_BUILD_OS"
+    [ -n "${LP3D_BUILD_OS}" ] && echo "--LP3D_BUILD_OS......$LP3D_BUILD_OS"
     echo "--LPUB3D_EXE.........$LPUB3D_EXE"
     echo "--SOURCE_DIR.........$SOURCE_DIR"
     echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"

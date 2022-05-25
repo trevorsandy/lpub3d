@@ -34,6 +34,9 @@ build:
     - libOSMesa-devel
     - Mesa-devel
     - boost-devel
+    - xorg-x11-server-Xvfb
+    - xvfb-run
+    - desktop-file-utils
 
 script:
   - cd $BUILD_SOURCE_DIR
@@ -58,3 +61,7 @@ script:
   - linuxdeployqt $BUILD_APPDIR/usr/share/applications/*.desktop -appimage -verbose=2
   - set +x; echo "AppImage Dynamic Lib Dependencies:" && find $BUILD_APPDIR -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo
   - AppImageFile=$(ls LPub3D*.AppImage) && test -f $AppImageFile && echo "AppImage build completed successfully." || echo "AppImage build completed with exceptions."; set -x
+  - set +x; echo "AppImage build check..."; export SOURCE_DIR=$BUILD_SOURCE_DIR; export LP3D_BUILD_OS="appimage"; export LP3D_CHECK_STATUS="--version --app-paths"
+  - test -f $AppImageFile && mkdir -p appImage_check && cp -f $AppImageFile appImage_check/ && echo "$(ls ./appImage_check/*.AppImage) copied to check folder."
+  - test -f $AppImageFile && export LPUB3D_EXE="appImage_check/$(cd appImage_check && ls LPub3D*.AppImage) && echo "LPUB3D_EXE set to $LPUB3D_EXE"; set -x
+  - source ${SOURCE_DIR}/builds/check/build_checks.sh

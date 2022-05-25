@@ -151,4 +151,3 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
 fi
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
-

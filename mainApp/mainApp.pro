@@ -88,6 +88,7 @@ DEFINES     += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+# For compiled builds on unix set C++11 standard appropriately
 unix:!freebsd:!macx {
     GCC_VERSION = $$system(g++ -dumpversion)
     greaterThan(GCC_VERSION, 4.6) {
@@ -152,7 +153,7 @@ win32 {
 
 } else {
     macx: \
-    LIBS        += -framework CoreFoundation -framework CoreServices
+    LIBS += -framework CoreFoundation -framework CoreServices
 }
 
 
@@ -309,7 +310,7 @@ UI_DIR          = $$DESTDIR/.ui
     message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
     else: \
     message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
-    3RD_DI3RD_DIR_SOURCEST_DIR_SOURCE = LOCAL_DIR
+    3RD_DIR_SOURCE = LOCAL_DIR
 }
 
 isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NOT_DEFINED
@@ -319,7 +320,7 @@ message("~~~ 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
 build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
 if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
-    args = deb rpm pkg dmg exe snp flp
+    args = deb rpm pkg dmg exe api snp flp
     for(arg, args) {
         contains(CONFIG, $$arg): opt = $$arg
     }

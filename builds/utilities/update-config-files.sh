@@ -1,16 +1,21 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 14, 2021
+# Last Update June 01, 2021
+# Copyright (c) 2016 - 2021 by Trevor SANDY
+#
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
 # To Run:
 # cd <LPub3D root>
-# env _PRO_FILE_PWD_=$PWD/mainApp OBS=true ./builds/utilities/update-config-files.sh
+# env _PRO_FILE_PWD_=$PWD/mainApp LPUB3D=lpub3d OBS=true ./builds/utilities/update-config-files.sh
 
-echo "   Start update-config-files.sh execution..."
+set +x
 
 LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
+
+echo "   Start $LP3D_ME execution from $PWD..."
+
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
 LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
@@ -24,12 +29,13 @@ if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED=
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
 
 # Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D=$(basename "$(echo "$basedir")")
+[ -z "${LPUB3D}" ] && LPUB3D=$(basename "$(echo "$basedir")") || true
 
 Info () {
     if [ "${SOURCED}" = "true" ]
     then
-        echo "   update-config: ${*}" >&2
+        f="${0##*/}"; f="${f%.*}"
+        echo "   ${f}: ${*}" >&2
     else
         echo "${*}" >&2
     fi
@@ -83,14 +89,21 @@ fi
 if [ "${SOURCED}" = "true" ]
 then
     cd "$(realpath $LP3D_PWD/..)"
-    if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
+    if [ "${CI}" = "true" ];
     then
         # Update refs and tags and populate committer email, name
         Info "1. update git tags and capture version info using git queries"
-        git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
-        git checkout -qf ${TRAVIS_COMMIT}
-        lp3d_git_ver_author="$(git log -1 ${TRAVIS_COMMIT} --pretty="%aN")"
-        lp3d_git_ver_committer_email="$(git log -1 ${TRAVIS_COMMIT} --pretty="%cE")"
+        if [ -n "$TRAVIS" ]; then
+            LP3D_BRANCH=${TRAVIS_BRANCH}
+            LP3D_COMMIT=${TRAVIS_COMMIT}
+        elif [ -n "$GITHUB" ]; then
+            LP3D_BRANCH=${GITHUB_REF}
+            LP3D_COMMIT=${GITHUB_SHA}
+        fi
+        git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${LP3D_BRANCH} +refs/tags/*:refs/tags/*
+        git checkout -qf ${LP3D_COMMIT}
+        lp3d_git_ver_author="$(git log -1 ${LP3D_COMMIT} --pretty="%aN")"
+        lp3d_git_ver_committer_email="$(git log -1 ${LP3D_COMMIT} --pretty="%cE")"
     else
         Info "1. capture version info using git queries"
     fi
@@ -226,7 +239,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/../README.md"
+FILE="$(readlink -f $LP3D_PWD/../README.md)"
 Info "4. update README.md       - update last edit date [$FILE]"
 LastEdit="\[gh-maintained-url\]: https:\/\/github.com\/trevorsandy\/lpub3d\/projects\/1 \"Last edited ${LP3D_LAST_EDIT}\""
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -366,7 +379,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/../builds/linux/obs/debian/rules"
+FILE="$(readlink -f $LP3D_PWD/../builds/linux/obs/debian/rules)"
 Info "12.update debian rules    - add version suffix    [$FILE]"
 LP3D_OS_ARCH=32 && \
 [[ "$(uname -m)" = "x86_64" || "$(uname -m)" = "aarch64" ]] && \
@@ -383,7 +396,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/../gitversion.pri"
+FILE="$(readlink -f $LP3D_PWD/../gitversion.pri)"
 Info "13.update gitversion pri  - add version and revision [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -406,7 +419,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$LP3D_PWD/../snapcraft.yaml"
+FILE="$(readlink -f $LP3D_PWD/../snapcraft.yaml)"
 Info "14.update snapcraft.yaml  - add version suffix    [$FILE]"
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -425,3 +438,4 @@ then
     Info "   Script $LP3D_ME execution finshed."
 fi
 echo
+set -x
