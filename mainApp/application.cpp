@@ -37,6 +37,7 @@
   #include <fcntl.h>
   #include <io.h>
   #include <fstream>
+  #include <QtPlatformHeaders\QWindowsWindowFunctions>
 
   void Application::RedirectIOToConsole()
   {
@@ -1080,6 +1081,9 @@ void Application::mainApp()
 
         gui->show();
 
+#ifdef Q_OS_WIN
+        QWindowsWindowFunctions::setHasBorderInFullScreen(gui->windowHandle(), true);
+#endif
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);
         else if (Preferences::loadLastOpenedFile){
