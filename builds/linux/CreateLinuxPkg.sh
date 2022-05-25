@@ -732,9 +732,9 @@ else
   exit 8
 fi
 
-AppImage=$(find ./ -name ${AppImageName} -type f)
-
 cd $WD
+
+AppImage=$(find ./ -name ${AppImageName} -type f)
 
 # Check AppImage build
 [ -f "${AppImagePatched}" ] && \
