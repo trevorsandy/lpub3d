@@ -179,6 +179,7 @@ jobs:
           - unzip
           - x11proto-dri2-dev
           - x11proto-gl-dev
+          - xvfb
           - zip
           - zlib1g-dev
   - stage: Compile Source
