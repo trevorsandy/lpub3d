@@ -30,6 +30,7 @@
 #include "step.h"
 #include "metagui.h"
 #include "paths.h"
+#include "lpub_qtcompat.h"
 
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
@@ -616,7 +617,7 @@ void Gui::halt3DViewer(bool enable)
 void Gui::create3DDockWindows()
 {
     //Timeline
-    gMainWindow->GetTimelineToolBar()->setWindowTitle(trUtf8("Timeline"));
+    gMainWindow->GetTimelineToolBar()->setWindowTitle(tr("Timeline"));
     gMainWindow->GetTimelineToolBar()->setObjectName("TimelineToolbar");
     gMainWindow->GetTimelineToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -632,7 +633,7 @@ void Gui::create3DDockWindows()
         createPreviewWidget();
 
     //Properties
-    gMainWindow->GetPropertiesToolBar()->setWindowTitle(trUtf8("Properties"));
+    gMainWindow->GetPropertiesToolBar()->setWindowTitle(tr("Properties"));
     gMainWindow->GetPropertiesToolBar()->setObjectName("PropertiesToolbar");
     gMainWindow->GetPropertiesToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -643,7 +644,7 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetPropertiesToolBar());
 
     //Colors Selection
-    gMainWindow->GetColorsToolBar()->setWindowTitle(trUtf8("Colors"));
+    gMainWindow->GetColorsToolBar()->setWindowTitle(tr("Colors"));
     gMainWindow->GetColorsToolBar()->setObjectName("ColorsToolbar");
     gMainWindow->GetColorsToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -654,7 +655,7 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetColorsToolBar());
 
     //Part Selection
-    gMainWindow->GetPartsToolBar()->setWindowTitle(trUtf8("Parts"));
+    gMainWindow->GetPartsToolBar()->setWindowTitle(tr("Parts"));
     gMainWindow->GetPartsToolBar()->setObjectName("PartsToolbar");
     gMainWindow->GetPartsToolBar()->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -665,7 +666,7 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(gMainWindow->GetTimelineToolBar(), gMainWindow->GetPartsToolBar());
 
     //Visual Editor
-    visualEditDockWindow = new QDockWidget(trUtf8("Visual Editor"), this);
+    visualEditDockWindow = new QDockWidget(tr("Visual Editor"), this);
     visualEditDockWindow->setObjectName("ModelDockWindow");
     visualEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -1380,7 +1381,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     QTextStream out(&bannerFile);
     for (int i = 0; i < bannerData.size(); i++) {
         QString fileLine = bannerData[i];
-        out << fileLine << endl;
+        out << fileLine << lpub_endl;
     }
     bannerFile.close();
 
@@ -2247,7 +2248,7 @@ void Gui::createBuildModification()
 
                 if (!Stream.string()->isEmpty()) {
 
-                    QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
+                    QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
                     QString PartLine = ModLines.last();
 
                     QStringList argv;
@@ -2349,8 +2350,8 @@ void Gui::createBuildModification()
                 QString ModLine = ldrawFile.contents(ModelName).at(i);
                 if (i >= ModBeginLineNum)
                     LPubModContents.append(ModLine);
-                ByteArray.append(ModLine);
-                ByteArray.append(QString("\n"));
+                ByteArray.append(ModLine.toUtf8());
+                ByteArray.append(QString("\n").toUtf8());
             }
             QBuffer Buffer(&ByteArray);
             Buffer.open(QIODevice::ReadOnly);
@@ -2771,7 +2772,7 @@ void Gui::createBuildModification()
                 if (!SelectedOnly || Light->IsSelected())
                     Light->SaveLDraw(Stream);
 
-            ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
+            ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), SkipEmptyParts);
 
             int BuildModPieces = ViewerModContents.size();
 

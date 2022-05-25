@@ -22,6 +22,7 @@
 #include "name.h"
 #include "version.h"
 #include "lpub_preferences.h"
+#include "lpub_qtcompat.h"
 #include "QsLog.h"
 
 bool                    PliSubstituteParts::result;
@@ -119,49 +120,49 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_PLI_SUBSTITUTE_PARTS_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# This space-delimited list captures substitute part ID and its substitute part absolute path." << endl;
-        outstream << "# This file is an alternative to the embedded file substitution used when defining a PLI/BOM." << endl;
-        outstream << "# Parts on this list should have an accompanying substitute part." << endl;
-        outstream << "# Substitue parts must be defined using their absolute file path." << endl;
-        outstream << "# When building the PLI/BOM files on this list are replaced with their substitute." << endl;
-        outstream << "#" << endl;
-        outstream << "# The file path must be quoted even if there are no spaces in the path" << endl;
-        outstream << "#" << endl;
-        outstream << "# This file can be edited from LPub3D from:" << endl;
-        outstream << "#    Configuration=>Edit Parameter Files=>Edit PLI/BOM Substitue Parts List" << endl;
-        outstream << "#" << endl;
-        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
-        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
-        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
-        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
-        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
-        outstream << "# 2. Part Path:        Substitute Part Absolute File Path            (Required)" << endl;
-        outstream << "# 3. Part Description: LDraw Part Description - for reference only   (Optional)" << endl;
-        outstream << "#" << endl;
-        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
-        outstream << "# Official Parts" << endl;
-        outstream << "" << endl;
-        outstream << "" << endl;
-        outstream << "# Unofficial Parts" << endl;
-        outstream << "" << endl;
-        outstream << "" << endl;
-        outstream << "# Custom Parts" << endl;
+        outstream << "# File: " << VER_PLI_SUBSTITUTE_PARTS_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This space-delimited list captures substitute part ID and its substitute part absolute path." << lpub_endl;
+        outstream << "# This file is an alternative to the embedded file substitution used when defining a PLI/BOM." << lpub_endl;
+        outstream << "# Parts on this list should have an accompanying substitute part." << lpub_endl;
+        outstream << "# Substitue parts must be defined using their absolute file path." << lpub_endl;
+        outstream << "# When building the PLI/BOM files on this list are replaced with their substitute." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The file path must be quoted even if there are no spaces in the path" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This file can be edited from LPub3D from:" << lpub_endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit PLI/BOM Substitue Parts List" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << lpub_endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << lpub_endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << lpub_endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;
+        outstream << "# 2. Part Path:        Substitute Part Absolute File Path            (Required)" << lpub_endl;
+        outstream << "# 3. Part Description: LDraw Part Description - for reference only   (Optional)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Official Parts" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# Unofficial Parts" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# Custom Parts" << lpub_endl;
 
         QByteArray Buffer;
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 

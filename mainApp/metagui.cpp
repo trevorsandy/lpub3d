@@ -8354,74 +8354,74 @@ bool BlenderRenderDialogGui::exportParameterFile(){
         int counter = 1;
         QByteArray Buffer;
         QTextStream outstream(&file);
-        outstream << "# File: " << QFileInfo(parameterFile).fileName() << endl;
-        outstream << "" << endl;
-        outstream << "# This config file captures parameters for the Blender LDraw Render addon" << endl;
-        outstream << "# Parameters must be prefixed using one of the following predefined" << endl;
-        outstream << "# 'Item' labels:" << endl;
-        outstream << "# - lgeo_colour" << endl;
-        outstream << "# - sloped_brick" << endl;
-        outstream << "# - light_brick" << endl;
-        outstream << "" << endl;
-        outstream << "# All items must use a comma',' delimiter as the primary delimiter." << endl;
-        outstream << "# For sloped_brick items, a pipe'|' delimiter must be used to specify" << endl;
-        outstream << "# a range (min|max) within which the angle must lie when appropriate." << endl;
-        outstream << "# Spaces between item attributes are not required and are used to" << endl;
-        outstream << "# facilitate human readability." << endl;
-        outstream << "" << endl;
-        outstream << "" << endl;
-        outstream << "# LGEO CUSTOM COLOURS" << endl;
-        outstream << "# LGEO is a parts library for rendering LEGO using the POV-Ray" << endl;
-        outstream << "# rendering software. This is the list of LEGO colours suitable" << endl;
-        outstream << "# for realistic rendering extracted from the LGEO file 'lg_color.inc'." << endl;
-        outstream << "# When the 'Colour Scheme' option is set to 'Realistic', the standard" << endl;
-        outstream << "# LDraw colours RGB value is overwritten with the values defined here." << endl;
-        outstream << "# Note: You can customize these RGB values as you want." << endl;
-        outstream << "" << endl;
-        outstream << "# Item-----  ID-    R--   G--   B--" << endl;
+        outstream << "# File: " << QFileInfo(parameterFile).fileName() << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# This config file captures parameters for the Blender LDraw Render addon" << lpub_endl;
+        outstream << "# Parameters must be prefixed using one of the following predefined" << lpub_endl;
+        outstream << "# 'Item' labels:" << lpub_endl;
+        outstream << "# - lgeo_colour" << lpub_endl;
+        outstream << "# - sloped_brick" << lpub_endl;
+        outstream << "# - light_brick" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# All items must use a comma',' delimiter as the primary delimiter." << lpub_endl;
+        outstream << "# For sloped_brick items, a pipe'|' delimiter must be used to specify" << lpub_endl;
+        outstream << "# a range (min|max) within which the angle must lie when appropriate." << lpub_endl;
+        outstream << "# Spaces between item attributes are not required and are used to" << lpub_endl;
+        outstream << "# facilitate human readability." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# LGEO CUSTOM COLOURS" << lpub_endl;
+        outstream << "# LGEO is a parts library for rendering LEGO using the POV-Ray" << lpub_endl;
+        outstream << "# rendering software. This is the list of LEGO colours suitable" << lpub_endl;
+        outstream << "# for realistic rendering extracted from the LGEO file 'lg_color.inc'." << lpub_endl;
+        outstream << "# When the 'Colour Scheme' option is set to 'Realistic', the standard" << lpub_endl;
+        outstream << "# LDraw colours RGB value is overwritten with the values defined here." << lpub_endl;
+        outstream << "# Note: You can customize these RGB values as you want." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# Item-----  ID-    R--   G--   B--" << lpub_endl;
 
         loadDefaultParameters(Buffer, PARAMS_CUSTOM_COLOURS);
         QTextStream colourstream(Buffer);
         for (QString sLine = colourstream.readLine(); !sLine.isNull(); sLine = colourstream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
-        outstream << "" << endl;
-        outstream << "# SLOPED BRICKS" << endl;
-        outstream << "# Dictionary with part number (without any extension for decorations), as key," << endl;
-        outstream << "# of pieces that have grainy slopes, and, as values, a set containing the angles (in" << endl;
-        outstream << "# degrees) of the face's normal to the horizontal plane. Use a | delimited tuple to" << endl;
-        outstream << "# represent a range within which the angle must lie." << endl;
-        outstream << "" << endl;
-        outstream << "# Item------  PartID-  Angle/Angle Range (in degrees)" << endl;
+        outstream << "" << lpub_endl;
+        outstream << "# SLOPED BRICKS" << lpub_endl;
+        outstream << "# Dictionary with part number (without any extension for decorations), as key," << lpub_endl;
+        outstream << "# of pieces that have grainy slopes, and, as values, a set containing the angles (in" << lpub_endl;
+        outstream << "# degrees) of the face's normal to the horizontal plane. Use a | delimited tuple to" << lpub_endl;
+        outstream << "# represent a range within which the angle must lie." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# Item------  PartID-  Angle/Angle Range (in degrees)" << lpub_endl;
 
         loadDefaultParameters(Buffer, PARAMS_SLOPED_BRICKS);
         QTextStream slopedstream(Buffer);
         for (QString sLine = slopedstream.readLine(); !sLine.isNull(); sLine = slopedstream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
-        outstream << "" << endl;
-        outstream << "# LIGHTED BRICKS" << endl;
-		outstream << "# Dictionary with part number (with extension), as key," << endl;
-        outstream << "# of lighted bricks, light emission colour and intensity, as values." << endl;
-        outstream << "" << endl;
-        outstream << "# Item-------  PartID---  Light--------------  Intensity" << endl;
+        outstream << "" << lpub_endl;
+        outstream << "# LIGHTED BRICKS" << lpub_endl;
+        outstream << "# Dictionary with part number (with extension), as key," << lpub_endl;
+        outstream << "# of lighted bricks, light emission colour and intensity, as values." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# Item-------  PartID---  Light--------------  Intensity" << lpub_endl;
 
         loadDefaultParameters(Buffer, PARAMS_LIGHTED_BRICKS);
         QTextStream lightedstream(Buffer);
         for (QString sLine = lightedstream.readLine(); !sLine.isNull(); sLine = lightedstream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
-        outstream << "" << endl;
-        outstream << "# end of parameters" << endl;
+        outstream << "" << lpub_endl;
+        outstream << "# end of parameters" << lpub_endl;
 
         file.close();
         message = QString("Finished writing Blender parameter entries. Processed %1 lines in file [%2].")

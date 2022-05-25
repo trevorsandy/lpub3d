@@ -549,7 +549,7 @@ void GradientEditor::pointsUpdated()
     points += m_blue_shade->points();
     points += m_alpha_shade->points();
 
-    qSort(points.begin(), points.end(), x_less_than);
+    lpub_sort(points.begin(), points.end(), x_less_than);
 
     for (int i=0; i<points.size(); ++i) {
         qreal x = int(points.at(i).x());

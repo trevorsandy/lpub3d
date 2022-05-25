@@ -64,6 +64,7 @@
 #include "color.h"
 #include "ldrawpartdialog.h"
 #include "ldrawcolordialog.h"
+#include "lpub_qtcompat.h"
 
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
@@ -319,7 +320,7 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
     QRegExp quoteRx("\"|'");
     QString valueAt0 = program.at(0);
     bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
-    QStringList list = program.split(quoteRx, QString::SkipEmptyParts);   // Split by " or '
+    QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '
     if (list.size() == 1) {
         program = list.first();
     } else {
@@ -328,7 +329,7 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
             if (inside) {                                                 // If 's' is inside quotes ...
                 values.append(item);                                      // ... get the whole string
             } else {                                                      // If 's' is outside quotes ...
-                values.append(item.split(" ", QString::SkipEmptyParts));  // ... get the split string
+                values.append(item.split(" ",SkipEmptyParts));            // ... get the split string
             }
             inside = !inside;
         }
@@ -714,7 +715,7 @@ bool EditWindow::setValidPartLine()
     copyFileNameToClipboardAct->setEnabled(false);
 
     if (selection.startsWith("1 ")) {
-        list = selection.split(" ", QString::SkipEmptyParts);
+        list = selection.split(" ", SkipEmptyParts);
 
         validCode = list[1].toInt(&colorOk);
 
@@ -726,7 +727,7 @@ bool EditWindow::setValidPartLine()
     } else if (selection.contains(" PLI BEGIN SUB ")) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
-        list = selection.split(" ", QString::SkipEmptyParts);
+        list = selection.split(" ", SkipEmptyParts);
 
         partType = list[5];
 
@@ -886,7 +887,7 @@ void EditWindow::editLineItem()
         elements = editColorAct->data().toString().split("|");
         int colorCode = elements.first().toInt();
         int newColorIndex = -1;
-        items = elements.at(1).split(" ", QString::SkipEmptyParts);
+        items = elements.at(1).split(" ", SkipEmptyParts);
         QColor qcolor(gColorList[lcGetColorIndex(colorCode)].CValue);
         QColor newColor = LDrawColorDialog::getLDrawColor(colorCode, newColorIndex, this);
         if (newColor.isValid() && qcolor != newColor) {

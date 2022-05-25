@@ -568,7 +568,7 @@ bool Render::createSnapshotsList(
     for (int i = 0; i < ldrNames.size(); i++) {
         QString smLine = ldrNames[i];
         if (QFileInfo(smLine).exists()) {
-            out << smLine << endl;
+            out << smLine << lpub_endl;
             if (Preferences::debugLogging)
                 emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Snapshots list").arg(smLine));
         } else {
@@ -2098,7 +2098,7 @@ int LDView::renderCsi(
                 // add normal snapshot lines
                 if (snapshotLdrs.size()) {
                     Q_FOREACH (QString argsLine,snapShotsListArgs) {
-                        out << argsLine << endl;
+                        out << argsLine << lpub_endl;
                         if (Preferences::debugLogging)
                             emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to CSI Command line list").arg(argsLine));
                     }
@@ -2581,13 +2581,13 @@ int LDView::renderPli(
               if (snapshotLdrs.size()) {
                   // add normal snapshot lines
                   Q_FOREACH (QString argsLine,snapShotsListArgs) {
-                      out << argsLine << endl;
+                      out << argsLine << lpub_endl;
                       if (Preferences::debugLogging)
                           emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Command line list").arg(argsLine));
                   }
                   // add substitute snapshot lines
                   Q_FOREACH (QString argsLine,subSnapShotsListArgs) {
-                      out << argsLine << endl;
+                      out << argsLine << lpub_endl;
                       if (Preferences::debugLogging)
                           emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Substitute Command line list").arg(argsLine));
                   }

@@ -37,6 +37,7 @@
 #include "name.h"
 #include "paths.h"
 #include "application.h"
+#include "lpub_qtcompat.h"
 #include "messageboxresizable.h"
 //**3D
 #include "lc_profile.h"
@@ -660,8 +661,8 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
         QFile file(scriptFile);
         if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream stream(&file);
-            stream << "#!/bin/bash" << endl;
-            stream << scriptCommand << endl;
+            stream << "#!/bin/bash" << lpub_endl;
+            stream << scriptCommand << lpub_endl;
             file.close();
         } else {
            logError() << QString("Cannot write library check script file [%1] %2.")
@@ -2767,7 +2768,7 @@ void Preferences::setLDGLiteIniParams()
                 if (line.contains(QRegExp("^__NOTE:"))){
                     continue;
                 }
-                output << line << endl;
+                output << line << lpub_endl;
             }
             confFileIn.close();
             confFileOut.close();
@@ -2869,7 +2870,7 @@ void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
                 }
             }
             logInfo() << QString("NativePOV.ini OUT: %1").arg(line);
-            output << line << endl;
+            output << line << lpub_endl;
         }
         confFileIn.close();
         confFileOut.close();
@@ -2942,7 +2943,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
 //                line = QString("AutoCrop=%1").arg((enableFadeSteps && enableImageMatting) ? 0 : 1);
 //            }
             logInfo() << QString("LDView.ini OUT: %1").arg(line);
-            output << line << endl;
+            output << line << lpub_endl;
         }
         confFileIn.close();
         confFileOut.close();
@@ -3021,7 +3022,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
                 }
             }
             logInfo() << QString("LDViewPOV.ini OUT: %1").arg(line);
-            output << line << endl;
+            output << line << lpub_endl;
         }
         confFileIn.close();
         confFileOut.close();
@@ -3129,7 +3130,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
                 }
             }
             logInfo() << QString("POV-Ray.conf OUT: %1").arg(line);
-            output << line << endl;
+            output << line << lpub_endl;
         }
         confFileIn.close();
         confFileOut.close();
@@ -3278,7 +3279,7 @@ void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
             if (! oldFile.exists())
               line.replace(QString("__POVSYSDIR__"), QDir::toNativeSeparators(QString("%1/3rdParty/%2").arg(lpub3dPath, VER_POVRAY_STR)));
             logInfo() << QString("POV-Ray.ini OUT: %1").arg(line);
-            output << line << endl;
+            output << line << lpub_endl;
         }
         confFileIn.close();
         confFileOut.close();
@@ -5255,7 +5256,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     {
         QTextStream output(&confFile);
         Q_FOREACH (QString line, contentList) {
-           output << line << endl;
+           output << line << lpub_endl;
         }
         confFile.flush();
         confFile.close();

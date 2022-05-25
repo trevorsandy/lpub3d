@@ -15,6 +15,7 @@
 #include "lc_previewwidget.h"
 
 /*** LPub3D Mod - Camera Globe ***/
+#include "lpub_qtcompat.h"
 #include "project.h"
 /*** LPub3D Mod end ***/
 
@@ -980,7 +981,7 @@ void lcQPropertiesTree::slotReturnPressed()
 /*** LPub3D Mod - Camera Globe ***/
 			else if (Item == cameraGlobeLatitude || Item == cameraGlobeLongitude /*|| Item == cameraGlobeDistance*/)
 			{
-				QStringList ValueList = QString(Editor->text()).trimmed().split(" ",QString::SkipEmptyParts);
+				QStringList ValueList = QString(Editor->text()).trimmed().split(" ",SkipEmptyParts);
 				bool hasOther = ValueList.size() == 2;
 
 				float Value = lcParseValueLocalized(ValueList.first());

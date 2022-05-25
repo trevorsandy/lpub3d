@@ -250,7 +250,7 @@ int Render::rotateParts(
   QTextStream out(&file);
   for (int i = 0; i < rotatedParts.size(); i++) {
       QString line = rotatedParts[i];
-      out << line << endl;
+      out << line << lpub_endl;
   }
   file.close();
 
@@ -766,15 +766,15 @@ int Render::splitIMParts(const QStringList &rotatedParts,
        // write current file
        for (int i = 0; i < imCurrent.size(); i++) {
            QString line = imCurrent[i];
-           currLdrOut << line << endl;
+           currLdrOut << line << lpub_endl;
          }
  // * /
 
  // DEBUG START
- //   currLdrOut << rotsComment << endl;
+ //   currLdrOut << rotsComment << lpub_endl;
  //   for (int i = 0; i < rotatedParts.size(); i++) {
  //     QString line = rotatedParts[i];
- //     currLdrOut << line << endl;
+ //     currLdrOut << line << lpub_endl;
  //   }
  // DEBUG END
 
@@ -783,15 +783,15 @@ int Render::splitIMParts(const QStringList &rotatedParts,
        // write previous file
        for (int i = 0; i < imPrevious.size(); i++) {
            QString line = imPrevious[i];
-           prevLdrOut << line << endl;
+           prevLdrOut << line << lpub_endl;
          }
  // * /
 
  // DEBUG START
- //   prevLdrOut << rotsComment << endl;
+ //   prevLdrOut << rotsComment << lpub_endl;
  //   for (int i = 0; i < rotatedParts.size(); i++) {
  //     QString line = rotatedParts[i];
- //     prevLdrOut << line << endl;
+ //     prevLdrOut << line << lpub_endl;
  //   }
  // DEBUG END
 

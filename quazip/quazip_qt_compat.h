@@ -44,10 +44,11 @@ inline bool quazip_close(QIODevice *device) {
 
 // this is yet another stupid move and deprecation
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-using Qt::SkipEmptyParts;
+//using Qt::SkipEmptyParts;
+const auto QuaZipSkipEmptyParts = Qt::SkipEmptyParts;
 #else
 #include <QtCore/QString>
-const auto SkipEmptyParts = QString::SplitBehavior::SkipEmptyParts;
+const auto QuaZipSkipEmptyParts = QString::SplitBehavior::SkipEmptyParts;
 #endif
 
 // and yet another... (why didn't they just make qSort delegate to std::sort?)

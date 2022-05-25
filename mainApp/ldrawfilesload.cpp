@@ -34,6 +34,7 @@
 #include <QMimeData>
 #include <QKeyEvent>
 #include "name.h"
+#include "lpub_qtcompat.h"
 #include "version.h"
 
 QVariant LdrawFilesLoadModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -85,7 +86,7 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
 
     auto setChildItems = [&_loadedParts, &prepareRow] (const LoadMsgType lmt, QList<QStandardItem *>parentItem)
     {
-        for (QString part : _loadedParts)
+        for (const QString &part : _loadedParts)
         {
             if (part.startsWith(int(lmt))) {
                 QStringList components = part.split("|");
@@ -121,7 +122,7 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
     ui->messagesView->setModel(lm);
     ui->messagesView->expandAll();
     ui->messagesView->setSortingEnabled(true);
-    ui->messagesView->sortByColumn(0);
+    ui->messagesView->sortByColumn(0, Qt::AscendingOrder);
     ui->messagesView->setSelectionMode( QAbstractItemView::MultiSelection );
     ui->messagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->messagesView->adjustSize();
@@ -151,7 +152,7 @@ void LdrawFilesLoad::copy()
     if(indexes.size() < 1)
         return;
 
-    qSort(indexes);
+    lpub_sort(indexes.begin(), indexes.end());
 
     // You need a pair of indexes to find the row changes
     QModelIndex previous = indexes.first();

@@ -29,6 +29,7 @@
 #include "highlighter.h"
 #include "application.h"
 #include "lpub_preferences.h"
+#include "lpub_qtcompat.h"
 #include "name.h"
 
 Highlighter::Highlighter(QTextDocument *parent)
@@ -941,7 +942,7 @@ void Highlighter::highlightBlock(const QString &text)
     else
         return;
 
-    QStringList tt = text.mid(index).trimmed().split(" ",QString::SkipEmptyParts);
+    QStringList tt = text.mid(index).trimmed().split(" ", SkipEmptyParts);
     if (tt.size()) {
         QString part;
         for (int t = 14; t < tt.size(); t++)

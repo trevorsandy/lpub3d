@@ -85,6 +85,7 @@
 #include "version.h"
 #include "paths.h"
 #include "lc_http.h"
+#include "lpub_qtcompat.h"
 
 #define PNG_IMAGE_TYPE_INDEX 1
 #define WINDOW_WIDTH_DEFAULT 640
@@ -972,7 +973,7 @@ void LDVWidget::displayGLExtensions()
 	int extensionCount;
 	UCSTR temp = LDrawModelViewer::getOpenGLDriverInfo(extensionCount);
 	ucstringtoqstring(openGLString, temp);
-	QStringList list = openGLString.split(QRegExp("\n|\r\n|\r"),QString::SkipEmptyParts);
+	QStringList list = openGLString.split(QRegExp("\n|\r\n|\r"), SkipEmptyParts);
 	countString = QString::number(extensionCount);
 	countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
 

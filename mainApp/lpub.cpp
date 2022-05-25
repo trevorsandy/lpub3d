@@ -4706,7 +4706,7 @@ void Gui::exportMetaCommands()
         number = QString("%1. ").arg(++n,3,10,QChar('0'));
     else
         number = QString();
-    out << number << doc[i] << endl;
+    out << number << doc[i] << lpub_endl;
   }
 
   file.close();

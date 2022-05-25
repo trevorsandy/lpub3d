@@ -23,6 +23,7 @@
 #include "messageboxresizable.h"
 #include "name.h"
 #include "version.h"
+#include "lpub_qtcompat.h"
 #include "QsLog.h"
 
 int                         Annotations::returnInt;
@@ -1844,7 +1845,7 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
 
             while ( ! instream.atEnd()) {
                 QString sLine = instream.readLine(0);
-                outstream << sLine << endl;
+                outstream << sLine << lpub_endl;
                 counter++;
             }
 
@@ -2095,46 +2096,46 @@ bool Annotations::exportBLColorsFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_LPUB3D_BLCOLORS_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Tab-delmited BrickLink Color code and Color Name cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Color ID:            BrickLink Color ID             (Required)" << endl;
-        outstream << "# 2. Color Name:          BrickLink Color Name           (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
-        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
-        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
-        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << endl;
-        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << endl;
-        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << endl;
-        outstream << "#" << endl;
-        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << endl;
-        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << endl;
-        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << endl;
-        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << endl;
-        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << endl;
-        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << endl;
-        outstream << "#" << endl;
-        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
-        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_LPUB3D_BLCOLORS_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Tab-delmited BrickLink Color code and Color Name cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Color ID:            BrickLink Color ID             (Required)" << lpub_endl;
+        outstream << "# 2. Color Name:          BrickLink Color Name           (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
+        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
+        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
+        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << lpub_endl;
+        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << lpub_endl;
+        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << lpub_endl;
+        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << lpub_endl;
+        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << lpub_endl;
+        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
+        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
+        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
+        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
+        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadBLColors(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2173,46 +2174,46 @@ bool Annotations::exportLD2BLColorsXRefFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_LPUB3D_LD2BLCOLORSXREF_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << endl;
-        outstream << "# 2. Color ID:          BrickLink Color ID         (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
-        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
-        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
-        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << endl;
-        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << endl;
-        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << endl;
-        outstream << "#" << endl;
-        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << endl;
-        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << endl;
-        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << endl;
-        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << endl;
-        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << endl;
-        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << endl;
-        outstream << "#" << endl;
-        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
-        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_LPUB3D_LD2BLCOLORSXREF_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << lpub_endl;
+        outstream << "# 2. Color ID:          BrickLink Color ID         (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
+        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
+        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
+        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << lpub_endl;
+        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << lpub_endl;
+        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << lpub_endl;
+        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << lpub_endl;
+        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << lpub_endl;
+        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
+        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
+        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
+        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
+        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadLD2BLColorsXRef(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2251,47 +2252,47 @@ bool Annotations::exportLD2BLCodesXRefFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_LPUB3D_LD2BLCODESXREF_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << endl;
-        outstream << "# 2. Item No:              BrickLink Item Number        (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
-        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
-        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
-        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << endl;
-        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << endl;
-        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << endl;
-        outstream << "#" << endl;
-        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << endl;
-        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << endl;
-        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << endl;
-        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << endl;
-        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << endl;
-        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << endl;
-        outstream << "#" << endl;
-        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
-        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_LPUB3D_LD2BLCODESXREF_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << lpub_endl;
+        outstream << "# 2. Item No:              BrickLink Item Number        (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
+        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
+        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
+        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << lpub_endl;
+        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << lpub_endl;
+        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << lpub_endl;
+        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << lpub_endl;
+        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << lpub_endl;
+        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
+        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
+        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
+        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
+        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadLD2BLCodesXRef(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2330,32 +2331,32 @@ bool Annotations::exportLD2RBColorsXRefFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_LPUB3D_LD2RBCOLORSXREF_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << endl;
-        outstream << "# 2. Color ID:          Rebrickable Color ID       (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
-        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# Use ld2rbcolorsxref.lst to create cross-reference entries for LDConfig and Rebrickable Color IDs." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_LPUB3D_LD2RBCOLORSXREF_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Tab-delmited LDConfig and Rebrickable Color code cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << lpub_endl;
+        outstream << "# 2. Color ID:          Rebrickable Color ID       (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << lpub_endl;
+        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Use ld2rbcolorsxref.lst to create cross-reference entries for LDConfig and Rebrickable Color IDs." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadLD2RBColorsXRef(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2394,32 +2395,32 @@ bool Annotations::exportLD2RBCodesXRefFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_LPUB3D_LD2RBCODESXREF_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << endl;
-        outstream << "# 2. Part ID:              Rebrickable Part Number      (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
-        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# Use ld2rbcodesxref.lst to create cross-reference entries for LDraw Design ID and Rebrickable Parg ID." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_LPUB3D_LD2RBCODESXREF_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << lpub_endl;
+        outstream << "# 2. Part ID:              Rebrickable Part Number      (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << lpub_endl;
+        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Use ld2rbcodesxref.lst to create cross-reference entries for LDraw Design ID and Rebrickable Parg ID." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadLD2RBCodesXRef(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2458,42 +2459,42 @@ bool Annotations::exportTitleAnnotationsFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_TITLE_ANNOTATIONS_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# CAUTION: Editing this file requires some knowledge/experience using Regular Expressions." << endl;
-        outstream << "# Additionally, you must be familiar with LDraw Parts.lst conventions." << endl;
-        outstream << "# Incorrectly changing the expressions below will at best, exclude some annotations from being captured" << endl;
-        outstream << "# and at worst, exclude the entire category (e.g. Technic Axle) annotations from being captured." << endl;
-        outstream << "# EDIT THIS FILE ONLY IF YOU ARE COMFORTABLE WITH THE REQUIREMENTS STATED ABOVE." << endl;
-        outstream << "#" << endl;
-        outstream << "# This space-delimited list captures part category and annotation Regular Expression." << endl;
-        outstream << "# Follow this format to define annotations derived from part title (LDraw Parts.lst)" << endl;
-        outstream << "# The format is category followed by regex string" << endl;
-        outstream << "# Annotations are extracted from the part title and further processed in LPub3D" << endl;
-        outstream << "# For efficiency put most used parts first." << endl;
-        outstream << "" << endl;
-        outstream << "# This file can be edited from LPub3D from:" << endl;
-        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Title PLI Annotations" << endl;
-        outstream << "" << endl;
-        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
-        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
-        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
-        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
-        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
-        outstream << "" << endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "" << endl;
-        outstream << "#Category   Regex (to identify and extract annotation)" << endl;
+        outstream << "# File: " << VER_TITLE_ANNOTATIONS_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# CAUTION: Editing this file requires some knowledge/experience using Regular Expressions." << lpub_endl;
+        outstream << "# Additionally, you must be familiar with LDraw Parts.lst conventions." << lpub_endl;
+        outstream << "# Incorrectly changing the expressions below will at best, exclude some annotations from being captured" << lpub_endl;
+        outstream << "# and at worst, exclude the entire category (e.g. Technic Axle) annotations from being captured." << lpub_endl;
+        outstream << "# EDIT THIS FILE ONLY IF YOU ARE COMFORTABLE WITH THE REQUIREMENTS STATED ABOVE." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This space-delimited list captures part category and annotation Regular Expression." << lpub_endl;
+        outstream << "# Follow this format to define annotations derived from part title (LDraw Parts.lst)" << lpub_endl;
+        outstream << "# The format is category followed by regex string" << lpub_endl;
+        outstream << "# Annotations are extracted from the part title and further processed in LPub3D" << lpub_endl;
+        outstream << "# For efficiency put most used parts first." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# This file can be edited from LPub3D from:" << lpub_endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Title PLI Annotations" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << lpub_endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << lpub_endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << lpub_endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "#Category   Regex (to identify and extract annotation)" << lpub_endl;
 
         QByteArray Buffer;
         loadTitleAnnotations(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2532,67 +2533,67 @@ bool Annotations::exportAnnotationStyleFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_ANNOTATION_STYLE_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << endl;
-        outstream << "# 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)" << endl;
-        outstream << "# 3. Part Category:       LDraw Part category             (Required)" << endl;
-        outstream << "# 4. Part Annotation:     Annotation text                 (Optional - uses title annotation if not defined)" << endl;
-        outstream << "# 5. Part Description:    Description for reference only  (Optional - not loaded)" << endl;
-        outstream << "#" << endl;
-        outstream << "# ---------------------------------------" << endl;
-        outstream << "# |No |Annotation Style | Part Category |" << endl;
-        outstream << "# |---|---------------------------------|" << endl;
-        outstream << "# | 1 |circle(1)        |axle(1)        |" << endl;
-        outstream << "# | 2 |square(2)        |beam(2)        |" << endl;
-        outstream << "# | 3 |rectangle(3)     |cable(3)       |" << endl;
-        outstream << "# | 4 |square(2)        |connector(4)   |" << endl;
-        outstream << "# | 5 |square(2)        |hose(5)        |" << endl;
-        outstream << "# | 6 |square(2)        |panel(6)       |" << endl;
-        outstream << "# ---------------------------------------" << endl;
-        outstream << "#" << endl;
-        outstream << "# 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)" << endl;
-        outstream << "#" << endl;
-        outstream << "# Circle(1) and square(2) styles are fixed at 2 characters. Use rectangle(3) style for longer annotation text." << endl;
-        outstream << "# Annotation text that contain spaces must be placed in double quotes - e.g. 11145.dat=3   3  \"25 cm\"..." << endl;
-        outstream << "# When adding a Part Description or Annotation, be sure to replace double quotes within the text \" with '." << endl;
-        outstream << "#" << endl;
-        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << endl;
-        outstream << "#" << endl;
-        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << endl;
-        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
-        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
-        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << endl;
-        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << endl;
-        outstream << "#" << endl;
-        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << endl;
-        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << endl;
-        outstream << "#" << endl;
-        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << endl;
-        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << endl;
-        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << endl;
-        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << endl;
-        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << endl;
-        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << endl;
-        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << endl;
-        outstream << "#" << endl;
-        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
-        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_ANNOTATION_STYLE_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << lpub_endl;
+        outstream << "# 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)" << lpub_endl;
+        outstream << "# 3. Part Category:       LDraw Part category             (Required)" << lpub_endl;
+        outstream << "# 4. Part Annotation:     Annotation text                 (Optional - uses title annotation if not defined)" << lpub_endl;
+        outstream << "# 5. Part Description:    Description for reference only  (Optional - not loaded)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ---------------------------------------" << lpub_endl;
+        outstream << "# |No |Annotation Style | Part Category |" << lpub_endl;
+        outstream << "# |---|---------------------------------|" << lpub_endl;
+        outstream << "# | 1 |circle(1)        |axle(1)        |" << lpub_endl;
+        outstream << "# | 2 |square(2)        |beam(2)        |" << lpub_endl;
+        outstream << "# | 3 |rectangle(3)     |cable(3)       |" << lpub_endl;
+        outstream << "# | 4 |square(2)        |connector(4)   |" << lpub_endl;
+        outstream << "# | 5 |square(2)        |hose(5)        |" << lpub_endl;
+        outstream << "# | 6 |square(2)        |panel(6)       |" << lpub_endl;
+        outstream << "# ---------------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# Circle(1) and square(2) styles are fixed at 2 characters. Use rectangle(3) style for longer annotation text." << lpub_endl;
+        outstream << "# Annotation text that contain spaces must be placed in double quotes - e.g. 11145.dat=3   3  \"25 cm\"..." << lpub_endl;
+        outstream << "# When adding a Part Description or Annotation, be sure to replace double quotes within the text \" with '." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ld2blcolorsxref.lst   - Tab-delmited LDConfig and BrickLink Color code cross reference" << lpub_endl;
+        outstream << "# ld2blcodesxref.lst    - Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << lpub_endl;
+        outstream << "# styledAnnotations.lst - Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << lpub_endl;
+        outstream << "# colors.txt            - Tab-delmited BrickLink Color codes and Color Name corss reference" << lpub_endl;
+        outstream << "# codes.txt             - Tab-delimited Bricklink Design ID, Color Name and LEGO Element ID cross reference" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# codes.txt and colors.txt are formatted the same their respective extract files from Bricklink.com. Thus" << lpub_endl;
+        outstream << "# it is possible to simply extract those these files from Bricklnk and place them in the extras subfolder." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# The main parameter file used for accessing part elements is codes.txt. The remaining four parameter files" << lpub_endl;
+        outstream << "# are used to create mappings between LDraw Design ID, LDConfig Color ID, Bricklink Color ID, Bricklink" << lpub_endl;
+        outstream << "# Color Name and Bricklink Item Number. With the exception of codes.txt, all parameter file data is hard" << lpub_endl;
+        outstream << "# coded in the Annotations class. LPub3D will look in the extras subfolder for all parameter files, if a " << lpub_endl;
+        outstream << "# parameter file is found, it will be loaded. If not found, LPub3D will revert to the hard coded data." << lpub_endl;
+        outstream << "# If codes.txt is not found locally, LPub3D will attempt to download it from" << lpub_endl;
+        outstream << "# https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << lpub_endl;
+        outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadDefaultAnnotationStyles(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 
@@ -2631,37 +2632,37 @@ bool Annotations::exportfreeformAnnotationsHeader(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_FREEFOM_ANNOTATIONS_FILE << endl;
-        outstream << "#" << endl;
-        outstream << "# This space-delimited list captures part ID and its free form annotation." << endl;
-        outstream << "# Follow this format to define freeform annotations." << endl;
-        outstream << "# The format is part ID followed free-form annotation (some special characters may not be supported)." << endl;
-        outstream << "" << endl;
-        outstream << "# This file can be edited from LPub3D from:" << endl;
-        outstream << "#    Configuration=>Edit Parameter Files=>Edit Freeform PLI Annotations" << endl;
-        outstream << "" << endl;
-        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
-        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
-        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
-        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
-        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
-        outstream << "" << endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
-        outstream << "# 2. Part Annotation:  Annotation Text                               (Required)" << endl;
-        outstream << "#" << endl;
-        outstream << "# When adding a Part Annotation, be sure to replace double quotes \" with '." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "" << endl;
+        outstream << "# File: " << VER_FREEFOM_ANNOTATIONS_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# This space-delimited list captures part ID and its free form annotation." << lpub_endl;
+        outstream << "# Follow this format to define freeform annotations." << lpub_endl;
+        outstream << "# The format is part ID followed free-form annotation (some special characters may not be supported)." << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# This file can be edited from LPub3D from:" << lpub_endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit Freeform PLI Annotations" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << lpub_endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << lpub_endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << lpub_endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
+        outstream << "" << lpub_endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;
+        outstream << "# 2. Part Annotation:  Annotation Text                               (Required)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# When adding a Part Annotation, be sure to replace double quotes \" with '." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "" << lpub_endl;
 
         QByteArray Buffer;
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 

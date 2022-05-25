@@ -300,6 +300,8 @@ UI_DIR          = $$DESTDIR/.ui
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
     !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
     3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
+    else: \
+    THIRD_PARTY_DIST_DIR_PATH="undefined"
 }
 
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
@@ -463,6 +465,7 @@ HEADERS += \
     lgraphicsview.h \
     lpub.h \
     lpub_preferences.h \
+    lpub_qtcompat.h \
     lpubalert.h \
     messageboxresizable.h \
     meta.h \

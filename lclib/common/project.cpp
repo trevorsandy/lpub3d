@@ -488,7 +488,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 
 		foreach(QString line, Content)
 		{
-			FileData.append(line+"\n");
+			FileData.append(line.toUtf8()+"\n");
 		}
 
 		if (!mIsPreview)
@@ -539,7 +539,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			QTextStream out(&file);
 			for (int i = 0; i < Content.size(); i++) {
 				QString line = Content[i];
-				out << line << endl;
+				out << line << QString("\n");
 			}
 			file.close();
 #endif

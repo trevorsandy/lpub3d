@@ -1228,7 +1228,7 @@ bool PartWorker::saveCustomFile(
         QTextStream out(&file);
         for (int i = 0; i < customPartContent.size(); i++) {
 
-            out << customPartContent[i] << endl;
+            out << customPartContent[i] << lpub_endl;
         }
         file.close();
         logNotice() << "05 WRITE CUSTOM PART TO DISC:" << fileName;
@@ -1831,15 +1831,15 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
                 QString partDescription = cpLine.section(":::",2,2);
                 out << left << qSetFieldWidth(_colWidthFileName+1)    << partNumber
                             << qSetFieldWidth(9) << library
-                            << partDescription   << qSetFieldWidth(0) << endl;
+                            << partDescription   << qSetFieldWidth(0) << lpub_endl;
 
             } else if (cpLine.section(":::",0,0) == "# File Name"){
                 out << left << qSetFieldWidth(_colWidthFileName+1)    << cpLine.section(":::",0,0)
                             << qSetFieldWidth(9)           << cpLine.section(":::",1,1)
-                            << cpLine.section(":::",2,2)   << qSetFieldWidth(0) << endl;
+                            << cpLine.section(":::",2,2)   << qSetFieldWidth(0) << lpub_endl;
 
             } else {
-                out << cpLine << endl;
+                out << cpLine << lpub_endl;
             }
         }
         file.close();

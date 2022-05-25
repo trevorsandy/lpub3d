@@ -2169,12 +2169,12 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
             out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         }
         if (!f.value()._includeFile)
-          out << "0 FILE " << subFileName << endl;
+          out << "0 FILE " << subFileName << lpub_endl;
         for (int j = 0; j < f.value()._contents.size(); j++) {
-          out << f.value()._contents[j] << endl;
+          out << f.value()._contents[j] << lpub_endl;
         }
         if (!f.value()._includeFile)
-          out << "0 NOFILE " << endl;
+          out << "0 NOFILE " << lpub_endl;
       }
     }
 
@@ -2396,7 +2396,7 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
           QTextStream out(&file);
           out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
           for (int j = 0; j < f.value()._contents.size(); j++) {
-            out << f.value()._contents[j] << endl;
+            out << f.value()._contents[j] << lpub_endl;
           }
           file.close();
         }
@@ -2429,7 +2429,7 @@ bool LDrawFile::saveIncludeFile(const QString &fileName){
         QTextStream out(&file);
         out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         for (int j = 0; j < f.value()._contents.size(); j++) {
-          out << f.value()._contents[j] << endl;
+          out << f.value()._contents[j] << lpub_endl;
         }
         file.close();
       }
@@ -3755,25 +3755,25 @@ int split(const QString &line, QStringList &argv)
 
     } else if (chopped[p] >= '2' && chopped[p] <= '5') {
       chopped = chopped.mid(p);
-      argv << chopped.split(" ",QString::SkipEmptyParts);
+      argv << chopped.split(" ", SkipEmptyParts);
     } else if (chopped[p] == '0') {
 
       /* Parse the input line into argv[] */
 
       int soq = validSoQ(chopped,chopped.indexOf("\""));
       if (soq == -1) {
-          argv << chopped.split(" ",QString::SkipEmptyParts);
+          argv << chopped.split(" ", SkipEmptyParts);
         } else {
           // quotes found
           while (chopped.size()) {
               soq = validSoQ(chopped,chopped.indexOf("\""));
               if (soq == -1) {
-                  argv << chopped.split(" ",QString::SkipEmptyParts);
+                  argv << chopped.split(" ", SkipEmptyParts);
                   chopped.clear();
                 } else {
                   QString left = chopped.left(soq);
                   left = left.trimmed();
-                  argv << left.split(" ",QString::SkipEmptyParts);
+                  argv << left.split(" ", SkipEmptyParts);
                   chopped = chopped.mid(soq+1);
                   soq = validSoQ(chopped,chopped.indexOf("\""));
                   if (soq == -1) {

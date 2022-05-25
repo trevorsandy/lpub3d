@@ -4226,7 +4226,7 @@ void MetaItem::writeCsiAnnotationMeta(
     for (int j = 0; j < lineNumStrings.size(); ++j) {
       lineNumbers << lineNumStrings[j].toInt();
     }
-    qSort(lineNumbers.begin(),lineNumbers.end());
+    lpub_sort(lineNumbers.begin(),lineNumbers.end());
 
     // process from last to first so as to not disturb line numbers
 
@@ -4698,9 +4698,9 @@ int MetaItem::monoColorSubmodel(
 
   for ( ; walk < numLines; walk++) {
     if (whiteModel && !monoColorAdded && walk.lineNumber == here.lineNumber) {
-      out << "0 // LPub3D part custom color" << endl;
-      out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
-      out << "0" << endl;
+      out << "0 // LPub3D part custom color" << lpub_endl;
+      out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << lpub_endl;
+      out << "0" << lpub_endl;
       monoColorAdded = true;
     }
 
@@ -4733,7 +4733,7 @@ int MetaItem::monoColorSubmodel(
       argv[1] = monoColorCode[colorCode];
     }
     line = argv.join(" ");
-    out << line << endl;
+    out << line << lpub_endl;
   }
 
   outFile.close();
@@ -5018,7 +5018,7 @@ void MetaItem::hidePLIParts(
     for (int j = 0; j < lineNumStrings.size(); ++j) {
       lineNums << lineNumStrings[j].toInt();
     }
-    qSort(lineNums.begin(),lineNums.end());
+    lpub_sort(lineNums.begin(),lineNums.end());
 
     // work it from last to first so as to not screw up our line numbers
     int lastLineNum = -1;
@@ -5074,7 +5074,7 @@ void MetaItem::substitutePLIPart(
       for (int j = 0; j < lineNumStrings.size(); ++j) {
         lineNums << lineNumStrings[j].toInt();
       }
-      qSort(lineNums.begin(),lineNums.end());
+      lpub_sort(lineNums.begin(),lineNums.end());
 
       // work it from last to first so as to not screw up our line numbers
 

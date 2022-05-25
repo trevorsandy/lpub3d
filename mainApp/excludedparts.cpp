@@ -22,6 +22,7 @@
 #include "lpub_preferences.h"
 #include "name.h"
 #include "version.h"
+#include "lpub_qtcompat.h"
 #include "QsLog.h"
 
 
@@ -113,7 +114,7 @@ const bool &ExcludedParts::hasExcludedPart(QString part)
 const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
 {
     QString part;
-    QStringList tt = line.split(" ",QString::SkipEmptyParts);
+    QStringList tt = line.split(" ", SkipEmptyParts);
     for (int t = 14; t < tt.size(); t++) // treat spaces
         part += (tt[t]+" ");
 
@@ -223,38 +224,38 @@ bool ExcludedParts::exportExcludedParts(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_EXCLUDED_PARTS_FILE << endl;
-        outstream << "# " << endl;
-        outstream << "# This list captures excluded parts to support accurate part count." << endl;
-        outstream << "# Excluded parts must be defined using the file name." << endl;
-        outstream << "# Parts on this list are excluded from the part count and PLI." << endl;
-        outstream << "# " << endl;
-        outstream << "# This file can be edited from LPub3D from:" << endl;
-        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Count Excluded Parts List" << endl;
-        outstream << "# " << endl;
-        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
-        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
-        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
-        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
-        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
-        outstream << "# " << endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << endl;
-        outstream << "#" << endl;
-        outstream << "#" << endl;
-        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
-        outstream << "# 2. Part Description: LDraw Part Description - for reference only   (Optional)" << endl;
-        outstream << "#" << endl;
-        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << endl;
-        outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
-        outstream << "#" << endl;
+        outstream << "# File: " << VER_EXCLUDED_PARTS_FILE << lpub_endl;
+        outstream << "# " << lpub_endl;
+        outstream << "# This list captures excluded parts to support accurate part count." << lpub_endl;
+        outstream << "# Excluded parts must be defined using the file name." << lpub_endl;
+        outstream << "# Parts on this list are excluded from the part count and PLI." << lpub_endl;
+        outstream << "# " << lpub_endl;
+        outstream << "# This file can be edited from LPub3D from:" << lpub_endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Count Excluded Parts List" << lpub_endl;
+        outstream << "# " << lpub_endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << lpub_endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << lpub_endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << lpub_endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
+        outstream << "# " << lpub_endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;
+        outstream << "# 2. Part Description: LDraw Part Description - for reference only   (Optional)" << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << "#" << lpub_endl;
 
         QByteArray Buffer;
         loadExcludedParts(Buffer);
         QTextStream instream(Buffer);
         for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
         {
-            outstream << sLine << endl;
+            outstream << sLine << lpub_endl;
             counter++;
         }
 

@@ -259,7 +259,7 @@ void CsiItem::previewCsi(bool useDockable) {
             QTextStream out(&file);
             for (int i = 0; i < content.size(); i++) {
                 QString line = content[i];
-                out << line << endl;
+                out << line << lpub_endl;
             }
             file.close();
         } else {

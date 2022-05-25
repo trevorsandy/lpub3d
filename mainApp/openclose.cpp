@@ -310,7 +310,7 @@ void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
     QRegExp quoteRx("\"|'");
     QString valueAt0 = program.at(0);
     bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
-    QStringList list = program.split(quoteRx, QString::SkipEmptyParts);   // Split by " or '
+    QStringList list = program.split(quoteRx, SkipEmptyParts);            // Split by " or '
     if (list.size() == 1) {
         program = list.first();
     } else {
@@ -319,7 +319,7 @@ void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
             if (inside) {                                                 // If 's' is inside quotes ...
                 values.append(item);                                      // ... get the whole string
             } else {                                                      // If 's' is outside quotes ...
-                values.append(item.split(" ", QString::SkipEmptyParts));  // ... get the split string
+                values.append(item.split(" ", SkipEmptyParts));           // ... get the split string
             }
             inside = !inside;
         }

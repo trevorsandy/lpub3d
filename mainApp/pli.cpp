@@ -1099,7 +1099,7 @@ int Pli::createPartImage(
 
                 QTextStream out(&part);
                 Q_FOREACH (QString line, pliFile)
-                    out << line << endl;
+                    out << line << lpub_endl;
                 part.close();
 
                 // feed DAT to renderer
@@ -2555,7 +2555,7 @@ int Pli::partSizeLDViewSCall() {
 
                         QTextStream out(&part);
                         Q_FOREACH (QString line, pliFile)
-                            out << line << endl;
+                            out << line << lpub_endl;
                         part.close();
                     }
 

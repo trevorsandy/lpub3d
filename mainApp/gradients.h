@@ -44,6 +44,7 @@
 
 #include <QtWidgets>
 #include "hoverpoints.h"
+#include "lpub_qtcompat.h"
 #include "meta.h"
 
 #include "QsLog.h"

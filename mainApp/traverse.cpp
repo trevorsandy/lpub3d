@@ -679,7 +679,7 @@ int Gui::drawPage(
                                        .arg(outfileName) .arg(file.errorString()));
       QTextStream out(&file);
       for (int i = 0; i < opts.csiParts.size(); i++)
-          out << opts.csiParts[i] << endl;
+          out << opts.csiParts[i] << lpub_endl;
       file.close();
   };
 #endif
@@ -2895,7 +2895,7 @@ int Gui::findPage(
                                        .arg(outfileName) .arg(file.errorString()));
       QTextStream out(&file);
       for (int i = 0; i < partList.size(); i++)
-          out << partList[i] << endl;
+          out << partList[i] << lpub_endl;
       file.close();
   };
 #endif
@@ -4278,9 +4278,9 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName){
     }
 
     QTextStream out(&bomFile);
-    out << QString("0 Name: %1").arg(QFileInfo(bomFileName).fileName()) << endl;
+    out << QString("0 Name: %1").arg(QFileInfo(bomFileName).fileName()) << lpub_endl;
     Q_FOREACH (QString bomPart, bomParts)
-        out << bomPart << endl;
+        out << bomPart << lpub_endl;
     bomFile.close();
     return true;
 }
@@ -5225,7 +5225,7 @@ void Gui::writeToTmp(const QString &fileName,
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
-          out << csiParts[i] << endl;
+          out << csiParts[i] << lpub_endl;
         }
       file.close();
     }

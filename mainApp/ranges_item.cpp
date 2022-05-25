@@ -538,7 +538,7 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       }
     }
     // sort the line numbers...
-    qSort(lineNumbers.begin(),lineNumbers.end());
+    lpub_sort(lineNumbers.begin(),lineNumbers.end());
     // process from last to first to preserve line numbers
     int lastLineNumber = -1;
     for (int k = lineNumbers.size() - 1; k >= 0; --k) {

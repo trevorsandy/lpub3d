@@ -345,6 +345,8 @@
 #include <QElapsedTimer>
 #include <QPdfWriter>
 
+#include "lpub_qtcompat.h"
+
 #include "lc_global.h"
 #include "lc_math.h"      // placed here to avoid having to always place this in .cpp files calling lpub.h
 

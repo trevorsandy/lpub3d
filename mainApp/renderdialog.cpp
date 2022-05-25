@@ -449,11 +449,11 @@ void RenderDialog::on_RenderButton_clicked()
             if(script.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream stream(&script);
 #ifdef Q_OS_WIN
-                stream << "@ECHO OFF &SETLOCAL" << endl;
+                stream << "@ECHO OFF &SETLOCAL" << lpub_endl;
 #else
-                stream << "#!/bin/bash" << endl;
+                stream << "#!/bin/bash" << lpub_endl;
 #endif
-                stream << scriptCommand << endl;
+                stream << scriptCommand << lpub_endl;
                 script.close();
                 emit gui->messageSig(LOG_DEBUG, QString("Script: %1").arg(script.fileName()));
             } else {
