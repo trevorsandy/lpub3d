@@ -28,20 +28,19 @@ fi
 if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS_NAME" = "linux" ]]; then
   echo "- build check LPub3D.AppImage bundle..."
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
-  SOURCE_DIR=${LP3D_BUILD_FOLDER}
+  export SOURCE_DIR=${LP3D_BUILD_FOLDER}
   # make check directory and copy AppImage
   if [ -n "$file_DPkg" ]; then
     mkdir appImage_Check && cp -f $file_DPkg appImage_Check/
-    LPUB3D_EXE=$(find appImage_Check -name *.AppImage -type f)
+    export LPUB3D_EXE=$(find appImage_Check -name *.AppImage -type f)
     if [ -f ${LPUB3D_EXE} ];then
       echo "- AppImage copied to ${PWD}/${LPUB3D_EXE}."
     else
       echo "ERROR - AppImage not copied to ${PWD}/appImage_Check/."
     fi
     export LP3D_CHECK_STATUS="--version --app-paths"
-    set +x
-    chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
-    set -x
+    #chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
+    set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
   else
     echo "ERROR - AppImage was not found in $AppImageBuildPath/AppImage."
   fi
