@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 21, 2021
+# Last Update July 27, 2021
 # Copyright (c) 2016 - 2021 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -152,7 +152,6 @@ Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
-Info "   GIT_DEPTH..............${LP3D_GIT_DEPTH}"
 
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"

@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Artifact Path
         run: |
           echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}
@@ -58,6 +60,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0        
       - name: Artifact path
         run: |
           echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}

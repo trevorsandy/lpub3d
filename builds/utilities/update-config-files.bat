@@ -129,7 +129,6 @@ IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
-ECHO   LP3D_GIT_DEPTH.................[%LP3D_GIT_DEPTH%]
 
 ECHO   LP3D_VERSION_INFO..............[%LP3D_VERSION_INFO%]
 ECHO   LP3D_VER_MAJOR.................[%LP3D_VER_MAJOR%]
