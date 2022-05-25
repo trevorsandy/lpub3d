@@ -79,6 +79,17 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
             make -j$(nproc)
         fi
         make INSTALL_ROOT=$AppImageBuildPath install;
+
+        if [ "$LP3D_PRE_APPIMAGE_BUILD_CHECK_VAR" = "true" ]; then
+            echo "'Pre-AppImage LPub3D build check' detected from environment variable."
+            export SOURCE_DIR=${PWD}
+            export LP3D_BUILD_OS=
+            export LP3D_CHECK_STATUS="--version --app-paths"
+            export LPUB3D_EXE="${AppImageBuildPath}/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            chmod a+x builds/check/build_checks.sh
+            ./builds/check/build_checks.sh
+        fi
+
         echo && echo "Setup linuxdeployqt..."
         if [ ! -e linuxdeployqt ]; then
             if [ "$TRAVIS_CPU_ARCH" = "amd64" ]; then
@@ -120,6 +131,10 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
         AppImageFile=$(ls LPub3D*.AppImage)
         if [ -f $AppImageFile ]; then
+          echo "Applying magic bytes correction..." && \
+          sed -i 's|AI\x02|\x00\x00\x00|' AppImageFile && \
+          echo "Magic bytes correction applied." || \
+          echo "Failed to apply magic bytes correction"
           echo "AppImage build completed successfully.";
           AppImageExtension=${AppImageFile##*-};
           mkdir -p $AppImageBuildPath/AppImage;

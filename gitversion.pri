@@ -103,7 +103,7 @@ equals(USE_GIT_VER_FILE, true) {
         GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
     } else {
         message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.1.2578.5ededfc8
+        GIT_VERSION = $${VERSION}.1.2579.7d107a70
         message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
         GIT_VERSION ~= s/\./" "
     }
