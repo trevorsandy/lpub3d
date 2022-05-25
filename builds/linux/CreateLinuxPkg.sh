@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 19, 2021
+# Last Update July 26, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -36,10 +36,11 @@ FinishElapsedTime() {
 
 SaveAppImageSetupProgress() {
   # backup AppDir build artifacts in case of failure
-  if [[ "$CI" != "true" && $? = 0 ]]; then
-    [ -f linuxdeployqt ] && cp -af linuxdeployqt ${LP3D_DIST_DIR_PATH}/AppDir/ || :
-    [ -d share ] && cp -af share/ ${LP3D_DIST_DIR_PATH}/AppDir/ || :
-    [ -d bin ] && cp -af bin/ ${LP3D_DIST_DIR_PATH}/AppDir/ || :
+  if [[ "${CI}" != "true" && $? = 0 ]]; then
+    [ -d bin ] && cp -af bin/ ${LP3D_DIST_DIR_PATH}/AppDir/tools/ || :
+    [ -d share ] && cp -af share/ ${LP3D_DIST_DIR_PATH}/AppDir/tools/ || :
+    [ -f ${AppDirBuildPath}/linuxdeployqt ] && \
+    cp -af ${AppDirBuildPath}/linuxdeployqt ${LP3D_DIST_DIR_PATH}/AppDir/ || :
   fi
 }
 
@@ -97,16 +98,28 @@ export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
 
-if [ "${BUILD_OPT}" = "verify" ]; then
-  Info "BUILD OPTION.......$BUILD_OPT"
-fi
+Info "BUILD OPTION.......${BUILD_OPT}"
 Info "SOURCE DIR.........${LPUB3D}"
 Info "BUILD DIR..........${BUILD_DIR}"
 Info "BUILD BASE.........${LP3D_BASE}"
 Info "BUILD ARCH.........${LP3D_ARCH}"
 Info "QEMU...............${LP3D_QEMU}"
-Info "DOCKER.............${DOCKER}"
+Info "CI.................${CI}"
+Info "QEMU...............${LP3D_QEMU}"
+Info "GITHUB.............${GITHUB}"
 Info "APPIMAGE...........${LP3D_APPIMAGE}"
+
+# Download LDraw library archive files if not available
+Info && Info "Checking LDraw archive libraries..."
+[[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
+[ ! -f "/dist/lpub3dldrawunf.zip" ] && \
+wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O /dist/lpub3dldrawunf.zip || :
+[ ! -f "/dist/complete.zip" ] && \
+wget http://www.ldraw.org/library/updates/complete.zip -O /dist/complete.zip || :
+[ ! -f "/dist/tenteparts.zip" ] && \
+wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O /dist/tenteparts.zip || :
+[ ! -f "/dist/vexiqparts.zip" ] && \
+wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O /dist/vexiqparts.zip || :
 
 # If LP3D_QEMU and not AppImage, source package build script
 if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
@@ -135,7 +148,7 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
       ;;
   esac
 
-  # Link LDraw libraries to package source path
+  # Copy LDraw libraries to package source path
   [ ! -f "${pkgsrcdir}/lpub3dldrawunf.zip" ] && \
   (cd ${pkgsrcdir} && cp -af /dist/lpub3dldrawunf.zip .) || \
   Info "${pkgsrcdir}/lpub3dldrawunf.zip exists. Nothing to do."
@@ -150,9 +163,9 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
   Info "${pkgsrcdir}/vexiqparts.zip exists. Nothing to do."
 
   # Link lpub3d_linux_3rdparty to package build source path
-  LP3D_TD=${PWD}/${pkgblddir}/${LP3D_3RD_DIST_DIR}
+  LP3D_TD=${WD}/${pkgblddir}/${LP3D_3RD_DIST_DIR}
   if [ ! -d "${LP3D_TD}" ]; then
-    (cd ${PWD}/${pkgblddir} && ln -sf "${LP3D_DIST_DIR_PATH}" "${LP3D_3RD_DIST_DIR}")
+    (cd ${WD}/${pkgblddir} && ln -sf "${LP3D_DIST_DIR_PATH}" "${LP3D_3RD_DIST_DIR}")
     if [ -d "${LP3D_TD}" ]; then
       Info "${LP3D_DIST_DIR_PATH} linked to ${LP3D_TD}"
     else
@@ -171,11 +184,37 @@ fi
 
 # ............Local Build Calls...................#
 
-# Download or copy source
+# logging stuff - increment log file name
+f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
+[ "${LP3D_APPIMAGE}" = "true" ] && f="${f}-appimage" || :
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+f="${LP3D_LOG_PATH}/${f}"
+ext=".log"
+if [[ -e "$f$ext" ]] ; then
+  i=1
+  f="${f%.*}";
+  while [[ -e "${f}_${i}${ext}" ]]; do
+    let i++
+  done
+  f="${f}_${i}${ext}"
+else
+  f="${f}${ext}"
+fi
+# output log file
+LOG="$f"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
+
+# Copy or download source
 if [ "${TRAVIS}" != "true" ]; then
-   Info "Download source to $BUILD_DIR/..."
-   git clone https://github.com/trevorsandy/${LPUB3D}.git
-   mv -f ./${LPUB3D}/.[!.]* . && mv -f ./${LPUB3D}/* . && rm -rf ./${LPUB3D}
+   if [ -d "/in" ]; then
+     Info "Copy source to $BUILD_DIR/..."
+     cp -rf /in/. .
+   else
+     Info "Download source to $BUILD_DIR/..."
+     git clone https://github.com/trevorsandy/${LPUB3D}.git
+     mv -f ./${LPUB3D}/.[!.]* . && mv -f ./${LPUB3D}/* . && rm -rf ./${LPUB3D}
+   fi
    rsync -avr --exclude='ldraw' --exclude='.config' ~/ .
 else
    Info "Copy source to $BUILD_DIR/..."
@@ -185,7 +224,9 @@ fi
 # For Docker build, check if there is a tag after the last commit
 if [ "$DOCKER" = "true" ]; then
   # Setup git command
-  GIT_CMD="git --git-dir $PWD/.git --work-tree $PWD"
+  GIT_CMD="git --git-dir ${WD}/.git --work-tree ${WD}"
+  # Pull latest
+  [ "${CI}" = "true" ] && $GIT_CMD pull || :
   #1. Get the latest version tag - check across all branches
   BUILD_TAG=$($GIT_CMD describe --tags --match v* $($GIT_CMD rev-list --tags --max-count=1) 2> /dev/null)
   if [ -n "$BUILD_TAG" ]; then
@@ -195,7 +236,7 @@ if [ "$DOCKER" = "true" ]; then
     GIT_COMMIT_TIME=$($GIT_CMD log -1 --format=%ai 2> /dev/null)
     #4. If tag is newer than commit, check out the tag
     if [ $(date -d "$GIT_COMMIT_TIME" +%s) -lt $(date -d "$BUILD_TAG_TIME" +%s) ]; then
-      echo "2a. checking out build tag $BUILD_TAG..."
+      Info "2a. checking out build tag $BUILD_TAG..."
       $GIT_CMD checkout -qf $BUILD_TAG
     fi
   fi
@@ -203,11 +244,11 @@ fi
 
 # Source update_config_files.sh"
 Info "Source update_config_files.sh..."
-export _PRO_FILE_PWD_=$PWD/mainApp
+export _PRO_FILE_PWD_=${WD}/mainApp
 set +x && source builds/utilities/update-config-files.sh && set -x
 
 # Link lpub3d_linux_3rdparty to package build source path
-LP3D_TD=${PWD}/${LP3D_3RD_DIST_DIR}
+LP3D_TD=${WD}/${LP3D_3RD_DIST_DIR}
 if [ ! -d "${LP3D_TD}" ]; then
   (ln -sf "${LP3D_DIST_DIR_PATH}" "${LP3D_3RD_DIST_DIR}")
   if [ -d "${LP3D_TD}" ]; then
@@ -220,25 +261,21 @@ else
   Info "Using cached 3rd Party repository ${LP3D_TD}"
 fi
 
-# Download LDraw library archive files if not available
-Info "Download archive libraries..."
-[[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
-[ ! -f "/dist/lpub3dldrawunf.zip" ] && \
-wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O /dist/lpub3dldrawunf.zip || :
-(cd ${LP3D_DIST_DIR_PATH} && ln -sf /dist/lpub3dldrawunf.zip lpub3dldrawunf.zip)
-[ ! -f "/dist/complete.zip" ] && \
-wget http://www.ldraw.org/library/updates/complete.zip -O /dist/complete.zip || :
-(cd ${LP3D_DIST_DIR_PATH} && ln -sf /dist/complete.zip complete.zip)
-[ ! -f "/dist/tenteparts.zip" ] && \
-wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O /dist/tenteparts.zip || :
-(cd ${LP3D_DIST_DIR_PATH} && ln -sf /dist/tenteparts.zip tenteparts.zip)
-[ ! -f "/dist/vexiqparts.zip" ] && \
-wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O /dist/vexiqparts.zip || :
-(cd ${LP3D_DIST_DIR_PATH} && ln -sf /dist/vexiqparts.zip vexiqparts.zip)
+# Link and copy locally LDraw library archive files
+Info "Link archive libraries to ${LP3D_DIST_DIR_PATH}..."
+(cd ${LP3D_DIST_DIR_PATH} && \
+ln -sf /dist/lpub3dldrawunf.zip lpub3dldrawunf.zip && \
+ln -sf /dist/complete.zip complete.zip && \
+ln -sf /dist/tenteparts.zip tenteparts.zip && \
+ln -sf /dist/vexiqparts.zip vexiqparts.zip) && \
+Info "Copy archive libraries to ${BUILD_DIR}..." && \
+cp -af /dist/*.zip .
 
-echo "DEBUG ${LP3D_3RD_DIST_DIR} LIST..."
+# DEBUG - RESTORE AFTER EVAL
+Info "DEBUG ${LP3D_3RD_DIST_DIR} LIST..."
 ls -al ${LP3D_3RD_DIST_DIR}/
-echo "DEBUG END"
+Info "DEBUG END"
+# DEBUG END
 
 # List global and local 'LP3D_*' environment variables - use 'env' for 'exported' variables
 set +x && \
@@ -249,10 +286,11 @@ set -x
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 
 # Set application build path
-export AppDirBuildPath=$(mkdir -p AppDir && readlink -f AppDir/)
+[ ! -d AppDir ] && mkdir -p AppDir || :
+export AppDirBuildPath=$(readlink -f AppDir/)
 
 # Build LPub3D
-if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir)" ]]; then
+if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir/usr)" ]]; then
   if [[ "${LP3D_APPIMAGE}" == "false" ]]; then
     case ${LP3D_BASE} in
       "ubuntu")
@@ -273,26 +311,33 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/A
     QMAKE_EXEC=qmake
   fi
   ${QMAKE_EXEC} -v
-  
+
   # build command
   ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
   make
   make INSTALL_ROOT=${AppDirBuildPath} install
 
   # backup build artifacts in case of failure
-  if [[ "$CI" != "true" && $? = 0 ]]; then
+  if [[ "${CI}" != "true" && $? = 0 ]]; then
     cp -ar ${AppDirBuildPath} ${LP3D_DIST_DIR_PATH}/
   fi
 else
   Info "LPub3D build artifacts exists - build skipped."
-  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/* ${AppDirBuildPath}/
+  [ -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" ] && \
+  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/usr ${AppDirBuildPath}/ || :
+  [ -d "${LP3D_DIST_DIR_PATH}/AppDir/opt" ] && \
+  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/opt ${AppDirBuildPath}/ || :
+  [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools" ] && \
+  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/tools/* . || :
+  [ -f ${LP3D_DIST_DIR_PATH}/AppDir/linuxdeployqt ] && \
+  cp -af ${LP3D_DIST_DIR_PATH}/AppDir/linuxdeployqt ${AppDirBuildPath}/ || :
 fi
 
 # Build check
 if [[ "$BUILD_OPT" = "verify" || -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
   Info "Build check LPub3D bundle..."
   export LP3D_BUILD_OS=
-  export SOURCE_DIR=${PWD}
+  export SOURCE_DIR=${WD}
   export LP3D_CHECK_LDD="1"
   export LP3D_CHECK_STATUS="--version --app-paths"
   export LPUB3D_EXE="${AppDirBuildPath}/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
@@ -306,110 +351,220 @@ fi
 
 # ..........AppImage Build Calls..................#
 
-Info "Entering AppImage build directory: ${AppDirBuildPath}..."
-cd ${AppDirBuildPath}
-
-# Setup AppImage linuxdeployqt
-Info && Info "Setup linuxdeployqt..."
-if [ ! -e linuxdeployqt ]; then
-  if [[ "$LP3D_ARCH" = "amd64" || "$LP3D_ARCH" = "x86_64" ]]; then
-    Info "Insalling linuxdeployqt for amd64 arch..."
+# Setup AppImage tools - linuxdeployqt, lconvert
+Info && Info "Installing AppImage tools..."
+if [[ -z "${LP3D_BUILD_AI_TOOLS}" && ("$LP3D_ARCH" = "amd64" || "$LP3D_ARCH" = "x86_64") ]]; then
+  cd ${AppDirBuildPath}
+  if [ ! -e linuxdeployqt ]; then
+    Info "Insalling linuxdeployqt for $LP3D_ARCH..."
     wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O linuxdeployqt
-  elif [[ "$LP3D_ARCH" = "arm64" || "$LP3D_ARCH" = "aarch64" ]]; then
-    if [ ! -e ${LP3D_DIST_DIR_PATH}/AppDir/linuxdeployqt ]; then
-      [ ! -d "bin" ] && mkdir bin || :
-      export WD=${AppDirBuildPath}
-      export PATH="${WD}/bin":"$PATH"
-      # LinuxDeployQt
-      p=LinuxDeployQt
-      Info "Building $p for $LP3D_ARCH..."
-      git clone https://github.com/probonopd/linuxdeployqt.git $p
-      ( cd $p && qmake && make && cp -a ./bin/* ../ ) >$p.out 2>&1 && mv $p.out $p.ok
-      if [[ -f $p.ok && -f ./linuxdeployqt ]]; then
-        rm -f $p.ok
-        Info "linuxdeployqt copied to ${AppDirBuildPath}"
-      else
-        Error $p FAILED
-        tail -80 $p.out
-        exit 5
-      fi
-      SaveAppImageSetupProgress
-      # PatchELF
-      p=patchelf-0.9
-      Info "Building $p for $LP3D_ARCH......"
-      wget https://nixos.org/releases/patchelf/patchelf-0.9/$p.tar.bz2
-      tar xf $p.tar.bz2
-      ( cd $p && ./configure --prefix=${WD} --exec_prefix=${WD} && make && make install ) >$p.out 2>&1 && mv $p.out $p.ok
-      if [ -f $p.ok ]; then
-        rm -f $p.ok
-        Info $p done
-      else
-        Error $p FAILED
-        tail -80 $p.out
-        exit 5
-      fi
-      SaveAppImageSetupProgress
-      # AppImageTool
-      p=appimagetool
-      Info "Installing $p for $LP3D_ARCH..."
-      [ ! -d "bin" ] && mkdir bin || :
-      # prebuilt bin generating exec format error
-      # [ -f /dist/$p ] && cp -f /dist/$p ./bin/ || \
-      # wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O bin/${AppImage}
-      if [ -f ${LP3D_DIST_DIR_PATH}/$p ]; then
-          cp -f ${LP3D_DIST_DIR_PATH}/$p ./bin/
-          ( chmod a+x bin/$p && ./bin/$p --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
-          if [ -f $p.ok ]; then
-              cat $p.ok
-              Info $p is runnable
-          else
-              Info Run $p FAILED
-              tail -80 $p.out
-              # exit 5
-          fi
-      else
-          Error Install $p FAILED - file was not found.
-          exit 5
-      fi
-      SaveAppImageSetupProgress
+  fi
+  ( chmod a+x linuxdeployqt && ./linuxdeployqt -version ) >$p.out 2>&1 && rm -f $p.out
+  if [ ! -f $p.out ]; then
+    Info "Install linuxdeployqt completed" && Info
+  else
+    Error Install $p FAILED
+    tail -80 $p.out
+    exit 5
+  fi
+elif [[ -n "${LP3D_BUILD_AI_TOOLS}" || "$LP3D_ARCH" = "arm64" || "$LP3D_ARCH" = "aarch64" || "$LP3D_QEMU" = "true" ]]; then
+  [ ! -d bin ] && mkdir bin || :
+  export PATH="${WD}/bin":"$PATH"
+  cd ../
+  # LinuxDeployQt
+  p=LinuxDeployQt
+  if [ ! -e ${AppDirBuildPath}/linuxdeployqt ]; then
+    [ -d "$p" ] && rm -rf $p || :
+    Info "Building $p for $LP3D_ARCH at $PWD..."
+    git clone https://github.com/probonopd/linuxdeployqt.git $p
+    ( cd $p && qmake && make && cp -a ./bin/* ${AppDirBuildPath}/ ) >$p.out 2>&1 && rm -f $p.out
+    if [[ ! -f $p.out && -f ${AppDirBuildPath}/linuxdeployqt ]]; then
+      Info "linuxdeployqt copied to ${AppDirBuildPath}"
     else
-      Info "Linuxdeployqt artifacts exists - build skipped."
+      Error $p FAILED
+      tail -80 $p.out
+      exit 5
     fi
-    p=lconvert
-    Info "Linking $p..."
-    lcv="$(which $p)"
-    if [ -n "$lcv" ]; then
-      [ ! -d "bin" ] && mkdir bin || :
-      ( ln -sf $lcv $p && \
-        cd bin && ln -sf $lcv $p ) >$p.out 2>&1 && mv $p.out $p.ok
+    SaveAppImageSetupProgress
+  fi
+  ( cd ${AppDirBuildPath} && chmod a+x linuxdeployqt && ./linuxdeployqt -version ) >$p.out 2>&1 && rm -f $p.out
+  if [ ! -f $p.out ]; then
+    Info "Build linuxdeployqt completed"
+  else
+    Error Build $p FAILED
+    tail -80 $p.out
+    exit 5
+  fi
+
+  # PatchELF
+  p=patchelf-0.9
+  if [ ! -e bin/patchelf ]; then
+    [ -d "$p" ] && rm -rf $p || :
+    Info "Building $p for $LP3D_ARCH......"
+    wget https://nixos.org/releases/patchelf/patchelf-0.9/$p.tar.bz2
+    tar xf $p.tar.bz2
+    ( cd $p && ./configure --prefix=${WD} --exec_prefix=${WD} && make && make install ) >$p.out 2>&1 && rm -f $p.out
+    if [ ! -f $p.out ]; then
+      Info Build $p completed
+    else
+      Error Build $p FAILED
+      tail -80 $p.out
+      exit 5
+    fi
+    SaveAppImageSetupProgress
+  else
+    Info $p exists. Nothing to do.
+  fi
+
+  cd $WD
+
+  # AppImageTool
+  p=appimagetool
+  if [ ! -e bin/appimagetool ]; then
+    Info "Setting up $p for $LP3D_ARCH at $PWD..."
+    # prebuilt bin generating exec format error
+    # [ -f /dist/$p ] && cp -f /dist/$p ./bin/ || \
+    # wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O bin/${AppImage}
+    if [ -f ${LP3D_DIST_DIR_PATH}/$p ]; then
+      cp -f ${LP3D_DIST_DIR_PATH}/$p ./bin/
+      ( chmod a+x bin/$p && ./bin/$p --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
       if [ -f $p.ok ]; then
-        rm -f $p.ok
-        Info  "bin/$p linked to $lcv"
-        Info  "./$p linked to $lcv" || :
-        Info Link $p done
+        cat $p.ok && rm $p.ok
+        Info $p is runnable
+      else
+        Info Run $p FAILED
+        tail -80 $p.out
+      fi
+      ( [ ! -d aitwd ] && mkdir aitwd || : ; cd aitwd && cp ../bin/$p . && \
+        ./$p --appimage-extract ) >$p.out 2>&1 && rm -f $p.out
+      if [ ! -f $p.out ]; then
+         a=AppRun; r=runtime; k=appimagekit
+         [[ ! -d ./bin/$k && -d aitwd/squashfs-root/usr/lib/$k ]] && \
+         cp -a aitwd/squashfs-root/usr/lib/$k ./bin || :
+         [[ ! -f ./bin/$a && -f ${LP3D_DIST_DIR_PATH}/$a ]] && \
+         cp -f ${LP3D_DIST_DIR_PATH}/$a ./bin/ || :
+         [[ ! -f ./bin/$r && -f ${LP3D_DIST_DIR_PATH}/$r ]] && \
+         cp -f ${LP3D_DIST_DIR_PATH}/$r ./bin/ || :
+      fi
+      Info "Setup $p completed"
+    else
+      Error Setup $p FAILED - file was not found.
+      exit 5
+    fi
+    SaveAppImageSetupProgress
+  else
+    Info $p exists. Nothing to do.
+  fi
+
+  # lcConvert
+  p=lconvert
+  if [ ! -L ${AppDirBuildPath}/$p ]; then
+    lcv="$(which $p)"
+    Info "Linking to $p to $lcv..."
+    if [ -n "$lcv" ]; then
+      ( cd ${AppDirBuildPath} && ln -sf $lcv $p \
+      ) >$p.out 2>&1 && rm -f $p.out
+      if [ ! -f $p.out ]; then
+        Info  "${AppDirBuildPath}/$p linked to $lcv" || :
+        Info "Link $p completed"
       else
         Error Link $p FAILED
         tail -80 $p.out
         exit 5
       fi
+      SaveAppImageSetupProgress
+    else
+      Error "$p was not found"
+      exit 5
     fi
-    SaveAppImageSetupProgress
+  else
+    Info $p exists. Nothing to do.
   fi
-  chmod a+x linuxdeployqt && ./linuxdeployqt -version
-  Info "Setup linuxdeployqt completed" && Info
 fi
 
 # Build AppImage
+cd ${AppDirBuildPath}
 Info && Info "Building AppImage from AppDirBuildPath: ${AppDirBuildPath}..."
-renderers=$(find ${AppDirBuildPath}/opt -type f);
+renderers=$(find ./opt -type f);
 for r in $renderers; do executables="$executables -executable=$r" && Info "Set executable $executables"; done;
-unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
-export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
-./linuxdeployqt ${AppDirBuildPath}/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-./linuxdeployqt ${AppDirBuildPath}/usr/share/applications/*.desktop -appimage -verbose=2
+unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH; # no longer needed, superceded by AppRun
+export VERSION="$LP3D_VERSION"    # used to construct the file name
+./linuxdeployqt ./usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
+if [[ -z "${LP3D_BUILD_AI_TOOLS}" && ("$LP3D_ARCH" = "amd64" || "$LP3D_ARCH" = "x86_64") ]]; then
+  ./linuxdeployqt ./usr/share/applications/*.desktop -appimage -verbose=2
+  AppImage=$(ls LPub3D*.AppImage)  # name with full path
+elif [[ -n "${LP3D_BUILD_AI_TOOLS}" || "$LP3D_ARCH" = "arm64" || "$LP3D_ARCH" = "aarch64" || "$LP3D_QEMU" = "true" ]]; then
+  # lpub3d.desktop
+  [ -f "./usr/share/applications/lpub3d.desktop" ] && \
+  cp -f ./usr/share/applications/lpub3d.desktop . || \
+  Error "./usr/share/applications/lpub3d.desktop was not found"
+
+  # lpub3d.png and .DirIcon
+  [ -f "./usr/share/icons/hicolor/128x128/apps/lpub3d.png" ] && \
+  cp -f ./usr/share/icons/hicolor/128x128/apps/lpub3d.png . && \
+  ln -sf ./usr/share/icons/hicolor/128x128/apps/lpub3d.png .DirIcon || \
+  Error "./usr/share/icons/hicolor/128x128/apps/lpub3d.png was not found"
+
+  # libffi
+  if [ ! -f "./usr/lib/libffi.so.6" ]; then
+    [ ! -d "./usr/lib/" ] && mkdir -p ./usr/lib || :
+    # libffi is a runtime dynamic dependency
+    # see this thread for more information on the topic:
+    # https://mail.gnome.org/archives/gtk-devel-list/2012-July/msg00062.html
+    if [[ "$LP3D_ARCH" == "amd64" || "$LP3D_ARCH" == "x86_64" ]]; then
+      cp "$(ldconfig -p | grep libffi.so.6 | grep x86-64 | cut -d'>' -f2 | tr -d ' ')" ./usr/lib/
+    elif [[ "$LP3D_ARCH" == "amd32" || "$LP3D_ARCH" == "i686" ]]; then
+      cp "$(ldconfig -p | grep libffi.so.6 | head -n1 | cut -d'>' -f2 | tr -d ' ')" ./usr/lib/
+    elif [[ "$LP3D_ARCH" == "arm32" || "$LP3D_ARCH" == "armhf" ]]; then
+      cp "$(ldconfig -p | grep libffi.so.6 | grep arm | grep hf | cut -d'>' -f2 | tr -d ' ')" ./usr/lib/
+    elif [[ "$LP3D_ARCH" == "arm64" || "$LP3D_ARCH" == "aarch64" ]]; then
+      cp "$(ldconfig -p | grep libffi.so.6 | grep aarch64 | cut -d'>' -f2 | tr -d ' ')" ./usr/lib/
+    else
+      Error "WARNING: unknown architecture, not bundling libffi"
+    fi
+  fi
+
+  cd $WD
+
+  # AppRun
+  a=AppRun
+  if [ -f "./bin/$a" ]; then
+   ( cp -f ./bin/$a ${AppDirBuildPath}/usr/bin/ && \
+     cd ${AppDirBuildPath} && ln -sf ./usr/bin/$a $a \
+   ) >$a.out 2>&1 && rm -f $a.out
+   if [ -f $a.out ]; then
+     Error Copy and link $p FAILED
+     tail -80 $p.out
+   fi
+  else
+    Error "File ./bin/$a was not found"
+  fi
+
+  # make AppImage
+  AppImage=LPub3D-${LP3D_VERSION}-$(uname -m).AppImage  # name without path
+  if [ -f "./bin/appimagekit/mksquashfs" ]; then
+    p=${AppImage}
+    ( chmod a+x ./bin/appimagekit/mksquashfs && \
+     ./bin/appimagekit/mksquashfs AppDir squashfs-root -root-owned -noappend \
+    ) >$p.out 2>&1 && rm -f $p.out
+    if [ ! -f $p.out ]; then
+      AppImage=${WD}/${AppImage} # name with full path
+      cat ./bin/runtime >> $p
+      cat squashfs-root >> $p
+    else
+      Error Run Squashfs for $p FAILED
+      tail -80 $p.out
+      exit 5
+    fi
+  else
+    Error "./bin/appimagekit/mksquashfs was not found"
+    exit 7
+  fi
+fi
+
 Info && Info "AppImage Dynamic Library Dependencies:" && \
-find ${AppDirBuildPath} -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
-AppImage=$(ls LPub3D*.AppImage)
+find ./ -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
+
 if [ -f "${AppImage}" ]; then
   chmod a+x ${AppImage}
   if [[ ("$LP3D_ARCH" = "arm64" || "$LP3D_ARCH" = "aarch64") && -z "$LP3D_AI_MAGIC_BYTES" ]]; then
@@ -418,7 +573,7 @@ if [ -f "${AppImage}" ]; then
     AppImageMagicBytes="$(hexdump -Cv ${AppImage} | head -n 1 | grep '41 49 02 00')"
     if [ -n "${AppImageMagicBytes}" ]; then
       ( ${AppImage} --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
-      if [ ! -f $p.ok ]; then
+      if [ -f $p.out ]; then
         Info "AppImage magic bytes: ${AppImageMagicBytes}"
         Info "Patching AppImage magic bytes..."
         dd if=/dev/zero of="${AppImage}" bs=1 count=3 seek=8 conv=notrunc
@@ -426,8 +581,7 @@ if [ -f "${AppImage}" ]; then
           Info "Magic bytes patched: $(hexdump -Cv ${AppImage} | head -n 1)"
           ( ${AppImage} --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
           if [ -f $p.ok ]; then
-            cat $p.ok
-            rm -f $p.ok
+            cat $p.ok && rm $p.ok
             Info "${AppImage} is runnable"
           else
             Error "Run AppImage FAILED"
@@ -440,8 +594,7 @@ if [ -f "${AppImage}" ]; then
           exit 7
         fi
       else
-        cat $p.ok
-        rm -f $p.ok
+        cat $p.ok && rm $p.ok
         Info "${AppImage} is runnable"
       fi
     else
@@ -449,8 +602,7 @@ if [ -f "${AppImage}" ]; then
       hexdump -Cv ${AppImage} | head -n 3
       ( ${AppImage} --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
       if [ -f $p.ok ]; then
-        cat $p.ok
-        rm -f $p.ok
+        cat $p.ok && rm $p.ok
         Info "${AppImage} is runnable"
       else
         Error "Run AppImage FAILED"
@@ -458,15 +610,29 @@ if [ -f "${AppImage}" ]; then
         exit 7
       fi
     fi
+  else
+    ( ${AppImage} --appimage-version ) >$p.out 2>&1 && mv $p.out $p.ok
+    if [ -f $p.ok ]; then
+      cat $p.ok && rm $p.ok
+      Info "${AppImage} is runnable"
+    else
+      Error "Run AppImage FAILED"
+      tail -80 $p.out
+      exit 7
+    fi
   fi
+
+  # Rename AppImage and move to $PWD
   AppImageExtension=${AppImage##*-}
   mv -f ${AppImage} "LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}"
+
+  # Crete AppImage sha512 file
   AppImage=LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}
   Info "Creating hash file for ${AppImage}..."
   sha512sum "${AppImage}" > "${AppImage}.sha512" || \
   Error "Failed to create hash file ${AppImage}.sha512"
   Info "Application package....: ${AppImage}"
-  echo "Package path...........: ${PWD}/${AppImage}"
+  Info "Package path...........: ${PWD}/${AppImage}"
   if [ -f "${AppImage}.sha512" ]; then
     Info "AppImage build completed successfully."
   else
@@ -477,18 +643,35 @@ else
   exit 8
 fi
 
+cd $WD
+
 # Check AppImage build
-AppImage=$(find ${AppDirBuildPath}/ -name LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension} -type f)
+AppImage=$(find ./ -name LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension} -type f)
 if [ -f "${AppImage}" ]; then
-  cd ${BUILD_DIR}
-  export SOURCE_DIR=$PWD
+  export SOURCE_DIR=${WD}
   export LP3D_BUILD_OS="appimage"
   export LP3D_CHECK_STATUS="--version --app-paths"
-  Info "Build check LPub3D.AppImage bundle..."
   mkdir -p appImage_Check && cp -f ${AppImage} appImage_Check/ && \
   Info "$(ls ./appImage_Check/*.AppImage) copied to check folder."
-  export LPUB3D_EXE="appImage_Check/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}"
-  set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
+  set +x
+  if [[ "$LP3D_QEMU" = "true" || -z "$(which fusermount3 &>/dev/null)" || -n "${LP3D_EXTRACT_PAYLOAD}" ]]; then
+    ( cd appImage_Check && ${AppImage} --appimage-extract ) >$p.out 2>&1 && rm -f $p.out
+    if [ ! -f $p.out ]; then
+      Info "Build check extracted LPub3D.AppImage payload..."
+      LPUB3D_EXE="appImage_Check/squashfs-root/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+    else
+      Error "Extract ${AppImage} FAILED"
+      tail -80 $p.out
+    fi
+  else
+    Info "Build check LPub3D.AppImage..."
+    LPUB3D_EXE="appImage_Check/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}"
+  fi
+  if [ -n "$LPUB3D_EXE" ]; then
+    export LPUB3D_EXE
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
+  fi
+  set -x
 else
   Error "AppImage not found, the build check cannot proceed."
   exit 8
@@ -498,7 +681,6 @@ fi
 Info "Moving AppImage build assets and logs to output folder..."
 mv -f ${AppImage}* /out/ 2>/dev/null || :
 mv -f ${AppDirBuildPath}/*.log /out/ 2>/dev/null || :
-mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
 mv -f ./*.log /out/ 2>/dev/null || :
 mv -f ~/*.log /out/ 2>/dev/null || :
 

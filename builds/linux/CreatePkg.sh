@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 29, 2021
+# Last Update July 26, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
@@ -41,7 +41,8 @@ curlopts="-sL -C -"
 
 # logging stuff - increment log file name
 f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
-f="${CWD}/${f}"
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+f="${LP3D_LOG_PATH}/${f}"
 ext=".log"
 if [[ -e "$f$ext" ]] ; then
   i=1
@@ -69,10 +70,15 @@ BUILD_DIR=$PWD
 cd ${BUILD_DIR}/upstream
 
 if [ "${TRAVIS}" != "true" ]; then
-    echo "2. download ${LPUB3D}/ to upstream/"
-    git clone https://github.com/trevorsandy/${LPUB3D}.git
+    if [ -d "/in" ]; then
+        echo "2. copy ${LPUB3D} source to upstream/..."
+        cp -rf /in/. .
+    else
+        echo "2. download ${LPUB3D} source to upstream/..."
+        git clone https://github.com/trevorsandy/${LPUB3D}.git
+    fi
 else
-    echo "2. copy source to upstream/..."
+    echo "2. copy ${LPUB3D} source to upstream/..."
     cp -rf "../../${LPUB3D}" .
 fi
 
@@ -80,6 +86,8 @@ fi
 if [ "$DOCKER" = "true" ]; then
    # Setup git command
    GIT_CMD="git --git-dir $PWD/${LPUB3D}/.git --work-tree $PWD/${LPUB3D}"
+   # Update source
+   [ "${CI}" = "true" ] && $GIT_CMD pull || :
    #1. Get the latest version tag - check across all branches
    BUILD_TAG=$($GIT_CMD describe --tags --match v* $($GIT_CMD rev-list --tags --max-count=1) 2> /dev/null)
    if [ -n "$BUILD_TAG" ]; then

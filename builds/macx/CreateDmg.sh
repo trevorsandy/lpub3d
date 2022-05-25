@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: July 09, 2021
+# Last Update: July 26, 2021
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -46,7 +46,8 @@ CWD=`pwd`
 
 # logging stuff
 # increment log file name
-f="${CWD}/$ME"
+[ -z "${LP3D_LOG_PATH}" ] && LP3D_LOG_PATH=$CWD || :
+f="${LP3D_LOG_PATH}/$ME"
 ext=".log"
 if [[ -e "$f$ext" ]] ; then
   i=1

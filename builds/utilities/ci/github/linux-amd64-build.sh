@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 19, 2021
+# Last Update July 27, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -154,6 +154,7 @@ pbEOF
 case "${docker_base}" in
     "ubuntu")
         cp -f builds/linux/obs/alldeps/debian/control .
+        cp -f builds/linux/CreateDeb.sh .
 cat << pbEOF >>${out_path}/Dockerfile
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
@@ -169,8 +170,9 @@ RUN apt-get install -y sudo \\
     && chmod 0440 /etc/sudoers.d/${name}
 WORKDIR /${name}
 USER ${name}
-VOLUME ["/buildpkg", "/dist", "/${name}/ldraw"]
+VOLUME ["/in", "/buildpkg", "/dist", "/${name}/ldraw"]
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
+ADD --chown=${name}:${name} CreateDeb.sh /${name}
 CMD /bin/bash
 pbEOF
 cat << pbEOF >${out_path}/docker-run-CMD.sh
@@ -180,9 +182,7 @@ cd ~/ \\
 && (cd debbuild && ln -sf /dist/${docker_base}_${docker_arch}/ lpub3d_linux_3rdparty) \\
 && (cd debbuild/SOURCES && cp -af /dist/*.zip .) \\
 && sudo chown -R ${name}:${name} ./debbuild/.* \\
-&& wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateDeb.sh \\
-&& chmod a+x CreateDeb.sh \\
-&& ./CreateDeb.sh \\
+&& chmod a+x CreateDeb.sh && ./CreateDeb.sh \\
 && if test -d /buildpkg; then \\
   cd ~/; \\
   ls -al ./; \\
@@ -201,6 +201,8 @@ pbEOF
         ;;
     "fedora")
         cp -f builds/linux/obs/alldeps/lpub3d.spec .
+        cp -f builds/linux/obs/lpub3d-rpmlintrc .
+        cp -f builds/linux/CreateRpm.sh .
         sed -e '/Icon: lpub3d.xpm/d' \
             -e 's/<B_CNT>/1/' -i lpub3d.spec
 cat << pbEOF >>${out_path}/Dockerfile
@@ -216,8 +218,10 @@ RUN dnf install -y sudo \\
     && chmod 0440 /etc/sudoers.d/${name}
 WORKDIR /${name}
 USER ${name}
-VOLUME ["/buildpkg", "/dist", "/${name}/ldraw"]
+VOLUME ["/in", "/buildpkg", "/dist", "/${name}/ldraw"]
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
+ADD --chown=${name}:${name} CreateRpm.sh /${name}
+ADD lpub3d-rpmlintrc /etc/rpmlint
 CMD /bin/bash
 pbEOF
 cat << pbEOF >${out_path}/docker-run-CMD.sh
@@ -228,11 +232,7 @@ cd ~/ \\
 && (cd rpmbuild/SOURCES && cp -af /dist/*.zip .) \\
 && sudo chown -R ${name}:${name} ./rpmbuild/.* \\
 && sudo ln -s //lib64/libXext.so.6.4.0 /usr/lib/libXext.so 2>/dev/null || : \\
-&& wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreateRpm.sh \\
-&& wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/obs/lpub3d-rpmlintrc \\
-&& sudo cp -af lpub3d-rpmlintrc /etc/rpmlint \\
-&& chmod a+x CreateRpm.sh \\
-&& ./CreateRpm.sh \\
+&& chmod a+x CreateRpm.sh && ./CreateRpm.sh \\
 && if test -d /buildpkg; then \\
   cd ~/; \\
   ls -al ./; \\
@@ -248,6 +248,7 @@ pbEOF
         ;;
     "archlinux")
         cp -f builds/linux/obs/alldeps/PKGBUILD .
+        cp -f builds/linux/CreatePkg.sh .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN pacman -Suy --noconfirm
 # WORKAROUND for glibc 2.33 and old Docker
@@ -267,8 +268,9 @@ RUN pacman -S --noconfirm --needed sudo \\
     && chmod 0440 /etc/sudoers.d/${name}
 WORKDIR /${name}
 USER ${name}
-VOLUME ["/buildpkg", "/dist", "/${name}/ldraw"]
+VOLUME ["/in", "/buildpkg", "/dist", "/${name}/ldraw"]
 ADD --chown=${name}:${name} docker-run-CMD.sh /${name}
+ADD --chown=${name}:${name} CreatePkg.sh /${name}
 CMD /bin/bash
 pbEOF
 cat << pbEOF >${out_path}/docker-run-CMD.sh
@@ -278,9 +280,7 @@ cd ~/ \\
 && (cd pkgbuild/src && ln -sf /dist/${docker_base}_${docker_arch}/ lpub3d_linux_3rdparty) \\
 && (cd pkgbuild && cp -af /dist/*.zip .) \\
 && sudo chown -R ${name}:${name} ./pkgbuild/.* \\
-&& wget https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/linux/CreatePkg.sh \\
-&& chmod a+x CreatePkg.sh \\
-&& ./CreatePkg.sh \\
+&& chmod a+x CreatePkg.sh && ./CreatePkg.sh \\
 && if test -d /buildpkg; then \\
   cd ~/; \\
   ls -al ./; \\
@@ -318,10 +318,15 @@ IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
 LPUB3D=${SLUG_PARTS[1]}
 
 # build docker image
+docker_build_opts=(${docker_platform})
+if [ "${DOCKER_CACHE}" = "false" ]; then
+    docker_build_opts+=(
+        --pull
+        --no-cache
+    )
+fi
 docker build --rm \
-    ${docker_platform} \
-    --pull \
-    --no-cache \
+    "${docker_build_opts[@]}" \
     -f Dockerfile \
     -t ${docker_image} .
 
@@ -330,7 +335,8 @@ common_docker_opts+=(
     -e CI="${CI}"
     -e GITHUB="${GITHUB}"
     -e LPUB3D="${LPUB3D}"
-    -e DOCKER="${DOCKER:-true}"
+    -e DOCKER="true"
+    -v "${PWD}":/in
     -v "${out_path}":/buildpkg
     -v "${dist_path}":/dist
     -v "${ldraw_path}":/${name}/ldraw
