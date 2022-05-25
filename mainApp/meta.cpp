@@ -1672,7 +1672,7 @@ QString PointerAttribMeta::format(bool local, bool global)
     case PointerAttribData::Border:
         foo = QString("BORDER %1")
                      .arg(LineTypeNames[_value[pushed].borderData.line]);
-        if (_value[pushed].borderData.color[0] == "#")
+        if (_value[pushed].borderData.color[0] == '#')
             foo += QString(" COLOR %1")
                      .arg(_value[pushed].borderData.color);
         else
