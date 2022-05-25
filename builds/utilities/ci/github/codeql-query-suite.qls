@@ -1,0 +1,15 @@
+# LPub3D CodeQL query suite configuration
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: July 24, 2021
+# Copyright (c) 2021 by Trevor SANDY
+#
+- description: LPub3D security-and-quality queries for C and C++
+- qlpack: codeql-cpp
+- apply: security-and-quality-selectors.yml
+  from: codeql-suite-helpers
+- apply: codeql-suites/exclude-slow-queries.yml
+  from: codeql-cpp
+- exclude:
+    query path: 
+      - jsf/4.10 Classes/AV Rule 97.ql     # Note: No raw arrays in interfaces
+      - Documentation/CommentedOutCode.ql  # Note: Commented-out code

@@ -1,0 +1,65 @@
+# LPub3D security and quality analysis
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: July 24, 2021
+# Copyright (c) 2021 by Trevor SANDY
+#
+name: CodeQL
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: 
+      - 'builds/**'
+      - 'mainApp/docs/**'
+      - 'mainApp/extras/**'
+      - 'mainApp/resources/**'
+      - 'lclib/docs/**'
+      - 'lclib/resources/**'
+      - 'ldvlib/LDVQt/resources/**'
+      - 'qsimpleupdater/doc/**'      
+      - 'qsimpleupdater/etc/**'
+
+jobs:
+  analyze:
+    #if: ${{ false }} # suspend job
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Paths
+        run: |
+          echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
+          echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+      - name: Cache
+        id: cache-third-party
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LP3D_3RD_PARTY_PATH }}
+          key: third-party-analyze-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Renderers
+        run: |
+          bash -ex builds/utilities/ci/github/linux-compile.sh
+          test -d ${{ env.LP3D_3RD_PARTY_PATH }} && ls -aldFR ${{ env.LP3D_3RD_PARTY_PATH }} || true
+      - name: Initialize
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+          config-file: builds/utilities/ci/github/codeql-config.yml              
+      - name: Compile
+        run: bash -ex builds/utilities/ci/github/linux-compile.sh
+        env: 
+          LP3D_ANALYZE: 1          
+      - name: Diagnostics
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: compile-logs
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/
+      - name: Analysis
+        uses: github/codeql-action/analyze@v1
