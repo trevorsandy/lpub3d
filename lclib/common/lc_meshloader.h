@@ -4,8 +4,8 @@
 #include "lc_math.h"
 #include "lc_mesh.h"
 
-#define LC_LIBRARY_VERTEX_UNTEXTURED 0x1
-#define LC_LIBRARY_VERTEX_TEXTURED   0x2
+class lcLibraryMeshData;
+class lcMeshLoader;
 
 enum lcMeshDataType
 {
@@ -20,8 +20,13 @@ struct lcMeshLoaderVertex
 	lcVector3 Position;
 	lcVector3 Normal;
 	float NormalWeight;
-	lcVector2 TexCoord;
-	quint32 Usage;
+};
+
+struct lcMeshLoaderTexturedVertex
+{
+	lcVector3 Position;
+	lcVector3 Normal;
+	lcVector2 TexCoords;
 };
 
 struct lcMeshLoaderConditionalVertex
@@ -29,68 +34,63 @@ struct lcMeshLoaderConditionalVertex
 	lcVector3 Position[4];
 };
 
-class lcMeshLoaderSection
+enum class lcMeshLoaderMaterialType
 {
-public:
-	lcMeshLoaderSection(lcMeshPrimitiveType PrimitiveType, quint32 Color, lcTexture* Texture)
-		: mIndices(1024, 1024)
-	{
-		mPrimitiveType = PrimitiveType;
-		mColor = Color;
-		mTexture = Texture;
-	}
-
-	lcMeshPrimitiveType mPrimitiveType;
-	quint32 mColor;
-	lcTexture* mTexture;
-	lcArray<quint32> mIndices;
-};
-
-enum class lcMeshLoaderTextureMapType
-{
+	Solid,
 	Planar,
 	Cylindrical,
 	Spherical
 };
 
+struct lcMeshLoaderMaterial
+{
+	lcMeshLoaderMaterialType Type = lcMeshLoaderMaterialType::Solid;
+	quint32 Color = 16;
+	lcVector3 Points[3] = {};
+	float Angles[2] = {};
+	char Name[256] = {};
+};
+
+class lcMeshLoaderSection
+{
+public:
+	lcMeshLoaderSection(lcMeshPrimitiveType PrimitiveType, lcMeshLoaderMaterial* Material)
+		: mMaterial(Material), mPrimitiveType(PrimitiveType), mIndices(1024, 1024)
+	{
+	}
+
+	lcMeshLoaderMaterial* mMaterial;
+	lcMeshPrimitiveType mPrimitiveType;
+	lcArray<quint32> mIndices;
+};
+
+struct lcMeshLoaderFinalSection
+{
+	quint32 Color;
+	lcMeshPrimitiveType PrimitiveType;
+	char Name[256];
+};
+
 struct lcMeshLoaderTextureMap
 {
-	lcTexture* Texture;
-
 	union lcTextureMapParams
 	{
 		lcTextureMapParams()
 		{
 		}
 
-		struct lcTextureMapPlanarParams
-		{
-			lcVector4 Planes[2];
-		} Planar;
-
-		struct lcTextureMapCylindricalParams
-		{
-			lcVector4 FrontPlane;
-			float UpLength;
-			lcVector4 Plane1;
-			lcVector4 Plane2;
-			float Angle;
-		} Cylindrical;
-
 		struct lcTextureMapSphericalParams
 		{
-			lcVector4 FrontPlane;
-			lcVector3 Center;
-			lcVector4 Plane1;
-			lcVector4 Plane2;
-			float Angle1;
-			float Angle2;
 		} Spherical;
 	} Params;
 
-	lcMeshLoaderTextureMapType Type;
-	bool Fallback;
-	bool Next;
+	lcMeshLoaderMaterialType Type;
+	lcVector3 Points[3];
+	float Angles[2];
+	char Name[LC_MAXPATH];
+
+	bool Fallback = false;
+	bool Next = false;
 };
 
 class lcMeshLoaderTypeData
@@ -117,16 +117,18 @@ public:
 		mConditionalVertices.RemoveAll();
 	}
 
-	lcMeshLoaderSection* AddSection(lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, lcTexture* Texture);
+	void SetMeshData(lcLibraryMeshData* MeshData)
+	{
+		mMeshData = MeshData;
+	}
+
+	lcMeshLoaderSection* AddSection(lcMeshPrimitiveType PrimitiveType, lcMeshLoaderMaterial* Material);
 
 	quint32 AddVertex(const lcVector3& Position, bool Optimize);
 	quint32 AddVertex(const lcVector3& Position, const lcVector3& Normal, bool Optimize);
-	quint32 AddTexturedVertex(const lcVector3& Position, const lcVector2& TexCoord, bool Optimize);
-	quint32 AddTexturedVertex(const lcVector3& Position, const lcVector3& Normal, const lcVector2& TexCoord, bool Optimize);
 	quint32 AddConditionalVertex(const lcVector3 (&Position)[4]);
 
-	void ProcessLine(int LineType, quint32 ColorCode, bool WindingCCW, lcVector3 (&Vertices)[4], bool Optimize);
-	void ProcessTexturedLine(int LineType, quint32 ColorCode, bool WindingCCW, const lcMeshLoaderTextureMap& Map, const lcVector3* Vertices, bool Optimize);
+	void ProcessLine(int LineType, lcMeshLoaderMaterial* Material, bool WindingCCW, lcVector3 (&Vertices)[4], bool Optimize);
 
 	void AddMeshData(const lcMeshLoaderTypeData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap);
 	void AddMeshDataNoDuplicateCheck(const lcMeshLoaderTypeData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap);
@@ -134,6 +136,9 @@ public:
 	std::vector<std::unique_ptr<lcMeshLoaderSection>> mSections;
 	lcArray<lcMeshLoaderVertex> mVertices;
 	lcArray<lcMeshLoaderConditionalVertex> mConditionalVertices;
+
+protected:
+	lcLibraryMeshData* mMeshData = nullptr;
 };
 
 class lcLibraryMeshData
@@ -143,6 +148,9 @@ public:
 	{
 		mHasTextures = false;
 		mHasStyleStud = false;
+
+		for (lcMeshLoaderTypeData& Data : mData)
+			Data.SetMeshData(this);
 	}
 
 	lcLibraryMeshData(const lcLibraryMeshData&) = delete;
@@ -166,17 +174,38 @@ public:
 		mHasStyleStud = false;
 	}
 
+	void SetMeshLoader(lcMeshLoader* MeshLoader)
+	{
+		mMeshLoader = MeshLoader;
+	}
+
 	lcMesh* CreateMesh();
 	void AddVertices(lcMeshDataType MeshDataType, int VertexCount, int* BaseVertex, lcMeshLoaderVertex** VertexBuffer);
 	void AddIndices(lcMeshDataType MeshDataType, lcMeshPrimitiveType PrimitiveType, quint32 ColorCode, int IndexCount, quint32** IndexBuffer);
 	void AddMeshData(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
 	void AddMeshDataNoDuplicateCheck(const lcLibraryMeshData& Data, const lcMatrix44& Transform, quint32 CurrentColorCode, bool InvertWinding, bool InvertNormals, lcMeshLoaderTextureMap* TextureMap, lcMeshDataType OverrideDestIndex);
 
+	lcMeshLoaderMaterial* GetMaterial(quint32 ColorCode);
+	lcMeshLoaderMaterial* GetTexturedMaterial(quint32 ColorCode, const lcMeshLoaderTextureMap& TextureMap);
+
 	std::array<lcMeshLoaderTypeData, LC_NUM_MESHDATA_TYPES> mData;
 	bool mHasTextures;
 	bool mHasStyleStud;
 
 protected:
+	lcMeshLoader* mMeshLoader = nullptr;
+	std::vector<std::unique_ptr<lcMeshLoaderMaterial>> mMaterials;
+	lcArray<lcMeshLoaderTexturedVertex> mTexturedVertices;
+
+	void GenerateTexturedVertices();
+	void GeneratePlanarTexcoords(lcMeshLoaderSection* Section, const lcMeshLoaderTypeData& Data);
+	void GenerateCylindricalTexcoords(lcMeshLoaderSection* Section, const lcMeshLoaderTypeData& Data);
+	void GenerateSphericalTexcoords(lcMeshLoaderSection* Section, const lcMeshLoaderTypeData& Data);
+	quint32 AddTexturedVertex(const lcVector3& Position, const lcVector3& Normal, const lcVector2& TexCoords);
+
+	template<typename IndexType>
+	void WriteSections(lcMesh* Mesh, const lcArray<lcMeshLoaderFinalSection> (&FinalSections)[LC_NUM_MESH_LODS], int (&BaseVertices)[LC_NUM_MESHDATA_TYPES], int (&BaseTexturedVertices)[LC_NUM_MESHDATA_TYPES], int (&BaseConditionalVertices)[LC_NUM_MESHDATA_TYPES]);
+
 	static void UpdateMeshBoundingBox(lcMesh* Mesh);
 	template<typename IndexType>
 	static void UpdateMeshSectionBoundingBox(lcMesh* Mesh, lcMeshSection& Section, lcVector3& SectionMin, lcVector3& SectionMax);
@@ -189,11 +218,14 @@ public:
 
 	bool LoadMesh(lcFile& File, lcMeshDataType MeshDataType);
 
+	Project* mCurrentProject;
+	bool mSearchProjectFolder;
+
 protected:
-	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, quint32 CurrentColorCode, bool InvertWinding, lcArray<lcMeshLoaderTextureMap>& TextureStack, lcMeshDataType MeshDataType);
+	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, quint32 CurrentColorCode, bool InvertWinding, lcMeshDataType MeshDataType);
+
+	std::vector<lcMeshLoaderTextureMap> mTextureStack;
 
 	lcLibraryMeshData& mMeshData;
 	bool mOptimize;
-	Project* mCurrentProject;
-	bool mSearchProjectFolder;
 };

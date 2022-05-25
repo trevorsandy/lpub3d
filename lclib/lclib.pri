@@ -40,6 +40,7 @@ HEADERS += \
     $$PWD/common/lc_texture.h \
     $$PWD/common/lc_timelinewidget.h \
     $$PWD/common/lc_view.h \
+    $$PWD/common/lc_viewmanipulator.h \
     $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_viewwidget.h \
     $$PWD/common/lc_zipfile.h \
@@ -106,6 +107,7 @@ SOURCES += \
     $$PWD/common/lc_texture.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_view.cpp \
+    $$PWD/common/lc_viewmanipulator.cpp \
     $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_viewwidget.cpp \
     $$PWD/common/lc_zipfile.cpp \

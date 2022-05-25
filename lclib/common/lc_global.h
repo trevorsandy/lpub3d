@@ -55,11 +55,11 @@ char* strupr(char* string);
 
 // Version number.
 #define LC_VERSION_MAJOR 21
-#define LC_VERSION_MINOR 03
+#define LC_VERSION_MINOR 06
 #define LC_VERSION_PATCH 0
-#define LC_VERSION_TEXT "21.03"
+#define LC_VERSION_TEXT "21.06"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "ccd9904"
+#define LC_VERSION_SHA "bd709b4"
 /*** LPub3D Mod end ***/
 
 
@@ -101,8 +101,11 @@ struct lcRenderMesh;
 struct lcObjectSection;
 class lcTexture;
 class lcScene;
+class lcViewManipulator;
 class lcViewSphere;
 enum class lcRenderMeshState : int;
+enum class lcTrackTool;
+enum class lcTrackButton;
 
 class lcFile;
 class lcMemFile;

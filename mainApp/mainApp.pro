@@ -193,7 +193,7 @@ CONFIG(debug, debug|release) {
     win32 {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd11
-        LC_LIB = LCd213
+        LC_LIB = LCd216
         LDVQT_LIB = LDVQtd44
         WPNGIMAGE_LIB = WPngImaged14
         WAITING_SPINNER_LIB = WaitingSpinnerd10
@@ -237,7 +237,7 @@ CONFIG(debug, debug|release) {
     win32 {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP11
-        LC_LIB = LC213
+        LC_LIB = LC216
         LDVQT_LIB = LDVQt44
         WPNGIMAGE_LIB = WPngImage14
         WAITING_SPINNER_LIB = WaitingSpinner10

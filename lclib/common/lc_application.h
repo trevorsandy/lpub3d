@@ -21,6 +21,20 @@ enum class lcShadingMode
 	Full
 };
 
+enum class lcColorTheme
+{
+	Dark,
+	System
+};
+
+enum class lcAxisIconLocation
+{
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
+};
+
 /*** LPub3D Mod - preview widget for LPub3D ***/
 enum class lcPreviewLocation
 {
@@ -38,12 +52,6 @@ enum class lcPreviewPosition
 };
 /*** LPub3D Mod end ***/
 
-enum class lcColorTheme
-{
-	Dark,
-	System
-};
-
 class lcPreferences
 {
 public:
@@ -58,6 +66,7 @@ public:
 	quint32 mBackgroundGradientColorTop;
 	quint32 mBackgroundGradientColorBottom;
 	bool mDrawAxes;
+	lcAxisIconLocation mAxisIconLocation;
 	quint32 mAxesColor;
 	quint32 mTextColor;
 	quint32 mMarqueeBorderColor;
