@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 01, 2021
+# Last Update June 06, 2021
 # Copyright (c) 2016 - 2021 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -425,9 +425,11 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        sed -i "" -e "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" \
+                  -e "s/^    source-commit:.*/    source-commit: $(git rev-parse ${LP3D_VER_SHA_HASH})/" "${FILE}"
     else
-        sed -i "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        sed -i -e "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" \
+               -e "s/^    source-commit:.*/    source-commit: $(git rev-parse ${LP3D_VER_SHA_HASH})/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

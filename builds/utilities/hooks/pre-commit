@@ -61,8 +61,8 @@ update_config_files=no
 
 if test x"$update_config_files" = x"yes" && \
   test x"$(git diff HEAD --name-only)" != x""; then
-  tag_long=`git describe --tags --long`
-  tag_short=`git describe --tags --abbrev=0`
+  tag_long=`git describe --tags --match v* --long`
+  tag_short=`git describe --tags --match v* --abbrev=0`
   commit_count=`git rev-list HEAD --count`
   sha_hash_short=`git rev-parse --short HEAD`
 
