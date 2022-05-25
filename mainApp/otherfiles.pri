@@ -65,8 +65,12 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/ci/travis/prepare_store \
 ../builds/utilities/ci/travis/releases \
 ../builds/utilities/ci/travis/script \
-../builds/utilities/ci/github/multiarch-build.sh \
-../builds/utilities/ci/github/build-binaries-and-appimage.sh \
+../builds/utilities/ci/github/linux-amd64-build.sh \
+../builds/utilities/ci/github/linux-build.sh \
+../builds/utilities/ci/github/build-deploy.sh \
+../builds/utilities/ci/github/linux-multiarch-build.sh \
+../builds/utilities/ci/github/macos-build.sh \
+../builds/utilities/ci/github/windows-build.bat \
 ../builds/utilities/cleanup.bat \
 ../builds/utilities/Copyright-Source-Header.txt \
 ../builds/utilities/create-dmg \

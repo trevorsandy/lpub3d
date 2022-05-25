@@ -1,4 +1,4 @@
-# If there is no version tag in git this one will be used
+# If no version info can be determined, VERSION (in LP3D_VERSION_INFO format) will be used
 VERSION = continuous.4.2787
 
 # Need to discard STDERR so get path to NULL device
@@ -49,15 +49,21 @@ equals(GIT_DIR, undefined) {
         if(isEmpty(GIT_SHA)|equals(GIT_DIR_ENV, SNAP)|equals(GIT_DIR_ENV, FLATPAK)) {
             USE_GIT_VER_FILE = true
         } else {
-            message("~~~ ALERT! GIT TAG NOT DEFINED, USING HEAD $$GIT_VERSION ~~~")
+            VERSION_INFO_VAR = $$(LP3D_VERSION_INFO)
+            !isEmpty(VERSION_INFO_VAR) {
+                USE_VERSION_INFO_VAR = true
+                message("~~~ ALERT! GIT TAG NOT DEFINED, USING LP3D_VERSION_INFO $$VERSION_INFO_VAR ~~~")
+            } else {
+                message("~~~ ALERT! GIT TAG NOT DEFINED, USING HEAD $$GIT_VERSION ~~~")
+            }
         }
     }
 
-    !equals(USE_GIT_VER_FILE, true) {
+    !equals(USE_GIT_VER_FILE, true):!equals(USE_VERSION_INFO_VAR, true) {
         # Get commit count
         GIT_COMMIT = $$system($$GIT_BASE_COMMAND rev-list --count HEAD 2> $$NULL_DEVICE)
         isEmpty(GIT_COMMIT) {
-            GIT_COMMIT = 
+            GIT_COMMIT = 2623
             message("~~~ ERROR! GIT_COMMIT NOT DEFINED, USING $$GIT_COMMIT ~~~")
         }
 
@@ -95,17 +101,21 @@ equals(GIT_DIR, undefined) {
     VER_BASE_NAME = $$basename(GIT_BASE_NAME)
 }
 
-equals(USE_GIT_VER_FILE, true) {
-    GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
+if (equals(USE_GIT_VER_FILE, true)|equals(USE_VERSION_INFO_VAR, true)) {
+    equals(USE_GIT_VER_FILE, true) {
+        GIT_VER_FILE = $$system_path($$PWD/builds/utilities/version.info)
 
-    exists($$GIT_VER_FILE) {
-        message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
-        GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
-    } else {
-        message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
-        GIT_VERSION = $${VERSION}.52.2839.c6d2c192
-        message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
-        GIT_VERSION ~= s/\./" "
+        exists($$GIT_VER_FILE) {
+            message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION_INFO FILE] $$GIT_VER_FILE ~~~")
+            GIT_VERSION = $$cat($$GIT_VER_FILE, lines)
+        } else {
+            message("~~~ ERROR! $$GIT_DIR_ENV VERSION_INFO FILE $$GIT_VER_FILE NOT FOUND ~~~")
+            GIT_VERSION = $${VERSION}.1.2623.ee4222f8
+            message("~~~ GIT_DIR [$$GIT_DIR_ENV, USING VERSION] $$GIT_VERSION ~~~")
+            GIT_VERSION ~= s/\./" "
+        }
+    } else: equals(USE_VERSION_INFO_VAR, true) {
+        GIT_VERSION = $$VERSION_INFO_VAR
     }
 
     # Token position   0 1 2 3 4    5       [6]
@@ -136,16 +146,15 @@ win32 {
 #message(~~~ DEBUG ~~ BUILD_DATE: $$BUILD_DATE) # output the current date
 #message(~~~ DEBUG ~~ BUILD_TIME: $$BUILD_TIME) # output the current time
 
-# Separate the date into day month, year
-appveyor_ci {
-    # AppVeyor CI uses date format 'Day MM/DD/YY'
-    message("~~~ USING APPVEYOR WINDOWS DATE FORMAT ~~~")
+# Separate the date into 'DD/MM/YYYY' format
+if (github_ci | appveyor_ci) {
+    message("~~~ BUILD DATE 'Day MM/DD/YYYY': $$BUILD_DATE ~~~")
     BUILD_DATE ~= s/[\sA-Za-z\s]/""
     DATE_MM = $$section(BUILD_DATE, /, 0, 0)
     DATE_DD = $$section(BUILD_DATE, /, 1, 1)
     DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 } else {
-    message("~~~ BUILD DATE: $$BUILD_DATE ~~~")
+    message("~~~ BUILD DATE 'DD/MM/YYYY': $$BUILD_DATE ~~~")
     DATE_DD = $$section(BUILD_DATE, /, 0, 0)
     DATE_DD = $$last(DATE_DD)
     DATE_MM = $$section(BUILD_DATE, /, 1, 1)

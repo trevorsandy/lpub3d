@@ -1,112 +1,174 @@
-# Build and check LPub3D AppImage on Ubuntu amd64 and arm64
+# Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 01, 2021
+# Last Update: July 07, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
-name: Build
+name: Builds
 
-# When the action will run.
 on:
-  # Run workflow manually from the Actions tab
+  push:
+    branches: [ master ]
   workflow_dispatch:
 
-# Workflow run made with build and deploy jobs
 jobs:
-  # The build job
-  build:
-    # The job runner
+  build-linux:
+    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
+    #if: ${{ false }} # suspend
+    name: Build Linux
     runs-on: ubuntu-latest
-    # The job matrix
     strategy:
       fail-fast: false
-      matrix:
-        ARCH: ['x86_64', 'aarch64']
-
-    # Build job environment variables
-    env:
-      ARCH: ${{ matrix.ARCH }}
-
-    # Step tasks that will be executed as part of the build job
+      matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
+        BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-
-      - name: Cache dependencies
-        id: cache-dependencies
-        uses: actions/cache@v1
-        with:
-          path: |
-             ${{ github.workspace }}/../third-party
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
-
-      # Login to Docker Hub using the runers shell
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
-      # Setup QEMU multiarch environment using the runners shell
-      - name: Set up QEMU integration for Docker
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-
-      - name: Build
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Artifact Path
         run: |
-          bash -ex builds/utilities/ci/github/multiarch-build.sh
-
-      - name: List files
-        run: |
-         ls -lh out/
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1.0.0
+          echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
+          echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
+          echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+      - name: Cache Third-party
+        id: cache-third-party
+        uses: actions/cache@v2
         with:
-          # Artifact name
-          name: LPub3D*.AppImage*
-          path: out/
+          path: ${{ env.LP3D_3RD_PARTY_PATH }}
+          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Build ${{ matrix.BUILD }}
+        run: bash -ex builds/utilities/ci/github/linux-build.sh
+        env:
+          BUILD: ${{ matrix.BUILD }}
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      - name: List Artifacts
+        run: ls -alFR ${{ env.LP3D_BUILDPKG_PATH }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.BUILD }}-download
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/*
 
+  build-macos:
+    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
+    #if: ${{ false }} # suspend
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Artifact path
+        run: |
+          echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
+          echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
+          echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+      - name: Cache Third-party
+        id: cache-third-party
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LP3D_3RD_PARTY_PATH }}
+          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Buil macOS
+        run: bash -ex builds/utilities/ci/github/macos-build.sh
+      - name: List Artifacts
+        run:  ls -alFR ${{ env.LP3D_BUILDPKG_PATH }}
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-download
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/*
 
-  upload:
+  build-windows:
+    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
+    #if: ${{ false }} # suspend
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Artifact Path
+        run: |
+          echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "LP3D_3RD_PARTY_PATH=$(Join-Path (resolve-path ..\) 'third_party')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LP3D_BUILD_BASE }}\Qt
+          key: qt-windows-${{ env.QT_CACHE }}
+      - name: Cache Third-party # distribution folder
+        id: cache-third-party
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.LP3D_3RD_PARTY_PATH }}
+          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+      - name: Windows 8.1 SDK
+        run: |
+          Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
+          Start-Process -Wait sdksetup.exe -ArgumentList "/q", "/norestart", "/features", "OptionId.WindowsDesktopSoftwareDevelopmentKit", "OptionId.NetFxSoftwareDevelopmentKit"
+        shell: powershell
+      - name: Qt MSVC 2019 64bit # path: ..\Qt\5.15.2\msvc2019_64\bin
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+          host: windows
+          arch: win64_msvc2019_64
+          dir: ${{ env.LP3D_BUILD_BASE }}
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Qt MSVC 2019 32bit # path: ..\Qt\5.15.2\msvc2019\bin
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+          host: windows
+          arch: win32_msvc2019
+          dir: ${{ env.LP3D_BUILD_BASE }}
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Build Windows
+        run: .\builds\utilities\ci\github\windows-build.bat
+        shell: cmd
+      - name: List Artifacts
+        run: Get-ChildItem -Path ${{ env.LP3D_BUILDPKG_PATH }} –Recurse
+      - name: Upload Update Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: updates
+          path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\*
+      - name: Upload Download Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-download
+          path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\*
 
-    env:
-      LP3D_RELEASE_DESCRIPTION: "LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-
-    name: Create release and upload artifacts
-    needs:
-      - build
+  build-deploy:
+    if: "!contains(github.event.head_commit.message, 'SKIP_DEPLOY')"
+    # if: ${{ false }} # disable for now
+    name: Publish Assets
+    needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest
     steps:
-      - name: Set current date as env variable
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Assets Path
         run: |
-          echo "NOW::LPub3D $(date +'%Y-%m-%dT%H:%M:%S')" >> $LP3D_RELEASE_LABEL
-          echo "LP3D_RELEASE_LABEL       $LP3D_RELEASE_LABEL"
-          echo "LP3D_RELEASE_DESCRIPTION $LP3D_RELEASE_DESCRIPTION"
-      - name: Download artificts
+          echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
+          echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
+      - name: Download Artifacts
         uses: actions/download-artifact@v2
-      - name: Inspect directory after downloading artifacts
+        with: # omit 'with: name:' to download all artifacts
+          path: ${{ env.LP3D_BUILD_ASSETS }}
+      - name: List Assets
         run: ls -alFR
-      - name: Create release and upload artifacts
+        working-directory: ${{ env.LP3D_BUILD_ASSETS }}
+      - name: Deploy Assets
+        run: bash -ex builds/utilities/ci/github/build-deploy.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GHIHUB_TOKEN }}
-        run: |
-          curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
-          export LP3D_GREP_PATH=grep;
-          export LP3D_REMOTE=$(${LP3D_GREP_PATH} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
-          export LP3D_LOCAL=$(git rev-parse HEAD)
-          if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then echo "Build no longer current. $LP3D_REMOTE vs $LP3D_LOCAL - aborting upload."; exit 0; fi
-          wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-          if [ -f upload.sh -a -r upload.sh ]; then
-            IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
-            LP3D_GIT_VER_TAG_LONG=$(git describe --tags --match v* --long); LP3D_VER_TMP=${LP3D_GIT_VER_TAG_LONG#*-}; LP3D_VER_REVISION=${LP3D_VER_TMP%-*}
-            [ "${LP3D_SLUGS[1]}" != "lpub3d" ] && LP3D_TITLE="Build" || [ "${LP3D_SLUGS[1]}" = "lpub3dnext" ] && LP3D_TITLE="Next Build" || LP3D_TITLE="DevOps Build"
-            LP3D_RELEASE_LABEL="Continuous ${LP3D_TITLE:-Build} ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
-            sed -i "s/    RELEASE_TITLE=\"Continuous build\"/    RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
-          else
-            echo  "ERROR - Could not update release title in upload.sh"
-          fi
-          LP3D_RELEASE=$(find out/AppImage/ -name LPub3D*.AppImage -type f)
-          [ -f "${LP3D_RELEASE}" ] && bash upload.sh "${LP3D_RELEASE}" || echo "ERROR - ${LP3D_RELEASE} GitHub upload failed."
-          [ -f "${LP3D_RELEASE}.sha512" ] && bash upload.sh "${LP3D_RELEASE}.sha512" || echo "ERROR - ${LP3D_RELEASE}.sha512 GitHub upload failed."
+          GITHUB_TOKEN: ${{ github.token }}
+          GPG_SIGN_KEY_ALIAS: ${{ secrets.GPG_SIGN_KEY_ALIAS }}
+          GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
+          GPG_SIGN_PASSPHRASE: ${{ secrets.GPG_SIGN_PASSPHRASE }}
+          SOURCEFORGE_RSA_KEY: ${{ secrets.SOURCEFORGE_RSA_KEY }}
