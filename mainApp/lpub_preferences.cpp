@@ -1211,11 +1211,11 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Loaded LDraw Library..(%1)").arg(validLDrawPartsLibrary));
     qDebug() << "--------------------------";
-    qDebug() << "";
+//    qDebug() << "";
 #else
     fprintf(stdout, "%s\n", QString(QString("LPub3D Loaded LDraw Library..(%1 Parts)").arg(validLDrawLibrary)).toLatin1().constData());
     fprintf(stdout, "--------------------------\n");
-    fprintf(stdout, "\n");
+//    fprintf(stdout, "\n");
     fflush(stdout);
 #endif
 }

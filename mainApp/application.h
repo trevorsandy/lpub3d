@@ -140,6 +140,10 @@ public:
 #ifdef Q_OS_WIN
     /// Console redirection for Windows
     void RedirectIOToConsole();
+
+    /// Release the windows console
+    int ReleaseConsole(void);
+
     /// Windows dmp file generation
     static void lcSehInit();
     static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers);
@@ -183,9 +187,6 @@ private:
     /// Print details flag
     bool m_print_output;
 
-    /// Redirect input/output to console
-    bool m_redirect_io_to_console;
-
     /// File specified on via commandline
     QString m_commandline_file;
 
@@ -197,22 +198,25 @@ private:
     CONSOLE_SCREEN_BUFFER_INFO ConsoleInfo;
 
     /// Windows standard output handle
-    HANDLE ConsoleOutput;
-    FILE *COutputHandle;
+    HANDLE h_ConsoleStdOut;
+    FILE *f_ConsoleStdOut;
 
     /// Windows standard error handle
-    HANDLE ConsoleError;
-    FILE *CErrorHandle;
+    HANDLE h_ConsoleStdErr;
+    FILE *f_ConsoleStdErr;
 
     /// Windows standard input handle
-    HANDLE ConsoleInput;
-    FILE *CInputHandle;
+    HANDLE h_ConsoleStdIn;
+    FILE *f_ConsoleStdIn;
 
     /// Windows console save attributes
     WORD m_currentConsoleAttr;
 
     /// indicate if using allocated console
     BOOL m_allocated_console;
+
+    /// indicate if using parent console
+    BOOL m_parent_console;
 #endif
 };
 

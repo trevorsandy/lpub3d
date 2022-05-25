@@ -53,32 +53,35 @@
       ConsoleInfo.dwSize.Y = MAX_CONSOLE_LINES;
       SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),
                                  ConsoleInfo.dwSize);
+    } else {
+      m_parent_console = true;
     }
 
     // Get STDOUT handle
-    ConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    int SystemOutput = _open_osfhandle(intptr_t(ConsoleOutput), _O_TEXT);
-    COutputHandle = _fdopen(SystemOutput, "w");
+    h_ConsoleStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    int SystemOutput = _open_osfhandle(intptr_t(h_ConsoleStdOut), _O_TEXT);
+    f_ConsoleStdOut = _fdopen(SystemOutput, "w");
 
     // Get STDERR handle
-    ConsoleError = GetStdHandle(STD_ERROR_HANDLE);
-    int SystemError = _open_osfhandle(intptr_t(ConsoleError), _O_TEXT);
-    CErrorHandle = _fdopen(SystemError, "w");
+    h_ConsoleStdErr = GetStdHandle(STD_ERROR_HANDLE);
+    int SystemError = _open_osfhandle(intptr_t(h_ConsoleStdErr), _O_TEXT);
+    f_ConsoleStdErr = _fdopen(SystemError, "w");
 
     // Get STDIN handle
-    ConsoleInput = GetStdHandle(STD_INPUT_HANDLE);
-    int SystemInput = _open_osfhandle(intptr_t(ConsoleInput), _O_TEXT);
-    CInputHandle = _fdopen(SystemInput, "r");
+    h_ConsoleStdIn = GetStdHandle(STD_INPUT_HANDLE);
+    int SystemInput = _open_osfhandle(intptr_t(h_ConsoleStdIn), _O_TEXT);
+    f_ConsoleStdIn = _fdopen(SystemInput, "r");
 
     //retrieve and save the current attributes
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
                                &ConsoleInfo);
     m_currentConsoleAttr = ConsoleInfo.wAttributes;
-    FlushConsoleInputBuffer(ConsoleOutput);
+
+    FlushConsoleInputBuffer(h_ConsoleStdOut);
 
     //change the attribute to what you like
     SetConsoleTextAttribute (
-                ConsoleOutput,
+                h_ConsoleStdOut,
                 FOREGROUND_RED |
                 FOREGROUND_GREEN);
 
@@ -86,9 +89,9 @@
     std::ios_base::sync_with_stdio(true);
 
     // Redirect the CRT standard input, output, and error handles to the console
-    freopen_s(&CInputHandle, "CONIN$", "r", stdin);
-    freopen_s(&COutputHandle, "CONOUT$", "w", stdout);
-    freopen_s(&CErrorHandle, "CONOUT$", "w", stderr);
+    freopen_s(&f_ConsoleStdIn, "CONIN$", "r", stdin);
+    freopen_s(&f_ConsoleStdOut, "CONOUT$", "w", stdout);
+    freopen_s(&f_ConsoleStdErr, "CONOUT$", "w", stderr);
 
     //Clear the error state for each of the C++ standard stream objects. We need to do this, as
     //attempts to access the standard streams before they refer to a valid target will cause the
@@ -101,6 +104,47 @@
     std::cerr.clear();
     std::wcin.clear();
     std::cin.clear();
+  }
+
+  int Application::ReleaseConsole(void)
+  {
+    if (m_allocated_console || m_parent_console) {
+      if (m_allocated_console)
+         Sleep(500);
+
+      // Return the console to the original attributes
+      SetConsoleTextAttribute (
+         h_ConsoleStdOut,
+         m_currentConsoleAttr);
+
+      // This is a hack, but if not used the console doesn't know the application has returned.
+      // The "enter" key only sent if the console window is in focus.
+      if ((GetConsoleWindow() == GetForegroundWindow())){
+        // Send "enter" to release application from the console
+        INPUT keyInput;
+        // Set up a generic keyboard event.
+        keyInput.type = INPUT_KEYBOARD;
+        keyInput.ki.wScan = 0; // hardware scan code for key
+        keyInput.ki.time = 0;
+        keyInput.ki.dwExtraInfo = 0;
+
+        // Send the "Enter" key
+        keyInput.ki.wVk = 0x0D; // virtual-key code for the "Enter" key
+        keyInput.ki.dwFlags = 0; // 0 for key press
+        SendInput(1, &keyInput, sizeof(INPUT));
+
+        // Release the "Enter" key
+        keyInput.ki.dwFlags = KEYEVENTF_KEYUP; // KEYEVENTF_KEYUP for key release
+        SendInput(1, &keyInput, sizeof(INPUT));
+      }
+
+      FreeConsole();
+
+      m_allocated_console = false;
+      m_parent_console = false;
+    }
+
+    return ExitOK;
   }
 
   #pragma warning(push)
@@ -438,9 +482,9 @@ int Application::initialize()
 #endif
     m_console_mode = false;
     m_print_output = false;
-    m_redirect_io_to_console = true;
 #ifdef Q_OS_WIN
     m_allocated_console = false;
+    m_parent_console = false;
 #endif
 
     connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
@@ -546,6 +590,9 @@ int Application::initialize()
             if (! headerPrinted)
             {
                 m_console_mode = true;
+#ifdef Q_OS_WIN
+                RedirectIOToConsole();
+#endif
 #ifdef QT_DEBUG_MODE
                 qDebug() << "";
                 qDebug() << hdr;
@@ -572,7 +619,7 @@ int Application::initialize()
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
               if (ArgIdx == NumArgsIdx)
-                return ExitOK;
+                return ReleaseConsole();
             }
             else
             // Visual Editor (LeoCAD) version output
@@ -584,7 +631,7 @@ int Application::initialize()
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
               if (ArgIdx == NumArgsIdx)
-                return ExitOK;
+                return ReleaseConsole();
             }
             else
             // Help output
@@ -670,7 +717,7 @@ int Application::initialize()
                 fprintf(stdout, "\n");
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx)
-                  return ExitOK;
+                  return ReleaseConsole();
             }
             else
             // Invoke LEGO library in command console mode
@@ -692,7 +739,7 @@ int Application::initialize()
                 // initialize directories
                 Preferences::lpubPreferences();
                 if (ArgIdx == NumArgsIdx)
-                  return ExitOK;
+                  return ReleaseConsole();
             }
 
             // Set library type from loaded library
@@ -1059,19 +1106,16 @@ int Application::run()
 
   try
   {
-      mainApp();
+    mainApp();
 
-      if (modeGUI())
-          ExecReturn = m_application.exec();
-      else
-          ExecReturn = gui->processCommandLine();
+    if (modeGUI()) {
+        ExecReturn = m_application.exec();
+    } else {
+        ExecReturn = gui->processCommandLine();
+    }
 
 #ifdef Q_OS_WIN
-    if (m_allocated_console)
-        Sleep(2000);
-    SetConsoleTextAttribute (       //return the console to the original attributes
-        ConsoleOutput,
-        m_currentConsoleAttr);
+    ReleaseConsole();
 #endif
   }
   catch(const std::exception& ex)
@@ -1186,7 +1230,7 @@ int main(int argc, char** argv)
        return app->run();
     }
     else
-    {
+    {        
        return rc;
     }
 }
