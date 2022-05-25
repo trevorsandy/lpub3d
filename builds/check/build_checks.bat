@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 01, 2021
+rem  Last Update: July 09, 2021
 rem  Copyright (c) 2018 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -14,7 +14,7 @@ rem Construct the staged files path
 
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
-SET PKG_TARGET_RUNLOG=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
+SET PKG_RUNLOG_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
 SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 SET PKG_RUNLOG=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
@@ -106,10 +106,10 @@ IF NOT EXIST "%PKG_TARGET%" (
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
     ECHO.
     ECHO -Copying %PACKAGE%.pdb to log assets....
-    IF NOT EXIST %PKG_TARGET_RUNLOG% (
-      MKDIR %PKG_TARGET_RUNLOG%
+    IF NOT EXIST %PKG_RUNLOG_DIR% (
+      MKDIR %PKG_RUNLOG_DIR%
     )
-    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_RUNLOG_DIR%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
@@ -202,8 +202,8 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO   Build checks cleanup...
   IF EXIST %PKG_RUNLOG% (
     ECHO.
-    ECHO   Copying %PKG_DISTRO_DIR%_RunLog.txt to log assets...
-    COPY /V /Y "%PKG_RUNLOG%" "%PKG_TARGET_RUNLOG%\%PKG_DISTRO_DIR%_RunLog.txt" /A | findstr /i /v /r /c:"copied\>"
+    ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets...
+    COPY /V /Y "%PKG_RUNLOG%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
     ECHO -[WARNING] Could not find %PKG_RUNLOG%.
@@ -261,10 +261,10 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
 >%PKG_UPDATE_CHECKS_FAIL% !PKG_CHECKS_FAIL!
   IF EXIST "%PKG_DUMP_FILE%" (
     ECHO -Copying %PACKAGE%_Check_!PKG_CHECK_FAIL!.dmp to log assets....
-    IF NOT EXIST %PKG_TARGET_RUNLOG% (
-      MKDIR %PKG_TARGET_RUNLOG%
+    IF NOT EXIST %PKG_RUNLOG_DIR% (
+      MKDIR %PKG_RUNLOG_DIR%
     )
-    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_TARGET_RUNLOG%\%PACKAGE%_Check_!PKG_CHECK_FAIL!_%PKG_PLATFORM%.dmp" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_RUNLOG_DIR%\%PACKAGE%_Check_!PKG_CHECK_FAIL!_%PKG_PLATFORM%.dmp" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO. -WARNING - %PKG_DUMP_FILE% was not found.
   )

@@ -227,7 +227,6 @@ echo "LP3D_RELEASE_DESCRIPTION....${LP3D_RELEASE_DESCRIPTION}" || :
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 
 # Remove artifacts that are not published
-rm -f ${LP3D_BUILD_ASSETS}/windows-download/*RunLog.txt > /dev/null 2>&1
 rm -f ${LP3D_BUILD_ASSETS}/*/*-debug*.rpm > /dev/null 2>&1
 
 # Publish update assets to Sourceforge in one call - then delete
