@@ -90,8 +90,9 @@ contains(LOAD_LDV_HEADERS,True) {
                 INCLUDEPATH += $$system_path( ./include/GL )
                 message("~~~ lib$${TARGET} touch include/GL/glext.h for $$upper($$QT_ARCH) build ~~~")
             }
-            system( mv -f $$system_path( $${LDVHDRDIR}/GL ) $$system_path( $${LDVHDRDIR}/AMD_GL ) )
-            exists ($$system_path( $${LDVHDRDIR}/AMD_GL )): \
+            exists ($$system_path( $${LDVHDRDIR}/GL )): \
+            system(rm -rf $$system_path( $${LDVHDRDIR}/GL ))
+            !exists ($$system_path( $${LDVHDRDIR}/GL )): \
             message("~~~ lib$${TARGET} disable LDView GL headers for $$upper($$QT_ARCH) build ~~~")
         } else {
             INCLUDEPATH += $$system_path( $${LDVHDRDIR}/GL )
@@ -513,23 +514,6 @@ contains(LOAD_LDVLIBS,True) {
         contains(COPY_LDV_LIBS,True) {
             PRE_TARGETDEPS += $$ZLIB_DST
             QMAKE_CLEAN    += $$ZLIB_DST
-        }
-    }
-
-    !contains(COPY_LDV_LIBS,True) {
-        if (contains(QT_ARCH,arm64)|contains(QT_ARCH,arm)) {
-            isEmpty(LDVHDRDIR):LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
-            if (exists($$system_path( $${LDVHDRDIR}/AMD_GL) )) {
-                RESTORE_GL_DIR              = $$system_path( $${LDVHDRDIR}/AMD_GL )
-                RESTORE_GL_DIR_cmd          = mv -f $$system_path( $${LDVHDRDIR}/AMD_GL ) $$system_path( $${LDVHDRDIR}/GL/ )
-                RESTORE_GL_DIR.target       = $$RESTORE_GL_DIR
-                RESTORE_GL_DIR.commands     = $$RESTORE_GL_DIR_cmd
-                RESTORE_GL_DIR.depends      = RESTORE_GL_DIR_msg
-                RESTORE_GL_DIR_msg.commands = @echo Restoring GL header folder name...
-                QMAKE_EXTRA_TARGETS        += RESTORE_GL_DIR RESTORE_GL_DIR_msg
-                POST_TARGETDEPS            += $$RESTORE_GL_DIR
-                QMAKE_CLEAN                += $$RESTORE_GL_DIR
-            }
         }
     }
 
