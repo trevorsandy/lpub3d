@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 06, 2021
+rem  Last Update: July 09, 2021
 rem  Copyright (c) 2021 by Trevor SANDY
 rem --
 rem --
@@ -17,6 +17,7 @@ rem .\builds\utilities\ci\github\windows-build.bat
 
 SET LP3D_ME=%~nx0
 SET ABS_WD=%GITHUB_WORKSPACE%
+SET BUILD_ARCH=-all
 
 SET GITHUB=True
 SET GITHUB_RUNNER_IMAGE=Visual Studio 2019
@@ -30,6 +31,11 @@ SET LP3D_DOWNLOADS_PATH=%LP3D_BUILDPKG_PATH%\Downloads
 SET LP3D_UPDATES_PATH=%LP3D_BUILDPKG_PATH%\Updates
 
 CD %GITHUB_WORKSPACE%
+
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD">NUL && (
+  ECHO -NOTICE - Quick build detected, %~nx0 will not continue.
+  GOTO :END
+)
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW">NUL && (
   SET UPDATE_LDRAW_LIBS=True
@@ -72,7 +78,6 @@ IF NOT EXIST "%USERPROFILE%\LDraw" (
   ) ELSE (
     ECHO.
     ECHO -WARNING - %LP3D_LDRAW_DIR_PATH% path not defined
-    
   )
 )
 
@@ -104,9 +109,20 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY">NUL && (
   IF NOT EXIST "%LP3D_POVRAY%" ( ECHO " -Cached %LP3D_POVRAY% deleted" )
 )
 
-CALL builds\windows\AutoBuild.bat -all -3rd -ins -chk 2>&1 || GOTO :ERROR_END
+ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH">NUL && (
+  ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "QUICK_ALL">NUL && (
+    ECHO -Build option verify ^(x86 architecture^) only detected.
+    SET BUILD_ARCH=x86
+  )
+)
 
-CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
+CALL builds\windows\AutoBuild.bat %BUILD_ARCH% -3rd -ins -chk 2>&1 || GOTO :ERROR_END
+
+IF "%BUILD_ARCH%" EQU "-all" (
+  CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
+) ELSE (
+  GOTO :END
+)
 
 PUSHD %LP3D_DOWNLOADS_PATH%
 SET gen_hash=gen_hash.sh

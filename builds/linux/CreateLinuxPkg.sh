@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 29, 2021
+# Last Update July 09, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -25,7 +25,11 @@ FinishElapsedTime() {
   echo "----------------------------------------------------"
   ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH})"
   [ "${LP3D_APPIMAGE}" = "true" ] && ME="${ME} for (${LP3D_BASE}-${LP3D_ARCH}-appimage)" || :
-  echo "${ME} Finished!"
+  if [ "$BUILD_OPT" = "verify" ]; then
+    echo "${ME} Verification Finished!"
+  else
+    echo "${ME} Finished!"
+  fi
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -93,6 +97,9 @@ export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
 
+if [ "$BUILD_OPT" = "verify" ]; then
+  Info "BUILD OPTION.......verify only"
+fi
 Info "SOURCE DIR.........${LPUB3D}"
 Info "BUILD DIR..........${BUILD_DIR}"
 Info "BUILD BASE.........${LP3D_BASE}"
@@ -107,22 +114,22 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
   rsync -avr --exclude='ldraw' --exclude='.config' ~/ .
   # set paths and package script
   case ${LP3D_BASE} in
-      "ubuntu")
-          pkgblddir="debbuild"
-          pkgsrcdir="${pkgblddir}/SOURCES"
-          pkgscript="CreateDeb.sh"
-          ;;
-      "fedora")
-          pkgblddir="rpmbuild/BUILD"
-          pkgsrcdir="rpmbuild/SOURCES"
-          pkgscript="CreateRpm.sh"
-          ;;
-      "archlinux")
-          pkgblddir="pkgbuild/src"
-          pkgsrcdir="pkgbuild"
-          pkgscript="CreatePkg.sh"
-          ;;
-      *)
+    "ubuntu")
+      pkgblddir="debbuild"
+      pkgsrcdir="${pkgblddir}/SOURCES"
+      pkgscript="CreateDeb.sh"
+      ;;
+    "fedora")
+      pkgblddir="rpmbuild/BUILD"
+      pkgsrcdir="rpmbuild/SOURCES"
+      pkgscript="CreateRpm.sh"
+      ;;
+    "archlinux")
+      pkgblddir="pkgbuild/src"
+      pkgsrcdir="pkgbuild"
+      pkgscript="CreatePkg.sh"
+      ;;
+    *)
       Error "Invalid build base specified"
       exit 2
       ;;
@@ -162,7 +169,7 @@ if [[ "${LP3D_APPIMAGE}" = "false" && "${LP3D_QEMU}" = "true" ]]; then
   exit 0
 fi
 
-# ..............AppImage Calls....................#
+# ............Local Build Calls...................#
 
 # Download or copy source
 if [ "${TRAVIS}" != "true" ]; then
@@ -241,8 +248,8 @@ set -x
 # Build LPub3D renderers - LDGLite, LDView, POV-Ray
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
 
-# Set Appimage build path
-export AppImageBuildPath=$(mkdir -p AppDir && readlink -f AppDir/)
+# Set application build path
+export AppDirBuildPath=$(mkdir -p AppDir && readlink -f AppDir/)
 
 # Build LPub3D
 if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir)" ]]; then
@@ -254,39 +261,54 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/A
     fi
   fi
 
+  if [[ "${LP3D_APPIMAGE}" == "false" ]]; then
+    case ${LP3D_BASE} in
+      "ubuntu")
+        distropkg=deb ;;
+      "fedora")
+        distropkg=rpm ;;
+      "archlinux")
+        distropkg=pkg ;;
+    esac
+  else 
+    distropkg=api
+  fi
+  
   qmake -v
-  qmake -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api
+  qmake -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
   make
   #make -j$(BUILD_CPUs)
-  make INSTALL_ROOT=${AppImageBuildPath} install
+  make INSTALL_ROOT=${AppDirBuildPath} install
 
   # backup build artifacts in case of failure
   if [[ "$CI" != "true" && $? = 0 ]]; then
-    cp -ar ${AppImageBuildPath} ${LP3D_DIST_DIR_PATH}/
+    cp -ar ${AppDirBuildPath} ${LP3D_DIST_DIR_PATH}/
   fi
 else
   Info "LPub3D build artifacts exists - build skipped."
-  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/* ${AppImageBuildPath}/
+  cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/* ${AppDirBuildPath}/
 fi
 
 # Build check
-if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
-  Info "Per-package build check LPub3D bundle..."
+if [[ "$BUILD_OPT" = "verify" || -n "$LP3D_PRE_PACKAGE_CHECK" ]]; then
+  Info "Build check LPub3D bundle..."
   export LP3D_BUILD_OS=
   export SOURCE_DIR=${PWD}
   export LP3D_CHECK_LDD="1"
   export LP3D_CHECK_STATUS="--version --app-paths"
-  export LPUB3D_EXE="${AppImageBuildPath}/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+  export LPUB3D_EXE="${AppDirBuildPath}/usr/bin/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
   chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
 fi
 
-# Stop here on compile only
-if [ -n "$LP3D_COMPILE_ONLY" ]; then
+# Stop here if we are only verifying
+if [ "$BUILD_OPT" = "verify" ]; then
   exit 0
 fi
 
-Info "Entering AppImage build directory: ${AppImageBuildPath}..."
-cd ${AppImageBuildPath}
+# ..........AppImage Build Calls..................#
+
+Info "Entering AppImage build directory: ${AppDirBuildPath}..."
+cd ${AppDirBuildPath}
 
 # Setup AppImage linuxdeployqt
 Info && Info "Setup linuxdeployqt..."
@@ -297,7 +319,7 @@ if [ ! -e linuxdeployqt ]; then
   elif [[ "$LP3D_ARCH" = "arm64" || "$LP3D_ARCH" = "aarch64" ]]; then
     if [ ! -e ${LP3D_DIST_DIR_PATH}/AppDir/linuxdeployqt ]; then
       [ ! -d "bin" ] && mkdir bin || :
-      export WD=${AppImageBuildPath}
+      export WD=${AppDirBuildPath}
       export PATH="${WD}/bin":"$PATH"
       # LinuxDeployQt
       p=LinuxDeployQt
@@ -306,7 +328,7 @@ if [ ! -e linuxdeployqt ]; then
       ( cd $p && qmake && make && cp -a ./bin/* ../ ) >$p.out 2>&1 && mv $p.out $p.ok
       if [[ -f $p.ok && -f ./linuxdeployqt ]]; then
         rm -f $p.ok
-        Info "linuxdeployqt copied to ${AppImageBuildPath}"
+        Info "linuxdeployqt copied to ${AppDirBuildPath}"
       else
         Error $p FAILED
         tail -80 $p.out
@@ -379,15 +401,15 @@ if [ ! -e linuxdeployqt ]; then
 fi
 
 # Build AppImage
-Info && Info "Building AppImage from AppImageBuildPath: ${AppImageBuildPath}..."
-renderers=$(find ${AppImageBuildPath}/opt -type f);
+Info && Info "Building AppImage from AppDirBuildPath: ${AppDirBuildPath}..."
+renderers=$(find ${AppDirBuildPath}/opt -type f);
 for r in $renderers; do executables="$executables -executable=$r" && Info "Set executable $executables"; done;
 unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH;
 export VERSION="$LP3D_VERSION"    # linuxdeployqt uses this for naming the file
-./linuxdeployqt ${AppImageBuildPath}/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-./linuxdeployqt ${AppImageBuildPath}/usr/share/applications/*.desktop -appimage -verbose=2
+./linuxdeployqt ${AppDirBuildPath}/usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
+./linuxdeployqt ${AppDirBuildPath}/usr/share/applications/*.desktop -appimage -verbose=2
 Info && Info "AppImage Dynamic Library Dependencies:" && \
-find ${AppImageBuildPath} -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
+find ${AppDirBuildPath} -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && Info
 AppImage=$(ls LPub3D*.AppImage)
 if [ -f "${AppImage}" ]; then
   chmod a+x ${AppImage}
@@ -435,7 +457,7 @@ if [ -f "${AppImage}" ]; then
         Error "Run AppImage FAILED"
         tail -80 $p.out
         exit 7
-      fi      
+      fi
     fi
   fi
   AppImageExtension=${AppImage##*-}
@@ -457,7 +479,7 @@ else
 fi
 
 # Check AppImage build
-AppImage=$(find ${AppImageBuildPath}/ -name LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension} -type f)
+AppImage=$(find ${AppDirBuildPath}/ -name LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension} -type f)
 if [ -f "${AppImage}" ]; then
   cd ${BUILD_DIR}
   export SOURCE_DIR=$PWD
@@ -476,7 +498,7 @@ fi
 # Move AppImage build content to output
 Info "Moving AppImage build assets and logs to output folder..."
 mv -f ${AppImage}* /out/ 2>/dev/null || :
-mv -f ${AppImageBuildPath}/*.log /out/ 2>/dev/null || :
+mv -f ${AppDirBuildPath}/*.log /out/ 2>/dev/null || :
 mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
 mv -f ./*.log /out/ 2>/dev/null || :
 mv -f ~/*.log /out/ 2>/dev/null || :

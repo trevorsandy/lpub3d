@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 29, 2021
+# Last Update July 09, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -286,9 +286,6 @@ pbEOF
 # add Dockerfile to context
 cp -f ${out_path}/Dockerfile .
 
-#DEBUG - REMOVE AFTER USE
-cat Dockerfile
-
 # add run CMD script to context and set executable
 cp -f ${out_path}/docker-run-CMD.sh . && chmod a+x docker-run-CMD.sh
 
@@ -396,15 +393,16 @@ common_docker_opts=(
     -e CI="${CI}"
     -e GITHUB="${GITHUB}"
     -e DOCKER="${DOCKER:-true}"
-    -e LP3D_QEMU="${LP3D_QEMU}"
     -e TERM="${TERM}"
+    -e GITHUB_SHA="${GITHUB_SHA}"
+    -e WRITE_LOG="${WRITE_LOG}"
+    -e BUILD_OPT="${BUILD_OPT}"
+    -e BUILD_CPUs="${BUILD_CPUs}"
+    -e LP3D_QEMU="${LP3D_QEMU}"    
     -e LP3D_BASE="${LP3D_BASE}"
     -e LP3D_ARCH="${LP3D_ARCH}"
     -e LP3D_APPIMAGE="${LP3D_APPIMAGE}"
-    -e WRITE_LOG="${WRITE_LOG}"
-    -e BUILD_CPUs="${BUILD_CPUs}"
     -e LP3D_NO_CLEANUP="${LP3D_NO_CLEANUP}"
-    -e GITHUB_SHA="${GITHUB_SHA}"
     -e LP3D_AI_MAGIC_BYTES="${LP3D_AI_MAGIC_BYTES}"
     -e LP3D_PRE_PACKAGE_CHECK="${LP3D_PRE_PACKAGE_CHECK}"
     -v "${out_path}":/out

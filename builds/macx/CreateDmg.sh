@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 17, 2021
+# Last Update: July 09, 2021
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -12,7 +12,9 @@ FinishElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  if [ "$BUILD_OPT" = "compile" ]; then
+  if [ "$BUILD_OPT" = "verify" ]; then
+    echo "$ME Verification Finished!"  
+  elif [ "$BUILD_OPT" = "compile" ]; then
     echo "LPub3D Compile Finished!"
   elif [ "$BUILD_OPT" = "renderers" ]; then
     echo "LPub3D Renderers Build Finished!"
@@ -67,7 +69,9 @@ echo "Start $ME execution at $CWD..."
 LPUB3D="${LPUB3D:-lpub3d}"
 echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 
-if [ "$BUILD_OPT" = "compile" ]; then
+if [ "$BUILD_OPT" = "verify" ]; then
+  echo "   BUILD OPTION...........[verify only]"
+elif [ "$BUILD_OPT" = "compile" ]; then
   echo "   BUILD OPTION...........[comple only]"
 elif [ "$BUILD_OPT" = "renderers" ]; then
   echo "   BUILD OPTION...........[renderers only]"
@@ -296,6 +300,10 @@ if [ -f "${LPUB3D_EXE}" ]; then
     SOURCE_DIR=../..
     echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
     source ${SOURCE_DIR}/builds/check/build_checks.sh
+    # Stop here if we are only verifying
+    if [ "$BUILD_OPT" = "verify" ]; then
+      exit 0
+    fi
 else
     echo "- ERROR - build-check failed. $(realpath ${LPUB3D_EXE}) not found."
 fi

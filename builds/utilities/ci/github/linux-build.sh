@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update 06, 2021
+# Last Update July 09, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -63,7 +63,15 @@ esac
 case "${LP3D_BASE}" in
     "ubuntu"|"fedora"|"archlinux")
         export BUILD="${LP3D_BASE}"
-        if [[ "${LP3D_QEMU}" = "true" || "${LP3D_APPIMAGE}" = "true" ]]; then
+        LP3D_COMMIT_MSG=$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')
+        if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
+            if [ "${LP3D_QEMU}" = "false" ]; then
+                export BUILD_OPT="verify"
+                source builds/utilities/ci/github/linux-multiarch-build.sh
+            else
+                exit 0
+            fi
+        elif [[ "${LP3D_QEMU}" = "true" || "${LP3D_APPIMAGE}" = "true" ]]; then
             source builds/utilities/ci/github/linux-multiarch-build.sh
         else
             source builds/utilities/ci/github/linux-amd64-build.sh

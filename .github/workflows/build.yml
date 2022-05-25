@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 07, 2021
+# Last Update: July 09, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 name: Builds
@@ -143,7 +143,9 @@ jobs:
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\*
 
   build-deploy:
-    if: "!contains(github.event.head_commit.message, 'SKIP_DEPLOY')"
+    if: |
+      !contains(github.event.head_commit.message, 'SKIP_DEPLOY') && 
+      (contains(github.event.head_commit.message, 'BUILD_ALL') || github.event_name == 'workflow_dispatch')
     # if: ${{ false }} # disable for now
     name: Publish Assets
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows

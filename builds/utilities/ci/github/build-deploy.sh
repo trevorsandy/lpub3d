@@ -80,7 +80,7 @@ export GITHUB="${GITHUB:-true}" # GITHUB_ACTIONS
 
 # Check commit for skip directives
 LP3D_COMMIT_MSG=$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')
-if [[ "$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')" == *"SKIP_DEPLOY"* ]]; then
+if [[ "${LP3D_COMMIT_MSG}" == *"SKIP_DEPLOY"* ]]; then
   echo "Skip deploy detected in commit message."
   exit 0
 elif [[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"SKIP_SF_DEPLOY"* ]]; then

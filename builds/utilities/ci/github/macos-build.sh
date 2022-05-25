@@ -21,6 +21,13 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
+# Grab the commit message
+LP3D_COMMIT_MSG=$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')
+if  [ "${LP3D_COMMIT_MSG}" = *"QUICK_BUILD"* ]; then
+  echo "NOTICE - Quick build detected, $0 will not continue."
+  exit 0
+fi
+
 # Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
@@ -129,6 +136,10 @@ rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
 
 # List 'LP3D_*' environment variables
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
+
+if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
+   export BUILD_OPT="verify"
+fi
 
 # Build dmg file
 chmod a+x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
