@@ -40,6 +40,21 @@ PublishToGitHub() {
     case ${LP3D_ASSET_EXT} in
       ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage")
       if [ -f "${LP3D_RELEASE}.sha512" ]; then
+        # Generate hash file signature
+        if [[ ! -f $s.out && -f "${LP3D_ASSET}.sha512" ]]; then
+          echo && echo "- Signing ${LP3D_ASSET}.sha512 file..."
+          ( gpg --home "${LP3D_GPGHOME}" --clearsign -u ${GPG_SIGN_KEY_ALIAS} \
+            -o "${LP3D_RELEASE}.sha512.sig" "${LP3D_RELEASE}.sha512" \
+          ) >$s.out 2>&1 && rm $s.out
+          if [ ! -f $s.out ]; then
+            # Publish hash signature file
+            ( bash upload.sh "${LP3D_RELEASE}.sha512.sig" ) >$p.out 2>&1 && rm $p.out
+            [ -f $p.out ] && \
+            echo "WARNING - ${LP3D_RELEASE}.sha512.sig GitHub upload failed." && tail -80 $p.out || :
+          else
+            echo "WARNING - Create signature file failed." && tail -80 $s.out
+          fi
+        fi
         # Publish hash file
         ( bash upload.sh "${LP3D_RELEASE}.sha512" ) >$p.out 2>&1 && rm $p.out
         [ -f $p.out ] && \
@@ -139,6 +154,65 @@ if [ -f upload.sh -a -r upload.sh ]; then
   fi
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
+fi
+
+# Setup GPG sign keys
+echo && echo "Initialize default gpg keyring..."
+declare -r LP3D_GPGHOME=$(mktemp -d)
+declare -r LP3D_OWNRING="${LP3D_GPGHOME}/ownring.auto"
+declare -r LP3D_SECRING="${LP3D_GPGHOME}/secring.auto"
+declare -r LP3D_PUBRING="${LP3D_GPGHOME}/pubring.auto"
+declare -r s=GPGSign
+
+chown -R $(whoami) ${LP3D_GPGHOME}/
+chmod 700 ${LP3D_GPGHOME}
+cp -f ./builds/utilities/ci/secure/*.auto* ${LP3D_GPGHOME}/
+chmod 600 ${LP3D_GPGHOME}/*
+export GNUPGHOME=${LP3D_GPGHOME}
+
+(cd ${LP3D_GPGHOME}
+gpgconf --kill gpg-agent  # in case agent_genkey fail...
+gpg --generate-key --batch <<eoGPGConf
+  %echo Started!
+  Key-Type: default
+  Key-Length: default
+  Subkey-Type: default
+  Name-Real: Trevor SANDY
+  Name-Comment: Yessir
+  Name-Email: trevor.sandy@gmail.com
+  Expire-Date: 0
+  Passphrase: ${GPG_INIT_PASSPHRASE}
+  %commit
+  %echo Done.
+eoGPGConf
+) >$s.out 2>&1 && rm $s.out
+[ -f $s.out ] && \
+echo "WARNING - Failed to initialize default gpg keyring." && tail -80 $s.out || :
+
+# Note: import the owner public key first so the decrypt call can check the private key signature
+if [ ! -f $s.out ]; then
+  ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_OWNRING}" ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Could not import public owner keyring into gpg." && tail -80 $s.out || :
+fi
+
+if [ ! -f $s.out ]; then
+  ( echo ${GPG_SIGN_PASSPHRASE} | gpg --decrypt --pinentry-mode loopback --passphrase-fd 0 \
+    --batch --quiet --output "${LP3D_SECRING}" "${LP3D_SECRING}".gpg ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Failed to decrypt secure publish keyring." && tail -80 $s.out || :
+fi
+
+if [ ! -f $s.out ]; then
+  ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_SECRING}" ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Could not import secure publish keyring into gpg." && tail -80 $s.out || :
+fi
+
+if [ ! -f $s.out ]; then
+  ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_PUBRING}" ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Could not import public publish keyring into gpg." && tail -80 $s.out || :
 fi
 
 # Display asset paths info
