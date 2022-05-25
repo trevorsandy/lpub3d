@@ -495,6 +495,7 @@ elif [[ -n "${LP3D_BUILD_AI_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}
         tail -80 $p.out
         exit 5
       fi
+      [ -f "${LP3D_LOG_PATH}/$p.ok" ] && mv ${LP3D_LOG_PATH}/$p.ok ${LP3D_LOG_PATH}/$p.ok.log || :
       ( [ ! -d AitDir ] && mkdir AitDir || : ; cd AitDir && cp ../bin/$p . && \
       ./$p --appimage-extract ) >$p.out 2>&1 && mv $p.out $p.ok
         if [ -f $p.ok ]; then

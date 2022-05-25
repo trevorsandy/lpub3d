@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: August 01, 2021
+# Last Update: August 06, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 name: Builds
@@ -204,6 +204,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GPG_SIGN_KEY_ALIAS: ${{ secrets.GPG_SIGN_KEY_ALIAS }}
-          GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           GPG_SIGN_PASSPHRASE: ${{ secrets.GPG_SIGN_PASSPHRASE }}
+          GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}          
           SOURCEFORGE_RSA_KEY: ${{ secrets.SOURCEFORGE_RSA_KEY }}

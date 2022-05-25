@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 19, 2021
+# Last Update August 06, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -134,7 +134,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
       sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
     else
       sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    fi    
+    fi
   else
     case project-${LP3D_PROJECT_NAME} in
       "project-lpub3d")
@@ -155,7 +155,7 @@ if [ -f upload.sh -a -r upload.sh ]; then
       sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
     else
       sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-    fi    
+    fi
   fi
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."
@@ -167,13 +167,17 @@ declare -r LP3D_GPGHOME=$(mktemp -d)
 declare -r LP3D_OWNRING="${LP3D_GPGHOME}/ownring.auto"
 declare -r LP3D_SECRING="${LP3D_GPGHOME}/secring.auto"
 declare -r LP3D_PUBRING="${LP3D_GPGHOME}/pubring.auto"
+declare -r LP3D_SFGRING="${LP3D_GPGHOME}/sfgring.auto"
 declare -r s=GPGSign
 
 chown -R $(whoami) ${LP3D_GPGHOME}/
 chmod 700 ${LP3D_GPGHOME}
 cp -f ./builds/utilities/ci/secure/*.auto* ${LP3D_GPGHOME}/
+echo ${SOURCEFORGE_RSA_KEY} > "${LP3D_SFGRING}".gpg
 chmod 600 ${LP3D_GPGHOME}/*
+
 export GNUPGHOME=${LP3D_GPGHOME}
+export LP3D_HOST_RSA_KEY=${LP3D_GPGHOME}/.sfdeploy_github_rsa
 
 (cd ${LP3D_GPGHOME}
 gpgconf --kill gpg-agent  # in case agent_genkey fail...
@@ -194,30 +198,46 @@ eoGPGConf
 [ -f $s.out ] && \
 echo "WARNING - Failed to initialize default gpg keyring." && tail -80 $s.out || :
 
-# Note: import the owner public key first so the decrypt call can check the private key signature
+# Import the owner public key first so it can be accessed for the decrypt and signature calls
 if [ ! -f $s.out ]; then
   ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_OWNRING}" ) >$s.out 2>&1 && rm $s.out
   [ -f $s.out ] && \
   echo "WARNING - Could not import public owner keyring into gpg." && tail -80 $s.out || :
 fi
 
+# Import the Sourceforge owner public key first so it can be accessed for the decrypt call
+if [ ! -f $s.out ]; then
+  ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_SFGRING}" ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Could not import public Sourceforge owner keyring into gpg." && tail -80 $s.out || :
+fi
+
+# Decrypt private signing key
 if [ ! -f $s.out ]; then
   ( echo ${GPG_SIGN_PASSPHRASE} | gpg --decrypt --pinentry-mode loopback --passphrase-fd 0 \
     --batch --quiet --output "${LP3D_SECRING}" "${LP3D_SECRING}".gpg ) >$s.out 2>&1 && rm $s.out
   [ -f $s.out ] && \
-  echo "WARNING - Failed to decrypt secure publish keyring." && tail -80 $s.out || :
+  echo "WARNING - Failed to decrypt private signing keyring." && tail -80 $s.out || :
+fi
+
+# Decrypt private Sourceforge deploy key
+if [ ! -f $s.out ]; then
+  ( echo ${GPG_SIGN_PASSPHRASE} | gpg --decrypt --pinentry-mode loopback --passphrase-fd 0 \
+    --batch --quiet --output "${LP3D_HOST_RSA_KEY}" "${LP3D_SFGRING}".gpg ) >$s.out 2>&1 && rm $s.out
+  [ -f $s.out ] && \
+  echo "WARNING - Failed to decrypt private Sourceforge deploy keyring." && tail -80 $s.out || :
 fi
 
 if [ ! -f $s.out ]; then
   ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_SECRING}" ) >$s.out 2>&1 && rm $s.out
   [ -f $s.out ] && \
-  echo "WARNING - Could not import secure publish keyring into gpg." && tail -80 $s.out || :
+  echo "WARNING - Could not import private signing keyring into gpg." && tail -80 $s.out || :
 fi
 
 if [ ! -f $s.out ]; then
   ( gpg --home "${LP3D_GPGHOME}" --import "${LP3D_PUBRING}" ) >$s.out 2>&1 && rm $s.out
   [ -f $s.out ] && \
-  echo "WARNING - Could not import public publish keyring into gpg." && tail -80 $s.out || :
+  echo "WARNING - Could not import public signing keyring into gpg." && tail -80 $s.out || :
 fi
 
 # Display asset paths info

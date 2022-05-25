@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: July 06, 2021
+#  Last Update: August 06, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -14,14 +14,16 @@ SfElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  echo "S${ME:1} Finished!"
+  echo "S${ME} Finished!"
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
 
 trap SfElapsedTime EXIT
 
-ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+ME="sfdeploy"
+[ "$(basename $0)" != "${ME}.sh" ] && WRITE_LOG=false || \
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 CWD=`pwd`
 
 if [[ "$GITHUB" = "true" || "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -97,8 +99,9 @@ echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
 
 # add host private key to ssh-agent
 eval "$(ssh-agent -s)"
-if [ "$GITHUB" = "true" ]; then
-  ssh-add - <<< "${SOURCEFORGE_RSA_KEY}"
+if [ -s "${LP3D_HOST_RSA_KEY}" ]; then
+#  ssh-add - <<< "${SOURCEFORGE_RSA_KEY}"
+  ssh-add $LP3D_HOST_RSA_KEY
 elif [ -f "/tmp/$LP3D_HOST_RSA_KEY" ]; then
   chmod 600 /tmp/$LP3D_HOST_RSA_KEY
   ssh-add /tmp/$LP3D_HOST_RSA_KEY
