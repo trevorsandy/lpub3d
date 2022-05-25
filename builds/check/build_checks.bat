@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 08, 2021
+rem  Last Update: June 09, 2021
 rem  Copyright (c) 2018 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -38,7 +38,7 @@ rem Check 3 of 7
 SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer ldview-sc
 SET PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 4 of 7
-SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 5 of 7
 IF "%APPVEYOR%" EQU "True" (

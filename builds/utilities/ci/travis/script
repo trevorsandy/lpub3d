@@ -111,7 +111,7 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
                 tar xf patchelf-0.9.tar.bz2
                 ( cd patchelf-0.9/ && ./configure && make && sudo make install )
                 echo "Installing appimagetool..."
-                sudo wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O /usr/local/bin/appimagetool
+                sudo wget -c -nv "https://github.com/probonopd/go-appimage/releases/download/continuous/appimagetool-646-aarch64.AppImage" -O /usr/local/bin/appimagetool
                 sudo chmod a+x /usr/local/bin/appimagetool && appimagetool --version
                 convertApp="$(which lconvert)"
                 if [ -n "$convertApp" ]; then
@@ -144,7 +144,6 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
                     if [ -z "${AppImageMagicBytes}" ]; then
                         echo "Magic bytes patch applied."
                         hexdump -Cv ${AppImageFile} | head -n 1
-                        ldd ${AppImageFile}
                         if [ $? -eq 0 ]; then
                             chmod a+x ${AppImageFile} && \
                             ./${AppImageFile} -v && \

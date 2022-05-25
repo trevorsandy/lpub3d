@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 07, 2021
+# Last Update June 09, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -169,17 +169,15 @@ let LP3D_CHECK_FAIL=0
 LP3D_CHECKS_PASS=
 LP3D_CHECKS_FAIL=
 
-# Applicatin status check (TODO - this command is throwing a segfault, check why)
-#[ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
-#${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2>/dev/null || true
-
+# Applicatin status check
+[ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
 ${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2> ${LP3D_LOG_FILE}
-if [ $? -ne 0 ];then
+if [[ $? -ne 0 && -s "${LP3D_LOG_FILE}" ]];then
     echo "- LPub3D Status Log Trace..."
     cat "${LP3D_LOG_FILE}"
 fi
 
-if [ -n "${LP3D_CHECK_LDD}" ]; then
+if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
     echo && echo "-----------Library Dependencies-------------" && echo
     find ${LPUB3D_EXE} -executable -type f -exec ldd {} \;
 fi
