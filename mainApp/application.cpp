@@ -1172,13 +1172,15 @@ void messageSig(LogType logType, QString message)
     gui->messageSig(logType, message);
 }
 
-static int initializeSurfaceFormat(int argc, char* argv[], const lcCommandLineOptions &Options)
+static int initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
 {
     QCoreApplication CoreApp(argc, argv);
 
     Preferences::setDistribution();
 
     QTextStream StdErr(stderr, QIODevice::WriteOnly);
+
+    Options = lcApplication::ParseCommandLineOptions();
 
     if (!Options.StdErr.isEmpty())
     {
@@ -1205,9 +1207,7 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
     QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
-    const lcCommandLineOptions Options = lcApplication::ParseCommandLineOptions();
-
-
+    lcCommandLineOptions Options;
     int rc = initializeSurfaceFormat(argc, argv, Options);
     if (rc == EXIT_FAILURE)
        return rc;
