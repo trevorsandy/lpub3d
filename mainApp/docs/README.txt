@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2559 (25 05 2022 14:34:07)
+LPub3D 2.4.4.1.2560 (25 05 2022 14:35:48)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,7 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
-- Enhancement - Add archive parts on demand action #521
+- Fix - Treat single step NOSTEP page displayed #535 
 
 --------------------------------------------------------------------------------------------------
 

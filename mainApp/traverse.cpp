@@ -3234,6 +3234,8 @@ int Gui::findPage(
                           return HitBuildModAction;
                       }
 
+                      opts.pageDisplayed = true;
+
                       lineTypeIndexes.clear();
                       csiParts.clear();
 
@@ -3277,11 +3279,20 @@ int Gui::findPage(
 
                 } // StepGroup && ! NoStep2
 
-                if (opts.current.modelName == topLevelFile())
-                    opts.pageDisplayed = opts.pageNum > displayPageNum;
+              if (opts.current.modelName == topLevelFile())
+                  opts.pageDisplayed = opts.pageNum > displayPageNum;
 
                 opts.flags.noStep2 = false;
                 break;
+
+               case BuildModApplyRc:
+               case BuildModRemoveRc:
+                 if (Preferences::buildModEnabled) {
+                   // special case where we have build mod and no step commands in the same single step
+                   if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
+                       opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
+                 }
+                   break;
 
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
@@ -3454,6 +3465,8 @@ int Gui::findPage(
                                 return HitBuildModAction;
                             }
 
+                            opts.pageDisplayed = true;
+
                             saveCurrent.modelName.clear();
                             saveCurrent.modelIndex = -1;
                             saveCsiParts.clear();
@@ -3462,7 +3475,7 @@ int Gui::findPage(
 
                           } // IsDisplayPage /*opts.pageNum == displayPageNum*/
 
-                        if (! opts.flags.noStep || opts.flags.parseNoStep) {
+                        if (! opts.flags.noStep) {
                             if (exporting() && ! opts.flags.noStep) {
                                 pageSizes.remove(opts.pageNum);
                                 if (opts.flags.pageSizeUpdate) {
@@ -3516,17 +3529,12 @@ int Gui::findPage(
                     opts.flags.bfxStore1 = false;
                     if ( ! opts.flags.bfxStore2) {
                         bfxParts.clear();
-                        opts.flags.parseNoStep = false;
-                    } else if (bfx.size()) {
-                        opts.flags.parseNoStep = ! opts.pageDisplayed && meta.LPub.parseNoStep.value();
                     } // ! BfxStore2
                     meta.pop();
                   } // ! buildMod.ignore
                   buildMod.ignore2 = buildMod.ignore;
                   if ( ! buildMod.ignore2) {
                       ldrawFile.clearBuildModRendered();
-                  } else {
-                      opts.flags.parseNoStep = ! opts.pageDisplayed && Preferences::buildModEnabled;
                   } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
               else if ( ! opts.flags.stepGroup)
@@ -3543,6 +3551,7 @@ int Gui::findPage(
               meta.LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
+              opts.flags.parseNoStep = false;
               break;
 
             case CalloutBeginRc:
@@ -3599,6 +3608,9 @@ int Gui::findPage(
                   csiParts = bfx[meta.bfx.value()];
                   lineTypeIndexes = bfxLineTypeIndexes[meta.bfx.value()];
                 }
+              // special case where we have buffer exchange load and no step commands in the same single step
+              if (! opts.flags.parseNoStep && ! opts.pageDisplayed && ! opts.flags.stepGroup && opts.flags.noStep)
+                  opts.flags.parseNoStep = meta.LPub.parseNoStep.value();
               opts.flags.partsAdded = true;
               break;
 
@@ -3836,6 +3848,8 @@ int Gui::findPage(
               return HitBuildModAction;
           }
 
+          opts.pageDisplayed = true;
+
       } // IsDisplayPage
 
       if (! opts.flags.noStep) {
@@ -3876,6 +3890,7 @@ int Gui::findPage(
 
       // Clear parts added so we dont count again in countPage;
       opts.flags.partsAdded = 0;
+      opts.flags.parseNoStep = false;
 
     }  // Last Step in Submodel
 
