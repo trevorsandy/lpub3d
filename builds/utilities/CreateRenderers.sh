@@ -717,12 +717,11 @@ else
   fi
   # set dependency profiler and nubmer of CPUs
   LDD_EXEC=ldd
-  if [[ "$CI" != "" ]]; then
-      BUILD_CPUs="$(nproc)"
+  if [[ "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+      BUILD_CPUs=1
   else
-      BUILD_CPUs="$(nproc --ignore=1)"
+      BUILD_CPUs=$(nproc)
   fi
-  BUILD_CPUs=$(nproc)
 fi
 
 # get Qt version
@@ -747,10 +746,10 @@ if [ "$get_local_libs" = 1 ]; then
 fi
 
 # define build architecture and cached renderer paths
-if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "${TARGET_CPU}" = "arm64" ]]; then
-  buildArch="64bit_release";
+if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" || "$TARGET_CPU" = "arm64" ]]; then
+  buildArch="64bit_release"
 else
-  buildArch="32bit_release";
+  buildArch="32bit_release"
 fi
 # renderer versions
 VER_LDGLITE=ldglite-1.3

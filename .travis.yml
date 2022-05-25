@@ -142,7 +142,7 @@ jobs:
     env: LP3D_BUILD_OS=appimage
     os: linux
     arch: arm64
-    dist: bionic
+    dist: xenial
     compiler: gcc
     addons:
       apt:

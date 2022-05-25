@@ -58,9 +58,6 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
 
       if [[ "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
           export NO_DEPS="true"
-          nproc="$(nproc --ignore=2)"
-      else
-          nproc="$(nproc)"
       fi
 
       chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
@@ -70,7 +67,11 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
       if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" ]]; then
         qmake -v;
         qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=api;
-        make -j$(nproc);
+        if [[ "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
+            make
+        else
+            make -j$(nproc)
+        fi
         make INSTALL_ROOT=$AppImageBuildPath install;
         echo && echo "Setup linuxdeployqt..."
         if [ ! -e linuxdeployqt ]; then
@@ -124,7 +125,11 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
       # else if not build renderers then just compile source
       elif [ -z "$LP3D_BUILD_RENDERERS" ]; then
           qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
-          make -j$(nproc);
+          if [[ "$TRAVIS_CPU_ARCH" = "arm64" ]]; then
+              make
+          else
+              make -j$(nproc)
+          fi
       fi
     # macOS compile source code
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
