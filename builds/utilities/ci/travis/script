@@ -132,17 +132,19 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
         AppImageFile=$(ls LPub3D*.AppImage)
         if [ -f ${AppImageFile} ]; then
-          echo "Applying magic bytes '\x00\x00\x00' correction..."
-          sed -i 's|AI\x02|\x00\x00\x00|' ${AppImageFile} && \
-          echo "Magic bytes correction applied to ${AppImageFile}." || \
-          echo "Failed to apply magic bytes correction"
-          echo "AppImage build completed successfully.";
-          AppImageExtension=${AppImageFile##*-};
-          mkdir -p $AppImageBuildPath/AppImage;
-          mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
-          echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
+            if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
+                echo "Applying magic bytes '\x00\x00\x00' correction..."
+                sed -i 's|AI\x02|\x00\x00\x00|' ${AppImageFile} && \
+                echo "Magic bytes correction applied to ${AppImageFile}." || \
+                echo "Failed to apply magic bytes correction"
+            fi
+            echo "AppImage build completed successfully.";
+            AppImageExtension=${AppImageFile##*-};
+            mkdir -p $AppImageBuildPath/AppImage;
+            mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
+            echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
         else
-          echo "AppImage build failed. $AppImageFile not found.";
+            echo "AppImage build failed. $AppImageFile not found.";
         fi
       # else if not build renderers then just compile source
       elif [ -z "$LP3D_BUILD_RENDERERS" ]; then
