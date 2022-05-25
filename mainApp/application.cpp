@@ -1225,7 +1225,8 @@ int main(int argc, char** argv)
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 
-    QScopedPointer<Application> app(new Application(argc, argv));
+//    QScopedPointer<Application> app(new Application(argc, argv));
+    Application app(argc, argv);
 
     lcApplication ve(&Options);
 
@@ -1239,7 +1240,8 @@ int main(int argc, char** argv)
 
     try
     {
-       rc = app->initialize();
+//       rc = app->initialize();
+        rc = app.initialize();
     }
     catch(const InitException &ex)
     {
@@ -1254,7 +1256,8 @@ int main(int argc, char** argv)
 
     if (rc == RUN_APPLICATION)
     {
-       return app->run();
+//       return app->run();
+        return app.run();
     }
     else
     {        
