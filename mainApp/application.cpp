@@ -264,9 +264,9 @@ QString Application::getTheme()
 void Application::setTheme(bool appStarted)
 {
   m_theme = Preferences::displayTheme;
-  lcColorTheme viewerColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
-  bool viewerDarkTheme = viewerColorTheme == lcColorTheme::Dark;
-  bool darkTheme = m_theme == THEME_DARK;
+  lcColorTheme visualEditorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
+  bool darkTheme = visualEditorTheme == lcColorTheme::Dark;
+  bool setDarkTheme = m_theme == THEME_DARK;
 
   auto getColorFromHex = [] (const QString &hexColor, int alpha = 255)
   {
@@ -274,16 +274,16 @@ void Application::setTheme(bool appStarted)
       return quint32(LC_RGBA(c.red(), c.green(), c.blue(), alpha));
   };
 
-  auto setViewerThemeColor = [&appStarted, &getColorFromHex, &viewerDarkTheme, &darkTheme] (
+  auto setThemeColor = [&appStarted, &getColorFromHex, &darkTheme, &setDarkTheme] (
           LC_PROFILE_KEY key, QString darkHex, QString defaultHex, int alpha = 255) {
       // get current viewer theme color (before change)
       quint32 pc = quint32(lcGetProfileInt(key));
       // get corresponding default theme color (before change)
-      quint32 tc = getColorFromHex(viewerDarkTheme ? darkHex : defaultHex, alpha);
-      // viewer theme color to new theme color if color not user specified - i.e. current color is a theme color
+      quint32 tc = getColorFromHex(darkTheme ? darkHex : defaultHex, alpha);
+      // set visual editor theme color to new theme color if color not user specified - i.e. current color is a theme color
       if (pc == tc) {
           // get new theme color
-          tc = getColorFromHex(darkTheme ? darkHex : defaultHex, alpha);
+          tc = getColorFromHex(setDarkTheme ? darkHex : defaultHex, alpha);
           // set view profile key
           lcSetProfileInt(key, int(tc));
           // set preference property if applicaiton already started - i.e. change preference
@@ -342,7 +342,7 @@ void Application::setTheme(bool appStarted)
       }
   };
 
-  if (darkTheme){
+  if (setDarkTheme){
 
       if (!QApplication::setStyle("fusion"))
           return;
@@ -382,7 +382,7 @@ void Application::setTheme(bool appStarted)
       if (styleSheetFile.open(QIODevice::ReadOnly)) {
           QString stylesheet = QString::fromLatin1(styleSheetFile.readAll());
           qApp->setStyleSheet(stylesheet);
-          viewerColorTheme = lcColorTheme::Dark;
+          visualEditorTheme = lcColorTheme::Dark;
       } else {
           QString styleSheetMessage = QString("Dark mode styleSheet. %1 (%2)")
                                               .arg(styleSheetFile.errorString())
@@ -400,82 +400,82 @@ void Application::setTheme(bool appStarted)
       QApplication::setStyle(QApplication::style()->objectName());
       QApplication::setPalette(qApp->style()->standardPalette());
       qApp->setStyleSheet( QString() );
-      viewerColorTheme = lcColorTheme::System;
+      visualEditorTheme = lcColorTheme::System;
     }
 
   // Set default scene colours
   if (!Preferences::customSceneBackgroundColor)
       Preferences::setSceneBackgroundColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
-                              Preferences::themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR]);
+                   setDarkTheme ? Preferences::themeColors[THEME_DARK_SCENE_BACKGROUND_COLOR] :
+                                  Preferences::themeColors[THEME_DEFAULT_SCENE_BACKGROUND_COLOR]);
   if (!Preferences::customSceneGridColor)
       Preferences::setSceneGridColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_GRID_PEN] :
-                              Preferences::themeColors[THEME_DEFAULT_GRID_PEN]);
+                   setDarkTheme ? Preferences::themeColors[THEME_DARK_GRID_PEN] :
+                                  Preferences::themeColors[THEME_DEFAULT_GRID_PEN]);
   if (!Preferences::customSceneRulerTickColor)
       Preferences::setSceneRulerTickColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_RULER_TICK_PEN] :
-                              Preferences::themeColors[THEME_DEFAULT_RULER_TICK_PEN]);
+                   setDarkTheme ? Preferences::themeColors[THEME_DARK_RULER_TICK_PEN] :
+                                  Preferences::themeColors[THEME_DEFAULT_RULER_TICK_PEN]);
   if (!Preferences::customSceneRulerTrackingColor)
       Preferences::setSceneRulerTrackingColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_RULER_TRACK_PEN] :
-                              Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN]);
+                   setDarkTheme ? Preferences::themeColors[THEME_DARK_RULER_TRACK_PEN] :
+                                  Preferences::themeColors[THEME_DEFAULT_RULER_TRACK_PEN]);
   if (!Preferences::customSceneGuideColor)
       Preferences::setSceneGuideColorPreference(
-                  darkTheme ? Preferences::themeColors[THEME_DARK_GUIDE_PEN] :
-                              Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN]);
+                   setDarkTheme ? Preferences::themeColors[THEME_DARK_GUIDE_PEN] :
+                                  Preferences::themeColors[THEME_DEFAULT_GUIDE_PEN]);
 
   // Set Visual Editor interface colours
-  setViewerThemeColor(LC_PROFILE_AXES_COLOR,
-                      Preferences::themeColors[THEME_DARK_AXES_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_AXES_COLOR]);
-  setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,
-                      Preferences::themeColors[THEME_DARK_OVERLAY_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_OVERLAY_COLOR]);
-  setViewerThemeColor(LC_PROFILE_MARQUEE_BORDER_COLOR,
-                      Preferences::themeColors[THEME_DARK_MARQUEE_BORDER_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_MARQUEE_BORDER_COLOR]);
+  setThemeColor(LC_PROFILE_AXES_COLOR,
+                Preferences::themeColors[THEME_DARK_AXES_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_AXES_COLOR]);
+  setThemeColor(LC_PROFILE_OVERLAY_COLOR,
+                Preferences::themeColors[THEME_DARK_OVERLAY_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_OVERLAY_COLOR]);
+  setThemeColor(LC_PROFILE_MARQUEE_BORDER_COLOR,
+                Preferences::themeColors[THEME_DARK_MARQUEE_BORDER_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_MARQUEE_BORDER_COLOR]);
 
-  setViewerThemeColor(LC_PROFILE_MARQUEE_FILL_COLOR,
-                      Preferences::themeColors[THEME_DARK_MARQUEE_FILL_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_MARQUEE_FILL_COLOR]);
+  setThemeColor(LC_PROFILE_MARQUEE_FILL_COLOR,
+                Preferences::themeColors[THEME_DARK_MARQUEE_FILL_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_MARQUEE_FILL_COLOR]);
 
-  setViewerThemeColor(LC_PROFILE_INACTIVE_VIEW_COLOR,
-                      Preferences::themeColors[THEME_DARK_INACTIVE_VIEW_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_INACTIVE_VIEW_COLOR]);
-  setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,
-                      Preferences::themeColors[THEME_DARK_ACTIVE_VIEW_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_ACTIVE_VIEW_COLOR]);
-  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,
-                      Preferences::themeColors[THEME_DARK_GRID_STUD_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_GRID_STUD_COLOR], 192/*alpha*/);
-  setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,
-                      Preferences::themeColors[THEME_DARK_GRID_LINE_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_GRID_LINE_COLOR]);
-  setViewerThemeColor(LC_PROFILE_TEXT_COLOR,
-                      Preferences::themeColors[THEME_DARK_TEXT_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_TEXT_COLOR]);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,
-                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_COLOR]);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,
-                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_TEXT_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR]);
-  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
-                      Preferences::themeColors[THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR]);
-  setViewerThemeColor(LC_PROFILE_BACKGROUND_COLOR,
-                      Preferences::themeColors[THEME_DARK_VIEWER_BACKGROUND_COLOR],
-                      Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
-  setViewerThemeColor(LC_PROFILE_GRADIENT_COLOR_TOP,
-                      Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_TOP],
-                      Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP]);
-  setViewerThemeColor(LC_PROFILE_GRADIENT_COLOR_BOTTOM,
-                      Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM],
-                      Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM]);
+  setThemeColor(LC_PROFILE_INACTIVE_VIEW_COLOR,
+                Preferences::themeColors[THEME_DARK_INACTIVE_VIEW_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_INACTIVE_VIEW_COLOR]);
+  setThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,
+                Preferences::themeColors[THEME_DARK_ACTIVE_VIEW_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_ACTIVE_VIEW_COLOR]);
+  setThemeColor(LC_PROFILE_GRID_STUD_COLOR,
+                Preferences::themeColors[THEME_DARK_GRID_STUD_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_GRID_STUD_COLOR], 192/*alpha*/);
+  setThemeColor(LC_PROFILE_GRID_LINE_COLOR,
+                Preferences::themeColors[THEME_DARK_GRID_LINE_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_GRID_LINE_COLOR]);
+  setThemeColor(LC_PROFILE_TEXT_COLOR,
+                Preferences::themeColors[THEME_DARK_TEXT_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_TEXT_COLOR]);
+  setThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,
+                Preferences::themeColors[THEME_DARK_VIEW_SPHERE_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_COLOR]);
+  setThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,
+                Preferences::themeColors[THEME_DARK_VIEW_SPHERE_TEXT_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR]);
+  setThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
+                Preferences::themeColors[THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR]);
+  setThemeColor(LC_PROFILE_BACKGROUND_COLOR,
+                Preferences::themeColors[THEME_DARK_VIEWER_BACKGROUND_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
+  setThemeColor(LC_PROFILE_GRADIENT_COLOR_TOP,
+                Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_TOP],
+                Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP]);
+  setThemeColor(LC_PROFILE_GRADIENT_COLOR_BOTTOM,
+                Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM],
+                Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM]);
 
   // Set Visual Editor colour theme - apply after interface colour update
-  lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
+  lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorTheme));
 }
 
 int Application::initialize()
