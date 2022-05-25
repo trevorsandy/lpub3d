@@ -35,8 +35,7 @@
 #define LC_ARRAY_COUNT(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 #define LC_ARRAY_SIZE_CHECK(a,s) static_assert(LC_ARRAY_COUNT(a) == static_cast<int>(s), QT_STRINGIFY(a) " size mismatch.")
 
-/*** LPub3D Mod - addn Q_PROCESSOR_ARM to test Flatpak ARM bbuild eglMakeCurrent failed: 3009 error  ***/
-#if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES) && !defined(Q_PROCESSOR_ARM)
+#if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES)
 #else
 #define LC_OPENGLES 1
 #endif

@@ -137,6 +137,69 @@ lcContext* lcContext::GetGlobalOffscreenContext()
 
 bool lcContext::CreateOffscreenContext()
 {
+	/*** LPub3D Mod - Set context and surface format ***/
+	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
+	if (!OffscreenContext)
+	{
+		qDebug() << "DEBUG Visual Editor - [FAIL] Construct OpenGLContext.";
+		return false;
+	}
+	else
+	{
+		qDebug() << "DEBUG Visual Editor - [OK] Construct OpenGLContext.";
+	}
+
+	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
+
+	OffscreenContext->setFormat(QSurfaceFormat::defaultFormat());
+
+	if (!OffscreenContext->create() || !OffscreenContext->isValid())
+	{
+		qDebug() << "DEBUG Visual Editor - [FAIL] Create OpenGLContext.";
+		return false;
+	}
+	else
+	{
+		qDebug() << "DEBUG Visual Editor - [OK] Create OpenGLContext.";
+	}
+
+	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
+
+	if (!OffscreenSurface)
+	{
+		qDebug() << "DEBUG Visual Editor - [FAIL] Construct OffscreenSurface.";
+		return false;
+	}
+	else
+	{
+		qDebug() << "DEBUG Visual Editor - [OK] Construct OffscreenSurface.";
+	}
+
+	OffscreenSurface->setFormat(OffscreenContext->format());
+
+	OffscreenSurface->create();
+
+	if (!OffscreenSurface->isValid())
+	{
+		qDebug() << "DEBUG Visual Editor - [FAIL] Create OffscreenSurface.";
+		return false;
+	}
+	else
+	{
+		qDebug() << "DEBUG Visual Editor - [OK] Create OffscreenSurface.";
+	}
+
+	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
+	{
+		qDebug() << "DEBUG Visual Editor - [FAIL] Make current OffscreenContext.";
+		return false;
+	}
+	else
+	{
+		qDebug() << "DEBUG Visual Editor - [OK] Make current OffscreenContext.";
+	}
+	/*** LPub3D Mod end ***/
+/*
 	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
 
 	if (!OffscreenContext)
@@ -159,7 +222,7 @@ bool lcContext::CreateOffscreenContext()
 
 	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
 		return false;
-
+*/
 	mOffscreenContext = std::move(OffscreenContext);
 	mOffscreenSurface = std::move(OffscreenSurface);
 
