@@ -135,6 +135,8 @@ lcContext* lcContext::GetGlobalOffscreenContext()
 
 bool lcContext::CreateOffscreenContext()
 {
+	qDebug() << "DEBUG Shared Context - CreateOffscreenContext";
+
 	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
 
 	if (!OffscreenContext)

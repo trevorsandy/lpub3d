@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 02, 2021
+# Last Update June 04, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -16,28 +16,32 @@ if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
      echo "- build check LPub3D macOS..."
      SOURCE_DIR=${LP3D_BUILD_FOLDER}/../dmgbuild/${LPUB3D}
-     # TODO figure out why Linux check is locking up on Travis-CI
      source ${SOURCE_DIR}/builds/check/build_checks.sh
   elif [ "$TRAVIS_OS_NAME" = "linux" ]; then
      echo "- build check LPub3D Linux..."
      SOURCE_DIR=${LP3D_BUILD_FOLDER}
   fi
+  # TODO figure out why Linux check is locking up on Travis-CI
   #source ${SOURCE_DIR}/builds/check/build_checks.sh
 fi
 
-if [[ ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" && "$TRAVIS_OS_NAME" = "linux" ]]; then
   echo "- build check LPub3D.AppImage bundle..."
-  
   file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
   SOURCE_DIR=${LP3D_BUILD_FOLDER}
-  
-  # make temp directory and copy AppImage
-  [ -n "$file_DPkg" ] && mkdir appImage_Check && cp -f $file_DPkg appImage_Check/ && \
-  echo "- $(ls ./appImage_Check/*.AppImage) copied to check folder." && \
-  LPUB3D_EXE="appImage_Check/LPub3D-${LP3D_APP_VERSION_LONG}-x86_64.AppImage" || \
-  echo "ERROR - AppImage not copied to check folder.";
-  
-  source ${SOURCE_DIR}/builds/check/build_checks.sh
+  # make check directory and copy AppImage
+  if [ -n "$file_DPkg" ]; then
+    mkdir appImage_Check && cp -f $file_DPkg appImage_Check/
+    LPUB3D_EXE=$(find appImage_Check -name *.AppImage -type f)
+    if [ -f ${LPUB3D_EXE} ];then
+      echo "- AppImage copied to ${PWD}/${LPUB3D_EXE}."
+    else
+      echo "ERROR - AppImage not copied to ${PWD}/appImage_Check/."
+    fi
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
+  else
+    echo "ERROR - AppImage was not found in $AppImageBuildPath/AppImage."
+  fi
 fi
 
 cd $LP3D_BUILD_FOLDER
