@@ -689,9 +689,24 @@ void Gui::exportAsCsv()
     NativeOptions *Options     = new NativeOptions();
     Options->ImageType         = Options::CSI;
     Options->ExportMode        = EXPORT_CSV;
-    Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
-    Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
+    if (!saveFileName.isEmpty()) // command line user specified file name
+        Options->OutputFileName = saveFileName;
+    else
+        Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt")));
+    if (Preferences::modeGUI) {
+        // determine location for output file
+        QFileInfo fileInfo(curFile);
+        QString baseName = fileInfo.completeBaseName();
+        QString fileName = QFileDialog::getSaveFileName(
+              this,
+              tr("Export File Name"),
+              QDir::currentPath() + QDir::separator() + baseName,
+              tr("TXT (*.txt)"));
+        if (!fileName.isEmpty())
+            Options->OutputFileName = fileName;
+    }
+    Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+                             Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options->InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
@@ -704,9 +719,24 @@ void Gui::exportAsBricklinkXML()
     NativeOptions *Options     = new NativeOptions();
     Options->ImageType         = Options::CSI;
     Options->ExportMode        = EXPORT_BRICKLINK;
-    Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
-    Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
+    if (!saveFileName.isEmpty()) // command line user specified file name
+        Options->OutputFileName = saveFileName;
+    else
+        Options->OutputFileName = QDir::toNativeSeparators(QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml")));
+    if (Preferences::modeGUI) {
+        // determine location for output file
+        QFileInfo fileInfo(curFile);
+        QString baseName = fileInfo.completeBaseName();
+        QString fileName = QFileDialog::getSaveFileName(
+              this,
+              tr("Export File Name"),
+              QDir::currentPath() + QDir::separator() + baseName,
+              tr("XML (*.xml)"));
+        if (!fileName.isEmpty())
+            Options->OutputFileName = fileName;
+    }
+    Options->InputFileName = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+                             Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options->InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
@@ -742,11 +772,10 @@ void Gui::exportAsPdf()
           // release Visual Editor
           emit setExportingSig(false);
           return;
-        }
-    } else
-    if (!saveFileName.isEmpty()) { // command line user specified file name
-        fileName = saveFileName;
-    }
+      }
+  } else if (!saveFileName.isEmpty()) { // command line user specified file name
+      fileName = saveFileName;
+  }
 
   // want info about output file now, not model file
   fileInfo.setFile(fileName);
@@ -1259,7 +1288,7 @@ void Gui::exportAsPdf()
 void Gui::exportAs(const QString &_suffix)
 {
   QString suffix = _suffix;
-  QString directoryName = QDir::currentPath();
+  QString directoryName = saveDirectoryName.isEmpty() ? QDir::currentPath() : saveDirectoryName;
 
   QString type;
   if (suffix == ".png" ||
@@ -1287,15 +1316,17 @@ void Gui::exportAs(const QString &_suffix)
 
       setNativeRenderer();
 
-      char *exportsDir = nullptr;
-      exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
-      if (exportsDir) {
-          stripTrailingPathSeparators(exportsDir);
-          saveDirectoryName = exportsDir;
-      } else {
-          saveDirectoryName = directoryName;
+      if (saveDirectoryName.isEmpty()) {
+          char *exportsDir = nullptr;
+          exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
+          if (exportsDir) {
+              stripTrailingPathSeparators(exportsDir);
+              saveDirectoryName = exportsDir;
+          } else {
+              saveDirectoryName = directoryName;
+          }
+          delete[] exportsDir;
       }
-      delete[] exportsDir;
   }
 
   // determine location to output images

@@ -343,8 +343,8 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-o") || Param == QLatin1String("--export-option"))
         ParseString(exportOption, true);
       else
-      if (Param == QLatin1String("-d") || Param == QLatin1String("--image-output-directory"))
-        ParseString(saveFileName, true);
+      if (Param == QLatin1String("-od") || Param == QLatin1String("--export-directory"))
+        ParseString(saveDirectoryName, true);
       else
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, true);
@@ -603,6 +603,12 @@ int Gui::processCommandLine()
             else
             if (exportOption == "obj")
                exportAsObjDialog();
+            else
+            if (exportOption == "csv")
+               exportAsCsv();
+            else
+            if (exportOption == "bl-xml")
+               exportAsBricklinkXML();
             else
                exportAsPdfDialog();
           } else {
