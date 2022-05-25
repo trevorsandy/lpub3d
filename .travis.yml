@@ -30,6 +30,7 @@ cache:
 # LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
 # LP3D_BUILD_MESALIB_VAR   ; rebuild Mesa library
 # LP3D_UPLOADTOOL_REV_VAR  ; set upload.sh revision - default is master (latest)
+# LP3D_AI_MAGIC_BYTES_VAR  ; do not patch out ARM AppImage magic bytes
 #
 # Remove LP3D_BUILD_PKG_VAR to enable LP3D_COMPILE_SOURCE (compile source only)
 #

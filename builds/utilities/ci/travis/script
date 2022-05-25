@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 07, 2021
+# Last Update June 08, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -112,14 +112,14 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
                 ( cd patchelf-0.9/ && ./configure && make && sudo make install )
                 echo "Installing appimagetool..."
                 sudo wget -c -nv "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage" -O /usr/local/bin/appimagetool
-                sudo chmod a+x /usr/local/bin/appimagetool
+                sudo chmod a+x /usr/local/bin/appimagetool && appimagetool --version
                 convertApp="$(which lconvert)"
                 if [ -n "$convertApp" ]; then
                     ( mkdir bin && cd bin && ln -sf $convertApp lconvert ) && \
                     echo "bin/lconvert linked to $convertApp"
                 fi
             fi
-            chmod a+x linuxdeployqt
+            chmod a+x linuxdeployqt && ./linuxdeployqt -version
             echo "Setup linuxdeployqt completed" && echo
         fi
         renderers=$(find $AppImageBuildPath/opt -type f);
@@ -132,11 +132,33 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
         AppImageFile=$(ls LPub3D*.AppImage)
         if [ -f ${AppImageFile} ]; then
-            if [ "$TRAVIS_CPU_ARCH" = "arm64" ]; then
-                echo "Applying magic bytes '\x00\x00\x00' correction..."
-                sed -i 's|AI\x02|\x00\x00\x00|' ${AppImageFile} && \
-                echo "Magic bytes correction applied to ${AppImageFile}." || \
-                echo "Failed to apply magic bytes correction"
+            # Patch AppImage magic bytes
+            if [[ "$TRAVIS_CPU_ARCH" = "arm64" && -z "$LP3D_AI_MAGIC_BYTES_VAR" ]]; then
+                AppImageMagicBytes="$(hexdump -Cv ${AppImageFile} | head -n 1 | grep '41 49 02 00')"
+                if [ -n "${AppImageMagicBytes}" ]; then
+                    echo "AppImage magic bytes..."
+                    echo "${AppImageMagicBytes}"
+                    echo "Patching magic bytes..."
+                    dd if=/dev/zero of="${AppImageFile}" bs=1 count=3 seek=8 conv=notrunc
+                    AppImageMagicBytes="$(hexdump -Cv ${AppImageFile} | head -n 1 | grep '41 49 02 00')"
+                    if [ -z "${AppImageMagicBytes}" ]; then
+                        echo "Magic bytes patch applied."
+                        hexdump -Cv ${AppImageFile} | head -n 1
+                        ldd ${AppImageFile}
+                        if [ $? -eq 0 ]; then
+                            chmod a+x ${AppImageFile} && \
+                            ./${AppImageFile} -v && \
+                            echo "AppImage is runnable" || \
+                            echo "ERROR - Failed to run ${AppImageFile}"
+                        fi
+                    else
+                        echo "ERROR - Failed to patch ${AppImageFile} magic bytes"
+                        hexdump -Cv ${AppImageFile} | head -n 2
+                    fi
+                else
+                    echo "ERROR - 'AI' magic bytes not found in ${AppImageFile}"
+                    hexdump -Cv ${AppImageFile} | head -n 5
+                fi
             fi
             echo "AppImage build completed successfully.";
             AppImageExtension=${AppImageFile##*-};

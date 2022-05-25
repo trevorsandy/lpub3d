@@ -78,9 +78,10 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 if (contains(QT_ARCH, arm)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarch64)): \
 CHIPSET = ARM
 else: \
-CHIPSET = x86
+CHIPSET = AMD
 
 DEFINES     += VER_ARCH=\\\"$$ARCH\\\"
+DEFINES     += VER_CHIPSET=\\\"$$CHIPSET\\\"
 
 # special case for OpenSuse 1320
 contains(HOST_VERSION, 1320):contains(BUILD_TARGET, suse):contains(BUILD_ARCH, aarch64): \
