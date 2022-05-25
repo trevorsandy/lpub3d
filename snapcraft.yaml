@@ -56,13 +56,13 @@ parts:
   source-and-renderers:
     after: [ldraw-libraries]
     plugin: nil
-    source: https://github.com/trevorsandy/lpub3d/archive/v2.4.3.tar.gz
+    source: https://github.com/trevorsandy/lpub3d-ci/archive/v2.4.4.tar.gz
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
       - LDRAWDIR: ${SNAPCRAFT_STAGE}/build_staging/ldraw
       - LP3D_3RD_DIST_DIR: build_staging
-      - PLATFORM_VER: $(lsb_release -sr)      
+      - PLATFORM_VER: $(lsb_release -sr)
       - TARGET_CPU: $(uname -m)
       - PLATFORM_CODE: ubu
       - LP3D_BUILD_OS: snap
@@ -168,8 +168,8 @@ parts:
     after: [lpub3d]
     plugin: nil
     build-environment:
-      - LDRAWDIR: ${SNAPCRAFT_STAGE}/build_staging/ldraw        
-      - SOURCE_DIR: ${SNAPCRAFT_STAGE}/build_staging/lpub3d    
+      - LDRAWDIR: ${SNAPCRAFT_STAGE}/build_staging/ldraw
+      - SOURCE_DIR: ${SNAPCRAFT_STAGE}/build_staging/lpub3d
       - LPUB3D_DEST: ${SNAPCRAFT_PRIME}/usr
       - LP3D_BUILD_OS: snap      
     build-packages: [xvfb]
