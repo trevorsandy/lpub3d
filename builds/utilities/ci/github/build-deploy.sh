@@ -24,7 +24,7 @@ trap FinishElapsedTime EXIT
 # Publish assets to Sourceforge
 PublishToSourceforge() {
   if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
-    ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok 
+    ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
     [ ! -f $p.ok ] && \
     echo "WARNING - Sourceforge upload failed." && tail -80 $p.out || cat $p.ok
     if [ -n "${LP3D_UPDATE_ASSETS}" ]; then

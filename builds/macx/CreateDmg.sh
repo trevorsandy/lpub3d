@@ -13,7 +13,7 @@ FinishElapsedTime() {
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
   if [ "$BUILD_OPT" = "verify" ]; then
-    echo "$ME Verification Finished!"  
+    echo "$ME Verification Finished!"
   elif [ "$BUILD_OPT" = "compile" ]; then
     echo "LPub3D Compile Finished!"
   elif [ "$BUILD_OPT" = "renderers" ]; then

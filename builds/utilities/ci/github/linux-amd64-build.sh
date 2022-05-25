@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 27, 2021
+# Last Update July 09, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -347,7 +347,6 @@ docker run \
     "${docker_image}" \
     /bin/bash -ex "./docker-run-CMD.sh"
 
-# list the built files
-ls -al ${out_path}/
+test -d ${out_path} && ls -al ${out_path} || :
 
 exit 0

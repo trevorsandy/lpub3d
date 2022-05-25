@@ -270,10 +270,10 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/A
       "archlinux")
         distropkg=pkg ;;
     esac
-  else 
+  else
     distropkg=api
   fi
-  
+
   qmake -v
   qmake -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
   make

@@ -41,7 +41,7 @@ jobs:
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       - name: List Artifacts
-        run: ls -alFR ${{ env.LP3D_BUILDPKG_PATH }}
+        run: test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -70,7 +70,7 @@ jobs:
       - name: Buil macOS
         run: bash -ex builds/utilities/ci/github/macos-build.sh
       - name: List Artifacts
-        run:  ls -alFR ${{ env.LP3D_BUILDPKG_PATH }}
+        run:  test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -130,7 +130,7 @@ jobs:
         run: .\builds\utilities\ci\github\windows-build.bat
         shell: cmd
       - name: List Artifacts
-        run: Get-ChildItem -Path ${{ env.LP3D_BUILDPKG_PATH }} –Recurse
+        run: If (Test-Path -Path ${{ env.LP3D_BUILDPKG_PATH }}) { Get-ChildItem -Path ${{ env.LP3D_BUILDPKG_PATH }} –Recurse }
       - name: Upload Update Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -144,7 +144,7 @@ jobs:
 
   build-deploy:
     if: |
-      !contains(github.event.head_commit.message, 'SKIP_DEPLOY') && 
+      !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'BUILD_ALL') || github.event_name == 'workflow_dispatch')
     # if: ${{ false }} # disable for now
     name: Publish Assets
