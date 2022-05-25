@@ -217,7 +217,7 @@ class lcApplication : public QObject
 
 public:
 /*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
-	lcApplication();
+	lcApplication(const lcCommandLineOptions *Options);
 /*** LPub3D Mod end ***/
 	~lcApplication();
 
@@ -244,6 +244,9 @@ public:
 	QString LPubFadeColour();
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - global options ***/
+	lcCommandLineOptions mOptions;
+/*** LPub3D Mod end ***/
 	Project* mProject = nullptr;
 	lcPiecesLibrary* mLibrary = nullptr;
 	lcPreferences mPreferences;

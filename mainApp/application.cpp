@@ -1224,6 +1224,7 @@ int main(int argc, char** argv)
 
     QScopedPointer<Application> app(new Application(argc, argv));
 
+    gApplication = new lcApplication(&Options);
 
     // Set global shared OpenGL context
     if (!lcContext::InitializeRenderer())

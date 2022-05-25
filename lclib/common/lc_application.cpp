@@ -259,7 +259,8 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 }
 
 /*** LPub3D Mod - Relocate Argc and Argv ***/
-lcApplication::lcApplication()
+lcApplication::lcApplication(const lcCommandLineOptions *Options)
+	:mOptions(*Options)
 /*** LPub3D Mod end ***/
 {
 /*** LPub3D Mod - disable leoCAD application vars ***/
@@ -275,6 +276,11 @@ lcApplication::lcApplication()
 ***/
 /*** LPub3D Mod end ***/
 	mPreferences.LoadDefaults();
+
+/*** LPub3D Mod - global options ***/
+	mPreferences.mShadingMode = Options->ShadingMode;
+	mPreferences.mDrawConditionalLines = Options->DrawConditionalLines;
+/*** LPub3D Mod end ***/
 }
 
 /*** LPub3D Mod - true fade ***/
@@ -1075,31 +1081,30 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 /*** LPub3D Mod - process command line ***/
 int lcApplication::Process3DViewerCommandLine()
 {
-	lcCommandLineOptions Options = ParseCommandLineOptions();
 	QTextStream StdErr(stderr, QIODevice::WriteOnly);
 	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 
-	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
+	const bool SaveAndExit = (mOptions.SaveImage || mOptions.SaveWavefront || mOptions.Save3DS || mOptions.SaveCOLLADA || mOptions.SaveHTML);
 
 	if (!SaveAndExit)
 		return 0;
 
 	/***
-	if (!SaveAndExit && Options.ProjectName.isEmpty() && lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT))
-		Options.ProjectName = lcGetProfileString(LC_PROFILE_RECENT_FILE1);
+	if (!SaveAndExit && mOptions.ProjectName.isEmpty() && lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT))
+		mOptions.ProjectName = lcGetProfileString(LC_PROFILE_RECENT_FILE1);
 	***/
 
 	bool ProjectLoaded = false;
 
-	if (!Options.ProjectName.isEmpty())
+	if (!mOptions.ProjectName.isEmpty())
 	{
 		if (gMainWindow)
-			gMainWindow->OpenProject(Options.ProjectName);
+			gMainWindow->OpenProject(mOptions.ProjectName);
 		else
 		{
 			Project* LoadedProject = new Project();
 
-			if (LoadedProject->Load(Options.ProjectName, false))
+			if (LoadedProject->Load(mOptions.ProjectName, false))
 			{
 				SetProject(LoadedProject);
 				ProjectLoaded = true;
@@ -1113,22 +1118,22 @@ int lcApplication::Process3DViewerCommandLine()
 
 	if (ProjectLoaded)
 	{
-		if (!Options.ModelName.isEmpty())
-			mProject->SetActiveModel(Options.ModelName);
+		if (!mOptions.ModelName.isEmpty())
+			mProject->SetActiveModel(mOptions.ModelName);
 
 		std::unique_ptr<lcView> ActiveView;
 
-		if (Options.SaveImage)
+		if (mOptions.SaveImage)
 		{
 			lcModel* Model;
 
-			if (!Options.ModelName.isEmpty())
+			if (!mOptions.ModelName.isEmpty())
 			{
-				Model = mProject->GetModel(Options.ModelName);
+				Model = mProject->GetModel(mOptions.ModelName);
 
 				if (!Model)
 				{
-					StdErr << tr("Error: model '%1' does not exist.\n").arg(Options.ModelName);
+					StdErr << tr("Error: model '%1' does not exist.\n").arg(mOptions.ModelName);
 					StdErr.flush();
 					return -1;
 				}
@@ -1142,80 +1147,80 @@ int lcApplication::Process3DViewerCommandLine()
 			ActiveView->MakeCurrent();
 		}
 
-		if (Options.SaveImage)
-			ActiveView->SetSize(Options.ImageWidth, Options.ImageHeight);
+		if (mOptions.SaveImage)
+			ActiveView->SetSize(mOptions.ImageWidth, mOptions.ImageHeight);
 
 		if (ActiveView)
 		{
-			if (!Options.CameraName.isEmpty())
-				ActiveView->SetCamera(Options.CameraName);
+			if (!mOptions.CameraName.isEmpty())
+				ActiveView->SetCamera(mOptions.CameraName);
 			else
 			{
-				ActiveView->SetProjection(Options.Orthographic);
+				ActiveView->SetProjection(mOptions.Orthographic);
 
-				if (Options.SetFoV)
-					ActiveView->GetCamera()->m_fovy = Options.FoV;
+				if (mOptions.SetFoV)
+					ActiveView->GetCamera()->m_fovy = mOptions.FoV;
 
-				if (Options.SetZPlanes)
+				if (mOptions.SetZPlanes)
 				{
 					lcCamera* Camera = ActiveView->GetCamera();
 
-					Camera->m_zNear = Options.ZPlanes[0];
-					Camera->m_zFar = Options.ZPlanes[1];
+					Camera->m_zNear = mOptions.ZPlanes[0];
+					Camera->m_zFar = mOptions.ZPlanes[1];
 				}
 
-				if (Options.Viewpoint != lcViewpoint::Count)
-					ActiveView->SetViewpoint(Options.Viewpoint);
-				else if (Options.SetCameraAngles)
-					ActiveView->SetCameraAngles(Options.CameraLatLon[0], Options.CameraLatLon[1]);
-				else if (Options.SetCameraPosition)
-					ActiveView->SetViewpoint(Options.CameraPosition[0], Options.CameraPosition[1], Options.CameraPosition[2]);
+				if (mOptions.Viewpoint != lcViewpoint::Count)
+					ActiveView->SetViewpoint(mOptions.Viewpoint);
+				else if (mOptions.SetCameraAngles)
+					ActiveView->SetCameraAngles(mOptions.CameraLatLon[0], mOptions.CameraLatLon[1]);
+				else if (mOptions.SetCameraPosition)
+					ActiveView->SetViewpoint(mOptions.CameraPosition[0], mOptions.CameraPosition[1], mOptions.CameraPosition[2]);
 			}
 		}
 
-		if (Options.SaveImage)
+		if (mOptions.SaveImage)
 		{
 			lcModel* ActiveModel = ActiveView->GetModel();
 
-			if (Options.ImageName.isEmpty())
-				Options.ImageName = mProject->GetImageFileName(true);
+			if (mOptions.ImageName.isEmpty())
+				mOptions.ImageName = mProject->GetImageFileName(true);
 
-			if (Options.ImageEnd < Options.ImageStart)
-				Options.ImageEnd = Options.ImageStart;
-			else if (Options.ImageStart > Options.ImageEnd)
-				Options.ImageStart = Options.ImageEnd;
+			if (mOptions.ImageEnd < mOptions.ImageStart)
+				mOptions.ImageEnd = mOptions.ImageStart;
+			else if (mOptions.ImageStart > mOptions.ImageEnd)
+				mOptions.ImageStart = mOptions.ImageEnd;
 
-			if ((Options.ImageStart == 0) && (Options.ImageEnd == 0))
-				Options.ImageStart = Options.ImageEnd = ActiveModel->GetCurrentStep();
-			else if ((Options.ImageStart == 0) && (Options.ImageEnd != 0))
-				Options.ImageStart = Options.ImageEnd;
-			else if ((Options.ImageStart != 0) && (Options.ImageEnd == 0))
-				Options.ImageEnd = Options.ImageStart;
+			if ((mOptions.ImageStart == 0) && (mOptions.ImageEnd == 0))
+				mOptions.ImageStart = mOptions.ImageEnd = ActiveModel->GetCurrentStep();
+			else if ((mOptions.ImageStart == 0) && (mOptions.ImageEnd != 0))
+				mOptions.ImageStart = mOptions.ImageEnd;
+			else if ((mOptions.ImageStart != 0) && (mOptions.ImageEnd == 0))
+				mOptions.ImageEnd = mOptions.ImageStart;
 
-			if (Options.ImageStart > 255)
-				Options.ImageStart = 255;
+			if (mOptions.ImageStart > 255)
+				mOptions.ImageStart = 255;
 
-			if (Options.ImageEnd > 255)
-				Options.ImageEnd = 255;
+			if (mOptions.ImageEnd > 255)
+				mOptions.ImageEnd = 255;
 
 			QString Frame;
 
-			if (Options.ImageStart != Options.ImageEnd)
+			if (mOptions.ImageStart != mOptions.ImageEnd)
 			{
-				QString Extension = QFileInfo(Options.ImageName).suffix();
-				Frame = Options.ImageName.left(Options.ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
+				QString Extension = QFileInfo(mOptions.ImageName).suffix();
+				Frame = mOptions.ImageName.left(mOptions.ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
 			}
 			else
-				Frame = Options.ImageName;
+				Frame = mOptions.ImageName;
 
-			mPreferences.mFadeSteps = Options.FadeSteps;
-			if (Options.SetFadeStepsColor)
-				mPreferences.mFadeStepsColor = Options.FadeStepsColor;
-			mPreferences.mHighlightNewParts = Options.ImageHighlight;
-			if (Options.SetHighlightColor)
-				mPreferences.mHighlightNewPartsColor = Options.HighlightColor;
+			mPreferences.mFadeSteps = mOptions.FadeSteps;
+			if (mOptions.SetFadeStepsColor)
+				mPreferences.mFadeStepsColor = mOptions.FadeStepsColor;
+			mPreferences.mHighlightNewParts = mOptions.ImageHighlight;
+			if (mOptions.SetHighlightColor)
+				mPreferences.mHighlightNewPartsColor = mOptions.HighlightColor;
 
-			if (Options.CameraName.isEmpty() && !Options.SetCameraPosition)
+			if (mOptions.CameraName.isEmpty() && !mOptions.SetCameraPosition)
 				ActiveView->ZoomExtents();
 
 			auto ProgressCallback = [&StdOut](const QString& FileName)
@@ -1223,17 +1228,17 @@ int lcApplication::Process3DViewerCommandLine()
 				StdOut << tr("Saved '%1'.\n").arg(FileName);
 			};
 
-			ActiveView->SaveStepImages(Frame, Options.ImageStart != Options.ImageEnd, Options.ImageStart, Options.ImageEnd, ProgressCallback);
+			ActiveView->SaveStepImages(Frame, mOptions.ImageStart != mOptions.ImageEnd, mOptions.ImageStart, mOptions.ImageEnd, ProgressCallback);
 		}
 
-		if (Options.SaveWavefront)
+		if (mOptions.SaveWavefront)
 		{
 			QString FileName;
 
-			if (!Options.SaveWavefrontName.isEmpty())
-				FileName = Options.SaveWavefrontName;
+			if (!mOptions.SaveWavefrontName.isEmpty())
+				FileName = mOptions.SaveWavefrontName;
 			else
-				FileName = Options.ProjectName;
+				FileName = mOptions.ProjectName;
 
 			QString Extension = QFileInfo(FileName).suffix().toLower();
 
@@ -1251,14 +1256,14 @@ int lcApplication::Process3DViewerCommandLine()
 				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
-		if (Options.Save3DS)
+		if (mOptions.Save3DS)
 		{
 			QString FileName;
 
-			if (!Options.Save3DSName.isEmpty())
-				FileName = Options.Save3DSName;
+			if (!mOptions.Save3DSName.isEmpty())
+				FileName = mOptions.Save3DSName;
 			else
-				FileName = Options.ProjectName;
+				FileName = mOptions.ProjectName;
 
 			QString Extension = QFileInfo(FileName).suffix().toLower();
 
@@ -1276,14 +1281,14 @@ int lcApplication::Process3DViewerCommandLine()
 				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
-		if (Options.SaveCOLLADA)
+		if (mOptions.SaveCOLLADA)
 		{
 			QString FileName;
 
-			if (!Options.SaveCOLLADAName.isEmpty())
-				FileName = Options.SaveCOLLADAName;
+			if (!mOptions.SaveCOLLADAName.isEmpty())
+				FileName = mOptions.SaveCOLLADAName;
 			else
-				FileName = Options.ProjectName;
+				FileName = mOptions.ProjectName;
 
 			QString Extension = QFileInfo(FileName).suffix().toLower();
 
@@ -1301,12 +1306,12 @@ int lcApplication::Process3DViewerCommandLine()
 				StdOut << tr("Saved '%1'.\n").arg(FileName);
 		}
 
-		if (Options.SaveHTML)
+		if (mOptions.SaveHTML)
 		{
 			lcHTMLExportOptions HTMLOptions(mProject);
 
-			if (!Options.SaveHTMLName.isEmpty())
-				HTMLOptions.PathName = Options.SaveHTMLName;
+			if (!mOptions.SaveHTMLName.isEmpty())
+				HTMLOptions.PathName = mOptions.SaveHTMLName;
 
 			mProject->ExportHTML(HTMLOptions);
 		}
@@ -1325,27 +1330,26 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 
 	emit Application::instance()->splashMsgSig("45% - Visual Editor widgets loading...");
 
-	lcCommandLineOptions Options = ParseCommandLineOptions();
 	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 	QTextStream StdErr(stderr, QIODevice::WriteOnly);
 
 	/***
-	if (!Options.StdErr.isEmpty())
+	if (!mOptions.StdErr.isEmpty())
 	{
-		StdErr << Options.StdErr;
+		StdErr << mOptions.StdErr;
 		StdErr.flush();
 	}
 	***/
-	if (!Options.StdOut.isEmpty())
+	if (!mOptions.StdOut.isEmpty())
 	{
-		StdOut << Options.StdOut;
+		StdOut << mOptions.StdOut;
 		StdOut.flush();
 	}
 	/***
-	if (!Options.ParseOK)
+	if (!mOptions.ParseOK)
 		return lcStartupMode::Error;
 
-	if (Options.Exit)
+	if (mOptions.Exit)
 		return lcStartupMode::Success;
 
 	if (!lcContext::InitializeRenderer())
@@ -1354,7 +1358,7 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		return lcStartupMode::Error;
 	}
 
-	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
+	const bool SaveAndExit = (mOptions.SaveImage || mOptions.SaveWavefront || mOptions.Save3DS || mOptions.SaveCOLLADA || mOptions.SaveHTML);
 	***/
 
 	if (!SaveAndExit)
@@ -1385,18 +1389,18 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		}
 	}
 
-	mPreferences.mDrawConditionalLines = Options.DrawConditionalLines;
-	mPreferences.mShadingMode = Options.ShadingMode;
-	mPreferences.mLineWidth = Options.LineWidth;
-	mPreferences.mStudCylinderColor = Options.StudCylinderColor;
-	mPreferences.mPartEdgeColor = Options.PartEdgeColor;
-	mPreferences.mBlackEdgeColor = Options.BlackEdgeColor;
-	mPreferences.mDarkEdgeColor = Options.DarkEdgeColor;
-	mPreferences.mPartEdgeContrast = Options.PartEdgeContrast;
-	mPreferences.mPartColorValueLDIndex = Options.PartColorValueLDIndex;
-	mPreferences.mAutomateEdgeColor = Options.AutomateEdgeColor;
+	mPreferences.mDrawConditionalLines = mOptions.DrawConditionalLines;
+	mPreferences.mShadingMode = mOptions.ShadingMode;
+	mPreferences.mLineWidth = mOptions.LineWidth;
+	mPreferences.mStudCylinderColor = mOptions.StudCylinderColor;
+	mPreferences.mPartEdgeColor = mOptions.PartEdgeColor;
+	mPreferences.mBlackEdgeColor = mOptions.BlackEdgeColor;
+	mPreferences.mDarkEdgeColor = mOptions.DarkEdgeColor;
+	mPreferences.mPartEdgeContrast = mOptions.PartEdgeContrast;
+	mPreferences.mPartColorValueLDIndex = mOptions.PartColorValueLDIndex;
+	mPreferences.mAutomateEdgeColor = mOptions.AutomateEdgeColor;
 
-	lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, false);
+	lcGetPiecesLibrary()->SetStudStyle(mOptions.StudStyle, false);
 
 	if (!SaveAndExit)
 		gMainWindow->CreateWidgets();
