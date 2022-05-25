@@ -2062,7 +2062,7 @@ bool lcPiecesLibrary::ReloadUnofficialLib()
 	{
 		PieceInfo* Info = PieceIt.second;
 
-		if (Info->mState == LC_lcPieceInfoState::Loaded && Info->mZipFileType == lcZipFileType::Unofficial)
+		if (Info->mState == lcPieceInfoState::Loaded && Info->mZipFileType == lcZipFileType::Unofficial)
 		{
 			Info->Unload();
 			mLoadQueue.append(Info);

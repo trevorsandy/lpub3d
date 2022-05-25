@@ -529,7 +529,9 @@ void lcPiece::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 
 void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 {
-	const float LineWidth = lcGetPreferences().mLineWidth;
+	const lcPreferences& Preferences = lcGetPreferences();
+	const float LineWidth = Preferences.mLineWidth;
+
 	Context->SetLineWidth(2.0f * LineWidth);
 
 	const lcBoundingBox& BoundingBox = GetBoundingBox();
@@ -577,14 +579,25 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	Context->SetWorldMatrix(WorldMatrix);
 
 	if (IsFocused(LC_PIECE_SECTION_POSITION))
-		Context->SetInterfaceColor(lcInterfaceColor::Focused);
+	{
+		const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+		Context->SetColor(FocusedColor);
+	}
 	else
-/*** LPub3D Mod - Selected Parts ***/
-		if (gApplication->mPreferences.mBuildModificationEnabled)
-			Context->SetInterfaceColor(lcInterfaceColor::BMSelected);
+	{
+/*** LPub3D Mod - Selected Parts ***/		
+		if (Preferences.mBuildModificationEnabled)
+		{
+			const lcVector4 BMSelectedColor = lcVector4FromColor(Preferences.mBMObjectSelectedColor);
+			Context->SetColor(BMSelectedColor);;
+		}
 		else
-			Context->SetInterfaceColor(lcInterfaceColor::Selected);
-/*** LPub3D Mod end ***/
+		{
+			const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+			Context->SetColor(SelectedColor);
+		}
+/*** LPub3D Mod end ***/		
+	}
 
 	Context->SetVertexBufferPointer(LineVerts);
 	Context->SetVertexFormatPosition(3);
@@ -640,6 +653,9 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		Context->EnableColorBlend(true);
 		Context->EnableCullFace(true);
 
+		const lcVector4 ControlPointColor = lcVector4FromColor(Preferences.mControlPointColor);
+		const lcVector4 ControlPointFocusedColor = lcVector4FromColor(Preferences.mControlPointFocusedColor);
+
 		for (int ControlPointIdx = 0; ControlPointIdx < mControlPoints.GetSize(); ControlPointIdx++)
 		{
 			Context->SetWorldMatrix(lcMul(mControlPoints[ControlPointIdx].Transform, WorldMatrix));
@@ -649,9 +665,9 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 			Context->SetIndexBufferPointer(Indices);
 
 			if (IsFocused(LC_PIECE_SECTION_CONTROL_POINT_FIRST + ControlPointIdx))
-				Context->SetInterfaceColor(lcInterfaceColor::ControlPointFocused);
+				Context->SetColor(ControlPointFocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::ControlPoint);
+				Context->SetColor(ControlPointColor);
 
 			Context->DrawIndexedPrimitives(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
 		}

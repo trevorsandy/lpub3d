@@ -604,12 +604,16 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	Context->SetVertexFormatPosition(3);
 	Context->SetIndexBufferPointer(Indices);
 
-	const float LineWidth = lcGetPreferences().mLineWidth;
+	const lcPreferences& Preferences = lcGetPreferences();
+	const float LineWidth = Preferences.mLineWidth;
+	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+	const lcVector4 CameraColor = lcVector4FromColor(Preferences.mCameraColor);
 
 	if (!IsSelected())
 	{
 		Context->SetLineWidth(LineWidth);
-		Context->SetInterfaceColor(lcInterfaceColor::Camera);
+		Context->SetColor(CameraColor);
 
 		Context->DrawIndexedPrimitives(GL_LINES, 40 + 24 + 24 + 4, GL_UNSIGNED_SHORT, 0);
 	}
@@ -619,14 +623,14 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_CAMERA_SECTION_POSITION))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(lcInterfaceColor::Camera);
+			Context->SetColor(CameraColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 40, GL_UNSIGNED_SHORT, 0);
@@ -635,14 +639,14 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_CAMERA_SECTION_TARGET))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(lcInterfaceColor::Camera);
+			Context->SetColor(CameraColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 40 * 2);
@@ -651,19 +655,19 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_CAMERA_SECTION_UPVECTOR))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(lcInterfaceColor::Camera);
+			Context->SetColor(CameraColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, (40 + 24) * 2);
 
-		Context->SetInterfaceColor(lcInterfaceColor::Camera);
+		Context->SetColor(CameraColor);
 		Context->SetLineWidth(LineWidth);
 
 		float SizeY = tanf(LC_DTOR * m_fovy / 2) * Length;
@@ -1141,10 +1145,10 @@ void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const fl
 
 /*** LPub3D Mod - Camera Globe ***/
 	// Convert distance to LeoCAD format from Lego Draw Unit (LDU) format - e.g. 3031329
-	int   Width      = lcGetActiveProject()->GetModelWidth();
-	int   Renderer   = lcGetActiveProject()->GetRenderer();
-	float Resolution = lcGetActiveProject()->GetResolution();
-	float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
+	const int   Width      = lcGetActiveProject()->GetModelWidth();
+	const int   Renderer   = lcGetActiveProject()->GetRenderer();
+	const float Resolution = lcGetActiveProject()->GetResolution();
+	const float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
 
 	mPosition = lcMul(mPosition, LatitudeMatrix) * CameraDistance;
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
@@ -1152,8 +1156,8 @@ void lcCamera::SetAngles(const float &Latitude, const float &Longitude, const fl
 	// Set LookAt Viewpoint
 	if (Target != mTargetPosition) {
 		mTargetPosition = Target;
-		lcVector3 Direction = mTargetPosition - mPosition;
-		SideVector = lcCross(Direction, mUpVector);
+		const lcVector3 Direction = mTargetPosition - mPosition;
+		lcVector3 SideVector = lcCross(Direction, mUpVector);
 		lcVector3 UpVector = lcCross(SideVector, Direction);
 		UpVector.Normalize();
 		mUpVector = UpVector;
@@ -1185,9 +1189,9 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 
 /*** LPub3D Mod - Camera Globe ***/
 	// Convert distance to Lego Draw Unit (LDU) format from LeoCAD format - e.g. 1250
-	int   Width      = lcGetActiveProject()->GetModelWidth();
-	int   Renderer   = lcGetActiveProject()->GetRenderer();
-	float Resolution = lcGetActiveProject()->GetResolution();
+	const int   Width      = lcGetActiveProject()->GetModelWidth();
+	const int   Renderer   = lcGetActiveProject()->GetRenderer();
+	const float Resolution = lcGetActiveProject()->GetResolution();
 	Distance = StandardCameraDistance(lcLength(mPosition), GetCDF(), Width, Resolution, Renderer);
 /*** LPub3D Mod end ***/
 }

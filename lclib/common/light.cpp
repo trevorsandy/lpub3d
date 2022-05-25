@@ -761,19 +761,18 @@ void lcLight::DrawDirectionalLight(lcContext* Context) const
 	float Verts[(20 + 8 + 2 + 16) * 3];
 	float* CurVert = Verts;
 
+	for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
+	{
+		float c = cosf(float(EdgeIdx) / 4 * LC_PI) * LC_LIGHT_POSITION_EDGE;
+		float s = sinf(float(EdgeIdx) / 4 * LC_PI) * LC_LIGHT_POSITION_EDGE;
 
-		for (int EdgeIdx = 0; EdgeIdx < 8; EdgeIdx++)
-		{
-			float c = cosf(float(EdgeIdx) / 4 * LC_PI) * LC_LIGHT_POSITION_EDGE;
-			float s = sinf(float(EdgeIdx) / 4 * LC_PI) * LC_LIGHT_POSITION_EDGE;
-
-			*CurVert++ = c;
-			*CurVert++ = s;
-			*CurVert++ = LC_LIGHT_POSITION_EDGE;
-			*CurVert++ = c;
-			*CurVert++ = s;
-			*CurVert++ = -LC_LIGHT_POSITION_EDGE;
-		}
+		*CurVert++ = c;
+		*CurVert++ = s;
+		*CurVert++ = LC_LIGHT_POSITION_EDGE;
+		*CurVert++ = c;
+		*CurVert++ = s;
+		*CurVert++ = -LC_LIGHT_POSITION_EDGE;
+	}
 
 	if (mLightType == LC_SUNLIGHT) {
 
@@ -826,13 +825,17 @@ void lcLight::DrawDirectionalLight(lcContext* Context) const
 	Context->SetVertexFormatPosition(3);
 	Context->SetIndexBufferPointer(Indices);
 
-	float LineWidth = lcGetPreferences().mLineWidth;
+	const lcPreferences& Preferences = lcGetPreferences();
+	const float LineWidth = Preferences.mLineWidth;
+	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+	const lcVector4 LightColor = lcVector4FromColor(Preferences.mLightColor);
 
 	if (!IsSelected())
 	{
 		Context->SetLineWidth(LineWidth);
-		Context->SetInterfaceColor(InterfaceColor::Light);
-
+		Context->SetColor(LightColor);
+		
 		Context->DrawIndexedPrimitives(GL_LINES, 56 + 24 + 2, GL_UNSIGNED_SHORT, 0);
 	}
 	else
@@ -841,14 +844,14 @@ void lcLight::DrawDirectionalLight(lcContext* Context) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_LIGHT_SECTION_POSITION))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(InterfaceColor::Light);
+			Context->SetColor(LightColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 56, GL_UNSIGNED_SHORT, 0);
@@ -857,20 +860,20 @@ void lcLight::DrawDirectionalLight(lcContext* Context) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_LIGHT_SECTION_TARGET))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(InterfaceColor::Light);
+			Context->SetColor(LightColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 56 * 2);
 
 		Context->SetLineWidth(LineWidth);
-		Context->SetInterfaceColor(InterfaceColor::Light);
+		Context->SetColor(LightColor);
 
 		Context->DrawIndexedPrimitives(GL_LINES, 2 + 40, GL_UNSIGNED_SHORT, (56 + 24) * 2);
 	}
@@ -958,12 +961,16 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 	Context->SetVertexFormatPosition(3);
 	Context->SetIndexBufferPointer(Indices);
 
-	const float LineWidth = lcGetPreferences().mLineWidth;
+	const lcPreferences& Preferences = lcGetPreferences();
+	const float LineWidth = Preferences.mLineWidth;
+	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+	const lcVector4 LightColor = lcVector4FromColor(Preferences.mLightColor);
 
 	if (!IsSelected())
 	{
 		Context->SetLineWidth(LineWidth);
-		Context->SetInterfaceColor(lcInterfaceColor::Light);
+		Context->SetColor(LightColor);
 
 		Context->DrawIndexedPrimitives(GL_LINES, 56 + 24 + 2, GL_UNSIGNED_SHORT, 0);
 	}
@@ -973,14 +980,14 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_LIGHT_SECTION_POSITION))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(lcInterfaceColor::Light);
+			Context->SetColor(LightColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 56, GL_UNSIGNED_SHORT, 0);
@@ -989,20 +996,20 @@ void lcLight::DrawSpotLight(lcContext* Context) const
 		{
 			Context->SetLineWidth(2.0f * LineWidth);
 			if (IsFocused(LC_LIGHT_SECTION_TARGET))
-				Context->SetInterfaceColor(lcInterfaceColor::Focused);
+				Context->SetColor(FocusedColor);
 			else
-				Context->SetInterfaceColor(lcInterfaceColor::Selected);
+				Context->SetColor(SelectedColor);
 		}
 		else
 		{
 			Context->SetLineWidth(LineWidth);
-			Context->SetInterfaceColor(lcInterfaceColor::Light);
+			Context->SetColor(LightColor);
 		}
 
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 56 * 2);
 
 		Context->SetLineWidth(LineWidth);
-		Context->SetInterfaceColor(lcInterfaceColor::Light);
+		Context->SetColor(LightColor);
 
 		float Radius = tanf(LC_DTOR * mSpotCutoff) * Length;
 
@@ -1096,12 +1103,23 @@ void lcLight::DrawPointLight(lcContext* Context) const
 
 	Context->SetWorldMatrix(lcMatrix44Translation(mPosition));
 
+	const lcPreferences& Preferences = lcGetPreferences();
+
 	if (IsFocused(LC_LIGHT_SECTION_POSITION))
-		Context->SetInterfaceColor(lcInterfaceColor::Focused);
+	{
+		const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+		Context->SetColor(FocusedColor);
+	}
 	else if (IsSelected(LC_LIGHT_SECTION_POSITION))
-		Context->SetInterfaceColor(lcInterfaceColor::Selected);
+	{
+		const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+		Context->SetColor(SelectedColor);
+	}
 	else
-		Context->SetInterfaceColor(lcInterfaceColor::Light);
+	{
+		const lcVector4 LightColor = lcVector4FromColor(Preferences.mLightColor);
+		Context->SetColor(LightColor);
+	}
 
 	Context->SetVertexBufferPointer(Vertices);
 	Context->SetVertexFormatPosition(3);

@@ -82,6 +82,16 @@ void lcPreferences::LoadDefaults()
 	mPartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
 	mPartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 	mAutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+	mObjectSelectedColor = lcGetProfileUInt(LC_PROFILE_OBJECT_SELECTED_COLOR);
+	mObjectFocusedColor = lcGetProfileUInt(LC_PROFILE_OBJECT_FOCUSED_COLOR);
+	mCameraColor = lcGetProfileUInt(LC_PROFILE_CAMERA_COLOR);
+	mLightColor = lcGetProfileUInt(LC_PROFILE_LIGHT_COLOR);
+	mControlPointColor = lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR);
+	mControlPointFocusedColor = lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR);
+
+/*** LPub3D Mod - Build mod object selected colour ***/	
+	mBMObjectSelectedColor = lcGetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR);
+/*** LPub3D Mod end ***/	
 
 /*** LPub3D Mod - Zoom extents ***/
 	mZoomExtents = lcGetProfileInt(LC_PROFILE_ZOOM_EXTENTS);
@@ -178,7 +188,17 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST, mPartEdgeContrast);
 	lcSetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX, mPartColorValueLDIndex);
 	lcSetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR, mAutomateEdgeColor);
+	lcSetProfileUInt(LC_PROFILE_OBJECT_SELECTED_COLOR, mObjectSelectedColor);
+	lcSetProfileUInt(LC_PROFILE_OBJECT_FOCUSED_COLOR, mObjectFocusedColor);
+	lcSetProfileUInt(LC_PROFILE_CAMERA_COLOR, mCameraColor);
+	lcSetProfileUInt(LC_PROFILE_LIGHT_COLOR, mLightColor);
+	lcSetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR, mControlPointColor);
+	lcSetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR, mControlPointFocusedColor);
 
+/*** LPub3D Mod - Build mod object selected colour ***/	
+	lcSetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR, mBMObjectSelectedColor);
+/*** LPub3D Mod - ***/
+	
 /*** LPub3D Mod - Zoom extents ***/
 	lcSetProfileInt(LC_PROFILE_ZOOM_EXTENTS, mZoomExtents);
 /*** LPub3D Mod - ***/
@@ -244,6 +264,17 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(35, 38, 41, 255);
 		mViewSphereTextColor = LC_RGBA(224, 224, 224, 255);
 		mViewSphereHighlightColor = LC_RGBA(41, 128, 185, 255);
+/*** LPub3D Mod - Object selected colour ***/
+		mObjectSelectedColor = LC_RGBA(229, 76, 102, 255);
+		mObjectFocusedColor = LC_RGBA(102, 76, 229, 255);
+		mCameraColor = LC_RGBA(128, 204, 128, 255);
+		mLightColor = LC_RGBA(128, 204, 128, 255);
+		mControlPointColor = LC_RGBA(128, 204, 128, 128);
+		mControlPointFocusedColor = LC_RGBA(102, 76, 229, 128);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Build mod object selected colour ***/
+		mBMObjectSelectedColor = LC_RGBA(121, 216, 121, 255);
+/*** LPub3D Mod end ***/
 	}
 	else
 	{
@@ -264,6 +295,17 @@ void lcPreferences::SetInterfaceColors(lcColorTheme ColorTheme)
 		mViewSphereColor = LC_RGBA(255, 255, 255, 255);
 		mViewSphereTextColor = LC_RGBA(0, 0, 0, 255);
 		mViewSphereHighlightColor = LC_RGBA(255, 0, 0, 255);
+/*** LPub3D Mod - Object selected colour ***/
+		mObjectSelectedColor = LC_RGBA(229, 76, 102, 255);
+		mObjectFocusedColor = LC_RGBA(102, 76, 229, 255);
+		mCameraColor = LC_RGBA(128, 204, 128, 255);
+		mLightColor = LC_RGBA(128, 204, 128, 255);
+		mControlPointColor = LC_RGBA(128, 204, 128, 128);
+		mControlPointFocusedColor = LC_RGBA(102, 76, 229, 128);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Build mod object selected colour ***/
+		mBMObjectSelectedColor = LC_RGBA(121, 216, 121, 255);
+/*** LPub3D Mod end ***/
 	}
 }
 

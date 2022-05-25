@@ -717,15 +717,17 @@ void lcContext::EnableColorBlend(bool Enable)
 /*** LPub3D Mod - true fade ***/
 void lcContext::EnableCullFace(bool Enable, bool LPubFade)
 {
-	if (LPubFade)
-		glCullFace(GL_BLACK);
-/*** LPub3D Mod end ***/
-	
 	if (Enable == mCullFace)
 		return;
 
 	if (Enable)
+/*** LPub3D Mod - true fade ***/
+	{
+		if (LPubFade)
+			glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
+	}
+/*** LPub3D Mod end ***/
 	else
 		glDisable(GL_CULL_FACE);
 
@@ -910,9 +912,9 @@ void lcContext::SetColorIndex(int ColorIndex)
 	SetColor(gColorList[ColorIndex].Value);
 }
 
-void lcContext::SetColorIndexTinted(int ColorIndex, lcInterfaceColor InterfaceColor, float Weight)
+void lcContext::SetColorIndexTinted(int ColorIndex, const lcVector4& Tint, float Weight)
 {
-	const lcVector3 Color(gColorList[ColorIndex].Value * Weight + gInterfaceColors[static_cast<int>(InterfaceColor)] * (1.0f - Weight));
+	const lcVector3 Color(gColorList[ColorIndex].Value * Weight + Tint * (1.0f - Weight));
 	SetColor(lcVector4(Color, gColorList[ColorIndex].Value.w));
 }
 
@@ -929,11 +931,6 @@ void lcContext::SetEdgeColorIndex(int ColorIndex)
 void lcContext::SetEdgeColorIndexTinted(int ColorIndex, const lcVector4& Tint)
 {
 	SetColor(gColorList[ColorIndex].Edge * Tint);
-}
-
-void lcContext::SetInterfaceColor(lcInterfaceColor InterfaceColor)
-{
-	SetColor(gInterfaceColors[static_cast<int>(InterfaceColor)]);
 }
 
 lcVertexBuffer lcContext::CreateVertexBuffer(int Size, const void* Data)

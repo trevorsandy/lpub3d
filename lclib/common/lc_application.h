@@ -100,6 +100,13 @@ public:
 	bool mAutoLoadMostRecent;
 	bool mRestoreTabLayout;
 	lcColorTheme mColorTheme;
+	quint32 mObjectSelectedColor;
+	quint32 mObjectFocusedColor;
+	quint32 mCameraColor;
+	quint32 mLightColor;
+	quint32 mControlPointColor;
+	quint32 mControlPointFocusedColor;
+
 
 	int mPreviewViewSphereEnabled;
 	int mPreviewViewSphereSize;
@@ -113,6 +120,10 @@ public:
 	float mPartEdgeContrast;
 	float mPartColorValueLDIndex;
 	bool  mAutomateEdgeColor;
+
+/*** LPub3D Mod - Build mod object selected colour ***/
+	quint32 mBMObjectSelectedColor;
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Zoom extents ***/
 	int mZoomExtents;

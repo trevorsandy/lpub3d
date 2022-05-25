@@ -49,6 +49,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	connect(ui->ViewSphereColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
 	connect(ui->ViewSphereTextColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
 	connect(ui->ViewSphereHighlightColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->ObjectSelectedColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->ObjectFocusedColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->CameraColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->LightColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->ControlPointColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+	connect(ui->ControlPointFocusedColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+/*** LPub3D Mod - Build mod object selected colour ***/
+	connect(ui->BMObjectSelectedColorButton, &QToolButton::clicked, this, &lcQPreferencesDialog::ColorButtonClicked);
+/*** LPub3D Mod end ***/
 	connect(ui->categoriesTree, SIGNAL(itemSelectionChanged()), this, SLOT(updateParts()));
 	ui->shortcutEdit->installEventFilter(this);
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
@@ -184,10 +193,11 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		case 300:
 			ui->PreviewSizeCombo->setCurrentIndex(1);
 			break;
-		default: /*Disabled*/
+		default: /*Disabled/Docked*/
 			ui->PreviewSizeCombo->setCurrentIndex(0);
 			break;
 		}
+		ui->PreviewAxisIconCheckBox->setEnabled(true);
 	}
 	else
 		ui->PreviewSizeCombo->setCurrentIndex(0);
@@ -250,6 +260,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	SetButtonPixmap(mOptions->Preferences.mViewSphereColor, ui->ViewSphereColorButton);
 	SetButtonPixmap(mOptions->Preferences.mViewSphereTextColor, ui->ViewSphereTextColorButton);
 	SetButtonPixmap(mOptions->Preferences.mViewSphereHighlightColor, ui->ViewSphereHighlightColorButton);
+	SetButtonPixmap(mOptions->Preferences.mObjectSelectedColor, ui->ObjectSelectedColorButton);
+	SetButtonPixmap(mOptions->Preferences.mObjectFocusedColor, ui->ObjectFocusedColorButton);
+	SetButtonPixmap(mOptions->Preferences.mCameraColor, ui->CameraColorButton);
+	SetButtonPixmap(mOptions->Preferences.mLightColor, ui->LightColorButton);
+	SetButtonPixmap(mOptions->Preferences.mControlPointColor, ui->ControlPointColorButton);
+	SetButtonPixmap(mOptions->Preferences.mControlPointFocusedColor, ui->ControlPointFocusedColorButton);
+/*** LPub3D Mod - Build mod object selected colour ***/
+	SetButtonPixmap(mOptions->Preferences.mBMObjectSelectedColor, ui->BMObjectSelectedColorButton);
+/*** LPub3D Mod end ***/
 
 	on_studStyleCombo_currentIndexChanged(ui->studStyleCombo->currentIndex());
 	on_antiAliasing_toggled();
@@ -669,6 +688,45 @@ void lcQPreferencesDialog::ColorButtonClicked()
 		Color = &mOptions->Preferences.mViewSphereHighlightColor;
 		Title = tr("Select View Sphere Highlight Color");
 	}
+	else if (Button == ui->ObjectSelectedColorButton)
+	{
+		Color = &mOptions->Preferences.mObjectSelectedColor;
+		Title = tr("Select Object Selected Color");
+	}
+	else if (Button == ui->ObjectFocusedColorButton)
+	{
+		Color = &mOptions->Preferences.mObjectFocusedColor;
+		Title = tr("Select Object Focused Color");
+	}
+	else if (Button == ui->CameraColorButton)
+	{
+		Color = &mOptions->Preferences.mCameraColor;
+		Title = tr("Select Camera Color");
+	}
+	else if (Button == ui->LightColorButton)
+	{
+		Color = &mOptions->Preferences.mLightColor;
+		Title = tr("Select Light Color");
+	}
+	else if (Button == ui->ControlPointColorButton)
+	{
+		Color = &mOptions->Preferences.mControlPointColor;
+		Title = tr("Select Control Point Color");
+		DialogOptions = QColorDialog::ShowAlphaChannel;
+	}
+	else if (Button == ui->ControlPointFocusedColorButton)
+	{
+		Color = &mOptions->Preferences.mControlPointFocusedColor;
+		Title = tr("Select Control Point Focused Color");
+		DialogOptions = QColorDialog::ShowAlphaChannel;
+	}
+/*** LPub3D Mod - Build mod object selected colour ***/
+	else if (Button == ui->BMObjectSelectedColorButton)
+	{
+		Color = &mOptions->Preferences.mBMObjectSelectedColor;
+		Title = tr("Select Build Mod Object Selected Color");
+	}
+/*** LPub3D Mod end ***/
 	else
 		return;
 
@@ -836,7 +894,6 @@ void lcQPreferencesDialog::on_PreviewSizeCombo_currentIndexChanged(int Index)
 	ui->PreviewLocationCombo->setEnabled(Index != 0);
 	if (ui->PreviewPositionCombo->currentIndex() != 0)
 		ui->PreviewPositionCombo->setEnabled(Index != 0);
-	ui->PreviewAxisIconCheckBox->setEnabled(Index != 0);
 }
 /*** LPub3D Mod end ***/
 
@@ -1579,11 +1636,44 @@ void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 /*** LPub3D Mod - Reset theme colors ***/
 void lcQPreferencesDialog::on_ResetColorsButton_clicked()
 {
-	QString question = tr("Are you sure you want to reset interface colors to theme default ?");
+	QString question = tr("Are you sure you want to reset colors to Theme %1 ?").arg(
+	   mOptions->Preferences.mColorTheme == lcColorTheme::Dark ? "Dark" : "Default");
+
 	if (QMessageBox::question(this, "Visual Editor", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
+	auto SetButtonPixmap = [](quint32 Color, QToolButton* Button)
+	{
+		QPixmap Pixmap(12, 12);
+
+		Pixmap.fill(QColor(LC_RGBA_RED(Color), LC_RGBA_GREEN(Color), LC_RGBA_BLUE(Color)));
+		Button->setIcon(Pixmap);
+	};
+
 	mOptions->Preferences.SetInterfaceColors(mOptions->Preferences.mColorTheme);
+
+	SetButtonPixmap(mOptions->Preferences.mAxesColor, ui->AxesColorButton);
+	SetButtonPixmap(mOptions->Preferences.mTextColor, ui->TextColorButton);
+	SetButtonPixmap(mOptions->Preferences.mBackgroundSolidColor, ui->BackgroundSolidColorButton);
+	SetButtonPixmap(mOptions->Preferences.mBackgroundGradientColorTop, ui->BackgroundGradient1ColorButton);
+	SetButtonPixmap(mOptions->Preferences.mBackgroundGradientColorBottom, ui->BackgroundGradient2ColorButton);
+	SetButtonPixmap(mOptions->Preferences.mOverlayColor, ui->OverlayColorButton);
+	SetButtonPixmap(mOptions->Preferences.mMarqueeBorderColor, ui->MarqueeBorderColorButton);
+	SetButtonPixmap(mOptions->Preferences.mMarqueeFillColor, ui->MarqueeFillColorButton);
+	SetButtonPixmap(mOptions->Preferences.mActiveViewColor, ui->ActiveViewColorButton);
+	SetButtonPixmap(mOptions->Preferences.mInactiveViewColor, ui->InactiveViewColorButton);
+	SetButtonPixmap(mOptions->Preferences.mGridStudColor, ui->gridStudColor);
+	SetButtonPixmap(mOptions->Preferences.mGridLineColor, ui->gridLineColor);
+	SetButtonPixmap(mOptions->Preferences.mViewSphereColor, ui->ViewSphereColorButton);
+	SetButtonPixmap(mOptions->Preferences.mViewSphereTextColor, ui->ViewSphereTextColorButton);
+	SetButtonPixmap(mOptions->Preferences.mViewSphereHighlightColor, ui->ViewSphereHighlightColorButton);
+	SetButtonPixmap(mOptions->Preferences.mObjectSelectedColor, ui->ObjectSelectedColorButton);
+	SetButtonPixmap(mOptions->Preferences.mObjectFocusedColor, ui->ObjectFocusedColorButton);
+	SetButtonPixmap(mOptions->Preferences.mCameraColor, ui->CameraColorButton);
+	SetButtonPixmap(mOptions->Preferences.mLightColor, ui->LightColorButton);
+	SetButtonPixmap(mOptions->Preferences.mControlPointColor, ui->ControlPointColorButton);
+	SetButtonPixmap(mOptions->Preferences.mControlPointFocusedColor, ui->ControlPointFocusedColorButton);
+	SetButtonPixmap(mOptions->Preferences.mBMObjectSelectedColor, ui->BMObjectSelectedColorButton);
 }
 /*** LPub3D Mod end ***/
 

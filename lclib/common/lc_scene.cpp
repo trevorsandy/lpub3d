@@ -176,6 +176,13 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 	Context->SetPolygonOffset(lcPolygonOffset::Opaque);
 
+	const lcPreferences& Preferences = lcGetPreferences();
+	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+/*** LPub3D Mod - Build mod object selected colour ***/
+	const lcVector4 BMSelectedColor = lcVector4FromColor(Preferences.mBMObjectSelectedColor);	
+/*** LPub3D Mod end ***/
+
 	for (const int MeshIndex : mOpaqueMeshes)
 	{
 		const lcRenderMesh& RenderMesh = mRenderMeshes[MeshIndex];
@@ -217,16 +224,16 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 				case lcRenderMeshState::Selected:
  /*** LPub3D Mod - Selected Parts ***/
-					if (gApplication->mPreferences.mBuildModificationEnabled)
-						Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::BMSelected, 0.5f);
+					if (Preferences.mBuildModificationEnabled)
+						Context->SetColorIndexTinted(ColorIndex, BMSelectedColor, 0.5f);
 					else
-						Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Selected, 0.5f);
+						Context->SetColorIndexTinted(ColorIndex, SelectedColor, 0.5f);
 /*** LPub3D Mod end ***/
 
 					break;
 
 				case lcRenderMeshState::Focused:
-					Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Focused, 0.5f);
+					Context->SetColorIndexTinted(ColorIndex, FocusedColor, 0.5f);
 					break;
 
 				case lcRenderMeshState::Faded:
@@ -259,15 +266,15 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 
 				case lcRenderMeshState::Selected:
 /*** LPub3D Mod - Selected Parts ***/
-					if (gApplication->mPreferences.mBuildModificationEnabled)
-						Context->SetInterfaceColor(lcInterfaceColor::BMSelected);
+					if (Preferences.mBuildModificationEnabled)
+						Context->SetColor(BMSelectedColor);
 					else
-						Context->SetInterfaceColor(lcInterfaceColor::Selected);
+						Context->SetColor(SelectedColor);
 /*** LPub3D Mod end ***/
 					break;
 
 				case lcRenderMeshState::Focused:
-					Context->SetInterfaceColor(lcInterfaceColor::Focused);
+					Context->SetColor(FocusedColor);
 					break;
 
 				case lcRenderMeshState::Highlighted:
@@ -388,6 +395,10 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 
 	Context->SetPolygonOffset(lcPolygonOffset::Translucent);
 
+	const lcPreferences& Preferences = lcGetPreferences();
+	const lcVector4 FocusedColor = lcVector4FromColor(Preferences.mObjectFocusedColor);
+	const lcVector4 SelectedColor = lcVector4FromColor(Preferences.mObjectSelectedColor);
+
 	for (const lcTranslucentMeshInstance& MeshInstance : mTranslucentMeshes)
 	{
 		const lcRenderMesh& RenderMesh = mRenderMeshes[MeshInstance.RenderMeshIndex];
@@ -422,11 +433,11 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			break;
 
 		case lcRenderMeshState::Selected:
-			Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Selected, 0.5f);
+			Context->SetColorIndexTinted(ColorIndex, SelectedColor, 0.5f);
 			break;
 
 		case lcRenderMeshState::Focused:
-			Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Focused, 0.5f);
+			Context->SetColorIndexTinted(ColorIndex, FocusedColor, 0.5f);
 			break;
 
 		case lcRenderMeshState::Faded:
@@ -497,7 +508,7 @@ void lcScene::Draw(lcContext* Context) const
 /*** LPub3D Mod - true fade ***/
 // 03/22/2021 8039f5b Draw conditional lines on a separate pass.
 	const bool LPubTrueFade = gApplication->LPubFadeSteps() && // to turn off during HTML Steps export
-							  gApplication->mPreferences.mLPubTrueFade &&
+							  Preferences.mLPubTrueFade &&
 							  mHasLPubFadedParts &&
 							  !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
