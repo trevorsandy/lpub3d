@@ -495,17 +495,36 @@ void PartWorker::updateLDSearchDirs(bool archive /*false*/, bool custom /*false*
 
     // Archive search directory parts
     if (archive) {
-       QStringList dirs;
-       if (custom) {
-           dirs << _customPartDir << _customPrimDir;
-           processPartsArchive(dirs, "custom directory");
-       } else if (_updateLDSearchDirs.size()) {
-           dirs << _updateLDSearchDirs;
-           _updateLDSearchDirs.clear();
-           processPartsArchive(dirs, "update search directory");
-       } else {
-           processLDSearchDirParts();
-       }
+        QStringList dirs;
+        if (custom) {
+            QDir dir(_customPartDir);
+            if (dir.exists()) {
+                if (dir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs|QDir::Files|QDir::NoSymLinks).count())
+                    dirs << dir.absolutePath();
+                dir.setPath(_customPrimDir);
+                if (dir.exists() && dir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs|QDir::Files|QDir::NoSymLinks).count())
+                   dirs << dir.absolutePath();
+            } else {
+                Paths::mkCustomDirs();
+            }
+            if (dirs.size())
+                processPartsArchive(dirs, "custom directory");
+        } else if (_updateLDSearchDirs.size()) {
+            Q_FOREACH (const QString &searchDir, _updateLDSearchDirs) {
+                QDir dir(searchDir);
+                if (dir.exists()) {
+                    if (dir.entryInfoList(QDir::NoDotAndDotDot|QDir::Dirs|QDir::Files|QDir::NoSymLinks).count())
+                        dirs << dir.absolutePath();
+                } else {
+                    dir.mkpath(".");
+                }
+            }
+            _updateLDSearchDirs.clear();
+            if (dirs.size())
+                processPartsArchive(dirs, "update search directory");
+        } else {
+            processLDSearchDirParts();
+        }
     }
 }
 
