@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 09, 2021
+# Last Update July 19, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -133,14 +133,14 @@ ldglite_path=${base_path}/ldglite-1.3
 ldview_path=${base_path}/ldview-4.4
 povray_path=${base_path}/lpub3d_trace_cui-3.8
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
-echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
-rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
+echo "'Build LDGLite' detected." && [ -d "${ldglite_path}" ] && \
+rm -rf "${ldglite_path}" && echo "Cached ${ldglite_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
-echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
-rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
+echo "'Build LDView' detected." && [ -d "${ldview_path}" ] && \
+rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
-echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
-rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
+echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
+rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
 # run builds with privileged user account required to load dependent
 gid="$(id -g)"
@@ -313,6 +313,10 @@ cp -f ${out_path}/docker-run-CMD.sh . && chmod a+x docker-run-CMD.sh
 echo "Login to Docker Hub..."
 echo ${DOCKER_HUB_TOKEN} | docker login --username ${DOCKER_USERNAME} --password-stdin
 
+# reporitory
+IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
+LPUB3D=${SLUG_PARTS[1]}
+
 # build docker image
 docker build --rm \
     ${docker_platform} \
@@ -325,6 +329,7 @@ docker build --rm \
 common_docker_opts+=(
     -e CI="${CI}"
     -e GITHUB="${GITHUB}"
+    -e LPUB3D="${LPUB3D}"
     -e DOCKER="${DOCKER:-true}"
     -v "${out_path}":/buildpkg
     -v "${dist_path}":/dist

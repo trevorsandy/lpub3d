@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 09, 2021
+# Last Update July 19, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -97,8 +97,8 @@ export LP3D_LOG_PATH=${LP3D_LOG_PATH:-/out}
 export LP3D_NO_DEPS=${LP3D_NO_DEPS:-true}
 export LP3D_NO_CLEANUP=${LP3D_NO_CLEANUP:-true}
 
-if [ "$BUILD_OPT" = "verify" ]; then
-  Info "BUILD OPTION.......verify only"
+if [ "${BUILD_OPT}" = "verify" ]; then
+  Info "BUILD OPTION.......$BUILD_OPT"
 fi
 Info "SOURCE DIR.........${LPUB3D}"
 Info "BUILD DIR..........${BUILD_DIR}"
@@ -221,7 +221,7 @@ else
 fi
 
 # Download LDraw library archive files if not available
-Info "Download AppImage archive libraries..."
+Info "Download archive libraries..."
 [[ ! -L "$/dist" && ! -d "/dist" ]] && mkdir -p "/dist" || :
 [ ! -f "/dist/lpub3dldrawunf.zip" ] && \
 wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O /dist/lpub3dldrawunf.zip || :

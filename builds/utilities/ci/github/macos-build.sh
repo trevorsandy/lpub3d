@@ -124,14 +124,14 @@ ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
 ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.4
 povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
-echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
-rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
+echo "'Build LDGLite' detected." && [ -d "${ldglite_path}" ] && \
+rm -rf "${ldglite_path}" && echo "Cached ${ldglite_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
-echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
-rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
+echo "'Build LDView' detected." && [ -d "${ldview_path}" ] && \
+rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
-echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
-rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
+echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
+rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
 # List 'LP3D_*' environment variables
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done

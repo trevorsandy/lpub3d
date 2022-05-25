@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: July 09, 2021
+# Last Update: July 21, 2021
 # Copyright (c) 2021 by Trevor SANDY
 #
 name: Builds
@@ -28,12 +28,13 @@ jobs:
           echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
+
       - name: Cache Third-party
         id: cache-third-party
         uses: actions/cache@v2
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
-          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+          key: third-party-${{ matrix.BUILD }}-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
         env:
@@ -46,7 +47,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.BUILD }}-download
-          path: ${{ env.LP3D_BUILDPKG_PATH }}/*
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/
+          if-no-files-found: ignore
 
   build-macos:
     if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
@@ -66,7 +68,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
-          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+          key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Buil macOS
         run: bash -ex builds/utilities/ci/github/macos-build.sh
       - name: List Artifacts
@@ -75,7 +77,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: macos-download
-          path: ${{ env.LP3D_BUILDPKG_PATH }}/*
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/
+          if-no-files-found: ignore
 
   build-windows:
     if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
@@ -104,7 +107,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
-          key: third-party-${{ secrets.THIRD_PARTY_CACHE }}
+          key: third-party-windows-${{ secrets.THIRD_PARTY_CACHE }}
       - name: Windows 8.1 SDK
         run: |
           Invoke-WebRequest -Method Get -Uri https://go.microsoft.com/fwlink/p/?LinkId=323507 -OutFile sdksetup.exe -UseBasicParsing
@@ -135,12 +138,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: updates
-          path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\*
+          path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
+          if-no-files-found: ignore
       - name: Upload Download Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: windows-download
-          path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\*
+          path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
+          if-no-files-found: ignore
 
   build-deploy:
     if: |

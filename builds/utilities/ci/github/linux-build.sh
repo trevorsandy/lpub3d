@@ -29,19 +29,19 @@ if [[ "$BUILD" == "" ]]; then
     exit 2
 fi
 
-docker_base="${BUILD%%-*}"
-docker_arch="${ARCH:-`uname -m`}"
-docker_appimage="${APPIMAGE:-false}"
+build_base="${BUILD%%-*}"
+build_arch="${ARCH:-`uname -m`}"
+build_appimage="${APPIMAGE:-false}"
 IFS=- read LP3D_BASE LP3D_ARCH LP3D_APPIMAGE <<< $BUILD
 
 if [ -z "${LP3D_ARCH}" ]; then
-    export LP3D_ARCH=${docker_arch}
+    export LP3D_ARCH=${build_arch}
 else
     export LP3D_ARCH
 fi
 
 if [ -z "${LP3D_APPIMAGE}" ]; then
-    LP3D_APPIMAGE=${docker_appimage}
+    LP3D_APPIMAGE=${build_appimage}
 fi
 
 case "${LP3D_ARCH}" in
@@ -57,7 +57,7 @@ case "${LP3D_APPIMAGE}" in
     "appimage")
         export LP3D_APPIMAGE="true" ;;
     *)
-        export LP3D_APPIMAGE=${docker_appimage} ;;
+        export LP3D_APPIMAGE=${build_appimage} ;;
 esac
 
 case "${LP3D_BASE}" in

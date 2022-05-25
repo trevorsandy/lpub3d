@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 07, 2021
+# Last Update July 19, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -129,11 +129,17 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
       sed -i    "s/      RELEASE_TITLE=\"Release build.*/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
     fi
+    LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
+    else
+      sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
+    fi    
   else
-    case ${LP3D_PROJECT_NAME} in
-      "lpub3d")
+    case project-${LP3D_PROJECT_NAME} in
+      "project-lpub3d")
         LP3D_TITLE="Build" ;;
-      "lpub3dnext")
+      "project-lpub3dnext")
         LP3D_TITLE="Next Build" ;;
       *)
         LP3D_TITLE="DevOps Build" ;;
@@ -144,12 +150,12 @@ if [ -f upload.sh -a -r upload.sh ]; then
     else
       sed -i    "s/      RELEASE_TITLE=\"Continuous build\"/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/" "upload.sh"
     fi
-  fi
-  LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
-  else
-    sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
+    LP3D_RELEASE_DESCRIPTION="${LP3D_COMMIT_MSG}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i "" "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
+    else
+      sed -i    "s/  RELEASE_BODY=\"GitHub Actions.*/  RELEASE_BODY=\"${LP3D_RELEASE_DESCRIPTION}\"/g" "upload.sh"
+    fi    
   fi
 else
   echo  "WARNING - Could not update release title and body in upload.sh. File not found."

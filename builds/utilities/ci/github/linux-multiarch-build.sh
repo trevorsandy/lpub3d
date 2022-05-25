@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 09, 2021
+# Last Update July 19, 2021
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -165,14 +165,14 @@ ldglite_path=${base_path}/ldglite-1.3
 ldview_path=${base_path}/ldview-4.4
 povray_path=${base_path}/lpub3d_trace_cui-3.8
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
-echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
-rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
+echo "'Build LDGLite' detected." && [ -d "${ldglite_path}" ] && \
+rm -rf "${ldglite_path}" && echo "Cached ${ldglite_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
-echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
-rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
+echo "'Build LDView' detected." && [ -d "${ldview_path}" ] && \
+rm -rf "${ldview_path}" && echo "Cached ${ldview_path} deleted" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
-echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
-rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
+echo "'Build POV-Ray' detected." && [ -d "${povray_path}" ] && \
+rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 
 # run builds with privileged user account required to load dependent
 gid="$(id -g)"
@@ -384,6 +384,10 @@ if [ "${LP3D_QEMU}" = "true" ]; then
     unset LP3D_AI_MAGIC_BYTES || LP3D_AI_MAGIC_BYTES=1:
 fi
 
+# reporitory
+IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
+LPUB3D=${SLUG_PARTS[1]}
+
 # build docker image
 docker build --rm \
     ${docker_platform} \
@@ -398,6 +402,7 @@ common_docker_opts=(
     -e GITHUB="${GITHUB}"
     -e DOCKER="${DOCKER:-true}"
     -e TERM="${TERM}"
+    -e LPUB3D="${LPUB3D}"
     -e GITHUB_SHA="${GITHUB_SHA}"
     -e WRITE_LOG="${WRITE_LOG}"
     -e BUILD_OPT="${BUILD_OPT}"
