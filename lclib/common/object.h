@@ -49,8 +49,15 @@ protected:
 
 struct lcObjectSection
 {
-	lcObject* Object;
-	quint32 Section;
+	lcObject* Object = nullptr;
+	quint32 Section = 0;
+};
+
+struct lcPieceInfoRayTest
+{
+	const PieceInfo* Info = nullptr;
+	lcMatrix44 Transform;
+	lcVector3 Plane;
 };
 
 struct lcObjectRayTest
@@ -60,8 +67,9 @@ struct lcObjectRayTest
 	bool IgnoreSelected;
 	lcVector3 Start;
 	lcVector3 End;
-	float Distance;
+	float Distance = FLT_MAX;
 	lcObjectSection ObjectSection;
+	lcPieceInfoRayTest PieceInfoRayTest;
 };
 
 struct lcObjectBoxTest

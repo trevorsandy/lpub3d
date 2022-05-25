@@ -4,12 +4,14 @@
 #ifdef __cplusplus
 
 #include <QtGlobal>
-#include <QWidget>
-#include <QtOpenGL>
-#include <QGLWidget>
-#include <QtGui>
-#include <QPrinter>
+#include <QtWidgets>
 #include <QtConcurrent>
+#include <QtOpenGL>
+#include <QtGui>
+#include <QWidget>
+#include <QOpenGLWidget>
+#include <QPrinter>
+#include <QPrintDialog>
 #include <map>
 #include <vector>
 #include <array>
@@ -66,7 +68,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.06"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "22e36ad"
+#define LC_VERSION_SHA "d4a081d"
 /*** LPub3D Mod end ***/
 
 
@@ -106,6 +108,7 @@ class lcMesh;
 struct lcMeshSection;
 struct lcRenderMesh;
 struct lcObjectSection;
+struct lcPieceInfoRayTest;
 class lcTexture;
 class lcScene;
 class lcViewManipulator;
