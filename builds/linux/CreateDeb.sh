@@ -178,6 +178,7 @@ then
     LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
         # Check commands
+        LP3D_CHECK_LDD="1"
         source ${SOURCE_DIR}/builds/check/build_checks.sh
         # Cleanup - here we use the package name
         echo "      11-2. Build-check uninstall ${LPUB3D}..."

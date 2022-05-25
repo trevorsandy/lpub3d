@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 06, 2021
+# Last Update June 07, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -39,8 +39,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_OS" = "appimage" ]]; then
       echo "ERROR - AppImage not copied to ${PWD}/appImage_Check/."
     fi
     export LP3D_CHECK_STATUS="--version --app-paths"
-    set +x && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh && set -x
-    #set +x && source ${SOURCE_DIR}/builds/check/build_checks.sh && set -x
+    #chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
+    source ${SOURCE_DIR}/builds/check/build_checks.sh
   else
     echo "ERROR - AppImage was not found in $AppImageBuildPath/AppImage."
   fi

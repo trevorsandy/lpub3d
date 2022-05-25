@@ -174,6 +174,7 @@ then
     SOURCE_DIR=../../SOURCES/${WORK_DIR}
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
         # Check commands
+        LP3D_CHECK_LDD="1"
         source ${SOURCE_DIR}/builds/check/build_checks.sh
         echo "      15-1. Build-check uninstall ${LPUB3D}..."
         # Cleanup - here we use the package name e.g. lpub3d

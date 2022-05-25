@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 06, 2021
+# Last Update June 07, 2021
 # Copyright (c) 2016 - 2021 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -9,8 +9,6 @@
 # To Run:
 # cd <LPub3D root>
 # env _PRO_FILE_PWD_=$PWD/mainApp LPUB3D=lpub3d OBS=true ./builds/utilities/update-config-files.sh
-
-set +x
 
 LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
 
@@ -440,4 +438,3 @@ then
     Info "   Script $LP3D_ME execution finshed."
 fi
 echo
-set -x

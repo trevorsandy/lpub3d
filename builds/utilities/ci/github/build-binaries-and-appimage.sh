@@ -81,7 +81,7 @@ export GITHUB=${GITHUB:-true}
 export _PRO_FILE_PWD_=/ws/mainApp
 
 # Source update_config_files.sh"
-source builds/utilities/update-config-files.sh
+set +x && source builds/utilities/update-config-files.sh && set -x
 
 # Copy files updated by update-config-files.sh
 cp -f /ws/builds/utilities/version.info builds/utilities/

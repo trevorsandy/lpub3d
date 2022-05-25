@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 25, 2021
+# Last Update June 07, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -34,13 +34,14 @@ function show_settings
     echo "--LPUB3D_EXE.........$LPUB3D_EXE"
     echo "--SOURCE_DIR.........$SOURCE_DIR"
     echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
-    [ "${USE_XVFB}" = "true" ] && echo "--USE_XVFB...........YES" || true
-    [ "${XSERVER}" = "true" ] && echo "--XSERVER............YES" || true
-    [ "${DOCKER}" = "true" ] && echo "--DOCKER.............YES" || true
+    [ "${USE_XVFB}" = "true" ] && echo "--USE_XVFB...........YES"
+    [ "${XSERVER}" = "true" ] && echo "--XSERVER............YES"
+    [ "${DOCKER}" = "true" ] && echo "--DOCKER.............YES"
     echo "--LP3D_OS_NAME.......$LP3D_OS_NAME"
     echo "--LP3D_TARGET_ARCH...$LP3D_TARGET_ARCH"
     echo "--LP3D_PLATFORM......$LP3D_PLATFORM"
-    [ -n "$SCRIPT_NAME" ] && echo "--SCRIPT_NAME.......$SCRIPT_NAME" || true
+    [ -n "${LP3D_CHECK_LDD}" ] && echo "--LP3D_CHECK_LDD.....YES"
+    [ -n "${SCRIPT_NAME}" ] && echo "--SCRIPT_NAME.......$SCRIPT_NAME"
     echo
 }
 
@@ -91,7 +92,7 @@ if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
 fi
 
 # AppImage validate and set executable permissions
-if [[ "$LP3D_BUILD_OS" = "appimage" ]]; then
+if [[ "$LP3D_BUILD_OS" = "appimage" && -z "$LP3D_PRE_APPIMAGE_BUILD_CHECK_VAR" ]]; then
     if [[ -f "${LPUB3D_EXE}" ]]; then
         chmod u+x ${LPUB3D_EXE}
         cd ${SOURCE_DIR}
@@ -101,7 +102,13 @@ if [[ "$LP3D_BUILD_OS" = "appimage" ]]; then
 fi
 
 # Set XDG_RUNTIME_DIR
-if [[ "${LP3D_OS_NAME}" != "Darwin" && $UID -ge 1000 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]; then
+VALID_UID=0
+if [[ "$LP3D_BUILD_OS" = "snap" ]]; then
+    [ -n $UID ] && VALID_UID=1
+else
+    [ $UID -ge 1000 ] && VALID_UID=1
+fi
+if [[ "${LP3D_OS_NAME}" != "Darwin" && $VALID_UID -eq 1 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]; then
     runtime_dir="/tmp/runtime-user-$UID"
     if [ ! -d "$runtime_dir" ]; then
        mkdir -p $runtime_dir
@@ -158,6 +165,11 @@ LP3D_CHECKS_FAIL=
 # Applicatin status check (TODO - this command is throwing a segfault, check why)
 [ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
 ${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2>/dev/null || true
+
+if [ -n "${LP3D_CHECK_LDD}" ]; then
+    echo && echo "-----------Library Dependencies-------------" && echo
+    find ${LPUB3D_EXE} -executable -type f -exec ldd {} \;
+fi
 
 echo && echo "------------Build Checks Start--------------" && echo
 
