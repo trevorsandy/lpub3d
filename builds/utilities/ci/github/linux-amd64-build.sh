@@ -132,13 +132,13 @@ echo "${base_path}/vexiqparts.zip exists. Nothing to do."
 ldglite_path=${base_path}/ldglite-1.3
 ldview_path=${base_path}/ldview-4.4
 povray_path=${base_path}/lpub3d_trace_cui-3.8
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDGLITE"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
 echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
 rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDVIEW"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
 echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
 rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_POVRAY"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
 echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
 

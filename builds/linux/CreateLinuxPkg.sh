@@ -253,14 +253,6 @@ export AppDirBuildPath=$(mkdir -p AppDir && readlink -f AppDir/)
 
 # Build LPub3D
 if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/AppDir)" ]]; then
-  if [ -z "$BUILD_CPUs" ]; then
-    if [ "$CI" != "true" ]; then
-      BUILD_CPUs="$(nproc --ignore=2)"
-    else
-      BUILD_CPUs="$(nproc)"
-    fi
-  fi
-
   if [[ "${LP3D_APPIMAGE}" == "false" ]]; then
     case ${LP3D_BASE} in
       "ubuntu")
@@ -274,10 +266,17 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir" || -z "$(ls -A ${LP3D_DIST_DIR_PATH}/A
     distropkg=api
   fi
 
-  qmake -v
-  qmake -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
+  # qmake setup
+  if which qmake-qt5 >/dev/null 2>&1; then
+    QMAKE_EXEC=qmake-qt5
+  else
+    QMAKE_EXEC=qmake
+  fi
+  ${QMAKE_EXEC} -v
+  
+  # build command
+  ${QMAKE_EXEC} -nocache QMAKE_STRIP=: CONFIG+=release CONFIG-=debug_and_release CONFIG+=${distropkg}
   make
-  #make -j$(BUILD_CPUs)
   make INSTALL_ROOT=${AppDirBuildPath} install
 
   # backup build artifacts in case of failure

@@ -15,20 +15,20 @@ fi
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
 FinishElapsedTime() {
-  # Elapsed execution time
-  set +x
-  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
-  echo "----------------------------------------------------"
-  ME="${ME} for (${docker_base}-${docker_dist}-${docker_arch})"
-  [ "${LP3D_APPIMAGE}" = "true" ] && \
-  ME="${ME} for (${docker_base}-${docker_dist}-${docker_arch}-appimage)" || :
-  if [ "$BUILD_OPT" = "verify" ]; then
-    echo "$ME Verification Finished!"
-  else
-    echo "$ME Finished!"
-  fi
-  echo "$ELAPSED"
-  echo "----------------------------------------------------"
+    # Elapsed execution time
+    set +x
+    ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+    echo "----------------------------------------------------"
+    ME="${ME} for (${docker_base}-${docker_dist}-${docker_arch})"
+    [ "${LP3D_APPIMAGE}" = "true" ] && \
+    ME="${ME} for (${docker_base}-${docker_dist}-${docker_arch}-appimage)" || :
+    if [ "$BUILD_OPT" = "verify" ]; then
+        echo "$ME Verification Finished!"
+    else
+        echo "$ME Finished!"
+    fi
+    echo "$ELAPSED"
+    echo "----------------------------------------------------"
 }
 
 trap FinishElapsedTime EXIT
@@ -113,7 +113,7 @@ if [ "${WRITE_LOG}" = "true" ]; then
         i=1
         f="${f%.*}";
         while [[ -e "${f}_${i}${ext}" ]]; do
-          let i++
+            let i++
         done
         f="${f}_${i}${ext}"
     else
@@ -137,13 +137,13 @@ wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tent
 [ ! -f "${dist_path}/vexiqparts.zip" ] && \
 wget -q https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O ${dist_path}/vexiqparts.zip || :
 if [ ! -d "${ldraw_path}/parts" ]; then
-  [ ! -d "${ldraw_path}" ] && mkdir -p ${ldraw_path} || :
-  (cd ${dist_path} && unzip -od ./ -q complete.zip)
-  if [ -d "${ldraw_path}/parts" ]; then
-    echo "LDraw library extracted to ${ldraw_path}"
-  else
-    echo "ERROR - LDraw library was not extracted."
-  fi
+    [ ! -d "${ldraw_path}" ] && mkdir -p ${ldraw_path} || :
+    (cd ${dist_path} && unzip -od ./ -q complete.zip)
+    if [ -d "${ldraw_path}/parts" ]; then
+        echo "LDraw library extracted to ${ldraw_path}"
+    else
+        echo "ERROR - LDraw library was not extracted."
+    fi
 fi
 
 # Link LDraw libraries to base path
@@ -164,18 +164,15 @@ echo "${base_path}/vexiqparts.zip exists. Nothing to do."
 ldglite_path=${base_path}/ldglite-1.3
 ldview_path=${base_path}/ldview-4.4
 povray_path=${base_path}/lpub3d_trace_cui-3.8
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDGLITE"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
 echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
 rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDVIEW"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
 echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
 rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_POVRAY"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
 echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
-
-# skip package build scripts when verifying
-[ "${BUILD_OPT}" = "verify" ] && skip_package_build_scripts=1 || :
 
 # run builds with privileged user account required to load dependent
 gid="$(id -g)"
@@ -200,8 +197,6 @@ RUN apt-get install -y $(grep Build-Depends control | cut -d: -f2| sed 's/(.*)//
 pbEOF
         ;;
     "fedora")
-        [ -z "${skip_package_build_scripts}" ] && \
-        cp -f builds/linux/obs/lpub3d.rpmlintrc . || :
         cp -f builds/linux/obs/alldeps/lpub3d.spec .
         sed -e 's/Icon: lpub3d.xpm/# Icon: lpub3d.xpm remarked - fedora does not like/' \
             -e 's/<B_CNT>/1/' -i lpub3d.spec
@@ -229,8 +224,8 @@ RUN pacman -S --noconfirm --needed $(grep depends PKGBUILD | cut -f2 -d=|tr -d \
 pbEOF
         ;;
     *)
-    echo "Unknown distribution base: ${docker_base}"
-    exit 3
+        echo "Unknown distribution base: ${docker_base}"
+        exit 3
         ;;
 esac
 
@@ -254,6 +249,7 @@ ADD CreateDeb.sh /${name}
 pbEOF
             ;;
         "fedora")
+            cp -f builds/linux/obs/lpub3d.rpmlintrc .
             cp -f builds/linux/CreateRpm.sh .
 cat << pbEOF >>${out_path}/Dockerfile
 RUN mkdir -p /${name}/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
@@ -375,16 +371,16 @@ if [ "${LP3D_QEMU}" = "true" ]; then
             exit 9
         fi
         # Run pre-package build check default is Off for AppImage builds
-        [[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"PRE_BUILD_CHECK"* ]] && \
+        [[ "${LP3D_COMMIT_MSG}" == *"PRE_BUILD_CHECK"* ]] && \
         LP3D_PRE_PACKAGE_CHECK=1 || unset LP3D_PRE_PACKAGE_CHECK
     else
         # Run pre-package build check default is On for package builds
-        [[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"NO_PRE_BUILD_CHECK"* ]] && \
+        [[ "${LP3D_COMMIT_MSG}" == *"NO_PRE_BUILD_CHECK"* ]] && \
         unset LP3D_PRE_PACKAGE_CHECK || LP3D_PRE_PACKAGE_CHECK=1
     fi
 
     # replace magic bytes
-    [[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"AI_MAGIC_BYTES"* ]] && \
+    [[ "${LP3D_COMMIT_MSG}" == *"AI_MAGIC_BYTES"* ]] && \
     unset LP3D_AI_MAGIC_BYTES || LP3D_AI_MAGIC_BYTES=1:
 fi
 

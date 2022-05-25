@@ -63,7 +63,6 @@ esac
 case "${LP3D_BASE}" in
     "ubuntu"|"fedora"|"archlinux")
         export BUILD="${LP3D_BASE}"
-        LP3D_COMMIT_MSG=$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')
         if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
             if [ "${LP3D_QEMU}" = "false" ]; then
                 export BUILD_OPT="verify"

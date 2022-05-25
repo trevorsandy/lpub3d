@@ -22,7 +22,6 @@ FinishElapsedTime() {
 trap FinishElapsedTime EXIT
 
 # Grab the commit message
-LP3D_COMMIT_MSG=$(echo $LP3D_COMMIT_MSG | awk '{print toupper($0)}')
 if  [ "${LP3D_COMMIT_MSG}" = *"QUICK_BUILD"* ]; then
   echo "NOTICE - Quick build detected, $0 will not continue."
   exit 0
@@ -124,13 +123,13 @@ cp -f ${LP3D_3RD_PARTY_PATH}/vexiqparts.zip mainApp/extras
 ldglite_path=${LP3D_DIST_DIR_PATH}/ldglite-1.3
 ldview_path=${LP3D_DIST_DIR_PATH}/ldview-4.4
 povray_path=${LP3D_DIST_DIR_PATH}/lpub3d_trace_cui-3.8
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDGLITE"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
 echo "'Build LDGLite' detected in environment variable." && [ -d "${ldglite_path}" ] && \
 rm -rf "${ldglite_path}" && echo "cached ${ldglite_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_LDVIEW"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDVIEW"* ]] && \
 echo "'Build LDView' detected in environment variable." && [ -d "${ldview_path}" ] && \
 rm -rf "${ldview_path}" && echo "cached ${ldview_path} deleted" || :
-[[ "$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')" == *"BUILD_POVRAY"* ]] && \
+[[ "${LP3D_COMMIT_MSG}" == *"BUILD_POVRAY"* ]] && \
 echo "'Build POV-Ray' detected in environment variable." && [ -d "${povray_path}" ] && \
 rm -rf "${povray_path}" && echo "cached ${povray_path} deleted" || :
 
