@@ -1142,8 +1142,6 @@ void Application::shutdown()
    gui = nullptr;
 
    gApplication->Shutdown();
-   delete gApplication;
-   gApplication = nullptr;
 
    delete availableVersions;
    availableVersions = nullptr;
@@ -1219,9 +1217,7 @@ int main(int argc, char** argv)
        return rc;
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-//#ifdef Q_OS_WIN
-//    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-//#endif
+
 //#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
 //    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 //#endif
@@ -1231,13 +1227,13 @@ int main(int argc, char** argv)
 
     QScopedPointer<Application> app(new Application(argc, argv));
 
-    gApplication = new lcApplication(&Options);
+    lcApplication ve(&Options);
 
     // Set global shared OpenGL context
     if (!lcContext::InitializeRenderer())
     {
-        lcContext::ShutdownRenderer();
-        fprintf(stderr, "Error creating OpenGL context.\n");
+        ve.Shutdown();
+        fprintf(stderr, "Error creating shared OpenGL context.\n");
         return EXIT_FAILURE;
     }
 

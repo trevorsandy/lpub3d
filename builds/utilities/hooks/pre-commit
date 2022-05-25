@@ -54,7 +54,7 @@ force_config=${force:-no}
 commitmsg=".git/COMMIT_EDITMSG"
 
 # trigger if [update], [build pkg] or [deploy pkg] exist in commit message
-cat "$commitmsg" | awk '{print tolower($0)}' | grep -qE '\[update|build pkg.*|deploy pkg\]' && update_config_files=yes || \
+cat "$commitmsg" | awk '{print tolower($0)}' | grep -qE '\[update|snapcraft|build pkg.*|deploy pkg\]' && update_config_files=yes || \
 [ "$force_config" = "yes" ] && update_config_files=yes || \
 [ "$1" = "-f" ] && update_config_files=yes || \
 update_config_files=no
