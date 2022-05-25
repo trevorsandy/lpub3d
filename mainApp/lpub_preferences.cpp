@@ -1164,6 +1164,8 @@ void Preferences::lpubPreferences()
     fprintf(stdout, "%s\n", QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath())).toLatin1().constData());
 #endif
 #endif // Q_OS_LINUX
+#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
+
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath));
     qDebug() << QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath));
@@ -1171,7 +1173,6 @@ void Preferences::lpubPreferences()
     fprintf(stdout, "%s\n", QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath)).toLatin1().constData());
     fprintf(stdout, "%s\n", QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath)).toLatin1().constData());
 #endif
-#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
     QDir extrasDir(lpubDataPath + QDir::separator() + "extras");
     if(!QDir(extrasDir).exists())

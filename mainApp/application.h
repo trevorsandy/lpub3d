@@ -85,6 +85,13 @@ struct lcCommandLineOptions
     QString StdErr;
 };
 
+enum mainEnc
+{
+   ExitKO,
+   ExitOK = 0,
+   RunApp
+};
+
 class InitException: public QException
 {
 public:
@@ -110,13 +117,16 @@ public:
     QStringList arguments();
 
     /// Initialize the Application and process the command line arguments.
-    void initialize();
+    int initialize();
 
     /// This is the equivalent of the main function.
     void mainApp();
 
     /// Runs the Application and returns the exit code.
     int run();
+
+    /// Clear any allocated memory and close the application
+    void shutdown();
 
     /// Return applicaion launch mode
     bool modeGUI();

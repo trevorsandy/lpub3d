@@ -431,7 +431,7 @@ void Application::setTheme(bool appStarted)
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
 }
 
-void Application::initialize()
+int Application::initialize()
 {
 #ifdef Q_OS_MAC
     m_application.setStyle(QStyleFactory::create("macintosh"));
@@ -454,6 +454,7 @@ void Application::initialize()
     QString hdr, args, ldrawLibrary, loadedLibrary;
     QStringList ListArgs, Arguments = arguments();
     const int NumArguments = Arguments.size();
+    const int NumArgsIdx = NumArguments - 1;
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     ListArgs << Arguments[ArgIdx];
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
@@ -570,7 +571,8 @@ void Application::initialize()
               fprintf(stdout, "%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
-              return;
+              if (ArgIdx == NumArgsIdx)
+                return ExitOK;
             }
             else
             // Visual Editor (LeoCAD) version output
@@ -581,7 +583,8 @@ void Application::initialize()
               fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, SHA %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
-              return;
+              if (ArgIdx == NumArgsIdx)
+                return ExitOK;
             }
             else
             // Help output
@@ -663,9 +666,11 @@ void Application::initialize()
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[Help]\n");
                 fprintf(stdout, "  -?, --help: Display this help message and exit.\n");
+                fprintf(stdout, "  -ap, --app-paths: Display application data, cache and configuration paths.\n");
                 fprintf(stdout, "\n");
                 fflush(stdout);
-                return;
+                if (ArgIdx == NumArgsIdx)
+                  return ExitOK;
             }
             else
             // Invoke LEGO library in command console mode
@@ -679,6 +684,16 @@ void Application::initialize()
             // Invoke VEXIQ library in command console mode
             if (Param == QLatin1String("-lv") || Param == QLatin1String("--libvexiq"))
                 loadedLibrary = VEXIQ_LIBRARY;
+            else
+            // Display application data, cache and configuration paths
+            if (Param == QLatin1String("-ap") || Param == QLatin1String("--app-paths")) {
+                // Set loaded library flags and variables
+                Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
+                // initialize directories
+                Preferences::lpubPreferences();
+                if (ArgIdx == NumArgsIdx)
+                  return ExitOK;
+            }
 
             // Set library type from loaded library
             if (!loadedLibrary.isEmpty()) {
@@ -1003,6 +1018,8 @@ void Application::initialize()
     } else {
         gui->initialize();
     }
+
+    return RunApp;
 }
 
 void Application::mainApp()
@@ -1070,20 +1087,25 @@ int Application::run()
 
   if (!m_print_output)
   {
-    delete gui;
-    gui = nullptr;
-
-    gApplication->Shutdown();
-    delete gApplication;
-    gApplication = nullptr;
-
-    delete availableVersions;
-    availableVersions = nullptr;
-
-    ldvWidget = nullptr;
+     shutdown();
   }
 
   return ExecReturn;
+}
+
+void Application::shutdown()
+{
+   delete gui;
+   gui = nullptr;
+
+   gApplication->Shutdown();
+   delete gApplication;
+   gApplication = nullptr;
+
+   delete availableVersions;
+   availableVersions = nullptr;
+
+   ldvWidget = nullptr;
 }
 
 // the next four calls are used by the Visual Editor
@@ -1142,17 +1164,29 @@ int main(int argc, char** argv)
 
     QScopedPointer<Application> app(new Application(argc, argv));
 
+    int rc = ExitOK;
+
     try
     {
-       app->initialize();
+       rc = app->initialize();
     }
     catch(const InitException &ex)
     {
        fprintf(stdout, "Could not initialize the application.");
+       rc = ExitKO;
     }
     catch(...)
     {
        fprintf(stdout, "A fatal error ocurred.");
+       rc = ExitKO;
     }
-    return app->run();
+
+    if (rc == RunApp)
+    {
+       return app->run();
+    }
+    else
+    {
+       return rc;
+    }
 }
