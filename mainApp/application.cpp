@@ -1172,33 +1172,32 @@ void messageSig(LogType logType, QString message)
     gui->messageSig(logType, message);
 }
 
-static int initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
+static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
 {
     QCoreApplication CoreApp(argc, argv);
 
     Preferences::setDistribution();
 
-    QTextStream StdErr(stderr, QIODevice::WriteOnly);
-
     Options = lcApplication::ParseCommandLineOptions();
-
-    if (!Options.StdErr.isEmpty())
-    {
-        StdErr << Options.StdErr;
-        StdErr.flush();
-    }
-
-    if (!Options.ParseOK)
-        return EXIT_FAILURE;
 
     if (Options.ParseOK && Options.AASamples > 1)
     {
-        QSurfaceFormat Format = QSurfaceFormat::defaultFormat();
+        QSurfaceFormat Format;
+#ifdef __APPLE__
+        // Set the OpenGL profile before constructing the MainWindow.
+        // This must be done on the mac so that it does not use the
+        // legacy profile.
+        Format.setMajorVersion(3);
+        Format.setMinorVersion(3);
+        Format.setDepthBufferSize(24);
+        Format.setProfile(QSurfaceFormat::CoreProfile);
+        QSurfaceFormat::setDefaultFormat(Format);
+#else
+        Format = QSurfaceFormat::defaultFormat();
+#endif
         Format.setSamples(Options.AASamples);
         QSurfaceFormat::setDefaultFormat(Format);
     }
-
-    return EXIT_SUCCESS;
 }
 
 int main(int argc, char** argv)
@@ -1208,16 +1207,24 @@ int main(int argc, char** argv)
     QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
     lcCommandLineOptions Options;
-    int rc = initializeSurfaceFormat(argc, argv, Options);
+    initializeSurfaceFormat(argc, argv, Options);
+    if (!Options.StdErr.isEmpty())
+    {
+        fprintf(stderr, "%s\n", Options.StdErr.toLatin1().constData());
+        fflush(stderr);
+    }
+
+    int rc = Options.ParseOK ? EXIT_SUCCESS : EXIT_FAILURE;
     if (rc == EXIT_FAILURE)
        return rc;
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
-
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
+//#ifdef Q_OS_WIN
+//    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+//#endif
+//#if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+//    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+//#endif
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
@@ -1229,7 +1236,8 @@ int main(int argc, char** argv)
     // Set global shared OpenGL context
     if (!lcContext::InitializeRenderer())
     {
-        fprintf(stdout, "Error creating OpenGL context.\n");
+        lcContext::ShutdownRenderer();
+        fprintf(stderr, "Error creating OpenGL context.\n");
         return EXIT_FAILURE;
     }
 
@@ -1239,12 +1247,12 @@ int main(int argc, char** argv)
     }
     catch(const InitException &ex)
     {
-       fprintf(stdout, "Could not initialize LPub3D.");
+       fprintf(stderr, "Could not initialize LPub3D.");
        rc = EXIT_FAILURE;
     }
     catch(...)
     {
-       fprintf(stdout, "A fatal LPub3D error ocurred.");
+       fprintf(stderr, "A fatal LPub3D error ocurred.");
        rc = EXIT_FAILURE;
     }
 
