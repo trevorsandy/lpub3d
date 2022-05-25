@@ -29,7 +29,7 @@
 #include "lc_profile.h"
 #include "lc_context.h"
 
-static int RUN_APPLICATION = 2;
+#define RUN_APPLICATION 2
 
 #ifdef Q_OS_WIN
 
@@ -41,9 +41,9 @@ static int RUN_APPLICATION = 2;
   void Application::RedirectIOToConsole()
   {
     // Attach to the existing console of the parent process
-    m_allocated_console = !AttachConsole( ATTACH_PARENT_PROCESS );
-
-    if (m_allocated_console) {
+    m_allocate_new_console = !AttachConsole( ATTACH_PARENT_PROCESS );
+    m_parent_console = ! m_allocate_new_console;
+    if (m_allocate_new_console) {
       // maximum number of lines the output console should have
       static const WORD MAX_CONSOLE_LINES = 1000;
 
@@ -56,8 +56,6 @@ static int RUN_APPLICATION = 2;
       ConsoleInfo.dwSize.Y = MAX_CONSOLE_LINES;
       SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE),
                                  ConsoleInfo.dwSize);
-    } else {
-      m_parent_console = true;
     }
 
     // Get STDOUT handle
@@ -111,8 +109,8 @@ static int RUN_APPLICATION = 2;
 
   int Application::ReleaseConsole(void)
   {
-    if (m_allocated_console || m_parent_console) {
-      if (m_allocated_console)
+    if (m_allocate_new_console || m_parent_console) {
+      if (m_allocate_new_console)
          Sleep(500);
 
       // Return the console to the original attributes
@@ -141,9 +139,11 @@ static int RUN_APPLICATION = 2;
         SendInput(1, &keyInput, sizeof(INPUT));
       }
 
-      FreeConsole();
+      // Functions used are compatible with Win2000 or greater
+      if (QSysInfo::windowsVersion() >= QSysInfo::WV_2000)
+        FreeConsole();
 
-      m_allocated_console = false;
+      m_allocate_new_console = false;
       m_parent_console = false;
     }
 
@@ -486,24 +486,21 @@ int Application::initialize()
     m_console_mode = false;
     m_print_output = false;
 #ifdef Q_OS_WIN
-    m_allocated_console = false;
+    m_allocate_new_console = false;
     m_parent_console = false;
 #endif
 
     connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
     // process arguments
-    bool console_mode_set = false;
+    bool header_printed = false;
 #ifdef Q_OS_WIN
     // Request console redirect
+    bool consoleRedirect = true;
     bool consoleRedirectTreated = false;
 #endif
-    QString hdr, args, ldrawLibrary, loadedLibrary;
-    QStringList ListArgs, Arguments = arguments();
-    const int NumArguments = Arguments.size();
-    const int NumArgsIdx = NumArguments - 1;
-    for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
-    ListArgs << Arguments[ArgIdx];
+    QString hdr, args, ldrawLibrary;
+    const int NumArgsIdx = arguments().size() - 1;
 #if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
     hdr = QString("%1 v%2 r%3 (%4) for %5")
                   .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), QString::fromLatin1(VER_REVISION_STR), QString::fromLatin1(VER_BUILD_TYPE_STR), QString::fromLatin1(VER_COMPILED_FOR));
@@ -512,23 +509,21 @@ int Application::initialize()
     hdr = QString("%1 v%2%3 for %4")
                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), rev ? QString(" r%1").arg(VER_REVISION_STR) : "", QString::fromLatin1(VER_COMPILED_FOR));
 #endif
-    args = QString("Arguments: %1").arg(ListArgs.join(" "));
+
+    args = QString("Arguments:");
+    for (int i = 1; i < arguments().size(); i++)
+        args.append(" " + arguments().at(i));
 
 #ifdef QT_DEBUG_MODE
-        qDebug() << "";
-        qDebug() << hdr;
-        qDebug() << "==========================";
-        qDebug() << args;
-#else
-        fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
-        fprintf(stdout, "==========================\n");
-        fprintf(stdout, "%s\n",args.toLatin1().constData());
-        fflush(stdout);
+    qDebug() << "";
+    qDebug() << hdr;
+    qDebug() << "==========================";
+    qDebug() << args;
 #endif
 
-    for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+    for (int ArgIdx = 1; ArgIdx < arguments().size(); ArgIdx++)
     {
-        const QString& Param = Arguments[ArgIdx];
+        const QString Param = arguments().at(ArgIdx);
         // Items in this condition execute in GUI mode - first item executes in command console mode also)
         if (Param[0] != '-')
         {
@@ -540,55 +535,60 @@ int Application::initialize()
             if (Param == QLatin1String("+cr") || Param == QLatin1String("++console-redirect"))
             {
 #ifdef Q_OS_WIN
-                if (!consoleRedirectTreated) {
+                if (! consoleRedirectTreated) {
                     consoleRedirectTreated = true;
                     RedirectIOToConsole();
                 }
 #else
-                continue;
+                fprintf(stdout, "+cr/++console-redirect is only supported on Windows.\n");
 #endif
             }
-            else
+            if (!header_printed) {
+                header_printed = true;
+                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "==========================\n");
+                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fflush(stdout);
+            }
+
             // Invoke LEGO library in GUI mode
             if (Param == QLatin1String("+ll") || Param == QLatin1String("++liblego"))
-                loadedLibrary = LEGO_LIBRARY;
+                ldrawLibrary = LEGO_LIBRARY;
             else
             // Invoke TENTE library in GUI mode
             if (Param == QLatin1String("+lt") || Param == QLatin1String("++libtente"))
-                loadedLibrary = TENTE_LIBRARY;
+                ldrawLibrary = TENTE_LIBRARY;
             else
             // Invoke VEXIQ library in GUI mode
             if (Param == QLatin1String("+lv") || Param == QLatin1String("++libvexiq"))
-                loadedLibrary = VEXIQ_LIBRARY;
-
-            // Set library type from loaded library
-            if (!loadedLibrary.isEmpty()) {
-                if (!ldrawLibrary.isEmpty()) {
-                    fprintf(stdout, "%s library already loaded. Only one library type can be loaded,\n"
-                                    "The %s library will be ignored\n",
-                            ldrawLibrary.toLatin1().constData(),
-                            loadedLibrary.toLatin1().constData());
-                    fflush(stdout);
-                } else {
-                    ldrawLibrary = loadedLibrary;
-                    loadedLibrary.clear();
-                }
-            }
+                ldrawLibrary = VEXIQ_LIBRARY;
             // Everything after this occurs in console mode so escape here.
             continue;
         }
         // Items in this condition will execute in command console mode
         else
         {
-            if (!console_mode_set) {
+            if (!header_printed) {
+                header_printed = true;
                 m_console_mode = true;
-                console_mode_set = true;
 #ifdef Q_OS_WIN
-                if (!consoleRedirectTreated) {
+                if (! consoleRedirectTreated) {
                     consoleRedirectTreated = true;
-                    RedirectIOToConsole();
+                    Q_FOREACH(const QString &argument, arguments()) {
+                        if (argument == QLatin1String("-ncr") ||
+                            argument == QLatin1String("--no-console-redirect")) {
+                            consoleRedirect = false;
+                            break;
+                        }
+                    }
+                    if (consoleRedirect)
+                        RedirectIOToConsole();
                 }
 #endif
+                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "==========================\n");
+                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fflush(stdout);
             }
 
             if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
@@ -599,12 +599,12 @@ int Application::initialize()
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
+              fprintf(stdout, "\n%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
               if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                  return ReleaseConsole();
+                  return  ReleaseConsole();
 #else
                   return EXIT_SUCCESS;
 #endif
@@ -612,7 +612,7 @@ int Application::initialize()
             }
             else
             // Visual Editor (LeoCAD) version output
-            if (Param == QLatin1String("-vv") || Param == QLatin1String("--viewer-version"))
+            if (Param == QLatin1String("-ve") || Param == QLatin1String("--visual-editor-version"))
             {
               m_console_mode = true;
               m_print_output = true;
@@ -621,7 +621,7 @@ int Application::initialize()
               fflush(stdout);
               if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                  return ReleaseConsole();
+                  return  ReleaseConsole();
 #else
                   return EXIT_SUCCESS;
 #endif
@@ -637,10 +637,12 @@ int Application::initialize()
                 fprintf(stdout, "  [LDraw file]:\n");
                 fprintf(stdout, "  Use absolute file path and file name with .ldr, .mpd or .dat extension.\n");
                 fprintf(stdout, "  [options]:\n");
-                fprintf(stdout, "  Options preceded by '+' will launch %s in GUI mode.\n",qApp->applicationName().toLatin1().constData());
+                fprintf(stdout, "  Options preceded by '+/++' are only applicable to GUI mode. They have no effect in Console mode.\n");
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[%s commands]\n",qApp->applicationName().toLatin1().constData());
+#ifdef Q_OS_WIN
                 fprintf(stdout, "  +cr, ++console-redirect: Create console to redirect standard output standard error and standard input. Default is off.\n");
+#endif
                 fprintf(stdout, "  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
@@ -662,7 +664,11 @@ int Application::initialize()
                 fprintf(stdout, "  -ll, --liblego: Load the LDraw LEGO archive parts library in command console mode.\n");
                 fprintf(stdout, "  -lt, --libtente: Load the LDraw TENTE archive parts library in command console mode.\n");
                 fprintf(stdout, "  -lv, --libvexiq: Load the LDraw VEXIQ archive parts library in command console mode.\n");
-                fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
+#ifdef Q_OS_WIN
+                fprintf(stdout, "..-ncr, --no-console-redirect: Do not automatically redirect output and errors to console. Useful when running headless. Default is off.\n");
+#else
+                fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful to prevent double (stdout and QSLog) output. Default is off.\n");
+#endif
                 fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg, bmp, stl, 3ds, pov, dae or obj. Used with process-export. Default is pdf.\n");
                 fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ");
@@ -685,7 +691,7 @@ int Application::initialize()
                 fprintf(stdout, "  -s, --submodel <submodel>: Set the active submodel.\n");
                 fprintf(stdout, "  -t, --to <step>: Set the last step to save pictures.\n");
                 fprintf(stdout, "  -w, --width <width>: Set the picture width.\n");
-                fprintf(stdout, "  -vv, --viewer-version: Output Visual Editor - by LeoCAD version information and exit.\n");
+                fprintf(stdout, "  -ve, --visual-editor-version: Output Visual Editor - by LeoCAD version information and exit.\n");
                 fprintf(stdout, "  -3ds, --export-3ds <outfile.3ds>: Export the model to 3D Studio 3DS format.\n");
                 fprintf(stdout, "  -dae, --export-collada <outfile.dae>: Export the model to COLLADA DAE format.\n");
                 fprintf(stdout, "  -html, --export-html <folder>: Create an HTML page for the model.\n");
@@ -713,7 +719,7 @@ int Application::initialize()
                 fflush(stdout);
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return ReleaseConsole();
+                    return  ReleaseConsole();
 #else
                     return EXIT_SUCCESS;
 #endif
@@ -721,15 +727,15 @@ int Application::initialize()
             }
             // Invoke LEGO library in command console mode
             if (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))
-                loadedLibrary = LEGO_LIBRARY;
+                ldrawLibrary = LEGO_LIBRARY;
             else
             // Invoke TENTE library in command console mode
             if (Param == QLatin1String("-lt") || Param == QLatin1String("--libtente"))
-                loadedLibrary = TENTE_LIBRARY;
+                ldrawLibrary = TENTE_LIBRARY;
             else
             // Invoke VEXIQ library in command console mode
             if (Param == QLatin1String("-lv") || Param == QLatin1String("--libvexiq"))
-                loadedLibrary = VEXIQ_LIBRARY;
+                ldrawLibrary = VEXIQ_LIBRARY;
             else
             // Display application data, cache and configuration paths
             if (Param == QLatin1String("-ap") || Param == QLatin1String("--app-paths")) {
@@ -739,23 +745,10 @@ int Application::initialize()
                 Preferences::lpubPreferences();
                 if (ArgIdx == NumArgsIdx) {
 #ifdef Q_OS_WIN
-                    return ReleaseConsole();
+                    return  ReleaseConsole();
 #else
                     return EXIT_SUCCESS;
 #endif
-                }
-            }
-            // Set library type from loaded library
-            if (!loadedLibrary.isEmpty()) {
-                if (!ldrawLibrary.isEmpty()) {
-                    fprintf(stdout, "%s library already loaded. Only one library type can be loaded,\n"
-                                    "The %s library will be ignored\n",
-                            ldrawLibrary.toLatin1().constData(),
-                            loadedLibrary.toLatin1().constData());
-                    fflush(stdout);
-                } else {
-                    ldrawLibrary = loadedLibrary;
-                    loadedLibrary.clear();
                 }
             }
         }
@@ -865,7 +858,7 @@ int Application::initialize()
     logInfo() << "-----------------------------";
     logInfo() << hdr;
     logInfo() << "=============================";
-    logInfo() << QString("Arguments....................(%1)").arg(ListArgs.join(" "));
+    logInfo() << QString("Arguments....................(%1)").arg(args);
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
     logInfo() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
@@ -1225,7 +1218,6 @@ int main(int argc, char** argv)
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
 
-//    QScopedPointer<Application> app(new Application(argc, argv));
     Application app(argc, argv);
 
     lcApplication ve(&Options);
@@ -1240,27 +1232,25 @@ int main(int argc, char** argv)
 
     try
     {
-//       rc = app->initialize();
         rc = app.initialize();
     }
     catch(const InitException &ex)
     {
-       fprintf(stderr, "Could not initialize LPub3D.");
-       rc = EXIT_FAILURE;
+        fprintf(stderr, "Could not initialize LPub3D.");
+        rc = EXIT_FAILURE;
     }
     catch(...)
     {
-       fprintf(stderr, "A fatal LPub3D error ocurred.");
-       rc = EXIT_FAILURE;
+        fprintf(stderr, "A fatal LPub3D error ocurred.");
+        rc = EXIT_FAILURE;
     }
 
     if (rc == RUN_APPLICATION)
     {
-//       return app->run();
         return app.run();
     }
     else
-    {        
+    {
        return rc;
     }
 }

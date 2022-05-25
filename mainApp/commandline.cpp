@@ -30,13 +30,18 @@ int Gui::processCommandLine()
     return 0;
 
   // Declarations
-  QStringList visualEditorCommands = QStringList()
+  QStringList excludedCommands = QStringList()
     // Application::initialize arguments
+    << "-ncr" << "--no-console-redirect"
     << "-ns" << "--no-stdout-log"
     << "-ll" << "--liblego"
     << "-lt" << "--libtente"
     << "-lv" << "--libvexiq"
+    << "-ap" << "--app-paths"
+    << "-v" << "--version"
+    << "-?" << "--help"
     // Visual Editor arguments
+    << "-ve" << "--visual-editor-version"
     << "-l" << "--libpath"
     << "-i" << "--image"
     << "-w" << "--width"
@@ -114,8 +119,8 @@ int Gui::processCommandLine()
       }
 
       bool IsExcluded = false;
-      for (int i = 0; i < visualEditorCommands.size(); i++) {
-          if (Param.startsWith(visualEditorCommands.at(i))) {
+      for (int i = 0; i < excludedCommands.size(); i++) {
+          if (Param.startsWith(excludedCommands.at(i))) {
               IsExcluded = true;
               break;
           }

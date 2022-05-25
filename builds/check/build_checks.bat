@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 20, 2021
+rem  Last Update: June 08, 2021
 rem  Copyright (c) 2018 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -29,31 +29,31 @@ IF /I "%PKG_PLATFORM%"=="x86" (
 
 rem Check 1 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
-SET PKG_CHECK_OPTIONS=--process-file --liblego --preferred-renderer native
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --liblego --preferred-renderer native
 SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 2 of 7
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer ldview
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer ldview
 SET PKG_CHECK_LDVIEW_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 3 of 7
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer ldview-sc
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer ldview-sc
 SET PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 4 of 7
 SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 5 of 7
 IF "%APPVEYOR%" EQU "True" (
-  SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray-ldv
+  SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray-ldv
 ) ELSE (
-  SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray
+  SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --liblego --preferred-renderer povray
 )
 SET PKG_CHECK_POV_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 6 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\TENTE\astromovil.ldr
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libtente --preferred-renderer ldview
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --libtente --preferred-renderer ldview
 SET PKG_CHECK_TENTE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 7 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\VEXIQ\spider.mpd
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl
+SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl
 SET PKG_CHECK_VEXIQ_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 rem Setup logging and check status

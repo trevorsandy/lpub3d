@@ -48,6 +48,7 @@
   #define COMPANYNAME_STR                   "LPub3D Software"
 #endif
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR                  // "LPub3D Software Maint"
+#define VER_CHIPSET_STR                     VER_CHIPSET
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
 #ifdef LP3D_CONTINUOUS_BUILD
@@ -209,27 +210,27 @@
 #ifdef __GNUC__
   #ifdef __MINGW64__
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
-    #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
     #define VER_IDE                     "Qt Creator 4.9.1 on Qt 5.12.3 (MSVC 2017, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
-    #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
     #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
   #elif __APPLE__
     #define VER_COMPILED_ON             "Clang (x86 64bit) Apple"
-    #define VER_COMPILED_FOR            "macOS " VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "macOS " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (Clang 64bit)"
     #define VER_IDE                     "Qt Creator 4.14.2 on Qt 5.15.2 (Clang 9.0, x64)"
   #elif __linux__
     #define VER_COMPILED_ON             "GCC (5.4.1 20160904)"
-    #define VER_COMPILED_FOR            "Linux " VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "Linux " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (GCC 5.3.1, x64)"
   #elif defined(_POSIX_VERSION)
     #define VER_COMPILED_ON             "POSIX"
-    #define VER_COMPILED_FOR            "POSIX " VER_BUILD_ARCH_STR "bit"
+    #define VER_COMPILED_FOR            "POSIX " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (GCC)"
     #define VER_IDE                     "Qt Creator 4.5.0 on Qt 5.10.0 (GCC 5.3.1, x64)"
   #else
@@ -237,7 +238,7 @@
   #endif
 #elif _MSC_VER
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2019"
-  #define VER_COMPILED_FOR               "MS Windows " VER_BUILD_ARCH_STR "bit"
+  #define VER_COMPILED_FOR               "MS Windows " VER_CHIPSET_STR " " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2019 " VER_BUILD_ARCH_STR "bit)"
   #define VER_IDE                        "Qt Creator 4.14.2 on Qt 5.15.2 (MSVC 2019, 64bit)"
 #endif

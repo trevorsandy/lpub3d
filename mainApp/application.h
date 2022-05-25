@@ -153,7 +153,7 @@ private:
     WORD m_currentConsoleAttr;
 
     /// indicate if using allocated console
-    BOOL m_allocated_console;
+    BOOL m_allocate_new_console;
 
     /// indicate if using parent console
     BOOL m_parent_console;
