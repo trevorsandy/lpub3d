@@ -99,8 +99,6 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     sudo add-apt-repository "deb [arch=amd64 https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     sudo apt-get update -qq
     sudo apt-get -y install docker-ce
-    echo "Login to Docker Hub and set credentials for Compose..."
-    echo $DOCKER_HUB_TOKEN | docker login --username trevorsandy --password-stdin
     docker version
     sudo rm /usr/local/bin/docker-compose
     curl -L https://github.com/docker/compose/releases/download/${LP3D_DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose

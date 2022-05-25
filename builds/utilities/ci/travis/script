@@ -25,6 +25,8 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
       fi;
       # Docker builds
       if [ -n "$LP3D_BUILD_OS" ]; then
+        echo "Login to Docker Hub and set credentials for Compose..."
+        echo $DOCKER_HUB_TOKEN | docker login --username trevorsandy --password-stdin
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm $LP3D_BUILD_OS;
       fi;
       echo "Package Files: " && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
