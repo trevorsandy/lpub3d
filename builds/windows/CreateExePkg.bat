@@ -617,7 +617,7 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% ; ${WinBuildDir}
 )
 >>%genVersion%.
->>%genVersion% !define OpenSSLVer "%OPENSSL_VER%"
+>>%genVersion% !define OpenSSLVer %OPENSSL_VER%
 >>%genVersion% ; ${OpenSSLVer}
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
@@ -662,6 +662,10 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define SupportURL %LP3D_SUPPORT%
 >>%genVersion% ; ${SupportURL}
 >>%genVersion%.
+IF EXIST "%versionFile%" (
+  ECHO - Generated AppVersion.nsh build parameters script:
+  TYPE "%versionFile%"
+)
 EXIT /b
 
 REM pwd = windows/release/LP3D_PRODUCT_DIR
