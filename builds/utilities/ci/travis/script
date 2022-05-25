@@ -130,9 +130,9 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
         echo && echo "AppImage Dynamic Library Dependencies:" && \
         find $AppImageBuildPath -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq && echo;
         AppImageFile=$(ls LPub3D*.AppImage)
-        if [ -f $AppImageFile ]; then
+        if [ -f ${AppImageFile} ]; then
           echo "Applying magic bytes correction..." && \
-          sed -i 's|AI\x02|\x00\x00\x00|' AppImageFile && \
+          sed -i 's|AI\x02|\x00\x00\x00|' ${AppImageFile} && \
           echo "Magic bytes correction applied." || \
           echo "Failed to apply magic bytes correction"
           echo "AppImage build completed successfully.";
