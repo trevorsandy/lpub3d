@@ -26,7 +26,7 @@ class QStringList;
 
 class Preferences
 {
-  public:   
+  public:
     enum MsgKey {
         ParseErrors,
         InsertErrors,
@@ -134,7 +134,7 @@ class Preferences
     static void setSceneGuideColorPreference(QString);
     static void setBlenderExePathPreference(QString);
     static void setBlenderVersionPreference(QString);
-    static void setDebugLogging(bool); 
+    static void setDebugLogging(bool);
 
     static void setInitFadeSteps();
     static void setInitHighlightStep();
@@ -165,6 +165,7 @@ class Preferences
     static QString ldviewExe;
     static QString povrayExe;
     static QString lpub3dPath;
+    static QString lpub3dCachePath;
     static QString lpub3dExtrasResourcePath;
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
@@ -200,6 +201,7 @@ class Preferences
     static QString displayTheme;
     static QString ldvLights;
     static QString xmlMapPath;
+    static QString optPrefix;
 
     static QString validLDrawLibrary;
     static QString validLDrawDir;

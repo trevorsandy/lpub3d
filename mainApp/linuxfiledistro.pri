@@ -66,6 +66,8 @@ unix:!macx {
 
     # These settings are used for package distributions that will require elevated rights to install
     isEmpty(INSTALL_PREFIX): INSTALL_PREFIX = /usr
+    else: \
+    DEFINES += OPT_PREFIX=\\\"$$INSTALL_PREFIX\\\"
     
     isEmpty(BIN_DIR): BIN_DIR               = $$INSTALL_PREFIX/bin
     isEmpty(SHARE_DIR): SHARE_DIR           = $$INSTALL_PREFIX/share

@@ -38,15 +38,8 @@
 lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
-/*** LPub3D Mod - portable cache ***/
-	if (QDir(Preferences::lpub3dPath + "/extras").exists())
-	{
-		// we have a portable distribution
-		mCachePath = Preferences::lpub3dPath + "/cache";
-	} else {
-		QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
-		mCachePath = cachePathList.first();
-	}
+/*** LPub3D Mod - cache path ***/
+	mCachePath = Preferences::lpub3dCachePath;
 /*** LPub3D Mod end ***/
 
 	QDir Dir;

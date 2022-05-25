@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 14, 2021
+# Last Update May 25, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -40,7 +40,7 @@ function show_settings
     echo "--LP3D_OS_NAME.......$LP3D_OS_NAME"
     echo "--LP3D_TARGET_ARCH...$LP3D_TARGET_ARCH"
     echo "--LP3D_PLATFORM......$LP3D_PLATFORM"
-    [ -n "$SCRIPT_NAME" ] && echo "--SCRIPT_NAME........$SCRIPT_NAME" || true
+    [ -n "$SCRIPT_NAME" ] && echo "--SCRIPT_NAME.......$SCRIPT_NAME" || true
     echo
 }
 
@@ -79,17 +79,16 @@ fi
 # Flatpak validate and set executable permissions
 if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
     LPUB3D_EXE=$(find ${LPUB3D_DEST}/bin -name lpub3d* -type f)
-    if [[ -f "$LPUB3D_EXE" ]]; then 
-        if [[ -f "$SOURCE_DIR/LPub3D.pro" ]]; then
-            chmod u+x ${LPUB3D_EXE}
+    if [[ -f "$LPUB3D_EXE" ]]; then
+        if [[ -d "$SOURCE_DIR/builds/check" ]]; then
             cd ${SOURCE_DIR}
         else
             show_settings_and_exit "ERROR - Invalid source path specified. Build check cannot be executed."
-        fi   
+        fi
     else
         show_settings_and_exit "ERROR - LPub3D executable was not found. Build check cannot be executed."
     fi
-fi  
+fi
 
 # AppImage validate and set executable permissions
 if [[ "$LP3D_BUILD_OS" = "appimage" ]]; then
@@ -145,21 +144,22 @@ if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
 fi
 
 # Initialize variables
+LP3D_CHECK_STATUS=${LP3D_CHECK_STATUS:---version}
 LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
 LP3D_CHECK_STDLOG="$(realpath ${SOURCE_DIR})/builds/check/LPub3D"
 LP3D_CHECK_SUCCESS="Application terminated with return code 0."
-LP3D_LOG_FILE="Check.out"
+LP3D_XVFB_ERROR="xvfb-run: error: "
+LP3D_ERROR=0
 let LP3D_CHECK_PASS=0
 let LP3D_CHECK_FAIL=0
 LP3D_CHECKS_PASS=
 LP3D_CHECKS_FAIL=
 
-echo && echo "------------Build Checks Start--------------" && echo
+# Applicatin status check (TODO - this command is throwing a segfault, check why)
+[ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
+${LPUB3D_EXE} ${LP3D_CHECK_STATUS} 2>/dev/null || true
 
-# Remove old log if exist
-if [ -f "${LP3D_LOG_FILE}" ]; then
-    rm -rf "${LP3D_LOG_FILE}"
-fi
+echo && echo "------------Build Checks Start--------------" && echo
 
 for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07; do
     lp3d_check_start=$SECONDS
@@ -169,6 +169,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         LP3D_CHECK_LBL="Native File Process"
         LP3D_CHECK_HDR="- Check 1 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
+        LP3D_LOG_FILE="Check.1.out"
         LP3D_CHECK_STDLOG=
         ;;
     CHECK02)
@@ -176,24 +177,28 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         LP3D_CHECK_HDR="- Check 2 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
+        LP3D_LOG_FILE="Check.2.out"
         ;;
     CHECK03)
         LP3D_CHECK_LBL="LDView (Single Call) File Process"
         LP3D_CHECK_HDR="- Check 3 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
+        LP3D_LOG_FILE="Check.3.out"
         ;;
     CHECK04)
         LP3D_CHECK_LBL="LDGLite Export Range"
         LP3D_CHECK_HDR="- Check 4 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-ldglite"
+        LP3D_LOG_FILE="Check.4.out"
         ;;
     CHECK05)
         LP3D_CHECK_LBL="Native POV Generation"
         LP3D_CHECK_HDR="- Check 5 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-povray"
+        LP3D_LOG_FILE="Check.5.out"
         ;;
     CHECK06)
         LP3D_CHECK_LBL="LDView TENTE Model"
@@ -201,6 +206,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libtente --preferred-renderer ldview"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/TENTE/astromovil.ldr"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
+        LP3D_LOG_FILE="Check.6.out"
         ;;
     CHECK07)
         LP3D_CHECK_LBL="LDView (Snapshot List) VEXIQ Model"
@@ -208,8 +214,14 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
         LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
+        LP3D_LOG_FILE="Check.7.out"
         ;;
       esac
+
+    # Remove old log if exist
+    if [ -f "${LP3D_LOG_FILE}" ]; then
+        rm -rf "${LP3D_LOG_FILE}"
+    fi
 
     # Initialize XVFB and execute check
     [ -n "$USE_XVFB" ] && xvfb-run --auto-servernum --server-num=1 --server-args="-screen 0 1024x768x24" \
@@ -219,13 +231,18 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     sleep 4
     # check output log for build check status
     if [ -f "${LP3D_LOG_FILE}" ]; then
+        LP3D_ERROR=0
         if grep -q "${LP3D_CHECK_SUCCESS}" "${LP3D_LOG_FILE}"; then
+            if grep -q "${LP3D_XVFB_ERROR}" "${LP3D_LOG_FILE}"; then
+                LP3D_ERROR=1
+            fi
             echo "${LP3D_CHECK_HDR} PASSED, ELAPSED TIME [`ElapsedCheckTime $lp3d_check_start`]"
             echo "${LP3D_CHECK_LBL} Command: ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}"
             let LP3D_CHECK_PASS++
             LP3D_CHECKS_PASS="${LP3D_CHECKS_PASS},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
             echo
         else
+            LP3D_ERROR=2
             echo "${LP3D_CHECK_HDR} FAILED, ELAPSED TIME [`ElapsedCheckTime $lp3d_check_start`]"
             let LP3D_CHECK_FAIL++
             LP3D_CHECKS_FAIL="${LP3D_CHECKS_FAIL},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
@@ -236,17 +253,26 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
             cat "${LP3D_CHECK_STDLOG}" || true
             echo
         fi
-        rm -rf "${LP3D_LOG_FILE}"
+        # Report Xvfb errors
+        if [ "${LP3D_ERROR}" -eq "1" ]; then
+            if grep -q "${LP3D_XVFB_ERROR}" "${LP3D_LOG_FILE}"; then
+                echo "- LPub3D Xvfb Log Trace: ${LP3D_LOG_FILE}"
+                cat "${LP3D_LOG_FILE}"
+            fi
+        fi
+        if [[ "$LP3D_BUILD_OS" != "flatpak" && "$LP3D_BUILD_OS" != "snap" ]]; then
+            rm -rf "${LP3D_LOG_FILE}"
+        fi
     else
-        echo "ERROR - ${LP3D_LOG_FILE} not found."
+        echo "ERROR - ${LP3D_LOG_FILE} was not generated."
     fi
 done
 
 # remove leading ','
-if [ "${LP3D_CHECK_PASS}" -gt "0" ];then
+if [ "${LP3D_CHECK_PASS}" -gt "0" ]; then
     LP3D_CHECKS_PASS="$(echo ${LP3D_CHECKS_PASS} | cut -c 2-)"
 fi
-if [ "${LP3D_CHECK_FAIL}" -gt "0" ];then
+if [ "${LP3D_CHECK_FAIL}" -gt "0" ]; then
     LP3D_CHECKS_FAIL="$(echo ${LP3D_CHECKS_FAIL} | cut -c 2-)"
 fi
 

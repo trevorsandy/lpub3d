@@ -2513,7 +2513,7 @@ void Gui::editLdrawIniFile()
 void Gui::editLPub3DIniFile()
 {
     QString lpubConfigFile,fileExt;
-    QString companyName = QString(COMPANYNAME_STR).toLower();
+    QString companyName = QString(VER_COMPANYNAME_STR).toLower();
 #if defined Q_OS_WIN
     fileExt = "ini";
     if (Preferences::portableDistribution)

@@ -253,6 +253,7 @@ QString Preferences::altLDConfigPath            = EMPTY_STRING_DEFAULT;
 QString Preferences::lpub3dLibFile              = EMPTY_STRING_DEFAULT;
 QString Preferences::lgeoPath;
 QString Preferences::lpub3dPath                 = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dCachePath            = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dExtrasResourcePath   = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
@@ -274,6 +275,7 @@ QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
+QString Preferences::optPrefix                  = VER_OPT_PREFIX_STR;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
@@ -868,13 +870,13 @@ void Preferences::lpubPreferences()
             isAppImagePayload = true;
     }
 
-    QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
+    QDir appDir(QString("%1/../share").arg(cwd.absolutePath()));
 
     // This is a shameless hack until I figure out a better way to get the application name folder
     QStringList fileFilters;
     fileFilters << "lpub3d*";
 
-    QDir contentsDir(progDir.absolutePath() + "/");
+    QDir contentsDir(appDir.absolutePath() + "/");
     QStringList shareContents = contentsDir.entryList(fileFilters);
 
     if (shareContents.size() > 0)
@@ -903,8 +905,8 @@ void Preferences::lpubPreferences()
 
 #else                                                                 // Elevated User Rights Install
 
-    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(progDir.absolutePath(),lpub3dAppName);
-    lpub3dExtrasResourcePath = QString("%1/%2").arg(progDir.absolutePath(),lpub3dAppName);
+    lpub3dDocsResourcePath   = QString("%1/doc/%2").arg(appDir.absolutePath(),lpub3dAppName);
+    lpub3dExtrasResourcePath = QString("%1/%2").arg(appDir.absolutePath(),lpub3dAppName);
 
 #endif
 
@@ -916,9 +918,32 @@ void Preferences::lpubPreferences()
 
     lpub3dPath = cwd.absolutePath();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    // Default user data path
+    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    lpubDataPath = dataPathList.first();
+
+    // Default cache path
+    QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+    lpub3dCachePath = cachePathList.first();
+
     // Default configuration path
     QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
     lpubConfigPath = configPathList.first();
+
+    // DEBUG
+#if defined (LP3D_FLATPACK) || defined(LP3D_SNAP)
+#ifdef QT_DEBUG_MODE
+    qDebug() << QString(QString("LPub3D Default App Data Path.(%1)").arg(lpubDataPath));
+    qDebug() << QString(QString("LPub3D Default Config Path.. (%1)").arg(lpubConfigPath));
+    qDebug() << QString(QString("LPub3D Default 3D Parts Path.(%1)").arg(lpub3dCachePath));
+#else
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Default App Data Path.(%1)").arg(lpubDataPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Default Config Path.. (%1)").arg(lpubConfigPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Default 3D Parts Path.(%1)").arg(lpub3dCachePath)).toLatin1().constData());
+#endif
+#endif // LP3D_FLATPACK or LP3D_SNAP
+#endif // (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 
 #ifdef Q_OS_WIN //... Windows portable or installed
     QSettings Settings;
@@ -985,6 +1010,8 @@ void Preferences::lpubPreferences()
             lpubDataPath = lpub3dPath;
         }
 
+        // Cache path
+        lpub3dCachePath = QString("%1/cache").arg(lpub3dPath);
 
     } else {                    // we have an installed distribution
 
@@ -996,24 +1023,76 @@ void Preferences::lpubPreferences()
 
         } else {
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-            QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-            lpubDataPath = dataPathList.first();
-#endif
             Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DDataPathKey), lpubDataPath);
         }
     }
 
-#else  // ...Linux or OSX
+#else  // Q_OS_LINUX or Q_OS_MAC
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-    QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    const int dataIndex = lpubDataPath.indexOf("/share/");
+    QString dataPrefixReplace = dataIndex > -1 ? lpubDataPath.left(dataIndex) : QString();
 
-    // Note that for AppImage distros, lpubDataPath folder name will be the name of the AppImage file.
-    lpubDataPath = dataPathList.first();
-#endif
+    const int cacheIndex = lpub3dCachePath.indexOf("/.cache/");
+    QString cachePrefixReplace = cacheIndex > -1 ? lpub3dCachePath.left(cacheIndex) : QString();
 
-#endif
+    const int configIndex = lpubConfigPath.indexOf("/.config");
+    QString configPrefixReplace = configIndex > -1 ? lpubConfigPath.left(configIndex) : QString();
+
+    QString dataPrefixNew, cachePrefixNew, configPrefixNew;
+#if defined(LP3D_SNAP)
+    // Example         : /home/<user>/snap/<Snap name>/<Snap revision>/...
+    char* snapUserDataPath = getenv("SNAP_USER_DATA");
+    if (snapUserDataPath && snapUserDataPath[0])
+        dataPrefixNew = QString(snapUserDataPath);
+
+    char* snapUserCommonPath = getenv("SNAP_USER_COMMON");
+    if (snapUserCommonPath && snapUserCommonPath[0])
+        cachePrefixNew = configPrefixNew = QString(snapUserCommonPath);
+#elif defined (LP3D_FLATPACK)
+    // Example         : /home/<user>/.var/app/<Flapak name>/...
+    char* flatpakUserDataPath = getenv("XDG_DATA_HOME");
+    if (flatpakUserDataPath && flatpakUserDataPath[0]) {
+        dataPrefixReplace.append("/share");
+        dataPrefixNew = QString(flatpakUserDataPath);
+    }
+
+    char* flatpakUserCachePath = getenv("XDG_CACHE_HOME");
+    if (flatpakUserCachePath && flatpakUserCachePath[0]) {
+        cachePrefixReplace.append("/.cache");
+        cachePrefixNew = QString(flatpakUserCachePath);
+    }
+
+    char* flatpakUserConfigPath = getenv("XDG_CONFIG_HOME");
+    if (flatpakUserConfigPath && flatpakUserConfigPath[0]) {
+        configPrefixReplace.append("/.config");
+        configPrefixNew = QString(flatpakUserConfigPath);
+    }
+
+    // For Flatpak build check, unpack the user data to /app
+    char* flatpakBuildCheck = getenv("FLATPAK_BUILD_CHECK");
+    if (flatpakBuildCheck)
+        dataPrefixNew = cachePrefixNew = configPrefixNew = "/app";
+#endif // LP3D_SNAP, LP3D_FLATPACK
+     // Linux example   : /home/<user>/.local/share/lpub3d/...
+     // AppImage example: /home/<user>/.local/share/<AppImage name>/...
+     if (! dataPrefixNew.isEmpty() && ! dataPrefixReplace.isEmpty())
+        lpubDataPath = lpubDataPath.replace(dataPrefixReplace, dataPrefixNew);
+
+     if (! cachePrefixNew.isEmpty() && ! cachePrefixReplace.isEmpty())
+        lpub3dCachePath = lpub3dCachePath.replace(cachePrefixReplace, cachePrefixNew);
+
+     if (! configPrefixNew.isEmpty() && ! configPrefixReplace.isEmpty())
+        lpubConfigPath = lpubConfigPath.replace(configPrefixReplace, configPrefixNew);
+
+#if defined (LP3D_FLATPACK) || defined(LP3D_SNAP)
+     QDir configDir(lpubConfigPath);
+     if(! QDir(configDir).exists())
+         configDir.mkpath(".");
+     QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope, configDir.absolutePath());
+#endif // LP3D_FLATPACK or LP3D_SNAP
+#endif // (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
     // applications paths:
 #ifdef QT_DEBUG_MODE
@@ -1027,8 +1106,11 @@ void Preferences::lpubPreferences()
 #else
     fprintf(stdout, "%s\n", QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
 #endif
-#else
+#else // Q_OS_LINUX or Q_OS_WIN
     QString _logPath = QString("%1/logs/%2Log.txt").arg(lpubDataPath).arg(VER_PRODUCTNAME_STR);
+#ifdef Q_OS_LINUX
+    _logPath = _logPath.toLower();
+#endif
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath));
     qDebug() << QString(QString("LPub3D Log Path..............(%1)").arg(_logPath));
@@ -1036,8 +1118,7 @@ void Preferences::lpubPreferences()
     fprintf(stdout, "%s\n", QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
     fprintf(stdout, "%s\n", QString(QString("LPub3D Log Path..............(%1)").arg(_logPath)).toLatin1().constData());
 #endif
-#endif
-
+#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
 #ifdef Q_OS_WIN
     QString dataDir = "data";
@@ -1064,24 +1145,33 @@ void Preferences::lpubPreferences()
     }
     dataLocation = QString("%1/%2/").arg(dataPath,dataDir);
 
-#else
+#else // Q_OS_LINUX or Q_OS_MAC
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath));
 #else
     fprintf(stdout, "%s\n", QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath)).toLatin1().constData());
 #endif
-  // On Linux 'dataLocation' folder is /usr/share/lpub3d
-  // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
-  dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
+    // On Linux 'dataLocation' folder is /usr/share/lpub3d
+    // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
+    dataLocation = QString("%1/").arg(lpub3dExtrasResourcePath);
 #if defined Q_OS_LINUX
-    QDir rendererDir(QString("%1/../../opt/%2").arg(lpub3dPath).arg(lpub3dAppName));
+    QDir rendererDir(QString("%1/../../%2/%3").arg(lpub3dPath)
+                                              .arg(optPrefix.isEmpty() ? "opt" : optPrefix+"/opt")
+                                              .arg(lpub3dAppName));
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
 #else
     fprintf(stdout, "%s\n", QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath())).toLatin1().constData());
 #endif
+#endif // Q_OS_LINUX
+#ifdef QT_DEBUG_MODE
+    qDebug() << QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath));
+    qDebug() << QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath));
+#else
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Config File Path......(%1)").arg(lpubConfigPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(lpub3dCachePath)).toLatin1().constData());
 #endif
-#endif
+#endif // Q_OS_WIN, Q_OS_LINUX or Q_OS_MAC
 
     QDir extrasDir(lpubDataPath + QDir::separator() + "extras");
     if(!QDir(extrasDir).exists())
@@ -1642,7 +1732,7 @@ void Preferences::ldrawPreferences(bool browse)
                             ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
 
                             QString message = QString("The %1 LDraw library was not found.").arg(validLDrawLibrary);
-                            
+
                             if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // manual prompt for LDraw Library location
                                 ldrawLibPath.clear();
 
@@ -1661,7 +1751,7 @@ void Preferences::ldrawPreferences(bool browse)
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir)));
 
 // For AppImage, Flatpak or Snap, automatically install LDraw library (user notified if install failed)
-#if defined (LP3D_FLATPACK) || defined (LP3D_APPIMAGE)
+#if defined (LP3D_FLATPACK) || defined(LP3D_SNAP) || defined (LP3D_APPIMAGE)
                             if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {
                                 ldrawLibPath.clear();
                                 if (!extractLDrawLib())
@@ -2251,7 +2341,7 @@ void Preferences::rendererPreferences()
     QFileInfo ldgliteInfo(QString("%1/%2/bin/ldglite").arg(lpub3d3rdPartyAppDir, VER_LDGLITE_STR));
     QFileInfo ldviewInfo(QString("%1/%2/bin/LDView").arg(lpub3d3rdPartyAppDir, VER_LDVIEW_STR));
     QFileInfo povrayInfo(QString("%1/%2/bin/lpub3d_trace_cui").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR));
-#else
+#else // Q_OS_LINUX
     QDir appDir;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir"))) {
         lpub3d3rdPartyAppDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererApplicationDir")).toString();;
@@ -2263,7 +2353,7 @@ void Preferences::rendererPreferences()
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir"))) {
         lpub3d3rdPartyAppExeDir = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererExecutableDir")).toString();;
     } else {
-        appDir.setPath(QString("%1/../../opt").arg(lpub3dPath));
+        appDir.setPath(QString("%1/../../%2").arg(lpub3dPath).arg(optPrefix.isEmpty() ? "opt" : optPrefix+"/opt"));
         lpub3d3rdPartyAppExeDir = QString("%1/%2/3rdParty").arg(appDir.absolutePath(), lpub3dAppName);
     }
 
@@ -2389,7 +2479,7 @@ void Preferences::rendererPreferences()
         }
 #endif
     } else {
-        logNotice() << QString("LDView   : %1 not installed").arg(ldviewInfo.absoluteFilePath());
+        logNotice() << QString("LDView  : %1 not installed").arg(ldviewInfo.absoluteFilePath());
     }
 
     if (povrayInfo.exists()) {
