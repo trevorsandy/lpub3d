@@ -354,7 +354,9 @@ void lcPiecesLibrary::UpdateStudStyleSource()
 
 	const QLatin1String FileNames[] =
 	{
-		QLatin1String(),                                  // Plain
+/*** LPub3D Mod - fix Qt 5.5.1 incompatibility ***/
+		QLatin1String(0),                                 // Plain
+/*** LPub3D Mod end ***/
 		QLatin1String(":/resources/studlogo1.zip"),       // ThinLinesLogo
 		QLatin1String(":/resources/studlogo2.zip"),       // OutlineLogo
 		QLatin1String(":/resources/studlogo3.zip"),       // SharpTopLogo
