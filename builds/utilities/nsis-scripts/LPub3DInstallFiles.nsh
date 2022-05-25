@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: June 11, 2021
+;Last Update: June 12, 2021
 ;Copyright (C) 2016 - 2021 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -24,16 +24,11 @@ ${If} ${RunningX64}
     ;Deposit new 64bit files...
     File "${Win64BuildDir}\${LPub3DBuildFile}"
 
-    ${if} ${OpenSSLVer} == v1.0
-    ;OpenSSL v1.0 - up to Qt 5.12.9
-      File "${Win64BuildDir}\libeay32.dll"
-      File "${Win64BuildDir}\ssleay32.dll"
-    ${elseif} ${OpenSSLVer} == v1.1
-    ;OpenSSL v1.1 - from Qt 5.12.10 to present
-     File "${Win64BuildDir}\libcrypto-1_1-x64.dll"
-     File "${Win64BuildDir}\libssl-1_1-x64.dll"
-    ${EndIf}
+    ;OpenSSL
+    File "${Win64BuildDir}\${OpenSSL64LibCrypto}"
+    File "${Win64BuildDir}\${OpenSSL64LibSSL}"
 
+    ;Qt Libs
     File "${Win64BuildDir}\Qt5Concurrent.dll"
     File "${Win64BuildDir}\Qt5Core.dll"
     File "${Win64BuildDir}\Qt5Gui.dll"
@@ -127,17 +122,11 @@ ${Else}
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
     File "${Win32BuildDir}\${LPub3DBuildFile}"
 
+    ;OpenSSL
+    File "${Win32BuildDir}\${OpenSSL32LibCrypto}"
+    File "${Win32BuildDir}\${OpenSSL32LibSSL}"
 
-   ${if} ${OpenSSLVer} == v1.0
-   ;OpenSSL v1.0 - up to Qt 5.12.9
-     File "${Win32BuildDir}\libeay32.dll"
-     File "${Win32BuildDir}\ssleay32.dll"
-   ${elseif} ${OpenSSLVer} == v1.1
-   ;OpenSSL v1.1 - from Qt 5.12.10 to present
-     File "${Win32BuildDir}\libcrypto-1_1.dll"
-     File "${Win32BuildDir}\libssl-1_1.dll"
-   ${EndIf}
-
+    ;Qt Libs
     File "${Win32BuildDir}\Qt5Concurrent.dll"
     File "${Win32BuildDir}\Qt5Core.dll"
     File "${Win32BuildDir}\Qt5Gui.dll"

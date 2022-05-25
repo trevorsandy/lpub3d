@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 11, 2021
+rem  Last Update: June 12, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -229,8 +229,10 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
-ECHO   BUILD_PLATFORM_QT32_MSVC.......[%LP3D_QT32_MSVC%]
-ECHO   BUILD_PLATFORM_QT64_MSVC.......[%LP3D_QT64_MSVC%]
+IF "%APPVEYOR%" NEQ "True" (
+  ECHO   BUILD_PLATFORM_QT32_MSVC.......[%LP3D_QT32_MSVC%]
+  ECHO   BUILD_PLATFORM_QT64_MSVC.......[%LP3D_QT64_MSVC%]
+)
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
@@ -326,10 +328,14 @@ CD /D "%ABS_WD%"
 ECHO.
 ECHO -Building %PACKAGE% %ARCHITECTURE% architecture, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
+IF %BUILD_THIRD%==1 ECHO.
+IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
 IF %BUILD_THIRD%==1 CALL builds\utilities\CreateRenderers.bat %ARCHITECTURE%
 IF %ERRORLEVEL% NEQ 0 (
    GOTO :END
 )
+IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
+IF %BUILD_THIRD%==1 ECHO.
 rem Display QMake version
 ECHO.
 qmake -v & ECHO.
@@ -367,7 +373,8 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %ERRORLEVEL% NEQ 0 (
     GOTO :END
   )
-  ECHO.
+  IF %BUILD_THIRD%==1 ECHO -----------------------------------------------------
+  IF %BUILD_THIRD%==1 ECHO.
   ECHO -Building  %PACKAGE% %%P architecture, %CONFIGURATION% configuration...
   ECHO.
   rem Display QMake version
@@ -412,6 +419,8 @@ CALL builds\utilities\CreateRenderers.bat %ARCHITECTURE%
 IF %ERRORLEVEL% NEQ 0 (
   GOTO :END
 )
+ECHO -----------------------------------------------------
+ECHO.
 GOTO :END
 
 :BUILD_ALL_RENDERERS
@@ -428,6 +437,8 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %ERRORLEVEL% NEQ 0 (
     GOTO :END
   )
+  ECHO -----------------------------------------------------
+  ECHO.
 )
 GOTO :END
 
@@ -456,7 +467,7 @@ FOR /R %%I IN (
   "quazip\Makefile*"
 ) DO DEL /S /Q "%%~I" >NUL 2>&1
 ECHO.
-ECHO   ARCHITECTURE (BUILD_ARCH)..........[%ARCHITECTURE%]
+ECHO   ARCHITECTURE (BUILD_ARCH)......[%ARCHITECTURE%]
 SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
 SET LPUB3D_CONFIG_ARGS=CONFIG+=%CONFIGURATION% CONFIG-=debug_and_release
 IF "%APPVEYOR%" EQU "True" (

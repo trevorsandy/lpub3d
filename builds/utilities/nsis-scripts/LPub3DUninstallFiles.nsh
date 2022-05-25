@@ -1,5 +1,5 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: June 11, 2021
+;Last Update: June 12, 2021
 ;Copyright (C) 2016 - 2021 by Trevor SANDY
 
 ;Deposit new files...
@@ -57,15 +57,9 @@ ${If} ${RunningX64}
     ;New 64bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_seh-1.dll"
 
-    ${if} ${OpenSSLVer} == v1.0
-    ;OpenSSL v1.0 - up to Qt 5.12.9
-      Delete "$INSTDIR\libeay32.dll"
-      Delete "$INSTDIR\ssleay32.dll"
-    ${elseif} ${OpenSSLVer} == v1.1
-    ;OpenSSL v1.1 - from Qt 5.12.10 to present
-      Delete "$INSTDIR\libcrypto-1_1-x64.dll"
-      Delete "$INSTDIR\libssl-1_1-x64.dll"
-    ${EndIf}
+    ;OpenSSL
+    Delete "$INSTDIR\${OpenSSL64LibCrypto}"
+    Delete "$INSTDIR\${OpenSSL64LibSSL}"
 
     ;64bit 3rd party renderer utility - LDView
     Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
@@ -79,15 +73,9 @@ ${Else}
     ;New 32bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 
-    ${if} ${OpenSSLVer} == v1.0
-    ;OpenSSL v1.0 - up to Qt 5.12.9
-      Delete "$INSTDIR\libeay32.dll"
-      Delete "$INSTDIR\ssleay32.dll"
-    ${elseif} ${OpenSSLVer} == v1.1
-    ;OpenSSL v1.1 - from Qt 5.12.10 to present
-      Delete "$INSTDIR\libcrypto-1_1.dll"
-      Delete "$INSTDIR\libssl-1_1.dll"
-    ${EndIf}
+    ;OpenSSL
+    Delete "$INSTDIR\${OpenSSL32LibCrypto}"
+    Delete "$INSTDIR\${OpenSSL32LibSSL}"
 
     ;32bit 3rd party renderer utility - LDView
     Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"

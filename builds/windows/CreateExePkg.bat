@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 11, 2021
+rem  Last Update: June 12, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -617,8 +617,32 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% ; ${WinBuildDir}
 )
 >>%genVersion%.
->>%genVersion% !define OpenSSLVer %OPENSSL_VER%
->>%genVersion% ; ${OpenSSLVer}
+IF "%OPENSSL_VER%" EQU "v1.1" (
+>>%genVersion% !define OpenSS64LLibCrypto "libcrypto-1_1-x64.dll"
+>>%genVersion% ; ${OpenSSL64LibCrypto}
+>>%genVersion%.
+>>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
+>>%genVersion% ; ${OpenSSL64LibSSL}
+>>%genVersion%.
+>>%genVersion% !define OpenSS32LLibCrypto "libcrypto-1_1.dll"
+>>%genVersion% ; ${OpenSSL32LibCrypto}
+>>%genVersion%.
+>>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
+>>%genVersion% ; ${OpenSSL32LibSSL}
+)
+IF "%OPENSSL_VER%" EQU "v1.0" (
+>>%genVersion% !define OpenSS64LLibCrypto "libeay32.dll"
+>>%genVersion% ; ${OpenSS64LLibCrypto}
+>>%genVersion%.
+>>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
+>>%genVersion% ; ${OpenSSL64LibSSL}
+>>%genVersion%.
+>>%genVersion% !define OpenSS32LLibCrypto "libeay32.dll"
+>>%genVersion% ; ${OpenSS32LLibCrypto}
+>>%genVersion%.
+>>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
+>>%genVersion% ; ${OpenSSL32LibSSL}
+)
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
