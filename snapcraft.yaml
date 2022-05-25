@@ -1,6 +1,6 @@
 # Build and check LPub3D Snap
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 14, 2021
+# Last Update: June 06, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 name: lpub3d
@@ -57,7 +57,6 @@ parts:
     plugin: nil
     source: https://github.com/trevorsandy/lpub3d-ci.git
     source-tag: v2.4.4
-    source-depth: 500
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
@@ -71,22 +70,12 @@ parts:
       - LPUB3D: ${PWD##*/}
       - WD: $(cd ../ && echo $PWD)
     build-packages:
-      - curl
-      - zip
       - apt-utils
-      - git
-      - wget
-      - unzip
-      - lintian
-      - build-essential
-      - debhelper
-      - fakeroot
-      - ccache
-      - lsb-release
-      - autotools-dev
       - autoconf
-      - pkg-config
-      - libtool
+      - autotools-dev
+      - build-essential
+      - ccache
+      - curl
       - freeglut3-dev
       - libboost-all-dev
       - libgl2ps-dev
@@ -97,9 +86,15 @@ parts:
       - libsdl2-dev
       - libtiff-dev
       - libtinyxml-dev
+      - libtool
+      - pkg-config
       - qtbase5-dev
       - qttools5-dev-tools
+      - unzip
+      - wget
+      - zip
       - zlib1g-dev
+
     stage-packages:
       - freeglut3
       - libgl2ps1.4
