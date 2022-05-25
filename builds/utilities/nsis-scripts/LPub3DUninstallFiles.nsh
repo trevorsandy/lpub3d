@@ -1,5 +1,5 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: September 15, 2020
+;Last Update: June 11, 2021
 ;Copyright (C) 2016 - 2021 by Trevor SANDY
 
 ;Deposit new files...
@@ -51,15 +51,21 @@ Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
 Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
 
 ${If} ${RunningX64}
-    ;MSVC 2015 Redistributables
+    ;MSVC Redistributables
     Delete "${INSTDIR}\vcredist_x86_64.exe"
 
     ;New 64bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_seh-1.dll"
 
+    ${if} ${OpenSSLVer} == v1.0
     ;OpenSSL v1.0 - up to Qt 5.12.9
-    Delete "$INSTDIR\libeay32.dll"
-    Delete "$INSTDIR\ssleay32.dll"
+      Delete "$INSTDIR\libeay32.dll"
+      Delete "$INSTDIR\ssleay32.dll"
+    ${elseif} ${OpenSSLVer} == v1.1
+    ;OpenSSL v1.1 - from Qt 5.12.10 to present
+      Delete "$INSTDIR\libcrypto-1_1-x64.dll"
+      Delete "$INSTDIR\libssl-1_1-x64.dll"
+    ${EndIf}
 
     ;64bit 3rd party renderer utility - LDView
     Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
@@ -67,15 +73,21 @@ ${If} ${RunningX64}
     ;64bit 3rd party renderer utility - LPub3D_Trace
     Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
 ${Else}
-    ;MSVC 2015 Redistributables
+    ;MSVC Redistributables
     Delete "${INSTDIR}\vcredist_x86.exe"
 
     ;New 32bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 
+    ${if} ${OpenSSLVer} == v1.0
     ;OpenSSL v1.0 - up to Qt 5.12.9
-    Delete "$INSTDIR\libeay32.dll"
-    Delete "$INSTDIR\ssleay32.dll"
+      Delete "$INSTDIR\libeay32.dll"
+      Delete "$INSTDIR\ssleay32.dll"
+    ${elseif} ${OpenSSLVer} == v1.1
+    ;OpenSSL v1.1 - from Qt 5.12.10 to present
+      Delete "$INSTDIR\libcrypto-1_1.dll"
+      Delete "$INSTDIR\libssl-1_1.dll"
+    ${End
 
     ;32bit 3rd party renderer utility - LDView
     Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}.exe"

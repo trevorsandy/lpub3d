@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: September 15, 2020
+;Last Update: June 11, 2021
 ;Copyright (C) 2016 - 2021 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -18,15 +18,21 @@ ${If} ${RunningX64}
     Delete "${ProductName}_${ArchExt}.exe"
     ContinueX64Install:
 
-    ;MSVC 2015 Redistributable
+    ;MSVC Redistributable
     File "${Win64BuildDir}\vcredist\vcredist_x86_64.exe"
 
     ;Deposit new 64bit files...
     File "${Win64BuildDir}\${LPub3DBuildFile}"
 
+    ${if} ${OpenSSLVer} == v1.0
     ;OpenSSL v1.0 - up to Qt 5.12.9
-    File "${Win64BuildDir}\libeay32.dll"
-    File "${Win64BuildDir}\ssleay32.dll"
+      File "${Win64BuildDir}\libeay32.dll"
+      File "${Win64BuildDir}\ssleay32.dll"
+    ${elseif} ${OpenSSLVer} == v1.1
+    ;OpenSSL v1.1 - from Qt 5.12.10 to present
+     File "${Win64BuildDir}\libcrypto-1_1-x64.dll"
+     File "${Win64BuildDir}\libssl-1_1-x64.dll"
+    ${EndIf}
 
     File "${Win64BuildDir}\Qt5Concurrent.dll"
     File "${Win64BuildDir}\Qt5Core.dll"
@@ -114,16 +120,23 @@ ${Else}
     Delete "${ProductName}_${ArchExt}.exe"
     ContinueX32Install:
 
-    ;MSVC 2015 Redistributable
+    ;MSVC Redistributable
     File "${Win32BuildDir}\vcredist\vcredist_x86.exe"
 
     ;Deposit new 32bit files...
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
     File "${Win32BuildDir}\${LPub3DBuildFile}"
 
-    ;OpenSSL v1.0 - up to Qt 5.12.9
-    File "${Win32BuildDir}\libeay32.dll"
-    File "${Win32BuildDir}\ssleay32.dll"
+
+   ${if} ${OpenSSLVer} == v1.0
+   ;OpenSSL v1.0 - up to Qt 5.12.9
+     File "${Win32BuildDir}\libeay32.dll"
+     File "${Win32BuildDir}\ssleay32.dll"
+   ${elseif} ${OpenSSLVer} == v1.1
+   ;OpenSSL v1.1 - from Qt 5.12.10 to present
+     File "${Win32BuildDir}\libcrypto-1_1.dll
+     File "${Win32BuildDir}\libssl-1_1.dll
+   ${EndIf}
 
     File "${Win32BuildDir}\Qt5Concurrent.dll"
     File "${Win32BuildDir}\Qt5Core.dll"

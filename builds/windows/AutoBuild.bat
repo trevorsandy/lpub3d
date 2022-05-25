@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 07, 2021
+rem  Last Update: June 11, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -32,6 +32,9 @@ IF "%APPVEYOR%" EQU "True" (
     ECHO  -%~nx0 terminated!
     GOTO :END
   )
+  IF "%APPVEYOR_BUILD_WORKER_IMAGE%" == "Visual Studio 2019" (
+    SET LP3D_VSVERSION=2019
+  )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET PACKAGE=%LP3D_PACKAGE%
@@ -49,12 +52,18 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_INSTALL_ROOT=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.3\msvc2015\bin
-  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.3\msvc2015_64\bin
+  SET LP3D_VSVERSION=2019
+  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.15.2\msvc2019\bin
+  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.15.2\msvc2019_64\bin
   SET UPDATE_LDRAW_LIBS=unknown
 )
-
-SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
+rem Visual C++ 2012 -vcvars_ver=11.0
+rem Visual C++ 2013 -vcvars_ver=12.0
+rem Visual C++ 2015 -vcvars_ver=14.0
+rem Visual C++ 2017 -vcvars_ver=14.1
+rem Visual C++ 2019 -vcvars_ver=14.2
+SET LP3D_VCVARSALL=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
+SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -207,6 +216,7 @@ rem Display build settings
 ECHO.
 IF "%APPVEYOR%" EQU "True" (
   ECHO   BUILD_HOST.....................[APPVEYOR CONTINUOUS INTEGRATION SERVICE]
+  ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
   ECHO   BUILD_ID.......................[%APPVEYOR_BUILD_ID%]
   ECHO   BUILD_BRANCH...................[%APPVEYOR_REPO_BRANCH%]
   ECHO   PROJECT_NAME...................[%APPVEYOR_PROJECT_NAME%]
@@ -287,6 +297,11 @@ IF /I "%PLATFORM%"=="-all" (
   GOTO :BUILD_ALL
 )
 
+rem Check if build Win32 and vs2019, set to vs2017 for WinXP compat
+IF "%LP3D_VSVERSION%"=="2019" (
+  CALL :CONFIGURE_VCTOOLSET %PLATFORM%
+)
+
 SET platform_build_start=%time%
 
 rem Configure build arguments and set environment variables
@@ -320,6 +335,9 @@ FOR %%P IN ( x86, x86_64 ) DO (
   SETLOCAL ENABLEDELAYEDEXPANSION
   SET platform_build_start=%time%
   SET PLATFORM=%%P
+  IF "%LP3D_VSVERSION%"=="2019" (
+    CALL :CONFIGURE_VCTOOLSET %%P
+  )
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
   CD /D "%ABS_WD%"
@@ -339,6 +357,16 @@ FOR %%P IN ( x86, x86_64 ) DO (
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
+  REM IF %%P == x64 (
+  REM   SET EXE=Build\%CONFIGURATION%64\%PACKAGE%64.exe
+  REM ) ELSE (
+  REM   SET EXE=Build\%CONFIGURATION%\%PACKAGE%.exe
+  REM )
+  REM IF NOT EXIST "!EXE!" (
+  REM   ECHO.
+  REM   ECHO "-ERROR - !EXE! was not successfully built - build will trminate."
+  REM   GOTO :END
+  REM )
   SETLOCAL DISABLEDELAYEDEXPANSION
   rem Perform build check if specified
   IF %CHECK%==1 CALL :BUILD_CHECK %%P
@@ -375,6 +403,14 @@ FOR %%P IN ( x86, x86_64 ) DO (
 )
 GOTO :END
 
+:CONFIGURE_VCTOOLSET
+IF %1==x64 (
+  SET LP3D_VCVARSALL_VER=-vcvars_ver=14.2
+  SET VCTOOLSET=v142
+)
+ECHO -Set %1 MSBuild platform toolset to %VCTOOLSET%
+EXIT /b
+
 :CONFIGURE_BUILD_ENV
 CD /D %ABS_WD%
 ECHO.
@@ -410,27 +446,14 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
 rem Set vcvars for AppVeyor or local build environments
-rem Visual C++ 2012 -vcvars_ver=11.0
-rem Visual C++ 2013 -vcvars_ver=12.0
-rem Visual C++ 2015 -vcvars_ver=14.0
-rem Visual C++ 2017 -vcvars_ver=14.1
-rem Visual C++ 2019 -vcvars_ver=14.2
 IF %PLATFORM% EQU x86 (
   ECHO.
   CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
-  IF "%APPVEYOR%" EQU "True" (
-    CALL "%LP3D_VCVARSALL%\vcvars32.bat"
-  ) ELSE (
-    CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.2
-  )
+  CALL "%LP3D_VCVARSALL%\vcvars32.bat" %LP3D_VCVARSALL_VER%
 ) ELSE (
   ECHO.
   CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
-  IF "%APPVEYOR%" EQU "True" (
-    CALL "%LP3D_VCVARSALL%\vcvars64.bat"
-  ) ELSE (
-    CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.2
-  )
+  CALL "%LP3D_VCVARSALL%\vcvars64.bat" %LP3D_VCVARSALL_VER%
 )
 rem Display MSVC Compiler settings
 echo _MSC_VER > %TEMP%\settings.c

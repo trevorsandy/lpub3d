@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: Aug 03, 2019
+;Last Update: June 11, 2021
 ;Copyright (C) 2016 - 2020 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -91,7 +91,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2020 ${COMPANY_NAME}"
+BrandingText "ï¿½2020 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else
@@ -297,7 +297,7 @@ Section "Core Files (required)" SectionCoreFiles
   ; Core files to be installed.
   !include "LPub3DInstallFiles.nsh"
 
-  ;Install MSVC 2015 Redistributable
+  ;Install MSVC Redistributable
   ${If} ${RunningX64}
      ExecWait '"vcredist_x86_64.exe"  /quiet /norestart'
   ${Else}

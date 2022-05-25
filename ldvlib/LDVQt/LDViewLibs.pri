@@ -131,6 +131,19 @@ equals(LOAD_LDV_HEADERS, True) {
     }
 }
 
+win32 {
+    BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
+    isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
+    message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
+    equals(BUILD_WORKER_VERSION, 2019) {
+        contains(QT_ARCH,i386): VSVER=vs2017
+        else: VSVER=vs2019
+    } else {
+        VSVER=vs2015
+    }
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) VS library version: $$VSVER ~~~")
+}
+
 contains(LOAD_LDVLIBS,True) {
     isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release): \
@@ -151,11 +164,11 @@ contains(LOAD_LDVLIBS,True) {
 
         _GL2PS_DEP        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
         _TINYXML_DEP      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
-        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds-vs2015.lib )
-        _MINIZIP_DEP      = $$system_path( $${LDVLIBDIR}/unzip32-vs2015.lib )
-        _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng16-vs2015.lib )
-        _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg-vs2015.lib )
-        _ZLIB_DEP         = $$system_path( $${LDVLIBDIR}/zlib-vs2015.lib )
+        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds-$${VSVER}.lib )
+        _MINIZIP_DEP      = $$system_path( $${LDVLIBDIR}/unzip32-$${VSVER}.lib )
+        _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng16-$${VSVER}.lib )
+        _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg-$${VSVER}.lib )
+        _ZLIB_DEP         = $$system_path( $${LDVLIBDIR}/zlib-$${VSVER}.lib )
 
         # library name
         LDLIB_LIB         = -lLDLib
@@ -166,11 +179,11 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_LIB         = -lgl2ps
         TINYXML_LIB       = -ltinyxml_STL
-        3DS_LIB           = -llib3ds-vs2015
-        ZIP_LIB           = -lunzip32-vs2015
-        PNG_LIB           = -llibpng16-vs2015
-        JPEG_LIB          = -llibjpeg-vs2015
-        ZLIB_LIB          = -lzlib-vs2015
+        3DS_LIB           = -llib3ds-$${VSVER}
+        ZIP_LIB           = -lunzip32-$${VSVER}
+        PNG_LIB           = -llibpng16-$${VSVER}
+        JPEG_LIB          = -llibjpeg-$${VSVER}
+        ZLIB_LIB          = -lzlib-$${VSVER}
 
         # local library paths
         LDLIB_DEP         = $$system_path( $${LDVLIBRARY}/LDLib.lib )
@@ -181,11 +194,11 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_DEP         = $$system_path( $${LDVLIBRARY}/gl2ps.lib )
         TINYXML_DEP       = $$system_path( $${LDVLIBRARY}/tinyxml_STL.lib )
-        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds-vs2015.lib )
-        MINIZIP_DEP       = $$system_path( $${LDVLIBRARY}/unzip32-vs2015.lib )
-        PNG_DEP           = $$system_path( $${LDVLIBRARY}/libpng16-vs2015.lib )
-        JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-vs2015.lib )
-        ZLIB_DEP          = $$system_path( $${LDVLIBRARY}/zlib-vs2015.lib )
+        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds-$${VSVER}.lib )
+        MINIZIP_DEP       = $$system_path( $${LDVLIBRARY}/unzip32-$${VSVER}.lib )
+        PNG_DEP           = $$system_path( $${LDVLIBRARY}/libpng16-$${VSVER}.lib )
+        JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-$${VSVER}.lib )
+        ZLIB_DEP          = $$system_path( $${LDVLIBRARY}/zlib-$${VSVER}.lib )
     } else {
         unix:!macx: IS_LINUX = True
         # source paths

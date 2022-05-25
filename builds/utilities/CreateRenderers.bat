@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 06, 2019
+rem  Last Update: Jume 11, 2021
 rem  Copyright (c) 2017 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -47,8 +47,8 @@ IF "%APPVEYOR%" EQU "True" (
   )
   SET BUILD_OUTPUT_PATH=%ABS_WD%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.1\msvc2015\bin
-  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.1\msvc2015_64\bin
+  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.15.2\msvc2019\bin
+  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.15.2\msvc2019_64\bin
   SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 )
 SET MAX_DOWNLOAD_ATTEMPTS=4

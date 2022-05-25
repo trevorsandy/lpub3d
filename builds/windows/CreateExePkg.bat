@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 01, 2021
+rem  Last Update: June 11, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 SETLOCAL
@@ -83,6 +83,13 @@ IF %TEST_APPVEYOR% EQU 1 (
   FOR /F "usebackq delims==" %%G IN (`git rev-parse HEAD`) DO SET APPVEYOR_REPO_COMMIT=%%G
 )
 
+IF "%APPVEYOR%" EQU "True" (
+  IF "%APPVEYOR_BUILD_WORKER_IMAGE%" == "Visual Studio 2019" (
+    SET VS_VER=2019
+  )
+) ELSE (
+  SET VS_VER=2019
+)
 ECHO.
 ECHO - Selected build options:
 ECHO.
@@ -121,7 +128,11 @@ SET LDVIEW_EXE=LDView
 SET LPUB3D_TRACE_EXE=lpub3d_trace_cui
 
 SET OPENSSL_LIB=OpenSSL
+IF "%VS_VER%" EQU "2019" (
 SET OPENSSL_VER=v1.0
+) ELSE (
+SET OPENSSL_VER=v1.1
+)
 
 SET TimeStamp=http://timestamp.digicert.com
 SET Sha2=Sha256
@@ -377,6 +388,9 @@ ECHO   LP3D_DATE_TIME.................[%LP3D_DATE_TIME%]
 ECHO   LP3D_DOWNLOAD_PRODUCT..........[%LP3D_DOWNLOAD_PRODUCT%]
 ECHO   LP3D_PRODUCT_DIR...............[%LP3D_PRODUCT_DIR%]
 ECHO   LP3D_BUILD_FILE................[%LP3D_BUILD_FILE%]
+IF "%APPVEYOR%" EQU "True" (
+ECHO   BUILD_WORKER_IMAGE.............[%APPVEYOR_BUILD_WORKER_IMAGE%]
+)
 ECHO.
 ECHO   LP3D_AVAILABLE_VERSIONS_exe....[%LP3D_AVAILABLE_VERSIONS_exe%]
 ECHO   LP3D_AVAILABLE_VERSIONS_dmg....[%LP3D_AVAILABLE_VERSIONS_dmg%]
@@ -575,6 +589,9 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 >>%genVersion% !define WinBuildDir "..\..\windows\release\%LP3D_PRODUCT_DIR%\%PKG_DISTRO_DIR%"
 >>%genVersion% ; ${WinBuildDir}
 )
+>>%genVersion%.
+>>%genVersion% !define OpenSSLVer "%OPENSSL_VER%"
+>>%genVersion% ; ${OpenSSLVer}
 >>%genVersion%.
 >>%genVersion% !define LPub3DBuildFile "%LPUB3D_BUILD_FILE%"
 >>%genVersion% ; ${LPub3DBuildFile}
@@ -997,11 +1014,11 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
   )
 )
 IF "%OPENSSL_VER%" EQU "v1.1" (
-  SET OpensslCONTENT=libssl-1_1.dll 
-  SET OpensslVERIFIED=libssl-1_1.dll
+  SET OpensslCONTENT=libssl-1_1-x64.dll
+  SET OpensslVERIFIED=libssl-1_1-x64.dll
   IF "%1" EQU "x86" (
-    SET OpensslCONTENT=libssl-1_1-x64.dll
-    SET OpensslVERIFIED=libssl-1_1-x64.dll
+    SET OpensslCONTENT=libssl-1_1.dll
+    SET OpensslVERIFIED=libssl-1_1.dll
   )
 )
 
@@ -1072,7 +1089,7 @@ EXIT /b
 
 :DOWNLOADMSVCREDIST
 ECHO.
-ECHO - Download Microsoft Visual C++ 2015 %1 Redistributable Update 3...
+ECHO - Download Microsoft Visual C++ %VS_VER% %1 Redistributable...
 
 IF /I "%APPVEYOR%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -1086,27 +1103,32 @@ IF NOT EXIST "%DIST_DIR%\" (
   EXIT /b
 )
 
-SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist
+SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist%VS_VER%
 
 IF NOT EXIST "%MSVC_REDIST_DIR%\" (
   ECHO.
-  ECHO - Create MSVC 2015 %1 Redistributable store %MSVC_REDIST_DIR%
+  ECHO - Create MSVC %VS_VER% %1 Redistributable store %MSVC_REDIST_DIR%
   MKDIR "%MSVC_REDIST_DIR%\"
 )
 
 SET OutputPATH=%MSVC_REDIST_DIR%
-SET RedistCONTENT=vcredist_%1.exe
+
+IF "%VS_VER%" EQU "2019" (
+  SET RedistCONTENT=vcredist_%1.exe
+) ELSE (
+  SET RedistCONTENT=vcredist_%VS_VER%_%1.exe
+)
 
 CALL :CREATEWEBCONTENTDOWNLOADVBS
 
 ECHO.
-ECHO - MSVC 2015 %1 Redistributable download path: [%OutputPATH%]
+ECHO - MSVC %VS_VER% %1 Redistributable download path: [%OutputPATH%]
 
 IF NOT EXIST "%OutputPATH%\%RedistCONTENT%" (
-  CALL :GET_MSVC_REDIST
-)  ELSE (
+  CALL :GET_MSVC_REDIST %1
+) ELSE (
   ECHO.
-  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% exist. Nothing to do.
+  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% exist. Nothing to do.
 )
 
 CALL :SET_MSVC_REDIST %1
@@ -1117,12 +1139,18 @@ SET WebCONTENT="%OutputPATH%\%RedistCONTENT%"
 SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%RedistCONTENT%
 
 ECHO.
-ECHO - MSVC 2015 %1 Redistributable: %WebCONTENT%...
+ECHO - MSVC %VS_VER% %1 Redistributable: %WebCONTENT%...
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF "%VS_VER%" NEQ "2019" (
+  ECHO.
+  ECHO - Rename %WebCONTENT% to vcredist_%1.exe
+  REN "%WebCONTENT%" vcredist_%1.exe
+  SET RedistCONTENT=vcredist_%1.exe
+)
 IF EXIST "%OutputPATH%\%RedistCONTENT%" (
   ECHO.
-  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% is availble
+  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% is availble
 )
 EXIT /b
 
@@ -1130,22 +1158,22 @@ EXIT /b
 SET PKG_TARGET_DIR=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1\vcredist
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
-  ECHO - Create MSVC 2015 %1 Redistributable package path %MSVC_REDIST_DIR%...
+  ECHO - Create MSVC %VS_VER% %1 Redistributable package path %MSVC_REDIST_DIR%...
   MKDIR "%PKG_TARGET_DIR%\"
 )
 
 IF NOT EXIST "%PKG_TARGET_DIR%\%RedistCONTENT%" (
   ECHO.
-  ECHO - Copy MSVC 2015 %1 Redistributable to %PKG_TARGET_DIR% folder...
+  ECHO - Copy MSVC %VS_VER% %1 Redistributable to %PKG_TARGET_DIR% folder...
   IF EXIST "%MSVC_REDIST_DIR%\%RedistCONTENT%" (
     COPY /V /Y "%MSVC_REDIST_DIR%\%RedistCONTENT%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - MSVC 2015 %1 Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
+    ECHO -ERROR - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
   )
 ) ELSE (
   ECHO.
-  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% exist in %PKG_TARGET_DIR%. Nothing to do.
+  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% exist in %PKG_TARGET_DIR%. Nothing to do.
 )
 EXIT /b
 
