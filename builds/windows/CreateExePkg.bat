@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 12, 2021
+rem  Last Update: June 13, 2021
 rem  Copyright (c) 2015 - 2021 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -297,18 +297,18 @@ FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AV
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_deb=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_rpm=%%i,%%j,%%k
 FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_pkg=%%i,%%j,%%k
-FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_api=%%i,%%j,%%k
-FOR /F "tokens=1-3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_snp=%%i,%%j,%%k
-FOR /F "tokens=1,2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_flp=%%i,%%j
+FOR /F "tokens=1-2 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_api=%%i,%%j
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_snp=%%i
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS%") DO SET LP3D_AVAILABLE_VERSIONS_flp=%%i
 
 FOR /F "tokens=2*  delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_exe%") DO SET LP3D_ALTERNATE_VERSIONS_exe=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_dmg%") DO SET LP3D_ALTERNATE_VERSIONS_dmg=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_deb%") DO SET LP3D_ALTERNATE_VERSIONS_deb=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_rpm%") DO SET LP3D_ALTERNATE_VERSIONS_rpm=%%i,%%j
 FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_pkg%") DO SET LP3D_ALTERNATE_VERSIONS_pkg=%%i,%%j
-FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_api%") DO SET LP3D_ALTERNATE_VERSIONS_api=%%i,%%j
-FOR /F "tokens=2,3 delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_snp%") DO SET LP3D_ALTERNATE_VERSIONS_snp=%%i,%%j
-FOR /F "tokens=2   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_flp%") DO SET LP3D_ALTERNATE_VERSIONS_flp=%%i
+FOR /F "tokens=2   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_api%") DO SET LP3D_ALTERNATE_VERSIONS_api=%%i
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_snp%") DO SET LP3D_ALTERNATE_VERSIONS_snp=%%i
+FOR /F "tokens=1   delims=," %%i IN ("%LP3D_AVAILABLE_VERSIONS_flp%") DO SET LP3D_ALTERNATE_VERSIONS_flp=%%i
 
 CD /D "%WIN_PKG_DIR%"
 CD /D "%devRootPath%"
@@ -618,27 +618,27 @@ IF %UNIVERSAL_BUILD% EQU 1 (
 )
 >>%genVersion%.
 IF "%OPENSSL_VER%" EQU "v1.1" (
->>%genVersion% !define OpenSS64LLibCrypto "libcrypto-1_1-x64.dll"
+>>%genVersion% !define OpenSSL64LibCrypto "libcrypto-1_1-x64.dll"
 >>%genVersion% ; ${OpenSSL64LibCrypto}
 >>%genVersion%.
 >>%genVersion% !define OpenSSL64LibSSL "libssl-1_1-x64.dll"
 >>%genVersion% ; ${OpenSSL64LibSSL}
 >>%genVersion%.
->>%genVersion% !define OpenSS32LLibCrypto "libcrypto-1_1.dll"
+>>%genVersion% !define OpenSSL32LibCrypto "libcrypto-1_1.dll"
 >>%genVersion% ; ${OpenSSL32LibCrypto}
 >>%genVersion%.
 >>%genVersion% !define OpenSSL32LibSSL "libssl-1_1.dll"
 >>%genVersion% ; ${OpenSSL32LibSSL}
 )
 IF "%OPENSSL_VER%" EQU "v1.0" (
->>%genVersion% !define OpenSS64LLibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSS64LLibCrypto}
+>>%genVersion% !define OpenSSL64LibCrypto "libeay32.dll"
+>>%genVersion% ; ${OpenSSL64LibCrypto}
 >>%genVersion%.
 >>%genVersion% !define OpenSSL64LibSSL "ssleay32.dll"
 >>%genVersion% ; ${OpenSSL64LibSSL}
 >>%genVersion%.
->>%genVersion% !define OpenSS32LLibCrypto "libeay32.dll"
->>%genVersion% ; ${OpenSS32LLibCrypto}
+>>%genVersion% !define OpenSSL32LibCrypto "libeay32.dll"
+>>%genVersion% ; ${OpenSSL32LibCrypto}
 >>%genVersion%.
 >>%genVersion% !define OpenSSL32LibSSL "ssleay32.dll"
 >>%genVersion% ; ${OpenSSL32LibSSL}
@@ -686,10 +686,10 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
 >>%genVersion% !define SupportURL %LP3D_SUPPORT%
 >>%genVersion% ; ${SupportURL}
 >>%genVersion%.
-IF EXIST "%versionFile%" (
-  ECHO - Generated AppVersion.nsh build parameters script:
-  TYPE "%versionFile%"
-)
+REM IF EXIST "%versionFile%" (
+REM   ECHO - Generated AppVersion.nsh build parameters script:
+REM   TYPE "%versionFile%"
+REM )
 EXIT /b
 
 REM pwd = windows/release/LP3D_PRODUCT_DIR

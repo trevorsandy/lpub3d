@@ -52,7 +52,7 @@ Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
 
 ${If} ${RunningX64}
     ;MSVC Redistributables
-    Delete "${INSTDIR}\vcredist_x86_64.exe"
+    Delete "$INSTDIR\vcredist_x86_64.exe"
 
     ;New 64bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_seh-1.dll"
@@ -68,7 +68,7 @@ ${If} ${RunningX64}
     Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
 ${Else}
     ;MSVC Redistributables
-    Delete "${INSTDIR}\vcredist_x86.exe"
+    Delete "$INSTDIR\vcredist_x86.exe"
 
     ;New 32bit Stuff - Qt Libraries
     Delete "$INSTDIR\libgcc_s_dw2-1.dll"
