@@ -71,7 +71,7 @@ stages:
   if: tag IS blank AND env(LP3D_BUILD_PKG_VAR) = true
 - name: Prepare Release Storage
   if: tag =~ ^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$
-- name: Build and Package
+- name: Build, Check and Package
   if: env(LP3D_BUILD_PKG_VAR) = true
 - name: Compile Source
   if: tag IS blank AND NOT env(LP3D_BUILD_PKG_VAR) = true
@@ -102,14 +102,14 @@ jobs:
     os: linux
     compiler: gcc
     script: source ${LP3D_CI_SCRIPT_DIR}/prepare_store
-  - stage: Build and Package
+  - stage: Build, Check and Package
     env: LP3D_BUILD_OS=appimage
     os: linux
     name: AppImage AMD64
     arch: amd64
     dist: xenial
     compiler: gcc
-  - stage: Build and Package
+  - stage: Build, Check and Package
     env: LP3D_BUILD_OS=appimage
     os: linux
     name: AppImage ARM64
