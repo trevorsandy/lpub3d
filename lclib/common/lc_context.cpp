@@ -102,10 +102,8 @@ bool lcContext::InitializeRenderer()
 	if (!gSupportsShaderObjects && lcGetPreferences().mDrawConditionalLines)
 		lcGetPreferences().mDrawConditionalLines = false;
 
-/*** LPub3D Mod - Fix crash in CLI mode ***/
-	if (!gSupportsFramebufferObject && gMainWindow)
+	if (!gSupportsFramebufferObject)
 		gMainWindow->GetPartSelectionWidget()->DisableIconMode();
-/*** LPub3D Mod***/
 
 	return true;
 }
@@ -137,71 +135,64 @@ lcContext* lcContext::GetGlobalOffscreenContext()
 
 bool lcContext::CreateOffscreenContext()
 {
-	/*** LPub3D Mod - Set context and surface format ***/
 	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
+
 	if (!OffscreenContext)
 	{
-		qDebug() << "DEBUG Visual Editor - [FAIL] Construct OpenGLContext.";
+		qDebug() << "DEBUG Shared Context - [FAIL] Construct OpenGLContext.";
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Visual Editor - [OK] Construct OpenGLContext.";
+		qDebug() << "DEBUG Shared Context - [OK] Construct OpenGLContext.";
 	}
 
 	OffscreenContext->setShareContext(QOpenGLContext::globalShareContext());
 
-	OffscreenContext->setFormat(QSurfaceFormat::defaultFormat());
-
 	if (!OffscreenContext->create() || !OffscreenContext->isValid())
 	{
-		qDebug() << "DEBUG Visual Editor - [FAIL] Create OpenGLContext.";
+		qDebug() << "DEBUG Shared Context - [FAIL] Create OpenGLContext.";
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Visual Editor - [OK] Create OpenGLContext.";
+		qDebug() << "DEBUG Shared Context - [OK] Create OpenGLContext.";
 	}
 
 	std::unique_ptr<QOffscreenSurface> OffscreenSurface(new QOffscreenSurface());
 
 	if (!OffscreenSurface)
 	{
-		qDebug() << "DEBUG Visual Editor - [FAIL] Construct OffscreenSurface.";
+		qDebug() << "DEBUG Shared Context - [FAIL] Construct OffscreenSurface.";
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Visual Editor - [OK] Construct OffscreenSurface.";
+		qDebug() << "DEBUG Shared Context - [OK] Construct OffscreenSurface.";
 	}
-
-	OffscreenSurface->setFormat(OffscreenContext->format());
 
 	OffscreenSurface->create();
 
 	if (!OffscreenSurface->isValid())
 	{
-		qDebug() << "DEBUG Visual Editor - [FAIL] Create OffscreenSurface.";
+		qDebug() << "DEBUG Shared Context - [FAIL] Create OffscreenSurface.";
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Visual Editor - [OK] Create OffscreenSurface.";
+		qDebug() << "DEBUG Shared Context - [OK] Create OffscreenSurface.";
 	}
 
 	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
 	{
-		qDebug() << "DEBUG Visual Editor - [FAIL] Make current OffscreenContext.";
+		qDebug() << "DEBUG Shared Context - [FAIL] Make current OffscreenContext.";
 		return false;
 	}
 	else
 	{
-		qDebug() << "DEBUG Visual Editor - [OK] Make current OffscreenContext.";
+		qDebug() << "DEBUG Shared Context - [OK] Make current OffscreenContext.";
 	}
-	/*** LPub3D Mod end ***/
 /*
-	std::unique_ptr<QOpenGLContext> OffscreenContext(new QOpenGLContext());
-
 	if (!OffscreenContext)
 		return false;
 
@@ -223,6 +214,7 @@ bool lcContext::CreateOffscreenContext()
 	if (!OffscreenContext->makeCurrent(OffscreenSurface.get()))
 		return false;
 */
+
 	mOffscreenContext = std::move(OffscreenContext);
 	mOffscreenSurface = std::move(OffscreenSurface);
 

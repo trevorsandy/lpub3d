@@ -27,6 +27,9 @@
 
 #include "lc_application.h"
 #include "lc_profile.h"
+#include "lc_context.h"
+
+static int RUN_APPLICATION = 2;
 
 #ifdef Q_OS_WIN
 
@@ -144,7 +147,7 @@
       m_parent_console = false;
     }
 
-    return ExitOK;
+    return EXIT_SUCCESS;
   }
 
   #pragma warning(push)
@@ -490,7 +493,7 @@ int Application::initialize()
     connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
 
     // process arguments
-    bool headerPrinted = false;
+    bool console_mode_set = false;
 #ifdef Q_OS_WIN
     // Request console redirect
     bool consoleRedirectTreated = false;
@@ -510,28 +513,25 @@ int Application::initialize()
                  .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), rev ? QString(" r%1").arg(VER_REVISION_STR) : "", QString::fromLatin1(VER_COMPILED_FOR));
 #endif
     args = QString("Arguments: %1").arg(ListArgs.join(" "));
+
+#ifdef QT_DEBUG_MODE
+        qDebug() << "";
+        qDebug() << hdr;
+        qDebug() << "==========================";
+        qDebug() << args;
+#else
+        fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+        fprintf(stdout, "==========================\n");
+        fprintf(stdout, "%s\n",args.toLatin1().constData());
+        fflush(stdout);
+#endif
+
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     {
         const QString& Param = Arguments[ArgIdx];
         // Items in this condition execute in GUI mode - first item executes in command console mode also)
         if (Param[0] != '-')
         {
-            if (! headerPrinted)
-            {
-#ifdef QT_DEBUG_MODE
-                qDebug() << "";
-                qDebug() << hdr;
-                qDebug() << "==========================";
-                qDebug() << args;
-#else
-                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
-                fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s\n",args.toLatin1().constData());
-                fflush(stdout);
-#endif
-                headerPrinted = true;
-            }
-
             bool EmptyFileString = m_commandline_file.isEmpty();
             bool ArgFileExists   = QFileInfo(Param).exists();
             if (EmptyFileString && ArgFileExists && !m_console_mode)
@@ -564,17 +564,11 @@ int Application::initialize()
             // Set library type from loaded library
             if (!loadedLibrary.isEmpty()) {
                 if (!ldrawLibrary.isEmpty()) {
-#ifdef Q_OS_WIN
-                    if(consoleRedirectTreated) {
-#endif
                     fprintf(stdout, "%s library already loaded. Only one library type can be loaded,\n"
                                     "The %s library will be ignored\n",
                             ldrawLibrary.toLatin1().constData(),
                             loadedLibrary.toLatin1().constData());
                     fflush(stdout);
-#ifdef Q_OS_WIN
-                    }
-#endif
                 } else {
                     ldrawLibrary = loadedLibrary;
                     loadedLibrary.clear();
@@ -586,25 +580,15 @@ int Application::initialize()
         // Items in this condition will execute in command console mode
         else
         {
-            // Print the console header
-            if (! headerPrinted)
-            {
+            if (!console_mode_set) {
                 m_console_mode = true;
+                console_mode_set = true;
 #ifdef Q_OS_WIN
-                RedirectIOToConsole();
+                if (!consoleRedirectTreated) {
+                    consoleRedirectTreated = true;
+                    RedirectIOToConsole();
+                }
 #endif
-#ifdef QT_DEBUG_MODE
-                qDebug() << "";
-                qDebug() << hdr;
-                qDebug() << "==========================";
-                qDebug() << args;
-#else
-                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
-                fprintf(stdout, "==========================\n");
-                fprintf(stdout, "%s\n",args.toLatin1().constData());
-                fflush(stdout);
-#endif
-              headerPrinted = true;
             }
 
             if (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log"))
@@ -618,8 +602,13 @@ int Application::initialize()
               fprintf(stdout, "%s, %s %s, Revision %s, Commit %s, SHA %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_COMMIT_STR,VER_GIT_SHA_STR);
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
-              if (ArgIdx == NumArgsIdx)
-                return ReleaseConsole();
+              if (ArgIdx == NumArgsIdx) {
+#ifdef Q_OS_WIN
+                  return ReleaseConsole();
+#else
+                  return EXIT_SUCCESS;
+#endif
+              }
             }
             else
             // Visual Editor (LeoCAD) version output
@@ -630,8 +619,13 @@ int Application::initialize()
               fprintf(stdout, "Visual Editor - by LeoCAD, Version %s, SHA %s\n",LC_VERSION_TEXT,LC_VERSION_SHA);
               fprintf(stdout, "Compiled " __DATE__ "\n");
               fflush(stdout);
-              if (ArgIdx == NumArgsIdx)
-                return ReleaseConsole();
+              if (ArgIdx == NumArgsIdx) {
+#ifdef Q_OS_WIN
+                  return ReleaseConsole();
+#else
+                  return EXIT_SUCCESS;
+#endif
+              }
             }
             else
             // Help output
@@ -684,6 +678,7 @@ int Application::initialize()
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[Visual Editor commands]\n");
                 fprintf(stdout, "  -c, --camera <camera>: Set the active camera.\n");
+                fprintf(stdout, "..-cl, --draw-conditional-lines: Enable draw conditional lines.\n");
                 fprintf(stdout, "  -f, --from <step>: Set the first step to save pictures.\n");
                 fprintf(stdout, "  -h, --height <height>: Set the picture height.\n");
                 fprintf(stdout, "  -i, --image <outfile.ext>: Save a picture in the format specified by ext.\n");
@@ -716,10 +711,14 @@ int Application::initialize()
                 fprintf(stdout, "  -ap, --app-paths: Display application data, cache and configuration paths.\n");
                 fprintf(stdout, "\n");
                 fflush(stdout);
-                if (ArgIdx == NumArgsIdx)
-                  return ReleaseConsole();
+                if (ArgIdx == NumArgsIdx) {
+#ifdef Q_OS_WIN
+                    return ReleaseConsole();
+#else
+                    return EXIT_SUCCESS;
+#endif
+                }
             }
-            else
             // Invoke LEGO library in command console mode
             if (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))
                 loadedLibrary = LEGO_LIBRARY;
@@ -738,10 +737,14 @@ int Application::initialize()
                 Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
                 // initialize directories
                 Preferences::lpubPreferences();
-                if (ArgIdx == NumArgsIdx)
-                  return ReleaseConsole();
+                if (ArgIdx == NumArgsIdx) {
+#ifdef Q_OS_WIN
+                    return ReleaseConsole();
+#else
+                    return EXIT_SUCCESS;
+#endif
+                }
             }
-
             // Set library type from loaded library
             if (!loadedLibrary.isEmpty()) {
                 if (!ldrawLibrary.isEmpty()) {
@@ -1050,10 +1053,6 @@ int Application::initialize()
 
     emit splashMsgSig("30% - Visual Editor loading...");
 
-    gApplication = new lcApplication();
-
-    emit splashMsgSig("35% - Visual Editor defaults loading...");
-
     Preferences::viewerPreferences();
 
     emit splashMsgSig(QString("40% - Visual Editor initialization..."));
@@ -1066,7 +1065,7 @@ int Application::initialize()
         gui->initialize();
     }
 
-    return RunApp;
+    return RUN_APPLICATION;
 }
 
 void Application::mainApp()
@@ -1173,13 +1172,22 @@ void messageSig(LogType logType, QString message)
     gui->messageSig(logType, message);
 }
 
-static void initializeSurfaceFormat(int argc, char* argv[])
+static int initializeSurfaceFormat(int argc, char* argv[], const lcCommandLineOptions &Options)
 {
     QCoreApplication CoreApp(argc, argv);
 
     Preferences::setDistribution();
 
-    const lcCommandLineOptions Options = lcApplication::ParseCommandLineOptions();
+    QTextStream StdErr(stderr, QIODevice::WriteOnly);
+
+    if (!Options.StdErr.isEmpty())
+    {
+        StdErr << Options.StdErr;
+        StdErr.flush();
+    }
+
+    if (!Options.ParseOK)
+        return EXIT_FAILURE;
 
     if (Options.ParseOK && Options.AASamples > 1)
     {
@@ -1187,6 +1195,8 @@ static void initializeSurfaceFormat(int argc, char* argv[])
         Format.setSamples(Options.AASamples);
         QSurfaceFormat::setDefaultFormat(Format);
     }
+
+    return EXIT_SUCCESS;
 }
 
 int main(int argc, char** argv)
@@ -1195,9 +1205,15 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationName(QLatin1String(VER_COMPANYNAME_STR));
     QCoreApplication::setApplicationVersion(QLatin1String(VER_PRODUCTVERSION_STR));
 
-    initializeSurfaceFormat(argc, argv);
+    const lcCommandLineOptions Options = lcApplication::ParseCommandLineOptions();
+
+
+    int rc = initializeSurfaceFormat(argc, argv, Options);
+    if (rc == EXIT_FAILURE)
+       return rc;
 
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #if !defined(Q_OS_MAC) && QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -1208,7 +1224,13 @@ int main(int argc, char** argv)
 
     QScopedPointer<Application> app(new Application(argc, argv));
 
-    int rc = ExitOK;
+
+    // Set global shared OpenGL context
+    if (!lcContext::InitializeRenderer())
+    {
+        fprintf(stdout, "Error creating OpenGL context.\n");
+        return EXIT_FAILURE;
+    }
 
     try
     {
@@ -1216,16 +1238,16 @@ int main(int argc, char** argv)
     }
     catch(const InitException &ex)
     {
-       fprintf(stdout, "Could not initialize the application.");
-       rc = ExitKO;
+       fprintf(stdout, "Could not initialize LPub3D.");
+       rc = EXIT_FAILURE;
     }
     catch(...)
     {
-       fprintf(stdout, "A fatal error ocurred.");
-       rc = ExitKO;
+       fprintf(stdout, "A fatal LPub3D error ocurred.");
+       rc = EXIT_FAILURE;
     }
 
-    if (rc == RunApp)
+    if (rc == RUN_APPLICATION)
     {
        return app->run();
     }

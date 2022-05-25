@@ -32,66 +32,6 @@
 
 #include "lc_math.h"
 
-struct lcCommandLineOptions
-{
-    bool ParseOK;
-    bool Exit;
-    bool SaveImage;
-    bool SaveWavefront;
-    bool Save3DS;
-    bool SaveCOLLADA;
-    bool SaveHTML;
-    bool SetCameraAngles;
-    bool SetCameraPosition;
-    bool Orthographic;
-    bool SetFoV;
-    bool SetZPlanes;
-    bool SetFadeStepsColor;
-    bool SetHighlightColor;
-    bool FadeSteps;
-    bool ImageHighlight;
-    bool AutomateEdgeColor;
-    int ImageWidth;
-    int ImageHeight;
-    int AASamples;
-    lcShadingMode ShadingMode;
-    float LineWidth;
-    lcStudStyle StudStyle;
-    lcStep ImageStart;
-    lcStep ImageEnd;
-    lcVector3 CameraPosition[3];
-    lcVector2 CameraLatLon;
-    float FoV;
-    float PartEdgeContrast;
-    float PartColorValueLDIndex;
-    lcVector2 ZPlanes;
-    lcViewpoint Viewpoint;
-    quint32 StudCylinderColor;
-    quint32 PartEdgeColor;
-    quint32 BlackEdgeColor;
-    quint32 DarkEdgeColor;
-    quint32 FadeStepsColor;
-    quint32	HighlightColor;
-    QString ImageName;
-    QString ModelName;
-    QString CameraName;
-    QString ProjectName;
-    QString SaveWavefrontName;
-    QString Save3DSName;
-    QString SaveCOLLADAName;
-    QString SaveHTMLName;
-    QList<QPair<QString, bool>> LibraryPaths;
-    QString StdOut;
-    QString StdErr;
-};
-
-enum mainEnc
-{
-   ExitKO,
-   ExitOK = 0,
-   RunApp
-};
-
 class InitException: public QException
 {
 public:

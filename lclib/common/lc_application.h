@@ -146,8 +146,6 @@ public:
 /*** LPub3D Mod end ***/
 };
 
-/*** LPub3D Mod - Options moved to application.h ***/
-/***
 struct lcCommandLineOptions
 {
 	bool ParseOK;
@@ -159,6 +157,9 @@ struct lcCommandLineOptions
 	bool SaveHTML;
 	bool SetCameraAngles;
 	bool SetCameraPosition;
+/*** LPub3D Mod - DrawConditionalLines ***/
+	bool DrawConditionalLines;
+/*** LPub3D Mod end ***/
 	bool Orthographic;
 	bool SetFoV;
 	bool SetZPlanes;
@@ -200,8 +201,6 @@ struct lcCommandLineOptions
 	QString StdOut;
 	QString StdErr;
 };
-***/
-/*** LPub3D Mod end ***/
 
 enum class lcStartupMode
 {

@@ -30,7 +30,7 @@ int Gui::processCommandLine()
     return 0;
 
   // Declarations
-  QStringList excludedCommands = QStringList()
+  QStringList visualEditorCommands = QStringList()
     // Application::initialize arguments
     << "-ns" << "--no-stdout-log"
     << "-ll" << "--liblego"
@@ -45,6 +45,7 @@ int Gui::processCommandLine()
     << "-t" << "--to"
     << "-s" << "--submodel"
     << "-c" << "--camera"
+    << "-cl" << "--draw-conditional-lines"
     << "--viewpoint"
     << "--camera-angles"
     << "--camera-position"
@@ -113,8 +114,8 @@ int Gui::processCommandLine()
       }
 
       bool IsExcluded = false;
-      for (int i = 0; i < excludedCommands.size(); i++) {
-          if (Param.startsWith(excludedCommands.at(i))) {
+      for (int i = 0; i < visualEditorCommands.size(); i++) {
+          if (Param.startsWith(visualEditorCommands.at(i))) {
               IsExcluded = true;
               break;
           }

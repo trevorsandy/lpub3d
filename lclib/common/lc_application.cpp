@@ -509,6 +509,9 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.SaveHTML = false;
 	Options.SetCameraAngles = false;
 	Options.SetCameraPosition = false;
+/*** LPub3D Mod - DrawConditionalLines ***/
+	Options.DrawConditionalLines = false;
+/*** LPub3D Mod end ***/
 	Options.Orthographic = false;
 	Options.SetFoV = false;
 	Options.SetZPlanes = false;
@@ -786,6 +789,10 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 				}
 			}
 		}
+/*** LPub3D Mod - DrawConditionalLines ***/
+		else if (Option == QLatin1String("-cl") || Option == QLatin1String("--draw-conditional-lines"))
+			Options.DrawConditionalLines = true;
+/*** LPub3D Mod end ***/
 		else if (Option == QLatin1String("--orthographic"))
 			Options.Orthographic = true;
 		else if (Option == QLatin1String("--fov"))
@@ -798,8 +805,6 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 				Options.ParseOK = false;
 			}
 		}
-/*** LPub3D Mod - process command line ***/
-		/***
 		else if (Option == QLatin1String("-scc") || Option == QLatin1String("--stud-cylinder-color"))
 		{
 			if (ParseColor(Options.StudCylinderColor))
@@ -870,8 +875,6 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 				}
 			}
 		}
-		***/
-/*** LPub3D Mod end ***/
 		else if (Option == QLatin1String("--fade-steps"))
 			Options.FadeSteps = true;
 		else if (Option == QLatin1String("--no-fade-steps"))
@@ -927,8 +930,6 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 				Options.ParseOK = false;
 			}
 		}
-/*** LPub3D Mod - process command line ***/
-		/***
 		else if (Option == QLatin1String("-ss") || Option == QLatin1String("--stud-style"))
 		{
 			int StudStyle;
@@ -936,8 +937,6 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 			if (ParseInteger(StudStyle, 0, static_cast<int>(lcStudStyle::Count) - 1))
 				Options.StudStyle = static_cast<lcStudStyle>(StudStyle);
 		}
-		***/
-/*** LPub3D Mod end ***/
 		else if (Option == QLatin1String("-obj") || Option == QLatin1String("--export-wavefront"))
 		{
 			Options.SaveWavefront = true;
@@ -1080,86 +1079,12 @@ int lcApplication::Process3DViewerCommandLine()
 	QTextStream StdErr(stderr, QIODevice::WriteOnly);
 	QTextStream StdOut(stdout, QIODevice::WriteOnly);
 
-	if (!Options.StdErr.isEmpty())
-	{
-		StdErr << Options.StdErr;
-		StdErr.flush();
-	}
-
-	if (!Options.StdOut.isEmpty())
-	{
-		StdOut << Options.StdOut;
-		StdOut.flush();
-	}
-
-	if (!Options.ParseOK)
-		return -1;
-
-	if (Options.Exit)
-		return 0;
-
-	/***
-	if (!lcContext::InitializeRenderer())
-	{
-		StdErr << tr("Error creating OpenGL context.\n");
-		return lcStartupMode::Error;
-	}
-	***/
-
 	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
 
 	if (!SaveAndExit)
 		return 0;
 
 	/***
-	if (!SaveAndExit)
-	{
-		UpdateStyle();
-
-		gMainWindow = new lcMainWindow();
-
-		lcLoadDefaultKeyboardShortcuts();
-		lcLoadDefaultMouseShortcuts();
-	}
-
-	if (!LoadPartsLibrary(Options.LibraryPaths.isEmpty() ? LibraryPaths : Options.LibraryPaths, !Options.LibraryPaths.isEmpty()))
-	{
-		QString Message;
-
-		if (mLibrary->LoadBuiltinPieces())
-			Message = tr("LeoCAD could not find a compatible Parts Library so only a small number of parts will be available.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
-		else
-			Message = tr("LeoCAD could not load Parts Library.\n\nPlease visit https://www.leocad.org for information on how to download and install a library.");
-
-		if (gMainWindow)
-			QMessageBox::information(gMainWindow, tr("LeoCAD"), Message);
-		else
-		{
-			StdErr << Message << "\n";
-			StdErr.flush();
-		}
-	}
-	***/
-
-	mPreferences.mShadingMode = Options.ShadingMode;
-	mPreferences.mLineWidth = Options.LineWidth;
-	/***
-	mPreferences.mStudCylinderColor = Options.StudCylinderColor;
-	mPreferences.mPartEdgeColor = Options.PartEdgeColor;
-	mPreferences.mBlackEdgeColor = Options.BlackEdgeColor;
-	mPreferences.mDarkEdgeColor = Options.DarkEdgeColor;
-	mPreferences.mPartEdgeContrast = Options.PartEdgeContrast;
-	mPreferences.mPartColorValueLDIndex = Options.PartColorValueLDIndex;
-	mPreferences.mAutomateEdgeColor = Options.AutomateEdgeColor;
-
-	lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, false);
-
-	if (!SaveAndExit)
-		gMainWindow->CreateWidgets();
-
-	Project* NewProject = new Project();
-	SetProject(NewProject);
-
 	if (!SaveAndExit && Options.ProjectName.isEmpty() && lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT))
 		Options.ProjectName = lcGetProfileString(LC_PROFILE_RECENT_FILE1);
 	***/
@@ -1204,6 +1129,7 @@ int lcApplication::Process3DViewerCommandLine()
 				if (!Model)
 				{
 					StdErr << tr("Error: model '%1' does not exist.\n").arg(Options.ModelName);
+					StdErr.flush();
 					return -1;
 				}
 			}
@@ -1393,19 +1319,43 @@ int lcApplication::Process3DViewerCommandLine()
 /*** LPub3D Mod - initialize with LPub3D as parent ***/
 lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& LibraryPaths, QMainWindow *parent)
 {
-	QTextStream StdErr(stderr, QIODevice::WriteOnly);
-
 	bool SaveAndExit = !Application::instance()->modeGUI();
 
 	bool OnlyUsePaths = false;
 
 	emit Application::instance()->splashMsgSig("45% - Visual Editor widgets loading...");
 
+	lcCommandLineOptions Options = ParseCommandLineOptions();
+	QTextStream StdOut(stdout, QIODevice::WriteOnly);
+	QTextStream StdErr(stderr, QIODevice::WriteOnly);
+
+	/***
+	if (!Options.StdErr.isEmpty())
+	{
+		StdErr << Options.StdErr;
+		StdErr.flush();
+	}
+	***/
+	if (!Options.StdOut.isEmpty())
+	{
+		StdOut << Options.StdOut;
+		StdOut.flush();
+	}
+	/***
+	if (!Options.ParseOK)
+		return lcStartupMode::Error;
+
+	if (Options.Exit)
+		return lcStartupMode::Success;
+
 	if (!lcContext::InitializeRenderer())
 	{
 		StdErr << tr("Visual Editor error creating OpenGL context.\n");
 		return lcStartupMode::Error;
 	}
+
+	const bool SaveAndExit = (Options.SaveImage || Options.SaveWavefront || Options.Save3DS || Options.SaveCOLLADA || Options.SaveHTML);
+	***/
 
 	if (!SaveAndExit)
 	{
@@ -1434,13 +1384,19 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 			StdErr.flush();
 		}
 	}
-	else if (lcGetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX))
-	{
-		lcSetProfileInt(LC_PROFILE_UPDATE_CACHE_INDEX, 0);
-	}
 
-	lcStudStyle StudStyle = static_cast<lcStudStyle>(lcGetProfileInt(LC_PROFILE_STUD_STYLE));
-	lcGetPiecesLibrary()->SetStudStyle(StudStyle, false);
+	mPreferences.mDrawConditionalLines = Options.DrawConditionalLines;
+	mPreferences.mShadingMode = Options.ShadingMode;
+	mPreferences.mLineWidth = Options.LineWidth;
+	mPreferences.mStudCylinderColor = Options.StudCylinderColor;
+	mPreferences.mPartEdgeColor = Options.PartEdgeColor;
+	mPreferences.mBlackEdgeColor = Options.BlackEdgeColor;
+	mPreferences.mDarkEdgeColor = Options.DarkEdgeColor;
+	mPreferences.mPartEdgeContrast = Options.PartEdgeContrast;
+	mPreferences.mPartColorValueLDIndex = Options.PartColorValueLDIndex;
+	mPreferences.mAutomateEdgeColor = Options.AutomateEdgeColor;
+
+	lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, false);
 
 	if (!SaveAndExit)
 		gMainWindow->CreateWidgets();
