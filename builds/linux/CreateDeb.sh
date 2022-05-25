@@ -26,9 +26,10 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
-# Format the log name - SOURCED if $1 is empty 
+# Format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-[ "$1" = "" ] && WRITE_LOG="false" && ME="CreateDeb" || \
+ME="CreateDeb"
+[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 CWD=`pwd`
@@ -89,7 +90,7 @@ if [ "${TRAVIS}" != "true" ]; then
     else
         echo "2. download ${LPUB3D} source to SOURCES/..."
         git clone https://github.com/trevorsandy/${LPUB3D}.git
-    fi 
+    fi
 else
     echo "2. copy ${LPUB3D} source to SOURCES/..."
     cp -rf "../../${LPUB3D}" .

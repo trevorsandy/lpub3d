@@ -88,7 +88,8 @@ esac
 
 # format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-[ "$1" = "" ] && WRITE_LOG="false" && ME="linux-multiarch-build" || \
+ME="linux-multiarch-build"
+[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 # make sure we're in the repository root directory

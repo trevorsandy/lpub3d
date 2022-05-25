@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: July 27, 2021
+# Last Update: August 06, 2021
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -41,9 +41,10 @@ realpath() {
   echo "$REALPATH_"
 }
 
-# Format the log name - SOURCED if $1 is empty 
+# Format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-[ "$1" = "" ] && WRITE_LOG="false" && ME="CreateDmg" || \
+ME="CreateDmg"
+[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 CWD=`pwd`

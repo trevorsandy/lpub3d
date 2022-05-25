@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 31, 2021
+# Last Update August 06, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -55,9 +55,10 @@ case "${docker_base}" in
         ;;
 esac
 
-# format the log name - SOURCED if $1 is empty 
+# format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-[ "$1" = "" ] && WRITE_LOG="false" && ME="linux-amd64-build" || \
+ME="linux-amd64-build"
+[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 # make sure we're in the repository root directory

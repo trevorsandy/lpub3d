@@ -26,9 +26,10 @@ FinishElapsedTime() {
 
 trap FinishElapsedTime EXIT
 
-# Format the log name - SOURCED if $1 is empty 
+# Format the log name - SOURCED if $1 is empty
 WRITE_LOG=${WRITE_LOG:-true}
-[ "$1" = "" ] && WRITE_LOG="false" && ME="CreatePkg" || \
+ME="CreatePkg"
+[ "$(basename $0)" = "${ME}.sh" ] && WRITE_LOG=false || \
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 CWD=`pwd`
@@ -240,7 +241,7 @@ then
         fi
         if [ "${LP3D_QEMU}" = "true" ]; then
             echo "9-4. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
-            mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || : 
+            mv -f ${BUILD_DIR}/*.zst* /out/ 2>/dev/null || :
             mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
             mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
             mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
