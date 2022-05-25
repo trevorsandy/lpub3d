@@ -277,8 +277,24 @@ void Application::setTheme(bool appStarted)
 
   auto setThemeColor = [&appStarted, &getColorFromHex, &darkTheme, &setDarkTheme] (
           LC_PROFILE_KEY key, QString darkHex, QString defaultHex, int alpha = 255) {
+      // check if is lclib object colour
+      bool lcObjectColor = false;
+      switch (key)
+      {
+      case LC_PROFILE_OBJECT_SELECTED_COLOR:
+      case LC_PROFILE_OBJECT_FOCUSED_COLOR:
+      case LC_PROFILE_CAMERA_COLOR:
+      case LC_PROFILE_LIGHT_COLOR:
+      case LC_PROFILE_CONTROL_POINT_COLOR:
+      case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
+      case LC_PROFILE_BM_OBJECT_SELECTED_COLOR:
+          lcObjectColor = true;
+          break;
+      default:
+          break;
+      }
       // get current viewer theme color (before change)
-      quint32 pc = quint32(lcGetProfileInt(key));
+      quint32 pc = quint32(lcObjectColor ? lcGetProfileUInt(key) : lcGetProfileInt(key));
       // get corresponding default theme color (before change)
       quint32 tc = getColorFromHex(darkTheme ? darkHex : defaultHex, alpha);
       // set visual editor theme color to new theme color if color not user specified - i.e. current color is a theme color
@@ -286,7 +302,11 @@ void Application::setTheme(bool appStarted)
           // get new theme color
           tc = getColorFromHex(setDarkTheme ? darkHex : defaultHex, alpha);
           // set view profile key
-          lcSetProfileInt(key, int(tc));
+          if (lcObjectColor)
+              lcSetProfileUInt(key, int(tc));
+          else
+              lcSetProfileInt(key, int(tc));
+
           // set preference property if applicaiton already started - i.e. change preference
           if (appStarted) {
               switch (key)
@@ -327,6 +347,28 @@ void Application::setTheme(bool appStarted)
               case LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR:
                   lcGetPreferences().mViewSphereHighlightColor = tc;
                   break;
+              case LC_PROFILE_OBJECT_SELECTED_COLOR:
+                  lcGetPreferences().mObjectSelectedColor = tc;
+                  break;
+              case LC_PROFILE_OBJECT_FOCUSED_COLOR:
+                  lcGetPreferences().mObjectFocusedColor = tc;
+                  break;
+              case LC_PROFILE_CAMERA_COLOR:
+                  lcGetPreferences().mCameraColor = tc;
+                  break;
+              case LC_PROFILE_LIGHT_COLOR:
+                  lcGetPreferences().mLightColor = tc;
+                  break;
+              case LC_PROFILE_CONTROL_POINT_COLOR:
+                  lcGetPreferences().mControlPointColor = tc;
+                  break;
+              case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
+                  lcGetPreferences().mControlPointFocusedColor = tc;
+                  break;
+              case LC_PROFILE_BM_OBJECT_SELECTED_COLOR:
+                  lcGetPreferences().mBMObjectSelectedColor = tc;
+                  break;
+
               case LC_PROFILE_BACKGROUND_COLOR:
                   lcGetPreferences().mBackgroundSolidColor = tc;
                   break;
@@ -465,9 +507,32 @@ void Application::setTheme(bool appStarted)
   setThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
                 Preferences::themeColors[THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR],
                 Preferences::themeColors[THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR]);
+
+  setThemeColor(LC_PROFILE_OBJECT_SELECTED_COLOR,
+                Preferences::themeColors[THEME_DARK_OBJECT_SELECTED_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_OBJECT_SELECTED_COLOR]);
+  setThemeColor(LC_PROFILE_OBJECT_FOCUSED_COLOR,
+                Preferences::themeColors[THEME_DARK_OBJECT_FOCUSED_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_OBJECT_FOCUSED_COLOR]);
+  setThemeColor(LC_PROFILE_CAMERA_COLOR,
+                Preferences::themeColors[THEME_DARK_CAMERA_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_CAMERA_COLOR]);
+  setThemeColor(LC_PROFILE_LIGHT_COLOR,
+                Preferences::themeColors[THEME_DARK_LIGHT_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_LIGHT_COLOR]);
+  setThemeColor(LC_PROFILE_CONTROL_POINT_COLOR,
+                Preferences::themeColors[THEME_DARK_CONTROL_POINT_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_CONTROL_POINT_COLOR]);
+  setThemeColor(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR,
+                Preferences::themeColors[THEME_DARK_CONTROL_POINT_FOCUSED_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR]);
+  setThemeColor(LC_PROFILE_BM_OBJECT_SELECTED_COLOR,
+                Preferences::themeColors[THEME_DARK_BM_OBJECT_SELECTED_COLOR],
+                Preferences::themeColors[THEME_DEFAULT_BM_OBJECT_SELECTED_COLOR]);
+
   setThemeColor(LC_PROFILE_BACKGROUND_COLOR,
                 Preferences::themeColors[THEME_DARK_VIEWER_BACKGROUND_COLOR],
-                Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
+                Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);  
   setThemeColor(LC_PROFILE_GRADIENT_COLOR_TOP,
                 Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_TOP],
                 Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP]);

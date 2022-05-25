@@ -395,6 +395,14 @@ enum ThemeColorType {
     THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR,                    // "#646464"
     THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR,                  // "#FF0000"
 
+    THEME_DEFAULT_OBJECT_SELECTED_COLOR,                     // "#E54C66"
+    THEME_DEFAULT_OBJECT_FOCUSED_COLOR,                      // "#664CE5"
+    THEME_DEFAULT_CAMERA_COLOR,                              // "#80CC80"
+    THEME_DEFAULT_LIGHT_COLOR,                               // "#80CC80"
+    THEME_DEFAULT_CONTROL_POINT_COLOR,                       // "#80CC80"
+    THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR,               // "#664CE5"
+    THEME_DEFAULT_BM_OBJECT_SELECTED_COLOR,                  // "#79D879"
+
     THEME_DEFAULT_DECORATE_LDRAW_COMMENTS,                   // "#006325"
     THEME_DEFAULT_DECORATE_LDRAW_HEADER,                     // "#4F97BA"
     THEME_DEFAULT_DECORATE_LDRAW_BODY,                       // "#005AF6"
@@ -537,8 +545,16 @@ enum ThemeColorType {
     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,                       // "#E0E0E0"
     THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,                     // "#2980B9"
 
+    THEME_DARK_OBJECT_SELECTED_COLOR,                        // "#E54C66"
+    THEME_DARK_OBJECT_FOCUSED_COLOR,                         // "#664CE5"
+    THEME_DARK_CAMERA_COLOR,                                 // "#80CC80"
+    THEME_DARK_LIGHT_COLOR,                                  // "#80CC80"
+    THEME_DARK_CONTROL_POINT_COLOR,                          // "#80CC80"
+    THEME_DARK_CONTROL_POINT_FOCUSED_COLOR,                  // "#664CE5"
+    THEME_DARK_BM_OBJECT_SELECTED_COLOR,                     // "#79D879"
+
     THEME_DARK_GRAPHICSVIEW_BORDER_COLOR,                    // "#999999"
-    THEME_NUM_COLORS                                         // 140
+    THEME_NUM_COLORS                                         // 162
 };
 
 // Color picker: https://www.w3schools.com/colors/colors_picker.asp

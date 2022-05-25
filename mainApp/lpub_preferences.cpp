@@ -100,6 +100,14 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDefaultViewSphereTextColor",                  "#646464", "Viewer View Sphere Text"                   }, // THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR                       100, 100, 100, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
     {"ThemeDefaultViewSphereHlightColor",                "#FF0000", "Viewer View Sphere Hlight"                 }, // THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR                     255,   0,   0, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 
+    {"ThemeDefaultObjectSelectedColor",                  "#E54C66", "Object Selected Color"                     }, // THEME_DEFAULT_OBJECT_SELECTED_COLOR                        229,  76, 102, 255 LC_PROFILE_OBJECT_SELECTED_COLOR
+    {"ThemeDefaultObjectFocusedColor",                   "#664CE5", "Object Focused Color "                     }, // THEME_DEFAULT_OBJECT_FOCUSED_COLOR                         102,  76, 229, 255 LC_PROFILE_OBJECT_FOCUSED_COLOR
+    {"ThemeDefaultCameraColor",                          "#80CC80", "Camera Color"                              }, // THEME_DEFAULT_CAMERA_COLOR                                 128, 204, 128, 255 LC_PROFILE_CAMERA_COLOR
+    {"ThemeDefaultLightColor",                           "#80CC80", "Light Color"                               }, // THEME_DEFAULT_LIGHT_COLOR                                  128, 204, 128, 255 LC_PROFILE_LIGHT_COLOR
+    {"ThemeDefaultControlPointColor",                    "#80CC80", "Control Point Color"                       }, // THEME_DEFAULT_CONTROL_POINT_COLOR                          128, 204, 128, 128 LC_PROFILE_CONTROL_POINT_COLOR
+    {"ThemeDefaultControlPointFocusedColor",             "#664CE5", "Control Point Focused Color"               }, // THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR                  102,  76, 229, 128 LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR
+    {"ThemeDefaultBMObjectSelectedColor",                "#79D879", "Build Modification Object Selected Color"  }, // THEME_DEFAULT_BM_OBJECT_SELECTED_COLOR                     121, 216, 121, 255 LC_PROFILE_BM_OBJECT_SELECTED_COLOR
+
     {"ThemeDefaultDecorateLDrawComments",                "#006325", "Decorate LDraw Comments"                   }, // THEME_DEFAULT_DECORATE_LDRAW_COMMENTS                     br01
     {"ThemeDefaultDecorateLDrawHeader",                  "#4F97BA", "Decorate LDraw Header"                     }, // THEME_DEFAULT_DECORATE_LDRAW_HEADER                       br02
     {"ThemeDefaultDecorateLDrawBody",                    "#005AF6", "Decorate LDraw Body"                       }, // THEME_DEFAULT_DECORATE_LDRAW_BODY                         br03
@@ -241,6 +249,14 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
     {"ThemeDarkViewSphereColor",                         "#232629", "Viewer View Sphere"                        }, // THEME_DARK_VIEW_SPHERE_COLOR                                35,  38,  41, 255 LC_PROFILE_VIEW_SPHERE_COLOR
     {"ThemeDarkViewSphereTextColor",                     "#E0E0E0", "Viewer View Sphere Text"                   }, // THEME_DARK_VIEW_SPHERE_TEXT_COLOR                          224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
     {"ThemeDarkViewSphereHlightColor",                   "#2980B9", "Viewer View Sphere Hlight"                 }, // THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR                         41, 128, 185, 255 LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+
+    {"ThemeDarkObjectSelectedColor",                     "#E54C66", "Object Selected Color"                     }, // THEME_DARK_OBJECT_SELECTED_COLOR                           229,  76, 102, 255 LC_PROFILE_OBJECT_SELECTED_COLOR
+    {"ThemeDarkObjectFocusedColor",                      "#664CE5", "Object Focused Color "                     }, // THEME_DARK_OBJECT_FOCUSED_COLOR                            102,  76, 229, 255 LC_PROFILE_OBJECT_FOCUSED_COLOR
+    {"ThemeDarkCameraColor",                             "#80CC80", "Camera Color"                              }, // THEME_DARK_CAMERA_COLOR                                    128, 204, 128, 255 LC_PROFILE_CAMERA_COLOR
+    {"ThemeDarkLightColor",                              "#80CC80", "Light Color"                               }, // THEME_DARK_LIGHT_COLOR                                     128, 204, 128, 255 LC_PROFILE_LIGHT_COLOR
+    {"ThemeDarkControlPointColor",                       "#80CC80", "Control Point Color"                       }, // THEME_DARK_CONTROL_POINT_COLOR                             128, 204, 128, 128 LC_PROFILE_CONTROL_POINT_COLOR
+    {"ThemeDarkControlPointFocusedColor",                "#664CE5", "Control Point Focused Color"               }, // THEME_DARK_CONTROL_POINT_FOCUSED_COLOR                     102,  76, 229, 128 LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR
+    {"ThemeDarkBmObjectSelectedColor",                   "#79D879", "Build Modification Object Selected Color"  }, // THEME_DARK_BM_OBJECT_SELECTED_COLOR                        121, 216, 121, 255 LC_PROFILE_BM_OBJECT_SELECTED_COLOR
 
     {"ThemeDarkGraphicsviewBorderColor",                 "#999999", "Graphicsview Border"                       }  // THEME_DARK_GRAPHICSVIEW_BORDER_COLOR                       153, 153, 153, 255
                                                                                                                    // THEME_NUM_COLORS
@@ -3753,6 +3769,13 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
         setInterfaceColor(THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
+        setInterfaceColor(THEME_DARK_OBJECT_SELECTED_COLOR, lcGetProfileUInt(LC_PROFILE_OBJECT_SELECTED_COLOR));
+        setInterfaceColor(THEME_DARK_OBJECT_FOCUSED_COLOR, lcGetProfileUInt(LC_PROFILE_OBJECT_FOCUSED_COLOR));
+        setInterfaceColor(THEME_DARK_CAMERA_COLOR, lcGetProfileUInt(LC_PROFILE_CAMERA_COLOR));
+        setInterfaceColor(THEME_DARK_LIGHT_COLOR, lcGetProfileUInt(LC_PROFILE_LIGHT_COLOR));
+        setInterfaceColor(THEME_DARK_CONTROL_POINT_COLOR, lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR));
+        setInterfaceColor(THEME_DARK_CONTROL_POINT_FOCUSED_COLOR, lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR));
+        setInterfaceColor(THEME_DARK_BM_OBJECT_SELECTED_COLOR, lcGetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR));
     } else {
         setInterfaceColor(THEME_DEFAULT_VIEWER_BACKGROUND_COLOR, lcGetProfileInt(LC_PROFILE_BACKGROUND_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP, lcGetProfileInt(LC_PROFILE_GRADIENT_COLOR_TOP));
@@ -3766,6 +3789,13 @@ void Preferences::updateViewerInterfaceColors()
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR));
         setInterfaceColor(THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR, lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR));
+        setInterfaceColor(THEME_DEFAULT_OBJECT_SELECTED_COLOR, lcGetProfileUInt(LC_PROFILE_OBJECT_SELECTED_COLOR));
+        setInterfaceColor(THEME_DEFAULT_OBJECT_FOCUSED_COLOR, lcGetProfileUInt(LC_PROFILE_OBJECT_FOCUSED_COLOR));
+        setInterfaceColor(THEME_DEFAULT_CAMERA_COLOR, lcGetProfileUInt(LC_PROFILE_CAMERA_COLOR));
+        setInterfaceColor(THEME_DEFAULT_LIGHT_COLOR, lcGetProfileUInt(LC_PROFILE_LIGHT_COLOR));
+        setInterfaceColor(THEME_DEFAULT_CONTROL_POINT_COLOR, lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_COLOR));
+        setInterfaceColor(THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR, lcGetProfileUInt(LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR));
+        setInterfaceColor(THEME_DEFAULT_BM_OBJECT_SELECTED_COLOR, lcGetProfileUInt(LC_PROFILE_BM_OBJECT_SELECTED_COLOR));
     }
 }
 

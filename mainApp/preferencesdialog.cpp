@@ -1964,74 +1964,134 @@ QMap<int, QString> ThemeColorsDialog::getEditedThemeColors()
             if (mThemeColors[i] != Preferences::themeColors[i]) {
                 editedColors.insert(i, mThemeColors[i].toUpper());
                 LC_PROFILE_KEY key = LC_PROFILE_KEY(-1);
-                if (themeDark) {
-                    if (i ==THEME_DARK_VIEWER_BACKGROUND_COLOR)
-                        key = LC_PROFILE_BACKGROUND_COLOR;
-                    else if (i == THEME_DARK_VIEWER_GRADIENT_COLOR_TOP)
-                        key = LC_PROFILE_GRADIENT_COLOR_TOP;
-                    else if (i == THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM)
-                        key = LC_PROFILE_GRADIENT_COLOR_BOTTOM;
-                    else if (i == THEME_DARK_AXES_COLOR)
-                        key = LC_PROFILE_AXES_COLOR;
-                    else if (i == THEME_DARK_OVERLAY_COLOR)
-                        key = LC_PROFILE_OVERLAY_COLOR;
-                    else if (i == THEME_DARK_MARQUEE_BORDER_COLOR)
-                        key = LC_PROFILE_MARQUEE_BORDER_COLOR;
-                    else if (i == THEME_DARK_MARQUEE_FILL_COLOR)
-                        key = LC_PROFILE_MARQUEE_FILL_COLOR;
-                    else if (i == THEME_DARK_INACTIVE_VIEW_COLOR)
-                        key = LC_PROFILE_INACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DARK_ACTIVE_VIEW_COLOR)
-                        key = LC_PROFILE_ACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DARK_GRID_STUD_COLOR)
-                        key = LC_PROFILE_GRID_STUD_COLOR;
-                    else if (i == THEME_DARK_GRID_LINE_COLOR)
-                        key = LC_PROFILE_GRID_LINE_COLOR;
-                    else if (i == THEME_DARK_TEXT_COLOR)
-                        key = LC_PROFILE_TEXT_COLOR;
-                    else if (i == THEME_DARK_VIEW_SPHERE_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_COLOR;
-                    else if (i == THEME_DARK_VIEW_SPHERE_TEXT_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_TEXT_COLOR;
-                    else if (i == THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR;
-                } else {
-                    if (i == THEME_DEFAULT_VIEWER_BACKGROUND_COLOR)
-                        key = LC_PROFILE_BACKGROUND_COLOR;
-                    else if (i == THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP)
-                        key = LC_PROFILE_GRADIENT_COLOR_TOP;
-                    else if (i == THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM)
-                        key = LC_PROFILE_GRADIENT_COLOR_BOTTOM;
-                    else if (i == THEME_DEFAULT_AXES_COLOR)
-                        key = LC_PROFILE_AXES_COLOR;
-                    else if (i == THEME_DEFAULT_OVERLAY_COLOR)
-                        key = LC_PROFILE_OVERLAY_COLOR;
-                    else if (i == THEME_DEFAULT_MARQUEE_BORDER_COLOR)
-                        key = LC_PROFILE_MARQUEE_BORDER_COLOR;
-                    else if (i == THEME_DEFAULT_MARQUEE_FILL_COLOR)
-                        key = LC_PROFILE_MARQUEE_FILL_COLOR;
-                    else if (i == THEME_DEFAULT_INACTIVE_VIEW_COLOR)
-                        key = LC_PROFILE_INACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DEFAULT_ACTIVE_VIEW_COLOR)
-                        key = LC_PROFILE_ACTIVE_VIEW_COLOR;
-                    else if (i == THEME_DEFAULT_GRID_STUD_COLOR)
-                        key = LC_PROFILE_GRID_STUD_COLOR;
-                    else if (i == THEME_DEFAULT_GRID_LINE_COLOR)
-                        key = LC_PROFILE_GRID_LINE_COLOR;
-                    else if (i == THEME_DEFAULT_TEXT_COLOR)
-                        key = LC_PROFILE_TEXT_COLOR;
-                    else if (i == THEME_DEFAULT_VIEW_SPHERE_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_COLOR;
-                    else if (i == THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_TEXT_COLOR;
-                    else if (i == THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR)
-                        key = LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR;
+                switch (i)
+                {
+                case THEME_DARK_VIEWER_BACKGROUND_COLOR:
+                case THEME_DEFAULT_VIEWER_BACKGROUND_COLOR:
+                    key = LC_PROFILE_BACKGROUND_COLOR;
+                    break;
+                case THEME_DARK_VIEWER_GRADIENT_COLOR_TOP:
+                case THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP:
+                    key = LC_PROFILE_GRADIENT_COLOR_TOP;
+                    break;
+                case THEME_DARK_VIEWER_GRADIENT_COLOR_BOTTOM:
+                case THEME_DEFAULT_VIEWER_GRADIENT_COLOR_BOTTOM:
+                    key = LC_PROFILE_GRADIENT_COLOR_BOTTOM;
+                    break;
+                case THEME_DARK_AXES_COLOR:
+                case THEME_DEFAULT_AXES_COLOR:
+                    key = LC_PROFILE_AXES_COLOR;
+                    break;
+                case THEME_DARK_OVERLAY_COLOR:
+                case THEME_DEFAULT_OVERLAY_COLOR:
+                    key = LC_PROFILE_OVERLAY_COLOR;
+                    break;
+                case THEME_DARK_MARQUEE_BORDER_COLOR:
+                case THEME_DEFAULT_MARQUEE_BORDER_COLOR:
+                    key = LC_PROFILE_MARQUEE_BORDER_COLOR;
+                    break;
+                case THEME_DARK_MARQUEE_FILL_COLOR:
+                case THEME_DEFAULT_MARQUEE_FILL_COLOR:
+                    key = LC_PROFILE_MARQUEE_FILL_COLOR;
+                    break;
+                case THEME_DARK_INACTIVE_VIEW_COLOR:
+                case THEME_DEFAULT_INACTIVE_VIEW_COLOR:
+                    key = LC_PROFILE_INACTIVE_VIEW_COLOR;
+                    break;
+                case THEME_DARK_ACTIVE_VIEW_COLOR:
+                case THEME_DEFAULT_ACTIVE_VIEW_COLOR:
+                    key = LC_PROFILE_ACTIVE_VIEW_COLOR;
+                    break;
+                case THEME_DARK_GRID_STUD_COLOR:
+                case THEME_DEFAULT_GRID_STUD_COLOR:
+                    key = LC_PROFILE_GRID_STUD_COLOR;
+                    break;
+                case THEME_DARK_GRID_LINE_COLOR:
+                case THEME_DEFAULT_GRID_LINE_COLOR:
+                    key = LC_PROFILE_GRID_LINE_COLOR;
+                    break;
+                case THEME_DARK_TEXT_COLOR:
+                case THEME_DEFAULT_TEXT_COLOR:
+                    key = LC_PROFILE_TEXT_COLOR;
+                    break;
+                case THEME_DARK_VIEW_SPHERE_COLOR:
+                case THEME_DEFAULT_VIEW_SPHERE_COLOR:
+                    key = LC_PROFILE_VIEW_SPHERE_COLOR;
+                    break;
+                case THEME_DARK_VIEW_SPHERE_TEXT_COLOR:
+                case THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR:
+                    key = LC_PROFILE_VIEW_SPHERE_TEXT_COLOR;
+                    break;
+                case THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR:
+                case THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR:
+                    key = LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR;
+                    break;
+                case THEME_DARK_OBJECT_SELECTED_COLOR:
+                case THEME_DEFAULT_OBJECT_SELECTED_COLOR:
+                    key = LC_PROFILE_OBJECT_SELECTED_COLOR;
+                    break;
+                case THEME_DARK_OBJECT_FOCUSED_COLOR:
+                case THEME_DEFAULT_OBJECT_FOCUSED_COLOR:
+                    key = LC_PROFILE_OBJECT_FOCUSED_COLOR;
+                    break;
+                case THEME_DARK_CAMERA_COLOR:
+                case THEME_DEFAULT_CAMERA_COLOR:
+                    key = LC_PROFILE_CAMERA_COLOR;
+                    break;
+                case THEME_DARK_LIGHT_COLOR:
+                case THEME_DEFAULT_LIGHT_COLOR:
+                    key = LC_PROFILE_LIGHT_COLOR;
+                    break;
+                case THEME_DARK_CONTROL_POINT_COLOR:
+                case THEME_DEFAULT_CONTROL_POINT_COLOR:
+                    key = LC_PROFILE_CONTROL_POINT_COLOR;
+                    break;
+                case THEME_DARK_CONTROL_POINT_FOCUSED_COLOR:
+                case THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR:
+                    key = LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR;
+                    break;
+                case THEME_DARK_BM_OBJECT_SELECTED_COLOR:
+                case THEME_DEFAULT_BM_OBJECT_SELECTED_COLOR:
+                    key = LC_PROFILE_BM_OBJECT_SELECTED_COLOR;
+                    break;
+                default:
+                    break;
                 }
+
                 if (key > LC_PROFILE_KEY(-1)) {
-                    int alpha     = key == LC_PROFILE_GRID_STUD_COLOR  ? 192 : 255;
+                    int alpha = 255;
+                    switch (key)
+                    {
+                    case LC_PROFILE_GRID_STUD_COLOR:
+                        alpha = 192;
+                        break;
+                    case LC_PROFILE_MARQUEE_FILL_COLOR:
+                        alpha = 64;
+                        break;
+                    case LC_PROFILE_CONTROL_POINT_COLOR:
+                    case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
+                        alpha = 128;
+                    default:
+                        break;
+                    }
+
                     QColor tc     = QColor(mThemeColors[i]);
                     quint32 color = qint32(LC_RGBA(tc.red(), tc.green(), tc.blue(), alpha));
-                    lcSetProfileInt(LC_PROFILE_KEY(key), color);
+                    switch (key)
+                    {
+                    case LC_PROFILE_OBJECT_SELECTED_COLOR:
+                    case LC_PROFILE_OBJECT_FOCUSED_COLOR:
+                    case LC_PROFILE_CAMERA_COLOR:
+                    case LC_PROFILE_LIGHT_COLOR:
+                    case LC_PROFILE_CONTROL_POINT_COLOR:
+                    case LC_PROFILE_CONTROL_POINT_FOCUSED_COLOR:
+                    case LC_PROFILE_BM_OBJECT_SELECTED_COLOR:
+                        lcSetProfileUInt(key, color);
+                        break;
+                    default:
+                        lcSetProfileInt(key, color);
+                    }
+
 #ifdef QT_DEBUG_MODE
                     emit gui->messageSig(LOG_DEBUG, QString("Display theme color set LC_PROFILE_KEY(%1): %2").arg(key).arg(color));
 #endif
@@ -2139,33 +2199,37 @@ void ThemeColorsDialog::setThemeColor()
 
 QColor ThemeColorsDialog::getColor(const int index, const QString &name)
 {
+    // treat obaque colours
     QColor color(name);
-    if (Preferences::displayTheme == THEME_DARK) {
-        if (index == THEME_DARK_GRID_STUD_COLOR)
-            color.setAlpha(192);
-        else if (index == THEME_DARK_LINE_SELECT)
-            color.setAlpha(50);
-        else if (index == THEME_DARK_LINE_ERROR)
-            color = color.lighter(180);
-        else if (index == THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT) {
-            color = color.lighter(180);
-            color.setAlpha(100);
-        } else if (index == THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT) {
-            color = color.lighter(180);
-            color.setAlpha(100);
-        } else if (index == THEME_DARK_MARQUEE_FILL_COLOR)
-            color.setAlpha(64);
-    } else {
-        if (index == THEME_DEFAULT_GRID_STUD_COLOR)
-            color.setAlpha(192);
-        else if (index == THEME_DEFAULT_LINE_SELECT)
-            color.setAlpha(30);
-        else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT)
-            color = color.lighter(180);
-        else if (index == THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT)
-            color = color.lighter(180);
-        if (index == THEME_DEFAULT_MARQUEE_FILL_COLOR)
-            color.setAlpha(64);
+    switch (index)
+    {
+    case THEME_DARK_GRID_STUD_COLOR:
+    case THEME_DEFAULT_GRID_STUD_COLOR:
+        color.setAlpha(192);
+        break;
+    case THEME_DEFAULT_LINE_SELECT:
+        color.setAlpha(30);
+        break;
+    case THEME_DARK_LINE_HIGHLIGHT_EDITOR_SELECT:
+    case THEME_DEFAULT_LINE_HIGHLIGHT_EDITOR_SELECT:
+    case THEME_DARK_LINE_HIGHLIGHT_VIEWER_SELECT:
+    case THEME_DEFAULT_LINE_HIGHLIGHT_VIEWER_SELECT:
+        color = color.lighter(180);
+        break;
+    case THEME_DARK_MARQUEE_FILL_COLOR:
+    case THEME_DEFAULT_MARQUEE_FILL_COLOR:
+        color.setAlpha(64);
+        break;
+    case THEME_DARK_CONTROL_POINT_COLOR:
+    case THEME_DEFAULT_CONTROL_POINT_COLOR:
+    case THEME_DARK_CONTROL_POINT_FOCUSED_COLOR:
+    case THEME_DEFAULT_CONTROL_POINT_FOCUSED_COLOR:
+        color.setAlpha(128);
+    default:
+        break;
+    }
+    if (Preferences::displayTheme == THEME_DARK && index == THEME_DARK_LINE_ERROR) {
+        color = color.lighter(180);
     }
     return color;
 }
