@@ -13,9 +13,6 @@ CONFIG  -= app_bundle
 
 DEPENDPATH  += .
 INCLUDEPATH += .
-DEPENDPATH  += ./include
-INCLUDEPATH += ./include
-INCLUDEPATH += ./include/3rdParty
 INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../lclib/common
@@ -63,7 +60,7 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     LIB_ARCH =
 }
 
-# specify define for OBS ARM platforms that need to use OpenGL headers
+# specify define for ARM platforms that need to use OpenGL headers
 contains(BUILD_ARCH,arm64)|contains(BUILD_ARCH,arm): \
 ARM_BUILD_ARCH = True
 
@@ -89,8 +86,7 @@ CONFIG(debug, debug|release) {
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
-    # The next 5 lines adds the LDView source files...
-    LOAD_LDV_HEADERS      = True
+    # The remaining lines in this block adds the LDView source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
     LOAD_LDV_SOURCE_FILES = #True
     # This line points to ldview git extract folder name, you can set as you like
@@ -101,22 +97,26 @@ CONFIG(debug, debug|release) {
     BUILD_CONF = Release
     ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
-    LOAD_LDV_HEADERS = True
 }
 BUILD += $$BUILD_CONF Build
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
-contains(LOAD_LDV_HEADERS,True): \
+#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Copy headers from LDView (Disabled)
+#COPY_LDV_HEADERS = True
+
+# Load LDView headers
+LOAD_LDV_HEADERS = True
+
 include(LDViewLibs.pri)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
-# specify define for OBS ARM platforms that need to suppress local glext.h header
-contains(BUILD_TARGET,suse): \
-ARM_BUILD_TARGET = True
-contains(HOST_VERSION,1320): \
-ARM_HOST_VERSION = True
-contains(ARM_BUILD_TARGET,True):contains(ARM_HOST_VERSION,True) {
+# specify ARM platforms that need to suppress local glext.h header
+contains(ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_VERSION,1320) {
     DEFINES += ARM_SKIP_GL_HEADERS
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define ARM_SKIP_GL_HEADERS ~~~")
 } else {
@@ -132,9 +132,6 @@ UI_DIR          = $$DESTDIR/.ui
 # USE GNU_SOURCE
 unix:!macx: DEFINES += _GNU_SOURCE
 
-#QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
-#QMAKE_LFLAGS    += $(Q_LDFLAGS)
-#QMAKE_CFLAGS    += $(Q_CFLAGS)
 # stdlib.h fix placeholder - do not remove
 
 # USE CPP 11

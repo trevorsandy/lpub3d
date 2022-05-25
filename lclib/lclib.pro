@@ -11,20 +11,50 @@ CONFIG  += warn_on
 
 win32:macx: \
 GAMEPAD {
-	qtHaveModule(gamepad) {
-		QT += gamepad
-		DEFINES += LC_ENABLE_GAMEPAD
-	}
+    qtHaveModule(gamepad) {
+        QT += gamepad
+        DEFINES += LC_ENABLE_GAMEPAD
+    }
 }
 
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += qt common
-INCLUDEPATH += ../mainApp ../ldvlib/LDVQt/include ../qsimpleupdater/include ../qsimpleupdater/src
+INCLUDEPATH += ../mainApp ../qsimpleupdater/include ../qsimpleupdater/src
 INCLUDEPATH += ../qslog ../ldrawini ../quazip ../qsimpleupdater/src/progress_bar
+
+#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# 3rd party executables, documentation and resources.
+!isEmpty(LP3D_3RD_DIST_DIR) {
+    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
+} else {
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    isEmpty(THIRD_PARTY_DIST_DIR_PATH): THIRD_PARTY_DIST_DIR_PATH="undefined"
+}
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../$$DIST_DIR ) )
+    !exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH (LCLIB) WAS NOT FOUND! ~~~ ")
+        THIRD_PARTY_DIST_DIR_PATH="undefined"
+    }
+}
+VER_LDVIEW  = ldview-4.4
+
+# Copy LDView headers (Disabled)
+#INCLUDEPATH += ../ldvlib/LDVQt/include
+
+# Reference LDView headers
+INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 win32-msvc* {
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
 
 # The ABI version.
@@ -44,10 +74,6 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
 } else {
     ARCH  = 32
 }
-
-#QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
-#QMAKE_LFLAGS    += $(Q_LDFLAGS)
-#QMAKE_CFLAGS    += $(Q_CFLAGS)
 
 DEFINES += LC_DISABLE_UPDATE_CHECK=1
 

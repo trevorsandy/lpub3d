@@ -20,16 +20,65 @@ CONFIG += exceptions
 
 include(../gitversion.pri)
 
+#~~~~ third party distro folder ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# 3rd party executables, documentation and resources.
+# When building on macOS, it is necessary to add CONFIG+=dmg at
+# Projects/Build Steps/Qmake/'Additional arguments' because,
+# macOS build will also bundle all deliverables.
+!isEmpty(LP3D_3RD_DIST_DIR) {
+    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
+    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
+} else {
+    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
+    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
+    else: THIRD_PARTY_DIST_DIR_PATH="undefined"
+}
+!exists($$THIRD_PARTY_DIST_DIR_PATH) {
+    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
+    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
+    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
+    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
+    exists($$THIRD_PARTY_DIST_DIR_PATH) {
+        3RD_DIR_SOURCE_UNSPECIFIED = "INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH"
+    } else {
+        3RD_DIR_SOURCE_UNSPECIFIED = "ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED!"
+        THIRD_PARTY_DIST_DIR_PATH="undefined"
+    }
+    3RD_DIR_SOURCE = LOCAL_DIR
+}
+
+VER_LDVIEW     = ldview-4.4
+VER_LDGLITE    = ldglite-1.3
+VER_POVRAY     = lpub3d_trace_cui-3.8
+DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
+DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
+DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TARGET +=
 DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += ../ldrawini ../waitingspinner ../lclib/common ../lclib/qt ../qsimpleupdater/include ../qsimpleupdater/src
-INCLUDEPATH += ../ldvlib ../ldvlib/LDVQt/include ../ldvlib/WPngImage
+
+#~~ LDView headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Copy LDView headers (Disabled)
+#INCLUDEPATH += ../ldvlib/LDVQt/include
+
+# Reference LDView headers
+INCLUDEPATH += $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+INCLUDEPATH += ../ldvlib ../ldvlib/WPngImage
+
 win32-msvc* {
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtZlib
 }
+
 # If quazip is alredy installed you can suppress building it again by
 # adding CONFIG+=quazipnobuild to the qmake arguments
 # Update the quazip header path if not installed at default location below
@@ -106,10 +155,6 @@ unix:!freebsd:!macx {
 !freebsd: \
 DEFINES += EXPORT_3DS
 
-#QMAKE_CXXFLAGS       += $(Q_CXXFLAGS)
-#QMAKE_LFLAGS         += $(Q_LDFLAGS)
-#QMAKE_CFLAGS         += $(Q_CFLAGS)
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
@@ -157,7 +202,6 @@ win32 {
     LIBS += -framework CoreFoundation -framework CoreServices
 }
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 unix:!macx: TARGET = lpub3d
@@ -180,6 +224,7 @@ static {                                     # everything below takes effect wit
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 # Note on x11 platforms you can also pre-install install quazip ($ sudo apt-get install libquazip-dev)
 # If quazip is already installed, set CONFIG+=quazipnobuild to use installed library
 # NOTE: Reminder to update MacOS library links on QuaZip and LDrawIni major version change
@@ -223,9 +268,6 @@ CONFIG(debug, debug|release) {
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
-    # enable this to copy LDView libraries to DESTDIR - a one-time action
-    COPY_LDV_LIBS = True
-
     # enable copy ldvMessages to OUT_PWD/mainApp/extras (except macOS)
     !macx:DEVL_LDV_MESSAGES_INI = True
 
@@ -264,9 +306,6 @@ CONFIG(debug, debug|release) {
 
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
-
-   # copy LDView libraries to DESTDIR
-    COPY_LDV_LIBS = True
 }
 BUILD += $$BUILD_CONF
 
@@ -288,36 +327,7 @@ UI_DIR          = $$DESTDIR/.ui
 
 #~~file distributions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Install 3rd party executables, documentation and resources.
-# When building on macOS, it is necessary to add CONFIG+=dmg at
-# Projects/Build Steps/Qmake/'Additional arguments' because,
-# macOS build will also bundle all deliverables.
-
-!isEmpty(LP3D_3RD_DIST_DIR) {
-    THIRD_PARTY_DIST_DIR_PATH = $$LP3D_3RD_DIST_DIR
-    3RD_DIR_SOURCE = LP3D_3RD_DIST_DIR
-} else {
-    THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !isEmpty(THIRD_PARTY_DIST_DIR_PATH): \
-    3RD_DIR_SOURCE = LP3D_DIST_DIR_PATH
-    else: \
-    THIRD_PARTY_DIST_DIR_PATH="undefined"
-}
-
-!exists($$THIRD_PARTY_DIST_DIR_PATH) {
-    unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
-    else:macx: DIST_DIR       = lpub3d_macos_3rdparty
-    else:win32: DIST_DIR      = lpub3d_windows_3rdparty
-    THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$_PRO_FILE_PWD_/../../$$DIST_DIR ) )
-    exists($$THIRD_PARTY_DIST_DIR_PATH): \
-    message("~~~ INFO - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED, USING $$THIRD_PARTY_DIST_DIR_PATH ~~~")
-    else: \
-    message("~~~ ERROR - THIRD_PARTY_DIST_DIR_PATH WAS NOT SPECIFIED! ~~~")
-    3RD_DIR_SOURCE = LOCAL_DIR
-}
-
-isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NOT_DEFINED
-
+!isEmpty(3RD_DIR_SOURCE_UNSPECIFIED): message("~~~ $$3RD_DIR_SOURCE_UNSPECIFIED ~~~")
 message("~~~ 3RD PARTY DISTRIBUTION REPO ($$3RD_DIR_SOURCE): $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
 # To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
@@ -360,13 +370,6 @@ if(deb|rpm|pkg|dmg|exe|api|snp|flp|contains(build_package, yes)) {
     }
 }
 
-VER_LDVIEW     = ldview-4.4
-VER_LDGLITE    = ldglite-1.3
-VER_POVRAY     = lpub3d_trace_cui-3.8
-DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"
-DEFINES       += VER_LDGLITE=\\\"$$VER_LDGLITE\\\"
-DEFINES       += VER_POVRAY=\\\"$$VER_POVRAY\\\"
-
 #~~ includes ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32:include(winfiledistro.pri)
@@ -376,26 +379,30 @@ unix:!macx:include(linuxfiledistro.pri)
 include(../qslog/QsLog.pri)
 include(../qsimpleupdater/QSimpleUpdater.pri)
 
-#~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-equals(COPY_LDV_LIBS,True) {
-    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO: $$system_path( $$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR) ) ~~~ ")
-}
-
-# needed to access ui header from LDVQt
+# Needed to access ui header from LDVQt
 INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
 
-LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+#~~~ libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LIBS += -L$$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR -l$$LDVQT_LIB
 
 LIBS += -L$$OUT_PWD/../ldvlib/WPngImage/$$DESTDIR -l$$WPNGIMAGE_LIB
 
+LIBS += -L$$OUT_PWD/../lclib/$$DESTDIR -l$$LC_LIB
+
 LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
 
-# Setup LDVQt Libraries
+#~~~ LDView libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Copy libraries from LDView (Disabled)
+#COPY_LDV_LIBS = True
+
+# Load LDView libraries for LDVQt
 LOAD_LDVLIBS = True
+
 include(../ldvlib/LDVQt/LDViewLibs.pri)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 quazipnobuild: \
 LIBS += -lquazip
@@ -414,6 +421,7 @@ win32 {
 }
 
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 contains(DEVL_LDV_MESSAGES_INI,True) {
     message("~~~ ENABLE COPY LDVMESSAGES.INI TO: $$system_path($$OUT_PWD/extras) ~~~ ")
 }
@@ -422,7 +430,7 @@ contains(DEVL_LDV_MESSAGES_INI,True) {
 # CONFIG+=update_check
 update_check: DEFINES += DISABLE_UPDATE_CHECK
 
-#~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~ source and headers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HEADERS += \
     aboutdialog.h \
