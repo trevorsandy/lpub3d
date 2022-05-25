@@ -21,6 +21,7 @@
 #pragma warning(default : 4062) // enumerator 'identifier' in switch of enum 'enumeration' is not handled
 #pragma warning(default : 4388) // 'token' : signed/unsigned mismatch
 #pragma warning(default : 4389) // 'equality-operator' : signed/unsigned mismatch
+#pragma warning(default : 5038) // data member 'A::y' will be initialized after data member 'A::x'
 #endif
 
 #ifndef Q_FALLTHROUGH
@@ -59,7 +60,7 @@ char* strupr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "21.06"
 /*** LPub3D Mod - LeoCAD Git SHA ***/
-#define LC_VERSION_SHA "bd709b4"
+#define LC_VERSION_SHA "bad9bd5"
 /*** LPub3D Mod end ***/
 
 
