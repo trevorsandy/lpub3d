@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 09, 2021
+# Last Update June 29, 2021
 # Copyright (c) 2018 - 2021 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -33,7 +33,7 @@ function show_settings
     [ -n "${LP3D_BUILD_OS}" ] && echo "--LP3D_BUILD_OS......$LP3D_BUILD_OS"
     echo "--LPUB3D_EXE.........$LPUB3D_EXE"
     echo "--SOURCE_DIR.........$SOURCE_DIR"
-    echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
+    [ "${LP3D_OS_NAME}" != "Darwin" ] && echo "--XDG_RUNTIME_DIR....$XDG_RUNTIME_DIR"
     [ "${USE_XVFB}" = "true" ] && echo "--USE_XVFB...........YES"
     [ "${XSERVER}" = "true" ] && echo "--XSERVER............YES"
     [ "${DOCKER}" = "true" ] && echo "--DOCKER.............YES"
@@ -92,6 +92,7 @@ if [[ "$LP3D_BUILD_OS" = "flatpak" || "$LP3D_BUILD_OS" = "snap" ]]; then
 fi
 
 # AppImage validate and set executable permissions
+
 case "${LPUB3D_EXE}" in
 *.AppImage)
     VALID_APPIMAGE=1 ;;
@@ -108,22 +109,24 @@ if [[ "$LP3D_BUILD_OS" = "appimage" && $VALID_APPIMAGE -eq 1 ]]; then
 fi
 
 # Set XDG_RUNTIME_DIR
-VALID_UID=0
-if [[ "$LP3D_BUILD_OS" = "snap" ]]; then
-    [ -n $UID ] && VALID_UID=1
-else
-    [ $UID -ge 1000 ] && VALID_UID=1
-fi
-if [[ "${LP3D_OS_NAME}" != "Darwin" && $VALID_UID -eq 1 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]; then
-    runtime_dir="/tmp/runtime-user-$UID"
-    if [ ! -d "$runtime_dir" ]; then
-       mkdir -p $runtime_dir
+if [ "${LP3D_OS_NAME}" != "Darwin" ]; then
+    VALID_UID=0
+    if [[ "$LP3D_BUILD_OS" = "snap" ]]; then
+        [ -n $UID ] && VALID_UID=1
+    else
+        [ $UID -ge 1000 ] && VALID_UID=1
     fi
-    export XDG_RUNTIME_DIR="$runtime_dir"
+    if [[ $VALID_UID -eq 1 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]; then
+        runtime_dir="/tmp/runtime-user-$UID"
+        if [ ! -d "$runtime_dir" ]; then
+           mkdir -p $runtime_dir
+        fi
+        export XDG_RUNTIME_DIR="$runtime_dir"
+    fi
 fi
 
 # Set USE_XVFB flag
-if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" || ("${LP3D_OS_NAME}" != "Darwin")) ]]; then
+if [[ "${XSERVER}" != "true" && ("${DOCKER}" = "true" || "${LP3D_OS_NAME}" != "Darwin") ]]; then
     if [ -z "$(command -v xvfb-run)" ]; then
         show_settings_and_exit "ERROR - XVFB (xvfb-run) could not be found. Build check cannot be executed."
     else
@@ -179,7 +182,8 @@ fi
 
 if [[ -n "${LP3D_CHECK_LDD}" && ${VALID_APPIMAGE} -eq 0 ]]; then
     echo && echo "-----------Library Dependencies-------------" && echo
-    find ${LPUB3D_EXE} -executable -type f -exec ldd {} \;
+    LPUB3D_LDD_EXE=$(which ${LPUB3D_EXE})
+    find ${LPUB3D_LDD_EXE} -executable -type f -exec ldd {} \;
 fi
 
 echo && echo "------------Build Checks Start--------------" && echo
@@ -297,6 +301,20 @@ if [ "${LP3D_CHECK_PASS}" -gt "0" ]; then
 fi
 if [ "${LP3D_CHECK_FAIL}" -gt "0" ]; then
     LP3D_CHECKS_FAIL="$(echo ${LP3D_CHECKS_FAIL} | cut -c 2-)"
+fi
+
+# move the run log to user folder for output capture
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    RUN_LOG=$(find ${HOME}/Library/Application\ Support -type f -name "*Log.txt")
+else
+    RUN_LOG=$(find ${HOME}/.local/share -type f -name "*Log.txt")
+fi
+if [ -n "${RUN_LOG}" ]; then
+    mv -f "${RUN_LOG}" "${HOME}/LPub3DRun.log" && \
+    echo "Moved ${RUN_LOG} to ${HOME}/LPub3DRun.log" || \
+    echo "WARNING - ${RUN_LOG} was not moved to ${HOME}/LPub3DRun.log"
+else
+    echo "WARNING - ${RUN_LOG} was not found"
 fi
 
 SUMMARY_MSG=''

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 07, 2021
+# Last Update June 21, 2021
 # Copyright (c) 2016 - 2021 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -8,7 +8,11 @@
 #
 # To Run:
 # cd <LPub3D root>
+#
 # env _PRO_FILE_PWD_=$PWD/mainApp LPUB3D=lpub3d OBS=true ./builds/utilities/update-config-files.sh
+#
+# Optional argument:
+# _EXPORT_CONFIG_ONLY_ Do not update config files. Only export variables
 
 LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
 
@@ -16,6 +20,7 @@ echo "   Start $LP3D_ME execution from $PWD..."
 
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
+LP3D_RELEASE_DATE=`date +%d.%m.%Y`
 LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_LAST_EDIT=`date +%d-%m-%Y`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
@@ -91,6 +96,9 @@ then
     then
         # Update refs and tags and populate committer email, name
         Info "1. update git tags and capture version info using git queries"
+        if [ ! -d ".git" ]; then
+            Info "ERROR - No .git folder in $PWD"
+        fi
         if [ -n "$TRAVIS" ]; then
             LP3D_BRANCH=${TRAVIS_BRANCH}
             LP3D_COMMIT=${TRAVIS_COMMIT}
@@ -164,6 +172,7 @@ Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 # Info "   LP3D_APP_VERSION_TAG...${LP3D_APP_VERSION_TAG}"
 Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
 Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
+Info ".  LP3D_RELEASE_DATE......${LP3D_RELEASE_DATE}"
 Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
 
 Info "   LP3D_VERSION...........${LP3D_VERSION}"
@@ -171,9 +180,51 @@ Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
 Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
 
+LP3D_NO_CONFIG_DISPLAY=
+if [[ "${CI}" = "true" || "${GITHUB}" = "true" ]]; then
+    LP3D_NO_CONFIG_DISPLAY=1
+    export LP3D_VER_MAJOR=${LP3D_VER_MAJOR}
+    export LP3D_VER_MINOR=${LP3D_VER_MINOR}
+    export LP3D_VER_PATCH=${LP3D_VER_PATCH}
+    export LP3D_VER_REVISION=${LP3D_VER_REVISION}
+    export LP3D_VER_BUILD=${LP3D_VER_BUILD}
+    export LP3D_VER_SHA_HASH=${LP3D_VER_SHA_HASH}
+    export LP3D_RELEASE_DATE=${LP3D_RELEASE_DATE}
+    test -n "$LP3D_VER_SUFFIX" && export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX || :
+    export LP3D_VERSION=${LP3D_VERSION}
+    export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
+    export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
+    export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}
+    export LP3D_AUTHOR_NAME=${LP3D_AUTHOR_NAME}
+    export LP3D_BUILD_TYPE=${LP3D_BUILD_TYPE}
+    export LP3D_BUILD_VERSION=${LP3D_BUILD_VERSION}
+fi
+
+# generate version.info file
+FILE="$LP3D_UTIL_DIR/version.info"
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    rm ${FILE}
+fi
+cat <<EOF >${FILE}
+${LP3D_VERSION_INFO}
+EOF
+
+if [ -f "${FILE}" ];
+then
+    Info "1. create version.info    - insert version info   [$FILE]";
+else
+    Info "   ERROR - version info   - file not found";
+fi
+
+# ..............................
+if [ -z "${_EXPORT_CONFIG_ONLY_}" ]; then #If set, skip config files update
+# ..............................
+
 if [ "$LP3D_OS" = Darwin ]
 then
-    Info "2. update the Info.plist with version major, version minor, build and git sha hash"
+    [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+    Info "2. update the Info.plist with version major, version minor, build and git sha hash" || :
     if test -n "$LP3D_VER_SUFFIX"; then
         LP3D_BUNDLE_VERSION=${LP3D_VER_BUILD}-${LP3D_VER_SUFFIX}
     fi
@@ -189,25 +240,9 @@ then
     fi
 fi
 
-# generate version.info file
-FILE="$LP3D_UTIL_DIR/version.info"
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    rm ${FILE}
-fi
-cat <<EOF >${FILE}
-${LP3D_VERSION_INFO}
-EOF
-
-if [ -f "${FILE}" ];
-then
-    Info "2. create version.info    - insert version info   [$FILE]";
-else
-    Info "   ERROR - version info   - file not found";
-fi
-
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
-Info "3. update RELEASE_NOTES   - build version         [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "3. update RELEASE_NOTES   - build version         [$FILE]" || :
 LineToReplace=12
 StringToReplace="      <h4><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h4>"
 if [ -f ${FILE} -a -r ${FILE} ]
@@ -223,7 +258,8 @@ else
 fi
 
 FILE="$LP3D_PWD/docs/README.txt"
-Info "3. update README.txt      - build version         [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "4. update README.txt      - build version         [$FILE]" || :
 LineToReplace=1                  # LPub3D 2.0.21.59.126...
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -237,8 +273,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$(readlink -f $LP3D_PWD/../README.md)"
-Info "4. update README.md       - update last edit date [$FILE]"
+FILE="$(realpath $LP3D_PWD/../README.md)"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "5. update README.md       - update last edit date [$FILE]" || :
 LastEdit="\[gh-maintained-url\]: https:\/\/github.com\/trevorsandy\/lpub3d\/projects\/1 \"Last edited ${LP3D_LAST_EDIT}\""
 if [ -f ${FILE} -a -r ${FILE} ]
 then
@@ -252,20 +289,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-if [ "${CONTINUOUS_INTEGRATION}" = "true" ];
-then
-    # Stop at the end of this block during Travis-CI builds
-    export LP3D_VERSION=${LP3D_VERSION}
-    export LP3D_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
-    export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
-    export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}
-    export LP3D_AUTHOR_NAME=${LP3D_AUTHOR_NAME}
-    export LP3D_BUILD_TYPE=${LP3D_BUILD_TYPE}
-    if test -n "$LP3D_VER_SUFFIX"; then export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX; fi
-fi
-
 FILE="$LP3D_PWD/lpub3d.desktop"
-Info "5. update desktop config  - add version suffix    [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "6. update desktop config  - add version suffix    [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -279,7 +305,8 @@ else
 fi
 
 FILE="$LP3D_PWD/lpub3d.appdata.xml"
-Info "6. update appdata info    - add version and date  [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "7. update appdata info    - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -296,7 +323,8 @@ else
 fi
 
 FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
-Info "7. update man page        - add version suffix    [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "8. update man page        - add version suffix    [$FILE]" || :
 FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
 if [ -f ${FILE_TEMPLATE} ];
 then
@@ -319,7 +347,8 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/changelog"
-Info "8. create changelog       - add version and date  [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "9. create changelog       - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     rm ${FILE}
@@ -333,7 +362,8 @@ ${LPUB3D} (${LP3D_APP_VERSION}) debian; urgency=medium
 EOF
 
 FILE="$LP3D_CONFIG_DIR/PKGBUILD"
-Info "9. update PKGBUILD        - add version           [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "10. update PKGBUILD        - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -347,7 +377,8 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
-Info "10.update ${LPUB3D}.spec     - add version and date  [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "11.update ${LPUB3D}.spec     - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -364,7 +395,8 @@ else
 fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
-Info "11.update ${LPUB3D}.dsc      - add version           [$FILE]"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "12.update ${LPUB3D}.dsc      - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -377,8 +409,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$(readlink -f $LP3D_PWD/../builds/linux/obs/debian/rules)"
-Info "12.update debian rules    - add version suffix    [$FILE]"
+FILE="$(realpath $LP3D_PWD/../builds/linux/obs/debian/rules)"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "13.update debian rules    - add version suffix    [$FILE]" || :
 LP3D_OS_ARCH=32 && \
 [[ "$(uname -m)" = "x86_64" || "$(uname -m)" = "aarch64" ]] && \
 LP3D_OS_ARCH=64
@@ -394,8 +427,9 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$(readlink -f $LP3D_PWD/../gitversion.pri)"
-Info "13.update gitversion pri  - add version and revision [$FILE]"
+FILE="$(realpath $LP3D_PWD/../gitversion.pri)"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "14.update gitversion pri  - add version and revision [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if test -n "$LP3D_VER_SUFFIX"; then
@@ -406,19 +440,20 @@ then
         sed -i "" -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
                   -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
                   -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
-                  -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
+                  -e "s/^            GIT_VERSION = \$\${VERSION}.[0-9].*$/            GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
     else
         sed -i -e "s/^VERSION = [0-9].*$/VERSION = ${LP3D_VERSION}/g" \
                -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
                -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
-               -e "s/^        GIT_VERSION = \$\${VERSION}.[0-9].*$/        GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
+               -e "s/^            GIT_VERSION = \$\${VERSION}.[0-9].*$/            GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$(readlink -f $LP3D_PWD/../snapcraft.yaml)"
-Info "14.update snapcraft.yaml  - add version suffix    [$FILE]"
+FILE="$(realpath $LP3D_PWD/../snapcraft.yaml)"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "15.update snapcraft.yaml  - add version suffix    [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -432,6 +467,10 @@ then
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
+
+# ..............................
+fi # _EXPORT_CONFIG_ONLY_ not set
+# ..............................
 
 if [ "${SOURCED}" = "false" ]
 then

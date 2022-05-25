@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 14, 2021
+# Last Update June 29, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -18,12 +18,16 @@ FinishElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
+  [ -n "${LP3D_ARCH}" ] && ME="${ME} for (${LP3D_ARCH})" || ME="${ME} for (amd64)"
   echo "$ME Finished!"
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
 
+trap FinishElapsedTime EXIT
+
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+
 CWD=`pwd`
 export OBS=false # OpenSUSE Build Service flag must be set for CreateRenderers.sh - called by debian/rules
 
@@ -36,28 +40,28 @@ echo "   LPUB3D SOURCE DIR......${LPUB3D}"
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
 
-# when running locally, use this block...
-if [ "${TRAVIS}" != "true"  ]; then
+# logging stuff - increment log file name
+f="${0##*/}"; f="${f%.*}"; [ -n "${LP3D_ARCH}" ] && f="${f}-${LP3D_ARCH}" || f="${f}-amd64"
+f="${CWD}/${f}"
+ext=".log"
+if [[ -e "$f$ext" ]] ; then
+    i=1
+    f="${f%.*}";
+    while [[ -e "${f}_${i}${ext}" ]]; do
+      let i++
+    done
+    f="${f}_${i}${ext}"
+    else
+    f="${f}${ext}"
+fi
+# output log file
+LOG="$f"
+exec > >(tee -a ${LOG} )
+exec 2> >(tee -a ${LOG} >&2)
+
+# when running on Travis-CI, use this block...
+if [ "${TRAVIS}" = "true"  ]; then
     # Travis starting point: /home/travis/build/trevorsandy/lpub3d
-    #
-    # logging stuff - increment log file name
-    f="${CWD}/$ME"
-    ext=".log"
-    if [[ -e "$f$ext" ]] ; then
-        i=1
-        f="${f%.*}";
-        while [[ -e "${f}_${i}${ext}" ]]; do
-          let i++
-        done
-        f="${f}_${i}${ext}"
-        else
-        f="${f}${ext}"
-    fi
-    # output log file
-    LOG="$f"
-    exec > >(tee -a ${LOG} )
-    exec 2> >(tee -a ${LOG} >&2)
-else
     # Travis starts in the clone directory (lpub3d/), so move outside
     cd ../
 fi
@@ -68,7 +72,9 @@ then
     mkdir -p debbuild/SOURCES
 fi
 
-cd debbuild/SOURCES
+cd debbuild/
+BUILD_DIR=$PWD
+cd ${BUILD_DIR}/SOURCES
 
 if [ "${TRAVIS}" != "true" ]; then
     echo "2. download source to SOURCES/..."
@@ -102,95 +108,119 @@ _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
 echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
-SOURCE_DIR=${LPUB3D}-${LP3D_APP_VERSION}
-mv -f ${LPUB3D} ${SOURCE_DIR}
+WORK_DIR=${LPUB3D}-${LP3D_APP_VERSION}
+mv -f ${LPUB3D} ${WORK_DIR}
 
-echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${SOURCE_DIR}/"
-tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${SOURCE_DIR} \
-        --exclude="${SOURCE_DIR}/builds/linux/standard" \
-        --exclude="${SOURCE_DIR}/builds/macx" \
-        --exclude="${SOURCE_DIR}/.travis.yml" \
-        --exclude="${SOURCE_DIR}/.gitattributes" \
-        --exclude="${SOURCE_DIR}/LPub3D.pro.user" \
-        --exclude="${SOURCE_DIR}/README.md" \
-        --exclude="${SOURCE_DIR}/_config.yml" \
-        --exclude="${SOURCE_DIR}/.gitignore" \
-        --exclude="${SOURCE_DIR}/snapcraft.yaml" \
-        --exclude="${SOURCE_DIR}/appveyor.yml"
+echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${WORK_DIR}/"
+tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${WORK_DIR} \
+        --exclude="${WORK_DIR}/builds/linux/standard" \
+        --exclude="${WORK_DIR}/builds/macx" \
+        --exclude="${WORK_DIR}/.travis.yml" \
+        --exclude="${WORK_DIR}/.gitattributes" \
+        --exclude="${WORK_DIR}/LPub3D.pro.user" \
+        --exclude="${WORK_DIR}/README.md" \
+        --exclude="${WORK_DIR}/_config.yml" \
+        --exclude="${WORK_DIR}/.gitignore" \
+        --exclude="${WORK_DIR}/snapcraft.yaml" \
+        --exclude="${WORK_DIR}/appveyor.yml"
 
 echo "6. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
 # to the extras location. This config thus supports both Suse OBS and Travis CI build procs.
-if [ ! -f lpub3dldrawunf.zip ]
-then
-    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip
-fi
-if [ ! -f complete.zip ]
-then
-    curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
-fi
-if [ ! -f tenteparts.zip ]
-then
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip
-fi
-if [ ! -f vexiqparts.zip ]
-then
-    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
-fi
+[ ! -f lpub3dldrawunf.zip ] && \
+curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o lpub3dldrawunf.zip || :
+[ -d ../lpub3d_linux_3rdparty ] && \
+(cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/lpub3dldrawunf.zip lpub3dldrawunf.zip) || :
+[ ! -f complete.zip ] && \
+curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip || :
+[ -d ../lpub3d_linux_3rdparty ] && \
+(cd ../lpub3d_linux_3rdparty && ln -sf ../SOURCES/complete.zip complete.zip) || :
+[ ! -f tenteparts.zip ] && \
+curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip || :
+[ ! -f vexiqparts.zip ] && \
+curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip || :
 
-echo "7. extract ${SOURCE_DIR}/ to debbuild/..."
-cd ../
+echo "7. extract ${WORK_DIR}/ to debbuild/..."
+cd ${BUILD_DIR}/
 if [  -d ${LPUB3D}-${LP3D_APP_VERSION} ]
 then
    rm -rf ${LPUB3D}-${LP3D_APP_VERSION}
 fi
 tar zxf ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz
 
-echo "8. copy debian/ configuration directory to ${SOURCE_DIR}/..."
-cp -rf ${SOURCE_DIR}/builds/linux/obs/debian ${SOURCE_DIR}
+echo "8. copy debian/ configuration directory to ${WORK_DIR}/..."
+cp -rf ${WORK_DIR}/builds/linux/obs/debian ${WORK_DIR}
 
-echo "9. install ${LPUB3D} build dependencies [requires elevated access - sudo]..."
-cd "${SOURCE_DIR}"
-controlDeps=`grep Build-Depends debian/control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
-sudo apt-get update -qq
-sudo apt-get install -y $controlDeps
+cd "${BUILD_DIR}/${WORK_DIR}/"
 
-echo "10. build application package from ${SOURCE_DIR}/..."
+if [ "${CI}" = "true" ]; then
+    echo "9. Skipping install ${LPUB3D} build dependencies."
+else
+    echo "9. install ${LPUB3D} build dependencies [requires elevated access - sudo]..."
+    controlDeps=`grep Build-Depends debian/control | cut -d: -f2| sed 's/(.*)//g' | tr -d ,`
+    sudo apt-get update -qq
+    sudo apt-get install -y $controlDeps
+fi
+
+if [ "$GITHUB" = "true" ]; then
+    export DEBUILD_PRESERVE_ENVVARS="CI,OBS,GITHUB,DOCKER,LP3D_*"
+fi
+echo "10-1. build application package from ${BUILD_DIR}/${WORK_DIR}/..."
 chmod 755 debian/rules
 /usr/bin/dpkg-buildpackage -us -uc
-
-cd ../
+cd ${BUILD_DIR}/
 DISTRO_FILE=`ls ${LPUB3D}_${LP3D_APP_VERSION}*.deb`
+
+echo "10-2. Build package: $PWD/${DISTRO_FILE}"
 if [ -f ${DISTRO_FILE} ]
 then
-    echo "11-1. check deb package..."
-    lintian ${DISTRO_FILE} ${SOURCE_DIR}/${LPUB3D}.dsc
+    echo "11-1. Check (lintian) deb package..."
+    lintian ${DISTRO_FILE} ${WORK_DIR}/${LPUB3D}.dsc
 
-    echo "11-2. Build-check ${DISTRO_FILE}"
-    if [ ! -f "/usr/bin/update-desktop-database" ]; then
-        echo "      Program update-desktop-database not found. Installing..."
-        sudo apt-get install -y desktop-file-utils
-    fi
-    # Install package - here we use the distro file name
-    echo "      11-2. Build-check install ${LPUB3D}..."
-    sudo dpkg -i ${DISTRO_FILE}
-    # Check if exe exist - here we use the executable name
-    LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
-    if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
-        # Check commands
-        LP3D_CHECK_LDD="1"
-        source ${SOURCE_DIR}/builds/check/build_checks.sh
-        # Cleanup - here we use the package name
-        echo "      11-2. Build-check uninstall ${LPUB3D}..."
-        sudo dpkg -r ${LPUB3D}
+    if [ "${LP3D_QEMU}" = "true" ]; then
+        if [ -n "$LP3D_PRE_PACKAGE_CHECK" ]; then
+            echo "11-2. Pre-package build check LPub3D..."
+            export LP3D_BUILD_OS=
+            export SOURCE_DIR=${BUILD_DIR}/${WORK_DIR}
+            export LP3D_CHECK_LDD="1"
+            export LP3D_CHECK_STATUS="--version --app-paths"
+            case ${LP3D_ARCH} in
+                "aarch64"|"arm64")
+                    LP3D_BUILD_ARCH="64bit_release" ;;
+                *)
+                    LP3D_BUILD_ARCH="32bit_release" ;;
+            esac
+            export LPUB3D_EXE="${SOURCE_DIR}/mainApp/${LP3D_BUILD_ARCH}/lpub3d${LP3D_VER_MAJOR}${LP3D_VER_MINOR}"
+            (cd ${SOURCE_DIR} && chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh)
+        else
+            echo "11-2. Building in QEMU, skipping build check."
+        fi
     else
-        echo "11-2. Build-check failed - /usr/bin/${LPUB3D_EXE} not found."
+        echo "11-2. Build check ${DISTRO_FILE}"
+        if [ ! -f "/usr/bin/update-desktop-database" ]; then
+            echo "      Program update-desktop-database not found. Installing..."
+            sudo apt-get install -y desktop-file-utils
+        fi
+        # Install package - here we use the distro file name
+        echo "      11-2. Build check install ${LPUB3D}..."
+        sudo dpkg -i ${DISTRO_FILE}
+        # Check if exe exist - here we use the executable name
+        LPUB3D_EXE=lpub3d${LP3D_APP_VER_SUFFIX}
+        SOURCE_DIR=${WORK_DIR}
+        if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
+            # Check commands
+            LP3D_CHECK_LDD="1"
+            source ${WORK_DIR}/builds/check/build_checks.sh
+            # Cleanup - here we use the package name
+            echo "      11-2. Build check uninstall ${LPUB3D}..."
+            sudo dpkg -r ${LPUB3D}
+        else
+            echo "11-2. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
+        fi
     fi
 
-    echo "11-3. create LPub3D update and download packages..."
+    echo "11-3. create LPub3D ${DEB_EXTENSION} distribution packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
-    LP3D_DEB_APP_VERSION_LONG=${LP3D_APP_VERSION_LONG}
-    LP3D_DEB_VERSION=${LP3D_VERSION}
     LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
     LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
     case ${LP3D_PLATFORM_ID} in
@@ -218,6 +248,8 @@ then
             LP3D_PLATFORM_NAME="groovy" ;;
         20.10)
             LP3D_PLATFORM_NAME="focal" ;;
+        21.04)
+            LP3D_PLATFORM_NAME="Hirsute" ;;
         *)
             LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
@@ -238,19 +270,35 @@ then
         ;;
     esac;
     [ -n "$LP3D_PLATFORM_NAME" ] && \
-    LP3D_DEB_APP_VERSION_LONG="${LP3D_DEB_APP_VERSION_LONG}-${LP3D_PLATFORM_NAME}" && \
-    LP3D_DEB_VERSION="${LP3D_DEB_VERSION}-${LP3D_PLATFORM_NAME}" || true
-
-    mv -f ${DISTRO_FILE} "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
-    if [ -f "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}" ]; then
-        echo "    Download package..: LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    LP3D_DEB_APP_VERSION_LONG="${LP3D_APP_VERSION_LONG}-${LP3D_PLATFORM_NAME}" || \
+    LP3D_DEB_APP_VERSION_LONG="${LP3D_APP_VERSION_LONG}-ubuntu"
+    LP3D_DEB_FILE="LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    mv -f ${DISTRO_FILE} "${LP3D_DEB_FILE}"
+    if [ -f "${LP3D_DEB_FILE}" ]; then
+        if [ "${TRAVIS}" != "true" ]; then
+            echo "11-4. Creating ${LP3D_DEB_FILE}.sha512 hash file..."
+            sha512sum "${LP3D_DEB_FILE}" > "${LP3D_DEB_FILE}.sha512" || \
+            echo "11-4. ERROR - Failed to create hash file ${LP3D_DEB_FILE}.sha512"
+        fi
+        if [ "${LP3D_QEMU}" = "true" ]; then
+            echo "11-5. Moving ${LP3D_BASE} ${LP3D_ARCH} build assets and logs to output folder..."
+            mv -f ${LP3D_DEB_FILE}* /out/ 2>/dev/null || :
+            mv -f ${PWD}/*.xz /buildpkg/ 2>/dev/null || :; \\
+            mv -f ${PWD}/*.gz /buildpkg/ 2>/dev/null || :; \\
+            mv -f ${PWD}/*.buildinfo /buildpkg/ 2>/dev/null || :; \\
+            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+            mv -f ./*.log /out/ 2>/dev/null || :
+            mv -f ~/*.log /out/ 2>/dev/null || :
+        fi
+        echo
+        echo "    Distribution package.: ${LP3D_DEB_FILE}"
+        echo "    Package path.........: $PWD/${LP3D_DEB_FILE}"
     else
-        echo "    ERROR - file not copied: LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
+        echo "11-3. ERROR - file  ${LP3D_DEB_FILE} not found"
     fi
-
 else
-    echo "11. package ${DISTRO_FILE} not found"
+    echo "10-2. ERROR - package ${DISTRO_FILE} not found"
 fi
 
-# Elapsed execution time
-FinishElapsedTime
+exit 0

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: April 25, 2021
+# Last Update: June 17, 2021
 # Build and package LPub3D for macOS
 # To run:
 # $ chmod 755 CreateDmg.sh
@@ -8,7 +8,7 @@
 
 # Capture elapsed time - reset BASH time counter
 SECONDS=0
-ElapsedTime() {
+FinishElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
@@ -22,6 +22,8 @@ ElapsedTime() {
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
+
+trap FinishElapsedTime EXIT
 
 # Fake realpath
 realpath() {
@@ -56,7 +58,7 @@ else
 fi
 # output log file
 LOG="$f"
-exec > >(tee -a ${LOG} )
+exec > >(tee -a ${LOG})
 exec 2> >(tee -a ${LOG} >&2)
 
 echo "Start $ME execution at $CWD..."
@@ -79,14 +81,13 @@ curlopts="-sL -C -"
 echo "   LOG FILE...............[${LOG}]" && echo
 
 # when running locally, use this block...
-if [ "${TRAVIS}" != "true"  ]; then
+if [ "${CI}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
-  if [ "${TRAVIS}" != "true" ]; then
-    if [ -d ~/Qt/IDE/5.15.0/clang_64 ]; then
-      export PATH=~/Qt/IDE/5.15.0/clang_64:~/Qt/IDE/5.15.0/clang_64/bin:$PATH
-    else
-      echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
-    fi
+  if [ -d ~/Qt/IDE/5.15.0/clang_64 ]; then
+    export PATH=~/Qt/IDE/5.15.0/clang_64:~/Qt/IDE/5.15.0/clang_64/bin:$PATH
+  else
+    echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
+    exit 1
   fi
   echo
   echo "LPub3D will uninstall all versions of Boost ignoring dependencies and install 1.60."
@@ -97,7 +98,6 @@ if [ "${TRAVIS}" != "true"  ]; then
      echo  "  You selected to uninstall any current versions of Boost."
   else
      echo  "  You selected to stop the installation."
-     ElapsedTime
      exit 0
   fi
   echo
@@ -152,7 +152,11 @@ source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 
 # set pwd before entering lpub3d root directory
-export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}; export LDRAWDIR=${HOME}/ldraw
+export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}
+if [ -z "$LDRAWDIR" ]; then
+  LDRAWDIR=${HOME}/ldraw
+fi
+export LDRAWDIR=${LDRAWDIR}
 
 DistArch=$(uname -m)
 if [ "${DistArch}" = "x86_64" ]; then release="64bit_release"; else release="32bit_release"; fi
@@ -169,16 +173,14 @@ if [ ! -f "../lpub3d_macos_3rdparty/lpub3d_trace_cui-3.8/bin/$DistArch/lpub3d_tr
    [ ! -f "../lpub3d_macos_3rdparty/LDGLite-1.3/bin/$DistArch/LDGLite" ]
 then
   echo "ERROR - all renderers were not accounted for, the build cannot continue."
-  ElapsedTime
   exit 1
 fi
 
 # Stop here if we are only building renderers
 if [ "$BUILD_OPT" = "renderers" ]; then
-  ElapsedTime
   exit 0
 fi
-  
+
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
   DIST_DIR="../lpub3d_macos_3rdparty"
@@ -243,7 +245,6 @@ qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_relea
 # Check if build is OK or stop and return error.
 if [ ! -f "mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D" ]; then
   echo "ERROR - build executable at $(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D) not found."
-  ElapsedTime
   exit 1
 else
   # run otool -L on LPub3D.app
@@ -252,7 +253,6 @@ else
   echo "ERROR - oTool check failed for $(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D)"
   # Stop here if we are only compiling
   if [ "$BUILD_OPT" = "compile" ]; then
-    ElapsedTime
     exit 0
   fi
 fi
@@ -291,6 +291,7 @@ echo "- build checks..."
 # Check if exe exist - here we use the executable name
 LPUB3D_EXE=LPub3D.app/Contents/MacOS/LPub3D
 if [ -f "${LPUB3D_EXE}" ]; then
+    echo "- Build package: $PWD/${LPUB3D_EXE}"
     # Check commands
     SOURCE_DIR=../..
     echo "- build check SOURCE_DIR is $(realpath ${SOURCE_DIR})..."
@@ -357,7 +358,7 @@ POVRay:
 - LibTIFF version 4.0.10 or above
   http://www.libtiff.org
 
-- OpenEXR version 2.3.0 or above
+- OpenEXR greater than version 2.3.0 and less then version 3.0.0
   http://www.openexr.com
 
 - SDL2 version 2.0.10 or above (for display preview)
@@ -410,19 +411,19 @@ cat <<EOF >makedmg
 DMGSRC/
 EOF
 
-echo "- create dmg package in $(realpath $DMGDIR/)..."
+echo "- create LPub3D dmg package in $(realpath $DMGDIR/)..."
 [[ -f LPub3D-Installer.dmg ]] && rm LPub3D-Installer.dmg
 if [ -d DMGSRC/LPub3D.app ]; then
    chmod +x makedmg && ./makedmg
 else
   echo "- Could not find LPub3D.app at $(realpath DMGSRC/)"
   echo "- $ME Failed."
-  ElapsedTime
   exit 1
 fi
 
 if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" ]; then
-  echo "      Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
+  echo "      Distribution package.: LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
+  echo "      Package path.........: $PWD/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
   echo "- cleanup..."
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png setup.png README .COPYING makedmg
@@ -431,5 +432,4 @@ else
   echo "- $ME Failed."
 fi
 
-# Elapsed execution time
-ElapsedTime
+exit 0

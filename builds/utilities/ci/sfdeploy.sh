@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 15, 2020
+#  Last Update: July 06, 2021
 #  Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -19,10 +19,12 @@ SfElapsedTime() {
   echo "----------------------------------------------------"
 }
 
+trap SfElapsedTime EXIT
+
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 
-if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
+if [[ "$GITHUB" = "true" || "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
   # logging stuff - increment log file name
   f="${CWD}/CreateSourceforgeD${ME:3}"
   ext=".${LP3D_ASSET_EXT}.log"
@@ -80,6 +82,8 @@ elif [ "$TRAVIS" = "true" ]; then
 
   # set host private key
   LP3D_HOST_RSA_KEY=".sfdeploy_travis_rsa"
+elif [ "$GITHUB" = "true" ]; then
+  echo && echo "Deploying Github actions release assets to Sourceforge.net..."
 fi
 
 # add host public key to .ssh/known_hosts - prevent interactive prompt
@@ -92,12 +96,14 @@ echo  "Public key for remote host $LP3D_SF_REMOTE_HOST exist in .ssh/known_hosts
 echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
 
 # add host private key to ssh-agent
-if [ -f "/tmp/$LP3D_HOST_RSA_KEY" ]; then
-  eval "$(ssh-agent -s)"
+eval "$(ssh-agent -s)"
+if [ "$GITHUB" = "true" ]; then
+  ssh-add - <<< "${SOURCEFORGE_RSA_KEY}"
+elif [ -f "/tmp/$LP3D_HOST_RSA_KEY" ]; then
   chmod 600 /tmp/$LP3D_HOST_RSA_KEY
   ssh-add /tmp/$LP3D_HOST_RSA_KEY
 else
-  echo "ERROR - /tmp/$LP3D_HOST_RSA_KEY not found - cannot perform Sourceforge.net transfers"
+  echo "ERROR - SOURCEFORGE RSA KEY not found - cannot perform Sourceforge.net transfers"
   export LP3D_SF_DEPLOY_ABORT=true
 fi
 
@@ -105,20 +111,25 @@ fi
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   echo
   LP3D_SF_DEPLOY_OPTIONS="NONE"
-  if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
-    IFS='/' read -ra LP3D_SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
-    echo "  TRAVIS_PROJECT_NAME..........[${LP3D_SLUG_PARTS[1]}]"
-    echo "  LP3D_ASSET_EXTENSION.........[${LP3D_ASSET_EXT}]"
-    LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
-    if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
+  if [ "$APPVEYOR" = "True" ]; then
+    echo "  LP3D_PROJECT_NAME............[${APPVEYOR_PROJECT_NAME}]"
+    LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD"
+    if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
       LP3D_SF_FOLDER="Continuous"
     else
       LP3D_SF_FOLDER="$LP3D_VERSION"
     fi
-  elif [ "$APPVEYOR" = "True" ]; then
-    echo "  APPVEYOR_PROJECT_NAME........[$APPVEYOR_PROJECT_NAME]"
-    LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD"
-    if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
+  else
+    if [ -z "${LP3D_PROJECT_NAME}" ]; then
+      IFS='/' read -ra LP3D_SLUGS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
+      LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
+    fi
+    echo "  LP3D_PROJECT_NAME............[${LP3D_PROJECT_NAME}]"
+    echo "  LP3D_ASSET_EXTENSION.........[${LP3D_ASSET_EXT}]"
+    [ -d "$LP3D_UPDATE_ASSETS" ] && \
+    LP3D_SF_DEPLOY_OPTIONS="UDPATE" ||
+    LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
+    if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
       LP3D_SF_FOLDER="Continuous"
     else
       LP3D_SF_FOLDER="$LP3D_VERSION"
@@ -143,7 +154,11 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
       else
         echo && echo "- LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
-        if [ "$APPVEYOR" = "True" ]; then
+        if [ "$GITHUB" = "True" ]; then
+          rsync --recursive --verbose --delete-before \
+          --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512*','*.html','*.txt'} --exclude '*' \
+          $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+        elif [ "$APPVEYOR" = "True" ]; then
           rsync --recursive --verbose --delete-before \
           --include={'*.exe','*.zip','*.html','*.txt','*.sha512'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
@@ -158,5 +173,4 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   done
 fi
 
-# Elapsed execution time
-SfElapsedTime
+exit 0

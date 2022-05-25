@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 01, 2021
+# Last Update June 28, 2021
 # Copyright (c) 2017 - 2021 by Trevor SANDY
 #
 
@@ -32,6 +32,8 @@ FinishElapsedTime() {
   echo "----------------------------------------------------"
 }
 
+trap FinishElapsedTime EXIT
+
 # Functions
 Info () {
   if [ "${SOURCED}" = "true" ]
@@ -49,7 +51,7 @@ ExtractArchive() {
   mkdir -p $1 && tar -mxzf $1.tar.gz -C $1 --strip-components=1
   if [ -d $1/$2 ]; then
     Info "Archive $1.tar.gz successfully extracted."
-    [ "${NO_CLEANUP}" != "true" ] && rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info
+    [ "${LP3D_NO_CLEANUP}" != "true" ] && rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info || :
     cd $1
   else
     Info "ERROR - $1.tar.gz did not extract properly." && Info
@@ -59,8 +61,8 @@ ExtractArchive() {
 BuildMesaLibs() {
   mesaUtilsDir="$CallDir/builds/utilities/mesa"
   if [ ! "${OBS}" = "true" ]; then
-    mesaDepsLog=${LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
-    mesaBuildLog=${LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
+    mesaDepsLog=${LP3D_LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
+    mesaBuildLog=${LP3D_LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
   fi
   if [ -z "$2" ]; then
     useSudo=
@@ -248,9 +250,9 @@ InstallDependencies() {
       ;;
     esac
     if [ "$LP3D_BUILD_OS" = "appimage" ]; then
-      depsLog=${LOG_PATH}/${ME}_AppImage_deps_${1}.log
+      depsLog=${LP3D_LOG_PATH}/${ME}_AppImage_deps_${1}.log
     else
-      depsLog=${LOG_PATH}/${ME}_${host}_deps_${1}.log
+      depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_${1}.log
     fi
     Info "Platform_id.........[${platform_id}]"
     case ${platform_id} in
@@ -391,9 +393,9 @@ BuildLDView() {
   # Patch fatal error: stdlib.h: No such file or directory
   # on Docker, Fedora's platform_id is 'fedora', on OBS it is 'redhat'
   case ${platform_id} in
-  redhat|fedora|suse)
+  redhat|centos|fedora|suse)
      case ${platform_ver} in
-     24|25|26|27|28|29|30|31|32|1500|1550|150000)
+     7|8|24|25|26|27|28|29|30|31|32|33|34|1500|1550|150000)
        ApplyLDViewStdlibHack
        ;;
      esac
@@ -401,9 +403,9 @@ BuildLDView() {
   arch)
     ApplyLDViewStdlibHack
     ;;
-  ubuntu)
+  debian|ubuntu)
     case ${platform_ver,} in
-     18.04|20.04|20.10|21.04)
+     7|8|9|10|18.04|20.04|20.10|21.04)
        ApplyLDViewStdlibHack
        ;;
     esac
@@ -543,7 +545,7 @@ if [ "${WD}" = "" ]; then
 fi
 
 # Initialize OBS if not in command line input
-if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${TRAVIS}" = "" && "${SNAP}" = "" ]]; then
+if [[ "${OBS}" = "" && "${DOCKER}" = "" && "${CI}" = "" && "${SNAP}" = "" ]]; then
   OBS=true
 fi
 
@@ -609,8 +611,8 @@ if [ "${DOCKER}" = "true" ]; then
   if [ "${platform_id}" = "arch" ]; then
      [ -n "$build_osmesa" ] && Info "OSMesa...................[Build from source]"
   fi
-elif [ "${TRAVIS}" = "true" ]; then
-  Info "Platform Pretty Name.....[Travis CI - ${platform_pretty}]"
+elif [ "${CI}" = "true" ]; then
+  Info "Platform Pretty Name.....[CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then
   if [[ "${TARGET_CPU}" = "aarch64" || "${TARGET_CPU}" = "arm7l" ]]; then
     platform_pretty="$platform_pretty (ARM-${TARGET_CPU})"
@@ -655,8 +657,23 @@ Info "Dist Directory...........[${DIST_PKG_DIR}]"
 cd ${WD}
 
 # set log output path
-LOG_PATH=${LOG_PATH:-$WD}
-Info "Log Path.................[${LOG_PATH}]"
+LP3D_LOG_PATH=${LP3D_LOG_PATH:-$WD}
+Info "Log Path.................[${LP3D_LOG_PATH}]"
+
+# expose GitHub Actions variables
+if [[ -n "$CD" || -n "${GITHUB}" ]]; then
+    Info
+    Info "CI.......................${CI}"
+    Info "OBS......................${OBS}"
+    Info "QEMU.....................${LP3D_QEMU}"
+    Info "DOCKER...................${DOCKER}"
+    Info "GITHUB...................${GITHUB}"
+    Info "NO_DEPS..................${LP3D_NO_DEPS}"
+    Info "NO_CLEANUP...............${LP3D_NO_CLEANUP}"
+    Info "BUILD BASE...............${LP3D_BASE}"
+    Info "BUILD ARCH...............${LP3D_ARCH}"
+    Info "APPIMAGE.................${LP3D_APPIMAGE}"
+fi
 
 # Setup LDraw Library - for testing LDView and LDGLite and also used by LPub3D test
 if [ -z "$LDRAWDIR_ROOT" ]; then
@@ -673,19 +690,32 @@ fi
 
 if [ "$OBS" != "true" ]; then
   if [ ! -f "${DIST_PKG_DIR}/complete.zip" ]; then
-    Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
-    curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip;
+    Info && Info "LDraw archive complete.zip not found at ${DIST_PKG_DIR}."
+    if [ ! -f "complete.zip" ]; then
+      Info "Downloading complete.zip..." && \
+      curl $curlopts http://www.ldraw.org/library/updates/complete.zip -o ${DIST_PKG_DIR}/complete.zip
+    else
+      ldrawlib=$(echo $PWD/complete.zip)
+      Info "Linking complete.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} complete.zip)
+    fi
   fi
   if [ ! -f "${DIST_PKG_DIR}/lpub3dldrawunf.zip" ]; then
-    Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}. Downloading archive..."
-    curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip;
+    Info "LDraw archive lpub3dldrawunf.zip not found at ${DIST_PKG_DIR}."
+    if [ ! -f "lpub3dldrawunf.zip" ]; then
+      Info "Downloading lpub3dldrawunf.zip..." && \
+      curl $curlopts http://www.ldraw.org/library/unofficial/ldrawunf.zip -o ${DIST_PKG_DIR}/lpub3dldrawunf.zip
+    else
+      ldrawlib=$(echo $PWD/lpub3dldrawunf.zip)
+      Info "Linking lpub3dldrawunf.zip..." && (cd ${DIST_PKG_DIR} && ln -sf ${ldrawlib} lpub3dldrawunf.zip)
+    fi
   fi
 fi
 if [ ! -d "${LDRAWDIR}/parts" ]; then
   if [ "$OBS" != "true" ]; then
-    cp -f ${DIST_PKG_DIR}/complete.zip .
+    [ ! -f "complete.zip" ] && \
+    cp -f ${DIST_PKG_DIR}/complete.zip . || :
   fi
-  Info "Extracting LDraw library into ${LDRAWDIR}..."
+  Info && Info "Extracting LDraw library into ${LDRAWDIR}..."
   unzip -od ${LDRAWDIR_ROOT} -q complete.zip;
   if [ -d "${LDRAWDIR}/parts" ]; then
     Info "LDraw library extracted. LDRAWDIR defined."
@@ -772,15 +802,15 @@ if [ "$OS_NAME" = "Darwin" ]; then
        brewDeps="tinyxml gl2ps libjpeg minizip"
        ;;
      povray)
-       # Boost beyond 1.69 is broken on macOS so restrict install to 1.6
-       brewDeps="$brewDeps openexr sdl2 libtiff autoconf"
-       if [ "${TRAVIS}" != "true" ]; then
-         brewDeps="$brewDeps automake pkg-config"
+       # OpenExr beyond 3.0.0 is not yet supported so restrict install to 2.5.5
+       brewDeps="$brewDeps boost sdl2 libtiff autoconf automake"
+       if [ "${CI}" != "true" ]; then
+         brewDeps="$brewDeps pkg-config"
        fi
        ;;
      esac
   done
-  depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
+  depsLog=${LP3D_LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
     Info "Dependencies List........[X11 boost ${brewDeps}]"
     Info "Checking for X11 (xquartz) at /usr/X11..."
@@ -788,17 +818,15 @@ if [ "$OS_NAME" = "Darwin" ]; then
       Info "Good to go - X11 found."
     else
       Info "ERROR - Sorry to say friend, I cannot go on - X11 not found."
-      if [ "${TRAVIS}" != "true" ]; then
+      if [ "${CI}" != "true" ]; then
         Info "  You can install xquartz using homebrew:"
         Info "  \$ brew cask list"
         Info "  \$ brew cask install xquartz"
         Info "  Note: elevated access password will be required."
       fi
-      # Elapsed execution time
-      FinishElapsedTime
       exit 1
     fi
-    if [ "${TRAVIS}" = "true" ]; then
+    if [ "${CI}" = "true" ]; then
      Info  "--- Skipped brew update to save time"
     else
      Info && Info "Enter u to update brew or any key to skip brew update."
@@ -808,21 +836,24 @@ if [ "$OS_NAME" = "Darwin" ]; then
        brew update > $depsLog 2>&1
      fi
     fi
-    Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
-    brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
+    # Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
+    # brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
     Info  "--- Install depenencies..."
     brew install $brewDeps >> $depsLog 2>&1
-    Info  "--- Install Boost@1.60 from local resource bundle..."
-    brew install ./${LPUB3D}/builds/utilities/boost/boost@1.60.rb >> $depsLog 2>&1
-    Info  "--- Force Boost 1.60 link and overwrite conflicting files..."
-    brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
-    Info "Upgrade automake and pkg-config"
-    brew upgrade automake pkg-config >> $depsLog 2>&1
-    if [[ -d /usr/local/opt/boost@1.60/lib ]]; then
-      Info "Boost 1.60 installed."
-    else
-      Info "ERROR - Boost not found."
-    fi
+    # https://github.com/Homebrew/homebrew-core/blob/HEAD/Formula/openexr@2.rb
+    Info  "--- Install OpenExr@2.5.5..."
+    brew install openexr@2 >> $depsLog 2>&1
+    #Info  "--- Install Boost@1.60 from local resource bundle..."
+    #brew install ./${LPUB3D}/builds/utilities/boost/boost@1.60.rb >> $depsLog 2>&1
+    #Info  "--- Force Boost 1.60 link and overwrite conflicting files..."
+    #brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
+    #Info "Upgrade automake and pkg-config"
+    #brew upgrade automake pkg-config >> $depsLog 2>&1
+    #if [[ -d /usr/local/opt/boost@1.60/lib ]]; then
+    #  Info "Boost 1.60 installed."
+    #else
+    #  Info "ERROR - Boost not found."
+    #fi
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else
     Info "Renderer artefacts exist, nothing to build. Install dependencies skipped" > $depsLog 2>&1
@@ -842,7 +873,7 @@ for buildDir in ldglite ldview povray; do
   buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
   artefactVer="VER_${buildDirUpper}"
   artefactBinary="LP3D_${buildDirUpper}"
-  buildLog=${LOG_PATH}/${ME}_${host}_build_${buildDir}.log
+  buildLog=${LP3D_LOG_PATH}/${ME}_${host}_build_${buildDir}.log
   linesBefore=1
   case ${buildDir} in
   ldglite)
@@ -863,7 +894,7 @@ for buildDir in ldglite ldview povray; do
     validSubDir="OSMesa"
     validExe="${validSubDir}/${buildArch}/ldview"
     buildType="release"
-    displayLogLines=27
+    displayLogLines=100
     ;;
   povray)
     curlCommand="https://github.com/trevorsandy/povray/archive/lpub3d/raytracer-cui.tar.gz"
@@ -901,7 +932,7 @@ for buildDir in ldglite ldview povray; do
     Info "----------------------------------------------------"
     if [ ! -d "${buildDir}/${validSubDir}" ]; then
       # Check if build dependencies or no binary...
-      if [[ ! -f "${!artefactBinary}" || ! "$NO_DEPS" = "true" ]]; then
+      if [[ ! -f "${!artefactBinary}" || ! "$LP3D_NO_DEPS" = "true" ]]; then
         Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
         if [ ! -f ${buildDir}.tar.gz ]; then
           Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
@@ -913,7 +944,9 @@ for buildDir in ldglite ldview povray; do
       cd ${buildDir}
     fi
     # Install build dependencies - even if binary exists...
-    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$NO_DEPS" = "true" ]]; then
+    if [ "${LP3D_QEMU}" = "true" ]; then
+      echo "Building in QEMU, skipping InstallDependencies."
+    elif [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" && ! "$LP3D_NO_DEPS" = "true" ]]; then
       Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
       InstallDependencies ${buildDir}
@@ -949,5 +982,4 @@ done
 # Restore ld_library_path
 export LD_LIBRARY_PATH=$LP3D_LD_LIBRARY_PATH_SAVED
 
-# Elapsed execution time
-FinishElapsedTime
+exit 0
