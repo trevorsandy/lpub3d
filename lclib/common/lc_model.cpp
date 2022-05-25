@@ -48,7 +48,7 @@ void lcModelProperties::SaveDefaults()
 
 void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 {
-	QLatin1String LineEnding("\r\n");
+	const QLatin1String LineEnding("\r\n");
 
 	Stream << QLatin1String("0 ") << mDescription << LineEnding;
 	Stream << QLatin1String("0 Name: ") << mModelName << LineEnding;
@@ -72,7 +72,7 @@ bool lcModelProperties::ParseLDrawHeader(QString Line, bool FirstLine)
 
 	QString Token;
 	LineStream >> Token;
-	int StartPos = LineStream.pos();
+	const int StartPos = LineStream.pos();
 	LineStream >> Token;
 
 	if (Token == QLatin1String("!LEOCAD"))
@@ -153,7 +153,7 @@ lcModel::~lcModel()
 
 bool lcModel::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const
 {
-	for (lcPiece* ModelPiece : mPieces)
+	for (const lcPiece* ModelPiece : mPieces)
 	{
 		if (ModelPiece == Piece)
 		{
@@ -161,7 +161,7 @@ bool lcModel::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix)
 			return true;
 		}
 
-		PieceInfo* Info = ModelPiece->mPieceInfo;
+		const PieceInfo* Info = ModelPiece->mPieceInfo;
 
 		if (Info->IsModel())
 		{
@@ -183,7 +183,7 @@ bool lcModel::IncludesModel(const lcModel* Model) const
 	if (Model == this)
 		return true;
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->mPieceInfo->IncludesModel(Model))
 			return true;
 
@@ -249,7 +249,7 @@ void lcModel::UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels)
 	mPieceInfo->SetModel(this, false, nullptr, false);
 	UpdatedModels.push_back(this);
 
-	lcMesh* Mesh = mPieceInfo->GetMesh();
+	const lcMesh* Mesh = mPieceInfo->GetMesh();
 
 	if (mPieces.IsEmpty() && !Mesh)
 	{
@@ -279,7 +279,7 @@ void lcModel::UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels)
 
 void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 {
-	QLatin1String LineEnding("\r\n");
+	const QLatin1String LineEnding("\r\n");
 
 	mProperties.SaveLDraw(Stream);
 
@@ -347,12 +347,14 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 				while (!CurrentGroups.IsEmpty())
 				{
 					lcGroup* Group = CurrentGroups[CurrentGroups.GetSize() - 1];
-					int Index = PieceParents.FindIndex(Group);
+					const int Index = PieceParents.FindIndex(Group);
 
 					if (Index == -1)
 					{
 						CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
+/*** LPub3D Mod - LPUB meta modification ***/						
 						Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+/*** LPub3D Mod end ***/
 					}
 					else
 					{
@@ -365,7 +367,9 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 				{
 					lcGroup* Group = PieceParents[ParentIdx];
 					CurrentGroups.Add(Group);
+/*** LPub3D Mod - LPUB meta modification ***/
 					Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
+/*** LPub3D Mod end ***/
 				}
 			}
 		}
@@ -374,23 +378,26 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 			while (CurrentGroups.GetSize())
 			{
 				CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
+/*** LPub3D Mod - LPUB meta modification ***/
 				Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+/*** LPub3D Mod end ***/
 			}
 		}
 
 		if (Piece->mPieceInfo->GetSynthInfo())
 		{
+/*** LPub3D Mod - LPUB meta modification ***/
 			Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
-
+/*** LPub3D Mod end ***/
 			const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
 			for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
 			{
 				const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
-
+/*** LPub3D Mod - LPUB meta modification ***/
 				Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
-
+/*** LPub3D Mod end ***/
 				const float* FloatMatrix = ControlPoint.Transform;
-				float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
+				const float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
 
 				for (int NumberIdx = 0; NumberIdx < 13; NumberIdx++)
 					Stream << ' ' << lcFormatValue(Numbers[NumberIdx], NumberIdx < 3 ? 4 : 6);
@@ -402,7 +409,9 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 		Piece->SaveLDraw(Stream);
 
 		if (Piece->mPieceInfo->GetSynthInfo())
+/*** LPub3D Mod - LPUB meta modification ***/		
 			Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
+/*** LPub3D Mod end ***/
 	}
 
 	while (CurrentLine < mFileLines.size())
@@ -430,14 +439,16 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	while (CurrentGroups.GetSize())
 	{
 		CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
+/*** LPub3D Mod - LPUB meta modification ***/		
 		Stream << QLatin1String("0 !LPUB GROUP END\r\n");
+/*** LPub3D Mod end ***/
 	}
 
-	for (lcCamera* Camera : mCameras)
+	for (const lcCamera* Camera : mCameras)
 		if (!SelectedOnly || Camera->IsSelected())
 			Camera->SaveLDraw(Stream);
 
-	for (lcLight* Light : mLights)
+	for (const lcLight* Light : mLights)
 		if (!SelectedOnly || Light->IsSelected())
 			Light->SaveLDraw(Stream);
 
@@ -450,7 +461,7 @@ int lcModel::SplitMPD(QIODevice& Device)
 
 	while (!Device.atEnd())
 	{
-		qint64 Pos = Device.pos();
+		const qint64 Pos = Device.pos();
 		QString OriginalLine = Device.readLine();
 		QString Line = OriginalLine.trimmed();
 		QTextStream LineStream(&Line, QIODevice::ReadOnly);
@@ -542,7 +553,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 	while (!Device.atEnd())
 	{
-		qint64 Pos = Device.pos();
+		const qint64 Pos = Device.pos();
 		QString OriginalLine = Device.readLine();
 		QString Line = OriginalLine.trimmed();
 		QTextStream LineStream(&Line, QIODevice::ReadOnly);
@@ -743,9 +754,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 				PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), Project, true, true);
 
-				float* Matrix = IncludeTransform;
-				lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
-									 lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
+				const float* Matrix = IncludeTransform;
+				const lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
+										   lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
 /*** LPub3D Mod - Selected Parts ***/
 				LineTypeIndex++;
@@ -811,7 +822,7 @@ bool lcModel::LoadBinary(lcFile* file)
 
 	if (fv == 0.0f)
 	{
-		lconv *loc = localeconv();
+		const lconv *loc = localeconv();
 		id[8] = loc->decimal_point[0];
 		sscanf(&id[7], "%f", &fv);
 
@@ -841,7 +852,7 @@ bool lcModel::LoadBinary(lcFile* file)
 	file->ReadS32(&count, 1);
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 
-	int FirstNewPiece = mPieces.GetSize();
+	const int FirstNewPiece = mPieces.GetSize();
 
 	while (count--)
 	{
@@ -925,7 +936,7 @@ bool lcModel::LoadBinary(lcFile* file)
 
 	if (fv >= 0.5f)
 	{
-		int NumGroups = mGroups.GetSize();
+		const int NumGroups = mGroups.GetSize();
 
 		file->ReadS32(&count, 1);
 		for (i = 0; i < count; i++)
@@ -1110,7 +1121,7 @@ bool lcModel::LoadInventory(const QByteArray& Inventory)
 		Value = ((Value < 0.0f) ? floor((Value - 5.0f) / 10.0f) : ceil((Value + 5.0f) / 10.0f)) * 10.0f;
 	};
 
-	const float TargetHeight = 800.0f;
+	constexpr float TargetHeight = 800.0f;
 	float CurrentX = 0.0f;
 	float CurrentY = 0.0f;
 	float ColumnWidth = 0.0f;
@@ -1123,8 +1134,8 @@ bool lcModel::LoadInventory(const QByteArray& Inventory)
 		RoundBounds(BoundingBox.Max.x);
 		RoundBounds(BoundingBox.Max.y);
 
-		float PieceWidth = BoundingBox.Max.x - BoundingBox.Min.x;
-		float PieceHeight = BoundingBox.Max.y - BoundingBox.Min.y;
+		const float PieceWidth = BoundingBox.Max.x - BoundingBox.Min.x;
+		const float PieceHeight = BoundingBox.Max.y - BoundingBox.Min.y;
 
 		if (CurrentY + PieceHeight > TargetHeight)
 		{
@@ -1282,7 +1293,7 @@ void lcModel::DuplicateSelectedPieces()
 
 			while (!GroupName.isEmpty())
 			{
-				QCharRef Last = GroupName[GroupName.size() - 1];
+				const QChar Last = GroupName[GroupName.size() - 1];
 				if (Last.isDigit())
 					GroupName.chop(1);
 				else
@@ -1336,7 +1347,7 @@ void lcModel::PaintSelectedPieces()
 	SetSelectedPiecesColorIndex(gMainWindow->mColorIndex);
 }
 
-void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
+void lcModel::GetScene(lcScene* Scene, const lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
 {
 	if (mPieceInfo)
 		mPieceInfo->AddRenderMesh(*Scene);
@@ -1345,7 +1356,7 @@ void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight
 	{
 		if (Piece->IsVisible(mCurrentStep))
 		{
-			lcStep StepShow = Piece->GetStepShow();
+			const lcStep StepShow = Piece->GetStepShow();
 /*** LPub3D Mod - true fade ***/
 			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight && StepShow == mCurrentStep, AllowFade && StepShow < mCurrentStep, Piece->GetLPubFade());
 /*** LPub3D Mod end ***/
@@ -1354,11 +1365,11 @@ void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight
 
 	if (Scene->GetDrawInterface() && !Scene->GetActiveSubmodelInstance())
 	{
-		for (lcCamera* Camera : mCameras)
+		for (const lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
 				Scene->AddInterfaceObject(Camera);
 
-		for (lcLight* Light : mLights)
+		for (const lcLight* Light : mLights)
 			if (Light->IsVisible())
 				Scene->AddInterfaceObject(Light);
 	}
@@ -1368,7 +1379,7 @@ void lcModel::GetScene(lcScene* Scene, lcCamera* ViewCamera, bool AllowHighlight
 void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
 /*** LPub3D Mod end ***/
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
 /*** LPub3D Mod - true fade ***/
 			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive, LPubFade);
@@ -1377,7 +1388,7 @@ void lcModel::AddSubModelRenderMeshes(lcScene* Scene, const lcMatrix44& WorldMat
 
 QImage lcModel::GetStepImage(bool Zoom, int Width, int Height, lcStep Step)
 {
-	lcView* ActiveView = gMainWindow->GetActiveView();
+	const lcView* ActiveView = gMainWindow->GetActiveView();
 	const lcStep CurrentStep = mCurrentStep;
 	lcCamera* Camera = ActiveView->GetCamera();
 
@@ -1478,12 +1489,12 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 	float OrthoSize = 200.0f;
 
 	lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoSize, OrthoSize, -OrthoSize, OrthoSize, -5000.0f, 5000.0f);
-	lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
+	const lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
 	const int Viewport[4] = { 0, 0, ThumbnailSize, ThumbnailSize };
 
 	float ExtraPixels = 0.0f;
 
-	for (lcPartsListImage& Image : Images)
+	for (const lcPartsListImage& Image : Images)
 	{
 		const PieceInfo* Info = Image.Info;
 		const lcBoundingBox& BoundingBox = Info->GetBoundingBox();
@@ -1543,9 +1554,9 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 
 	auto CalculateImageBounds = [](lcPartsListImage& Image)
 	{
-		QImage& Thumbnail = Image.Thumbnail;
-		int Width = Thumbnail.width();
-		int Height = Thumbnail.height();
+		const QImage& Thumbnail = Image.Thumbnail;
+		const int Width = Thumbnail.width();
+		const int Height = Thumbnail.height();
 
 		int MinX = Width;
 		int MinY = Height;
@@ -1576,12 +1587,12 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 
 	DummyPainter.setFont(Font);
 	QFontMetrics FontMetrics = DummyPainter.fontMetrics();
-	int Ascent = FontMetrics.ascent();
+	const int Ascent = FontMetrics.ascent();
 
 	int CurrentHeight = 0;
 	int ImageWidth = MaxWidth;
 
-	for (lcPartsListImage& Image : Images)
+	for (const lcPartsListImage& Image : Images)
 		CurrentHeight = qMax(Image.Bounds.height() + Ascent, CurrentHeight);
 
 	for (;;)
@@ -1590,14 +1601,14 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 		int CurrentX = 0;
 		int CurrentY = 0;
 		int ColumnWidth = 0;
-		int Spacing = 20;
+		constexpr int Spacing = 20;
 		int NextHeightIncrease = INT_MAX;
 
 		for (lcPartsListImage& Image : Images)
 		{
 			if (CurrentY + Image.Bounds.height() + Ascent > CurrentHeight)
 			{
-				int NeededSpace = Image.Bounds.height() + Ascent - (CurrentHeight - CurrentY);
+				const int NeededSpace = Image.Bounds.height() + Ascent - (CurrentHeight - CurrentY);
 				NextHeightIncrease = qMin(NeededSpace, NextHeightIncrease);
 
 				CurrentY = 0;
@@ -1627,9 +1638,9 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step, quint32 BackgroundC
 	Painter.setFont(Font);
 	Painter.setPen(TextColor);
 
-	for (lcPartsListImage& Image : Images)
+	for (const lcPartsListImage& Image : Images)
 	{
-		QPoint Position = Image.Position + QPoint(20, 20);
+		const QPoint Position = Image.Position + QPoint(20, 20);
 		Painter.drawImage(Position, Image.Thumbnail, Image.Bounds);
 		Painter.drawText(QPoint(Position.x(), Position.y() + Image.Bounds.height() + Ascent), QString::number(Image.Count) + 'x');
 	}
@@ -1666,33 +1677,33 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 
 void lcModel::RayTest(lcObjectRayTest& ObjectRayTest) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep) && (!ObjectRayTest.IgnoreSelected || !Piece->IsSelected()))
 			Piece->RayTest(ObjectRayTest);
 
 	if (ObjectRayTest.PiecesOnly)
 		return;
 
-	for (lcCamera* Camera : mCameras)
+	for (const lcCamera* Camera : mCameras)
 		if (Camera != ObjectRayTest.ViewCamera && Camera->IsVisible() && (!ObjectRayTest.IgnoreSelected || !Camera->IsSelected()))
 			Camera->RayTest(ObjectRayTest);
 
-	for (lcLight* Light : mLights)
+	for (const lcLight* Light : mLights)
 		if (Light->IsVisible() && (!ObjectRayTest.IgnoreSelected || !Light->IsSelected()))
 			Light->RayTest(ObjectRayTest);
 }
 
 void lcModel::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->BoxTest(ObjectBoxTest);
 
-	for (lcCamera* Camera : mCameras)
+	for (const lcCamera* Camera : mCameras)
 		if (Camera != ObjectBoxTest.ViewCamera && Camera->IsVisible())
 			Camera->BoxTest(ObjectBoxTest);
 
-	for (lcLight* Light : mLights)
+	for (const lcLight* Light : mLights)
 		if (Light->IsVisible())
 			Light->BoxTest(ObjectBoxTest);
 }
@@ -1701,11 +1712,11 @@ bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVect
 {
 	bool MinIntersect = false;
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
-		lcMatrix44 InverseWorldMatrix = lcMatrix44AffineInverse(Piece->mModelWorld);
-		lcVector3 Start = lcMul31(WorldStart, InverseWorldMatrix);
-		lcVector3 End = lcMul31(WorldEnd, InverseWorldMatrix);
+		const lcMatrix44 InverseWorldMatrix = lcMatrix44AffineInverse(Piece->mModelWorld);
+		const lcVector3 Start = lcMul31(WorldStart, InverseWorldMatrix);
+		const lcVector3 End = lcMul31(WorldEnd, InverseWorldMatrix);
 
 		if (Piece->IsVisibleInSubModel() && Piece->mPieceInfo->MinIntersectDist(Start, End, MinDistance)) // todo: this should check for piece->mMesh first
 			MinIntersect = true;
@@ -1716,7 +1727,7 @@ bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVect
 
 bool lcModel::SubModelBoxTest(const lcVector4 Planes[6]) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel() && Piece->mPieceInfo->BoxTest(Piece->mModelWorld, Planes))
 			return true;
 
@@ -1725,14 +1736,14 @@ bool lcModel::SubModelBoxTest(const lcVector4 Planes[6]) const
 
 void lcModel::SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
 			Piece->SubModelCompareBoundingBox(WorldMatrix, Min, Max);
 }
 
 void lcModel::SubModelAddBoundingBoxPoints(const lcMatrix44& WorldMatrix, std::vector<lcVector3>& Points) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
 			Piece->SubModelAddBoundingBoxPoints(WorldMatrix, Points);
 }
@@ -1839,7 +1850,7 @@ void lcModel::ShowFirstStep()
 
 void lcModel::ShowLastStep()
 {
-	lcStep LastStep = GetLastStep();
+	const lcStep LastStep = GetLastStep();
 
 	if (mCurrentStep == LastStep)
 		return;
@@ -1867,7 +1878,7 @@ lcStep lcModel::GetLastStep() const
 {
 	lcStep Step = 1;
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		Step = lcMax(Step, Piece->GetStepShow());
 
 	return Step;
@@ -2108,10 +2119,10 @@ void lcModel::ShowEditGroupsDialog()
 
 QString lcModel::GetGroupName(const QString& Prefix)
 {
-	int Length = Prefix.length();
+	const int Length = Prefix.length();
 	int Max = 0;
 
-	for (lcGroup* Group : mGroups)
+	for (const lcGroup* Group : mGroups)
 	{
 		const QString& Name = Group->mName;
 
@@ -2215,7 +2226,7 @@ lcVector3 lcModel::SnapPosition(const lcVector3& Distance) const
 	if (SnapZ != 0.0f)
 	{
 		int i = (int)(NewDistance[2] / SnapZ);
-		float Leftover = NewDistance[2] - (SnapZ * i);
+		const float Leftover = NewDistance[2] - (SnapZ * i);
 
 		if (Leftover > SnapZ / 2)
 			i++;
@@ -2230,7 +2241,7 @@ lcVector3 lcModel::SnapPosition(const lcVector3& Distance) const
 
 lcVector3 lcModel::SnapRotation(const lcVector3& Angles) const
 {
-	float AngleSnap = gMainWindow->GetAngleSnap();
+	const float AngleSnap = gMainWindow->GetAngleSnap();
 	lcVector3 NewAngles(Angles);
 
 	if (AngleSnap != 0.0f)
@@ -2250,7 +2261,7 @@ lcMatrix33 lcModel::GetRelativeRotation() const
 {
 	if (gMainWindow->GetRelativeTransform())
 	{
-		lcObject* Focus = GetFocusObject();
+		const lcObject* Focus = GetFocusObject();
 
 		if (Focus && Focus->IsPiece())
 			return ((lcPiece*)Focus)->GetRelativeRotation();
@@ -2323,11 +2334,11 @@ void lcModel::AddPiece(lcPiece* Piece)
 
 void lcModel::InsertPiece(lcPiece* Piece, int Index)
 {
-	PieceInfo* Info = Piece->mPieceInfo;
+	const PieceInfo* Info = Piece->mPieceInfo;
 
 	if (!Info->IsModel())
 	{
-		lcMesh* Mesh = Info->GetMesh();
+		const lcMesh* Mesh = Info->GetMesh();
 
 		if (Mesh && Mesh->mVertexCacheOffset == -1)
 			lcGetPiecesLibrary()->mBuffersDirty = true;
@@ -2552,7 +2563,7 @@ void lcModel::SetPieceSteps(const QList<QPair<lcPiece*, lcStep>>& PieceSteps)
 		if (Piece != PieceStep.first || Piece->GetStepShow() != PieceStep.second)
 		{
 			Piece = PieceStep.first;
-			lcStep Step = PieceStep.second;
+			const lcStep Step = PieceStep.second;
 
 			mPieces[PieceIdx] = Piece;
 			Piece->SetStepShow(Step);
@@ -2914,7 +2925,7 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 
 	if (ObjectDistance.LengthSquared() >= 0.001f && !AlternateButtonDrag)
 	{
-		lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
+		const lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
 
 		for (lcCamera* Camera : mCameras)
 		{
@@ -3035,7 +3046,7 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 
 				if (Relative)
 				{
-					lcMatrix33 RelativeRotation = Piece->GetRelativeRotation();
+					const lcMatrix33 RelativeRotation = Piece->GetRelativeRotation();
 					WorldToFocusMatrix = lcMatrix33AffineInverse(RelativeRotation);
 					RelativeRotationMatrix = lcMul(RotationMatrix, RelativeRotation);
 				}
@@ -3083,11 +3094,11 @@ void lcModel::ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoin
 		return;
 
 	lcPiece* Piece = (lcPiece*)Focus;
-	quint32 Section = Piece->GetFocusSection();
+	const quint32 Section = Piece->GetFocusSection();
 
 	if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST)
 	{
-		int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
+		const int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 		Piece->SetControlPointScale(ControlPointIndex, Scale);
 
 		if (Update)
@@ -3356,7 +3367,7 @@ void lcModel::SetLightName(lcLight* Light, const QString &Name)
 
 bool lcModel::AnyPiecesSelected() const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsSelected())
 			return true;
 
@@ -3365,19 +3376,21 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-	for (lcCamera* Camera : mCameras)
-		if (Camera->IsSelected())
-			return true;
 /*** LPub3D Mod - Build Modification ***/
 	if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
 		if (gMainWindow->GetImageType() != Options::PLI) {
-			for (lcPiece* Piece : mPieces)
+			for (const lcPiece* Piece : mPieces)
 				if (Piece->IsSelected())
 					return true;
 		}
 	}
 /*** LPub3D Mod end ***/
-	for (lcLight* Light : mLights)
+
+	for (const lcCamera* Camera : mCameras)
+		if (Camera->IsSelected())
+			return true;
+
+	for (const lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;
 
@@ -3403,7 +3416,7 @@ lcObject* lcModel::GetFocusObject() const
 
 lcModel* lcModel::GetFirstSelectedSubmodel() const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsSelected() && Piece->mPieceInfo->IsModel())
 			return Piece->mPieceInfo->GetModel();
 
@@ -3412,7 +3425,7 @@ lcModel* lcModel::GetFirstSelectedSubmodel() const
 
 void lcModel::GetSubModels(lcArray<lcModel*>& SubModels) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->mPieceInfo->IsModel())
 		{
@@ -3425,13 +3438,13 @@ void lcModel::GetSubModels(lcArray<lcModel*>& SubModels) const
 
 bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRotation) const
 {
-	bool Relative = gMainWindow->GetRelativeTransform();
+	const bool Relative = gMainWindow->GetRelativeTransform();
 	int NumSelected = 0;
 
 	Center = lcVector3(0.0f, 0.0f, 0.0f);
 	RelativeRotation = lcMatrix33Identity();
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
 		if (!Piece->IsSelected())
 			continue;
@@ -3447,7 +3460,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		NumSelected++;
 	}
 
-	for (lcCamera* Camera : mCameras)
+	for (const lcCamera* Camera : mCameras)
 	{
 		if (!Camera->IsSelected())
 			continue;
@@ -3465,7 +3478,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		NumSelected += 3;
 	}
 
-	for (lcLight* Light : mLights)
+	for (const lcLight* Light : mLights)
 	{
 		if (!Light->IsSelected())
 			continue;
@@ -3546,7 +3559,7 @@ lcVector3 lcModel::GetSelectionOrModelCenter() const
 
 bool lcModel::GetFocusPosition(lcVector3& Position) const
 {
-	lcObject* FocusObject = GetFocusObject();
+	const lcObject* FocusObject = GetFocusObject();
 
 	if (FocusObject)
 	{
@@ -3620,7 +3633,7 @@ lcBoundingBox lcModel::GetAllPiecesBoundingBox() const
 		Box.Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
 		Box.Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-		for (lcPiece* Piece : mPieces)
+		for (const lcPiece* Piece : mPieces)
 			Piece->CompareBoundingBox(Box.Min, Box.Max);
 	}
 	else
@@ -3635,7 +3648,7 @@ bool lcModel::GetVisiblePiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 	Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
 	Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->IsVisible(mCurrentStep))
 		{
@@ -3651,7 +3664,7 @@ std::vector<lcVector3> lcModel::GetPiecesBoundingBoxPoints() const
 {
 	std::vector<lcVector3> Points;
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->SubModelAddBoundingBoxPoints(lcMatrix44Identity(), Points);
 
@@ -3660,7 +3673,7 @@ std::vector<lcVector3> lcModel::GetPiecesBoundingBoxPoints() const
 
 void lcModel::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
 		if (!Piece->IsVisibleInSubModel())
 			continue;
@@ -3676,7 +3689,7 @@ void lcModel::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSu
 
 void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 	{
 		if (Piece->GetStepShow() != Step || Piece->IsHidden())
 			continue;
@@ -3692,7 +3705,7 @@ void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsLis
 
 void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const
 {
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
 		Piece->GetModelParts(WorldMatrix, DefaultColorIndex, ModelParts);
 }
 
@@ -3789,10 +3802,10 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 	}
 }
 
-lcArray<lcObject*> lcModel::GetSelectionModePieces(lcPiece* SelectedPiece) const
+lcArray<lcObject*> lcModel::GetSelectionModePieces(const lcPiece* SelectedPiece) const
 {
-	PieceInfo* Info = SelectedPiece->mPieceInfo;
-	int ColorIndex = SelectedPiece->GetColorIndex();
+	const PieceInfo* Info = SelectedPiece->mPieceInfo;
+	const int ColorIndex = SelectedPiece->GetColorIndex();
 	lcArray<lcObject*> Pieces;
 
 	switch (gMainWindow->GetSelectionMode())
@@ -3866,14 +3879,14 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 {
 	lcObject* FocusObject = GetFocusObject();
 	lcObject* Object = ObjectSection.Object;
-	quint32 Section = ObjectSection.Section;
+	const quint32 Section = ObjectSection.Section;
 /*** LPub3D Mod - Selected Parts ***/
 	bool IsPiece = false;
 /*** LPub3D Mod end ***/
 
 	if (Object)
 	{
-		bool WasSelected = Object->IsSelected();
+		const bool WasSelected = Object->IsSelected();
 
 		if (!Object->IsFocused(Section))
 		{
@@ -3885,7 +3898,7 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 		else
 			Object->SetFocused(Section, false);
 
-		bool IsSelected = Object->IsSelected();
+		const bool IsSelected = Object->IsSelected();
 
 		if (Object->IsPiece() && (WasSelected != IsSelected))
 		{
@@ -3984,7 +3997,7 @@ void lcModel::AddToSelection(const lcArray<lcObject*>& Objects, bool EnableSelec
 
 	for (lcObject* Object : Objects)
 	{
-		bool WasSelected = Object->IsSelected();
+		const bool WasSelected = Object->IsSelected();
 		Object->SetSelected(true);
 
 		if (Object->IsPiece())
@@ -4024,7 +4037,7 @@ void lcModel::RemoveFromSelection(const lcArray<lcObject*>& Objects)
 
 	for (lcObject* SelectedObject : Objects)
 	{
-		bool WasSelected = SelectedObject->IsSelected();
+		const bool WasSelected = SelectedObject->IsSelected();
 		SelectedObject->SetSelected(false);
 
 /*** LPub3D Mod - Selected Parts ***/
@@ -4065,7 +4078,7 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 	if (!SelectedObject)
 		return;
 
-	bool WasSelected = SelectedObject->IsSelected();
+	const bool WasSelected = SelectedObject->IsSelected();
 
 	if (SelectedObject->IsFocused(ObjectSection.Section))
 		SelectedObject->SetSelected(ObjectSection.Section, false);
@@ -4506,8 +4519,8 @@ void lcModel::UpdateCameraTool(const lcVector3& Position)
 
 void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool AlternateButtonDrag)
 {
-	lcVector3 PieceDistance = SnapPosition(Distance) - SnapPosition(mMouseToolDistance);
-	lcVector3 ObjectDistance = Distance - mMouseToolDistance;
+	const lcVector3 PieceDistance = SnapPosition(Distance) - SnapPosition(mMouseToolDistance);
+	const lcVector3 ObjectDistance = Distance - mMouseToolDistance;
 
 	MoveSelectedObjects(PieceDistance, ObjectDistance, AllowRelative, AlternateButtonDrag, true, false);
 	mMouseToolDistance = Distance;
@@ -4520,7 +4533,7 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AllowRelative, bool
 
 void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag)
 {
-	lcVector3 Delta = SnapRotation(Angles) - SnapRotation(mMouseToolDistance);
+	const lcVector3 Delta = SnapRotation(Angles) - SnapRotation(mMouseToolDistance);
 	RotateSelectedPieces(Delta, true, AlternateButtonDrag, false, false);
 	mMouseToolDistance = Angles;
 
@@ -4614,12 +4627,12 @@ void lcModel::PaintToolClicked(lcObject* Object)
 	}
 }
 
-void lcModel::ColorPickerToolClicked(lcObject* Object)
+void lcModel::ColorPickerToolClicked(const lcObject* Object)
 {
 	if (!Object || !Object->IsPiece())
 		return;
 
-	lcPiece* Piece = (lcPiece*)Object;
+	const lcPiece* Piece = (lcPiece*)Object;
 
 	gMainWindow->SetColorIndex(Piece->GetColorIndex());
 }
@@ -4721,7 +4734,7 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 		Max = lcMax(Point, Max);
 	}
 
-	lcVector3 Center = (Min + Max) / 2.0f;
+	const lcVector3 Center = (Min + Max) / 2.0f;
 
 	Camera->ZoomExtents(Aspect, Center, Points, mCurrentStep, gMainWindow ? gMainWindow->GetAddKeys() : false);
 
@@ -4812,7 +4825,7 @@ void lcModel::ShowArrayDialog()
 		return;
 /*** LPub3D Mod end ***/
 	}
-
+	
 	lcQArrayDialog Dialog(gMainWindow);
 
 	if (Dialog.exec() != QDialog::Accepted)
@@ -4838,7 +4851,7 @@ void lcModel::ShowArrayDialog()
 				lcVector3 Position;
 
 				lcVector3 RotationAngles = Dialog.mRotations[0] * Step1 + Dialog.mRotations[1] * Step2 + Dialog.mRotations[2] * Step3;
-				lcVector3 Offset = Dialog.mOffsets[0] * Step1 + Dialog.mOffsets[1] * Step2 + Dialog.mOffsets[2] * Step3;
+				const lcVector3 Offset = Dialog.mOffsets[0] * Step1 + Dialog.mOffsets[1] * Step2 + Dialog.mOffsets[2] * Step3;
 
 				for (lcPiece* Piece : mPieces)
 				{

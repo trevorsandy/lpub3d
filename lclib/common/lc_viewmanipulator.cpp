@@ -179,7 +179,7 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 	Context->SetViewMatrix(Camera->mWorldView);
 	Context->SetProjectionMatrix(mView->GetProjectionMatrix());
 
-	glDisable(GL_DEPTH_TEST);
+	Context->EnableDepthTest(false);
 
 	lcVector3 OverlayCenter;
 	lcMatrix33 RelativeRotation;
@@ -296,7 +296,7 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 
 	if ((TrackTool == lcTrackTool::MoveXY) || (TrackTool == lcTrackTool::MoveXZ) || (TrackTool == lcTrackTool::MoveYZ))
 	{
-		glEnable(GL_BLEND);
+		Context->EnableColorBlend(true);
 
 		Context->SetColor(0.8f, 0.8f, 0.0f, 0.3f);
 
@@ -307,7 +307,7 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 		else if (TrackTool == lcTrackTool::MoveYZ)
 			Context->DrawIndexedPrimitives(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (108 + 360) * 2);
 
-		glDisable(GL_BLEND);
+		Context->EnableColorBlend(false);
 	}
 
 	if (Focus && Focus->IsPiece())
@@ -371,7 +371,7 @@ void lcViewManipulator::DrawSelectMove(lcTrackButton TrackButton, lcTrackTool Tr
 		}
 	}
 
-	glEnable(GL_DEPTH_TEST);
+	Context->EnableDepthTest(true);
 }
 
 void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackTool)
@@ -387,7 +387,7 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 	Context->SetProjectionMatrix(mView->GetProjectionMatrix());
 	Context->SetLineWidth(1.0f);
 
-	glDisable(GL_DEPTH_TEST);
+	Context->EnableDepthTest(false);
 
 	int j;
 
@@ -421,10 +421,12 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 			case lcTrackTool::RotateY:
 /*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				Context->SetColor(0.0f, 0.0f, 0.8f, 0.3f);
+/*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[1];
 				Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateZ:
+/*** LPub3D Mod - Rotate Fan Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
 				Context->SetColor(0.0f, 0.8f, 0.0f, 0.3f);
 /*** LPub3D Mod end ***/
 				Angle = MouseToolDistance[2];
@@ -452,7 +454,7 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 
 			Context->SetWorldMatrix(RotatedWorldMatrix);
 
-			glEnable(GL_BLEND);
+			Context->EnableColorBlend(true);
 
 			lcVector3 Verts[33];
 			Verts[0] = lcVector3(0.0f, 0.0f, 0.0f);
@@ -494,7 +496,7 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 			if (NumVerts > 2)
 				Context->DrawPrimitives(GL_TRIANGLE_FAN, 0, NumVerts);
 
-			glDisable(GL_BLEND);
+			Context->EnableColorBlend(false);
 		}
 	}
 
@@ -615,20 +617,26 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 			case lcTrackTool::RotateX:
 /*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				strncpy(Axis, "X", 24);
+/*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[0];
 				Rotation = lcVector4(0.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateY:
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
 				strncpy(Axis, "Z", 24);
+/*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[1];
 				Rotation = lcVector4(90.0f, 0.0f, 0.0f, 1.0f);
 				break;
 			case lcTrackTool::RotateZ:
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
 				strncpy(Axis, "Y", 24);
+/*** LPub3D Mod end ***/				
 				Angle = MouseToolDistance[2];
 				Rotation = lcVector4(90.0f, 0.0f, -1.0f, 0.0f);
 				break;
 			default:
+/*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/			
 				strncpy(Axis, "", 24);
 /*** LPub3D Mod end ***/
 				Angle = 0.0f;
@@ -672,7 +680,7 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 		Context->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 		Context->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mView->GetWidth(), 0.0f, mView->GetHeight(), -1.0f, 1.0f));
 		Context->BindTexture2D(gTexFont.GetTexture());
-		glEnable(GL_BLEND);
+		Context->EnableColorBlend(true);
 
 		char buf[32];
 /*** LPub3D Mod - Axis Text Overlay, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
@@ -698,12 +706,13 @@ void lcViewManipulator::DrawRotate(lcTrackButton TrackButton, lcTrackTool TrackT
 				break;
 		};
 /*** LPub3D Mod end ***/
+
 		gTexFont.PrintText(Context, ScreenPos[0] - (cx / 2), ScreenPos[1] + (cy / 2), 0.0f, buf);
 
-		glDisable(GL_BLEND);
+		Context->EnableColorBlend(false);
 	}
 
-	glEnable(GL_DEPTH_TEST);
+	Context->EnableDepthTest(true);
 }
 
 bool lcViewManipulator::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms)
@@ -836,7 +845,7 @@ lcTrackTool lcViewManipulator::UpdateSelectMove()
 		quint32 Section = Piece->GetFocusSection();
 
 		if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST)
-			ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_1;
+			ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 	}
 
 	quint32 AllowedTransforms = Focus ? Focus->GetAllowedTransforms() : LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z | LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z;

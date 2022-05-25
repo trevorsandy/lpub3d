@@ -116,7 +116,9 @@ public:
 	~lcView();
 
 	lcView(const lcView&) = delete;
+	lcView(lcView&&) = delete;
 	lcView& operator=(const lcView&) = delete;
+	lcView& operator=(lcView&&) = delete;
 
 	static lcFindReplaceParams& GetFindReplaceParams()
 	{

@@ -972,13 +972,13 @@ void lcView::OnDraw()
 	mContext->SetColor(lcVector4FromColor(lcGetPreferences().mTextColor));
 	mContext->BindTexture2D(gTexFont.GetTexture());
 
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
+	mContext->EnableDepthTest(false);
+	mContext->EnableColorBlend(true);
 
 	gTexFont.PrintText(mContext, 3.0f, (float)mHeight - 1.0f - 6.0f, 0.0f, Line.toLatin1().constData());
 
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
+	mContext->EnableColorBlend(false);
+	mContext->EnableDepthTest(true);
 
 	Redraw();
 #endif
@@ -1007,7 +1007,7 @@ void lcView::DrawBackground() const
 	mContext->ClearDepth();
 
 	mContext->SetDepthWrite(false);
-	glDisable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(false);
 
 	float ViewWidth = (float)mWidth;
 	float ViewHeight = (float)mHeight;
@@ -1015,8 +1015,6 @@ void lcView::DrawBackground() const
 	mContext->SetWorldMatrix(lcMatrix44Identity());
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, ViewWidth, 0.0f, ViewHeight, -1.0f, 1.0f));
-
-	mContext->SetSmoothShading(true);
 
 	const quint32 Color1 = Preferences.mBackgroundGradientColorTop;
 	const quint32 Color2 = Preferences.mBackgroundGradientColorBottom;
@@ -1038,9 +1036,7 @@ void lcView::DrawBackground() const
 
 	mContext->DrawPrimitives(GL_TRIANGLE_FAN, 0, 4);
 
-	mContext->SetSmoothShading(false);
-
-	glEnable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(true);
 	mContext->SetDepthWrite(true);
 }
 
@@ -1052,7 +1048,7 @@ void lcView::DrawViewport() const
 	mContext->SetLineWidth(1.0f);
 
 	mContext->SetDepthWrite(false);
-	glDisable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(false);
 
 	mContext->SetMaterial(lcMaterialType::UnlitColor);
 
@@ -1075,15 +1071,15 @@ void lcView::DrawViewport() const
 		mContext->SetColor(lcVector4FromColor(lcGetPreferences().mTextColor));
 		mContext->BindTexture2D(gTexFont.GetTexture());
 
-		glEnable(GL_BLEND);
+		mContext->EnableColorBlend(true);
 
 		gTexFont.PrintText(mContext, 3.0f, (float)mHeight - 1.0f - 6.0f, 0.0f, CameraName.toLatin1().constData());
 
-		glDisable(GL_BLEND);
+		mContext->EnableColorBlend(false);
 	}
 
 	mContext->SetDepthWrite(true);
-	glEnable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(true);
 }
 
 void lcView::DrawAxes() const
@@ -1182,7 +1178,7 @@ void lcView::DrawAxes() const
 	mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 	mContext->SetViewMatrix(TranslationMatrix);
 	mContext->BindTexture2D(gTexFont.GetTexture());
-	glEnable(GL_BLEND);
+	mContext->EnableColorBlend(true);
 
 	float TextBuffer[6 * 5 * 3];
 	lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
@@ -1200,7 +1196,7 @@ void lcView::DrawAxes() const
 	mContext->SetColor(lcVector4FromColor(lcGetPreferences().mAxesColor));
 	mContext->DrawPrimitives(GL_TRIANGLES, 0, 6 * 3);
 
-	glDisable(GL_BLEND);
+	mContext->EnableColorBlend(false);
 }
 
 void lcView::DrawSelectZoomRegionOverlay()
@@ -1211,7 +1207,7 @@ void lcView::DrawSelectZoomRegionOverlay()
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
 	mContext->SetLineWidth(1.0f);
 
-	glDisable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(false);
 
 	float pt1x = (float)mMouseDownX;
 	float pt1y = (float)mMouseDownY;
@@ -1278,13 +1274,13 @@ void lcView::DrawSelectZoomRegionOverlay()
 
 	if (LC_RGBA_ALPHA(Preferences.mMarqueeFillColor))
 	{
-		glEnable(GL_BLEND);
+		mContext->EnableColorBlend(true);
 		mContext->SetColor(lcVector4FromColor(Preferences.mMarqueeFillColor));
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 10, 4);
-		glDisable(GL_BLEND);
+		mContext->EnableColorBlend(false);
 	}
 
-	glEnable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(true);
 }
 
 void lcView::DrawRotateViewOverlay()
@@ -1302,7 +1298,7 @@ void lcView::DrawRotateViewOverlay()
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, w, 0, h, -1, 1));
 	mContext->SetLineWidth(1.0f);
 
-	glDisable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(false);
 	mContext->SetColor(lcVector4FromColor(lcGetPreferences().mOverlayColor));
 
 	float Verts[32 * 16 * 2];
@@ -1340,7 +1336,7 @@ void lcView::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] =
+	GLushort Indices[64 + 32] = 
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1351,7 +1347,7 @@ void lcView::DrawRotateViewOverlay()
 	mContext->SetIndexBufferPointer(Indices);
 	mContext->DrawIndexedPrimitives(GL_LINES, 96, GL_UNSIGNED_SHORT, 0);
 
-	glEnable(GL_DEPTH_TEST);
+	mContext->EnableDepthTest(true);
 }
 
 void lcView::DrawGrid()
@@ -1508,9 +1504,9 @@ void lcView::DrawGrid()
 
 	if (Preferences.mDrawGridStuds)
 	{
-		mContext->BindTexture2D(gGridTexture->mTexture);
+		mContext->BindTexture2D(gGridTexture);
 		mContext->SetDepthWrite(false);
-		glEnable(GL_BLEND);
+		mContext->EnableColorBlend(true);
 
 		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridStudColor));
@@ -1518,7 +1514,7 @@ void lcView::DrawGrid()
 		mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 4);
 
-		glDisable(GL_BLEND);
+		mContext->EnableColorBlend(false);
 		mContext->SetDepthWrite(true);
 
 		BufferOffset = 4 * 5 * sizeof(float);
@@ -1728,7 +1724,7 @@ void lcView::SetCameraAngles(float Latitude, float Longitude)
 	}
 
 /*** LPub3D Mod - Camera Globe ***/
-	float Distance = 1.0f;
+	const float Distance = 1.0f;
 	mCamera->SetAngles(Latitude, Longitude, Distance, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
 /*** LPub3D Mod end ***/
 	ZoomExtents();
@@ -3068,5 +3064,12 @@ void lcView::OnMouseMove()
 
 void lcView::OnMouseWheel(float Direction)
 {
-	mModel->Zoom(mCamera, (int)(((mMouseModifiers & Qt::ControlModifier) ? 100 : 10) * Direction));
+	float Scale = 10.0f;
+
+	if (mMouseModifiers & Qt::ControlModifier)
+		Scale = 100.0f;
+	else if (mMouseModifiers & Qt::ShiftModifier)
+		Scale = 1.0f;
+
+	mModel->Zoom(mCamera, static_cast<int>(Direction * Scale));
 }

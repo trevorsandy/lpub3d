@@ -36,7 +36,7 @@ public:
 
 	bool Load(const QString& FileName, int Flags = 0);
 	bool Load(lcMemFile& File, int Flags = 0);
-	void SetImage(Image* Image, int Flags = 0);
+	void SetImage(Image&& Image, int Flags = 0);
 	void SetImage(std::vector<Image>&& Images, int Flags = 0);
 	void Upload(lcContext* Context);
 	void Unload();
@@ -74,6 +74,21 @@ public:
 		return mTexture == 0 && !mImages.empty();
 	}
 
+	int GetFlags() const
+	{
+		return mFlags;
+	}
+
+	const Image& GetImage(int Index) const
+	{
+		return mImages[Index];
+	}
+
+	size_t GetImageCount() const
+	{
+		return mImages.size();
+	}
+
 	int mWidth;
 	int mHeight;
 	char mName[LC_TEXTURE_NAME_LEN];
@@ -85,7 +100,7 @@ public:
 
 protected:
 	bool Load();
-	bool Load(int Flags);
+	bool LoadImages();
 
 	bool mTemporary;
 	QAtomicInt mRefCount;

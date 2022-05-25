@@ -218,15 +218,15 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 				case lcRenderMeshState::Selected:
  /*** LPub3D Mod - Selected Parts ***/
 					if (gApplication->mPreferences.mBuildModificationEnabled)
-						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_BM_SELECTED, 0.5f);
+						Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::BMSelected, 0.5f);
 					else
-						Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
+						Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Selected, 0.5f);
 /*** LPub3D Mod end ***/
 
 					break;
 
 				case lcRenderMeshState::Focused:
-					Context->SetColorIndexTinted(ColorIndex, LC_COLOR_FOCUSED, 0.5f);
+					Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Focused, 0.5f);
 					break;
 
 				case lcRenderMeshState::Faded:
@@ -260,14 +260,14 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 				case lcRenderMeshState::Selected:
 /*** LPub3D Mod - Selected Parts ***/
 					if (gApplication->mPreferences.mBuildModificationEnabled)
-						Context->SetInterfaceColor(LC_COLOR_BM_SELECTED);
+						Context->SetInterfaceColor(lcInterfaceColor::BMSelected);
 					else
-						Context->SetInterfaceColor(LC_COLOR_SELECTED);
+						Context->SetInterfaceColor(lcInterfaceColor::Selected);
 /*** LPub3D Mod end ***/
 					break;
 
 				case lcRenderMeshState::Focused:
-					Context->SetInterfaceColor(LC_COLOR_FOCUSED);
+					Context->SetInterfaceColor(lcInterfaceColor::Focused);
 					break;
 
 				case lcRenderMeshState::Highlighted:
@@ -312,7 +312,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 						Texture->Upload(Context);
 
 					Context->SetMaterial(TexturedMaterial);
-					Context->BindTexture2D(Texture->mTexture);
+					Context->BindTexture2D(Texture);
 				}
 				else
 				{
@@ -332,7 +332,7 @@ void lcScene::DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTy
 #endif
 	}
 
-	Context->BindTexture2D(0);
+	Context->ClearTexture2D();
 	Context->SetPolygonOffset(lcPolygonOffset::None);
 }
 
@@ -360,19 +360,18 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 	if (LPubFade)
 	{
 		// Enable BFC
-		glCullFace(GL_BACK);
-		glEnable(GL_CULL_FACE);
+		Context->EnableCullFace(true, true);
 
 		// Disable color writes
 		if (LPubFade == LC_DISABLE_COLOR_WRITES){
-			glDisable(GL_BLEND);
-			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			Context->EnableColorBlend(false);
+			Context->EnableColorWrite(false);
 		}
 
 		// Enable color writes
 		else {
-			glEnable(GL_BLEND);
-			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			Context->EnableColorBlend(true);
+			Context->EnableColorWrite(true);
 		}
 
 		Context->SetDepthWrite(LPubFade == LC_DISABLE_COLOR_WRITES);
@@ -381,11 +380,11 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 /*** LPub3D Mod end ***/
 	if (!DrawFadePrepass)
 	{
-		glEnable(GL_BLEND);
+		Context->EnableColorBlend(true);
 		Context->SetDepthWrite(false);
 	}
 	else
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		Context->EnableColorWrite(false);
 
 	Context->SetPolygonOffset(lcPolygonOffset::Translucent);
 
@@ -423,11 +422,11 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			break;
 
 		case lcRenderMeshState::Selected:
-			Context->SetColorIndexTinted(ColorIndex, LC_COLOR_SELECTED, 0.5f);
+			Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Selected, 0.5f);
 			break;
 
 		case lcRenderMeshState::Focused:
-			Context->SetColorIndexTinted(ColorIndex, LC_COLOR_FOCUSED, 0.5f);
+			Context->SetColorIndexTinted(ColorIndex, lcInterfaceColor::Focused, 0.5f);
 			break;
 
 		case lcRenderMeshState::Faded:
@@ -451,7 +450,7 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 			Context->SetMaterial(TexturedMaterial);
 			VertexBufferOffset += Mesh->mNumVertices * sizeof(lcVertex);
 			Context->SetVertexFormat(VertexBufferOffset, 3, 1, 2, 0, DrawLit);
-			Context->BindTexture2D(Texture->mTexture);
+			Context->BindTexture2D(Texture);
 		}
 
 		const GLenum DrawPrimitiveType = Section->PrimitiveType & (LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES) ? GL_TRIANGLES : GL_LINES;
@@ -462,27 +461,27 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 #endif
 	}
 
-	Context->BindTexture2D(0);
+	Context->ClearTexture2D();
 	Context->SetPolygonOffset(lcPolygonOffset::None);
 
 /*** LPub3D Mod - true fade ***/
 	if (LPubFade)
 	{
 		Context->SetDepthWrite(true);
-		glDisable(GL_BLEND);
+		Context->EnableColorBlend(false);
 
 		// Wrap up, Disable BFC
-		glDisable(GL_CULL_FACE);
+		Context->EnableCullFace(false);
 	}
 	else
 /*** LPub3D Mod end ***/
 	if (!DrawFadePrepass)
 	{
 		Context->SetDepthWrite(true);
-		glDisable(GL_BLEND);
+		Context->EnableColorBlend(false);
 	}
 	else
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		Context->EnableColorWrite(true);
 }
 
 void lcScene::Draw(lcContext* Context) const

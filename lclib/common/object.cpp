@@ -57,7 +57,7 @@ template void lcObjectKeyArray<lcVector2>::RemoveTime(lcStep Start, lcStep Time)
 template<typename T>
 void lcObjectKeyArray<T>::SaveKeysLDraw(QTextStream& Stream, const char* KeyName) const
 {
-	const int Count = sizeof(T) / sizeof(float);
+	constexpr int Count = sizeof(T) / sizeof(float);
 
 	for (const lcObjectKey<T>& Key : mKeys)
 	{
@@ -78,10 +78,10 @@ void lcObjectKeyArray<T>::LoadKeysLDraw(QTextStream& Stream)
 	QString Token;
 	Stream >> Token;
 
-	int Step = Token.toInt();
+	const int Step = Token.toInt();
 	T Value;
 
-	const int Count = sizeof(T) / sizeof(float);
+	constexpr int Count = sizeof(T) / sizeof(float);
 
 	for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
 		Stream >> ((float*)&Value)[ValueIdx];

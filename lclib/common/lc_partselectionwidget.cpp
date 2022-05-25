@@ -60,7 +60,7 @@ lcPartSelectionListModel::lcPartSelectionListModel(QObject* Parent)
 		mColorLocked = true;
 	}
 
-	connect(lcGetPiecesLibrary(), SIGNAL(PartLoaded(PieceInfo*)), this, SLOT(PartLoaded(PieceInfo*)));
+	connect(lcGetPiecesLibrary(), &lcPiecesLibrary::PartLoaded, this, &lcPartSelectionListModel::PartLoaded);
 }
 
 lcPartSelectionListModel::~lcPartSelectionListModel()
@@ -366,7 +366,7 @@ void lcPartSelectionListModel::RequestPreview(int InfoIndex)
 	PieceInfo* Info = mParts[InfoIndex].first;
 	lcGetPiecesLibrary()->LoadPieceInfo(Info, false, false);
 
-	if (Info->mState == LC_PIECEINFO_LOADED)
+	if (Info->mState == lcPieceInfoState::Loaded)
 		DrawPreview(InfoIndex);
 	else
 		mRequestedPreviews.push_back(InfoIndex);
@@ -987,7 +987,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	for (int CategoryIdx = 0; CategoryIdx < mCategoriesWidget->topLevelItemCount(); CategoryIdx++)
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
-/*** LPub3D Mod - Set part lookup default ***/
+/*** LPub3D Mod - Set part lookup default (default = "Brick") ***/
 		if (CategoryItem->text(0) == "In Use")
 /*** LPub3D Mod end ***/
 		{

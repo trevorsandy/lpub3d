@@ -11,6 +11,13 @@
 #include "lc_view.h"
 #include "camera.h"
 #include "lc_previewwidget.h"
+/*** LPub3D Mod - moved to application.cpp ***/
+/***
+#ifdef Q_OS_WIN
+#include <QtPlatformHeaders\QWindowsWindowFunctions>
+#endif
+***/
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - includes ***/
 #include "name.h"
@@ -1417,6 +1424,10 @@ lcStartupMode lcApplication::Initialize(const QList<QPair<QString, bool>>& Libra
 		gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 		gMainWindow->UpdateRecentFiles();
 		gMainWindow->show();
+
+#ifdef Q_OS_WIN
+		QWindowsWindowFunctions::setHasBorderInFullScreen(gMainWindow->windowHandle(), true);
+#endif
 		***/
 	}
 

@@ -230,6 +230,11 @@ public:
 /*** LPub3D Mod end ***/
 	~lcApplication();
 
+	lcApplication(const lcApplication&) = delete;
+	lcApplication(lcApplication&&) = delete;
+	lcApplication& operator=(const lcApplication&) = delete;
+	lcApplication& operator=(lcApplication&&) = delete;
+
 	void SetProject(Project* Project);
 	static lcCommandLineOptions ParseCommandLineOptions();
 /*** LPub3D Mod - add parent, remove ShowWindow ***/

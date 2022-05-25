@@ -113,7 +113,9 @@ public:
 	~lcContext();
 
 	lcContext(const lcContext&) = delete;
+	lcContext(lcContext&&) = delete;
 	lcContext& operator=(const lcContext&) = delete;
+	lcContext& operator=(lcContext&&) = delete;
 
 	static bool InitializeRenderer();
 	static void ShutdownRenderer();
@@ -163,13 +165,19 @@ public:
 	void SetPolygonOffset(lcPolygonOffset PolygonOffset);
 	void SetDepthWrite(bool Enable);
 	void SetDepthFunction(lcDepthFunction DepthFunction);
-	void EnableCullFace(bool Enable);
+	void EnableDepthTest(bool Enable);
+	void EnableColorWrite(bool Enable);
+	void EnableColorBlend(bool Enable);
+/*** LPub3D Mod - true fade ***/	
+	void EnableCullFace(bool Enable, bool LPubFade = false);
+/*** LPub3D Mod end ***/	
 	void SetLineWidth(float LineWidth);
-	void SetSmoothShading(bool Smooth);
-	void BindTexture2D(GLuint Texture);
-	void BindTextureCubeMap(GLuint Texture);
-	void UnbindTexture2D(GLuint Texture);
-	void UnbindTextureCubeMap(GLuint Texture);
+
+	void BindTexture2D(const lcTexture* Texture);
+	void BindTextureCubeMap(const lcTexture* Texture);
+	void ClearTexture2D();
+	void ClearTextureCubeMap();
+	void UploadTexture(lcTexture* Texture);
 
 	void SetColor(const lcVector4& Color)
 	{
@@ -247,6 +255,9 @@ protected:
 	lcPolygonOffset mPolygonOffset;
 	bool mDepthWrite;
 	lcDepthFunction mDepthFunction;
+	bool mDepthTest;
+	bool mColorWrite;
+	bool mColorBlend;
 	bool mCullFace;
 	float mLineWidth;
 	int mMatrixMode;

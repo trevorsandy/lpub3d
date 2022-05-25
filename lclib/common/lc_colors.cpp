@@ -10,18 +10,20 @@ lcColorGroup gColorGroups[LC_NUM_COLORGROUPS];
 int gEdgeColor;
 int gDefaultColor;
 
-lcVector4 gInterfaceColors[LC_NUM_INTERFACECOLORS] = // todo: make the colors configurable and include the grid and other hardcoded colors here as well.
+lcVector4 gInterfaceColors[] = // todo: make the colors configurable and include the grid and other hardcoded colors here as well.
 {
-	lcVector4(0.898f, 0.298f, 0.400f, 1.000f), // LC_COLOR_SELECTED
-/*** LPub3D Mod - Selected Parts ***/
-	lcVector4(0.474f, 0.847f, 0.474f, 1.000f), // LC_COLOR_BM_SELECTED   #00CC00
-/*** LPub3D Mod end ***/
-	lcVector4(0.400f, 0.298f, 0.898f, 1.000f), // LC_COLOR_FOCUSED
-	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_CAMERA
-	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // LC_COLOR_LIGHT
-	lcVector4(0.500f, 0.800f, 0.500f, 0.500f), // LC_COLOR_CONTROL_POINT
-	lcVector4(0.400f, 0.298f, 0.898f, 0.500f), // LC_COLOR_CONTROL_POINT_FOCUSED
+	lcVector4(0.898f, 0.298f, 0.400f, 1.000f), // lcInterfaceColor::Selected
+/*** LPub3D Mod - Selected Parts ***/	
+	lcVector4(0.474f, 0.847f, 0.474f, 1.000f), // lcInterfaceColor::BMSelected
+/*** LPub3D Mod end ***/	
+	lcVector4(0.400f, 0.298f, 0.898f, 1.000f), // lcInterfaceColor::Focused
+	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // lcInterfaceColor::Camera
+	lcVector4(0.500f, 0.800f, 0.500f, 1.000f), // lcInterfaceColor::Light
+	lcVector4(0.500f, 0.800f, 0.500f, 0.500f), // lcInterfaceColor::ControlPoint
+	lcVector4(0.400f, 0.298f, 0.898f, 0.500f), // lcInterfaceColor::ControlPointFocused
 };
+
+LC_ARRAY_SIZE_CHECK(gInterfaceColors, lcInterfaceColor::Count);
 
 static void GetToken(char*& Ptr, char* Token)
 {
@@ -50,7 +52,7 @@ static void lcAdjustStudStyleColors(std::vector<lcColor>& Colors, lcStudStyle St
 
 	for (lcColor& Color : Colors)
 	{
-		lcVector3 LinearColor = lcSRGBToLinear(lcVector3(Color.Value));
+		const lcVector3 LinearColor = lcSRGBToLinear(lcVector3(Color.Value));
 		const float ValueLuminescence = lcLuminescence(LinearColor);
 
 		if (Preferences.mAutomateEdgeColor)

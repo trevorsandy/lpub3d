@@ -72,7 +72,7 @@ public:
 		mActiveView = ActiveView;
 	}
 
-	void RemoveView(lcView* View)
+	void RemoveView(const lcView* View)
 	{
 		if (View == mActiveView)
 			mActiveView = nullptr;
