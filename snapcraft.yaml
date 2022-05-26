@@ -1,7 +1,7 @@
 # Build and check LPub3D Snap
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: June 06, 2021
-# Copyright (c) 2017 - 2021 by Trevor SANDY
+# Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: lpub3d
 adopt-info: lpub3d
@@ -55,8 +55,7 @@ parts:
   source-and-renderers:
     after: [ldraw-libraries]
     plugin: nil
-    source: https://github.com/trevorsandy/lpub3d-ci.git
-    source-tag: v2.4.4
+    source: https://github.com/trevorsandy/lpub3d/archive/v2.4.3.tar.gz
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging

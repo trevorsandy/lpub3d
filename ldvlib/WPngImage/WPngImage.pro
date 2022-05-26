@@ -72,7 +72,7 @@ win32 {
 
     QMAKE_TARGET_COMPANY = "Juha Nieminen"
     QMAKE_TARGET_DESCRIPTION = "C++ library to manage images in PNG format"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2017 Juha Nieminen"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2017 Juha Nieminen"
     QMAKE_TARGET_PRODUCT = "WPngImage ($$join(ARCH,,,bit))"
 }
 

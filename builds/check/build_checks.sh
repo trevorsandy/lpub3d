@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update July 28, 2021
-# Copyright (c) 2018 - 2021 by Trevor SANDY
+# Copyright (C) 2018 - 2022 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
 #       $BUILD_OPT = compile   (macOS only)

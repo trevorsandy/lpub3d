@@ -1,6 +1,6 @@
 ;LPub3D Uninstall Files Script Include
 ;Last Update: June 12, 2021
-;Copyright (C) 2016 - 2021 by Trevor SANDY
+;Copyright (C) 2016 - 2022 by Trevor SANDY
 
 ;Deposit new files...
 Delete "$INSTDIR\${LPub3DBuildFile}"

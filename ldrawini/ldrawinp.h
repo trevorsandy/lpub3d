@@ -2,7 +2,7 @@
 You can use this file if you really need to access the private data
 or if you find some of the internal functions useful.                        */
 
-/* Copyright (c) 2004-2008  Lars C. Hassing (SP.lars@AM.hassings.dk)
+/* Copyright (C) 2004-2008  Lars C. Hassing (SP.lars@AM.hassings.dk)
 If you make any changes to this file, please contact me, and I'll probably
 adopt the changes for the benefit of other users.                            */
 

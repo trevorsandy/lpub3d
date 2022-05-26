@@ -1,6 +1,6 @@
 ;LPub3D Install Files Script Include
 ;Last Update: June 12, 2021
-;Copyright (C) 2016 - 2021 by Trevor SANDY
+;Copyright (C) 2016 - 2022 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
 ; Universal architecture (x86, x86_64)

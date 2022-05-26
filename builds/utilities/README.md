@@ -168,4 +168,4 @@ However, you may choose to download and install [Qt][qtwebsite] elsewhere, in wh
 [ldview]:           https://github.com/trevorsandy/ldview
 [povray]:           https://github.com/trevorsandy/povray
 
-Copyright (c) 2015 - 2021 by Trevor SANDY
+Copyright (C) 2015 - 2022 by Trevor SANDY

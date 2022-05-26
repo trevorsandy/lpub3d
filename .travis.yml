@@ -1,7 +1,7 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: June 04, 2021
-# Copyright (c) 2017 - 2021 by Trevor SANDY
+# Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 os: linux
 

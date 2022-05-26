@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update August, 06, 2021
-# Copyright (c) 2021 by Trevor SANDY
+# Copyright (C) 2022 - 2022 by Trevor SANDY
 #
 # This script is run from a Docker container call
 # See builds/utilities/ci/github/linux-multiarch-build.sh

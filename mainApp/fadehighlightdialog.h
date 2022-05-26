@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 Trevor SANDY. All rights reserved.
+** Copyright (C) 2021 - 2022 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation

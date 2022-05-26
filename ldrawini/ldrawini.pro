@@ -51,7 +51,7 @@ win32 {
 
     QMAKE_TARGET_COMPANY = "Lars C. Hassing"
     QMAKE_TARGET_DESCRIPTION = "LDrawDir and SearchDirs API"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2004-2008  Lars C. Hassing"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2004-2008  Lars C. Hassing"
     QMAKE_TARGET_PRODUCT = "LDrawIni ($$join(ARCH,,,bit))"
 }
 

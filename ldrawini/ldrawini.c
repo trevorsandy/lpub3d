@@ -4,7 +4,7 @@ Read more on http://www.ldraw.org
 If you make any changes to this file, please contact me, and I'll probably
 adopt the changes for the benefit of other users.
 
-Copyright (c) 2004-2008  Lars C. Hassing (SP.lars@AM.hassings.dk)
+Copyright (C) 2004-2008  Lars C. Hassing (SP.lars@AM.hassings.dk)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the "Software"),

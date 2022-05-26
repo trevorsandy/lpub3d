@@ -1,4 +1,4 @@
-/* Original Work Copyright (c) 2012-2014 Alexander Turkin
+/* Original Work Copyright (C) 2012-2014 Alexander Turkin
    Modified 2014 by William Hallatt
    Modified 2015 by Jacob Dawid
 Permission is hereby granted, free of charge, to any person obtaining a copy of

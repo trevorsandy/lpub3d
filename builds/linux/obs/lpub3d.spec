@@ -2,7 +2,7 @@
 # spec file for package lpub3d
 #
 # Last Update July 23, 2019
-# Copyright © 2018 - 2021 Trevor SANDY
+# Copyright © 2018 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
@@ -145,10 +145,10 @@ BuildRequires: libsane1, libproxy-webkit
  file formats. LPub3D is available for free under the GNU Public License v3
  and runs on Windows, Linux and macOS Operating Systems.
  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
- LeoCAD© 2021 Leonardo Zide.and additional third party components.
+ LeoCAD© 2022 Leonardo Zide.and additional third party components.
  LEGO® is a trademark of the LEGO Group of companies which does not
  sponsor, authorize or endorse this application.
- © 2015-2021 Trevor SANDY
+ © 2015-2022 Trevor SANDY
 
 %prep
 set +x

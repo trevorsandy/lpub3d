@@ -51,7 +51,7 @@ win32 {
 
     QMAKE_TARGET_COMPANY = "Alex Turkin"
     QMAKE_TARGET_DESCRIPTION = "Qt Waiting Spinner Widget"
-    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015 Alex Turkin"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 Alex Turkin"
     QMAKE_TARGET_PRODUCT = "WaitingSpinner ($$join(ARCH,,,bit))"
 }
 

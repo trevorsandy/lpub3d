@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
 # Last Update August 06, 2021
-# Copyright (c) 2017 - 2021 by Trevor SANDY
+# Copyright (C) 2017 - 2022 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
 # $ [options] && ./builds/linux/CreatePkg.sh

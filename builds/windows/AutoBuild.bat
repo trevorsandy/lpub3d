@@ -9,7 +9,7 @@ rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
 rem  Last Update: July 03, 2021
-rem  Copyright (c) 2017 - 2021 by Trevor SANDY
+rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
