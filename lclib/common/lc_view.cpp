@@ -891,8 +891,6 @@ void lcView::OnDraw()
 			mContext->SetDefaultState();
 			mContext->SetViewport(0, 0, mWidth, mHeight);
 
-			DrawBackground();
-
 			int CurrentTileWidth, CurrentTileHeight;
 
 			if (!mRenderImage.isNull() && (TotalTileRows > 1 || TotalTileColumns > 1))
@@ -907,6 +905,8 @@ void lcView::OnDraw()
 				else
 					CurrentTileWidth = mRenderImage.width() - (TotalTileColumns - 1) * (mWidth);
 
+				DrawBackground(CurrentTileRow, TotalTileRows, CurrentTileHeight);
+
 				mContext->SetViewport(0, 0, CurrentTileWidth, CurrentTileHeight);
 				mContext->SetProjectionMatrix(GetTileProjectionMatrix(CurrentTileRow, CurrentTileColumn, CurrentTileWidth, CurrentTileHeight));
 			}
@@ -914,6 +914,8 @@ void lcView::OnDraw()
 			{
 				CurrentTileWidth = mWidth;
 				CurrentTileHeight = mHeight;
+
+				DrawBackground(CurrentTileRow, TotalTileRows, CurrentTileHeight);
 
 				mContext->SetProjectionMatrix(GetProjectionMatrix());
 			}
@@ -1030,7 +1032,7 @@ void lcView::OnDraw()
 	mContext->ClearResources();
 }
 
-void lcView::DrawBackground() const
+void lcView::DrawBackground(int CurrentTileRow, int TotalTileRows, int CurrentTileHeight) const
 {
 	if (mOverrideBackgroundColor)
 	{
@@ -1057,11 +1059,43 @@ void lcView::DrawBackground() const
 	float ViewHeight = (float)mHeight;
 
 	mContext->SetWorldMatrix(lcMatrix44Identity());
-	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
+	mContext->SetViewMatrix(lcMatrix44Identity());
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, ViewWidth, 0.0f, ViewHeight, -1.0f, 1.0f));
 
-	const quint32 Color1 = Preferences.mBackgroundGradientColorTop;
-	const quint32 Color2 = Preferences.mBackgroundGradientColorBottom;
+	const int TotalHeight = TotalTileRows == 1 ? mHeight : mRenderImage.height();
+	const quint32 TopY = CurrentTileRow * mHeight + CurrentTileHeight;
+
+	const double t1 = 1.0 - (double)TopY / (double)TotalHeight;
+	const double t2 = 1.0 - (double)(TopY - CurrentTileHeight) / (double)TotalHeight;
+
+	const quint32 ColorTop = Preferences.mBackgroundGradientColorTop;
+	const quint32 ColorBottom = Preferences.mBackgroundGradientColorBottom;
+
+	double TopRed = LC_RGBA_RED(ColorTop);
+	double TopGreen = LC_RGBA_GREEN(ColorTop);
+	double TopBlue = LC_RGBA_BLUE(ColorTop);
+	double TopAlpha = LC_RGBA_ALPHA(ColorTop);
+	double BottomRed = LC_RGBA_RED(ColorBottom);
+	double BottomGreen = LC_RGBA_GREEN(ColorBottom);
+	double BottomBlue = LC_RGBA_BLUE(ColorBottom);
+	double BottomAlpha = LC_RGBA_ALPHA(ColorBottom);
+	const double DeltaRed = BottomRed - TopRed;
+	const double DeltaGreen = BottomGreen - TopGreen;
+	const double DeltaBlue = BottomBlue - TopBlue;
+	const double DeltaAlpha = BottomAlpha - TopAlpha;
+
+	BottomRed = TopRed + DeltaRed * t2;
+	BottomGreen = TopGreen + DeltaGreen * t2;
+	BottomBlue = TopBlue + DeltaBlue * t2;
+	BottomAlpha = TopAlpha + DeltaAlpha * t2;
+
+	TopRed = TopRed + DeltaRed * t1;
+	TopGreen = TopGreen + DeltaGreen * t1;
+	TopBlue = TopBlue + DeltaBlue * t1;
+	TopAlpha = TopAlpha + DeltaAlpha * t1;
+
+	const quint32 Color1 = LC_RGBA(TopRed, TopGreen, TopBlue, TopAlpha);
+	const quint32 Color2 = LC_RGBA(BottomRed, BottomGreen, BottomBlue, BottomAlpha);
 
 	struct lcBackgroundVertex
 	{
@@ -2270,6 +2304,73 @@ void lcView::StartOrbitTracking()
 	OnButtonDown(lcTrackButton::Left);
 }
 
+void lcView::StartPanGesture()
+{
+	lcModel* ActiveModel = GetActiveModel();
+
+	StartPan(mWidth / 2, mHeight / 2);
+	ActiveModel->BeginMouseTool();
+}
+
+void lcView::UpdatePanGesture(int dx, int dy)
+{
+	UpdatePan(mPanX + dx, mPanY + dy);
+}
+
+void lcView::StartPan(int x, int y)
+{
+	mPanX = x;
+	mPanY = y;
+}
+
+void lcView::UpdatePan(int x, int y)
+{
+	if (x == mPanX && y == mPanY)
+		return;
+
+	lcModel* ActiveModel = GetActiveModel();
+
+	lcVector3 Points[4] =
+	{
+		lcVector3((float)x, (float)y, 0.0f),
+		lcVector3((float)x, (float)y, 1.0f),
+		lcVector3(mPanX, mPanY, 0.0f),
+		lcVector3(mPanX, mPanY, 1.0f)
+	};
+
+	UnprojectPoints(Points, 4);
+
+	const lcVector3& CurrentStart = Points[0];
+	const lcVector3& CurrentEnd = Points[1];
+	const lcVector3& MouseDownStart = Points[2];
+	const lcVector3& MouseDownEnd = Points[3];
+	lcVector3 Center = ActiveModel->GetSelectionOrModelCenter();
+
+	lcVector3 PlaneNormal(mCamera->mPosition - mCamera->mTargetPosition);
+	lcVector4 Plane(PlaneNormal, -lcDot(PlaneNormal, Center));
+	lcVector3 Intersection, MoveStart;
+
+	if (!lcLineSegmentPlaneIntersection(&Intersection, CurrentStart, CurrentEnd, Plane) || !lcLineSegmentPlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
+	{
+		Center = MouseDownStart + lcNormalize(MouseDownEnd - MouseDownStart) * 10.0f;
+		Plane = lcVector4(PlaneNormal, -lcDot(PlaneNormal, Center));
+
+		if (!lcLineSegmentPlaneIntersection(&Intersection, CurrentStart, CurrentEnd, Plane) || !lcLineSegmentPlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
+			return;
+	}
+
+	mPanX = x;
+	mPanY = y;
+
+	ActiveModel->UpdatePanTool(mCamera, MoveStart - Intersection);
+}
+
+void lcView::EndPanGesture(bool Accept)
+{
+	lcModel* ActiveModel = GetActiveModel();
+
+	ActiveModel->EndMouseTool(lcTool::Pan, Accept);
+}
 
 void lcView::StartTracking(lcTrackButton TrackButton)
 {
@@ -2339,8 +2440,12 @@ void lcView::StartTracking(lcTrackButton TrackButton)
 		case lcTool::ColorPicker:
 			break;
 
-		case lcTool::Zoom:
 		case lcTool::Pan:
+			StartPan(mMouseX, mMouseY);
+			ActiveModel->BeginMouseTool();
+			break;
+
+		case lcTool::Zoom:
 		case lcTool::RotateView:
 		case lcTool::Roll:
 			ActiveModel->BeginMouseTool();
@@ -3044,38 +3149,7 @@ void lcView::OnMouseMove()
 		break;
 
 	case lcTrackTool::Pan:
-		{
-			lcVector3 Points[4] =
-			{
-				lcVector3((float)mMouseX, (float)mMouseY, 0.0f),
-				lcVector3((float)mMouseX, (float)mMouseY, 1.0f),
-				lcVector3(mMouseDownX, mMouseDownY, 0.0f),
-				lcVector3(mMouseDownX, mMouseDownY, 1.0f)
-			};
-
-			UnprojectPoints(Points, 4);
-
-			const lcVector3& CurrentStart = Points[0];
-			const lcVector3& CurrentEnd = Points[1];
-			const lcVector3& MouseDownStart = Points[2];
-			const lcVector3& MouseDownEnd = Points[3];
-			lcVector3 Center = ActiveModel->GetSelectionOrModelCenter();
-
-			lcVector3 PlaneNormal(mCamera->mPosition - mCamera->mTargetPosition);
-			lcVector4 Plane(PlaneNormal, -lcDot(PlaneNormal, Center));
-			lcVector3 Intersection, MoveStart;
-
-			if (!lcLineSegmentPlaneIntersection(&Intersection, CurrentStart, CurrentEnd, Plane) || !lcLineSegmentPlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
-			{
-				Center = MouseDownStart + lcNormalize(MouseDownEnd - MouseDownStart) * 10.0f;
-				Plane = lcVector4(PlaneNormal, -lcDot(PlaneNormal, Center));
-
-				if (!lcLineSegmentPlaneIntersection(&Intersection, CurrentStart, CurrentEnd, Plane) || !lcLineSegmentPlaneIntersection(&MoveStart, MouseDownStart, MouseDownEnd, Plane))
-					break;
-			}
-
-			ActiveModel->UpdatePanTool(mCamera, MoveStart - Intersection);
-		}
+		UpdatePan(mMouseX, mMouseY);
 		break;
 
 	case lcTrackTool::OrbitX:
