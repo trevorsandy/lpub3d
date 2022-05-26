@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 09, 2021
+rem  Last Update: May 20, 2022
 rem  Copyright (C) 2021 - 2022 by Trevor SANDY
 rem --
 rem --
@@ -96,6 +96,9 @@ POPD
 SET LP3D_LDGLITE=%LP3D_DIST_DIR_PATH%\ldglite-1.3
 SET LP3D_LDVIEW=%LP3D_DIST_DIR_PATH%\ldview-4.4
 SET LP3D_POVRAY=%LP3D_DIST_DIR_PATH%\lpub3d_trace_cui-3.8
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "ALL_RENDERERS" >NUL && (
+  CALL :SET_BUILD_ALL_RENDERERS
+)
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_LDGLITE" >NUL && (
   ECHO -'Build LDGLite' detected.
   IF EXIST "%LP3D_LDGLITE%" ( DEL /S /Q "%LP3D_LDGLITE%" >NUL 2>&1 )
@@ -150,6 +153,12 @@ bash -lc "sed -i -e 's/\r$//' gen_hash.sh"
 bash -lc "chmod a+x gen_hash.sh; ./gen_hash.sh"
 DEL /Q gen_hash.sh
 POPD
+
+:SET_BUILD_ALL_RENDERERS
+ECHO.
+ECHO -'Build LDGLite, LDView and POV-Ray' detected.
+SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_LDGLITE BUILD_LDVIEW BUILD_POVRAY
+EXIT /b
 
 :END
 ECHO.

@@ -134,6 +134,9 @@ echo "${base_path}/vexiqparts.zip exists. Nothing to do."
 ldglite_path=${base_path}/ldglite-1.3
 ldview_path=${base_path}/ldview-4.4
 povray_path=${base_path}/lpub3d_trace_cui-3.8
+[[ "${LP3D_COMMIT_MSG}" == *"ALL_RENDERERS"* ]] && \
+echo "'Build LDGLite, LDView and POV-Ray' detected." && \
+LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_LDGLITE BUILD_LDVIEW BUILD_POVRAY" || :
 [[ "${LP3D_COMMIT_MSG}" == *"BUILD_LDGLITE"* ]] && \
 echo "'Build LDGLite' detected." && [ -d "${ldglite_path}" ] && \
 rm -rf "${ldglite_path}" && echo "Cached ${ldglite_path} deleted" || :

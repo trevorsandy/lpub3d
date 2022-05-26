@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 03, 2021
+rem  Last Update: May 20, 2022
 rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -56,7 +56,7 @@ IF "%GITHUB%" NEQ "True" (
       ECHO.
       SETLOCAL ENABLEDELAYEDEXPANSION
       ECHO  -WARNING: Distribution not found. Using [!DIST_DIR!].
-      SETLOCAL
+      ENDLOCAL
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
