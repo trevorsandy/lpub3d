@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 17, 2022
+# Last Update: May 18, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: Builds
@@ -19,15 +19,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
-        BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
+        BUILD: [ ubuntu-amd64, ubuntu-amd64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Artifact Path
+      - name: Commit Message
+        run: echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
+      - name: Work Paths
         run: |
-          echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
@@ -63,15 +64,16 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     #if: ${{ false }} # suspend
     name: Build macOS
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0        
-      - name: Artifact path
+          fetch-depth: 0
+      - name: Commit Message
+        run: echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
+      - name: Work Paths
         run: |
-          echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}
           echo "LP3D_3RD_PARTY_PATH=$(cd ../ && echo "$PWD/third_party")" >> ${GITHUB_ENV}
           echo "LP3D_BUILDPKG_PATH=$(cd ../ && echo "$PWD/buildpkg")" >> ${GITHUB_ENV}
       - name: Cache Third-party
@@ -80,7 +82,7 @@ jobs:
         with:
           path: ${{ env.LP3D_3RD_PARTY_PATH }}
           key: third-party-macos-${{ secrets.THIRD_PARTY_CACHE }}
-      - name: Buil macOS
+      - name: Build macOS
         run: bash -ex builds/utilities/ci/github/macos-build.sh
       - name: List Artifacts
         if: always()
@@ -103,18 +105,19 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     #if: ${{ false }} # suspend
     name: Build Windows
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Artifact Path
+      - name: Commit Message
+        run: Echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Work Paths
         run: |
-          echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          echo "LP3D_3RD_PARTY_PATH=$(Join-Path (resolve-path ..\) 'third_party')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-          echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          Echo "LP3D_3RD_PARTY_PATH=$(Join-Path (resolve-path ..\) 'third_party')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          Echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       - name: Cache Qt
         id: cache-qt
         uses: actions/cache@v2
@@ -157,20 +160,20 @@ jobs:
       - name: Upload Update Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: updates
+          name: Update Artifacts
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
           if-no-files-found: ignore
       - name: Upload Download Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: windows-download
+          name: Windows Download Artifacts
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: windows-logs
+          name: Windows Logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
@@ -188,10 +191,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Commit Message
+        run: echo "LP3D_COMMIT_MSG=${{ github.event.head_commit.message }}" >> ${GITHUB_ENV}
       - name: Assets Path
-        run: |
-          echo "LP3D_COMMIT_MSG=$(echo ${{ github.event.head_commit.message }} | awk '{print toupper($0)}')" >> ${GITHUB_ENV}
-          echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
+        run: echo "LP3D_BUILD_ASSETS=$(cd ../ && echo "$PWD/assets")" >> ${GITHUB_ENV}
       - name: Download Artifacts
         uses: actions/download-artifact@v2
         with: # omit 'with: name:' to download all artifacts
@@ -205,5 +208,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           GPG_SIGN_KEY_ALIAS: ${{ secrets.GPG_SIGN_KEY_ALIAS }}
           GPG_SIGN_PASSPHRASE: ${{ secrets.GPG_SIGN_PASSPHRASE }}
-          GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}          
+          GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           SOURCEFORGE_RSA_KEY: ${{ secrets.SOURCEFORGE_RSA_KEY }}

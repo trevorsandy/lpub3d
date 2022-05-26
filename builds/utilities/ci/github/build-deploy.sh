@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 06, 2021
+# Last Update May 18, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -77,6 +77,7 @@ PublishToGitHub() {
 declare -r p=Publish
 export CI="${CI:-true}"
 export GITHUB="${GITHUB:-true}" # GITHUB_ACTIONS
+export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
 
 # Check commit for skip directives
 if [[ "${LP3D_COMMIT_MSG}" == *"SKIP_DEPLOY"* ]]; then

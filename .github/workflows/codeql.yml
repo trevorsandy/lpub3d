@@ -21,7 +21,7 @@ on:
 
 jobs:
   analyze:
-    #if: ${{ false }} # suspend
+    if: ${{ false }} # suspend
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
