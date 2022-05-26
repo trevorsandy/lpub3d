@@ -723,7 +723,7 @@ int Application::initialize()
                 fprintf(stdout, "  -fs, --fade-steps: Turn on fade previous steps. Default is off.\n");
                 fprintf(stdout, "  -hc, --highlight-step-color <#AARRGGBB>: Set the step highlight color. Color code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
                 fprintf(stdout, "  -hs, --highlight-step: Turn on highlight current step. Default is off.\n");
-                fprintf(stdout, "  -hw, --highlight-line-width: Set the with of the highlighted edge lines - Enabled for LDGlite renderer only. Default is 1.0f.\n");
+                fprintf(stdout, "  -hw, --highlight-line-width: Set the width of the highlighted edge lines - Enabled for LDGlite renderer only. Default is 1.0f.\n");
 //              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
                 fprintf(stdout, "  -ldv, --light-dark-value <float>: Light/Dark color value between 0.0 and 1.0.\n");
                 fprintf(stdout, "  -ll, --liblego: Load the LDraw LEGO archive parts library in command console mode.\n");
@@ -774,7 +774,7 @@ int Application::initialize()
                 fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
                 fprintf(stdout, "  --no-highlight: Do not highlight parts in the steps they appear.\n");
                 fprintf(stdout, "  --highlight-color: Renderinng color for highlighted parts (#AARRGGBB).\n");
-                fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
+                fprintf(stdout, "  --line-width <width>: Set the width of the edge lines.\n");
                 fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
                 fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
                 fprintf(stdout, "\n");
