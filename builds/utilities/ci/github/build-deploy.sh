@@ -208,7 +208,7 @@ gpg --generate-key --batch <<eoGPGConf
 eoGPGConf
 ) >$s.out 2>&1 && rm $s.out || :
 [ -f $s.out ] && \
-  echo "WARNING - Failed to initialize default GPG keyring." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
+echo "WARNING - Failed to initialize default GPG keyring." && LP3D_USE_GPG=false && tail -80 $s.out || echo "Ok."
 
 # Import the owner public key first so it can be accessed for the decrypt and signature calls
 [ "${LP3D_USE_GPG}" = "true" ] && echo "Importing public owner keyring..." && \
@@ -255,16 +255,30 @@ echo "LP3D_RELEASE_LABEL..........${LP3D_RELEASE_LABEL}" || :
 echo "LP3D_RELEASE_DESCRIPTION....${LP3D_RELEASE_DESCRIPTION}" || :
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 
-# Remove artifacts that are not published
-echo && echo "Clean up artifacts..." && \
-rm -f ${LP3D_BUILD_ASSETS}/*/*-debug*.rpm > /dev/null 2>&1
-
 # Publish update assets to Sourceforge in one call - then delete
 if [ -d "${LP3D_BUILD_ASSETS}/updates" ]; then
   echo && echo "Publishing update assets..."
   export LP3D_UPDATE_ASSETS=${LP3D_BUILD_ASSETS}/updates
   PublishToSourceforge
 fi
+
+# Remove artifacts that should not be published
+declare -r c=Clean
+[ -d "${LP3D_BUILD_ASSETS}" ] && \
+echo && echo "Clean up artifacts that should not be published..." && \
+( find ${LP3D_BUILD_ASSETS}/ -type f \( \
+  -name 'Dockerfile' -o \
+  -name '*.debian.tar.xz' -o \
+  -name '*-debug*.rpm' -o \
+  -name '*.buildinfo' -o \
+  -name '*.changes' -o \
+  -name '*.dsc' -o \
+  -name '*.log' -o \
+  -name '*.sh' \) \
+  -exec rm -rf {} \;
+) >$c.out 2>&1 && rm $c.out || :
+[ -f $c.out ] && \
+echo "WARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
 
 # Publish download assets
 echo && echo "Publishing download assets..." && \
