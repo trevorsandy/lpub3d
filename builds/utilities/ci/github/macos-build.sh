@@ -54,9 +54,9 @@ export GITHUB=${GITHUB:-true}
 # Check commit for version tag
 if [[ "${GITHUB_REF}" == "refs/tags/"* ]] ; then
   publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
-  if [[ "${publish}" = "yes" ]]; then
-    export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
-  fi  
+fi
+if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" = *"BUILD_AMD"* ]]; then
+  export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
 fi
 
 # Setup ldraw parts library directory

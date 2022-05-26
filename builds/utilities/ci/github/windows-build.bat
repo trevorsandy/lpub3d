@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 22, 2022
+rem  Last Update: May 24, 2022
 rem  Copyright (C) 2021 - 2022 by Trevor SANDY
 rem --
 rem --
@@ -93,31 +93,6 @@ IF NOT EXIST "%LP3D_3RD_DIST_DIR%" (
 )
 POPD
 
-SET INVALID_TAG=FALSE
-SET IS_PUB_TAG=FALSE
-ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
-  ECHO -Commit tag %GITHUB_REF_NAME% detected.
-  SET "VER_TAG=%GITHUB_REF_NAME%"
-  SETLOCAL ENABLEDELAYEDEXPANSION
-  SET "VER_PREFIX=!VER_TAG:~0,1!"
-  IF "!VER_PREFIX!" EQU "v" (
-    SET "VER_TAG=!VER_TAG:.= !"
-    SET "VER_TAG=!VER_TAG:v=!"
-    FOR /F "tokens=1" %%i IN ("!VER_TAG!") DO SET VER_MAJOR=%%i
-    FOR /F "tokens=2" %%i IN ("!VER_TAG!") DO SET VER_MINOR=%%i
-    FOR /F "tokens=3" %%i IN ("!VER_TAG!") DO SET VER_PATCH=%%i
-    CALL :IS_VALID_NUMBER !VER_MAJOR!
-    CALL :IS_VALID_NUMBER !VER_MINOR!
-    CALL :IS_VALID_NUMBER !VER_PATCH!
-  )
-  IF !IS_PUB_TAG! EQU TRUE (
-    CALL :SET_COMMIT_MSG
-    ECHO -Publish tag %GITHUB_REF_NAME% confirmed. 
-    ECHO -Commit message: !LP3D_COMMIT_MSG!
-  )
-  SETLOCAL
-)
-
 SET LP3D_LDGLITE=%LP3D_DIST_DIR_PATH%\ldglite-1.3
 SET LP3D_LDVIEW=%LP3D_DIST_DIR_PATH%\ldview-4.4
 SET LP3D_POVRAY=%LP3D_DIST_DIR_PATH%\lpub3d_trace_cui-3.8
@@ -138,6 +113,35 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY" >NUL && (
   ECHO -'Build POVRay' detected.
   IF EXIST "%LP3D_POVRAY%" ( DEL /S /Q "%LP3D_POVRAY%" >NUL 2>&1 )
   IF NOT EXIST "%LP3D_POVRAY%" ( ECHO -Cached %LP3D_POVRAY% deleted. )
+)
+
+SET INVALID_TAG=FALSE
+SET IS_PUB_TAG=FALSE
+ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
+  ECHO -Commit tag %GITHUB_REF_NAME% detected.
+  SET "VER_TAG=%GITHUB_REF_NAME%"
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET "VER_PREFIX=!VER_TAG:~0,1!"
+  IF "!VER_PREFIX!" EQU "v" (
+    SET "VER_TAG=!VER_TAG:.= !"
+    SET "VER_TAG=!VER_TAG:v=!"
+    FOR /F "tokens=1" %%i IN ("!VER_TAG!") DO SET VER_MAJOR=%%i
+    FOR /F "tokens=2" %%i IN ("!VER_TAG!") DO SET VER_MINOR=%%i
+    FOR /F "tokens=3" %%i IN ("!VER_TAG!") DO SET VER_PATCH=%%i
+    CALL :IS_VALID_NUMBER !VER_MAJOR!
+    CALL :IS_VALID_NUMBER !VER_MINOR!
+    CALL :IS_VALID_NUMBER !VER_PATCH!
+  )
+  IF !IS_PUB_TAG! EQU TRUE (
+    CALL :SET_BUILD_ALL
+    ECHO -Publish tag %GITHUB_REF_NAME% confirmed.
+    ECHO -Commit message: !LP3D_COMMIT_MSG!
+  )
+  SETLOCAL
+)
+
+ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_AMD" >NUL && (
+  CALL :SET_BUILD_ALL
 )
 
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
@@ -191,8 +195,13 @@ SET INVALID_TAG=TRUE
 ECHO -Version number '%1' is invalid.
 EXIT /b
 
-:SET_COMMIT_MSG
-SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_ALL
+:SET_BUILD_ALL
+ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
+  SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_ALL
+)
+ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "-all" >NUL && (
+  SET BUILD_ARCH=-all
+)
 EXIT /b
 
 :SET_BUILD_ALL_RENDERERS

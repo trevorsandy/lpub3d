@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
-        BUILD: [ ubuntu-amd64, ubuntu-amd64-appimage, fedora-amd64, archlinux-amd64 ]
+        BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -38,8 +38,8 @@ jobs:
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
         env:
-          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           BUILD: ${{ matrix.BUILD }}
+          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       - name: List Artifacts
@@ -181,7 +181,9 @@ jobs:
     if: |
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
-      (contains(github.event.head_commit.message, 'BUILD_ALL') || github.ref == 'refs/tags/*' || github.event_name == 'workflow_dispatch')
+      (contains(github.event.head_commit.message, 'BUILD_AMD') ||
+       contains(github.event.head_commit.message, 'BUILD_ALL') ||
+       github.ref == 'refs/tags/*' || github.event_name == 'workflow_dispatch')
     name: Publish Assets
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest
@@ -202,8 +204,8 @@ jobs:
       - name: Deploy Assets
         run: bash -ex builds/utilities/ci/github/build-deploy.sh
         env:
-          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           GITHUB_TOKEN: ${{ github.token }}
+          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           GPG_SIGN_KEY_ALIAS: ${{ secrets.GPG_SIGN_KEY_ALIAS }}
           GPG_SIGN_PASSPHRASE: ${{ secrets.GPG_SIGN_PASSPHRASE }}
           GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
