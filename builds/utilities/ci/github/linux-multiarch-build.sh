@@ -304,10 +304,10 @@ if [ "${LP3D_QEMU}" = "true" ]; then
     export QEMU_LD_PREFIX=/usr/${aik_arch}-linux-gnu
     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
     if [ "${LP3D_APPIMAGE}" = "true" ]; then
-        LP3D_BUILD_AI_TOOLS=1
+        LP3D_AI_BUILD_TOOLS=1
         # extract appimage payload is OFF
-        if [ -z "${LP3D_EXTRACT_PAYLOAD}" ]; then
-            [[ "${LP3D_COMMIT_MSG}" == *"EXTRACT_PAYLOAD"* ]] && LP3D_EXTRACT_PAYLOAD=1 || :
+        if [ -z "${LP3D_AI_EXTRACT_PAYLOAD}" ]; then
+            [[ "${LP3D_COMMIT_MSG}" == *"EXTRACT_PAYLOAD"* ]] && LP3D_AI_EXTRACT_PAYLOAD=1 || :
         fi
     fi
     # replace magic bytes default is ON
@@ -317,7 +317,7 @@ if [ "${LP3D_QEMU}" = "true" ]; then
 fi
 
 # build appimage toolkit
-if [ -n "${LP3D_BUILD_AI_TOOLS}" ]; then
+if [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
     p=appimagetool
     k=AppImageKit
     tools_path=${base_path}/AppDir/tools
@@ -403,9 +403,9 @@ common_docker_opts=(
     -e LP3D_APPIMAGE="${LP3D_APPIMAGE}"
     -e LP3D_NO_CLEANUP="${LP3D_NO_CLEANUP}"
     -e LP3D_AI_MAGIC_BYTES="${LP3D_AI_MAGIC_BYTES}"
-    -e LP3D_BUILD_AI_TOOLS="${LP3D_BUILD_AI_TOOLS}"
+    -e LP3D_AI_BUILD_TOOLS="${LP3D_AI_BUILD_TOOLS}"
     -e LP3D_PRE_PACKAGE_CHECK="${LP3D_PRE_PACKAGE_CHECK}"
-    -e LP3D_EXTRACT_PAYLOAD="${LP3D_EXTRACT_PAYLOAD}"
+    -e LP3D_AI_EXTRACT_PAYLOAD="${LP3D_AI_EXTRACT_PAYLOAD}"
     -v "${PWD}":/in
     -v "${out_path}":/out
     -v "${dist_path}":/dist

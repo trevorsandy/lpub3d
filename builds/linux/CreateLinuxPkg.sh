@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August, 06, 2021
+# Last Update May 18, 2022
 # Copyright (C) 2022 - 2022 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -40,7 +40,7 @@ SaveAppImageSetupProgress() {
     mkdir -p ${LP3D_DIST_DIR_PATH}/AppDir/tools
     [ -f "${AppDirBuildPath}/linuxdeployqt" ] && \
     cp -af ${AppDirBuildPath}/linuxdeployqt ${LP3D_DIST_DIR_PATH}/AppDir/tools/ || :
-    if [ -n "${LP3D_BUILD_AI_TOOLS}" ]; then
+    if [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
       [ -d "${WD}/bin" ] && cp -af bin/ ${LP3D_DIST_DIR_PATH}/AppDir/tools/ || :
       [ -d "${WD}/share" ] && cp -af share/ ${LP3D_DIST_DIR_PATH}/AppDir/tools/ || :
       [ -f "${WD}/patchelf-0.9.tar.bz2" ] && \
@@ -122,13 +122,13 @@ Info "PRE-PACKAGE CHECK..true" ||
 Info "PRE-PACKAGE CHECK..false"
 fi
 if [ "${LP3D_APPIMAGE}" = "true" ]; then
-[ -n "${LP3D_BUILD_AI_TOOLS}" ] && \
+[ -n "${LP3D_AI_BUILD_TOOLS}" ] && \
 Info "BUILD AI TOOLS.....true" ||
 Info "BUILD AI TOOLS.....false"
 [ -n "${LP3D_AI_MAGIC_BYTES}" ] && \
 Info "PATCH MAGIC_BYTES..false" ||
 Info "PATCH MAGIC_BYTES..true"
-[ -n "${LP3D_EXTRACT_PAYLOAD}" ] && \
+[ -n "${LP3D_AI_EXTRACT_PAYLOAD}" ] && \
 Info "EXTRACT AI PAYLOAD.true" ||
 Info "EXTRACT AI PAYLOAD.true"
 fi
@@ -349,7 +349,7 @@ else
   if [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools" ]; then
     [ -f "${LP3D_DIST_DIR_PATH}/AppDir/tools/linuxdeployqt" ] && \
     cp -af ${LP3D_DIST_DIR_PATH}/AppDir/tools/linuxdeployqt ${AppDirBuildPath}/ || :
-    if [ -n "${LP3D_BUILD_AI_TOOLS}" ]; then
+    if [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
       [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools/bin" ] && \
       cp -ar ${LP3D_DIST_DIR_PATH}/AppDir/tools/bin ${WD}/ || :
       [ -d "${LP3D_DIST_DIR_PATH}/AppDir/tools/share" ] && \
@@ -380,7 +380,7 @@ fi
 
 # Setup AppImage tools - linuxdeployqt, lconvert
 Info && Info "Installing AppImage tools..."
-if [[ -z "${LP3D_BUILD_AI_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
+if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
   cd ${AppDirBuildPath}
   CommandArg=-version
   if [ ! -e linuxdeployqt ]; then
@@ -396,7 +396,7 @@ if [[ -z "${LP3D_BUILD_AI_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}"
     exit 5
   fi
   SaveAppImageSetupProgress
-elif [[ -n "${LP3D_BUILD_AI_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
+elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
   cd ${WD}/
   [ ! -d bin ] && mkdir bin || :
   export PATH="${WD}/bin":"${PATH}"
@@ -558,10 +558,10 @@ for r in $renderers; do executables="$executables -executable=$r" && Info "Set e
 unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH; # no longer needed, superceded by AppRun
 export VERSION="$LP3D_VERSION"    # used to construct the file name
 ./linuxdeployqt ./usr/share/applications/*.desktop $executables -bundle-non-qt-libs -verbose=2
-if [[ -z "${LP3D_BUILD_AI_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
+if [[ -z "${LP3D_AI_BUILD_TOOLS}" && ("${LP3D_ARCH}" = "amd64" || "${LP3D_ARCH}" = "x86_64") ]]; then
   ./linuxdeployqt ./usr/share/applications/*.desktop -appimage -verbose=2
   AppImage=$(ls LPub3D*.AppImage)  # name with full path
-elif [[ -n "${LP3D_BUILD_AI_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
+elif [[ -n "${LP3D_AI_BUILD_TOOLS}" || "${LP3D_ARCH}" = "arm64" || "${LP3D_ARCH}" = "aarch64" || "${LP3D_QEMU}" = "true" ]]; then
   # lpub3d.desktop
   [ -f "./usr/share/applications/lpub3d.desktop" ] && \
   cp -f ./usr/share/applications/lpub3d.desktop . || \
@@ -696,7 +696,7 @@ if [ -f "${AppImage}" ]; then
         exit 7
       fi
     fi
-  elif [ -n "${LP3D_BUILD_AI_TOOLS}" ]; then
+  elif [ -n "${LP3D_AI_BUILD_TOOLS}" ]; then
     #CommandArg=--appimage-version
     ( ${AppImage} ${CommandArg} ) >$p.out 2>&1 && mv $p.out $p.ok
     if [ -f $p.ok ]; then
@@ -747,7 +747,7 @@ if [ -f "${AppImageCheck}" ]; then
   export LP3D_CHECK_STATUS="--version --app-paths"
   mkdir -p appImage_Check && cp -f ${AppImageCheck} appImage_Check/${AppImageName} && \
   Info "$(ls ./appImage_Check/*.AppImage) copied to check folder."
-  if [[ -z "$(which fusermount)" || -n "${LP3D_EXTRACT_PAYLOAD}" || "${LP3D_QEMU}" = "true" ]]; then
+  if [[ -z "$(which fusermount)" || -n "${LP3D_AI_EXTRACT_PAYLOAD}" || "${LP3D_QEMU}" = "true" ]]; then
     ( cd appImage_Check && ./${AppImageName} --appimage-extract \
     ) >$p.out 2>&1 && rm -f $p.out
     if [ ! -f $p.out ]; then
