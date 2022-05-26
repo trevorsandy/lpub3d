@@ -6,8 +6,7 @@ An LDraw™ editor for LEGO® style digital building instructions.
 :--------------------------------------------------------------------|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------------
 [![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]      |[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]                    |[![GitHub total downloads][gh-dl-badge]][gh-dl-url]
 [![GitHub issues closed][gh-issue-closed-badge]][gh-issue-closed-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]                                  |[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]
-[![Travis-CI build status][travis-badge]][travis-url]                |[![AppVeyor build status][appveyor-badge]][appveyor-url]                          |[![Maintained status][gh-maintained-badge]][gh-maintained-url]
-
+[![GitHub build status][gha-build-badge]][gh-actions-url]            |[![AppVeyor build status][appveyor-badge]][appveyor-url]                          |[![Maintained status][gh-maintained-badge]][gh-maintained-url]
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions developed and maintained by Trevor SANDY. 
 
@@ -41,6 +40,10 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 
 [appveyor-badge]:      https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor&logo=appveyor
 [appveyor-url]:        https://ci.appveyor.com/project/trevorsandy/lpub3d
+
+[gha-build-badge]:     https://github.com/trevorsandy/lpub3d/actions/workflows/build.yml/badge.svg?event=push
+[gha-quality-badge]:   https://github.com/trevorsandy/lpub3d/actions/workflows/codeql.yml/badge.svg?event=push
+[gh-actions-url]:      https://github.com/trevorsandy/lpub3d/actions
 
 [gh-rel-badge]:        https://img.shields.io/github/release/trevorsandy/lpub3d.svg?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMTIgMTIgNDAgNDAiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiwxMy40Yy0xMC41LDAtMTksOC41LTE5LDE5YzAsOC40LDUuNSwxNS41LDEzLDE4YzEsMC4yLDEuMy0wLjQsMS4zLTAuOWMwLTAuNSwwLTEuNywwLTMuMiBjLTUuMywxLjEtNi40LTIuNi02LjQtMi42QzIwLDQxLjYsMTguOCw0MSwxOC44LDQxYy0xLjctMS4yLDAuMS0xLjEsMC4xLTEuMWMxLjksMC4xLDIuOSwyLDIuOSwyYzEuNywyLjksNC41LDIuMSw1LjUsMS42IGMwLjItMS4yLDAuNy0yLjEsMS4yLTIuNmMtNC4yLTAuNS04LjctMi4xLTguNy05LjRjMC0yLjEsMC43LTMuNywyLTUuMWMtMC4yLTAuNS0wLjgtMi40LDAuMi01YzAsMCwxLjYtMC41LDUuMiwyIGMxLjUtMC40LDMuMS0wLjcsNC44LTAuN2MxLjYsMCwzLjMsMC4yLDQuNywwLjdjMy42LTIuNCw1LjItMiw1LjItMmMxLDIuNiwwLjQsNC42LDAuMiw1YzEuMiwxLjMsMiwzLDIsNS4xYzAsNy4zLTQuNSw4LjktOC43LDkuNCBjMC43LDAuNiwxLjMsMS43LDEuMywzLjVjMCwyLjYsMCw0LjYsMCw1LjJjMCwwLjUsMC40LDEuMSwxLjMsMC45YzcuNS0yLjYsMTMtOS43LDEzLTE4LjFDNTEsMjEuOSw0Mi41LDEzLjQsMzIsMTMuNHoiLz48L3N2Zz4=
 [gh-rel-url]:          https://github.com/trevorsandy/lpub3d/releases/latest
