@@ -35,7 +35,7 @@ PublishToSourceforge() {
 }
 
 # GPG sign .sha512 files and publish assets to Github
-SighHashAndPublishToGitHub() {
+SignHashAndPublishToGitHub() {
   if [ -f "${LP3D_RELEASE}" ]; then
     case ${LP3D_ASSET_EXT} in
       ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage")
@@ -275,9 +275,15 @@ for LP3D_ASSET in ${LP3D_ASSETS}; do
   export LP3D_ASSET_EXT=".${LP3D_ASSET##*.}"
   # Process individual release asset
   case ${LP3D_ASSET_EXT} in
-    ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
-    LP3D_RELEASE=${LP3D_ASSET}
-    SighHashAndPublishToGitHub
+    ".exe"|".pdb"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
+    if [ "${LP3D_ASSET_EXT}" = ".pdb" ]; then
+      LP3D_RELEASE=$(echo ${LP3D_ASSET/.pdb/-${LP3D_APP_VERSION_LONG}.pdb})
+      ( mv -v "${LP3D_ASSET}" "${LP3D_RELEASE}" ) >$c.out 2>&1 && rm $c.out
+      [ -f $c.out ] && echo "WARNING - Rename ${LP3D_ASSET} failed." && tail -80 $c.out || echo "Ok."
+    else
+      LP3D_RELEASE=${LP3D_ASSET}
+    fi
+    SignHashAndPublishToGitHub
     ;;
   esac
 done
