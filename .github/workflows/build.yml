@@ -12,14 +12,14 @@ on:
 
 jobs:
   build-linux:
+    #if: ${{ false }} # # uncomment to disable
     if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
-    #if: ${{ false }} # suspend
     name: Build Linux
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
-        BUILD: [ ubuntu-amd64, ubuntu-amd64-appimage, fedora-amd64, archlinux-amd64 ]
+        BUILD: [ fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -61,8 +61,8 @@ jobs:
           if-no-files-found: ignore
 
   build-macos:
-    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
-    #if: ${{ false }} # suspend
+    if: ${{ false }} # # uncomment to disable
+    #if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     name: Build macOS
     runs-on: macos-10.15
     steps:
@@ -102,8 +102,8 @@ jobs:
           if-no-files-found: ignore
 
   build-windows:
-    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
-    #if: ${{ false }} # suspend
+    if: ${{ false }} # # uncomment to disable
+    #if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     name: Build Windows
     runs-on: windows-2019
     steps:
@@ -182,7 +182,7 @@ jobs:
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'BUILD_ALL') || github.event_name == 'workflow_dispatch')
-    # if: ${{ false }} # disable for now
+    # if: ${{ false }} # # uncomment to disable
     name: Publish Assets
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest

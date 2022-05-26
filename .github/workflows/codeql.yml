@@ -8,7 +8,7 @@ name: CodeQL
 on:
   push:
     branches: [ master ]
-    paths-ignore: 
+    paths-ignore:
       - 'builds/**'
       - 'mainApp/docs/**'
       - 'mainApp/extras/**'
@@ -16,7 +16,7 @@ on:
       - 'lclib/docs/**'
       - 'lclib/resources/**'
       - 'ldvlib/LDVQt/resources/**'
-      - 'qsimpleupdater/doc/**'      
+      - 'qsimpleupdater/doc/**'
       - 'qsimpleupdater/etc/**'
 
 jobs:
@@ -50,11 +50,11 @@ jobs:
         uses: github/codeql-action/init@v1
         with:
           languages: cpp
-          config-file: builds/utilities/ci/github/codeql-config.yml              
+          config-file: builds/utilities/ci/github/codeql-config.yml
       - name: Compile
         run: bash -ex builds/utilities/ci/github/linux-compile.sh
-        env: 
-          LP3D_ANALYZE: 1          
+        env:
+          LP3D_ANALYZE: 1
       - name: Diagnostics
         if: failure()
         uses: actions/upload-artifact@v2
