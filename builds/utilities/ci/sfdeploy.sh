@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 06, 2021
+#  Last Update: May 24, 2021
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -100,9 +100,8 @@ echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
 # add host private key to ssh-agent
 eval "$(ssh-agent -s)"
 if [ -s "${LP3D_HOST_RSA_KEY}" ]; then
-#  ssh-add - <<< "${SOURCEFORGE_RSA_KEY}"
   ssh-add $LP3D_HOST_RSA_KEY
-elif [ -f "/tmp/$LP3D_HOST_RSA_KEY" ]; then
+elif [ -f "/tmp/${LP3D_HOST_RSA_KEY}" ]; then
   chmod 600 /tmp/$LP3D_HOST_RSA_KEY
   ssh-add /tmp/$LP3D_HOST_RSA_KEY
 else
