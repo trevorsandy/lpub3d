@@ -88,11 +88,13 @@ elif [ "$GITHUB" = "true" ]; then
   echo && echo "Deploying Github actions release assets to Sourceforge.net..."
 fi
 
-# add host public key to .ssh/known_hosts - prevent interactive prompt
+# add remote host public key to ~/.ssh/known_hosts - prevent interactive prompt
 [ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
 [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
-[ -z `ssh-keygen -F $LP3D_SF_REMOTE_HOST` ] && ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts || \
-echo  "Public key for remote host $LP3D_SF_REMOTE_HOST exist in .ssh/known_hosts."
+[ -z "$(ssh-keygen -F $LP3D_SF_REMOTE_HOST)" ] && \
+ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts && \
+echo && echo "Remote host $LP3D_SF_REMOTE_HOST public key added to ~/.ssh/known_hosts." || \
+echo && echo "Remote host $LP3D_SF_REMOTE_HOST public key exist in ~/.ssh/known_hosts."
 
 # where are we working from
 echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
