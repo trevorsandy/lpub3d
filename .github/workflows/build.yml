@@ -38,10 +38,10 @@ jobs:
       - name: Build ${{ matrix.BUILD }}
         run: bash -ex builds/utilities/ci/github/linux-build.sh
         env:
+          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           BUILD: ${{ matrix.BUILD }}
           DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
       - name: List Artifacts
         if: always()
         run: test -d ${{ env.LP3D_BUILDPKG_PATH }} && ls -alFR ${{ env.LP3D_BUILDPKG_PATH }} || true
@@ -202,9 +202,10 @@ jobs:
       - name: Deploy Assets
         run: bash -ex builds/utilities/ci/github/build-deploy.sh
         env:
+          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
           GITHUB_TOKEN: ${{ github.token }}
           GPG_SIGN_KEY_ALIAS: ${{ secrets.GPG_SIGN_KEY_ALIAS }}
           GPG_SIGN_PASSPHRASE: ${{ secrets.GPG_SIGN_PASSPHRASE }}
           GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           SOURCEFORGE_RSA_KEY: ${{ secrets.SOURCEFORGE_RSA_KEY }}
-          LP3D_COMMIT_MSG: ${{ github.event.head_commit.message }}
+
