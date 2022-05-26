@@ -6,7 +6,7 @@ An LDraw™ editor for LEGO® style digital building instructions.
 :--------------------------------------------------------------------|:---------------------------------------------------------------------------------|:---------------------------------------------------------------------------
 [![SourceForge weekly downloads][sf-dw-badge]][sf-dw-badge-url]      |[![SourceForge total downloads][sf-dt-badge]][sf-dt-badge-url]                    |[![GitHub total downloads][gh-dl-badge]][gh-dl-url]
 [![GitHub issues closed][gh-issue-closed-badge]][gh-issue-closed-url]|[![GitHub issues][gh-issue-badge]][gh-issue-url]                                  |[![GitHub pull requests][gh-pull-req-badge]][gh-pull-req-url]
-[![GitHub build status][gha-build-badge]][gh-actions-url]            |[![AppVeyor build status][appveyor-badge]][appveyor-url]                          |[![Maintained status][gh-maintained-badge]][gh-maintained-url]
+[![GitHub build status][gha-build-badge]][gh-actions-url]            |[![GitHub quality check][gha-quality-badge]][gh-actions-url]                     |[![Maintained status][gh-maintained-badge]][gh-maintained-url]
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions developed and maintained by Trevor SANDY. 
 
@@ -34,12 +34,6 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
 [github_releases]:     https://github.com/trevorsandy/lpub3d/releases
 [obs_releases]:        https://download.opensuse.org/repositories/home:/trevorsandy
-
-[travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis&logo=travis
-[travis-url]:          https://travis-ci.com/trevorsandy/lpub3d
-
-[appveyor-badge]:      https://img.shields.io/appveyor/ci/trevorsandy/lpub3d.svg?label=appveyor&logo=appveyor
-[appveyor-url]:        https://ci.appveyor.com/project/trevorsandy/lpub3d
 
 [gha-build-badge]:     https://github.com/trevorsandy/lpub3d/actions/workflows/build.yml/badge.svg?event=push
 [gha-quality-badge]:   https://github.com/trevorsandy/lpub3d/actions/workflows/codeql.yml/badge.svg?event=push
