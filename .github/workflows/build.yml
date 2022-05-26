@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: # ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64
-        BUILD: [ ubuntu-amd64, ubuntu-amd64-appimage, fedora-amd64, archlinux-amd64 ]
+        BUILD: [ ubuntu-amd64, ubuntu-arm64, ubuntu-amd64-appimage, ubuntu-arm64-appimage, fedora-amd64, archlinux-amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
           Echo "LP3D_3RD_PARTY_PATH=$(Join-Path (resolve-path ..\) 'third_party')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           Echo "LP3D_BUILDPKG_PATH=$(Join-Path (resolve-path ..\) 'buildpkg')" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           Echo "LP3D_BUILD_BASE=$(resolve-path ..\)" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-      - name: Cache Qt
+      - name: Cache QtMSVC 2019
         id: cache-qt
         uses: actions/cache@v2
         with:
@@ -181,7 +181,7 @@ jobs:
     if: |
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
-      (contains(github.event.head_commit.message, 'BUILD_ALL') || github.event_name == 'workflow_dispatch')
+      (contains(github.event.head_commit.message, 'BUILD_ALL') || github.ref == 'refs/tags/*' || github.event_name == 'workflow_dispatch')
     name: Publish Assets
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest

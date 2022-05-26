@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 27, 2021
+# Last Update May 22, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -50,6 +50,14 @@ export LDRAWDIR_ROOT=${LDRAWDIR_ROOT:-~/}
 export LDRAWDIR=${LDRAWDIR:-~/ldraw}
 export CI=${CI:-true}
 export GITHUB=${GITHUB:-true}
+
+# Check commit for version tag
+if [[ "${GITHUB_REF}" == "refs/tags/"* ]] ; then
+  publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+  if [[ "${publish}" = "yes" ]]; then
+    export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
+  fi  
+fi
 
 # Setup ldraw parts library directory
 if [ ! -d "$LP3D_LDRAW_DIR" ]; then

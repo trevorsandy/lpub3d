@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 18, 2022
+# Last Update May 22, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -113,11 +113,10 @@ set +x && echo && source builds/utilities/update-config-files.sh && echo && set 
 
 # Check commit for version tag
 if [[ "$GITHUB_REF" == "refs/tags/"* ]] ; then
-  LP3D_GIT_TAG="${GITHUB_REF#refs/tags/}"
-  echo "Commit tag $LP3D_GIT_TAG detected.";
-  LP3D_DEPLOY_PKG=$(echo "$LP3D_GIT_TAG" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+  echo "Commit tag $GITHUB_REF_NAME detected.";
+  LP3D_DEPLOY_PKG=$(echo "$GITHUB_REF_NAME" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
-    echo "Deploy tag identified."
+    echo "Deploy tag $GITHUB_REF_NAME confirmed."
   fi
 fi
 
