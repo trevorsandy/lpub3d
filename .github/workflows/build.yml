@@ -159,20 +159,20 @@ jobs:
       - name: Upload Update Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Update Artifacts
+          name: updates
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Updates\
           if-no-files-found: ignore
       - name: Upload Download Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Windows Download Artifacts
+          name: windows-download
           path: ${{ env.LP3D_BUILDPKG_PATH }}\Downloads\
           if-no-files-found: ignore
       - name: Diagnostics
         if: failure()
         uses: actions/upload-artifact@v2
         with:
-          name: Windows Logs
+          name: windows-logs
           path: ${{ env.LP3D_BUILDPKG_PATH }}/
           if-no-files-found: ignore
 
