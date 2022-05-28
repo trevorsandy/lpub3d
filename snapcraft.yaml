@@ -1,11 +1,29 @@
 # Build and check LPub3D Snap
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 06, 2021
+# Last Update: May 27, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: lpub3d
 adopt-info: lpub3d
+version: '2.4.3'
+icon: usr/share/icons/hicolor/256x256/lpub3d.png
 
+summary: LDraw™ editor for LEGO® style digital building instructions.
+description: |
+  LPub3D is an Open Source WYSIWYG editing application for creating
+  LEGO® style digital building instructions. LPub3D is developed and
+  maintained by Trevor SANDY. It uses the LDraw™ parts library, the
+  most comprehensive library of digital Open Source LEGO® bricks
+  available (www.ldraw.org/ ) and reads the LDraw LDR and MPD model
+  file formats. LPub3D is available for free under the GNU Public License v3
+  and runs on Windows, Linux and macOS Operating Systems.
+  LPub3D is also available as a Linux 'no-install', multi-platform AppImage.
+  Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
+  LeoCAD© 2022 Leonardo Zide.and additional third party components.
+  LEGO® is a trademark of the LEGO Group of companies which does not
+  sponsor, authorize or endorse this application.
+  © 2015-2022 Trevor SANDY
+  
 grade: stable
 confinement: strict
 base: core18
@@ -30,15 +48,15 @@ parts:
     plugin: nil
     build-environment:
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging
-      - LIB_URL: https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1
+      - LIB_URL: https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1   
     build-packages:
       - wget
       - unzip
     override-build: |
       wget --quiet ${LIB_URL}/tenteparts.zip -O tenteparts.zip
       wget --quiet ${LIB_URL}/vexiqparts.zip -O vexiqparts.zip
-      wget --quiet ${LIB_URL}/lpub3dldrawunf-01-04-21.zip -O lpub3dldrawunf.zip
-      wget --quiet ${LIB_URL}/complete-20-03.zip -O complete.zip
+      wget --quiet ${LIB_URL}/lpub3dldrawunf-22-05-27.zip -O lpub3dldrawunf.zip
+      wget --quiet ${LIB_URL}/complete-22-03.zip -O complete.zip
     override-stage: |
       test -d ${STAGE_DIR} && rm -rf ${STAGE_DIR}; mkdir ${STAGE_DIR}
       test -f ${SNAPCRAFT_PART_BUILD}/complete.zip && mv -f ${SNAPCRAFT_PART_BUILD}/complete.zip ${STAGE_DIR}/
