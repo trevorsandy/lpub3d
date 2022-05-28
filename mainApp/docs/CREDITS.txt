@@ -1,36 +1,44 @@
 The following people have contributed to components used in LPub3D:
 
-LPub3D
-Trevor Sandy <trevor.sandy@gmail.com>
-
-LDGLite (LDGLite 1.3.4 - specifically adapted for LPub3D)
-Trevor Sandy <trevor.sandy@gmail.com>
-
-LDView-OSMesa-CUI (LDView - LPub3D Edition 4.4 "qmake-build" specifically adapted for LPub3D)
-Trevor Sandy <trevor.sandy@gmail.com>
-
-LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
+LPub3D - An LDraw Building Instruction Editor
+https://trevorsandy.github.io/lpub3d
 Trevor Sandy <trevor.sandy@gmail.com>
 
 Visual Editor (LeoCAD version 21.06 sha 22d4d2c specifically adapted for LPub3D)
+https://github.com/trevorsandy/leocad/
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LDView-OSMesa-CUI (LDView - LPub3D Edition 4.4.0 "qmake-build" specifically adapted for LPub3D)
+https://github.com/trevorsandy/ldview
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LDGLite (LDGLite 1.3.4 - specifically adapted for LPub3D)
+https://github.com/trevorsandy/ldglite
+Trevor Sandy <trevor.sandy@gmail.com>
+
+LPub3D RayTrace-CUI (POV-Ray 3.8.0 "raytracer-cui" specifically adapted for LPub3D)
+https://github.com/trevorsandy/povray/
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub4
-Author:
+https://sourceforge.net/projects/lpub4/
 Kevin Clague <kevin.clague@gmail.com>
 
 LeoCAD 21.06 commit 22d4d2c
-Author:
+https://github.com/leozide/leocad
 Leonardo Zide <leozide@gmail.com>
 
 LDGlite 1.3.4 commit 492071
+https://github.com/deeice/ldglite
 Don Heyse <dheyse@hotmail.com>
 
 LDView 4.4 commit fb24648
+https://github.com/tcobbs/ldview
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 
 POV-Ray 3.8 commit 74b3ebe
+https://github.com/POV-Ray/povray
 Persistence of Vision Raytracer Pty. Ltd.
 
 Qt-History-LineEdit c6c6992
@@ -38,6 +46,7 @@ https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
 Mattia Basaglia <mattia.basaglia@gmail.com>
 
 qSLog 2.0.0 b4
+https://bitbucket.org/codeimproved/qslog/src/master/
 Razvan Petru
 
 QtWaitingSpinner commit bb8f898
@@ -53,6 +62,7 @@ https://github.com/alex-spataru/QSimpleUpdater
 Alex Spataru
 
 WPngImage 1.4.0
+https://github.com/WarpRules/WPngImage
 Juha Nieminen
 
 LDraw.ini / ldglite

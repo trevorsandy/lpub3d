@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 27, 2021
+# Last Update May 27, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -312,12 +312,12 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" -e "s/.*<release version=.*/        <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" \
-                  -e "s/.*<binary>lpub3d.*/        <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}"
+        sed -i "" -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}"
 
     else
-        sed -i -e "s/.*<release version=.*/        <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/" \
-               -e "s/.*<binary>lpub3d.*/        <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/"  "${FILE}"
+        sed -i -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}" \
+               -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
+               -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes<\/p>/}" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -364,7 +364,7 @@ EOF
 
 FILE="$LP3D_CONFIG_DIR/PKGBUILD"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "10. update PKGBUILD        - add version           [$FILE]" || :
+Info "10.update PKGBUILD        - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]

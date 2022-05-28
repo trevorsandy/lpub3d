@@ -1,13 +1,16 @@
 # LPub3D security and quality analysis
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 24, 2022
+# Last Update: May 27, 2022
 # Copyright (c) 2021 - 2022 by Trevor SANDY
 #
 name: quality # used for badge label
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - 'master'
+    tags-ignore:
+      - 'continuous'
     paths-ignore:
       - 'builds/**'
       - 'mainApp/docs/**'

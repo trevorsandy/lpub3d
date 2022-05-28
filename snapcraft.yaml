@@ -5,7 +5,7 @@
 #
 name: lpub3d
 adopt-info: lpub3d
-version: '2.4.3'
+version: '2.4.4'
 icon: usr/share/icons/hicolor/256x256/lpub3d.png
 
 summary: LDraw™ editor for LEGO® style digital building instructions.
@@ -73,7 +73,7 @@ parts:
   source-and-renderers:
     after: [ldraw-libraries]
     plugin: nil
-    source: https://github.com/trevorsandy/lpub3d/archive/v2.4.3.tar.gz
+    source: https://github.com/trevorsandy/lpub3d/archive/v2.4.4.tar.gz
     build-environment:
       - WORK_DIR: $(realpath ${SNAPCRAFT_PART_BUILD}/../build_staging)
       - STAGE_DIR: ${SNAPCRAFT_STAGE}/build_staging

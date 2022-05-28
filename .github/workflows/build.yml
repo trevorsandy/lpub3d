@@ -1,19 +1,22 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 24, 2022
+# Last Update: May 28, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: builds # used for badge label
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - 'master'
+    tags:
+      - 'v*'
+      - '!continuous'
   workflow_dispatch:
 
 jobs:
   build-linux:
     # if: ${{ false }} # uncomment to disable
-    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     name: Build Linux
     runs-on: ubuntu-latest
     strategy:
@@ -61,7 +64,6 @@ jobs:
 
   build-macos:
     # if: ${{ false }} # uncomment to disable
-    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     name: Build macOS
     runs-on: macos-10.15
     steps:
@@ -102,7 +104,6 @@ jobs:
 
   build-windows:
     # if: ${{ false }} # uncomment to disable
-    if: "!contains(github.event.head_commit.message, 'SKIP_CI')"
     name: Build Windows
     runs-on: windows-2019
     steps:
@@ -183,7 +184,8 @@ jobs:
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
       (contains(github.event.head_commit.message, 'BUILD_AMD') ||
        contains(github.event.head_commit.message, 'BUILD_ALL') ||
-       github.ref == 'refs/tags/*' || github.event_name == 'workflow_dispatch')
+       startsWith(github.event.ref, 'refs/tags/v') ||
+       github.event_name == 'workflow_dispatch')
     name: Publish Assets
     needs: [ build-linux, build-macos, build-windows ] # build-linux, build-macos, build-windows
     runs-on: ubuntu-latest
