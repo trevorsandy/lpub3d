@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 03, 2021
+rem  Last Update: May 31, 2022
 rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -40,6 +40,9 @@ IF "%GITHUB%" EQU "True" (
   IF "%GITHUB_RUNNER_IMAGE%" == "Visual Studio 2019" (
     SET LP3D_VSVERSION=2019
   )
+  IF NOT "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CONFIG_CI=github_ci
+  )
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET PACKAGE=%LP3D_PACKAGE%
   SET CONFIGURATION=%GITHUB_CONFIG%
@@ -48,8 +51,12 @@ IF "%GITHUB%" EQU "True" (
   SET LDRAW_DIR=%LP3D_LDRAW_DIR_PATH%
   SET LP3D_UPDATE_LDRAW_LIBS=%UPDATE_LDRAW_LIBS%
   SETLOCAL ENABLEDELAYEDEXPANSION
-  SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
-  SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+  IF "%LP3D_QT32_MSVC%" == "" (
+    SET LP3D_QT32_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
+  )
+  IF "%LP3D_QT64_MSVC%" == "" (
+    SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+  )
   SETLOCAL
 )
 
@@ -63,6 +70,9 @@ IF "%APPVEYOR%" EQU "True" (
   IF "%APPVEYOR_BUILD_WORKER_IMAGE%" == "Visual Studio 2019" (
     SET LP3D_VSVERSION=2019
   )
+  IF NOT "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CONFIG_CI=appveyor_ci
+  )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
   SET PACKAGE=%LP3D_PACKAGE%
@@ -72,8 +82,12 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET LP3D_UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
   SETLOCAL ENABLEDELAYEDEXPANSION
-  SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
-  SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+  IF "%LP3D_QT32_MSVC%" == "" (
+    SET LP3D_QT32_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!\bin
+  )
+  IF "%LP3D_QT64_MSVC%" == "" (
+    SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
+  )
   SETLOCAL
 )
 
@@ -292,12 +306,21 @@ ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
+IF "%LP3D_LOCAL_CI_BUILD%" EQU "1" (
+  ECHO   LOCAL_CI_BUILD.................[TRUE]
+)
+IF "%LP3D_CREATE_EXE_PKG_ONLY%" EQU "1" (
+  ECHO   CREATE EXE PACKAGES ONLY.......[TRUE]
+)
 ECHO.
 
 rem set application version variables
 SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
 CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
 IF ERRORLEVEL 1 (GOTO :ERROR_END)
+
+rem stop here if only running settings for CreateExePkg.bat
+IF "%LP3D_CREATE_EXE_PKG_ONLY%" EQU "1" (GOTO :END)
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
@@ -350,10 +373,10 @@ IF /I %CHECK%==1 (
 rem set debug suffix
 IF NOT [%CONFIGURATION%]==[] (
   IF "%CONFIGURATION%"=="release" (
-    SET d=
+    SET "d="
   )
   IF "%CONFIGURATION%"=="debug" (
-    SET d=d
+    SET "d=d"
   )
 )
 
@@ -395,7 +418,7 @@ IF %PLATFORM_ARCH%==x86 (SET EXE=mainApp\32bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF %PLATFORM_ARCH%==x86_64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF NOT EXIST "%EXE%" (
   ECHO.
-  ECHO " -ERROR - %EXE% was not successfully built - %~nx0 will trminate."
+  ECHO -ERROR - %EXE% was not successfully built - %~nx0 will trminate.
   GOTO :ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
@@ -432,7 +455,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %%P==x86_64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
   IF NOT EXIST "!EXE!" (
     ECHO.
-    ECHO " -ERROR - !EXE! was not successfully built - %~nx0 will trminate."
+    ECHO  -ERROR - !EXE! was not successfully built - %~nx0 will trminate.
     GOTO :ERROR_END
   )
   IF %INSTALL%==1 (CALL :STAGE_INSTALL)
@@ -541,10 +564,10 @@ REM DEBUG============
   ECHO   LP3D_BUILD_CHECK...............[No]
 )
 IF "%GITHUB%" EQU "True" (
-  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=github_ci
+  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
 )
 IF "%APPVEYOR%" EQU "True" (
-  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=appveyor_ci
+  SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=%CONFIG_CI%
   IF "%LP3D_BUILD_PKG%" EQU "yes" (
     ECHO   LP3D_BUILD_PKG.................[%LP3D_BUILD_PKG%]
   )

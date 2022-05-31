@@ -2,7 +2,7 @@
 Title Setup and launch LPub3D auto build script
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 24, 2022
+rem  Last Update: May 31, 2022
 rem  Copyright (C) 2021 - 2022 by Trevor SANDY
 rem --
 rem --
@@ -33,7 +33,8 @@ SET LP3D_UPDATES_PATH=%LP3D_BUILDPKG_PATH%\Updates
 CD %GITHUB_WORKSPACE%
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "QUICK_BUILD" >NUL && (
-  ECHO -NOTICE - Quick build detected, %~nx0 will not continue.
+  ECHO.
+  ECHO - NOTICE - Quick build detected, %~nx0 will not continue.
   GOTO :END
 )
 
@@ -44,6 +45,7 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "UPDATE_LDRAW" >NUL && (
 IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
   MKDIR "%LP3D_DIST_DIR_PATH%" >NUL 2>&1
   IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
+    ECHO.
     ECHO - ERROR - Create %LP3D_DIST_DIR_PATH% failed
     GOTO :ERROR_END
   )
@@ -52,13 +54,15 @@ IF NOT EXIST "%LP3D_DIST_DIR_PATH%" (
 IF NOT EXIST "%LP3D_LDRAW_DIR_PATH%" (
   MKDIR "%LP3D_LDRAW_DIR_PATH%" >NUL 2>&1
   IF NOT EXIST "%LP3D_LDRAW_DIR_PATH%" (
-    ECHO -WARNING - Create %LP3D_LDRAW_DIR_PATH% failed
+    ECHO.
+    ECHO - WARNING - Create %LP3D_LDRAW_DIR_PATH% failed
   )
 )
 
 IF NOT EXIST "%LP3D_UPDATES_PATH%" (
   MKDIR "%LP3D_UPDATES_PATH%" >NUL 2>&1
   IF NOT EXIST "%LP3D_UPDATES_PATH%" (
+    ECHO.
     ECHO - ERROR - Create %LP3D_UPDATES_PATH% failed
     GOTO :ERROR_END
   )
@@ -67,6 +71,7 @@ IF NOT EXIST "%LP3D_UPDATES_PATH%" (
 IF NOT EXIST "%LP3D_DOWNLOADS_PATH%" (
   MKDIR "%LP3D_DOWNLOADS_PATH%" >NUL 2>&1
   IF NOT EXIST "%LP3D_DOWNLOADS_PATH%" (
+    ECHO.
     ECHO - ERROR - Create %LP3D_DOWNLOADS_PATH% failed
     GOTO :ERROR_END
   )
@@ -77,7 +82,7 @@ IF NOT EXIST "%USERPROFILE%\LDraw" (
     MKLINK /d %USERPROFILE%\LDraw %LP3D_LDRAW_DIR_PATH% 2>&1
   ) ELSE (
     ECHO.
-    ECHO -WARNING - %LP3D_LDRAW_DIR_PATH% path not defined
+    ECHO - WARNING - %LP3D_LDRAW_DIR_PATH% path not defined
   )
 )
 
@@ -100,113 +105,103 @@ ECHO.%LP3D_COMMIT_MSG% | FIND /I "ALL_RENDERERS" >NUL && (
   CALL :SET_BUILD_ALL_RENDERERS
 )
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_LDGLITE" >NUL && (
-  ECHO -'Build LDGLite' detected.
+  ECHO - 'Build LDGLite' detected.
   IF EXIST "%LP3D_LDGLITE%" ( DEL /S /Q "%LP3D_LDGLITE%" >NUL 2>&1 )
-  IF NOT EXIST "%LP3D_LDGLITE%" ( ECHO -Cached %LP3D_LDGLITE% deleted. )
+  IF NOT EXIST "%LP3D_LDGLITE%" ( ECHO - Cached %LP3D_LDGLITE% deleted. )
 )
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_LDVIEW" >NUL && (
-  ECHO -'Build LDView' detected.
+  ECHO - 'Build LDView' detected.
   IF EXIST "%LP3D_LDVIEW%" ( DEL /S /Q "%LP3D_LDVIEW%" >NUL 2>&1 )
-  IF NOT EXIST "%LP3D_LDVIEW%" ( ECHO -Cached %LP3D_LDVIEW% deleted. )
+  IF NOT EXIST "%LP3D_LDVIEW%" ( ECHO - Cached %LP3D_LDVIEW% deleted. )
 )
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_POVRAY" >NUL && (
-  ECHO -'Build POVRay' detected.
+  ECHO - 'Build POVRay' detected.
   IF EXIST "%LP3D_POVRAY%" ( DEL /S /Q "%LP3D_POVRAY%" >NUL 2>&1 )
-  IF NOT EXIST "%LP3D_POVRAY%" ( ECHO -Cached %LP3D_POVRAY% deleted. )
+  IF NOT EXIST "%LP3D_POVRAY%" ( ECHO - Cached %LP3D_POVRAY% deleted. )
 )
 
-SET INVALID_TAG=FALSE
-SET IS_PUB_TAG=FALSE
 ECHO.%GITHUB_REF% | FIND /I "refs/tags/" >NUL && (
-  ECHO -Commit tag %GITHUB_REF_NAME% detected.
-  SET "VER_TAG=%GITHUB_REF_NAME%"
-  SETLOCAL ENABLEDELAYEDEXPANSION
-  SET "VER_PREFIX=!VER_TAG:~0,1!"
-  IF "!VER_PREFIX!" EQU "v" (
-    SET "VER_TAG=!VER_TAG:.= !"
-    SET "VER_TAG=!VER_TAG:v=!"
-    FOR /F "tokens=1" %%i IN ("!VER_TAG!") DO SET VER_MAJOR=%%i
-    FOR /F "tokens=2" %%i IN ("!VER_TAG!") DO SET VER_MINOR=%%i
-    FOR /F "tokens=3" %%i IN ("!VER_TAG!") DO SET VER_PATCH=%%i
-    CALL :IS_VALID_NUMBER !VER_MAJOR!
-    CALL :IS_VALID_NUMBER !VER_MINOR!
-    CALL :IS_VALID_NUMBER !VER_PATCH!
-  )
-  IF !IS_PUB_TAG! EQU TRUE (
+  IF "%GITHUB_REF_NAME:~0,1%" EQU "v" (
     CALL :SET_BUILD_ALL
-    ECHO -Publish tag %GITHUB_REF_NAME% confirmed.
-    ECHO -Commit message: !LP3D_COMMIT_MSG!
+    ECHO - New version tag %GITHUB_REF_NAME% confirmed.
   )
-  SETLOCAL
 )
 
 ECHO.%LP3D_COMMIT_MSG% | FIND /I "BUILD_AMD" >NUL && (
+  ECHO - Build 'AMD x86 and x86_64' detected.
   CALL :SET_BUILD_ALL
 )
 
 ECHO.%GITHUB_EVENT_NAME% | FIND /I "PUSH" >NUL && (
   ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
-    ECHO -Build option verify ^(x86 architecture^) only detected.
+    ECHO - Build option verify ^(x86 architecture^) only detected.
     SET BUILD_ARCH=x86
   )
 )
+
+ECHO - Commit message: %LP3D_COMMIT_MSG%
+ECHO - Build command: builds\windows\AutoBuild.bat %BUILD_ARCH% -3rd -ins -chk
 
 CALL builds\windows\AutoBuild.bat %BUILD_ARCH% -3rd -ins -chk 2>&1 || GOTO :ERROR_END
 
 IF "%BUILD_ARCH%" EQU "-all" (
   CALL builds\windows\CreateExePkg.bat 2>&1 || GOTO :ERROR_END
-) ELSE (
-  GOTO :END
 )
 
-PUSHD %LP3D_DOWNLOADS_PATH%
-SET gen_hash=gen_hash.sh
-SET f=%gen_hash% ECHO
->%f% #!/bin/bash
->>%f% # generate package hash files
->>%f% LP3D_PKGS=$^(find . -type f^)
->>%f% echo
->>%f% for LP3D_PKG in ${LP3D_PKGS}; do
->>%f%   LP3D_PKG_EXT=".${LP3D_PKG##*.}"
->>%f%   case "${LP3D_PKG_EXT}" in
->>%f%     ".exe"^|".zip"^)
->>%f%     [[ -f "${LP3D_PKG}.sha512" ]] ^&^& rm -f "${LP3D_PKG}.sha512" ^|^| :
->>%f%     [[ ! "${LP3D_PKG}" == *"-debug"* ]] ^&^& \
->>%f%     sha512sum "${LP3D_PKG}" ^> "${LP3D_PKG}.sha512" ^&^& \
->>%f%     echo "- Created hash file ${LP3D_PKG}.sha512" ^|^| \
->>%f%     echo "- WARNING - Failed to create hash file ${LP3D_PKG}.sha512"
->>%f%     ;;
->>%f%   esac
->>%f% done
-bash -lc "sed -i -e 's/\r$//' gen_hash.sh"
-bash -lc "chmod a+x gen_hash.sh; ./gen_hash.sh"
-DEL /Q gen_hash.sh
-POPD
+CALL :GENERATE_HASH_FILES
+
 GOTO :END
 
-:IS_VALID_NUMBER
-IF %INVALID_TAG% EQU TRUE EXIT /b
-IF %1 EQU +%1 (
-  SET IS_PUB_TAG=TRUE
-  EXIT /b
-)
-SET IS_PUB_TAG=FALSE
-SET INVALID_TAG=TRUE
-ECHO -Version number '%1' is invalid.
+:GENERATE_HASH_FILES
+ECHO.
+ECHO - Create sha512 hash files.
+PUSHD %LP3D_DOWNLOADS_PATH%
+SET gen_hash=Gen_Hash.sh
+SET genHash=%gen_hash% ECHO
+>%genHash% #!/bin/bash
+>>%genHash% # redirect stdout/stderr to a file
+>>%genHash% exec ^>%gen_hash%.log 2^>^&1
+>>%genHash% # generate package hash files
+>>%genHash% sha512=$^(which sha512sum^)
+>>%genHash% if test -z "$sha512"; then
+>>%genHash%   echo " -WARNING - sha512sum was not found."
+>>%genHash% else
+>>%genHash%   echo " -$sha512 found."
+>>%genHash%   LP3D_WIN_ASSETS=$^(find . -type f^)
+>>%genHash%   for LP3D_WIN_ASSET in ${LP3D_WIN_ASSETS}; do
+>>%genHash%     LP3D_WIN_ASSET_EXT=".${LP3D_WIN_ASSET##*.}"
+>>%genHash%     case "${LP3D_WIN_ASSET_EXT}" in
+>>%genHash%       ".exe"^|".zip"^)
+>>%genHash%       [[ -f "${LP3D_WIN_ASSET}.sha512" ]] ^&^& rm -f "${LP3D_WIN_ASSET}.sha512" ^|^| :
+>>%genHash%       [[ ! "${LP3D_WIN_ASSET}" == *"-debug"* ]] ^&^& \
+>>%genHash%       $sha512 "${LP3D_WIN_ASSET}" ^> "${LP3D_WIN_ASSET}.sha512" ^&^& \
+>>%genHash%       echo " -Created hash file ${LP3D_WIN_ASSET}.sha512" ^|^| \
+>>%genHash%       echo " -WARNING - Failed to create hash file ${LP3D_WIN_ASSET}.sha512"
+>>%genHash%       ;;
+>>%genHash%     esac
+>>%genHash%   done
+>>%genHash% fi
+SET run_cmd=Gen_Hash.bat
+SET runCmd=%run_cmd% ECHO
+>%runCmd% @ECHO OFF
+>>%runCmd% bash -lc "sed -i -e 's/\r$//' %gen_hash%"
+>>%runCmd% bash -lc "chmod a+x %gen_hash%; ./%gen_hash%"
+START /w /b "Gen Hash" CMD /c %run_cmd%
+IF EXIST "%gen_hash%.log" ( TYPE %gen_hash%.log )
+DEL /Q %run_cmd% %gen_hash% %gen_hash%.log
+POPD
 EXIT /b
 
 :SET_BUILD_ALL
 ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "BUILD_ALL" >NUL && (
   SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_ALL
 )
-ECHO.%LP3D_COMMIT_MSG% | FIND /V /I "-all" >NUL && (
-  SET BUILD_ARCH=-all
-)
+SET BUILD_ARCH=-all
 EXIT /b
 
 :SET_BUILD_ALL_RENDERERS
 ECHO.
-ECHO -'Build LDGLite, LDView and POV-Ray' detected.
+ECHO - 'Build LDGLite, LDView and POV-Ray' detected.
 SET LP3D_COMMIT_MSG=%LP3D_COMMIT_MSG% BUILD_LDGLITE BUILD_LDVIEW BUILD_POVRAY
 EXIT /b
 
@@ -221,4 +216,3 @@ ECHO.
 ECHO - %~nx0 finished.
 ENDLOCAL
 EXIT /b
-

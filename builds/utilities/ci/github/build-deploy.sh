@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 25, 2022
+# Last Update May 31, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -284,13 +284,7 @@ for LP3D_ASSET in ${LP3D_ASSETS}; do
   # Process individual release asset
   case ${LP3D_ASSET_EXT} in
     ".exe"|".pdb"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
-    if [ "${LP3D_ASSET_EXT}" = ".pdb" ]; then
-      LP3D_RELEASE=$(echo ${LP3D_ASSET/.pdb/-${LP3D_APP_VERSION_LONG}.pdb})
-      ( mv -v "${LP3D_ASSET}" "${LP3D_RELEASE}" ) >$c.out 2>&1 && rm $c.out
-      [ -f $c.out ] && echo "WARNING - Rename ${LP3D_ASSET} failed." && tail -80 $c.out || echo "Ok."
-    else
-      LP3D_RELEASE=${LP3D_ASSET}
-    fi
+    LP3D_RELEASE=${LP3D_ASSET}
     SignHashAndPublishToGitHub
     ;;
   esac

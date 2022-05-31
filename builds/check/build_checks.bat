@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 09, 2021
+rem  Last Update: May 31, 2022
 rem  Copyright (C) 2018 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -104,12 +104,12 @@ IF NOT EXIST "%PKG_TARGET%" (
   ) ELSE (
     ECHO -%PKG_TARGET_PDB% found.
     COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
-    ECHO.
-    ECHO -Copying %PACKAGE%.pdb to log assets....
-    IF NOT EXIST %PKG_RUNLOG_DIR% (
-      MKDIR %PKG_RUNLOG_DIR%
-    )
-    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_RUNLOG_DIR%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
+    REM ECHO.
+    REM ECHO -Copying %PACKAGE%.pdb to log assets....
+    REM IF NOT EXIST %PKG_RUNLOG_DIR% (
+    REM   MKDIR %PKG_RUNLOG_DIR%
+    REM )
+    REM COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_RUNLOG_DIR%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
   )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
