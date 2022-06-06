@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 06, 2021
+# Last Update Jun 03, 2021
 #
 # This script is called from builds/utilities/ci/github/build.sh
 #
@@ -19,7 +19,11 @@ FinishElapsedTime() {
     set +x
     ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
     echo "----------------------------------------------------"
-    echo "${ME} for (${docker_base}-${docker_dist}-${docker_arch}) Finished!"
+    if [ "$BUILD_OPT" = "verify" ]; then
+        echo "${ME} for (${docker_base}-${docker_dist}-${docker_arch}) Verification Finished!"
+    else
+        echo "${ME} for (${docker_base}-${docker_dist}-${docker_arch}) Finished!"
+    fi
     echo "$ELAPSED"
     echo "----------------------------------------------------"
 }
@@ -200,6 +204,7 @@ cd ~/ \\
   sudo mv -f ./debbuild/*.changes /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./debbuild/*log /buildpkg/ 2>/dev/null || :; \\
   sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+  sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
   ls -al /buildpkg/; \\
 pbEOF
         ;;
@@ -247,6 +252,7 @@ cd ~/ \\
     sudo mv -f ./rpmbuild/RPMS/$(uname -m)/*.rpm* /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./rpmbuild/BUILD/*.log /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
     ls -al /buildpkg; \\
 pbEOF
         ;;
@@ -288,6 +294,7 @@ cd ~/ \\
     sudo mv -f ./pkgbuild/*.zst* /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./pkgbuild/src/*.log /buildpkg/ 2>/dev/null || :; \\
     sudo mv -f ./*log /buildpkg/ 2>/dev/null || :; \\
+    sudo mv -f ./*_assets.tar.gz /buildpkg/ 2>/dev/null || :; \\
     ls -al /buildpkg/; \\
 pbEOF
         ;;
@@ -333,6 +340,7 @@ common_docker_opts+=(
     -e CI="${CI}"
     -e GITHUB="${GITHUB}"
     -e LPUB3D="${LPUB3D}"
+    -e BUILD_OPT="${BUILD_OPT}"
     -e DOCKER="true"
     -v "${PWD}":/in
     -v "${out_path}":/buildpkg
@@ -356,6 +364,18 @@ docker run \
     "${docker_image}" \
     /bin/bash -ex "./docker-run-CMD.sh"
 
-test -d ${out_path} && ls -al ${out_path} || :
+# list the built files
+if [ -d "${out_path}" ]; then
+  # cleanup large files if only verification
+  if [ "$BUILD_OPT" = "verify" ]; then
+    pushd "${out_path}"
+    rm -f ./*.pkg.tar.zst 2>/dev/null || :
+    rm -f ./*.rpm* 2>/dev/null || :
+    rm -f ./*.deb* 2>/dev/null || :
+    rm -f ./*.xz 2>/dev/null || :
+    popd
+  fi
+  ls -al ${out_path}
+fi
 
 exit 0

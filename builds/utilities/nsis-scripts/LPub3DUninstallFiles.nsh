@@ -1,9 +1,13 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: June 12, 2021
+;Last Update: May 31, 2022
 ;Copyright (C) 2016 - 2022 by Trevor SANDY
 
-;Deposit new files...
+;Delete new files...
+
+;Executable
 Delete "$INSTDIR\${LPub3DBuildFile}"
+;Program database (pdb)
+Delete "$INSTDIR\${ProductName}.pdb"
 
 Delete "$INSTDIR\Qt5Concurrent.dll"
 Delete "$INSTDIR\Qt5Core.dll"

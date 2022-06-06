@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 27, 2022
+# Last Update: Jun 03, 2022
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -17,7 +17,7 @@
 #
 # Environment variables:
 #   - DRY_RUN: Do not perform cutover [Default=null]
-#   - TAG: Release version [Default=2.4.0']
+#   - TAG: Release version [Default=2.4.5']
 #   - TO_REPO: Production or maintenance repository [default=lpub3d]
 #   - FROM_REPO: Development repository [default=lpub3dnext]
 #   - COMMIT: Starting commit - exclusive (the next commit will be processed)[Default=null]
@@ -33,16 +33,16 @@
 # Identify starting commit
 # Execute:
 #   $ chmod +x next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.4 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=f61eb11778e1fb206f ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=f61eb11778e1fb206f ./next_cutover.sh
 #
 # NOTE: Set RELEASE=1 and TAG=<new tag> if this cutover will end with a new version tag
 #       You can set TAG=<current tag> (or no tag at all) if this cutover will not end in a new tagged version
 #
 # Command Examples:
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.4 CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.4 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 CLONE=1 RELEASE=1 DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
 #   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d DRY_RUN=1 COMMIT=9711c7147c973c ./next_cutover.sh
-#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.4 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
+#   $ env FROM_REPO=lpub3dnext TO_REPO=lpub3d TAG=v2.4.5 BRANCH=CUTOVER_CI CLONE=1 RELEASE=1 COMMIT=9711c7147c973c ./next_cutover.sh
 #
 # Useful DEBUG Commands:
 # $ COMMIT_LIST_FILE="../cutover_commits.lst"
@@ -260,20 +260,21 @@ do
 
     if [[ $COUNT = 1 ]]  # First commit - show status
     then
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 OBS_CFG=yes FRESH=$FRESH_BUILD"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 OBS_CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
         fi
     elif [[ $((COUNTER + 1)) = $COMMIT_COUNT ]] # Last commit - use VER_TAG and show status
     then
         [[ "$VER_TAG" != "$HOLD_VER_TAG" && -n "$RELEASE_BUILD" ]] && VER_TAG=$HOLD_VER_TAG || :
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 OBS_CFG=yes REL=$RELEASE_BUILD"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 OBS_CFG=yes REL=$RELEASE_BUILD ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD ./ci_cutover.sh /dev/null 2>&1
             echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
             cd $HOME_DIR/$FROM_REPO_NAME
+            rm -f *.log
             if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
             if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
             git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
@@ -281,10 +282,10 @@ do
             [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
         fi
     else
-        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 OBS_CFG=yes NOSTAT=1"
+        echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1"
         if [ -z "$DO_DRY_RUN" ]
         then
-            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 OBS_CFG=yes NOSTAT=1 ./ci_cutover.sh /dev/null 2>&1
+            env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1 ./ci_cutover.sh /dev/null 2>&1
         fi
     fi
     RETURN_CODE=$?

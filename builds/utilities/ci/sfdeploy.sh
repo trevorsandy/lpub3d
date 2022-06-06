@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: May 24, 2021
+#  Last Update: May 31, 2021
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -26,10 +26,12 @@ ME="sfdeploy"
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")" # not sourced
 CWD=`pwd`
 
-if [[ "$GITHUB" = "true" || "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
+if [ "$APPVEYOR" != "True" ]; then
   # logging stuff - increment log file name
   f="${CWD}/CreateSourceforgeD${ME:3}"
-  ext=".${LP3D_ASSET_EXT}.log"
+  [ "$TRAVIS" = "true" ] && \
+  ext=".${LP3D_ASSET_EXT}.log" || \
+  ext=".log"
   if [[ -e "$f$ext" ]] ; then
     i=1
     f="${f%.*}";
@@ -66,8 +68,10 @@ if [ "$APPVEYOR" = "True" ]; then
   echo && echo "- Deploying Appveyor release assets to Sourceforge.net..."
 
   # load lp3d* environment variables into bash
-  echo && echo "- source set_bash_vars.sh..."
-  source builds/utilities/ci/set_bash_vars.sh && echo
+  if [ -f "builds/utilities/ci/set_bash_vars.sh" ]; then
+    echo && echo "- source set_bash_vars.sh..."
+    source builds/utilities/ci/set_bash_vars.sh && echo
+  fi
 
   # set host private key
   LP3D_HOST_RSA_KEY=".sfdeploy_appveyor_rsa"
@@ -89,12 +93,13 @@ elif [ "$GITHUB" = "true" ]; then
 fi
 
 # add remote host public key to ~/.ssh/known_hosts - prevent interactive prompt
+echo
 [ ! -d ~/.ssh ] && mkdir -p ~/.ssh && touch ~/.ssh/known_hosts || \
 [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts || true
 [ -z "$(ssh-keygen -F $LP3D_SF_REMOTE_HOST)" ] && \
 ssh-keyscan -H $LP3D_SF_REMOTE_HOST >> ~/.ssh/known_hosts && \
-echo && echo "Remote host $LP3D_SF_REMOTE_HOST public key added to ~/.ssh/known_hosts." || \
-echo && echo "Remote host $LP3D_SF_REMOTE_HOST public key exist in ~/.ssh/known_hosts."
+echo "Remote host $LP3D_SF_REMOTE_HOST public key added to ~/.ssh/known_hosts." || \
+echo "Remote host $LP3D_SF_REMOTE_HOST public key exist in ~/.ssh/known_hosts."
 
 # where are we working from
 echo && echo "  WORKING DIRECTORY............[$sfWD]" && echo
@@ -116,7 +121,6 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   echo
   LP3D_SF_DEPLOY_OPTIONS="NONE"
   if [ "$APPVEYOR" = "True" ]; then
-    echo "  LP3D_PROJECT_NAME............[${APPVEYOR_PROJECT_NAME}]"
     LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD"
     if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
       LP3D_SF_FOLDER="Continuous"
@@ -124,21 +128,23 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
       LP3D_SF_FOLDER="$LP3D_VERSION"
     fi
   else
-    if [ -z "${LP3D_PROJECT_NAME}" ]; then
-      IFS='/' read -ra LP3D_SLUGS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
-      LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
+    if [ "$TRAVIS" = "true" ]; then
+      echo "  LP3D_ASSET_EXTENSION.........[${LP3D_ASSET_EXT}]"
+      if [ -z "${LP3D_PROJECT_NAME}" ]; then
+        IFS='/' read -ra LP3D_SLUGS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
+        LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
+      fi
     fi
-    echo "  LP3D_PROJECT_NAME............[${LP3D_PROJECT_NAME}]"
-    echo "  LP3D_ASSET_EXTENSION.........[${LP3D_ASSET_EXT}]"
     [ -d "$LP3D_UPDATE_ASSETS" ] && \
     LP3D_SF_DEPLOY_OPTIONS="UDPATE" ||
     LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
-    if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
-      LP3D_SF_FOLDER="Continuous"
-    else
+    if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
       LP3D_SF_FOLDER="$LP3D_VERSION"
+    else
+      LP3D_SF_FOLDER="Continuous"
     fi
   fi
+  echo "  LP3D_PROJECT_NAME............[${LP3D_PROJECT_NAME}]"
   echo "  LP3D_SF_DEPLOY_OPTIONS.......[$LP3D_SF_DEPLOY_OPTIONS]"
   echo "  LP3D_SF_DOWNLOAD_FOLDER......[$LP3D_SF_FOLDER]"
   for OPTION in $LP3D_SF_DEPLOY_OPTIONS; do
@@ -158,7 +164,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
       else
         echo && echo "- LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
-        if [ "$GITHUB" = "True" ]; then
+        if [ "$GITHUB" = "true" ]; then
           rsync --recursive --verbose --delete-before \
           --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512*','*.html','*.txt'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/

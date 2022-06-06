@@ -3,7 +3,7 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 22, 2022
+rem  Last Update: Jun 03, 2022
 rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -20,22 +20,22 @@ FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "utilities" (
   rem get abs path to build 3rd party packages inside the LPub3D root dir
   IF "%APPVEYOR%" EQU "True" (
-    CALL :WD_ABS_PATH ../../
+    CALL :WD_ABS_PATH ..\..\
   ) ELSE (
-    CALL :WD_ABS_PATH ../../../
+    CALL :WD_ABS_PATH ..\..\..\
   )
 ) ELSE (
   rem get abs path to build 3rd party packages outside the LPub3D root dir
   IF "%APPVEYOR%" EQU "True" (
     SET ABS_WD=%CD%
   ) ELSE (
-    CALL :WD_ABS_PATH ../
+    CALL :WD_ABS_PATH ..\
   )
 )
 
 rem Variables - change these as required by your build environments
-SET LP3D_QTVERSION=5.15.2
-SET LP3D_VSVERSION=2019
+IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
+IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
 
 IF "%GITHUB%" EQU "True" (
   SET BUILD_OUTPUT_PATH=%LP3D_BUILD_BASE%
@@ -60,8 +60,12 @@ IF "%GITHUB%" NEQ "True" (
     )
     SET BUILD_OUTPUT_PATH=%ABS_WD%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
-    SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+    IF "%LP3D_QT32_MSVC%" == "" (
+      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
+    )
+    IF "%LP3D_QT64_MSVC%" == "" (
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+    )
     SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
   )
 )
@@ -137,32 +141,32 @@ FOR %%A IN ( x86, x86_64 ) DO (
 GOTO :END
 
 :BUILD
+SETLOCAL ENABLEDELAYEDEXPANSION
 IF %BUILD_ARCH% EQU x86 (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\i386\LDGLite.exe
-  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\i386\LDView.exe
-  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386\
+  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\i386
+  SET LP3D_LDVIEW=!LP3D_LDVIEW_BIN!\LDView.exe
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\i386\lpub3d_trace_cui32.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     SET PATH=%LP3D_QT32_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
   )
 ) ELSE (
   SET LP3D_LDGLITE=%DIST_DIR%\%VER_LDGLITE%\bin\%BUILD_ARCH%\LDGLite.exe
-  SET LP3D_LDVIEW=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\LDView64.exe
-  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%\
+  SET LP3D_LDVIEW_BIN=%DIST_DIR%\%VER_LDVIEW%\bin\%BUILD_ARCH%
+  SET LP3D_LDVIEW=!LP3D_LDVIEW_BIN!\LDView64.exe
   SET LP3D_POVRAY=%DIST_DIR%\%VER_POVRAY%\bin\%BUILD_ARCH%\lpub3d_trace_cui64.exe
   IF "%PATH_PREPENDED%" NEQ "True" (
     SET PATH=%LP3D_QT64_MSVC%;%SYS_DIR%;%LP3D_WIN_GIT%
   )
 )
 ECHO.
-SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%PATH_PREPENDED%" EQU "True" (
   ECHO   PATH_ALREADY_PREPENDED.........[!PATH!]
 ) ELSE (
   ECHO   PATH_PREPEND...................[!PATH!]
   SET PATH_PREPENDED=True
 )
-ENDLOCAL
+SETLOCAL DISABLEDELAYEDEXPANSION
 CALL :SET_BUILD_ARGS
 FOR %%I IN ( LDGLITE, LDVIEW, POVRAY ) DO (
   CALL :%%I_BUILD
@@ -196,6 +200,7 @@ CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDGLITE_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDGLITE%" (
   ECHO  ERROR - Renderer %VER_LDGLITE% was not successfully built.
+  ECHO  LDGLite executable was not found at %LP3D_LDGLITE%.
   GOTO :ERROR_END
 )
 EXIT /b
@@ -219,9 +224,11 @@ CALL :CONFIGURE_BUILD_ENV
 CALL build.cmd %LDVIEW_BUILD_ARGS%
 IF NOT EXIST "%LP3D_LDVIEW%" (
   ECHO  ERROR - Renderer %VER_LDVIEW% was not successfully built.
+  ECHO  LDView executable was not found at %LP3D_LDVIEW%.
   GOTO :ERROR_END
 )
 PUSHD "%LP3D_LDVIEW_BIN%"
+ECHO.
 ECHO - Renderer %VER_LDVIEW% bin contents:
 FOR /f "delims=" %%f IN ('DIR /B /A-D-H-S') DO ECHO  - %%f
 POPD
@@ -243,6 +250,7 @@ CD /D %VALID_SDIR%\vs2015
 CALL autobuild.cmd %POVRAY_BUILD_ARGS%
 IF NOT EXIST "%LP3D_POVRAY%" (
   ECHO  ERROR - Renderer %VER_POVRAY% was not successfully built.
+  ECHO  LPub3D-Trace 'POV-ray' executable was not found at %LP3D_POVRAY%.
   GOTO :ERROR_END
 )
 EXIT /b
@@ -460,8 +468,8 @@ IF %RETRIES% LSS %MAX_RETRIES% (
 )
 
 :WD_ABS_PATH
-IF [%1] EQU [] (EXIT /B) ELSE SET ABS_PATH=%~f1
-IF %ABS_PATH:~-1%==\ SET ABS_PATH=%ABS_PATH:~0,-1%
+IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
+IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
 EXIT /b
 
 :DIST_DIR_ABS_PATH
@@ -547,7 +555,7 @@ IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
 IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
 IF %hours% lss 0 SET /a hours = 24%hours%
 IF 1%ms% lss 100 SET ms=0%ms%
-ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
+ECHO  Elapsed build time %hours%:%mins%:%secs%.%ms%
 ECHO ======================================================
 ECHO.
 ENDLOCAL
@@ -556,6 +564,7 @@ EXIT /b
 :ERROR_END
 ECHO.
 ECHO -%~nx0 [platform %*] FAILED.
+ECHO -%~nx0 will terminate!
 CALL :ELAPSED_BUILD_TIME
 EXIT /b 3
 

@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 31, 2021
+rem  Last Update: Jun 03, 2022
 rem  Copyright (C) 2015 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -16,35 +16,36 @@ SETLOCAL
 CALL :ELAPSED_BUILD_TIME Start
 
 ECHO.
-ECHO -Start %~nx0
+ECHO ------------------------------------------------------
+ECHO   -Start %~nx0...
+ECHO ======================================================
 ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
 REM Set the current working directory to the source directory root - e.g. lpub3d\
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "windows" (
-  CD /D ../../
+  CALL :WD_ABS_PATH ..\..\
+) ELSE (
+  CALL :WD_ABS_PATH .
 )
-FOR %%* IN (%CD%) DO SET LPUB3D_DIR=%%~nx*
-IF "%SCRIPT_DIR%" NEQ "%LPUB3D_DIR%" (
-  IF "%SCRIPT_DIR%" NEQ "windows" (
-    ECHO.
-    ECHO You must run %~nx0 from either %LPUB3D_DIR% or %LPUB3D_DIR%\builds\windows source folder.
-    ECHO Example console command: CD %LPUB3D_DIR% &%~nx0
-    ECHO %~nx0 will terminate!
-    GOTO :ERROR_END
-  )
+
+IF NOT EXIST "%ABS_WD%\mainApp" (
+  ECHO -ERROR - mainApp folder not found. Working directory %ABS_WD% is not valid.
+  GOTO :ERROR_END
 )
 
 SET _PRO_FILE_PWD_=%CD%\mainApp
 CD /D "builds\windows"
 SET WIN_PKG_DIR=%CD%
 
+IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
+
 SET RUN_NSIS=1
 SET SIGN_APP=0
 SET CREATE_PORTABLE=1
 SET CONFIGURATION=release
-SET TEST_CI=0
+SET TEST_CI_BUILD=0
 
 SET AUTO=0
 SET UNIVERSAL_BUILD=1
@@ -53,7 +54,7 @@ IF /I "%INSTALL_CHECK_CI%" EQU "True" (
   ECHO.
   ECHO - Install check for CI detected.
   SET CI_PLATFORM=GITHUB
-  SET TEST_CI=1
+  SET TEST_CI_BUILD=1
 )
 
 IF /I "%INSTALL_CHECK%" EQU "True" (
@@ -64,29 +65,31 @@ IF /I "%INSTALL_CHECK%" EQU "True" (
 
 IF /I "%GITHUB%" EQU "True" (
   SET AUTO=1
+  SET SIGN_APP=1
   SET CI_ARCH=x86_64
+  SET GITHUB_RUNNER_IMAGE=Visual Studio %LP3D_VSVERSION%
 )
 
 IF /I "%APPVEYOR%" EQU "True" (
   SET AUTO=1
+  SET SIGN_APP=1
   SET CI_ARCH=x86_64
+  SET APPVEYOR_BUILD_WORKER_IMAGE=Visual Studio %LP3D_VSVERSION%
 )
 
 IF %AUTO% NEQ 1 (
   ECHO.
   SET /p RUN_NSIS= - Run NSIS? Type 1 to run, 0 to ignore or 'Enter' to accept default [%RUN_NSIS%]:
-  IF %RUN_NSIS% EQU 1 (
-    ECHO.
-    SET /p SIGN_APP= - Code Sign? Type 1 to sign exes', 0 to ignore or 'Enter' to accept default [%SIGN_APP%]:
-  )
   ECHO.
-  SET /p TEST_CI= - Test CI Build? Type 1 to run test build, 0 to ignore or 'Enter' to accept default [%TEST_CI%]:
+  SET /p TEST_CI_BUILD= - Test CI Build? Type 1 to run test build, 0 to ignore or 'Enter' to accept default [%TEST_CI_BUILD%]:
+  SET SIGN_APP=0
 )
 IF %RUN_NSIS% EQU 0 (
   SET SIGN_APP=0
   SET CREATE_PORTABLE=0
 )
-IF %TEST_CI% EQU 1 (
+
+IF %TEST_CI_BUILD% EQU 1 (
   FOR /F "usebackq delims==" %%G IN (`git rev-parse HEAD`) DO (
     IF /I "%GITHUB%" EQU "True" (SET GITHUB_SHA=%%G)
     IF /I "%APPVEYOR%" EQU "True" (SET APPVEYOR_REPO_COMMIT=%%G)
@@ -95,31 +98,31 @@ IF %TEST_CI% EQU 1 (
 
 IF "%GITHUB%" EQU "True" (
   IF "%GITHUB_RUNNER_IMAGE%" == "Visual Studio 2019" (
-    SET VS_VER=2019
+    SET MSVCR_VER=2019
   )
 )
 IF "%APPVEYOR%" EQU "True" (
   IF "%APPVEYOR_BUILD_WORKER_IMAGE%" == "Visual Studio 2019" (
-    SET VS_VER=2019
+    SET MSVCR_VER=2019
   )
 )
 IF "%GITHUB%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
-    SET VS_VER=2019
+    SET MSVCR_VER=2019
   )
 )
 ECHO.
 ECHO - Selected build options:
 ECHO.
 IF %RUN_NSIS%        == 0 ECHO - This configuration will allow you to test your NSIS scripts.
-IF /I "%GITHUB%"   == "True" ECHO   GITHUB BUILD...................[Yes]
+IF /I "%GITHUB%"     == "True" ECHO   GITHUB BUILD...................[Yes]
 IF /I "%APPVEYOR%"   == "True" ECHO   APPVEYOR BUILD.................[Yes]
 IF %UNIVERSAL_BUILD% == 1 ECHO   MULTI-ARCH BUILD...............[Yes]
 IF %AUTO%            == 1 ECHO   AUTOMATIC BUILD................[Yes]
-IF %RUN_NSIS%        == 1 ECHO   RUN_NSIS.......................[Yes]
-IF %SIGN_APP%        == 1 ECHO   SIGN_APP.......................[Yes]
-IF %RUN_NSIS%        == 0 ECHO   RUN_NSIS.......................[No]
-IF %SIGN_APP%        == 0 ECHO   SIGN_APP.......................[No]
+IF %RUN_NSIS%        == 1 ECHO   RUN NSIS BUILD UTILITY.........[Yes]
+IF %SIGN_APP%        == 1 ECHO   SIGN INSTALL PACKAGES..........[Yes]
+IF %RUN_NSIS%        == 0 ECHO   RUN NSIS BUILD UTILITY.........[No]
+IF %SIGN_APP%        == 0 ECHO   SIGN INSTALL PACKAGES..........[No]
 IF %UNIVERSAL_BUILD% == 0 ECHO   MULTI-ARCH BUILD...............[No]
 IF %AUTO%            == 0 ECHO   AUTOMATIC BUILD................[No]
 
@@ -147,7 +150,7 @@ SET LDVIEW_EXE=LDView
 SET LPUB3D_TRACE_EXE=lpub3d_trace_cui
 
 SET OPENSSL_LIB=OpenSSL
-IF "%VS_VER%" EQU "2019" (
+IF "%LP3D_VSVERSION%" EQU "2019" (
   SET OPENSSL_VER=v1.1
 ) ELSE (
   SET OPENSSL_VER=v1.0
@@ -167,17 +170,12 @@ IF EXIST %NSIS_UTILITY% (
   ECHO - NSIS executable found at %NSIS_UTILITY%
   GOTO :SIGN
 )
-
-SET %RUN_NSIS%=0
-SET %SIGN_APP%=0
-SET %CREATE_PORTABLE%=0
 ECHO.
 ECHO * NSIS exectutable not at path defined. Only NSIS test configuration will be produced.
 GOTO :MAIN
 
 :SIGN
 IF %SIGN_APP% == 0 GOTO :CHK_ZIP
-
 IF /I "%GITHUB%" NEQ "True" (
   IF /I "%APPVEYOR%" NEQ "True" (
     SET PwD=unknown
@@ -187,29 +185,15 @@ IF /I "%GITHUB%" NEQ "True" (
       ECHO - Signtool executable found at %SIGN_UTILITY%
       FOR /f %%i IN (../utilities/cert/credentials.txt) DO SET PwD=%%i
       SET CHK_ZIP_GO=1
+      ECHO.
+      ECHO - Code signing password is %PwD%.
+    ) ELSE (
+      ECHO.
+      ECHO * Signtool exectutable not at path defined. Code signing will be ignored.
+      SET SIGN_APP=0
     )
-    ECHO.
-    ECHO - Code signing password is %PWD%.
   )
 )
-
-IF /I "%GITHUB%" EQU "True" (
-  ECHO.
-  ECHO * Code signing is not available.
-  GOTO :CHK_ZIP
-)
-
-IF /I "%APPVEYOR%" EQU "True" (
-  ECHO.
-  ECHO * Code signing is not available.
-  GOTO :CHK_ZIP
-)
-
-IF %CHK_ZIP_GO% == 1 GOTO :CHK_ZIP
-
-SET %SIGN_APP%=0
-ECHO.
-ECHO * Signtool exectutable not at path defined. Code signing will be ignored.
 
 :CHK_ZIP
 IF EXIST "%ZIP_UTILITY_32%" (
@@ -308,11 +292,9 @@ CALL update-config-files.bat %_PRO_FILE_PWD_%
 IF ERRORLEVEL 1 (GOTO :ERROR_END)
 
 IF /I "%APPVEYOR%" EQU "True" (
-
   CALL :CREATE_LP3D_PS_VARS_FILE
-  CALL :CREATE_LP3D_BASH_VARS_FILE
-
 )
+CALL :CREATE_LP3D_BASH_VARS_FILE
 
 REM Token assignments
 REM tokens=*  : all tokens in %%i                               - e.g. %%i
@@ -368,8 +350,8 @@ CD /D "%WIN_PKG_DIR%"
 
 IF NOT EXIST "%CONFIGURATION%\%LP3D_PRODUCT_DIR%" (
   ECHO.
-  ECHO * Did not find product directory. Expected %LP3D_PRODUCT_DIR% at "%CD%\%CONFIGURATION%\"
-  ECHO * %~nx0 will terminate!
+  ECHO -ERROR - Did not find %LP3D_PRODUCT% product directory.
+  ECHO -Expected %LP3D_PRODUCT_DIR% at "%CD%\%CONFIGURATION%\"
   GOTO :ERROR_END
 )
 
@@ -419,7 +401,7 @@ REM
 REM Vars above this line are sourced from update-config-files.bat and below are local
 ECHO.
 ECHO   LP3D_COMPANY...................[%LP3D_COMPANY%]
-ECHO   LP3D_PRODUCT...................[%LP3D_PRODUCT%]
+ECHO   LP3D_PRODUCT...................["%LP3D_PRODUCT%"]
 ECHO   LP3D_PUBLISHER.................[%LP3D_PUBLISHER%]
 ECHO   LP3D_COMPANY_URL...............[%LP3D_COMPANY_URL%]
 ECHO   LP3D_SUPPORT...................[%LP3D_SUPPORT%]
@@ -471,7 +453,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
       ) ELSE (
         IF %AUTO% EQU 1 (
           ECHO.
-          ECHO * No valid architecture detected. %~nx0 will terminate!
+          ECHO * No valid architecture detected.
           GOTO :ERROR_END
         ) ELSE (
           SET LP3D_ARCH=x86_64
@@ -479,7 +461,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
           IF "%LP3D_ARCH%" NEQ "x86_64" (
             IF "%LP3D_ARCH%" NEQ "x86" (
               ECHO.
-              ECHO * No valid architecture detected. %~nx0 will terminate!
+              ECHO * No valid architecture detected.
               GOTO :ERROR_END
             )
           )
@@ -499,8 +481,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
   ECHO.
   ECHO   LP3D_ARCH......................[%LP3D_ARCH%]
   ECHO   PKG_DISTRO_DIR.................[%PKG_DISTRO_DIR%]
-  CALL :DOWNLOADOPENSSLLIBS %LP3D_ARCH%
-  CALL :DOWNLOADMSVCREDIST %LP3D_ARCH%
+  CALL :DOWNLOADOPENSSLLIBS
+  CALL :DOWNLOADMSVCREDIST
   CALL :COPYFILES
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
   IF %RUN_NSIS% == 1 CALL :GENERATENSISPARAMS
@@ -520,8 +502,8 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     ECHO.
     ECHO   LP3D_ARCH......................[%%A]
     ECHO   PKG_DISTRO_DIR.................[%LP3D_PRODUCT%_%%A]
-    CALL :DOWNLOADOPENSSLLIBS %%A
-    CALL :DOWNLOADMSVCREDIST %%A
+    CALL :DOWNLOADOPENSSLLIBS
+    CALL :DOWNLOADMSVCREDIST
     CALL :COPYFILES
   )
   REM LP3D_ARCH_EXT is no longer used, it's just a placholder for AppVersion.nsh
@@ -566,7 +548,7 @@ IF NOT EXIST "%PKG_DISTRO_DIR%" (
   ECHO.
   ECHO * Did not find distribution package directory.
   ECHO * Expected "%PKG_DISTRO_DIR%" at "%CD%".
-  ECHO * Build "%LP3D_PRODUCT%_%LP3D_APP_VERSION_LONG%" will terminate!
+  ECHO * Build "%LP3D_PRODUCT%_%LP3D_APP_VERSION_LONG%" cannot continue.
   GOTO :ERROR_END
 )
 
@@ -750,6 +732,18 @@ IF %RUN_NSIS% == 1 ECHO   Finished NSIS Master Installer Build
 EXIT /b
 
 :SIGNAPP
+IF /I "%GITHUB%" EQU "True" (
+  ECHO.
+  ECHO * Application sha512 hash signed at end of build.
+  EXIT /b
+)
+
+IF /I "%APPVEYOR%" EQU "True" (
+  ECHO.
+  ECHO * Application sha512 hash signed at end of build.
+  EXIT /b
+)
+
 IF %SIGN_APP% == 1 ECHO.
 IF %SIGN_APP% == 1 ECHO - Start Application Code Signing...
 
@@ -1046,7 +1040,7 @@ EXIT /b
 
 :DOWNLOADOPENSSLLIBS
 ECHO.
-ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%1]...
+ECHO - Download Windows %OPENSSL_LIB% libraries for platform [%LP3D_ARCH%]...
 
 IF /I "%GITHUB%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -1066,7 +1060,7 @@ IF NOT EXIST "%DIST_DIR%\" (
   EXIT /b
 )
 
-SET OPENSSL_LIB_DIR=%DIST_DIR%\%OPENSSL_LIB%\%OPENSSL_VER%\%1
+SET OPENSSL_LIB_DIR=%DIST_DIR%\%OPENSSL_LIB%\%OPENSSL_VER%\%LP3D_ARCH%
 
 IF NOT EXIST "%OPENSSL_LIB_DIR%\" (
   ECHO.
@@ -1084,7 +1078,7 @@ REM For libEAY
 IF "%OPENSSL_VER%" EQU "v1.0" (
   SET OpensslCONTENT=libeay32-x64.dll
   SET OpensslVERIFIED=libeay32.dll
-  IF "%1" EQU "x86" (
+  IF "%LP3D_ARCH%" EQU "x86" (
     SET OpensslCONTENT=libeay32.dll
     SET OpensslVERIFIED=libeay32.dll
   )
@@ -1092,7 +1086,7 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
 IF "%OPENSSL_VER%" EQU "v1.1" (
   SET OpensslCONTENT=libcrypto-1_1-x64.dll
   SET OpensslVERIFIED=libcrypto-1_1-x64.dll
-  IF "%1" EQU "x86" (
+  IF "%LP3D_ARCH%" EQU "x86" (
     SET OpensslCONTENT=libcrypto-1_1.dll
     SET OpensslVERIFIED=libcrypto-1_1.dll
   )
@@ -1102,19 +1096,19 @@ ECHO.
 ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
 
 IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-  CALL :GET_OPENSSL_LIB %1
+  CALL :GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %1 library %OpensslVERIFIED% exist. Nothing to do.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
-CALL :SET_OPENSSL_LIB %1
+CALL :SET_OPENSSL_LIB
 
 REM For libSSL
 IF "%OPENSSL_VER%" EQU "v1.0" (
   SET OpensslCONTENT=ssleay32-x64.dll
   SET OpensslVERIFIED=ssleay32.dll
-  IF "%1" EQU "x86" (
+  IF "%LP3D_ARCH%" EQU "x86" (
     SET OpensslCONTENT=ssleay32.dll
     SET OpensslVERIFIED=ssleay32.dll
   )
@@ -1122,7 +1116,7 @@ IF "%OPENSSL_VER%" EQU "v1.0" (
 IF "%OPENSSL_VER%" EQU "v1.1" (
   SET OpensslCONTENT=libssl-1_1-x64.dll
   SET OpensslVERIFIED=libssl-1_1-x64.dll
-  IF "%1" EQU "x86" (
+  IF "%LP3D_ARCH%" EQU "x86" (
     SET OpensslCONTENT=libssl-1_1.dll
     SET OpensslVERIFIED=libssl-1_1.dll
   )
@@ -1132,13 +1126,13 @@ ECHO.
 ECHO - Library %OpensslVERIFIED% download path: [%OutputPATH%\%OpensslCONTENT%]
 
 IF NOT EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-  CALL :GET_OPENSSL_LIB %1
+  CALL :GET_OPENSSL_LIB
 )  ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %1 library %OpensslVERIFIED% exist. Nothing to do.
+  ECHO - %OPENSSL_LIB% %OPENSSL_VER% %LP3D_ARCH% library %OpensslVERIFIED% exist. Nothing to do.
 )
 
-CALL :SET_OPENSSL_LIB %1
+CALL :SET_OPENSSL_LIB
 EXIT /b
 
 :GET_OPENSSL_LIB
@@ -1150,26 +1144,26 @@ cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
 
 IF NOT EXIST "%OutputPATH%\%OpensslCONTENT%" (
   ECHO.
-  ECHO - ERROR - %OPENSSL_LIB% library %OpensslCONTENT% %OPENSSL_VER% %1 not downloaded
+  ECHO - ERROR - %OPENSSL_LIB% library %OpensslCONTENT% %OPENSSL_VER% %LP3D_ARCH% not downloaded
 )
 
 IF "%OPENSSL_VER%" EQU "v1.0" (
-  IF "%1" EQU "x86_64" (
+  IF "%LP3D_ARCH%" EQU "x86_64" (
     ECHO.
     ECHO - Renaming library file "%OpensslCONTENT%" to "%OpensslVERIFIED%"
     REN "%WebCONTENT%" %OpensslVERIFIED%
     ECHO.
     IF EXIST "%OutputPATH%\%OpensslVERIFIED%" (
-      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 is availble
+      ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% is availble
     ) ELSE (
-      ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 not found
+      ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% not found
     )
   )
 )
 EXIT /b
 
 :SET_OPENSSL_LIB
-SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_ARCH%
 
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
@@ -1178,7 +1172,7 @@ IF NOT EXIST "%PKG_TARGET_DIR%\" (
 
 IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
   ECHO.
-  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% for Architecture %1...
+  ECHO - Copying %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% for Architecture %LP3D_ARCH%...
   ECHO - From: %OPENSSL_LIB_DIR%
   ECHO - To:   %PKG_TARGET_DIR%
   IF EXIST "%OPENSSL_LIB_DIR%\%OpensslVERIFIED%" (
@@ -1186,17 +1180,18 @@ IF NOT EXIST "%PKG_TARGET_DIR%\%OpensslVERIFIED%" (
     ECHO - %OpensslVERIFIED% copied to "%PKG_TARGET_DIR%\%OpensslVERIFIED%"
   ) ELSE (
     ECHO.
-    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 does not exist in %OPENSSL_LIB_DIR%\.
+    ECHO - ERROR - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% does not exist in %OPENSSL_LIB_DIR%\.
   )
 ) ELSE (
   ECHO.
-  ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %1 exist in %PKG_TARGET_DIR%. Nothing to do.
+  ECHO - %OPENSSL_LIB% library %OpensslVERIFIED% %OPENSSL_VER% %LP3D_ARCH% exist in %PKG_TARGET_DIR%. Nothing to do.
 )
 EXIT /b
 
 :DOWNLOADMSVCREDIST
+IF "%LP3D_ARCH%" EQU "x86_64" (SET "MSVCR_VER=") ELSE (SET MSVCR_VER=2015)
 ECHO.
-ECHO - Download Microsoft Visual C++ %VS_VER% %1 Redistributable...
+ECHO - Download Microsoft Visual C++ %MSVCR_VER% %LP3D_ARCH% Redistributable...
 
 IF /I "%GITHUB%" EQU "True" (
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
@@ -1216,35 +1211,35 @@ IF NOT EXIST "%DIST_DIR%\" (
   EXIT /b
 )
 
-SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist%VS_VER%
+SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist%MSVCR_VER%
 
 IF NOT EXIST "%MSVC_REDIST_DIR%\" (
   ECHO.
-  ECHO - Create MSVC %VS_VER% %1 Redistributable store %MSVC_REDIST_DIR%
+  ECHO - Create MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable store %MSVC_REDIST_DIR%
   MKDIR "%MSVC_REDIST_DIR%\"
 )
 
 SET OutputPATH=%MSVC_REDIST_DIR%
 
-IF "%VS_VER%" EQU "2019" (
-  SET RedistCONTENT=vcredist_%1.exe
+IF "%MSVCR_VER%" EQU "" (
+  SET RedistCONTENT=vcredist_%LP3D_ARCH%.exe
 ) ELSE (
-  SET RedistCONTENT=vcredist_%VS_VER%_%1.exe
+  SET RedistCONTENT=vcredist_%MSVCR_VER%_%LP3D_ARCH%.exe
 )
 
 CALL :CREATEWEBCONTENTDOWNLOADVBS
 
 ECHO.
-ECHO - MSVC %VS_VER% %1 Redistributable download path: [%OutputPATH%]
+ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable download path: [%OutputPATH%]
 
 IF NOT EXIST "%OutputPATH%\%RedistCONTENT%" (
-  CALL :GET_MSVC_REDIST %1
+  CALL :GET_MSVC_REDIST %LP3D_ARCH% %MSVCR_VER%
 ) ELSE (
   ECHO.
-  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% exist. Nothing to do.
+  ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% exist. Nothing to do.
 )
 
-CALL :SET_MSVC_REDIST %1
+CALL :SET_MSVC_REDIST %LP3D_ARCH% %MSVCR_VER%
 EXIT /b
 
 :GET_MSVC_REDIST
@@ -1252,41 +1247,46 @@ SET WebCONTENT="%OutputPATH%\%RedistCONTENT%"
 SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%RedistCONTENT%
 
 ECHO.
-ECHO - MSVC %VS_VER% %1 Redistributable: %WebCONTENT%...
+ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable: %WebCONTENT%...
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-IF "%VS_VER%" NEQ "2019" (
+IF "%MSVCR_VER%" NEQ "" (
   ECHO.
-  ECHO - Rename %WebCONTENT% to vcredist_%1.exe
-  REN "%WebCONTENT%" vcredist_%1.exe
-  SET RedistCONTENT=vcredist_%1.exe
+  ECHO - Rename %WebCONTENT% to vcredist_%LP3D_ARCH%.exe
+  REN "%WebCONTENT%" vcredist_%LP3D_ARCH%.exe
+  SET RedistCONTENT=vcredist_%LP3D_ARCH%.exe
 )
 IF EXIST "%OutputPATH%\%RedistCONTENT%" (
   ECHO.
-  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% is availble
+  ECHO - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% is availble
 )
 EXIT /b
 
 :SET_MSVC_REDIST
-SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1\vcredist
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\%CONFIGURATION%\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%LP3D_ARCH%\vcredist
 IF NOT EXIST "%PKG_TARGET_DIR%\" (
   ECHO.
-  ECHO - Create MSVC %VS_VER% %1 Redistributable package path %MSVC_REDIST_DIR%...
+  ECHO - Create MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable package path %MSVC_REDIST_DIR%...
   MKDIR "%PKG_TARGET_DIR%\"
 )
-
-IF NOT EXIST "%PKG_TARGET_DIR%\%RedistCONTENT%" (
+IF "%MSVCR_VER%" EQU "" (
+  SET RedistTARGET=%RedistCONTENT%
+) ELSE (
+  rem Rename vcredist_2015_x86.exe
+  SET RedistTARGET=vcredist_%LP3D_ARCH%.exe
+)
+IF NOT EXIST "%PKG_TARGET_DIR%\%RedistTARGET%" (
   ECHO.
-  ECHO - Copy MSVC %VS_VER% %1 Redistributable to %PKG_TARGET_DIR% folder...
+  ECHO - Copy MSVC %MSVCR_VER% %RedistTARGET% Redistributable to %PKG_TARGET_DIR% folder...
   IF EXIST "%MSVC_REDIST_DIR%\%RedistCONTENT%" (
-    COPY /V /Y "%MSVC_REDIST_DIR%\%RedistCONTENT%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%MSVC_REDIST_DIR%\%RedistCONTENT%" "%PKG_TARGET_DIR%\%RedistTARGET%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
+    ECHO -ERROR - MSVC %MSVCR_VER% %LP3D_ARCH% Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
   )
 ) ELSE (
   ECHO.
-  ECHO - MSVC %VS_VER% %1 Redistributable %RedistCONTENT% exist in %PKG_TARGET_DIR%. Nothing to do.
+  ECHO - MSVC %MSVCR_VER% %RedistTARGET% Redistributable %RedistCONTENT% exist in %PKG_TARGET_DIR%. Nothing to do.
 )
 EXIT /b
 
@@ -1531,6 +1531,11 @@ ECHO.
 ECHO - VBS file "%vbs%" at "%TEMP%\$\%vbs%" is done compiling
 EXIT /b
 
+:WD_ABS_PATH
+IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
+IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
+EXIT /b
+
 :DIST_DIR_REL_TO_ABS
 IF [%1] EQU [] (EXIT /b) ELSE (SET REL_DIST_DIR=%1)
 SET REL_DIST_DIR=%REL_DIST_DIR:/=\%
@@ -1588,11 +1593,11 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% $env:LP3D_BUILD_DATE_TIME = "%LP3D_BUILD_DATE_TIME%"
 >>%genFile% $env:LP3D_CHANGE_DATE_LONG = "%LP3D_CHANGE_DATE_LONG%"
 >>%genFile% $env:LP3D_AVAILABLE_VERSIONS = "%LP3D_AVAILABLE_VERSIONS%"
->>%genFile% $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PACKAGE}-Any-${env:LP3D_APP_VERSION_LONG}"
+>>%genFile% $env:LP3D_BUILD_PACKAGE = "${env:LP3D_PRODUCT}-Any-${env:LP3D_APP_VERSION_LONG}"
 >>%genFile% $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
->>%genFile% $env:LP3D_DOWNLOAD_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
->>%genFile% $env:LP3D_UPDATE_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
->>%genFile% $env:LP3D_RUNLOG_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Logs"
+>>%genFile% $env:LP3D_DOWNLOAD_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PRODUCT}_Download"
+>>%genFile% $env:LP3D_UPDATE_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PRODUCT}_Update"
+>>%genFile% $env:LP3D_RUNLOG_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PRODUCT}_Logs"
 >>%genFile% write-host "`n- Update-config-files environment variables set in Powershell"
 IF EXIST "%set_ps_vars%" (
   ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]
@@ -1645,10 +1650,10 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% export LP3D_BUILD_DATE_TIME="%LP3D_BUILD_DATE_TIME%"
 >>%genFile% export LP3D_CHANGE_DATE_LONG="%LP3D_CHANGE_DATE_LONG%"
 >>%genFile% export LP3D_AVAILABLE_VERSIONS="%LP3D_AVAILABLE_VERSIONS%"
->>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PACKAGE%-Any-%LP3D_APP_VERSION_LONG%"
+>>%genFile% export LP3D_BUILD_PACKAGE="%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%"
 >>%genFile% export LP3D_BUILD_TARGET="%LP3D_PACKAGE_PATH_BASH%/${LP3D_BUILD_PACKAGE}"
->>%genFile% export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Download"
->>%genFile% export LP3D_UPDATE_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PACKAGE%_Update"
+>>%genFile% export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PRODUCT%_Download"
+>>%genFile% export LP3D_UPDATE_ASSETS="${LP3D_BUILD_TARGET}/%LP3D_PRODUCT%_Update"
 >>%genFile% echo ^&^& echo "- Update-config-files environment variables set in Bash"
 >>%genFile% echo ^&^& echo "- LP3D BUILD Environment Variables:" ^&^& env ^| sort ^| grep 'LP3D_BUILD_*'
 IF EXIST "%set_bash_vars%" (
@@ -1662,26 +1667,18 @@ EXIT /b
 CD %GITHUB_WORKSPACE%
 ECHO.
 ECHO - Move assets and logs to output folder...
-SET LP3D_BUILD_PACKAGE=%LP3D_PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+SET LP3D_BUILD_PACKAGE=%LP3D_PRODUCT%-Any-%LP3D_APP_VERSION_LONG%
 SET LP3D_PACKAGE_PATH=%CD%\builds\windows\%CONFIGURATION%
 SET LP3D_BUILD_TARGET=%LP3D_PACKAGE_PATH%\%LP3D_BUILD_PACKAGE%
-SET LP3D_DOWNLOAD_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PACKAGE%_Download
-SET LP3D_UPDATE_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PACKAGE%_Update
-SET LP3D_RUNLOG_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PACKAGE%_Logs
-SET LP3D_PACKAGE_32_PDB=%CD%\mainApp\32bit_%CONFIGURATION%\%LP3D_PACKAGE%.pdb
-SET LP3D_PACKAGE_64_PDB=%CD%\mainApp\64bit_%CONFIGURATION%\%LP3D_PACKAGE%.pdb
+SET LP3D_DOWNLOAD_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Download
+SET LP3D_UPDATE_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Update
+SET LP3D_RUNLOG_ASSETS=%LP3D_BUILD_TARGET%\%LP3D_PRODUCT%_Logs
 SET FILTER_LIST=LP3D_BUILD_* LP3D_PACKAGE_* LP3D_DOWNLOAD_* LP3D_UPDATE_* LP3D_RUNLOG_*
-IF NOT EXIST "%LP3D_RUNLOG_ASSETS%\%LP3D_PACKAGE%_x86-%LP3D_APP_VERSION_LONG%.pdb" (
-  COPY /V /Y /A "%LP3D_PACKAGE_32_PDB%" "%LP3D_RUNLOG_ASSETS%\%LP3D_PACKAGE%_x86-%LP3D_APP_VERSION_LONG%.pdb" >NUL 2>&1
-)
-IF NOT EXIST "%LP3D_RUNLOG_ASSETS%\%LP3D_PACKAGE%_x86_64-%LP3D_APP_VERSION_LONG%.pdb" (
-  COPY /V /Y /A "%LP3D_PACKAGE_64_PDB%" "%LP3D_RUNLOG_ASSETS%\%LP3D_PACKAGE%_x86_64-%LP3D_APP_VERSION_LONG%.pdb" >NUL 2>&1
-)
 ECHO.
 FOR /f "delims== tokens=1,2" %%a IN ('SET ^| findstr / "%FILTER_LIST%"') DO (ECHO - %%a = %%b)
 IF EXIST "%LP3D_DOWNLOAD_ASSETS%" (
   ECHO.
-  ECHO - Move download assets to %LP3D_DOWNLOADS_PATH%...
+  ECHO - Move download assets to LP3D_DOWNLOADS_PATH %LP3D_DOWNLOADS_PATH%...
   FOR /D /R "%LP3D_DOWNLOAD_ASSETS%" %%C IN (*) DO (
     IF EXIST "%LP3D_DOWNLOADS_PATH%\%%~nC" (
       DIR "%%C" | FIND "0 File(s)" > NUL & IF ERRORLEVEL 1 (MOVE /Y "%%C\*.*" "%LP3D_DOWNLOADS_PATH%\%%~nC")
@@ -1693,13 +1690,13 @@ IF EXIST "%LP3D_DOWNLOAD_ASSETS%" (
   RD /S /Q "%LP3D_DOWNLOAD_ASSETS%"
 ) ELSE (
   ECHO.
-  ECHO - ERROR - Download assets path %LP3D_DOWNLOAD_ASSETS% not found
+  ECHO - ERROR - Download assets path %LP3D_DOWNLOAD_ASSETS% not found.
   GOTO :ERROR_END
 )
 
 IF EXIST "%LP3D_UPDATE_ASSETS%" (
   ECHO.
-  ECHO - Move update assets to %LP3D_UPDATES_PATH%...
+  ECHO - Move update assets to LP3D_UPDATES_PATH %LP3D_UPDATES_PATH%...
   FOR /D /R "%LP3D_UPDATE_ASSETS%" %%C IN (*) DO (
     IF EXIST "%LP3D_UPDATES_PATH%\%%~nC" (
       DIR "%%C" | FIND "0 File(s)" > NUL & IF ERRORLEVEL 1 (MOVE /Y "%%C\*.*" "%LP3D_UPDATES_PATH%\%%~nC")
@@ -1711,13 +1708,13 @@ IF EXIST "%LP3D_UPDATE_ASSETS%" (
   RD /S /Q "%LP3D_UPDATE_ASSETS%"
 ) ELSE (
   ECHO.
-  ECHO - ERROR - Update assets path %LP3D_UPDATE_ASSETS% not found
+  ECHO - ERROR - Update assets path %LP3D_UPDATE_ASSETS% not found.
   GOTO :ERROR_END
 )
 
 IF EXIST "%LP3D_RUNLOG_ASSETS%" (
   ECHO.
-  ECHO - Move runlog assets to %LP3D_DOWNLOADS_PATH%...
+  ECHO - Move runlog assets to LP3D_DOWNLOADS_PATH %LP3D_DOWNLOADS_PATH%...
   FOR /D /R "%LP3D_RUNLOG_ASSETS%" %%C IN (*) DO (
     IF EXIST "%LP3D_DOWNLOADS_PATH%\%%~nC" (
       DIR "%%C" | FIND "0 File(s)" > NUL & IF ERRORLEVEL 1 (MOVE /Y "%%C\*.*" "%LP3D_DOWNLOADS_PATH%\%%~nC")
@@ -1729,7 +1726,7 @@ IF EXIST "%LP3D_RUNLOG_ASSETS%" (
   RD /S /Q "%LP3D_RUNLOG_ASSETS%"
 ) ELSE (
   ECHO.
-  ECHO - WARNING - Run-log assets path %LP3D_RUNLOG_ASSETS% not found
+  ECHO - NOTICE - Run-log assets path %LP3D_RUNLOG_ASSETS% not found.
 )
 EXIT /b
 
@@ -1772,6 +1769,7 @@ EXIT /b
 :ERROR_END
 ECHO.
 ECHO - %~nx0 FAILED
+ECHO - %~nx0 will terminate!
 CALL :ELAPSED_BUILD_TIME
 EXIT /b 3
 

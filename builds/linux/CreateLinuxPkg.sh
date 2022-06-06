@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 18, 2022
+# Last Update Jun 01, 2022
 # Copyright (C) 2022 - 2022 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -361,7 +361,8 @@ else
 fi
 
 # Build check
-if [[ "${BUILD_OPT}" = "verify" || -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
+# If QEMU, BUILD_OPT will not be 'verify', and if AMD AppImage, check will run from the AppImage distro
+if [[ ( ! "${LP3D_APPIMAGE}" == "true" && "${BUILD_OPT}" == "verify" ) || -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
   Info "Build check LPub3D bundle..."
   export LP3D_BUILD_OS=
   export SOURCE_DIR=${WD}
@@ -371,8 +372,8 @@ if [[ "${BUILD_OPT}" = "verify" || -n "${LP3D_PRE_PACKAGE_CHECK}" ]]; then
   chmod a+x builds/check/build_checks.sh && ./builds/check/build_checks.sh
 fi
 
-# Stop here if we are only verifying
-if [ "${BUILD_OPT}" = "verify" ]; then
+# Stop here if not building an AppImage
+if [ ! "${LP3D_APPIMAGE}" == "true" ]; then
   exit 0
 fi
 
@@ -775,9 +776,11 @@ fi
 
 # Move AppImage build content to output
 Info "Moving AppImage build assets and logs to output folder..."
+[ ! "${BUILD_OPT}" = "verify" ] && \
 mv -f ${AppImage}* /out/ 2>/dev/null || :
 mv -f ${AppDirBuildPath}/*.log /out/ 2>/dev/null || :
 mv -f ./*.log /out/ 2>/dev/null || :
 mv -f ~/*.log /out/ 2>/dev/null || :
+mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
 
 exit 0

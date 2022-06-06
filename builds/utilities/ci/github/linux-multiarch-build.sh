@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 18, 2022
+# Last Update Jun 03, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -432,6 +432,18 @@ docker run \
     /bin/bash -ex "./docker-run-CMD.sh"
 
 # list the built files
-test -d ${out_path} && ls -al ${out_path} || :
+if [ -d "${out_path}" ]; then
+  # cleanup large files if only verification
+  if [ "$BUILD_OPT" = "verify" ]; then
+    pushd "${out_path}"
+    rm -f ./*.AppImage* 2>/dev/null || :
+    rm -f ./*.pkg.tar.zst 2>/dev/null || :
+    rm -f ./*.rpm* 2>/dev/null || :
+    rm -f ./*.deb* 2>/dev/null || :
+    rm -f ./*.xz 2>/dev/null || :
+    popd
+  fi
+  ls -al ${out_path}
+fi
 
 exit 0

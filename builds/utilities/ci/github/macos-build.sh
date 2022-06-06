@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 22, 2022
+# Last Update Jun 04, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -14,7 +14,11 @@ FinishElapsedTime() {
   set +x
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  echo "${ME} Finished!"
+  if [ "$BUILD_OPT" = "verify" ]; then
+    echo "$ME Verification Finished!"
+  else
+    echo "$ME Finished!"
+  fi
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -55,8 +59,11 @@ export GITHUB=${GITHUB:-true}
 if [[ "${GITHUB_REF}" == "refs/tags/"* ]] ; then
   publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
 fi
-if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" = *"BUILD_AMD"* ]]; then
+if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
   export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
+fi
+if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
+   export BUILD_OPT="verify"
 fi
 
 # Setup ldraw parts library directory
@@ -147,10 +154,6 @@ rm -rf "${povray_path}" && echo "Cached ${povray_path} deleted" || :
 # List 'LP3D_*' environment variables
 echo && echo "LP3D* environment variables:" && compgen -v | grep LP3D_ | while read line; do echo $line=${!line};done
 
-if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
-   export BUILD_OPT="verify"
-fi
-
 # Build dmg file
 chmod a+x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
 
@@ -170,5 +173,6 @@ mv -f ${DmgBuildPath}/DMGS/* ${LP3D_OUT_PATH}/ 2>/dev/null || :
 mv -f ${GITHUB_WORKSPACE}/*.log ${LP3D_OUT_PATH} 2>/dev/null || :
 mv -f ${DmgBuildPath}/*.log ${LP3D_OUT_PATH} 2>/dev/null || :
 mv -f ./*.log ${LP3D_OUT_PATH} 2>/dev/null || :
+mv -f ./*_assets.tar.gz ${LP3D_OUT_PATH} 2>/dev/null || :
 
 exit 0

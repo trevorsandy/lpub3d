@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 31, 2022
+rem  Last Update: Jun 05, 2022
 rem  Copyright (C) 2018 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -12,23 +12,20 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 rem Construct the staged files path
 
+SET PKG_CHECK_PATH=%ABS_WD%\builds\check
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
-SET PKG_RUNLOG_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
-SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
+SET PKG_CONFIG_DIR=builds\windows\%CONFIGURATION%
+SET PKG_RUNLOG_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
+SET PKG_TARGET_DIR=%PKG_CONFIG_DIR%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 SET PKG_RUNLOG=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
 SET PKG_DUMP_FILE=%TEMP%\%PACKAGE%.dmp
-IF /I "%PKG_PLATFORM%"=="x86" (
-  SET PKG_TARGET_PDB=mainApp\32bit_%CONFIGURATION%\%PACKAGE%.pdb
-) ELSE (
-  IF /I "%PKG_PLATFORM%"=="x86_64" (
-    SET PKG_TARGET_PDB=mainApp\64bit_%CONFIGURATION%\%PACKAGE%.pdb
-  )
-)
+IF NOT "%INSTALL%" EQU "1" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
+IF "%BUILD_OPT%" EQU "verify" SET PKG_RUNLOG_DIR=%LP3D_DOWNLOADS_PATH%
 
 rem Check 1 of 7
-SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
+SET PKG_CHECK_FILE=%PKG_CHECK_PATH%\build_checks.mpd
 SET PKG_CHECK_OPTIONS=--no-console-redirect --process-file --liblego --preferred-renderer native
 SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 2 of 7
@@ -79,15 +76,16 @@ ECHO.
 ECHO   PACKAGE...................[%PACKAGE%]
 ECHO   PKG_PLATFORM..............[%PKG_PLATFORM%]
 ECHO   CONFIGURATION.............[%CONFIGURATION%]
+ECHO   BUILD_OPT.................[%BUILD_OPT%]
 ECHO   PKG_DISTRO_DIR............[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET................[%PKG_TARGET%]
-ECHO   PKG_TARGET_PDB............[%PKG_TARGET_PDB%]
 ECHO   PKG_DUMP_FILE.............[%PKG_DUMP_FILE%]
 ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
 
 CALL :SET_LDRAW_LIBS
+CALL :SET_PKG_ZIP_UTILITY
 
 SET overall_check_start=%time%
 
@@ -99,18 +97,6 @@ IF NOT EXIST "%PKG_TARGET%" (
   EXIT /b
 ) ELSE (
   ECHO -%PKG_TARGET% found.
-  IF NOT EXIST "%PKG_TARGET_PDB%" (
-    ECHO -WARNING - %PKG_TARGET_PDB% does not exist.
-  ) ELSE (
-    ECHO -%PKG_TARGET_PDB% found.
-    COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
-    REM ECHO.
-    REM ECHO -Copying %PACKAGE%.pdb to log assets....
-    REM IF NOT EXIST %PKG_RUNLOG_DIR% (
-    REM   MKDIR %PKG_RUNLOG_DIR%
-    REM )
-    REM COPY /V /Y "%PKG_TARGET_PDB%" "%PKG_RUNLOG_DIR%\%PACKAGE%_%PKG_PLATFORM%.pdb" /A | findstr /i /v /r /c:"copied\>"
-  )
   IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
   ECHO -CHECK 1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
@@ -202,7 +188,8 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO   Build checks cleanup...
   IF EXIST %PKG_RUNLOG% (
     ECHO.
-    ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets...
+    ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log'...
+    IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
     COPY /V /Y "%PKG_RUNLOG%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
     ECHO.
@@ -214,7 +201,6 @@ IF NOT EXIST "%PKG_TARGET%" (
   RMDIR /S /Q %PKG_TARGET_DIR%\libraries
   RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
   RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
-  IF EXIST "%PKG_TARGET_DIR%\%PACKAGE%.pdb" DEL /Q "%PKG_TARGET_DIR%\%PACKAGE%.pdb"
 
   SET /P PKG_CHECK_PASS=<%TEMP%\$\%PKG_CHECK_PASS_IN%
   SET /P PKG_CHECKS_PASS=<%TEMP%\$\%PKG_CHECKS_PASS_IN%
@@ -238,6 +224,7 @@ ENDLOCAL
 EXIT /b
 
 :GET_PKG_CHECK_RESULT
+SET PKG_CHECK_RESULT=undefined
 SET PKG_CHECK_SUCCESS=Application terminated with return code 0.
 SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"%PKG_CHECK_SUCCESS%" %PKG_LOG_FILE%') DO SET PKG_CHECK_RESULT=%%i %%j
@@ -260,17 +247,62 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
   SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL!,%2"
 >%PKG_UPDATE_CHECKS_FAIL% !PKG_CHECKS_FAIL!
   IF EXIST "%PKG_DUMP_FILE%" (
-    ECHO -Copying %PACKAGE%_Check_!PKG_CHECK_FAIL!.dmp to log assets....
-    IF NOT EXIST %PKG_RUNLOG_DIR% (
-      MKDIR %PKG_RUNLOG_DIR%
-    )
-    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_RUNLOG_DIR%\%PACKAGE%_Check_!PKG_CHECK_FAIL!_%PKG_PLATFORM%.dmp" /A | findstr /i /v /r /c:"copied\>"
+    ECHO  -Copying CHECK !PKG_CHECK_FAIL! %PKG_DUMP_FILE% to run assets....
+    COPY /V /Y "%PKG_DUMP_FILE%" "%PKG_CHECK_PATH%" /A | findstr /i /v /r /c:"copied\>"
   ) ELSE (
-    ECHO. -WARNING - %PKG_DUMP_FILE% was not found.
+    ECHO  -WARNING - %PKG_DUMP_FILE% was not found.
   )
+  IF EXIST "%PKG_LOG_FILE%" (
+    ECHO  -Copying CHECK !PKG_CHECK_FAIL! %PKG_LOG_FILE% to run assets....
+    COPY /V /Y "%PKG_LOG_FILE%" "%PKG_CHECK_PATH%" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO  -WARNING - %PKG_LOG_FILE% was not found.
+  )
+  CALL :ARCHIVE_CHECK_ASSETS !PKG_CHECK_FAIL!
   TYPE "%PKG_LOG_FILE%"
 )
 SETLOCAL DISABLEDELAYEDEXPANSION
+CALL :CLEANUP_CHECK_OUTPUT
+EXIT /b
+
+:SET_PKG_ZIP_UTILITY
+SET PKG_ZIP_UTILITY=0
+SET PKG_ZIP_UTILITY_64=C:\program files\7-zip
+IF EXIST "%PKG_ZIP_UTILITY_64%" (
+  SET "PATH=%PKG_ZIP_UTILITY_64%;%PATH%"
+  SET PKG_ZIP_UTILITY=1
+  ECHO.
+  ECHO -Zip x86_64 executable found at "%PKG_ZIP_UTILITY_64%"
+  EXIT /b
+)
+SET PKG_ZIP_UTILITY_32=C:\Program Files (x86)\7-zip
+IF EXIST "%PKG_ZIP_UTILITY_32%" (
+  SET "PATH=%PKG_ZIP_UTILITY_32%;%PATH%"
+  SET PKG_ZIP_UTILITY=1
+  ECHO.
+  ECHO -Zip x86 executable found at "%PKG_ZIP_UTILITY_32%"
+  EXIT /b
+)
+ECHO -WARNING - Could not find 7-zip. Cannot archive check assets.
+EXIT /b
+
+:ARCHIVE_CHECK_ASSETS
+SET PKG_CHECK_ASSETS=Check_%1_%PKG_PLATFORM%_Assets.zip
+IF %PKG_ZIP_UTILITY% == 1 (
+  ECHO  -Archiving CHECK %1 assets to %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS%
+  IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% >NUL 2>&1 )
+  7z.exe a -tzip %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_PATH%\ | findstr /i /r /c:"^Creating\>" /c:"^Everything\>"
+)
+EXIT /b
+
+:CLEANUP_CHECK_OUTPUT
+DEL /Q %PKG_CHECK_PATH%\*.out >NUL 2>&1
+DEL /Q %PKG_CHECK_PATH%\*.pdf >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\std* >NUL 2>&1
+DEL /Q /S %PKG_CHECK_PATH%\*.dmp >NUL 2>&1
+RMDIR /Q /S %PKG_CHECK_PATH%\LPub3D >NUL 2>&1
+RMDIR /Q /S %PKG_CHECK_PATH%\TENTE\LPub3D >NUL 2>&1
+RMDIR /Q /S %PKG_CHECK_PATH%\VEXIQ\LPub3D >NUL 2>&1
 EXIT /b
 
 :ELAPSED_CHECK_TIME

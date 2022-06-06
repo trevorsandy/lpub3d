@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 27, 2022
+# Last Update: Jun 03, 2022
 #
 # Purpose:
 # This script is used to 'cutover' development [lpub3dnext] or maintenance [lpub3d-ci] repository commits, one at a time, to production.
@@ -22,7 +22,7 @@
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
 #
 # Preq 2 of 3 Set 'Next' version number [execute once]
-# $ sed 's/2.4.1/<next version>/g' -i ci_cutover.sh
+# $ sed 's/2.4.5/<next version>/g' -i ci_cutover.sh
 #
 # Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d-ci repository at the
 #   last production commit. [execute once]
@@ -31,11 +31,11 @@
 #   'reset to this commit' or 'cherrypick commit' [execute for each commit]
 #
 # Step 2 of 3 Production commits [execute for each commit except the final one for version change]
-# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.4.1 ./ci_cutover.sh
+# $ env MSG="<commit> #No" CFG=yes TAG=v2.4.5 ./ci_cutover.sh
 #
 # Step 3 of 3 Final commit and production version change [execute once for version
 #   change [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.4.1" TAG=v2.4.1 REL=1 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D v2.4.5" TAG=v2.4.5 REL=1  CFG=yes ./ci_cutover.sh
 #
 # Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d-ci'
 # $ cp -f lpub3d/mainApp/docs/README.txt lpub3d-ci/mainApp/docs/
@@ -53,37 +53,37 @@
 #   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: Git tag [Default=v2.4.1] - change as needed
+#   - TAG: Git tag [Default=v2.4.5] - change as needed
 #   - MSG: Git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
 #   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [default=no]
-#   - REV: Increment revision [Default=yes]
+#   - REV: Increment revision [Default=no]
 #   - CNT: Increment commit count [Default=yes]
-#   - OBS_CFG: Set OBS config and README file updates [Default=no]
+#   - CFG: Set OBS config and README file updates [Default=no]
 #   - REL: Release build, do not delete build tag [Default=no]
 #   - AUTO: Do not prompt to continue after pausing at options status [Default=null]
 #   - NOSTAT: Do not show the options_status [Default=null]
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.4.1 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.4.1" REL=1 REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D version 2.4.1" TAG=v2.4.1 REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.4.1 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="Issue template and renderer logging updates" OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.4.5 ./ci_cutover.sh
+# $ env MSG="LPub3D version 2.4.5" REL=1 CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D version 2.4.5" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.4.5 CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="Issue template and renderer logging updates" CFG=yes ./ci_cutover.sh
 #
 # Move from lpub3d-ci to lpub3d-obs repository
-# $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.4.1 ./ci_cutover.sh
+# $ env TO_REPO=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.4.5 ./ci_cutover.sh
 #
 # Move from lpub3d-ci to lpub3dnext repository
 # Step 1 of 2 Change lpub3dnext branch to CUTOVER_CI
 # Step 2 of 2 Final commit version change [execute once]
-# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.1 REL=1 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
-# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.1 OBS_CFG=no ./ci_cutover.sh
+# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.5 REL=1 CFG=yes ./ci_cutover.sh
+# $ env TO_REPO=lpub3dnext MSG="99b9b79e <commit message>" TAG=v2.4.5 ./ci_cutover.sh
 #
 # Move from lpub3dnext to lpub3d-ci repository
 # Step 1 of 2 Change lpub3d-ci branch to NEXT_IN
 # Step 2 of 2 Maintenance commits [execute for each commit except the final one for version change]
-# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="64d28eb6-301019 Add PLI parts..." TAG=v2.4.1 OBS_CFG=yes ./ci_cutover.sh
+# $ env TO_REPO=lpub3d-ci FROM_REPO=lpub3dnext MSG="64d28eb6-301019 Add PLI parts..." TAG=v2.4.5 CFG=yes ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
@@ -93,9 +93,9 @@ NEXT_CUT=${AUTO:-}
 NO_STATUS=${NOSTAT:-}
 LOCAL_TAG=${TAG:-}
 FRESH_BUILD=${FRESH:-}
-INC_REVISION=${REV:-yes}
+INC_REVISION=${REV:-no}
 INC_COUNT=${CNT:-yes}
-FORCE_CONFIG=${OBS_CFG:-no}
+FORCE_CONFIG=${CFG:-no}
 TO_REPO_NAME=${TO_REPO:-lpub3d}
 FROM_REPO_NAME=${FROM_REPO:-lpub3d-ci}
 REPO_BASE_URL=${REPO_BASE:-https://github.com/trevorsandy}
@@ -388,16 +388,7 @@ if [ "$TO_REPO_NAME" = "lpub3d" ]; then sed s/'--dry-run '//g -i $file; echo "  
 else sed s/'rsync --recursive'/'rsync --dry-run --recursive'/g -i $file; echo "  -NOTICE - $TO_REPO_NAME not production, 'dry-run' preserved in $file.";
 fi
 
-echo "07-Update 'source' element in snapcraft.yaml"
-file=snapcraft.yaml
-if [ "$TO_REPO_NAME" = "lpub3d" ]; then
-  sed -e "s,^    source: ${REPO_BASE_URL}.*,    source: ${REPO_BASE_URL}/lpub3d/archive/${LOCAL_TAG}.tar.gz," \
-      -e "s,^version:.*,version: '${LOCAL_TAG:1}'," \
-      -e "/^    source-commit:.*/d" \
-      -i $file; echo "  -file $file updated." || echo "  -ERROR - file $file NOT updated."
-fi
-
-echo "08-Update README.md Title"
+echo "07-Update README.md Title"
 file=README.md
 if   [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then sed s/' - Dev, CI, and Test'//g -i $file; echo "  -file $file updated.";
 elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then s/' - Dev, CI, and Test'/' - Next Development'/g -i $file; echo "  -file $file updated.";
@@ -408,13 +399,13 @@ elif [[ "$FROM_REPO_NAME" = "lpub3d" && "$TO_REPO_NAME" = "lpub3d-ci" ]]; then s
 else echo "  -ERROR - file $file NOT updated.";
 fi
 
-echo "09-Create pre-commit githook..."
+echo "08-Create pre-commit githook..."
 cat << pbEOF >.git/hooks/pre-commit
 #!/bin/sh
 ./builds/utilities/hooks/pre-commit   # location of pre-commit script in source repository
 pbEOF
 
-echo "10-Replace leading spaces with tabs for LCLib files"
+echo "09-Replace leading spaces with tabs for LCLib files"
 counter=0
 for file in $(find ./lclib -type f -name '*.h' -o -name '*.cpp')
 do
@@ -426,7 +417,7 @@ do
 done
 echo "  -lclib files updated: $counter"
 
-echo "11-Replace leading spaces with tabs for LDVQt files"
+echo "10-Replace leading spaces with tabs for LDVQt files"
 counter=0
 for file in $(find ./ldvlib/LDVQt -type f -name '*.h' -o -name '*.cpp' \
               -not -path "./ldvlib/LDVQt/include*" \
@@ -441,13 +432,13 @@ do
 done
 echo "  -ldvlib files updated: $counter"
 
-echo "12-Change *.sh line endings from CRLF to LF"
+echo "11-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
     dos2unix -k $file &>> $LOG
 done
 
-echo "13-Change other line endings from CRLF to LF"
+echo "12-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/* &>> $LOG
 dos2unix -k builds/utilities/create-dmg &>> $LOG
 dos2unix -k builds/utilities/dmg-utils/* &>> $LOG
@@ -463,41 +454,35 @@ dos2unix -k builds/linux/obs/debian/* &>> $LOG
 dos2unix -k builds/linux/obs/debian/source/* &>> $LOG
 dos2unix -k builds/macx/* &>> $LOG
 
-echo "14-Change Windows script line endings from LF to CRLF"
+echo "13-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/* &>> $LOG
 unix2dos -k builds/utilities/CreateRenderers.bat &>> $LOG
 unix2dos -k builds/utilities/update-config-files.bat &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/* &>> $LOG
 unix2dos -k builds/utilities/nsis-scripts/Include/* &>> $LOG
 
-echo "15-Patch update-config-files.sh"
-file=builds/utilities/update-config-files.sh
-sed -e s/'.dsc   - add'/'.dsc      - add'/g \
-    -e s/'.spec  - add'/'.spec     - add'/g -i $file \
-&& echo "  -file $file updated." \
-|| echo "  -ERROR - file $file NOT updated."
-
 lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
 
-echo "16-update LPub3D_Npp_UDL.xml"
+echo "14-update LPub3D_Npp_UDL.xml"
 file=mainApp/extras/LPub3D_Npp_UDL.xml
 sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
        -e "s/^;; Last Update.:.*/;; Last Update.: ${LP3D_LAST_UPDATE}/" "${file}" \
 && echo "  -file $file updated." \
 || echo "  -ERROR - file $file NOT updated."
 
-echo "17-Add new files..."
+echo "15-Add new files..."
+rm -f *.log
 git add . &>> $LOG
 git reset HEAD 'mainApp/docs/README.txt'
 
 # Create tag here to enable commit files configuration
-echo "18-Create local tag in $TO_REPO_NAME repository"
+echo "16-Create local tag in $TO_REPO_NAME repository"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
 [ -n "$git_tag" ] && echo "  -git tag $git_tag created."
 
-echo "19-Stage and commit changed files..."
+echo "17-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
@@ -506,19 +491,18 @@ env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "
 
 if [ -n "$RELEASE_COMMIT" ]; then
    # Delete and recreate new version tag to place tag on last commit
-   echo "20-Recreate local tag $LOCAL_TAG in $TO_REPO_NAME repository"
+   echo "18-Recreate local tag $LOCAL_TAG in $TO_REPO_NAME repository"
    if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
    git_tag="$(git tag -l -n $LOCAL_TAG)" && \
    [ -n "$git_tag" ] && echo "  -git tag $git_tag recreated."
 else
    # Delete version tag after commit as we are not releasing at this commit
-   echo "20-Delete local tag $LOCAL_TAG in $TO_REPO_NAME repository"
+   echo "18-Delete local tag $LOCAL_TAG in $TO_REPO_NAME repository"
    git tag --delete $LOCAL_TAG
 fi
-rm -f update-config-files.sh.log
 
-echo "21-Restore repository checked out state..."
+echo "19-Restore repository checked out state..."
 # Checkout master in source [in TO_REPO_NAME]
 if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
     CHECKOUT_MASTER=1
@@ -538,8 +522,9 @@ fi
 if [ -z "$NEXT_CUT" ]
 then
     if [ -n "$RELEASE_COMMIT" ]; then
-        echo "22-Create new version tag in $FROM_REPO_NAME repository"
+        echo "20-Create new version tag in $FROM_REPO_NAME repository"
         cd $HOME_DIR/$FROM_REPO_NAME
+        rm -f *.log
         if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
         if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
         git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \

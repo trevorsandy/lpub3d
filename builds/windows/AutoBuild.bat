@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: May 31, 2022
+rem  Last Update: Jun 05, 2022
 rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -19,6 +19,12 @@ CALL :ELAPSED_BUILD_TIME Start
 
 %WINDIR%\system32\tzutil.exe /s "Central Europe Standard Time"
 
+ECHO.
+ECHO ======================================================
+ECHO   -Start %~nx0 with commandline args: [%*]...
+ECHO ------------------------------------------------------
+ECHO.
+
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "windows" (
   CALL :WD_ABS_PATH ..\..\
@@ -27,24 +33,24 @@ IF "%SCRIPT_DIR%" EQU "windows" (
 )
 
 rem Variables - change these as required by your build environments
-SET LP3D_QTVERSION=5.15.2
-SET LP3D_VSVERSION=2019
+IF "%LP3D_QTVERSION%" == "" SET LP3D_QTVERSION=5.15.2
+IF "%LP3D_VSVERSION%" == "" SET LP3D_VSVERSION=2019
 
 IF "%GITHUB%" EQU "True" (
-  IF [%LP3D_DIST_DIR_PATH%] == [] (
+  IF "%LP3D_DIST_DIR_PATH%" == "" (
     ECHO.
     ECHO  -ERROR - Distribution directory path not defined.
-    ECHO  -%~nx0 terminated!
     GOTO :ERROR_END
   )
-  IF "%GITHUB_RUNNER_IMAGE%" == "Visual Studio 2019" (
-    SET LP3D_VSVERSION=2019
-  )
-  IF NOT "%LP3D_LOCAL_CI_BUILD%" == "1" (
+  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CI=True
+    SET GITHUB_JOB=Local CI Build
+  ) ELSE (
     SET CONFIG_CI=github_ci
   )
+  SET ABS_WD=%GITHUB_WORKSPACE%
+  SET GITHUB_RUNNER_IMAGE=Visual Studio %LP3D_VSVERSION%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET PACKAGE=%LP3D_PACKAGE%
   SET CONFIGURATION=%GITHUB_CONFIG%
   SET LDRAW_INSTALL_ROOT=%LP3D_3RD_PARTY_PATH%
   SET LDRAW_LIBS=%LP3D_3RD_PARTY_PATH%
@@ -57,26 +63,25 @@ IF "%GITHUB%" EQU "True" (
   IF "%LP3D_QT64_MSVC%" == "" (
     SET LP3D_QT64_MSVC=%LP3D_BUILD_BASE%\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
   )
-  SETLOCAL
+  SETLOCAL DISABLEDELAYEDEXPANSION
 )
 
 IF "%APPVEYOR%" EQU "True" (
-  IF [%LP3D_DIST_DIR_PATH%] == [] (
+  IF "%LP3D_DIST_DIR_PATH%" == "" (
     ECHO.
     ECHO  -ERROR - Distribution directory path not defined.
-    ECHO  -%~nx0 terminated!
     GOTO :ERROR_END
   )
-  IF "%APPVEYOR_BUILD_WORKER_IMAGE%" == "Visual Studio 2019" (
-    SET LP3D_VSVERSION=2019
-  )
-  IF NOT "%LP3D_LOCAL_CI_BUILD%" == "1" (
+  IF "%LP3D_LOCAL_CI_BUILD%" == "1" (
+    SET CI=True
+    SET APPVEYOR_BUILD_ID=Local CI Build
+  ) ELSE (
     SET CONFIG_CI=appveyor_ci
   )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET PACKAGE=%LP3D_PACKAGE%
   SET CONFIGURATION=%configuration%
+  SET APPVEYOR_BUILD_WORKER_IMAGE=Visual Studio %LP3D_VSVERSION%
   SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
@@ -88,36 +93,47 @@ IF "%APPVEYOR%" EQU "True" (
   IF "%LP3D_QT64_MSVC%" == "" (
     SET LP3D_QT64_MSVC=C:\Qt\%LP3D_QTVERSION%\msvc!LP3D_VSVERSION!_64\bin
   )
-  SETLOCAL
+  SETLOCAL DISABLEDELAYEDEXPANSION
 )
 
 IF "%GITHUB%" NEQ "True" (
   IF "%APPVEYOR%" NEQ "True" (
     CALL :DIST_DIR_ABS_PATH ..\lpub3d_windows_3rdparty
-    SET PACKAGE=LPub3D
     SET CONFIGURATION=release
     SET LDRAW_INSTALL_ROOT=%USERPROFILE%
     SET LDRAW_LIBS=%USERPROFILE%
     SET LDRAW_DIR=%USERPROFILE%\LDraw
-    SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
-    SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+    IF "%LP3D_QT32_MSVC%" == "" (
+      SET LP3D_QT32_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%\bin
+    )
+    IF "%LP3D_QT64_MSVC%" == "" (
+      SET LP3D_QT64_MSVC=C:\Qt\IDE\%LP3D_QTVERSION%\msvc%LP3D_VSVERSION%_64\bin
+    )
     SET LP3D_UPDATE_LDRAW_LIBS=unknown
   )
 )
 
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build
+IF "%LP3D_INSTALL_PKG_ONLY%" == "1" (
+  SET LP3D_COMMIT_MSG=Create installation packages only
 )
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build
+
+IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build" (
+  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Community\VC\Auxiliary\Build
 )
-IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build" (
-  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build
+IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build" (
+  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\BuildTools\VC\Auxiliary\Build
+)
+IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build" (
+  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\%LP3D_VSVERSION%\Enterprise\VC\Auxiliary\Build
 )
 IF "%LP3D_VCVARSALL%" == "" (
   ECHO.
   ECHO  -ERROR - Microsoft Visual Studio C++ environment not defined.
-  ECHO  -%~nx0 terminated!
+  GOTO :ERROR_END
+)
+
+IF NOT EXIST "%ABS_WD%\mainApp" (
+  ECHO -ERROR - mainApp folder not found. Working directory %ABS_WD% is not valid.
   GOTO :ERROR_END
 )
 
@@ -126,9 +142,9 @@ rem Visual C++ 2013 -vcvars_ver=12.0
 rem Visual C++ 2015 -vcvars_ver=14.0
 rem Visual C++ 2017 -vcvars_ver=14.1
 rem Visual C++ 2019 -vcvars_ver=14.2
-SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
-SET LP3D_VCVERSION=8.1
-SET LP3D_VCTOOLSET=v140
+IF "%LP3D_VCVARSALL_VER%" == "" SET LP3D_VCVARSALL_VER=-vcvars_ver=14.0
+IF "%LP3D_VCVERSION%" == "" SET LP3D_VCVERSION=8.1
+IF "%LP3D_VCTOOLSET%" == "" SET LP3D_VCTOOLSET=v140
 
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
@@ -148,6 +164,13 @@ SET INSTALL_64BIT=unknown
 SET PLATFORM_ARCH=unknown
 SET LDCONFIG_FILE=unknown
 SET CHECK=unknown
+
+FOR /F "tokens=3*" %%i IN ('FINDSTR /c:"#define VER_PRODUCTNAME_STR" %ABS_WD%\mainApp\version.h') DO SET LP3D_PRODUCT=%%i
+SET PACKAGE=%LP3D_PRODUCT:"=%
+IF [%PACKAGE%] == [] (
+  ECHO  -WARNING - PACKAGE value not retrieved from %ABS_WD%\mainApp\version.h.
+  SET PACKAGE=LPub3D
+)
 
 rem Verify 1st input flag options
 IF NOT [%1]==[] (
@@ -242,9 +265,8 @@ IF NOT [%4]==[] (
   )
 )
 
-rem Set third party install as default behaviour
 IF [%2]==[] (
-  SET INSTALL=1
+  SET INSTALL=0
   GOTO :BUILD
 )
 
@@ -278,6 +300,12 @@ IF NOT EXIST "%LP3D_WIN_GIT%" (
   SET LP3D_WIN_GIT_MSG=Not Found
 )
 
+IF /I "%RENDERERS_ONLY%"=="1" (
+  ECHO.
+  ECHO -Build 3rdparty renderers only - %PACKAGE% not built
+  ECHO.
+)
+
 rem Display build settings
 ECHO.
 IF "%GITHUB%" EQU "True" (
@@ -301,17 +329,13 @@ IF "%APPVEYOR%" EQU "True" (
 )
 ECHO   PACKAGE........................[%PACKAGE%]
 ECHO   CONFIGURATION..................[%CONFIGURATION%]
+ECHO   COMMIT MESSAGE.................[%LP3D_COMMIT_MSG%]
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
 ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
 ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS_ROOT................[%LDRAW_LIBS%]
-IF "%LP3D_LOCAL_CI_BUILD%" EQU "1" (
-  ECHO   LOCAL_CI_BUILD.................[TRUE]
-)
-IF "%LP3D_CREATE_EXE_PKG_ONLY%" EQU "1" (
-  ECHO   CREATE EXE PACKAGES ONLY.......[TRUE]
-)
+ECHO   BUILD_OPT......................[%BUILD_OPT%]
 ECHO.
 
 rem set application version variables
@@ -319,12 +343,9 @@ SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
 CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
 IF ERRORLEVEL 1 (GOTO :ERROR_END)
 
-rem stop here if only running settings for CreateExePkg.bat
-IF "%LP3D_CREATE_EXE_PKG_ONLY%" EQU "1" (GOTO :END)
-
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
- SET INSTALL=1
+  SET INSTALL=1
 )
 
 rem Perform build check
@@ -380,6 +401,32 @@ IF NOT [%CONFIGURATION%]==[] (
   )
 )
 
+SET platform_build_start=%time%
+
+rem stop here if only running settings for CreateExePkg.bat
+IF /I "%LP3D_INSTALL_PKG_ONLY%" == "1" (
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET EXE_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+  SET EXE_TARGET_DIR=builds\windows\%CONFIGURATION%\!EXE_PRODUCT_DIR!
+  SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86_64\%PACKAGE%%d%.exe
+  IF NOT EXIST "!EXE!" (
+    ECHO.
+    ECHO -ERROR - !EXE! was not found. Cannot create install package.
+    GOTO :ERROR_END
+  )
+  SET EXE=!EXE_TARGET_DIR!\%PACKAGE%_x86\%PACKAGE%%d%.exe
+  IF NOT EXIST "!EXE!" (
+    ECHO.
+    ECHO -ERROR - !EXE! was not found. Cannot create install package.
+    GOTO :ERROR_END
+  )
+  SETLOCAL DISABLEDELAYEDEXPANSION
+
+  rem Perform build check if specified
+  IF %CHECK%==1 (CALL :BUILD_CHECK x86)
+  GOTO :END
+)
+
 rem Check if build renderers
 IF /I "%RENDERERS_ONLY%"=="1" (
   GOTO :BUILD_RENDERERS
@@ -389,8 +436,6 @@ rem Check if build all platforms
 IF /I "%PLATFORM_ARCH%"=="-all" (
   GOTO :BUILD_ALL
 )
-
-SET platform_build_start=%time%
 
 rem If build Win32, set to vs2017 for WinXP compat
 CALL :CONFIGURE_VCTOOLS %PLATFORM_ARCH%
@@ -418,7 +463,7 @@ IF %PLATFORM_ARCH%==x86 (SET EXE=mainApp\32bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF %PLATFORM_ARCH%==x86_64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
 IF NOT EXIST "%EXE%" (
   ECHO.
-  ECHO -ERROR - %EXE% was not successfully built - %~nx0 will trminate.
+  ECHO -ERROR - %EXE% was not successfully built.
   GOTO :ERROR_END
 )
 rem Package 3rd party install content - this must come before check so check can use staged content for test
@@ -455,14 +500,14 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %%P==x86_64 (SET EXE=mainApp\64bit_%CONFIGURATION%\%PACKAGE%%d%.exe)
   IF NOT EXIST "!EXE!" (
     ECHO.
-    ECHO  -ERROR - !EXE! was not successfully built - %~nx0 will trminate.
+    ECHO -ERROR - !EXE! was not successfully built.
     GOTO :ERROR_END
   )
   IF %INSTALL%==1 (CALL :STAGE_INSTALL)
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
   ECHO.
   ECHO -Elapsed %%P package build time !LP3D_ELAPSED_BUILD_TIME!
-  SETLOCAL
+  SETLOCAL DISABLEDELAYEDEXPANSION
   IF %CHECK%==1 (CALL :BUILD_CHECK %%P)
 )
 GOTO :END
@@ -481,9 +526,7 @@ ECHO.
 ECHO -Building Renderers for %PLATFORM_ARCH% platform, %CONFIGURATION% configuration...
 ECHO -----------------------------------------------------
 CALL builds\utilities\CreateRenderers.bat %PLATFORM_ARCH%
-IF %ERRORLEVEL% NEQ 0 (
-  GOTO :ERROR_END
-)
+IF %ERRORLEVEL% NEQ 0 (GOTO :ERROR_END)
 ECHO -----------------------------------------------------
 ECHO.
 GOTO :END
@@ -590,7 +633,6 @@ IF %PLATFORM_ARCH% EQU x86 (
     CALL "%LP3D_VCVARSALL%\vcvars32.bat" %LP3D_VCVARSALL_VER%
   ) ELSE (
     ECHO -ERROR - vcvars32.bat not found.
-    ECHO -%~nx0 terminated!
     GOTO :ERROR_END
   )
 ) ELSE (
@@ -604,7 +646,6 @@ IF %PLATFORM_ARCH% EQU x86 (
     CALL "%LP3D_VCVARSALL%\vcvars64.bat" %LP3D_VCVARSALL_VER%
   ) ELSE (
     ECHO -ERROR - vcvars64.bat not found.
-    ECHO -%~nx0 terminated!
     GOTO :ERROR_END
   )
 )
@@ -619,7 +660,7 @@ ECHO.
 ECHO   LPUB3D_CONFIG_ARGS.............[%LPUB3D_CONFIG_ARGS%]
 SETLOCAL ENABLEDELAYEDEXPANSION
 ECHO(  PATH_PREPEND...................[!PATH!]
-  ENDLOCAL
+  SETLOCAL DISABLEDELAYEDEXPANSION
 )
 EXIT /b
 
@@ -951,14 +992,14 @@ IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
 EXIT /b
 
 :WD_ABS_PATH
-IF [%1] EQU [] (EXIT /B) ELSE SET ABS_PATH=%~f1
-IF %ABS_PATH:~-1%==\ SET ABS_PATH=%ABS_PATH:~0,-1%
-EXIT /B
+IF [%1] EQU [] (EXIT /B) ELSE SET ABS_WD=%~f1
+IF %ABS_WD:~-1%==\ SET ABS_WD=%ABS_WD:~0,-1%
+EXIT /b
 
 :DIST_DIR_ABS_PATH
 IF [%1] EQU [] (EXIT /B) ELSE SET DIST_DIR=%~f1
 IF %DIST_DIR:~-1%==\ SET DIST_DIR=%DIST_DIR:~0,-1%
-EXIT /B
+EXIT /b
 
 :ELAPSED_BUILD_TIME
 IF [%1] EQU [] (SET start=%build_start%) ELSE (
@@ -1069,7 +1110,7 @@ ECHO  x86_64......1........Platform flag       [Default=Off] Build 64bit platfor
 ECHO  -all........1........Configuraiton flag  [Default=On ] Build both 32bit and 64bit PLATFORM_ARCHs - Requries Qt libraries for both PLATFORMs.
 ECHO  -3rd..........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ren..........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
-ECHO  -ins..........2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
+ECHO  -ins..........2,3....Project flag        [Default=Off] Install LPub3D distribution and 3rd party artefacts to 'product' folder
 ECHO  -chk..........2,3,4..Project flag        [Default=Off] Perform a build check
 ECHO  -asl............3,4..Project flag        [Default=Off] Force update all supported libraries
 ECHO  -ldraw..........3,4..Project flag        [Default=Off] Force update LDraw Official and Unofficial libraries
@@ -1088,13 +1129,14 @@ EXIT /b
 
 :END_STATUS
 CALL :ELAPSED_BUILD_TIME
-ECHO -Elapsed build time %LP3D_ELAPSED_BUILD_TIME%
+ECHO  Elapsed build time %LP3D_ELAPSED_BUILD_TIME%
 ENDLOCAL
 EXIT /b
 
 :ERROR_END
 ECHO.
 ECHO -%PACKAGE% %~nx0 FAILED.
+ECHO -%~nx0 will terminate!
 CALL :END_STATUS
 EXIT /b 3
 

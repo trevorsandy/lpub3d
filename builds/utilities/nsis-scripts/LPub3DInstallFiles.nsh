@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: June 12, 2021
+;Last Update: May 31, 2022
 ;Copyright (C) 2016 - 2022 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -11,9 +11,9 @@ DeleteLdrawini:
 IfFileExists "ldrawini.dll" 0 ContinueInstall
 Delete "ldrawini.dll"
 ContinueInstall:
-;executable requireds and readme
+;Executable requireds and readme
 ${If} ${RunningX64}
-    ; delete files with old names if exist
+    ; Delete files with old names if exist
     IfFileExists "${ProductName}_${ArchExt}.exe" 0 ContinueX64Install
     Delete "${ProductName}_${ArchExt}.exe"
     ContinueX64Install:
@@ -22,7 +22,11 @@ ${If} ${RunningX64}
     File "${Win64BuildDir}\vcredist\vcredist_x86_64.exe"
 
     ;Deposit new 64bit files...
+
+    ;Executable
     File "${Win64BuildDir}\${LPub3DBuildFile}"
+    ;Program database (pdb)
+    File "${Win64BuildDir}\${ProductName}.pdb"
 
     ;OpenSSL
     File "${Win64BuildDir}\${OpenSSL64LibCrypto}"
@@ -119,8 +123,12 @@ ${Else}
     File "${Win32BuildDir}\vcredist\vcredist_x86.exe"
 
     ;Deposit new 32bit files...
+
+    ;Executable
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"
     File "${Win32BuildDir}\${LPub3DBuildFile}"
+    ;Program database (pdb)
+    File "${Win32BuildDir}\${ProductName}.pdb"
 
     ;OpenSSL
     File "${Win32BuildDir}\${OpenSSL32LibCrypto}"

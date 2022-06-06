@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 06, 2021
+# Last Update Jun 03, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 # To run:
 # $ chmod 755 CreatePkg.sh
@@ -19,7 +19,11 @@ FinishElapsedTime() {
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
   [ -n "${LP3D_ARCH}" ] && ME="${ME} for (${LP3D_ARCH})" || ME="${ME} for (amd64)"
-  echo "$ME Finished!"
+  if [ "$BUILD_OPT" = "verify" ]; then
+    echo "$ME Verification Finished!"
+  else
+    echo "$ME Finished!"
+  fi
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -229,6 +233,23 @@ then
             echo "9-1. Build check failed - /usr/bin/${LPUB3D_EXE} not found."
         fi
     fi
+
+    # Stop here if build option is verification only
+    if [ "$BUILD_OPT" = "verify" ]; then
+        echo "9-2. Cleanup build assets..."
+        rm -f ./*.pkg.tar.zst 2>/dev/null || :
+        if [ "${LP3D_QEMU}" = "true" ]; then
+            echo "9-3. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+            mv -f ${BUILD_DIR}/*.log /out/ 2>/dev/null || :
+            mv -f ${BUILD_DIR}/src/*.log /out/ 2>/dev/null || :
+            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+            mv -f ~/*.log /out/ 2>/dev/null || :
+            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+        fi
+        exit 0
+    fi
+
     echo "9-2. create LPub3D ${PKG_EXTENSION} distribution packages"
     IFS=- read PKG_NAME PKG_VERSION BUILD PKG_EXTENSION <<< ${DISTRO_FILE}
     LP3D_PKG_FILE="LPub3D-${LP3D_APP_VERSION_LONG}-${PKG_EXTENSION}"
@@ -247,6 +268,7 @@ then
             mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
             mv -f ${CWD}/*.log /out/ 2>/dev/null || :
             mv -f ~/*.log /out/ 2>/dev/null || :
+            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         fi
         echo "    Distribution package.: ${LP3D_PKG_FILE}"
         echo "    Package path.........: $PWD/${LP3D_PKG_FILE}"

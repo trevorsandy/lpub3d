@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 27, 2022
+# Last Update Jun 04, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -16,7 +16,7 @@
 
 LP3D_ME=$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")
 
-echo "   Start $LP3D_ME execution from $PWD..."
+echo "   Start $LP3D_ME execution from $PWD ($([ -z "${_EXPORT_CONFIG_ONLY_}" ] && echo Update config files || echo Skip config files update))..."
 
 LP3D_CHANGE_DATE_LONG=`date +%a,\ %d\ %b\ %Y\ %H:%M:%S\ %z`
 LP3D_CHANGE_DATE=`date +%a\ %b\ %d\ %Y`
@@ -107,18 +107,18 @@ then
             LP3D_BRANCH=${GITHUB_REF}
             LP3D_COMMIT=${GITHUB_SHA}
         fi
-        git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${LP3D_BRANCH} +refs/tags/*:refs/tags/*
-        git checkout -qf ${LP3D_COMMIT}
-        lp3d_git_ver_author="$(git log -1 ${LP3D_COMMIT} --pretty="%aN")"
-        lp3d_git_ver_committer_email="$(git log -1 ${LP3D_COMMIT} --pretty="%cE")"
+        git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${LP3D_BRANCH} +refs/tags/*:refs/tags/* >/dev/null 2>&1
+        git checkout -qf ${LP3D_COMMIT} >/dev/null 2>&1
+        lp3d_git_ver_author="$(git log -1 ${LP3D_COMMIT} --pretty="%aN")" >/dev/null 2>&1
+        lp3d_git_ver_committer_email="$(git log -1 ${LP3D_COMMIT} --pretty="%cE")" >/dev/null 2>&1
     else
         Info "1. capture version info using git queries"
     fi
-    lp3d_git_build_type=`git tag --points-at HEAD`                                    # continuous build check
-    lp3d_git_ver_tag_long=`git describe --tags --match v* --long`
-    lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0`
-    lp3d_git_ver_commit_count=`git rev-list --count HEAD`
-    lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
+    lp3d_git_build_type=`git tag --points-at HEAD` >/dev/null 2>&1                     # continuous build check
+    lp3d_git_ver_tag_long=`git describe --tags --match v* --long` >/dev/null 2>&1
+    lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0` >/dev/null 2>&1
+    lp3d_git_ver_commit_count=`git rev-list --count HEAD` >/dev/null 2>&1
+    lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD` >/dev/null 2>&1
     cd "${LP3D_CALL_DIR}"
     lp3d_ver_tmp=${lp3d_git_ver_tag_long#*-}                                          # remove everything before and including "-"
     lp3d_revision_=${lp3d_ver_tmp%-*}                                                 # remove everything after and including "-"
@@ -150,7 +150,10 @@ LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
 Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
-
+if test "${CI}" = "true"; then
+Info "   LP3D_BRANCH............${LP3D_BRANCH}"
+Info "   LP3D_COMMIT............${LP3D_COMMIT}"
+fi
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
 
@@ -164,7 +167,7 @@ Info "   LP3D_VER_REVISION......${LP3D_VER_REVISION}"
 Info "   LP3D_VER_BUILD.........${LP3D_VER_BUILD}"
 Info "   LP3D_VER_SHA_HASH......${LP3D_VER_SHA_HASH}"
 if test -n "$LP3D_VER_SUFFIX"; then
-    Info "   LP3D_VER_SUFFIX........${LP3D_VER_SUFFIX}"
+Info "   LP3D_VER_SUFFIX........${LP3D_VER_SUFFIX}"
 fi
 Info "   LP3D_VERSION_INFO......${LP3D_VERSION_INFO}"
 Info "   LP3D_APP_VERSION.......${LP3D_APP_VERSION}"
@@ -172,13 +175,19 @@ Info "   LP3D_APP_VERSION_LONG..${LP3D_APP_VERSION_LONG}"
 # Info "   LP3D_APP_VERSION_TAG...${LP3D_APP_VERSION_TAG}"
 Info "   LP3D_APP_VER_SUFFIX....${LP3D_APP_VER_SUFFIX}"
 Info "   LP3D_DATE_TIME.........${LP3D_DATE_TIME}"
-Info ".  LP3D_RELEASE_DATE......${LP3D_RELEASE_DATE}"
+Info "   LP3D_RELEASE_DATE......${LP3D_RELEASE_DATE}"
 Info "   LP3D_CHANGE_DATE_LONG..${LP3D_CHANGE_DATE_LONG}"
 
 Info "   LP3D_VERSION...........${LP3D_VERSION}"
 Info "   LP3D_BUILD_VERSION.....${LP3D_BUILD_VERSION}"
 
 Info "   LP3D_SOURCE_DIR........${LPUB3D}-${LP3D_APP_VERSION}"
+if test -n "${LP3D_AUTHOR_NAME}"; then
+Info "   LP3D_AUTHOR_NAME.......${LP3D_AUTHOR_NAME}"
+fi
+if test -n "${LP3D_COMMITTER_EMAIL}"; then
+Info "   LP3D_COMMITTER_EMAIL...${LP3D_COMMITTER_EMAIL}"
+fi
 
 LP3D_NO_CONFIG_DISPLAY=
 if [[ "${CI}" = "true" || "${GITHUB}" = "true" ]]; then
@@ -219,7 +228,7 @@ else
 fi
 
 # ..............................
-if [ -z "${_EXPORT_CONFIG_ONLY_}" ]; then #If set, skip config files update
+if [ -z "${_EXPORT_CONFIG_ONLY_}" ]; then # _EXPORT_CONFIG_ONLY_ not set, Update config files
 # ..............................
 
 if [ "$LP3D_OS" = Darwin ]
@@ -315,9 +324,15 @@ then
         sed -i "" -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}"
 
     else
-        sed -i -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}" \
-               -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
-               -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes<\/p>/}" "${FILE}"
+        sed -i -e "s/.*<binary>lpub3d.*/            <binary>lpub3d${LP3D_APP_VER_SUFFIX}<\/binary>/" "${FILE}" "${FILE}"
+        # only perform release update when the last commit was an annotated tag
+        last_commit_sha=$(git rev-parse HEAD) >/dev/null 2>&1
+        last_annotated_tag_sha=$(git rev-list -n 1 $(git describe --abbrev=0)) >/dev/null 2>&1       
+        if [ "${last_commit_sha}" = "${last_annotated_tag_sha}" ]
+        then
+            sed -i -e "0,/.*<release version=.*/{s/.*<release version=.*/            <release version=\"${LP3D_APP_VERSION}\" date=\"$(date "+%Y-%m-%d")\">/}" \
+                   -e "0,/.*<p>LPub3D.*/{s/.*<p>LPub3D.*/                    <p>LPub3D $(date "+%d.%m.%Y") enhancements and fixes<\/p>/}" "${FILE}"
+        fi
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -326,7 +341,7 @@ fi
 FILE="$LP3D_PWD/docs/lpub3d${LP3D_APP_VER_SUFFIX}.1"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
 Info "8. update man page        - add version suffix    [$FILE]" || :
-FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*`
+FILE_TEMPLATE=`ls $LP3D_PWD/docs/lpub3d.*` >/dev/null 2>&1
 if [ -f ${FILE_TEMPLATE} ];
 then
     if [ -f ${FILE} ];
@@ -379,7 +394,7 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/${LPUB3D}.spec"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "11.update ${LPUB3D}.spec     - add version and date  [$FILE]" || :
+Info "11.update ${LPUB3D}.spec  - add version and date  [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -397,7 +412,7 @@ fi
 
 FILE="$LP3D_CONFIG_DIR/debian/${LPUB3D}.dsc"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "12.update ${LPUB3D}.dsc      - add version           [$FILE]" || :
+Info "12.update ${LPUB3D}.dsc   - add version           [$FILE]" || :
 if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
@@ -452,25 +467,10 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-FILE="$(realpath $LP3D_PWD/../snapcraft.yaml)"
-[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
-Info "15.update snapcraft.yaml  - add version suffix    [$FILE]" || :
-if [ -f ${FILE} -a -r ${FILE} ]
-then
-    if [ "$LP3D_OS" = Darwin ]
-    then
-        sed -i "" -e "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" \
-                  -e "s/^    source-commit:.*/    source-commit: $(git rev-parse ${LP3D_VER_SHA_HASH})/" "${FILE}"
-    else
-        sed -i -e "s/^    command: lpub3d.*/    command: lpub3d${LP3D_APP_VER_SUFFIX}/" \
-               -e "s/^    source-commit:.*/    source-commit: $(git rev-parse ${LP3D_VER_SHA_HASH})/" "${FILE}"
-    fi
-else
-    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
-fi
-
 # ..............................
-fi # _EXPORT_CONFIG_ONLY_ not set
+else # _EXPORT_CONFIG_ONLY_ set, skip config files update
+    Info "   Skip config files update (Config on export only)."
+fi
 # ..............................
 
 if [ "${SOURCED}" = "false" ]

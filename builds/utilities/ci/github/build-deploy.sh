@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 31, 2022
+# Last Update Jun 02, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -89,12 +89,18 @@ else
 fi
 
 # Check if build is on stale commit
-IFS='/' read -ra LP3D_SLUGS <<< "${GITHUB_REPOSITORY}"; unset IFS;
+LP3D_REPOSITORY=$GITHUB_REPOSITORY
+if [ "$TRAVIS" = "true" ]; then
+  LP3D_REPOSITORY=$TRAVIS_REPO_SLUG
+elif [ "$APPVEYOR" = "True" ]; then
+  LP3D_REPOSITORY=$APPVEYOR_REPO_NAME
+fi
+IFS='/' read -ra LP3D_SLUGS <<< "${LP3D_REPOSITORY}"; unset IFS;
 export LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
 export LP3D_GREP=grep
 if [[ "$OSTYPE" == "darwin"* ]]; then export LP3D_GREP=ggrep; fi
 [ ! -f "repo.txt" ] && \
-curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/master -o repo.txt
+curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/${LP3D_REPOSITORY}/commits/master -o repo.txt
 export LP3D_REMOTE=$(${LP3D_GREP} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
 export LP3D_LOCAL=$(git rev-parse HEAD)
 if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
@@ -116,6 +122,7 @@ if [[ "$GITHUB_REF" == "refs/tags/"* ]] ; then
   LP3D_DEPLOY_PKG=$(echo "$GITHUB_REF_NAME" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
     echo "Deploy tag $GITHUB_REF_NAME confirmed."
+    export LP3D_GIT_TAG=$GITHUB_REF_NAME
   fi
 fi
 
@@ -123,6 +130,16 @@ fi
 if [ -f upload.sh -a -r upload.sh ]; then
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
     LP3D_RELEASE_LABEL="LPub3D ${LP3D_RELEASE_DATE}"
+    if [ "$TRAVIS" = "true" ]; then
+      export LP3D_GIT_TAG=$TRAVIS_TAG
+    elif [ "$APPVEYOR" = "True" ]; then
+      export LP3D_GIT_TAG=$APPVEYOR_REPO_TAG_NAME
+    fi
+    if [ -n "$LP3D_VERSION" ]; then
+       export "$LP3D_VERSION"
+    else
+       export LP3D_VERSION=${LP3D_GIT_TAG:1}
+    fi
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i "" "s/      RELEASE_TITLE=\"Release build.*/      RELEASE_TITLE=\"${LP3D_RELEASE_LABEL}\"/g" "upload.sh"
     else
@@ -238,9 +255,13 @@ echo "WARNING - Failed to decrypt Sourceforge host rsa key." && LP3D_SF_DEPLOY_A
 echo "Restricting secret keys permission..." && \
 find ${LP3D_GPGHOME}/ -type f -exec chmod 600 {} \;
 
+# Capture the deployment folder if deploy package
+
 # Display asset paths info
 echo
 echo "LP3D_PROJECT_NAME...........${LP3D_PROJECT_NAME}"
+[ -n "${LP3D_VERSION}" ] && \
+echo "LP3D_VERSION................${LP3D_VERSION}" || :
 [ "${LP3D_DEPLOY_PKG}" = "yes" ] && \
 echo "LP3D_RELEASE_TAG............${LP3D_GIT_TAG}" || :
 [ -n "${LP3D_RELEASE_LABEL}" ] && \
@@ -252,6 +273,7 @@ echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 # Publish update assets to Sourceforge in one call - then delete
 if [ -d "${LP3D_BUILD_ASSETS}/updates" ]; then
   echo && echo "Publishing update assets..."
+  export LP3D_ASSET_EXT=".all"
   export LP3D_UPDATE_ASSETS=${LP3D_BUILD_ASSETS}/updates
   PublishToSourceforge
 fi
@@ -262,10 +284,13 @@ declare -r c=Clean
 echo && echo "Clean up artifacts that should not be published..." && \
 ( find ${LP3D_BUILD_ASSETS}/ -type f \( \
   -name 'Dockerfile' -o \
+  -name '*_Assets.zip' -o \
+  -name '*_assets.tar.gz' -o \
   -name '*.debian.tar.xz' -o \
   -name '*-debug*.rpm' -o \
   -name '*.buildinfo' -o \
   -name '*.changes' -o \
+  -name '*.dmp' -o \  
   -name '*.dsc' -o \
   -name '*.log' -o \
   -name '*.sh' \) \
@@ -283,7 +308,7 @@ for LP3D_ASSET in ${LP3D_ASSETS}; do
   export LP3D_ASSET_EXT=".${LP3D_ASSET##*.}"
   # Process individual release asset
   case ${LP3D_ASSET_EXT} in
-    ".exe"|".pdb"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
+    ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
     LP3D_RELEASE=${LP3D_ASSET}
     SignHashAndPublishToGitHub
     ;;
@@ -291,6 +316,7 @@ for LP3D_ASSET in ${LP3D_ASSETS}; do
 done
 
 # Publish to Sourceforge with single call
+export LP3D_ASSET_EXT=".all"
 export LP3D_DOWNLOAD_ASSETS=${LP3D_BUILD_ASSETS}
 PublishToSourceforge
 

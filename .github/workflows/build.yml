@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: May 28, 2022
+# Last Update: Jun 04, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: builds # used for badge label
@@ -182,7 +182,7 @@ jobs:
     if: |
       always() &&
       !contains(github.event.head_commit.message, 'SKIP_DEPLOY') &&
-      (contains(github.event.head_commit.message, 'BUILD_AMD') ||
+      (contains(github.event.head_commit.message, 'RELEASE_BUILD') ||
        contains(github.event.head_commit.message, 'BUILD_ALL') ||
        startsWith(github.event.ref, 'refs/tags/v') ||
        github.event_name == 'workflow_dispatch')

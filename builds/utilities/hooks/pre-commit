@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: May 14, 2021
+#  Last Update: Jun 03, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 ## Automatically generate git revision info
@@ -27,7 +27,7 @@
 ##   major/minor/patch version number for example.
 #
 # Environment Vars:
-##  - inc_rev: increment revision [Default=yes]
+##  - inc_rev: increment revision [Default=no]
 ##  - inc_cnt: increment commit count [Default=yes]
 ##  - force:   force setting OBS config file configuration [Default=no]
 #
@@ -35,9 +35,17 @@
 ##  -f: force setting OBS config file configuration
 ##
 ## Manual execution examples:
-#   If you wish to execute without sending valid-format commit message
-#   ./builds/utilities/hooks/pre-commit -f
-#   env inc_rev=no force=yes ./builds/utilities/hooks/pre-commit
+#   Update config files to latest commit
+#   $ ./builds/utilities/hooks/pre-commit -f
+#
+#   Update config files to last commit and commit changes
+#   $ env force=yes git commit -m "Commit message"
+#
+#   Update config files to last commit but do not increment revision
+#   $ env inc_rev=no force=yes ./builds/utilities/hooks/pre-commit
+#
+#   Update config files to last commit, do not increment revision and commit changes
+#   $ env force=yes inc_rev=no inc_cnt=yes git commit -m "Commit message"
 ##
 
 FILES_PATTERN='\.dropbox_oauth|\.github_api*|\.sfdeploy_travis*'
@@ -48,19 +56,16 @@ git diff --cached --name-only | \
 
 exec 1>&2
 # to disable or run from command line, set default to 'no'
-increment_revision=${inc_rev:-yes}
+increment_revision=${inc_rev:-no}
 increment_commitcount=${inc_cnt:-yes}
 force_config=${force:-no}
-commitmsg=".git/COMMIT_EDITMSG"
-
-# trigger if [update], [build pkg] or [deploy pkg] exist in commit message
-cat "$commitmsg" | awk '{print tolower($0)}' | grep -qE '\[update|snapcraft|build pkg.*|deploy pkg\]' && update_config_files=yes || \
-[ "$force_config" = "yes" ] && update_config_files=yes || \
-[ "$1" = "-f" ] && update_config_files=yes || \
 update_config_files=no
 
-if test x"$update_config_files" = x"yes" && \
-  test x"$(git diff HEAD --name-only)" != x""; then
+# trigger if 'env force=yes' or '-f' flag specified
+[ ! "$force_config" = "no" ] && update_config_files=yes || :
+[ "$1" = "-f" ] && update_config_files=yes || :
+
+if test x"$update_config_files" != x"no"; then
   tag_long=`git describe --tags --match v* --long`
   tag_short=`git describe --tags --match v* --abbrev=0`
   commit_count=`git rev-list HEAD --count`
@@ -99,11 +104,15 @@ if test x"$update_config_files" = x"yes" && \
   git add mainApp/lpub3d.appdata.xml
   git add README.md
   git add gitversion.pri
-  git add snapcraft.yaml
 
   git add builds/linux/obs/alldeps/PKGBUILD
   git add builds/linux/obs/alldeps/lpub3d.spec
   git add builds/linux/obs/alldeps/debian/changelog
   git add builds/linux/obs/alldeps/debian/lpub3d.dsc
   git add builds/linux/obs/debian/rules
+  
+  echo "   Staged files:"
+  for file in $(git diff --name-only --cached); do 
+    echo "   -$file"
+  done
 fi

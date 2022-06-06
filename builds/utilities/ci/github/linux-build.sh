@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update May 22, 2022
+# Last Update Jun 04, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -91,26 +91,21 @@ case "${LP3D_BASE}" in
         export BUILD="${LP3D_BASE}"
         # Check commit for version tag
         if [[ "${GITHUB_REF}" == "refs/tags/"* ]]; then
-          publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
+            publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
         fi
-        if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" = *"BUILD_AMD"* ]]; then
-          export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} BUILD_ALL | awk '{print toupper($0)}')"
+        if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
+            export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} BUILD_ALL | awk '{print toupper($0)}')"
         else
-          export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
+            export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
         fi
-        if [[ "${LP3D_QEMU}" = "true" && "${LP3D_COMMIT_MSG}" = *"BUILD_AMD"* ]]; then
-            echo "Skipping QEMU build, BUILD_AMD detected."
+        if [ ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]; then
+            export BUILD_OPT="verify"
+        fi        
+        if [[ "${LP3D_QEMU}" = "true" && ! "${LP3D_COMMIT_MSG}" =~ (BUILD_ARM|BUILD_ALL) ]]; then
+            echo "Skipping QEMU ${LP3D_ARCH} build."
             exit 0;
         fi
-        if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
-            if [ "${LP3D_QEMU}" = "false" ]; then
-                [ "${LP3D_APPIMAGE}" != "true" ] && export BUILD_OPT="verify" || :
-                source builds/utilities/ci/github/linux-multiarch-build.sh
-            else
-                echo "Unsupported option set QEMU: ${LP3D_QEMU}, GITHUB_EVENT: ${GITHUB_EVENT_NAME}, COMMIT_MSG: ${LP3D_COMMIT_MSG}"
-                exit 0
-            fi
-        elif [[ "${LP3D_QEMU}" = "true" || "${LP3D_APPIMAGE}" = "true" ]]; then
+        if [[ "${LP3D_QEMU}" = "true" || "${LP3D_APPIMAGE}" = "true" ]]; then
             source builds/utilities/ci/github/linux-multiarch-build.sh
         else
             source builds/utilities/ci/github/linux-amd64-build.sh

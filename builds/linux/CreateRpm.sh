@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 06, 2021
+# Last Update Jun 03, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -19,7 +19,11 @@ FinishElapsedTime() {
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
   [ -n "${LP3D_ARCH}" ] && ME="${ME} for (${LP3D_ARCH})" || ME="${ME} for (amd64)"
-  echo "$ME Finished!"
+  if [ "$BUILD_OPT" = "verify" ]; then
+    echo "$ME Verification Finished!"
+  else
+    echo "$ME Finished!"
+  fi
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -236,6 +240,26 @@ then
     echo "15-2. check ${RPM_EXTENSION} packages..."
     rpmlint ${DISTRO_FILE} ${LPUB3D}-${LP3D_APP_VERSION}*.rpm
 
+    # Stop here if build option is verification only
+    if [ "$BUILD_OPT" = "verify" ]; then
+        echo "15-3. Cleanup build assets..."
+        rm -f ./*.rpm* 2>/dev/null || :
+        if [ "${LP3D_QEMU}" = "true" ]; then
+            echo "15-4. Moving ${LP3D_BASE} ${LP3D_ARCH} logs to output folder..."
+            mv -f ${BUILD_DIR}/BUILD/*.log 2>/dev/null || :
+            mv -f ${SOURCE_DIR}/*.log /out/ 2>/dev/null || :
+            mv -f ${CWD}/*.log /out/ 2>/dev/null || :
+            mv -f ./*.log /out/ 2>/dev/null || :
+            mv -f ~/*.log /out/ 2>/dev/null || :
+            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
+        fi
+        if [ "${GITHUB}" != "true" ]; then
+            echo "16. cleanup cloned ${LPUB3D} repository from SOURCES/ and BUILD/..."
+            rm -rf ${BUILD_DIR}/SOURCES/${WORK_DIR} ${BUILD_DIR}/BUILD/${WORK_DIR}
+        fi
+        exit 0
+    fi
+
     echo "15-3. create LPub3D ${RPM_EXTENSION} distribution packages..."
     RPM_EXTENSION="${DISTRO_FILE##*-}"
     LP3D_RPM_FILE="LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
@@ -254,6 +278,7 @@ then
             mv -f ${CWD}/*.log /out/ 2>/dev/null || :
             mv -f ./*.log /out/ 2>/dev/null || :
             mv -f ~/*.log /out/ 2>/dev/null || :
+            mv -f ~/*_assets.tar.gz /out/ 2>/dev/null || :
         fi
         echo
         echo "    Distribution package.: ${LP3D_RPM_FILE}"
