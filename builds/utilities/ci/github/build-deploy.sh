@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 02, 2022
+# Last Update Jun 06, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -20,18 +20,6 @@ FinishElapsedTime() {
 }
 
 trap FinishElapsedTime EXIT
-
-# Publish assets to Sourceforge
-PublishToSourceforge() {
-  if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
-    ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
-    [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out || cat $p.ok
-    if [ -n "${LP3D_UPDATE_ASSETS}" ]; then
-      rm -rf ${LP3D_UPDATE_ASSETS}
-      unset LP3D_UPDATE_ASSETS
-    fi
-  fi
-}
 
 # GPG sign .sha512 files and publish assets to Github
 SignHashAndPublishToGitHub() {
@@ -252,6 +240,7 @@ echo "WARNING - Could not import private signing keyring into gpg." && LP3D_USE_
 [ -f $s.out ] && \
 echo "WARNING - Failed to decrypt Sourceforge host rsa key." && LP3D_SF_DEPLOY_ABORT=true && tail -80 $s.out  || echo "Ok."
 
+# Protect private keys access
 echo "Restricting secret keys permission..." && \
 find ${LP3D_GPGHOME}/ -type f -exec chmod 600 {} \;
 
@@ -270,19 +259,11 @@ echo "LP3D_RELEASE_LABEL..........${LP3D_RELEASE_LABEL}" || :
 echo "LP3D_RELEASE_DESCRIPTION....${LP3D_RELEASE_DESCRIPTION}" || :
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 
-# Publish update assets to Sourceforge in one call - then delete
-if [ -d "${LP3D_BUILD_ASSETS}/updates" ]; then
-  echo && echo "Publishing update assets..."
-  export LP3D_ASSET_EXT=".all"
-  export LP3D_UPDATE_ASSETS=${LP3D_BUILD_ASSETS}/updates
-  PublishToSourceforge
-fi
-
-# Remove artifacts that should not be published
+# Remove download artifacts that should not be published
 declare -r c=Clean
 [ -d "${LP3D_BUILD_ASSETS}" ] && \
-echo && echo "Clean up artifacts that should not be published..." && \
-( find ${LP3D_BUILD_ASSETS}/ -type f \( \
+echo && echo "Remove download artifacts that should not be published..." && \
+( find "${LP3D_BUILD_ASSETS}"/*-download -type f \( \
   -name 'Dockerfile' -o \
   -name '*_Assets.zip' -o \
   -name '*_assets.tar.gz' -o \
@@ -290,7 +271,7 @@ echo && echo "Clean up artifacts that should not be published..." && \
   -name '*-debug*.rpm' -o \
   -name '*.buildinfo' -o \
   -name '*.changes' -o \
-  -name '*.dmp' -o \  
+  -name '*.dmp' -o \
   -name '*.dsc' -o \
   -name '*.log' -o \
   -name '*.sh' \) \
@@ -299,9 +280,9 @@ echo && echo "Clean up artifacts that should not be published..." && \
 [ -f $c.out ] && \
 echo "WARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
 
-# Publish download assets
-echo && echo "Publishing download assets..." && \
-LP3D_ASSETS=$(find ${LP3D_BUILD_ASSETS}/ -type f)
+# Publish Github download assets
+echo && echo "Publishing Github download assets..." && \
+LP3D_ASSETS=$(find "${LP3D_BUILD_ASSETS}"/*-download -type f)
 
 # Sign hash files and publish download assets to Github
 for LP3D_ASSET in ${LP3D_ASSETS}; do
@@ -315,9 +296,13 @@ for LP3D_ASSET in ${LP3D_ASSETS}; do
   esac
 done
 
-# Publish to Sourceforge with single call
-export LP3D_ASSET_EXT=".all"
-export LP3D_DOWNLOAD_ASSETS=${LP3D_BUILD_ASSETS}
-PublishToSourceforge
+# Publish all update and download assets to Sourceforge
+if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
+  export LP3D_ASSET_EXT=".all"
+  export LP3D_UPDATE_ASSETS="${LP3D_BUILD_ASSETS}/updates"
+  export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_ASSETS}"
+  ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
+  [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out || cat $p.ok
+fi
 
 exit 0

@@ -56,7 +56,7 @@
 #   - TAG: Git tag [Default=v2.4.5] - change as needed
 #   - MSG: Git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
 #   - FRESH: Clone a new instance of TO_REPO otherwise, only overwrite existing files [default=no]
-#   - REV: Increment revision [Default=no]
+#   - REV: Increment revision [Default=yes]
 #   - CNT: Increment commit count [Default=yes]
 #   - CFG: Set OBS config and README file updates [Default=no]
 #   - REL: Release build, do not delete build tag [Default=no]
@@ -93,7 +93,7 @@ NEXT_CUT=${AUTO:-}
 NO_STATUS=${NOSTAT:-}
 LOCAL_TAG=${TAG:-}
 FRESH_BUILD=${FRESH:-}
-INC_REVISION=${REV:-no}
+INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
 FORCE_CONFIG=${CFG:-no}
 TO_REPO_NAME=${TO_REPO:-lpub3d}
@@ -487,6 +487,7 @@ cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
 pbEOF
+chmod a+x builds/utilities/hooks/pre-commit
 env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
 if [ -n "$RELEASE_COMMIT" ]; then

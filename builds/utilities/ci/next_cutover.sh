@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: Jun 03, 2022
+# Last Update: Jun 06, 2022
 #
 # Purpose:
 # This script will automate the 'cutover' of a range of commits from development [lpub3dnext] or maintenance [lpub3d-ci] repository to production [lpub3d].
@@ -82,6 +82,7 @@ RELEASE_BUILD=${RELEASE:-}
 FRESH_BUILD=${CLONE:-}
 USE_CHERRY_PICK=${CHERRYPICK:-}
 COMMIT_COUNT=0
+INC_REV=0
 COUNTER=0
 SECONDS=0
 
@@ -104,25 +105,6 @@ FinishElapsedTime() {
   echo
 }
 
-function options_status
-{
-    echo
-    echo "--Command Options:"
-    echo "--SCRIPT_NAME....$SCRIPT_NAME"
-    echo "--REPO_PATH.......$HOME_DIR"
-    echo "--NEW_VER_TAG.....$HOLD_VER_TAG"
-    echo "--CURRENT_TAG.....$VER_TAG"
-    echo "--FROM_REPO_NAME..$FROM_REPO_NAME"
-    echo "--TO_REPO_NAME....$TO_REPO_NAME"
-    echo "--START_COMMIT....$START_COMMIT"
-    echo "--START_BRANCH....$START_BRANCH"
-    [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || true
-    [ -n "$USE_CHERRY_PICK" ] && echo "--USE_CHERRY_PICK.YES" || true
-    [ -n "$DO_DRY_RUN" ] && echo "--DO_DRY_RUN......YES" || true
-    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
-    echo
-}
-
 function get_elided_string()
 {
     v=$1
@@ -137,6 +119,27 @@ function get_elided_string()
 function get_commit_count()
 {
     echo $#;
+}
+
+function options_status
+{
+    echo
+    echo "--Command Options:"
+    echo "--SCRIPT_NAME....$SCRIPT_NAME"
+    echo "--REPO_PATH.......$HOME_DIR"
+    echo "--NEW_VER_TAG.....$HOLD_VER_TAG"
+    echo "--CURRENT_TAG.....$VER_TAG"
+    echo "--FROM_REPO_NAME..$FROM_REPO_NAME"
+    echo "--TO_REPO_NAME....$TO_REPO_NAME"
+    echo "--START_BRANCH....$START_BRANCH"    
+    [ -n "$START_COMMIT" ] && \
+    echo "--START_COMMIT....$START_COMMIT $(cd $FROM_REPO_NAME; get_elided_string "$(git show -s --format=%s $START_COMMIT)")" || \
+    echo "--START_COMMIT....Not Specified!"
+    [ -n "$FRESH_BUILD" ] && echo "--FRESH_BUILD.....YES" || true
+    [ -n "$USE_CHERRY_PICK" ] && echo "--USE_CHERRY_PICK.YES" || true
+    [ -n "$DO_DRY_RUN" ] && echo "--DO_DRY_RUN......YES" || true
+    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
+    echo
 }
 
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -214,7 +217,7 @@ then
   if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then
     git checkout master &>> $LOG
   fi
-  [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+  [[ "$0" == "$BASH_SOURCE" ]] && rm -f ${LOG} && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
 fi
 
 LAST_COMMIT=none
@@ -232,6 +235,7 @@ do
     COMMIT_DESC=$(git show -s --format=%s $commit)
     COMMIT_DESC_ELIDED=$(get_elided_string "$COMMIT_DESC")
     COUNT=$((COUNTER + 1))
+    [[ $COUNT == $COMMIT_COUNT ]] && FINAL_COMMIT=true || FINAL_COMMIT=false
 
     if [ -n "$USE_CHERRY_PICK" ]
     then
@@ -257,6 +261,11 @@ do
     fi
 
     cd $HOME_DIR
+    
+    if [[ $COUNT > 1 ]]
+    then
+        INC_REV=yes
+    fi
 
     if [[ $COUNT = 1 ]]  # First commit - show status
     then
@@ -265,21 +274,26 @@ do
         then
             env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes FRESH=$FRESH_BUILD ./ci_cutover.sh /dev/null 2>&1
         fi
-    elif [[ $((COUNTER + 1)) = $COMMIT_COUNT ]] # Last commit - use VER_TAG and show status
+    elif [[ "${FINAL_COMMIT}" == "true" ]] # Final commit - use VER_TAG and show status
     then
-        [[ "$VER_TAG" != "$HOLD_VER_TAG" && -n "$RELEASE_BUILD" ]] && VER_TAG=$HOLD_VER_TAG || :
+        if [[ "$VER_TAG" != "$HOLD_VER_TAG" && -n "$RELEASE_BUILD" ]]; then
+            VER_TAG=$HOLD_VER_TAG
+            CREATE_LOCAL_TAG=1
+        fi
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD"
         if [ -z "$DO_DRY_RUN" ]
         then
             env FROM_REPO="${FROM_REPO_NAME}" TO_REPO="${TO_REPO_NAME}" MSG="${COMMIT_DESC}" TAG=$VER_TAG AUTO=1 CFG=yes REL=$RELEASE_BUILD ./ci_cutover.sh /dev/null 2>&1
-            echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
-            cd $HOME_DIR/$FROM_REPO_NAME
-            rm -f *.log
-            if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
-            if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
-            git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
-            GIT_TAG="$(git tag -l -n $VER_TAG)" && \
-            [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
+            if [ -n "${CREATE_LOCAL_TAG}" ]; then
+                echo && echo "   -Release commit, create local tag in $FROM_REPO_NAME repository"
+                cd $HOME_DIR/$FROM_REPO_NAME
+                rm -f *.log
+                if [ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]; then git checkout master &>> $LOG; fi
+                if GIT_DIR=./.git git rev-parse $VER_TAG >/dev/null 2>&1; then git tag --delete $VER_TAG &>> $LOG; fi
+                git tag -a $VER_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
+                GIT_TAG="$(git tag -l -n $VER_TAG)" && \
+                [ -n "$GIT_TAG" ] && echo "   -Release tag $GIT_TAG created."
+            fi
         fi
     else
         echo "   -Cutover command: FROM_REPO=\"${FROM_REPO_NAME}\" TO_REPO=\"${TO_REPO_NAME}\" MSG=\"${COMMIT_DESC_ELIDED}\" TAG=$VER_TAG AUTO=1 CFG=yes NOSTAT=1"

@@ -59,11 +59,12 @@ export GITHUB=${GITHUB:-true}
 if [[ "${GITHUB_REF}" == "refs/tags/"* ]] ; then
   publish=$(echo "${GITHUB_REF_NAME}" | perl -nle 'print "yes" if m{^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$} || print "no"')
 fi
-if [[ "${publish}" = "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
+export LP3D_COMMIT_MSG="$(echo ${LP3D_COMMIT_MSG} | awk '{print toupper($0)}')"
+if [[ "${publish}" == "yes" || "${LP3D_COMMIT_MSG}" =~ (RELEASE_BUILD) ]]; then
   export LP3D_COMMIT_MSG="${LP3D_COMMIT_MSG} BUILD_ALL"
 fi
-if [[ "${GITHUB_EVENT_NAME}" = "push" && ! "${LP3D_COMMIT_MSG}" = *"BUILD_ALL"* ]]; then
-   export BUILD_OPT="verify"
+if [[ "${GITHUB_EVENT_NAME}" == "push" && ! "${LP3D_COMMIT_MSG}" == *"BUILD_ALL"* ]]; then
+  export BUILD_OPT="verify"
 fi
 
 # Setup ldraw parts library directory

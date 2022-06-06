@@ -213,4 +213,3 @@ jobs:
           GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           GPG_SIGN_KEY_BASE64: ${{ secrets.GPG_SIGN_KEY_BASE64 }}
           SFDEPLOY_RSA_BASE64: ${{ secrets.SFDEPLOY_RSA_BASE64 }}
-

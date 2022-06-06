@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: May 31, 2021
+#  Last Update: Jun 06, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -14,7 +14,7 @@ SfElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  echo "S${ME} Finished!"
+  echo "SfD${ME:3} Finished!"
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -112,7 +112,7 @@ elif [ -f "/tmp/${LP3D_HOST_RSA_KEY}" ]; then
   chmod 600 /tmp/$LP3D_HOST_RSA_KEY
   ssh-add /tmp/$LP3D_HOST_RSA_KEY
 else
-  echo "ERROR - SOURCEFORGE RSA KEY not found - cannot perform Sourceforge.net transfers"
+  echo "ERROR - RSA key not found at $LP3D_HOST_RSA_KEY - cannot perform transfers"
   export LP3D_SF_DEPLOY_ABORT=true
 fi
 
@@ -134,10 +134,12 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         IFS='/' read -ra LP3D_SLUGS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
         LP3D_PROJECT_NAME="${LP3D_SLUGS[1]}"
       fi
+      [ -d "$LP3D_UPDATE_ASSETS" ] && \
+      LP3D_SF_DEPLOY_OPTIONS="UDPATE" ||
+      LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
     fi
-    [ -d "$LP3D_UPDATE_ASSETS" ] && \
-    LP3D_SF_DEPLOY_OPTIONS="UDPATE" ||
-    LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
+    [ "$GITHUB" = "true" ] && \
+    LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD" || :
     if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
       LP3D_SF_FOLDER="$LP3D_VERSION"
     else
@@ -152,27 +154,33 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
     UDPATE)
       # Verify release files in the Update directory
       if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-        echo && echo "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted."
+        echo && echo "$LP3D_UPDATE_ASSETS is empty. $OPTION assets deploy aborted."
       else
-        echo && echo "- LPub3D Update Assets:" && find $LP3D_UPDATE_ASSETS -type f && echo
-        rsync --recursive --verbose $LP3D_UPDATE_ASSETS/* $LP3D_SF_UDPATE_CONNECT/
+        echo && echo "- $OPTION Assets:" && find "$LP3D_UPDATE_ASSETS" -type f && echo
+        rsync --recursive --verbose --compress $LP3D_UPDATE_ASSETS/ $LP3D_SF_UDPATE_CONNECT/
       fi
       ;;
     DOWNLOAD)
       # Verify release files in the Download directory
       if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-        echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
+        echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. $OPTION assets deploy aborted."
       else
-        echo && echo "- LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
+        echo && echo "- $OPTION Assets:" && \
+        find "$LP3D_DOWNLOAD_ASSETS" -type f -not -path "$LP3D_UPDATE_ASSETS/*"
         if [ "$GITHUB" = "true" ]; then
-          rsync --recursive --verbose --delete-before \
-          --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512*','*.html','*.txt'} --exclude '*' \
-          $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+          for LP3D_DOWNLOAD_ASSETS in $(find $LP3D_DOWNLOAD_ASSETS/*-download -type d); do
+            echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
+            rsync --recursive --verbose --compress --delete-before \
+            --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512','*.sig','*.html','*.txt'} --exclude '*' \
+            $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+          done
         elif [ "$APPVEYOR" = "True" ]; then
+          echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
           rsync --recursive --verbose --delete-before \
           --include={'*.exe','*.zip','*.html','*.txt','*.sha512'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
+          echo "Executing rsync upload for file type ${LP3D_ASSET_EXT}..."
           rsync --recursive --verbose --delete-before \
           --include "*${LP3D_ASSET_EXT}*" --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/

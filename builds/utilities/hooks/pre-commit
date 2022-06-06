@@ -4,49 +4,57 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jun 03, 2022
+#  Last Update: Jun 06, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
-## Automatically generate git revision info
-##
-## Setup
-## '>' denotes a new line
-## cd to your git repository and type:
-## $ cat << pbEOF >.git/hooks/pre-commit
-## > #!/bin/sh
-## > # Confirm master branch and set location of pre-commit script in your source repository
-## > [ "$(git rev-parse --abbrev-ref HEAD)" = "master" ] && ./builds/utilities/hooks/pre-commit || true
-## > pbEOF
-## $
-##
-## Ignore Increment:
-##   In instances where you do NOT want the version info incremented,
-##   add the environment variable inc_rev=no to your git call.
-##   e.g. $ env inc_rev=no git commit -m "Message - 00 [ci skip].
-##   This is useful on the first commit after you change the
-##   major/minor/patch version number for example.
+#  Automatically generate git revision info
+#
+#  Setup
+#  '>' denotes a new line
+#  cd to your git repository and type:
+#  $ cat << pbEOF >.git/hooks/pre-commit
+#  > #!/bin/sh
+#  > # Confirm master branch and set location of pre-commit script in your source repository
+#  > [ "$(git rev-parse --abbrev-ref HEAD)" = "master" ] && ./builds/utilities/hooks/pre-commit || true
+#  > pbEOF
+#  $
+#
+#  Ignore Increment:
+#    In instances where you do NOT want the version info incremented,
+#    add the environment variable inc_rev=no to your git call.
+#    e.g. $ env inc_rev=no git commit -m "Message - 00 [ci skip].
+#    This is useful on the first commit after you change the
+#    major/minor/patch version number for example.
 #
 # Environment Vars:
-##  - inc_rev: increment revision [Default=no]
-##  - inc_cnt: increment commit count [Default=yes]
-##  - force:   force setting OBS config file configuration [Default=no]
+#   - inc_rev: increment revision [Default=yes]
+#   - inc_cnt: increment commit count [Default=yes]
+#   - force:   force updates to configuration files [Default=no]
 #
 # Flags:
-##  -f: force setting OBS config file configuration
-##
-## Manual execution examples:
-#   Update config files to latest commit
+#   -f: force updates to configuration files
+#   -r: do not increment revision
+#   -c: do not increment commit count
+#
+#  Manual execution examples:
+#   Update configuration files to latest commit
 #   $ ./builds/utilities/hooks/pre-commit -f
 #
-#   Update config files to last commit and commit changes
+#   Update configuration files to latest commit and do not increment revision
+#   $ ./builds/utilities/hooks/pre-commit -f -r
+#
+#   Update configuration files to latest commit and do not increment revision or commit count
+#   $ ./builds/utilities/hooks/pre-commit -f -r -c
+#
+#   Update configuration files to last commit, increment revision and commit count and commit changes
 #   $ env force=yes git commit -m "Commit message"
 #
-#   Update config files to last commit but do not increment revision
-#   $ env inc_rev=no force=yes ./builds/utilities/hooks/pre-commit
+#   Update configuration files to last commit and do not increment revision
+#   $ env force=yes inc_rev=no ./builds/utilities/hooks/pre-commit
 #
-#   Update config files to last commit, do not increment revision and commit changes
-#   $ env force=yes inc_rev=no inc_cnt=yes git commit -m "Commit message"
-##
+#   Update configuration files to latest commit and do not increment revision or commit count; commit changes
+#   $ env force=yes inc_rev=no inc_cnt=no git commit -m "Commit message"
+#
 
 FILES_PATTERN='\.dropbox_oauth|\.github_api*|\.sfdeploy_travis*'
 FORBIDDEN='secrets'
@@ -56,14 +64,28 @@ git diff --cached --name-only | \
 
 exec 1>&2
 # to disable or run from command line, set default to 'no'
-increment_revision=${inc_rev:-no}
+increment_revision=${inc_rev:-yes}
 increment_commitcount=${inc_cnt:-yes}
-force_config=${force:-no}
-update_config_files=no
+update_config_files=${force:-no}
 
-# trigger if 'env force=yes' or '-f' flag specified
-[ ! "$force_config" = "no" ] && update_config_files=yes || :
-[ "$1" = "-f" ] && update_config_files=yes || :
+#check for optional config flags
+while getopts ":rcf" opt; do
+  case $opt in
+  r)
+    increment_revision=no
+  ;;
+  c)
+    increment_commitcount=no
+  ;;
+  f)
+    update_config_files=yes
+  ;;
+  \?)
+    echo "Invalid option: -$OPTARG" >&2
+    exit 1
+  ;;
+  esac
+done
 
 if test x"$update_config_files" != x"no"; then
   tag_long=`git describe --tags --match v* --long`
@@ -110,9 +132,9 @@ if test x"$update_config_files" != x"no"; then
   git add builds/linux/obs/alldeps/debian/changelog
   git add builds/linux/obs/alldeps/debian/lpub3d.dsc
   git add builds/linux/obs/debian/rules
-  
+
   echo "   Staged files:"
-  for file in $(git diff --name-only --cached); do 
+  for file in $(git diff --name-only --cached); do
     echo "   -$file"
   done
 fi
