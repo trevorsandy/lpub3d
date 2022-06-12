@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 06, 2022
+# Last Update Jun 07, 2022
 #
 # This script is called from .github/workflows/build.yml
 #
@@ -28,21 +28,21 @@ SignHashAndPublishToGitHub() {
       ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage")
       if [ -f "${LP3D_RELEASE}.sha512" ]; then
         # Generate hash file signature
-        if [[ "${LP3D_USE_GPG}" = "true" && -f "${LP3D_ASSET}.sha512" ]]; then
-          echo "- Signing ${LP3D_ASSET}.sha512 file..."
+        if [ "${LP3D_USE_GPG}" = "true" ]; then
+          echo "- Signing ${LP3D_RELEASE}.sha512 hash file..."
           ( gpg --home "${LP3D_GPGHOME}" --clearsign -u ${GPG_SIGN_KEY_ALIAS} \
             -o "${LP3D_RELEASE}.sha512.sig" "${LP3D_RELEASE}.sha512" \
           ) >$s.out 2>&1 && rm $s.out
           if [ ! -f $s.out ]; then
-            echo "- Uploading signature file ${LP3D_ASSET}.sha512.sig..."
+            echo "- Uploading signature file ${LP3D_RELEASE}.sha512.sig..."
             ( bash upload.sh "${LP3D_RELEASE}.sha512.sig" ) >$p.out 2>&1 && rm $p.out
             [ -f $p.out ] && \
             echo "WARNING - ${LP3D_RELEASE}.sha512.sig GitHub upload failed." && tail -80 $p.out || echo "Ok."
           else
-            echo "WARNING - Create signature file failed." && tail -80 $s.out
+            echo "WARNING - Create signature for ${LP3D_RELEASE}.sha512 file failed." && tail -80 $s.out
           fi
         fi
-        echo "- Uploading hash file ${LP3D_ASSET}.sha512..."
+        echo "- Uploading hash file ${LP3D_RELEASE}.sha512..."
         ( bash upload.sh "${LP3D_RELEASE}.sha512" ) >$p.out 2>&1 && rm $p.out
         [ -f $p.out ] && \
         echo "WARNING - ${LP3D_RELEASE}.sha512 GitHub upload failed." && tail -80 $p.out || echo "Ok."
@@ -51,12 +51,13 @@ SignHashAndPublishToGitHub() {
       fi
       ;;
     esac
-    echo "- Uploading build file ${LP3D_ASSET}..."
+    echo "- Uploading build file ${LP3D_RELEASE}..."
     ( bash upload.sh "${LP3D_RELEASE}" ) >$p.out 2>&1 && rm $p.out
     [ -f $p.out ] && \
-    echo "WARNING - ${LP3D_RELEASE} GitHub upload failed." && tail -80 $p.out || echo "Ok."
+    echo "ERROR - ${LP3D_RELEASE} GitHub upload failed." && tail -80 $p.out && return 3 || echo "Ok."
   else
-    echo "WARNING - ${LP3D_RELEASE} file not found."
+    echo "ERROR - ${LP3D_RELEASE} file not found."
+    return 3
   fi
 }
 
@@ -92,7 +93,7 @@ curl -s -H "Authorization: Bearer ${GITHUB_TOKEN}" https://api.github.com/repos/
 export LP3D_REMOTE=$(${LP3D_GREP} -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt)
 export LP3D_LOCAL=$(git rev-parse HEAD)
 if [[ "$LP3D_REMOTE" != "$LP3D_LOCAL" ]]; then
-  echo "Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting upload."
+  echo "WARNING - Build no longer current. Rmote: '$LP3D_REMOTE', Local: '$LP3D_LOCAL' - aborting upload."
   [ -f "repo.txt" ] && echo "Repo response:" && cat repo.txt || :
   exit 0
 fi
@@ -259,6 +260,9 @@ echo "LP3D_RELEASE_LABEL..........${LP3D_RELEASE_LABEL}" || :
 echo "LP3D_RELEASE_DESCRIPTION....${LP3D_RELEASE_DESCRIPTION}" || :
 echo "LP3D_BUILD_ASSETS PATH......${LP3D_BUILD_ASSETS}"
 
+[ "${LP3D_USE_GPG}" = "false" ] && \
+echo "WARNING - GPG is not available. Sign sha512 hash will be skipped."
+
 # Remove download artifacts that should not be published
 declare -r c=Clean
 [ -d "${LP3D_BUILD_ASSETS}" ] && \
@@ -280,29 +284,34 @@ echo && echo "Remove download artifacts that should not be published..." && \
 [ -f $c.out ] && \
 echo "WARNING - Failed to clean up artifacts." && tail -80 $c.out || echo "Ok."
 
-# Publish Github download assets
+# Publish assets
 echo && echo "Publishing Github download assets..." && \
-LP3D_ASSETS=$(find "${LP3D_BUILD_ASSETS}"/*-download -type f)
+export LP3D_UPDATE_ASSETS="${LP3D_BUILD_ASSETS}/updates"
+export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_ASSETS}/downloads"
+[ ! -d "${LP3D_DOWNLOAD_ASSETS}" ] && mkdir -p ${LP3D_DOWNLOAD_ASSETS} || :
 
-# Sign hash files and publish download assets to Github
-for LP3D_ASSET in ${LP3D_ASSETS}; do
+# Generate hash signature files and publish Github download assets
+for LP3D_ASSET in $(find "${LP3D_BUILD_ASSETS}"/*-download -type f); do
   export LP3D_ASSET_EXT=".${LP3D_ASSET##*.}"
-  # Process individual release asset
   case ${LP3D_ASSET_EXT} in
     ".exe"|".zip"|".deb"|".rpm"|".zst"|".dmg"|".AppImage"|".html"|".txt")
-    LP3D_RELEASE=${LP3D_ASSET}
+    # Move assets to downloads folder
+    export LP3D_RELEASE="${LP3D_DOWNLOAD_ASSETS}/$(basename ${LP3D_ASSET})"
+    mv ${LP3D_ASSET} ${LP3D_DOWNLOAD_ASSETS}
+    [ -f "${LP3D_ASSET}.sha512" ] && \
+    mv ${LP3D_ASSET}.sha512 ${LP3D_DOWNLOAD_ASSETS} || :
+    
     SignHashAndPublishToGitHub
     ;;
   esac
 done
 
-# Publish all update and download assets to Sourceforge
+# Publish update and download assets to Sourceforge
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   export LP3D_ASSET_EXT=".all"
-  export LP3D_UPDATE_ASSETS="${LP3D_BUILD_ASSETS}/updates"
-  export LP3D_DOWNLOAD_ASSETS="${LP3D_BUILD_ASSETS}"
+  echo && echo "Publishing Sourceforge update and download assets..."
   ( chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh ) >$p.out 2>&1 && mv $p.out $p.ok
-  [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out || cat $p.ok
+  [ -f $p.out ] && echo "WARNING - Sourceforge upload failed." && tail -80 $p.out && exit 1 || cat $p.ok
 fi
 
 exit 0

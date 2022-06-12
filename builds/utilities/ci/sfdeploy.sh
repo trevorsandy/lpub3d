@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jun 06, 2022
+#  Last Update: Jun 07, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -168,24 +168,24 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "- $OPTION Assets:" && \
         find "$LP3D_DOWNLOAD_ASSETS" -type f -not -path "$LP3D_UPDATE_ASSETS/*"
         if [ "$GITHUB" = "true" ]; then
-          for LP3D_DOWNLOAD_ASSETS in $(find $LP3D_DOWNLOAD_ASSETS/*-download -type d); do
-            echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
-            rsync --recursive --verbose --compress --delete-before \
-            --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512','*.sig','*.html','*.txt'} --exclude '*' \
-            $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
-          done
+          echo && echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
+          rsync --recursive --verbose --compress --delete-before \
+          --include={'*.exe','*.zip','*.deb','*.rpm','*.zst','*.dmg','*.AppImage','*.sha512','*.sig','*.html','*.txt'} --exclude '*' \
+          $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         elif [ "$APPVEYOR" = "True" ]; then
           echo "Executing rsync upload for $(basename $LP3D_DOWNLOAD_ASSETS)..."
-          rsync --recursive --verbose --delete-before \
+          rsync --recursive --verbose --compress --delete-before \
           --include={'*.exe','*.zip','*.html','*.txt','*.sha512'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
           echo "Executing rsync upload for file type ${LP3D_ASSET_EXT}..."
-          rsync --recursive --verbose --delete-before \
+          rsync --recursive --verbose --compress --delete-before \
           --include "*${LP3D_ASSET_EXT}*" --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         fi
       fi
+      local status=$?
+      [ $status -ne 0 ] && exit 1 || :
       ;;
     esac
   done

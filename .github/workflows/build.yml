@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Jun 04, 2022
+# Last Update: Jun 07, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 name: builds # used for badge label
@@ -213,3 +213,10 @@ jobs:
           GPG_INIT_PASSPHRASE: ${{ secrets.GPG_INIT_PASSPHRASE }}
           GPG_SIGN_KEY_BASE64: ${{ secrets.GPG_SIGN_KEY_BASE64 }}
           SFDEPLOY_RSA_BASE64: ${{ secrets.SFDEPLOY_RSA_BASE64 }}
+      - name: Diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: publish-logs
+          path: ${{ env.LP3D_BUILDPKG_PATH }}/
+          if-no-files-found: ignore

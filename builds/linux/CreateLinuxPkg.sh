@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 01, 2022
+# Last Update Jun 08, 2022
 # Copyright (C) 2022 - 2022 by Trevor SANDY
 #
 # This script is run from a Docker container call
@@ -324,6 +324,7 @@ if [[ ! -d "${LP3D_DIST_DIR_PATH}/AppDir/usr" || -z "$(ls -A ${LP3D_DIST_DIR_PAT
   fi
 
   # qmake setup
+  export QT_SELECT=qt5
   if which qmake-qt5 >/dev/null 2>&1; then
     QMAKE_EXEC=qmake-qt5
   else
