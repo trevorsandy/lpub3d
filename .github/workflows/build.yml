@@ -3,6 +3,9 @@
 # Last Update: Jun 07, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
+# Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
+# will skip pull request and push workflows.
+#
 name: builds # used for badge label
 
 on:

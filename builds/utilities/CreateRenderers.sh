@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 28, 2021
+# Last Update June 12, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 
@@ -393,9 +393,9 @@ BuildLDView() {
   # Patch fatal error: stdlib.h: No such file or directory
   # on Docker, Fedora's platform_id is 'fedora', on OBS it is 'redhat'
   case ${platform_id} in
-  redhat|centos|fedora|suse)
+  redhat|centos|fedora|suse|mageia|openeuler)
      case ${platform_ver} in
-     7|8|24|25|26|27|28|29|30|31|32|33|34|1500|1550|150000)
+     7|8|32|33|34|1500|1550|150000|2003|2103)
        ApplyLDViewStdlibHack
        ;;
      esac
@@ -411,7 +411,11 @@ BuildLDView() {
     esac
     ;;
   esac
-  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
+  BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK"
+  if [ "$prebuilt_3ds" = 1 ]; then
+    BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_3RD_PARTY_PREBUILT_3DS"
+  fi
+  BUILD_CONFIG="$BUILD_CONFIG CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=debug"
   else
@@ -562,7 +566,7 @@ else
     if [ "$RPM_BUILD" = "true" ]; then
       Info "OBS Build Family.........[RPM_BUILD]"
       if [ -n "$TARGET_VENDOR" ]; then
-        platform_id=$TARGET_VENDOR
+        platform_id=$(echo $TARGET_VENDOR | awk '{print tolower($0)}')
       else
         Info "WARNING - Open Build Service did not provide a target platform."
         platform_id=$(echo $OS_NAME | awk '{print tolower($0)}')
@@ -627,6 +631,8 @@ elif [ "${OBS}" = "true" ]; then
   [ -n "$build_sdl2" ] && Info "SDL2.....................[Build from source]" || true
   [ -n "$build_tinyxml" ] && Info "TinyXML..................[Build from source]" || true
   [ -n "$build_gl2ps" ] && Info "GL2PS....................[Build from source]" || true
+  [ -n "$prebuilt_3ds" ] && Info "3DS......................[Use pre-built library]" || \
+                            Info "3DS......................[Build from source]"
 else
   Info "Platform Pretty Name.....[${platform_pretty}]"
 fi

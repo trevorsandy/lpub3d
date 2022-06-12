@@ -4,6 +4,8 @@ win32 {
     COPY_CMD = cp -f
 }
 
+unix:!macx:LDV_HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
+
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
@@ -103,42 +105,42 @@ contains(LOAD_LDV_HEADERS,True) {
     if (unix:exists(/usr/include/tinyxml.h)|exists(/usr/local/include/tinyxml.h)) {
         message("~~~ lib$${TARGET} system library tinyxml found ~~~")
     } else:exists($${LDV3RDHDRDIR}/tinyxml.h) {
-        message("~~~ lib$${TARGET} local library tinyxml found ~~~")
+        message("~~~ lib$${TARGET} local library header for tinyxml found ~~~")
     } else {
         message("~~~ ERROR: Library header for tinyxml not found ~~~")
     }
     if (unix:exists(/usr/include/gl2ps.h)|exists(/usr/local/include/gl2ps.h)) {
         message("~~~ lib$${TARGET} system library gl2ps found ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
-        message("~~~ lib$${TARGET} local library gl2ps found ~~~")
+        message("~~~ lib$${TARGET} local library header for gl2ps found ~~~")
     } else {
         message("~~~ ERROR: Library header for gl2ps not found, using local ~~~")
     }
     if (unix:exists(/usr/include/lib3ds.h)|exists(/usr/local/include/lib3ds.h)){
         message("~~~ lib$${TARGET} system library 3ds found ~~~")
     } else:exists($${LDV3RDHDRDIR}/lib3ds.h) {
-        message("~~~ lib$${TARGET} local library 3ds found ~~~")
+        message("~~~ lib$${TARGET} local library header for 3ds found ~~~")
     } else {
         message("~~~ ERROR: Library header for 3ds not found ~~~")
     }
     if (unix:macx:exists(/usr/include/zip.h)|exists(/usr/local/include/minizip/zip.h)) {
         message("~~~ lib$${TARGET} system library minizip found ~~~")
     } else:exists($${LDV3RDHDRDIR}/zip.h) {
-        message("~~~ lib$${TARGET} local library minizip found ~~~")
+        message("~~~ lib$${TARGET} local library header for minizip found ~~~")
     } else:macx {
         message("~~~ ERROR: Library header for minizip not found ~~~")
     }
     if (unix:exists(/usr/include/png.h)|exists(/usr/local/include/png.h)) {
         message("~~~ lib$${TARGET} system library png found ~~~")
     } else:exists($${LDV3RDHDRDIR}/png.h) {
-        message("~~~ lib$${TARGET} local library png found ~~~")
+        message("~~~ lib$${TARGET} local library header for png found ~~~")
     } else {
         message("~~~ ERROR: Library header for png not found ~~~")
     }
     if (unix:exists(/usr/include/jpeglib.h)|exists(/usr/local/include/jpeglib.h)) {
         message("~~~ lib$${TARGET} system library jpeg found ~~~")
     } else:exists($${LDV3RDHDRDIR}/gl2ps.h) {
-        message("~~~ lib$${TARGET} local library jpeg found ~~~")
+        message("~~~ lib$${TARGET} local library header for jpeg found ~~~")
     } else {
         message("~~~ ERROR: Library header for jpeg not found ~~~")
     }
@@ -255,30 +257,41 @@ contains(LOAD_LDVLIBS,True) {
     }
 
     # Set 'use local' flags
-    !exists($${GL2PS_SRC}): USE_LOCAL_GL2PS_LIB = False
-#    else:message("~~~ Local gl2ps library $${GL2PS_SRC} detected ~~~")
+    !exists($${GL2PS_SRC}) {
+        USE_LOCAL_GL2PS_LIB = False
+        # message("~~~ GL2PS LIBRARY $${GL2PS_SRC} NOT FOUND ~~~")
+    } else:message("~~~ GL2PS LIBRARY $${GL2PS_SRC} FOUND ~~~")
 
-    !exists($${TINYXML_SRC}): USE_LOCAL_TINYXML_LIB = False
-#    else:message("~~~ Local tinyxml library $${TINYXML_SRC} detected ~~~")
+    !exists($${TINYXML_SRC}) {
+        USE_LOCAL_TINYXML_LIB = False
+        # message("~~~ TINYXML LIBRARY $${TINYXML_SRC} NOT FOUND ~~~")
+    } else:message("~~~ TINYXML LIBRARY $${TINYXML_SRC} FOUND ~~~")
 
-    !exists($${3DS_SRC}): USE_LOCAL_3DS_LIB = False
-#    else:message("~~~ Local 3ds library $${3DS_SRC} detected ~~~")
+    !exists($${3DS_SRC}) {
+        USE_LOCAL_3DS_LIB = False
+        # message("~~~ 3DS LIBRARY $${3DS_SRC} NOT FOUND ~~~")
+    } else:message("~~~ 3DS LIBRARY $${3DS_SRC} FOUND ~~~")
 
-    !exists($${PNG_SRC}): USE_LOCAL_PNG_LIB = False
-#    else:message("~~~ Local png library $${PNG_SRC} detected ~~~")
+    !exists($${PNG_SRC}) {
+        USE_LOCAL_PNG_LIB = False
+        # message("~~~ PNG LIBRARY $${PNG_SRC} NOT FOUND ~~~")
+    } else:message("~~~ PNG LIBRARY $${PNG_SRC} FOUND ~~~")
 
-    !exists($${JPEG_SRC}): USE_LOCAL_JPEG_LIB = False
-#    else:message("~~~ Local jpeg library $${JPEG_SRC} detected ~~~")
+    !exists($${JPEG_SRC}) {
+        USE_LOCAL_JPEG_LIB = False
+        # message("~~~ JPEG LIBRARY $${JPEG_SRC} NOT FOUND ~~~")
+    } else:message("~~~ JPEG LIBRARY $${JPEG_SRC} FOUND ~~~")
 
-     win32-msvc* {
-         !exists($${ZLIB_SRC}):  USE_LOCAL_ZLIB_LIB = False
-#        else:message("~~~ Local z library $${ZLIB_SRC} detected ~~~")
+    win32-msvc* {
+        !exists($${ZLIB_SRC}) {
+            USE_LOCAL_ZLIB_LIB = False
+            # message("~~~ Z LIBRARY $${ZLIB_SRC} NOT FOUND ~~~")
+        } else:message("~~~ Z LIBRARY $${ZLIB_SRC} FOUND ~~~")
     } else {
-         USE_LOCAL_MINIZIP_LIB = False
-#        else:message("~~~ Local minizip library $${MINIZIP_SRC} detected ~~~")
+        USE_LOCAL_MINIZIP_LIB = False
     }
 
-    # Copy libraries from LDView (Enabled on Linux until I figure out what's blocking)
+    # Copy libraries from LDView (Disabled)
     contains(COPY_LDV_LIBS,True) {
         message("~~~ ENABLE COPY LDVIEW LIBRARIES TO: $$system_path( $$LDVLIBRARY ) ~~~ ")
 
@@ -377,11 +390,11 @@ contains(LOAD_LDVLIBS,True) {
         }
 
         if (!contains(USE_LOCAL_3DS_LIB,False)) {
-            3ds_lib.target       = $$3DS_DST
-            3ds_lib.commands     = $$3DS_LIB_cmd
-            3ds_lib.depends      = 3ds_lib_msg
-            3ds_lib_msg.commands = @echo Copying 3ds library...
-            QMAKE_EXTRA_TARGETS += 3ds_lib 3ds_lib_msg
+            3ds_lib.target         = $$3DS_DST
+            3ds_lib.commands       = $$3DS_LIB_cmd
+            3ds_lib.depends        = 3ds_lib_msg
+            3ds_lib_msg.commands   = @echo Copying 3ds library...
+            QMAKE_EXTRA_TARGETS   += 3ds_lib 3ds_lib_msg
         }
 
         if (!contains(USE_LOCAL_MINIZIP_LIB,False):!contains(IS_LINUX,True)) {
@@ -466,7 +479,7 @@ contains(LOAD_LDVLIBS,True) {
         }
     }
 
-    if (contains(USE_LOCAL_PNG_LIB,False):!contains(HOST, Ubuntu):!contains(HOST, 14.04.5)) {
+    if (contains(USE_LOCAL_PNG_LIB,False):!contains(LDV_HOST, Ubuntu):!contains(LDV_HOST, 14.04.5)) {
         macx:LIBS          += /usr/local/lib/libpng.dylib
         else:LIBS          += -lpng
     } else {

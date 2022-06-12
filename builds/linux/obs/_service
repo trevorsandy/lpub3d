@@ -1,14 +1,22 @@
 <services>
   <service name="tar_scm">
-      <param name="url">git://github.com/trevorsandy/lpub3d</param>
+      <param name="url">https://github.com/trevorsandy/lpub3d</param>
       <param name="scm">git</param>
       <param name="exclude">lclib/tools</param>
       <param name="exclude">builds/utilities/cert</param>
       <param name="exclude">builds/utilities/ci</param>
       <param name="exclude">builds/utilities/dmg-utils</param>
       <param name="exclude">builds/utilities/hooks</param>
+      <param name="exclude">builds/utilities/icons</param>
       <param name="exclude">builds/utilities/json</param>
       <param name="exclude">builds/utilities/nsis-scripts</param>
+      <param name="exclude">builds/utilities/cleanup.bat</param>
+      <param name="exclude">builds/utilities/Copyright-Source-Header.txt</param>
+      <param name="exclude">builds/utilities/create-dmg</param>
+      <param name="exclude">builds/utilities/CreateRenderers.bat</param>
+      <param name="exclude">builds/utilities/README.md</param>
+      <param name="exclude">builds/utilities/set-ldrawdir.command</param>
+      <param name="exclude">builds/utilities/update-config-files.bat</param>
       <param name="exclude">builds/linux/docker-compose</param>
       <param name="exclude">builds/linux/standard</param>
       <param name="exclude">builds/windows</param>
@@ -17,10 +25,10 @@
       <param name="exclude">.gitignore</param>
       <param name="exclude">.gitattributes</param>
       <param name="exclude">.git</param>
+      <param name="exclude">.github</param>
       <param name="exclude">LPub3D.pro.user</param>
       <param name="exclude">README.md</param>
       <param name="exclude">_config.yml</param>
-      <param name="exclude">snapcraft.yaml</param>
       <param name="exclude">appveyor.yml</param>
       <param name="version">git-master</param>
       <param name="versionformat">git</param>
@@ -121,7 +129,7 @@
    <param name="host">github.com</param>
    <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.5.tar.gz</param>
    <param name="filename">mesa-18.3.5.tar.gz</param>
-  </service>  
+  </service>
   <service name="download_url">
    <param name="protocol">https</param>
    <param name="host">github.com</param>

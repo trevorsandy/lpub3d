@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: May 18, 2022
+# Last Update: Jun 12, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -64,11 +64,6 @@
 %endif
 %endif
 
-%if 0%{?centos_ver}
-%define centos_version %{centos_ver}00
-%define build_sdl2 1
-%endif
-
 %if 0%{?rhel_version}
 %define build_sdl2 1
 %define get_local_libs 1
@@ -78,8 +73,19 @@
 %define build_sdl2 1
 %endif
 
+%if 0%{?centos_version}
+%define prebuilt_3ds 1
+%if 0%{?centos_version} == 800
+%define get_local_libs 1
+%endif
+%endif
+
 %if 0%{?fedora}
 %define fedora_version %{fedora}
+%endif
+
+%if 0%{?openeuler}
+%define openeuler_version %{openeuler}
 %endif
 
 %if 0%{?mageia}
@@ -91,7 +97,7 @@
 Group: Productivity/Graphics/Viewers
 %endif
 
-%if 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 Group: Graphics
 %endif
 
@@ -99,7 +105,7 @@ Group: Graphics
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 License: GPLv2+
 %endif
 
@@ -116,7 +122,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.4.4.2674
+Version: 2.4.4.2675
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -130,15 +136,20 @@ Source10: lpub3d-rpmlintrc
 %define get_qt5 1
 BuildRequires: cmake
 %endif
-%if 0%{?fedora} || 0%{?centos_version}==700
-BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+
+%if 0%{?fedora} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
+BuildRequires: qt5-qtbase-devel
+#BuildRequires: qt5-qttools-devel
+#BuildRequires: qt5-linguist
 %endif
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
-%if 0%{?fedora}
+
+%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?fedora} || 0%{?openeuler_version} || 0%{?centos_version} == 800
 BuildRequires: hostname
 %endif
-%if !0%{?rhel_version}
-BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
+%if (!0%{?rhel_version} && 0%{?centos_version}!=800)
+BuildRequires: OpenEXR-devel
+BuildRequires: mesa-libOSMesa-devel
 %endif
 BuildRequires: freeglut-devel
 BuildRequires: mesa-libGLU-devel
@@ -149,18 +160,22 @@ BuildRequires: git
 %endif
 %endif
 
-%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 %if 0%{?scientificlinux_version}
 BuildRequires: gnu-free-sans-fonts
+%if !0%{?openeuler_version}
 BuildRequires: kde-runtime
 %endif
-%if 0%{?centos_version}
+%endif
+%if 0%{?centos_version} || 0%{?scientificlinux_version}
 BuildRequires: mesa-libwayland-egl
 %endif
 BuildRequires: libjpeg-turbo-devel
-%if 0%{?rhel_version}
-# Disable this as we have local OSMesa library
-%define build_osmesa_foo foo
+%if 0%{?openeuler_version} || 0%{?centos_version} == 800
+BuildRequires: libXext-devel
+%endif
+%if 0%{?centos_version}<=700
+%define build_sdl2 1
 %endif
 %define build_tinyxml 1
 %define build_gl2ps 1
@@ -194,7 +209,7 @@ BuildRequires: openssl-devel, storaged
 %endif
 
 %if 0%{?suse_version}
-Requires(pre): gconf2
+# Requires(pre): gconf2
 %if (0%{?sle_version}!=150000)
 BuildRequires: freeglut-devel
 %endif
@@ -203,7 +218,7 @@ BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200 && 0%{?sle_version}!=150300)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -223,8 +238,9 @@ BuildRequires: -post-build-checks
 %define build_tinyxml 1
 %endif
 
-%if 0%{?mageia}
-BuildRequires: qttools5
+%if 0%{?mageia_version}
+%define prebuilt_3ds 1
+#BuildRequires: qttools5
 %ifarch x86_64
 BuildRequires: lib64qt5base5-devel, lib64sdl2.0-devel, lib64osmesa-devel, lib64mesaglu1-devel, lib64freeglut-devel
 BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff-devel
@@ -233,7 +249,7 @@ BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: lib64sane1, lib64proxy-webkit
-%if 0%{?mageia} == 7
+%if 0%{?mageia_version} >= 7
 BuildRequires: lib64openssl-devel
 %endif
 %endif
@@ -245,7 +261,7 @@ BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
 BuildRequires: libsane1, libproxy-webkit
-%if 0%{?mageia} == 7
+%if 0%{?mageia_version} >= 7
 BuildRequires: libopenssl-devel
 %endif
 %endif
@@ -269,7 +285,7 @@ BuildRequires:  python-gobject-base
 %endif
 
 # POV-Ray dependencies - SUSE/CentOS builds
-%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?suse_version} || 0%{?sle_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires:  gcc-c++
@@ -297,7 +313,8 @@ BuildRequires:  libXpm-devel
 %if !0%{?rhel_version}
 BuildRequires:  pkgconfig(OpenEXR)
 %endif
-%if (0%{?suse_version}!=1315 && !0%{?centos_version} && !0%{?rhel_version} && !0%{?scientificlinux_version})
+# We are building sdl2 for these instances, so do not load here
+%if (0%{?suse_version}!=1315 && 0%{?centos_version}>700 && !0%{?rhel_version} && !0%{?scientificlinux_version})
 BuildRequires:  pkgconfig(sdl2)
 %endif
 %endif
@@ -471,11 +488,14 @@ set +x
 %if 0%{?suse_version} || 0%{?sle_version}
 echo "%{suse_dist_label}"
 %endif
-%if 0%{?centos_ver}
+%if 0%{?centos_version}
 echo "CentOS.........................%{centos_version}"
 %endif
-%if 0%{?fedora}
+%if 0%{?fedora_version}
 echo "Fedora.........................%{fedora_version}"
+%endif
+%if 0%{?openeuler_version}
+echo "openEuler......................%{openeuler_version}"
 %endif
 %if 0%{?rhel_version}
 echo "RedHat Enterprise Linux........%{rhel_version}"
@@ -483,7 +503,7 @@ echo "RedHat Enterprise Linux........%{rhel_version}"
 %if 0%{?scientificlinux_version}
 echo "Scientific Linux...............%{scientificlinux_version}"
 %endif
-%if 0%{?mageia}
+%if 0%{?mageia_version}
 echo "Mageia.........................%{mageia_version}"
 %endif
 %if 0%{?buildservice}
@@ -565,6 +585,11 @@ export PLATFORM_PRETTY_OBS="Fedora"
 export PLATFORM_VER_OBS=%{fedora_version}
 export PLATFORM_CODE="fc"
 %endif
+%if 0%{?openeuler_version}
+export PLATFORM_PRETTY_OBS="OpenEuler"
+export PLATFORM_VER_OBS=%{openeuler_version}
+export PLATFORM_CODE="oe"
+%endif
 %if 0%{?rhel_version}
 export PLATFORM_PRETTY_OBS="RedHat Enterprise Linux"
 export PLATFORM_VER_OBS=%{rhel_version}
@@ -575,7 +600,7 @@ export PLATFORM_PRETTY_OBS="Scientific Linux"
 export PLATFORM_VER_OBS=%{scientificlinux_version}
 export PLATFORM_CODE="sl"
 %endif
-%if 0%{?mageia}
+%if 0%{?mageia_version}
 export PLATFORM_PRETTY_OBS="Mageia"
 export PLATFORM_VER_OBS=%{mageia_version}
 export PLATFORM_CODE="mga"
@@ -602,6 +627,12 @@ export build_gl2ps=%{build_gl2ps}
 %if 0%{?build_tinyxml}
 echo "Build TinyXML from source......yes"
 export build_tinyxml=%{build_tinyxml}
+%endif
+%if 0%{?prebuilt_3ds}
+echo "Use prebuilt 3DS library.......yes"
+export prebuilt_3ds=%{prebuilt_3ds}
+%else
+echo "Build 3DS from source..........yes"
 %endif
 %if 0%{?get_qt5}
 echo "Get Qt5 library................yes"
@@ -733,5 +764,6 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sun Jun 12 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2674
+%changelog
+* Sun Jun 12 2022 - trevor.dot.sandy.at.gmail.dot.com 2.4.4.2675
 - LPub3D Linux package (rpm) release
