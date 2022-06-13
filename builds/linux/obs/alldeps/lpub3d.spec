@@ -1,7 +1,7 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: Jun 12, 2022
+# Last Update: Jun 13, 2022
 # Copyright © 2017 - 2022 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
@@ -101,11 +101,11 @@ Group: Productivity/Graphics/Viewers
 Group: Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora}
+%if 0%{?centos_version} || 0%{?fedora_version}
 Group: Amusements/Graphics
 %endif
 
-%if 0%{?centos_version} || 0%{?fedora} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?centos_version} || 0%{?fedora_version} || 0%{?mageia_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
 License: GPLv2+
 %endif
 
@@ -137,14 +137,15 @@ Source10: lpub3d-rpmlintrc
 BuildRequires: cmake
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
+%if 0%{?fedora_version} || 0%{?centos_version} >= 700 || 0%{?openeuler_version}
 BuildRequires: qt5-qtbase-devel
-#BuildRequires: qt5-qttools-devel
-#BuildRequires: qt5-linguist
+%if 0%{?fedora_version} == 36
+BuildRequires: util-linux
+%endif
 %endif
 
-%if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
-%if 0%{?fedora} || 0%{?openeuler_version} || 0%{?centos_version} == 800
+%if 0%{?fedora_version} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version} || 0%{?openeuler_version}
+%if 0%{?fedora_version} || 0%{?openeuler_version} || 0%{?centos_version} == 800
 BuildRequires: hostname
 %endif
 %if (!0%{?rhel_version} && 0%{?centos_version}!=800)
@@ -181,7 +182,7 @@ BuildRequires: libXext-devel
 %define build_gl2ps 1
 %endif
 
-%if 0%{?fedora}
+%if 0%{?fedora_version}
 BuildRequires: libjpeg-turbo-devel, tinyxml-devel, gl2ps-devel
 BuildRequires: qt5-linguist, SDL2-devel
 %if 0%{?fedora_version}>30
@@ -209,7 +210,6 @@ BuildRequires: openssl-devel, storaged
 %endif
 
 %if 0%{?suse_version}
-# Requires(pre): gconf2
 %if (0%{?sle_version}!=150000)
 BuildRequires: freeglut-devel
 %endif
