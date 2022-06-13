@@ -4,8 +4,6 @@ win32 {
     COPY_CMD = cp -f
 }
 
-unix:!macx:LDV_HOST = $$system(. /etc/os-release 2>/dev/null; [ -n \"$PRETTY_NAME\" ] && echo \"$PRETTY_NAME\" || echo `uname`)
-
 contains(LOAD_LDV_HEADERS,True) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # 3rd party executables, documentation and resources.
@@ -238,8 +236,8 @@ contains(LOAD_LDVLIBS,True) {
         3DS_LIB          = -l3ds
         macx:ZIP_LIB     = -lminizip
         else:ZIP_LIB     =
-        PNG_LIB          = -llibpng
-        JPEG_LIB         = -llibjpeg
+        PNG_LIB          = -lpng16
+        JPEG_LIB         = -ljpeg
 
         # source paths
         LDLIB_SRC        = $$system_path( $${LDVLIBDIR}/libLDraw-osmesa.a )
@@ -251,7 +249,7 @@ contains(LOAD_LDVLIBS,True) {
         GL2PS_SRC        = $$system_path( $${LDVLIBDIR}/libgl2ps.a )
         TINYXML_SRC      = $$system_path( $${LDVLIBDIR}/libtinyxml.a )
         3DS_SRC          = $$system_path( $${LDVLIBDIR}/lib3ds.a )
-        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng.a )
+        PNG_SRC          = $$system_path( $${LDVLIBDIR}/libpng16.a )
         JPEG_SRC         = $$system_path( $${LDVLIBDIR}/libjpeg.a )
         MINIZIP_SRC      =
     }
@@ -323,7 +321,7 @@ contains(LOAD_LDVLIBS,True) {
             3DS_DST          = $$system_path( $${LDVLIBRARY}/lib3ds.a )
             macx:ZIP_LIB     = $$system_path( $${LDVLIBRARY}/libminizip.a )
             else:ZIP_LIB     =
-            PNG_DST          = $$system_path( $${LDVLIBRARY}/libpng.a )
+            PNG_DST          = $$system_path( $${LDVLIBRARY}/libpng16.a )
             JPEG_DST         = $$system_path( $${LDVLIBRARY}/libjpeg.a )
         }
 
@@ -479,7 +477,7 @@ contains(LOAD_LDVLIBS,True) {
         }
     }
 
-    if (contains(USE_LOCAL_PNG_LIB,False):!contains(LDV_HOST, Ubuntu):!contains(LDV_HOST, 14.04.5)) {
+    if (contains(USE_LOCAL_PNG_LIB,False)) {
         macx:LIBS          += /usr/local/lib/libpng.dylib
         else:LIBS          += -lpng
     } else {
