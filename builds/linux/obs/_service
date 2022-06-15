@@ -21,14 +21,13 @@
       <param name="exclude">builds/linux/standard</param>
       <param name="exclude">builds/windows</param>
       <param name="exclude">builds/macx</param>
-      <param name="exclude">.travis.yml</param>
       <param name="exclude">.gitignore</param>
       <param name="exclude">.gitattributes</param>
       <param name="exclude">.git</param>
       <param name="exclude">.github</param>
+      <param name="exclude">.travis.yml</param>      
       <param name="exclude">LPub3D.pro.user</param>
       <param name="exclude">README.md</param>
-      <param name="exclude">_config.yml</param>
       <param name="exclude">appveyor.yml</param>
       <param name="version">git-master</param>
       <param name="versionformat">git</param>

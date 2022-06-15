@@ -89,7 +89,8 @@ unix:!freebsd:!macx {
     CONFIG += c++11
 }
 
-CONFIG += precompile_header incremental force_debug_info
+CONFIG += precompile_header
+CONFIG += incremental force_debug_info
 PRECOMPILED_HEADER = common/lc_global.h
 
 win32 {
