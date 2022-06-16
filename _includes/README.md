@@ -47,7 +47,7 @@ LPub3D integrates with **Blender** to provide photo-realistic renderings. It als
 ![Intel-Logo][intel-logo]|![AMD-Logo][amd-logo]|![ARM-Logo][arm-logo]|![RaspberryPi-Logo][raspberrypi-logo]
 
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
-LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Flatpak][flatpak-site-url] or [Sanp (coming soon)][snapcraft-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
+LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flatpak-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
 
 ### Downloads
 
@@ -289,11 +289,11 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_22.04/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
-[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }}  "Snap - Coming Soon!"
+[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }} "Snap"
 [flatpak-site-icon]:   {{ '/assets/images/flatpak_logo.png' | relative_url }} "Flatpak"
 [appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImage"
 
-[snapcraft-site-url]:  https://snapcraft.io/snaps
+[snapcraft-site-url]:  https://snapcraft.io/lpub3d
 [flatpak-site-url]:    https://flathub.org/apps/details/io.github.trevorsandy.LPub3D
 [appimage-site-url]:   https://appimage.github.io/LPub3D/
 
