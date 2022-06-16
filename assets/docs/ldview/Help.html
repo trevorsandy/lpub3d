@@ -10,33 +10,11 @@
 BODY
 {
 	margin: 20px;
-	font-family: helvetica, arial, sans-serif
+	font-family: helvetica, arial, sans-serif;
 }
 TABLE
 {
 	border-collapse: collapse;
-}
-TABLE.SectionHeader
-{
-	border: 2px solid #000000;
-	font-size: 150%;
-	font-weight: bold;
-	margin-bottom: 8px;
-	padding: 0px;
-	width: 100%;
-}
-TABLE.SectionHeader TH.MainTitle
-{
-	font-family: arial black, helvetica, arial, sans-serif;
-	text-align: center;
-	padding: 0px;
-}
-TABLE.SectionHeader TH
-{
-	background-color: #0080D0;
-	color: #FFFFFF;
-	text-align: left;
-	padding-left: 10px;
 }
 TABLE.SettingsList
 {
@@ -71,29 +49,85 @@ TABLE.SampleData TD
 {
 	white-space: nowrap;
 }
+.SectionHeader
+{
+	display: flex;
+	border: 2px solid #000000;
+	background-color: #0080D0;
+	color: #FFFFFF;
+	font-weight: bold;
+	font-size: 150%;
+	margin-bottom: 8px;
+	padding: 1px 10px;
+}
+.MainTitle
+{
+	font-family: arial black, helvetica, arial, sans-serif;
+	justify-content: center;
+	font-size: 200%;
+	font-variant: small-caps;
+}
+.SubHeader
+{
+	font-size: 135%;
+	font-weight: bold;
+}
+.SubHeader2
+{
+	font-size: 125%;
+	font-weight: bold;
+}
+.MenuTitle
+{
+	white-space: nowrap;
+	text-align: right;
+}
+.FinePrint
+{
+	font-size: 81%;
+}
+.KeyTable
+{
+	display: flex;
+}
+.KeyTable .Column
+{
+	min-width: 200px;
+	display: flex;
+	flex-direction: column;
+}
+.KeyTable .Column.Right
+{
+	align-items: flex-end;
+	margin-right: 10px;
+}
+.KeyTable .Column .Header
+{
+	font-weight: bold;
+}
+.KeyTable .Column DIV
+{
+	margin-bottom: 3px;
+}
+.Note
+{
+	display: flex;
+}
+.Note div:first-child
+{
+	font-style: italic;
+	margin-right: 5px;
+}
+.Indent
+{
+	margin-left: 3em;
+}
 --></style>
 </head>
 <body bgcolor="#F8F8F8" vlink="#505050" link="#808080" alink="#0080D0">
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th class="MainTitle">
-			<a name="TopOfFile"></a>
-			<font size="+2" color="#FFFFFF">
-			<font size="+3">LDV</font>IEW <font size="+3">H</font>ELP
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader MainTitle"><a name="TopOfFile"></a>LDView Help</div>
 <p></p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Contents
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Contents</div>
 <ul>
 <li><a href="#Intro">Introduction</a></li>
 <li><a href="#MacNotes">LDView on macOS</a></li>
@@ -118,6 +152,8 @@ TABLE.SampleData TD
 <li><a href="#Fullscreen">Fullscreen Mode</a></li>
 <li><a href="#SaveSnapshotOptions">Save Snapshot Options</a></li>
 <li><a href="#Export">Exporting</a></li>
+<li><a href="#CameraLocDialog">Camera Location Dialog</a></li>
+<li><a href="#RotationCenterDialog">Rotation Center Dialog</a></li>
 <li><a href="#LatLonDialog">Latitude/Longitude Dialog</a></li>
 <li><a href="#ErrorWindow">Errors &amp; Warnings Window</a></li>
 <li><a href="#PartsListDialog">Parts List Dialog</a></li>
@@ -128,6 +164,7 @@ TABLE.SampleData TD
 <li><a href="#GeneralTab">General Tab</a>
 <ul>
 <li><a href="#GeneralAABox">Antialiasing Box</a></li>
+<li><a href="#GeneralCustomConfigBox">Custom Config Box</a></li>
 <li><a href="#GeneralColorsBox">Colors Box</a></li>
 <li><a href="#GeneralMiscBox">Misc Box</a></li>
 </ul></li>
@@ -189,15 +226,7 @@ TABLE.SampleData TD
 </ul>
 <p><br/>
 <a name="Intro"></a></p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Introduction
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Introduction</div>
 <p>
 <i>Please note</i>: this help file mostly documents the Windows version of
 LDView, with a few notes about the Qt (Linux) and Mac versions, and some
@@ -238,15 +267,7 @@ Load</a> from the File menu, will cancel the load.
 </p>
 <p>
 <a name="MacNotes"></a><br/></p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			LDView on macOS
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">LDView on macOS</div>
 <!-- Note: the # below isn't really right, but it works in both Safari and
 Firefox.  Using Help.html in its place (the correct thing) doesn't work in
 Safari until you click on the link a second time if you came into the page with
@@ -277,15 +298,7 @@ the same as a middle button drag with a mouse.
 <p>
 <a name="LDrawLibrary"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			LDraw Parts Library
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">LDraw Parts Library</div>
 <p>
 LDView displays LDraw models, and LDraw models (almost always) make use of parts
 in the LDraw parts library. In order to display those models, LDView needs for
@@ -335,15 +348,7 @@ warning will go away.
 <p>
 <a name="MouseControl"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Mouse and Keyboard Control
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Mouse and Keyboard Control</div>
 <p>
 LDView has three different modes of user interaction:
 <a href="#ExamineMode">Examine Mode</a>, <a href="#FlyMode">Fly-through
@@ -352,7 +357,7 @@ Examine Mode.  You can switch modes by selecting the mode you want from the
 <a href="#ViewMenu">View Menu</a>.
 </p>
 <p>
-<font size="+2"><b><a name="ExamineMode">Examine Mode</a></b></font><br/>
+<span class="SubHeader"><a name="ExamineMode">Examine Mode</a></span><br/>
 Click the left mouse button and drag around to rotate the model.  If you let
 go of the button while the mouse is in motion, the model will continue to
 rotate on its own.
@@ -397,7 +402,7 @@ option.  Note that this will slow things down considerably, since the entire
 model has to be rendered twice.
 </p>
 <p>
-<font size="+2"><b><a name="FlyMode">Fly-through Mode</a></b></font><br/>
+<span class="SubHeader"><a name="FlyMode">Fly-through Mode</a></span><br/>
 Click the left mouse button and move it around to turn the camera left, right,
 up, and down.  The further you move the mouse from the point you clicked, the
 faster the camera will turn. You can also use the arrow keys to do the same
@@ -407,81 +412,48 @@ thing.
 The camera can be moved using the keyboard.  At any time, you can hold down
 shift to double the speed at which you move.  The movement keys are as follows:
 </p>
-<table>
-	<tr>
-		<th align="right">Movement Direction</th>
-		<th>&#160;</th>
-		<th align="center">Key</th>
-		<th></th>
-	</tr>
-	<tr>
-		<td align="right">Forward:</td>
-		<td></td>
-		<td align="center">W</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Backward:</td>
-		<td></td>
-		<td align="center">S</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Left:</td>
-		<td></td>
-		<td align="center">A</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Right:</td>
-		<td></td>
-		<td align="center">D</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Up:</td>
-		<td></td>
-		<td align="center">R</td>
-		<td></td>
-	</tr>
-	<tr valign="top">
-		<td align="right">Down:</td>
-		<td></td>
-		<td align="center">F</td>
-		<td width="300"></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td colspan="4">&#160;</td>
-	</tr>
-	<tr>
-		<td colspan="4">In addition to the above movement keys, the following
-		keys effect the camera rotation:</td>
-	</tr>
-	<tr>
-		<td colspan="4">&#160;</td>
-	</tr>
-	<tr>
-		<th align="right">Rotation</th>
-		<th></th>
-		<th align="center">Key</th>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Rotate Clockwise:</td>
-		<td></td>
-		<td align="center">E</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Rotate Counter-Clockwise:</td>
-		<td></td>
-		<td align="center">Q</td>
-		<td></td>
-	</tr>
-</table>
 <p>
-<font size="+2"><b><a name="WalkMode">Walk Mode</a></b></font><br/>
+<div class="KeyTable">
+	<div class="Column Right">
+		<div class="Header">Movement Direction</div>
+		<div>Forward:</div>
+		<div>Backward:</div>
+		<div>Left:</div>
+		<div>Right:</div>
+		<div>Up:</div>
+		<div>Down:</div>
+	</div>
+	<div class="Column">
+		<div class="Header">Key</div>
+		<div>W</div>
+		<div>S</div>
+		<div>A</div>
+		<div>D</div>
+		<div>R</div>
+		<div>F</div>
+	</div>
+</div>
+</p>
+<p>
+In addition to the above movement keys, the following keys effect the camera
+rotation:
+</p>
+<p>
+<div class="KeyTable">
+	<div class="Column Right">
+		<div class="Header">Rotation</div>
+		<div>Rotate Clockwise:</div>
+		<div>Rotate Counter-Clockwise:</div>
+	</div>
+	<div class="Column">
+		<div class="Header">Key</div>
+		<div>E</div>
+		<div>Q</div>
+	</div>
+</div>
+</p>
+<p>
+<span class="SubHeader"><a name="WalkMode">Walk Mode</a></span><br/>
 Click the left mouse button and move it around to turn the camera left, right,
 up, and down.  The further you move the mouse from the point you clicked, the
 faster the camera will turn. You can also use the arrow keys to do the same
@@ -494,66 +466,32 @@ maintains the same altitude while otherwise moving in the direction it is
 pointed. It also keeps the model right side up. The movement keys are as
 follows:
 </p>
-<table>
-	<tr>
-		<th align="right">Movement Direction</th>
-		<th>&#160;</th>
-		<th align="center">Key</th>
-		<th></th>
-	</tr>
-	<tr>
-		<td align="right">Forward:</td>
-		<td></td>
-		<td align="center">W</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Backward:</td>
-		<td></td>
-		<td align="center">S</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Left:</td>
-		<td></td>
-		<td align="center">A</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Right:</td>
-		<td></td>
-		<td align="center">D</td>
-		<td></td>
-	</tr>
-	<tr>
-		<td align="right">Up:</td>
-		<td></td>
-		<td align="center">R</td>
-		<td></td>
-	</tr>
-	<tr valign="top">
-		<td align="right">Down:</td>
-		<td></td>
-		<td align="center">F</td>
-		<td width="300"></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td colspan="4">&#160;</td>
-	</tr>
-</table>
+<p>
+<div class="KeyTable">
+	<div class="Column Right">
+		<div class="Header">Movement Direction</div>
+		<div>Forward:</div>
+		<div>Backward:</div>
+		<div>Left:</div>
+		<div>Right:</div>
+		<div>Up:</div>
+		<div>Down:</div>
+	</div>
+	<div class="Column">
+		<div class="Header">Key</div>
+		<div>W</div>
+		<div>S</div>
+		<div>A</div>
+		<div>D</div>
+		<div>R</div>
+		<div>F</div>
+	</div>
+</div>
+</p>
 <p>
 <a name="StepSupport"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Step Support
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Step Support</div>
 <p>
 LDraw files may contain steps.  If so, you can view the steps in order to see
 how to build the model.  However, by default, LDView displays the last step,
@@ -580,15 +518,7 @@ can be navigated just as if it were in its own file which you loaded directly.
 <p>
 <a name="Menus"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Menus
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Menus</div>
 <p>
 The shortcut key for each menu item is shown in the menu when running LDView.
 Note that these keys will continue to function even while in fullscreen mode
@@ -596,50 +526,50 @@ where there is no visible menu.
 </p>
 <table cellspacing="6">
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="FileMenu">File
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="FileMenu">File
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Open:</td>
+		<td class="MenuTitle">Open:</td>
 		<td colspan="2">Open a new model file.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Save Snapshot:</td>
+		<td class="MenuTitle">Save Snapshot:</td>
 		<td colspan="2">Save a PNG or BMP snapshot of the current model with the
 		current view.  See <a href="#SaveSnapshotOptions">here</a> for
 		information about the extra settings in the save dialog.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Export:</td>
+		<td class="MenuTitle">Export:</td>
 		<td colspan="2">Export the loaded LDraw model to various different file
 		formats.  See <a href="#Export">here</a> for details.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Reload:</td>
+		<td class="MenuTitle">Reload:</td>
 		<td colspan="2">Reload the current model file.  (Use this if you are
 		viewing a model you are in the process of making changes to in some
 		other program, but don't want to use the polling feature below.)</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Cancel Load:</td>
+		<td class="MenuTitle">Cancel Load:</td>
 		<td colspan="2">During a load, you can select this menu item to cancel
 		the load.  It is likely that you will generally just use the keyboard
 		accelerator, though, and hit the Escape key.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Polling:</td>
+		<td class="MenuTitle">Polling:</td>
 		<td colspan="2">Submenu containing polling options which allow you to have
 		the model automatically reload when its file changes.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Disabled:</td>
+		<td class="MenuTitle">Disabled:</td>
 		<td>Disable the polling feature completely.  You can still used the
 		Reload option to reload the current model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Prompt:</td>
+		<td class="MenuTitle">Prompt:</td>
 		<td>Enables polling.  When a change is detected, a dialog is displayed
 		asking you if you want to reload the model file.  This option only
 		polls for changes when LDView is the foreground application.  The
@@ -649,7 +579,7 @@ where there is no visible menu.
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right" nowrap="nowrap">Auto-update<br/>when active:</td>
+		<td class="MenuTitle">Auto-update when active:</td>
 		<td>Enables polling.  When a change is detected, the current model file
 		is reloaded automatically.  This option only polls for changes when
 		LDView is the foreground application.  The model will thus normally be
@@ -658,7 +588,7 @@ where there is no visible menu.
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right" nowrap="nowrap">Auto-update<br/>immediately:</td>
+		<td class="MenuTitle">Auto-update immediately:</td>
 		<td>Enables polling.  When a change is detected, the current model file
 		is reloaded automatically.  This option polls for changes whether or not
 		LDView is the foreground application.  The model will thus be
@@ -667,7 +597,7 @@ where there is no visible menu.
 		can have a significant impact on your computer's CPU availability.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">LDraw Dir:</td>
+		<td class="MenuTitle">LDraw Dir:</td>
 		<td colspan="2">Allows you to specify a new location for the LDraw
 		directory.  This shouldn't normally be needed, since LDView detects if
 		the LDraw directory is deleted or moved and automatically prompts you
@@ -676,7 +606,7 @@ where there is no visible menu.
 		this menu item.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="ExtraDirs">Extra Dirs</a>:</td>
+		<td class="MenuTitle"><a name="ExtraDirs">Extra Dirs</a>:</td>
 		<td colspan="2">Allows you to specify and organize any number of extra
 		search directories.  When LDView loads a model, and the model references
 		a part or sub-model, it searches for that part or sub-model in a number
@@ -690,51 +620,51 @@ where there is no visible menu.
 		you want them to be in.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Check for Library Updates:</td>
+		<td class="MenuTitle">Check for Library Updates:</td>
 		<td colspan="2">Checks to see if there are any library updates on
 		LDraw.org that aren't yet installed, and downloads and installs them if
 		any are found.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Page Setup:</td>
+		<td class="MenuTitle">Page Setup:</td>
 		<td colspan="2">Setup the page for printing.  This shows the standard
 		Windows Page Setup Dialog with the addition of a check box which
 		allows you to choose whether or not the background color should be
 		printed (it isn't by default).</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Print:</td>
+		<td class="MenuTitle">Print:</td>
 		<td colspan="2">Print the current model with the current view.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">&lt;Recent Files&gt;:</td>
+		<td class="MenuTitle">&lt;Recent Files&gt;:</td>
 		<td colspan="2">Shows the filenames of the 10 most recently loaded files.
 		Select any one to load that file.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Exit:</td>
+		<td class="MenuTitle">Exit:</td>
 		<td colspan="2">Exit LDView.</td>
 	</tr>
 	<tr>
 		<td colspan="3"><hr size="1" width="90%" noshade="noshade"/></td>
 	</tr>
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="EditMenu">Edit
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="EditMenu">Edit
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Preferences:</td>
-		<td colspan="2">Display the <a href="#Prefs">Preferences</a> dialog.</td>
+		<td class="MenuTitle">Preferences:</td>
+		<td colspan="2">Shows the <a href="#Prefs">Preferences Dialog</a>.</td>
 	</tr>
 	<tr>
 		<td colspan="3"><hr size="1" width="90%" noshade="noshade"/></td>
 	</tr>
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="ViewMenu">View
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="ViewMenu">View
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Use Visual Style (requires restart):</td>
+		<td class="MenuTitle">Use Visual Style (requires restart):</td>
 		<td colspan="2">This menu is not visible when running LDView in operating
 		systems other than Windows, or in Windows versions prior to Windows XP.
 		When present, it enables or disables the use of Windows XP Visual
@@ -742,95 +672,105 @@ where there is no visible menu.
 		visible.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Switch to Fullscreen:</td>
+		<td class="MenuTitle">Switch to Fullscreen:</td>
 		<td colspan="2">Switches to the currently selected
 		<a href="#Fullscreen">fullscreen</a> video mode.
 		If you are already in fullscreen mode, Ctrl+Enter switches back to
 		windowed mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Toolbar:</td>
+		<td class="MenuTitle">Toolbar:</td>
 		<td colspan="2">Toggles the <a href="#Toolbar">toolbar</a> on and off.
 		Note that the toolbar is never visible in full-screen mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="StatusBar">Status Bar:</a></td>
+		<td class="MenuTitle"><a name="StatusBar">Status Bar:</a></td>
 		<td colspan="2">Toggles the permanent display of the status bar on and
 		off.  Note that the status bar will always display when there is load
 		progress to be indicated.  Also, except while displaying load progress,
 		it is never visible in full-screen mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Always on Top:</td>
+		<td class="MenuTitle">Always on Top:</td>
 		<td colspan="2">Toggles Always on Top mode.  When this is enabled, the
 		LDView window is kept above all other windows (with the exception of
 		some other topmost windows).  When it is disabled (the default), LDView
 		acts just like a normal Windows program.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="ResetView">Reset View</a>:</td>
+		<td class="MenuTitle"><a name="ResetView">Reset View</a>:</td>
 		<td colspan="2">Resets the model to the default view that is shown
 		immediately after the initial load.  Any viewing angle can be saved as
 		the default viewing angle using <a href="#SaveDefaultView">this</a>
 		menu item.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Zoom to Fit:</td>
+		<td class="MenuTitle">Zoom to Fit:</td>
 		<td colspan="2">Zooms the model in to fill the current window.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Right Side Up:</td>
+		<td class="MenuTitle">Right Side Up:</td>
 		<td colspan="2">Rotates the model so that it is right side up.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Viewing Angles:</td>
+		<td class="MenuTitle">Camera Location:</td>
+		<td colspan="2">Shows the <a href="#CameraLocDialog">Camera Location
+		Dialog</a>.</td>
+	</tr>
+	<tr valign="top">
+		<td class="MenuTitle">Rotation Center:</td>
+		<td colspan="2">Shows the <a href="#RotationCenterDialog">Rotation
+		Center Dialog</a>.</td>
+	</tr>
+	<tr valign="top">
+		<td class="MenuTitle">Viewing Angles:</td>
 		<td colspan="2">Submenu containing preset viewing angles.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Front:</td>
+		<td class="MenuTitle">Front:</td>
 		<td>Sets the view to show the front of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Back:</td>
+		<td class="MenuTitle">Back:</td>
 		<td>Sets the view to show the back of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Left:</td>
+		<td class="MenuTitle">Left:</td>
 		<td>Sets the view to show the left of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Right:</td>
+		<td class="MenuTitle">Right:</td>
 		<td>Sets the view to show the right of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Top:</td>
+		<td class="MenuTitle">Top:</td>
 		<td>Sets the view to show the top of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Bottom:</td>
+		<td class="MenuTitle">Bottom:</td>
 		<td>Sets the view to show the bottom of the model.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right" nowrap="nowrap">Specify latitude/longitude:</td>
-		<td colspan="2">Displays the <a href="#LatLonDialog">Latitude/Longitude
+		<td class="MenuTitle">Specify latitude/longitude:</td>
+		<td colspan="2">Shows the <a href="#LatLonDialog">Latitude/Longitude
 		Dialog</a>.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right">Two-thirds:</td>
+		<td class="MenuTitle">Two-thirds:</td>
 		<td>Sets the view to a two-thirds view of the model.  This is the
 		default view until you change it to something else.</td>
 	</tr>
 	<tr valign="top">
 		<td></td>
-		<td align="right"><a name="SaveDefaultView">Save Current as
+		<td class="MenuTitle"><a name="SaveDefaultView">Save Current as
 		Default:</a></td>
 		<td>Saves the current viewing angle as the default viewing angle.  Note
 		that this only stores the viewing angle, not the viewing distance.  The
@@ -838,7 +778,7 @@ where there is no visible menu.
 		to the default view.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right"><a name="StandardSizes">Standard Sizes</a>:</td>
+		<td class="MenuTitle"><a name="StandardSizes">Standard Sizes</a>:</td>
 		<td colspan="2">Submenu containing preset window sizes.  Select any item
 		in the list to change the main 3D view in LDView to that size.  Each
 		size also contains two numbers in parentheses after the dimensions.
@@ -857,12 +797,12 @@ where there is no visible menu.
 		bar visible and the other doesn't.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Examine Mode:</td>
+		<td class="MenuTitle">Examine Mode:</td>
 		<td colspan="2">Puts LDView in <a href="#ExamineMode">Examine Mode</a>.
 		This is the default mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="LatLonMode">Latitude/Longitude
+		<td class="MenuTitle"><a name="LatLonMode">Latitude/Longitude
 		Rotation:</a></td>
 		<td colspan="2">Toggle to enable or disable latitude/longitude rotation
 		mode.  In latitude/longitude rotation mode, moving the mouse side to
@@ -873,21 +813,21 @@ where there is no visible menu.
 		<br/><br/>This is only available in Examine Mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Fly-through Mode:</td>
+		<td class="MenuTitle">Fly-through Mode:</td>
 		<td colspan="2">Puts LDView in <a href="#FlyMode">Fly-through
 		Mode</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Keep Right Side Up:</td>
+		<td class="MenuTitle">Keep Right Side Up:</td>
 		<td colspan="2">Keeps the model right side up while in Fly-Through
 		Mode.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Walk Mode:</td>
+		<td class="MenuTitle">Walk Mode:</td>
 		<td colspan="2">Puts LDView in <a href="#WalkMode">Walk Mode</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">XX-Bit Modes:</td>
+		<td class="MenuTitle">XX-Bit Modes:</td>
 		<td colspan="2">Submenu containing all of the available fullscreen video
 		modes with a bit-depth of XX (where XX will usually be 15, 16, 24, or
 		32).  There is a separate submenu for each bit-depth of 15 or greater
@@ -900,53 +840,53 @@ where there is no visible menu.
 		<td colspan="3"><hr size="1" width="90%" noshade="noshade"/></td>
 	</tr>
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="StepMenu">Step
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="StepMenu">Step
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">First:</td>
+		<td class="MenuTitle">First:</td>
 		<td colspan="2">Displays the loaded model's first step.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Previous:</td>
+		<td class="MenuTitle">Previous:</td>
 		<td colspan="2">Displays the loaded model's previous step.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Next:</td>
+		<td class="MenuTitle">Next:</td>
 		<td colspan="2">Displays the loaded model's next step.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Last:</td>
+		<td class="MenuTitle">Last:</td>
 		<td colspan="2">Displays the loaded model's last step.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Go to Step:</td>
-		<td colspan="2">Displays a dialog to go to a specific step.</td>
+		<td class="MenuTitle">Go to Step:</td>
+		<td colspan="2">Shows a dialog to go to a specific step.</td>
 	</tr>
 	<tr>
 		<td colspan="3"><hr size="1" width="90%" noshade="noshade"/></td>
 	</tr>
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="ToolsMenu">Tools
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="ToolsMenu">Tools
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Errors &amp; Warnings:</td>
-		<td colspan="2">Displays the <a href="#ErrorWindow">Errors &amp; Warnings
+		<td class="MenuTitle">Errors &amp; Warnings:</td>
+		<td colspan="2">Shows the <a href="#ErrorWindow">Errors &amp; Warnings
 		Window</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Parts List:</td>
-		<td colspan="2">Displays the <a href="#PartsListDialog">Parts List
+		<td class="MenuTitle">Parts List:</td>
+		<td colspan="2">Shows the <a href="#PartsListDialog">Parts List
 		Dialog</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Model Tree:</td>
-		<td colspan="2">Displays the <a href="#ModelTreeDialog">Model Tree
+		<td class="MenuTitle">Model Tree:</td>
+		<td colspan="2">Shows the <a href="#ModelTreeDialog">Model Tree
 		Dialog</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Model Bounding Box:</td>
+		<td class="MenuTitle">Model Bounding Box:</td>
 		<td colspan="2">Displays a dialog box showing the minimum and maximum
 		corners of an axis-aligned bounding box around the model, and draws
 		that bounding box.  Close the dialog to turn off the bounding box
@@ -954,12 +894,12 @@ where there is no visible menu.
 		dialog is visible.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">MPD Model Selection:</td>
-		<td colspan="2">Displays the <a href="#MPDDialog">MPD Model
+		<td class="MenuTitle">MPD Model Selection:</td>
+		<td colspan="2">Shows the <a href="#MPDDialog">MPD Model
 		Selection Dialog</a>.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="ShowViewInfo">Show View Info:</a></td>
+		<td class="MenuTitle"><a name="ShowViewInfo">Show View Info:</a></td>
 		<td colspan="2">This shows a dialog that contains the model's current
 		rotation matrix and zoom level (camera distance).  Hitting OK copies
 		this information to the clipboard in a format suitable for use with
@@ -968,7 +908,7 @@ where there is no visible menu.
 		not try to use this in Fly-through Mode or after having panned.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap"><a name="PovCamera">Show POV-Ray Camera
+		<td class="MenuTitle"><a name="PovCamera">Show POV-Ray Camera
 		Info:</a></td>
 		<td colspan="2">This shows a dialog that contains information about the
 		current camera position as is needed in POV-Ray.  Hitting OK copies a
@@ -976,8 +916,7 @@ where there is no visible menu.
 		directly pasted into a POV-Ray file to replace the existing camera.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right" nowrap="nowrap">Use current aspect ratio for POV-Ray
-		camera:</td>
+		<td class="MenuTitle">Use current aspect ratio for POV-Ray camera:</td>
 		<td colspan="2">Toggle that controls whether the 3D view's current aspect
 		ratio is used in the POV-Ray camera that is copied to the clipboard when
 		using the <a href="#PovCamera"><i>Show POV-Ray Camera Info</i></a>
@@ -991,25 +930,25 @@ where there is no visible menu.
 		<td colspan="3"><hr size="1" width="90%" noshade="noshade"/></td>
 	</tr>
 	<tr>
-		<td colspan="3"><font size="+1"><b><a name="HelpMenu">Help
-		Menu</a></b></font></td>
+		<td colspan="3"><span class="SubHeader2"><a name="HelpMenu">Help
+		Menu</a></span></td>
 	</tr>
 	<tr valign="top">
-		<td align="right">OpenGL Driver Info:</td>
+		<td class="MenuTitle">OpenGL Driver Info:</td>
 		<td colspan="2">This shows a dialog containing information about your
 		OpenGL driver.  I may request this information from you if you are
 		experiencing problems.  The text in the box can be selected, and then
 		copied to the clipboard by hitting Ctrl+C.</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">Contents:</td>
+		<td class="MenuTitle">Contents:</td>
 		<td colspan="2">Displays this file in your web browser.  (Only works in
 		Windowed mode; hitting F1 from Fullscreen mode will not have any
 		effect.)</td>
 	</tr>
 	<tr valign="top">
-		<td align="right">About LDView:</td>
-		<td colspan="2">Displays the About box, which contains version and
+		<td class="MenuTitle">About LDView:</td>
+		<td colspan="2">Shows the About box, which contains version and
 		copyright information about LDView.</td>
 	</tr>
 </table>
@@ -1017,15 +956,7 @@ where there is no visible menu.
 <br/>
 <a name="Toolbar"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Toolbar
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Toolbar</div>
 <p>
 The toolbar allows you to quickly access certain features and settings.  A
 number of the buttons on the toolbar are dual-purpose.  Clicking the button
@@ -1050,15 +981,7 @@ recommended that you customize the toolbar to suit your usage of LDView.
 <p>
 <a name="Fullscreen"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Fullscreen Mode
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Fullscreen Mode</div>
 <p>
 You can switch to fullscreen mode via the View menu.  To do so, select a color
 depth and resolution combination, and then select the <span class="NoWrap">View-&gt;Switch</span> to
@@ -1084,15 +1007,7 @@ someone else on your network is modifying, it's not likely to be very useful.
 <br/>
 <a name="SaveSnapshotOptions"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Save Snapshot Options
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Save Snapshot Options</div>
 <p>
 When you save a snapshot, the following LDView-specific options show up at the
 bottom of the standard save dialog box.
@@ -1169,7 +1084,7 @@ certain video drivers.  If your snapshots are corrupted, enable this.
 Otherwise, leave it disabled.
 </p>
 <p>
-<i><a name="TransBGCheck">Transparent Background</a></i> (Default: 
+<i><a name="TransBGCheck">Transparent Background</a></i> (Default:
 <i>Off</i>):<br/>
 Enabling this option causes the backround area of the snapshot to be
 transparent, instead of using whatever background color is selected in LDView.
@@ -1206,15 +1121,7 @@ scale is calculated by applying the zoom to fit operation to the last step.
 <p>
 <a name="Export"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Exporting
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Exporting</div>
 <p>
 The Export command allows you to export your LDraw model to various different
 3D file formats.  Currently, the following formats are supported:
@@ -1275,17 +1182,79 @@ ongoing work.
 <br/>
 </p>
 <p>
+<a name="CameraLocDialog"></a>
+</p>
+<div class="SectionHeader">Camera Location Dialog</div>
+<p>
+The Camera Location Dialog allows you to move the camera to any point in space.
+</p>
+<p>
+Enter the desired X, Y, and Z coordinates into the dialog, and then decide
+whether you want the camera to point to the center of the model, the origin
+(0, 0, 0) in the model's coordinate system, or continue pointing the same
+direction it is already pointing. When the dialog first shows, the X, Y, and Z
+fields are populated with the camera's current location (in the model's
+coordinate system).
+</p>
+<p>
+Check the <i>Look as Model Center</i> check box to have the camera point at the
+center of the model<a href="#ModelCenterFinePrint">*</a> from its new location.
+Check the <i>Look at Origin</i> check
+box to have the camera point at the model's origin. Uncheck both check boxes to
+have the camera continue to point in the same direction it is already pointing.
+If either check box is checked, the camera will be rotated in such a way that
+the top of the viewport points toward the top of the model (as if the <i>Right
+Side Up</i> menu item had been selected).
+</p>
+<p>
+<div class="Note">
+	<div><a name="ModelCenterFinePrint">*</a></div>
+	<div>It actually points at the rotation center. By default, this is the
+	center of the model, but it can be moved with the <a
+	href="RotationCenterDialog">Rotation Center Dialog</a>.</div>
+</div>
+</p>
+<p>
+<a name="RotationCenterDialog"></a>
+</p>
+<div class="SectionHeader">Rotation Center Dialog</div>
+<p>
+The Rotation Center Dialog allows you to set the center point around which the
+model rotates.
+</p>
+<p>
+Enter the desired X, Y, and Z coordinates into the dialog, and then hit
+<i>OK</i>. When the dialog first shows, the X, Y, and Z fields are populated
+with the currently set rotation center for this model. If the default one has
+not been overridden, that will be the center of the model's bounding box. If the
+default one has been overridden, it will be that value.
+</p>
+<p>
+LDView remembers the custom rotation center for every model based on its full
+path on the file system when it is loaded. If you set the rotation center for a
+model and later want to switch back to the default calculated center, hit the
+<i>Reset</i> button.
+</p>
+<p>
+Since the size of the model (and hence the default zoom level) is calculated
+based on how far all the geometry in the model is from its rotation center,
+changing the rotation center from the default value will cause the default zoom
+level to be zoomed out relative to the default center.
+</p>
+<p>
+<div class="Note">
+	<div>Note:</div>
+	<div>If you specify <i>ModelCenter</i> (either on the command line or via
+		the native preference storing system on your platform), that will
+		override this setting. In that case, the <i>ModelCenter</i> value will
+		always be used, and always show up as the default X, Y, and Z values in
+		the dialog. Entering new values in the dialog will have no effect.</div>
+</div>
+</p>
+<p>
 <a name="LatLonDialog"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Latitude/Longitude Dialog
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Latitude/Longitude Dialog</div>
 <p>
 The Latitude/Longitude dialog allows you to change the fiew to a specific
 latitude, longitude, and optionally distance.
@@ -1325,15 +1294,7 @@ that can be produced by this dialog.  However, if you switch to
 <br/>
 <a name="ErrorWindow"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Errors &amp; Warnings Window
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Errors &amp; Warnings Window</div>
 <p>
 The Errors &amp; Warnings window displays errors and warnings that were
 encountered while loading an LDraw model.
@@ -1483,15 +1444,7 @@ Errors &amp; Warnings window, the model only contains warnings, or the Errors
 <br/>
 <a name="PartsListDialog"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Parts List Dialog
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Parts List Dialog</div>
 <p>
 The Parts List Dialog is used to generate an HTML file containing a parts list
 for the currently loaded LDraw model.
@@ -1504,7 +1457,7 @@ columns you don't want to include, and use the <i>Up</i> and <i>Down</i> buttons
 to change the order of the columns.
 </p>
 <p>
-<font size="+2"><b>Settings</b></font><br/>
+<span class="SubHeader">Settings</span><br/>
 </p>
 <p>
 <i>Show model</i><br/>
@@ -1526,18 +1479,20 @@ of including the style information inside the generated HTML file.  LDView will
 then generate a file named LDViewPartsList.css and use that as the style sheet
 for the file.
 </p>
-<table>
-	<tr valign="top">
-		<td><i>Note:</i></td>
-		<td>If a file named LDViewPartsList.css exists in the directory where
+<p>
+<div class="Note">
+	<div>Note:</div>
+	<div>
+		If a file named LDViewPartsList.css exists in the directory where
 		the parts list HTML is written, LDView will examine its contents.  If
 		the contents match the default LDViewPartsList.css, then the file will
 		be used.  Otherwise, LDView will fall back to putting the style
 		information inside the HTML file.  <b>If you modify LDViewPartsList.css
 		and then generate a new parts list, the new parts list will not use
-		LDViewPartsList.css, no matter what this setting is set to.</b></td>
-	</tr>
-</table>
+		LDViewPartsList.css, no matter what this setting is set to.</b>
+	</div>
+</div>
+</p>
 <p>
 <i>Show part images</i><br/>
 Check this to include inline links to <a href="http://peeron.com">Peeron.com</a>
@@ -1550,7 +1505,7 @@ even when you don't have an active Internet connection; you only need the
 active connection in order to see the images when you view the page.
 </p>
 <p>
-<font size="+2"><b>Columns</b></font><br/>
+<span class="SubHeader">Columns</span><br/>
 </p>
 <p>
 <i>Part</i><br/>
@@ -1582,20 +1537,23 @@ part).  This is the only column that is disabled by default.
 <p>
 <a name="ModelTreeDialog"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Model Tree Dialog
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Model Tree Dialog</div>
 <p>
 The Model Tree Dialog shows a tree view of the contents of the loaded LDraw
 model.  The lines in the tree are color-coded based on the LDraw line type that
 they show.  It also lets you control which LDraw line types are shown.  By
 default, all line types except for empty and unknown ones are shown.
+</p>
+<p>
+Above the tree is a search field, along with previous and next buttons. You can
+use this to search for text in the model tree. Note that only enabled line types
+get searched. If you want to find a specific part in a model, it's probably best
+to disable the Comment line type before searching, and then searching for the
+part number, with the .dat extension (for example, "3001.dat"). When a match is
+found, the associated line in the tree is highlighted. If the tree view isn't
+the current keyboard focus, this can be tough to see. Hitting enter will focus
+the tree view in this case. The tree view is automatically focused when the
+previous and next buttons are used.
 </p>
 <p>
 Underneath the tree is a check box that, when checked, causes LDView to
@@ -1605,20 +1563,16 @@ select a part in a model, the whole part will be highlighted.  If you use it to
 select the geometry inside a part, only that geometry will be highlighted.  On
 the Mac, you can select multiple lines in the tree view; if you do so, all of
 the associated items will be highlighted in the 3D view.
+</p>
+<p>
+When you select a line in the tree, you can copy it using Ctrl+C in Windows and
+Cmd+C in macOS.
 <br/>
 </p>
 <p>
 <a name="MPDDialog"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			MPD Model Selection Dialog
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">MPD Model Selection Dialog</div>
 <p>
 The MPD Model Selection Dialog allows you to select the individual model files
 inside a Multi-Part Dat (MPD) file.  When you select a model, it is shown as if
@@ -1633,21 +1587,13 @@ dialog will go away, and LDView will revert back to showing the main model.
 <p>
 <a name="Prefs"></a>
 </p>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Preferences
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Preferences</div>
 <p>
 Here is a brief description of the items in the Preferences dialog (accessed
 through the Edit-&gt;Preferences menu item).
 </p>
 <p>
-<font size="+2"><b><a name="GeneralTab">General Tab</a></b></font><br/>
+<span class="SubHeader"><a name="GeneralTab">General Tab</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -1657,7 +1603,7 @@ into effect.
 </p>
 
 <p>
-<font size="+1"><b><a name="GeneralAABox">Antialiasing Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeneralAABox">Antialiasing Box</a></span><br/>
 <i><a name="FSAA">FSAA</a></i> (Default: <i>None</i>):<br/>
 This allows you to select what level of full-scene antialiasing to use.  Note
 that if your video card does not support full-scene antialiasing, then
@@ -1677,9 +1623,22 @@ option may not have an effect if <a href="#FSAA">Full-scene
 Antialiasing</a> is enabled.
 </p>
 
+<p>
+<span class="SubHeader2"><a name="GeneralCustomConfigBox">Custom Config Box</a></span><br/>
+<i><a name="CustomConfig">Text Field</a></i> (Default: <i>Blank</i>):<br/>
+This text field allows you to enter or paste the full path to an LDraw file that
+you want to use for custom config. It is expected that a custom config file
+would normally contain custom color definitions that get loaded after the
+standard ones in LDConfig.ldr (if that is enabled). It can thus override any
+colors that are defined in LDConfig.ldr, as well as define new colors.<br/>
+The file can contain any valid LDraw statements, including geometry, but any
+geometry specified by this file will be drawn in addition to any file that is
+loaded. The geometry will not be included in model size calculations, so it may
+be cropped.
+</p>
 
 <p>
-<font size="+1"><b><a name="GeneralColorsBox">Colors Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeneralColorsBox">Colors Box</a></span><br/>
 <i>Background</i> (Default: <i>Black</i>):<br/>
 This allows you to set the color used to draw the background behind the model.
 </p>
@@ -1697,9 +1656,9 @@ colors.  Resetting the General preferences also resets these colors.
 Enabling this option causes default-colored items to be transparent.
 </p>
 <p>
-<i><a name="ProcessLDConfig">Process ldconfig.ldr</a></i>
+<i><a name="ProcessLDConfig">Process LDConfig.ldr</a></i>
 (Default: <i>On</i>):<br/>
-This controls whether or not LDView processes the ldconfig.ldr file that is now
+This controls whether or not LDView processes the LDConfig.ldr file that is now
 distributed as part of the LDraw parts library.  This file contains settings
 that can effect how LDraw models are displayed.  Currently the only settings it
 contains are color definitions.  Enabling this option will use the LDraw.org
@@ -1715,7 +1674,7 @@ primitives inside a part to make it easier to see their shape.
 </p>
 
 <p>
-<font size="+1"><b><a name="GeneralMiscBox">Misc Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeneralMiscBox">Misc Box</a></span><br/>
 <i>Show frame rate</i> (Default: <i>Off</i>):<br/>
 Enabling this option causes the frame rate to show up in the lower left-hand
 corner of the window.  A number is only displayed while the model is in
@@ -1777,7 +1736,7 @@ actually result in faster performance.
 </p>
 
 <p/>
-<font size="+1"><b>Default Save Directories Box</b></font><br/>
+<span class="SubHeader2">Default Save Directories Box</span><br/>
 The default save directories box allows you to decide what directory to use by
 default when saving files.  Each save operation has three possible options:
 <table class="SettingsList">
@@ -1801,7 +1760,7 @@ or enter it in the field directly.</td>
 </table>
 
 <p>
-<font size="+2"><b><a name="LDrawTab">LDraw Tab (Mac Only)</a></b></font><br/>
+<span class="SubHeader"><a name="LDrawTab">LDraw Tab (Mac Only)</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -1832,7 +1791,7 @@ extension originally used by LDraw, and still used for LDraw part files).
 </p>
 
 <p>
-<font size="+2"><b><a name="GeometryTab">Geometry Tab</a></b></font><br/>
+<span class="SubHeader"><a name="GeometryTab">Geometry Tab</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -1842,7 +1801,7 @@ into effect.
 </p>
 
 <p>
-<font size="+1"><b><a name="GeometryModelBox">Model Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeometryModelBox">Model Box</a></span><br/>
 <a name="SeamWidth"><i>Seam width</i></a> (Default: <i>On/0.50</i>):<br/>
 Enabling this option allows you to set the width of the seams between pieces
 using the up and down arrows to the right.  This setting produces the same effect
@@ -1861,7 +1820,7 @@ part is drawn normally.
 </p>
 
 <p>
-<font size="+1"><b><a name="GeometryWireframeBox">Wireframe Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeometryWireframeBox">Wireframe Box</a></span><br/>
 <i>Wireframe</i> (Default: <i>Off</i>):<br/>
 Enabling this option causes the model to be drawn in wireframe.  Note that with
 many 3D accelerators, this actually runs slower than when drawing as a solid.
@@ -1885,7 +1844,7 @@ thickness of the lines used to draw the model in wireframe mode.
 </p>
 
 <p>
-<font size="+1"><b><a name="GeometryBFCBox">BFC Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeometryBFCBox">BFC Box</a></span><br/>
 <i>BFC</i> (Default: <i>On</i>):<br/>
 Enabling this option turns on back-face culling (BFC).  BFC is a technique that
 can improve rendering performance by not drawing the back faces of polygons.
@@ -1920,7 +1879,7 @@ face in order to BFC certify their part files.<br/>
 <i>Note:</i> enabling this option disables transparency.
 </p>
 <p>
-<font size="+1"><b><a name="GeometryEdgeLinesBox">Edge Lines Box</a></b></font><br/>
+<span class="SubHeader2"><a name="GeometryEdgeLinesBox">Edge Lines Box</a></span><br/>
 <a name="DrawEdges"><i>Edge Lines</i></a> (Default: <i>Off</i>):<br/>
 Enabling this option causes the edge lines that outline all the pieces to be
 drawn.
@@ -1941,39 +1900,23 @@ at the edge of the surface from the current viewing angle.
 </p>
 <p>
 </p>
-<table cellspacing="0" CELLPADDING="0">
-<tr>
-<td nowrap="nowrap">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</td>
-<td><i>Show all</i> (Default: <i>Off</i>):</td>
-</tr>
-<tr>
-<td></td>
-<td>
+<div class="Indent">
+<p>
+<i>Show all</i> (Default: <i>Off</i>):<br/>
 This option is only available if edge lines and conditional lines are enabled.
 Enabling it causes all conditional edge lines to be drawn, whether or not they
 are on a silhouette.  This option is primarily designed for part authors, since
 it is often difficult to notice missing conditional lines.
-</td>
-</tr>
-<tr>
-<td>&#160;</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td><i>Show control pts</i> (Default: <i>Off</i>):</td>
-</tr>
-<tr>
-<td></td>
-<td>
+</p>
+<p>
+<i>Show control pts</i> (Default: <i>Off</i>):<br/>
 This option is only available if edge lines and conditional lines are enabled.
 Enabling it causes lines to be drawn from the first point of each conditional
 line to each of its two control points.  This option is primarily designed for
 part authors, so they can verify that the control points are in the correct
 location.
-</td>
-</tr>
-</table>
+</p>
+</div>
 <p>
 <i>High quality</i> (Default: <i>On</i>):<br/>
 This option is only available if edge lines are enabled.  Enabling it causes
@@ -1987,8 +1930,8 @@ all edge lines to be drawn in black or dark gray.  This can be particularly
 useful to part authors, as it causes the edge lines for the default color (light
 gray) to be much more visible.  Dark gray edges are used on dark colors, and
 black edges are used on all other colors.<br/>
-If <a href="#ProcessLDConfig"><i>Process ldconfig.ldr</i></a> is checked in the
-General Preferences, LDView will look for a entries in ldconfig.ldr with color
+If <a href="#ProcessLDConfig"><i>Process LDConfig.ldr</i></a> is checked in the
+General Preferences, LDView will look for a entries in LDConfig.ldr with color
 names of Black_Edge and Dark_Gray_Edge.  If it finds either entry, it will use
 that color instead of black or dark gray.
 </p>
@@ -1999,7 +1942,7 @@ thickness of the lines used to draw the edges around the pieces.
 </p>
 
 <p>
-<font size="+2"><b><a name="EffectsTab">Effects Tab</a></b></font><br/>
+<span class="SubHeader"><a name="EffectsTab">Effects Tab</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -2009,7 +1952,7 @@ into effect.
 </p>
 
 <p>
-<font size="+1"><b><a name="EffectsLightingBox">Lighting Box</a></b></font><br/>
+<span class="SubHeader2"><a name="EffectsLightingBox">Lighting Box</a></span><br/>
 <i>Lighting</i> (Default: <i>On</i>):<br/>
 Enabling this option enables lighting.  If you disable lighting, it is strongly
 recommended that you enable <a href="#DrawEdges">edge lines</a>, unless you are
@@ -2099,7 +2042,7 @@ LDView to put point light sources in the scene in the locations where LIGHT.DAT
 is used as a part.  LDView uses the color assigned to the light part as the
 color for the light source.  Note that at most 8 lights will be shown by LDView
 (the first 8 in the file), and if the video card doesn't support 8, then less
-will be shown. 
+will be shown.
 </p>
 <p>
 <i>Replace standard light</i>(Default: <i>On</i>):<br/>
@@ -2109,7 +2052,7 @@ time a model is loaded that contains one or more LIGHT.DAT parts.  Models that
 don't contain any LIGHT.DAT parts will still be illuminated using LDView's
 standard light source.  Note that using both LIGHT.DAT lights and the standard
 light source will often result in too much light, leading to a kind of
-overexposure effect. 
+overexposure effect.
 </p>
 <p>
 <i>Hide LIGHT.DAT geometry</i>(Default: <i>Off</i>):<br/>
@@ -2119,7 +2062,7 @@ see it.
 </p>
 
 <p>
-<font size="+1"><b><a name="EffectsStereoBox">Stereo Box</a></b></font><br/>
+<span class="SubHeader2"><a name="EffectsStereoBox">Stereo Box</a></span><br/>
 <i>Stereo</i> (Default: <i>Off</i>):<br/>
 Enabling this option turns on stereo mode.  Stereo mode draws two images: a
 slightly different one for each eye.
@@ -2155,8 +2098,8 @@ object from a very short distance.
 </p>
 
 <p>
-<font size="+1"><b><a name="EffectsCutawayBox">Wireframe Cutaway
-Box</a></b></font><br/>
+<span class="SubHeader2"><a name="EffectsCutawayBox">Wireframe Cutaway
+Box</a></span><br/>
 <a name="WireframeCutaway"><i>Wireframe cutaway</i></a> (Default:
 <i>Off</i>):<br/>
 Enabling this option causes the cutaway portion of the model to be drawn in
@@ -2191,8 +2134,8 @@ controls the thickness of the lines in the wireframe cutaway.
 </p>
 
 <p>
-<font size="+1"><b><a name="EffectsTransparencyBox">Transparency
-Box</a></b></font><br/>
+<span class="SubHeader2"><a name="EffectsTransparencyBox">Transparency
+Box</a></span><br/>
 <i>Sort transparent polygons</i> (Default: <i>On</i>):<br/>
 Enabling this option causes transparent shapes to be drawn in back-to-front
 order in order to produce a correct result.  If they aren't sorted, distant
@@ -2212,7 +2155,7 @@ transparent polygons option.
 </p>
 
 <p>
-<font size="+1"><b><a name="EffectsMiscBox">Misc Box</a></b></font><br/>
+<span class="SubHeader2"><a name="EffectsMiscBox">Misc Box</a></span><br/>
 <i>Flat shading</i> (Default: <i>Off</i>):<br/>
 Enabling this option causes flat shading to be used.  Note that while flat
 shading is less complicated to draw, with a modern 3D accelerator this will not
@@ -2232,7 +2175,7 @@ option.
 </p>
 
 <p>
-<font size="+2"><b><a name="PrimitivesTab">Primitives Tab</a></b></font><br/>
+<span class="SubHeader"><a name="PrimitivesTab">Primitives Tab</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -2242,8 +2185,8 @@ into effect.
 </p>
 
 <p>
-<font size="+1"><b><a name="PrimitivesSubstitutionBox">Primitive Substitution
-Box</a></b></font><br/>
+<span class="SubHeader2"><a name="PrimitivesSubstitutionBox">Primitive Substitution
+Box</a></span><br/>
 <a name="PrimitiveSubstitution"><i>Primitive substitution</i></a> (Default:
 <i>On</i>):<br/>
 Enabling this option causes LDView to use its own optimized version of many of
@@ -2310,15 +2253,17 @@ in the model between the substitute primitives and other geometry.  Be very
 careful with this setting.  Setting it too high can lead to huge slow-downs.
 The default setting of 2 is fine for most models.
 </p>
-<table>
-	<tr valign="top">
-		<td><i>Note:</i></td>
-		<td>Setting this to the minimum value will result in incorrect
-		rendering of n-16 primitives.</td>
-	</tr>
-</table>
 <p>
-<font size="+1"><b><a name="PrimitivesMiscBox">Misc Box</a></b></font><br/>
+<div class="Note">
+	<div>Note:</div>
+	<div>
+		Setting this to the minimum value will result in incorrect
+		rendering of n-16 primitives.
+	</div>
+</div>
+</p>
+<p>
+<span class="SubHeader2"><a name="PrimitivesMiscBox">Misc Box</a></span><br/>
 <i>Low quality studs (faster)</i> (Default: <i>On</i>):<br/>
 Enabling this option switches to using the low-resolution stud files instead of
 the normal-resolution stud files.  This can produce significantly faster
@@ -2335,7 +2280,7 @@ the hi-res ones.
 </p>
 
 <p>
-<font size="+2"><b><a name="UpdatesTab">Updates Tab</a></b></font><br/>
+<span class="SubHeader"><a name="UpdatesTab">Updates Tab</a></span><br/>
 </p>
 <p>
 <i>Reset</i>:<br/>
@@ -2345,8 +2290,8 @@ into effect.
 </p>
 
 <p>
-<font size="+1"><b><a name="InternetProxyBox">Internet Proxy
-Box</a></b></font><br/>
+<span class="SubHeader2"><a name="InternetProxyBox">Internet Proxy
+Box</a></span><br/>
 <i>Direct connection to the Internet</i> (Default?: <i>Yes</i>):<br/>
 Select this if you have a direct connection to the Internet and don't want to
 use a proxy server.</p>
@@ -2380,23 +2325,24 @@ Manual proxy configuration is selected above.
 </p>
 
 <p>
-<font size="+1"><b><a name="MissingPartsBox">Missing Parts
-Box</a></b></font><br/>
+<span class="SubHeader2"><a name="MissingPartsBox">Missing Parts
+Box</a></span><br/>
 <i>Automatically check LDraw.org for missing parts</i> (Default: <i>On</i>):<br/>
 Enabling this causes LDView to automatically check the LDraw.org Parts Tracker
 when it can't find a file.  If the part exists on the Parts Tracker, it will
 automatically be downloaded and used.
 </p>
-<p/>
-<table>
-	<tr valign="top">
-		<td><i>Note:</i></td>
-		<td>If LDView fails to connect to the LDraw.org server while checking
+<p>
+<div class="Note">
+	<div>Note:</div>
+	<div>
+		If LDView fails to connect to the LDraw.org server while checking
 		for an unofficial part, it will automatically disable this setting.  You
 		have to manually re-enable it once you have a working Internet
-		connection again.</td>
-	</tr>
-</table>
+		connection again.
+	</div>
+</div>
+</p>
 <p>
 <i>Days between missing part checks</i> (Default: <i>7</i>):<br/>
 Set this to the number of days you want LDView to wait between checks to the
@@ -2414,8 +2360,8 @@ encounters unofficial parts in a model.  This number must be greater than zero.
 </p>
 
 <p>
-<font size="+2"><b><a name="PreferenceSetsTab">Preference Sets
-Tab</a></b></font><br/>
+<span class="SubHeader"><a name="PreferenceSetsTab">Preference Sets
+Tab</a></span><br/>
 </p>
 <p>
 <i>Use the following preference set</i>:<br/>
@@ -2443,7 +2389,7 @@ This creates a new preference set that will initially contain all the current
 settings.
 </p>
 <p>
-<font size="+1"><b>OK/Apply</b></font><br/>
+<span class="SubHeader2">OK/Apply</span><br/>
 Changing certain of the options above will require the model to either be
 reprocessed, or reloaded entirely.  If you change any of these options, there
 will be a pause after you hit OK or Apply while it either reprocesses or
@@ -2452,7 +2398,7 @@ the status bar is not set to be visible, it will be made visible temporarily.
 </p>
 
 <p>
-<font size="+2"><b><a name="ScreenSaverTab">Screen Saver Tab</a></b></font><br/>
+<span class="SubHeader"><a name="ScreenSaverTab">Screen Saver Tab</a></span><br/>
 </p>
 <p>
 <b>Note:</b> This tab is only available when configuring the
@@ -2520,15 +2466,7 @@ go into effect.
 <p>
 </p>
 <a name="CommandLine"></a>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Command Line
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Command Line</div>
 LDView allows you to do a few things from the command line.  LDView must either
 be in your path, in the current directory, or have its complete path specified
 on the command line in order to run (just like any other program run from the
@@ -2539,8 +2477,8 @@ a normal Windows program, and not a console program, the command prompt may
 behave as though LDView has exited immediately after it launches.  It won't
 necessarily wait for LDView to exit before giving you another prompt.
 <p>
-<font size="+2"><b><a name="CommandLineFilename">Specifying a
-Filename</a></b></font><br/>
+<span class="SubHeader"><a name="CommandLineFilename">Specifying a
+Filename</a></span><br/>
 </p>
 <p>
 You can specify a filename on the command line, and LDView will open that file
@@ -2567,8 +2505,8 @@ Note that the above format for the filename can also be used when creating
 snapshots or performing exports from the command line.
 </p>
 <p>
-<font size="+2"><b><a name="SnapshotFilename">Specifying a Snapshot
-Filename</a></b></font><br/>
+<span class="SubHeader"><a name="SnapshotFilename">Specifying a Snapshot
+Filename</a></span><br/>
 </p>
 <p>
 You can use the -SaveSnapshot command line option to have LDView take a
@@ -2590,8 +2528,8 @@ video card allows this to run without displaying a window, you won't have a
 good way of knowing when LDView has finished executing.
 </p>
 <p>
-<font size="+2"><b><a name="SaveSnapshots">Requesting One or More
-Snapshots</a></b></font><br/>
+<span class="SubHeader"><a name="SaveSnapshots">Requesting One or More
+Snapshots</a></span><br/>
 </p>
 <p>
 You can use the -SaveSnapshots=1 command line option to have LDView take
@@ -2621,7 +2559,7 @@ using -SaveSnapshots=1. You do not have to specify -SaveSnapshots=1 if you
 specify a value for -SaveSnapshotsList.
 </p>
 <p>
-<font size="+2"><b><a name="ZMap">Requesting a Z Map File</a></b></font><br/>
+<span class="SubHeader"><a name="ZMap">Requesting a Z Map File</a></span><br/>
 </p>
 <p>
 LDView has the ability to create a Z Map file alongside each snapshot it
@@ -2711,8 +2649,8 @@ the following format:
 </table>
 </p>
 <p>
-<font size="+2"><b><a name="ExportFilename">Specifying an Export
-Filename</a></b></font><br/>
+<span class="SubHeader"><a name="ExportFilename">Specifying an Export
+Filename</a></span><br/>
 </p>
 <p>
 You can use the -ExportFile command line option to have LDView export
@@ -2734,8 +2672,8 @@ video card allows this to run without displaying a window, you won't have a
 good way of knowing when LDView has finished executing.
 </p>
 <p>
-<font size="+2"><b><a name="ExportFiles">Requesting One or More
-Exports</a></b></font><br/>
+<span class="SubHeader"><a name="ExportFiles">Requesting One or More
+Exports</a></span><br/>
 </p>
 <p>
 You can use the -Exportfiles=1 command line option to have LDView export
@@ -2765,7 +2703,7 @@ using -ExportFiles=1. You do not have to specify -ExportFiles=1 if you specify
 a value for -ExportFilesList.
 </p>
 <p>
-<font size="+2"><b><a name="Verbose">Verbose Output</a></b></font><br/>
+<span class="SubHeader"><a name="Verbose">Verbose Output</a></span><br/>
 </p>
 <p>
 LDView is capable of printing out errors and warnings when snapshots or exports
@@ -2780,7 +2718,7 @@ of LDView.exe or LDView64.exe). If you just use "LDView", LDView.com will be run
 automatically.
 </p>
 <p>
-<font size="+2"><b><a name="IniFile">Specifying an INI file</a></b></font><br/>
+<span class="SubHeader"><a name="IniFile">Specifying an INI file</a></span><br/>
 </p>
 <p>
 You can use -IniFile=&lt;path&gt; to have LDView use the specified INI file for
@@ -2805,8 +2743,8 @@ equals sign if you want to use a ~ path. For example:
 	LDView -IniFile= ~/SpecialSettings.ini
 </PRE>
 <p>
-<font size="+2"><b><a name="LDConfig">Specifying an Alternate to
-LDConfig.ldr</a></b></font><br/>
+<span class="SubHeader"><a name="LDConfig">Specifying an Alternate to
+LDConfig.ldr</a></span><br/>
 </p>
 <p>
 You can use -LDConfig=&lt;file&gt; to have LDView load an alternate file to
@@ -2823,11 +2761,19 @@ does not find the file, the default LDConfig.ldr will be used instead.
 Example:
 </p>
 <PRE>
-	LDView -LDConfig=LDConfig_TLG.ldr
+	LDView -LDConfig=LDCfgalt.ldr
 </PRE>
 <p>
-<font size="+2"><b><a name="L3PCompatibility">L3P-compatible
-Options</a></b></font><br/>
+<div class="Note">
+	<div>Note:</div>
+	<div>If you just want to override a few colors from the standard
+	LDConfig.ldr, you can do that by setting a
+	<a href="#GeneralCustomConfigBox">Custom Config</a>.</div>
+</div>
+</p>
+<p>
+<span class="SubHeader"><a name="L3PCompatibility">L3P-compatible
+Options</a></span><br/>
 </p>
 <p>
 To make things easier for L3P users, LDView supports the -cg and -ca options
@@ -2868,8 +2814,8 @@ Example:
 	LDView -cg30,45,50000 -ca0.1
 </PRE>
 <p>
-<font size="+2"><b><a name="CommandLinePrefs">Specifying
-Preferences</a></b></font><br/>
+<span class="SubHeader"><a name="CommandLinePrefs">Specifying
+Preferences</a></span><br/>
 </p>
 <p>
 All of the options available in the Preferences dialog can be set from the
@@ -2958,16 +2904,16 @@ In general, settings that show up in the Preferences dialog are preference
 set-specific, while others aren't.
 </p>
 <p>
-<font size="+2"><b><a name="PrefList">List of All Preferences</a></b></font><br/>
+<span class="SubHeader"><a name="PrefList">List of All Preferences</a></span><br/>
 </p>
 <p>
 </p>
 <table bgcolor="#FFFFDD" CELLPADDING="5" cellspacing="0" class="SettingsList">
 	<tr>
-		<th bgcolor="#0080D0"><font color="#FFFFFF">Setting</font></th>
-		<th bgcolor="#0080D0"><font color="#FFFFFF">Type</font></th>
-		<th bgcolor="#0080D0"><font color="#FFFFFF">Global?</font></th>
-		<th bgcolor="#0080D0"><font color="#FFFFFF">Description</font></th>
+		<th>Setting</th>
+		<th>Type</th>
+		<th>Global?</th>
+		<th>Description</th>
 	</tr>
 	<tr>
 		<td valign="top">
@@ -3255,6 +3201,22 @@ set-specific, while others aren't.
 		<td valign="top">
 			Controls the colors that show up in the <i>Custom colors</i> boxes
 			on the Color dialog box.
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			CustomConfigPath
+		</td>
+		<td valign="top">
+			String
+		</td>
+		<td valign="top">
+			NO
+		</td>
+		<td valign="top">
+			Equivalent to the value in the text field in the
+			<a href="#GeneralCustomConfigBox"><i>General-&gt;Custom
+			config</i></a> box.
 		</td>
 	</tr>
 	<tr>
@@ -3737,6 +3699,24 @@ set-specific, while others aren't.
 		<td valign="top">
 			Equivalent to the <i>Use hi-res primitives when available</i> check
 			box in the <i>Primitives-&gt;Misc</i> box.
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
+			HighlightModelEdgesNoDepth
+		</td>
+		<td valign="top">
+			Boolean
+		</td>
+		<td valign="top">
+			NO
+		</td>
+		<td valign="top">
+			Causes LDView to ignore the other geometry while drawing the edge
+			lines of the Model Tree highlight. This has the effect of making the
+			edge lines for the highlight show through other solid geometry. This
+			is enabled by default. There is currently no way to change this
+			setting using the LDView user interface.
 		</td>
 	</tr>
 	<tr>
@@ -4438,7 +4418,7 @@ set-specific, while others aren't.
 			NO
 		</td>
 		<td valign="top">
-			Equivalent to the <i>Process ldconfig.ldr</i> check box in the
+			Equivalent to the <i>Process LDConfig.ldr</i> check box in the
 			<i>General-&gt;Misc</i> box.
 		</td>
 	</tr>
@@ -5232,6 +5212,22 @@ set-specific, while others aren't.
 	</tr>
 	<tr>
 		<td valign="top">
+			ShowErrorsMessageBox
+		</td>
+		<td valign="top">
+			Boolean
+		</td>
+		<td valign="top">
+			YES
+		</td>
+		<td valign="top">
+			If generating a snapshot or an export on the command line in Windows without
+			using LDView.com, setting this to 1 will cause errors to be shown in a
+			message box after the run has completed.
+		</td>
+	</tr>
+	<tr>
+		<td valign="top">
 			ShowFPS
 		</td>
 		<td valign="top">
@@ -5873,15 +5869,7 @@ set-specific, while others aren't.
 <p>
 </p>
 <a name="MetaCommands"></a>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			LDView-specific LDraw Meta Commands
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">LDView-specific LDraw Meta Commands</div>
 <p>
 All LDView-specific LDraw Meta Commands start with <tt>0 !LDVIEW</tt>, and are
 then followed by a command name and optional parameters.  Example:
@@ -5923,15 +5911,7 @@ only has one entry).
 <p>
 </p>
 <a name="Notes"></a>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Notes
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Notes</div>
 <table>
 <tr>
 <td align="right" valign="top">1.</td>
@@ -6127,15 +6107,7 @@ scale factor will be 2.5.
 <p>
 </p>
 <a name="ScreenSaver"></a>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Using LDView as a Screen Saver
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Using LDView as a Screen Saver</div>
 When you use the Windows Installer to install LDView, you are presented with an
 option near the end to install it as a screen saver.  If you select this option,
 you can use LDView as a screen saver.  Simply select it from the list of
@@ -6161,15 +6133,7 @@ any problems, so you don't have to uninstall first.
 <p>
 </p>
 <a name="Website"></a>
-<table bgcolor="#0080D0" width="100%" class="SectionHeader">
-	<tr>
-		<th align="left">
-			<font size="+2" color="#FFFFFF">
-			Website
-			</font>
-		</th>
-	</tr>
-</table>
+<div class="SectionHeader">Website</div>
 You can download an up-to-date copy of LDView at the LDView website at
 <a href="https://tcobbs.github.io/ldview/">https://tcobbs.github.io/ldview/</a>.
 <br/>
@@ -6181,12 +6145,10 @@ If you have any comments, questions, or suggestions, please e-mail me at
 <p>
 LDView is Copyright &#169; 2009 Travis Cobbs and Peter Bartfai.
 </p>
-<p>
-<font size="-1">
+<p class="FinePrint">
 LEGO&#174; and the LEGO logo are registered trademarks of the LEGO Group, which
 does not sponser, endorse, or authorize this program.  You can find the official
 Lego website at <a href="http://www.lego.com/">http://www.lego.com</a>.
-</font>
 </p>
 </body>
 </html>

@@ -1,4 +1,111 @@
-LPub3D 2.4.1.1.2389 (15 03 2021 00:03:46)
+LPub3D 2.4.4.0.2671 (31 05 2022 02:21:29)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Change - No Prompt Using the Command Line Option #554
+- Fix - Command Line Option Cannot Change Export Directory when Exporting PNG Files #555
+- Fix - Treat single step NOSTEP page displayed #535
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.3.0.2557 (14 05 2021 03:28:31)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Add archive parts on demand action #521
+- Enhancement - Add part list to reset page image cache #522
+- Enhancement - Add zoom extents flag to 3DViewer preference dialogue #524
+- Enhancement - Auto update Open With Programs #420
+- Enhancement - Download and install 3rd party renderers on demand #541
+- Enhancement - Menu option to cycle each page when navigating by multiple pages or reloading #545
+- Enhancement - Open LDraw search directories dialogue from tools menu enhancement #523
+- Enhancement - Parametric and manually resizeable pointer tip #528
+- Enhancement - Parse single step NOSTEP command #535
+- Change - Enable instance count on manual override #298
+- Change - Reset fade /highlight step and preferred renderer on file close #505
+- Change - Rotate icon display pointer tip default restored to enabled #528
+- Change - Using the redraw button iterates through every page #546
+- Change - Viewport divider reset on page load #534
+- Change - Visual editor not loading multi-step page last step or callout CSI #536
+- How To - How to create a text URL with html using rich text edit and export to PDF #539
+- Fix - 3D preview - submodel preview loading placholder part #411
+- Fix - Abnormal end when deleting lines in the LDraw Editor #530
+- Fix - Build Modification - increment page display on forward jump and redraw #520
+- Fix - Build modification - insert build mod at countPage if not exist #520
+- Fix - Build Modification - line number when step bottom is new submodel #520
+- Fix - Build Modification - multi-step page with submodel invalid assembly #520
+- Fix - Build Modification - page count for multi-step page with submodel #520
+- Fix - Build modification - parse build mods from countPage call #520
+- Fix - Build modification - recursively get submodel indexes #520
+- Fix - Build modification - remove forward build mods after jump ahead #520
+- Fix - Build Modification - submodel preview display at first step-group step #520
+- Fix - Click and drag MULTI_STEP doesn't persist #544
+- Fix - Crash on add search directory #540
+- Fix - Crash on fade previous steps or highlight step preference accept #551
+- Fix - Crash when adding pointers to callouts #550
+- Fix - Disable automatic insertion of page/model #517
+- Fix - Do not add PARSE_NOSTEP parts to PLI #535
+- Fix - Edge case with PARSE_NOSTEP GLOBAL TRUE #548
+- Fix - Erroneous fade/highlight step meta command ignored message #505
+- Fix - Global callout pointer tip size settings don't have an effect #543
+- Fix - Global setting for callout pointer generating line instead of border meta #510
+- Fix - Image not updated on setting Stud Style from Global Setup #497
+- Fix - Match XYZ axis, move and rotate overlay pointer colours #519
+- Fix - Parsing instance count lines with meta pointer changes meta values #547
+- Fix - POV-Ray render issue when directory name contains a space #525
+- Fix - Rewrite submodel preview update for build modifications #512
+- Fix - Selecting substitute part in PLI for a custom part causes LPub3D to crash #538
+- Fix - Treat (partially) selection error when marking a line in the command editor #515
+- Fix - Unable to generate ldraw color parts file #527
+- Fix - Updating rotate icon in a callout adds the command to the parent #532
+- Fix - Using 'Remove LPub formatting' causes a crash #526
+- Fix - Wrong instance count in sub submodels #537
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.2.1.2432 (30 03 2021 21:58:03)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Enhancement - Global setting for callout pointer (and page pointer) border #510
+- Fix - Submodel image does not show at first step of Step Group #512
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.0.1.2220 (03 10 2020 22:44:10)
 
 Features, enhancements, fixes and changes
 ------------
@@ -299,7 +406,7 @@ Windows portable (.zip) distributions of LPub3D are now fully autonomous and por
 
 Change: Improve performance of Software Updater. Upgrade and refactor QSimpleUpater library.
 
-Fix: Fade steps final model inserts multiple occurrences of the 0 !LPUB INSERT MODEL and 0 !LPUB INSERT PAGE when the model file contains a trailing 0 !STEP or BOM page at the end of the model file. #44
+Fix: Fade steps final model inserts multiple occurrences of the 0 LPUB INSERT PAGE when the model file contains a trailing 0 STEP or BOM page at the end of the model file. #44
 
 Fix: Remove file watcher on file close. This fix corrects the behaviour where when you edit a file that was recently closed in LPub3D, the message '...contents were changed by an external source' is displayed. The expected behaviour is to not receive such message.
 
@@ -349,7 +456,7 @@ Enhancement: Upgrade LDView renderer to commit e56a9b8bc25a001aaa8042ddab8ffc9cd
 
 Fix: Newer CSI images not saved when using LDView (Single Call) render. When using the LDView Single-call option, generated images were not updated when a newer instance of the model file was opened in LPub3D - for example if an update was saved to the model file. This behaviour resulted in the image files being generated every time the model file was opened or on loading a new step because the conditional check if the model file was newer that the image file would always be true. If the image file exist, the newly generated image file would not be saved. This correction deletes the old image file is a new instance is generated allowing the new instance to be saved. #36
 
-Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 !LPUB INSERT BOM), the added page meta 0 !LPUB INSERT PAGE is not preceded by a step meta 0 !LPUB STEP and, consequently, is not displayed.
+Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 LPUB INSERT PAGE is not preceded by a step meta 0 LPUB STEP and, consequently, is not displayed.
 If the appended page meta is added where the last step contains parts (STEP or ROTSTEP) or is a callout step, the behaviour is as expected.
 
 Enhancement: Enable 3DViewer to use alternate LDConfig.ldr color file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique color submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
@@ -360,20 +467,20 @@ Enhancement: Upgrade 3DViewer to LeoCAD 18.2 GitSha d4687e0. Includes new shader
 
 Enhancement: Update about-dialogue support links. Add GitHub issues URL. #31
 
-Enhancement: Add/override renderer flags from within model file. For example the line 0 !LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
+Enhancement: Add/override renderer flags from within model file. For example the line 0 LPUB ASSEM LDGLITE_PARMS "-J -fh" within a step will enable perspective projection and shading mode for that step's Assembly (CSI) image.
 If defining more than one meta flag, you must use a single space delimiter between flags and the list of flags must be quoted as shown in the examples. Flag values that contain spaces are not supported which is to say that mapping ini files and such, where values may contain spaces, should be performed in the respective renderer's ini configuration file and should not be added as a meta command. Render ini files can be accessed and updated from the User Interface - see v2.1.0 Features and enhancements for details. Note that manipulating render flags require fairly advanced knowledge of the renderer's capabilities and command line flags. If you are unsure about this, please consult the render documentation before attempting to change the default settings. Setting incorrect flags or combinations of flags can adversely affect the quality of your output. Issue #30
 
     This change also implements a few more capabilities:
 
     1. Individual renderer flags can now be defined for Assembly (CSI), Part, and Bill of Material lists as follows:
-        0 !LPUB ASSEM LDGLITE_PARMS "-J -fh"
-        0 !LPUB PLI LDGLITE_PARMS "-J -fh"
-        0 !LPUB BOM LDGLITE_PARMS "-J -fh"
+        0 LPUB ASSEM LDGLITE_PARMS "-J -fh"
+        0 LPUB PLI LDGLITE_PARMS "-J -fh"
+        0 LPUB BOM LDGLITE_PARMS "-J -fh"
 
     1. Renderer flags can now be defined for all supported renderers, LDGLite, LDView, LPub3D-Trace (POV-Ray) as follows:
-        0 !LPUB ASSEM LDGLITE_PARMS "-2g,2x"
-        0 !LPUB PLI LDVIEW_PARMS "TextureOffsetFactor=6"
-        0 !LPUB BOM POVRAY_PARMS "-A +UA"
+        0 LPUB ASSEM LDGLITE_PARMS "-2g,2x"
+        0 LPUB PLI LDVIEW_PARMS "TextureOffsetFactor=6"
+        0 LPUB BOM POVRAY_PARMS "-A +UA"
 
     3. Add an LDGLite configuration (ini) file. LDGLite.ini is now accessible and configurable from the LPub3D user interface.
        ldglite.ini: Image generation settings [Default locations]:
@@ -395,8 +502,8 @@ Fix: Mismatched preference loading sequence during application startup. LDraw fo
 
 Fix: Final model image page out of place. When opening a model file in LPub3D with "Fade Step" option enabled , the appending of the final model image page is misplaced if the last step before in the model file is a ROTSTEP. In addition "Empty" ROTSTEP steps are ignored. This behaviour has been updated to place the final model file and inserted page after the last native STEP or ROTSTEP Here is an example LPub3D model file update with "Fade Step" and "Generate Cover Pages" options on:
     0 Author: Foo
-    0 !LICENSE Not redistributable : see NonCAreadme.txt
-    0 !LPUB INSERT COVER_PAGE FRONT
+    0  see NonCAreadme.txt
+    0 LPUB INSERT COVER_PAGE FRONT
     0 STEP
     1 15 71 0 70 1 0 0 0 1 0 0 0 1 95658.dat
     0 STEP
@@ -404,13 +511,13 @@ Fix: Final model image page out of place. When opening a model file in LPub3D wi
     0 ROTSTEP 0 0 0 ABS
     0 //Step 3--don't rotate last step
     0 STEP
-    0 !LPUB INSERT MODEL
-    0 !LPUB INSERT PAGE
+    0 LPUB INSERT MODEL
+    0 LPUB INSERT PAGE
     0 STEP
-    0 !LPUB INSERT COVER_PAGE BACK
+    0 LPUB INSERT COVER_PAGE BACK
 Issue #26
 
-Fix: Only first occurrence of callout alloc modified. When using the context menu to "Display Callout as Columns", the meta - command 0 !LPUB CALLOUT ALLOC HORIZONTAL is only added (or modified if already existing) to the first occurrence of CALLOUT when multiple Callouts are present in the page/model. The same behaviour applies to "Display Callout as Rows".
+Fix: Only first occurrence of callout alloc modified. When using the context menu to "Display Callout as Columns", the meta - command 0 LPUB CALLOUT ALLOC HORIZONTAL is only added (or modified if already existing) to the first occurrence of CALLOUT when multiple Callouts are present in the page/model. The same behaviour applies to "Display Callout as Rows".
 This behaviour has is now corrected. Note that the last Callout display allocation affects all subsequent Callouts in the model file. If you wish to change the display allocation, you must add a meta command (using the context menu or manually) to enable the new display. Issue #25
 
 Fix: Dragging a single-step page's assembly. When dragging a single-step page's CSI [Assembly], the image does not remain where positioned when the mouse is released, instead it is adjusted further by the application. This is an old behaviour from LPUB 4.

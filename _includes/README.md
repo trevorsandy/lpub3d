@@ -58,12 +58,24 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
 ### Distributions
 
-[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]            |[![Centos-Icon][centos-icon]][centos-url]         |[![Debian-Icon][debian-icon]][debian-url]   |[![Fedora-Icon][fedora-icon]][fedora-url]|[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
-:---------------------------------------------:|:---------------------------------:            |:------------------------------------------------:|:------------------------------------------:|:---------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
-[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Raspbian-Icon][raspbian-icon]][raspbian-url]|[![Rhel-Icon][rhel-icon]][rhel-url]               |[![Sl-Icon][sl-icon]][sl-url]               |[![Sle-Icon][sle-icon]][sle-url]         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]            |[![Windows-Icon][windows-icon]][windows-url]
-                                               |                                               |[![Snapcraft-Icon][snapcraft-icon]][snapcraft-site-url]|[![Flatpak-Icon][flatpak-icon]][flatpak-site-url]|                                         |                                                     |
+[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]            |[![Centos-Icon][centos-icon]][centos-url]                   |[![Debian-Icon][debian-icon]][debian-url]             |[![Fedora-Icon][fedora-icon]][fedora-url]                |[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
+:---------------------------------------------:|:---------------------------------------------:|:----------------------------------------------------------:|:----------------------------------------------------:|:-------------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
+[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Raspbian-Icon][raspbian-icon]][raspbian-url]|[![Rhel-Icon][rhel-icon]][rhel-url]                         |[![Sl-Icon][sl-icon]][sl-url]                         |[![Sle-Icon][sle-icon]][sle-url]                         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]            |[![Windows-Icon][windows-icon]][windows-url]
+                                               |                                               |[![Snapcraft-Icon][snapcraft-site-icon]][snapcraft-site-url]|[![Flatpak-Icon][flatpak-site-icon]][flatpak-site-url]|[![AppImage-Icon][appimage-site-icon]][appimage-site-url]|                                                     |
 
- - Click icon above to download distribution asset.
+ - Click icon above to download and/or install distribution release.
+
+### Verify GPG Signature
+The following steps use LPub3D Windows release v2.4.4 hosted on [GitHub][githubreleases].
+These steps can be applied to any LPub3D release where a GPG signature file is available.
+- Get the GPG public key: [pubring.auto](https://raw.github.com/trevorsandy/lpub3d/master/builds/utilities/ci/secure/pubring.auto)
+- Get the release: [LPub3D-2.4.4.0.2671_20220531.exe](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe)
+- Get the hash file: [LPub3D-2.4.4.0.2671_20220531.exe.sha512](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe.sha512)
+- Get the GPG hash file signature: [LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig](https://github.com/trevorsandy/lpub3d/releases/download/v2.4.4/LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig)
+- Ensure GPG is installed and configured: `$> which gpg`
+- Import the public key file into GPG: `$> gpg --import pubring.auto`
+- Verify the against its hash file: `$> sha512sum -c LPub3D-2.4.4.0.2671_20220531.exe.sha512`
+- Verify the GPG hash file signature: `$> gpg --verify LPub3D-2.4.4.0.2671_20220531.exe.sha512.sig`
 
 ### Quick Links
  - [Build and package LPub3D from source][buildfromsource]
@@ -277,8 +289,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_22.04/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
-[snapcraft-icon]:      {{ '/assets/images/snapcraft-logo.png' | relative_url }}  "Snap - Coming Soon!"
-[flatpak-icon]:        {{ '/assets/images/flatpak-logo.png' | relative_url }} "Flatpak"
+[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }}  "Snap - Coming Soon!"
+[flatpak-site-icon]:   {{ '/assets/images/flatpak_logo.png' | relative_url }} "Flatpak"
+[appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImage"
 
 [snapcraft-site-url]:  https://snapcraft.io/snaps
 [flatpak-site-url]:    https://flathub.org/apps/details/io.github.trevorsandy.LPub3D
