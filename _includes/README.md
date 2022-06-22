@@ -25,7 +25,7 @@ LPub3D **output** include <span style="color:#b03060">instruction document</span
 LPub3D uses the LDraw standard and LGEO photo-realistic **part libraries** and reads the LDraw DAT, LDR and MPD model file formats. The LDraw libraries are not required to be preinstalled. Archive (.zip) library files for both official and unofficial LDraw parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO photo-realistic part library.
 
 :-----------------|:------------------------------------:|:--------------------
-[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library.<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by (Jasolo). <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).<br>![LSynth][lsynth-logo] [LSynth][lsynth-url] bendable parts synthesis elements created by Kevin Clague and updated by Don Heyse (deeice).
+[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library.<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by José Alfonso Solera (Jasolo). <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).<br>![LSynth][lsynth-logo] [LSynth][lsynth-url] bendable parts synthesis elements created by Kevin Clague and updated by Don Heyse (deeice).
 [LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray photo-realistic part library created by Lutz Uhlmann (El Lutzo), updated by Owen Burgoyne (C3POwen) and extended with STL object files by Damien Roux (Darats).
 
 LPub3D integrates with **Blender** to provide photo-realistic renderings. It also provides "native" **3DViewer**, **POV scene file generation**, including POV-Ray PNG image rendering using integrated modules based on LeoCAD and LDView. Additionally, LDView, LDGLite and POV-Ray 3rd-party stand-alone **LDraw model renderers** are bundled in each LPub3D distribution. All stand-alone renderers are console applications custom adapted to LPub3D for tight integration, optimum configurability and robust performance.
@@ -47,7 +47,7 @@ LPub3D integrates with **Blender** to provide photo-realistic renderings. It als
 ![Intel-Logo][intel-logo]|![AMD-Logo][amd-logo]|![ARM-Logo][arm-logo]|![RaspberryPi-Logo][raspberrypi-logo]
 
 LPub3D runs on Debian, Red Hat and Arch derived Linux distros, macOS and Windows Operating Systems.
-LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flatpak-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
+LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appimage-site-url] and [Snap][snapcraft-site-url] or [Flatpak][flathub-site-url] 'sandbox' deployment. Builds are available for both x86 instruction set (32-bit and 64-bit) and Advanced RISC Machines (ARM) micorprocessors.
 
 ### Downloads
 
@@ -58,10 +58,11 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 
 ### Distributions
 
-[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]            |[![Centos-Icon][centos-icon]][centos-url]                   |[![Debian-Icon][debian-icon]][debian-url]             |[![Fedora-Icon][fedora-icon]][fedora-url]                |[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
-:---------------------------------------------:|:---------------------------------------------:|:----------------------------------------------------------:|:----------------------------------------------------:|:-------------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
-[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Raspbian-Icon][raspbian-icon]][raspbian-url]|[![Rhel-Icon][rhel-icon]][rhel-url]                         |[![Sl-Icon][sl-icon]][sl-url]                         |[![Sle-Icon][sle-icon]][sle-url]                         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]            |[![Windows-Icon][windows-icon]][windows-url]
-                                               |                                               |[![Snapcraft-Icon][snapcraft-site-icon]][snapcraft-site-url]|[![Flatpak-Icon][flatpak-site-icon]][flatpak-site-url]|[![AppImage-Icon][appimage-site-icon]][appimage-site-url]|                                                     |
+[![Appimage-Icon][appimage-icon]][appimage-url]|[![Arch-Icon][arch-icon]][arch-url]                  |[![Centos-Icon][centos-icon]][centos-url]                   |[![Debian-Icon][debian-icon]][debian-url]             |[![Fedora-Icon][fedora-icon]][fedora-url]                |[![Mageia-Icon][mageia-icon]][mageia-url]            |[![Macos-Icon][macos-icon]][macos-url]
+:---------------------------------------------:|:---------------------------------------------------:|:----------------------------------------------------------:|:----------------------------------------------------:|:-------------------------------------------------------:|:---------------------------------------------------:|:------------------------------------------:
+[![Opensuse-Icon][opensuse-icon]][opensuse-url]|[![Raspbian-Icon][raspbian-icon]][raspbian-url]      |[![Rhel-Icon][rhel-icon]][rhel-url]                         |[![Sl-Icon][sl-icon]][sl-url]                         |[![Sle-Icon][sle-icon]][sle-url]                         |[![Ubuntu-Icon][ubuntu-icon]][ubuntu-url]            |[![Windows-Icon][windows-icon]][windows-url]
+                                               |[![Elementary-Icon][elementary-icon]][elementary-url]|[![KDE_Neon-Icon][kde_neon-icon]][kde_neon-url]             |[![Pop_Os-Icon][pop_os-icon]][pop_os-url]             |[![Manjaro-Icon][manjaro-icon]][manjaro-url]             |[![Kubuntu-Icon][kubuntu-icon]][kubuntu-url]         |
+                                               |                                                     |[![Snapcraft-Icon][snapcraft-site-icon]][snapcraft-site-url]|[![Flatpak-Icon][flathub-site-icon]][flathub-site-url]|[![AppImage-Icon][appimage-site-icon]][appimage-site-url]|                                                     |
 
  - Click icon above to download and/or install distribution release.
 
@@ -276,6 +277,13 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [ubuntu-icon]:         {{ '/assets/images/ubuntu.png' | relative_url }} "Ubuntu 22.04"
 [univention-icon]:     {{ '/assets/images/univention.png' | relative_url }} "Univention 4.2"
 
+[//]: # Snap icons
+[elementary-icon]:     {{ '/assets/images/elementary_logo.png' | relative_url }} "Elementary OS Snap"
+[kde_neon-icon]:       {{ '/assets/images/kde_neon_logo.png' | relative_url }} "KDE Neon Snap"
+[pop_os-icon]:         {{ '/assets/images/pop_os_logo.png' | relative_url }} "Pop! OS Snap"
+[manjaro-icon]:        {{ '/assets/images/manjaro_logo.png' | relative_url }} "Manjaro Linux Snap"
+[kubuntu-icon]:        {{ '/assets/images/kubuntu_logo.png' | relative_url }} "Kubuntu Snap"
+
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/
 [debian-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/Debian_11/
@@ -289,12 +297,19 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_22.04/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
-[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }} "Snap"
-[flatpak-site-icon]:   {{ '/assets/images/flatpak_logo.png' | relative_url }} "Flatpak"
-[appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImage"
+[//]: # Snap urls
+[elementary-url]:      https://snapcraft.io/install/lpub3d/elementary/
+[kde_neon-url]:        https://snapcraft.io/install/lpub3d/kde-neon/
+[pop_os-url]:          https://snapcraft.io/install/lpub3d/pop/
+[manjaro-url]:         https://snapcraft.io/install/lpub3d/manjaro/
+[kubuntu-url]:         https://snapcraft.io/install/lpub3d/kubuntu/
+
+[snapcraft-site-icon]: {{ '/assets/images/snapcraft_logo.png' | relative_url }} "Snapcraft"
+[flathub-site-icon]:   {{ '/assets/images/flathub_logo.png' | relative_url }} "Flathub"
+[appimage-site-icon]:  {{ '/assets/images/appimage_logo.png' | relative_url }} "AppImages"
 
 [snapcraft-site-url]:  https://snapcraft.io/lpub3d
-[flatpak-site-url]:    https://flathub.org/apps/details/io.github.trevorsandy.LPub3D
+[flathub-site-url]:    https://flathub.org/apps/details/io.github.trevorsandy.LPub3D
 [appimage-site-url]:   https://appimage.github.io/LPub3D/
 
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
