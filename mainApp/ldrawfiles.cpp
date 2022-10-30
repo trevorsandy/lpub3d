@@ -3373,7 +3373,7 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
                   insert = " Last";
               } else if (defaultIndex == BM_PREVIOUS_ACTION) {
                   // iterate backward to get the last action index before the specified step index (account for action index gap)
-                  for (; keyIndex > 0; keyIndex--) {
+                  for (; keyIndex >= BM_FIRST_INDEX; keyIndex--) {
                       if (i.value()._modActions.value(keyIndex, BM_INVALID_INDEX) > BM_INVALID_INDEX) {
                           action = i.value()._modActions.value(keyIndex);
                           insert = " Previous";
