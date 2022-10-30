@@ -87,6 +87,8 @@ protected:
   void typeChanged(Which);
   void showPartPreview(Which);
 
+  bool eventFilter(QObject *target, QEvent *event);
+
 private:
   Ui::SubstitutePartDialog *ui;
   QPushButton              *mResetBtn;

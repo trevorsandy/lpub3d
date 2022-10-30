@@ -123,7 +123,20 @@ SubstitutePartDialog::SubstitutePartDialog(
              this,           SLOT(valueChanged(double)));
 
      connect(ui->transformCombo,SIGNAL(currentIndexChanged(QString const &)),
-             this,              SLOT(  transformChanged(   QString const &)));
+             this,           SLOT(  transformChanged(   QString const &)));
+
+     connect(ui->nameEdit,   SIGNAL(selectionChanged()),
+             this,           SLOT(  typeChanged()));
+
+     connect(ui->substituteEdit,SIGNAL(selectionChanged()),
+             this,           SLOT(  typeChanged()));
+
+     connect(ui->ldrawEdit,  SIGNAL(selectionChanged()),
+             this,           SLOT(  typeChanged()));
+
+     ui->nameEdit->installEventFilter(this);
+     ui->substituteEdit->installEventFilter(this);
+     ui->ldrawEdit->installEventFilter(this);
 
      mResetBtn = new QPushButton(tr("Reset"));
      ui->buttonBox->addButton(mResetBtn, QDialogButtonBox::ActionRole);
@@ -141,11 +154,29 @@ SubstitutePartDialog::~SubstitutePartDialog()
     delete ui;
 }
 
+bool SubstitutePartDialog::eventFilter(QObject *target, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress)
+    {
+        bool valid = false;
+        if ((valid = target == ui->nameEdit))
+            emit ui->nameEdit->selectionChanged();
+        else if ((valid |= target == ui->substituteEdit))
+            emit ui->substituteEdit->selectionChanged();
+        else if ((valid |= target == ui->ldrawEdit))
+            emit ui->ldrawEdit->selectionChanged();
+        if (valid)
+            return true;
+    }
+    return QDialog::eventFilter(target, event);
+}
+
 void SubstitutePartDialog::initialize()
 {
     mAttributes = mInitialAttributes;
     bool show   = mAction != sRemove;
     mLdrawType.clear();
+    Which attribute = InitialType;
 
     if (Preferences::debugLogging)
         emit lpub->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
@@ -209,6 +240,7 @@ void SubstitutePartDialog::initialize()
     if (mAction == sUpdate && !substituteType.isEmpty()) {
         ui->substituteEdit->setText(substituteType);
         ui->substitueTitleLbl->setText(Pli::titleDescription(substituteType));
+        attribute = SubstituteType;
     }
 
     ui->ldrawEdit->clear();
@@ -236,7 +268,7 @@ void SubstitutePartDialog::initialize()
 
     // Extended settings
 
-    showPartPreview(InitialType);
+    showPartPreview(attribute);
 
     if (show)
         val = mAttributes.at(sModelScale).toDouble();
@@ -416,6 +448,8 @@ void SubstitutePartDialog::typeChanged()
             return;
         }
         typeChanged(LdrawType);
+    } else {
+        showPartPreview(attribute);
     }
 }
 
@@ -617,7 +651,6 @@ void SubstitutePartDialog::accept()
 
         if (mAction != sRemove) {
 
-            QStringList removeAttributes;
             if (mAction == sSubstitute) {
                 label1 = "substitute";
                 label2 = "Substitution";
