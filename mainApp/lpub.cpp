@@ -5513,6 +5513,14 @@ void Gui::createActions()
     aboutAct->setStatusTip(tr("Display version, system and build information"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
+    visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage"), this);
+    visitHomepageAct->setStatusTip(tr("Visit the %1 home website.").arg(VER_PRODUCTNAME_STR));
+    connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
+
+    reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug"), this);
+    reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
+    connect(reportBugAct, SIGNAL(triggered()), this, SLOT(reportBug()));
+
     // Begin Jaco's code
 
     onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual"), this);
@@ -6000,6 +6008,8 @@ void Gui::createMenus()
 #ifndef DISABLE_UPDATE_CHECK
     helpMenu->addAction(updateAppAct);
 #endif
+    helpMenu->addAction(visitHomepageAct);
+    helpMenu->addAction(reportBugAct);
     // Begin Jaco's code
     helpMenu->addAction(onlineManualAct);
     // End Jaco's code

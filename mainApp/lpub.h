@@ -1796,6 +1796,15 @@ private slots:
     void showLCStatusMessage();
     void enableWindowFlags(bool);
 
+    void visitHomepage()
+    {
+        QDesktopServices::openUrl(QUrl(VER_HOMEPAGE_GITHUB_STR));
+    }
+
+    void reportBug()
+    {
+       QDesktopServices::openUrl(QUrl(VER_PUBLISHER_SUPPORT_STR));
+    }
     // Begin Jaco's code
 
     void onlineManual();
@@ -2181,6 +2190,8 @@ private:
   // help
 
   QAction  *aboutAct;
+  QAction  *visitHomepageAct;
+  QAction  *reportBugAct;
 
   // Begin Jaco's code
 
