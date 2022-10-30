@@ -386,9 +386,11 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                  -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
     else
-        sed -i "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
+        sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+               -e "s/^pkgver.*/pkgver=${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
@@ -401,11 +403,13 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
+        sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                  -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
                   -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
 
     else
-        sed -i -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
+        sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+               -e "s/^Version:.*/Version: ${LP3D_APP_VERSION}/" \
                -e "s/.*trevor\.dot\.sandy\.at\.gmail\.dot\.com.*/* ${LP3D_CHANGE_DATE} - trevor\.dot\.sandy\.at\.gmail\.dot\.com ${LP3D_APP_VERSION}/" "${FILE}"
     fi
 else
@@ -437,9 +441,11 @@ if [ -f ${FILE} -a -r ${FILE} ]
 then
     if [ "$LP3D_OS" = Darwin ]
     then
-        sed -i "" "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        sed -i "" -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+                  -e "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
     else
-        sed -i "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
+        sed -i -e "s/^# Last Update:.*/# Last Update: $(date "+%B %d, %Y")/g" \
+               -e "s/validExe/mainApp\/${LP3D_OS_ARCH}bit_release\/lpub3d${LP3D_APP_VER_SUFFIX}/" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

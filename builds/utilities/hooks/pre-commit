@@ -4,7 +4,7 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Jun 06, 2022
+#  Last Update: Jun 26, 2022
 #  Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 #  Automatically generate git revision info
@@ -29,31 +29,50 @@
 # Environment Vars:
 #   - inc_rev: increment revision [Default=yes]
 #   - inc_cnt: increment commit count [Default=yes]
-#   - force:   force updates to configuration files [Default=no]
+#   - force:   update obs alldeps configuration files [Default=<unset>]
 #
 # Flags:
-#   -f: force updates to configuration files
+#   -f: update obs alldeps configuration files
+#   -o: update obs configuration files
 #   -r: do not increment revision
 #   -c: do not increment commit count
 #
 #  Manual execution examples:
-#   Update configuration files to latest commit
+#   Update ALLDEPS configuration files to latest commit
 #   $ ./builds/utilities/hooks/pre-commit -f
 #
-#   Update configuration files to latest commit and do not increment revision
-#   $ ./builds/utilities/hooks/pre-commit -f -r
+#   Update ALLDEPS configuration files to latest commit and do not increment revision
+#   $ ./builds/utilities/hooks/pre-commit -rf
 #
-#   Update configuration files to latest commit and do not increment revision or commit count
-#   $ ./builds/utilities/hooks/pre-commit -f -r -c
+#   Update ALLDEPS configuration files to latest commit and do not increment revision or commit count
+#   $ ./builds/utilities/hooks/pre-commit -rfc
 #
-#   Update configuration files to last commit, increment revision and commit count and commit changes
-#   $ env force=yes git commit -m "Commit message"
-#
-#   Update configuration files to last commit and do not increment revision
+#   Update ALLDEPS configuration files to last commit and do not increment revision
 #   $ env force=yes inc_rev=no ./builds/utilities/hooks/pre-commit
 #
-#   Update configuration files to latest commit and do not increment revision or commit count; commit changes
+#   Update ALLDEPS configuration files to last commit, increment revision and commit count and commit changes
+#   $ env force=yes git commit -m "Commit message"
+#
+#   Update ALLDEPS configuration files to latest commit and do not increment revision or commit count; commit changes
 #   $ env force=yes inc_rev=no inc_cnt=no git commit -m "Commit message"
+#
+#   Update OBS configuration files to latest commit
+#   $ ./builds/utilities/hooks/pre-commit -o
+#
+#   Update OBS configuration files to latest commit and do not increment revision
+#   $ ./builds/utilities/hooks/pre-commit -ro
+#
+#   Update OBS configuration files to latest commit and do not increment revision or commit count
+#   $ ./builds/utilities/hooks/pre-commit -roc
+#
+#   Update OBS configuration files to last commit and do not increment revision
+#   $ env force=no inc_rev=no ./builds/utilities/hooks/pre-commit
+#
+#   Update OBS configuration files to last commit, increment revision and commit count and commit changes
+#   $ env force=no git commit -m "Commit message"
+#
+#   Update OBS configuration files to latest commit and do not increment revision or commit count; commit changes
+#   $ env force=no inc_rev=no inc_cnt=no git commit -m "Commit message"
 #
 
 FILES_PATTERN='\.dropbox_oauth|\.github_api*|\.sfdeploy_travis*'
@@ -63,13 +82,14 @@ git diff --cached --name-only | \
     ehco && echo " -Commit rejected - found $FORBIDDEN. Remove and try again" && echo && exit 1 || true
 
 exec 1>&2
-# to disable or run from command line, set default to 'no'
+
+# defaults
+update_alldeps_files=${force:-}
 increment_revision=${inc_rev:-yes}
 increment_commitcount=${inc_cnt:-yes}
-update_config_files=${force:-no}
 
 #check for optional config flags
-while getopts ":rcf" opt; do
+while getopts ":rcof" opt; do
   case $opt in
   r)
     increment_revision=no
@@ -77,8 +97,11 @@ while getopts ":rcf" opt; do
   c)
     increment_commitcount=no
   ;;
+  o)
+    update_alldeps_files=no
+  ;;
   f)
-    update_config_files=yes
+    update_alldeps_files=yes
   ;;
   \?)
     echo "Invalid option: -$OPTARG" >&2
@@ -87,54 +110,63 @@ while getopts ":rcf" opt; do
   esac
 done
 
-if test x"$update_config_files" != x"no"; then
-  tag_long=`git describe --tags --match v* --long`
-  tag_short=`git describe --tags --match v* --abbrev=0`
-  commit_count=`git rev-list HEAD --count`
-  sha_hash_short=`git rev-parse --short HEAD`
-
-  tmp1=${tag_long#*-}                                     # remove everything before and including "-"
-  revision=${tmp1%-*}                                     # remove everything after and including "-"
-  tmp1=${tag_short//./" "}                                # replace . with " "
-  version_=${tmp1/v/}                                     # replace v with ""
-  tmp1=${version_#*_}                                     # remove everything before and including "_" if exist
-  if test "$tmp1" != "$version_"; then suffix=${tmp1}; fi # check if ver_tmp not same as version_ - suffix exist
-  if test -n "$suffix"; then version_=${version_%_*}; fi  # remove everything after and including "_" - suffix exist
-  read major minor patch <<< ${version_}
-
-  echo "0. Incrementing Git version info..."
-  echo "   Old revision............$revision"
-  echo "   Old commit count........$commit_count"
-  echo "   Increment revision......$increment_revision"
-  echo "   Increment commit count..$increment_commitcount"
-
-  if test x"$increment_revision" = x"yes"; then ((revision++)); fi
-  if test x"$increment_commitcount" = x"yes"; then ((commit_count++)); fi
-
-  echo "   New revision............$revision"
-  echo "   New commit count........$commit_count"
-
-  working_dir=$PWD/mainApp; export OBS=true
-  chmod +x builds/utilities/update-config-files.sh
-  ./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
-
-  git add builds/utilities/version.info
-  git add mainApp/docs/lpub3d${major}${minor}.1
-  git add mainApp/docs/README.txt
-  git add mainApp/docs/RELEASE_NOTES.html
-  git add mainApp/lpub3d.desktop
-  git add mainApp/lpub3d.appdata.xml
-  git add README.md
-  git add gitversion.pri
-
-  git add builds/linux/obs/alldeps/PKGBUILD
-  git add builds/linux/obs/alldeps/lpub3d.spec
-  git add builds/linux/obs/alldeps/debian/changelog
-  git add builds/linux/obs/alldeps/debian/lpub3d.dsc
-  git add builds/linux/obs/debian/rules
-
-  echo "   Staged files:"
-  for file in $(git diff --name-only --cached); do
-    echo "   -$file"
-  done
+if test x"$update_alldeps_files" = x"yes"; then
+  export OBS=true
+  config_dir=builds/linux/obs/alldeps
+elif test x"$update_alldeps_files" = x"no"; then
+  config_dir=builds/linux/obs
+else
+  exit 0
 fi
+
+tag_long=`git describe --tags --match v* --long`
+tag_short=`git describe --tags --match v* --abbrev=0`
+commit_count=`git rev-list HEAD --count`
+sha_hash_short=`git rev-parse --short HEAD`
+
+tmp1=${tag_long#*-}                                     # remove everything before and including "-"
+revision=${tmp1%-*}                                     # remove everything after and including "-"
+tmp1=${tag_short//./" "}                                # replace . with " "
+version_=${tmp1/v/}                                     # replace v with ""
+tmp1=${version_#*_}                                     # remove everything before and including "_" if exist
+if test "$tmp1" != "$version_"; then suffix=${tmp1}; fi # check if ver_tmp not same as version_ - suffix exist
+if test -n "$suffix"; then version_=${version_%_*}; fi  # remove everything after and including "_" - suffix exist
+read major minor patch <<< ${version_}
+
+echo "0. Incrementing Git version info..."
+echo "   Old revision............$revision"
+echo "   Old commit count........$commit_count"
+echo "   Increment revision......$increment_revision"
+echo "   Increment commit count..$increment_commitcount"
+
+if test x"$increment_revision" = x"yes"; then ((revision++)); fi
+if test x"$increment_commitcount" = x"yes"; then ((commit_count++)); fi
+
+echo "   New revision............$revision"
+echo "   New commit count........$commit_count"
+
+working_dir=$PWD/mainApp
+chmod +x builds/utilities/update-config-files.sh
+./builds/utilities/update-config-files.sh ${working_dir} $major $minor $patch $revision $commit_count $sha_hash_short $suffix
+
+git add builds/utilities/version.info
+git add mainApp/docs/lpub3d${major}${minor}.1
+git add mainApp/docs/README.txt
+git add mainApp/docs/RELEASE_NOTES.html
+git add mainApp/lpub3d.desktop
+git add mainApp/lpub3d.appdata.xml
+git add mainApp/extras/LPub3D_Npp_UDL.xml
+git add README.md
+git add gitversion.pri
+
+git add ${config_dir}/PKGBUILD
+git add ${config_dir}/lpub3d.spec
+git add ${config_dir}/debian/changelog
+git add ${config_dir}/debian/lpub3d.dsc
+git add builds/linux/obs/debian/rules
+
+echo "   Staged files:"
+for file in $(git diff --name-only --cached); do
+  echo "   -$file"
+done
+
