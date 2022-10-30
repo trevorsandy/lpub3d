@@ -134,116 +134,6 @@ int          Gui::saveRenderer;      // saved renderer when temporarily switchin
 bool         Gui::saveProjection;    // saved projection when temporarily switching to Native renderer
 QString      Gui::pageRangeText;     // page range parameters
 
-/****************************************************************************
- *
- * Download with progress monotor
- *
- ***************************************************************************/
-void Application::downloadFile(QString URL, QString title, bool promptRedirect)
-{
-    mTitle = title;
-    mPromptRedirect = promptRedirect;
-    mProgressDialog = new QProgressDialog(nullptr);
-    connect(mProgressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
-
-    mProgressDialog->setWindowTitle(tr("Downloading"));
-    mProgressDialog->setLabelText(tr("Downloading %1").arg(mTitle));
-    mProgressDialog->show();
-
-    mHttpManager   = new QNetworkAccessManager(this);
-
-    mUrl = URL;
-
-    mHttpRequestAborted = false;
-
-    startRequest(mUrl);
-
-    while (mHttpReply)
-        QApplication::processEvents();
-}
-
-void Application::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
-{
-    if (mHttpRequestAborted)
-        return;
-
-    mProgressDialog->setMaximum(int(totalBytes));
-    mProgressDialog->setValue(int(bytesRead));
-}
-
-void Application::startRequest(QUrl url)
-{
-    QNetworkRequest request(url);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    if (!mPromptRedirect)
-        request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-#endif
-    mHttpReply = mHttpManager->get(request);
-
-    connect(mHttpReply, SIGNAL(downloadProgress(qint64,qint64)),
-            this, SLOT(updateDownloadProgress(qint64,qint64)));
-
-    connect(mHttpReply, SIGNAL(finished()),
-            this, SLOT(httpDownloadFinished()));
-}
-
-void Application::cancelDownload()
-{
-    mHttpRequestAborted = true;
-    mHttpReply->abort();
-}
-
-void Application::httpDownloadFinished()
-{
-    if (mHttpRequestAborted) {
-        mByteArray.clear();
-        mHttpReply->deleteLater();
-        mHttpReply = nullptr;
-        mProgressDialog->close();
-        return;
-    }
-
-    QString message;
-    QVariant redirectionTarget = mHttpReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-    if (mHttpReply->error()) {
-        mByteArray.clear();
-        message = QString("%1 Download failed: %2.")
-                          .arg(mTitle).arg(mHttpReply->errorString());
-        if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),  message);
-        } else {
-            logError() << message;
-        }
-    } else if (!redirectionTarget.isNull()) {
-        // This block should only trigger for redirects when Qt
-        // is less than 5.6.0 or if prompt redirect set to True
-        QUrl newUrl = mUrl.resolved(redirectionTarget.toUrl());
-        bool proceedToRedirect = true;
-        if (mPromptRedirect && Preferences::modeGUI) {
-            proceedToRedirect = QMessageBox::question(nullptr, tr("HTTP"),
-                                              tr("Download redirect to %1 ?").arg(newUrl.toString()),
-                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
-        } else {
-            logNotice() << QString("Download redirect to %1 ?").arg(newUrl.toString());
-        }
-        if (proceedToRedirect) {
-            mUrl = newUrl;
-            mHttpReply->deleteLater();
-            mByteArray.resize(0);
-            startRequest(mUrl);
-            return;
-        }
-    } else {
-        mByteArray = mHttpReply->readAll();
-    }
-
-    mProgressDialog->close();
-
-    mHttpReply->deleteLater();
-    mHttpReply = nullptr;
-    mHttpManager = nullptr;
-}
-
 /***********************************************************************
  * set Native renderer for fast processing
  **********************************************************************/
@@ -322,17 +212,6 @@ void Gui::SetRotStepTransform(QString& Transform, bool display)
  * the code that creates the basic GUI framework
  *
  ***************************************************************************/
-
-// flip orientation for landscape
-int Application::pageSize(PageMeta &meta, int which){
-  int _which;
-  if (meta.orientation.value() == Landscape){
-      which == 0 ? _which = 1 : _which = 0;
-    } else {
-      _which = which;
-    }
-  return meta.size.valuePixels(_which);
-}
 
 void Gui::insertCoverPage()
 {
@@ -3446,8 +3325,6 @@ Gui::Gui()
     mViewerZoomLevel  = 50;
 
     mi            = new MetaItem();
-
-    lpub          = new LPub();
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window

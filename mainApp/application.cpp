@@ -21,6 +21,7 @@
 #include "application.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
+#include "lpub_object.h"
 #include "resolution.h"
 
 #include "updatecheck.h"
@@ -552,48 +553,6 @@ void Application::setTheme(bool appStarted)
 
   // Set Visual Editor colour theme - apply after interface colour update
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorTheme));
-}
-
-/*********************************************
- *
- * split viewer step keys
- *
- ********************************************/
-
-QStringList Application::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
-{
-    // viewerStepKey - 3 elements:
-    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
-    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
-    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
-    // confirm keys has at least 3 elements
-    if (keys.size() < 3) {
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
-#endif
-        return QStringList();
-    } else if (keys.at(2).count("_")) {
-        QStringList displayStepKeys = keys.at(2).split("_");
-        keys.removeLast();
-        keys.append(displayStepKeys);
-    }
-
-    if (!pliPart) {
-        bool ok;
-        int modelNameIndex = keys[0].toInt(&ok);
-        if (!ok) {
-#ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
-#endif
-            return QStringList();
-        }
-
-        if (modelName)
-            keys.replace(0,ldrawFile.getSubmodelName(modelNameIndex));
-    }
-
-    return keys;
 }
 
 int Application::initialize()
@@ -1165,6 +1124,9 @@ int Application::initialize()
 
     emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
+    // initialize LPub object
+    lpub = new LPub();
+
     // initialize gui
     gui = new Gui();
 
@@ -1233,7 +1195,7 @@ int Application::run()
     if (modeGUI()) {
         ExecReturn = m_application.exec();
     } else {
-        ExecReturn = processCommandLine();
+        ExecReturn = lpub->processCommandLine();
     }
 
 #ifdef Q_OS_WIN
@@ -1263,6 +1225,9 @@ void Application::shutdown()
 {
    delete gui;
    gui = nullptr;
+
+   delete lpub;
+   lpub = nullptr;
 
    gApplication->Shutdown();
 
