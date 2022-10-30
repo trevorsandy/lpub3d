@@ -2578,6 +2578,7 @@ int CountPageWorker::countPage(
                        //    Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
                        //      stack.append(QString("%1:").arg(ldrawFile->getSubmodelIndex(model.modelName)));
                        //    if (!stack.isEmpty()) {
+                       //        stack.prepend(BuildMod|); // required if using Gui::setBuildModClearStepKey();
                        //        stack.replace(stack.lastIndexOf(":"),1,";");
                        //        gui->setBuildModClearStepKey(QString("%1%2;%3;%4")
                        //                                     .arg(stack).arg(topOfStep.modelIndex)
