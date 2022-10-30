@@ -2096,11 +2096,12 @@ void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
 int Pli::sortPli()
 {
     // Create and render parts to populate part size
-    QFuture<int> PartsFuture = QtConcurrent::run([this] {
-        return partSize();
-    });
+    //QFuture<int> PartsFuture = QtConcurrent::run([this] {
+    //    return partSize();
+    //});
 
-    int rc = PartsFuture.result();
+    //int rc = PartsFuture.result();
+    int rc = partSize();
     if (rc)
         emit gui->messageSig(LOG_ERROR, QMessageBox::tr("There was a problem sizing parts for this PLI instance"));
 
