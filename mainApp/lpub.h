@@ -967,9 +967,9 @@ public:
       return ldrawFile.getBuildModsList();
   }
 
-  QStringList getBuildModPathsFromStep(const QString &modStepKey, const int image = 1/*ldr=0*/)
+  QStringList getPathsFromViewerStepKey(const QString &stepKey)
   {
-      return ldrawFile.getBuildModPathsFromStep(modStepKey, image);
+      return ldrawFile.getPathsFromViewerStepKey(stepKey);
   }
 
   bool buildModsCount()

@@ -2867,7 +2867,7 @@ void Gui::createBuildModification()
                 metaString = currentStep->buildMod.format(false,false);
                 insertLine(modHere, metaString, nullptr);
 
-                clearWorkingFiles(getBuildModPathsFromStep(viewerStepKey));
+                clearWorkingFiles(getPathsFromViewerStepKey(viewerStepKey));
 
                 endMacro();
             }
@@ -3034,7 +3034,7 @@ void Gui::applyBuildModification()
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
-        clearWorkingFiles(getBuildModPathsFromStep(currentStep->viewerStepKey));
+        clearWorkingFiles(getPathsFromViewerStepKey(currentStep->viewerStepKey));
 
         endMacro();
     }
@@ -3143,7 +3143,7 @@ void Gui::removeBuildModification()
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
-        clearWorkingFiles(getBuildModPathsFromStep(currentStep->viewerStepKey));
+        clearWorkingFiles(getPathsFromViewerStepKey(currentStep->viewerStepKey));
 
         endMacro();
     }
@@ -3420,7 +3420,7 @@ void Gui::deleteBuildModification()
 
         // delete step image to trigger image regen
         if (clearSubmodel) {
-            clearWorkingFiles(getBuildModPathsFromStep(buildModStepKey));
+            clearWorkingFiles(getPathsFromViewerStepKey(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
             clearPageCache(relativeType, &page, Options::CSI);

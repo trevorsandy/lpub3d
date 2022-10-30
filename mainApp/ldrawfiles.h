@@ -491,7 +491,6 @@ class LDrawFile {
     QString getBuildModStepKeyModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
-    QStringList getBuildModPathsFromStep(const QString &modStepKey, const int image = 1/*ldr=0*/);
 
     /* ViewerStep functions */
 
@@ -513,6 +512,7 @@ class LDrawFile {
                                       const int topLineNumber,
                                       const int bottomModelIndex,
                                       const int bottomLineNumber);
+    QStringList getPathsFromViewerStepKey(const QString &stepKey);
     QStringList getViewerStepRotatedContents(const QString &stepKey);
     QStringList getViewerStepUnrotatedContents(const QString &stepKey);
     QString     getViewerStepKeyWhere(const int modelIndex, const int lineNumber);

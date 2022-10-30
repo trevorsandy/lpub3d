@@ -4598,7 +4598,7 @@ void Gui::drawPage(
 
     // clear csi image, flag submodel stak item(s) as modified and clear submodel (cm)
     if (keys.size() == 1 || option == "cm") {
-      clearWorkingFiles(getBuildModPathsFromStep(stepKey));
+      clearWorkingFiles(getPathsFromViewerStepKey(stepKey));
 
     // clear page
     } else if (option == "cp") {
@@ -5245,8 +5245,9 @@ int Gui::setBuildModForNextStep(
                 else
                     gui->parseErrorSig(QString("BuildMod for key '%1' not found").arg(buildMod.key),
                                                walk,Preferences::ParseErrors,false,false);
-                if ((Rc)buildMod.action != rc)
+                if ((Rc)buildMod.action != rc) {
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
+                }
                 break;
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction

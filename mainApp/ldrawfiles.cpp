@@ -3905,50 +3905,6 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
   return QString();
 }
 
-/* this call gets the paths from the specified submodel step to the end of the submodel */
-
-QStringList LDrawFile::getBuildModPathsFromStep(const QString &modStepKey, const int image/*true*/)
-{
-  QStringList list = modStepKey.split(";");
-  QStringList submodelStack;
-  if (list.size() == BM_SUBMODEL_STACK) {
-    QStringList models = list.takeFirst().split(":");
-    if (models.size())
-      Q_FOREACH (const QString &index, models)
-        submodelStack << getSubmodelName(index.toInt());
-  }
-
-  ViewerStep::StepKey stepKey = { list.at(BM_STEP_MODEL_KEY).toInt(), list.at(BM_STEP_LINE_KEY).toInt(), list.at(BM_STEP_NUM_KEY).toInt() };
-  submodelStack << getSubmodelName(stepKey.modIndex);
-  if (submodelStack.size() > 1)
-      submodelStack.removeDuplicates();
-  list.clear();
-
-  for (const QString &fileName : submodelStack)
-    setModified(fileName, true);
-
-  QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
-  while (i != _viewerSteps.constEnd()) {
-    if (stepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
-      if (stepKey.stepNum <= i->_stepKey.stepNum) {
-        if (image) {
-          QFileInfo imageInfo(i->_imagePath);
-          if (imageInfo.exists()) {
-            if (modified(getSubmodelName(stepKey.modIndex)));
-              list.append(i->_imagePath);
-          }
-        }
-      }
-    }
-    ++i;
-  }
-
-  if (list.size() > 1)
-    list.removeDuplicates();
-
-  return list;
-}
-
 QString LDrawFile::getBuildModStepKeyModelName(const QString &buildModKey)
 {
   QString modKey = buildModKey.toLower();
@@ -4093,6 +4049,49 @@ QString LDrawFile::getViewerStepFilePath(const QString &stepKey)
     return i.value()._filePath;
   }
   return _emptyString;
+}
+
+/* return paths from the specified viewer step to the end of the submodel and set parent submodels to modified */
+
+QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
+{
+  QStringList list = stepKey.split(";");
+  QStringList submodelStack;
+  if (list.size() == BM_SUBMODEL_STACK) {
+    QStringList models = list.takeFirst().split(":");
+    if (models.size())
+      Q_FOREACH (const QString &index, models)
+        submodelStack << getSubmodelName(index.toInt());
+  }
+
+  ViewerStep::StepKey viewerStepKey = { list.at(BM_STEP_MODEL_KEY).toInt(),
+                                        list.at(BM_STEP_LINE_KEY).toInt(),
+                                        list.at(BM_STEP_NUM_KEY).toInt() };
+  submodelStack << getSubmodelName(viewerStepKey.modIndex);
+  if (submodelStack.size() > 1)
+      submodelStack.removeDuplicates();
+  for (const QString &fileName : submodelStack)
+    setModified(fileName, true);
+
+  list.clear();
+  QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
+  while (i != _viewerSteps.constEnd()) {
+    if (viewerStepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
+      if (viewerStepKey.stepNum <= i->_stepKey.stepNum) {
+        QFileInfo imageInfo(i->_imagePath);
+        if (imageInfo.exists()) {
+          if (modified(getSubmodelName(viewerStepKey.modIndex)));
+            list.append(i->_imagePath);
+        }
+      }
+    }
+    ++i;
+  }
+
+  if (list.size() > 1)
+    list.removeDuplicates();
+
+  return list;
 }
 
 /* return viewer step image path */
