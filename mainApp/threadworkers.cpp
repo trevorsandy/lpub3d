@@ -2193,8 +2193,8 @@ int CountPageWorker::countPage(
       if (!opts.stepNumber)
           opts.stepNumber = 1 + gui->sa;
 #ifdef QT_DEBUG_MODE
-      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
-                      .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
+                           .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       gui->topOfPages.clear();
       gui->topOfPages.append(opts.current);
@@ -2536,8 +2536,8 @@ int CountPageWorker::countPage(
                   } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                  gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
-                                  .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
+                  emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
+                                       .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
                   gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
@@ -2554,18 +2554,18 @@ int CountPageWorker::countPage(
                // parse lines after MULTI_STEP END in the last step of a submodel
                if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) {
                    if (opts.flags.partsAdded)
-                       gui->parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
-                                       opts.current,Preferences::BuildModErrors);
+                       emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
+                                               opts.current,Preferences::BuildModErrors,false,false);
                    buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
                    buildMod.key = meta->LPub.buildMod.key();
                    if (ldrawFile->buildModContains(buildMod.key)) {
                        buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
                        if (ldrawFile->getBuildModActionPrevIndex(buildMod.key, buildModStepIndex, rc) < buildModStepIndex)
-                           gui->parseError("Redundant build modification meta command - this command can be removed.",
-                                           opts.current,Preferences::BuildModErrors);
+                           emit gui->parseErrorSig("Redundant build modification meta command - this command can be removed.",
+                                                   opts.current,Preferences::BuildModErrors,false,false);
                    } else {
-                       gui->parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
-                                       opts.current,Preferences::BuildModErrors);
+                       emit gui->parseErrorSig(QString("BuildMod for key '%1' not found").arg(buildMod.key),
+                                       opts.current,Preferences::BuildModErrors,false,false);
                    }
                    if ((Rc)buildMod.action != rc) {
 #ifdef QT_DEBUG_MODE
@@ -2621,11 +2621,11 @@ int CountPageWorker::countPage(
               // parse build modifications
               if ( opts.flags.parseBuildMods) {
                   if (buildMod.level > 1 && buildMod.key.isEmpty())
-                      gui->parseError("Key required for nested build mod meta command",
-                                      opts.current,Preferences::BuildModErrors,false,false);
+                      emit gui->parseErrorSig("Key required for nested build mod meta command",
+                                              opts.current,Preferences::BuildModErrors,false,false);
                   if (buildMod.state != BM_BEGIN)
-                      gui->parseError(QString("Required meta BUILD_MOD BEGIN not found"),
-                                      opts.current, Preferences::BuildModErrors,false,false);
+                      emit gui->parseErrorSig(QString("Required meta BUILD_MOD BEGIN not found"),
+                                              opts.current, Preferences::BuildModErrors,false,false);
                   insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, opts.current);
               }
               buildMod.state = BM_END_MOD;
@@ -2642,8 +2642,8 @@ int CountPageWorker::countPage(
               // parse build modifications
               if ( opts.flags.parseBuildMods) {
                   if (buildMod.state != BM_END_MOD)
-                      gui->parseError(QString("Required meta BUILD_MOD END_MOD not found"),
-                                      opts.current, Preferences::BuildModErrors,false,false);
+                      emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD not found"),
+                                              opts.current, Preferences::BuildModErrors,false,false);
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               }
               buildMod.state = BM_END;
@@ -2664,8 +2664,8 @@ int CountPageWorker::countPage(
                       // BuildMod create
                       if (buildModKeys.size()) {
                           if (buildMod.state != BM_END)
-                              gui->parseError(QString("Required meta BUILD_MOD END not found"),
-                                         opts.current, Preferences::BuildModErrors,false,false);
+                              emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                                                      opts.current, Preferences::BuildModErrors,false,false);
                           Q_FOREACH (int buildModLevel, buildModKeys.keys())
                               insertBuildModification(buildModLevel);
                       }
@@ -2704,8 +2704,8 @@ int CountPageWorker::countPage(
                       } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
-                                      .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+                      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
+                                           .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                       ++opts.pageNum;
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
@@ -2805,7 +2805,8 @@ int CountPageWorker::countPage(
               opts.flags.includeFileRc = gui->includePub(*meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
               if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
                   opts.flags.includeFileRc = static_cast<int>(EndOfIncludeFileRc);
-                  gui->parseError(tr("INCLUDE file was not resolved."),opts.current,Preferences::IncludeFileErrors);  // file parse error
+                  emit gui->parseErrorSig(tr("INCLUDE file was not resolved."),
+                                          opts.current,Preferences::IncludeFileErrors,false,false);  // file parse error
               } else if (static_cast<Rc>(opts.flags.includeFileRc) != EndOfIncludeFileRc) {  // still reading so continue
                   opts.flags.resetIncludeRc = false;                                         // do not reset, allow includeFileRc to execute
                   continue;
@@ -2905,8 +2906,8 @@ int CountPageWorker::countPage(
       } // Exporting
 
 #ifdef QT_DEBUG_MODE
-      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
-                                .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+                           .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;
       ++gui->stepPageNum;
