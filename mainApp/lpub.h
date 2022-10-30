@@ -629,9 +629,9 @@ public:
   {
     return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_SUBPART;
   }
-  bool modified(const QString &fileName)
+  bool modified(const QString &fileName, bool reset = false)
   {
-    return ldrawFile.modified(fileName);
+    return ldrawFile.modified(fileName, reset);
   }
   bool modified(const QStringList &parsedStack, bool reset = false)
   {

@@ -178,7 +178,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 		PieceInfo* Info = PieceIt->second;
 
 /*** LPub3D Mod - project piece ***/
-		IsPieceModified = CurrentProject ? CurrentProject->IsProjectPieceModified() : false;
+		IsPieceModified = CurrentProject && CurrentProject->IsProjectPieceModified();
 		if ((!CurrentProject || !Info->IsModel() || CurrentProject->GetModels().FindIndex(Info->GetModel()) != -1) && ((!ProjectPath.isEmpty() && !IsPieceModified) || Info->IsProjectPiece() || !Info->IsProject()))
 /*** LPub3D Mod end ***/
 			return Info;

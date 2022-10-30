@@ -488,12 +488,20 @@ bool LDrawFile::modified()
   return modified;
 }
 
-bool LDrawFile::modified(const QString &mcFileName)
+bool LDrawFile::modified(const QString &mcFileName, bool reset)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
-    return i.value()._modified;
+    const bool modified = i.value()._modified;
+    if (reset) {
+      i.value()._modified = false;
+#ifdef QT_DEBUG_MODE
+      if (reset && modified)
+          emit gui->messageSig(LOG_DEBUG, QString("Reset Submodel: %1, Modified: [No].").arg(mcFileName));
+#endif
+    }
+    return modified;
   } else {
     return false;
   }
@@ -535,7 +543,8 @@ bool LDrawFile::modified(const QVector<int> &parsedIndexes, bool reset)
 
 #ifdef QT_DEBUG_MODE
     if (result) {
-        modifiedSubmodels.trimmed().chop(1);
+        modifiedSubmodels = modifiedSubmodels.trimmed();
+        modifiedSubmodels.chop(1);
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Modified %1 %2 %3")
                                                 .arg(count).arg(count == 1 ? "Submodel:" : "Submodels:")
                                                 .arg(modifiedSubmodels));
@@ -789,6 +798,10 @@ QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
                 parsedIndexes << getSubmodelIndex(it.key());
             ++it;
         }
+
+        // remove top level file index
+        parsedIndexes.takeFirst();
+
         return parsedIndexes;
     }
 
