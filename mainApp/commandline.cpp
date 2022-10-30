@@ -393,6 +393,29 @@ int LPub::processCommandLine()
       return 1;
   }
 
+  auto restoreRendererAndLibrary = [&rendererChanged] () {
+    if (rendererChanged) {
+        Preferences::preferredRenderer        = Gui::savedData.renderer;
+        Preferences::enableLDViewSingleCall   = Gui::savedData.useLDVSingleCall ;
+        Preferences::enableLDViewSnaphsotList = Gui::savedData.useLDVSnapShotList;
+        Preferences::useNativePovGenerator    = Gui::savedData.useNativeGenerator;
+        Preferences::perspectiveProjection    = Gui::savedData.usePerspectiveProjection;
+        Preferences::preferredRendererPreferences(true/*global*/);
+    }
+
+    if (!Preferences::currentLibrarySave.isEmpty()) {
+        QSettings Settings;
+        // set library directly in setings
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),Preferences::currentLibrarySave);
+        // clear current library save
+        Preferences::currentLibrarySave.clear();
+        // call with empty library argument
+        Preferences::setLPub3DAltLibPreferences(QString());
+        // re-initialize directories
+        Preferences::lpubPreferences();
+    }
+  };
+
   if (! preferredRenderer.isEmpty()) {
      Gui::savedData.renderer           = Preferences::preferredRenderer;
      Gui::savedData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
@@ -592,12 +615,15 @@ int LPub::processCommandLine()
                            .arg(Preferences::fileLoadWaitTime/60000)
                            .arg(LPub::elapsedTime(commandTimer.elapsed()));
               emit gui->messageSig(LOG_ERROR,message);
+              restoreRendererAndLibrary();
               return -1;
           }
       }
 
-      if (LPub::mFileLoadFail)
+      if (LPub::mFileLoadFail) {
+          restoreRendererAndLibrary();
           return -1;
+      }
   }
 
   int mode = PAGE_PROCESS;
@@ -652,16 +678,8 @@ int LPub::processCommandLine()
       emit consoleCommandSig(mode, &result);
 
   } else {
+      restoreRendererAndLibrary();
       return 1;
-  }
-
-  if (rendererChanged) {
-      Preferences::preferredRenderer        = Gui::savedData.renderer;
-      Preferences::enableLDViewSingleCall   = Gui::savedData.useLDVSingleCall ;
-      Preferences::enableLDViewSnaphsotList = Gui::savedData.useLDVSnapShotList;
-      Preferences::useNativePovGenerator    = Gui::savedData.useNativeGenerator;
-      Preferences::perspectiveProjection    = Gui::savedData.usePerspectiveProjection;
-      Preferences::preferredRendererPreferences(true/*global*/);
   }
 
   emit gui->messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
@@ -670,6 +688,8 @@ int LPub::processCommandLine()
 
   disconnect(gui,  SIGNAL(fileLoadedSig(bool)),
              this, SLOT(  fileLoaded(bool)));
+
+  restoreRendererAndLibrary();
 
   return result;
 }

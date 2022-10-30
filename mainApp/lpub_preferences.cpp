@@ -305,6 +305,7 @@ QString Preferences::loggingLevel               = LOGGING_LEVEL_DEFAULT;
 QString Preferences::logPath;
 QString Preferences::dataLocation;
 QString Preferences::systemEditor;
+QString Preferences::currentLibrarySave         = EMPTY_STRING_DEFAULT;
 
 QString Preferences::blenderVersion;
 QString Preferences::blenderRenderConfigFile;
@@ -574,6 +575,10 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
     QSettings Settings;
     if (! library.isEmpty()) {
         validLDrawLibrary = library;
+        const QString libraryCompare = Settings.value(QString("%1/%2").arg(SETTINGS,"LDrawLibrary")).toString();
+        if (libraryCompare != library) {
+            currentLibrarySave = libraryCompare;
+        }
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),validLDrawLibrary);
     } else {
         if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"))) {

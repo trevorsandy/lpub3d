@@ -252,6 +252,7 @@ class Preferences
     static QString sceneRulerTickColor;
     static QString sceneRulerTrackingColor;
     static QString sceneGuideColor;
+    static QString currentLibrarySave;
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
