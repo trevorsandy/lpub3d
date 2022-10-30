@@ -40,7 +40,9 @@ public:
 class Project
 {
 public:
-	Project(bool IsPreview = false);
+/*** LPub3D Mod - Render Image ***/
+	Project(bool IsPreview = false, bool IsRenderImage = false);
+/*** LPub3D Mod end ***/
 	~Project();
 
 	Project(const Project&) = delete;
@@ -69,7 +71,12 @@ public:
 	{
 		return !mModels.IsEmpty() ? mModels[0] : nullptr;
 	}
-
+/*** LPub3D Mod - Render Image ***/
+	bool IsRenderImage()
+	{
+		return mRenderImage;
+	}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - project piece ***/
 	bool IsModified(const QString &FileName, bool reset) const;
 /*** LPub3D Mod end ***/
@@ -202,6 +209,9 @@ protected:
 //	void SetFileName(const QString& FileName);   /*** LPub3D Mod - viewer interface (moved to public) ***/
 
 	bool mIsPreview;
+/*** LPub3D Mod - Render Image ***/
+	bool mRenderImage;
+/*** LPub3D Mod end ***/
 	bool mModified;
 	QString mFileName;
 	QFileSystemWatcher mFileWatcher;

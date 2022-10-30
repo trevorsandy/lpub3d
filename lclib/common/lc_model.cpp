@@ -30,6 +30,9 @@
 #include "lpub.h"
 #include "metaitem.h"
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Render Image ***/
+#include "project.h"
+/*** LPub3D Mod end ***/
 
 void lcModelProperties::LoadDefaults()
 {
@@ -569,9 +572,13 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			if (Token == QLatin1String("//"))
 			{
 				LineStream >> Token;
-/*** LPub3D Mod - preview widget ***/
-				if (!mIsPreview && gMainWindow && Token == QLatin1String("ROTSTEP"))
-					gMainWindow->ParseAndSetRotStep(LineStream);
+				if (Token == QLatin1String("ROTSTEP"))
+				{
+/*** LPub3D Mod - preview widget - Render Image ***/
+					if (gMainWindow && !mIsPreview && !Project->IsRenderImage())
+/*** LPub3D Mod end ***/
+						gMainWindow->ParseAndSetRotStep(LineStream);
+				}
 			}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process color entry ***/
@@ -1807,9 +1814,9 @@ void lcModel::SetActive(bool Active)
 {
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
-/*** LPub3D Mod - Selected Parts ***/
-	if (!mIsPreview && gMainWindow)
-		emit gMainWindow->SetActiveModelSig(mProperties.mFileName,Active);
+/*** LPub3D Mod - Selected Parts - Render Image ***/
+	if (!mIsPreview && gMainWindow && !lcGetActiveProject()->IsRenderImage())
+		emit gMainWindow->SetActiveModelSig(mProperties.mModelName,Active);
 /*** LPub3D Mod end ***/
 }
 

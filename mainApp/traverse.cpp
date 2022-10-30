@@ -548,7 +548,6 @@ int Gui::drawPage(
                                 .arg(displayPageNum).arg(opts.stepNum).arg(elidedModelName).arg(fin ? "" : "...");
       emit messageSig(LOG_STATUS, message);
       emit messageSig(fin ? LOG_TRACE : LOG_INFO, message);
-      QApplication::processEvents();
   };
 
   auto getTopOfPreviousStep = [this,&topOfStep] () {
@@ -577,7 +576,6 @@ int Gui::drawPage(
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
     pageProcessRunning = PROC_COUNT_PAGE;
-    QCoreApplication::processEvents();
   };
 
   auto insertAttribute =

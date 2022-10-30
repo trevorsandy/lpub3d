@@ -414,8 +414,8 @@ void lcApplication::UpdateStyle()
 
 void lcApplication::SaveTabLayout() const
 {
-/*** LPub3D Mod - Fix crash in CLI mode ***/
-	if (!gMainWindow || !mProject || mProject->GetFileName().isEmpty())
+/*** LPub3D Mod - Fix crash in CLI mode - Render Image ***/
+	if (!gMainWindow || !mProject || mProject->GetFileName().isEmpty() || mProject->IsRenderImage())
 		return;
 /*** LPub3D Mod - ***/
 
@@ -427,7 +427,9 @@ void lcApplication::SaveTabLayout() const
 
 QString lcApplication::GetTabLayoutKey() const
 {
-	if (mProject)
+/*** LPub3D Mod - Render Image ***/
+	if (mProject && !mProject->IsRenderImage())
+/*** LPub3D Mod end ***/
 	{
 		QString FileName = mProject->GetFileName();
 		if (!FileName.isEmpty())
@@ -445,7 +447,9 @@ void lcApplication::SetProject(Project* Project)
 {
 	SaveTabLayout();
 
-	if (gMainWindow)
+/*** LPub3D Mod - Render Image ***/
+	if (gMainWindow && !Project->IsRenderImage())
+/*** LPub3D Mod end ***/
 	{
 		gMainWindow->RemoveAllModelTabs();
 
@@ -459,7 +463,9 @@ void lcApplication::SetProject(Project* Project)
 	Project->SetActiveModel(0);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
 
-	if (mProject && !mProject->GetFileName().isEmpty() && mPreferences.mRestoreTabLayout)
+/*** LPub3D Mod - Render Image ***/
+	if (mProject && !mProject->GetFileName().isEmpty() && !Project->IsRenderImage() && mPreferences.mRestoreTabLayout)
+/*** LPub3D Mod end ***/
 	{
 		QSettings Settings;
 		QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();

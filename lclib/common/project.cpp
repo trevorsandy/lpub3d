@@ -72,8 +72,10 @@ void lcHTMLExportOptions::SaveDefaults()
 /*** LPub3D Mod end ***/
 }
 
-Project::Project(bool IsPreview)
-	: mIsPreview(IsPreview)
+/*** LPub3D Mod - Render Image ***/
+Project::Project(bool IsPreview, bool IsRenderImage)
+	: mIsPreview(IsPreview), mRenderImage(IsRenderImage)
+/*** LPub3D Mod end ***/
 {
 	mModified = false;
 /*** LPub3D Mod - viewer step key ***/
@@ -222,7 +224,9 @@ void Project::SetActiveModel(int ModelIndex)
 
 	mActiveModel = mModels[ModelIndex];
 
-	if (!mIsPreview && gMainWindow)
+/*** LPub3D Mod - Render Image ***/
+	if (!mIsPreview && !mRenderImage && gMainWindow)
+/*** LPub3D Mod end ***/
 	{
 		gMainWindow->SetCurrentModelTab(mActiveModel);
 		mActiveModel->UpdateInterface();

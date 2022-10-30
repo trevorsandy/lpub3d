@@ -1807,32 +1807,44 @@ void Gui::reloadViewer(){
  {
      bool Loaded = false;
 
-     if (gMainWindow && UseFile) {
-         Loaded = gMainWindow->OpenProject(Options->InputFileName);
-     }
-     else
+     Project* Loader = nullptr;
+
+     if (Type != NATIVE_VIEW) // NATIVE_IMAGE or NATIVE_EXPORT
      {
-         Project* Loader = new Project();
-         if (UseFile) {
-            Loaded = Loader->Load(Options->InputFileName, gMainWindow/*ShowErrors*/);
-            if (Loaded)
-            {
-                gApplication->SetProject(Loader);
-                lcView::UpdateProjectViews(Loader);
-            }
-            else
-                delete Loader;
+         if (Type == NATIVE_IMAGE)
+             Loader = new Project(false/*IsPreview*/, NATIVE_IMAGE);
+         else
+             Loader = new Project();
+
+         QString FileName, StepKey;
+         if (UseFile && !Options->InputFileName.isEmpty())
+            FileName = Options->InputFileName;
+         else
+            StepKey = Options->ViewerStepKey;
+
+         Loaded = Loader->Load(FileName, StepKey, Options->ImageType, false/*ShowErrors*/);
+         if (Loaded)
+         {
+             gApplication->SetProject(Loader);
+             lcView::UpdateProjectViews(Loader);
          }
          else
-         {
-            Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, gMainWindow/*ShowErrors*/);
-            if (Loaded)
-            {
-                gApplication->SetProject(Loader);
-                lcView::UpdateProjectViews(Loader);
-            }
-            else
-                delete Loader;
+             delete Loader;
+     }
+     else if (gMainWindow) // NATIVE_VIEW
+     {
+         if (UseFile && !Options->InputFileName.isEmpty()) {
+             Loaded = gMainWindow->OpenProject(Options->InputFileName);
+         } else {
+             Loader = new Project();
+             Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/);
+             if (Loaded)
+             {
+                 gApplication->SetProject(Loader);
+                 lcView::UpdateProjectViews(Loader);
+             }
+             else
+                 delete Loader;
          }
      }
 
