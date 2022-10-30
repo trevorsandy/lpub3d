@@ -5416,8 +5416,9 @@ void Gui::writeToTmp(const QString &fileName,
                       if ((buildModApplicable = i < buildModBottom)) {
                           buildModKey   = meta.LPub.buildMod.key();
                           buildModLevel = getLevel(buildModKey, BM_BEGIN);
+                          // insert 'BuildModRemoveRc' if key not yet created (buildModIgnore = true)
                           if (! buildModContains(buildModKey))
-                              buildModActions.insert(buildModLevel, BuildModNoActionRc);
+                              buildModActions.insert(buildModLevel, BuildModRemoveRc);
                           else
                               buildModActions.insert(buildModLevel, getBuildModAction(buildModKey, getBuildModNextStepIndex()));
                           if (buildModActions.value(buildModLevel) == BuildModApplyRc)
