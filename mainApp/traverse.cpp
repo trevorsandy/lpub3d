@@ -2040,6 +2040,9 @@ int Gui::drawPage(
               if (buildModChange) {
                   buildModActions.insert(buildMod.level, getBuildModAction(buildMod.key, buildModStepIndex));
                   if (buildModActions.value(buildMod.level) != rc) {
+#ifdef QT_DEBUG_MODE
+                      emit messageSig(LOG_NOTICE, QString("Reset Build Mod - %1").arg(rc == BuildModRemoveRc ? "BuildModRemove" : "BuildModApply"));
+#endif
                       // set BuildMod action for current step
                       setBuildModAction(buildMod.key, buildModStepIndex, rc);
                       // set buildModStepIndex for writeToTmp() and findPage() content
@@ -2050,9 +2053,12 @@ int Gui::drawPage(
                           QString stack;
                           Q_FOREACH (const SubmodelStack &model,curMeta.submodelStack)
                             stack.append(QString("%1:").arg(getSubmodelIndex(model.modelName)));
-                          if (!stack.isEmpty())
-                            stack.replace(stack.lastIndexOf(":"),1,";");
-                          buildModClearStepKey = QString("%1%2;%3;%4").arg(stack).arg(topOfStep.modelIndex).arg(topOfStep.lineNumber).arg(opts.stepNum);
+                          if (!stack.isEmpty()) {
+                              stack.replace(stack.lastIndexOf(":"),1,";");
+                              buildModClearStepKey = QString("%1%2;%3;%4")
+                                      .arg(stack).arg(topOfStep.modelIndex)
+                                      .arg(topOfStep.lineNumber).arg(opts.stepNum);
+                          }
                       }
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       pageProcessRunning = PROC_FIND_PAGE;
@@ -2340,7 +2346,7 @@ int Gui::drawPage(
                                   emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                                   // get the number of submodel instances in the model file
-                                  instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);                                
+                                  instances = ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                                   if (steps->meta.LPub.subModel.showInstanceCount.value())
                                      displayInstanceCount = instances > 1 || steps->meta.LPub.page.countInstanceOverride.value() > 1;
                                   // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However,
@@ -3056,7 +3062,7 @@ int Gui::findPage(
 
                                   // set the group step number to the first step of the submodel
                                   if (meta.LPub.multiStep.pli.perStep.value() == false &&
-                                          meta.LPub.multiStep.showGroupStepNumber.value()) {
+                                      meta.LPub.multiStep.showGroupStepNumber.value()) {
                                       opts.groupStepNumber = opts.stepNumber;
                                   }
 
@@ -3075,11 +3081,12 @@ int Gui::findPage(
                                   }
 
                                   // set the step number and parent model where the submodel will be rendered
-                                  FindPageOptions submodelOpts(
+                                  FindPageOptions modelOpts(
                                               opts.pageNum,
                                               current2,
                                               opts.pageSize,
                                               flags2,
+                                              opts.modelStack,
                                               opts.pageDisplayed,
                                               opts.updateViewer,
                                               opts.isMirrored,
@@ -3089,18 +3096,43 @@ int Gui::findPage(
                                               opts.groupStepNumber,
                                               opts.current.modelName /*renderParentModel*/);
 
-                                  if (findPage(view, scene, meta, line, submodelOpts) == HitBuildModAction) {
+                                  if (findPage(view, scene, meta, line, modelOpts) == HitBuildModAction) {
                                       // return to init drawPage to rerun findPage to regenerate content
                                       pageProcessRunning = PROC_DISPLAY_PAGE;
                                       return HitBuildModAction;
                                   }
 
-                                  opts.pageDisplayed = submodelOpts.pageDisplayed;
+                                  opts.pageDisplayed = modelOpts.pageDisplayed;
+                                  if (opts.pageDisplayed) {                 // capture where we stopped in the submodel
+                                      if (modelOpts.current.lineNumber < modelOpts.flags.numLines) {
+                                          opts.pageNum           = modelOpts.pageNum;
+                                          opts.current           = modelOpts.current;
+                                          opts.pageSize          = modelOpts.pageSize;
+                                          opts.flags             = modelOpts.flags;
+                                          opts.modelStack        = meta.submodelStack;
+                                          opts.stepNumber        = modelOpts.stepNumber;
+                                          opts.renderParentModel = modelOpts.renderParentModel;
+                                          // decrement current lineNumber by 1 line to account for
+                                          // lineNumber increment as we iterate to terminate the
+                                          // line processing loop at 'pageDisplayed'
+                                          opts.current--;
+                                          // if we are at the last step of the submodel, with not parts added, turn
+                                          // on parseBuildMods in countPage in case ther is a BUILD_MOD REMOVE command.
+                                          bool partsAdded;
+                                          Where walk = modelOpts.current;
+                                          Rc rc = mi->scanForward(walk,StepMask,partsAdded);
+                                          opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
+                                          // if not parts added to last step, set partsAdded to -1 so later increment
+                                          // will result in a value of 0.
+                                          if (opts.flags.parseBuildMods)
+                                              opts.flags.partsAdded = -1;
+                                      }
+                                  }
 
                                   saveStepPageNum = stepPageNum;
                                   buildMod = saveBuildMod2;                 // restore old buildMod
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
-                                  meta.submodelStack.pop_back();            // remove where we stopped in the parent model
+                                  meta.submodelStack.pop_back();            // remove where we stopped in the parent model - if page not yet displayed
 
                                   if (opts.contStepNumber) {                // capture continuous step number from exited submodel
                                       opts.contStepNumber = saveContStepNum;
@@ -3311,7 +3343,7 @@ int Gui::findPage(
 
                   opts.flags.noStep2 = false;
 
-                } // StepGroup && ! NoStep2
+                } // StepGroup && ! NoStep2 (StepGroupEndRc)
 
               if (opts.current.modelName == topLevelFile())
                   opts.pageDisplayed = opts.pageNum > displayPageNum;
@@ -3436,6 +3468,20 @@ int Gui::findPage(
                                 opts.groupStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
                                 saveGroupStepNum      = opts.groupStepNumber;
                             }
+                            // insert build Mods when processing step group steps after the first step
+                            if (/*opts.pageDisplayed*/opts.flags.stepGroup) {
+                                // insert build modifications
+                                if (buildModKeys.size()) {
+                                    if (buildMod.state != BM_END)
+                                        parseError(QString("Required meta BUILD_MOD END not found"),
+                                                   opts.current, Preferences::BuildModErrors,false,false);
+                                    Q_FOREACH (int buildModLevel, buildModKeys.keys()) {
+                                        insertBuildModification(buildModLevel);
+                                    }
+                                    buildModKeys.clear();
+                                    buildModAttributes.clear();
+                                } // BuildModKeys
+                            } // StepGroup
 #ifdef WRITE_PARTS_DEBUG
                             writeFindPartsFile("a_find_csi_parts", csiParts);
 #endif
@@ -3541,11 +3587,11 @@ int Gui::findPage(
                             ++opts.pageNum;
                             opts.flags.addCountPage = true;
                             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
-                        } // ! opts.flags.noStep
+                        } // ! opts.flags.noStep && ! StepGroup (StepRc,RotStepRc)
 
-                        // if page displayed
-                        if (opts.pageDisplayed) {
-                            // insert build modification
+                        // insert build Mods when processing single step
+                        if (/*opts.pageDisplayed*/isPreDisplayPage) {
+                            // insert build modifications
                             if (buildModKeys.size()) {
                                 if (buildMod.state != BM_END)
                                     parseError(QString("Required meta BUILD_MOD END not found"),
@@ -3829,7 +3875,7 @@ int Gui::findPage(
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (opts.flags.partsAdded && (! opts.flags.noStep || opts.flags.parseNoStep)) {
+  if (opts.flags.partsAdded && ! opts.pageDisplayed && (! opts.flags.noStep || opts.flags.parseNoStep)) {
       isPreDisplayPage = opts.pageNum < displayPageNum;
       isDisplayPage = opts.pageNum == displayPageNum;
       // increment continuous step number
@@ -3928,7 +3974,7 @@ int Gui::findPage(
                   opts.flags.addCountPage = true;
               }
           }
-      } // ! opts.flags.noStep
+      } // ! opts.flags.noStep (last step in submodel)
 
       // Clear parts added so we dont count again in countPage;
       opts.flags.partsAdded = 0;
@@ -4389,6 +4435,7 @@ void Gui::countPages()
       FindPageFlags flags;
       PgSizeData emptyPageSize;
       QMap<int,int> buildModActions;
+      QList<SubmodelStack> modelStack;
 
       current              =  Where(ldrawFile.topLevelFile(),0,0);
       saveDisplayPageNum   =  displayPageNum;
@@ -4414,6 +4461,7 @@ void Gui::countPages()
                   current,
                   emptyPageSize,
                   flags,
+                  modelStack,
                   false          /*pageDisplayed*/,
                   false          /*updateViewer*/,
                   false          /*mirrored*/,
@@ -4539,6 +4587,7 @@ void Gui::drawPage(
 
   QString empty;
   FindPageFlags flags;
+  QList<SubmodelStack> modelStack;
 
   enableLineTypeIndexes = true;
 
@@ -4563,6 +4612,7 @@ void Gui::drawPage(
               current,
               pageSize,
               flags,
+              modelStack,
               updateViewer,
               false        /*pageDisplayed*/,
               false        /*mirrored*/,
@@ -4580,7 +4630,9 @@ void Gui::drawPage(
     drawPage(view,scene,printing,updateViewer,buildModActionChange);
 
   } else {
-
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_NOTICE, QString("DRAW PAGE Init COUNT page call at page %1 (pageNum %2)").arg(findOptions.pageNum - 1).arg(findOptions.pageNum));
+//#endif
     QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
     if (exporting() || ContinuousPage() || mloadingFile) {
       future.waitForFinished();
@@ -4597,15 +4649,29 @@ void Gui::drawPage(
 
 void Gui::pagesCounted()
 {
-#ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("COUNTED topOfPage pageCounted (current)             model %1, line %2")
-                    .arg(current.modelName).arg(current.lineNumber));
-#endif
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_NOTICE, QString("COUNTED topOfPage pageCounted (current)             model %1, line %2")
+//                    .arg(current.modelName).arg(current.lineNumber));
+//#endif
     topOfPages.append(current);
 
     maxPages--;
 
     pageProcessRunning = PROC_NONE;
+/*
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_TRACE, QString("COUNTED Page Indexes at displayPageNum %1 of %2").arg(displayPageNum).arg(maxPages));
+    for (int i = 0; i < topOfPages.size(); i++)
+    {
+        Where top = topOfPages.at(i);
+        emit messageSig(LOG_TRACE, QString("COUNTED PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+                        .arg(i)               // index
+                        .arg(top.modelIndex)  // modelIndex
+                        .arg(top.lineNumber)  // lineNumber
+                        .arg(top.modelName)); // modelName
+    }
+#endif
+*/
 
     if (Preferences::modeGUI && ! exporting()) {
         QString message;
@@ -4666,19 +4732,6 @@ void Gui::pagesCounted()
         mloadingFile = false;
 
     QApplication::restoreOverrideCursor();
-
-//#ifdef QT_DEBUG_MODE
-//    emit messageSig(LOG_NOTICE, QString("DrawPage StepIndex"));
-//    for (int i = 0; i < topOfPages.size(); i++)
-//    {
-//        emit messageSig(LOG_NOTICE, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-//                        .arg(i)                                            // index
-//                        .arg(getSubmodelIndex(topOfPages.at(i).modelName)) // modelIndex
-//                        .arg(topOfPages.at(i).lineNumber)                  // lineNumber
-//                        .arg(topOfPages.at(i).modelName));                 // modelName
-//    }
-//#endif
-
 }
 
 int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)

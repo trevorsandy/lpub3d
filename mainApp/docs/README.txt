@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2689 (30 10 2022 21:27:22)
+LPub3D 2.4.4.1.2690 (30 10 2022 21:28:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -17,9 +17,13 @@ Revisions:
 - Enhancement - Load visual editor at cover page #593
 - Change - Load model editor at cover page #593
 - Change - TENTE parts outdated #
+- Fix - Build mods don't work properly #520
+- Fix - BUILD_MOD in Multipart model not working as expected #591
 - Fix - Error occurred while downloading archive library #568
+- Fix - Generating PDF crashes LPub on a certain page #557
 - Fix - Invalid appstream file #589
 - Fix - LPub3D plug, logo and other auto text features #594
+- Fix - Messed up and weird rendering #518
 - Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
 - Fix - Update build from source scripts #585

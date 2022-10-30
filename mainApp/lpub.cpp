@@ -3274,7 +3274,6 @@ Gui::Gui()
     qRegisterMetaType<FreeFormData>("FreeFormData");
     qRegisterMetaType<InsertData>("InsertData");
     qRegisterMetaType<JustifyStepData>("JustifyStepData");
-    qRegisterMetaType<ModelStack>("ModelStack");
     qRegisterMetaType<NativeOptions>("NativeOptions");
     qRegisterMetaType<PageSizeData>("PageSizeData");
     qRegisterMetaType<PgSizeData>("PgSizeData");
@@ -6373,7 +6372,7 @@ void Gui::parseError(const QString &message, const Where &here, Preferences::Msg
     };
 
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI && !exporting()) {
+    if (Preferences::modeGUI && !exporting() && !ContinuousPage()) {
         if (pageProcessRunning == PROC_FIND_PAGE || pageProcessRunning == PROC_DRAW_PAGE) {
             showLine(here, LINE_ERROR);
         }
@@ -6513,7 +6512,7 @@ void Gui::statusMessage(LogType logType, QString message) {
              logError() << qPrintable(QString(message).replace("<br>"," "));
 
              if (guiEnabled) {
-                 if (ContinuousPage()) {
+                 if (ContinuousPage() || exporting()) {
                      statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
                  } else {
                      QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),message);

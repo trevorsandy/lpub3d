@@ -176,28 +176,7 @@ class Meta;
 class Where;
 class PgSizeData;
 class PliPartGroupMeta;
-
-class ModelStack
-{
-public:
-  QString modelName;
-      int lineNumber;
-      int stepNumber;
-  ModelStack()
-  {
-    modelName = "undefined";
-    lineNumber = 0;
-    stepNumber = 0;
-  }
-  ModelStack(QString _modelName,
-                int _lineNumber,
-                int _stepNumber)
-  {
-    modelName  = _modelName;
-    lineNumber = _lineNumber;
-    stepNumber = _stepNumber;
-  }
-};
+class SubmodelStack;
 
 class BuildModFlags
 {
@@ -286,6 +265,7 @@ public:
             Where           &_current,
             PgSizeData      &_pageSize,
             FindPageFlags   &_flags,
+            QList<SubmodelStack> &_modelStack,
 
             bool             _pageDisplayed,
             bool             _updateViewer,
@@ -300,6 +280,7 @@ public:
           current           (_current),
           pageSize          (_pageSize),
           flags             (_flags),
+          modelStack        (_modelStack),
 
           pageDisplayed     (_pageDisplayed),
           updateViewer      (_updateViewer),
@@ -310,19 +291,19 @@ public:
           groupStepNumber   (_groupStepNumber),
           renderParentModel (_renderParentModel)
     {  }
-    int           &pageNum;
-    Where         &current;
-    PgSizeData    &pageSize;
-    FindPageFlags &flags;
-
-    bool           pageDisplayed;
-    bool           updateViewer;
-    bool           isMirrored;
-    bool           printing;
-    int            stepNumber;
-    int            contStepNumber;
-    int            groupStepNumber;
-    QString        renderParentModel;
+    int            &pageNum;
+    Where          &current;
+    PgSizeData     &pageSize;
+    FindPageFlags  &flags;
+    QList<SubmodelStack> &modelStack;
+    bool            pageDisplayed;
+    bool            updateViewer;
+    bool            isMirrored;
+    bool            printing;
+    int             stepNumber;
+    int             contStepNumber;
+    int             groupStepNumber;
+    QString         renderParentModel;
 };
 
 class DrawPageOptions

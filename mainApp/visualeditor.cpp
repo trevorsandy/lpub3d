@@ -611,7 +611,7 @@ void Gui::halt3DViewer(bool enable)
         gMainWindow->menuBar()->setEnabled(true);
     }
 
-    messageSig(LOG_INFO, QString("Visual Editor %1").arg(enable ? "stopped" :"resumed"));
+    messageSig(LOG_INFO, QString("Exporting content - Visual Editor %1").arg(enable ? "stopped" :"resumed"));
 }
 
 void Gui::create3DDockWindows()
