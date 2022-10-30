@@ -2547,11 +2547,29 @@ int CountPageWorker::countPage(
             case BuildModRemoveRc:
                // to parse build mods to display page when jumping forward and to
                // parse lines after MULTI_STEP END in the last step of a submodel
-               if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) {
+               if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) { 
                    if (opts.flags.partsAdded)
                        emit gui->parseErrorSig(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                                opts.current,Preferences::BuildModErrors,false,false);
                    buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                   // if we are processing lines in the last step of a submodel, the topOfStep.lineNumber
+                   // likely will not reflect a valid value so we'll have to manually set it accordingly...
+                   if (buildModStepIndex == BM_INVALID_INDEX) {
+                       auto scanBackwardToStepMask = [&meta] (Where &topOfStep) {
+                           for ( ;topOfStep >= BM_BEGIN; topOfStep--) {
+                               QString line = gui->readLine(topOfStep);
+                               Rc rc = meta->parse(line,topOfStep);
+                               if (rc == StepRc || rc == RotStepRc)
+                                   return true;
+                           }
+                           return false;
+                       };
+                       if (scanBackwardToStepMask(topOfStep))
+                           buildModStepIndex = ldrawFile->getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                       else
+                           emit gui->parseErrorSig("Could not establish a valid model name and line number for the current step.",
+                                                   opts.current,Preferences::BuildModErrors,false,false);
+                   }
                    buildMod.key = meta->LPub.buildMod.key();
                    if (ldrawFile->buildModContains(buildMod.key)) {
                        buildMod.action = ldrawFile->getBuildModAction(buildMod.key, buildModStepIndex);
