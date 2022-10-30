@@ -220,14 +220,4 @@ inline Page& getPageRef()
 {
     return LPub->page;
 }
-
-inline Step* getCurrentStepPtr()
-{
-    return LPub->currentStep;
-}
-
-inline QString& getViewerStepKeyRef()
-{
-    return LPub->viewerStepKey;
-}
 #endif // APPLICATION_H

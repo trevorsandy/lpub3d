@@ -2786,8 +2786,8 @@ int Native::renderCsi(
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
   // Renderer options
-  NativeOptions *Options = getCurrentStepPtr()->viewerOptions;
-  const QString viewerStepKey = getCurrentStepPtr()->viewerStepKey;
+  NativeOptions *Options = LPub->currentStep->viewerOptions;
+  const QString viewerStepKey = LPub->currentStep->viewerStepKey;
   if (Options) {
     Options->ViewerStepKey     = viewerStepKey;
     Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
@@ -3011,11 +3011,11 @@ int Native::renderPli(
   NativeOptions *Options = nullptr;
   QString viewerStepKey;
   if (pliType == SUBMODEL) {
-    Options  = getCurrentStepPtr()->subModel.viewerOptions;
-    viewerStepKey = getCurrentStepPtr()->subModel.viewerSubmodelKey;
+    Options  = LPub->currentStep->subModel.viewerOptions;
+    viewerStepKey = LPub->currentStep->subModel.viewerSubmodelKey;
   } else {
-    Options  = getCurrentStepPtr()->pli.viewerOptions;
-    viewerStepKey = getCurrentStepPtr()->pli.viewerPliPartKey;
+    Options  = LPub->currentStep->pli.viewerOptions;
+    viewerStepKey = LPub->currentStep->pli.viewerPliPartKey;
   }
   if (Options) {
     Options->ViewerStepKey  = viewerStepKey;
