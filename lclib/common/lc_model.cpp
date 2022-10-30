@@ -2681,7 +2681,7 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes)
 
 	if (Modified)
 	{
-		SaveCheckpoint(tr("Selected Parts"));
+		//SaveCheckpoint(tr("Selected Parts")); // Disabled for v2.4.5 - enabling undo-redo when not needed
 		UpdateAllViews();
 		gMainWindow->UpdateTimeline(false, false);
 		gMainWindow->UpdateSelectedObjects(SelectionChanged, VIEWER_LINE);

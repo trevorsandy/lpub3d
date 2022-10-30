@@ -112,8 +112,10 @@ void Gui::setBuildModClearStepKey(const QString &text)
 void Gui::undo()
 {
   if (viewerUndo){
-    if (GetActiveModel())
-      GetActiveModel()->UndoAction();
+    lcView* ActiveView = GetActiveView();
+    lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+    if (ActiveModel)
+      ActiveModel->UndoAction();
   } else {
     setBuildModClearStepKey(undoStack->undoText());
     macroNesting++;
@@ -126,8 +128,10 @@ void Gui::undo()
 void Gui::redo()
 {
   if (viewerRedo){
-    if (GetActiveModel())
-      GetActiveModel()->RedoAction();
+      lcView* ActiveView = GetActiveView();
+      lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+      if (ActiveModel)
+        ActiveModel->RedoAction();
   } else {
     setBuildModClearStepKey(undoStack->redoText());
     macroNesting++;
