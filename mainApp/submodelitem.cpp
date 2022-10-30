@@ -481,8 +481,13 @@ int SubModel::createSubModelImage(
               return frc = 1;
           }
 
+          return frc;
+      });
+
+      rc = RenderFuture.result();
+
           // feed DAT to renderer
-          if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+          if (!rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
               emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
                                                      .arg(rendererNames[Render::getRenderer()])
                                                      .arg(imageName)
@@ -491,13 +496,13 @@ int SubModel::createSubModelImage(
                                                      .arg(step ? step->stepNumber.number : 0)
                                                      .arg(gui->stepPageNum));
               imageName = QString(":/resources/missingimage.png");
-              frc = -1;
+              /*f*/rc = -1;
           }
 
-          return frc;
-      });
+      //    return frc;
+      //});
 
-      rc = RenderFuture.result();
+      //rc = RenderFuture.result();
 
       if (!rc) {
           emit gui->messageSig(LOG_INFO,

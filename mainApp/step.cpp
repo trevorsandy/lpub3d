@@ -582,19 +582,19 @@ int Step::createCsi(
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
 
-         QFuture<int> RenderFuture = QtConcurrent::run([this, &addLine, &csiParts, &csiKeys, &meta, nType] () {
-             int frc = 0;
-             QStringList futureParts = csiParts;
-             if ((frc = renderer->renderCsi(addLine, futureParts, csiKeys, pngName, meta, nType)) != 0) {
+         //QFuture<int> RenderFuture = QtConcurrent::run([this, &addLine, &csiParts, &csiKeys, &meta, nType] () {
+         //    int frc = 0;
+         //    QStringList futureParts = csiParts;
+             if ((/*f*/rc = renderer->renderCsi(addLine, /*futureParts*/csiParts, csiKeys, pngName, meta, nType)) != 0) {
                  emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
                                       .arg(rendererNames[Render::getRenderer()]).arg(QFileInfo(pngName).fileName()));
                  pngName = QString(":/resources/missingimage.png");
-                 frc = -1;
+                 /*f*/rc = -1;
              }
-             return frc;
-         });
+         //    return frc;
+         //});
 
-         rc = RenderFuture.result();
+         //rc = RenderFuture.result();
      }
 
      if (!rc && showStatus) {
