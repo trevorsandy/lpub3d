@@ -2822,6 +2822,7 @@ int CountPageWorker::countPage(
                opts.flags.partsAdded = true;
                break;
 
+            /*
             case IncludeRc:
               opts.flags.includeFileRc = gui->includePub(*meta,opts.flags.includeLineNum,opts.flags.includeFileFound); // includeHere and inserted are include(...) vars
               if (opts.flags.includeFileRc == static_cast<int>(IncludeFileErrorRc)) {
@@ -2833,6 +2834,7 @@ int CountPageWorker::countPage(
                   continue;
               }
               break;
+            */
 
             case PageSizeRc:
               {
