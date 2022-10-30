@@ -1104,32 +1104,32 @@ int Pli::createPartImage(
             showElapsedTime = true;
 
             // define ldr file name
-            QFileInfo typeInfo = QFileInfo(type);
+            QFileInfo typeInfo(type);
             QString typeName = typeInfo.fileName();
             if (pT != NORMAL_PART && (isSubModel || isColorPart))
                 typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
-            // generate PLI Part file
-            QStringList pliFile;
-            pliFile = configurePLIPart(
-                        pT,
-                        typeName,
-                        nameKeys,
-                        keySub);
-
-            // add ROTSTEP command
-            pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
-
-            // Prepare content for Native renderer
-            if (Preferences::inlineNativeRenderFiles) {
-                // header and closing meta - this call returns an updated pliFile
-                if (renderer->setLDrawHeaderAndFooterMeta(pliFile,type,Options::PLI)) {
-
-                    // consolidate pli part and MPD subfile(s) into single file
-                    if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+            QFuture<QStringList> RenderFuture = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&type] () {
+                // generate PLI Part file
+                QStringList futureFile = configurePLIPart(pT,typeName,nameKeys,keySub);
+                // add ROTSTEP command
+                futureFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
+                // prepare content for Native renderer
+                if (Preferences::inlineNativeRenderFiles) {
+                    // header and closing meta - this call returns an updated pliFile
+                    if (renderer->setLDrawHeaderAndFooterMeta(futureFile,type,Options::PLI)) {
+                        // consolidate pli part and MPD subfile(s) into single file
+                        if (renderer->createNativeModelFile(futureFile,fadeSteps,highlightStep) != 0) {
+                            emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+                            imageName = QString(":/resources/missingimage.png");
+                            futureFile.clear();
+                        }
+                    }
                 }
-            }
+                return futureFile;
+            });
+
+            QStringList pliFile = RenderFuture.result();
 
             // unrotated part
             QStringList pliFileU = QStringList()
@@ -1143,7 +1143,7 @@ int Pli::createPartImage(
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
             gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
-            if ( ! part.exists()) {
+            if (! rc && ! part.exists()) {
 
                 // create a temporary DAT to feed the renderer
                 part.setFileName(ldrNames.first());
@@ -2575,27 +2575,28 @@ int Pli::partSizeLDViewSCall() {
                     if (pT != NORMAL_PART && (isSubModel || isColorPart))
                         typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
-                    // generate PLI Part file
-                    QStringList pliFile;
-                    pliFile = configurePLIPart(
-                              pT,
-                              typeName,
-                              nameKeys,
-                              keySub);
-
-                    // add ROTSTEP command
-                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
-
-                    // Prepare content for Native renderer
-                    if (Preferences::inlineNativeRenderFiles) {
-                        // header and closing meta for Visual Editor - this call returns an updated pliFile
-                        if (renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI)) {
-
-                            // consolidate pli part and MPD subfile(s) into single file
-                            if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                                emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI parts"));
+                    QFuture<QStringList> RenderFuture = QtConcurrent::run([this,pT,keySub,&typeName,&nameKeys,&rotStep,&pliPart,&imageName] () {
+                        // generate PLI Part file
+                        QStringList futureFile = configurePLIPart(pT,typeName,nameKeys,keySub);
+                        // add ROTSTEP command
+                        futureFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
+                        // prepare content for Native renderer
+                        if (Preferences::inlineNativeRenderFiles) {
+                            // header and closing meta - this call returns an updated pliFile
+                            if (renderer->setLDrawHeaderAndFooterMeta(futureFile,pliPart->type,Options::PLI)) {
+                                // consolidate pli part and MPD subfile(s) into single file
+                                if (renderer->createNativeModelFile(futureFile,fadeSteps,highlightStep) != 0) {
+                                    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
+                                    imageName = QString(":/resources/missingimage.png");
+                                    futureFile.clear();
+                                }
+                            }
                         }
-                    }
+                        return futureFile;
+                    });
+
+                    QStringList pliFile = RenderFuture.result();
+                    rc = pliFile.isEmpty();
 
                     // unrotated part
                     QStringList pliFileU = QStringList()
@@ -2609,7 +2610,7 @@ int Pli::partSizeLDViewSCall() {
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
                     gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
-                    if ( ! part.exists()) {
+                    if (! rc && ! part.exists()) {
 
                         // create a DAT files to feed the renderer
                         part.setFileName(ldrName);

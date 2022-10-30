@@ -200,20 +200,27 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
    FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
 
-   // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
-   if ((renderer->rotateParts(
-            addLine,
-            subModelMeta.rotStep,
-            rotatedModel,
-            ldrName,
-            step ? step->top.modelName : gui->topOfPage().modelName,
-            cameraAngles,
-            false/*ldv*/,Options::SMP)) != 0) {
-       emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
-                                             .arg(ldrName));
-       return false;
-   }
-   return true;
+   QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&rotatedModel,&ldrName,&cameraAngles] () {
+       int rcf = true;
+       QStringList futureModel = rotatedModel;
+       // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
+       if ((renderer->rotateParts(
+                addLine,
+                subModelMeta.rotStep,
+                futureModel,
+                ldrName,
+                step ? step->top.modelName : gui->topOfPage().modelName,
+                cameraAngles,
+                false/*ldv*/,
+                Options::SMP)) != 0) {
+           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
+           imageName = QString(":/resources/missingimage.png");
+           rcf = false;
+       }
+       return rcf;
+   });
+
+   return RenderFuture.result();
 }
 
 int SubModel::pageSizeP(Meta *meta, int which){
@@ -355,27 +362,52 @@ int SubModel::createSubModelImage(
               unrotatedModel = gui->getLDrawFile().smiContents(modelName);
           else
               unrotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(modelName);
-          QStringList rotatedModel = unrotatedModel;
 
-          // RotateParts #3 - 5 parms, submodel for Visual Editor, apply ROTSTEP without camera angles - this routine returns a list
-          if (renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedModel,cameraAngles,false) != 0)
-              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
+          // set rotated parts - input is unrotatedModel
+          QFuture<QStringList> RenderFuture = QtConcurrent::run([this,&addLine,&unrotatedModel,&cameraAngles] () {
+              QStringList futureModel = unrotatedModel;
+              // RotateParts #3 - 5 parms, submodel for Visual Editor, apply ROTSTEP without camera angles - this routine updates the parts list
+              if (renderer->rotateParts(
+                          addLine,
+                          subModelMeta.rotStep,
+                          futureModel,
+                          cameraAngles,
+                          false) != 0) {
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
+                  imageName = QString(":/resources/missingimage.png");
+              }
 
-          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
-          rotatedModel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
+              // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
+              if (futureModel.size())
+                  futureModel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
+
+              return futureModel;
+          });
+
+          QStringList rotatedModel = RenderFuture.result();
+          rc = rotatedModel.isEmpty();
 
           // Prepare content for Native renderer
-          if (Preferences::inlineNativeRenderFiles) {
-              // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
-              renderer->setLDrawHeaderAndFooterMeta(rotatedModel,top.modelName,Options::SMP,false/*displayModel*/);
+          if (!rc && Preferences::inlineNativeRenderFiles) {
+              QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedModel] () {
+                  QStringList futureModel = rotatedModel;
+                  // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
+                  renderer->setLDrawHeaderAndFooterMeta(futureModel,top.modelName,Options::SMP,false/*displayModel*/);
+                  // consolidate submodel subfiles into single file
+                  int rcf = 0;
+                  if (Preferences::buildModEnabled)
+                      rcf = renderer->mergeSubmodelContent(futureModel);
+                  else
+                      rcf = renderer->createNativeModelFile(futureModel,false/*fade*/,false/*highlight*/);
+                  if (rcf) {
+                      emit gui->messageSig(LOG_ERROR,QString("Failed to create merged SMI file"));
+                      imageName = QString(":/resources/missingimage.png");
+                  }
+                  return futureModel;
+              });
 
-              // consolidate submodel subfiles into single file
-              if (Preferences::buildModEnabled)
-                  rc = renderer->mergeSubmodelContent(rotatedModel);
-              else
-                  rc = renderer->createNativeModelFile(rotatedModel,false,false);
-              if (rc)
-                  emit gui->messageSig(LOG_ERROR,QString("Failed to create merged SMI file"));
+              rotatedModel = RenderFuture.result();
+              rc = rotatedModel.isEmpty();
           }
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
@@ -422,14 +454,16 @@ int SubModel::createSubModelImage(
       viewerOptions->ZNear          = subModelMeta.cameraZNear.value();
       viewerOptions->ZoomExtents    = viewerSubmodel;
 
+#ifdef QT_DEBUG_MODE
       if (viewerSubmodel)
           emit gui->messageSig(LOG_INFO,
                                QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
                                        .arg(timer.elapsed()));
+#endif
   }
 
   // Generate and renderer Submodel file
-  if ((! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
+  if (!rc && (! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
 
       timer.start();
 
@@ -1159,7 +1193,7 @@ void SubModel::getRightEdge(
 }
 
 bool SubModel::loadTheViewer(){
-    if (! gui->exporting()) {
+    if (Preferences::modeGUI && ! gui->exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Submodel key: %1")
                                  .arg(viewerSubmodelKey));

@@ -405,15 +405,24 @@ int Step::createCsi(
 
           updateViewer = true; // just to be safe
 
-          // set rotated parts - input in csiParts
+          // set rotated parts - input is csiParts
           QFuture<QStringList> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
               QStringList futureParts = csiParts;
-              const QString futureLine = addLine;
-              // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
-              if (renderer->rotateParts5(futureLine,meta.rotStep,futureParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/) != 0)
+              // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine updates the parts list
+              if (renderer->rotateParts(
+                          addLine,
+                          meta.rotStep,
+                          futureParts,
+                          absRotstep ? noCA : cameraAngles,
+                          false/*applyCA*/) != 0) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+                  pngName = QString(":/resources/missingimage.png");
+                  futureParts.clear();
+              }
               // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
-              futureParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+              if (futureParts.size())
+                  futureParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+
               return futureParts;
           });
 
@@ -421,14 +430,17 @@ int Step::createCsi(
           rc = rotatedParts.isEmpty();
 
           // Prepare content for Native renderer
-          if (Preferences::inlineNativeRenderFiles) {
+          if (!rc && Preferences::inlineNativeRenderFiles) {
               QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedParts] () {
                   QStringList futureParts = rotatedParts;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
                   renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
                   // consolidate subfiles and parts into single file
-                  if (renderer->createNativeModelFile(futureParts,fadeSteps,highlightStep) != 0)
+                  if (renderer->createNativeModelFile(futureParts,fadeSteps,highlightStep) != 0) {
                       emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+                      pngName = QString(":/resources/missingimage.png");
+                      futureParts.clear();
+                  }
                   return futureParts;
               });
 
@@ -495,7 +507,7 @@ int Step::createCsi(
 
   // Generate  the renderer CSI file
 
-  if (! csiExist || csiOutOfDate) {
+  if (!rc && ! csiExist || csiOutOfDate) {
 
      timer.start();
 
@@ -519,11 +531,17 @@ int Step::createCsi(
          QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
              int rcf = 0;
              QStringList futureParts = csiParts;
-             const QString futureLine = addLine;
              // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
-             if ((rcf = renderer->rotateParts(futureLine, meta.rotStep, futureParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::CSI)) != 0) {
-                 emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
-                                                       .arg(ldrName));
+             if ((rcf = renderer->rotateParts(
+                      addLine,
+                      meta.rotStep,
+                      futureParts,
+                      ldrName,
+                      top.modelName,
+                      absRotstep ? noCA : cameraAngles,
+                      false/*ldv*/,
+                      Options::CSI)) != 0) {
+                 emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.").arg(ldrName));
                  pngName = QString(":/resources/missingimage.png");
                  rcf = -1;
              }
@@ -535,7 +553,7 @@ int Step::createCsi(
 
      bool showStatus = gui->m_partListCSIFile;
 
-     if (!renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
+     if (!rc && !renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
          showStatus = true;
 
          // set camera
@@ -568,7 +586,7 @@ int Step::createCsi(
          }
      }
 
-     if (showStatus && !rc) {
+     if (!rc && showStatus) {
          emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 milliseconds "
                                           "to render %3 for %4 %5 %6 on page %7.")
@@ -598,6 +616,8 @@ int Step::createCsi(
       pixmap->load(pngName);
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();
+      viewerOptions->ImageWidth  = pixmap->width();
+      viewerOptions->ImageHeight = pixmap->height();
   }
 
   return rc;
@@ -605,6 +625,7 @@ int Step::createCsi(
 
 bool Step::loadTheViewer(){
     if (Preferences::modeGUI && ! gui->exporting()) {
+        // set the pixmap size of the step to display
         viewerOptions->ImageWidth  = csiPixmap.width();
         viewerOptions->ImageHeight = csiPixmap.height();
         if (! renderer->LoadViewer(viewerOptions)) {

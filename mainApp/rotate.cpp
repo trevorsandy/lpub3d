@@ -151,8 +151,8 @@ void rotateMatrix(
   }
 }
 
-// RotateParts #1 - 5 parms, used exclusively by renderDialog
-int Render::rotateParts(
+// RotateParts #1 - 5 parms - updates the parts list (used exclusively by RenderDialog)
+int Render::rotatePartsRD(
         const QStringList &parts,
         QString &ldrName,
         const QString &rs,
@@ -194,7 +194,7 @@ int Render::rotateParts(
     return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(),cameraAngles, ldvExport, imageType);
 }
 
-// RotateParts #2 - 8 parms (never called by pli type)
+// RotateParts #2 - 8 parms - generates an ldr file (never called by pli type)
 int Render::rotateParts(
           const QString     &addLine,
           RotStepMeta       &rotStep,
@@ -210,8 +210,6 @@ int Render::rotateParts(
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction;
-
-  QList<QFuture<void>> rotateFutures;
 
   QStringList rotatedParts = parts;
 
@@ -277,23 +275,8 @@ int Render::rotateParts(
   return 0;
 }
 
-// RotateParts #3 - 5 parms - stub for rotateParts5()
+// RotateParts #3 - 5 parms - updates the parts list
 int Render::rotateParts(
-        const QString &addLine,
-        RotStepMeta   &rotStep,
-        QStringList   &parts,
-        FloatPairMeta &ca,
-        bool          applyCA /* true */)
-{
-    return rotateParts5(
-                addLine,
-                rotStep,
-                parts,
-                ca,
-                applyCA);
-}
-// RotateParts #3 - 5 parms - renamed for QtConcurrent::run (clashes with #1 which also has 5 parms)
-int Render::rotateParts5(
         const QString &addLine,
         RotStepMeta   &rotStep,
         QStringList   &parts,

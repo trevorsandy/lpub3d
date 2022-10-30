@@ -102,12 +102,12 @@ public:
                                      const QString &modelName,
                                      int imageType,
                                      bool displayOnly = false);
-  static int             rotateParts(const QStringList &parts,   // RotateParts #1 - 5 parms
+  static int           rotatePartsRD(const QStringList &parts,   // RotateParts #1 - 5 parms - used exclusively by RenderDialog
                                      QString &ldrName,
                                      const QString &rs,
                                      QString &ca,
                                      int imageType);
-  static int             rotateParts(const QString &addLine,     // RotateParts #2 - 8 parms - stub for rotateParts5()
+  static int             rotateParts(const QString &addLine,     // RotateParts #2 - 8 parms
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
                                      QString &ldrName,
@@ -115,11 +115,6 @@ public:
                                      FloatPairMeta &ca,
                                      bool ldv,
                                      int imageType);
-  static int           rotateParts5(const QString &addLine,      // RotateParts #3 - 5 parms - renamed for QtConcurrent::run (clashes with #1 which also has 5 parms)
-                                     RotStepMeta &rotStep,
-                                     QStringList &parts,
-                                     FloatPairMeta &ca,
-                                     bool  applyCA = true);
   static int             rotateParts(const QString &addLine,     // RotateParts #3 - 5 parms
                                      RotStepMeta &rotStep,
                                      QStringList &parts,

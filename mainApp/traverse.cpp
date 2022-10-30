@@ -2434,7 +2434,7 @@ int Gui::drawPage(
                                       steps->meta);
 
                           if (crc) {
-                              emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
+                              emit messageSig(LOG_ERROR, QMessageBox::tr("Create CSI failed to create file."));
                               pageProcessRunning = PROC_FIND_PAGE;
                               return crc;
                           }
