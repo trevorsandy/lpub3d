@@ -881,6 +881,39 @@ public slots:
 
 /***********************************************************************
  *
+ * Load Unofficial Parts In Editor Enabled
+ *
+ **********************************************************************/
+
+class LoadUnoffPartsEnabledGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  LoadUnoffPartsEnabledGui(
+    QString const       &heading,
+    LoadUnoffPartsMeta  *meta,
+    QGroupBox           *parent = nullptr);
+  LoadUnoffPartsEnabledGui(){}
+  ~LoadUnoffPartsEnabledGui() {}
+
+  QCheckBox *getCheckBox() {return check;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  LoadUnoffPartsMeta  *meta;
+  QCheckBox           *check;
+  bool                 change;
+
+public slots:
+  void stateChanged(int state);
+};
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

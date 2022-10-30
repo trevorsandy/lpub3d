@@ -4853,6 +4853,22 @@ void CsiPartMeta::init(BranchMeta *parent, QString name)
   loc.init              (this, "LOC");
   size.init             (this, "SIZE");
 }
+
+/* ------------------ */
+
+LoadUnoffPartsMeta::LoadUnoffPartsMeta() : BranchMeta()
+{
+  enableSetting.setValue(LDrawFile::_hasUnofficialParts);
+  enabled.setValue      (LDrawFile::_loadUnofficialParts);
+}
+
+void LoadUnoffPartsMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  enableSetting.init  (this, "ENABLE_SETTING");
+  enabled.init        (this, "ENABLED");
+}
+
 /* ------------------ */
 
 SubModelMeta::SubModelMeta() : PliMeta()
@@ -6031,6 +6047,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   buildModEnabled          .init(this,"BUILD_MOD_ENABLED");
   finalModelEnabled        .init(this,"FINAL_MODEL_ENABLED");
   coverPageViewEnabled     .init(this,"COVER_PAGE_MODEL_VIEW_ENABLED");
+  loadUnoffPartsInEditor   .init(this,"LOAD_UNOFFICIAL_PARTS_IN_EDITOR");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);

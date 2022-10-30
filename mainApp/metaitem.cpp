@@ -5153,6 +5153,7 @@ void MetaItem::setLoadingFileFlag(bool b)
 
 void MetaItem::reloadModelFile(bool global)
 {
+    // if global, cache will not be reloaded
     gui->clearAllCaches(global);
 }
 
@@ -5163,6 +5164,7 @@ void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option
 
 void MetaItem::clearCache(bool global)
 {
+    // if global, cache will be reloaded
     gui->clearAndReloadModelFile(global);
 }
 

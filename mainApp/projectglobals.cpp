@@ -152,10 +152,17 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   box = new QGroupBox("Continuous Step Numbers");
   vlayout->addWidget(box);
-  childContStepNumbersBox = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
+  childContStepNumbers = new ContStepNumGui("Enable continuous step numbers",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
-  data->children.append(childContStepNumbersBox);
-  connect (childContStepNumbersBox->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
+  data->children.append(childContStepNumbers);
+  connect (childContStepNumbers->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(checkConflict(bool)));
+
+  box = new QGroupBox("Unofficial Parts In Editor");
+  vlayout->addWidget(box);
+  LoadUnoffPartsEnabledGui *childLoadUnoffPartsEnabled = new LoadUnoffPartsEnabledGui("Enable unofficial parts load in command editor",&lpubMeta->loadUnoffPartsInEditor,box);
+  box->setToolTip("Enable loading unofficial parts in the command editor - setting enabled when unofficial parts are detected.");
+  data->children.append(childLoadUnoffPartsEnabled);
+  //connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Start Numbers");
   vlayout->addWidget(box);
@@ -197,20 +204,22 @@ void GlobalProjectDialog::getProjectGlobals(
 
 void GlobalProjectDialog::reloadModelFile(bool b)
 {
+  Q_UNUSED(b)
   if (!data->reloadFile)
-    data->reloadFile = b;
+    data->reloadFile = true;
 }
 
 void GlobalProjectDialog::clearCache(bool b)
 {
+  Q_UNUSED(b)
   if (!data->clearCache)
-    data->clearCache = b;
+    data->clearCache = true;
 }
 
 void GlobalProjectDialog::checkConflict(bool b)
 {
   if (b && data->meta.LPub.multiStep.countGroupSteps.value()) {
-    childContStepNumbersBox->getCheckBox()->setChecked(false);
+    childContStepNumbers->getCheckBox()->setChecked(false);
     QMessageBox box;
     box.setTextFormat (Qt::RichText);
     box.setIcon (QMessageBox::Critical);
@@ -240,7 +249,7 @@ void GlobalProjectDialog::accept()
 
   if (data->clearCache) {
     mi.setLoadingFileFlag(false);
-    mi.clearCache(true);
+    mi.clearCache(true);  // if true, file reload but cache will not be reloaded
   }
   if (data->reloadFile) {
     mi.setLoadingFileFlag(true);
@@ -249,7 +258,7 @@ void GlobalProjectDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile) {
-    mi.reloadModelFile(true);
+    mi.reloadModelFile(true); // if true, file reload and cache will be reloaded
   }
 
   QDialog::accept();

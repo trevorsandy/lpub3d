@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2699 (30 10 2022 21:42:58)
+LPub3D 2.4.4.1.2700 (30 10 2022 21:44:32)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Add load unofficial parts in command editor to project setup #591
 - Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Load visual editor at cover page #593
 - Enhancement - Refactor file loading parse and add inline file load #591

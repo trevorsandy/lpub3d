@@ -363,7 +363,7 @@ class GlobalProjectDialog : public QDialog
   Q_OBJECT
 private:
   GlobalProjectPrivate *data;
-  ContStepNumGui *childContStepNumbersBox;
+  ContStepNumGui *childContStepNumbers;
   SpinGui *childStartStepNumberSpin;
   SpinGui *childStartPageNumberSpin;
 

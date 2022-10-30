@@ -2261,7 +2261,7 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
-/* This leaf is to catch booleans (TRUE or FALSE) and optional RESET flag*/
+/* This leaf is to catch fade and highlight steps booleans (TRUE or FALSE) and optional RESET flag*/
 
 class EnableMeta : public RcMeta {
 private:
@@ -3276,6 +3276,23 @@ class CsiPartMeta : public BranchMeta
 
 /*------------------------*/
 
+class LoadUnoffPartsMeta : public BranchMeta
+{
+public:
+  BoolMeta enableSetting;
+  BoolMeta enabled;
+
+  LoadUnoffPartsMeta();
+  LoadUnoffPartsMeta(const LoadUnoffPartsMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+//  virtual ~LoadUnoffPartsMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class MultiStepSubModelMeta : public BranchMeta
 {
 public:
@@ -3881,6 +3898,7 @@ public:
   HighContrastColorMeta highContrast;
   BoolMeta             parseNoStep;
   BoolMeta             coverPageViewEnabled;
+  LoadUnoffPartsMeta   loadUnoffPartsInEditor;
 
   LeoCadGroupMeta      group;
   LightMeta            light;

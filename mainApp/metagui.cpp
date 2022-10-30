@@ -2568,6 +2568,63 @@ void CoverPageViewEnabledGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * Load Unofficial Parts In Editor Enabled
+ *
+ **********************************************************************/
+
+LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
+  QString const     &heading,
+  LoadUnoffPartsMeta *_meta,
+  QGroupBox          *parent)
+{
+  meta = _meta;
+  change = false;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  check = new QCheckBox(heading,parent);
+  check->setEnabled(meta->enableSetting.value());
+  check->setChecked(meta->enabled.value());
+  layout->addWidget(check);
+  connect(check,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateChanged(int)));
+}
+
+void LoadUnoffPartsEnabledGui::stateChanged(int state)
+{
+  int checked = meta->enabled.value();
+
+  if (state == Qt::Unchecked) {
+    checked = 0;
+  } else if (state == Qt::Checked) {
+    checked = 1;
+  }
+  change = checked != int(meta->enabled.value());
+  meta->enabled.setValue(checked);
+  modified = true;
+}
+
+void LoadUnoffPartsEnabledGui::apply(QString &modelName)
+{
+  if (modified) {
+    if (change) {
+      changeMessage = QString("Load unofficial parts in command editor is %1")
+                               .arg(meta->enabled.value() ? "Enabled" : "Disabled");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+    }
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,&meta->enabled);
+  }
+}
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

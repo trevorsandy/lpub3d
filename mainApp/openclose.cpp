@@ -980,11 +980,12 @@ void Gui::fileChanged(const QString &path)
   if (box.exec() == QMessageBox::Yes) {
     changeAccepted = true;
     int goToPage = displayPageNum;
-    QString fileName = path;
-    if (ldrawFile.isIncludeFile(QFileInfo(path).fileName()))
-      fileName = curFile;
-    if (!openFile(fileName)) {
-      emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+    QString absoluteFilePath = path;
+    QString fileName = QFileInfo(path).fileName();
+    if (ldrawFile.isIncludeFile(fileName) || ldrawFile.isUnofficialPart(fileName))
+      absoluteFilePath = curFile;
+    if (!openFile(absoluteFilePath)) {
+      emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(absoluteFilePath));
       return;
     }
     displayPageNum = goToPage;
