@@ -2783,7 +2783,7 @@ int Gui::findPage(
 
   if (opts.pageNum == 1 + pa) {
 #ifdef QT_DEBUG_MODE
-      emit messageSig(LOG_NOTICE, QString("FINDPAGE  topOfPage First Page         (ops) - LineNumber %1, ModelName %2")
+      emit messageSig(LOG_NOTICE, QString("FINDPAGE  - page 000 topOfPage First Page Start   (ops) - LineNumber %1, ModelName %2")
                       .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       topOfPages.clear();
@@ -3333,8 +3333,8 @@ int Gui::findPage(
                   } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                  emit messageSig(LOG_NOTICE, QString("FINDPAGE  topOfPage StepGroup End      (tos) - LineNumber %1, ModelName %2")
-                                  .arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
+                  emit messageSig(LOG_NOTICE, QString("FINDPAGE  - page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
+                                  .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
                   opts.flags.addCountPage = true;
@@ -3581,8 +3581,8 @@ int Gui::findPage(
                             } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                            emit messageSig(LOG_NOTICE, QString("FINDPAGE  topOfPage Step, Not Group    (opt) - LineNumber %1, ModelName %2")
-                                            .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+                            emit messageSig(LOG_NOTICE, QString("FINDPAGE  - page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
+                                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                             ++opts.pageNum;
                             opts.flags.addCountPage = true;
@@ -3961,8 +3961,8 @@ int Gui::findPage(
           } // Exporting
 
 #ifdef QT_DEBUG_MODE
-          emit messageSig(LOG_NOTICE, QString("FINDPAGE  topOfPage Step, Submodel End (opt) - LineNumber %1, ModelName %2")
-                          .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+          emit messageSig(LOG_NOTICE, QString("FINDPAGE  - page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+                          .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
           ++opts.pageNum;
           ++stepPageNum;
@@ -4657,8 +4657,9 @@ void Gui::pagesCounted()
     pageProcessRunning = PROC_NONE;
 
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("COUNTED   topOfPage Final Page         (cur) - LineNumber %1, ModelName %2")
-                    .arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
+    emit messageSig(LOG_NOTICE, QString("COUNTED   - page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
+                    .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
+    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
     emit messageSig(LOG_NOTICE, QString("COUNTED Page Indexes at displayPageNum %1 of %2")
                     .arg(displayPageNum).arg(maxPages));
 #endif

@@ -2371,7 +2371,7 @@ void LDrawFile::countInstances()
 
   _buildModStepIndexes.append({ 0/*SubmodelIndex*/, size(topLevelFile()) });
 
-/*
+//*
 #ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
   emit gui->messageSig(LOG_DEBUG, "----------------------------");
