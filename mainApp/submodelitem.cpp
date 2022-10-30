@@ -333,7 +333,9 @@ int SubModel::createSubModelImage(
 
   // Generate the Visual Editor Submodel entry - this must come before 'Generate and renderer Submodel file'
   // as we are using the entered key to renderCsi
-  if (! gui->exportingObjects()) {
+  bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
+
+  if (!gui->exportingObjects() || nativeRenderer) {
 
       if (viewerSubmodel)
           timer.start();

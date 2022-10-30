@@ -1053,7 +1053,9 @@ int Pli::createPartImage(
 #endif
 */
         // Set Visual Editor PLI part entry
-        if (! gui->exportingObjects() && pT == NORMAL_PART) {
+        bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
+
+        if ((! gui->exportingObjects() || nativeRenderer) && pT == NORMAL_PART) {
             StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
             AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
             HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;

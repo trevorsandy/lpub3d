@@ -391,7 +391,7 @@ int Step::createCsi(
 
   // Generate Visual Editor CSI entry - this must come before 'Generate and renderer Submodel file'
   // as we are using the entered key to renderCsi
-  if (! gui->exportingObjects()) {
+  if (!gui->exportingObjects() || nativeRenderer) {
 
       timer.start();
 
@@ -401,7 +401,7 @@ int Step::createCsi(
       // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
       bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
 
-      if (addViewerStepContent || csiOutOfDate || viewerUpdate /*|| generageCSIFile*/) {
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
 
           updateViewer = true; // just to be safe
 
@@ -473,6 +473,7 @@ int Step::createCsi(
       emit gui->messageSig(LOG_INFO,
                            QString("Generate Visual Editor step options entry took %1 milliseconds.")
                                    .arg(timer.elapsed()));
+
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
