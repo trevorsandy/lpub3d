@@ -309,17 +309,25 @@ int SubModel::createSubModelImage(
 
   // Populate viewerSubmodelKey variable
   viewerSubmodelKey = QString("%1;%2;%3_%4")
-                          .arg(gui->getSubmodelIndex(bottom.modelName/*QFileInfo(type).fileName()*/))
+                          .arg(gui->getSubmodelIndex(bottom.modelName))
                           .arg(bottom.lineNumber)
                           .arg(stepNumber)
                           .arg(SUBMODEL_IMAGE_BASENAME);
 
-  if (Preferences::debugLogging)
-      emit gui->messageSig(LOG_DEBUG,QString("SMI ViewerSubmodelKey Attributes "
-                                             "Key SubmodelIndex, bottom.lineNum, stepNum, suffix [%1], "
-                                             "modelName [%2]")
-                           .arg(viewerSubmodelKey)
-                           .arg(bottom.modelName));
+#ifdef QT_DEBUG_MODE
+      emit gui->messageSig(LOG_DEBUG,
+                           QString("Create SMP ViewerStep "
+                                   "Key: '%1' ["
+                                   "ModelIndex: %2 (%3), "
+                                   "LineNumber: %4, "
+                                   "StepNumber: %5]")
+                                   .arg(viewerSubmodelKey)
+                                   .arg(gui->getSubmodelIndex(bottom.modelName))
+                                   .arg(bottom.modelName)
+                                   .arg(bottom.lineNumber)
+                                   .arg(SUBMODEL_IMAGE_BASENAME));
+#endif
+
 
   QElapsedTimer timer;
 

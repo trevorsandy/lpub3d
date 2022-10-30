@@ -368,28 +368,28 @@ int Step::createCsi(
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
-
+/*
 #ifdef QT_DEBUG_MODE
-  emit gui->messageSig(LOG_DEBUG,QString("Create CSI using viewer step key '%1' for image '%2'.")
-                                         .arg(viewerStepKey)
-                                         .arg(QFileInfo(pngName).fileName()));
+      const QString stepType = calledOut ? "called out" : multiStep ? "step group" : "single step";
+      const int stepTypeLineNum = calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber;
+      emit gui->messageSig(LOG_DEBUG,
+                           QString("Create CSI ViewerStep "
+                                   "Key: '%1' ["
+                                   "ModelIndex: %2 (%3), "
+                                   "LineNumber: %4, "
+                                   "StepNumber: %5], "
+                                   "Type: [%6]%7")
+                                   .arg(viewerStepKey)
+                                   .arg(gui->getSubmodelIndex(top.modelName))
+                                   .arg(top.modelName)
+                                   .arg(top.lineNumber)
+                                   .arg(stepNumber.number)
+                                   .arg(stepType)
+                                   .arg(stepType == "single step" ? "" : QString(", StepsLineNumber: [%1]").arg(stepTypeLineNum)));
 #endif
+*/
 
-//  if (Preferences::debugLogging)
-//      emit gui->messageSig(LOG_DEBUG,
-//                           QString("CSI ViewerStepKey Attributes "
-//                                   "Key(modelNameIndex;lineNumber;stepNumber[_dm]) [%1], "
-//                                   "modelName [%2], "
-//                                   "top lineNumber [%3], "
-//                                   "step type [%4], "
-//                                   "type lineNumber [%5], "
-//                                   "stepNumber [%6]")
-//                                   .arg(viewerStepKey)
-//                                   .arg(top.modelName)
-//                                   .arg(top.lineNumber)
-//                                   .arg(calledOut ? "called out" : multiStep ? "step group" : "single step")
-//                                   .arg(calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber)
-//                                   .arg(stepNumber.number));
+  QElapsedTimer timer;
 
   // Generate Visual Editor CSI entry - this must come before 'Generate and renderer Submodel file'
   // as we are using the entered key to renderCsi

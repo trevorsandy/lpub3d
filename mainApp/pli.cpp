@@ -1032,21 +1032,26 @@ int Pli::createPartImage(
                                   .arg(ia.baseName[pT])
                                   .arg(ia.partColor[pT])
                                   .arg(stepNumber);
-
-//        if (Preferences::debugLogging)
-//            emit gui->messageSig(LOG_DEBUG,
-//                                 QString("PLI ViewerPliPartKey Attributes "
-//                                         "Key(baseName;partColor;stepNumber [%1], "
-//                                         "modelName [%2], "
-//                                         "top lineNumber [%3], "
-//                                         "step type [%4], "
-//                                         "type lineNumber [%5]")
-//                                         .arg(viewerPliPartKey)
-//                                         .arg(top.modelName)
-//                                         .arg(top.lineNumber)
-//                                         .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
-//                                         .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
-
+/*
+#ifdef QT_DEBUG_MODE
+        const QString stepType = step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM";
+        const int stepTypeLineNum = step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0;
+        emit gui->messageSig(LOG_DEBUG,
+                             QString("Create PLI ViewerStep "
+                                     "Key: '%1' ["
+                                     "PartName: %2, "
+                                     "PartColour: %3, "
+                                     "StepNumber: %4], "
+                                     "Type: [%5], "
+                                     "StepsLineNumber: [%6]")
+                             .arg(viewerPliPartKey)
+                             .arg(ia.baseName[pT])
+                             .arg(ia.partColor[pT])
+                             .arg(stepNumber)
+                             .arg(stepType)
+                             .arg(stepTypeLineNum));
+#endif
+*/
         // Set Visual Editor PLI part entry
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
             StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
@@ -2489,19 +2494,24 @@ int Pli::partSizeLDViewSCall() {
                                            .arg(ia.partColor[pT])
                                            .arg(stepNumber);
 
-                if (Preferences::debugLogging)
-                    emit gui->messageSig(LOG_DEBUG,
-                                         QString("PLI (SC) ViewerPliPartKey Attributes "
-                                                 "Key(baseName;partColor;stepNumber [%1], "
-                                                 "modelName [%2], "
-                                                 "top lineNumber [%3], "
-                                                 "step type [%4], "
-                                                 "type lineNumber [%5]")
-                                                 .arg(viewerPliPartKey)
-                                                 .arg(top.modelName)
-                                                 .arg(top.lineNumber)
-                                                 .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
-                                                 .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
+#ifdef QT_DEBUG_MODE
+                const QString stepType = step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM";
+                const int stepTypeLineNum = step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0;
+                emit gui->messageSig(LOG_DEBUG,
+                                     QString("Create PLI ViewerStep "
+                                             "Key: '%1' ["
+                                             "PartName: %2, "
+                                             "PartColour: %3, "
+                                             "StepNumber: %4], "
+                                             "Type: [%5], "
+                                             "StepsLineNumber: [%6]")
+                                     .arg(viewerPliPartKey)
+                                     .arg(ia.baseName[pT])
+                                     .arg(ia.partColor[pT])
+                                     .arg(stepNumber)
+                                     .arg(stepType)
+                                     .arg(stepTypeLineNum));
+#endif
 
                 // Set Visual Editor PLI part entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
