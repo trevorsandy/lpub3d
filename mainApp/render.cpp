@@ -3415,25 +3415,29 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
         gui->SetAutomateEdgeColor(Options);
     }
 
-    if (! gui->OpenProject(Options, true/*RenderImage*/)) {
-        emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', FileName: '%2'")
+    bool Loaded = false;
+
+    Loaded = gui->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
+    if (!Loaded) {
+        emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use File]")
                                                 .arg(Options->ViewerStepKey)
                                                 .arg(QFileInfo(Options->InputFileName).fileName()));
-        return false;
     }
 
-    return true;
+    return Loaded;
 }
 
 bool Render::LoadViewer(const ViewerOptions *Options) {
 
+    bool Loaded = false;
+
     if (!Preferences::modeGUI)
-        return true;
+        return !Loaded;
 
     NativeOptions *nativeOptions = new NativeOptions(*Options);
     if (!nativeOptions) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not cast native options."));
-        return false;
+        return Loaded;
     }
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
@@ -3453,24 +3457,24 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
                 emit gui->messageSig(LOG_NOTICE,message);
             }
         }
+
         gui->SetAutomateEdgeColor(nativeOptions);
     }
 
-    if (! gui->OpenProject(nativeOptions)) {
-        emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', FileName: '%2'")
+    Loaded = gui->OpenProject(nativeOptions);
+    if (!Loaded) {
+        emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")
                                                 .arg(nativeOptions->ViewerStepKey)
                                                 .arg(QFileInfo(nativeOptions->InputFileName).fileName()));
-        //gui->setViewerStepKey(QString(),0);
         delete nativeOptions;
-        return false;
     }
 
-    return true;
+    return Loaded;
 }
 
 bool Render::NativeExport(const NativeOptions *Options) {
 
-    bool rc = true;
+    bool Exported = false;
 
     QString exportModeName = nativeExportNames[Options->ExportMode];
 
@@ -3494,7 +3498,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
             lcQHTMLDialog Dialog(gui, &HTMLOptions);
 
             if (Dialog.exec() != QDialog::Accepted)
-                return rc;
+                return !Exported;
         }
 
         if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
@@ -3506,42 +3510,43 @@ bool Render::NativeExport(const NativeOptions *Options) {
             gui->SetAutomateEdgeColor(Options);
         }
 
-      //if (! gui->OpenProject(Options->InputFileName)) {
-        if (! gui->OpenProject(Options)) {
-            emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', Export: %2, FileName: '%3'")
+        Exported = gui->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
+        if (!Exported) {
+            emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', Export: %2, FileName: '%3', [Use File]")
                                                     .arg(Options->ViewerStepKey)
                                                     .arg(exportModeName)
                                                     .arg(QFileInfo(Options->InputFileName).fileName()));
-            return false;
+            return Exported;
         }
     }
     else
     {
-        return doLDVCommand(Options->ExportArgs, Options->ExportMode);
+        Exported = doLDVCommand(Options->ExportArgs, Options->ExportMode);
+        return Exported;
     }
 
     if (Options->ExportMode == EXPORT_CSV)
     {
-        rc = lcGetActiveProject()->ExportCSV();
+        Exported = lcGetActiveProject()->ExportCSV();
     }
     else
     if (Options->ExportMode == EXPORT_BRICKLINK)
     {
-        rc = lcGetActiveProject()->ExportBrickLink();
+        Exported = lcGetActiveProject()->ExportBrickLink();
     }
     else
     if (Options->ExportMode == EXPORT_WAVEFRONT)
     {
-        rc = lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
-        if (rc) {
+        Exported = lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
+        if (Exported) {
            gui->openFolderSelect(Options->ExportFileName);
         }
     }
     else
     if (Options->ExportMode == EXPORT_COLLADA)
     {
-        rc = lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
-        if (rc) {
+        Exported = lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
+        if (Exported) {
            gui->openFolderSelect(Options->ExportFileName);
         }
     }
@@ -3550,9 +3555,9 @@ bool Render::NativeExport(const NativeOptions *Options) {
     {
         HTMLOptions.SaveDefaults();
 
-        rc = lcGetActiveProject()->ExportHTML(HTMLOptions);
+        Exported = lcGetActiveProject()->ExportHTML(HTMLOptions);
 
-        if (rc) {
+        if (Exported) {
             QString htmlIndex = QDir::fromNativeSeparators(
                         HTMLOptions.PathName + "/" +
                         QFileInfo(Options->InputFileName).baseName() +
@@ -3577,7 +3582,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
     }
 */
 
-    return rc;
+    return Exported;
 }
 
 void Render::showLdvExportSettings(int iniFlag){

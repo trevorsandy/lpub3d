@@ -55,6 +55,7 @@ enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_COUNT_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum CamFlag { DefFoV, DefZNear, DefZFar };
+enum NativeRenderType {NATIVE_VIEW, NATIVE_IMAGE, NATIVE_EXPORT};
 enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayRender, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAYS_SHOW };

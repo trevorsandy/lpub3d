@@ -1321,7 +1321,7 @@ public slots:
   void                   SetSubmodelIconsLoaded(bool);
 
   int                    Process3DViewerCommandLine();
-  bool                   OpenProject(const NativeOptions *, bool = false);
+  bool                   OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
   void                   LoadColors();

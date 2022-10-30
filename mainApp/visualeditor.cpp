@@ -1803,21 +1803,43 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary();
  }
 
- bool Gui::OpenProject(const NativeOptions* Options, bool RenderImage/*false*/)
+ bool Gui::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bool UseFile/*false*/)
  {
-     Project* Loader = new Project();
-     if (Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/))
-     {
-         gApplication->SetProject(Loader);
-         lcView::UpdateProjectViews(Loader);
+     bool Loaded = false;
+
+     if (gMainWindow && UseFile) {
+         Loaded = gMainWindow->OpenProject(Options->InputFileName);
      }
      else
      {
-         delete Loader;
-         return false;
+         Project* Loader = new Project();
+         if (UseFile) {
+            Loaded = Loader->Load(Options->InputFileName, gMainWindow/*ShowErrors*/);
+            if (Loaded)
+            {
+                gApplication->SetProject(Loader);
+                lcView::UpdateProjectViews(Loader);
+            }
+            else
+                delete Loader;
+         }
+         else
+         {
+            Loaded = Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, gMainWindow/*ShowErrors*/);
+            if (Loaded)
+            {
+                gApplication->SetProject(Loader);
+                lcView::UpdateProjectViews(Loader);
+            }
+            else
+                delete Loader;
+         }
      }
 
-     return Render::RenderNativeView(Options, RenderImage);
+     if (Loaded && Type != NATIVE_EXPORT)
+         return Render::RenderNativeView(Options, Type == NATIVE_IMAGE);
+
+     return Loaded;
  }
 
  lcView* Gui::GetActiveView()

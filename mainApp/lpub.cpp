@@ -3347,6 +3347,7 @@ Gui::Gui()
     qRegisterMetaType<Preferences::MsgID>("Preferences::MsgID");
     qRegisterMetaType<NameKeyAttributes>("NameKeyAttributes");
     qRegisterMetaType<NameKeyAttributes2>("NameKeyAttributes2");
+    qRegisterMetaType<NativeRenderType>("NativeRenderType");
     qRegisterMetaType<NativeType>("NativeType");
     qRegisterMetaType<OrientationEnc>("OrientationEnc");
     qRegisterMetaType<PAction>("PAction");
