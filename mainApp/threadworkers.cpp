@@ -2194,8 +2194,6 @@ int CountPageWorker::countPage(
       gui->topOfPages.append(opts.current);
   }
 
-  gui->saveStepPageNum = gui->stepPageNum;
-
   QStringList             bfxParts;
 
   if (opts.flags.countPageContains) {
@@ -2413,8 +2411,6 @@ int CountPageWorker::countPage(
                                               opts.current.modelName /*renderParentModel*/);
                                   countPage(meta, ldrawFile, modelOpts);
 
-                                  gui->saveStepPageNum = gui->stepPageNum;
-
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
                                   meta->submodelStack.pop_back();           // remove where we stopped in the parent model
 
@@ -2538,7 +2534,6 @@ int CountPageWorker::countPage(
 #endif
                   ++opts.pageNum;
                   gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
-                  gui->saveStepPageNum = ++gui->stepPageNum;
                   documentPageCount();
 
                 } // StepGroup && ! NoStep2
@@ -2689,7 +2684,6 @@ int CountPageWorker::countPage(
                   }
 
                   opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
-                  gui->stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
                   // Added callout step parse for parse build modifications so
                   // exclude from page number increment and topOfPages indices
@@ -2932,7 +2926,6 @@ int CountPageWorker::countPage(
                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;
-      ++gui->stepPageNum;
       gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)
       documentPageCount();
 
