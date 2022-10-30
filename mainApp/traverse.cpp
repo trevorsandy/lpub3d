@@ -4554,7 +4554,10 @@ void Gui::drawPage(
     bool adjustTopOfStep = false;
     Where topOfStep      = current;
     meta                 = Meta();
-
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+    emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1 of %2").arg(displayPageNum).arg(maxPages));
+#endif
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
       displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
@@ -4847,7 +4850,7 @@ void Gui::pagesCounted()
     emit messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit messageSig(LOG_NOTICE, QString("COUNTED  -  Page %1 of %2")
+    emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2")
                     .arg(saveDisplayPageNum ? saveDisplayPageNum : displayPageNum)
                     .arg(saveDisplayPageNum ? saveMaxPages : maxPages));
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
