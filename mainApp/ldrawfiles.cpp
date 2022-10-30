@@ -3352,8 +3352,8 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   actionStepIndex = stepIndex;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
-      // check if the requested build mod is in the future - for first writeToTmp
-      if (stepIndex < i.value()._modActions.firstKey()) {
+      // return BuildModRemoveRc (65) for 'Future' requests where the requested stepIndex is before the buildMod stepIndex
+      if (stepIndex < i.value()._modActions.firstKey() && stepIndex > BM_INVALID_INDEX) {
           actionStepIndex = i.value()._modActions.firstKey();
           action = BuildModRemoveRc;
           insert = " Future";
@@ -3395,9 +3395,17 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
       }
   }
 
+  // BuildMod update 18/07/2022 - this may not be correct as the actual
+  // stepIndex request is usually before the buildMod stepIndex - hence
+  // the need to 'set' the action. The 'Default' behaviour should be to
+  // return BuildModRemoveRc (65) as the BuildMod is in the future.
+  // The 'Future' scenario is addressed above but I'm leaving this code
+  // in to see if there are any other valid use-cases for it.
   if (!action) {
      action = setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
 #ifdef QT_DEBUG_MODE
+     if (insert == " Future")
+         insert = " Default (Future)";
      insert = " Default";
 #endif
   }
