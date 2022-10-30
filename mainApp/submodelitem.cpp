@@ -364,16 +364,19 @@ int SubModel::createSubModelImage(
           // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
           rotatedModel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
-          // header and closing meta for Visual Editor
-          //renderer->setLDrawHeaderAndFooterMeta(rotatedModel,top.modelName,Options::SMP,false/*displayModel*/);
+          // Prepare content for Native renderer
+          if (Preferences::inlineNativeRenderFiles) {
+              // header and closing meta for Visual Editor - this call returns an updated rotatedModel file
+              renderer->setLDrawHeaderAndFooterMeta(rotatedModel,top.modelName,Options::SMP,false/*displayModel*/);
 
-          // consolidate submodel subfiles into single file
-          //if (Preferences::buildModEnabled)
-          //    rc = renderer->mergeSubmodelContent(rotatedModel);
-          //else
-          //    rc = renderer->createNativeModelFile(rotatedModel,false,false);
-          //if (rc)
-          //    emit gui->messageSig(LOG_ERROR,QString("Failed to create merged SMI file"));
+              // consolidate submodel subfiles into single file
+              if (Preferences::buildModEnabled)
+                  rc = renderer->mergeSubmodelContent(rotatedModel);
+              else
+                  rc = renderer->createNativeModelFile(rotatedModel,false,false);
+              if (rc)
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to create merged SMI file"));
+          }
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
           if (!subModelMeta.target.isPopulated())

@@ -415,13 +415,15 @@ int Step::createCsi(
           // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
           rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
-          // header and closing meta
+          // Prepare content for Native renderer
+          if (Preferences::inlineNativeRenderFiles) {
+              // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
+              renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
 
-          //renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
-
-          // consolidate subfiles and parts into single file
-          //if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
-          //    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+              // consolidate subfiles and parts into single file
+              if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+          }
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
           if (!csiStepMeta.target.isPopulated())

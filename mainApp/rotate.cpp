@@ -211,9 +211,11 @@ int Render::rotateParts(
   bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = Preferences::preferredRenderer == RENDERER_NATIVE && !ldvFunction;
 
+  QList<QFuture<void>> rotateFutures;
+
   QStringList rotatedParts = parts;
 
-  // // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+  // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
   rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
   // intercept rotatedParts for imageMatting
@@ -231,20 +233,21 @@ int Render::rotateParts(
   if (imageType != Options::MON)
       rotatedParts.prepend(rotsComment);
 
-  //if (nativeRenderer && ! ldvFunction) {
-  //    // header and closing meta
-  //    setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
+  // Prepare content for Native renderer
+  if (nativeRenderer && Preferences::inlineNativeRenderFiles && ! ldvFunction) {
+      // header and closing meta for Visual Editor - this call returns an updated pliFile
+      setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
-  //    // consolidate subfiles and parts into single file
-  //    int rc = 0;
-  //    if (Preferences::buildModEnabled && imageType == Options::SMP)
-  //        rc = mergeSubmodelContent(rotatedParts);
-  //    else
-  //        rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
-  //    if (rc)
-  //        emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
-  //                             .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
-  //}
+      // consolidate subfiles and parts into single file
+      int rc = 0;
+      if (Preferences::buildModEnabled && imageType == Options::SMP)
+          rc = mergeSubmodelContent(rotatedParts);
+      else
+          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
+      if (rc)
+          emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
+                               .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
+  }
 
   // Write parts to file
   QTextStream out(&file);
