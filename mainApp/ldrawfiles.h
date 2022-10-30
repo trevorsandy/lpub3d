@@ -252,7 +252,9 @@ class LDrawFile {
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
 
-    bool hdrTopFileNotFound;
+    bool topFileNotFound;
+    bool loadUnoffPartsNotFound;
+    bool hdrFILENotFound;
     bool hdrNameNotFound;
     bool hdrAuthorNotFound;
     bool hdrDescNotFound;
@@ -261,9 +263,10 @@ class LDrawFile {
     bool metaFinalModelNotFound;
     bool metaStartPageNumNotFound;
     bool metaStartStepNumNotFound;
-    bool unofficialPart;
     bool topLevelModel;
+    bool topHeaderFinished;
     bool ldcadGroupsLoaded;
+    int  unofficialPart;
     int  descriptionLine;
     int  buildModLevel;
 
@@ -273,14 +276,20 @@ class LDrawFile {
     {
       _subFiles.empty();
       _configuredSubFiles.empty();
+      _subFileOrder.empty();
+      _subFileOrderNoUnoff.empty();
       _viewerSteps.empty();
-      _ldcadGroups.empty();
       _buildMods.empty();
+      _buildModSteps.empty();
       _buildModStepIndexes.empty();
       _buildModRendered.empty();
+      _includeFileList.empty();
+      _buildModList.empty();
+      _loadedParts.empty();
     }
 
     QStringList                 _subFileOrder;
+    QStringList                 _subFileOrderNoUnoff;
     QStringList                 _includeFileList;
     QStringList                 _buildModList;
     static QList<HiarchLevel*>  _currentLevels;
@@ -295,6 +304,8 @@ class LDrawFile {
     static int                  _partCount;
     static bool                 _showLoadMessages;
     static bool                 _loadAborted;
+    static bool                 _loadUnofficialParts;
+    static bool                 _hasUnofficialParts;
 
     int getPartCount(){
       return _partCount;
@@ -303,14 +314,13 @@ class LDrawFile {
     static void showLoadMessages();
 
     bool saveFile(const QString &fileName);
-    bool saveMPDFile(const QString &filename);
-    bool saveLDRFile(const QString &filename);
+    bool saveModelFile(const QString &filename);
     bool saveIncludeFile(const QString &filename);
 
     void insert(const QString       &fileName,
                       QStringList   &contents,
                       QDateTime     &datetime,
-                      bool           unofficialPart,
+                      int            unofficialPart,
                       bool           generated = false,
                       bool           includeFile = false,
                       const QString &subFilePath = QString());
@@ -322,6 +332,7 @@ class LDrawFile {
     QStringList getSubFilePaths();
     QStringList contents(const QString &fileName);
     QStringList smiContents(const QString &fileName);
+    QString getSubFilePath(const QString &fileName);
     void normalizeHeader(const QString &fileName,
                          int missing = 0);
     void setSubFilePath(const QString &mcFileName,
@@ -339,8 +350,12 @@ class LDrawFile {
     int getModelStartPageNumber(const QString &mcFileName);
     void subFileLevels(QStringList &contents, int &level);
     int loadFile(const QString &fileName);
-    void loadMPDFile(const QString &fileName, QDateTime &datetime);
-    void loadLDRFile(const QString &path, const QString &fileName);
+    void loadMPDFile(const QString &fileName,
+                           bool externalFile = false);
+    void loadLDRFile(const QString &filePath,
+                     const QString &fileName = QString(),
+                           bool externalFile = false);
+    int subFileOrderSize();
     QStringList subFileOrder();
     QStringList includeFileList();
     QVector<int> getSubmodelIndexes(const QString &fileName);
@@ -356,8 +371,8 @@ class LDrawFile {
 
     // Only used to insert fade or highlight content
     void insertConfiguredSubFile (const QString &fileName,
-                                        QStringList   &contents,
-                                        const QString &subFilePath = QString());
+                                        QStringList &contents,
+                                  const QString &subFilePath = QString());
     // Only used to read fade or highlight content
     QString readConfiguredLine(const QString &fileName, int lineNumber);
     // Only used to return fade or highlight content size
@@ -370,7 +385,7 @@ class LDrawFile {
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
     int fileOrderIndex(const QString &file);
-    bool contains(const QString &file);
+    bool contains(const QString &file, bool = true);
     bool isSubmodel(const QString &file);
     bool modified();
     bool modified(const QString &fileName);

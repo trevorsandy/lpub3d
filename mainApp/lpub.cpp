@@ -3935,7 +3935,6 @@ void Gui::progressBarPermSetText(const QString &progressText)
 {
   if (okToInvokeProgressBar()) {
       progressLabelPerm->setText(progressText);
-      QApplication::processEvents();
     }
 }
 void Gui::progressBarPermSetRange(int minimum, int maximum)
@@ -3948,7 +3947,6 @@ void Gui::progressBarPermSetValue(int value)
 {
   if (okToInvokeProgressBar()) {
       progressBarPerm->setValue(value);
-      QApplication::processEvents();
     }
 }
 void Gui::progressBarPermReset()

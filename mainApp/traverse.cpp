@@ -4660,7 +4660,7 @@ void Gui::pagesCounted()
 #endif
 /*
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, "------------------------------------------------");
+    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
     for (int i = 0; i < topOfPages.size(); i++)
     {
         Where top = topOfPages.at(i);
@@ -4826,7 +4826,7 @@ int Gui::include(Meta &meta, int &lineNumber, bool &includeFileFound)
 
         disableWatcher();
         QDateTime datetime = fileInfo.lastModified();
-        ldrawFile.insert(fileName,contents,datetime,true/*unofficialPart*/,true/*generated*/,true/*includeFile*/,fileInfo.absoluteFilePath());
+        ldrawFile.insert(fileName,contents,datetime,UNOFFICIAL_OTHER/*unofficial*/,true/*generated*/,true/*includeFile*/,fileInfo.absoluteFilePath());
 
         int comboIndex = mpdCombo->count() - 1;
         if (ldrawFile.includeFileList().size() == 1) {
@@ -5341,7 +5341,7 @@ void Gui::writeToTmp()
   QElapsedTimer writeToTmpTimer;
   writeToTmpTimer.start();
 
-  int writtenFiles = 0;;
+  int writtenFiles = 0;
   int subFileCount = ldrawFile._subFileOrder.size();
   bool doFadeStep  = (Preferences::enableFadeSteps || page.meta.LPub.fadeStep.setup.value());
   bool doHighlightStep = (Preferences::enableHighlightStep || page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
@@ -5350,58 +5350,108 @@ void Gui::writeToTmp()
 
   LDrawFile::_currentLevels.clear();
 
+  QString message;
+  QString fileName;
+  QString fileType;
+  QStringList fileContent;
+
+  std::function<QStringList()> getFileContent;
+  getFileContent = [this, &fileName] ()
+  {
+      QFile file(fileName);
+      if (!file.open(QFile::ReadOnly | QFile::Text)) {
+          emit gui->messageSig(LOG_ERROR, QString("Cannot read external file %1<br>%2")
+                               .arg(fileName)
+                               .arg(file.errorString()));
+          return QStringList();
+      }
+
+      QStringList externalFileContents;
+      QTextStream in(&file);
+      while ( ! in.atEnd()) {
+          QString sLine = in.readLine(0);
+          externalFileContents << sLine.trimmed();
+      }
+      file.close();
+      return externalFileContents;
+  };
+
   emit progressBarPermInitSig();
   emit progressPermRangeSig(1, subFileCount);
 
   for (int i = 0; i < subFileCount; i++) {
 
-      QString message, fileName = ldrawFile._subFileOrder[i].toLower();
+      fileName = ldrawFile._subFileOrder[i].toLower();
 
       // write normal submodels...
       if (ldrawFile.changedSinceLastWrite(fileName)) {
 
           writtenFiles++;
 
-          message = QString("Writing submodel '%1' to temp folder...").arg(fileName);
+          int numberOfLines = ldrawFile.size(fileName);
+
+          QString sourceFilePath = QDir::toNativeSeparators(ldrawFile.getSubFilePath(fileName));
+
+          bool externalFile = !sourceFilePath.isEmpty();
+
+          fileType = externalFile ? "external" : "";
+          fileType += ldrawFile.isUnofficialPart(fileName) ? "unofficial part" : "submodel";
+
+          message = QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileName);
 
           emit messageSig(LOG_INFO_STATUS, message);
 
-          int numberOfLines = ldrawFile.size(fileName);
           if (gui->mloadingFile) {
-              message = QString("Writing submodel %1 of %2 (%3 lines)...")
-                                .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
-                                .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
-                                .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
+              message = QString("Writing %1 %2 of %3 files (%4 lines)...")
+                      .arg(fileType)
+                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                      .arg(QStringLiteral("%1").arg(numberOfLines, 5, 10, QLatin1Char('0')));
           } else {
-              message = QString("Writing submodel %1 (%2 lines)").arg(fileName).arg(numberOfLines);
+              message = QString("Writing %1 %2 (%3 lines)").arg(fileType).arg(fileName).arg(numberOfLines);
           }
 
           emit progressPermMessageSig(message);
 
           emit progressPermSetValueSig(i + 1);
 
-          writeToTmpFutures.append(QtConcurrent::run([this, fileName]() {
-              QStringList *modelContent = new QStringList;
-              modelContent->append(ldrawFile.contents(fileName));
-              writeSmiContent(modelContent, fileName);
-              writeToTmp(fileName, *modelContent);
-          }));
+          if (externalFile) {
+             QString destinationPath = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
+             if (QFile::exists(destinationPath)) {
+                 QFile::remove(destinationPath);
+             }
+             if(!QFile::copy(sourceFilePath, destinationPath)) {
+                 emit messageSig(LOG_ERROR, QString("Could not write external file '%1' to temp folder...").arg(fileName));
+             }
+          } else {
+              writeToTmpFutures.append(QtConcurrent::run([this, fileName]() {
+                  QStringList *modelContent = new QStringList;
+                  modelContent->append(ldrawFile.contents(fileName));
+                  writeSmiContent(modelContent, fileName);
+                  writeToTmp(fileName, *modelContent);
+              }));
+          }
 
           QString fileNameStr = fileName;
           QString extension = QFileInfo(fileNameStr).suffix().toLower();
 
           // Write faded version of submodels
+          if (externalFile && (doFadeStep || doHighlightStep)) {
+              fileContent.clear();
+              fileContent = getFileContent();
+          }
+
           if (doFadeStep) {
             if (extension.isEmpty())
               fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
             else
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
 
-            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
+            emit messageSig(LOG_INFO_STATUS, QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileNameStr));
 
-            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor]() {
+            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
                 QStringList *modelContent = new QStringList;
-                modelContent->append(ldrawFile.contents(fileName));
+                externalFile ? modelContent->append(fileContent) : modelContent->append(ldrawFile.contents(fileName));
                 QStringList *configuredContent = new QStringList;
                 configuredContent->append(configureModelSubFile(*modelContent, fadeColor, FADE_PART));
                 insertConfiguredSubFile(fileNameStr, *configuredContent);
@@ -5416,11 +5466,11 @@ void Gui::writeToTmp()
             else
               fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
 
-            emit messageSig(LOG_INFO_STATUS, QString("Writing submodel '%1' to temp folder...").arg(fileNameStr));
+            emit messageSig(LOG_INFO_STATUS, QString("Writing %1 '%2' to temp folder...").arg(fileType).arg(fileNameStr));
 
-            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor]() {
+            writeToTmpFutures.append(QtConcurrent::run([this, fileName, fileNameStr, fadeColor, externalFile, fileContent]() {
                 QStringList *modelContent = new QStringList;
-                modelContent->append(ldrawFile.contents(fileName));
+                externalFile ? modelContent->append(fileContent) : modelContent->append(ldrawFile.contents(fileName));
                 QStringList *configuredContent = new QStringList;
                 configuredContent->append(configureModelSubFile(*modelContent, fadeColor, HIGHLIGHT_PART));
                 insertConfiguredSubFile(fileNameStr, *configuredContent);
@@ -5472,7 +5522,7 @@ void Gui::writeToTmp()
   }
   QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
   emit messageSig(LOG_INFO_STATUS,
-                    QString("%1 submodels written to temp folder. %2")
+                    QString("%1 files written to temp folder. %2")
                             .arg(writtenFiles).arg(writeToTmpElapsedTime));
   pageProcessRunning = PROC_NONE;
 }

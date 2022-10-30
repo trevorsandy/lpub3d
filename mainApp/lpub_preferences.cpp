@@ -397,7 +397,6 @@ bool    Preferences::showAnnotationErrors       = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::blenderIs28OrLater         = true;
-bool    Preferences::buildModEnabled            = true;
 bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
@@ -460,6 +459,7 @@ bool    Preferences::povrayDisplay              = false;
 bool    Preferences::povrayAutoCrop             = false;
 bool    Preferences::isAppImagePayload          = false;
 
+bool    Preferences::buildModEnabled            = false;
 bool    Preferences::enableFadeSteps            = false;
 bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
@@ -727,7 +727,7 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
          * in place this hack
          */
         if (libName == "xquartz" && !p_stderr.contains("MessageTracer: Falling back to default whitelist")) {
-            logError() << "Library check returned error: " << p_stderr;
+            logError() << "Library check for xquartx returned error: " << p_stderr;
             return false;
         }
     }
@@ -1845,7 +1845,7 @@ void Preferences::ldrawPreferences(bool browse)
                                     }
                                 } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
                                     const bool okToExtract = !message.endsWith("failed to extract.");
-                                    message += QString("\nThe following locations were searched for the LDraw library:\n%2.\n").arg(validLDrawLibrary).arg(searchDetail);
+                                    message += QString("\nThe following locations were searched for the LDraw library:\n%2.\n").arg(searchDetail);
                                     fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     if (okToExtract && extractLDrawLib()) {
                                         message = QString("The bundled %1 LDraw library archives were extracted to:\n%2\n"
@@ -3671,13 +3671,13 @@ void Preferences::userInterfacePreferences()
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
   }
 
-  QString const povrayFileGeneratorKey("ExtendedSubfileSearch");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey))) {
+  QString const extendedSubfileSearchKey("ExtendedSubfileSearch");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey))) {
       QVariant uValue(false);
       extendedSubfileSearch = false;
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey),uValue);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey),uValue);
   } else {
-      extendedSubfileSearch = Settings.value(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey)).toBool();
+      extendedSubfileSearch = Settings.value(QString("%1/%2").arg(SETTINGS,extendedSubfileSearchKey)).toBool();
   }
 
   QString const ldrawFilesLoadMsgsKey("LDrawFilesLoadMsgs");

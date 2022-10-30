@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2698 (30 10 2022 21:41:25)
+LPub3D 2.4.4.1.2699 (30 10 2022 21:42:58)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 
 - Enhancement - Add load visual editor at cover page to project setup #593
 - Enhancement - Load visual editor at cover page #593
+- Enhancement - Refactor file loading parse and add inline file load #591
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
 - Change - TENTE parts outdated #
