@@ -6020,6 +6020,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   startStepNumber.setRange(1,10000);
   startStepNumber.setValue(1);
   parseNoStep.setValue(false);
+  coverPageViewEnabled.setValue(true);
   // stepNumber - default
 }
 
@@ -6036,6 +6037,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   buildMod                 .init(this,"BUILD_MOD");
   buildModEnabled          .init(this,"BUILD_MOD_ENABLED");
   finalModelEnabled        .init(this,"FINAL_MODEL_ENABLED");
+  coverPageViewEnabled     .init(this,"COVER_PAGE_MODEL_VIEW_ENABLED");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);

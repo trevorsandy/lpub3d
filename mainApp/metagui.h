@@ -845,6 +845,39 @@ public slots:
 
 /***********************************************************************
  *
+ * Cover Page Model View Enabled
+ *
+ **********************************************************************/
+
+class CoverPageViewEnabledGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CoverPageViewEnabledGui(
+    QString const &heading,
+    BoolMeta       *meta,
+    QGroupBox      *parent = nullptr);
+  CoverPageViewEnabledGui(){}
+  ~CoverPageViewEnabledGui() {}
+
+  QCheckBox *getCheckBox() {return check;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  BoolMeta  *meta;
+  QCheckBox *check;
+  bool       change;
+
+public slots:
+  void stateChanged(int state);
+};
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

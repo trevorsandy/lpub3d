@@ -86,6 +86,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox("Renderer");
   vlayout->addWidget(box);
   PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
+  box->setToolTip("Select the default image renderer.");
   connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
   data->children.append(rendererChild);
 
@@ -95,6 +96,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   box->setLayout(boxGrid);
 
   MetaGui *child = new ResolutionGui(&lpubMeta->resolution);
+  box->setToolTip("Set the default resolution unit.");
   boxGrid->addWidget(child,0,0);
   boxGrid->setColumnStretch(0,1);
   boxGrid->setColumnStretch(1,1);
@@ -103,9 +105,15 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox("Stud Style and Automate Edge Color");
   vlayout->addWidget(box);
   StudStyleGui *childStudStyle = new StudStyleGui(&lpubMeta->autoEdgeColor,&lpubMeta->studStyle,&lpubMeta->highContrast,box);
-  childStudStyle->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
+  box->setToolTip("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges.");
   data->children.append(childStudStyle);
   connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+
+  box = new QGroupBox("Cover Page Viewer Display");
+  vlayout->addWidget(box);
+  CoverPageViewEnabledGui *childCoverPageViewEnabled = new CoverPageViewEnabledGui("Enable model view at cover page",&lpubMeta->coverPageViewEnabled,box);
+  box->setToolTip("Enable top model view (read only) in the Visual Editor when a cover page is loaded.");
+  data->children.append(childCoverPageViewEnabled);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

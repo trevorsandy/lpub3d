@@ -349,6 +349,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCONTRAST\\b"
     << "\\bCONTROL_POINT\\b"
     << "\\bCOVER_PAGE\\b"
+    << "\\bCOVER_PAGE_MODEL_VIEW_ENABLED\\b"
     << "\\bCROSS\\b"
     << "\\bCOUNT_GROUP_STEPS\\b"
     << "\\bCSI_ANNOTATION\\b"

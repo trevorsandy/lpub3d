@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 23, 2022
+# Last Update Jun 25, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -464,6 +464,23 @@ then
                -e "s/^        GIT_REVISION = [0-9].*$/        GIT_REVISION = ${LP3D_VER_REVISION}/g" \
                -e "s/^            GIT_COMMIT = [0-9].*$/            GIT_COMMIT = ${LP3D_VER_BUILD}/g" \
                -e "s/^            GIT_VERSION = \$\${VERSION}.[0-9].*$/            GIT_VERSION = \$\$\{VERSION\}\.${LP3D_VER_REVISION}\.${LP3D_VER_BUILD}\.${LP3D_VER_SHA_HASH}${LP3D_DOT_VER_SUFFIX}/g" "${FILE}"
+    fi
+else
+    Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
+fi
+
+FILE="$(realpath $LP3D_PWD/../mainApp/extras/LPub3D_Npp_UDL.xml)"
+[ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
+Info "15.update Notepad-pp UDL  - update version and date  [$FILE]" || :
+if [ -f ${FILE} -a -r ${FILE} ]
+then
+    if [ "$LP3D_OS" = Darwin ]
+    then
+        sed -i "" -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
+                  -e "s/^;; Last Update.:.*/;; Last Update.: $(date "+%B %d, %Y")/g" "${FILE}"
+    else
+        sed -i -e "s/^;; Version.....:.*/;; Version.....: ${LP3D_APP_VERSION}/" \
+               -e "s/^;; Last Update.:.*/;; Last Update.: $(date "+%B %d, %Y")/g" "${FILE}"
     fi
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"

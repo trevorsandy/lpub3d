@@ -2599,25 +2599,27 @@ int Gui::drawPage(
                           // Load the top model into the visual editor on cover page
                           if (coverPage && Preferences::modeGUI && !exportingObjects()) {
                              showLine(topOfStep);
-                             if (step == nullptr) {
-                                 if (range == nullptr) {
-                                     range = newRange(steps,opts.calledOut);
+                             if (curMeta.LPub.coverPageViewEnabled.value()) {
+                                 if (step == nullptr) {
+                                     if (range == nullptr) {
+                                         range = newRange(steps,opts.calledOut);
+                                     }
+                                     step = new Step(topOfStep,
+                                                     range,
+                                                     0     /* stepNum */,
+                                                     curMeta,
+                                                     false /* calledOut */,
+                                                     false /* multiStep */);
                                  }
-                                 step = new Step(topOfStep,
-                                                 range,
-                                                 0     /* stepNum */,
-                                                 curMeta,
-                                                 false /* calledOut */,
-                                                 false /* multiStep */);
+                                 emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
+                                 step->modelDisplayOnlyStep = true;
+                                 step->subModel.setSubModel(opts.current.modelName,steps->meta);
+                                 step->subModel.viewerSubmodel = true;
+                                 if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                     emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
+                                 else
+                                     step->subModel.loadTheViewer();
                              }
-                             emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
-                             step->modelDisplayOnlyStep = true;
-                             step->subModel.setSubModel(opts.current.modelName,steps->meta);
-                             step->subModel.viewerSubmodel = true;
-                             if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                 emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
-                             else
-                                 step->subModel.loadTheViewer();
                           }
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);

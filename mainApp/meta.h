@@ -3880,6 +3880,7 @@ public:
   AutoEdgeColorMeta    autoEdgeColor;
   HighContrastColorMeta highContrast;
   BoolMeta             parseNoStep;
+  BoolMeta             coverPageViewEnabled;
 
   LeoCadGroupMeta      group;
   LightMeta            light;
