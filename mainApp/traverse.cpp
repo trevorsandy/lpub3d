@@ -611,7 +611,7 @@ int Gui::drawPage(
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
-          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
           return;
       }
       modAttributes = i.value();
@@ -2886,7 +2886,7 @@ int Gui::findPage(
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
-          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
           return;
       }
       modAttributes = i.value();
@@ -2898,23 +2898,23 @@ int Gui::findPage(
       modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
 
 #ifdef QT_DEBUG_MODE
-    statusMessage(LOG_DEBUG, QString(
-                  "Insert FindPage BuildMod StepIndex: %1, "
-                  "Action: Apply(64), "
-                  "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
-                  "ModKey: %10, "
-                  "Level: %11")
-                  .arg(buildModStepIndex)                      // Attribute Default Initial:
-                  .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
-                  .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
-                  .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
-                  .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
-                  .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
-                  .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                  .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
-                  .arg(buildModKey)
-                  .arg(buildModLevel));
+    emit gui->messageSig(LOG_DEBUG, QString(
+                         "Insert FindPage BuildMod StepIndex: %1, "
+                         "Action: Apply(64), "
+                         "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
+                         "ModKey: %10, "
+                         "Level: %11")
+                         .arg(buildModStepIndex)                      // Attribute Default Initial:
+                         .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                         .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                         .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                         .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
+                         .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
+                         .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                         .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                         .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
+                         .arg(buildModKey)
+                         .arg(buildModLevel));
 #endif
 
       insertBuildMod(buildModKey,
@@ -5224,7 +5224,7 @@ int Gui::setBuildModForNextStep(
     while (walk.lineNumber == numLines && walk.modelName != topLevelFile()) {
         int nextStepIndex = getStepIndex(walk);
 #ifdef QT_DEBUG_MODE
-        gui->statusMessage(LOG_DEBUG, QString("Skip BuildMod Next StepIndex %1, hit end of submodel at ModelName: %2, LineNumber: %3.")
+        emit gui->messageSig(LOG_DEBUG, QString("Skip BuildMod Next StepIndex %1, hit end of submodel at ModelName: %2, LineNumber: %3.")
                            .arg(nextStepIndex).arg(walk.modelName).arg(walk.lineNumber));
 #endif
         if (hitEndOfSubmodel > 1)

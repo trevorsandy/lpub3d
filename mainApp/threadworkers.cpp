@@ -2250,7 +2250,7 @@ int CountPageWorker::countPage(
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
       if (i == buildModAttributes.end()) {
-          gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
           return;
       }
       modAttributes = i.value();
@@ -2262,7 +2262,7 @@ int CountPageWorker::countPage(
       modAttributes[BM_MODEL_STEP_NUM]   = opts.stepNumber;
 
 #ifdef QT_DEBUG_MODE
-    gui->statusMessage(LOG_TRACE, QString(
+    emit gui->messageSig(LOG_TRACE, QString(
                   "Insert CountPage BuildMod StepIndex: %1, "
                   "Action: Apply(64), "
                   "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "

@@ -2338,7 +2338,7 @@ void LDrawFile::countInstances(
 
       QMap<int, QVector<int>>::iterator i = buildModAttributes.find(level);
       if (i == buildModAttributes.end()) {
-          gui->statusMessage(LOG_ERROR, QString("COUNTINSTANCE - WARNING - Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          emit gui->messageSig(LOG_ERROR, QString("COUNTINSTANCE - WARNING - Invalid BuildMod Entry for key: %1").arg(buildModKey));
           return;
       }
       modAttributes = i.value();
@@ -2350,23 +2350,23 @@ void LDrawFile::countInstances(
 //*
 #ifdef QT_DEBUG_MODE
       if (gui->mloadingFile) {
-          gui->statusMessage(LOG_DEBUG, QString(
-                             "Insert CountInst BuildMod StepIndex: %1, "
-                             "Attributes: %2 %3 %4 %5 %6 %7 %8, "
-                             "ModKey: '%9', "
-                             "Level: %10, "
-                             "Model: %11")
-                             .arg(buildModStepIndex)                      // Attribute Default Initial:
-                             .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
-                             .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
-                             .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                             .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
-                             .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
-                             .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
-                             .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                             .arg(buildModKey)
-                             .arg(level)
-                             .arg(topOfStep.modelName));
+          emit gui->messageSig(LOG_DEBUG, QString(
+                               "Insert CountInst BuildMod StepIndex: %1, "
+                               "Attributes: %2 %3 %4 %5 %6 %7 %8, "
+                               "ModKey: '%9', "
+                               "Level: %10, "
+                               "Model: %11")
+                               .arg(buildModStepIndex)                      // Attribute Default Initial:
+                               .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                               .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                               .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                               .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
+                               .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
+                               .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                               .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                               .arg(buildModKey)
+                               .arg(level)
+                               .arg(topOfStep.modelName));
       }
 #endif
 //*/

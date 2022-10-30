@@ -2402,7 +2402,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 								.arg(Objects)
 								.arg(Objects == 1 ? "object" : "objects")
 								.arg(ActiveModel->GetModelName());
-						gui->statusMessage(LOG_DEBUG, Message);
+						emit gui->messageSig(LOG_DEBUG, Message);
 					}
 
 					if (Objects == 1)
@@ -2418,7 +2418,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 										 .arg(((lcPiece*)SelectedItem)->GetName())
 										 .arg(((lcPiece*)SelectedItem)->GetID())
 										 .arg(LineTypeIndexes.last().lineIndex);
-							gui->statusMessage(LOG_DEBUG, Message);
+							emit gui->messageSig(LOG_DEBUG, Message);
 						}
 					}
 					else
@@ -2435,7 +2435,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int SelectionTyp
 												 .arg(((lcPiece*)SelectedItem)->GetName())
 												 .arg(((lcPiece*)SelectedItem)->GetID())
 												 .arg(LineTypeIndexes.last().lineIndex);
-									gui->statusMessage(LOG_DEBUG, Message);
+									emit gui->messageSig(LOG_DEBUG, Message);
 								}
 							}
 						}
