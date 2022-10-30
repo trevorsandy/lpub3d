@@ -2949,22 +2949,26 @@ bool LDrawFile::saveModelFile(const QString &fileName)
             for (int j = 0; j < f.value()._contents.size(); j++) {
 
                 QString line = f.value()._contents[j];
-
-                if (unofficialPart                 &&
-                     line.startsWith("0")           &&
-                    (line.startsWith("0 !LICENSE ") ||
-                     line.startsWith("0 BFC ")      ||
-                     line.startsWith("0 !HISTORY ")))
+/*
+                // this condition block adds a space after the folowing headers
+                if (unofficialPart                      &&
+                    (line.startsWith("0 !LICENSE ")     ||
+                     line.startsWith("0 BFC ")          ||
+                     line.startsWith("0 !HISTORY "))    &&
+                    (f.value()._contents.size() > (j+1) &&
+                     f.value()._contents[j+1] != "0"    &&
+                     f.value()._contents[j+1] != ""))
                 {
                     out << line << lpub_endl;
                     out << lpub_endl;
-                } else
+                }
+                else
+//*/
                     out << line << lpub_endl;
             }
 
             if (addFILEMeta)
-                out << "0 NOFILE" << lpub_endl
-                    << "0" << lpub_endl;
+                out << "0 NOFILE" << lpub_endl;
         }
     }
 
