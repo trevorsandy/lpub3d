@@ -2198,7 +2198,7 @@ void Gui::createBuildModification()
             mViewerPieces         = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
-            QString ModStepKey    = viewerStepKey;
+            QString ModStepKey    = LPub->viewerStepKey;
             ModStepKeys           = ModStepKey.split(";");
 
             // When edit, initialize BuildMod StepPieces, and Begin and End range with the existing values
@@ -2844,7 +2844,7 @@ void Gui::createBuildModification()
                 QString metaString;
                 buildModData.buildModKey = QString();
 
-                beginMacro("BuildModCreate|" + viewerStepKey);
+                beginMacro("BuildModCreate|" + LPub->viewerStepKey);
 
                 // Delete old BUILD_MOD END meta command
                 Where endMod = Where(ModelName, SaveModEndLineNum);
@@ -2888,7 +2888,7 @@ void Gui::createBuildModification()
                 metaString = LPub->currentStep->buildMod.format(false,false);
                 insertLine(modHere, metaString, nullptr);
 
-                clearWorkingFiles(getPathsFromViewerStepKey(viewerStepKey));
+                clearWorkingFiles(getPathsFromViewerStepKey(LPub->viewerStepKey));
 
                 endMacro();
             }
@@ -3104,7 +3104,7 @@ void Gui::removeBuildModification()
 
             Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
-    } else if (getBuildModStepKey(buildModKey) == viewerStepKey) {
+    } else if (getBuildModStepKey(buildModKey) == LPub->viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "in model '" + model + "' at line " + line + ".<br><br>"
                 "It cannot be removed from the step it was created in.<br><br>"
@@ -3310,7 +3310,7 @@ void Gui::deleteBuildModification()
     emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'delete' action..."));
 
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys = getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
+    QStringList keys = LPub->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     /*
     QString text  = "This action will permanently delete build modification '" + buildModKey + "' "
@@ -3525,49 +3525,9 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
 {
     Q_UNUSED(imageType)
 
-    viewerStepKey = stepKey;
+    LPub->viewerStepKey = stepKey;
 
     mBuildModRange = { 0, 0, -1 };
-}
-
-/*********************************************
- *
- * split viewer step keys
- *
- ********************************************/
-
-QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
-{
-    // viewerStepKey - 3 elements:
-    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
-    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
-    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
-    // confirm keys has at least 3 elements
-    if (keys.size() < 3) {
-        if (Preferences::debugLogging)
-            emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
-        return QStringList();
-    } else if (keys.at(2).count("_")) {
-        QStringList displayStepKeys = keys.at(2).split("_");
-        keys.removeLast();
-        keys.append(displayStepKeys);
-    }
-
-    if (!pliPart) {
-        bool ok;
-        int modelNameIndex = keys[0].toInt(&ok);
-        if (!ok) {
-            if (Preferences::debugLogging)
-                emit messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
-            return QStringList();
-        }
-
-        if (modelName)
-            keys.replace(0,getSubmodelName(modelNameIndex));
-    }
-
-    return keys;
 }
 
 /*********************************************
@@ -3579,7 +3539,7 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
   bool Gui::extractStepKey(Where &here, int &stepNumber, const QString &key)
   {
       // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_dm (displayModel)]
-      QStringList keyArgs = getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
+      QStringList keyArgs = LPub->getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
 
       if (!keyArgs.size())
           return false;
@@ -3713,7 +3673,7 @@ bool Gui::setCurrentStep(const QString &key)
     else
         stepNumberSpecified = QString::number(stepNumber);
 
-    QString stepKey = key.isEmpty() ? viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
+    QString stepKey = key.isEmpty() ? LPub->viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
 
     if (isViewerStepCalledOut(stepKey))
         stepType = BM_CALLOUT_STEP;
@@ -3746,7 +3706,7 @@ void Gui::setCurrentStep(Step *step)
                                   .arg(step->stepNumber.number)
                                   .arg(step->modelDisplayOnlyStep ? "_dm" : "");
     LPub->currentStep = step;
-    viewerStepKey = LPub->currentStep->viewerStepKey;
+    LPub->viewerStepKey = LPub->currentStep->viewerStepKey;
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
                                       .arg(LPub->currentStep->stepNumber.number).arg(LPub->currentStep->viewerStepKey));
@@ -3795,7 +3755,7 @@ void Gui::setStepForLine(const TypeLine &here)
 bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber) {
 
     lineNumber        = EDITOR_LINE   ;             // 0
-    bool currentModel = modelIndex == QString(viewerStepKey[0]).toInt();
+    bool currentModel = modelIndex == QString(LPub->viewerStepKey[0]).toInt();
     bool newLine      = lineIndex  == NEW_PART;     //-1
     bool fromViewer   = source      > EDITOR_LINE;  // 0
 
@@ -3803,7 +3763,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 //    emit messageSig(LOG_DEBUG, QString("currentModel: %1 [modelIndex: %2 == ViewerStepKey(index,line,step)[0]: %3]")
 //                    .arg(currentModel ? "True" : "False")
 //                    .arg(modelIndex)
-//                    .arg(viewerStepKey));
+//                    .arg(LPub->viewerStepKey));
 //    emit messageSig(LOG_DEBUG, QString("newLine: %1 [lineIndex: %2 == NEW_PART: -1]")
 //                    .arg(newLine ? "True" : "False")
 //                    .arg(lineIndex));
@@ -3890,8 +3850,8 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
-        } else if (!viewerStepKey.isEmpty()) {
-            modelName  = LPub->currentStep->topOfStep().modelName;//getSubmodelName(QString(viewerStepKey[0]).toInt());
+        } else if (!LPub->viewerStepKey.isEmpty()) {
+            modelName  = LPub->currentStep->topOfStep().modelName;//getSubmodelName(QString(LPub->viewerStepKey[0]).toInt());
             modelIndex = getSubmodelIndex(modelName);
         }
 

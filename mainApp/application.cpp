@@ -554,6 +554,12 @@ void Application::setTheme(bool appStarted)
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorTheme));
 }
 
+/*********************************************
+ *
+ * split viewer step keys
+ *
+ ********************************************/
+
 QStringList Application::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
 {
     // viewerStepKey - 3 elements:

@@ -1361,8 +1361,6 @@ public slots:
   void openDropFile(QString &fileName);
   void enableApplyLightAction();
 
-  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
-
   /* Fade color processing */
   static QString createColourEntry(
     const QString &colourCode,
@@ -1571,7 +1569,6 @@ protected:
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
-  QString               &viewerStepKey = getViewerStepKeyRef(); // currently loaded CSI in Visual Editor
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
 
