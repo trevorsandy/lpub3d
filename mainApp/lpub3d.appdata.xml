@@ -78,9 +78,9 @@
             <binary>lpub3d24</binary>
         ​</provides>
         <releases>
-            <release version="2.4.4.2785" date="2022-10-30">
+            <release version="2.4.4.2786" date="2022-10-31">
                 <description>
-                    <p>LPub3D 30.10.2022 enhancements and fixes</p>
+                    <p>LPub3D 31.10.2022 enhancements and fixes</p>
                 </description>
             </release>
             <release version="2.4.3.2557" date="2021-05-14">

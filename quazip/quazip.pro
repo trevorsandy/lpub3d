@@ -39,17 +39,6 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     STG_ARCH = x86
 }
 
-unix:!freebsd:!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.6) {
-        QMAKE_CXXFLAGS += -std=c++11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
-} else {
-    CONFIG += c++11
-}
-
 win32 {
 
     QMAKE_EXT_OBJ = .obj

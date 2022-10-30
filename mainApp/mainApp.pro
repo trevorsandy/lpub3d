@@ -8,6 +8,20 @@ QT     += concurrent
 QT     *= printsupport
 CONFIG += warn_on
 
+lessThan(QT_MAJOR_VERSION, 5) {
+  error("LPub3D requires Qt5.4 or later.")
+}
+
+equals(  QT_MAJOR_VERSION, 5): \
+lessThan(QT_MINOR_VERSION, 4) {
+  error("LPub3D requires Qt5.4 or later.")
+}
+
+greaterThan(QT_MAJOR_VERSION, 5) {
+  QT += core5compat openglwidgets
+  DEFINES += QOPENGLWIDGET
+}
+
 win32:macx: \
 GAMEPAD {
     qtHaveModule(gamepad) {
@@ -138,18 +152,39 @@ DEFINES     += OPENSUSE_1320_ARM
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# For compiled builds on unix set C++11 standard appropriately
-unix:!freebsd:!macx {
-    GCC_VERSION = $$system(g++ -dumpversion)
-    greaterThan(GCC_VERSION, 4.6) {
-        QMAKE_CXXFLAGS += -std=c++11
-        DEFINES += USE_CPP11
-    } else {
-        QMAKE_CXXFLAGS += -std=c++0x
-    }
+# USE CPP 11
+contains(USE_CPP11,NO) {
+  message("NO CPP11")
 } else {
-    CONFIG += c++11
-    DEFINES += USE_CPP11
+  DEFINES += USE_CPP11
+}
+
+contains(QT_VERSION, ^5\\..*) {
+  unix:!macx {  
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 4.8) {
+      QMAKE_CXXFLAGS += -std=c++11
+    } else {
+      QMAKE_CXXFLAGS += -std=c++0x
+    }
+  }
+}
+
+contains(QT_VERSION, ^6\\..*) {
+  win32-msvc* {
+    QMAKE_CXXFLAGS += /std:c++17
+  }
+  macx {
+    QMAKE_CXXFLAGS+= -std=c++17
+  }
+  unix:!macx {
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 5) {
+      QMAKE_CXXFLAGS += -std=c++17
+    } else {
+      QMAKE_CXXFLAGS += -std=c++0x
+    }
+  }
 }
 
 !freebsd: \
