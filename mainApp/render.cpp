@@ -2819,10 +2819,6 @@ int Native::renderCsi(
   Options->BlackEdgeColor = hccm->blackEdgeColor.value();
   Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
 
-  // Set CSI project
-  Project* CsiImageProject = new Project();
-  gApplication->SetProject(CsiImageProject);
-
   // Render image
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
@@ -2859,7 +2855,6 @@ int Native::renderCsi(
               break;
           default:
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Invalid CSI Object export option."));
-              delete CsiImageProject;
               return -1;
           }
           // These exports are performed by the Native LDV module (LDView).
@@ -3029,10 +3024,6 @@ int Native::renderPli(
   Options->PartEdgeColor  = hccm->partEdgeColor.value();
   Options->BlackEdgeColor = hccm->blackEdgeColor.value();
   Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
-
-  // Set PLI project
-  Project* PliImageProject = new Project();
-  gApplication->SetProject(PliImageProject);
 
   // Render image
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 PLI render - please wait...")
@@ -3444,7 +3435,8 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
     if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType, true/*ShowErrors*/))
     {
         gApplication->SetProject(Loader);
-        lcView::UpdateAllViews();
+        lcView::UpdateProjectViews(Loader);
+        //lcView::UpdateAllViews();
     }
     else
     {

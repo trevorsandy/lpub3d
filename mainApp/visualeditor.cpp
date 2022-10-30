@@ -1816,6 +1816,7 @@ void Gui::reloadViewer(){
          if (LoadedProject->Load(FileName, false/*ShowErrors*/))
          {
              gApplication->SetProject(LoadedProject);
+             lcView::UpdateProjectViews(LoadedProject);
              ProjectLoaded = true;
          }
          else
@@ -1838,6 +1839,11 @@ void Gui::reloadViewer(){
  lcModel* Gui::GetActiveModel()
  {
      return gApplication->mProject->GetMainModel();
+ }
+
+ Project* Gui::GetActiveProject()
+ {
+     return gApplication->mProject;
  }
 
  lcPartSelectionWidget* Gui::GetPartSelectionWidget()

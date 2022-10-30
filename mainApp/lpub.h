@@ -1238,6 +1238,7 @@ public slots:
   // Native viewer convenience calls
   lcView*                GetActiveView();
   lcModel*               GetActiveModel();
+  Project*               GetActiveProject();
   lcPartSelectionWidget* GetPartSelectionWidget();
   lcPiecesLibrary*       GetPiecesLibrary();
   lcPreferences&         GetPreferences();
