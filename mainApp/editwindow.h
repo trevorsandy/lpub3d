@@ -146,6 +146,7 @@ public slots:
 
 private slots:
     void openWith();
+    void gotoLine();
     void contentsChange(int position, int charsRemoved, int charsAdded);
     bool saveFileCopy();
     void redraw();
@@ -267,6 +268,7 @@ protected:
     QAction  *findAct;
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
+    QAction  *gotoLineAct;
     QAction  *preferencesAct;
     QAction  *openFolderAct;
     QAction  *copyFullPathToClipboardAct;
@@ -306,6 +308,7 @@ public:
     void setCompleterMinChars(int min_chars);
     void setCompleterMaxSuggestions(int max);
     void setCompleterPrefix(const QString& prefix);
+    void gotoLine(int line);
     bool modelFileEdit()
     {
         return detachedEdit;

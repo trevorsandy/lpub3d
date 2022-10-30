@@ -99,6 +99,7 @@ private:
     QAction  *delAct;
     QAction  *systemeditorAct;
     QAction  *selAllAct;
+    QAction  *gotoLineAct;
     QAction  *findAct;
     QAction  *topAct;
     QAction  *bottomAct;
@@ -106,6 +107,7 @@ private:
 
 private slots:
     void openFile();
+    void gotoLine();
     void refreshFile();
     void enableSave();
     void toggleClear();
@@ -146,6 +148,7 @@ public:
     int  lineNumberAreaWidth();
     void parmsOpen(int &opt);
     bool parmsSave(int &opt);
+    void gotoLine(int line);
     QWidget     *popUp;
 
 protected:

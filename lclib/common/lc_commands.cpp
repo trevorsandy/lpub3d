@@ -1419,7 +1419,7 @@ const lcCommand gCommands[] =
 		QT_TRANSLATE_NOOP("Action", "Piece.Group"),
 		QT_TRANSLATE_NOOP("Menu", "&Group..."),
 		QT_TRANSLATE_NOOP("Status", "Group selected pieces together"),
-		"Ctrl+G"
+		""                                  /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_PIECE_UNGROUP
 	{

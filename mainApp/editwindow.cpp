@@ -167,6 +167,22 @@ EditWindow::~EditWindow()
         cmdEditor = nullptr;
 }
 
+void EditWindow::gotoLine()
+{
+    const int STEP = 1;
+    const int MIN_VALUE = 1;
+
+    QTextCursor cursor = _textEdit->textCursor();
+    int currentLine = cursor.blockNumber()+1;
+    int maxValue = _textEdit->document()->blockCount();
+
+    bool ok;
+    int line = QInputDialog::getInt(this, tr("Go to..."),
+                                          tr("Line: ", "Line number in the command editor"), currentLine, MIN_VALUE, maxValue, STEP, &ok);
+    if (!ok) return;
+    _textEdit->gotoLine(line);
+}
+
 QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
 {
     QFile file(fileName);
@@ -488,6 +504,11 @@ void EditWindow::createActions()
     findAct->setStatusTip(tr("Find object - Ctrl+F"));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
+    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to line"), this);
+    gotoLineAct->setShortcut(tr("Ctrl+G"));
+    gotoLineAct->setStatusTip(tr("Go to line - Ctrl+G"));
+    connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
+
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
     redrawAct->setShortcut(tr("Ctrl+R"));
     redrawAct->setStatusTip(tr("Redraw page, reset model caches - Ctrl+R"));
@@ -627,6 +648,7 @@ void EditWindow::disableActions()
     redrawAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
+    gotoLineAct->setEnabled(false);
     topAct->setEnabled(false);
     toggleCmmentAct->setEnabled(false);
     bottomAct->setEnabled(false);
@@ -663,6 +685,7 @@ void EditWindow::enableActions()
     redrawAct->setEnabled(true);
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
+    gotoLineAct->setEnabled(true);
     topAct->setEnabled(true);
     saveCopyAct->setEnabled(true);
     toggleCmmentAct->setEnabled(true);
@@ -733,6 +756,7 @@ void EditWindow::createToolBars()
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
+    editToolBar->addAction(gotoLineAct);
     editToolBar->addAction(delAct);
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
@@ -1060,6 +1084,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
     menu->addAction(redrawAct);
     menu->addAction(toggleCmmentAct);
     menu->addAction(findAct);
+    menu->addAction(gotoLineAct);
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->exec(_textEdit->mapToGlobal(pt));
@@ -2669,6 +2694,12 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     updateLineNumberAreaWidth(0);
 
     //highlightCurrentLine();
+}
+
+void TextEditor::gotoLine(int line)
+{
+    QTextCursor cursor(document()->findBlockByNumber(line-1));
+    this->setTextCursor(cursor);
 }
 
 void TextEditor::mouseDoubleClickEvent(QMouseEvent *event)

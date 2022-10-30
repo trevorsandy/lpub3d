@@ -82,6 +82,22 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     readSettings();
 }
 
+void ParmsWindow::gotoLine()
+{
+    const int STEP = 1;
+    const int MIN_VALUE = 1;
+
+    QTextCursor cursor = _textEdit->textCursor();
+    int currentLine = cursor.blockNumber()+1;
+    int maxValue = _textEdit->document()->blockCount();
+
+    bool ok;
+    int line = QInputDialog::getInt(this, tr("Go to..."),
+                                          tr("Line: ", "Line number in the parameter editor"), currentLine, MIN_VALUE, maxValue, STEP, &ok);
+    if (!ok) return;
+    _textEdit->gotoLine(line);
+}
+
 void ParmsWindow::setSelectionHighlighter()
 {
     QColor highlightColor;
@@ -137,6 +153,11 @@ void ParmsWindow::createActions()
     findAct->setShortcut(tr("Ctrl+F"));
     findAct->setStatusTip(tr("Find object - Ctrl+F"));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
+
+    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to line"), this);
+    gotoLineAct->setShortcut(tr("Ctrl+G"));
+    gotoLineAct->setStatusTip(tr("Go to line... - Ctrl+G"));
+    connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
@@ -208,6 +229,7 @@ void ParmsWindow::createActions()
     systemeditorAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
+    gotoLineAct->setEnabled(false);
     topAct->setEnabled(false);
     bottomAct->setEnabled(false);
     showAllCharsAct->setEnabled(false);
@@ -245,6 +267,7 @@ void ParmsWindow::createToolBars()
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
+    editToolBar->addAction(gotoLineAct);
     editToolBar->addAction(refreshAct);
     editToolBar->addAction(delAct);
 
@@ -261,6 +284,7 @@ void ParmsWindow::showContextMenu(const QPoint &pt)
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->addAction(findAct);
+    menu->addAction(gotoLineAct);
     menu->addSeparator();
     menu->addAction(systemeditorAct);
     menu->exec(_textEdit->mapToGlobal(pt));
@@ -732,6 +756,12 @@ ParmEditor::ParmEditor(QWidget *parent) :
     updateLineNumberAreaWidth(0);
 
     highlightCurrentLine();
+}
+
+void ParmEditor::gotoLine(int line)
+{
+    QTextCursor cursor(document()->findBlockByNumber(line-1));
+    this->setTextCursor(cursor);
 }
 
 void ParmEditor::showAllCharacters(bool show){
