@@ -20,7 +20,7 @@
 #include "lc_application.h"
 #include "lpub.h"
 
-int Application::processCommandLine()
+int LPub::processCommandLine()
 {
   // Visual Editor
   int viewerCommand = Process3DViewerCommandLine();

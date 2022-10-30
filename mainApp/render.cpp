@@ -449,12 +449,12 @@ float stdCameraDistance(Meta &meta, float scale) {
     onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
     onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
     onexone *= scale;
-    factor   = Application::pageSize(meta.LPub.page, XX)/onexone; // in pixels;
+    factor   = LPub::pageSize(meta.LPub.page, XX)/onexone; // in pixels;
 //#ifdef QT_DEBUG_MODE
 //    logTrace() << "\n" << QString("DEBUG - STANDARD CAMERA DISTANCE")
 //               << "\n" << QString("PI [4*atan(1.0)]                    : %1").arg(double(pi))
 //               << "\n" << QString("LduDistance [10.0/tan(0.005*pi/180)]: %1").arg(double(LduDistance))
-//               << "\n" << QString("Page Width [pixels]                 : %1").arg(Application::pageSize(meta.LPub.page, XX))
+//               << "\n" << QString("Page Width [pixels]                 : %1").arg(LPub::pageSize(meta.LPub.page, XX))
 //               << "\n" << QString("Resolution [LDU]                    : %1").arg(QString::number(double(meta.LPub.resolution.ldu()), 'f' ,10))
 //               << "\n" << QString("Resolution [pixels]                 : %1").arg(double(meta.LPub.resolution.value()))
 //               << "\n" << QString("Scale                               : %1").arg(double(scale))
@@ -744,8 +744,8 @@ int POVRay::renderCsi(
 
   // set page size
   bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
-  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
 
   // projection settings
   QString CA, cg;
@@ -1087,8 +1087,8 @@ int POVRay::renderPli(
 
   // set page size
   bool useImageSize = metaType.imageSize.value(XX) > 0;
-  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  int height = useImageSize ? int(metaType.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
 
   // projection settings
   QString CA, cg;
@@ -1450,8 +1450,8 @@ int LDGLite::   renderCsi(
   bool pp    = Preferences::perspectiveProjection;
 
   bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
-  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
   StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &meta.LPub.assem.studStyle;
   AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &meta.LPub.assem.autoEdgeColor;
   HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &meta.LPub.assem.highContrast;
@@ -1623,8 +1623,8 @@ int LDGLite::renderPli(
 
   bool useImageSize = metaType.imageSize.value(XX) > 0;
   int lineThickness = int(double(resolution())/72.0+0.5);
-  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  int height = useImageSize ? int(metaType.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
   StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &metaType.studStyle;
   AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &metaType.autoEdgeColor;
   HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &metaType.highContrast;
@@ -1851,8 +1851,8 @@ int LDView::renderCsi(
 
     // set page size
     bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
-    int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-    int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+    int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+    int height = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
 
     // arguments settings
     bool usingSnapshotArgs = false;
@@ -2347,8 +2347,8 @@ int LDView::renderPli(
 
   // set page size
   bool useImageSize = metaType.imageSize.value(XX) > 0;
-  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  int height = useImageSize ? int(metaType.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+  int width  = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
+  int height = useImageSize ? int(metaType.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
 
   // arguments settings
   bool usingListCmdArg   = false;
@@ -2794,9 +2794,9 @@ int Native::renderCsi(
     Options->CameraName        = cameraName;
     Options->FoV               = cameraFoV;
     Options->HighlightNewParts = false; // gui->suppressColourMeta();
-    Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+    Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
     Options->ImageType         = Options::CSI;
-    Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
+    Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
     Options->InputFileName     = ldrName;
     Options->IsOrtho           = isOrtho;
     Options->Latitude          = noCA ? 0.0 : cameraAngleX;
@@ -2804,8 +2804,8 @@ int Native::renderCsi(
     Options->Longitude         = noCA ? 0.0 : cameraAngleY;
     Options->ModelScale        = modelScale;
     Options->OutputFileName    = pngName;
-    Options->PageHeight        = Application::pageSize(meta.LPub.page, YY);
-    Options->PageWidth         = Application::pageSize(meta.LPub.page, XX);
+    Options->PageHeight        = LPub::pageSize(meta.LPub.page, YY);
+    Options->PageWidth         = LPub::pageSize(meta.LPub.page, XX);
     Options->Position          = position;
     Options->Resolution        = resolution();
     Options->Target            = target;
@@ -3022,9 +3022,9 @@ int Native::renderPli(
     Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
     Options->CameraName     = cameraName;
     Options->FoV            = cameraFoV;
-    Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+    Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : LPub::pageSize(meta.LPub.page, YY);
     Options->ImageType      = pliType == SUBMODEL ? Options::SMP : Options::PLI;
-    Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
+    Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
     Options->InputFileName  = ldrNames.first();
     Options->IsOrtho        = isOrtho;
     Options->Latitude       = noCA ? 0.0 : cameraAngleX;
@@ -3032,8 +3032,8 @@ int Native::renderPli(
     Options->Longitude      = noCA ? 0.0 : cameraAngleY;
     Options->ModelScale     = modelScale;
     Options->OutputFileName = pngName;
-    Options->PageHeight     = Application::pageSize(meta.LPub.page, YY);
-    Options->PageWidth      = Application::pageSize(meta.LPub.page, XX);
+    Options->PageHeight     = LPub::pageSize(meta.LPub.page, YY);
+    Options->PageWidth      = LPub::pageSize(meta.LPub.page, XX);
     Options->Position       = position;
     Options->Resolution     = resolution();
     Options->Target         = target;

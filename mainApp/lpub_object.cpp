@@ -233,7 +233,7 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
  *
  * *****************************************************************/
 
-bool Application::setFadeStepsFromCommand()
+bool LPub::setFadeStepsFromCommand()
 {
   QString result;
   Where topLevelModel(ldrawFile.topLevelFile(),0);
@@ -301,7 +301,7 @@ bool Application::setFadeStepsFromCommand()
   return setupFadeSteps;
 }
 
-bool Application::setHighlightStepFromCommand()
+bool LPub::setHighlightStepFromCommand()
 {
   QString result;
   Where topLevelModel(gui->topLevelFile(),0);
@@ -351,7 +351,7 @@ bool Application::setHighlightStepFromCommand()
   return setupHighlightStep;
 }
 
-bool Application::setPreferredRendererFromCommand(const QString &preferredRenderer)
+bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
 {
   if (preferredRenderer.isEmpty())
       return false;
@@ -527,7 +527,7 @@ void LPub::downloadFile(QString URL, QString title, bool promptRedirect)
     startRequest(mUrl);
 
     while (mHttpReply)
-        QLPub::processEvents();
+        QApplication::processEvents();
 }
 
 void LPub::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
