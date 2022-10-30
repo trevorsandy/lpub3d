@@ -1663,10 +1663,10 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         if (file.exists()) {
             if (!file.remove()) {
                 emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                .arg(filePaths.at(i)));
+                                .arg(fileInfo.absoluteFilePath()));
             } else {
 #ifdef QT_DEBUG_MODE
-                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(filePaths.at(i)));
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.completeBaseName()));
 #endif
                 count++;
             }

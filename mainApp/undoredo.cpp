@@ -104,12 +104,12 @@ void Gui::setBuildModClearStepKey(const QString &text)
     if (text.startsWith("BuildMod")) {
         buildModClearStepKey = text.split("|").last();
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString("UndoRedo reset BuildMod images trigger: %1").arg(text));
+        emit messageSig(LOG_DEBUG, QString("BuildMod UndoRedo - reset images trigger: %1").arg(text));
 #endif
     } else {
         buildModClearStepKey = text;
 #ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString("CountPage reset BuildMod images trigger: %1").arg(text));
+        emit messageSig(LOG_DEBUG, QString("BuildMod Change - reset images trigger: %1").arg(text));
 #endif
     }
 }

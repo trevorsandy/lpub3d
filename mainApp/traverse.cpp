@@ -4593,30 +4593,26 @@ void Gui::drawPage(
 #endif
 
     QStringList keys = buildModClearStepKey.split("_");
-    QString stepKey = keys.first();
-    QString option = keys.last();
+    QString key      = keys.first();
+    QString option   = keys.last();
 
-    // clear csi image, flag submodel stak item(s) as modified and clear submodel (cm)
+    // viewer step key or clear submodel (cm) - clear step(s) image and flag submodel stack item(s) as modified
     if (keys.size() == 1 || option == "cm") {
-      clearWorkingFiles(getPathsFromViewerStepKey(stepKey));
+      clearWorkingFiles(getPathsFromViewerStepKey(key));
 
     // clear page
     } else if (option == "cp") {
-      bool multiStepPage = isViewerStepMultiStep(stepKey);
+      bool multiStepPage = isViewerStepMultiStep(key);
       PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
       clearPageCache(relativeType, &page, Options::CSI);
 
     // clear step
     } else if (option == "cs") {
-      QString csiPngName = getViewerStepImagePath(stepKey);
+      QString csiPngName = getViewerStepImagePath(key);
       clearStepCSICache(csiPngName);
     }
 
-    if (deleteViewerStep(stepKey))
-#ifdef QT_DEBUG_MODE
-        emit messageSig(LOG_DEBUG, QString("Removed viewer step key %1...").arg(stepKey));
-#endif
-
+    // reset key
     buildModClearStepKey.clear();
   }
 
@@ -5142,6 +5138,7 @@ int Gui::setBuildModForNextStep(
                        buildModStepIndex);
     };
 
+    // we do this submodel->else block because this call only processes to the end of the specified next step
     if (submodel) {
         if (!topOfSubmodel.lineNumber)
             skipHeader(topOfSubmodel);                       // advance past headers

@@ -489,6 +489,7 @@ class LDrawFile {
     void deleteBuildMods(const int stepIndex);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModStepKeyModelName(const QString &buildModKey);
+    QStringList getPathsFromBuildModKeys(const QStringList &buildModKeys);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
 
@@ -523,6 +524,7 @@ class LDrawFile {
     bool        isViewerStepMultiStep(const QString &stepKey);
     bool        isViewerStepCalledOut(const QString &stepKey);
     bool        viewerStepContentExist(const QString &stepKey);
+    bool        viewerStepModified(const QString &stepKey);
     bool        deleteViewerStep(const QString &stepKey);
     void        clearViewerSteps();
 

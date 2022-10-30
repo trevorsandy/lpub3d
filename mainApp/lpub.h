@@ -785,6 +785,11 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
+  bool viewerStepModified(const QString &stepKey)
+  {
+      return ldrawFile.viewerStepModified(stepKey);
+  }
+
   /* Build Modifications */
 
   void insertBuildMod(const QString      &buildModKey,
@@ -970,6 +975,11 @@ public:
   QStringList getPathsFromViewerStepKey(const QString &stepKey)
   {
       return ldrawFile.getPathsFromViewerStepKey(stepKey);
+  }
+
+  QStringList getPathsFromBuildModKeys(const QStringList &buildModKeys)
+  {
+      return ldrawFile.getPathsFromBuildModKeys(buildModKeys);
   }
 
   bool buildModsCount()

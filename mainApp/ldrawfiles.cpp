@@ -2370,7 +2370,7 @@ void LDrawFile::countInstances(
                     if (buildModStepIndex > BM_INVALID_INDEX) {
                       buildModAction = getBuildModAction(tokens[4], buildModStepIndex);
                       if (buildModAction && (buildModAction != newAction)) {
-                          setBuildModAction(tokens[4], buildModStepIndex, newAction);
+                        setBuildModAction(tokens[4], buildModStepIndex, newAction);
                       }
                     }
                   } else {
@@ -3951,6 +3951,61 @@ int LDrawFile::getBuildModStepKeyModelIndex(const QString &buildModKey)
   return 0;
 }
 
+/* return paths - using buildMod key - to the end of the submodel and set parent submodels and viewer steps to modified */
+
+QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
+{
+#ifdef QT_DEBUG_MODE
+    int subModelStackCount = 0;
+#endif
+  QStringList imageFilePaths;
+  for (const QString &modKey : buildModKeys) {
+    QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+    if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_MODEL_STEP_NUM) {
+      ViewerStep::StepKey viewerStepKey = { i.value()._modAttributes.at(BM_MODEL_NAME_INDEX),
+                                            i.value()._modAttributes.at(BM_MODEL_LINE_NUM),
+                                            i.value()._modAttributes.at(BM_MODEL_STEP_NUM) };
+
+      setModified(getSubmodelName(viewerStepKey.modIndex), true);
+      if (i.value()._modSubmodelStack.size())
+        for (const int index : i.value()._modSubmodelStack)
+          setModified(getSubmodelName(index), true);
+
+#ifdef QT_DEBUG_MODE
+      subModelStackCount = i.value()._modSubmodelStack.size() + 1;
+#endif
+
+      QMap<QString, ViewerStep>::iterator si = _viewerSteps.begin();
+      while (si != _viewerSteps.end()) {
+        if (viewerStepKey.modIndex == si->_stepKey.modIndex && si->_viewType == Options::CSI) {
+          if (viewerStepKey.stepNum <= si->_stepKey.stepNum) {
+            if (modified(getSubmodelName(viewerStepKey.modIndex))) {
+              si->_modified = true;
+              if (QFileInfo(si->_imagePath).exists()) {
+                imageFilePaths.append(si->_imagePath);
+              }
+            }
+          }
+        }
+        ++si;
+      }
+    }
+  }
+
+  if (imageFilePaths.size() > 1)
+    imageFilePaths.removeDuplicates();
+
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod Modified Subfiles: %1, Image File Paths %2, %3 %4")
+                                                .arg(subModelStackCount)
+                                                .arg(imageFilePaths.size())
+                                                .arg(buildModKeys.size() == 1 ? "ModelKey:" : "ModelKeys:")
+                                                .arg(buildModKeys.join(" ")));
+#endif
+
+  return imageFilePaths;
+}
+
 bool LDrawFile::buildModContains(const QString &buildModKey)
 {
   QString modKey = buildModKey;
@@ -4051,37 +4106,34 @@ QString LDrawFile::getViewerStepFilePath(const QString &stepKey)
   return _emptyString;
 }
 
-/* return paths from the specified viewer step to the end of the submodel and set parent submodels to modified */
+/* return paths - using viewer step key - to the end of the submodel and set parent submodels and viewer steps to modified */
 
 QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
 {
   QStringList list = stepKey.split(";");
-  QStringList submodelStack;
   if (list.size() == BM_SUBMODEL_STACK) {
-    QStringList models = list.takeFirst().split(":");
-    if (models.size())
-      Q_FOREACH (const QString &index, models)
-        submodelStack << getSubmodelName(index.toInt());
+    QStringList submodelStack = list.takeFirst().split(":");
+    if (submodelStack.size())
+      for (const QString &index : submodelStack)
+        setModified(getSubmodelName(index.toInt()),true);
   }
 
   ViewerStep::StepKey viewerStepKey = { list.at(BM_STEP_MODEL_KEY).toInt(),
                                         list.at(BM_STEP_LINE_KEY).toInt(),
                                         list.at(BM_STEP_NUM_KEY).toInt() };
-  submodelStack << getSubmodelName(viewerStepKey.modIndex);
-  if (submodelStack.size() > 1)
-      submodelStack.removeDuplicates();
-  for (const QString &fileName : submodelStack)
-    setModified(fileName, true);
+
+  setModified(getSubmodelName(viewerStepKey.modIndex), true);
 
   list.clear();
-  QMap<QString, ViewerStep>::const_iterator i = _viewerSteps.constBegin();
-  while (i != _viewerSteps.constEnd()) {
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.begin();
+  while (i != _viewerSteps.end()) {
     if (viewerStepKey.modIndex == i->_stepKey.modIndex && i->_viewType == Options::CSI) {
       if (viewerStepKey.stepNum <= i->_stepKey.stepNum) {
-        QFileInfo imageInfo(i->_imagePath);
-        if (imageInfo.exists()) {
-          if (modified(getSubmodelName(viewerStepKey.modIndex)));
+        if (modified(getSubmodelName(viewerStepKey.modIndex))) {
+          i->_modified = true;
+          if (QFileInfo(i->_imagePath).exists()) {
             list.append(i->_imagePath);
+          }
         }
       }
     }
@@ -4177,6 +4229,17 @@ bool LDrawFile::isViewerStepCalledOut(const QString &stepKey)
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._calledOut;
+  } else {
+    return false;
+  }
+}
+
+bool LDrawFile::viewerStepModified(const QString &stepKey)
+{
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  if (i != _viewerSteps.end()) {
+    return i.value()._modified;
   } else {
     return false;
   }

@@ -477,8 +477,8 @@ int Step::createCsi(
       // Viewer Csi does not yet exist in repository
       bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
 
-      // We are processing again the current step but the Csi has changed - i.e. updated in the viewer
-      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() /*&& generageCSIFile*/);
+      // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
+      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() || gui->viewerStepModified(viewerStepKey));
 
       if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
 
