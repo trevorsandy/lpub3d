@@ -1445,24 +1445,12 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
 }
 
 
-void Gui::deployExportBanner(bool b)
+void Gui::deployBanner(bool b)
 {
-  if (b && Preferences::modeGUI) {
-      QString exportBanner, imageFile;
-
-#ifdef __APPLE__
-
-      exportBanner = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr");
-      imageFile = QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg");
-
-#else
-
-      exportBanner = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/printbanner.ldr"));
-      imageFile = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath,"extras/PDFPrint.jpg"));
-
-#endif
-
-      installExportBanner(m_exportMode, exportBanner,imageFile);
+    if (b && Preferences::modeGUI) {
+        QTemporaryDir tempDir;
+        if (tempDir.isValid())
+            loadBanner(Gui::m_exportMode, QDir::toNativeSeparators(QString("%1/banner.ldr").arg(tempDir.path())));
     }
 }
 
@@ -3652,8 +3640,10 @@ void Gui::initialize()
           this, SLOT(  consoleCommandCurrentThread(int, int*)), Qt::DirectConnection);
   connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int, int*)),
           this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
+  connect(this, SIGNAL(setGeneratingBomSig(bool)),
+          this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
-          this, SLOT(  deployExportBanner(bool)));
+          this, SLOT(  deployBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(halt3DViewer(bool)));
   connect(this, SIGNAL(updateAllViewsSig()),

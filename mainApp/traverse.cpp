@@ -2467,7 +2467,7 @@ int Gui::drawPage(
 
                       else
                      /*
-                      * STEP - No step object, e.g. BOM, inserted page (no rendered graphics)
+                      * NO STEP - No step object, e.g. BOM, inserted page (no rendered graphics)
                       */
                       {
 
@@ -2486,7 +2486,7 @@ int Gui::drawPage(
                                   page->selectedSceneItems = selectedSceneItems;
                               }
                           }
-                      } // STEP - No step object, e.g. inserted page (no rendered graphics)
+                      } // NO STEP - No step object, e.g. inserted page (no rendered graphics)
 
                      /*
                       *  STEP - Simple, not mulitStep, not calledOut (render graphics)
@@ -2610,7 +2610,7 @@ int Gui::drawPage(
                                                            .arg(stepPageNum));
                           } // useLDViewSCall()
 
-                          // Load the Visual Editor - callouts and multistep Steps are not loaded
+                          // Load the Visual Editor on Step - callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {
@@ -2619,7 +2619,7 @@ int Gui::drawPage(
                                       step->loadTheViewer();
                                   showLine(topOfStep);
                               }
-                          }
+                          } // Load the Visual Editor on Step
 
                           // Load the top model into the visual editor on cover page
                           if (coverPage && Preferences::modeGUI && !exportingObjects()) {
@@ -2653,7 +2653,7 @@ int Gui::drawPage(
                                         step->subModel.loadTheViewer();
                                  }
                              }
-                          }
+                          } // cover page
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
 

@@ -1282,112 +1282,131 @@ void Gui::applyCameraSettings()
     }
 }
 
-bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
+bool Gui::loadBanner(const int &type, const QString &banner) {
 
+    const bool bom = type == GENERATE_BOM;
+    const QString description = bom ? "BOM" : "Print";
     QList<QString> bannerData;
-    bannerData << "0 Print Banner";
-    bannerData << "0 Name: printbanner.ldr";
+    bannerData << "0 " + description + " Banner";
+    bannerData << "0 Name: banner.ldr";
     bannerData << "0 Author: Trevor SANDY";
-    bannerData << "0 Unofficial Model";
-    bannerData << "0 !LPUB MODEL NAME Printbanner";
-    bannerData << "0 !LPUB MODEL AUTHOR LPub3D";
-    bannerData << "0 !LPUB MODEL DESCRIPTION Graphic displayed during pdf printing";
-    bannerData << "0 !LPUB MODEL BACKGROUND IMAGE NAME " + imageFile;
-    bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
-    bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
-    bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
-    bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
-    bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
-    bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
-    switch (type) {
-    case EXPORT_PNG:
-        bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
-        bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
-        break;
-    case EXPORT_JPG:
-        bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
-        break;
-    case EXPORT_BMP:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        break;
-    case EXPORT_WAVEFRONT:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        break;
-    case EXPORT_COLLADA:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
-        break;
-    case EXPORT_3DS_MAX:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        break;
-    case EXPORT_STL:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
-        break;
-    case EXPORT_POVRAY:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
-        break;
-    case EXPORT_HTML_PARTS:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        break;
-    case EXPORT_CSV:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptc.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
-        break;
-    case EXPORT_BRICKLINK:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptk.dat";
-        break;
-    default:
-        bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
+    bannerData << "0 !LDRAW_ORG Unofficial_Model";
+    if (bom) {
+        bannerData << "1 71 -70 -24 10 1 0 0 0 1 0 0 0 1 3005ptb.dat";
+        bannerData << "1 71 -50 -24 10 1 0 0 0 1 0 0 0 1 3005pti.dat";
+        bannerData << "1 71 -30 -24 10 1 0 0 0 1 0 0 0 1 3005ptl.dat";
+        bannerData << "1 71 -10 -24 10 1 0 0 0 1 0 0 0 1 3005ptl.dat";
+        bannerData << "1 71 -50 0 10 1 0 0 0 1 0 0 0 1 3005pto.dat";
+        bannerData << "1 71 -30 0 10 1 0 0 0 1 0 0 0 1 3005ptf.dat";
+        bannerData << "1 72 -10 0 10 1 0 0 0 1 0 0 0 1 3005.dat";
+        bannerData << "1 72 -70 0 10 1 0 0 0 1 0 0 0 1 3005.dat";
+        bannerData << "1 71 -110 24 10 1 0 0 0 1 0 0 0 1 3005ptm.dat";
+        bannerData << "1 71 -90 24 10 1 0 0 0 1 0 0 0 1 3005pta.dat";
+        bannerData << "1 71 -70 24 10 1 0 0 0 1 0 0 0 1 3005ptt.dat";
+        bannerData << "1 71 -50 24 10 1 0 0 0 1 0 0 0 1 3005pte.dat";
+        bannerData << "1 71 -30 24 10 1 0 0 0 1 0 0 0 1 3005ptr.dat";
+        bannerData << "1 71 -10 24 10 1 0 0 0 1 0 0 0 1 3005pti.dat";
+        bannerData << "1 71 10 24 10 1 0 0 0 1 0 0 0 1 3005pta.dat";
+        bannerData << "1 71 30 24 10 1 0 0 0 1 0 0 0 1 3005ptl.dat";
+        bannerData << "1 72 -50 -48 10 1 0 0 0 1 0 0 0 1 3062a.dat";
+        bannerData << "1 72 -30 -48 10 1 0 0 0 1 0 0 0 1 3062a.dat";
+        bannerData << "1 72 10 0 10 1 0 0 0 1 0 0 0 1 3005.dat";
+        bannerData << "1 72 -90 0 10 1 0 0 0 1 0 0 0 1 3005.dat";
+        bannerData << "1 72 -40 48 10 1 0 0 0 1 0 0 0 1 6111.dat";
+    } else {
+        bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
+        bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+        bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+        bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+        bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+        bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+        bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+        bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+        bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+        bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
+        bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
+        bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
+        bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
+        bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
+        switch (type) {
+        case EXPORT_PNG:
+            bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+            bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
+            bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+            break;
+        case EXPORT_JPG:
+            bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+            bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+            bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+            break;
+        case EXPORT_BMP:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+            break;
+        case EXPORT_WAVEFRONT:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+            break;
+        case EXPORT_COLLADA:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
+            break;
+        case EXPORT_3DS_MAX:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+            break;
+        case EXPORT_STL:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+            break;
+        case EXPORT_POVRAY:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+            break;
+        case EXPORT_HTML_PARTS:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+            break;
+        case EXPORT_CSV:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptc.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+            break;
+        case EXPORT_BRICKLINK:
+            bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+            bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+            bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptk.dat";
+            break;
+        default:
+            bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+            bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+            bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
+        }
     }
     bannerData << "0";
-    bannerData << "0 NOFILE";
 
-    QFile bannerFile(printFile);
+    QFile bannerFile(banner);
     if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
-        emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
-                             .arg(printFile)
+        emit gui->messageSig(LOG_ERROR,tr("Could not open banner file '%1' for writing:\n%2")
+                             .arg(banner)
                              .arg(bannerFile.errorString()));
         return false;
     }
     QTextStream out(&bannerFile);
-    for (int i = 0; i < bannerData.size(); i++) {
-        QString fileLine = bannerData[i];
-        out << fileLine << lpub_endl;
-    }
+    for (int i = 0; i < bannerData.size(); i++)
+        out << bannerData[i] << lpub_endl;
     bannerFile.close();
 
     if (!gMainWindow->OpenProject(bannerFile.fileName()))
     {
-        emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
+        emit gui->messageSig(LOG_ERROR, tr("Could not load banner file '%1'.").arg(bannerFile.fileName()));
         return false;
     }
 

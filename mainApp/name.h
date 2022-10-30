@@ -106,7 +106,8 @@ enum ExportMode { PRINT_FILE   = -2,       //-2
                   EXPORT_HTML_STEPS,       // 14
                   POVRAY_RENDER,           // 15
                   BLENDER_RENDER,          // 16
-                  BLENDER_IMPORT           // 17
+                  BLENDER_IMPORT,          // 17
+                  GENERATE_BOM             // 18
 };
 enum PartSource {
     NOT_FOUND          = -1,               //  -1

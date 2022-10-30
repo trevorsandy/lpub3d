@@ -1355,7 +1355,7 @@ public slots:
      return LDrawColourParts::isLDrawColourPart(fileName);
   }
 
-  static void deployExportBanner(bool b);
+  static void deployBanner(bool b);
   static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
   static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
   static void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
@@ -1507,6 +1507,7 @@ signals:
   void hidePreviewDialogSig();
   void showExportedFileSig(int);
   void visualEditorVisibleSig(bool);
+  void setGeneratingBomSig(bool);
 
   // right side progress bar
   void progressBarInitSig();
@@ -1726,10 +1727,7 @@ private:
     const int         &stepNum,
     Where             &current);      // fade and or highlight parts in a step that are not current
 
-  static bool installExportBanner(
-    const int &type,
-    const QString &printFile,
-    const QString &imageFile);
+  static bool loadBanner(const int &type,const QString &banner);
 
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);

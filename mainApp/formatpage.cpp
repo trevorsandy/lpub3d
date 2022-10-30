@@ -602,7 +602,11 @@ int Gui::addGraphicsPageItems(
               break;
             case InsertData::InsertBom:
               {
-                Where where(insert.where.modelName, insert.where.lineNumber);
+                int saveExportMode = Gui::m_exportMode;
+                Gui::m_exportMode = GENERATE_BOM;
+
+                emit gui->setGeneratingBomSig(true);
+
                 Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : lpub->ldrawFile.topLevelFile(),0);
                 QFuture<void> future = QtConcurrent::run([this, current]() {
                     bomParts.clear();
@@ -619,6 +623,7 @@ int Gui::addGraphicsPageItems(
                 page->pli.sizePli(&page->meta,page->relativeType,false);
                 page->pli.relativeToSize[0] = plPage.size[XX];
                 page->pli.relativeToSize[1] = plPage.size[YY];
+                Gui::m_exportMode = saveExportMode;
               }
               break;
             case InsertData::InsertRotateIcon:
