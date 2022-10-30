@@ -161,7 +161,7 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
-/*** LPub3D Mod - viewer step key ***/
+/*** LPub3D Mod - project piece ***/
 	QString GetStepKey() const
 	{
 		return mStepKey;
@@ -170,6 +170,11 @@ public:
 	bool IsProjectPieceModified() const
 	{
 		return mProjectPieceModified;
+	}
+	
+	void SetProjectPieceModified(bool value)
+	{
+		mProjectPieceModified = value;
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
@@ -228,7 +233,7 @@ protected:
 	float mResolution;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - viewer step key ***/
+/*** LPub3D Mod - project piece ***/
 	bool mProjectPieceModified;
 	QString mStepKey;
 /*** LPub3D Mod end ***/
