@@ -3311,6 +3311,7 @@ Gui::Gui()
 
     // structs
     qRegisterMetaType<ActionAttributes>("ActionAttributes");
+    qRegisterMetaType<lcLibRenderOptions>("lcLibRenderOptions");
     qRegisterMetaType<StepLines>("StepLines");
     qRegisterMetaType<TypeLine>("TypeLine");
 
