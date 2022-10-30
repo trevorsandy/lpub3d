@@ -168,7 +168,7 @@ win32 {
         DEFINES += _TC_STATIC
         DEFINES += QUAZIP_STATIC
 
-        QMAKE_LFLAGS_WINDOWS += /IGNORE:4099
+        QMAKE_LFLAGS_WINDOWS += /STACK:4194304 /IGNORE:4099
         QMAKE_CFLAGS_WARN_ON -= -W3
         QMAKE_ADDL_MSVC_FLAGS = -GS -Gd -fp:precise -Zc:forScope
         CONFIG(debug, debug|release) {
@@ -178,7 +178,6 @@ win32 {
             QMAKE_CXXFLAGS_DEBUG += $$QMAKE_ADDL_MSVC_DEBUG_FLAGS
         }
         CONFIG(release, debug|release) {
-            QMAKE_LFLAGS_WINDOWS  += /STACK:4194304
             QMAKE_ADDL_MSVC_RELEASE_FLAGS = $$QMAKE_ADDL_MSVC_FLAGS -GF -Gy
             QMAKE_CFLAGS_OPTIMIZE += -Ob1 -Oi -Ot
             QMAKE_CFLAGS_WARN_ON  += -W1 -WX- -wd"4005" -wd"4456" -wd"4458" -wd"4805" -wd"4838" -wd"4700" -wd"4098"
