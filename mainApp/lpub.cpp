@@ -357,21 +357,10 @@ void Gui::displayPage()
   }
 }
 
-void Gui::cyclePageDisplay(const int inputPageNum, int option)
+void Gui::cyclePageDisplay(const int inputPageNum, int option/*FILE_DEFAULT*/)
 {
   int move = 0;
   int goToPageNum = inputPageNum;
-  auto cycleDisplay = [this, &goToPageNum] ()
-  {
-    pageDirection = PAGE_NEXT;
-    setContinuousPage(displayPageNum);
-    while (displayPageNum < goToPageNum) {
-      ++displayPageNum;
-      displayPage();
-      secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
-    }
-    cancelContinuousPage();
-  };
 
   auto setDirection = [this, &goToPageNum] (int &move)
   {
@@ -384,6 +373,24 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option)
       pageDirection = PAGE_JUMP_BACKWARD;
     else if (move == -1)
       pageDirection = PAGE_PREVIOUS;
+  };
+
+  auto cycleDisplay = [this, &goToPageNum] ()
+  {
+    setContinuousPage(displayPageNum);
+    if (pageDirection < PAGE_BACKWARD)
+      while (displayPageNum < goToPageNum) {
+        ++displayPageNum;
+        displayPage();
+        secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
+      }
+    else
+      while (displayPageNum > goToPageNum) {
+        --displayPageNum;
+        displayPage();
+        secSleeper::secSleep(PAGE_CYCLE_DISPLAY_DEFAULT);
+      }
+    cancelContinuousPage();
   };
 
   if (option == FILE_RELOAD) {
