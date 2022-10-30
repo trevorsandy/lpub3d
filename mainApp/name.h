@@ -125,12 +125,14 @@ enum BuildModRc {
     BM_INVALID_INDEX    = BM_NONE,         //  -1
     BM_LAST_ACTION      = BM_NONE,         //  -1
     BM_BEGIN,                              //   0 MOD LEVEL BEGIN
+    BM_BASE_LEVEL       = BM_BEGIN,        //   0
     BM_NEXT_ACTION      = BM_BEGIN,        //   0
     BM_FIRST_INDEX      = BM_BEGIN,        //   0
     BM_MODEL_NAME       = BM_BEGIN,        //   0
     BM_STEP_MODEL_KEY   = BM_BEGIN,        //   0
     BM_BEGIN_LINE_NUM   = BM_BEGIN,        //   0 BUILD_MOD BEGIN   BuildModRange[0] Attributes[0]
     BM_END_MOD,                            //   1
+    BM_FIRST_LEVEL      = BM_END_MOD,      //   1
     BM_PREVIOUS_ACTION  = BM_END_MOD,      //   1
     BM_STEP_LINE_KEY    = BM_END_MOD,      //   1
     BM_ACTION_LINE_NUM  = BM_END_MOD,      //   1 BUILD_MOD END_MOD BuildModRange[1] Attributes[1]

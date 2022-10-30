@@ -796,6 +796,7 @@ bool Gui::openFile(QString &fileName)
 
   disableWatcher();
 
+  setCountWaitForFinished(false);
   parseBuildModsAtCount = false;
   pageDirection = PAGE_NEXT;
   mloadingFile = true;

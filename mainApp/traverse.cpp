@@ -634,7 +634,7 @@ int Gui::drawPage(
                       .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
                       .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                       .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                      .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
                       .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
                       .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
                       .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
@@ -2032,7 +2032,7 @@ int Gui::drawPage(
                       parseError("Redundant build modification meta command - this command can be removed.",
                                  opts.current,Preferences::BuildModErrors);
               } else {
-                  parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
+                  parseError(QString("DrawPage BuildMod for key '%1' not found").arg(buildMod.key),
                              opts.current,Preferences::BuildModErrors);
               }
               if (multiStep || opts.calledOut)
@@ -2143,7 +2143,7 @@ int Gui::drawPage(
               if (buildModInsert)
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
               buildMod.level = getLevel(QString(), BM_END);
-              if (buildMod.level == BM_BEGIN) {
+              if (buildMod.level == BM_BASE_LEVEL || buildMod.level == curMeta.submodelStack.size()) {
                   buildMod.ignore = false;
                   buildModPliIgnore = pliIgnore;
               }
@@ -2249,7 +2249,7 @@ int Gui::drawPage(
                       caseType.append("bfx load");
                   if (buildModAction)
                       caseType.isEmpty() ? caseType.append("build modification") : caseType.append(" build modification");
-                  emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
+                  emit messageSig(LOG_INFO, QString("DRAWPAGE - Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
 
                   step->updateViewer = opts.updateViewer;
                   (void) step->createCsi(
@@ -2338,7 +2338,7 @@ int Gui::drawPage(
                               opts.pliParts.clear();
                               opts.pliPartGroups.clear();
 
-                              emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
+                              emit messageSig(LOG_INFO, "DRAWPAGE - Processing PLI for " + topOfStep.modelName + "...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
@@ -2883,7 +2883,7 @@ int Gui::findPage(
                   .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
                   .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                   .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
                   .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
                   .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
                   .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
@@ -2944,24 +2944,30 @@ int Gui::findPage(
    * step where the BUILD_MOD APPLY or BUILD_MOD REMOVE action meta command is encountered.
    *
    * The buildModLevel flag is enabled for the lines between BUILD_MOD BEGIN and BUILD_MOD END
-   * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent the modified content
-   * Lines between BUILD_MOD END_MOD and BUILD_MOD END represent the original content
+   * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD are the modified content
+   * Lines between BUILD_MOD END_MOD and BUILD_MOD END are the original content
    *
    * When the buildModLevel flag is true (greater than 0):
    * Funct 1 (csiParts):
    * Parse is enabled when 'buildModIgnore' is false.
-   * When the build mod action is 'apply', the modification block is parsed. (buildModIgnore is false)
-   * When the build mod action is 'remove', the default block is parsed.     (buildModIgnore is false)
-   * Remove group, partType and partName is only applied when 'buildModIgnore is false.
+   * When the build mod action is 'apply', the modified content block is parsed. (buildModIgnore is false)
+   * When the build mod action is 'remove', the original content block is parsed.     (buildModIgnore is false)
+   * Remove group, partType and partName are only applied when 'buildModIgnore is false.
    *
    * When the build mod meta command is BUILD_MOD END 'buildModIgnore' and 'buildModPliIgnore'
-   * are reset to false while buildModLevel is reset to false (0), if the build mod command is not nested
+   * are reset to false and buildModLevel is reset to false (0), if the build mod command is not nested
+   * in the same
    *
    * When BUILD_MOD APPLY or BUILD_MOD REMOVE action meta command is encountered,
    * the respective build mod action is set or updated in ldrawFiles buildMod. Build
    * action is persisted as a key,value pair whereby the key is the step number and
-   * the value is the build action. These updates are performed for the entire model
+   * the value is the build action. These updates are performed up to the display page
    * at each execution of findPage().
+   *
+   * However additional buildMod parsing are performed in the countPages() call. Particularly
+   * processing buildMod commands in partially processed submodels (e.g. when a submodel
+   * has multiple pages whereby the buildMod command starts in findPage() and ends in countPages().
+   * Additionally, when jumping ahead during navigation, buildMod commands are processed in countPages()
    *
    * When the buildModLevel flag is false pli and csi lines are processed normally
    */
@@ -3027,9 +3033,11 @@ int Gui::findPage(
 
                   // if submodel
                   if (contains) {
+                      // when the display page is not the end of a submodel
+                      bool partiallyRendered = false;
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore2 || getBuildModRendered(buildMod.key, colorType));
+                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore || getBuildModRendered(buildMod.key, colorType));
 
                       // if not callout or assembled/rotated callout
                       if (! opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
@@ -3048,12 +3056,12 @@ int Gui::findPage(
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                   meta.submodelStack << tos;
                                   Where current2(type,getSubmodelIndex(type),0);
+
+                                  // add buildMod settings for this step, needed for submodels in a buildMod.
                                   FindPageFlags flags2;
+                                  flags2.buildModStack << buildMod;
 
                                   ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
-
-                                  // save buildMod settings
-                                  BuildModFlags saveBuildMod2 = buildMod;
 
                                   // save rotStep, clear it, and restore it afterwards
                                   // since rotsteps don't affect submodels
@@ -3086,7 +3094,7 @@ int Gui::findPage(
                                               current2,
                                               opts.pageSize,
                                               flags2,
-                                              opts.modelStack,
+                                              meta.submodelStack,
                                               opts.pageDisplayed,
                                               opts.updateViewer,
                                               opts.isMirrored,
@@ -3103,13 +3111,16 @@ int Gui::findPage(
                                   }
 
                                   opts.pageDisplayed = modelOpts.pageDisplayed;
+                                  partiallyRendered = modelOpts.current.lineNumber < modelOpts.flags.numLines;
                                   if (opts.pageDisplayed) {                 // capture where we stopped in the submodel
-                                      if (modelOpts.current.lineNumber < modelOpts.flags.numLines) {
+                                      // when we stop before the end of a child submode,
+                                      // we need to capture the child submodel flags for countPages
+                                      if (partiallyRendered) {
                                           opts.pageNum           = modelOpts.pageNum;
                                           opts.current           = modelOpts.current;
                                           opts.pageSize          = modelOpts.pageSize;
                                           opts.flags             = modelOpts.flags;
-                                          opts.modelStack        = meta.submodelStack;
+                                          opts.modelStack        = modelOpts.modelStack;
                                           opts.stepNumber        = modelOpts.stepNumber;
                                           opts.renderParentModel = modelOpts.renderParentModel;
                                           // decrement current lineNumber by 1 line to account for
@@ -3122,17 +3133,20 @@ int Gui::findPage(
                                           Where walk = modelOpts.current;
                                           Rc rc = mi->scanForward(walk,StepMask,partsAdded);
                                           opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
-                                          // if not parts added to last step, set partsAdded to -1 so later increment
+                                          // if no parts added to last step, set partsAdded to -1 so later increment
                                           // will result in a value of 0.
                                           if (opts.flags.parseBuildMods)
                                               opts.flags.partsAdded = -1;
+                                      } else {
+                                          // capture the final buildMod flags for this page
+                                          opts.flags.buildModStack << buildMod;
                                       }
-                                  }
+                                  } // opts.pageDisplayed
+                                  else
+                                      meta.submodelStack.pop_back();
 
                                   saveStepPageNum = stepPageNum;
-                                  buildMod = saveBuildMod2;                 // restore old buildMod
                                   meta.rotStep  = saveRotStep2;             // restore old rotstep
-                                  meta.submodelStack.pop_back();            // remove where we stopped in the parent model - if page not yet displayed
 
                                   if (opts.contStepNumber) {                // capture continuous step number from exited submodel
                                       opts.contStepNumber = saveContStepNum;
@@ -3161,7 +3175,10 @@ int Gui::findPage(
                       } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
                       // add submodel to buildMod rendered list
-                      if (Preferences::buildModEnabled && buildMod.state == BM_BEGIN && ! buildModRendered) {
+                      if (Preferences::buildModEnabled &&
+                          buildMod.state == BM_BEGIN   &&
+                          ! partiallyRendered          &&
+                          ! buildModRendered) {
                           setBuildModRendered(buildMod.key, colorType);
                       }
 
@@ -3366,9 +3383,10 @@ int Gui::findPage(
                     buildMod.ignore = true;
                     break;
                 }
-                buildMod.key = meta.LPub.buildMod.key();
-                buildMod.level = getLevel(buildMod.key, BM_BEGIN);
-                buildModInsert = ! buildModContains(buildMod.key);
+                buildMod.key    = meta.LPub.buildMod.key();
+                buildMod.level  = getLevel(buildMod.key, BM_BEGIN);
+                buildMod.action = BuildModApplyRc;
+                buildModInsert  = ! buildModContains(buildMod.key);
                 if (! opts.pageDisplayed) {
                     if (! buildModInsert)
                         buildModActions.insert(buildMod.level,
@@ -3419,7 +3437,7 @@ int Gui::findPage(
                     break;
                 if (! opts.pageDisplayed) {
                     buildMod.level = getLevel(QString(), BM_END);
-                    if (buildMod.level == BM_BEGIN)
+                    if (buildMod.level == BM_BASE_LEVEL || buildMod.level == meta.submodelStack.size())
                         buildMod.ignore = false;
                 }
                 if (buildModInsert) {
@@ -3607,19 +3625,16 @@ int Gui::findPage(
 
                     topOfStep = opts.current;  // Set next step
                     opts.flags.partsAdded = 0;
-                    opts.flags.coverPage = false;
-                    opts.flags.stepPage = false;
-                    opts.flags.bfxStore2 = opts.flags.bfxStore1;
-                    opts.flags.bfxStore1 = false;
+                    opts.flags.coverPage  = false;
+                    opts.flags.stepPage   = false;
+                    opts.flags.bfxStore2  = opts.flags.bfxStore1;
+                    opts.flags.bfxStore1  = false;
                     if ( ! opts.flags.bfxStore2) {
                         bfxParts.clear();
                     } // ! BfxStore2
                     meta.pop();
+                    ldrawFile.clearBuildModRendered();
                   } // ! buildMod.ignore
-                  buildMod.ignore2 = buildMod.ignore;
-                  if ( ! buildMod.ignore2) {
-                      ldrawFile.clearBuildModRendered();
-                  } // ! BuildMod.ignore2
                 } // PartsAdded && ! NoStep
               else if ( ! opts.flags.stepGroup)
                 {
@@ -4460,7 +4475,7 @@ void Gui::countPages()
 
       emit messageSig(LOG_TRACE, message);
 
-      FindPageOptions findOptions(
+      FindPageOptions opts(
                   maxPages,      /*pageNum*/
                   current,
                   emptyPageSize,
@@ -4475,7 +4490,7 @@ void Gui::countPages()
                   0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
 
-      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, opts);
       future.waitForFinished();
       pagesCounted();
    }
@@ -4526,6 +4541,8 @@ void Gui::drawPage(
     }
 
     // initialize ldrawFile registers
+    setLoadBuildMods(false); // DEBUG
+
     ldrawFile.countInstances();
     ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
 
@@ -4565,15 +4582,19 @@ void Gui::drawPage(
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_DEBUG, QString("Reset BuildMod images from step key %1...").arg(buildModClearStepKey));
 #endif
+
     QStringList keys = buildModClearStepKey.split("_");
     QString stepKey = keys.first();
     QString option = keys.last();
+
     if (keys.size() == 1 || option == "cm") {
       clearWorkingFiles(getBuildModPathsFromStep(stepKey));
+
     } else if (option == "cp") {
       bool multiStepPage = isViewerStepMultiStep(stepKey);
       PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
       clearPageCache(relativeType, &page, Options::CSI);
+
     } else if (option == "cs") {
       QString csiPngName = getViewerStepImagePath(stepKey);
       clearStepCSICache(csiPngName);
@@ -4611,7 +4632,7 @@ void Gui::drawPage(
 #endif
   }
 
-  FindPageOptions findOptions(
+  FindPageOptions opts(
               maxPages,    /*pageNum*/
               current,
               pageSize,
@@ -4626,7 +4647,7 @@ void Gui::drawPage(
               0            /*groupStepNumber*/,
               empty        /*renderParentModel*/);
 
-  if (findPage(view,scene,meta,empty/*addLine*/,findOptions) == HitBuildModAction && Preferences::buildModEnabled) {
+  if (findPage(view,scene,meta,empty/*addLine*/,opts) == HitBuildModAction && Preferences::buildModEnabled) {
     pageProcessRunning = PROC_DISPLAY_PAGE;
     clearPage(KpageView,KpageScene);
     buildModActionChange = true;
@@ -4634,13 +4655,137 @@ void Gui::drawPage(
     drawPage(view,scene,printing,updateViewer,buildModActionChange);
 
   } else {
-    QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
-    if (exporting() || ContinuousPage() || countWaitForFinished() || mloadingFile) {
-      future.waitForFinished();
-      pagesCounted();
-    } else {
-      futureWatcher.setFuture(future);
+
+    int modelStackCount = opts.modelStack.size();
+
+    auto countPage = [this, &opts](int modelStackCount)
+    {
+      QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, opts);
+      if (exporting() || ContinuousPage() || countWaitForFinished() || mloadingFile || modelStackCount) {
+#ifdef QT_DEBUG_MODE
+        if (modelStackCount)
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished modelStack.size WAIT YES Stack [%1]").arg(modelStackCount));
+        if (countWaitForFinished())
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished countWaitForFinished WAIT YES"));
+        if (mloadingFile)
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - WaitForFinsished mloadingFile WAIT YES"));
+#endif
+        future.waitForFinished();
+        if (!modelStackCount)
+          pagesCounted();
+      } else {
+#ifdef QT_DEBUG_MODE
+          emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - FutureWatcher setFuture WAIT NO"));
+#endif
+        futureWatcher.setFuture(future);
+      }
+    };
+
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Submodel Page entry for LineNumber %1, ModelName %2")
+                        .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                        .arg(opts.current.modelName));
+#endif
+
+    // pass buildMod settings to parent model
+    if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
+      opts.flags.buildMod = opts.flags.buildModStack.last();
+//*
+#ifdef QT_DEBUG_MODE
+      const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
+      const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
+      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - BuildMod flags: "
+                                              "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
+                          .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
+                          .arg(opts.flags.buildMod.key)
+                          .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
+                          .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
+                          .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
+                          .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]"));
+#endif
+//*/
+      // remove buildMod from where we stopped in the parent model
+      opts.flags.buildModStack.pop_back();
     }
+
+    countPage(modelStackCount);
+
+    // if we start counting from a child submodel, load where findPage stopped in the parent model
+    for (int i = 0; i < modelStackCount; i++) {
+      // set the step number where the submodel will be rendered
+      opts.current = Where(opts.modelStack.last().modelName,
+                     getSubmodelIndex(opts.modelStack.last().modelName),
+                     opts.modelStack.last().lineNumber);
+
+      // set parent model of the submodel being rendered
+      opts.renderParentModel = QString(opts.modelStack.last().modelName == topLevelFile() ?
+                               QString() : opts.modelStack.last().modelName);
+
+#ifdef QT_DEBUG_MODE
+      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Stack Submodel Page entry No. %1 for LineNumber %2, ModelName %3")
+                          .arg(opts.modelStack.size(), 2, 10, QChar('0'))
+                          .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                          .arg(opts.current.modelName));
+#endif
+
+      // pass buildMod settings to parent model
+      if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
+        opts.flags.buildMod = opts.flags.buildModStack.last();
+//*
+#ifdef QT_DEBUG_MODE
+        const QString bma [ ] = {"BuildModNoActionRc [0]","BuildModBeginRc [61]","BuildModEndModRc [62]","BuildModEndRc [63]","BuildModApplyRc [64]","BuildModRemoveRc [65]"};
+        const QString bms [ ] = {"BM_NONE [-1]","BM_BEGIN [0]","BM_END_MOD [1]","BM_END [2]"};
+        emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - BuildMod flags: "
+                                                "No. %1, key: '%2', action: %3, level: %4, state %5, ignore: %6")
+                            .arg(opts.flags.buildModStack.size(), 2, 10, QChar('0'))
+                            .arg(opts.flags.buildMod.key)
+                            .arg(opts.flags.buildMod.action ? bma[opts.flags.buildMod.action - BomEndRc] : bma[BuildModNoActionRc])
+                            .arg(opts.flags.buildMod.level, 2, 10, QChar('0'))
+                            .arg(opts.flags.buildMod.state > BM_NONE ? bms[opts.flags.buildMod.state + 1] : bms[BM_BEGIN])
+                            .arg(opts.flags.buildMod.ignore ? "TRUE [1]" : "FALSE [0]"));
+#endif
+//*/
+        // remove buildMod from where we stopped in the parent model
+        opts.flags.buildModStack.pop_back();
+      }
+
+      // set flags and increment the parent model lineNumber by 1 if the line is the child submodel
+      if (opts.current.lineNumber < ldrawFile.size(opts.current.modelName)) {
+        QString line = ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
+        QStringList token;
+        split(line,token);
+
+        if (token.size() == 15) {
+          QString type = token[token.size()-1];
+
+          if (ldrawFile.isSubmodel(type)) {
+            Where walk = opts.current;
+            Rc rc = mi->scanBackward(walk,StepMask|StepGroupMask|CalloutMask);
+            opts.flags.stepGroup = (rc == StepGroupBeginRc || rc == StepGroupDividerRc);
+            opts.flags.callout   = (rc == CalloutDividerRc || rc == CalloutBeginRc);
+            opts.flags.partsAdded++;
+            opts.current++;
+
+#ifdef QT_DEBUG_MODE
+      emit gui->messageSig(LOG_DEBUG, QString(" COUNTING  - Model Page entry ADJUSTED, PART ADDED for LineNumber %1, ModelName %2, Line [%3]")
+                          .arg(opts.current.lineNumber, 3, 10, QChar('0'))
+                          .arg(opts.current.modelName)
+                          .arg(line));
+#endif
+          }
+        }
+      }
+
+      // remove where we stopped in the parent model
+      if (opts.modelStack.size())
+          opts.modelStack.pop_back();
+
+      // upate the modelstack count
+      int stackCount = opts.modelStack.size();
+
+      // let's go
+      countPage(stackCount);
+    } // iterate the model stack
 
     QApplication::processEvents();
 
@@ -4657,15 +4802,14 @@ void Gui::pagesCounted()
     pageProcessRunning = PROC_NONE;
 
 #ifdef QT_DEBUG_MODE
+//*
     emit messageSig(LOG_NOTICE, QString("COUNTED   - page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit messageSig(LOG_NOTICE, QString("COUNTED Page Indexes at displayPageNum %1 of %2")
+    emit messageSig(LOG_NOTICE, QString("COUNTED  -  Page Indexes at displayPageNum %1 of %2")
                     .arg(displayPageNum).arg(maxPages));
-#endif
-/*
-#ifdef QT_DEBUG_MODE
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+/*
     for (int i = 0; i < topOfPages.size(); i++)
     {
         Where top = topOfPages.at(i);
@@ -4675,8 +4819,8 @@ void Gui::pagesCounted()
                         .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
                         .arg(top.modelName)); // modelName
     }
+//*/
 #endif
-*/
 
     if (Preferences::modeGUI && ! exporting()) {
         QString message;
@@ -4888,12 +5032,12 @@ Where &Gui::bottomOfPage()
  * 2. The BuildMod action for the 'next' step being configured by this instance of writeToTmp() is updated.
  * The action update proceedes as follows: (a.) The index for the 'next' step is captured in buildModStepIndex
  * and used to correctly identify the BuldMod action slot. (b.) The corresponding BuildMod action is determined
- * snd subsequently updated when BUILD_MOD APPLY or BUILD_MOD REMOVE meta commands are encountered. These
+ * and subsequently updated when BUILD_MOD APPLY or BUILD_MOD REMOVE meta commands are encountered. These
  * commands must include their respective buildModKey
  *
- * 3. Part lines are written to to buildModCsiParts, their corresponding index is added to buildModLineTypeIndexes
- * and buildModItems (bool) is set to then number of mod lines. The buildModCsiParts is added to csiParts and
- * buildModLineTypeIndexes is added to lineTypeIndexes when buildModLevel is false (0).
+ * 3. Part lines are written to buildModCsiParts, their corresponding index is added to buildModLineTypeIndexes
+ * and buildModItems (bool) is set to the number of mod lines. The buildModCsiParts are added to csiParts and
+ * buildModLineTypeIndexes are added to lineTypeIndexes when buildModLevel is BM_BASE_LEVEL [0].
  */
 
 int Gui::setBuildModForNextStep(
@@ -4901,8 +5045,8 @@ int Gui::setBuildModForNextStep(
         Where topOfSubmodel)
 {
     int  buildModNextStepIndex = getBuildModNextStepIndex(); // set next/'display' step index
-    int buildModStepIndex      = 0;
-    int startLine              = 0;
+    int buildModStepIndex      = BM_FIRST_INDEX;
+    int startLine              = BM_BEGIN;
     int partsAdded             = 0;
     bool bottomOfStep          = false;
     bool submodel              = topOfSubmodel.modelIndex > 0 && topOfSubmodel.modelIndex != topOfNextStep.modelIndex;
@@ -4942,7 +5086,7 @@ int Gui::setBuildModForNextStep(
 
         QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
         if (i == buildModAttributes.end()) {
-            gui->statusMessage(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
+            emit gui->messageSig(LOG_ERROR, QString("Invalid BuildMod Entry for key: %1").arg(buildModKey));
             return;
         }
         modAttributes = i.value();
@@ -4953,23 +5097,25 @@ int Gui::setBuildModForNextStep(
         modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
 
 #ifdef QT_DEBUG_MODE
-      statusMessage(LOG_DEBUG, QString(
-                    "Insert NextStep BuildMod StepIndex: %1, "
-                    "Action: Apply(64), "
-                    "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
-                    "ModKey: %10, "
-                    "Level: %11")
-                    .arg(buildModStepIndex)                      // Attribute Default Initial:
-                    .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
-                    .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
-                    .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                    .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
-                    .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
-                    .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
-                    .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
-                    .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
-                    .arg(buildModKey)
-                    .arg(buildModLevel));
+      emit gui->messageSig(LOG_DEBUG, QString(
+                           "Insert NextStep BuildMod StepIndex: %1, "
+                           "Action: Apply(64), "
+                           "Attributes: %2 %3 %4 %5 %6* %7 %8 %9*, "
+                           "ModKey: '%10', "
+                           "Level: %11, "
+                           "Model: %12")
+                           .arg(buildModStepIndex)                      // Attribute Default Initial:
+                           .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                           .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                           .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                           .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
+                           .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       drawPage
+                           .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                           .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                           .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       drawPage
+                           .arg(buildModKey)
+                           .arg(buildModLevel)
+                           .arg(topOfStep.modelName));
 #endif
 
         insertBuildMod(buildModKey,
@@ -4986,21 +5132,21 @@ int Gui::setBuildModForNextStep(
         topOfStep  = topOfSubmodel;
 
 #ifdef QT_DEBUG_MODE
-        statusMessage(LOG_NOTICE, QString("Build Modification Step Check - Submodel: '%1'...")
-                                         .arg(topOfSubmodel.modelName));
+        emit gui->messageSig(LOG_NOTICE, QString("Build Modification Step Check - Index: %1, Submodel: '%2'...")
+                                                 .arg(buildModNextStepIndex).arg(topOfSubmodel.modelName));
 #endif
 
     } else {
-        statusMessage(LOG_INFO_STATUS, QString("Build Modification Step Check - Model: '%1', Line '%2'...")
-                                               .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
+        emit gui->messageSig(LOG_INFO_STATUS, QString("Build Modification Step Check - Index: %1, Model: '%2', Line '%3'...")
+                                                      .arg(buildModNextStepIndex).arg(topOfStep.modelName).arg(topOfStep.lineNumber));
 
         deleteBuildMods(buildModNextStepIndex);              // clear all build mods at and after next step index - used after jump ahead
 
         startLine = topOfStep.lineNumber;                    // set starting line number
 
 #ifdef QT_DEBUG_MODE
-        statusMessage(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
-                                         .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
+        emit gui->messageSig(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
+                                                .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
 
         if (pageDirection != PAGE_NEXT) {                    // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
@@ -5011,13 +5157,13 @@ int Gui::setBuildModForNextStep(
             }
 
 #ifdef QT_DEBUG_MODE
-            statusMessage(LOG_TRACE, QString("BuildMod Jump %1 - Indexes: %2, StartModel: %3, "
-                                             "StartLine: %4, ModelName: %5, LineNumber: %6")
-                                             .arg(backward ? "Backward" : "Forward")
-                                             .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
-                                             .arg(startModel).arg(startLine)
-                                             .arg(topOfNextStep.modelName)
-                                             .arg(topOfNextStep.lineNumber));
+            emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump %1 - Indexes: %2, StartModel: %3, "
+                                                    "StartLine: %4, ModelName: %5, LineNumber: %6")
+                                                    .arg(backward ? "Backward" : "Forward")
+                                                    .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
+                                                    .arg(startModel).arg(startLine)
+                                                    .arg(topOfNextStep.modelName)
+                                                    .arg(topOfNextStep.lineNumber));
 #endif
             if (!backward) {                                 // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
                 countPages();
@@ -5028,6 +5174,26 @@ int Gui::setBuildModForNextStep(
 
     Where walk(startModel, getSubmodelIndex(startModel), startLine);
     int numLines = subFileSize(walk.modelName);
+
+    // Check if we are at the end of the current submodel
+    int hitEndOfSubmodel = 0;
+    while (walk.lineNumber == numLines && walk.modelName != topLevelFile()) {
+        int nextStepIndex = getStepIndex(walk);
+#ifdef QT_DEBUG_MODE
+        gui->statusMessage(LOG_DEBUG, QString("Skip BuildMod Next StepIndex %1, hit end of submodel at ModelName: %2, LineNumber: %3.")
+                           .arg(nextStepIndex).arg(walk.modelName).arg(walk.lineNumber));
+#endif
+        if (hitEndOfSubmodel > 1)
+            setBuildModNextStepIndex(walk);
+        if (getBuildModStepIndexWhere(++nextStepIndex, walk)) {
+            hitEndOfSubmodel++;
+            numLines = subFileSize(walk.modelName);
+        }
+    }
+
+    if (hitEndOfSubmodel)
+        return 4 /*HitEndOfSubmodel*/;
+
     QString line = readLine(walk);
     Rc rc = page.meta.parse(line, walk, false);
     if (rc == StepRc || rc == RotStepRc)
@@ -5055,8 +5221,8 @@ int Gui::setBuildModForNextStep(
                 if (buildModContains(buildMod.key))
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 else
-                    parseError(QString("BuildMod for key '%1' not found").arg(buildMod.key),
-                                    walk,Preferences::ParseErrors,false,false);
+                    gui->parseErrorSig(QString("BuildMod for key '%1' not found").arg(buildMod.key),
+                                               walk,Preferences::ParseErrors,false,false);
                 if ((Rc)buildMod.action != rc)
                     setBuildModAction(buildMod.key, buildModStepIndex, rc);
                 break;
@@ -5072,12 +5238,12 @@ int Gui::setBuildModForNextStep(
 
             // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
             case BuildModEndModRc:
-                if (buildMod.level > 1 && buildMod.key.isEmpty())
-                    parseError("Key required for nested build mod meta command",
-                               walk,Preferences::BuildModErrors,false,false);
+                if (buildMod.level > BM_FIRST_LEVEL && buildMod.key.isEmpty())
+                    emit gui->parseErrorSig(QString("Key required for nested build mod meta command"),
+                                                    walk,Preferences::BuildModErrors,false,false);
                 if (buildMod.state != BM_BEGIN)
-                    parseError(QString("Required meta BUILD_MOD BEGIN not found"),
-                               walk, Preferences::BuildModErrors,false,false);
+                    emit gui->parseErrorSig(QString("Required meta BUILD_MOD BEGIN for key '%1' not found")
+                                                    .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, walk);
                 buildMod.state = BM_END_MOD;
                 break;
@@ -5085,11 +5251,11 @@ int Gui::setBuildModForNextStep(
             // Insert buildModAttributes and reset buildMod.level and buildModIgnore to default
             case BuildModEndRc:
                 if (buildMod.state != BM_END_MOD)
-                    parseError(QString("Required meta BUILD_MOD END_MOD not found"),
-                               walk, Preferences::BuildModErrors,false,false);
+                    emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD for key '%1' not found")
+                                                   .arg(buildMod.key), walk, Preferences::BuildModErrors,false,false);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, walk);
                 buildMod.level = getLevel(QString(), BM_END);
-                buildMod.state = BM_END;;
+                buildMod.state = BM_END;
                 break;
 
             // Search until next occurrence of step/rotstep meta or bottom of step
@@ -5099,8 +5265,8 @@ int Gui::setBuildModForNextStep(
             case StepRc:
                 if (buildModKeys.size()) {
                     if (buildMod.state != BM_END)
-                        parseError(QString("Required meta BUILD_MOD END not found"),
-                                   walk, Preferences::BuildModErrors,false,false);
+                        emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                                                        walk, Preferences::BuildModErrors,false,false);
                     Q_FOREACH (int buildModLevel, buildModKeys.keys())
                         insertBuildModification(buildModLevel);
                 }
@@ -5112,10 +5278,10 @@ int Gui::setBuildModForNextStep(
                 partsAdded = 0;
                 if (bottomOfStep) {
 #ifdef QT_DEBUG_MODE
-                    statusMessage(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
-                                  .arg(buildModNextStepIndex)
-                                  .arg(walk.modelName)
-                                  .arg(walk.lineNumber));
+                    emit gui->messageSig(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
+                                           .arg(buildModNextStepIndex)
+                                           .arg(walk.modelName)
+                                           .arg(walk.lineNumber));
 #endif
                 }
                 break;
@@ -5145,6 +5311,12 @@ int Gui::setBuildModForNextStep(
             break;
         }
     } // For every line
+
+    // Last step of submodel
+    if (buildModKeys.size()) {
+        Q_FOREACH (int buildModLevel, buildModKeys.keys())
+            insertBuildModification(buildModLevel);
+    }
 
     if (bottomOfStep)
         return HitBottomOfStep;
@@ -5177,17 +5349,17 @@ void Gui::writeToTmp(const QString &fileName,
       mWriteToTmpMutex.lock();
 
       Where topOfStep(fileName, getSubmodelIndex(fileName), 0);
+
       skipHeader(topOfStep);
 
-      int  buildModLevel      = 0;
       int  buildModBottom     = 0;
+      int  buildModLevel      = BM_BASE_LEVEL; 
       bool buildModIgnore     = false;
       bool buildModItems      = false;
       bool buildModApplicable = false;
 
       QString                 buildModKey;
       QMap<int, int>          buildModActions;
-      QMap<int, QVector<int>> buildModAttributes;
 
       QVector<int> lineTypeIndexes, buildModLineTypeIndexes;
       QStringList  csiParts, buildModCsiParts;
@@ -5240,7 +5412,7 @@ void Gui::writeToTmp(const QString &fileName,
                           buildModIgnore = true;
                           break;
                       }
-                      buildModBottom = getBuildModStepLineNumber(getBuildModNextStepIndex());
+                      buildModBottom    = getBuildModStepLineNumber(getBuildModStepIndex(topOfStep));
                       if ((buildModApplicable = i < buildModBottom)) {
                           buildModKey   = meta.LPub.buildMod.key();
                           buildModLevel = getLevel(buildModKey, BM_BEGIN);
@@ -5257,33 +5429,37 @@ void Gui::writeToTmp(const QString &fileName,
 
                   // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
                   case BuildModEndModRc:
-                      if (!Preferences::buildModEnabled) {
-                          buildModIgnore = getLevel(QString(), BM_END);
+                      if (!Preferences::buildModEnabled)
                           break;
+                      if (buildModApplicable) {
+                          if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
+                              emit parseErrorSig("Key required for nested build mod meta command",
+                                                 here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
+                          if (buildModActions.value(buildModLevel) == BuildModApplyRc)
+                              buildModIgnore = true;
+                          else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)
+                              buildModIgnore = false;
                       }
-                     if (buildModApplicable) {
-                         if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
-                                 emit parseErrorSig("Key required for nested build mod meta command",
-                                                     here,Preferences::BuildModErrors,false/*option*/,false/*override*/);
-                         if (buildModActions.value(buildModLevel) == BuildModApplyRc)
-                             buildModIgnore = true;
-                         else if (buildModActions.value(buildModLevel) == BuildModRemoveRc)
-                             buildModIgnore = false;
-                     }
-                     break;
+                      break;
 
                   // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
                   case BuildModEndRc:
-                    if (!Preferences::buildModEnabled)
-                        break;
-                    if (buildModApplicable) {
-                        buildModLevel      = getLevel(QString(), BM_END);
-                        if (buildModLevel == BM_BEGIN) {
-                            buildModIgnore     = false;
-                            buildModApplicable = false;
-                        }
-                    }
-                    break;
+                      if (!Preferences::buildModEnabled)
+                          break;
+                      if (buildModApplicable) {
+                          buildModLevel      = getLevel(QString(), BM_END);
+                          if (buildModLevel == BM_BASE_LEVEL) {
+                              buildModIgnore     = false;
+                              buildModApplicable = false;
+                          }
+                      }
+                      break;
+
+                  case RotStepRc:
+                  case StepRc:
+                      buildModApplicable = false;
+                      topOfStep.lineNumber = i;
+                      break;
 
                   case PartNameRc:
                   case PartTypeRc:
@@ -5526,9 +5702,10 @@ void Gui::writeToTmp()
       }
   }
   QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
-  emit messageSig(LOG_INFO_STATUS,
-                    QString("%1 files written to temp folder. %2")
-                            .arg(writtenFiles).arg(writeToTmpElapsedTime));
+  emit gui->messageSig(LOG_INFO_STATUS, QString("%1 %2 written to temp folder. %3")
+                                        .arg(writtenFiles ? QString::number(writtenFiles) : "No")
+                                        .arg(writtenFiles == 1 ? "file" : "files")
+                                        .arg(writtenFiles ? writeToTmpElapsedTime : QString()));
   pageProcessRunning = PROC_NONE;
 }
 

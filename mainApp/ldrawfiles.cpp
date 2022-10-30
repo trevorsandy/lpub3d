@@ -83,6 +83,10 @@ HiarchLevel* addLevel(const QString& key, bool create)
 int getLevel(const QString& key, int position)
 {
     if (position == BM_BEGIN) {
+        // ensure key is specified
+        if (key.isEmpty())
+            emit gui->messageSig(LOG_ERROR, QString("BUILD_MOD - GetLevel: Invalid request. Key not specified."));
+
         // add level object to 'all' levels
         HiarchLevel* level = addLevel(key, true);
 
@@ -98,11 +102,20 @@ int getLevel(const QString& key, int position)
         LDrawFile::_currentLevels.append(level);
 
     } else if (position == BM_END) {
-
         // if there are 'current' level objects...
         if (LDrawFile::_currentLevels.size()) {
-            // remove last level object from the 'current' list - reset to parent level if exists
+            // return absolute level, remove last level object from the 'current' list - reset to parent level or BM_BASE_LEVEL [0]
             LDrawFile::_currentLevels.removeAt(LDrawFile::_currentLevels.size() - 1);
+/*
+#ifdef QT_DEBUG_MODE
+            if (!key.isEmpty())
+                emit gui->messageSig(LOG_DEBUG, QString("BUILD_MOD - GetLevel: Key '%1', Absolute level [%2]")
+                                     .arg(key).arg(LDrawFile::_currentLevels.size()));
+            else
+                emit gui->messageSig(LOG_DEBUG, QString("BUILD_MOD - GetLevel absolute level [%1]")
+                                     .arg(LDrawFile::_currentLevels.size()));
+#endif
+//*/
         }
     }
 
@@ -124,6 +137,7 @@ int     LDrawFile::_partCount      = 0;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_showLoadMessages = false;
 bool    LDrawFile::_loadAborted    = false;
+bool    LDrawFile::_loadBuildMods  = false;
 bool    LDrawFile::_loadUnofficialParts = true;
 bool    LDrawFile::_hasUnofficialParts = false;
 
@@ -224,6 +238,7 @@ void LDrawFile::empty()
   _loadedParts.clear();
   _mpd                   = false;
   _loadAborted           = false;
+  _loadBuildMods         = false;
   _loadUnofficialParts   = true;
   _hasUnofficialParts    = false;
   _partCount             =  0;
@@ -1279,7 +1294,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         if (smLine.startsWith("0 FILE ")) // Debug inline file
             smLine = smLine;
 
-        emit gui->progressPermSetValueSig(lineIndx + 1);
+        emit gui->progressPermSetValueSig(lineIndx);
 
         bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
         bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
@@ -1367,7 +1382,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             // Check if BuildMod is disabled
             if (metaBuildModNotFund) {
                 if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                    Preferences::buildModEnabled = tokens.last() == "FALSE" ? false : true ;
+                    _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+                    Preferences::buildModEnabled = _loadBuildMods;
                     metaBuildModNotFund = false;
                 }
             }
@@ -1735,7 +1751,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             //if (smLine.startsWith("0 Name: ")) // Debug inline file
             //    smLine = smLine;
 
-            emit gui->progressPermSetValueSig(lineIndx + 1);
+            emit gui->progressPermSetValueSig(lineIndx);
 
             if (subfileName.isEmpty() && hdrNameNotFound && (topLevelModel || !smLine.isEmpty())) {
                 sosf = smLine.contains(_fileRegExp[NAM_RX]);
@@ -1823,7 +1839,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 // Check if BuildMod is disabled
                 if (metaBuildModNotFund) {
                     if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                        Preferences::buildModEnabled = tokens.last() == "FALSE" ? false : true ;
+                        _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::buildModEnabled = _loadBuildMods;
                         metaBuildModNotFund = false;
                     }
                 }
@@ -2166,13 +2183,6 @@ void LDrawFile::countInstances(
   countMutex.lock();
   //logTrace() << QString("countInstances, File: %1, Mirrored: %2, Callout: %3").arg(mcFileName,(isMirrored?"Yes":"No"),(callout?"Yes":"No"));
 
-  QString fileName    = mcFileName.toLower();
-  int  modelIndex     = getSubmodelIndex(fileName);
-  bool partsAdded     = false;
-  bool noStep         = false;
-  bool stepIgnore     = false;
-  bool buildModIgnore = false;
-
   /*
    * For countInstances, the BuildMod behaviour creates a sequential
    * list (Vector<int>) of all the steps in the loaded model file.
@@ -2182,21 +2192,106 @@ void LDrawFile::countInstances(
    * The buildModLevel flag uses getLevel() function to determine the current
    * BuildMod when mods are nested.
    */
-  Where topOfStep(fileName, 0);
+  Where top(mcFileName, getSubmodelIndex(mcFileName), 0);
 
-  gui->skipHeader(topOfStep);
+  gui->skipHeader(top);
+
+  Where topOfStep(top); // set after skipHeader
+
+  bool partsAdded        = false;
+  bool noStep            = false;
+  bool stepIgnore        = false;
+  bool buildModIgnore    = false;  
+  int  buildModState     = BM_NONE;
+  int  buildModStepIndex = BM_NONE;
+  int  buildModPartCount = 0;
+  int  buildModAction    = BuildModNoActionRc;
+
+  QMap<int, QString>      buildModKeys;
+  QMap<int, QVector<int>> buildModAttributes;
+
+  auto loadBuildMods = [this] ()
+  {
+      int stepIndexes = _buildModStepIndexes.size();
+
+      bool result =
+              _loadBuildMods && (gui->mloadingFile  ||
+              stepIndexes >= _buildModPrevStepIndex &&
+              stepIndexes <= _buildModNextStepIndex);
+
+      return result;
+  };
+
+  auto insertAttribute = [this, &top] (QMap<int, QVector<int>> &buildModAttributes, int indx)
+  {
+      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
+      if (i == buildModAttributes.end()) {
+          QVector<int> modAttributes = { 0, 0, 0, 1, 0, top.modelIndex, 0, 0 };
+          modAttributes[indx] = top.lineNumber;
+          buildModAttributes.insert(buildModLevel, modAttributes);
+      } else {
+          i.value()[indx] = top.lineNumber;
+      }
+  };
+
+  auto insertBuildModification = [this, &buildModPartCount, &buildModAttributes, &buildModKeys, &topOfStep] (int level)
+  {
+      int buildModStepIndex = _buildModStepIndexes.indexOf({topOfStep.modelIndex, topOfStep.lineNumber});
+
+      QString buildModKey = buildModKeys.value(level);
+      QVector<int> modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
+
+      QMap<int, QVector<int>>::iterator i = buildModAttributes.find(level);
+      if (i == buildModAttributes.end()) {
+          gui->statusMessage(LOG_ERROR, QString("COUNTINSTANCE - WARNING - Invalid BuildMod Entry for key: %1").arg(buildModKey));
+          return;
+      }
+      modAttributes = i.value();
+
+      modAttributes[BM_DISPLAY_PAGE_NUM] = gui->displayPageNum;
+      modAttributes[BM_STEP_PIECES]      = buildModPartCount;
+      modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
+      modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
+//*
+#ifdef QT_DEBUG_MODE
+      if (gui->mloadingFile) {
+          gui->statusMessage(LOG_DEBUG, QString(
+                             "Insert CountInst BuildMod StepIndex: %1, "
+                             "Attributes: %2 %3 %4 %5 %6 %7 %8, "
+                             "ModKey: '%9', "
+                             "Level: %10, "
+                             "Model: %11")
+                             .arg(buildModStepIndex)                      // Attribute Default Initial:
+                             .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
+                             .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
+                             .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
+                             .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
+                             .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
+                             .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
+                             .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
+                             .arg(buildModKey)
+                             .arg(level)
+                             .arg(topOfStep.modelName));
+      }
+#endif
+//*/
+      insertBuildMod(buildModKey,
+                     modAttributes,
+                     buildModStepIndex);
+  };
 
   if (firstStep) {
-    if (fileName == topLevelFile()) {
-      buildModLevel = 0;
+    if (top.modelName == topLevelFile()) {
+      buildModLevel = BM_BASE_LEVEL;
       _currentLevels.clear();
       _buildModStepIndexes.clear();
     }
-    if (! _buildModStepIndexes.contains({ modelIndex, topOfStep.lineNumber }))
-      _buildModStepIndexes.append({ modelIndex, topOfStep.lineNumber });
+
+    if (! _buildModStepIndexes.contains({ top.modelIndex, top.lineNumber }))
+      _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
   }
 
-  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
+  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(top.modelName);
   if (f != _subFiles.end()) {
     if (f->_beenCounted) {
       if (isMirrored) {
@@ -2223,107 +2318,178 @@ void LDrawFile::countInstances(
     f->_numSteps = 0;
 
     // process submodel content...
-    int i = topOfStep.lineNumber;
-    for (; i < j; i++) {
+    for (; top.lineNumber < j; top.lineNumber++) {
       QStringList tokens;
-      QString line = f->_contents[i];
+      QString line = f->_contents[top.lineNumber];
       split(line,tokens);
 
-        //lpub3d ignore part - so set ignore step
-      if (tokens.size() == 5 && tokens[0] == "0" &&
-                  (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                  (tokens[2] == "PART"  || tokens[2] == "PLI") &&
-                  tokens[3] == "BEGIN"  &&
-                  tokens[4] == "IGN") {
-        stepIgnore = true;
-        // we have a meta command...
-      } else if (tokens.size() == 4 && tokens[0] == "0" &&
-                (tokens[1] == "!LPUB" || tokens[1] == "LPUB")) {
-        // lpub3d part - so set include step
-        if ((tokens[2] == "PART" || tokens[2] == "PLI") &&
-             tokens[3] == "END") {
-          stepIgnore = false;
-          // called out
-          /* Sorry, but models that are callouts are not counted as instances */
-        } else if (tokens[2] == "CALLOUT" &&
-                   tokens[3] == "BEGIN") {
-          callout    = true;
-          partsAdded = true;
-           //process callout content
-          for (++i; i < j; i++) {
-            split(f->_contents[i],tokens);
-            if (tokens.size() == 15 && tokens[0] == "1") {
-              if (contains(tokens[14],false/*searchAll*/) && ! stepIgnore && ! buildModIgnore) {
-                const int subFileIndex = getSubmodelIndex(tokens[14]);
-                if (modelIndex && !f->_subFileIndexes.contains(subFileIndex))
-                    f->_subFileIndexes.append(subFileIndex);
-                countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
-              }
-            } else if (tokens.size() == 4 && tokens[0] == "0" &&
-                      (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                       tokens[2] == "CALLOUT" &&
-                       tokens[3] == "END") {
-              callout = false;
-              break;
+      //lpub3d ignore part - so set ignore step
+      if (tokens.size() > 1 && tokens[0] == "0") {
+        if (tokens[1] == "!LPUB" || tokens[1] == "LPUB") {
+          // pli part meta commands
+          if (tokens.size() == 5) {
+            if ((tokens[2] == "PART"  || tokens[2] == "PLI") &&
+              tokens[3] == "BEGIN"  &&
+              tokens[4] == "IGN") {
+              stepIgnore = true;
             }
-          }
-          // build modification - begins at BEGIN command and ends at END_MOD action
-        } else if (tokens[2] == "BUILD_MOD") {
-          if (tokens[3] == "BEGIN") {
-            buildModLevel = getLevel(tokens[4], BM_BEGIN);
-          } else if (tokens[3] == "END_MOD") {
-            buildModLevel = getLevel(QString(), BM_END);
-          }
-          buildModIgnore = buildModLevel;
-          // page insert, e.g. dispaly model, bom
-        } else if (tokens[2] == "INSERT" &&
-                  (tokens[3] == "PAGE" || tokens[3] == "COVER_PAGE")) {
-          partsAdded = true;
-        } else if (tokens[1] == "BUFEXCHG") {}
+            // build modification - commands
+            else if (tokens[2] == "BUILD_MOD") {
+              if (tokens[3] == "BEGIN") {
+                if (! Preferences::buildModEnabled) {
+                    buildModIgnore = true;
+                    continue;
+                }
+                buildModLevel = getLevel(tokens[4], BM_BEGIN);
+                buildModIgnore = false;
+                buildModAction = BuildModApplyRc;
+                if (loadBuildMods()) {
+                  buildModKeys.insert(buildModLevel, tokens[4]);
+                  insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM);
+                }
+                buildModState = BM_BEGIN;
+              } else if (tokens[3] == "ADD" || tokens[3] == "REMOVE") {
+                if (loadBuildMods()) {
+                  int newAction = tokens[3] == "ADD" ? BuildModApplyRc : BuildModRemoveRc;
+                  if (buildModContains(tokens[4])) {
+                    buildModStepIndex = getBuildModStepIndex(topOfStep.modelIndex, topOfStep.lineNumber);
+                    if (buildModStepIndex > BM_INVALID_INDEX) {
+                      buildModAction = getBuildModAction(tokens[4], buildModStepIndex);
+                      if (buildModAction && (buildModAction != newAction)) {
+                          setBuildModAction(tokens[4], buildModStepIndex, newAction);
+                      }
+                    }
+                  } else {
+                    emit gui->messageSig(LOG_TRACE, QString("COUNTINSTANCE - WARNING - BuildMod for key '%1' not found.").arg(tokens[4]));
+                  }
+                }
+              }
+            } // build modification commands
+          // we have a meta command...
+          } else if (tokens.size() == 4) {
+            // lpub3d part - so set include step
+            if ((tokens[2] == "PART" || tokens[2] == "PLI") &&
+                 tokens[3] == "END") {
+              stepIgnore = false;
+            // called out
+            /* Sorry, but models that are callouts are not counted as instances */
+            } else if (tokens[2] == "CALLOUT" &&
+                       tokens[3] == "BEGIN") {
+              callout    = true;
+              partsAdded = true;
+              //process callout content
+              for (++top.lineNumber; top.lineNumber < j; top.lineNumber++) {
+                split(f->_contents[top.lineNumber],tokens);
+                if (tokens.size() == 15 && tokens[0] == "1") {
+                  if (contains(tokens[14],false/*searchAll*/) && ! stepIgnore && ! buildModIgnore) {
+                    const int subFileIndex = getSubmodelIndex(tokens[14]);
+                    if (top.modelIndex && !f->_subFileIndexes.contains(subFileIndex))
+                      f->_subFileIndexes.append(subFileIndex);
+                    countInstances(tokens[14], true/*firstStep*/, mirrored(tokens), callout);
+                  }
+                } else if (tokens.size() == 4 && tokens[0] == "0" &&
+                          (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                          tokens[2] == "CALLOUT" &&
+                          tokens[3] == "END") {
+                  callout = false;
+                  break;
+                }
+              }
+            // build modification - END_MOD and END commands
+            } else if (tokens[2] == "BUILD_MOD") {
+              if (tokens[3] == "END_MOD") {
+                if (! Preferences::buildModEnabled)
+                    continue;
+                if (buildModAction == BuildModApplyRc)
+                    buildModIgnore = true;
+                if (loadBuildMods())
+                  insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM);
+                buildModState = BM_END_MOD;
+              } else if (tokens[3] == "END") {
+                if (! Preferences::buildModEnabled)
+                    continue;
+                if (loadBuildMods() && buildModState == BM_END_MOD)
+                  insertAttribute(buildModAttributes, BM_END_LINE_NUM);
+                buildModLevel  = getLevel(QString(), BM_END);
+                if (buildModLevel == BM_BASE_LEVEL || buildModLevel == _currentLevels.size())
+                  buildModIgnore = false;
+                buildModState  = BM_END;
+              }
+              // page insert, e.g. dispaly model, bom
+            } else if (tokens[2] == "INSERT" &&
+                    (tokens[3] == "PAGE" || tokens[3] == "COVER_PAGE")) {
+              partsAdded = true;
+            } else if (tokens[1] == "BUFEXCHG") {}
+          } // lines with 4 elements
         // no step
-      } else if (tokens.size() == 3 && tokens[0] == "0" &&
-                (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                (tokens[2] == "NOSTEP" || tokens[2] == "NOFILE")) {
-        noStep = true;
+        } else if (tokens.size() == 3 &&
+                  (tokens[2] == "NOSTEP" || tokens[2] == "NOFILE")) {
+            noStep = true;
         // LDraw step or rotstep - so check if parts added
-      } else if (tokens.size() >= 2 && tokens[0] == "0" &&
-                (tokens[1] == "STEP" || tokens[1] == "ROTSTEP")) {
-        if (! noStep) {
-          if (partsAdded) {
-            // parts added - increment step
-            int incr = (isMirrored && f->_mirrorInstances == 0) ||
-                       (! isMirrored && f->_instances == 0);
-            f->_numSteps += incr;
-          }
-          // set step index for occurrences of STEP or ROTSTEP not ignored by BuildMod
-          if (! buildModIgnore) {
-            _buildModStepIndexes.append({ modelIndex, i });
-          }
-        }
-        // reset partsAdded, noStep and emptyLines
-        partsAdded = false;
-        noStep = false;
-        // check if subfile and process
+        } else if (tokens.size() >= 2 &&
+                  (tokens[1] == "STEP" || tokens[1] == "ROTSTEP")) {
+          if (! noStep) {
+            if (partsAdded) {
+              // parts added - increment step
+              int incr = (isMirrored && f->_mirrorInstances == 0) ||
+                         (! isMirrored && f->_instances == 0);
+              f->_numSteps += incr;
+            }
+            // set step index for occurrences of STEP or ROTSTEP not ignored by BuildMod
+            if (! buildModIgnore) {
+              _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
+              // build modification inserts
+              if (loadBuildMods() && buildModKeys.size()) {
+                Q_FOREACH (int level, buildModKeys.keys())
+                  insertBuildModification(level);
+              }
+            }
+            buildModLevel     = BM_BASE_LEVEL;
+            buildModState     = BM_NONE;
+            buildModStepIndex = BM_NONE;
+            buildModAction    = BuildModNoActionRc;
+            buildModIgnore    = false;
+            if (loadBuildMods()) {
+              buildModPartCount = 0;
+              buildModKeys.clear();
+              buildModAttributes.clear();
+            }
+          } // not nostep
+          // set top of next step
+          topOfStep = top;
+          // reset partsAdded, noStep and emptyLines
+          partsAdded = false;
+          noStep = false;
+        } // step or rotstep
+      // check if subfile and process
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
-        if (contains(tokens[14],false/*searchAll*/) && ! stepIgnore && ! buildModIgnore) {
-          const int subFileIndex = getSubmodelIndex(tokens[14]);
-          if (modelIndex && !f->_subFileIndexes.contains(subFileIndex))
-            f->_subFileIndexes.append(subFileIndex);
-          countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
+        if (! stepIgnore && ! buildModIgnore) {
+            buildModPartCount++;
+            if (contains(tokens[14],false/*searchAll*/)) {
+              const int subFileIndex = getSubmodelIndex(tokens[14]);
+              if (top.modelIndex && !f->_subFileIndexes.contains(subFileIndex))
+                f->_subFileIndexes.append(subFileIndex);
+              countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
+            }
         }
         partsAdded = true;
-      }
-    }
+      } // part line
+    } // for each line
 
     // increment steps and add BuildMod step index if parts added in the last step of the sub/model and not ignored by BuildMod
     if (partsAdded && ! noStep) {
       int incr = (isMirrored && f->_mirrorInstances == 0) ||
-                 (! isMirrored && f->_instances == 0);
+              (! isMirrored && f->_instances == 0);
       f->_numSteps += incr;
       if (! buildModIgnore) {
-        _buildModStepIndexes.append({ modelIndex, i });
+        _buildModStepIndexes.append({ top.modelIndex, top.lineNumber });
+        // insert buildMod entries at end of content
+        if (loadBuildMods() && buildModKeys.size()) {
+          Q_FOREACH (int level, buildModKeys.keys())
+            insertBuildModification(level);
+        }
       }
-    }
+    } // partsAdded && ! noStep
 
     if ( ! callout) {
       if (isMirrored) {
@@ -2331,7 +2497,7 @@ void LDrawFile::countInstances(
       } else {
         ++f->_instances;
       }
-    }
+    } // callout
   } // subfile end
 
   f->_beenCounted = true;
@@ -2362,9 +2528,11 @@ void LDrawFile::countInstances()
    * The buildMod flag uses a multilevel (_currentLevels) framework to
    * determine the current BuildMod when mods are nested.
    */
-  //countInstances(topLevelFile(), true/*firstStep*/, false /*isMirrored*/);
   QFuture<void> future = QtConcurrent::run([this]() {
-      countInstances(topLevelFile(), true/*firstStep*/, false /*isMirrored*/);
+      countInstances(topLevelFile(),
+                     true/*firstStep*/,
+                     false/*isMirrored*/,
+                     false/*callout*/);
   });
 
   future.waitForFinished();
@@ -2373,6 +2541,7 @@ void LDrawFile::countInstances()
 
 //*
 #ifdef QT_DEBUG_MODE
+  if (gui->mloadingFile) {
   emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
   emit gui->messageSig(LOG_DEBUG, "----------------------------");
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
@@ -2384,46 +2553,52 @@ void LDrawFile::countInstances()
                                               .arg(key.at(1), 3, 10, QChar('0')) // lineNumber
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
-#endif
-*/
-#ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
                                           .arg(gui->elapsedTime(timer.elapsed())));
+  emit gui->messageSig(LOG_DEBUG, "----------------------------");
 #endif
-
+  }
+//*/
 }
 
 void LDrawFile::countParts(const QString &fileName) {
 
+    Where top(fileName, getSubmodelIndex(fileName), 0);
+
+    int topModelIndx  = top.modelIndex;
+
     emit gui->progressBarPermInitSig();
-    emit gui->progressPermRangeSig(1, size(fileName));
-    emit gui->progressPermMessageSig("Counting parts for " + fileName + "...");
+    emit gui->progressPermRangeSig(1, size(top.modelName));
+    emit gui->progressPermMessageSig("Counting parts for " + top.modelName + "...");
 
-    int topModelIndx = getSubmodelIndex(fileName);
-
-    std::function<void(int)> countModelParts;
-    countModelParts = [this, &countModelParts, &topModelIndx] (int modelIndx)
+    std::function<void(Where&)> countModelParts;
+    countModelParts = [this, &countModelParts, &topModelIndx] (Where& top)
     {
-        QString modelName = getSubmodelName(modelIndx);
-        QStringList content = contents(modelName);
+
+        QStringList content = contents(top.modelName);
+
+        // get content size
+        int lines = content.size();
+
         if (content.size()) {
+
             // initialize model parts count
             int modelPartCount = 0;
-
-            // get content size
-            int c = content.size();
 
             // initialize valid line
             bool lineIncluded  = true;
 
+            // skip the header
+            gui->skipHeader(top);
+
             // process submodel content...
-            for (int i = 0; i < c; i++) {
+            for (; top.lineNumber < lines; top.lineNumber++) {
 
                 QStringList tokens;
-                QString line = content.at(i);
+                QString line = content.at(top.lineNumber);
 
-                if (modelIndx == topModelIndx)
-                    emit gui->progressPermSetValueSig(i);
+                if (top.modelIndex == topModelIndx)
+                    emit gui->progressPermSetValueSig(top.lineNumber);
 
                 // adjust ghost lines
                 if (line.startsWith("0 GHOST "))
@@ -2431,33 +2606,34 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 split(line,tokens);
 
-                // build modification - starts at BEGIN command and ends at END_MOD action
-                if (tokens.size() >= 4 && tokens[0] == "0"  &&
-                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                    tokens[2] == "BUILD_MOD") {
-                    if (tokens[3] == "BEGIN") {
-                        buildModLevel = getLevel(tokens[4], BM_BEGIN);
-                    } else if (tokens[3] == "END_MOD") {
-                        buildModLevel = getLevel("", BM_END);
+                // meta command parse
+                if (tokens.size() > 1 && tokens[0] == "0") {
+                    if (tokens[1] == "!LPUB" || tokens[1] == "LPUB") {
+                        // build modification - starts at BEGIN command and ends at END_MOD action
+                        if (tokens.size() >= 4 &&
+                            tokens[2] == "BUILD_MOD") {
+                            if (tokens[3] == "BEGIN") {
+                                buildModLevel = getLevel(tokens[4], BM_BEGIN);
+                            } else if (tokens[3] == "END_MOD") {
+                                buildModLevel = getLevel(QString(), BM_END);
+                            }
+                            lineIncluded = ! buildModLevel;
+                        }
+                        // ignore parts begin
+                        if (tokens.size() == 5 && tokens[0] == "0" &&
+                           (tokens[2] == "PART" || tokens[2] == "PLI") &&
+                            tokens[3] == "BEGIN"  &&
+                            tokens[4] == "IGN") {
+                            lineIncluded = false;
+                        } else
+                        // ignore part end
+                        if (tokens.size() == 4 &&
+                           (tokens[2] == "PART" || tokens[2] == "PLI") &&
+                           tokens[3] == "END") {
+                            lineIncluded = true;
+                        }
                     }
-                    lineIncluded = ! buildModLevel;
-                }
-
-                // ignore parts begin
-                if (tokens.size() == 5 && tokens[0] == "0" &&
-                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                   (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                    tokens[3] == "BEGIN"  &&
-                    tokens[4] == "IGN") {
-                    lineIncluded = false;
-                } else
-                // ignore part end
-                if (tokens.size() == 4 && tokens[0] == "0" &&
-                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                   (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                    tokens[3] == "END") {
-                   lineIncluded = true;
-                }
+                } // meta command lines
 
                 QString type;
                 bool countThisLine = true;
@@ -2470,11 +2646,12 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 if (countThisLine && lineIncluded && partIncluded) {
                     QString partString = "|" + type + "|";
-                    if (contains(type.toLower())) {
+                    if (contains(type)) {
                         LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
                         if (subFileType == UNOFFICIAL_SUBMODEL) {
                             //emit gui->messageSig(LOG_TRACE,QString("UNOFFICIAL_SUBMODEL %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
-                            countModelParts(getSubmodelIndex(type));
+                            Where top(type, getSubmodelIndex(type), 0);
+                            countModelParts(top);
                         } else {
                             switch(subFileType){
                             case  UNOFFICIAL_PART:
@@ -2558,13 +2735,13 @@ void LDrawFile::countParts(const QString &fileName) {
                     }  // check archive
                 }
             } // process submodel content
-        }
+        } // content size
     };
 
-    countModelParts(topModelIndx);
+    countModelParts(top);
 
-    emit gui->messageSig(LOG_STATUS, QString("Parts count for %1 is %2").arg(fileName).arg(_partCount));
-    emit gui->progressPermSetValueSig(size(fileName));
+    emit gui->messageSig(LOG_STATUS, QString("Parts count for %1 is %2").arg(top.modelName).arg(_partCount));
+    emit gui->progressPermSetValueSig(size(top.modelName));
     emit gui->progressPermStatusRemoveSig();
 }
 
@@ -2594,60 +2771,61 @@ bool LDrawFile::saveModelFile(const QString &fileName)
 
     for (int i = 0; i < _subFileOrder.size(); i++) {
 
-      QString subFileName = _subFileOrder[i];
-      QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
+        QString subFileName = _subFileOrder[i];
+        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
 
-      if (f != _subFiles.end() && ! f.value()._generated) {
+        if (f != _subFiles.end() && ! f.value()._generated) {
 
-        unofficialPart = f.value()._unofficialPart > UNOFFICIAL_SUBMODEL;
-        addFILEMeta = !f.value()._includeFile && !unofficialPart && _mpd;
+            unofficialPart = f.value()._unofficialPart > UNOFFICIAL_SUBMODEL;
+            addFILEMeta = !f.value()._includeFile && !unofficialPart && _mpd;
 
-        if (!f.value()._subFilePath.isEmpty()) {
+            if (!f.value()._subFilePath.isEmpty()) {
 
-            file.close();
-            writeFileName = QDir::toNativeSeparators(f.value()._subFilePath);
-            file.setFileName(writeFileName);
+                file.close();
+                writeFileName = QDir::toNativeSeparators(f.value()._subFilePath);
+                file.setFileName(writeFileName);
 
-            if (!file.open(QFile::WriteOnly | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QString("Cannot write %1 subfile %2:<br>%3.")
-                                    .arg(_mpd ? "MPD" : "LDR")
-                                    .arg(writeFileName)
-                                    .arg(file.errorString()));
-                gui->insertFinalModelStep();
-                gui->mloadingFile = false;
-                return false;
+                if (!file.open(QFile::WriteOnly | QFile::Text)) {
+                    emit gui->messageSig(LOG_ERROR,QString("Cannot write %1 subfile %2:<br>%3.")
+                                        .arg(_mpd ? "MPD" : "LDR")
+                                        .arg(writeFileName)
+                                        .arg(file.errorString()));
+                    gui->insertFinalModelStep();
+                    gui->mloadingFile = false;
+                    return false;
+                }
+
+                emit gui->messageSig(LOG_INFO,QString("Saving %1 subfile %2.")
+                                     .arg(_mpd ? "MPD" : "LDR")
+                                     .arg(writeFileName));
+
+                QTextStream out(&file);
+                out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
             }
 
-            emit gui->messageSig(LOG_INFO,QString("Saving %1 subfile %2.")
-                                 .arg(_mpd ? "MPD" : "LDR")
-                                 .arg(writeFileName));
+            if (addFILEMeta)
+              out << "0 FILE " << subFileName << lpub_endl;
 
-            QTextStream out(&file);
-            out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+            for (int j = 0; j < f.value()._contents.size(); j++) {
+
+                QString line = f.value()._contents[j];
+
+                if (unofficialPart                 &&
+                     line.startsWith("0")           &&
+                    (line.startsWith("0 !LICENSE ") ||
+                     line.startsWith("0 BFC ")      ||
+                     line.startsWith("0 !HISTORY ")))
+                {
+                    out << line << lpub_endl;
+                    out << lpub_endl;
+                } else
+                    out << line << lpub_endl;
+            }
+
+            if (addFILEMeta)
+                out << "0 NOFILE" << lpub_endl
+                    << "0" << lpub_endl;
         }
-
-        if (addFILEMeta)
-          out << "0 FILE " << subFileName << lpub_endl;
-
-        for (int j = 0; j < f.value()._contents.size(); j++) {
-
-          QString line = f.value()._contents[j];
-
-          if (unofficialPart                 &&
-              line.startsWith("0")           &&
-             (line.startsWith("0 !LICENSE ") ||
-              line.startsWith("0 BFC ")      ||
-              line.startsWith("0 !HISTORY ")))
-          {
-            out << line << lpub_endl;
-            out << lpub_endl;
-          } else
-            out << line << lpub_endl;
-        }
-
-        if (addFILEMeta)
-          out << "0 NOFILE" << lpub_endl;
-      }
     }
 
     file.close();
@@ -2742,18 +2920,38 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
 {
   QString modKey  = buildModKey.toLower();
   QMap<int,int> modActions;
+  QVector<int>  newAttributes;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
     // Preserve actions
     modActions = i.value()._modActions;
+
+    // Remove action for specified stepIndex
     QMap<int,int>::iterator a = modActions.find(stepIndex);
     if (a != modActions.end())
         modActions.erase(a);
+
+    // Update attributes
+    newAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
+    for (int a = 0; a < modAttributes.size(); a++) {
+      if (a < i.value()._modAttributes.size()) {
+        if (modAttributes.at(a) != i.value()._modAttributes.at(a) && modAttributes.at(a) != newAttributes.at(a))
+          newAttributes[a] = modAttributes.at(a);
+        else
+          newAttributes[a] = i.value()._modAttributes.at(a);
+      } else
+        newAttributes[a] = i.value()._modAttributes.at(a);
+    }
+
     // Remove BuildMod if exist
     _buildMods.erase(i);
-  }
+
+  } else
+    newAttributes = modAttributes;
+
   // Initialize new BuildMod
-  BuildMod buildMod(modAttributes, stepIndex);
+  BuildMod buildMod(newAttributes, stepIndex);
+
   // Restore preserved actions
   if (modActions.size()){
     QMap<int,int>::const_iterator a = modActions.constBegin();
@@ -2767,7 +2965,7 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   _buildMods.insert(modKey, buildMod);
 
   // Insert BuildModStep - must come after _buildMods.insert()
-  insertBuildModStep(modKey, stepIndex);
+  insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
 
   // Set subfile modified
   QString modFileName = getBuildModStepKeyModelName(modKey);
@@ -2798,6 +2996,9 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
         }
         ++i;
     }
+
+    // we update submodels in the calls that use this call:
+    //   insertBuildMod and setBuildModAction
 
     _buildModSteps.insert(stepIndex, newModStep);
 
@@ -3151,7 +3352,12 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
   actionStepIndex = stepIndex;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
-      if (stepIndex == BM_LAST_ACTION) {
+      // check if the requested build mod is in the future - for first writeToTmp
+      if (stepIndex < i.value()._modActions.firstKey()) {
+          actionStepIndex = i.value()._modActions.firstKey();
+          action = BuildModRemoveRc;
+          insert = " Future";
+      } else if (stepIndex == BM_LAST_ACTION) {
           action = i.value()._modActions.last();
           actionStepIndex = i.value()._modActions.lastKey();
           insert = " Last";
@@ -3312,17 +3518,21 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
     int modelIndex = _modelIndex;
     int lineNumber = _lineNumber;
     int stepIndex = BM_INVALID_INDEX;
-    if (modelIndex > BM_INVALID_INDEX) {
-        if (!lineNumber && !modelIndex) {
-            // If modelIndex and lineNumber is 0, we are processing the first step
-            stepIndex = modelIndex = 0;
+
+    // If we are processing the first step, _buildModStepIndexes is not yet initialized.
+    if (!_buildModStepIndexes.size() && !modelIndex) {
 #ifdef QT_DEBUG_MODE
-            insert = QString("Get BuildMod (FIRST STEP)");
+        insert = QString("Get BuildMod (FIRST STEP)");
 #endif
-            lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
-        } else {
-            QVector<int> indexKey = { modelIndex, lineNumber };
-            stepIndex = _buildModStepIndexes.indexOf(indexKey);
+        stepIndex = BM_FIRST_INDEX;
+
+    } else if (modelIndex > BM_INVALID_INDEX) {
+        QVector<int> indexKey = { modelIndex, lineNumber };
+        stepIndex = _buildModStepIndexes.indexOf(indexKey);
+
+        if (stepIndex == BM_INVALID_INDEX) {
+            logType = LOG_ERROR;
+            insert = QString("Get BuildMod (INVALID)");
         }
     }
 #ifdef QT_DEBUG_MODE
@@ -3449,26 +3659,33 @@ int LDrawFile::getBuildModNextStepIndex()
 #ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString message;
+    int lineNumber  = 0;
     bool validIndex = false;
     bool firstIndex = false;
 #endif
 
-    int stepIndex   = 0;
+    int stepIndex   = BM_FIRST_INDEX;
 
-    if (_buildModNextStepIndex > BM_INVALID_INDEX && _buildModStepIndexes.size() > _buildModNextStepIndex) {
+    if (!_buildModStepIndexes.size()) {
 
-        stepIndex  = _buildModNextStepIndex;
+        skipHeader(getSubmodelName(0), lineNumber);
 
 #ifdef QT_DEBUG_MODE
-        firstIndex = _buildModNextStepIndex == BM_FIRST_INDEX;
-
+        firstIndex = _buildModNextStepIndex == stepIndex;
         validIndex = true;
+#endif
+    } else if (_buildModNextStepIndex > BM_INVALID_INDEX && _buildModStepIndexes.size() > _buildModNextStepIndex) {
+
+        stepIndex  = _buildModNextStepIndex;
+#ifdef QT_DEBUG_MODE
+        validIndex = stepIndex != BM_INVALID_INDEX;
 #endif
     } else {
 
         stepIndex = BM_INVALID_INDEX;
 
 #ifdef QT_DEBUG_MODE
+        validIndex = false;
         logType = LOG_ERROR;
         message = QString("Get BuildMod (INVALID) StepIndex: %1")
                           .arg(_buildModNextStepIndex);
@@ -3478,11 +3695,17 @@ int LDrawFile::getBuildModNextStepIndex()
 
 #ifdef QT_DEBUG_MODE
     if (validIndex) {
-        QVector<int> topOfStep = _buildModStepIndexes.at(_buildModNextStepIndex);
-        QString modelName      = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
-        QString insert         = firstIndex ? "First" : "Next";
-        int lineNumber         = topOfStep.at(BM_LINE_NUMBER);
-        validIndex             = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
+        QVector<int> topOfStep = { 0,0 };
+
+        if (!firstIndex) {
+            topOfStep     = _buildModStepIndexes.at(_buildModNextStepIndex);
+            lineNumber    = topOfStep.at(BM_LINE_NUMBER);
+        }
+
+        QString modelName = getSubmodelName(topOfStep.at(BM_MODEL_NAME));
+        QString insert    = firstIndex ? "First" : "Next";
+        validIndex        = !modelName.isEmpty() && lineNumber > BM_BEGIN_LINE_NUM;
+
         if (!validIndex) {
             insert.prepend("(INVALID) ");
             if (modelName.isEmpty())
@@ -3514,12 +3737,18 @@ int LDrawFile::getBuildModNextStepIndex()
 
 bool LDrawFile::setBuildModNextStepIndex(const QString &modelName, const int &lineNumber)
 {
-    int  newStepIndex = getStepIndex(modelName,lineNumber);
-    bool validIndex   = newStepIndex > BM_INVALID_INDEX;
-    bool firstIndex   = _buildModNextStepIndex == BM_INVALID_INDEX;
-    bool nextIndex    = validIndex && !firstIndex;
+    int  newStepIndex = BM_INVALID_INDEX;
 
-    _buildModPrevStepIndex = nextIndex ? _buildModNextStepIndex : 0;
+    if (!_buildModStepIndexes.size() && modelName == topLevelFile())
+        newStepIndex = BM_FIRST_INDEX;
+    else
+        newStepIndex = getStepIndex(modelName,lineNumber);
+
+    bool validIndex  = newStepIndex > BM_INVALID_INDEX;
+    bool firstIndex  = _buildModNextStepIndex == BM_INVALID_INDEX;
+    bool nextIndex   = validIndex && !firstIndex;
+
+    _buildModPrevStepIndex = nextIndex ? _buildModNextStepIndex : BM_FIRST_INDEX;
     _buildModNextStepIndex = newStepIndex;
 
 #ifdef QT_DEBUG_MODE
@@ -3560,10 +3789,17 @@ int LDrawFile::getStepIndex(const int &modelIndex, const int &lineNumber)
 int LDrawFile::getStepIndex(const QString &modelName, const int &lineNumber)
 {
     int modelIndex = getSubmodelIndex(modelName);
-    QVector<int> topOfStep = { modelIndex, lineNumber };
-    int stepIndex = _buildModStepIndexes.indexOf(topOfStep);
-    if (stepIndex == BM_INVALID_INDEX)
-        stepIndex = getStepIndex(modelIndex, lineNumber);
+    int stepIndex  = BM_INVALID_INDEX;
+
+    if (!_buildModStepIndexes.size() && !modelIndex)
+        stepIndex = BM_FIRST_INDEX;
+    else {
+        QVector<int> topOfStep = { modelIndex, lineNumber };
+        stepIndex = _buildModStepIndexes.indexOf(topOfStep);
+        if (stepIndex == BM_INVALID_INDEX)
+            stepIndex = getStepIndex(modelIndex, lineNumber);
+    }
+
     return stepIndex;
 }
 
@@ -3926,6 +4162,8 @@ void LDrawFile::skipHeader(const QString &modelName, int &lineNumber)
     int numLines = size(modelName);
     for ( ; lineNumber < numLines; lineNumber++) {
         QString line = readLine(modelName,lineNumber);
+        if (line.isEmpty())
+            continue;
         int p;
         for (p = 0; p < line.size(); ++p) {
             if (line[p] != ' ') {

@@ -213,12 +213,12 @@ class BuildMod {
        // 0 BM_BEGIN_LINE_NUM    0
        // 1 BM_ACTION_LINE_NUM   0
        // 2 BM_END_LINE_NUM      0
-       // 3 BM_DISPLAY_PAGE_NUM -1
+       // 3 BM_DISPLAY_PAGE_NUM  0
        // 4 BM_STEP_PIECES       0
        // 5 BM_MODEL_NAME_INDEX -1
        // 6 BM_MODEL_LINE_NUM    0
        // 7 BM_MODEL_STEP_NUM    0
-      _modAttributes = { 0, 0, 0, -1, 0, -1, 0, 0 };
+      _modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
       _modActions = {};
       _modStepIndex = -1;
     }
@@ -274,18 +274,18 @@ class LDrawFile {
     LDrawFile();
     ~LDrawFile()
     {
-      _subFiles.empty();
-      _configuredSubFiles.empty();
-      _subFileOrder.empty();
-      _subFileOrderNoUnoff.empty();
-      _viewerSteps.empty();
-      _buildMods.empty();
-      _buildModSteps.empty();
-      _buildModStepIndexes.empty();
-      _buildModRendered.empty();
-      _includeFileList.empty();
-      _buildModList.empty();
-      _loadedParts.empty();
+      _subFiles.clear();
+      _configuredSubFiles.clear();
+      _subFileOrder.clear();
+      _subFileOrderNoUnoff.clear();
+      _viewerSteps.clear();
+      _buildMods.clear();
+      _buildModSteps.clear();
+      _buildModStepIndexes.clear();
+      _buildModRendered.clear();
+      _includeFileList.clear();
+      _buildModList.clear();
+      _loadedParts.clear();
     }
 
     QStringList                 _subFileOrder;
@@ -304,11 +304,16 @@ class LDrawFile {
     static int                  _partCount;
     static bool                 _showLoadMessages;
     static bool                 _loadAborted;
+    static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
     static bool                 _hasUnofficialParts;
 
     int getPartCount(){
       return _partCount;
+    }
+
+    void setLoadBuildMods(bool b) {
+        _loadBuildMods = b;
     }
 
     static void showLoadMessages();

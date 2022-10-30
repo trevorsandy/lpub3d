@@ -187,13 +187,11 @@ public:
     int  action;
     int  state;
     bool ignore;
-    bool ignore2;
     BuildModFlags()
         : level(0),
           action(0),
           state(-1),
-          ignore(false),
-          ignore2(false)
+          ignore(false)
     { }
     void clear()
     {
@@ -201,7 +199,6 @@ public:
         action = 0;
         state = -1;
         ignore = false;
-        ignore2 = false;
     }
 };
 
@@ -231,6 +228,10 @@ public:
     int  includeLineNum;
     int  partsAdded;
     int  numLines;
+
+    BuildModFlags buildMod;
+    QList<BuildModFlags> buildModStack;
+
     FindPageFlags()
         :
           stepGroup         (false),
@@ -256,6 +257,10 @@ public:
           partsAdded        (0),
           numLines          (0)
     { }
+    ~FindPageFlags()
+    {
+        buildModStack.clear();
+    }
 };
 
 class FindPageOptions

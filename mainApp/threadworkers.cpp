@@ -2180,12 +2180,6 @@ int CountPageWorker::countPage(
   int displayPageNum = gui->displayPageNum;
 
   int countInstances = meta->LPub.countInstance.value();
-  bool localSubmodel = opts.current.lineNumber == 0;
-
-  if (! localSubmodel && opts.modelStack.size()) {
-      meta->submodelStack = opts.modelStack;
-      opts.modelStack.clear();
-  }
 
   gui->pageProcessRunning = PROC_COUNT_PAGE;
 
@@ -2222,7 +2216,7 @@ int CountPageWorker::countPage(
 
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
-  BuildModFlags           buildMod;
+  BuildModFlags           buildMod = opts.flags.buildMod;
   QMap<int, QString>      buildModKeys;
   QMap<int, QVector<int>> buildModAttributes;
 
@@ -2280,7 +2274,7 @@ int CountPageWorker::countPage(
                   .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
                   .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
                   .arg(modAttributes.at(BM_END_LINE_NUM))      // 2         0       this
-                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         1       this
+                  .arg(modAttributes.at(BM_DISPLAY_PAGE_NUM))  // 3         0       this
                   .arg(modAttributes.at(BM_STEP_PIECES))       // 4         0       this
                   .arg(modAttributes.at(BM_MODEL_NAME_INDEX))  // 5        -1       this
                   .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
@@ -2320,8 +2314,6 @@ int CountPageWorker::countPage(
           line = line.mid(8).trimmed();
       }
 
-      QStringList tokens, addTokens;
-
       switch (line.toLatin1()[0]) {
       case '1':
           // process type 1 line...
@@ -2349,7 +2341,7 @@ int CountPageWorker::countPage(
                   if (contains) {
 
                       // check if submodel is in current step build modification
-                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore2 ||
+                      bool buildModRendered = Preferences::buildModEnabled && (buildMod.ignore ||
                                               ldrawFile->getBuildModRendered(buildMod.key, colorType, true/*countPage*/));
 
                       // if not callout or assembled/rotated callout or count (actually parse) build mods
@@ -2375,9 +2367,11 @@ int CountPageWorker::countPage(
                                   SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNumber);
                                   meta->submodelStack << tos;
                                   Where current2(type,ldrawFile->getSubmodelIndex(type),0);
-                                  FindPageFlags saveFlags2 = opts.flags;
-                                  opts.flags.countPageContains = contains;
-                                  BuildModFlags saveBuildMod2 = buildMod;
+
+                                  // Consider using clean flags only passing buildMod and countPageContains ?
+                                  FindPageFlags flags2     = opts.flags;
+                                  flags2.buildMod          = buildMod;
+                                  flags2.countPageContains = contains;
 
                                   ldrawFile->setModelStartPageNumber(current2.modelName,opts.pageNum);
 
@@ -2405,7 +2399,7 @@ int CountPageWorker::countPage(
                                               opts.pageNum,
                                               current2,
                                               opts.pageSize,
-                                              opts.flags,
+                                              flags2,
                                               opts.modelStack,
                                               opts.pageDisplayed,
                                               opts.updateViewer,
@@ -2418,8 +2412,7 @@ int CountPageWorker::countPage(
                                   countPage(meta, ldrawFile, modelOpts);
 
                                   gui->saveStepPageNum = gui->stepPageNum;
-                                  buildMod = saveBuildMod2;                 // restore old buildMod
-                                  opts.flags = saveFlags2;                  // restore old flags
+
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
                                   meta->submodelStack.pop_back();           // remove where we stopped in the parent model
 
@@ -2442,7 +2435,9 @@ int CountPageWorker::countPage(
                       } // ! Callout || (Callout && CalloutMode != CalloutBeginMeta::Unassembled)
 
                       // add submodel to buildMod rendered list
-                      if (Preferences::buildModEnabled && buildMod.state == BM_BEGIN && ! buildModRendered) {
+                      if (Preferences::buildModEnabled &&
+                          buildMod.state == BM_BEGIN   &&
+                          ! buildModRendered) {
                           ldrawFile->setBuildModRendered("cp~"+buildMod.key, colorType);
                       }
 
@@ -2564,7 +2559,7 @@ int CountPageWorker::countPage(
                            emit gui->parseErrorSig("Redundant build modification meta command - this command can be removed.",
                                                    opts.current,Preferences::BuildModErrors,false,false);
                    } else {
-                       emit gui->parseErrorSig(QString("BuildMod for key '%1' not found").arg(buildMod.key),
+                       emit gui->parseErrorSig(QString("CountPage BuildMod for key '%1' not found").arg(buildMod.key),
                                        opts.current,Preferences::BuildModErrors,false,false);
                    }
                    if ((Rc)buildMod.action != rc) {
@@ -2636,7 +2631,7 @@ int CountPageWorker::countPage(
                   break;
               if (buildMod.state == BM_END_MOD) {
                   buildMod.level = getLevel(QString(), BM_END);
-                  if (buildMod.level == BM_BEGIN)
+                  if (buildMod.level == BM_BASE_LEVEL || buildMod.level == opts.modelStack.size())
                       buildMod.ignore = false;
               }
               // parse build modifications
@@ -2723,10 +2718,9 @@ int CountPageWorker::countPage(
                   if ( ! opts.flags.bfxStore2) {
                       bfxParts.clear();
                   } // ! BfxStore2
-                  buildMod.ignore2 = buildMod.ignore;
-                  if ( ! buildMod.ignore2) {
+                  if ( ! buildMod.ignore) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
-                  } // ! BuildMod.ignore2
+                  } // ! BuildMod.ignore
                   if (! opts.flags.parseBuildMods && opts.flags.stepGroup && topOfSteps != topOfStep) {
                       if (opts.pageNum == gui->displayPageNum + 1) {
                           opts.flags.parseStepGroupBM = opts.flags.parseBuildMods = true;
@@ -2915,53 +2909,6 @@ int CountPageWorker::countPage(
       documentPageCount();
 
     } // Last Step in Submodel
-
-  // if we counted a child submodel, load where findPage stopped in the parent model
-  if (! localSubmodel && meta->submodelStack.size()) {
-      // set the step number and parent model where the submodel will be rendered
-      QString renderParentModel = meta->submodelStack.last().modelName == gui->topLevelFile() ?
-                     QString() : meta->submodelStack.last().modelName;
-      Where current2(meta->submodelStack.last().modelName,
-                     gui->getSubmodelIndex(meta->submodelStack.last().modelName),
-                     meta->submodelStack.last().lineNumber);
-      FindPageFlags flags2;
-      // set flags and increment the parent model lineNumber by 1 if the line is the child submodel
-      if (current2.lineNumber < ldrawFile->size(current2.modelName)) {
-          QString line = ldrawFile->readLine(current2.modelName,current2.lineNumber).trimmed();
-          QStringList token;
-          split(line,token);
-          if (token.size() == 15) {
-              QString type = token[token.size()-1];
-              if (ldrawFile->isSubmodel(type)) {
-                  Where walk = current2;
-                  Rc rc = gui->mi->scanBackward(walk,StepMask|StepGroupMask|CalloutMask);
-                  flags2.stepGroup = (rc == StepGroupBeginRc || rc == StepGroupDividerRc);
-                  flags2.callout = (rc == CalloutDividerRc || rc == CalloutBeginRc);
-                  flags2.partsAdded++;
-                  current2++;
-              }
-          }
-      }
-      FindPageOptions parentOpts(
-                  opts.pageNum,
-                  current2,
-                  opts.pageSize,
-                  flags2,
-                  opts.modelStack,
-                  opts.pageDisplayed,
-                  opts.updateViewer,
-                  opts.isMirrored,
-                  opts.printing,
-                  opts.stepNumber,
-                  opts.contStepNumber,
-                  opts.groupStepNumber,
-                  renderParentModel);
-      // remove where we stopped in the parent model
-      meta->submodelStack.pop_back();
-
-      // let's go
-      countPage(meta, ldrawFile, parentOpts);
-  }
 
   countPageMutex.unlock();
 
