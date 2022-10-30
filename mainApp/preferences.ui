@@ -1895,7 +1895,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           <string>This directory contains the document logo</string>
          </property>
          <property name="title">
-          <string>Document Logo</string>
+          <string>Default Document Logo</string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -1946,7 +1946,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Publish Description</string>
+          <string>Default Publish Description</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>

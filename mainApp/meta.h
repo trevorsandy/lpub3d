@@ -3364,28 +3364,28 @@ public:
   PageFooterMeta            pageFooter;
 
   //pageAttributes
-  PageAttributeTextMeta     titleFront;              //from LDrawFile - LDraw: File
-  PageAttributeTextMeta     titleBack;               //from LDrawFile - LDraw: File
-  PageAttributeTextMeta     modelName;               //from LDrawFile - LDraw: Name
-  PageAttributeTextMeta     modelDesc;               //from LDrawFile - LDraw: 2nd line in <topLevelFile>.ldr
-  PageAttributeTextMeta     publishDesc;             //from preferences
-  PageAttributeTextMeta     authorFront;             //from LDrawFile - LDraw: Author
-  PageAttributeTextMeta     authorBack;              //from LDrawFile - LDraw: Author
-  PageAttributeTextMeta     author;                  //from LDrawFile - LDraw: Author
-  PageAttributeTextMeta     url;                     //from preferences
-  PageAttributeTextMeta     urlBack;                 //from preferences
-  PageAttributeTextMeta     email;                   //from preferences
-  PageAttributeTextMeta     emailBack;               //from preferences
-  PageAttributeTextMeta     disclaimer;              //from preferences static
-  PageAttributePictureMeta  documentLogoFront;       //from preferences
-  PageAttributePictureMeta  documentLogoBack;        //from preferences
-  PageAttributePictureMeta  coverImage;              //from Globals setup
-  PageAttributeTextMeta     parts;                   //from LDrawFile - count .dat during load
-  PageAttributeTextMeta     copyrightBack;           //from preferences static
-  PageAttributeTextMeta     copyright;               //from preferences static
-  PageAttributeTextMeta     plug;                    //from preferences static
-  PageAttributePictureMeta  plugImage;               //from preferences static
-  PageAttributeTextMeta     category;                //from LDrawFile - LDraw: !CATEGORY (NOT IMPLEMENTED)
+  PageAttributeTextMeta     titleFront;              //from LDrawFile: File
+  PageAttributeTextMeta     titleBack;               //from LDrawFile: File
+  PageAttributeTextMeta     modelName;               //from LDrawFile: Name
+  PageAttributeTextMeta     modelDesc;               //from LDrawFile: 2nd line in <topLevelFile>.ldr
+  PageAttributeTextMeta     publishDesc;             //from Preferences::publishDescription
+  PageAttributeTextMeta     authorFront;             //from Preferences::defaultAuthor / LDrawFile: Author
+  PageAttributeTextMeta     authorBack;              //from Preferences::defaultAuthor / LDrawFile: Author
+  PageAttributeTextMeta     author;                  //from Preferences::defaultAuthor / LDrawFile: Author
+  PageAttributeTextMeta     url;                     //from Preferences::defaultURL
+  PageAttributeTextMeta     urlBack;                 //from Preferences::defaultURL
+  PageAttributeTextMeta     email;                   //from Preferences::defaultEmail
+  PageAttributeTextMeta     emailBack;               //from Preferences::defaultEmail
+  PageAttributeTextMeta     disclaimer;              //from Preferences::disclaimer (static)
+  PageAttributePictureMeta  documentLogoFront;       //from Preferences::documentLogoFile
+  PageAttributePictureMeta  documentLogoBack;        //from Preferences::documentLogoFile
+  PageAttributePictureMeta  coverImage;              //from Globals: Page setup
+  PageAttributeTextMeta     parts;                   //from LDrawFile: count .dat during load
+  PageAttributeTextMeta     copyrightBack;           //from Preferences::copyright (static)
+  PageAttributeTextMeta     copyright;               //from Preferences::copyright (static)
+  PageAttributeTextMeta     plug;                    //from Preferences::plug (static)
+  PageAttributePictureMeta  plugImage;               //from Preferences::plugImage (static)
+  PageAttributeTextMeta     category;                //from LDrawFile: !CATEGORY (NOT IMPLEMENTED)
 
   PageMeta();
   PageMeta(const PageMeta &rhs) : BranchMeta(rhs)

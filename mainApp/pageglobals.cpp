@@ -598,8 +598,8 @@ GlobalPageDialog::GlobalPageDialog(
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
   readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
   childTextGui = static_cast<PageAttributeTextGui*>(lpub3dPlugChildBack);
-  childTextGui->contentEdit->setReadOnly(true);
-  childTextGui->contentEdit->setPalette(readOnlyPalette);
+  childTextGui->editPlug->setReadOnly(true);
+  childTextGui->editPlug->setPalette(readOnlyPalette);
   data->children.append(lpub3dPlugChildBack);
   //child body end
 
@@ -629,6 +629,7 @@ GlobalPageDialog::GlobalPageDialog(
   chilPicdGui = static_cast<PageAttributePictureGui*>(lpub3dLogoChildBack);
   chilPicdGui->pictureEdit->setReadOnly(true);
   chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
+  chilPicdGui->pictureButton->setEnabled(false);
   data->children.append(lpub3dLogoChildBack);
   connect(lpub3dLogoBox, SIGNAL(toggled(bool)),
           this,    SLOT(  displayGroup(bool)));

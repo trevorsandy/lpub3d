@@ -5228,7 +5228,7 @@ PageMeta::PageMeta() : BranchMeta()
   copyrightBack.placement.setValue(BottomOutside,PageAuthorType);
   copyrightBack.type = PageCopyrightType;
   copyrightBack.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
-  copyrightBack.setValue(Preferences::copyright);
+  copyrightBack.setValue(Preferences::copyright + " by " + Preferences::defaultAuthor);
 
   //publisher urlBack text
   urlBack.placement.setValue(BottomOutside,PageCopyrightType);

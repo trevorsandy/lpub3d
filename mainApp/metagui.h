@@ -355,9 +355,11 @@ private:
   QGroupBox    *gbContentEdit;
   QGroupBox    *gbDescDialog;
   QGroupBox    *gbDiscDialog;
+  QGroupBox    *gbPlugDialog;
 
   QTextEdit    *editDesc;
   QTextEdit    *editDisc;
+  QTextEdit    *editPlug;
   QLineEdit    *contentEdit;
   QString      content;
 
@@ -376,6 +378,7 @@ public slots:
   }
   void editDescChanged();
   void editDiscChanged();
+  void editPlugChanged();
   void browseFont(bool clicked);
   void browseColor(bool clicked);
   void editChanged(QString const &);

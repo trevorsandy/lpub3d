@@ -4498,7 +4498,7 @@ void Preferences::publishingPreferences()
     if (! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PublishDescription"))) {
         QVariant eValue(PUBLISH_DESCRIPTION_DEFAULT);
         publishDescription = PUBLISH_DESCRIPTION_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),eValue);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),eValue);
     } else {
         publishDescription = Settings.value(QString("%1/%2").arg(DEFAULTS,"PublishDescription")).toString();
         if (publishDescription.isEmpty())
@@ -4510,6 +4510,7 @@ void Preferences::publishingPreferences()
         QFileInfo fileInfo(documentLogoFile);
         if (!fileInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
+            documentLogoFile.clear();
         }
     }
 }
@@ -4662,48 +4663,38 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PageDisplayPause"),pageDisplayPause);
         }
 
-        if (documentLogoFile != dialog->documentLogoFile()) {
-            documentLogoFile = dialog->documentLogoFile();
+        if (!dialog->documentLogoFile().isEmpty()) {
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"),dialog->documentLogoFile());
             if (documentLogoFile.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"),documentLogoFile);
+                documentLogoFile = dialog->documentLogoFile();
             }
         }
 
-        if (defaultAuthor != dialog->defaultAuthor()) {
-            defaultAuthor = dialog->defaultAuthor();
+        if (!dialog->defaultAuthor().isEmpty()) {
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),dialog->defaultAuthor());
             if (defaultAuthor.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(DEFAULTS,"Author"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),defaultAuthor);
+                defaultAuthor = dialog->defaultAuthor();
             }
         }
 
-        if (defaultURL != dialog->defaultURL()) {
-            defaultURL = dialog->defaultURL();
+        if (!dialog->defaultURL().isEmpty()) {
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"URL"),dialog->defaultURL());
             if (!defaultURL.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(DEFAULTS,"URL"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"URL"),defaultURL);
+                defaultURL = dialog->defaultURL();
             }
         }
 
-        if (defaultEmail != dialog->defaultEmail()) {
-            defaultEmail = dialog->defaultEmail();
+        if (!dialog->defaultEmail().isEmpty()) {
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Email"),dialog->defaultEmail());
             if (defaultEmail.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(DEFAULTS,"Email"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Email"),defaultEmail);
+                defaultEmail = dialog->defaultEmail();
             }
         }
 
-        if (publishDescription != dialog->publishDescription()) {
-            publishDescription = dialog->publishDescription();
+        if (!dialog->publishDescription().isEmpty()) {
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),dialog->publishDescription());
             if (publishDescription.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(DEFAULTS,"PublishDescription"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),publishDescription);
+                publishDescription = dialog->publishDescription();
             }
         }
 

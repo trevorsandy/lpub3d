@@ -1271,7 +1271,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 // One time populate top level file name
                 if (hdrTopFileNotFound) {
                     if (sof){
-                        _file = _fileRegExp[SOF_RX].cap(1).replace(QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
+                        _file = _fileRegExp[SOF_RX].cap(1).replace("." + QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
                         descriptionLine = fileIndx + 1;      //next line should be description
                         hdrTopFileNotFound = false;
                     }
@@ -1280,9 +1280,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 // One time populate model descriptkon
                 if (hdrDescNotFound && fileIndx == descriptionLine && ! isHeader(smLine)) {
                     if (smLine.contains(_fileRegExp[DES_RX]))
-                        _description = smLine;
+                        _description = QString(smLine).remove(0, 2);
                     else
-                        _description = "LDraw model";
+                        _description = PUBLISH_DESCRIPTION_DEFAULT;
                     Preferences::publishDescription = _description;
                     hdrDescNotFound = false;
                 }
@@ -1302,7 +1302,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                     }
                 }
 
-                // One time populate model category
+                // One time populate model category (not used)
                 if (hdrCategNotFound && subfileName == _file) {
                     if (smLine.contains(_fileRegExp[CAT_RX])) {
                         _category = _fileRegExp[CAT_RX].cap(1);

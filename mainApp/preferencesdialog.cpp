@@ -68,6 +68,30 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
+  // populate model file defaults from settings (versus Preferences)
+  QSettings Settings;
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Author"))) {
+    ui.authorName_Edit->setText(                 Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString());
+  }
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"URL"))) {
+    ui.publishURL_Edit->setText(                 Settings.value(QString("%1/%2").arg(DEFAULTS,"URL")).toString());
+  }
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Email"))) {
+    ui.publishEmail_Edit->setText(               Settings.value(QString("%1/%2").arg(DEFAULTS,"Email")).toString());
+  }
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"))) {
+    ui.publishLogoPath->setText(                 Settings.value(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile")).toString());
+    QFileInfo fileInfo(ui.publishLogoPath->text());
+    if (!fileInfo.exists()) {
+      Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
+      ui.publishLogoPath->clear();
+    }
+  }
+  if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"PublishDescription"))) {
+    ui.publishDescriptionEdit->setText(          Settings.value(QString("%1/%2").arg(DEFAULTS,"PublishDescription")).toString());
+  }
+  ui.publishLogoBox->setChecked(!ui.publishLogoPath->text().isEmpty());
+
   // set 3rd party application dialogues to read-only
   ui.ldglitePath->setReadOnly(true);
   ui.ldglitePath->setPalette(readOnlyPalette);
@@ -127,16 +151,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
   ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
   ui.pliControlBox->setChecked(                  Preferences::pliControlFile != "");
-  ui.publishLogoBox->setChecked(                 Preferences::documentLogoFile != "");
-  ui.publishLogoPath->setText(                   Preferences::documentLogoFile);
-  ui.authorName_Edit->setText(                   Preferences::defaultAuthor);
+
   ui.displayAllAttributes_Chk->setChecked(       Preferences::displayAllAttributes);
   ui.generateCoverPages_Chk->setChecked(         Preferences::generateCoverPages);
   ui.publishTOC_Chk->setChecked(                 Preferences::printDocumentTOC);
   ui.doNotShowPageProcessDlgChk->setChecked(     Preferences::doNotShowPageProcessDlg);
-  ui.publishURL_Edit->setText(                   Preferences::defaultURL);
-  ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
-  ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
   ui.enableDownloader_Chk->setChecked(           Preferences::enableDownloader);
   ui.showDownloadRedirects_Chk->setChecked(      Preferences::showDownloadRedirects);
   ui.addLSynthSearchDirBox->setEnabled(          Preferences::archiveLSynthParts);
@@ -666,7 +685,7 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
     QString filter(tr("All Files (*.*)"));
 #endif
     QString filePath = QFileDialog::getOpenFileName(
-                this, tr("Select Document Logo"),
+                this, tr("Select Default Document Logo"),
                 ui.publishLogoPath->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.publishLogoPath->text(),
                 filter);
     if (!filePath.isEmpty()) {
@@ -1359,7 +1378,7 @@ QString const PreferencesDialog::documentLogoFile()
     if (ui.publishLogoBox->isChecked()){
         return ui.publishLogoPath->displayText();
     }
-    return "";
+    return QString();
 }
 
 int PreferencesDialog::fadeStepsOpacity()
@@ -1483,7 +1502,7 @@ bool PreferencesDialog::resetSceneColors()
 }
 
 QString const PreferencesDialog::defaultURL()
-{
+{   
   return ui.publishURL_Edit->displayText();
 }
 

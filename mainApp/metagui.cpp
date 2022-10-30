@@ -1236,6 +1236,31 @@ PageAttributeTextGui::PageAttributeTextGui(
       editDisc->setText(string);
   }
 
+  //Plug Dialogue
+  gbPlugDialog = new QGroupBox("LPub3D Plug Content",parent);
+  gbPlugDialog->hide();
+  vLayout = new QVBoxLayout(nullptr);
+  gbPlugDialog->setLayout(vLayout);
+  grid->addWidget(gbPlugDialog,4,0,1,3);
+
+  editPlug = new QTextEdit(parent);
+
+  vLayout->addWidget(editPlug);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
+
+  connect(editPlug,SIGNAL(textChanged()),
+          this,  SLOT(  editPlugChanged()));
+
+  if (meta->type == PagePlugType) {
+      gbPlugDialog->show();
+      gbContentEdit->hide();
+      string = QString("%1").arg(meta->content.value());
+      editPlug->setText(string);
+  }
+
   fontModified      = false;
   colorModified     = false;
   marginsModified   = false;
@@ -1301,6 +1326,15 @@ void PageAttributeTextGui::editDescChanged()
 void PageAttributeTextGui::editDiscChanged()
 {
   QStringList  text = editDisc->toPlainText().split("\n");
+  if (meta->content.value() != text.join("\\n")) {
+    meta->content.setValue(text.join("\\n"));
+    modified = editModified = true;
+  }
+}
+
+void PageAttributeTextGui::editPlugChanged()
+{
+  QStringList  text = editPlug->toPlainText().split("\n");
   if (meta->content.value() != text.join("\\n")) {
     meta->content.setValue(text.join("\\n"));
     modified = editModified = true;
