@@ -132,6 +132,7 @@
         <file alias="font.png">resources/font.png</file>
         <file alias="fontColour.png">resources/fontColour.png</file>
         <file alias="front.png">resources/front.png</file>
+        <file alias="fullscreenview.png">resources/fullscreenview.png</file>
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gotoline.png">resources/gotoline.png</file>
         <file alias="gplv3.png">resources/gplv3.png</file>

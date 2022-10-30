@@ -216,6 +216,14 @@ void Gui::SetRotStepTransform(QString& Transform, bool display)
         ShowStepRotationStatus();
 }
 
+void Gui::fullScreenView()
+{
+    if (fullScreenViewAct->isChecked()) {
+        showFullScreen();
+    } else {
+        showNormal();
+    }
+}
 
 /****************************************************************************
  *
@@ -5140,15 +5148,6 @@ void Gui::createActions()
     hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
     connect(hideGridPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
-//    for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
-//    {
-//        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[CommandIdx].MenuName), this);
-//        Action->setStatusTip(qApp->translate("Status", sgCommands[CommandIdx].StatusText));
-//        connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
-//        addAction(Action);
-//        snapGridActions[CommandIdx] = Action;
-//    }
-
     GridStepSizeGroup = new QActionGroup(this);
     GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
     for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx < GRID_SIZE_LAST; ActionIdx++)
@@ -5178,18 +5177,23 @@ void Gui::createActions()
     showTrackingCoordinatesAct->setEnabled(Preferences::sceneRulerTracking == int(TRACKING_LINE));
     connect(showTrackingCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
 
-
     showGuidesCoordinatesAct = new QAction(tr("Show Guide Coordinates"),this);
     showGuidesCoordinatesAct->setStatusTip(tr("Toggle show scene guide coordinates"));
     showGuidesCoordinatesAct->setCheckable(true);
     showGuidesCoordinatesAct->setChecked(Preferences::showGuidesCoordinates);
     showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
     connect(showGuidesCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
+
+    fullScreenViewAct = new QAction(QIcon(":/resources/fullscreenview.png"),tr("Full Screen View"),this);
+    fullScreenViewAct->setShortcut(tr("Ctrl+M"));
+    fullScreenViewAct->setStatusTip(tr("Toggle full screen view - Ctrl+M"));
+    fullScreenViewAct->setCheckable(true);
+    connect(fullScreenViewAct, SIGNAL(triggered()), this, SLOT(fullScreenView()));
+
     // TESTING ONLY
     //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
 
     // zoomIn,zoomOut
-
     zoomSliderAct = new QWidgetAction(nullptr);
     zoomSliderWidget = new QSlider();
     zoomSliderWidget->setSingleStep(1);
@@ -5886,6 +5890,8 @@ void Gui::createMenus()
     viewMenu->addAction(sceneGuidesComboAct);
     viewMenu->addAction(snapToGridComboAct);
     viewMenu->addSeparator();
+    viewMenu->addAction(fullScreenViewAct);
+    viewMenu->addSeparator();
 
     toolsMenu = menuBar()->addMenu(tr("&Tools"));
     toolsMenu->addAction(firstPageAct);
@@ -6245,6 +6251,9 @@ void Gui::createToolBars()
 
     snapToGridComboAct->setMenu(snapToGridMenu);
     zoomToolBar->addAction(snapToGridComboAct);
+
+    zoomToolBar->addSeparator();
+    zoomToolBar->addAction(fullScreenViewAct);
 
     if (Preferences::modeGUI)
         create3DToolBars();

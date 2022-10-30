@@ -1756,6 +1756,7 @@ private slots:
     void bringToFront();
     void sendToBack();
 
+    void fullScreenView();
     void openWithSetup();
     void openWorkingFolder();
     void openRecentFile();
@@ -2199,6 +2200,7 @@ private:
   QAction *updateAppAct;
   QAction *viewLogAct;
   QAction *openWorkingFolderAct;
+  QAction *fullScreenViewAct;
 
   friend class PartWorker;
   friend class DialogExportPages;
