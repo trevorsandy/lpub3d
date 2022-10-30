@@ -50,7 +50,7 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
         if (sLine.contains(rx)) {
             QString partFile = rx.cap(1).toLower().trimmed();
             QString partLibType = rx.cap(2).toLower().trimmed();
-            ldrawColourParts.insert(partFile, QString("%1:::%2").arg(partLibType).arg(partFile));
+            ldrawColourParts.insert(partFile, QString("%1:::%2").arg(partLibType, partFile));
             //qDebug() << "** Color part loaded: " << partFile << " Lib: " << QString("%1:::%2").arg(partLibType).arg(partFile);
         }
     }

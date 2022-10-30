@@ -397,7 +397,7 @@ int Step::createCsi(
       timer.start();
 
       // Viewer Csi does not yet exist in repository
-      bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
+      bool addViewerStepContent = !LPub->ldrawFile.viewerStepContentExist(viewerStepKey);
 
       // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
       bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
@@ -455,12 +455,12 @@ int Step::createCsi(
           if (!meta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
+          LPub->ldrawFile.insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
       }
 
       // Are any children submodels modified ? - trigger the native renderer to update input files on disc
-      if (modified(gui->getSubmodelIndexes(top.modelName), false/*reset*/))
-          gui->setViewerStepModified(viewerStepKey);
+      if (modified(LPub->ldrawFile.getSubmodelIndexes(top.modelName), false/*reset*/))
+          LPub->ldrawFile.setViewerStepModified(viewerStepKey);
 
       // for now, we always set viewer display options
       StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;

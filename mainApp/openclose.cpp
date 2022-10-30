@@ -806,7 +806,7 @@ bool Gui::openFile(QString &fileName)
   Preferences::setInitPreferredRenderer();
   clearPage(KpageView,KpageScene,true);
   closeFile();
-  if (GetViewPieceIcons())
+  if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file '%1'...").arg(fileName));
   setPageLineEdit->setText(QString("Loading..."));

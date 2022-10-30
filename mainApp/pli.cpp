@@ -841,13 +841,13 @@ int Pli::createSubModelIcons()
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
-    int iconCount = gui->fileList().size();
+    int iconCount = LPub->ldrawFile.subFileOrder().size()/*gui->fileList().size()*/;
 
     auto setSubmodel = [this,&type,&color] (const int i)
     {
         color = "0";
 
-        type = gui->fileList()[i];
+        type = LPub->ldrawFile.subFileOrder()[i]/*gui->fileList()[i]*/;
 
         QFileInfo info(type);
 
@@ -936,12 +936,12 @@ int Pli::createPartImage(
 
     int rc = 0;
     fadeSteps = Preferences::enableFadeSteps ;
-    displayIcons = gui->GetViewPieceIcons();
+    displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
-    highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
-    bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
+    bool isColorPart = LDrawColourParts::isLDrawColourPart(type);
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
 
     // set key substitute flag when there is a name change
@@ -1096,7 +1096,7 @@ int Pli::createPartImage(
         }
 
         // Check if viewer PLI part does exist in repository
-        bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
+        bool addViewerPliPartContent = !LPub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
 
         // Generate and renderer  PLI Part file
         if ( ! part.exists() || addViewerPliPartContent) {
@@ -1141,7 +1141,7 @@ int Pli::createPartImage(
             if (rotStep.isEmpty())
                 keyPart2.append(QString("_0_0_0_REL"));
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+            LPub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
             if (! rc && ! part.exists()) {
 
@@ -2143,11 +2143,11 @@ int Pli::partSize()
           // get part info
           part = parts[key];
           QFileInfo info(part->type);
-          PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+          PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
           if (pieceInfo ||
-              gui->isUnofficialPart(part->type) ||
-              gui->isSubmodel(part->type)) {
+              LPub->ldrawFile.isUnofficialPart(part->type) ||
+              LPub->ldrawFile.isSubmodel(part->type)) {
 
               if (part->color == "16") {
                   part->color = "0";
@@ -2366,9 +2366,9 @@ int Pli::partSizeLDViewSCall() {
     tallestPart = 0;
 
     fadeSteps = Preferences::enableFadeSteps ;
-    displayIcons = gui->GetViewPieceIcons();
+    displayIcons = lcGetPreferences().mViewPieceIcons;
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
-    highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    highlightStep = Preferences::enableHighlightStep /*&& !gui->suppressColourMeta()*/;
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
@@ -2380,18 +2380,17 @@ int Pli::partSizeLDViewSCall() {
         // get part info
         pliPart = parts[key];
         QFileInfo info(pliPart->type);
-        PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+        PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
         if (pieceInfo ||
-            gui->isSubmodel(pliPart->type) ||
-            gui->isUnofficialPart(pliPart->type) ||
-            gui->isUnofficialSubPart(pliPart->type)) {
+            LPub->ldrawFile.isSubmodel(pliPart->type) ||
+            LPub->ldrawFile.isUnofficialPart(pliPart->type)) {
 
             if (pliPart->color == "16" || isSubModel) {
                 pliPart->color = "0";
             }
 
-            bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
+            bool isColorPart = LDrawColourParts::isLDrawColourPart(pliPart->type);
 
             // treat parts with '_' in the name - encode
             QString nameKey = pliPart->nameKey;
@@ -2574,7 +2573,7 @@ int Pli::partSizeLDViewSCall() {
                 }
 
                 // Check if viewer PLI part does exist in repository
-                bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
+                bool addViewerPliPartContent = !LPub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
 
                 if ( ! part.exists() || addViewerPliPartContent) {
 
@@ -2584,7 +2583,7 @@ int Pli::partSizeLDViewSCall() {
                     // define ldr file name
                     QFileInfo typeInfo = QFileInfo(pliPart->type);
                     QString typeName = typeInfo.fileName();
-                    bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(typeInfo.fileName());
+                    bool isColorPart = LDrawColourParts::isLDrawColourPart(typeInfo.fileName());
                     if (pT != NORMAL_PART && (isSubModel || isColorPart))
                         typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
@@ -2621,7 +2620,7 @@ int Pli::partSizeLDViewSCall() {
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+                    LPub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
                     if (! rc && ! part.exists()) {
 
@@ -3125,7 +3124,7 @@ QString PGraphicsPixmapItem::pliToolTip(
 
 const QString Pli::titleDescription(const QString &part)
 {
-  PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(QFileInfo(part).fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(QFileInfo(part).fileName().toUpper().toLatin1().constData(), nullptr, false, false);
   if (pieceInfo)
       return pieceInfo->m_strDescription;
 

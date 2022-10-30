@@ -2198,7 +2198,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
         if (pliParts.size()) {
             Q_FOREACH (PliPart* part, pliParts) {
                 QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName()).arg(part->color).arg(step->stepNumber.number);
-                if (gui->viewerStepContentExist(key)) {
+                if (LPub->ldrawFile.viewerStepContentExist(key)) {
                     if (renderer->useLDViewSCall())
                         fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
                     fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));

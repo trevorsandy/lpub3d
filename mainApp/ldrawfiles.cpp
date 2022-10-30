@@ -50,6 +50,8 @@
 #include "lc_library.h"
 #include "pieceinf.h"
 
+#include "lc_previewwidget.h"
+
 /********************************************
  *
  * routines for nested levels
@@ -1395,7 +1397,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
             subFileFound = !subFile.isEmpty();
         }
         if (subFileFound) {
-            PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
+            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
             if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                 stagedSubfiles.append(subFile);
                 stagedSubfilesFound = true;
@@ -1879,7 +1881,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 subFileFound = !subFile.isEmpty();
             }
             if (subFileFound) {
-                PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
+                PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
                 if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                     stagedSubfiles.append(subFile);
                     stagedSubfilesFound = true;
@@ -2793,7 +2795,7 @@ void LDrawFile::countParts(const QString &fileName) {
                             partFile.replace("S\\","S/");
                         }
                         if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                            PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
+                            PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr/*CurrentProject*/, false/*CreatePlaceholder*/, false/*SearchProjectFolder*/);
                             if (pieceInfo) {
                                 partString += pieceInfo->m_strDescription;
                                 if (pieceInfo->IsPartType()) {
@@ -2813,7 +2815,7 @@ void LDrawFile::countParts(const QString &fileName) {
                                         emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
                                     }
                                 } else
-                                if (gui->GetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
+                                if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
                                     if (pieceInfo->IsSubPiece()) {
                                         //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
                                         if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {

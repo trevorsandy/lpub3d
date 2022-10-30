@@ -320,7 +320,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
           continue;
-        if (gui->isSubmodel(argv[14])) {
+        if (LPub->ldrawFile.isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
               firstLine = line;
@@ -403,7 +403,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         ignorePartLine = buildModLevel;
       } // build modification
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (gui->isSubmodel(argv[14])) {
+      if (LPub->ldrawFile.isSubmodel(argv[14])) {
         if (ignorePartLine)
           continue;
         if (argv[14] == modelName) {
@@ -512,7 +512,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
           ignorePartLine = buildModLevel;
       } // build modification end
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (gui->isSubmodel(argv[14])) {
+      if (LPub->ldrawFile.isSubmodel(argv[14])) {
         if (ignorePartLine)
           continue;
         if (argv[14] == modelName) {
@@ -3834,7 +3834,7 @@ int MetaItem::nestCallouts(
         // We've got a part added
 
         if (argv.size() == 15 && argv[0] == "1") {
-          if (gui->isSubmodel(argv[14])) {
+          if (LPub->ldrawFile.isSubmodel(argv[14])) {
             meta->submodelStack << SubmodelStack(walk.modelName,walk.lineNumber,0);
             addCalloutMetas(meta,argv[14],isMirrored,pointerless);
             nestCallouts(meta,argv[14],isMirrored,pointerless);
@@ -3959,7 +3959,7 @@ void MetaItem::addCalloutMetas(
           break;
         }
       } else if (argv.size() == 15 && argv[0] == "1") {
-        if (gui->isSubmodel(argv[14])) {
+        if (LPub->ldrawFile.isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
               firstLine = line;
@@ -3994,7 +3994,7 @@ void MetaItem::addCalloutMetas(
         break;
       }
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (gui->isSubmodel(argv[14])) {
+      if (LPub->ldrawFile.isSubmodel(argv[14])) {
         if (argv[14] == modelName) {
           if (firstLine == "") {
             firstLine = line;
@@ -4053,7 +4053,7 @@ void MetaItem::addCalloutMetas(
                                            firstInstance.lineNumber,
                                            modelName,
                                            i,
-                                           gui->isMirrored(argv));
+                                           LPub->ldrawFile.mirrored(argv));
         emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
                              .arg(QString::number(offset.y(),'f',6)));
 
@@ -4558,7 +4558,7 @@ void MetaItem::unnestCallouts(
       }
     } else if ( ! callout && ! partIgnore) {
       if (argv.size() == 15 && argv[0] == "1") {
-        if (gui->isSubmodel(argv[14]) && callout) {
+        if (LPub->ldrawFile.isSubmodel(argv[14]) && callout) {
           unnestCallouts(argv[14]);
         }
       }
@@ -4718,7 +4718,7 @@ int MetaItem::monoColorSubmodel(
         submodel = submodel.left(submodel.length() - color.size());
       }
       submodel += suffix;
-      if (gui->isSubmodel(submodel)) {
+      if (LPub->ldrawFile.isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
         model = makeMonoName(model,color);
         monoColorSubmodel(submodel,model,color);
@@ -4788,7 +4788,7 @@ QPointF MetaItem::defaultPointerTip(
     split(line,argv);
     if (i >= adjustedLineNumber) {
       if (argv.size() == 15) {
-        bool mirrored = gui->isMirrored(argv);
+        bool mirrored = LPub->ldrawFile.mirrored(argv);
         if (argv[0] == "1" &&
             argv[14] == monoSubModel &&
             mirrored == isMirrored) {

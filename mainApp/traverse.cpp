@@ -54,6 +54,7 @@
 #include "ranges_item.h"
 #include "separatorcombobox.h"
 #include "waitingspinnerwidget.h"
+#include "lc_application.h"
 
 #include "QsLog.h"
 
@@ -5736,7 +5737,7 @@ void Gui::writeToTmp()
   writeToTmpFutures.clear();
 
   if (Preferences::modeGUI && !exporting()) {
-      if (GetViewPieceIcons() && !submodelIconsLoaded) {
+      if (lcGetPreferences().mViewPieceIcons && !submodelIconsLoaded) {
           // complete previous progress
           emit progressPermSetValueSig(subFileCount);
 

@@ -256,7 +256,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
                     QString fadeSfx = QString("%1.").arg(FADE_SFX);
                     if (type.contains(fadeSfx)) {
                         type = type.replace(fadeSfx,".");
-                        if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                        if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
                             break;
                     }
                 }
@@ -264,11 +264,11 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
                     QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
                     if (type.contains(highlightSfx)) {
                         type = type.replace(highlightSfx,".");
-                        if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                        if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
                             break;
                     }
                 }
-                if ((isMPD = gui->isSubmodel(type) || gui->isUnofficialPart(type)))
+                if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
                     break;
             }
         }
@@ -3797,8 +3797,8 @@ int Render::createNativeModelFile(
                   if (isFadedItem) {
                       customType = type;
                       customType = customType.replace(fadeSfx,".");
-                      isCustomSubModel = gui->isSubmodel(customType);
-                      isCustomPart = gui->isUnofficialPart(customType);
+                      isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
+                      isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
                     }
                 }
 
@@ -3809,8 +3809,8 @@ int Render::createNativeModelFile(
                   if (isHighlightItem) {
                       customType = type;
                       customType = customType.replace(highlightSfx,".");
-                      isCustomSubModel = gui->isSubmodel(customType);
-                      isCustomPart = gui->isUnofficialPart(customType);
+                      isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
+                      isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
                     }
                 }
 
@@ -3819,7 +3819,7 @@ int Render::createNativeModelFile(
                       isCustomSubModel = true;
               }
 
-              if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+              if (LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
                   if (!nativeSubModels.contains(type.toLower()))
                        nativeSubModels << type.toLower();
@@ -3931,8 +3931,8 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                       if (isFadedItem) {
                           customType = type;
                           customType = customType.replace(fadeSfx,".");
-                          isCustomSubModel = gui->isSubmodel(customType);
-                          isCustomPart = gui->isUnofficialPart(customType);
+                          isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
+                          isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
                         }
                     }
 
@@ -3943,8 +3943,8 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                       if (isHighlightItem) {
                           customType = type;
                           customType = customType.replace(highlightSfx,".");
-                          isCustomSubModel = gui->isSubmodel(customType);
-                          isCustomPart = gui->isUnofficialPart(customType);
+                          isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
+                          isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
                         }
                     }
 
@@ -3953,7 +3953,7 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                           isCustomSubModel = true;
                   }
 
-                  if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+                  if (LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
                       if (!newSubModels.contains(type.toLower()))
                               newSubModels << type.toLower();
@@ -3990,7 +3990,7 @@ int Render::mergeSubmodelContent(QStringList &submodelParts)
                 QStringList tokens;
                 split(line,tokens);
                 if (tokens.size() == 15) {
-                    if (gui->isSubmodel(tokens[14])) {
+                    if (LPub->ldrawFile.isSubmodel(tokens[14])) {
                         submodels << tokens[14];
                     }
                 }

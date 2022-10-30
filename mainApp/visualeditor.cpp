@@ -1884,11 +1884,6 @@ void Gui::reloadViewer(){
      return lcGetPreferences();
  }
 
- bool Gui::GetViewPieceIcons()
- {
-     return GetPreferences().mViewPieceIcons;
- }
-
  bool Gui::GetSubmodelIconsLoaded()
  {
      if (gMainWindow)
