@@ -4380,6 +4380,10 @@ void Gui::attitudeAdjustment()
 
   for (int i = 0; i < numFiles; i++) {
       QString fileName = ldrawFile.subFileOrder()[i];
+
+      if (ldrawFile.isUnofficialPart(fileName))
+          continue;
+
       int numLines     = ldrawFile.size(fileName);
 
       QStringList pending;
