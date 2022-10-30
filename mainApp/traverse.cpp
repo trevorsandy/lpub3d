@@ -2467,7 +2467,7 @@ int Gui::drawPage(
 
                       else
                      /*
-                      * STEP - No step object, e.g. inserted page (no rendered graphics)
+                      * STEP - No step object, e.g. BOM, inserted page (no rendered graphics)
                       */
                       {
 

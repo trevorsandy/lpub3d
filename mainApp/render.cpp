@@ -3038,13 +3038,28 @@ int Native::renderPli(
   // Update renderer options
   NativeOptions *Options = nullptr;
   QString viewerStepKey;
-  if (pliType == SUBMODEL) {
-    Options  = lpub->currentStep->subModel.viewerOptions;
-    viewerStepKey = lpub->currentStep->subModel.viewerSubmodelKey;
-  } else {
-    Options  = lpub->currentStep->pli.viewerOptions;
-    viewerStepKey = lpub->currentStep->pli.viewerPliPartKey;
+  switch(pliType) {
+  case SUBMODEL:
+      Options  = lpub->currentStep->subModel.viewerOptions;
+      viewerStepKey = lpub->currentStep->subModel.viewerSubmodelKey;
+      break;
+  case PART:
+      Options  = lpub->currentStep->pli.viewerOptions;
+      viewerStepKey = lpub->currentStep->pli.viewerPliPartKey;
+      break;
+  case BOM:
+      if (nameKey.isEmpty()) {
+        const QStringList attributes = getImageAttributes(pngName);
+        if (attributes.size() >= nTypeNameKey)
+          nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
+      }
+      if (!nameKey.isEmpty()) {
+        Options = lpub->page.pli.viewerOptsList[nameKey];
+        viewerStepKey = QString("%1;0").arg(nameKey.replace("_",";"));
+      }
+      break;
   }
+
   if (Options) {
     Options->ViewerStepKey  = viewerStepKey;
     Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
