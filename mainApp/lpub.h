@@ -1627,8 +1627,8 @@ private:
 
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
-  bool            viewerUndo;                 // suppress displayPage()
-  bool            viewerRedo;                 // suppress displayPage()
+  bool            viewerUndo;                // set the unod action enabled/disabled, text and status tip
+  bool            viewerRedo;                // set the redo action enabled/disabled, text and status tip
 
   bool     previousPageContinuousIsRunning;// stop the continuous previous page action
   bool     nextPageContinuousIsRunning;    // stop the continuous next page action

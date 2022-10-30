@@ -789,24 +789,23 @@ void Gui::ClearPreviewWidget()
 
 void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
 {
-    undoAct->setData(UndoText);
-    if (!UndoText.isEmpty())
+    viewerUndo = !UndoText.isEmpty();
+    if (viewerUndo)
     {
-        viewerUndo = true;
         undoAct->setEnabled(true);
         undoAct->setText(QString(tr("&Undo %1")).arg(UndoText));
         undoAct->setStatusTip(tr("Undo %1 - Ctrl+Z").arg(UndoText));
     }
     else
     {
-        viewerUndo = false;
+        undoAct->setEnabled(undoStack->canUndo());
         undoAct->setText(tr("&Undo"));
         undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
     }
 
-    if (!RedoText.isEmpty())
+    viewerRedo = !RedoText.isEmpty();
+    if (viewerRedo)
     {
-        viewerRedo = true;
         redoAct->setEnabled(true);
         redoAct->setText(QString(tr("&Redo %1")).arg(RedoText));
 #ifdef __APPLE__
@@ -817,7 +816,7 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
     }
     else
     {
-        viewerRedo = false;
+        redoAct->setEnabled(undoStack->canRedo());
         redoAct->setText(tr("&Redo"));
 #ifdef __APPLE__
         redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
