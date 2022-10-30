@@ -1693,7 +1693,7 @@ void lcQPreferencesDialog::on_cameraDefaultPosition_valueChanged(double value)
 void lcQPreferencesDialog::cameraPropertyReset()
 {
 	if (sender() == ui->resetDefaultDistanceFactor) {
-		ui->cameraDefaultDistanceFactor->setValue(qreal(5.0));
+		ui->cameraDefaultDistanceFactor->setValue(qreal(8.0));
 	} else if (sender() == ui->resetDefaultPosition) {
 		ui->cameraDefaultPosition->setValue(qreal(1250.0));
 	} else if (sender() == ui->resetFoV) {
