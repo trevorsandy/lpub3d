@@ -49,10 +49,15 @@ private slots:
   void on_pushButtonExportPreferences_clicked();
   void on_spinPixelRatio_valueChanged(double arg1);
   void lineEditPageRangeFocusChanged(bool);
+  void lineEditPageRangeReset();
+  void enableLineEditPageRangeReset(const QString &);
 
 private:
   Ui::DialogExportPages *ui;
+  QAction *setLineEditResetAct;
   QString linePageRange;
+  int rangeMin;
+  int rangeMax;
   int flag;
 };
 

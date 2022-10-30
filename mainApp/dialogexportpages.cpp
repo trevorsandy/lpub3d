@@ -33,8 +33,37 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
       "Backward"     //PAGE_JUMP_BACKWARD
     };
 
+    bool ok[2] = {false, false};
     bool preview = gui->m_previewDialog;
-    linePageRange  = gui->setPageLineEdit->displayText().replace("of","-").replace(" ","");
+    setLineEditResetAct = ui->lineEditPageRange->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    setLineEditResetAct->setEnabled(false);
+    connect(ui->lineEditPageRange, SIGNAL(textEdited(const QString &)), this, SLOT(enableLineEditPageRangeReset(const QString &)));
+    connect(setLineEditResetAct, SIGNAL(triggered()), this, SLOT(lineEditPageRangeReset()));
+
+    QRegExp rx("^(\\d+)(?:[^0-9]*|[a-zA-Z\\s]*)(\\d+)?$", Qt::CaseInsensitive);
+    if (gui->setPageLineEdit->displayText().trimmed().contains(rx)) {
+        rangeMin = rx.cap(1).toInt(&ok[0]);
+        rangeMax = rx.cap(2).toInt(&ok[1]);
+    }
+
+    if (gui->pageDirection < PAGE_BACKWARD) {
+        if (ok[0] && rangeMin > gui->displayPageNum && rangeMax == 0) {
+            rangeMax = rangeMin;
+            rangeMin = gui->displayPageNum;
+            ok[1]    = true;
+        }
+    } else {
+        if (ok[0] && rangeMin < gui->displayPageNum && rangeMax == 0) {
+            rangeMax = gui->displayPageNum;
+            ok[1]    = true;
+        }
+    }
+
+    if (!ok[0] || !ok[1] || rangeMin < 1 + gui->pa || rangeMax > gui->maxPages)
+        QMessageBox::critical(this,QString("Invalid Range"),
+                              QString("The page range '%1' is invaid. Valid format is <number>[ <characters> <number>].")
+                              .arg(gui->setPageLineEdit->displayText()));
+
 
     if (Gui::m_exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
@@ -66,18 +95,22 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     ui->radioButtonAllPages->setChecked(true);
     ui->checkBoxResetCache->setChecked(false);
 
-    QString pages(QString::number(1 + gui->pa));
-    if (gui->pageDirection == PAGE_NEXT) {
+    int pages = 1 + gui->pa;
+    if (gui->pageDirection < PAGE_BACKWARD) {
         if (Gui::m_exportMode == PAGE_PROCESS)
-            pages = QString::number(++gui->displayPageNum);
+            pages = gui->displayPageNum + 1;
+        if (rangeMin == gui->displayPageNum)
+            rangeMin = rangeMin + 1;
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(gui->maxPages));
-        ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(gui->maxPages));
+        ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMin).arg(rangeMax));
     } else {
-        pages = QString::number(gui->maxPages);
+        pages = gui->maxPages;
         if (Gui::m_exportMode == PAGE_PROCESS)
-            pages = QString::number(++gui->displayPageNum);
+            pages = gui->displayPageNum - 1;
+        if (rangeMax == gui->displayPageNum)
+            rangeMax = rangeMax - 1;
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + gui->pa));
-        ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(1 + gui->pa));
+        ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMax).arg(rangeMin));
     }
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
@@ -189,6 +222,24 @@ DialogExportPages::~DialogExportPages()
     delete ui;
 }
 
+void DialogExportPages::lineEditPageRangeReset()
+{
+    if (ui->lineEditPageRange) {
+        setLineEditResetAct->setEnabled(false);
+        ui->lineEditPageRange->setText(gui->pageDirection < PAGE_BACKWARD ?
+                                           QString("%1 - %2").arg(rangeMin).arg(rangeMax) :
+                                           QString("%1 - %2").arg(rangeMax).arg(rangeMin));
+    }
+}
+
+void DialogExportPages::enableLineEditPageRangeReset(const QString &displayText)
+{
+    if (ui->lineEditPageRange)
+        setLineEditResetAct->setEnabled(gui->pageDirection < PAGE_BACKWARD ?
+                                            displayText != QString("%1 - %2").arg(rangeMin).arg(rangeMax) :
+                                            displayText != QString("%1 - %2").arg(rangeMax).arg(rangeMin));
+}
+
 void DialogExportPages::groupBoxPixelRatio(bool show)
 {
     ui->groupBoxPixelRatio->setVisible(show);
@@ -250,17 +301,20 @@ void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)
     Q_UNUSED(arg1)
 
     // ignore automatically setting check if range is same as all pages
-    if (gui->pageDirection == PAGE_NEXT) {
-        if (QString("%1 to %2")
-                .arg(linePageRange.section('-',0,0))
-                .arg(linePageRange.section('-',1,1)) != ui->labelAllPages->text() )
-            ui->radioButtonPageRange->setChecked(true);
-    } else {
-        if (QString("%1 to %2")
-                .arg(linePageRange.section('-',1,1))
-                .arg(linePageRange.section('-',0,0)) != ui->labelAllPages->text() )
-            ui->radioButtonPageRange->setChecked(true);
-    }
+    const QString allCompare = ui->labelAllPages->text().replace("to","-").replace(" ","");
+    const QString rangeCompare = gui->pageDirection < PAGE_BACKWARD ? QString("%1-%2").arg(rangeMin).arg(rangeMax) :
+                                                                      QString("%1-%2").arg(rangeMax).arg(rangeMin);
+
+    qDebug() << "AllPages: ["
+             << qPrintable(allCompare.trimmed())
+             << "] compared to PageRange: ["
+             << qPrintable(rangeCompare.trimmed())
+             << "]"
+             << "";
+
+    if (allCompare.trimmed() != rangeCompare.trimmed())
+        ui->radioButtonPageRange->setChecked(true);
+
 }
 
 void DialogExportPages::lineEditPageRangeFocusChanged(bool focus)
