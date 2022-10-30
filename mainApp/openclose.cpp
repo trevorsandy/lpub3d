@@ -74,11 +74,11 @@ void Gui::open()
       }
       displayPage();
       enableActions();
-      LPub->ldrawFile.showLoadMessages();
+      lpub->ldrawFile.showLoadMessages();
       emit gui->messageSig(LOG_STATUS, gui->loadAborted() ?
                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
                        QString("File loaded (%1 parts). %2")
-                               .arg(LPub->ldrawFile.getPartCount())
+                               .arg(lpub->ldrawFile.getPartCount())
                                .arg(elapsedTime(timer.elapsed())));
       return;
     }
@@ -105,11 +105,11 @@ void Gui::openDropFile(QString &fileName){
           }
           displayPage();
           enableActions();
-          LPub->ldrawFile.showLoadMessages();
+          lpub->ldrawFile.showLoadMessages();
           emit messageSig(LOG_STATUS, gui->loadAborted() ?
                               QString("Load LDraw model file %1 aborted.").arg(fileName) :
                               QString("File loaded (%1 parts). %2")
-                                      .arg(LPub->ldrawFile.getPartCount())
+                                      .arg(lpub->ldrawFile.getPartCount())
                                       .arg(elapsedTime(timer.elapsed())));
         } else {
           QString noExtension;
@@ -380,15 +380,15 @@ void Gui::openRecentFile()
         emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
         return;
     }
-    LPub->currentStep = nullptr;
+    lpub->currentStep = nullptr;
     Paths::mkDirs();
     displayPage();
     enableActions();
-    LPub->ldrawFile.showLoadMessages();
+    lpub->ldrawFile.showLoadMessages();
     emit messageSig(LOG_STATUS, gui->loadAborted() ?
                         QString("Load LDraw model file %1 aborted.").arg(fileName) :
                         QString("File loaded (%1 parts). %2")
-                                .arg(LPub->ldrawFile.getPartCount())
+                                .arg(lpub->ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
   }
 }
@@ -408,7 +408,7 @@ void Gui::clearRecentFiles()
 
 bool Gui::loadFile(const QString &file)
 {
-    LPub->currentStep = nullptr;
+    lpub->currentStep = nullptr;
 
     QString fileName = file;
     QFileInfo info(fileName);
@@ -430,11 +430,11 @@ bool Gui::loadFile(const QString &file)
         cyclePageDisplay(inputPageNum);
         enableActions();
 
-        LPub->ldrawFile.showLoadMessages();
+        lpub->ldrawFile.showLoadMessages();
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :
                             QString("File loaded (%1 parts). %2")
-                                    .arg(LPub->ldrawFile.getPartCount())
+                                    .arg(lpub->ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
         return true;
     } else {
@@ -450,7 +450,7 @@ void Gui::enableWatcher()
       if (isMpd()) {
         watcher.addPath(curFile);
       }
-      QStringList filePaths = LPub->ldrawFile.getSubFilePaths();
+      QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
         for (QString filePath : filePaths) {
@@ -468,7 +468,7 @@ void Gui::disableWatcher()
       if (isMpd()) {
         watcher.removePath(curFile);
       }
-      QStringList filePaths = LPub->ldrawFile.getSubFilePaths();
+      QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
         for (QString filePath : filePaths) {
@@ -480,7 +480,7 @@ void Gui::disableWatcher()
 }
 
 int Gui::whichFile(int option) {
-    bool includeFile    = LPub->ldrawFile.isIncludeFile(curSubFile);
+    bool includeFile    = lpub->ldrawFile.isIncludeFile(curSubFile);
     bool dirtyUndoStack = ! undoStack->isClean();
     bool currentFile    = ! curFile.isEmpty();
     bool showDialog     = false;
@@ -693,7 +693,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 bool Gui::saveFile(const QString &fileName)
 {
   bool rc;
-  rc = LPub->ldrawFile.saveFile(fileName);
+  rc = lpub->ldrawFile.saveFile(fileName);
   setCurrentFile(fileName);
   undoStack->setClean();
   if (rc) {
@@ -707,7 +707,7 @@ bool Gui::saveFile(const QString &fileName)
 void Gui::closeFile()
 {
   pa = sa = 0;
-  LPub->ldrawFile.empty();
+  lpub->ldrawFile.empty();
   editWindow->clearWindow();
   mpdCombo->clear();
   ClearPreviewWidget();
@@ -745,7 +745,7 @@ void Gui::closeFile()
 void Gui::closeModelFile(){
   if (maybeSave() && saveBuildModification()) {
     disableWatcher();
-    QString topModel = LPub->ldrawFile.topLevelFile();
+    QString topModel = lpub->ldrawFile.topLevelFile();
     curFile.clear();       // clear file from curFile here...
     //Visual Editor
     if (Preferences::modeGUI) {
@@ -754,8 +754,8 @@ void Gui::closeModelFile(){
         emit clearViewerWindowSig();
         emit updateAllViewsSig();
     }
-    LPub->SetStudStyle(nullptr, true/*reload*/);
-    LPub->SetAutomateEdgeColor(nullptr);
+    lpub->SetStudStyle(nullptr, true/*reload*/);
+    lpub->SetAutomateEdgeColor(nullptr);
 
     // Editor
     emit clearEditorWindowSig();
@@ -812,7 +812,7 @@ bool Gui::openFile(QString &fileName)
   setPageLineEdit->setText(QString("Loading..."));
   setGoToPageCombo->addItem(QString("Loading..."));
   mpdCombo->addItem(QString("Loading..."));
-  if (LPub->ldrawFile.loadFile(fileName) != 0) {
+  if (lpub->ldrawFile.loadFile(fileName) != 0) {
       closeModelFile();
       return false;
   }
@@ -822,8 +822,8 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
-  mSetupFadeSteps = LPub->setFadeStepsFromCommand();
-  mSetupHighlightStep = LPub->setHighlightStepFromCommand();
+  mSetupFadeSteps = lpub->setFadeStepsFromCommand();
+  mSetupHighlightStep = lpub->setHighlightStepFromCommand();
   bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
   bool enableHighlightStep = mSetupHighlightStep || Preferences::enableHighlightStep;
   if (enableFadeSteps || enableHighlightStep) {
@@ -849,7 +849,7 @@ bool Gui::openFile(QString &fileName)
   emit messageSig(LOG_INFO, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->clear();
-  mpdCombo->addItems(LPub->ldrawFile.subFileOrder());
+  mpdCombo->addItems(lpub->ldrawFile.subFileOrder());
   mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   connect(mpdCombo,SIGNAL(activated(int)), this,    SLOT(mpdComboChanged(int)));
   connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
@@ -983,7 +983,7 @@ void Gui::fileChanged(const QString &path)
     int goToPage = displayPageNum;
     QString absoluteFilePath = path;
     QString fileName = QFileInfo(path).fileName();
-    if (LPub->ldrawFile.isIncludeFile(fileName) || LPub->ldrawFile.isUnofficialPart(fileName))
+    if (lpub->ldrawFile.isIncludeFile(fileName) || lpub->ldrawFile.isUnofficialPart(fileName))
       absoluteFilePath = curFile;
     if (!openFile(absoluteFilePath)) {
       emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(absoluteFilePath));
@@ -997,12 +997,12 @@ void Gui::fileChanged(const QString &path)
 void Gui::writeGeneratedColorPartsToTemp() {
   emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
   int count = 0;
-  for (int i = 0; i < LPub->ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = LPub->ldrawFile._subFileOrder[i];
+  for (int i = 0; i < lpub->ldrawFile._subFileOrder.size(); i++) {
+    QString fileName = lpub->ldrawFile._subFileOrder[i];
     if (LDrawColourParts::isLDrawColourPart(fileName)) {
       count++;
-      LPub->ldrawFile.normalizeHeader(fileName);
-      QStringList content = LPub->ldrawFile.contents(fileName);
+      lpub->ldrawFile.normalizeHeader(fileName);
+      QStringList content = lpub->ldrawFile.contents(fileName);
       emit messageSig(LOG_INFO, tr("Writing generated part %1 to temp directory: %2...").arg(count).arg(fileName));
       writeToTmp(fileName,content);
     }

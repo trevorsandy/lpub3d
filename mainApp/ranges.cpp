@@ -593,8 +593,8 @@ void Steps::addGraphicsItems(
               }
 //#ifdef QT_DEBUG_MODE
 //              logDebug() << "\nRange Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-//                         << "\nPage Size XX W        [" << LPub->pageSize(meta.LPub.page,XX) << "]"
-//                         << "\nPage Size YY H        [" << LPub->pageSize(meta.LPub.page,YY) << "]"
+//                         << "\nPage Size XX W        [" << lpub->pageSize(meta.LPub.page,XX) << "]"
+//                         << "\nPage Size YY H        [" << lpub->pageSize(meta.LPub.page,YY) << "]"
 //                         << "\nRanges::loc XX        [" << Steps::loc[XX] << "]"
 //                         << "\nRanges::loc YY        [" << Steps::loc[YY] << "]"
 //                         << "\nRanges::size XX W     [" << Steps::size[XX] << "]"
@@ -646,8 +646,8 @@ void Steps::addGraphicsItems(
               }
 //#ifdef QT_DEBUG_MODE //int which  = allocType() == Vertical ? YY : XX;  // " <<  << " // " <<
 //              logDebug() << "\nStep Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-//                         << "\nPage Size XX W       [" << LPub->pageSize(meta.LPub.page,XX) << "]"
-//                         << "\nPage Size YY H       [" << LPub->pageSize(meta.LPub.page,YY) << "]"
+//                         << "\nPage Size XX W       [" << lpub->pageSize(meta.LPub.page,XX) << "]"
+//                         << "\nPage Size YY H       [" << lpub->pageSize(meta.LPub.page,YY) << "]"
 //                         << "\nRanges::loc XX       [" << Steps::loc[XX] << "]"
 //                         << "\nRanges::loc YY       [" << Steps::loc[YY] << "]"
 //                         << "\nRanges::size XX W    [" << Steps::size[XX] << "]"
@@ -696,7 +696,7 @@ void Steps::addGraphicsItems(
 
 int Steps::pageSizeDiv(int axis, bool adjusted/*false*/, bool forDivider/*true*/){
   int which  = forDivider ? allocType() == Vertical ? YY : XX : axis;
-  int pageSizeAdjust = LPub->pageSize(meta.LPub.page,which);
+  int pageSizeAdjust = lpub->pageSize(meta.LPub.page,which);
   if (adjusted) {
    /*
     * TODO - get all items that intersect divider

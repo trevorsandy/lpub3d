@@ -350,7 +350,7 @@ void Gui::displayPage()
     pageProcessRunning = PROC_DISPLAY_PAGE;
     emit messageSig(LOG_STATUS, "Display page...");
     timer.start();
-    bool updateViewer = LPub->currentStep ? LPub->currentStep->updateViewer : true;
+    bool updateViewer = lpub->currentStep ? lpub->currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
     pageProcessRunning = PROC_NONE;
@@ -1044,15 +1044,15 @@ void Gui::setGoToPage(int index)
 
 void Gui::fitWidth()
 {
-  QRectF rect(0,0,LPub->pageSize(LPub->page.meta.LPub.page, 0)
-                 ,LPub->pageSize(LPub->page.meta.LPub.page, 1));
+  QRectF rect(0,0,lpub->pageSize(lpub->page.meta.LPub.page, 0)
+                 ,lpub->pageSize(lpub->page.meta.LPub.page, 1));
   KpageView->fitWidth(rect);
 }
 
 void Gui::fitVisible()
 {
-  QRectF rect(0,0,LPub->pageSize(LPub->page.meta.LPub.page, 0),
-                  LPub->pageSize(LPub->page.meta.LPub.page, 1));
+  QRectF rect(0,0,lpub->pageSize(lpub->page.meta.LPub.page, 0),
+                  lpub->pageSize(lpub->page.meta.LPub.page, 1));
   KpageView->fitVisible(rect);
   zoomSliderWidget->setValue(50);
 }
@@ -1382,14 +1382,14 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
     if (saveBefore)
         save();
     QString file = getCurFile();
-    if (LPub->ldrawFile.isIncludeFile(curSubFile))
+    if (lpub->ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
     else if (subModel) {
         file = editWindow->getCurrentFile();
-        writeToTmp(file, LPub->ldrawFile.contents(file));
+        writeToTmp(file, lpub->ldrawFile.contents(file));
     }
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
-    displayFile(&LPub->ldrawFile, Where(file, 0), true/*editModelFile*/);
+    displayFile(&lpub->ldrawFile, Where(file, 0), true/*editModelFile*/);
     editModeWindow->show();
     while (!editModeWindow->contentLoading())
         QApplication::processEvents();
@@ -1429,7 +1429,7 @@ void Gui::mpdComboChanged(int index)
   bool isIncludeFile = false;
   if (newSubFile.endsWith("Include File")) {
       newSubFile = mpdCombo->currentData().toString();
-      isIncludeFile = LPub->ldrawFile.isIncludeFile(newSubFile);
+      isIncludeFile = lpub->ldrawFile.isIncludeFile(newSubFile);
   }
 
   if (curSubFile != newSubFile) {
@@ -1437,7 +1437,7 @@ void Gui::mpdComboChanged(int index)
     bool callDisplayFile = isIncludeFile;
 
     if (!callDisplayFile) {
-      const int modelPageNum = LPub->ldrawFile.getModelStartPageNumber(newSubFile);
+      const int modelPageNum = lpub->ldrawFile.getModelStartPageNumber(newSubFile);
       countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
         if (!saveBuildModification())
@@ -1452,7 +1452,7 @@ void Gui::mpdComboChanged(int index)
     if (callDisplayFile) {
       messageSig(LOG_INFO, QString( "Selected %1: %2")
                  .arg(isIncludeFile ? "includeFile" : "subModel").arg(newSubFile));
-      displayFile(&LPub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
+      displayFile(&lpub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
       showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
           mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
@@ -1495,7 +1495,7 @@ void Gui::ldrawSearchDirectories()
 void Gui::insertConfiguredSubFile(const QString &name,
                                   QStringList &content) {
     QString subFilePath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/" + name);
-    LPub->ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
+    lpub->ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
 }
 
 void Gui::reloadCurrentPage(){
@@ -1548,7 +1548,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
-                    .arg(LPub->ldrawFile.getPartCount())
+                    .arg(lpub->ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
 }
 
@@ -1637,7 +1637,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-        LPub->ldrawFile.clearPrevStepPositions();
+        lpub->ldrawFile.clearPrevStepPositions();
     }
 
     clearPLICache();
@@ -1649,7 +1649,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                    .arg(LPub->ldrawFile.getPartCount())
+                    .arg(lpub->ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
 
     changeAccepted = saveChange;
@@ -1674,7 +1674,7 @@ void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
         clearSubmodelCache();
         clearTempCache();
         emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(LPub->ldrawFile.getPartCount())
+                        .arg(lpub->ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
     } else
         clearAllCaches();
@@ -1707,7 +1707,7 @@ void Gui::clearAllCaches(bool global)
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-        LPub->ldrawFile.clearPrevStepPositions();
+        lpub->ldrawFile.clearPrevStepPositions();
     }
 
     // if global, skip clearCache here and run in cycleDisPlayPage
@@ -1718,7 +1718,7 @@ void Gui::clearAllCaches(bool global)
         clearSubmodelCache();
         clearTempCache();
         emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(LPub->ldrawFile.getPartCount())
+                        .arg(lpub->ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
     }
 
@@ -1737,7 +1737,7 @@ void Gui::clearAllCaches(bool global)
     cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                        .arg(LPub->ldrawFile.getPartCount())
+                                        .arg(lpub->ldrawFile.getPartCount())
                                         .arg(elapsedTime(timer.elapsed())));
 
 }
@@ -1971,7 +1971,7 @@ void Gui::clearTempCache()
         }
     }
 
-    LPub->ldrawFile.tempCacheCleared();
+    lpub->ldrawFile.tempCacheCleared();
 
     emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
@@ -2093,7 +2093,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
         if (pliParts.size()) {
             Q_FOREACH (PliPart* part, pliParts) {
                 QString key = QString("%1;%2;%3").arg(QFileInfo(part->type).completeBaseName()).arg(part->color).arg(step->stepNumber.number);
-                if (LPub->ldrawFile.viewerStepContentExist(key)) {
+                if (lpub->ldrawFile.viewerStepContentExist(key)) {
                     if (renderer->useLDViewSCall())
                         fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
                     fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
@@ -2142,52 +2142,52 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
 
 void Gui::pageSetup()
 {
-  GlobalPageDialog::getPageGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalPageDialog::getPageGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::assemSetup()
 {
-  GlobalAssemDialog::getAssemGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalAssemDialog::getAssemGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::pliSetup()
 {
-  GlobalPliDialog::getPliGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalPliDialog::getPliGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::bomSetup()
 {
-  GlobalPliDialog::getBomGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalPliDialog::getBomGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::calloutSetup()
 {
-  GlobalCalloutDialog::getCalloutGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalCalloutDialog::getCalloutGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::multiStepSetup()
 {
-  GlobalMultiStepDialog::getMultiStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalMultiStepDialog::getMultiStepGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::subModelSetup()
 {
-  GlobalSubModelDialog::getSubModelGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalSubModelDialog::getSubModelGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::projectSetup()
 {
-  GlobalProjectDialog::getProjectGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalProjectDialog::getProjectGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::fadeStepSetup()
 {
-  GlobalFadeStepDialog::getFadeStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalFadeStepDialog::getFadeStepGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::highlightStepSetup()
 {
-  GlobalHighlightStepDialog::getHighlightStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
+  GlobalHighlightStepDialog::getHighlightStepGlobals(lpub->ldrawFile.topLevelFile(),lpub->page.meta);
 }
 
 void Gui::useSystemEditor()
@@ -2808,7 +2808,7 @@ void Gui::preferences()
     if (Preferences::getPreferences()) {
 
         Meta meta;
-        LPub->page.meta = meta;
+        lpub->page.meta = meta;
 
         QMessageBox box;
         box.setMinimumSize(40,20);
@@ -3691,8 +3691,8 @@ void Gui::loadBLCodes()
 {
    if (!Annotations::loadBLCodes()){
        QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
-       LPub->downloadFile(URL, "BrickLink Elements");
-       QByteArray Buffer = LPub->getDownloadedFile();
+       lpub->downloadFile(URL, "BrickLink Elements");
+       QByteArray Buffer = lpub->getDownloadedFile();
        Annotations::loadBLCodes(Buffer);
    }
 }
@@ -3783,7 +3783,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
                 emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                .arg(LPub->ldrawFile.getPartCount())
+                                .arg(lpub->ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
             }
         } else {
@@ -4284,7 +4284,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
       emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                      .arg(LPub->ldrawFile.getPartCount())
+                      .arg(lpub->ldrawFile.getPartCount())
                       .arg(elapsedTime(timer.elapsed())));
   }
 }
@@ -5674,7 +5674,7 @@ void Gui::enableActions2()
     insertNumberedPageAct->setEnabled(frontCover);
     bool backCover = mi->okToAppendNumberedPage();
     appendNumberedPageAct->setEnabled(backCover);
-    deletePageAct->setEnabled(LPub->page.list.size() == 0);
+    deletePageAct->setEnabled(lpub->page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
 }
@@ -6269,7 +6269,7 @@ void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
     if (macroNesting == 0) {
-      displayFile(&LPub->ldrawFile, here);
+      displayFile(&lpub->ldrawFile, here);
       showLineSig(here.lineNumber, type);
     }
   }

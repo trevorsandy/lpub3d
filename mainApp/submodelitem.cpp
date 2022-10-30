@@ -352,7 +352,7 @@ int SubModel::createSubModelImage(
           timer.start();
 
       // Viewer submodel does not yet exist in repository
-      bool addViewerStepContent = !LPub->ldrawFile.viewerStepContentExist(viewerSubmodelKey);
+      bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerSubmodelKey);
 
       if (addViewerStepContent || ! submodel.exists() || imageOutOfDate) {
 
@@ -420,7 +420,7 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          LPub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMP);
+          lpub->ldrawFile.insertViewerStep(viewerSubmodelKey,rotatedModel,unrotatedModel,ldrNames.first(),imageName,stepKey,multistep,callout,Options::SMP);
       }
 
       // set viewer display options
@@ -537,7 +537,7 @@ int SubModel::generateSubModelItem()
 
     part = parts[key];
 
-    if (LPub->ldrawFile.isSubmodel(part->type)) {
+    if (lpub->ldrawFile.isSubmodel(part->type)) {
 
         if (part->color == "16") {
             part->color = "0";

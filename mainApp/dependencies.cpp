@@ -21,29 +21,29 @@
 
 bool isMpd()
 {
-  return LPub->ldrawFile.isMpd();
+  return lpub->ldrawFile.isMpd();
 }
 
 bool isOlder(const QString &fileName,
   const QDateTime   &lastModified)
 {
-  return LPub->ldrawFile.older(fileName,lastModified);
+  return lpub->ldrawFile.older(fileName,lastModified);
 }
 
 bool isOlder(
   const QStringList &parsedStack,
   const QDateTime   &lastModified)
 {
-  return LPub->ldrawFile.older(parsedStack,lastModified);
+  return lpub->ldrawFile.older(parsedStack,lastModified);
 }
 
 bool modified(
   const QStringList &parsedStack, bool reset)
 {
-  return LPub->ldrawFile.modified(parsedStack, reset);
+  return lpub->ldrawFile.modified(parsedStack, reset);
 }
 
 bool modified(const QVector<int> &parsedIndexes, bool reset)
 {
-  return LPub->ldrawFile.modified(parsedIndexes, reset);
+  return lpub->ldrawFile.modified(parsedIndexes, reset);
 }

@@ -256,7 +256,7 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
                     QString fadeSfx = QString("%1.").arg(FADE_SFX);
                     if (type.contains(fadeSfx)) {
                         type = type.replace(fadeSfx,".");
-                        if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
+                        if ((isMPD = lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type)))
                             break;
                     }
                 }
@@ -264,11 +264,11 @@ int Render::setLDrawHeaderAndFooterMeta(QStringList &lines, const QString &_mode
                     QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
                     if (type.contains(highlightSfx)) {
                         type = type.replace(highlightSfx,".");
-                        if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
+                        if ((isMPD = lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type)))
                             break;
                     }
                 }
-                if ((isMPD = LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type)))
+                if ((isMPD = lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type)))
                     break;
             }
         }
@@ -2786,8 +2786,8 @@ int Native::renderCsi(
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
   // Renderer options
-  NativeOptions *Options = LPub->currentStep->viewerOptions;
-  const QString viewerStepKey = LPub->currentStep->viewerStepKey;
+  NativeOptions *Options = lpub->currentStep->viewerOptions;
+  const QString viewerStepKey = lpub->currentStep->viewerStepKey;
   if (Options) {
     Options->ViewerStepKey     = viewerStepKey;
     Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
@@ -3011,11 +3011,11 @@ int Native::renderPli(
   NativeOptions *Options = nullptr;
   QString viewerStepKey;
   if (pliType == SUBMODEL) {
-    Options  = LPub->currentStep->subModel.viewerOptions;
-    viewerStepKey = LPub->currentStep->subModel.viewerSubmodelKey;
+    Options  = lpub->currentStep->subModel.viewerOptions;
+    viewerStepKey = lpub->currentStep->subModel.viewerSubmodelKey;
   } else {
-    Options  = LPub->currentStep->pli.viewerOptions;
-    viewerStepKey = LPub->currentStep->pli.viewerPliPartKey;
+    Options  = lpub->currentStep->pli.viewerOptions;
+    viewerStepKey = lpub->currentStep->pli.viewerPliPartKey;
   }
   if (Options) {
     Options->ViewerStepKey  = viewerStepKey;
@@ -3437,18 +3437,18 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
 
-    if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
-        LPub->SetStudStyle(Options, true/*reload*/);
+    if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+        lpub->SetStudStyle(Options, true/*reload*/);
 
-    if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5)
+    if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
+        if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5)
             emit gui->messageSig(LOG_NOTICE,QString("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
-        LPub->SetAutomateEdgeColor(Options);
+        lpub->SetAutomateEdgeColor(Options);
     }
 
     bool Loaded = false;
 
-    Loaded = LPub->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
+    Loaded = lpub->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use File]")
                                                 .arg(Options->ViewerStepKey)
@@ -3468,14 +3468,14 @@ bool Render::LoadViewer(const NativeOptions *Options) {
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
-    if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
-        LPub->SetStudStyle(Options, true/*reload*/);
+    if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+        lpub->SetStudStyle(Options, true/*reload*/);
 
-    if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5) {
+    if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
+        if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5) {
             QString message = QString("High contrast stud and edge color settings are ignored when automate edge color is enabled.");
             if (Preferences::getShowMessagePreference(Preferences::ParseErrors)) {
-                Where file(QFileInfo(LPub->ldrawFile.getViewerStepFilePath(Options->ViewerStepKey)).fileName());
+                Where file(QFileInfo(lpub->ldrawFile.getViewerStepFilePath(Options->ViewerStepKey)).fileName());
                 QString parseMessage = QString("%1<br>(file: %2)").arg(message).arg(file.modelName);
                 Preferences::MsgID msgID(Preferences::AnnotationErrors,file.nameToString());
                 Preferences::showMessage(msgID, parseMessage, "Model File", "parse model file warning");
@@ -3484,10 +3484,10 @@ bool Render::LoadViewer(const NativeOptions *Options) {
             }
         }
 
-        LPub->SetAutomateEdgeColor(Options);
+        lpub->SetAutomateEdgeColor(Options);
     }
 
-    Loaded = LPub->OpenProject(Options);
+    Loaded = lpub->OpenProject(Options);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")
                                                 .arg(Options->ViewerStepKey)
@@ -3526,16 +3526,16 @@ bool Render::NativeExport(const NativeOptions *Options) {
                 return !Exported;
         }
 
-        if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
-            LPub->SetStudStyle(Options, true/*reload*/);
+        if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
+            lpub->SetStudStyle(Options, true/*reload*/);
 
-        if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
-            if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5)
+        if(Options->AutoEdgeColor != lpub->GetAutomateEdgeColor()) {
+            if (Options->AutoEdgeColor && lpub->GetStudStyle() > 5)
                 emit gui->messageSig(LOG_NOTICE,QString("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
-            LPub->SetAutomateEdgeColor(Options);
+            lpub->SetAutomateEdgeColor(Options);
         }
 
-        Exported = LPub->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
+        Exported = lpub->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
         if (!Exported) {
             emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', Export: %2, FileName: '%3', [Use File]")
                                                     .arg(Options->ViewerStepKey)
@@ -3797,8 +3797,8 @@ int Render::createNativeModelFile(
                   if (isFadedItem) {
                       customType = type;
                       customType = customType.replace(fadeSfx,".");
-                      isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
-                      isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
+                      isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
+                      isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
                     }
                 }
 
@@ -3809,8 +3809,8 @@ int Render::createNativeModelFile(
                   if (isHighlightItem) {
                       customType = type;
                       customType = customType.replace(highlightSfx,".");
-                      isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
-                      isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
+                      isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
+                      isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
                     }
                 }
 
@@ -3819,7 +3819,7 @@ int Render::createNativeModelFile(
                       isCustomSubModel = true;
               }
 
-              if (LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+              if (lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
                   if (!nativeSubModels.contains(type.toLower()))
                        nativeSubModels << type.toLower();
@@ -3931,8 +3931,8 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                       if (isFadedItem) {
                           customType = type;
                           customType = customType.replace(fadeSfx,".");
-                          isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
-                          isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
+                          isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
+                          isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
                         }
                     }
 
@@ -3943,8 +3943,8 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                       if (isHighlightItem) {
                           customType = type;
                           customType = customType.replace(highlightSfx,".");
-                          isCustomSubModel = LPub->ldrawFile.isSubmodel(customType);
-                          isCustomPart = LPub->ldrawFile.isUnofficialPart(customType);
+                          isCustomSubModel = lpub->ldrawFile.isSubmodel(customType);
+                          isCustomPart = lpub->ldrawFile.isUnofficialPart(customType);
                         }
                     }
 
@@ -3953,7 +3953,7 @@ int Render::mergeNativeSubModels(QStringList &subModels,
                           isCustomSubModel = true;
                   }
 
-                  if (LPub->ldrawFile.isSubmodel(type) || LPub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+                  if (lpub->ldrawFile.isSubmodel(type) || lpub->ldrawFile.isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
                       if (!newSubModels.contains(type.toLower()))
                               newSubModels << type.toLower();
@@ -3990,7 +3990,7 @@ int Render::mergeSubmodelContent(QStringList &submodelParts)
                 QStringList tokens;
                 split(line,tokens);
                 if (tokens.size() == 15) {
-                    if (LPub->ldrawFile.isSubmodel(tokens[14])) {
+                    if (lpub->ldrawFile.isSubmodel(tokens[14])) {
                         submodels << tokens[14];
                     }
                 }

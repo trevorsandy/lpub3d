@@ -2779,7 +2779,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
     } else
     if ((argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
       QString pageType = argv[index];
-      bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
+      bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
       int  numPageTypes = PageSizes::numPageTypes();
       for (int i = 0; i < numPageTypes; i++) {
           if (pageType.toLower() == PageSizes::pageTypeSizeID(i).toLower()) {
@@ -3581,11 +3581,11 @@ AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
 {
   contrast.setRange(0.0f,1.0f);
   contrast.setFormats(1,2,"#9.99");
-  contrast.setValue(LPub->GetPartEdgeContrast());
+  contrast.setValue(lpub->GetPartEdgeContrast());
   saturation.setRange(0.0f,1.0f);
   saturation.setFormats(1,2,"#9.99");
-  saturation.setValue(LPub->GetPartColorLightDarkIndex());
-  enable.setValue(LPub->GetAutomateEdgeColor());
+  saturation.setValue(lpub->GetPartColorLightDarkIndex());
+  enable.setValue(lpub->GetAutomateEdgeColor());
 }
 
 void AutoEdgeColorMeta::init(BranchMeta *parent, QString name)
@@ -3602,11 +3602,11 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
 {
   lightDarkIndex.setRange(0.0f,1.0f);
   lightDarkIndex.setFormats(1,2,"#9.99");
-  lightDarkIndex.setValue(LPub->GetPartColorLightDarkIndex());
-  studCylinderColor.setValue(LPub->GetStudCylinderColor());
-  partEdgeColor.setValue(LPub->GetPartEdgeColor());
-  blackEdgeColor.setValue(LPub->GetBlackEdgeColor());
-  darkEdgeColor.setValue(LPub->GetDarkEdgeColor());
+  lightDarkIndex.setValue(lpub->GetPartColorLightDarkIndex());
+  studCylinderColor.setValue(lpub->GetStudCylinderColor());
+  partEdgeColor.setValue(lpub->GetPartEdgeColor());
+  blackEdgeColor.setValue(lpub->GetBlackEdgeColor());
+  darkEdgeColor.setValue(lpub->GetDarkEdgeColor());
 }
 
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)

@@ -1218,7 +1218,7 @@ void lcMainWindow::UpdateGamepads()
 
 /*** LPub3D Mod - Timeline part icons ***/
 bool lcMainWindow::IsLPub3DSubModel(QString &Piece){
-	return LPub->ldrawFile.isSubmodel(Piece);
+	return lpub->ldrawFile.isSubmodel(Piece);
 }
 const QString lcMainWindow::GetPliIconsPath(QString &key)
 {

@@ -320,7 +320,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
           continue;
-        if (LPub->ldrawFile.isSubmodel(argv[14])) {
+        if (lpub->ldrawFile.isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
               firstLine = line;
@@ -403,7 +403,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         ignorePartLine = buildModLevel;
       } // build modification
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (LPub->ldrawFile.isSubmodel(argv[14])) {
+      if (lpub->ldrawFile.isSubmodel(argv[14])) {
         if (ignorePartLine)
           continue;
         if (argv[14] == modelName) {
@@ -512,7 +512,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
           ignorePartLine = buildModLevel;
       } // build modification end
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (LPub->ldrawFile.isSubmodel(argv[14])) {
+      if (lpub->ldrawFile.isSubmodel(argv[14])) {
         if (ignorePartLine)
           continue;
         if (argv[14] == modelName) {
@@ -2840,7 +2840,7 @@ void MetaItem::insertPicture()
         else
             insertPosition = gui->getCurrentStep()->topOfStep();
     } else {
-        insertPosition = LPub->page.topOfSteps();
+        insertPosition = lpub->page.topOfSteps();
     }
     if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
         scanPastGlobal(insertPosition);
@@ -2879,10 +2879,10 @@ void MetaItem::updateText(
     QString offset        = hasOffset ? QString(" OFFSET %1 %2")
                                                 .arg(qreal(_offsetX))
                                                 .arg(qreal(_offsetY)) : QString();
-    bool textPlacement    = LPub->page.meta.LPub.page.textPlacement.value();
+    bool textPlacement    = lpub->page.meta.LPub.page.textPlacement.value();
     QString placementStr;
     if (textPlacement && initialAdd) {
-      PlacementMeta placementMeta = LPub->page.meta.LPub.page.textPlacementMeta;
+      PlacementMeta placementMeta = lpub->page.meta.LPub.page.textPlacementMeta;
       placementMeta.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
                                        .arg(isRichText ? "RICH_TEXT" : "TEXT");
       PlacementData placementData = placementMeta.value();
@@ -2902,7 +2902,7 @@ void MetaItem::updateText(
         if (getStep) {
             // set step to insert
             thisStep = QInputDialog::getInt(gui,"Steps","Which Step",1,1,100,1,&ok);
-            Steps *steps = dynamic_cast<Steps *>(&LPub->page);
+            Steps *steps = dynamic_cast<Steps *>(&lpub->page);
             if (ok && steps){
                 /* foreach range */
                 stepFound = false;
@@ -3007,7 +3007,7 @@ void MetaItem::insertText()
     bool append        = true;
     bool isRichText    = false;
     bool multiStep     = false;
-    bool textPlacement = LPub->page.meta.LPub.page.textPlacement.value();
+    bool textPlacement = lpub->page.meta.LPub.page.textPlacement.value();
     PlacementType parentRelativeType = PageType;
 
     if (gui->getCurrentStep()){
@@ -3016,7 +3016,7 @@ void MetaItem::insertText()
         else
             insertPosition = gui->getCurrentStep()->topOfStep();
     } else {
-        insertPosition = LPub->page.topOfSteps();
+        insertPosition = lpub->page.topOfSteps();
     }
 
     if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
@@ -3082,7 +3082,7 @@ void MetaItem::insertBOM()
       meta.append(" FOR_SUBMODEL");
 
   if (option == AppendAtPage) {
-    if (LPub->page.coverPage) {
+    if (lpub->page.coverPage) {
         emit gui->messageSig(LOG_ERROR, QString("Adding a bill of materials to a cover page is not allowed."));
         return;
     }
@@ -3834,7 +3834,7 @@ int MetaItem::nestCallouts(
         // We've got a part added
 
         if (argv.size() == 15 && argv[0] == "1") {
-          if (LPub->ldrawFile.isSubmodel(argv[14])) {
+          if (lpub->ldrawFile.isSubmodel(argv[14])) {
             meta->submodelStack << SubmodelStack(walk.modelName,walk.lineNumber,0);
             addCalloutMetas(meta,argv[14],isMirrored,pointerless);
             nestCallouts(meta,argv[14],isMirrored,pointerless);
@@ -3959,7 +3959,7 @@ void MetaItem::addCalloutMetas(
           break;
         }
       } else if (argv.size() == 15 && argv[0] == "1") {
-        if (LPub->ldrawFile.isSubmodel(argv[14])) {
+        if (lpub->ldrawFile.isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
               firstLine = line;
@@ -3994,7 +3994,7 @@ void MetaItem::addCalloutMetas(
         break;
       }
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (LPub->ldrawFile.isSubmodel(argv[14])) {
+      if (lpub->ldrawFile.isSubmodel(argv[14])) {
         if (argv[14] == modelName) {
           if (firstLine == "") {
             firstLine = line;
@@ -4053,7 +4053,7 @@ void MetaItem::addCalloutMetas(
                                            firstInstance.lineNumber,
                                            modelName,
                                            i,
-                                           LPub->ldrawFile.mirrored(argv));
+                                           lpub->ldrawFile.mirrored(argv));
         emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
                              .arg(QString::number(offset.y(),'f',6)));
 
@@ -4558,7 +4558,7 @@ void MetaItem::unnestCallouts(
       }
     } else if ( ! callout && ! partIgnore) {
       if (argv.size() == 15 && argv[0] == "1") {
-        if (LPub->ldrawFile.isSubmodel(argv[14]) && callout) {
+        if (lpub->ldrawFile.isSubmodel(argv[14]) && callout) {
           unnestCallouts(argv[14]);
         }
       }
@@ -4718,7 +4718,7 @@ int MetaItem::monoColorSubmodel(
         submodel = submodel.left(submodel.length() - color.size());
       }
       submodel += suffix;
-      if (LPub->ldrawFile.isSubmodel(submodel)) {
+      if (lpub->ldrawFile.isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
         model = makeMonoName(model,color);
         monoColorSubmodel(submodel,model,color);
@@ -4788,7 +4788,7 @@ QPointF MetaItem::defaultPointerTip(
     split(line,argv);
     if (i >= adjustedLineNumber) {
       if (argv.size() == 15) {
-        bool mirrored = LPub->ldrawFile.mirrored(argv);
+        bool mirrored = lpub->ldrawFile.mirrored(argv);
         if (argv[0] == "1" &&
             argv[14] == monoSubModel &&
             mirrored == isMirrored) {

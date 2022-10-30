@@ -99,7 +99,7 @@ GlobalPageDialog::GlobalPageDialog(
 //  child = new PageOrientationGui("",&pageMeta->orientation,box);
 //  data->children.append(child);
 
-  bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
+  bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
   QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimetres)" );
 
   box = new QGroupBox(tr("%1").arg(header));

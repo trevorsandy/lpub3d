@@ -858,7 +858,7 @@ void Gui::applyLightSettings()
     if (it != Options::CSI)
         return;
 
-    if (LPub->currentStep){
+    if (lpub->currentStep){
 
         Meta meta;
         LightData lightData = meta.LeoCad.light.value();
@@ -871,8 +871,8 @@ void Gui::applyLightSettings()
 
         QString metaString;
         bool newCommand = true;
-        Where top = LPub->currentStep->topOfStep();
-        Where bottom = LPub->currentStep->bottomOfStep();
+        Where top = lpub->currentStep->topOfStep();
+        Where bottom = lpub->currentStep->bottomOfStep();
 
         auto notEqual = [] (const float v1, const float v2)
         {
@@ -909,14 +909,14 @@ void Gui::applyLightSettings()
 
             // Populate existing settings
             QString lightKey = QString("%1 %2").arg(Type).arg(Light->mName);
-            if (LPub->currentStep->lightList.contains(lightKey))
-                lightMeta.setValue(LPub->currentStep->lightList[lightKey]);
+            if (lpub->currentStep->lightList.contains(lightKey))
+                lightMeta.setValue(lpub->currentStep->lightList[lightKey]);
 
             // Type and Name
             lightMeta.lightType.setValue(Type);
             metaString = lightMeta.lightType.format(false,false);
             metaString.append(QString(" NAME \"%1\"").arg(Light->mName));
-            LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
 
             // Position
             if (notEqual(Light->mPosition[0], lightData.position.x()) ||
@@ -926,7 +926,7 @@ void Gui::applyLightSettings()
                                              Light->mPosition[1],
                                              Light->mPosition[2]);
                 metaString = lightMeta.position.format(false/*local*/,false/*global*/);
-                LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             // Target Position
@@ -937,7 +937,7 @@ void Gui::applyLightSettings()
                                            Light->mTargetPosition[1],
                                            Light->mTargetPosition[2]);
                 metaString = lightMeta.target.format(false,false);
-                LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             // Colour
@@ -948,14 +948,14 @@ void Gui::applyLightSettings()
                                                 Light->mLightColor[1],
                                                 Light->mLightColor[2]);
                 metaString = lightMeta.lightColour.format(false,false);
-                LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             // Specular
             if (notEqual(Light->mLightSpecular, lightData.lightSpecular.value())) {
                 lightMeta.lightSpecular.setValue(Light->mLightSpecular);
                 metaString = lightMeta.lightSpecular.format(false,false);
-                LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
             }
 
             if (Light->mLightType == LC_SUNLIGHT) {
@@ -963,20 +963,20 @@ void Gui::applyLightSettings()
                 if (notEqual(Light->mSpotExponent, lightData.strength.value())) {
                     lightMeta.strength.setValue(Light->mSpotExponent);
                     metaString = lightMeta.strength.format(false,false);
-                    LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
                 // Angle
                 if (notEqual(Light->mLightFactor[0], lightData.angle.value())) {
                     lightMeta.angle.setValue(Light->mLightFactor[0]);
                     metaString = lightMeta.angle.format(false,false);
-                    LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
             } else {
                 // Power
                 if (notEqual(Light->mSpotExponent, lightData.power.value())) {
                     lightMeta.power.setValue(Light->mSpotExponent);
                     metaString = lightMeta.power.format(false,false);
-                    LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
 
                 // Cutoff Distance
@@ -984,7 +984,7 @@ void Gui::applyLightSettings()
                    (notEqual(Light->mSpotCutoff, lightData.spotCutoff.value()))) {
                     lightMeta.power.setValue(Light->mSpotCutoff);
                     metaString = lightMeta.spotCutoff.format(false,false);
-                    LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                 }
 
                 switch (Light->mLightType)
@@ -995,20 +995,20 @@ void Gui::applyLightSettings()
                     if (notEqual(Light->mLightFactor[0], lightData.radius.value())) {
                         lightMeta.radius.setValue(Light->mLightFactor[0]);
                         metaString = lightMeta.radius.format(false,false);
-                        LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     if (Light->mLightType == LC_SPOTLIGHT) {
                         // Spot Blend
                         if (notEqual(Light->mLightFactor[1], lightData.spotBlend.value())) {
                             lightMeta.spotBlend.setValue(Light->mLightFactor[1]);
                             metaString = lightMeta.spotBlend.format(false,false);
-                            LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                            lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
                         // Spot Size
                         if (notEqual(Light->mSpotSize, lightData.spotSize.value())) {
                             lightMeta.spotSize.setValue(Light->mSpotSize);
                             metaString = lightMeta.spotSize.format(false,false);
-                            LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                            lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
                     }
                     break;
@@ -1020,14 +1020,14 @@ void Gui::applyLightSettings()
                             lightMeta.width.setValue(Light->mLightFactor[0]);
                             metaString = lightMeta.width.format(false,false);
                             metaString.append(QString(" HEIGHT %1").arg(double(Light->mLightFactor[1])));
-                            LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                            lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
                     } else {
                         // Size
                         if (notEqual(Light->mLightFactor[0], lightData.size.value())) {
                             lightMeta.size.setValue(Light->mLightFactor[0]);
                             metaString = lightMeta.size.format(false,false);
-                            LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                            lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                         }
                     }
 
@@ -1050,7 +1050,7 @@ void Gui::applyLightSettings()
                     if (notEqual(Light->mLightShape, lightData.radius.value())) {
                         lightMeta.lightShape.setValue(Shape);
                         metaString = lightMeta.lightShape.format(false,false);
-                        LPub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        lpub->currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
                     }
                     break;
                 }
@@ -1063,7 +1063,7 @@ void Gui::applyLightSettings()
 
 void Gui::applyCameraSettings()
 {
-    if (LPub->currentStep){
+    if (lpub->currentStep){
 
         lcView* ActiveView = gMainWindow->GetActiveView();
 
@@ -1100,34 +1100,34 @@ void Gui::applyCameraSettings()
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
         case Options::PLI:
-            cameraMeta.cameraAngles   = LPub->currentStep->pli.pliMeta.cameraAngles;
-            cameraMeta.cameraDistance = LPub->currentStep->pli.pliMeta.cameraDistance;
-            cameraMeta.modelScale     = LPub->currentStep->pli.pliMeta.modelScale;
-            cameraMeta.cameraFoV      = LPub->currentStep->pli.pliMeta.cameraFoV;
-            cameraMeta.cameraZNear    = LPub->currentStep->pli.pliMeta.cameraZNear;
-            cameraMeta.cameraZFar     = LPub->currentStep->pli.pliMeta.cameraZFar;
-            cameraMeta.isOrtho        = LPub->currentStep->pli.pliMeta.isOrtho;
-            cameraMeta.imageSize      = LPub->currentStep->pli.pliMeta.imageSize;
-            cameraMeta.target         = LPub->currentStep->pli.pliMeta.target;
-            cameraMeta.position       = LPub->currentStep->pli.pliMeta.position;
-            cameraMeta.upvector       = LPub->currentStep->pli.pliMeta.upvector;
+            cameraMeta.cameraAngles   = lpub->currentStep->pli.pliMeta.cameraAngles;
+            cameraMeta.cameraDistance = lpub->currentStep->pli.pliMeta.cameraDistance;
+            cameraMeta.modelScale     = lpub->currentStep->pli.pliMeta.modelScale;
+            cameraMeta.cameraFoV      = lpub->currentStep->pli.pliMeta.cameraFoV;
+            cameraMeta.cameraZNear    = lpub->currentStep->pli.pliMeta.cameraZNear;
+            cameraMeta.cameraZFar     = lpub->currentStep->pli.pliMeta.cameraZFar;
+            cameraMeta.isOrtho        = lpub->currentStep->pli.pliMeta.isOrtho;
+            cameraMeta.imageSize      = lpub->currentStep->pli.pliMeta.imageSize;
+            cameraMeta.target         = lpub->currentStep->pli.pliMeta.target;
+            cameraMeta.position       = lpub->currentStep->pli.pliMeta.position;
+            cameraMeta.upvector       = lpub->currentStep->pli.pliMeta.upvector;
             break;
         case Options::SMP:
-            cameraMeta.cameraAngles   = LPub->currentStep->subModel.subModelMeta.cameraAngles;
-            cameraMeta.cameraDistance = LPub->currentStep->subModel.subModelMeta.cameraDistance;
-            cameraMeta.modelScale     = LPub->currentStep->subModel.subModelMeta.modelScale;
-            cameraMeta.cameraFoV      = LPub->currentStep->subModel.subModelMeta.cameraFoV;
-            cameraMeta.cameraZNear    = LPub->currentStep->subModel.subModelMeta.cameraZNear;
-            cameraMeta.cameraZFar     = LPub->currentStep->subModel.subModelMeta.cameraZFar;
-            cameraMeta.isOrtho        = LPub->currentStep->subModel.subModelMeta.isOrtho;
-            cameraMeta.imageSize      = LPub->currentStep->subModel.subModelMeta.imageSize;
-            cameraMeta.target         = LPub->currentStep->subModel.subModelMeta.target;
-            cameraMeta.position       = LPub->currentStep->subModel.subModelMeta.position;
-            cameraMeta.upvector       = LPub->currentStep->subModel.subModelMeta.upvector;
+            cameraMeta.cameraAngles   = lpub->currentStep->subModel.subModelMeta.cameraAngles;
+            cameraMeta.cameraDistance = lpub->currentStep->subModel.subModelMeta.cameraDistance;
+            cameraMeta.modelScale     = lpub->currentStep->subModel.subModelMeta.modelScale;
+            cameraMeta.cameraFoV      = lpub->currentStep->subModel.subModelMeta.cameraFoV;
+            cameraMeta.cameraZNear    = lpub->currentStep->subModel.subModelMeta.cameraZNear;
+            cameraMeta.cameraZFar     = lpub->currentStep->subModel.subModelMeta.cameraZFar;
+            cameraMeta.isOrtho        = lpub->currentStep->subModel.subModelMeta.isOrtho;
+            cameraMeta.imageSize      = lpub->currentStep->subModel.subModelMeta.imageSize;
+            cameraMeta.target         = lpub->currentStep->subModel.subModelMeta.target;
+            cameraMeta.position       = lpub->currentStep->subModel.subModelMeta.position;
+            cameraMeta.upvector       = lpub->currentStep->subModel.subModelMeta.upvector;
             break;
         default: /*Options::CSI:*/
-            cameraMeta                = LPub->currentStep->csiStepMeta;
-            imageFileName             = LPub->currentStep->pngName;
+            cameraMeta                = lpub->currentStep->csiStepMeta;
+            imageFileName             = lpub->currentStep->pngName;
             break;
         }
 
@@ -1136,8 +1136,8 @@ void Gui::applyCameraSettings()
         bool clearStepCache = false;
         lcVector3 ldrawVector;
         Where undefined = Where();
-        Where top = LPub->currentStep->topOfStep();
-        Where bottom = LPub->currentStep->bottomOfStep();
+        Where top = lpub->currentStep->topOfStep();
+        Where bottom = lpub->currentStep->bottomOfStep();
 
         float Latitude, Longitude, Distance;
         Camera->GetAngles(Latitude, Longitude, Distance);
@@ -1169,7 +1169,7 @@ void Gui::applyCameraSettings()
             cameraMeta.upvector.setValues(ldrawVector[0], ldrawVector[1], ldrawVector[2]);
             metaString = cameraMeta.upvector.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.upvector.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.upvector.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.upvector.here(), metaString, newCommand);
         }
 
         if (applyTarget) {
@@ -1183,7 +1183,7 @@ void Gui::applyCameraSettings()
             cameraMeta.target.setValues(ldrawTarget[0], ldrawTarget[1], ldrawTarget[2]);
             metaString = cameraMeta.target.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.target.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.target.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.target.here(), metaString, newCommand);
         }
 
         if (applyPosition) {
@@ -1197,7 +1197,7 @@ void Gui::applyCameraSettings()
             cameraMeta.position.setValues(ldrawVector[0], ldrawVector[1], ldrawVector[2]);
             metaString = cameraMeta.position.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.position.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.position.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.position.here(), metaString, newCommand);
         }
 
         if (useImageSizeAct->isChecked()) {
@@ -1206,7 +1206,7 @@ void Gui::applyCameraSettings()
                                            lcGetActiveProject()->GetImageHeight());
             metaString = cameraMeta.imageSize.format(true,false);
             newCommand = cameraMeta.imageSize.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.imageSize.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.imageSize.here(), metaString, newCommand);
         }
 
         if (notEqual(Camera->GetScale(), cameraMeta.modelScale.value())) {
@@ -1214,7 +1214,7 @@ void Gui::applyCameraSettings()
             cameraMeta.modelScale.setValue(Camera->GetScale());
             metaString = cameraMeta.modelScale.format(true,false);
             newCommand = cameraMeta.modelScale.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.modelScale.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.modelScale.here(), metaString, newCommand);
         }
 
         if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
@@ -1223,7 +1223,7 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraDistance.setValue(qRound(Distance));
             metaString = cameraMeta.cameraDistance.format(true,false);
             newCommand = cameraMeta.cameraDistance.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraDistance.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraDistance.here(), metaString, newCommand);
         }
 
         if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
@@ -1233,7 +1233,7 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
             metaString = cameraMeta.cameraAngles.format(true,false);
             newCommand = cameraMeta.cameraAngles.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraAngles.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraAngles.here(), metaString, newCommand);
         }
 
         if (applyZPlanes && notEqual(cameraMeta.cameraZNear.value(), Camera->m_zNear)) {
@@ -1241,7 +1241,7 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraZNear.setValue(Camera->m_zNear);
             metaString = cameraMeta.cameraZNear.format(true,false);
             newCommand = cameraMeta.cameraZNear.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZNear.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZNear.here(), metaString, newCommand);
         }
 
         if (applyZPlanes && notEqual(cameraMeta.cameraZFar.value(), Camera->m_zFar)) {
@@ -1249,7 +1249,7 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraZFar.setValue(Camera->m_zFar);
             metaString = cameraMeta.cameraZFar.format(true,false);
             newCommand = cameraMeta.cameraZFar.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZFar.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraZFar.here(), metaString, newCommand);
         }
 
         float fovy = validCameraFoV();
@@ -1258,21 +1258,21 @@ void Gui::applyCameraSettings()
             cameraMeta.cameraFoV.setValue(fovy);
             metaString = cameraMeta.cameraFoV.format(true,false);
             newCommand = cameraMeta.cameraFoV.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraFoV.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraFoV.here(), metaString, newCommand);
         }
 
         if (Camera->IsOrtho() != cameraMeta.isOrtho.value()) {
             cameraMeta.isOrtho.setValue(Camera->IsOrtho());
             metaString = cameraMeta.isOrtho.format(true,false);
             newCommand = cameraMeta.isOrtho.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.isOrtho.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.isOrtho.here(), metaString, newCommand);
         }
 
         if (!Camera->GetName().isEmpty()) {
             cameraMeta.cameraName.setValue(Camera->GetName());
             metaString = cameraMeta.cameraName.format(true,false);
             newCommand = cameraMeta.cameraName.here() == undefined;
-            LPub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraName.here(), metaString, newCommand);
+            lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraName.here(), metaString, newCommand);
         }
 
         if (clearStepCache && QFileInfo(imageFileName).exists())
@@ -1487,8 +1487,8 @@ void Gui::enableBuildModActions()
 
     int hasMod = buildModsCount();
 
-    if (LPub->currentStep)
-        buildModStep = Rc(getBuildModStep(LPub->currentStep->topOfStep()));
+    if (lpub->currentStep)
+        buildModStep = Rc(getBuildModStep(lpub->currentStep->topOfStep()));
 
     bool oneMod = hasMod == 1;
 
@@ -1612,7 +1612,7 @@ void Gui::SetActiveModel(const QString &modelName, bool setActive)
             emit messageSig(LOG_ERROR, QString("Active model '%1' not found").arg(modelName));
         }
         if (displayModelFile)
-            displayFile(&LPub->ldrawFile, getCurrentStep()->topOfStep());
+            displayFile(&lpub->ldrawFile, getCurrentStep()->topOfStep());
     }
 }
 
@@ -1733,25 +1733,25 @@ void Gui::SetRotStepMeta()
         ShowStepRotationStatus();
         Step *currentStep = gui->getCurrentStep();
 
-        if (LPub->currentStep){
+        if (lpub->currentStep){
             bool newCommand = currentStep->rotStepMeta.here() == Where();
             int it = lcGetActiveProject()->GetImageType();
             Where top = currentStep->topOfStep();
 
-            RotStepData rotStepData = LPub->currentStep->rotStepMeta.value();
+            RotStepData rotStepData = lpub->currentStep->rotStepMeta.value();
             rotStepData.type    = mRotStepTransform;
             rotStepData.rots[0] = double(mStepRotation[0]);
             rotStepData.rots[1] = double(mStepRotation[1]);
             rotStepData.rots[2] = double(mStepRotation[2]);
             currentStep->rotStepMeta.setValue(rotStepData);
-            QString metaString = LPub->currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+            QString metaString = lpub->currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
 
             if (newCommand){
                 if (top.modelName == gui->topLevelFile())
                     currentStep->mi(it)->scanPastLPubMeta(top);
 
                 QString line = gui->readLine(top);
-                Rc rc = LPub->page.meta.parse(line,top);
+                Rc rc = lpub->page.meta.parse(line,top);
                 if (rc == RotStepRc || rc == StepRc){
                    currentStep->mi(it)->replaceMeta(top, metaString);
                 } else {
@@ -1967,7 +1967,7 @@ void Gui::reloadViewer(){
 
 void Gui::createBuildModification()
 {
-    if (!LPub->currentStep || !Preferences::buildModEnabled)
+    if (!lpub->currentStep || !Preferences::buildModEnabled)
         return;
 
     if (lcGetActiveProject()->GetImageType() != Options::CSI)
@@ -1989,7 +1989,7 @@ void Gui::createBuildModification()
 
             emit messageSig(LOG_INFO, QString("%1 BuildMod for Step %2...")
                             .arg(statusLabel)
-                            .arg(LPub->currentStep->stepNumber.number));
+                            .arg(lpub->currentStep->stepNumber.number));
 
             // 'load...' default lines from modelFile and 'save...' buildMod lines from Visual Editor
             lcArray<lcGroup*>  mGroups;
@@ -2018,7 +2018,7 @@ void Gui::createBuildModification()
             mViewerPieces         = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
-            QString ModStepKey    = LPub->viewerStepKey;
+            QString ModStepKey    = lpub->viewerStepKey;
             ModStepKeys           = ModStepKey.split(";");
 
             // When edit, initialize BuildMod StepPieces, and Begin and End range with the existing values
@@ -2031,7 +2031,7 @@ void Gui::createBuildModification()
             int ModEndLineNum     = edit ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
             int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
             int ModelIndex        = edit ? getSubmodelIndex(getBuildModStepKeyModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
-            int ModStepIndex      = getBuildModStepIndex(LPub->currentStep->topOfStep());
+            int ModStepIndex      = getBuildModStepIndex(lpub->currentStep->topOfStep());
             int ModStepLineNum    = ModStepKeys[BM_STEP_LINE_KEY].toInt();
             int ModStepNum        = ModStepKeys[BM_STEP_NUM_KEY].toInt();
             int ModDisplayPageNum = displayPageNum;
@@ -2044,7 +2044,7 @@ void Gui::createBuildModification()
 
             // Check if there is an existing build mod in this Step
             QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
-            if (stepContains(LPub->currentStep->top, lineRx) && !edit) {
+            if (stepContains(lpub->currentStep->top, lineRx) && !edit) {
 
                 // Get the application icon as a pixmap
                 QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -2191,10 +2191,10 @@ void Gui::createBuildModification()
 
             // load LPub content
             QByteArray ByteArray;
-            for (int i = 0; i < LPub->ldrawFile.contents(ModelName).size(); i++){
+            for (int i = 0; i < lpub->ldrawFile.contents(ModelName).size(); i++){
                 if (i > ModActionLineNum)
                     break;
-                QString ModLine = LPub->ldrawFile.contents(ModelName).at(i);
+                QString ModLine = lpub->ldrawFile.contents(ModelName).at(i);
                 if (i >= ModBeginLineNum)
                     LPubModContents.append(ModLine);
                 ByteArray.append(ModLine.toUtf8());
@@ -2659,24 +2659,24 @@ void Gui::createBuildModification()
 
             if (BuildModPieces) {
 
-                buildModData = LPub->currentStep->buildMod.value();
+                buildModData = lpub->currentStep->buildMod.value();
 
                 QString metaString;
                 buildModData.buildModKey = QString();
 
-                beginMacro("BuildModCreate|" + LPub->viewerStepKey);
+                beginMacro("BuildModCreate|" + lpub->viewerStepKey);
 
                 // Delete old BUILD_MOD END meta command
                 Where endMod = Where(ModelName, SaveModEndLineNum);
                 QString modLine = readLine(endMod);
-                Rc rc = LPub->page.meta.parse(modLine, endMod);
+                Rc rc = lpub->page.meta.parse(modLine, endMod);
                 if (rc == BuildModEndRc)
                     deleteLine(endMod);
 
                 // Delete old BUILD_MOD content from bottom up including END_MOD meta command
                 endMod = Where(ModelName, SaveModActionLineNum);
                 modLine = readLine(endMod);
-                rc = LPub->page.meta.parse(modLine, endMod);
+                rc = lpub->page.meta.parse(modLine, endMod);
                 if (rc == BuildModEndModRc)
                     for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
                         deleteLine(modHere);
@@ -2684,15 +2684,15 @@ void Gui::createBuildModification()
                 // Write BUILD_MOD END meta command at the BuildMod insert position
                 modHere = Where(ModelName, ModBeginLineNum);
                 buildModData.action      = QString("END");
-                LPub->currentStep->buildMod.setValue(buildModData);
-                metaString = LPub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+                lpub->currentStep->buildMod.setValue(buildModData);
+                metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
                 insertLine(modHere, metaString, nullptr);
 
                 // Write BUILD_MOD END_MOD meta command above LPub content first line - last to first
                 modHere = Where(ModelName, ModActionLineNum);
                 buildModData.action      = QString("END_MOD");
-                LPub->currentStep->buildMod.setValue(buildModData);
-                metaString = LPub->currentStep->buildMod.format(false,false);
+                lpub->currentStep->buildMod.setValue(buildModData);
+                metaString = lpub->currentStep->buildMod.format(false,false);
                 insertLine(modHere, metaString, nullptr);
 
                 // Write buildMod content last to first
@@ -2704,11 +2704,11 @@ void Gui::createBuildModification()
                 // Write BUILD_MOD BEGIN meta command above buildMod content first line
                 buildModData.action      = QString("BEGIN");
                 buildModData.buildModKey = BuildModKey;
-                LPub->currentStep->buildMod.setValue(buildModData);
-                metaString = LPub->currentStep->buildMod.format(false,false);
+                lpub->currentStep->buildMod.setValue(buildModData);
+                metaString = lpub->currentStep->buildMod.format(false,false);
                 insertLine(modHere, metaString, nullptr);
 
-                clearWorkingFiles(getPathsFromViewerStepKey(LPub->viewerStepKey));
+                clearWorkingFiles(getPathsFromViewerStepKey(lpub->viewerStepKey));
 
                 endMacro();
             }
@@ -2774,7 +2774,7 @@ void Gui::createBuildModification()
 
 void Gui::applyBuildModification()
 {
-    if (!LPub->currentStep || exporting())
+    if (!lpub->currentStep || exporting())
         return;
 
     QStringList buildModKeys;
@@ -2790,7 +2790,7 @@ void Gui::applyBuildModification()
 
     emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'apply' action..."));
 
-    Where topOfStep = LPub->currentStep->topOfStep();
+    Where topOfStep = lpub->currentStep->topOfStep();
 
     // get the last action for this build mod
     Rc buildModAction = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
@@ -2801,7 +2801,7 @@ void Gui::applyBuildModification()
 
     QString model = topOfStep.modelName;
     QString line = QString::number(topOfStep.lineNumber);
-    QString step = QString::number(LPub->currentStep->stepNumber.number);
+    QString step = QString::number(lpub->currentStep->stepNumber.number);
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
             text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
@@ -2815,7 +2815,7 @@ void Gui::applyBuildModification()
 
             return;
 
-    } else if (getBuildModStepKey(buildModKey) == LPub->currentStep->viewerStepKey) {
+    } else if (getBuildModStepKey(buildModKey) == lpub->currentStep->viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "model '" + model + "', at line " + line + ".<br>"
                 "It was automatically applied to the step it was created in.<br><br>No action taken.<br>";
@@ -2861,21 +2861,21 @@ void Gui::applyBuildModification()
     if (it == Options::CSI) {
         QString metaString;
         bool newCommand = false;
-        BuildModData buildModData = LPub->currentStep->buildMod.value();
+        BuildModData buildModData = lpub->currentStep->buildMod.value();
 
-        beginMacro("BuildModApply|" + LPub->currentStep->viewerStepKey);
+        beginMacro("BuildModApply|" + lpub->currentStep->viewerStepKey);
 
         buildModData.action      = QString("APPLY");
         buildModData.buildModKey = buildModKey;
-        LPub->currentStep->buildMod.setValue(buildModData);
-        metaString = LPub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-        newCommand = LPub->currentStep->buildMod.here() ==  Where();
-        LPub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : LPub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
+        lpub->currentStep->buildMod.setValue(buildModData);
+        metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+        newCommand = lpub->currentStep->buildMod.here() ==  Where();
+        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
-        clearWorkingFiles(getPathsFromViewerStepKey(LPub->currentStep->viewerStepKey));
+        clearWorkingFiles(getPathsFromViewerStepKey(lpub->currentStep->viewerStepKey));
 
         endMacro();
     }
@@ -2883,7 +2883,7 @@ void Gui::applyBuildModification()
 
 void Gui::removeBuildModification()
 {
-    if (!LPub->currentStep || exporting())
+    if (!lpub->currentStep || exporting())
         return;
 
     QStringList buildModKeys;
@@ -2900,7 +2900,7 @@ void Gui::removeBuildModification()
 
     emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'remove' action..."));
 
-    Where topOfStep = LPub->currentStep->topOfStep();
+    Where topOfStep = lpub->currentStep->topOfStep();
 
     // get the last action for this build mod
     Rc buildModAction = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
@@ -2911,7 +2911,7 @@ void Gui::removeBuildModification()
 
     QString model = topOfStep.modelName;
     QString line = QString::number(topOfStep.lineNumber);
-    QString step = QString::number(LPub->currentStep->stepNumber.number);
+    QString step = QString::number(lpub->currentStep->stepNumber.number);
     QString text, type, title;
     if (getBuildModStepKeyModelIndex(buildModKey) == getSubmodelIndex(model) && getBuildModStepKeyStepNum(buildModKey) > step.toInt()) {
             text  = "Build modification '" + buildModKey + "' was created after this step (" + step + "), "
@@ -2924,7 +2924,7 @@ void Gui::removeBuildModification()
 
             Preferences::MsgID msgID(Preferences::BuildModErrors, Where("Remove_Before_" + model,line).nameToString());
             Preferences::showMessage(msgID, text, title, type);
-    } else if (getBuildModStepKey(buildModKey) == LPub->viewerStepKey) {
+    } else if (getBuildModStepKey(buildModKey) == lpub->viewerStepKey) {
         text  = "Build modification '" + buildModKey + "' was created in this step (" + step + "), "
                 "in model '" + model + "' at line " + line + ".<br><br>"
                 "It cannot be removed from the step it was created in.<br><br>"
@@ -2970,21 +2970,21 @@ void Gui::removeBuildModification()
     if (it == Options::CSI) {
         QString metaString;
         bool newCommand = false;
-        BuildModData buildModData = LPub->currentStep->buildMod.value();
+        BuildModData buildModData = lpub->currentStep->buildMod.value();
 
-        beginMacro("BuildModRemove|" + LPub->currentStep->viewerStepKey);
+        beginMacro("BuildModRemove|" + lpub->currentStep->viewerStepKey);
 
         buildModData.action      = QString("REMOVE");
         buildModData.buildModKey = buildModKey;
-        LPub->currentStep->buildMod.setValue(buildModData);
-        metaString = LPub->currentStep->buildMod.format(false/*local*/,false/*global*/);
-        newCommand = LPub->currentStep->buildMod.here() == Where();
-        LPub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : LPub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
+        lpub->currentStep->buildMod.setValue(buildModData);
+        metaString = lpub->currentStep->buildMod.format(false/*local*/,false/*global*/);
+        newCommand = lpub->currentStep->buildMod.here() == Where();
+        lpub->currentStep->mi(it)->setMetaAlt(newCommand ? topOfStep : lpub->currentStep->buildMod.here(), metaString, newCommand, removeActionCommand);
 
         if (removeActionCommand)
             clearBuildModAction(buildModKey, getBuildModStepIndex(topOfStep));
 
-        clearWorkingFiles(getPathsFromViewerStepKey(LPub->currentStep->viewerStepKey));
+        clearWorkingFiles(getPathsFromViewerStepKey(lpub->currentStep->viewerStepKey));
 
         endMacro();
     }
@@ -3047,12 +3047,12 @@ void Gui::loadBuildModification()
                 displayPage();
             }
 
-            bool setBuildModStep = LPub->currentStep && LPub->currentStep->viewerStepKey != buildModStepKey;
+            bool setBuildModStep = lpub->currentStep && lpub->currentStep->viewerStepKey != buildModStepKey;
 
             if (isViewerStepMultiStep(buildModStepKey) && setBuildModStep) {
                 if (setCurrentStep(buildModStepKey)) {
-                    showLine(LPub->currentStep->topOfStep());
-                    LPub->currentStep->loadTheViewer();
+                    showLine(lpub->currentStep->topOfStep());
+                    lpub->currentStep->loadTheViewer();
                 }
             }
 
@@ -3063,16 +3063,16 @@ void Gui::loadBuildModification()
 
 bool Gui::setBuildModChangeKey()
 {
-    if (!LPub->currentStep)
+    if (!lpub->currentStep)
         return false;
 
     int it = lcGetActiveProject()->GetImageType();
     if (it == Options::CSI) {
         Rc rc;
-        Where walk = LPub->currentStep->top;
+        Where walk = lpub->currentStep->top;
 
         QString line = readLine(walk);
-        rc =  LPub->page.meta.parse(line,walk,false);
+        rc =  lpub->page.meta.parse(line,walk,false);
         if (rc == StepRc || rc == RotStepRc)
             walk++;   // Advance past STEP meta
 
@@ -3082,11 +3082,11 @@ bool Gui::setBuildModChangeKey()
               walk.lineNumber++) {
             line = readLine(walk);
             Where here(walk.modelName,walk.lineNumber);
-            rc =  LPub->page.meta.parse(line,here,false);
+            rc =  lpub->page.meta.parse(line,here,false);
 
             switch (rc) {
             case BuildModBeginRc:
-                buildModChangeKey = LPub->page.meta.LPub.buildMod.key();
+                buildModChangeKey = lpub->page.meta.LPub.buildMod.key();
                 return true;
 
             // Search until next step/rotstep meta
@@ -3130,7 +3130,7 @@ void Gui::deleteBuildModification()
     emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'delete' action..."));
 
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys = LPub->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
+    QStringList keys = lpub->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     /*
     QString text  = "This action will permanently delete build modification '" + buildModKey + "' "
@@ -3228,11 +3228,11 @@ void Gui::deleteBuildModification()
                     for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
                         here = walk;
                         modLine = readLine(here);
-                        rc = LPub->page.meta.parse(modLine, here);
+                        rc = lpub->page.meta.parse(modLine, here);
                         switch (rc) {
                         case BuildModApplyRc:
                         case BuildModRemoveRc:
-                            modKey = LPub->page.meta.LPub.buildMod.key();
+                            modKey = lpub->page.meta.LPub.buildMod.key();
                             if (modKey == buildModKey)
                                 deleteLine(here);
                             break;
@@ -3247,14 +3247,14 @@ void Gui::deleteBuildModification()
         // delete existing BUILD_MOD commands from bottom up, starting at END
         here = Where(modelName, modEndLineNum);
         modLine = readLine(here);
-        rc = LPub->page.meta.parse(modLine, here);
+        rc = lpub->page.meta.parse(modLine, here);
         if (rc == BuildModEndRc)
             deleteLine(here);
 
         // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
         here = Where(modelName, modActionLineNum);
         modLine = readLine(here);
-        rc = LPub->page.meta.parse(modLine, here);
+        rc = lpub->page.meta.parse(modLine, here);
         if (rc == BuildModEndModRc)
             for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);
@@ -3264,7 +3264,7 @@ void Gui::deleteBuildModification()
             clearWorkingFiles(getPathsFromViewerStepKey(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-            clearPageCache(relativeType, &LPub->page, Options::CSI);
+            clearPageCache(relativeType, &lpub->page, Options::CSI);
         } else if (clearStep) {
             QString csiPngName = getViewerStepImagePath(buildModStepKey);
             clearStepCSICache(csiPngName);
@@ -3345,7 +3345,7 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
 {
     Q_UNUSED(imageType)
 
-    LPub->viewerStepKey = stepKey;
+    lpub->viewerStepKey = stepKey;
 
     mBuildModRange = { 0, 0, -1 };
 }
@@ -3359,7 +3359,7 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
   bool Gui::extractStepKey(Where &here, int &stepNumber, const QString &key)
   {
       // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_dm (displayModel)]
-      QStringList keyArgs = LPub->getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
+      QStringList keyArgs = lpub->getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
 
       if (!keyArgs.size())
           return false;
@@ -3379,7 +3379,7 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
       }
 
       stepNumber = 0;
-      if (LPub->page.modelDisplayOnlyStep) {
+      if (lpub->page.modelDisplayOnlyStep) {
           stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
       } else {
           stepNumber = keyArgs[2].toInt(&ok[1]);
@@ -3435,8 +3435,8 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
     if (stepType == BM_CALLOUT_STEP && step){
         calledOutStep(step, stepMatch);
     } else if (stepType == BM_MULTI_STEP) {
-        for (int i = 0; i < LPub->page.list.size() && !stepMatch; i++){
-            Range *range = dynamic_cast<Range *>(LPub->page.list[i]);
+        for (int i = 0; i < lpub->page.list.size() && !stepMatch; i++){
+            Range *range = dynamic_cast<Range *>(lpub->page.list[i]);
             for (int j = 0; j < range->list.size(); j++){
                 if (range->relativeType == RangeType) {
                     step = dynamic_cast<Step *>(range->list[j]);
@@ -3450,7 +3450,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
             }
         }
     } else if (stepType == BM_SINGLE_STEP) {
-        Range *range = dynamic_cast<Range *>(LPub->page.list[0]);
+        Range *range = dynamic_cast<Range *>(lpub->page.list[0]);
         if (range->relativeType == RangeType) {
             step = dynamic_cast<Step *>(range->list[0]);
             if (stepType == BM_CALLOUT_STEP)
@@ -3465,7 +3465,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
             step = nullptr;
     }
 
-    LPub->currentStep = step;
+    lpub->currentStep = step;
 
     if (Preferences::debugLogging && !stepMatch)
         emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
@@ -3480,7 +3480,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
 bool Gui::setCurrentStep(const QString &key)
 {
     Step *step     = nullptr;
-    LPub->currentStep    = step;
+    lpub->currentStep    = step;
     Where here     = Where();
     int stepNumber = 0;
     int stepType   = 0; /*None*/
@@ -3493,13 +3493,13 @@ bool Gui::setCurrentStep(const QString &key)
     else
         stepNumberSpecified = QString::number(stepNumber);
 
-    QString stepKey = key.isEmpty() ? LPub->viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
+    QString stepKey = key.isEmpty() ? lpub->viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
 
     if (isViewerStepCalledOut(stepKey))
         stepType = BM_CALLOUT_STEP;
     else if (isViewerStepMultiStep(stepKey))
         stepType = BM_MULTI_STEP;
-    else if (LPub->page.relativeType == SingleStepType && LPub->page.list.size())
+    else if (lpub->page.relativeType == SingleStepType && lpub->page.list.size())
         stepType = BM_SINGLE_STEP;
 
     if (stepType || gStep)
@@ -3510,12 +3510,12 @@ bool Gui::setCurrentStep(const QString &key)
     }
 
 #ifdef QT_DEBUG_MODE
-    if (LPub->currentStep)
+    if (lpub->currentStep)
         emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
-                        .arg(LPub->currentStep->stepNumber.number).arg(key));
+                        .arg(lpub->currentStep->stepNumber.number).arg(key));
 #endif
 
-    return LPub->currentStep;
+    return lpub->currentStep;
 }
 
 void Gui::setCurrentStep(Step *step)
@@ -3525,11 +3525,11 @@ void Gui::setCurrentStep(Step *step)
                                   .arg(step->top.lineNumber)
                                   .arg(step->stepNumber.number)
                                   .arg(step->modelDisplayOnlyStep ? "_dm" : "");
-    LPub->currentStep = step;
-    LPub->viewerStepKey = LPub->currentStep->viewerStepKey;
+    lpub->currentStep = step;
+    lpub->viewerStepKey = lpub->currentStep->viewerStepKey;
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
-                                      .arg(LPub->currentStep->stepNumber.number).arg(LPub->currentStep->viewerStepKey));
+                                      .arg(lpub->currentStep->stepNumber.number).arg(lpub->currentStep->viewerStepKey));
 #endif
 }
 
@@ -3541,21 +3541,21 @@ void Gui::setCurrentStep(Step *step)
 
 void Gui::setStepForLine(const TypeLine &here)
 {
-    if (!LPub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
+    if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
         return;
 
     // limit the scope to the current page
     const QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), topOfPage(), bottomOfPage());
 
     if (!stepKey.isEmpty()) {
-        if (!LPub->currentStep->viewerStepKey.startsWith(&stepKey)) {
+        if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {
             if (!setCurrentStep(stepKey))
                 return;
 
             setLineScopeSig(StepLines(getCurrentStep()->topOfStep().lineNumber, getCurrentStep()->bottomOfStep().lineNumber));
 #ifdef QT_DEBUG_MODE
             emit messageSig(LOG_DEBUG,tr("Editor step %1 loaded line scope %2-%3")
-                            .arg(LPub->currentStep->stepNumber.number)
+                            .arg(lpub->currentStep->stepNumber.number)
                             .arg(getCurrentStep()->topOfStep().lineNumber + 1/*adjust for 0-start index*/)
                             .arg(getCurrentStep()->bottomOfStep().lineNumber /*actually top next step so no adjustment*/));
 #endif
@@ -3575,7 +3575,7 @@ void Gui::setStepForLine(const TypeLine &here)
 bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber) {
 
     lineNumber        = EDITOR_LINE   ;             // 0
-    bool currentModel = modelIndex == QString(LPub->viewerStepKey[0]).toInt();
+    bool currentModel = modelIndex == QString(lpub->viewerStepKey[0]).toInt();
     bool newLine      = lineIndex  == NEW_PART;     //-1
     bool fromViewer   = source      > EDITOR_LINE;  // 0
 
@@ -3583,7 +3583,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 //    emit messageSig(LOG_DEBUG, QString("currentModel: %1 [modelIndex: %2 == ViewerStepKey(index,line,step)[0]: %3]")
 //                    .arg(currentModel ? "True" : "False")
 //                    .arg(modelIndex)
-//                    .arg(LPub->viewerStepKey));
+//                    .arg(lpub->viewerStepKey));
 //    emit messageSig(LOG_DEBUG, QString("newLine: %1 [lineIndex: %2 == NEW_PART: -1]")
 //                    .arg(newLine ? "True" : "False")
 //                    .arg(lineIndex));
@@ -3599,21 +3599,21 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
     } else if (currentModel) {
 
-        if (!LPub->currentStep)
+        if (!lpub->currentStep)
             return false;
 
 #ifdef QT_DEBUG_MODE
         emit messageSig(LOG_TRACE, QString("LPub Step lineIndex count: %1 item(s)")
-                        .arg(LPub->currentStep->lineTypeIndexes.size()));
-//      for (int i = 0; i < LPub->currentStep->lineTypeIndexes.size(); ++i)
+                        .arg(lpub->currentStep->lineTypeIndexes.size()));
+//      for (int i = 0; i < lpub->currentStep->lineTypeIndexes.size(); ++i)
 //          emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
-//                                             .arg(LPub->currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+//                                             .arg(lpub->currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
 #endif
 
         if (fromViewer)      // input relativeIndes
-            lineNumber = LPub->currentStep->getLineTypeRelativeIndex(lineIndex);
+            lineNumber = lpub->currentStep->getLineTypeRelativeIndex(lineIndex);
         else                 // input lineTypeIndex
-            lineNumber = LPub->currentStep->getLineTypeIndex(lineIndex);
+            lineNumber = lpub->currentStep->getLineTypeIndex(lineIndex);
 
     } else if (modelIndex != NEW_MODEL) {
 
@@ -3640,7 +3640,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
 void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
     if (! exporting()) {
-        if (!LPub->currentStep || (source == EDITOR_LINE && !indexes.size()))
+        if (!lpub->currentStep || (source == EDITOR_LINE && !indexes.size()))
             return;
 
         QVector<int> lines;
@@ -3670,15 +3670,15 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         if (indexes.size()) {
             modelName  = getSubmodelName(indexes.at(0).modelIndex);
             modelIndex = indexes.at(0).modelIndex;
-        } else if (!LPub->viewerStepKey.isEmpty()) {
-            modelName  = LPub->currentStep->topOfStep().modelName;//getSubmodelName(QString(LPub->viewerStepKey[0]).toInt());
+        } else if (!lpub->viewerStepKey.isEmpty()) {
+            modelName  = lpub->currentStep->topOfStep().modelName;//getSubmodelName(QString(lpub->viewerStepKey[0]).toInt());
             modelIndex = getSubmodelIndex(modelName);
         }
 
 #ifdef QT_DEBUG_MODE
         if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
             emit messageSig(LOG_TRACE, QString("Submodel lineIndex count: %1 item(s)")
-                            .arg(LPub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
+                            .arg(lpub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
 #endif
 
         for (int i = 0; i < indexes.size() && source < VIEWER_CLR; ++i) {
@@ -3715,7 +3715,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             if (fromViewer) {
                 if (lineIndex == NEW_PART) {
                     Message = tr("New viewer part specified at step %1, modelName: [%2]")
-                            .arg(LPub->currentStep->stepNumber.number)
+                            .arg(lpub->currentStep->stepNumber.number)
                             .arg(modelName);
                 } else if (validLine) {
                     Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
@@ -3748,7 +3748,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                     enableBuildModification();
                 }
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
-                                              .arg(LPub->currentStep->stepNumber.number)
+                                              .arg(lpub->currentStep->stepNumber.number)
                                               .arg(modelName));
             }
         } else { // indexes from editor

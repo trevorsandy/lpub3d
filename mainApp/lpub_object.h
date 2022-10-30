@@ -123,6 +123,6 @@ extern class LPub *lpub;
 
 inline Meta& getMetaRef()
 {
-    return LPub->meta;
+    return lpub->meta;
 }
 #endif // LPUB_OBJECT_H

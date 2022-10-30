@@ -376,8 +376,8 @@ void Pli::setParts(
                   {
                       if (!Annotations::loadBLCodes()){
                           QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
-                          LPub->downloadFile(URL, "BrickLink Elements");
-                          QByteArray Buffer = LPub->getDownloadedFile();
+                          lpub->downloadFile(URL, "BrickLink Elements");
+                          QByteArray Buffer = lpub->getDownloadedFile();
                           Annotations::loadBLCodes(Buffer);
                       }
                       element = Annotations::getBLElement(_colorid,_typeid,which);
@@ -542,7 +542,7 @@ void Pli::setParts(
               .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer)) // 0
               .arg(color)                                              // 1
               .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
-                                  LPub->pageSize(meta.LPub.page, 0))    // 2
+                                  lpub->pageSize(meta.LPub.page, 0))    // 2
               .arg(double(resolution()))                               // 3
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")           // 4
               .arg(double(modelScale))                                 // 5
@@ -841,13 +841,13 @@ int Pli::createSubModelIcons()
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
-    int iconCount = LPub->ldrawFile.subFileOrder().size();
+    int iconCount = lpub->ldrawFile.subFileOrder().size();
 
     auto setSubmodel = [this,&type,&color] (const int i)
     {
         color = "0";
 
-        type = LPub->ldrawFile.subFileOrder()[i];
+        type = lpub->ldrawFile.subFileOrder()[i];
 
         QFileInfo info(type);
 
@@ -863,7 +863,7 @@ int Pli::createSubModelIcons()
         QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
                 .arg(baseName)
                 .arg(color)
-                .arg(LPub->pageSize(meta->LPub.page, 0))
+                .arg(lpub->pageSize(meta->LPub.page, 0))
                 .arg(double(resolution()))
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                 .arg(double(modelScale))
@@ -1096,7 +1096,7 @@ int Pli::createPartImage(
         }
 
         // Check if viewer PLI part does exist in repository
-        bool addViewerPliPartContent = !LPub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
+        bool addViewerPliPartContent = !lpub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
 
         // Generate and renderer  PLI Part file
         if ( ! part.exists() || addViewerPliPartContent) {
@@ -1141,7 +1141,7 @@ int Pli::createPartImage(
             if (rotStep.isEmpty())
                 keyPart2.append(QString("_0_0_0_REL"));
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-            LPub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+            lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
             if (! rc && ! part.exists()) {
 
@@ -2146,8 +2146,8 @@ int Pli::partSize()
           PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
           if (pieceInfo ||
-              LPub->ldrawFile.isUnofficialPart(part->type) ||
-              LPub->ldrawFile.isSubmodel(part->type)) {
+              lpub->ldrawFile.isUnofficialPart(part->type) ||
+              lpub->ldrawFile.isSubmodel(part->type)) {
 
               if (part->color == "16") {
                   part->color = "0";
@@ -2383,8 +2383,8 @@ int Pli::partSizeLDViewSCall() {
         PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
         if (pieceInfo ||
-            LPub->ldrawFile.isSubmodel(pliPart->type) ||
-            LPub->ldrawFile.isUnofficialPart(pliPart->type)) {
+            lpub->ldrawFile.isSubmodel(pliPart->type) ||
+            lpub->ldrawFile.isUnofficialPart(pliPart->type)) {
 
             if (pliPart->color == "16" || isSubModel) {
                 pliPart->color = "0";
@@ -2573,7 +2573,7 @@ int Pli::partSizeLDViewSCall() {
                 }
 
                 // Check if viewer PLI part does exist in repository
-                bool addViewerPliPartContent = !LPub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
+                bool addViewerPliPartContent = !lpub->ldrawFile.viewerStepContentExist(viewerPliPartKey);
 
                 if ( ! part.exists() || addViewerPliPartContent) {
 
@@ -2620,7 +2620,7 @@ int Pli::partSizeLDViewSCall() {
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    LPub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+                    lpub->ldrawFile.insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
 
                     if (! rc && ! part.exists()) {
 

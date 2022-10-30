@@ -76,9 +76,9 @@ void Gui::clearPage(
     LGraphicsScene *scene,
     bool clearViewPageBg)
 {
-  LPub->page.freePage();
-  LPub->page.pli.clear();
-  LPub->page.subModel.clear();
+  lpub->page.freePage();
+  lpub->page.pli.clear();
+  lpub->page.subModel.clear();
 
   if (clearViewPageBg) {
     //  Moved to end of GraphicsPageItems()
@@ -88,7 +88,7 @@ void Gui::clearPage(
     }
     scene->clear();
   }
-  LPub->currentStep = nullptr;
+  lpub->currentStep = nullptr;
 }
 
 /*********************************************
@@ -324,8 +324,8 @@ int Gui::addGraphicsPageItems(
       pH = view->maximumHeight();
   } else {
       // Flip page size per orientation and return size in pixels
-      pW = LPub->pageSize(page->meta.LPub.page, XX);
-      pH = LPub->pageSize(page->meta.LPub.page, YY);
+      pW = lpub->pageSize(page->meta.LPub.page, XX);
+      pH = lpub->pageSize(page->meta.LPub.page, YY);
   }
 
   // set page type (SingleStep, MultiStep)
@@ -603,7 +603,7 @@ int Gui::addGraphicsPageItems(
             case InsertData::InsertBom:
               {
                 Where where(insert.where.modelName, insert.where.lineNumber);
-                Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : LPub->ldrawFile.topLevelFile(),0);
+                Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : lpub->ldrawFile.topLevelFile(),0);
                 QFuture<void> future = QtConcurrent::run([this, current]() {
                     bomParts.clear();
                     bomPartGroups.clear();
@@ -1258,8 +1258,8 @@ bool Gui::getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber)
 
 bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber)
 {
-    itemTop    = LPub->page.top;
-    stepNumber = LPub->page.stepNumber;
+    itemTop    = lpub->page.top;
+    stepNumber = lpub->page.stepNumber;
     SceneObject itemObj = UndefinedObj;
 
     if (selectedItem)
@@ -1384,7 +1384,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         InsertPixmapItem *insertPixmapItem = dynamic_cast<InsertPixmapItem *>(selectedItem);
         if (insertPixmapItem){
             itemTop = insertPixmapItem->meta.here();
-            stepNumber = LPub->page.stepNumber;
+            stepNumber = lpub->page.stepNumber;
         }
     }
         break;
@@ -1393,7 +1393,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         TextItem *textItem = dynamic_cast<TextItem *>(selectedItem);
         if (textItem){
             itemTop = textItem->meta.here();
-            stepNumber = LPub->page.stepNumber;
+            stepNumber = lpub->page.stepNumber;
         }
     }
         break;
@@ -1555,14 +1555,14 @@ void Gui::setSceneItemZValue(SceneObjectDirection direction)
                         .arg(soMap[selectedItemObj]).arg(selectedItemObj));
 
     SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
-                              LPub->page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
+                              lpub->page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
 
     if (!soMeta)
         return;
 
     Where itemTop;
     QMap<Where, SceneObjectData>::iterator i;
-    for (i = LPub->page.selectedSceneItems.begin(); i != LPub->page.selectedSceneItems.end(); ++i) {
+    for (i = lpub->page.selectedSceneItems.begin(); i != lpub->page.selectedSceneItems.end(); ++i) {
         if (i.value().itemObj == selectedItemObj) {
             itemTop = i.key();
             soMeta->setValue(i.value());
@@ -1571,7 +1571,7 @@ void Gui::setSceneItemZValue(SceneObjectDirection direction)
     }
 
     bool newCommand = itemTop == Where();
-    int  stepNumber = LPub->page.stepNumber;
+    int  stepNumber = lpub->page.stepNumber;
     Where tempWhere;
 
     getSceneObject(selectedItem, tempWhere, stepNumber);

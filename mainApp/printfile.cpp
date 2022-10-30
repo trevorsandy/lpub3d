@@ -639,7 +639,7 @@ void Gui::exportAsHtml()
     float partListModelScale = meta.LPub.bom.modelScale.value();
     bool suffix = QFileInfo(getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
     QString partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
-                                  .arg(LPub->pageSize(meta.LPub.page, 0))
+                                  .arg(lpub->pageSize(meta.LPub.page, 0))
                                   .arg(double(resolution()))
                                   .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                                   .arg(double(partListModelScale))

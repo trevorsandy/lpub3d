@@ -770,7 +770,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
       const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
       QString csiFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-      QStringList Keys    = LPub->getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
+      QStringList Keys    = lpub->getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
       QString csiFile     = QString("%1/viewer_csi_%2.ldr")
                                     .arg(QFileInfo(csiFilePath).absolutePath())
                                     .arg(QString("%1_%2_%3")

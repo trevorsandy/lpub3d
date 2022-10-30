@@ -44,9 +44,9 @@ Reserve::Reserve(
   relativeType = ReserveType;
 
   if (alloc == Horizontal) {
-    setSize(int(LPub->pageSize(meta.page, 0) * space + 0.5),0);
+    setSize(int(lpub->pageSize(meta.page, 0) * space + 0.5),0);
   } else {
-    setSize(0,int(LPub->pageSize(meta.page, 1) * space + 0.5));
+    setSize(0,int(lpub->pageSize(meta.page, 1) * space + 0.5));
   }
 }
 
