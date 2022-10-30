@@ -324,8 +324,8 @@ int Gui::addGraphicsPageItems(
       pH = view->maximumHeight();
   } else {
       // Flip page size per orientation and return size in pixels
-      pW = pageSize(page->meta.LPub.page, XX);
-      pH = pageSize(page->meta.LPub.page, YY);
+      pW = LPub->pageSize(page->meta.LPub.page, XX);
+      pH = LPub->pageSize(page->meta.LPub.page, YY);
   }
 
   // set page type (SingleStep, MultiStep)

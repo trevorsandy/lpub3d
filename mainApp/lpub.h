@@ -528,8 +528,6 @@ public:
   Where &topOfPage();
   Where &bottomOfPage();
 
-  static int pageSize(PageMeta  &, int which);          // Flip page size per orientation and return size in pixels
-
   void    changePageNum(int offset)
   {
     displayPageNum += offset;

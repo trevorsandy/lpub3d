@@ -282,7 +282,7 @@ int Step::createCsi(
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber.number)
-                             .arg(useImageSize ? int(csiStepMeta.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0))
+                             .arg(useImageSize ? int(csiStepMeta.imageSize.value(0)) : LPub->pageSize(meta.LPub.page, 0))
                              .arg(double(resolution()))
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
@@ -476,8 +476,8 @@ int Step::createCsi(
       viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
-      viewerOptions->PageHeight     = Application::pageSize(meta.LPub.page, 1);
-      viewerOptions->PageWidth      = Application::pageSize(meta.LPub.page, 0);
+      viewerOptions->PageHeight     = LPub->pageSize(meta.LPub.page, 1);
+      viewerOptions->PageWidth      = LPub->pageSize(meta.LPub.page, 0);
       viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
@@ -1472,7 +1472,7 @@ int Step::sizeit(
         case Bottom:
           tsize = csiPlacement.size[XX];
           pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
-          if (pli.size[YY] > gui->pageSize(gui->page.meta.LPub.page, YY)/3) {
+          if (pli.size[YY] > LPub->pageSize(gui->page.meta.LPub.page, YY)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1480,7 +1480,7 @@ int Step::sizeit(
         case Right:
           tsize = csiPlacement.size[YY];
           pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
-          if (pli.size[XX] > gui->pageSize(gui->page.meta.LPub.page, XX)/3) {
+          if (pli.size[XX] > LPub->pageSize(gui->page.meta.LPub.page, XX)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1500,7 +1500,7 @@ int Step::sizeit(
         case Bottom:
           tsize = csiPlacement.size[XX];
           subModel.sizeSubModel(ConstrainData::PliConstrainWidth,tsize);
-          if (subModel.size[YY] > gui->pageSize(gui->page.meta.LPub.page, YY)/3) {
+          if (subModel.size[YY] > LPub->pageSize(gui->page.meta.LPub.page, YY)/3) {
               subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1508,7 +1508,7 @@ int Step::sizeit(
         case Right:
           tsize = csiPlacement.size[YY];
           subModel.sizeSubModel(ConstrainData::PliConstrainHeight,tsize);
-          if (subModel.size[XX] > gui->pageSize(gui->page.meta.LPub.page, XX)/3) {
+          if (subModel.size[XX] > LPub->pageSize(gui->page.meta.LPub.page, XX)/3) {
               subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
             }
           break;

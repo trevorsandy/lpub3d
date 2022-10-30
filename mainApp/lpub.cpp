@@ -308,7 +308,7 @@ void Gui::SetRotStepTransform(QString& Transform, bool display)
  ***************************************************************************/
 
 // flip orientation for landscape
-int Gui::pageSize(PageMeta &meta, int which){
+int Application::pageSize(PageMeta &meta, int which){
   int _which;
   if (meta.orientation.value() == Landscape){
       which == 0 ? _which = 1 : _which = 0;
@@ -1149,15 +1149,15 @@ void Gui::setGoToPage(int index)
 
 void Gui::fitWidth()
 {
-  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0)
-                 ,pageSize(page.meta.LPub.page, 1));
+  QRectF rect(0,0,LPub->pageSize(page.meta.LPub.page, 0)
+                 ,LPub->pageSize(page.meta.LPub.page, 1));
   KpageView->fitWidth(rect);
 }
 
 void Gui::fitVisible()
 {
-  QRectF rect(0,0,pageSize(page.meta.LPub.page, 0),
-                  pageSize(page.meta.LPub.page, 1));
+  QRectF rect(0,0,LPub->pageSize(page.meta.LPub.page, 0),
+                  LPub->pageSize(page.meta.LPub.page, 1));
   KpageView->fitVisible(rect);
   zoomSliderWidget->setValue(50);
 }

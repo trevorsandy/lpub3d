@@ -542,7 +542,7 @@ void Pli::setParts(
               .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer)) // 0
               .arg(color)                                              // 1
               .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
-                                  gui->pageSize(meta.LPub.page, 0))    // 2
+                                  LPub->pageSize(meta.LPub.page, 0))    // 2
               .arg(double(resolution()))                               // 3
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")           // 4
               .arg(double(modelScale))                                 // 5
@@ -863,7 +863,7 @@ int Pli::createSubModelIcons()
         QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
                 .arg(baseName)
                 .arg(color)
-                .arg(gui->pageSize(meta->LPub.page, 0))
+                .arg(LPub->pageSize(meta->LPub.page, 0))
                 .arg(double(resolution()))
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                 .arg(double(modelScale))

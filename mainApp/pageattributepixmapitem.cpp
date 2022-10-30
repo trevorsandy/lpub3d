@@ -59,8 +59,8 @@ PageAttributePixmapItem::PageAttributePixmapItem(
     size[YY] = int(pixmap.height() * pageAttributeImageMeta.picScale.value());
   } else {
     movable  = false;
-    size[XX] = page->pageSize(XX,false/*adjusted*/,false/*forDivider*/);
-    size[YY] = page->pageSize(YY,false,false);
+    size[XX] = page->pageSizeDiv(XX,false/*adjusted*/,false/*forDivider*/);
+    size[YY] = page->pageSizeDiv(YY,false,false);
   }
 
   // create image from pixmap

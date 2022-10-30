@@ -276,7 +276,7 @@ DividerItem::DividerItem(
       separatorWidthX  = int(sepData.margin[XX]+sepData.thickness)*2;
       if (allocEnc == Vertical) {
           if (sepData.type == SepData::LenPage) // Manually adjust page size
-              separatorLength = gui->pageSize(meta.LPub.page,XX) - (_offsetX + separatorWidthX);
+              separatorLength = LPub->pageSize(meta.LPub.page,XX) - (_offsetX + separatorWidthX);
           setRect(_offsetX,
                   _offsetY,
                   separatorLength,
@@ -291,7 +291,7 @@ DividerItem::DividerItem(
 //#endif
       } else {
           if (sepData.type == SepData::LenPage) // // Manually adjust page size
-              separatorLength = gui->pageSize(meta.LPub.page,YY) - (_offsetY + separatorHeightY);
+              separatorLength = LPub->pageSize(meta.LPub.page,YY) - (_offsetY + separatorHeightY);
           setRect(_offsetX,
                   _offsetY,
                   separatorWidthX,

@@ -91,10 +91,10 @@ void PagePointer::sizeIt()
 
   if (placement.value().placement == Top ||
       placement.value().placement == Bottom) {
-      size[XX] += gui->pageSize(meta.LPub.page, 0);
+      size[XX] += LPub->pageSize(meta.LPub.page, 0);
       size[YY] += dim;
   } else {
-      size[YY] += gui->pageSize(meta.LPub.page, 1);
+      size[YY] += LPub->pageSize(meta.LPub.page, 1);
       size[XX] += dim;
   }
 }
