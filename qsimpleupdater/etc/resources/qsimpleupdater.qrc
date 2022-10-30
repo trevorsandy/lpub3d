@@ -2,5 +2,6 @@
     <qresource prefix="/icons">
         <file alias="lpub96.png">lpub96.png</file>
         <file alias="setup96.png">setup96.png</file>
+        <file alias="update.png">update.png</file>
     </qresource>
 </RCC>

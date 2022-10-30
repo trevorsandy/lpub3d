@@ -16,6 +16,7 @@
 #include <iostream>
 #include <QMessageBox>
 #include <TCFoundation/TCUserDefaults.h>
+#include <QSslSocket>
 
 #include "application.h"
 #include "lpub_preferences.h"
@@ -532,7 +533,7 @@ void Application::setTheme(bool appStarted)
 
   setThemeColor(LC_PROFILE_BACKGROUND_COLOR,
                 Preferences::themeColors[THEME_DARK_VIEWER_BACKGROUND_COLOR],
-                Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);  
+                Preferences::themeColors[THEME_DEFAULT_VIEWER_BACKGROUND_COLOR]);
   setThemeColor(LC_PROFILE_GRADIENT_COLOR_TOP,
                 Preferences::themeColors[THEME_DARK_VIEWER_GRADIENT_COLOR_TOP],
                 Preferences::themeColors[THEME_DEFAULT_VIEWER_GRADIENT_COLOR_TOP]);
@@ -992,6 +993,14 @@ int Application::initialize()
     logInfo() << QString("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
                          .arg(QString::number(logLevelIndex)).arg(QString(VER_LOGGING_LEVELS_STR).toLower());
     logInfo() << QString("Debug Logging................(%1)").arg(Preferences::debugLogging ? "Enabled" : "Disabled");
+    logInfo() << QString("Secure Socket Layer..........(%1)").arg(
+                     QString(QSslSocket::supportsSsl() ? "Supported" : "Not Supported") +
+                     QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
+                                 QString(", Build not detected") :
+                                 QString(", Build: " + QSslSocket::sslLibraryBuildVersionString())) +
+                     QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
+                                 QString(", Library not detected") :
+                                 QString(", Detected: " + QSslSocket::sslLibraryVersionString())));
     logInfo() << "-----------------------------";
 
     // splash

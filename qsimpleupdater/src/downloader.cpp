@@ -77,7 +77,7 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent)
     /* Set default download directory */
     QStringList pathList = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
     QString tempPath = pathList.first();
-    m_downloadDir = tempPath + "/";
+    m_downloadDir.setPath(tempPath + "/");
     //m_downloadDir = QDir::homePath() + "/Downloads/";
     // Mod End
 
@@ -166,6 +166,7 @@ void Downloader::startDownload (const QUrl& url)
         delete m_file;
         m_file = nullptr;
         emit downloadCancelled();
+        return;
     }
 
     /* Start the download request */
@@ -331,7 +332,6 @@ void Downloader::openDownload()
             QThread *thread    = new QThread(this);
             ExtractWorker *job = new ExtractWorker(newarchive,destination);
             job->moveToThread(thread);
-            wait = new QEventLoop();
 
             connect(thread, SIGNAL(started()),
                     job, SLOT(doWork()));
@@ -665,7 +665,7 @@ QString Downloader::downloadDir() const
 void Downloader::setDownloadDir(const QString& downloadDir)
 {
     if(m_downloadDir.absolutePath() != downloadDir) {
-        m_downloadDir = downloadDir;
+        m_downloadDir.setPath(downloadDir);
     }
 }
 

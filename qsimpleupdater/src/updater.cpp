@@ -296,7 +296,19 @@ void Updater::checkForUpdates()
     //        m_progressDialog->setDownloadInfo();
     //     m_progressDialog->show();
     // }
-    // Mod End
+    if (!QSslSocket::supportsSsl()) {
+        showErrorMessage(tr("SSL not supported, %1.").arg(
+                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
+                                         QString("Build not detected") :
+                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
+                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
+                                         QString(", Library not detected") :
+                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+        emit downloadCancelled();
+        return;
+    }
+    // Mod end
+
     QNetworkRequest request (url());
     if (!userAgentString().isEmpty())
         request.setRawHeader ("User-Agent", userAgentString().toUtf8());
@@ -618,7 +630,7 @@ void Updater::onReply (QNetworkReply* reply)
             changeLogRequest(_url);
         }
 
-        /* All done if we only wanted to get the change log */      
+        /* All done if we only wanted to get the change log */
         if (getChangeLogOnly()) {
             emit checkingFinished (url());
             return;
@@ -860,6 +872,19 @@ void Updater::setVersionsRequested(const bool& version) {
  * available versions for the platform
  */
 void Updater::retrieveAvailableVersions() {
+    // LPub3D Mod
+    if (!QSslSocket::supportsSsl()) {
+        showErrorMessage(tr("SSL not supported, %1.").arg(
+                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
+                                         QString("Build not detected") :
+                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
+                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
+                                         QString(", Library not detected") :
+                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+        emit downloadCancelled();
+        return;
+    }
+    // Mod end
     setVersionsRequested(true);
     QNetworkRequest versionsRequest (url());
     if (!userAgentString().isEmpty())
@@ -974,6 +999,8 @@ void Updater::showErrorMessage (QString error)
       box.setText (title);
       box.setInformativeText (text);
       box.exec();
+    } else {
+      emit lpubAlert->messageSig(LOG_ERROR,error);
     }
 }
 
