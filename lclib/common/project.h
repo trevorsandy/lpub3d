@@ -70,6 +70,9 @@ public:
 		return !mModels.IsEmpty() ? mModels[0] : nullptr;
 	}
 
+/*** LPub3D Mod - project piece ***/
+	bool IsModified(const QString &FileName, bool reset) const;
+/*** LPub3D Mod end ***/
 	bool IsModified() const;
 	void MarkAsModified();
 	QString GetTitle() const;
@@ -161,17 +164,6 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
-/*** LPub3D Mod - project piece ***/
-	bool IsProjectPieceModified() const
-	{
-		return mProjectPieceModified;
-	}
-	
-	void SetProjectPieceModified(bool value)
-	{
-		mProjectPieceModified = value;
-	}
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
 	bool IsPreview() const
 	{
@@ -227,9 +219,6 @@ protected:
 	int mRenderer;
 	float mResolution;
 	bool mViewerLoaded;
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - project piece ***/
-	bool mProjectPieceModified;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;

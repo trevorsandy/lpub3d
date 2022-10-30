@@ -178,7 +178,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 		PieceInfo* Info = PieceIt->second;
 
 /*** LPub3D Mod - project piece ***/
-		IsPieceModified = CurrentProject && CurrentProject->IsProjectPieceModified();
+		IsPieceModified = CurrentProject && CurrentProject->IsModified(Info->mFileName, true/*reset*/);
 		if ((!CurrentProject || !Info->IsModel() || CurrentProject->GetModels().FindIndex(Info->GetModel()) != -1) && ((!ProjectPath.isEmpty() && !IsPieceModified) || Info->IsProjectPiece() || !Info->IsProject()))
 /*** LPub3D Mod end ***/
 			return Info;
@@ -196,9 +196,6 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 #ifdef QT_DEBUG_MODE
 			emit lpubAlert->messageSig(LOG_DEBUG, QString("LC_LIB - Create piece for project file %1").arg(ProjectFile.fileName()));
 #endif
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - project piece ***/
-			NewProject->SetProjectPieceModified(IsPieceModified);
 /*** LPub3D Mod end ***/
 
 			if (NewProject->Load(ProjectFile.absoluteFilePath(), false))

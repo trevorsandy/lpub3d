@@ -77,7 +77,6 @@ Project::Project(bool IsPreview)
 {
 	mModified = false;
 /*** LPub3D Mod - viewer step key ***/
-	mProjectPieceModified = false;
 	mImageType = Options::PLI;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Default Model name for new Project and Preview ***/
@@ -165,6 +164,13 @@ bool Project::IsModified() const
 
 	return false;
 }
+
+/*** LPub3D Mod - project piece ***/
+bool Project::IsModified(const QString &FileName, bool reset) const
+{
+	return gui->modified(FileName, reset);
+}
+/*** LPub3D Mod end ***/
 
 QString Project::GetTitle() const
 {
@@ -540,7 +546,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		if (!IsLPubModel/*We have a StepKey*/)
 		{
 /*** LPub3D Mod - viewer step key ***/
-			mProjectPieceModified = mImageType == Options::CSI ? gui->viewerStepModified(StepKey, true) : false;
+			if (mImageType == Options::CSI)
+				gui->viewerStepModified(StepKey, true/*reset*/);
 /*** LPub3D Mod end ***/
 
 			FileName = gui->getViewerStepFilePath(StepKey);

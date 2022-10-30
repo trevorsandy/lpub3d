@@ -433,7 +433,7 @@ int Step::createCsi(
       }
 
       // Are any children submodels modified ? - trigger the native renderer to update input files on disc
-      if (modified(gui->getSubmodelIndexes(top.modelName), true/*reset*/))
+      if (modified(gui->getSubmodelIndexes(top.modelName), false/*reset*/))
           gui->setViewerStepModified(viewerStepKey);
 
       // for now, we always set viewer display options
