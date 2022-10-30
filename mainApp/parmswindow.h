@@ -38,10 +38,10 @@
 
 class LDrawFile;
 class ParmsHighlighter;
-class FindReplace;
-class FindReplaceCtrls;
-class LineNumberArea;
-class TextEditor;
+class ParmFindReplace;
+class ParmFindReplaceCtrls;
+class ParmLineNumberArea;
+class ParmEditor;
 
 class QString;
 class QAction;
@@ -75,7 +75,7 @@ private:
     void readSettings();
     void writeSettings();
 
-    TextEditor       *_textEdit;
+    ParmEditor       *_textEdit;
     bool              _fadeStepFile;
     bool              _fileModified;
     bool              _restartRequired;
@@ -125,25 +125,25 @@ public slots:
     void displayParmsFile(const QString &fileName);
 
 public:
-    TextEditor *textEdit() { return _textEdit; }
+    ParmEditor *textEdit() { return _textEdit; }
     void setWindowTitle(const QString &title);
 };
 
 extern class ParmsWindow *parmsWindow;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-class TextEditor : public QPlainTextEdit
+class ParmEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit TextEditor(QWidget *parent = nullptr);
+    explicit ParmEditor(QWidget *parent = nullptr);
 
     void showAllCharacters(bool show);
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
     void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
     bool getIsUTF8() { return _fileIsUTF8; }
-    int lineNumberAreaWidth();
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int  lineNumberAreaWidth();
     void parmsOpen(int &opt);
     bool parmsSave(int &opt);
     QWidget     *popUp;
@@ -153,66 +153,69 @@ protected:
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
     void updateLineNumberArea(const QRect &, int);
+    void highlightCurrentLine();
     void findDialog();
     void showCharacters(
          QString findString,
          QString replaceString);
 
 private:
-    bool _fileIsUTF8;
     QWidget *lineNumberArea;
+    bool _fileIsUTF8;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class LineNumberArea : public QWidget
+class ParmLineNumberArea : public QWidget
 {
 public:
-    LineNumberArea(TextEditor *editor) : QWidget(editor) {
+    ParmLineNumberArea(ParmEditor *editor) : QWidget(editor)
+    {
         textEditor = editor;
     }
 
-    QSize sizeHint() const {
+    QSize sizeHint() const
+    {
         return QSize(textEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) {
+    void paintEvent(QPaintEvent *event)
+    {
         textEditor->lineNumberAreaPaintEvent(event);
     }
 
 private:
-    TextEditor *textEditor;
+    ParmEditor *textEditor;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class FindReplace : public QDialog
+class ParmFindReplace : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit FindReplace(TextEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
+    explicit ParmFindReplace(ParmEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
 
 protected slots:
     void popUpClose();
 
 protected:
-    FindReplaceCtrls *find;
-    FindReplaceCtrls *findReplace;
-    void readFindReplaceSettings(FindReplaceCtrls *fr);
-    void writeFindReplaceSettings(FindReplaceCtrls *fr);
+    ParmFindReplaceCtrls *find;
+    ParmFindReplaceCtrls *findReplace;
+    void readFindReplaceSettings(ParmFindReplaceCtrls *fr);
+    void writeFindReplaceSettings(ParmFindReplaceCtrls *fr);
 };
 
-class FindReplaceCtrls : public QWidget
+class ParmFindReplaceCtrls : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FindReplaceCtrls(TextEditor *textEdit, QWidget *parent = nullptr);
-    TextEditor *_textEdit;
+    explicit ParmFindReplaceCtrls(ParmEditor *textEdit, QWidget *parent = nullptr);
+    ParmEditor  *_textEdit;
     QLineEdit   *textFind;
     QLineEdit   *textReplace;
     QLabel      *labelMessage;

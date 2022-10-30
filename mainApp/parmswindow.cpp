@@ -36,6 +36,20 @@
 #include "version.h"
 #include "lpub_preferences.h"
 
+class ScrollBarFix : public QScrollBar
+{
+public:
+    ScrollBarFix(Qt::Orientation orient, QWidget *parent=0)
+        : QScrollBar(orient, parent) {}
+
+protected:
+    void sliderChange(SliderChange change) {
+        if (signalsBlocked() && change == QAbstractSlider::SliderValueChange)
+            blockSignals(false);
+        QScrollBar::sliderChange(change);
+    }
+};
+
 ParmsWindow *parmsWindow;
 
 ParmsWindow::ParmsWindow(QMainWindow *parent) :
@@ -44,13 +58,13 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 
-    _textEdit          = new TextEditor(this);
+    _textEdit          = new ParmEditor(this);
 
     highlighter = new ParmsHighlighter(_textEdit->document());
 
     setSelectionHighlighter();
 
-    _textEdit->setLineWrapMode(TextEditor::NoWrap);
+    _textEdit->setLineWrapMode(ParmEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     _textEdit->popUp = nullptr;
@@ -689,20 +703,38 @@ void ParmsWindow::setWindowTitle(const QString &title){
  *
  */
 
-TextEditor::TextEditor(QWidget *parent) :
-    QPlainTextEdit(parent),_fileIsUTF8(false)
+ParmEditor::ParmEditor(QWidget *parent) :
+    QPlainTextEdit(parent),lineNumberArea(new ParmLineNumberArea(this)),_fileIsUTF8(false)
 {
-    lineNumberArea = new LineNumberArea(this);
+    QPalette lineNumberPalette = lineNumberArea->palette();
+    lineNumberPalette.setCurrentColorGroup(QPalette::Active);
+    lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
+    lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
+    if (Preferences::displayTheme == THEME_DARK) {
+        lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
+        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
+    } else
+        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
 
-    connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
-    connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    lineNumberArea->setPalette(lineNumberPalette);
+
+    setVerticalScrollBar(new ScrollBarFix(Qt::Vertical, this));
+
+    connect(this, SIGNAL(blockCountChanged(int)),
+            this, SLOT(updateLineNumberAreaWidth(int)));
+
+    connect(this, SIGNAL(updateRequest(QRect,int)),
+            this, SLOT(updateLineNumberArea(QRect,int)));
+
+    connect(this, SIGNAL(cursorPositionChanged()),
+            this, SLOT(highlightCurrentLine()));
 
     updateLineNumberAreaWidth(0);
+
     highlightCurrentLine();
 }
 
-void TextEditor::showAllCharacters(bool show){
+void ParmEditor::showAllCharacters(bool show){
     if (show){
         showCharacters(" ","\u002E");
 #ifdef Q_OS_WIN
@@ -720,26 +752,28 @@ void TextEditor::showAllCharacters(bool show){
     }
 }
 
-int TextEditor::lineNumberAreaWidth()
+int ParmEditor::lineNumberAreaWidth()
 {
     int digits = 1;
-    int max = qMax(1, document()->blockCount());
+    int max = qMax(1, blockCount());
     while (max >= 10) {
         max /= 10;
         ++digits;
     }
 
-    int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
+    QFont font = lineNumberArea->font();
+    const QFontMetrics linefmt(font);
 
+    int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
     return space;
 }
 
-void TextEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
+void ParmEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
-void TextEditor::updateLineNumberArea(const QRect &rect, int dy)
+void ParmEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
     if (dy)
         lineNumberArea->scroll(0, dy);
@@ -750,7 +784,7 @@ void TextEditor::updateLineNumberArea(const QRect &rect, int dy)
         updateLineNumberAreaWidth(0);
 }
 
-void TextEditor::resizeEvent(QResizeEvent *e)
+void ParmEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
 
@@ -758,7 +792,7 @@ void TextEditor::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
-void TextEditor::highlightCurrentLine()
+void ParmEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -784,40 +818,54 @@ void TextEditor::highlightCurrentLine()
     setExtraSelections(extraSelections);
 }
 
-void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
+void ParmEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
-    painter.fillRect(event->rect(), QColor(Qt::cyan).lighter(180));
+
+    int selStart = textCursor().selectionStart();
+    int selEnd = textCursor().selectionEnd();
+
+    QPalette palette = lineNumberArea->palette();
+
+    painter.fillRect(event->rect(), palette.color(QPalette::Background));
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();
-    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
-    int bottom = top + (int) blockBoundingRect(block).height();
+    qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
+    qreal bottom = top;
 
-    // line number colors
-    QColor col_1(Qt::magenta);   // Current line
-    QColor col_0(Qt::darkGray);    // Other lines
-    if (Preferences::displayTheme == THEME_DARK) {
-       col_0 = QColor(Qt::darkGray).darker(150);    // Other lines
-    }
-
-    // Draw the numbers (displaying the current line number in green)
     while (block.isValid() && top <= event->rect().bottom()) {
+        top = bottom;
+
+        const qreal height = blockBoundingRect(block).height();
+        bottom = top + height;
+
         if (block.isVisible() && bottom >= event->rect().top()) {
-            QString number = QString::number(blockNumber + 1);
-            painter.setPen((this->textCursor().blockNumber() == blockNumber) ? col_1 : col_0);
-            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
-                             Qt::AlignRight, number);
+            painter.setPen(palette.windowText().color());
+
+            bool selected = (
+                                (selStart < block.position() + block.length() && selEnd > block.position())
+                                || (selStart == selEnd && selStart == block.position())
+                            );
+
+            if (selected) {
+                painter.save();
+                painter.setPen(palette.highlight().color());
+            }
+
+            const QString number = QString::number(blockNumber + 1);
+            painter.drawText(0, top, lineNumberArea->width() - 4, height, Qt::AlignRight, number);
+
+            if (selected)
+                painter.restore();
         }
 
         block = block.next();
-        top = bottom;
-        bottom = top + (int) blockBoundingRect(block).height();
         ++blockNumber;
     }
 }
 
-void TextEditor::showCharacters(
+void ParmEditor::showCharacters(
     QString findString,
     QString replaceString)
 {
@@ -855,7 +903,7 @@ void TextEditor::showCharacters(
     cursor.endEditBlock();
 }
 
-void TextEditor::findDialog()
+void ParmEditor::findDialog()
 {
     QTextCursor cursor = textCursor();
     QString selection = cursor.selectedText();
@@ -863,12 +911,12 @@ void TextEditor::findDialog()
         cursor.select(QTextCursor::WordUnderCursor);
         selection = cursor.selectedText();
     }
-    popUp = new FindReplace(this,selection);
+    popUp = new ParmFindReplace(this,selection);
     popUp->show();
 }
 
-FindReplace::FindReplace(
-    TextEditor *textEdit,
+ParmFindReplace::ParmFindReplace(
+    ParmEditor *textEdit,
     const QString &selectedText,
     QWidget *parent)
     : QDialog(parent)
@@ -876,10 +924,10 @@ FindReplace::FindReplace(
     setWindowIcon(QIcon(":/resources/LPub32.png"));
     setWindowTitle("Parameter File Editor Find");
 
-    find = new FindReplaceCtrls(textEdit,this);
+    find = new ParmFindReplaceCtrls(textEdit,this);
     find->textFind->setText(selectedText);
 
-    findReplace = new FindReplaceCtrls(textEdit,this);
+    findReplace = new ParmFindReplaceCtrls(textEdit,this);
     findReplace->textFind->setText(selectedText);
 
     connect(find, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
@@ -980,9 +1028,9 @@ FindReplace::FindReplace(
     setMinimumSize(100,80);
 }
 
-void  FindReplace::popUpClose()
+void  ParmFindReplace::popUpClose()
 {
-    FindReplaceCtrls *fr = qobject_cast<FindReplaceCtrls *>(sender());
+    ParmFindReplaceCtrls *fr = qobject_cast<ParmFindReplaceCtrls *>(sender());
     if (fr) {
         writeFindReplaceSettings(findReplace);
         writeFindReplaceSettings(find);
@@ -993,7 +1041,7 @@ void  FindReplace::popUpClose()
     close();
 }
 
-void FindReplace::readFindReplaceSettings(FindReplaceCtrls *fr) {
+void ParmFindReplace::readFindReplaceSettings(ParmFindReplaceCtrls *fr) {
     QSettings settings;
     settings.beginGroup(FINDREPLACEWINDOW);
     fr->checkboxCase->setChecked(settings.value(CASE_CHECK, false).toBool());
@@ -1002,7 +1050,7 @@ void FindReplace::readFindReplaceSettings(FindReplaceCtrls *fr) {
     settings.endGroup();
 }
 
-void FindReplace::writeFindReplaceSettings(FindReplaceCtrls *fr) {
+void ParmFindReplace::writeFindReplaceSettings(ParmFindReplaceCtrls *fr) {
     QSettings settings;
     settings.beginGroup(FINDREPLACEWINDOW);
     settings.setValue(CASE_CHECK, fr->checkboxCase->isChecked());
@@ -1011,7 +1059,7 @@ void FindReplace::writeFindReplaceSettings(FindReplaceCtrls *fr) {
     settings.endGroup();
 }
 
-FindReplaceCtrls::FindReplaceCtrls(TextEditor *textEdit, QWidget *parent)
+ParmFindReplaceCtrls::ParmFindReplaceCtrls(ParmEditor *textEdit, QWidget *parent)
     : QWidget(parent),_textEdit(textEdit)
 {
     // find items
@@ -1065,21 +1113,21 @@ FindReplaceCtrls::FindReplaceCtrls(TextEditor *textEdit, QWidget *parent)
     disableButtons();
 }
 
-void FindReplaceCtrls::findInText(){
+void ParmFindReplaceCtrls::findInText(){
     find();
 }
 
-void FindReplaceCtrls::findInTextNext()
+void ParmFindReplaceCtrls::findInTextNext()
 {
     find(NEXT);
 }
 
-void FindReplaceCtrls::findInTextPrevious()
+void ParmFindReplaceCtrls::findInTextPrevious()
 {
     find(PREVIOUS);
 }
 
-void FindReplaceCtrls::findInTextAll() {
+void ParmFindReplaceCtrls::findInTextAll() {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -1142,7 +1190,7 @@ void FindReplaceCtrls::findInTextAll() {
     }
 }
 
-void FindReplaceCtrls::find(int direction) {
+void ParmFindReplaceCtrls::find(int direction) {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -1206,7 +1254,7 @@ void FindReplaceCtrls::find(int direction) {
     }
 }
 
-void FindReplaceCtrls::replaceInText() {
+void ParmFindReplaceCtrls::replaceInText() {
     if (!_textEdit->textCursor().hasSelection()) {
         find();
     } else {
@@ -1214,7 +1262,7 @@ void FindReplaceCtrls::replaceInText() {
     }
 }
 
-void FindReplaceCtrls::replaceInTextFind() {
+void ParmFindReplaceCtrls::replaceInTextFind() {
     if (!_textEdit->textCursor().hasSelection()) {
         find();
     } else {
@@ -1223,7 +1271,7 @@ void FindReplaceCtrls::replaceInTextFind() {
     }
 }
 
-void FindReplaceCtrls::replaceInTextAll() {
+void ParmFindReplaceCtrls::replaceInTextAll() {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -1279,14 +1327,14 @@ void FindReplaceCtrls::replaceInTextAll() {
     }
 }
 
-void FindReplaceCtrls::regexpSelected(bool sel) {
+void ParmFindReplaceCtrls::regexpSelected(bool sel) {
     if (sel)
         validateRegExp(textFind->text());
     else
         validateRegExp("");
 }
 
-void FindReplaceCtrls::validateRegExp(const QString &text) {
+void ParmFindReplaceCtrls::validateRegExp(const QString &text) {
     if (!checkboxRegExp->isChecked() || text.size() == 0) {
         labelMessage->clear();
         return; // nothing to validate
@@ -1302,7 +1350,7 @@ void FindReplaceCtrls::validateRegExp(const QString &text) {
     }
 }
 
-void FindReplaceCtrls::showError(const QString &error) {
+void ParmFindReplaceCtrls::showError(const QString &error) {
     if (error == "") {
         labelMessage->clear();
     } else {
@@ -1310,7 +1358,7 @@ void FindReplaceCtrls::showError(const QString &error) {
     }
 }
 
-void FindReplaceCtrls::showMessage(const QString &message) {
+void ParmFindReplaceCtrls::showMessage(const QString &message) {
     if (message == "") {
         labelMessage->clear();
     } else {
@@ -1318,7 +1366,7 @@ void FindReplaceCtrls::showMessage(const QString &message) {
     }
 }
 
-void FindReplaceCtrls::textReplaceChanged() {
+void ParmFindReplaceCtrls::textReplaceChanged() {
     bool enable = textReplace->text().size() > 0;
     buttonReplace->setEnabled(enable);
     buttonReplaceAndFind->setEnabled(enable);
@@ -1326,7 +1374,7 @@ void FindReplaceCtrls::textReplaceChanged() {
     buttonReplaceClear->setEnabled(enable);
 }
 
-void FindReplaceCtrls::textFindChanged() {
+void ParmFindReplaceCtrls::textFindChanged() {
     bool enable = textFind->text().size() > 0;
     buttonFind->setEnabled(enable);
     buttonFindNext->setEnabled(enable);
@@ -1334,7 +1382,7 @@ void FindReplaceCtrls::textFindChanged() {
     buttonFindClear->setEnabled(enable);
 }
 
-void FindReplaceCtrls::disableButtons()
+void ParmFindReplaceCtrls::disableButtons()
 {
     bool enable = false;
 
@@ -1350,14 +1398,14 @@ void FindReplaceCtrls::disableButtons()
     buttonReplaceClear->setEnabled(enable);
 }
 
-void FindReplaceCtrls::findClear() {
+void ParmFindReplaceCtrls::findClear() {
     _textEdit->document()->undo();
     _textEdit->moveCursor(QTextCursor::Start);
     textFind->clear();
     labelMessage->clear();
 }
 
-void FindReplaceCtrls::replaceClear() {
+void ParmFindReplaceCtrls::replaceClear() {
     _textEdit->document()->undo();
     _textEdit->moveCursor(QTextCursor::Start);
     textReplace->clear();

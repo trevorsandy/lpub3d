@@ -73,6 +73,20 @@
 #include "pieceinf.h"
 #include "lc_colors.h"
 
+class ScrollBarFix : public QScrollBar
+{
+public:
+    ScrollBarFix(Qt::Orientation orient, QWidget *parent=0)
+        : QScrollBar(orient, parent) {}
+
+protected:
+    void sliderChange(SliderChange change) {
+        if (signalsBlocked() && change == QAbstractSlider::SliderValueChange)
+            blockSignals(false);
+        QScrollBar::sliderChange(change);
+    }
+};
+
 #define SUB_PLACEHOLDER "@@~|~@@"
 
 enum CurrentStepType { INVALID_CURRENT_STEP, EXISTING_CURRENT_STEP, NEW_CURRENT_STEP };
@@ -87,7 +101,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     qRegisterMetaType<CurrentStepType>("CurrentStepType");
     qRegisterMetaType<DecorationType>("DecorationType");
 
-    _textEdit = new QTextEditor(_modelFileEdit, this);
+    _textEdit = new TextEditor(_modelFileEdit, this);
 
     loadModelWorker = new LoadModelWorker(_modelFileEdit);
 
@@ -103,7 +117,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setWrapAround(false);
 
-    _textEdit->setLineWrapMode(QTextEditor::NoWrap);
+    _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     _textEdit->popUp = nullptr;
@@ -1919,7 +1933,7 @@ void EditWindow::pageUpDown(
   }
 
   connect(verticalScrollBar, SIGNAL(valueChanged(int)),
-          this,              SLOT(verticalScrollValueChanged(int)));
+          this,              SLOT(  verticalScrollValueChanged(int)));
 }
 
 void EditWindow::showLine(int lineNumber, int lineType)
@@ -2519,7 +2533,7 @@ void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) 
                 firstBlock = false;
                 _textEdit->setPlainText(block);
             } else {
-                _textEdit->append(block);
+                _textEdit->appendPlainText(block);
             }
 #ifdef QT_DEBUG_MODE
         emit lpub->messageSig(LOG_DEBUG,QString("Load content block %1, lines %2 - %3")
@@ -2579,7 +2593,7 @@ void EditWindow::loadPagedContent()
                               .arg(lpub->elapsedTime(t.elapsed())));
 #endif
    } else {
-       _textEdit->append(page);
+       _textEdit->appendPlainText(page);
 #ifdef QT_DEBUG_MODE
    emit lpub->messageSig(LOG_DEBUG,QString("Load page append %1 text lines - %2")
                               .arg(pageLineCount)
@@ -2620,27 +2634,44 @@ void EditWindow::loadPagedContent()
  *
  */
 
-QTextEditor::QTextEditor(bool detachedEdit, QWidget *parent) :
-    QTextEdit(parent),
+TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
+    QPlainTextEdit(parent),
+    lineNumberArea(new LineNumberArea(this)),
     completer(nullptr),
     completion_minchars(1),
     completion_max(0),
     detachedEdit(detachedEdit),
     _fileIsUTF8(false)
 {
-    lineNumberArea = new QLineNumberArea(this);
+    QPalette lineNumberPalette = lineNumberArea->palette();
+    lineNumberPalette.setCurrentColorGroup(QPalette::Active);
+    lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray));
+    lineNumberPalette.setColor(QPalette::Highlight,QColor(Qt::magenta));
+    if (Preferences::displayTheme == THEME_DARK) {
+        lineNumberPalette.setColor(QPalette::Text,QColor(Qt::darkGray).darker(150));
+        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]));
+    } else
+        lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
 
-    connect(this->document(), SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
-    connect(this->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(updateLineNumberArea/*_2*/(int)));
-    connect(this, SIGNAL(textChanged()), this, SLOT(updateLineNumberArea()));
-    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateLineNumberArea()));
-    //connect(this, SIGNAL(selectionChanged()), this, SLOT(highlightCurrentLine()));
+    lineNumberArea->setPalette(lineNumberPalette);
+
+    setVerticalScrollBar(new ScrollBarFix(Qt::Vertical, this));
+
+    connect(this, SIGNAL(blockCountChanged(int)),
+            this, SLOT(  updateLineNumberAreaWidth(int)));
+
+    connect(this, SIGNAL(updateRequest(QRect, int)),
+            this, SLOT(  updateLineNumberArea(QRect, int)));
+
+    //connect(this, SIGNAL(selectionChanged()),
+    //        this, SLOT(highlightCurrentLine()));
 
     updateLineNumberAreaWidth(0);
+
     //highlightCurrentLine();
 }
 
-void QTextEditor::mouseDoubleClickEvent(QMouseEvent *event)
+void TextEditor::mouseDoubleClickEvent(QMouseEvent *event)
 {
     QWidget::mouseDoubleClickEvent(event);
     if (modelFileEdit()) {
@@ -2651,7 +2682,7 @@ void QTextEditor::mouseDoubleClickEvent(QMouseEvent *event)
     return;
 }
 
-void QTextEditor::setCompleter(QCompleter *comp)
+void TextEditor::setCompleter(QCompleter *comp)
 {
     if (completer)
         QObject::disconnect(completer, nullptr, this, nullptr);
@@ -2670,20 +2701,20 @@ void QTextEditor::setCompleter(QCompleter *comp)
                      this, SLOT(autocomplete(QString)));
 }
 
-void QTextEditor::setCompleterMinChars(int min_chars) {
+void TextEditor::setCompleterMinChars(int min_chars) {
     completion_minchars = min_chars;
 }
 
-void QTextEditor::setCompleterMaxSuggestions(int max) {
+void TextEditor::setCompleterMaxSuggestions(int max) {
     completion_max = max;
 }
 
-void QTextEditor::setCompleterPrefix(const QString& prefix)
+void TextEditor::setCompleterPrefix(const QString& prefix)
 {
     completion_prefix = prefix;
 }
 
-int QTextEditor::wordStart() const
+int TextEditor::wordStart() const
 {
     // lastIndexOf returns the index of the last space, new line or -1 if there are no spaces
     // or new lines so that + 1 returns the index of the character starting the word or 0
@@ -2697,42 +2728,42 @@ int QTextEditor::wordStart() const
     return start_pos;
 }
 
-QString QTextEditor::currentWord() const
+QString TextEditor::currentWord() const
 {
     QTextCursor tc = textCursor();
     int completion_index = wordStart();
     return toPlainText().mid(completion_index, tc.position() - completion_index);
 }
 
-void QTextEditor::autocomplete(const QString& completion)
+void TextEditor::autocomplete(const QString& completion)
 {
     if (completer->widget() != this)
         return;
 
     QTextCursor tc = textCursor();
     int startIndex = wordStart();
-    setText(toPlainText().replace(
+    setPlainText(toPlainText().replace(
             startIndex, tc.position() - startIndex,
             completion));
     tc.setPosition(startIndex + completion.size());
     setTextCursor(tc);
 }
 
-QString QTextEditor::textUnderCursor() const
+QString TextEditor::textUnderCursor() const
 {
     QTextCursor tc = textCursor();
     tc.select(QTextCursor::WordUnderCursor);
     return tc.selectedText();
 }
 
-void QTextEditor::focusInEvent(QFocusEvent *e)
+void TextEditor::focusInEvent(QFocusEvent *e)
 {
     if (completer)
         completer->setWidget(this);
-    QTextEdit::focusInEvent(e);
+    QPlainTextEdit::focusInEvent(e);
 }
 
-void QTextEditor::keyPressEvent(QKeyEvent *e)
+void TextEditor::keyPressEvent(QKeyEvent *e)
 {
     if (completer && completer->popup()->isVisible()) {
         // The following keys are forwarded by the completer to the widget
@@ -2751,7 +2782,7 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
 
     bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
     if (!completer || !isShortcut) // do not process the shortcut when we have a completer
-        QTextEdit::keyPressEvent(e);
+        QPlainTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
     if (!completer || (ctrlOrShift && e->text().isEmpty()))
@@ -2780,7 +2811,7 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void QTextEditor::mouseReleaseEvent(QMouseEvent *event)
+void TextEditor::mouseReleaseEvent(QMouseEvent *event)
 {
   QWidget::mouseReleaseEvent(event);
   if (event->button() == Qt::LeftButton) {
@@ -2788,7 +2819,7 @@ void QTextEditor::mouseReleaseEvent(QMouseEvent *event)
   }
 }
 
-void QTextEditor::toggleComment(){
+void TextEditor::toggleComment(){
 
     int current = 0;
     int selectedLines = 0;
@@ -2858,7 +2889,7 @@ void QTextEditor::toggleComment(){
     cursor.endEditBlock();
 }
 
-void QTextEditor::showAllCharacters(bool show){
+void TextEditor::showAllCharacters(bool show){
     if (show){
         showCharacters(" ","\u002E");
 #ifdef Q_OS_WIN
@@ -2876,176 +2907,94 @@ void QTextEditor::showAllCharacters(bool show){
     }
 }
 
-int QTextEditor::lineNumberAreaWidth()
+int TextEditor::lineNumberAreaWidth()
 {
     int digits = 1;
-    int max = qMax(1, document()->blockCount());
+    int max = qMax(1, blockCount());
     while (max >= 10) {
         max /= 10;
         ++digits;
     }
 
-    int space = 13 +  fontMetrics().width(QLatin1Char('9')) * (digits);
+    QFont font = lineNumberArea->font();
+    const QFontMetrics linefmt(font);
 
+    int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
     return space;
 }
 
-void QTextEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
+void TextEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
 {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
-void QTextEditor::updateLineNumberArea(QRectF /*rect_f*/)
+void TextEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
-    QTextEditor::updateLineNumberArea();
-}
-
-void QTextEditor::updateLineNumberArea(int /*slider_pos*/)
-{
-    QTextEditor::updateLineNumberArea();
-}
-
-void QTextEditor::updateLineNumberArea()
-{
-    /*
-     * When the signal is emitted, the sliderPosition has been adjusted according to the action,
-     * but the value has not yet been propagated (meaning the valueChanged() signal was not yet emitted),
-     * and the visual display has not been updated. In slots connected to this signal you can thus safely
-     * adjust any action by calling setSliderPosition() yourself, based on both the action and the
-     * slider's value.
-     */
-    // Make sure the sliderPosition triggers one last time the valueChanged() signal with the actual value !!!!
-    this->verticalScrollBar()->setSliderPosition(this->verticalScrollBar()->sliderPosition());
-
-    // Since "QTextEdit" does not have an "updateRequest(...)" signal, we chose
-    // to grab the imformations from "sliderPosition()" and "contentsRect()".
-    // See the necessary connections used (Class constructor implementation part).
-
-    QRect rect =  this->contentsRect();
-    lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
-    updateLineNumberAreaWidth(0);
-    //----------
-    int dy = this->verticalScrollBar()->sliderPosition();
-    if (dy > -1) {
+    if (dy)
         lineNumberArea->scroll(0, dy);
-    }
+    else
+        lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
 
-    // Addjust slider to alway see the number of the currently being edited line...
-    int first_block_id = getFirstVisibleBlockId();
-    if (first_block_id == 0 || this->textCursor().block().blockNumber() == first_block_id-1)
-        this->verticalScrollBar()->setSliderPosition(dy-this->document()->documentMargin());
-
-//    // Snap to first line (TODO...)
-//    if (first_block_id > 0)
-//    {
-//        int slider_pos = this->verticalScrollBar()->sliderPosition();
-//        int prev_block_height = (int) this->document()->documentLayout()->blockBoundingRect(this->document()->findBlockByNumber(first_block_id-1)).height();
-//        if (dy <= this->document()->documentMargin() + prev_block_height)
-//            this->verticalScrollBar()->setSliderPosition(slider_pos - (this->document()->documentMargin() + prev_block_height));
-//    }
-
+    if (rect.contains(viewport()->rect()))
+        updateLineNumberAreaWidth(0);
 }
 
-int QTextEditor::getFirstVisibleBlockId()
+void TextEditor::resizeEvent(QResizeEvent *e)
 {
-    // Detect the first block for which bounding rect - once translated
-    // in absolute coordinated - is contained by the editor's text area
-
-    // Costly way of doing but since "blockBoundingGeometry(...)" doesn't
-    // exists for "QTextEdit"...
-
-    QTextCursor curs = QTextCursor(this->document());
-    curs.movePosition(QTextCursor::Start);
-    for(int i=0; i < this->document()->blockCount(); ++i)
-    {
-        QTextBlock block = curs.block();
-
-        QRect r1 = this->viewport()->geometry();
-        QRect r2 = this->document()->documentLayout()->blockBoundingRect(block).translated(
-                    this->viewport()->geometry().x(), this->viewport()->geometry().y() - (
-                        this->verticalScrollBar()->sliderPosition()
-                        ) ).toRect();
-
-        if (r1.contains(r2, true)) { return i; }
-
-        curs.movePosition(QTextCursor::NextBlock);
-    }
-
-    return 0;
-}
-
-void QTextEditor::resizeEvent(QResizeEvent *e)
-{
-    QTextEdit::resizeEvent(e);
+    QPlainTextEdit::resizeEvent(e);
 
     QRect cr = this->contentsRect();
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
-void QTextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
+void TextEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    this->verticalScrollBar()->setSliderPosition(this->verticalScrollBar()->sliderPosition());
-
     QPainter painter(lineNumberArea);
 
-    // line number colors
-    QColor col_1(Qt::magenta);     // Current line
-    QColor col_0(Qt::darkGray);    // Other lines
+    int selStart = textCursor().selectionStart();
+    int selEnd = textCursor().selectionEnd();
 
-    QColor numAreaColor;
-    if (Preferences::displayTheme == THEME_DEFAULT) {
-        numAreaColor = QColor(Qt::gray).lighter(150);
-      }
-    else
-      if (Preferences::displayTheme == THEME_DARK) {
-          numAreaColor = QColor(Preferences::themeColors[THEME_DARK_EDIT_MARGIN]);
-          col_0 = QColor(Qt::darkGray).darker(150);
-      }
+    QPalette palette = lineNumberArea->palette();
 
-    painter.fillRect(event->rect(),numAreaColor);
-    int blockNumber = this->getFirstVisibleBlockId();
+    painter.fillRect(event->rect(), palette.color(QPalette::Background));
 
-    QTextBlock block = this->document()->findBlockByNumber(blockNumber);
-    QTextBlock prev_block = (blockNumber > 0) ? this->document()->findBlockByNumber(blockNumber-1) : block;
-    int translate_y = (blockNumber > 0) ? -this->verticalScrollBar()->sliderPosition() : 0;
+    QTextBlock block = firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
+    qreal bottom = top;
 
-    int top = this->viewport()->geometry().top();
-
-    // Adjust text position according to the previous "non entirely visible" block
-    // if applicable. Also takes in consideration the document's margin offset.
-    int additional_margin;
-    if (blockNumber == 0)
-        // Simply adjust to document's margin
-        additional_margin = (int) this->document()->documentMargin() -1 - this->verticalScrollBar()->sliderPosition();
-    else
-        // Getting the height of the visible part of the previous "non entirely visible" block
-        additional_margin = (int) this->document()->documentLayout()->blockBoundingRect(prev_block)
-                .translated(0, translate_y).intersected(this->viewport()->geometry()).height();
-
-    // Shift the starting point
-    top += additional_margin;
-
-    int bottom = top + (int) this->document()->documentLayout()->blockBoundingRect(block).height();
-
-    // Draw the numbers (displaying the current line number in green)
     while (block.isValid() && top <= event->rect().bottom()) {
+        top = bottom;
+
+        const qreal height = blockBoundingRect(block).height();
+        bottom = top + height;
+
         if (block.isVisible() && bottom >= event->rect().top()) {
-            QString number = QString::number(blockNumber + 1);
-            painter.setPen((this->textCursor().blockNumber() == blockNumber) ? col_1 : col_0);
-            painter.drawText(-5, top,
-                             lineNumberArea->width(), fontMetrics().height(),
-                             Qt::AlignRight, number);
+            painter.setPen(palette.windowText().color());
+
+            bool selected = (
+                                (selStart < block.position() + block.length() && selEnd > block.position())
+                                || (selStart == selEnd && selStart == block.position())
+                            );
+
+            if (selected) {
+                painter.save();
+                painter.setPen(palette.highlight().color());
+            }
+
+            const QString number = QString::number(blockNumber + 1);
+            painter.drawText(0, top, lineNumberArea->width() - 4, height, Qt::AlignRight, number);
+
+            if (selected)
+                painter.restore();
         }
 
         block = block.next();
-        top = bottom;
-        bottom = top + (int) this->document()->documentLayout()->blockBoundingRect(block).height();
         ++blockNumber;
     }
-
 }
 
-void QTextEditor::showCharacters(
+void TextEditor::showCharacters(
     QString findString,
     QString replaceString)
 {
@@ -3083,7 +3032,7 @@ void QTextEditor::showCharacters(
     cursor.endEditBlock();
 }
 
-void QTextEditor::findDialog()
+void TextEditor::findDialog()
 {
     QTextCursor cursor = textCursor();
     QString selection = cursor.selectedText();
@@ -3091,12 +3040,12 @@ void QTextEditor::findDialog()
         cursor.select(QTextCursor::WordUnderCursor);
         selection = cursor.selectedText();
     }
-    popUp = new QFindReplace(this,selection);
+    popUp = new FindReplace(this,selection);
     popUp->show();
 }
 
-QFindReplace::QFindReplace(
-    QTextEditor *textEdit,
+FindReplace::FindReplace(
+    TextEditor *textEdit,
     const QString &selectedText,
     QWidget *parent)
     : QDialog(parent)
@@ -3104,7 +3053,7 @@ QFindReplace::QFindReplace(
     setWindowIcon(QIcon(":/resources/LPub32.png"));
     setWindowTitle("LDraw File Editor Find");
 
-    find = new QFindReplaceCtrls(textEdit,this);
+    find = new FindReplaceCtrls(textEdit,this);
     find->textFind->setText(selectedText);
 
     completer = new QCompleter(this);
@@ -3114,7 +3063,7 @@ QFindReplace::QFindReplace(
     completer->setWrapAround(false);
     find->textFind->setWordCompleter(completer);
 
-    findReplace = new QFindReplaceCtrls(textEdit,this);
+    findReplace = new FindReplaceCtrls(textEdit,this);
     findReplace->textFind->setText(selectedText);
 
     completer = new QCompleter(this);
@@ -3223,7 +3172,7 @@ QFindReplace::QFindReplace(
     setMinimumSize(100,80);
 }
 
-QAbstractItemModel *QFindReplace::modelFromFile(const QString& fileName)
+QAbstractItemModel *FindReplace::modelFromFile(const QString& fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly))
@@ -3246,9 +3195,9 @@ QAbstractItemModel *QFindReplace::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
-void  QFindReplace::popUpClose()
+void  FindReplace::popUpClose()
 {
-    QFindReplaceCtrls *fr = qobject_cast<QFindReplaceCtrls *>(sender());
+    FindReplaceCtrls *fr = qobject_cast<FindReplaceCtrls *>(sender());
     if (fr) {
         writeFindReplaceSettings(findReplace);
         writeFindReplaceSettings(find);
@@ -3259,7 +3208,7 @@ void  QFindReplace::popUpClose()
     close();
 }
 
-void QFindReplace::readFindReplaceSettings(QFindReplaceCtrls *fr) {
+void FindReplace::readFindReplaceSettings(FindReplaceCtrls *fr) {
     QSettings settings;
     settings.beginGroup(FINDREPLACEWINDOW);
     fr->checkboxCase->setChecked(settings.value(CASE_CHECK, false).toBool());
@@ -3268,7 +3217,7 @@ void QFindReplace::readFindReplaceSettings(QFindReplaceCtrls *fr) {
     settings.endGroup();
 }
 
-void QFindReplace::writeFindReplaceSettings(QFindReplaceCtrls *fr) {
+void FindReplace::writeFindReplaceSettings(FindReplaceCtrls *fr) {
     QSettings settings;
     settings.beginGroup(FINDREPLACEWINDOW);
     settings.setValue(CASE_CHECK, fr->checkboxCase->isChecked());
@@ -3277,7 +3226,7 @@ void QFindReplace::writeFindReplaceSettings(QFindReplaceCtrls *fr) {
     settings.endGroup();
 }
 
-QFindReplaceCtrls::QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent)
+FindReplaceCtrls::FindReplaceCtrls(TextEditor *textEdit, QWidget *parent)
     : QWidget(parent),_textEdit(textEdit)
 {
     // find items
@@ -3331,21 +3280,21 @@ QFindReplaceCtrls::QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent)
     disableButtons();
 }
 
-void QFindReplaceCtrls::findInText(){
+void FindReplaceCtrls::findInText(){
     find();
 }
 
-void QFindReplaceCtrls::findInTextNext()
+void FindReplaceCtrls::findInTextNext()
 {
     find(NEXT);
 }
 
-void QFindReplaceCtrls::findInTextPrevious()
+void FindReplaceCtrls::findInTextPrevious()
 {
     find(PREVIOUS);
 }
 
-void QFindReplaceCtrls::findInTextAll() {
+void FindReplaceCtrls::findInTextAll() {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -3408,7 +3357,7 @@ void QFindReplaceCtrls::findInTextAll() {
     }
 }
 
-void QFindReplaceCtrls::find(int direction) {
+void FindReplaceCtrls::find(int direction) {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -3472,7 +3421,7 @@ void QFindReplaceCtrls::find(int direction) {
     }
 }
 
-void QFindReplaceCtrls::replaceInText() {
+void FindReplaceCtrls::replaceInText() {
     if (!_textEdit->textCursor().hasSelection()) {
         find();
     } else {
@@ -3480,7 +3429,7 @@ void QFindReplaceCtrls::replaceInText() {
     }
 }
 
-void QFindReplaceCtrls::replaceInTextFind() {
+void FindReplaceCtrls::replaceInTextFind() {
     if (!_textEdit->textCursor().hasSelection()) {
         find();
     } else {
@@ -3489,7 +3438,7 @@ void QFindReplaceCtrls::replaceInTextFind() {
     }
 }
 
-void QFindReplaceCtrls::replaceInTextAll() {
+void FindReplaceCtrls::replaceInTextAll() {
     if (!_textEdit)
         return; // TODO: show some warning?
 
@@ -3545,14 +3494,14 @@ void QFindReplaceCtrls::replaceInTextAll() {
     }
 }
 
-void QFindReplaceCtrls::regexpSelected(bool sel) {
+void FindReplaceCtrls::regexpSelected(bool sel) {
     if (sel)
         validateRegExp(textFind->text());
     else
         validateRegExp("");
 }
 
-void QFindReplaceCtrls::validateRegExp(const QString &text) {
+void FindReplaceCtrls::validateRegExp(const QString &text) {
     if (!checkboxRegExp->isChecked() || text.size() == 0) {
         labelMessage->clear();
         return; // nothing to validate
@@ -3568,7 +3517,7 @@ void QFindReplaceCtrls::validateRegExp(const QString &text) {
     }
 }
 
-void QFindReplaceCtrls::showError(const QString &error) {
+void FindReplaceCtrls::showError(const QString &error) {
     if (error == "") {
         labelMessage->clear();
     } else {
@@ -3576,7 +3525,7 @@ void QFindReplaceCtrls::showError(const QString &error) {
     }
 }
 
-void QFindReplaceCtrls::showMessage(const QString &message) {
+void FindReplaceCtrls::showMessage(const QString &message) {
     if (message == "") {
         labelMessage->clear();
     } else {
@@ -3584,7 +3533,7 @@ void QFindReplaceCtrls::showMessage(const QString &message) {
     }
 }
 
-void QFindReplaceCtrls::textReplaceChanged() {
+void FindReplaceCtrls::textReplaceChanged() {
     bool enable = textReplace->text().size() > 0;
     buttonReplace->setEnabled(enable);
     buttonReplaceAndFind->setEnabled(enable);
@@ -3592,7 +3541,7 @@ void QFindReplaceCtrls::textReplaceChanged() {
     buttonReplaceClear->setEnabled(enable);
 }
 
-void QFindReplaceCtrls::textFindChanged() {
+void FindReplaceCtrls::textFindChanged() {
     bool enable = textFind->text().size() > 0;
     buttonFind->setEnabled(enable);
     buttonFindNext->setEnabled(enable);
@@ -3600,7 +3549,7 @@ void QFindReplaceCtrls::textFindChanged() {
     buttonFindClear->setEnabled(enable);
 }
 
-void  QFindReplaceCtrls::disableButtons()
+void  FindReplaceCtrls::disableButtons()
 {
     bool enable = false;
 
@@ -3616,14 +3565,14 @@ void  QFindReplaceCtrls::disableButtons()
     buttonReplaceClear->setEnabled(enable);
 }
 
-void QFindReplaceCtrls::findClear() {
+void FindReplaceCtrls::findClear() {
     _textEdit->document()->undo();
     _textEdit->moveCursor(QTextCursor::Start);
     textFind->clear();
     labelMessage->clear();
 }
 
-void QFindReplaceCtrls::replaceClear() {
+void FindReplaceCtrls::replaceClear() {
     _textEdit->document()->undo();
     _textEdit->moveCursor(QTextCursor::Start);
     textReplace->clear();

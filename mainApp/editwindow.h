@@ -33,7 +33,7 @@
 
 #include <QDialog>
 #include <QMainWindow>
-#include <QTextEdit>
+#include <QPlainTextEdit>
 #include <QTextCursor>
 #include <QFileSystemWatcher>
 #include <QFutureWatcher>
@@ -47,10 +47,10 @@
 class LDrawFile;
 class Highlighter;
 class HighlighterSimple;
-class QFindReplace;
-class QFindReplaceCtrls;
+class FindReplace;
+class FindReplaceCtrls;
 class QLineNumberArea;
-class QTextEditor;
+class TextEditor;
 
 class QString;
 class QAction;
@@ -85,7 +85,7 @@ class EditWindow : public QMainWindow
 public:
     explicit EditWindow(QMainWindow *parent = nullptr, bool modelFileEdit = false);
     ~EditWindow();
-    QTextEditor *textEdit()
+    TextEditor *textEdit()
     {
         return _textEdit;
     }
@@ -202,7 +202,7 @@ protected:
     void closeEvent(QCloseEvent*_event);
 
     WaitingSpinnerWidget *_waitingSpinner;
-    QTextEditor       *_textEdit;
+    TextEditor       *_textEdit;
     LoadModelWorker   *loadModelWorker;
     QCompleter        *completer;
     Highlighter       *highlighter;
@@ -284,22 +284,23 @@ extern class EditWindow *cmdModEditor;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class QTextEditor : public QTextEdit
+class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit QTextEditor(bool modelFileEdit = false, QWidget *parent = nullptr);
+    explicit TextEditor(bool modelFileEdit = false, QWidget *parent = nullptr);
 
-    ~QTextEditor()override{}
+    ~TextEditor()override{}
 
     void showAllCharacters(bool show);
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
     void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
     bool getIsUTF8() { return _fileIsUTF8; }
-    int getFirstVisibleBlockId();
+
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
-    QFindReplace *popUp;
+
+    FindReplace *popUp;
 
     void setCompleter(QCompleter *c);
     void setCompleterMinChars(int min_chars);
@@ -319,9 +320,8 @@ public slots:
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
-    void updateLineNumberArea(QRectF /*rect_f*/);
-    void updateLineNumberArea(int /*slider_pos*/);
-    void updateLineNumberArea();
+    void updateLineNumberArea(const QRect &rect, int dy);
+
     void findDialog();
     void toggleComment();
     void showCharacters(
@@ -343,61 +343,65 @@ private:
     int         completion_minchars;
     int         completion_max;
     QString     completion_prefix;
-    bool       detachedEdit;
+    bool        detachedEdit;
     std::atomic<bool> _fileIsUTF8;
     QWidget    *lineNumberArea;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class QLineNumberArea : public QWidget
+class LineNumberArea : public QWidget
 {
 public:
-    QLineNumberArea(QTextEditor *editor) : QWidget(editor) {
-        textEditor = editor;}
+    LineNumberArea(TextEditor *editor) : QWidget(editor)
+    {
+        textEditor = editor;
+    }
 
-    QSize sizeHint() const {
+    QSize sizeHint() const
+    {
         return QSize(textEditor->lineNumberAreaWidth(), 0);
     }
 
 protected:
-    void paintEvent(QPaintEvent *event) override  {
+    void paintEvent(QPaintEvent *event) override
+    {
         textEditor->lineNumberAreaPaintEvent(event);
     }
 
 private:
-    QTextEditor *textEditor;
+    TextEditor *textEditor;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-class QFindReplace : public QDialog
+class FindReplace : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit QFindReplace(QTextEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
+    explicit FindReplace(TextEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
 
 protected slots:
     void popUpClose();
 
 protected:
-    QFindReplaceCtrls *find;
-    QFindReplaceCtrls *findReplace;
-    void readFindReplaceSettings(QFindReplaceCtrls *fr);
-    void writeFindReplaceSettings(QFindReplaceCtrls *fr);
+    FindReplaceCtrls *find;
+    FindReplaceCtrls *findReplace;
+    void readFindReplaceSettings(FindReplaceCtrls *fr);
+    void writeFindReplaceSettings(FindReplaceCtrls *fr);
 private:
     QAbstractItemModel *modelFromFile(const QString& fileName);
     QCompleter *completer;
 };
 
-class QFindReplaceCtrls : public QWidget
+class FindReplaceCtrls : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent = nullptr);
-    QTextEditor *_textEdit;
+    explicit FindReplaceCtrls(TextEditor *textEdit, QWidget *parent = nullptr);
+    TextEditor *_textEdit;
     HistoryLineEdit *textFind;
     HistoryLineEdit *textReplace;
     QLabel      *labelMessage;
