@@ -71,16 +71,19 @@ inline bool operator!=(const Vector3 &a, const Vector3 &b)
     return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 
-class ViewerOptions
+class NativeOptions
 {
 public:
-  ViewerOptions()
+  NativeOptions()
       :ImageType         (Options::CSI),
        ImageWidth        (800 ),
        ImageHeight       (600),
        PageWidth         (800),
        PageHeight        (600),
        StudStyle         (0 /*Plain*/),
+       IniFlag           (-1 /*NONE*/),
+       ExportMode        (-1 /*EXPORT_NONE*/),
+       LineWidth         (1.0f),
        Resolution        (150.0f),
        ModelScale        (1.0f),
        CameraDistance    (0.0f),
@@ -95,6 +98,8 @@ public:
        IsOrtho           (false),
        ZoomExtents       (false),
        AutoEdgeColor     (false),
+       HighlightNewParts (false),
+       TransBackground   (true),
        StudCylinderColor (0),
        PartEdgeColor     (0),
        BlackEdgeColor    (0),
@@ -105,16 +110,23 @@ public:
        UpVector          (Vector3(0, 0, 0))
   { }
 //  virtual ~ViewerOptions(){}
+  QStringList ExportArgs;   // New
   QString ViewerStepKey;
   QString ImageFileName;
   QString RotStepType;
   QString CameraName;
+  QString InputFileName;    // New
+  QString OutputFileName;   // New
+  QString ExportFileName;   // New
   Options::Mt ImageType;
   int ImageWidth;
   int ImageHeight;
   int PageWidth;
   int PageHeight;
   int StudStyle;
+  int IniFlag;              // New
+  int ExportMode;           // New
+  float LineWidth;          // New
   float Resolution;
   float ModelScale;
   float CameraDistance;
@@ -129,6 +141,8 @@ public:
   bool IsOrtho;
   bool ZoomExtents;
   bool AutoEdgeColor;
+  bool HighlightNewParts;    // New
+  bool TransBackground;      // New
   quint32 StudCylinderColor;
   quint32 PartEdgeColor;
   quint32 BlackEdgeColor;
@@ -137,37 +151,6 @@ public:
   Vector3 Target;
   Vector3 Position;
   Vector3 UpVector;
-};
-
-class NativeOptions : public ViewerOptions
-{
-public:
-  NativeOptions(const ViewerOptions &rhs)
-      : ViewerOptions     (rhs),
-        IniFlag           (-1 /*NONE*/),
-        ExportMode        (-1 /*EXPORT_NONE*/),
-        LineWidth         (1.0f),
-        TransBackground   (true),
-        HighlightNewParts (false)
-  { }
-  NativeOptions()
-      : ViewerOptions(),
-        IniFlag           (-1 /*NONE*/),
-        ExportMode        (-1 /*EXPORT_NONE*/),
-        LineWidth         (1.0f),
-        TransBackground   (true),
-        HighlightNewParts (false)
-  { }
-//  virtual ~NativeOptions(){}
-  QStringList ExportArgs;
-  QString InputFileName;
-  QString OutputFileName;
-  QString ExportFileName;
-  int IniFlag;
-  int ExportMode;
-  float LineWidth;
-  bool TransBackground;
-  bool HighlightNewParts;
 };
 
 // Page Options Routines

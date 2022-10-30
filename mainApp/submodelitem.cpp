@@ -423,7 +423,7 @@ int SubModel::createSubModelImage(
       StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &subModelMeta.studStyle;
       AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &subModelMeta.autoEdgeColor;
       HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &subModelMeta.highContrast;
-      viewerOptions                 = new ViewerOptions();
+      viewerOptions                 = new NativeOptions();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
       viewerOptions->FoV            = subModelMeta.cameraFoV.value();

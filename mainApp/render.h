@@ -70,7 +70,7 @@ public:
   static bool            NativeExport(const NativeOptions *);
   static float           ViewerCameraDistance(Meta &meta, float);
   static bool            RenderNativeView(const NativeOptions *, bool RenderImage = false);
-  static bool            LoadViewer(const ViewerOptions *);
+  static bool            LoadViewer(const NativeOptions *);
   static QStringList const getImageAttributes(const QString &);
   static bool            compareImageAttributes(const QStringList &, const QString &, bool pare = true);
   static void            getStudStyleAndAutoEdgeSettings(StudStyleMeta *ssm,

@@ -1062,7 +1062,7 @@ int Pli::createPartImage(
             // set viewer display options
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
-            viewerOptions                 = new ViewerOptions();
+            viewerOptions                 = new NativeOptions();
             viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
             viewerOptions->CameraName     = pliMeta.cameraName.value();
             viewerOptions->ImageFileName  = imageName;
@@ -2527,7 +2527,7 @@ int Pli::partSizeLDViewSCall() {
                     // set viewer display options
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
-                    viewerOptions                 = new ViewerOptions();
+                    viewerOptions                 = new NativeOptions();
                     viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
                     viewerOptions->CameraName     = pliMeta.cameraName.value();
                     viewerOptions->ImageFileName  = imageName;

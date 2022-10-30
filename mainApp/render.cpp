@@ -2791,24 +2791,24 @@ int Native::renderCsi(
                                          .arg(QFileInfo(pngName).fileName()));
 
   // Renderer options
-  NativeOptions *Options     = new NativeOptions();
+  NativeOptions *Options     = getCurrentStepPtr();
   Options->ViewerStepKey     = viewerStepKey;
   Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
-  Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+  Options->HighlightNewParts = false; // gui->suppressColourMeta();
   Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
   Options->ImageType         = Options::CSI;
   Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   Options->InputFileName     = ldrName;
   Options->IsOrtho           = isOrtho;
   Options->Latitude          = noCA ? 0.0 : cameraAngleX;
-  Options->LineWidth         = gui->GetPreferences().mLineWidth;
+  Options->LineWidth         = lcGetPreferences().mLineWidth;
   Options->Longitude         = noCA ? 0.0 : cameraAngleY;
   Options->ModelScale        = modelScale;
   Options->OutputFileName    = pngName;
-  Options->PageHeight        = gui->pageSize(meta.LPub.page, YY);
-  Options->PageWidth         = gui->pageSize(meta.LPub.page, XX);
+  Options->PageHeight        = Application::pageSize(meta.LPub.page, YY);
+  Options->PageWidth         = Application::pageSize(meta.LPub.page, XX);
   Options->Position          = position;
   Options->Resolution        = resolution();
   Options->Target            = target;
@@ -2837,7 +2837,7 @@ int Native::renderCsi(
           QString outPath  = gui->saveDirectoryName;
           bool ldvExport   = true;
 
-          switch (gui->exportMode){
+          switch (Options->ExportMode){
           case EXPORT_3DS_MAX:
               Options->ExportMode = int(EXPORT_3DS_MAX);
               Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
@@ -3441,18 +3441,13 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
     return Loaded;
 }
 
-bool Render::LoadViewer(const ViewerOptions *Options) {
+bool Render::LoadViewer(const NativeOptions *Options) {
 
     bool Loaded = false;
 
     if (!Preferences::modeGUI)
         return !Loaded;
 
-    NativeOptions *nativeOptions = new NativeOptions(*Options);
-    if (!nativeOptions) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not cast native options."));
-        return Loaded;
-    }
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 

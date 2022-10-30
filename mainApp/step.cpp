@@ -44,6 +44,7 @@
 #include "dependencies.h"
 #include "paths.h"
 #include "ldrawfiles.h"
+#include "lc_application.h"
 #include <LDVQt/LDVImageMatte.h>
 
 /*********************************************************************
@@ -465,7 +466,8 @@ int Step::createCsi(
       StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
       AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
       HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
-      viewerOptions                 = new ViewerOptions();
+      viewerOptions                 = new NativeOptions();
+      viewerOptions->HighlightNewParts = false; // gui->suppressColourMeta();
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
       viewerOptions->FoV            = csiStepMeta.cameraFoV.value();
@@ -474,8 +476,8 @@ int Step::createCsi(
       viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
       viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
-      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
-      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+      viewerOptions->PageHeight     = Application::pageSize(meta.LPub.page, 1);
+      viewerOptions->PageWidth      = Application::pageSize(meta.LPub.page, 0);
       viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
       viewerOptions->Resolution     = resolution();
       viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
@@ -484,6 +486,8 @@ int Step::createCsi(
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
       viewerOptions->StudStyle      = ssm->value();
+      viewerOptions->ExportMode     = gui->exportMode;
+      viewerOptions->LineWidth      = lcGetPreferences().mLineWidth;
       viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
       viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
       viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
@@ -623,7 +627,7 @@ int Step::createCsi(
   return rc;
 }
 
-bool Step::loadTheViewer(){
+bool Step::loadTheViewer() {
     if (Preferences::modeGUI && ! gui->exporting()) {
         // set the pixmap size of the step to display
         viewerOptions->ImageWidth  = csiPixmap.width();
