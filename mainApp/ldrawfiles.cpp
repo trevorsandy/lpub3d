@@ -295,7 +295,6 @@ void LDrawFile::normalizeHeader(const QString &fileName,int missing)
       }
     }
   }
-  setModified(fileName, false);
 }
 
 /* Add a new subFile */
