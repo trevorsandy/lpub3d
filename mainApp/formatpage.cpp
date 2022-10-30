@@ -88,7 +88,7 @@ void Gui::clearPage(
     }
     scene->clear();
   }
-  currentStep = nullptr;
+  LPub->currentStep = nullptr;
 }
 
 /*********************************************

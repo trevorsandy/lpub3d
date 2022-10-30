@@ -447,7 +447,7 @@ void Gui::displayPage()
     pageProcessRunning = PROC_DISPLAY_PAGE;
     emit messageSig(LOG_STATUS, "Display page...");
     timer.start();
-    bool updateViewer = currentStep ? currentStep->updateViewer : true;
+    bool updateViewer = LPub->currentStep ? LPub->currentStep->updateViewer : true;
     clearPage(KpageView,KpageScene); // this includes freeSteps() so harvest old step items before calling
     drawPage(KpageView,KpageScene,false/*printing*/,updateViewer,false/*buildMod*/);
     pageProcessRunning = PROC_NONE;

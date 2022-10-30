@@ -1123,7 +1123,7 @@ public:
   void setCurrentStep(Step *step);
   Step *getCurrentStep()
   {
-      return currentStep;
+      return LPub->currentStep;
   }
 
   bool getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber);
@@ -1606,8 +1606,7 @@ private:
   QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
-  QLabel                *progressLabelPerm;  //
-  Step                  *currentStep = getCurrentStepPtr(); // the current step as loaded in the Visual Editor
+  QLabel                *progressLabelPerm;  // 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
   QFutureWatcher<int>    futureWatcher;

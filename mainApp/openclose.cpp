@@ -380,7 +380,7 @@ void Gui::openRecentFile()
         emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
         return;
     }
-    currentStep = nullptr;
+    LPub->currentStep = nullptr;
     Paths::mkDirs();
     displayPage();
     enableActions();
@@ -408,7 +408,7 @@ void Gui::clearRecentFiles()
 
 bool Gui::loadFile(const QString &file)
 {
-    currentStep = nullptr;
+    LPub->currentStep = nullptr;
 
     QString fileName = file;
     QFileInfo info(fileName);
