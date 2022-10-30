@@ -2830,14 +2830,14 @@ int Native::renderCsi(
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI image render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
 
-  if (gui->exportingObjects()) {
+  if (Gui::exportingObjects()) {
       if (csiKeys.size()) {
           emit gui->messageSig(LOG_INFO_STATUS, "Rendering CSI Objects...");
           QString baseName = csiKeys.first();
-          QString outPath  = gui->saveDirectoryName;
+          QString outPath  = Gui::m_saveDirectoryName;
           bool ldvExport   = true;
 
-          switch (Options->ExportMode){
+          switch (Options->ExportMode) {
           case EXPORT_3DS_MAX:
               Options->ExportMode = int(EXPORT_3DS_MAX);
               Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
@@ -2866,14 +2866,14 @@ int Native::renderCsi(
           }
           // These exports are performed by the Native LDV module (LDView).
           if (ldvExport) {
-              if (gui->exportMode == EXPORT_POVRAY     ||
-                  gui->exportMode == EXPORT_STL        ||
-                  gui->exportMode == EXPORT_HTML_PARTS ||
-                  gui->exportMode == EXPORT_3DS_MAX) {
-                  Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
-                  /*  Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                         gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML_PARTS; */
+              if (Gui::m_exportMode == EXPORT_POVRAY     ||
+                  Gui::m_exportMode == EXPORT_STL        ||
+                  Gui::m_exportMode == EXPORT_HTML_PARTS ||
+                  Gui::m_exportMode == EXPORT_3DS_MAX) {
+                  Options->IniFlag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni :
+                                     Gui::m_exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+                  /*  Options->IniFlag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni :
+                                         Gui::m_exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML_PARTS; */
               }
 
               ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";

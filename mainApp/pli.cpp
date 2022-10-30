@@ -1055,7 +1055,7 @@ int Pli::createPartImage(
         // Set Visual Editor PLI part entry
         bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
 
-        if ((! gui->exportingObjects() || nativeRenderer) && pT == NORMAL_PART) {
+        if ((! Gui::exportingObjects() || nativeRenderer) && pT == NORMAL_PART) {
             StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
             AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
             HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;
@@ -1962,7 +1962,7 @@ void Pli::getRightEdge(
 }
 
 bool Pli::loadTheViewer(){
-    if (! gui->exporting()) {
+    if (! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Pli part key: %1")
                                  .arg(viewerPliPartKey));
@@ -2520,7 +2520,7 @@ int Pli::partSizeLDViewSCall() {
 #endif
 
                 // Set Visual Editor PLI part entry
-                if (! gui->exportingObjects() && pT == NORMAL_PART) {
+                if (! Gui::exportingObjects() && pT == NORMAL_PART) {
                     StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
                     AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
                     HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;

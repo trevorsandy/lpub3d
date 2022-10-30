@@ -392,7 +392,7 @@ int Step::createCsi(
 
   // Generate Visual Editor CSI entry - this must come before 'Generate and renderer Submodel file'
   // as we are using the entered key to renderCsi
-  if (!gui->exportingObjects() || nativeRenderer) {
+  if (!Gui::exportingObjects() || nativeRenderer) {
 
       timer.start();
 
@@ -486,7 +486,7 @@ int Step::createCsi(
       viewerOptions->EdgeContrast   = aecm->contrast.value();
       viewerOptions->EdgeSaturation = aecm->saturation.value();
       viewerOptions->StudStyle      = ssm->value();
-      viewerOptions->ExportMode     = gui->exportMode;
+      viewerOptions->ExportMode     = Gui::m_exportMode;
       viewerOptions->LineWidth      = lcGetPreferences().mLineWidth;
       viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
       viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
@@ -603,7 +603,7 @@ int Step::createCsi(
                                           .arg(gui->stepPageNum));
      }
 
-     if (gui->exportingObjects() && gui->m_partListCSIFile){
+     if (Gui::exportingObjects() && gui->m_partListCSIFile){
          pixmap->load(":/resources/placeholderimage.png");  // image placeholder
          csiPlacement.size[0] = pixmap->width();
          csiPlacement.size[1] = pixmap->height();
@@ -628,7 +628,7 @@ int Step::createCsi(
 }
 
 bool Step::loadTheViewer() {
-    if (Preferences::modeGUI && ! gui->exporting()) {
+    if (Preferences::modeGUI && ! Gui::exporting()) {
         // set the pixmap size of the step to display
         viewerOptions->ImageWidth  = csiPixmap.width();
         viewerOptions->ImageHeight = csiPixmap.height();
@@ -2259,7 +2259,7 @@ void Step::addGraphicsItems(
 
   // CSI annotations
   if (csiItem->assem->annotation.display.value() &&
-      ! gui->exportingObjects())
+      ! Gui::exportingObjects())
       csiItem->placeCsiPartAnnotations();
 
   // PLI

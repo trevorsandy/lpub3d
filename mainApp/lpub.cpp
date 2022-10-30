@@ -110,6 +110,14 @@ public:
 
 QHash<SceneObject, QString> soMap;
 
+bool    Gui::m_exportingContent;     // indicate export/printing underway
+bool    Gui::m_exportingObjects;     // indicate exporting non-image object file content
+bool    Gui::m_contPageProcessing;   // indicate continuous page processing underway
+bool    Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
+
+int     Gui::m_exportMode;           // export Mode
+QString Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
+
 /****************************************************************************
  *
  * Download with progress monotor
@@ -774,7 +782,7 @@ bool Gui::continuousPageDialog(PageDirection d)
   QElapsedTimer continuousTimer;
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
-  exportMode = PAGE_PROCESS;
+  m_exportMode = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
@@ -1510,7 +1518,7 @@ void Gui::deployExportBanner(bool b)
 
 #endif
 
-      installExportBanner(exportMode, exportBanner,imageFile);
+      installExportBanner(m_exportMode, exportBanner,imageFile);
     }
 }
 
@@ -3398,7 +3406,7 @@ Gui::Gui()
 
     pageProcessRunning              = PROC_NONE;        // display page process
     processOption                   = EXPORT_ALL_PAGES; // export process
-    exportMode                      = EXPORT_PDF;
+    m_exportMode                      = EXPORT_PDF;
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
     mloadingFile                    = false;

@@ -427,9 +427,9 @@ void Gui::exportAsObjDialog(){
 
 bool Gui::exportAsDialog(ExportMode m)
 {
-  exportMode = m;
+  m_exportMode = m;
 
- if (exportMode != PAGE_PROCESS)
+ if (m_exportMode != PAGE_PROCESS)
      pageDirection = PAGE_NEXT;
 
   if (Preferences::modeGUI) {
@@ -465,7 +465,7 @@ bool Gui::exportAsDialog(ExportMode m)
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
       }
 
-      if (exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
+      if (m_exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
       {
         Preferences::pdfPageImage = dialog->pdfPageImage();
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"),Preferences::pdfPageImage);
@@ -1288,7 +1288,7 @@ void Gui::exportAsPdf()
 void Gui::exportAs(const QString &_suffix)
 {
   QString suffix = _suffix;
-  QString directoryName = saveDirectoryName.isEmpty() ? QDir::currentPath() : saveDirectoryName;
+  QString directoryName = m_saveDirectoryName.isEmpty() ? QDir::currentPath() : m_saveDirectoryName;
 
   QString type;
   if (suffix == ".png" ||
@@ -1316,14 +1316,14 @@ void Gui::exportAs(const QString &_suffix)
 
       setNativeRenderer();
 
-      if (saveDirectoryName.isEmpty()) {
+      if (m_saveDirectoryName.isEmpty()) {
           char *exportsDir = nullptr;
           exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
           if (exportsDir) {
               stripTrailingPathSeparators(exportsDir);
-              saveDirectoryName = exportsDir;
+              m_saveDirectoryName = exportsDir;
           } else {
-              saveDirectoryName = directoryName;
+              m_saveDirectoryName = directoryName;
           }
           delete[] exportsDir;
       }
@@ -1342,7 +1342,7 @@ void Gui::exportAs(const QString &_suffix)
   QString baseName = fileInfo.completeBaseName();
   baseName += dpiInfo;
 
-  if (Preferences::modeGUI && saveDirectoryName.isEmpty()) {
+  if (Preferences::modeGUI && m_saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
             this,
             tr("Save %1 %2 to folder").arg(suffix).arg(type),
@@ -1353,10 +1353,10 @@ void Gui::exportAs(const QString &_suffix)
           emit setExportingSig(false);
           return;
       }
-      saveDirectoryName = directoryName;
+      m_saveDirectoryName = directoryName;
   } else
-    if (!saveDirectoryName.isEmpty()) {
-      directoryName = saveDirectoryName;
+    if (!m_saveDirectoryName.isEmpty()) {
+      directoryName = m_saveDirectoryName;
   }
 
   LGraphicsScene scene;
@@ -1641,7 +1641,7 @@ void Gui::exportAs(const QString &_suffix)
                                           .arg(suffix).arg(type).arg(directoryName));
     }
 
-    saveDirectoryName.clear();
+    m_saveDirectoryName.clear();
 }
 
 //-----------------PRINT FUNCTIONS------------------------//

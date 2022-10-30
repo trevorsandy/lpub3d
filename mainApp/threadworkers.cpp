@@ -2290,7 +2290,7 @@ int CountPageWorker::countPage(
 
   auto documentPageCount = [&opts] ()
   {
-      if (Preferences::modeGUI && ! gui->exporting()) {
+      if (Preferences::modeGUI && ! Gui::exporting()) {
           statusMessage(LOG_COUNT_STATUS, QString("Counting document page %1...")
                                                   .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
       }
@@ -2382,7 +2382,7 @@ int CountPageWorker::countPage(
 
                                   // save Default pageSize information
                                   PgSizeData pageSize2;
-                                  if (gui->exporting()) {
+                                  if (Gui::exporting()) {
                                       pageSize2       = gui->getPageSize(DEF_SIZE);
                                       opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
@@ -2414,7 +2414,7 @@ int CountPageWorker::countPage(
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
                                   meta->submodelStack.pop_back();           // remove where we stopped in the parent model
 
-                                  if (gui->exporting()) {
+                                  if (Gui::exporting()) {
                                       removePageSize(DEF_SIZE);
                                       insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
@@ -2503,7 +2503,7 @@ int CountPageWorker::countPage(
                   }
 
                   // ignored when processing buildMod display
-                  if (gui->exporting()) {
+                  if (Gui::exporting()) {
                       gui->getPageSizes().remove(opts.pageNum);
                       if (opts.flags.pageSizeUpdate) {
                           opts.flags.pageSizeUpdate = false;
@@ -2695,7 +2695,7 @@ int CountPageWorker::countPage(
                   // Added callout step parse for parse build modifications so
                   // exclude from page number increment and topOfPages indices
                   if ( ! opts.flags.stepGroup && ! opts.flags.callout) {
-                      if (gui->exporting()) {
+                      if (Gui::exporting()) {
                           gui->getPageSizes().remove(opts.pageNum);
                           if (opts.flags.pageSizeUpdate) {
                               opts.flags.pageSizeUpdate = false;
@@ -2836,7 +2836,7 @@ int CountPageWorker::countPage(
 
             case PageSizeRc:
               {
-                if (gui->exporting()) {
+                if (Gui::exporting()) {
                     opts.flags.pageSizeUpdate  = true;
 
                     opts.pageSize.sizeW  = meta->LPub.page.size.valueInches(0);
@@ -2862,7 +2862,7 @@ int CountPageWorker::countPage(
 
             case PageOrientationRc:
               {
-                if (gui->exporting()){
+                if (Gui::exporting()){
                     opts.flags.pageSizeUpdate      = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
@@ -2902,7 +2902,7 @@ int CountPageWorker::countPage(
   // Added callout step parse for parse build modifications so
   // exclude from page number increment and topOfPages indices
   if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
-      if (gui->exporting()) {
+      if (Gui::exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {
               opts.flags.pageSizeUpdate = false;

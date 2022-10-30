@@ -36,25 +36,25 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     bool preview = gui->m_previewDialog;
     linePageRange  = gui->setPageLineEdit->displayText().replace("of","-").replace(" ","");
 
-    if (gui->exportMode != PAGE_PROCESS) {
+    if (Gui::m_exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
         ui->pageProcessingContinuousBox->hide();
     }
 
     if ((! preview) &&
-        (gui->exportMode == EXPORT_POVRAY ||
-         gui->exportMode == EXPORT_STL    ||
-         gui->exportMode == EXPORT_3DS_MAX)){
-        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
-//        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
+        (Gui::m_exportMode == EXPORT_POVRAY ||
+         Gui::m_exportMode == EXPORT_STL    ||
+         Gui::m_exportMode == EXPORT_3DS_MAX)){
+        flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni :
+               Gui::m_exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+//        flag = Gui::m_exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
         ui->gropuBoxLDVExport->setTitle(QString("%1 Export Settings")
                                                 .arg(iniFlagNames[IniFlag(flag)]));
     } else {
         ui->gropuBoxLDVExport->hide();
     }
 
-    if (! preview && gui->exportMode != EXPORT_PDF) {
+    if (! preview && Gui::m_exportMode != EXPORT_PDF) {
         ui->groupBoxMixedPageSizes->hide();
     } else {
         ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
@@ -68,20 +68,20 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 
     QString pages(QString::number(1 + gui->pa));
     if (gui->pageDirection == PAGE_NEXT) {
-        if (gui->exportMode == PAGE_PROCESS)
+        if (Gui::m_exportMode == PAGE_PROCESS)
             pages = QString::number(++gui->displayPageNum);
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(gui->maxPages));
         ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(gui->maxPages));
     } else {
         pages = QString::number(gui->maxPages);
-        if (gui->exportMode == PAGE_PROCESS)
+        if (Gui::m_exportMode == PAGE_PROCESS)
             pages = QString::number(++gui->displayPageNum);
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + gui->pa));
         ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(1 + gui->pa));
     }
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
-    switch(gui->exportMode){
+    switch(Gui::m_exportMode){
     case PRINT_FILE:
         setWindowTitle(tr("%1 file").arg(preview ? "Print preview":"Print to"));
         ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Print preview":"Export to file"));
@@ -164,7 +164,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         break;
     }
 
-    switch(gui->exportMode) {
+    switch(Gui::m_exportMode) {
     case EXPORT_PDF:
     case EXPORT_PNG:
     case EXPORT_JPG:
@@ -198,7 +198,7 @@ void DialogExportPages::getPixelRatioMsg(double value)
 {
     ui->labelPixelRatioFactor->setText(QString("Export DPI %1px")
                                        .arg(value*int(resolution())));
-    ui->checkBoxPdfPageImage->setVisible(gui->exportMode == EXPORT_PDF);
+    ui->checkBoxPdfPageImage->setVisible(Gui::m_exportMode == EXPORT_PDF);
     ui->checkBoxPdfPageImage->setChecked(Preferences::pdfPageImage || value > 1.0 || value < 1.0);
     ui->checkBoxPdfPageImage->setEnabled(value == 1.0);
 }

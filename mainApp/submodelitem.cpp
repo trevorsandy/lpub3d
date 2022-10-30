@@ -342,7 +342,7 @@ int SubModel::createSubModelImage(
   // as we are using the entered key to renderCsi
   bool nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
 
-  if (!gui->exportingObjects() || nativeRenderer) {
+  if (!Gui::exportingObjects() || nativeRenderer) {
 
       if (viewerSubmodel)
           timer.start();
@@ -1193,7 +1193,7 @@ void SubModel::getRightEdge(
 }
 
 bool SubModel::loadTheViewer(){
-    if (Preferences::modeGUI && ! gui->exporting()) {
+    if (Preferences::modeGUI && ! Gui::exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load Visual Editor with Submodel key: %1")
                                  .arg(viewerSubmodelKey));

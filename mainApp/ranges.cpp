@@ -742,7 +742,7 @@ Boundary Steps::boundary(AbstractStepsElement *me)
 void Steps::setCsiAnnotationMetas(bool force)
 {
   if (! meta.LPub.assem.annotation.display.value() ||
-      gui->exportingObjects())
+      Gui::exportingObjects())
       return;
 
   MetaItem mi;

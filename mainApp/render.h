@@ -86,8 +86,8 @@ public:
                                      const int additionalArgs = 1,
                                      const bool quoteNewArg = false);
   static bool            doLDVCommand(const QStringList &args,
-                                    int = -1 /*EXPORT_NONE*/,
-                                    int = 6 /*NumIniFiles*/);
+                                      int exportMode = -1 /*EXPORT_NONE*/,
+                                      int = 6 /*NumIniFiles*/);
   static int             createNativeModelFile(QStringList &rotatedParts,
                                      bool doFadeStep,
                                      bool doHighlightStep,

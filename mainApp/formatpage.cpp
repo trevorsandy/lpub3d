@@ -803,7 +803,7 @@ int Gui::addGraphicsPageItems(
                   // place CSI annotations //
 
                   if (step->csiItem->assem->annotation.display.value() &&
-                      ! gui->exportingObjects())
+                      ! Gui::exportingObjects())
                       step->csiItem->placeCsiPartAnnotations();
 
                   // add the SM relative to the entire step's box

@@ -344,7 +344,7 @@ int Gui::processCommandLine()
         ParseString(exportOption, true);
       else
       if (Param == QLatin1String("-od") || Param == QLatin1String("--export-directory"))
-        ParseString(saveDirectoryName, true);
+        ParseString(m_saveDirectoryName, true);
       else
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, true);

@@ -480,7 +480,6 @@ public:
 
   int             pa;               // page adjustment
   int             sa;               // step number adustment
-  int             exportMode;       // export Mode
   int             processOption;    // export Option
   int             pageDirection;    // page processing direction
   int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
@@ -490,7 +489,9 @@ public:
   bool            resetCache;        // reset model, fade and highlight parts
   bool            buildModJumpForward; // parse build mods in countPage call - special case for jump forward
   QString         saveFileName;      // user specified output file Name [commandline only]
-  QString         saveDirectoryName; // user specified output directory name [commandline only]
+
+  static int       m_exportMode;        // export Mode
+  static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialogue
@@ -1379,20 +1380,23 @@ public slots:
 
   void openDropFile(QString &fileName);
 
-  void deployExportBanner(bool b);
-  void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
-  void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
-  void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
-  bool exporting() { return m_exportingContent; }
-  bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
-  bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
-  bool countWaitForFinished() { return m_countWaitForFinished; }
-  void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
+  static void deployExportBanner(bool b);
+  static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
+  static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
+  static void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
+  static bool exporting() { return m_exportingContent; }
+  static bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
+  static bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
+  static bool countWaitForFinished() { return m_countWaitForFinished; }
+  static void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
+
+  static int exportMode() { return m_exportMode; }
+  static QString saveDirectoryName () { return m_saveDirectoryName; }
 
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
-  void setContinuousPage(bool b){ m_contPageProcessing = b; }
   bool ContinuousPage() { return m_contPageProcessing; }
+  void setContinuousPage(bool b){ m_contPageProcessing = b; }
   void cancelContinuousPage(){ m_contPageProcessing = false; }
 
   // left side progress bar
@@ -1612,10 +1616,10 @@ private:
   QFutureWatcher<int>    futureWatcher;
   QMutex                 countPagesMutex;
 
-  bool                   m_exportingContent; // indicate export/printing underway
-  bool                   m_exportingObjects; // indicate exporting non-image object file content
-  bool                   m_contPageProcessing; // indicate continuous page processing underway
-  bool                   m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
+  static bool            m_exportingContent;     // indicate export/printing underway
+  static bool            m_exportingObjects;     // indicate exporting non-image object file content
+  static bool            m_contPageProcessing;   // indicate continuous page processing underway
+  static bool            m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
