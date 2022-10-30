@@ -277,8 +277,23 @@ int Render::rotateParts(
   return 0;
 }
 
-// RotateParts #3 - 5 parms
+// RotateParts #3 - 5 parms - stub for rotateParts5()
 int Render::rotateParts(
+        const QString &addLine,
+        RotStepMeta   &rotStep,
+        QStringList   &parts,
+        FloatPairMeta &ca,
+        bool          applyCA /* true */)
+{
+    return rotateParts5(
+                addLine,
+                rotStep,
+                parts,
+                ca,
+                applyCA);
+}
+// RotateParts #3 - 5 parms - renamed for QtConcurrent::run (clashes with #1 which also has 5 parms)
+int Render::rotateParts5(
         const QString &addLine,
         RotStepMeta   &rotStep,
         QStringList   &parts,

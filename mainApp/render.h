@@ -28,8 +28,6 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include <QString>
-#include <QStringList>
 #include "options.h"
 
 class QString;
@@ -109,7 +107,7 @@ public:
                                      const QString &rs,
                                      QString &ca,
                                      int imageType);
-  static int             rotateParts(const QString &addLine,     // RotateParts #2 - 8 parms
+  static int             rotateParts(const QString &addLine,     // RotateParts #2 - 8 parms - stub for rotateParts5()
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
                                      QString &ldrName,
@@ -117,6 +115,11 @@ public:
                                      FloatPairMeta &ca,
                                      bool ldv,
                                      int imageType);
+  static int           rotateParts5(const QString &addLine,      // RotateParts #3 - 5 parms - renamed for QtConcurrent::run (clashes with #1 which also has 5 parms)
+                                     RotStepMeta &rotStep,
+                                     QStringList &parts,
+                                     FloatPairMeta &ca,
+                                     bool  applyCA = true);
   static int             rotateParts(const QString &addLine,     // RotateParts #3 - 5 parms
                                      RotStepMeta &rotStep,
                                      QStringList &parts,

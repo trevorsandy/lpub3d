@@ -405,24 +405,35 @@ int Step::createCsi(
 
           updateViewer = true; // just to be safe
 
-          // set rotated parts
-          QStringList rotatedParts = csiParts;
+          // set rotated parts - input in csiParts
+          QFuture<QStringList> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
+              QStringList futureParts = csiParts;
+              const QString futureLine = addLine;
+              // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
+              if (renderer->rotateParts5(futureLine,meta.rotStep,futureParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/) != 0)
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+              // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
+              futureParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+              return futureParts;
+          });
 
-          // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
-          if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
-              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
-
-          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
-          rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+          QStringList rotatedParts = RenderFuture.result();
+          rc = rotatedParts.isEmpty();
 
           // Prepare content for Native renderer
           if (Preferences::inlineNativeRenderFiles) {
-              // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
-              renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
+              QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedParts] () {
+                  QStringList futureParts = rotatedParts;
+                  // header and closing meta for Visual Editor - this call returns an updated rotatedParts file
+                  renderer->setLDrawHeaderAndFooterMeta(futureParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
+                  // consolidate subfiles and parts into single file
+                  if (renderer->createNativeModelFile(futureParts,fadeSteps,highlightStep) != 0)
+                      emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+                  return futureParts;
+              });
 
-              // consolidate subfiles and parts into single file
-              if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
-                  emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+              rotatedParts = RenderFuture.result();
+              rc = rotatedParts.isEmpty();
           }
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
@@ -472,10 +483,11 @@ int Step::createCsi(
       viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
       viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();
 
+#ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_INFO,
                            QString("Generate Visual Editor step options entry took %1 milliseconds.")
                                    .arg(timer.elapsed()));
-
+#endif
 //      moved to drawPage::StepRc
 //      if (!calledOut && !multiStep && updateViewer)
 //          loadTheViewer();
@@ -503,13 +515,22 @@ int Step::createCsi(
             meta.LPub.highlightStep.setPreferences();
          }
 
-         // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::CSI)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
-                                                   .arg(ldrName));
-             pngName = QString(":/resources/missingimage.png");
-             rc = -1;
-         }
+         // set rotated parts
+         QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&meta,&csiParts,&noCA,&cameraAngles,absRotstep] () {
+             int rcf = 0;
+             QStringList futureParts = csiParts;
+             const QString futureLine = addLine;
+             // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
+             if ((rcf = renderer->rotateParts(futureLine, meta.rotStep, futureParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::CSI)) != 0) {
+                 emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
+                                                       .arg(ldrName));
+                 pngName = QString(":/resources/missingimage.png");
+                 rcf = -1;
+             }
+             return rcf;
+         });
+
+         rc = RenderFuture.result();
      }
 
      bool showStatus = gui->m_partListCSIFile;
