@@ -2788,6 +2788,7 @@ int Gui::findPage(
 #endif
       topOfPages.clear();
       topOfPages.append(opts.current);
+      LDrawFile::_currentLevels.clear();
   }
 
   Rc rc;
@@ -4490,6 +4491,8 @@ void Gui::countPages()
                   0              /*groupStepNumber*/,
                   empty          /*renderParentModel*/);
 
+      LDrawFile::_currentLevels.clear();
+
       QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, opts);
       future.waitForFinished();
       pagesCounted();
@@ -5194,7 +5197,10 @@ int Gui::setBuildModForNextStep(
     }
 
     if (hitEndOfSubmodel)
-        return 4 /*HitEndOfSubmodel*/;
+        return HitEndOfSubmodel;
+
+    if (!submodel)
+        LDrawFile::_currentLevels.clear();
 
     QString line = readLine(walk);
     Rc rc = page.meta.parse(line, walk, false);
@@ -5349,6 +5355,8 @@ void Gui::writeToTmp(const QString &fileName,
     } else {
 
       mWriteToTmpMutex.lock();
+
+      LDrawFile::_currentLevels.clear();
 
       Where topOfStep(fileName, getSubmodelIndex(fileName), 0);
 
@@ -5532,8 +5540,6 @@ void Gui::writeToTmp()
 
   QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
 
-  LDrawFile::_currentLevels.clear();
-
   QString message;
   QString fileName;
   QString fileType;
@@ -5682,8 +5688,6 @@ void Gui::writeToTmp()
       Future.waitForFinished();
 
   writeToTmpFutures.clear();
-
-  LDrawFile::_currentLevels.clear();
 
   if (Preferences::modeGUI && !exporting()) {
       if (GetViewPieceIcons() && !submodelIconsLoaded) {

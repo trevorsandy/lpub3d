@@ -997,7 +997,6 @@ void Gui::fileChanged(const QString &path)
 void Gui::writeGeneratedColorPartsToTemp() {
   emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
   int count = 0;
-  LDrawFile::_currentLevels.clear();
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
     QString fileName = ldrawFile._subFileOrder[i];
     if (ldrawColourParts.isLDrawColourPart(fileName)) {
@@ -1010,7 +1009,6 @@ void Gui::writeGeneratedColorPartsToTemp() {
   }
   if (!count)
       emit messageSig(LOG_INFO, tr("No generated parts written."));
-  LDrawFile::_currentLevels.clear();
 }
 
 bool Gui::setFadeStepsFromCommand()
