@@ -1338,13 +1338,15 @@ void Gui::displayFile(
           bool       displayStartPage/*false*/)
 {
     if (! exporting()) {
-#ifdef QT_DEBUG_MODE        
+#ifdef QT_DEBUG_MODE
         QElapsedTimer t;
         t.start();
 #endif        
         const QString &modelName = here.modelName;
         if (editModelFile) {
-            displayModelFileSig(ldrawFile, modelName);
+
+            emit displayModelFileSig(ldrawFile, modelName);
+
         } else {
 
             if (!displayStartPage) {
@@ -1358,7 +1360,7 @@ void Gui::displayFile(
             int stepNumber = 1;
             Where top = here;
             Where bottom = here;
-            if (!pageProcessRunning && !exporting()) {
+            if (pageProcessRunning == PROC_NONE && !exporting()) {
                 if (getCurrentStep()) {
                     top = getCurrentStep()->topOfStep();
                     bottom = getCurrentStep()->bottomOfStep();
@@ -1371,39 +1373,42 @@ void Gui::displayFile(
                         rc = mi->scanForward(bottom, StepMask|StepGroupEndMask, partsAdded);
                 }
             }
+
             const StepLines lineScope(top.lineNumber, bottom.lineNumber);
-            displayFileSig(ldrawFile, modelName, lineScope);
-#ifdef QT_DEBUG_MODE            
-            emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
-                            .arg(stepNumber)
-                            .arg(top.lineNumber + 1    /*adjust for 0-index*/)
-                            .arg(bottom.lineNumber + 1 /*adjust for 0-index - top next step*/)
-                            .arg(elapsedTime(t.elapsed())));
-#endif
-            if (curSubFile == modelName)
-                return;
-            else
-                curSubFile = modelName;
+            emit displayFileSig(ldrawFile, modelName, lineScope);
+
+            if (Preferences::debugLogging) {
+                emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
+                                .arg(stepNumber)
+                                .arg(top.lineNumber + 1    /*adjust for 0-index*/)
+                                .arg(bottom.lineNumber + 1 /*adjust for 0-index - top next step*/)
+                                .arg(elapsedTime(t.elapsed())));
+            }
 
             if (displayStartPage) {
-               countPages();
                int inputPageNum = ldrawFile->getModelStartPageNumber(modelName);
+               if (!inputPageNum) {
+                   countPages();
+                   inputPageNum = ldrawFile->getModelStartPageNumber(modelName);
+               }
                if (inputPageNum && displayPageNum != inputPageNum)
                    cyclePageDisplay(inputPageNum);
             }
 
-            int saveIndex = mpdCombo->currentIndex();
-            int currentIndex = -1;
+            if (curSubFile == modelName)
+                return;   // work is done here.
+            else
+                curSubFile = modelName;
+
+            const int currentIndex = mpdCombo->currentIndex();
             for (int i = 0; i < mpdCombo->count(); i++) {
                 if (mpdCombo->itemText(i) == modelName) { // will never equal Include File
-                    currentIndex = i;
+                    if (i != currentIndex) {
+                        mpdCombo->setCurrentIndex(i);
+                        mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+                    }
                     break;
                 }
-            }
-
-            if (currentIndex > -1 && currentIndex != saveIndex) {
-                mpdCombo->setCurrentIndex(currentIndex);
-                mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
             }
 
             ldrawFile->setModified(modelName, false);
@@ -1414,7 +1419,7 @@ void Gui::displayFile(
 void Gui::displayParmsFile(
   const QString &fileName)
 {
-    displayParmsFileSig(fileName);
+    emit displayParmsFileSig(fileName);
 }
 
 void Gui::refreshModelFile()
@@ -3425,11 +3430,11 @@ Gui::Gui()
 
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
 
-    connect(lpub,           SIGNAL(messageSig(LogType,QString)),
+    connect(lpub,           SIGNAL(messageSig( LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 
     // Gui
-    connect(this,           SIGNAL(messageSig(LogType,QString)),
+    connect(this,           SIGNAL(messageSig( LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 
     connect(this,           SIGNAL(setExportingSig(bool)),
@@ -3443,7 +3448,7 @@ Gui::Gui()
 
     // Gui - ParmsWindow
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
-            parmsWindow,    SLOT( displayParmsFile   (const QString &)));
+            parmsWindow,    SLOT( displayParmsFile(    const QString &)));
 
     // Gui - EditWindow
     connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &, const StepLines &)),
@@ -3472,7 +3477,7 @@ Gui::Gui()
 
     // Edit Window - Gui
     connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
-            this,           SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
+            this,           SLOT(SelectedPartLines(     QVector<TypeLine>&,PartSource)));
 
     connect(editWindow,     SIGNAL(redrawSig()),
             this,           SLOT(  clearAndReloadModelFile()));
@@ -3484,7 +3489,7 @@ Gui::Gui()
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
     connect(editWindow,     SIGNAL(setStepForLineSig(const TypeLine &)),
-            this,           SLOT(  setStepForLine(const TypeLine &)));
+            this,           SLOT(  setStepForLine(   const TypeLine &)));
 
     connect(editWindow,     SIGNAL(editModelFileSig()),
             this,           SLOT(  editModelFile()));
@@ -3501,7 +3506,7 @@ Gui::Gui()
             editModeWindow, SLOT(  setTextEditHighlighter()));
 
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
-            editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
+            editModeWindow, SLOT(  displayFile(        LDrawFile *, const QString &)));
 
     connect(editModeWindow, SIGNAL(refreshModelFileSig()),
             this,           SLOT(  refreshModelFile()));

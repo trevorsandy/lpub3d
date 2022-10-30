@@ -3381,7 +3381,7 @@ void Gui::setStepForLine(const TypeLine &here)
         return;
 
     // limit the scope to the current page
-    const QString stepKey = getViewerStepKeyFromRange(Where(here.modelIndex, here.lineIndex), topOfPage(), bottomOfPage());
+    const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, topOfPage().modelIndex,topOfPage().lineNumber, bottomOfPage().modelIndex, bottomOfPage().lineNumber);
 
     if (!stepKey.isEmpty()) {
         if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {

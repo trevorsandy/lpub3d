@@ -358,9 +358,7 @@ class LoadModelWorker : public QObject
 public slots:
     static int loadModel(
             LDrawFile *,
-      const QString &,
-            bool,
-            bool,
+     const QString &,
             bool);
 private:
     static void statusMessage(const LogType, const QString &);

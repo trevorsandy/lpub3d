@@ -82,6 +82,7 @@ class EditWindow : public QMainWindow
 
 public:
     explicit EditWindow(QMainWindow *parent = nullptr, bool modelFileEdit = false);
+    ~EditWindow();
     QTextEditor *textEdit()
     {
         return _textEdit;
@@ -171,6 +172,7 @@ private slots:
     void waitingSpinnerStart();
     void waitingSpinnerStop();
     void contentLoaded();
+    void loadFinished();
 
 protected:
     void createActions();
@@ -268,7 +270,7 @@ protected:
     QAction  *redoAct;
 };
 
-extern class EditWindow *editWindow;
+extern class EditWindow *cmdEditor;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
