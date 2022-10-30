@@ -32,6 +32,8 @@
 
 #define RUN_APPLICATION 2
 
+Application* LPub;
+
 #ifdef Q_OS_WIN
 
   #include <stdio.h>
@@ -241,6 +243,13 @@ Application::Application(int &argc, char **argv)
   Preferences::setDistribution();
 #endif
   m_instance = this;
+
+  LPub = this;
+}
+
+Application::~Application()
+{
+    LPub = nullptr;
 }
 
 Application* Application::instance()
@@ -545,6 +554,42 @@ void Application::setTheme(bool appStarted)
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(visualEditorTheme));
 }
 
+QStringList Application::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
+{
+    // viewerStepKey - 3 elements:
+    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
+    // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
+    // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
+    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
+    // confirm keys has at least 3 elements
+    if (keys.size() < 3) {
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
+#endif
+        return QStringList();
+    } else if (keys.at(2).count("_")) {
+        QStringList displayStepKeys = keys.at(2).split("_");
+        keys.removeLast();
+        keys.append(displayStepKeys);
+    }
+
+    if (!pliPart) {
+        bool ok;
+        int modelNameIndex = keys[0].toInt(&ok);
+        if (!ok) {
+#ifdef QT_DEBUG_MODE
+            emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+#endif
+            return QStringList();
+        }
+
+        if (modelName)
+            keys.replace(0,ldrawFile.getSubmodelName(modelNameIndex));
+    }
+
+    return keys;
+}
+
 int Application::initialize()
 {
 #ifdef Q_OS_MAC
@@ -557,7 +602,8 @@ int Application::initialize()
     m_parent_console = false;
 #endif
 
-    connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
+    connect(this,           SIGNAL(splashMsgSig(QString)),
+            this,           SLOT(splashMsg(QString)));
 
     // process arguments
     bool header_printed = false;

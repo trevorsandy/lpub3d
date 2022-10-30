@@ -363,7 +363,9 @@
 #include "lpub_preferences.h"
 #include "ldrawcolourparts.h"
 #include "plisubstituteparts.h"
-#include "QsLog.h"    
+#include "QsLog.h"
+
+#include "application.h"
 
 // Set to enable file watcher
 #ifndef WATCHER
@@ -441,7 +443,6 @@ class Page;
 class PageMeta;
 class PageNumberItem;
 class PartWorker;
-class PgSizeData;
 class PgSizeData;
 class Placement;
 class PlacementFooter;
@@ -1224,7 +1225,6 @@ public slots:
   void SetRotStepMeta();
   void SetActiveModel(const QString &modelName, bool setActive);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
-  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void openFolderSelect(const QString &absoluteFilePath);
   void setViewerStepKey(const QString &stepKey, int notPliPart);
   void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
@@ -1321,7 +1321,6 @@ public slots:
   void                   SetSubmodelIconsLoaded(bool);
 
   int                    Process3DViewerCommandLine();
-  bool                   OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
   void                   LoadColors();
@@ -1354,9 +1353,8 @@ public slots:
                   bool option = false,
                   bool override = false);
 
-  void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
-
+  void statusMessage(LogType logType, QString message);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
 
@@ -1376,6 +1374,8 @@ public slots:
   {
      return ldrawColourParts.isLDrawColourPart(fileName);
   }
+
+  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
 
   void openDropFile(QString &fileName);
 
@@ -1555,15 +1555,17 @@ signals:
   void setPliIconPathSig(QString &,QString &);
 
 public:
-  Page                  page;                         // the abstract version of page contents
+  Page                  &page = getPageRef();         // the abstract version of page contents
+
+  ParmsWindow           *parmsWindow;                 // the parameter file editor
 
   // multi-thread worker classes
   PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
-  ParmsWindow           *parmsWindow;                 // the parameter file editor
-  Preferences            lpub3dPreferences;           // lpub3D Preferences
   LDrawColourParts       ldrawColourParts;            // load the LDraw color parts list
+  LDrawFile             &ldrawFile = getLdrawFileRef(); // contains MPD or all files used in model
+  Preferences           &lpub3dPreferences = getPreferencesRef(); // lpub3D Preferences
 
 protected:
   // capture camera rotation from Visual Editor module
@@ -1572,11 +1574,11 @@ protected:
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
-  QString                viewerStepKey;        // currently loaded CSI in Visual Editor
+  QString               &viewerStepKey = getViewerStepKeyRef(); // currently loaded CSI in Visual Editor
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
 
-  QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
+  QMap<int, PgSizeData>  pageSizes; // page size and orientation object
 
   QMutex                 mWriteToTmpMutex;
 
@@ -1592,8 +1594,8 @@ private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
   LGraphicsView         *KpageView;          // the visual representation of the scene
   WaitingSpinnerWidget  *waitingSpinner;     // waiting spinner animation
-  LDrawFile              ldrawFile;          // contains MPD or all files used in model
-  Meta                   meta;               // meta command container
+
+  Meta                  &meta = getMetaRef();   // meta command container
   Where                  current;            // current line being parsed by drawPage
   QString                curFile;            // the file name for MPD, or top level file
   QString                exportedFile;       // the print preview produced pdf file
@@ -1605,7 +1607,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  Step                  *currentStep;        // the current step as loaded in the Visual Editor
+  Step                  *currentStep = getCurrentStepPtr(); // the current step as loaded in the Visual Editor
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
   QFutureWatcher<int>    futureWatcher;
@@ -2258,14 +2260,8 @@ private:
 extern QHash<SceneObject, QString> soMap;
 extern class Gui *gui;
 
-inline Preferences& lpub3DGetPreferences()
-{
-    return gui->lpub3dPreferences;
-}
-
 inline PartWorker& partWorkerLDSearchDirs()
 {
     return gui->partWorkerLDSearchDirs;
 }
-
 #endif

@@ -32,6 +32,13 @@
 
 #include "lc_math.h"
 
+#include "ldrawfiles.h"
+#include "metatypes.h"
+#include "ranges.h"
+#include "meta.h"
+#include "step.h"
+
+class NativeOptions;
 class InitException: public QException
 {
 public:
@@ -49,6 +56,7 @@ class Application : public QObject
 public:
     /// Creates the Application.
     Application(int& argc, char **argv);
+    ~Application();
 
     /// Returns a pointer to the current Application instance;
     static Application* instance();
@@ -77,6 +85,15 @@ public:
     /// Gets the theme
     QString getTheme();
 
+    /// Open project to enable native visual editor or image render
+    bool OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);
+
+    /// Flip page size per orientation and return size in pixels
+    static int pageSize(PageMeta  &, int which);
+
+    /// Process viewer key to return model, line number and step number
+    QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
+
 #ifdef Q_OS_WIN
     /// Console redirection for Windows
     void RedirectIOToConsole();
@@ -91,6 +108,24 @@ public:
 
     /// Initialize the splash screen
     QSplashScreen *splash;
+
+    /// lpub3D Preferences
+    Preferences lpub3dPreferences;
+
+    /// meta command container
+    Meta meta;
+
+    /// Abstract version of page contents
+    Page page;
+
+    /// Current step as loaded in the Visual Editor
+    Step *currentStep;
+
+    /// Contains MPD or all files used in model
+    LDrawFile ldrawFile;
+
+    /// currently loaded CSI in Visual Editor
+    QString viewerStepKey;
 
 public slots:
     /// Splash message function to display message updates during startup
@@ -164,4 +199,35 @@ void clearAndReloadModelFile(bool global = false);
 void reloadCurrentPage();
 void restartApplication();
 
+extern Application* LPub;
+
+inline Preferences& getPreferencesRef()
+{
+    return LPub->lpub3dPreferences;
+}
+
+inline LDrawFile& getLdrawFileRef()
+{
+    return LPub->ldrawFile;
+}
+
+inline Meta& getMetaRef()
+{
+    return LPub->meta;
+}
+
+inline Page& getPageRef()
+{
+    return LPub->page;
+}
+
+inline Step* getCurrentStepPtr()
+{
+    return LPub->currentStep;
+}
+
+inline QString& getViewerStepKeyRef()
+{
+    return LPub->viewerStepKey;
+}
 #endif // APPLICATION_H

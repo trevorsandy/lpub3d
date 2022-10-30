@@ -3893,8 +3893,6 @@ void Gui::reloadModelFileAfterColorFileGen() {
     }
 }
 
-
-
 // left side progress bar - no longer used
 void Gui::progressBarInit(){
   if (okToInvokeProgressBar()) {

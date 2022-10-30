@@ -2785,7 +2785,7 @@ int Native::renderCsi(
   bool pp             = Preferences::perspectiveProjection;
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
-  const QString viewerStepKey = gui->getViewerStepKey();
+  const QString viewerStepKey = LPub->viewerStepKey;
   emit gui->messageSig(LOG_DEBUG,QString("Render CSI using viewer step key '%1' for image '%2'.")
                                          .arg(viewerStepKey)
                                          .arg(QFileInfo(pngName).fileName()));
@@ -2999,7 +2999,7 @@ int Native::renderPli(
   }
 
   QString viewerStepKey;
-  Step* currentStep = gui->getCurrentStep();
+  Step* currentStep = getCurrentStepPtr();
   if (currentStep) {
       if (pliType == SUBMODEL)
           viewerStepKey = currentStep->subModel.viewerSubmodelKey;
@@ -3431,7 +3431,7 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
 
     bool Loaded = false;
 
-    Loaded = gui->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
+    Loaded = LPub->OpenProject(Options, NATIVE_IMAGE, true/*UseFile*/);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use File]")
                                                 .arg(Options->ViewerStepKey)
@@ -3475,7 +3475,7 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         gui->SetAutomateEdgeColor(nativeOptions);
     }
 
-    Loaded = gui->OpenProject(nativeOptions);
+    Loaded = LPub->OpenProject(nativeOptions);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")
                                                 .arg(nativeOptions->ViewerStepKey)
@@ -3524,7 +3524,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
             gui->SetAutomateEdgeColor(Options);
         }
 
-        Exported = gui->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
+        Exported = LPub->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);
         if (!Exported) {
             emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', Export: %2, FileName: '%3', [Use File]")
                                                     .arg(Options->ViewerStepKey)

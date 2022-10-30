@@ -1803,7 +1803,7 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary();
  }
 
- bool Gui::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bool UseFile/*false*/)
+ bool Application::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bool UseFile/*false*/)
  {
      bool Loaded = false;
 
