@@ -4591,18 +4591,24 @@ void Gui::drawPage(
     QString stepKey = keys.first();
     QString option = keys.last();
 
+    // clear submodel
     if (keys.size() == 1 || option == "cm") {
       clearWorkingFiles(getBuildModPathsFromStep(stepKey));
 
+    // clear page
     } else if (option == "cp") {
       bool multiStepPage = isViewerStepMultiStep(stepKey);
       PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
       clearPageCache(relativeType, &page, Options::CSI);
 
+    // clear step
     } else if (option == "cs") {
       QString csiPngName = getViewerStepImagePath(stepKey);
       clearStepCSICache(csiPngName);
     }
+
+    deleteViewerStep(stepKey);
+
     buildModClearStepKey.clear();
   }
 

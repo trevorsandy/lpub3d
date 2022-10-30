@@ -271,9 +271,9 @@ int SubModel::createSubModelImage(
   // Check if model content or png file date modified is older than model file (on the stack), date modified
   imageOutOfDate = false;
 
-  QFile part(imageName);
+  QFile submodel(imageName);
 
-  if (part.exists()) {
+  if (submodel.exists()) {
       QDateTime lastModified = QFileInfo(imageName).lastModified();
       if (meta->LPub.multiStep.pli.perStep.value() == true) {
           QStringList parsedStack = step->submodelStack();
@@ -281,7 +281,7 @@ int SubModel::createSubModelImage(
           if ( ! isOlder(parsedStack,lastModified)) {
               imageOutOfDate = true;
               emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
-              if (imageOutOfDate && ! part.remove()) {
+              if (imageOutOfDate && ! submodel.remove()) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
               }
           }
@@ -289,7 +289,7 @@ int SubModel::createSubModelImage(
           if ( ! isOlder(type,lastModified)) {
               imageOutOfDate = true;
               emit gui->messageSig(LOG_DEBUG,QString("SubModel Preview image out of date %1.").arg(QFileInfo(imageName).fileName()));
-              if (imageOutOfDate && ! part.remove()) {
+              if (imageOutOfDate && ! submodel.remove()) {
                   emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
               }
           }
@@ -315,7 +315,7 @@ int SubModel::createSubModelImage(
   QElapsedTimer timer;
 
   // Generate and renderer Submodel file
-  if ((! part.exists() || imageOutOfDate) && ! viewerSubmodel) {
+  if ((! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
 
       timer.start();
 
@@ -362,7 +362,7 @@ int SubModel::createSubModelImage(
       // Viewer submodel does not yet exist in repository
       bool addViewerStepContent = !gui->viewerStepContentExist(viewerSubmodelKey);
 
-      if (addViewerStepContent || imageOutOfDate) {
+      if (addViewerStepContent || ! submodel.exists() || imageOutOfDate) {
 
           FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
           QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");

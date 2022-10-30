@@ -478,9 +478,9 @@ int Step::createCsi(
       bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
 
       // We are processing again the current step but the Csi has changed - i.e. updated in the viewer
-      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() && generageCSIFile);
+      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() /*&& generageCSIFile*/);
 
-      if (addViewerStepContent || csiOutOfDate || viewerUpdate) {
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
 
           updateViewer = true; // just to be safe
 
