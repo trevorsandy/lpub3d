@@ -3924,8 +3924,8 @@ void PGraphicsPixmapItem::contextMenuEvent(
           attributes.append(QString("0 0 0 0 0 0 REL").split(" "));
       else if (attributes.size() == nAdjustedTarget           /*Target - removals*/)
           attributes.append(QString("0 0 0 REL").split(" ")); /*13 items total without substituted part [new substitution]*/
-      if (!part->subOriginalType.isEmpty())
-          attributes.append(part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
+      if (!this->part->subOriginalType.isEmpty())
+          attributes.append(this->part->subOriginalType);           /*14 items total with substituted part [update substitution]*/
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
   } else if (selectedAction == resetViewerImageAction) {
       if (!Preferences.mPreviewEnabled) {

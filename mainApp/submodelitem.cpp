@@ -207,7 +207,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    //       futureModel
             rotatedModel,
             ldrName,
-            step ? step->top.modelName : gui->topOfPage().modelName,
+            step ? step->top.modelName : steps ? steps->topOfSteps().modelName : gui->topOfPage().modelName,
             cameraAngles,
             false/*ldv*/,
             Options::SMP)) != 0) {

@@ -3375,31 +3375,14 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
  *
  ********************************************/
 
-void Gui::setStepForLine(const TypeLine &here)
+void Gui::setStepForLine()
 {
     if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
         return;
 
-    // limit the scope to the current page
-    const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, topOfPage().modelIndex,topOfPage().lineNumber, bottomOfPage().modelIndex, bottomOfPage().lineNumber);
-
-    if (!stepKey.isEmpty()) {
-        if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {
-            if (!lpub->setCurrentStep(stepKey))
-                return;
-
-            setLineScopeSig(StepLines(getCurrentStep()->topOfStep().lineNumber, getCurrentStep()->bottomOfStep().lineNumber));
-#ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG,tr("Editor step %1 loaded line scope %2-%3")
-                            .arg(lpub->currentStep->stepNumber.number)
-                            .arg(getCurrentStep()->topOfStep().lineNumber + 1/*adjust for 0-start index*/)
-                            .arg(getCurrentStep()->bottomOfStep().lineNumber /*actually top next step so no adjustment*/));
-#endif
-            enableBuildModActions();
-            getCurrentStep()->viewerOptions->ZoomExtents = true;
-            getCurrentStep()->loadTheViewer();
-        }
-    }
+    enableBuildModActions();
+    getCurrentStep()->viewerOptions->ZoomExtents = true;
+    getCurrentStep()->loadTheViewer();
 }
 
 /*********************************************

@@ -1214,7 +1214,7 @@ public slots:
   void openFolderSelect(const QString &absoluteFilePath);
   void setViewerStepKey(const QString &stepKey, int notPliPart);
   void previewPiece(const QString &type, int colorCode, bool dockable, QRect parentRect, QPoint position);
-  void setStepForLine(const TypeLine &);
+  void setStepForLine();
   void togglePreviewWidget(bool);
   void updatePreview();
 

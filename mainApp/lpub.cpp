@@ -1365,31 +1365,27 @@ void Gui::displayFile(
                 }
             }
 
-            int stepNumber = 1;
-            Where top = here;
-            Where bottom = here;
-            if (pageProcessRunning == PROC_NONE && !exporting()) {
-                if (getCurrentStep()) {
-                    top = getCurrentStep()->topOfStep();
-                    bottom = getCurrentStep()->bottomOfStep();
-                    stepNumber = getCurrentStep()->stepNumber.number;
-                }
-                if (!bottom.lineNumber) {
-                    Rc rc = OkRc;
-                    bool partsAdded = false;
-                    while (!partsAdded && rc != EndOfFileRc)
-                        rc = lpub->mi.scanForward(bottom, StepMask|StepGroupEndMask, partsAdded);
-                }
+            // limit the scope to the current page
+            const Where top = lpub->page.top;
+            Where bottom = lpub->page.bottom;
+            if (!bottom.lineNumber) {
+                bool multiStep = false;
+                if (lpub->currentStep)
+                    multiStep = lpub->currentStep->multiStep;
+                lpub->mi.scanForward(bottom, multiStep ? StepGroupEndMask : StepMask);
             }
 
             const StepLines lineScope(top.lineNumber, bottom.lineNumber);
+
             emit displayFileSig(ldrawFile, modelName, lineScope);
 
             if (Preferences::debugLogging) {
-                emit messageSig(LOG_DEBUG,tr("Editor loaded step %1, lines %2-%3 - %4")
-                                .arg(stepNumber)
+                emit messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5 - %6")
+                                .arg(displayPageNum)
+                                .arg(lpub->currentStep ? lpub->currentStep->stepNumber.number : 0)
+                                .arg(modelName)
                                 .arg(top.lineNumber + 1    /*adjust for 0-index*/)
-                                .arg(bottom.lineNumber + 1 /*adjust for 0-index - top next step*/)
+                                .arg(bottom.lineNumber + 1 /*adjust for 0-index*/)
                                 .arg(elapsedTime(t.elapsed())));
             }
 
@@ -1421,7 +1417,7 @@ void Gui::displayFile(
 
             ldrawFile->setModified(modelName, false);
         }
-    }
+    } // ! exporting
 }
 
 void Gui::displayParmsFile(
@@ -3494,8 +3490,8 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
-    connect(editWindow,     SIGNAL(setStepForLineSig(const TypeLine &)),
-            this,           SLOT(  setStepForLine(   const TypeLine &)));
+    connect(editWindow,     SIGNAL(setStepForLineSig()),
+            this,           SLOT(  setStepForLine()));
 
     connect(editWindow,     SIGNAL(editModelFileSig()),
             this,           SLOT(  editModelFile()));

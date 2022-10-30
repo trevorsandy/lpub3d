@@ -180,23 +180,25 @@ enum LDrawUnofficialFileType {
 };
 enum SubAttributes {
     sAdj = -2,
-    sType = 0,        // 0  level 1   substitution
-    sColorCode,       // 1  level 2   substitution
-    sModelScale,      // 2  level 3   substitution
-    sCameraFoV,       // 3  level 4   substitution
-    sCameraAngleXX,   // 4  level 5   substitution
-    sCameraAngleYY,   // 5  level 5   substitution
-    sTargetX,         // 6  level 6/8 substitution
-    sTargetY,         // 7  level 6/8 substitution
-    sTargetZ,         // 8  level 6/8 substitution
-    sRotX,            // 9  level 7/8 substitution
-    sRotY,            // 10 level 7/8 substitution
-    sRotZ,            // 11 level 7/8 substitution
-    sTransform,       // 12 level 7/8 substitution
-    sOriginalType,    // 13 Substituted part/Original LDraw part
-    sSubstitute,      // 14
-    sUpdate,          // 15
-    sRemove           // 16
+    sType = 0,                 // 0  level 1   substitution
+    sColorCode,                // 1  level 2   substitution
+    sModelScale,               // 2  level 3   substitution
+    sCameraFoV,                // 3  level 4   substitution
+    sCameraAngleXX,            // 4  level 5   substitution
+    sSubPart,                  // 5  elements in "0 !LPUB PLI BEGIN SUB <part type>"
+    sCameraAngleYY = sSubPart, // 5  level 5   substitution
+    sSubColor,                 // 6  elements in "0 !LPUB PLI BEGIN SUB <part type> <colorCode>"
+    sTargetX = sSubColor,      // 6  level 6/8 substitution
+    sTargetY,                  // 7  level 6/8 substitution
+    sTargetZ,                  // 8  level 6/8 substitution
+    sRotX,                     // 9  level 7/8 substitution
+    sRotY,                     // 10 level 7/8 substitution
+    sRotZ,                     // 11 level 7/8 substitution
+    sTransform,                // 12 level 7/8 substitution
+    sOriginalType,             // 13 Substituted part/Original LDraw part
+    sSubstitute,               // 14
+    sUpdate,                   // 15
+    sRemove                    // 16
 };
 enum NameKeyAttributes {
     nType = 0,        // 0 Includes the Render index at end delimited by '-'. Set to CSI for CSI type

@@ -51,6 +51,7 @@
 #include "highlighter.h"
 #include "highlightersimple.h"
 #include "ldrawfiles.h"
+#include "substitutepartdialog.h"
 #include "messageboxresizable.h"
 #include "waitingspinnerwidget.h"
 #include "threadworkers.h"
@@ -59,17 +60,20 @@
 #include "paths.h"
 #include "lpub_preferences.h"
 
-#include "lc_mainwindow.h"
 #include "pli.h"
+#include "step.h"
 #include "color.h"
 #include "ldrawpartdialog.h"
 #include "ldrawcolordialog.h"
 #include "lpub_qtcompat.h"
 
+#include "lc_mainwindow.h"
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
 #include "pieceinf.h"
 #include "lc_colors.h"
+
+#define SUB_PLACEHOLDER "@@~|~@@"
 
 EditWindow *cmdEditor;
 
@@ -127,7 +131,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
         readSettings();
     }
 
-    cmdEditor = this; 
+    cmdEditor  = this;
 
     setMinimumSize(200, 200);
 }
@@ -567,15 +571,15 @@ void EditWindow::createActions()
     editPartAct = new QAction(QIcon(":/resources/editpart.png"),tr("Change part..."), this);
     editPartAct->setStatusTip(tr("Edit this part"));
     connect(editPartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
-/*
+//*
     substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute part..."), this);
     substitutePartAct->setStatusTip(tr("Substitute this part"));
     connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
 
     removeSubstitutePartAct = new QAction(QIcon(":/resources/removesubstitutepart.png"),tr("Remove Substitute..."), this);
     removeSubstitutePartAct->setStatusTip(tr("Replace this substitute part with the original part."));
-    connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
-*/
+    connect(removeSubstitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
+//*/
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
@@ -584,8 +588,6 @@ void EditWindow::createActions()
              this,     SLOT(  updateDisabled(bool)));
     connect(_textEdit, SIGNAL(textChanged()),
              this,     SLOT(enableSave()));
-
-    disableActions();
 }
 
 void EditWindow::disableActions()
@@ -613,6 +615,20 @@ void EditWindow::disableActions()
     saveAct->setEnabled(false);
     saveCopyAct->setEnabled(false);
     openWithToolbarAct->setEnabled(false);
+
+    if (modelFileEdit())
+        previewLineAct->setEnabled(false);
+#ifdef QT_DEBUG_MODE
+    previewViewerFileAct->setEnabled(false);
+#endif
+    editColorAct->setEnabled(false);
+    editPartAct->setEnabled(false);
+//*
+    if (removeMenu)
+        removeMenu = nullptr;
+    substitutePartAct->setEnabled(false);
+    removeSubstitutePartAct->setEnabled(false);
+//*/
 }
 
 void EditWindow::enableActions()
@@ -667,7 +683,7 @@ void EditWindow::createToolBars()
 #endif
         editToolBar->addSeparator();
         editToolBar->addAction(openFolderAct);
-        QMenu *openWithMenu = new QMenu(tr("Open With Menu"));
+        QMenu *openWithMenu = new QMenu(tr("Open With Menu"), this);
         openWithMenu->setEnabled(false);
         openWithToolbarAct->setMenu(openWithMenu);
         if (numOpenWithPrograms) {
@@ -703,13 +719,17 @@ void EditWindow::createToolBars()
 
     toolsToolBar->addAction(editColorAct);
     toolsToolBar->addAction(editPartAct);
-/*    toolsToolBar->addAction(substitutePartAct); */
+//*
+    toolsToolBar->addAction(substitutePartAct);
+//*/
     if (modelFileEdit())
         toolsToolBar->addAction(previewLineAct);
 #ifdef QT_DEBUG_MODE
     toolsToolBar->addSeparator();
     toolsToolBar->addAction(previewViewerFileAct);
 #endif
+
+    disableActions();
 }
 
 void EditWindow::setReadOnly(bool enabled)
@@ -739,20 +759,50 @@ void EditWindow::setReadOnly(bool enabled)
     setWindowTitle(title);
 }
 
+int EditWindow::getSelectedLineNumber(QTextCursor &cursor) const
+{
+
+    int lineNumber = 0;
+
+    cursor.movePosition(QTextCursor::StartOfLine);
+
+    while(cursor.positionInBlock()>0) {
+        cursor.movePosition(QTextCursor::Up);
+        lineNumber++;
+    }
+
+    QTextBlock block = cursor.block().previous();
+
+    while(block.isValid()) {
+        lineNumber += block.lineCount();
+        block = block.previous();
+    }
+
+    return lineNumber;
+}
+
 bool EditWindow::setValidPartLine()
 {
-    QString partType, titleType = "part";
-    int validCode, colorCode = LDRAW_MATERIAL_COLOUR;
     QTextCursor cursor = _textEdit->textCursor();
     cursor.select(QTextCursor::LineUnderCursor);
     QString selection = cursor.selection().toPlainText();
     QStringList list;
-    bool colorOk = false/*, isSubstitute = false*/;
+    QString partType, titleType = "part";
+    int validCode = -1;
+    int colorCode = LDRAW_MATERIAL_COLOUR;
+    bool colorOk = false;
+//*
+    bool isSubstitute = false;
+//*/
+
+    clearEditorHighlightLines();
 
     toolsToolBar->setEnabled(false);
     editColorAct->setText(tr("Edit color"));
     editPartAct->setText(tr("Edit part"));
-//    substitutePartAct->setText(tr("Substitute part"));
+//*
+    substitutePartAct->setText(tr("Substitute part"));
+//*/
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
@@ -771,14 +821,14 @@ bool EditWindow::setValidPartLine()
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", SkipEmptyParts);
 
-        partType = list[5];
+        if (list.size() > sSubPart)
+            partType  = list[5];
 
-        validCode = list[6].toInt(&colorOk);
-
-        selection.append("|sub");
-
-//        isSubstitute = true;
-
+        if (list.size() > sSubColor)
+            validCode = list[6].toInt(&colorOk);
+//*
+        isSubstitute = true;
+//*/
     } else {
         return false;
     }
@@ -786,10 +836,58 @@ bool EditWindow::setValidPartLine()
     if (partType.isEmpty())
         return false;
 
-    toolsToolBar->setEnabled(true);
-
     if (colorOk)
         colorCode = validCode;
+    else
+        return false;
+//*
+    // substitute partKey
+    QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
+//*/
+    // limit the scope to the current page
+    const int lineNumber = getSelectedLineNumber(cursor);
+    const bool lineInScope = stepLines.isInScope(lineNumber);
+    if (lineInScope) {
+        if (lpub->currentStep) {
+            const Where &top = lpub->page.top;
+            const Where &bottom = lpub->page.bottom;
+            const TypeLine here = { fileOrderIndex, lineNumber };
+            const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
+            if (!stepKey.isEmpty()) {
+                // set current step
+                if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {
+                    lpub->setCurrentStep(stepKey);
+#ifdef QT_DEBUG_MODE
+                    emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
+                                                    .arg(here.lineIndex)
+                                                    .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex))
+                                                    .arg(lpub->page.meta.LPub.page.number.number)
+                                                    .arg(lpub->currentStep->stepNumber.number)
+                                                    .arg(top.lineNumber + 1/*adjust for 0-start index*/)
+                                                    .arg(bottom.lineNumber + 1 /*adjust for 0-index*/));
+#endif
+                }
+            }
+#ifdef QT_DEBUG_MODE
+            else
+                emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
+                                      .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+#endif
+//*
+            // set substitute flag
+            if (lpub->currentStep && !isSubstitute) {
+                const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
+                if (pliPart)
+                    isSubstitute = pliPart->subType;
+            }
+#ifdef QT_DEBUG_MODE
+            else
+                emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %1, model: %2")
+                                      .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+#endif
+//*/
+        }
+    }
 
     partType = partType.trimmed();
 
@@ -799,15 +897,17 @@ bool EditWindow::setValidPartLine()
                                .arg(partType).arg(colorCode).arg(selection));
 #endif
 
-    QString partKey = QString("%1|%2").arg(colorCode).arg(partType);
+    // partType is valid if we get here so check color to enable tools
+    toolsToolBar->setEnabled(true);
 
-    QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
+    const QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
 
     lcPreferences& Preferences = lcGetPreferences();
+
     if (modelFileEdit()) {
         if (Preferences.mPreviewEnabled && !isIncludeFile) {
             previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
-            previewLineAct->setData(partKey);
+            previewLineAct->setData(QString("%1|%2").arg(colorCode).arg(partType));
             previewLineAct->setEnabled(true);
         }
     }
@@ -838,24 +938,31 @@ bool EditWindow::setValidPartLine()
     editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
     editPartAct->setEnabled(true);
 
-/*
-    actionText = tr("Substitute  %1...").arg(elidedPartType);
+//*
+    const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
     if (isSubstitute) {
-        substitutePartAct->setText(tr("Change %1").arg(actionText));
         removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
-        removeSubstitutePartAct->setData(partKey);
-        removeSubstitutePartAct->setEnabled(true);
-        QMenu *removeMenu = new QMenu(tr("Remove %1").arg(actionText));
+        removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(sRemove));
+        removeSubstitutePartAct->setEnabled(lineInScope);
+
+        removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
         removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
         removeMenu->addAction(removeSubstitutePartAct);
+
+        substitutePartAct->setText(tr("Change %1").arg(actionText));
         substitutePartAct->setMenu(removeMenu);
-        partKey.append("|sub");
+        subPartKey.append(QString("|%1").arg(sUpdate));
     } else {
+        if (removeMenu) {
+            delete removeMenu;
+            removeMenu = nullptr;
+        }
         substitutePartAct->setText(actionText);
+        subPartKey.append(QString("|%1").arg(sSubstitute));
     }
-    substitutePartAct->setData(partKey);
-    substitutePartAct->setEnabled(true);
-*/
+    substitutePartAct->setData(subPartKey);
+    substitutePartAct->setEnabled(lineInScope);
+//*/
 
     if (numOpenWithPrograms)
         openWithToolbarAct->setEnabled(true);
@@ -886,7 +993,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
             menu->addAction(editModelFileAct);
 
             menu->addSeparator();
-            QMenu *openWithMenu = new QMenu(tr("Open With..."),editWindow);
+            QMenu *openWithMenu = new QMenu(tr("Open With..."), this);
             openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
             menu->addMenu(openWithMenu);
             if (numOpenWithPrograms) {
@@ -902,13 +1009,14 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
         if (setValidPartLine()) {
             menu->addSeparator();
-            QMenu *toolsMenu = new QMenu(tr("Tools..."));
+            QMenu *toolsMenu = new QMenu(tr("Tools..."), this);
             toolsMenu->setIcon(QIcon(":/resources/tools.png"));
             menu->addMenu(toolsMenu);
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
-/*            toolsMenu->addAction(substitutePartAct); */
-
+//*
+            toolsMenu->addAction(substitutePartAct);
+//*/
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
         }
@@ -929,8 +1037,17 @@ void EditWindow::editLineItem()
 {
     QString findText;
     QString replaceText;
-
     QStringList elements, items;
+
+    int lineNumber = 0;
+    int currentLine = 0;
+    int selectedLines = 0;
+    int action = sSubstitute;
+
+    QTextCursor cursor = _textEdit->textCursor();
+    if(cursor.selection().isEmpty())
+        cursor.select(QTextCursor::LineUnderCursor);
+
     if (sender() == editColorAct) {
         elements = editColorAct->data().toString().split("|");
         int colorCode = elements.first().toInt();
@@ -954,46 +1071,61 @@ void EditWindow::editLineItem()
         else
             replaceText = findText;
     }
-/*
+//*
     else if (sender() == substitutePartAct) {
-        QStringList items = substitutePartAct->data().toString().split("|");
-        if (items.size() > 1) {
-
+        elements = substitutePartAct->data().toString().split("|");
+        if (elements.size() == 3) {
+            action = elements.at(2).toInt();
+            if (!substitutePLIPart(replaceText, action, elements))
+                return;
+        } else {
+            emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve substitue part key from action data [%1].").arg(elements.join(" ")));
+            return;
         }
-    } else if (sender() == removeSubstitutePartAct) {
-        ;
     }
-*/
+    else if (sender() == removeSubstitutePartAct) {
+        elements = removeSubstitutePartAct->data().toString().split("|");
+        if (elements.size() == 3) {
+            lineNumber = getSelectedLineNumber(cursor);
+            action = elements.at(2).toInt();
+        } else {
+            emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve substitue part key from action data [%1].").arg(elements.join(" ")));
+            return;
+        }
+    }
+//*/
 
-    int current = 0;
-    int selectedLines = 0;
-
-    QTextCursor cursor = _textEdit->textCursor();
-    if(cursor.selection().isEmpty())
+    auto removeLine = [] (QTextCursor &cursor, int lineNumber)
+    {
+        cursor.movePosition(QTextCursor::Start);
+        cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, lineNumber);
         cursor.select(QTextCursor::LineUnderCursor);
+        cursor.removeSelectedText();
+        cursor.deleteChar();
+    };
 
     QString str = cursor.selection().toPlainText();
-    selectedLines = str.count("\n")+1;
+    selectedLines = str.count("\n") + 1;
 
     cursor.beginEditBlock();
 
-    while (true)
-    {
-        if (current == selectedLines) {
-           break;
-        }
+    QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
 
+    while (currentLine < selectedLines)
+    {
         bool result = false;
 
         cursor.select(QTextCursor::LineUnderCursor);
         QString selection = cursor.selectedText();
-        if (!selection.isEmpty())
-        {
+        if (!selection.isEmpty()) {
+            // change the selection to only the part
             if (sender() == editPartAct) {
                 QTextDocument::FindFlags flags;
                 result = _textEdit->find(findText, flags);
             } else {
                 _textEdit->setTextCursor(cursor);
+                if (action == sSubstitute)
+                    replaceText.replace(SUB_PLACEHOLDER, selection);
                 result = true;
             }
         } else {
@@ -1001,15 +1133,118 @@ void EditWindow::editLineItem()
         }
 
         if (result) {
-            _textEdit->textCursor().insertText(replaceText);
-            if (++current < selectedLines) {
-                cursor.movePosition(QTextCursor::Down);
+            if (action == sRemove) {
+                removeLine(cursor, lineNumber + 4);
+                removeLine(cursor, lineNumber + 3);
+                removeLine(cursor, lineNumber + 1);
+                removeLine(cursor, lineNumber);
+            } else {
+                _textEdit->textCursor().insertText(replaceText);
+            }
+
+            if (++currentLine < selectedLines) {
+                cursor.movePosition(nextLine);
                 _textEdit->setTextCursor(cursor);
             }
         }
     }
 
     cursor.endEditBlock();
+}
+
+bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const QStringList &elements)
+{
+    QStringList attributes;
+    if (action == sRemove) {
+        attributes.append(elements.at(sType));
+        attributes.append(elements.at(sColorCode));
+        replaceText = attributes.join(" ");
+        return true;
+    }
+
+    QMessageBox box;
+    box.setTextFormat (Qt::RichText);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Save);
+    box.setWindowTitle("Substitute PLI Part");
+
+    Step* step = lpub->currentStep;
+    if (step) {
+        const QString key = QString("%1_%2").arg(elements.at(sType)).arg(elements.at(sColorCode));
+        const PliPart* pliPart = step->pli.getPart(key);
+        if (pliPart) {
+            QStringList defaultList;
+            if (action == sUpdate) {
+                const float modelScale = step->pli.pliMeta.modelScale.value();
+                const bool noCA = step->pli.pliMeta.rotStep.value().type == "ABS";
+                defaultList.append(QString::number(double(modelScale)));
+                defaultList.append(QString::number(double(step->pli.pliMeta.cameraFoV.value())));
+                defaultList.append(QString::number(noCA ? 0.0 : double(step->pli.pliMeta.cameraAngles.value(0))));
+                defaultList.append(QString::number(noCA ? 0.0 : double(step->pli.pliMeta.cameraAngles.value(1))));
+                defaultList.append(QString(QString("%1 %2 %3")
+                                           .arg(double(step->pli.pliMeta.target.x()))
+                                           .arg(double(step->pli.pliMeta.target.y()))
+                                           .arg(double(step->pli.pliMeta.target.z()))).split(" "));
+                defaultList.append(QString(renderer->getRotstepMeta(step->pli.pliMeta.rotStep,true)).split("_"));
+            }
+            // treat parts with '_' in the name - encode
+            if (pliPart->type.count("_")) {
+                QString nameKey = pliPart->nameKey;
+                const QString type = QFileInfo(pliPart->type).completeBaseName();
+                nameKey.replace(type, QString(type).replace("_", ";"));
+                attributes = nameKey.split("_");
+                attributes.replace(0,type);
+            } else {
+                attributes = pliPart->nameKey.split("_");
+            }
+            attributes.removeAt(nResType);
+            attributes.removeAt(nResolution);
+            attributes.removeAt(nPageWidth);
+            attributes.replace(nType,pliPart->type);
+            if (attributes.size() == nAdjustedBaseAttributes        /*BaseAttributes - removals*/)
+                attributes.append(QString("0 0 0 0 0 0 REL").split(" "));
+            else if (attributes.size() == nAdjustedTarget           /*Target - removals*/)
+                attributes.append(QString("0 0 0 REL").split(" ")); /*13 items total without substituted part [new substitution]*/
+            if (!pliPart->subOriginalType.isEmpty())
+                attributes.append(pliPart->subOriginalType);        /*14 items total with substituted part [update substitution]*/
+            if (SubstitutePartDialog::getSubstitutePart(attributes,this,action,defaultList)) {
+                if (action == sUpdate)
+                    replaceText = QString("0 !LPUB PLI BEGIN SUB %1").arg(attributes.join(" "));
+                else
+                    replaceText = QString("0 !LPUB PLI BEGIN SUB %1\n"
+                                          "0 !LPUB PART BEGIN IGN\n"
+                                          "%2\n"
+                                          "0 !LPUB PLI END\n"
+                                          "0 !LPUB PART END").arg(attributes.join(" ")).arg(SUB_PLACEHOLDER);
+                return true;
+            } else
+                return false;
+        } else {
+            const int colorCode = elements.at(sColorCode).toInt();
+            const QString type = elements.at(sType);
+            const QString colorName = gColorList[lcGetColorIndex(colorCode)].Name;
+            if (_textEdit->document()->isModified()) {
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
+                const QString title = "<b>" + QMessageBox::tr ("Unsaved substitute part unpdates detected.") + "</b>";
+                const QString text = QMessageBox::tr("<br>Do you want to save your updates for part [%1], color %2 (%3)...")
+                                                     .arg(type).arg(colorName).arg(colorCode);
+                box.setText (title);
+                box.setInformativeText (text);
+                if (box.exec() == QMessageBox::Save)
+                    emit updateAct->triggered();
+                return false;
+            } else {
+                emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve part [%1], color %2 (%3)...")
+                                                         .arg(type).arg(colorName).arg(colorCode));
+                return false;
+            }
+        }
+    } // step
+
+    emit lpub->messageSig(LOG_ERROR, QString("Failed to get current Step for selected line."));
+    return false;
 }
 
 void EditWindow::triggerPreviewLine()
@@ -1372,6 +1607,7 @@ void EditWindow::updateSelectedParts() {
 
     toolsToolBar->setEnabled(setValidPartLine());
 
+    // stop here if in detached editor
     if (modelFileEdit())
         return;
 
@@ -1381,6 +1617,8 @@ void EditWindow::updateSelectedParts() {
     int lineNumber = 0;
     int currentLine = 0;
     int selectedLines = 0;
+    bool lineInScope = false;
+    bool lastInScopeLine = false;
     bool clearSelection = false;
     bool selectionStep = Preferences::editorLoadSelectionStep;
     bool highlightLines = Preferences::editorHighlightLines;
@@ -1403,63 +1641,50 @@ void EditWindow::updateSelectedParts() {
 
     QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
 
-    auto getSelectedLineNumber = [&cursor] () {
-
-        int lineNumber = 0;
-
-        cursor.movePosition(QTextCursor::StartOfLine);
-
-        while(cursor.positionInBlock()>0) {
-            cursor.movePosition(QTextCursor::Up);
-            lineNumber++;
-        }
-
-        QTextBlock block = cursor.block().previous();
-
-        while(block.isValid()) {
-            lineNumber += block.lineCount();
-            block = block.previous();
-        }
-
-        return lineNumber;
-    };
-
     while (currentLine < selectedLines)
     {
-        if (selectionStep)
-        {
-            lineNumber = getSelectedLineNumber();
-            typeLine = { fileOrderIndex, lineNumber };
-            if (!stepLines.isInScope(lineNumber))
-            {
-                clearEditorHighlightLines();
-                emit setStepForLineSig(typeLine);
-            }
+        // only process lines that are in the currently displayed page
+        lineNumber = getSelectedLineNumber(cursor);
+        lineInScope = stepLines.isInScope(lineNumber);
+        if (!lineInScope) {
+            clearEditorHighlightLines();
+            emit lpub->messageSig(LOG_NOTICE,
+                                  QString("Line index %1 is out of the current page line scope [%2-%3]: %4")
+                                  .arg(lineNumber)
+                                  .arg(stepLines.top)
+                                  .arg(stepLines.bottom)
+                                  .arg(content.at(currentLine)));
+            break;
         }
+
+        // when multiple lines are selected only submit the last selected line to update the viewer
+        lastInScopeLine = currentLine == stepLines.bottom || currentLine + 1 == selectedLines;
+        if (lastInScopeLine)
+        {
+            // clear highlight lines if display step in viewer
+            if (selectionStep)
+                clearEditorHighlightLines();
+
+            // emit to set the selected step as currentStep - e.g. to enable substitute parts etc...
+            emit setStepForLineSig();
+        }
+
+        typeLine   = { fileOrderIndex, lineNumber };
 
         if (content.at(currentLine).startsWith("1") ||
             content.at(currentLine).contains(" PLI BEGIN SUB "))
         {
-            if (!selectionStep)
-            {
-                lineNumber = getSelectedLineNumber();
-                typeLine = { fileOrderIndex, lineNumber };
-            }
-
             lineTypeIndexes.append(typeLine);
 
             if (highlightLines) {
-                if (stepLines.isInScope(lineNumber))
-                {
-                    toggleLines.append(lineNumber);
-                    clearSelection = savedSelection.contains(lineNumber);
-                    highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
-                    if (clearSelection)
-                        savedSelection.removeAll(lineNumber);
-                    else
-                        savedSelection.append(lineNumber);
-                    toggleLines.clear();
-                }
+                toggleLines.append(lineNumber);
+                clearSelection = savedSelection.contains(lineNumber);
+                highlightSelectedLines(toggleLines, clearSelection, true/*editorSelection*/);
+                if (clearSelection)
+                    savedSelection.removeAll(lineNumber);
+                else
+                    savedSelection.append(lineNumber);
+                toggleLines.clear();
             }
         }
 

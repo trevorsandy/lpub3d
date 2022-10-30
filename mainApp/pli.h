@@ -295,6 +295,11 @@ class Pli : public Placement {
       bom       = from.bom;
     }
 
+    PliPart* getPart(const QString& key) const
+    {
+        return parts[key];
+    }
+
     void getParts(QHash<QString, PliPart*> &_parts)
     {
       _parts = parts;

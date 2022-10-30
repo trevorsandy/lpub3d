@@ -71,6 +71,8 @@ class QProgressBar;
 
 class WaitingSpinnerWidget;
 class LoadModelWorker;
+class Where;
+class Pli;
 
 /*class Pli;*/
 
@@ -114,7 +116,7 @@ signals:
     void updateDisabledSig(bool);
     void editModelFileSig();
     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
-    void setStepForLineSig(const TypeLine &);
+    void setStepForLineSig();
     void waitingSpinnerStopSig();
 
 public slots:
@@ -184,13 +186,18 @@ protected:
     void clearEditorHighlightLines();
     void openFolderSelect(const QString& absoluteFilePath);
     void highlightSelectedLines(QVector<int> &lines, bool clear, bool editor);
-
-    QAbstractItemModel *modelFromFile(const QString& fileName);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
+
+    int getSelectedLineNumber(QTextCursor &cursor) const;
+
     bool setValidPartLine();
+    bool substitutePLIPart(QString &replaceText, const int action, const QStringList &elements);
+
+    QAbstractItemModel *modelFromFile(const QString& fileName);
+
     void closeEvent(QCloseEvent*_event);
 
     enum Decor { SIMPLE, STANDARD };
@@ -201,7 +208,6 @@ protected:
     QCompleter        *completer;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
-/*    Pli               *pli; */
     QComboBox         *mpdCombo;
     QFutureWatcher<int> futureWatcher;
     QFileSystemWatcher fileWatcher;
@@ -240,10 +246,11 @@ protected:
 
     QAction  *mpdComboSeparatorAct;
     QAction  *mpdComboAct;
-/*
+//*
+    QMenu    *removeMenu;
     QAction  *substitutePartAct;
     QAction  *removeSubstitutePartAct;
-*/
+//*/
 #ifdef QT_DEBUG_MODE
     QAction  *previewViewerFileAct;
 #endif
@@ -352,7 +359,7 @@ public:
     }
 
 protected:
-    void paintEvent(QPaintEvent *event){
+    void paintEvent(QPaintEvent *event) override  {
         textEditor->lineNumberAreaPaintEvent(event);
     }
 
