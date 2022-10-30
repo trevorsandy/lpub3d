@@ -130,10 +130,6 @@ SubModel::SubModel()
   perStep = false;
   widestPart = 1;
   tallestPart = 1;
-  viewerSubmodel = false;
-  shared = false;
-  imageOutOfDate = false;
-  displayInstanceCount = false;
   multistep = false;
   callout = false;
 }
@@ -348,8 +344,7 @@ int SubModel::createSubModelImage(
 
   if (!Gui::exportingObjects() || nativeRenderer) {
 
-      if (viewerSubmodel)
-          timer.start();
+      timer.start();
 
       // Viewer submodel does not yet exist in repository
       bool addViewerStepContent = !lpub->ldrawFile.viewerStepContentExist(viewerSubmodelKey);
@@ -456,13 +451,12 @@ int SubModel::createSubModelImage(
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;
       viewerOptions->ZFar           = subModelMeta.cameraZFar.value();
       viewerOptions->ZNear          = subModelMeta.cameraZNear.value();
-      viewerOptions->ZoomExtents    = viewerSubmodel;
+      viewerOptions->ZoomExtents    = viewerSubmodel; // veiwer submodel (no image file generated)
 
 #ifdef QT_DEBUG_MODE
-      if (viewerSubmodel)
-          emit gui->messageSig(LOG_INFO,
-                               QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
-                                       .arg(timer.elapsed()));
+      emit gui->messageSig(LOG_INFO,
+                           QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
+                                   .arg(timer.elapsed()));
 #endif
   }
 
@@ -487,7 +481,7 @@ int SubModel::createSubModelImage(
       rc = RenderFuture.result();
 
           // feed DAT to renderer
-          if (!rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+          if (rc || (/*f*/rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
               emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
                                                      .arg(rendererNames[Render::getRenderer()])
                                                      .arg(imageName)
@@ -519,6 +513,7 @@ int SubModel::createSubModelImage(
   }
 
   if (viewerSubmodel) {
+      // this is a veiwer submodel (no image file generated)
       viewerOptions->ImageWidth  = 1600;
       viewerOptions->ImageHeight = 1600;
   } else {
