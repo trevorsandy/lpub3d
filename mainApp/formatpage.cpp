@@ -76,9 +76,9 @@ void Gui::clearPage(
     LGraphicsScene *scene,
     bool clearViewPageBg)
 {
-  page.freePage();
-  page.pli.clear();
-  page.subModel.clear();
+  LPub->page.freePage();
+  LPub->page.pli.clear();
+  LPub->page.subModel.clear();
 
   if (clearViewPageBg) {
     //  Moved to end of GraphicsPageItems()
@@ -1258,8 +1258,8 @@ bool Gui::getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber)
 
 bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber)
 {
-    itemTop    = page.top;
-    stepNumber = page.stepNumber;
+    itemTop    = LPub->page.top;
+    stepNumber = LPub->page.stepNumber;
     SceneObject itemObj = UndefinedObj;
 
     if (selectedItem)
@@ -1384,7 +1384,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         InsertPixmapItem *insertPixmapItem = dynamic_cast<InsertPixmapItem *>(selectedItem);
         if (insertPixmapItem){
             itemTop = insertPixmapItem->meta.here();
-            stepNumber = page.stepNumber;
+            stepNumber = LPub->page.stepNumber;
         }
     }
         break;
@@ -1393,7 +1393,7 @@ bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepN
         TextItem *textItem = dynamic_cast<TextItem *>(selectedItem);
         if (textItem){
             itemTop = textItem->meta.here();
-            stepNumber = page.stepNumber;
+            stepNumber = LPub->page.stepNumber;
         }
     }
         break;
@@ -1555,14 +1555,14 @@ void Gui::setSceneItemZValue(SceneObjectDirection direction)
                         .arg(soMap[selectedItemObj]).arg(selectedItemObj));
 
     SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
-                              page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
+                              LPub->page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
 
     if (!soMeta)
         return;
 
     Where itemTop;
     QMap<Where, SceneObjectData>::iterator i;
-    for (i = page.selectedSceneItems.begin(); i != page.selectedSceneItems.end(); ++i) {
+    for (i = LPub->page.selectedSceneItems.begin(); i != LPub->page.selectedSceneItems.end(); ++i) {
         if (i.value().itemObj == selectedItemObj) {
             itemTop = i.key();
             soMeta->setValue(i.value());
@@ -1571,7 +1571,7 @@ void Gui::setSceneItemZValue(SceneObjectDirection direction)
     }
 
     bool newCommand = itemTop == Where();
-    int  stepNumber = page.stepNumber;
+    int  stepNumber = LPub->page.stepNumber;
     Where tempWhere;
 
     getSceneObject(selectedItem, tempWhere, stepNumber);

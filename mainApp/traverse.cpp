@@ -508,7 +508,7 @@ int Gui::drawPage(
 
   steps->setTopOfSteps(topOfStep/*opts.current*/);
   steps->isMirrored = opts.isMirrored;
-  page.coverPage = false;
+  LPub->page.coverPage = false;
 
   Rc gprc    = OkRc;
   Rc rc      = OkRc;
@@ -559,7 +559,7 @@ int Gui::drawPage(
 
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
-    if (!page.coverPage && partsAdded) {
+    if (!LPub->page.coverPage && partsAdded) {
       pageRenderMessage += QString("using %1 ").arg(rendererNames[Render::getRenderer()]);
       QString renderAttributes;
       if (Render::getRenderer() == RENDERER_LDVIEW) {
@@ -1486,18 +1486,18 @@ int Gui::drawPage(
                 QString message;
                 coverPage = true;
                 partsAdded = true;
-                page.coverPage = true;
+                LPub->page.coverPage = true;
                 QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
                 if (line.contains(backCoverPage)){
-                    page.backCover  = true;
-                    page.frontCover = false;
+                    LPub->page.backCover  = true;
+                    LPub->page.frontCover = false;
 
                     // for back cover page, check from top of previous step
                     top = getTopOfPreviousStep();
                     message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 [ROT]STEP before part (type 1) at line");
                   } else {
-                    page.frontCover = true;
-                    page.backCover  = false;
+                    LPub->page.frontCover = true;
+                    LPub->page.backCover  = false;
 
                     top = topOfStep;
                     message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 [ROT]STEP before part (type 1) at line");
@@ -3296,19 +3296,19 @@ int Gui::findPage(
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
                       if (opts.pageNum == 1 + pa) {
-                          page.meta = meta;
+                          LPub->page.meta = meta;
                       } else {
-                          page.meta = saveMeta;
+                          LPub->page.meta = saveMeta;
                       }
                       if (opts.contStepNumber) {  // pass continuous step number to drawPage
-                          page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
+                          LPub->page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                           saveStepNumber = saveContStepNum;
                       }
                       if (opts.groupStepNumber) { // persist step group step number
                           saveGroupStepNum = opts.groupStepNumber;
                       }
-                      page.meta.pop();
-                      page.meta.rotStep = saveRotStep;
+                      LPub->page.meta.pop();
+                      LPub->page.meta.rotStep = saveRotStep;
 
                       QStringList pliParts;
                       DrawPageOptions pageOptions(
@@ -3333,7 +3333,7 @@ int Gui::findPage(
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("a_find_save_csi_parts");
 #endif
-                      if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+                      if (drawPage(view, scene, &LPub->page, addLine, pageOptions) == HitBuildModAction) {
                           // return to init drawPage to rerun findPage to regenerate content
                           pageProcessRunning = PROC_DISPLAY_PAGE;
                           return HitBuildModAction;
@@ -3544,22 +3544,22 @@ int Gui::findPage(
                             savePrevStepPosition = saveCsiParts.size();
                             stepPageNum = saveStepPageNum;
                             if (opts.pageNum == 1 + pa) {
-                                page.meta = meta;
+                                LPub->page.meta = meta;
                             } else {
-                                page.meta = saveMeta;
+                                LPub->page.meta = saveMeta;
                             }
                             if (opts.contStepNumber) { // pass continuous step number to drawPage
-                                page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
+                                LPub->page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                                 saveStepNumber    = opts.contStepNumber;
                             }
                             if (opts.groupStepNumber) { // pass group step number to drawPage and persist
                                 saveGroupStepNum  = opts.groupStepNumber;
                                 saveStepNumber    = opts.groupStepNumber;
                             }
-                            page.meta.pop();
-                            page.meta.LPub.buildMod.clear();
-                            page.meta.rotStep = saveRotStep;
-                            page.meta.rotStep = meta.rotStep;
+                            LPub->page.meta.pop();
+                            LPub->page.meta.LPub.buildMod.clear();
+                            LPub->page.meta.rotStep = saveRotStep;
+                            LPub->page.meta.rotStep = meta.rotStep;
 
                             QStringList pliParts;
                             DrawPageOptions pageOptions(
@@ -3582,7 +3582,7 @@ int Gui::findPage(
 #ifdef WRITE_PARTS_DEBUG
                             writeFindPartsFile("b_find_save_csi_parts");
 #endif
-                            if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+                            if (drawPage(view, scene, &LPub->page, addLine, pageOptions) == HitBuildModAction) {
                                 // Set processing state
                                 pageProcessRunning = PROC_DISPLAY_PAGE;
                                 // rerun findPage to reflect change in pre-displayPageNum csiParts
@@ -3944,7 +3944,7 @@ int Gui::findPage(
               saveStepNumber = saveGroupStepNum;
           }
           savePrevStepPosition = saveCsiParts.size();
-          page.meta = saveMeta;
+          LPub->page.meta = saveMeta;
           QStringList pliParts;
           DrawPageOptions pageOptions(
                       saveCurrent,
@@ -3966,7 +3966,7 @@ int Gui::findPage(
 #ifdef WRITE_PARTS_DEBUG
                       writeFindPartsFile("b_find_save_csi_parts");
 #endif
-          if (drawPage(view, scene, &page, addLine, pageOptions) == HitBuildModAction) {
+          if (drawPage(view, scene, &LPub->page, addLine, pageOptions) == HitBuildModAction) {
               // Set processing state
               pageProcessRunning = PROC_DISPLAY_PAGE;
               // rerun findPage to reflect change in pre-displayPageNum csiParts
@@ -4129,7 +4129,7 @@ int Gui::getBOMParts(
                           line = substituteToken.join(" ");
                         }
 
-                      QString newLine = Pli::partLine(line,current,page.meta);
+                      QString newLine = Pli::partLine(line,current,LPub->page.meta);
 
                       bomParts << newLine;
                     }
@@ -4143,7 +4143,7 @@ int Gui::getBOMParts(
             }
           break;
         case '0':
-          rc = page.meta.parse(line,current);
+          rc = LPub->page.meta.parse(line,current);
 
           /* substitute part/parts with this */
 
@@ -4161,9 +4161,9 @@ int Gui::getBOMParts(
                   ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
-                                            .arg(page.meta.LPub.pli.begin.sub.value().color)
-                                            .arg(page.meta.LPub.pli.begin.sub.value().part);
-                  bomParts << Pli::partLine(addPart,current,page.meta);
+                                            .arg(LPub->page.meta.LPub.pli.begin.sub.value().color)
+                                            .arg(LPub->page.meta.LPub.pli.begin.sub.value().part);
+                  bomParts << Pli::partLine(addPart,current,LPub->page.meta);
                   pliIgnore = true;
                 }
               break;
@@ -4174,7 +4174,7 @@ int Gui::getBOMParts(
 
             case PliEndRc:
               pliIgnore = false;
-              page.meta.LPub.pli.begin.sub.clearAttributes();
+              LPub->page.meta.LPub.pli.begin.sub.clearAttributes();
               break;
 
             case PartBeginIgnRc:
@@ -4204,9 +4204,9 @@ int Gui::getBOMParts(
               break;
 
             case BomPartGroupRc:
-              page.meta.LPub.bom.pliPartGroup.setWhere(current);
-              page.meta.LPub.bom.pliPartGroup.setBomPart(true);
-              bomPartGroups.append(page.meta.LPub.bom.pliPartGroup);
+              LPub->page.meta.LPub.bom.pliPartGroup.setWhere(current);
+              LPub->page.meta.LPub.bom.pliPartGroup.setBomPart(true);
+              bomPartGroups.append(LPub->page.meta.LPub.bom.pliPartGroup);
               break;
 
               // Any of the metas that can change pliParts needs
@@ -4253,7 +4253,7 @@ int Gui::getBOMParts(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              bomParts << Pli::partLine(line,current,page.meta);
+              bomParts << Pli::partLine(line,current,LPub->page.meta);
               break;
 
               /* remove a group or all instances of a part type */
@@ -4264,11 +4264,11 @@ int Gui::getBOMParts(
                   QStringList newBOMParts;
                   QVector<int> dummy;
                   if (rc == RemoveGroupRc) {
-                      remove_group(bomParts,dummy,page.meta.LPub.remove.group.value(),newBOMParts,dummy,&page.meta);
+                      remove_group(bomParts,dummy,LPub->page.meta.LPub.remove.group.value(),newBOMParts,dummy,&LPub->page.meta);
                   } else if (rc == RemovePartTypeRc) {
-                      remove_parttype(bomParts,dummy,page.meta.LPub.remove.parttype.value(),newBOMParts,dummy);
+                      remove_parttype(bomParts,dummy,LPub->page.meta.LPub.remove.parttype.value(),newBOMParts,dummy);
                   } else {
-                      remove_partname(bomParts,dummy,page.meta.LPub.remove.partname.value(),newBOMParts,dummy);
+                      remove_partname(bomParts,dummy,LPub->page.meta.LPub.remove.partname.value(),newBOMParts,dummy);
                   }
                   bomParts = newBOMParts;
               }
@@ -4329,11 +4329,11 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
           }
           case '0':
           {
-              rc = page.meta.parse(line,current);
+              rc = LPub->page.meta.parse(line,current);
               switch (rc) {
                   case InsertRc:
                   {
-                      InsertData insertData = page.meta.LPub.insert.value();
+                      InsertData insertData = LPub->page.meta.LPub.insert.value();
                       if (insertData.type == InsertData::InsertBom){
 
                           QString uniqueID = QString("%1_%2").arg(current.modelName).arg(current.lineNumber);
@@ -4355,9 +4355,9 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
       Where here = topOfPages[displayPageNum-1];
       for (++here; here.lineNumber < LPub->ldrawFile.size(here.modelName); here++) {
           QString line = readLine(here);
-          rc = page.meta.parse(line,here);
+          rc = LPub->page.meta.parse(line,here);
           if (rc == InsertRc) {
-              InsertData insertData = page.meta.LPub.insert.value();
+              InsertData insertData = LPub->page.meta.LPub.insert.value();
               if (insertData.type == InsertData::InsertBom) {
                   QString bomID   = QString("%1_%2").arg(here.modelName).arg(here.lineNumber);
                   bomOccurrence   = bom_Occurrence[bomID];
@@ -4633,7 +4633,7 @@ void Gui::drawPage(
     } else if (option == "cp") {
       bool multiStepPage = isViewerStepMultiStep(key);
       PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-      clearPageCache(relativeType, &page, Options::CSI);
+      clearPageCache(relativeType, &LPub->page, Options::CSI);
 
     // clear step
     } else if (option == "cs") {
@@ -4918,7 +4918,7 @@ void Gui::pagesCounted()
             enableActions2();
             if (!ContinuousPage())
                 enableNavigationActions(true);
-            enable3DActions(!page.coverPage || page.meta.LPub.coverPageViewEnabled.value());
+            enable3DActions(!LPub->page.coverPage || LPub->page.meta.LPub.coverPageViewEnabled.value());
         } // modeGUI and not exporting
     } // drawPage
 
@@ -5250,7 +5250,7 @@ int Gui::setBuildModForNextStep(
         LDrawFile::_currentLevels.clear();
 
     QString line = readLine(walk);
-    Rc rc = page.meta.parse(line, walk, false);
+    Rc rc = LPub->page.meta.parse(line, walk, false);
     if (rc == StepRc || rc == RotStepRc)
         walk++;   // Advance past STEP meta
 
@@ -5264,7 +5264,7 @@ int Gui::setBuildModForNextStep(
        switch (line.toLatin1()[0]) {
        case '0':
 
-            rc =  page.meta.parse(line,walk,false);
+            rc =  LPub->page.meta.parse(line,walk,false);
 
             switch (rc) {
 
@@ -5272,7 +5272,7 @@ int Gui::setBuildModForNextStep(
             case BuildModApplyRc:
             case BuildModRemoveRc:
                 buildModStepIndex = getBuildModStepIndex(topOfStep);
-                buildMod.key = page.meta.LPub.buildMod.key();
+                buildMod.key = LPub->page.meta.LPub.buildMod.key();
                 if (buildModContains(buildMod.key))
                     buildMod.action = getBuildModAction(buildMod.key, buildModStepIndex);
                 else
@@ -5285,7 +5285,7 @@ int Gui::setBuildModForNextStep(
 
             // Get BuildMod attributes and set buildModIgnore based on 'next' step buildModAction
             case BuildModBeginRc:
-                buildMod.key   = page.meta.LPub.buildMod.key();
+                buildMod.key   = LPub->page.meta.LPub.buildMod.key();
                 buildMod.level = getLevel(buildMod.key, BM_BEGIN);
                 buildModKeys.insert(buildMod.level, buildMod.key);
                 insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, walk);
@@ -5582,10 +5582,10 @@ void Gui::writeToTmp()
 
   int writtenFiles = 0;
   int subFileCount = LPub->ldrawFile._subFileOrder.size();
-  bool doFadeStep  = (Preferences::enableFadeSteps || page.meta.LPub.fadeStep.setup.value());
-  bool doHighlightStep = (Preferences::enableHighlightStep || page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
+  bool doFadeStep  = (Preferences::enableFadeSteps || LPub->page.meta.LPub.fadeStep.setup.value());
+  bool doHighlightStep = (Preferences::enableHighlightStep || LPub->page.meta.LPub.highlightStep.setup.value()) && !suppressColourMeta();
 
-  QString fadeColor = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.color.value().color);
+  QString fadeColor = LDrawColor::ldColorCode(LPub->page.meta.LPub.fadeStep.color.value().color);
 
   QString message;
   QString fileName;

@@ -5685,7 +5685,7 @@ PageSizeGui::PageSizeGui(
 
 int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 
-  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+  bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
   int  numPageTypes = PageSizes::numPageTypes();
   int index = -1;
   QString pageWidth;
@@ -5724,7 +5724,7 @@ void PageSizeGui::typeChange(const QString &pageType){
 
   if (pageType != "Custom") {
 
-      bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+      bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
       int   numPageTypes = PageSizes::numPageTypes();
 
       for (int i = 0; i < numPageTypes; i++) {
@@ -5769,7 +5769,7 @@ void PageSizeGui::valueHChange(QString const &string)
 
 void PageSizeGui::updatePageSize(){
 
-  if (gui->page.meta.LPub.page.orientation.value() == Portrait){
+  if (LPub->page.meta.LPub.page.orientation.value() == Portrait){
       meta->setValue(0,w);
       meta->setValue(1,h);
 //      qDebug() << "\nMeta setValue(0) Portrait Update:" << meta->value(0)
@@ -5843,7 +5843,7 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   float typeWidth,typeHeight;
   QString pageTypeSizeID = smeta->valueSizeID();
   int   numPageTypes     = PageSizes::numPageTypes();
-  bool  dpi              = gui->page.meta.LPub.resolution.type() == DPI;
+  bool  dpi              = LPub->page.meta.LPub.resolution.type() == DPI;
   typeCombo              = new QComboBox(parent);
   int typeIndex          = -1;
 
@@ -5975,7 +5975,7 @@ void SizeAndOrientationGui::typeChange(const QString &pageType){
 //  logDebug() << "\nPage Type: " << pageType << "type: " << newType ;
 
   if (newType != "Custom") {
-      bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+      bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
       int  numPageTypes = PageSizes::numPageTypes();
 
       for (int i = 0; i < numPageTypes; i++) {

@@ -49,7 +49,7 @@ SizeAndOrientationDialog::SizeAndOrientationDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+  bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
   QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimeters)");
 
   QGroupBox *box = new QGroupBox(header,this);

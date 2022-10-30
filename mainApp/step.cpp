@@ -1479,7 +1479,7 @@ int Step::sizeit(
         case Bottom:
           tsize = csiPlacement.size[XX];
           pli.sizePli(ConstrainData::PliConstrainWidth,tsize);
-          if (pli.size[YY] > LPub->pageSize(gui->page.meta.LPub.page, YY)/3) {
+          if (pli.size[YY] > LPub->pageSize(LPub->page.meta.LPub.page, YY)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1487,7 +1487,7 @@ int Step::sizeit(
         case Right:
           tsize = csiPlacement.size[YY];
           pli.sizePli(ConstrainData::PliConstrainHeight,tsize);
-          if (pli.size[XX] > LPub->pageSize(gui->page.meta.LPub.page, XX)/3) {
+          if (pli.size[XX] > LPub->pageSize(LPub->page.meta.LPub.page, XX)/3) {
               pli.sizePli(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1507,7 +1507,7 @@ int Step::sizeit(
         case Bottom:
           tsize = csiPlacement.size[XX];
           subModel.sizeSubModel(ConstrainData::PliConstrainWidth,tsize);
-          if (subModel.size[YY] > LPub->pageSize(gui->page.meta.LPub.page, YY)/3) {
+          if (subModel.size[YY] > LPub->pageSize(LPub->page.meta.LPub.page, YY)/3) {
               subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
             }
           break;
@@ -1515,7 +1515,7 @@ int Step::sizeit(
         case Right:
           tsize = csiPlacement.size[YY];
           subModel.sizeSubModel(ConstrainData::PliConstrainHeight,tsize);
-          if (subModel.size[XX] > LPub->pageSize(gui->page.meta.LPub.page, XX)/3) {
+          if (subModel.size[XX] > LPub->pageSize(LPub->page.meta.LPub.page, XX)/3) {
               subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
             }
           break;

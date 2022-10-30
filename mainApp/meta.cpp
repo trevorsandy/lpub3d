@@ -2779,7 +2779,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
     } else
     if ((argv.size() - index == 1) && !(argv[index].toLower() == "custom")) {
       QString pageType = argv[index];
-      bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
+      bool dpi = LPub->page.meta.LPub.resolution.type() == DPI;
       int  numPageTypes = PageSizes::numPageTypes();
       for (int i = 0; i < numPageTypes; i++) {
           if (pageType.toLower() == PageSizes::pageTypeSizeID(i).toLower()) {

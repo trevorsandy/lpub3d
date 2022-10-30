@@ -1751,7 +1751,7 @@ void Gui::SetRotStepMeta()
                     currentStep->mi(it)->scanPastLPubMeta(top);
 
                 QString line = gui->readLine(top);
-                Rc rc = page.meta.parse(line,top);
+                Rc rc = LPub->page.meta.parse(line,top);
                 if (rc == RotStepRc || rc == StepRc){
                    currentStep->mi(it)->replaceMeta(top, metaString);
                 } else {
@@ -2849,14 +2849,14 @@ void Gui::createBuildModification()
                 // Delete old BUILD_MOD END meta command
                 Where endMod = Where(ModelName, SaveModEndLineNum);
                 QString modLine = readLine(endMod);
-                Rc rc = page.meta.parse(modLine, endMod);
+                Rc rc = LPub->page.meta.parse(modLine, endMod);
                 if (rc == BuildModEndRc)
                     deleteLine(endMod);
 
                 // Delete old BUILD_MOD content from bottom up including END_MOD meta command
                 endMod = Where(ModelName, SaveModActionLineNum);
                 modLine = readLine(endMod);
-                rc = page.meta.parse(modLine, endMod);
+                rc = LPub->page.meta.parse(modLine, endMod);
                 if (rc == BuildModEndModRc)
                     for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
                         deleteLine(modHere);
@@ -3252,7 +3252,7 @@ bool Gui::setBuildModChangeKey()
         Where walk = LPub->currentStep->top;
 
         QString line = readLine(walk);
-        rc =  page.meta.parse(line,walk,false);
+        rc =  LPub->page.meta.parse(line,walk,false);
         if (rc == StepRc || rc == RotStepRc)
             walk++;   // Advance past STEP meta
 
@@ -3262,11 +3262,11 @@ bool Gui::setBuildModChangeKey()
               walk.lineNumber++) {
             line = readLine(walk);
             Where here(walk.modelName,walk.lineNumber);
-            rc =  page.meta.parse(line,here,false);
+            rc =  LPub->page.meta.parse(line,here,false);
 
             switch (rc) {
             case BuildModBeginRc:
-                buildModChangeKey = page.meta.LPub.buildMod.key();
+                buildModChangeKey = LPub->page.meta.LPub.buildMod.key();
                 return true;
 
             // Search until next step/rotstep meta
@@ -3408,11 +3408,11 @@ void Gui::deleteBuildModification()
                     for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
                         here = walk;
                         modLine = readLine(here);
-                        rc = page.meta.parse(modLine, here);
+                        rc = LPub->page.meta.parse(modLine, here);
                         switch (rc) {
                         case BuildModApplyRc:
                         case BuildModRemoveRc:
-                            modKey = page.meta.LPub.buildMod.key();
+                            modKey = LPub->page.meta.LPub.buildMod.key();
                             if (modKey == buildModKey)
                                 deleteLine(here);
                             break;
@@ -3427,14 +3427,14 @@ void Gui::deleteBuildModification()
         // delete existing BUILD_MOD commands from bottom up, starting at END
         here = Where(modelName, modEndLineNum);
         modLine = readLine(here);
-        rc = page.meta.parse(modLine, here);
+        rc = LPub->page.meta.parse(modLine, here);
         if (rc == BuildModEndRc)
             deleteLine(here);
 
         // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
         here = Where(modelName, modActionLineNum);
         modLine = readLine(here);
-        rc = page.meta.parse(modLine, here);
+        rc = LPub->page.meta.parse(modLine, here);
         if (rc == BuildModEndModRc)
             for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);
@@ -3444,7 +3444,7 @@ void Gui::deleteBuildModification()
             clearWorkingFiles(getPathsFromViewerStepKey(buildModStepKey));
         } else if (clearPage) {
             PlacementType relativeType = multiStepPage ? StepGroupType : SingleStepType;
-            clearPageCache(relativeType, &page, Options::CSI);
+            clearPageCache(relativeType, &LPub->page, Options::CSI);
         } else if (clearStep) {
             QString csiPngName = getViewerStepImagePath(buildModStepKey);
             clearStepCSICache(csiPngName);
@@ -3599,7 +3599,7 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &
       }
 
       stepNumber = 0;
-      if (page.modelDisplayOnlyStep) {
+      if (LPub->page.modelDisplayOnlyStep) {
           stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
       } else {
           stepNumber = keyArgs[2].toInt(&ok[1]);
@@ -3655,8 +3655,8 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
     if (stepType == BM_CALLOUT_STEP && step){
         calledOutStep(step, stepMatch);
     } else if (stepType == BM_MULTI_STEP) {
-        for (int i = 0; i < page.list.size() && !stepMatch; i++){
-            Range *range = dynamic_cast<Range *>(page.list[i]);
+        for (int i = 0; i < LPub->page.list.size() && !stepMatch; i++){
+            Range *range = dynamic_cast<Range *>(LPub->page.list[i]);
             for (int j = 0; j < range->list.size(); j++){
                 if (range->relativeType == RangeType) {
                     step = dynamic_cast<Step *>(range->list[j]);
@@ -3670,7 +3670,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
             }
         }
     } else if (stepType == BM_SINGLE_STEP) {
-        Range *range = dynamic_cast<Range *>(page.list[0]);
+        Range *range = dynamic_cast<Range *>(LPub->page.list[0]);
         if (range->relativeType == RangeType) {
             step = dynamic_cast<Step *>(range->list[0]);
             if (stepType == BM_CALLOUT_STEP)
@@ -3719,7 +3719,7 @@ bool Gui::setCurrentStep(const QString &key)
         stepType = BM_CALLOUT_STEP;
     else if (isViewerStepMultiStep(stepKey))
         stepType = BM_MULTI_STEP;
-    else if (page.relativeType == SingleStepType && page.list.size())
+    else if (LPub->page.relativeType == SingleStepType && LPub->page.list.size())
         stepType = BM_SINGLE_STEP;
 
     if (stepType || gStep)

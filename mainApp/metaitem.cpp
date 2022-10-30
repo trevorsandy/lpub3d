@@ -2840,7 +2840,7 @@ void MetaItem::insertPicture()
         else
             insertPosition = gui->getCurrentStep()->topOfStep();
     } else {
-        insertPosition = gui->page.topOfSteps();
+        insertPosition = LPub->page.topOfSteps();
     }
     if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
         scanPastGlobal(insertPosition);
@@ -2879,10 +2879,10 @@ void MetaItem::updateText(
     QString offset        = hasOffset ? QString(" OFFSET %1 %2")
                                                 .arg(qreal(_offsetX))
                                                 .arg(qreal(_offsetY)) : QString();
-    bool textPlacement    = gui->page.meta.LPub.page.textPlacement.value();
+    bool textPlacement    = LPub->page.meta.LPub.page.textPlacement.value();
     QString placementStr;
     if (textPlacement && initialAdd) {
-      PlacementMeta placementMeta = gui->page.meta.LPub.page.textPlacementMeta;
+      PlacementMeta placementMeta = LPub->page.meta.LPub.page.textPlacementMeta;
       placementMeta.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
                                        .arg(isRichText ? "RICH_TEXT" : "TEXT");
       PlacementData placementData = placementMeta.value();
@@ -2902,7 +2902,7 @@ void MetaItem::updateText(
         if (getStep) {
             // set step to insert
             thisStep = QInputDialog::getInt(gui,"Steps","Which Step",1,1,100,1,&ok);
-            Steps *steps = dynamic_cast<Steps *>(&gui->page);
+            Steps *steps = dynamic_cast<Steps *>(&LPub->page);
             if (ok && steps){
                 /* foreach range */
                 stepFound = false;
@@ -3007,7 +3007,7 @@ void MetaItem::insertText()
     bool append        = true;
     bool isRichText    = false;
     bool multiStep     = false;
-    bool textPlacement = gui->page.meta.LPub.page.textPlacement.value();
+    bool textPlacement = LPub->page.meta.LPub.page.textPlacement.value();
     PlacementType parentRelativeType = PageType;
 
     if (gui->getCurrentStep()){
@@ -3016,7 +3016,7 @@ void MetaItem::insertText()
         else
             insertPosition = gui->getCurrentStep()->topOfStep();
     } else {
-        insertPosition = gui->page.topOfSteps();
+        insertPosition = LPub->page.topOfSteps();
     }
 
     if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
@@ -3082,7 +3082,7 @@ void MetaItem::insertBOM()
       meta.append(" FOR_SUBMODEL");
 
   if (option == AppendAtPage) {
-    if (gui->page.coverPage) {
+    if (LPub->page.coverPage) {
         emit gui->messageSig(LOG_ERROR, QString("Adding a bill of materials to a cover page is not allowed."));
         return;
     }

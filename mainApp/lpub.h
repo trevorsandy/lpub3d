@@ -1358,8 +1358,10 @@ public slots:
   void statusMessage(LogType logType, QString message);
   void showExportedFile();
   void showLine(const Where &here, int type = LINE_HIGHLIGHT);
-
+  void openDropFile(QString &fileName);
   void enableApplyLightAction();
+
+  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
 
   /* Fade color processing */
   static QString createColourEntry(
@@ -1376,10 +1378,6 @@ public slots:
      return LDrawColourParts::isLDrawColourPart(fileName);
   }
 
-  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
-
-  void openDropFile(QString &fileName);
-
   static void deployExportBanner(bool b);
   static void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
   static void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
@@ -1393,11 +1391,11 @@ public slots:
   static int exportMode() { return m_exportMode; }
   static QString saveDirectoryName () { return m_saveDirectoryName; }
 
+  static bool ContinuousPage() { return m_contPageProcessing; }
+  static void setContinuousPage(bool b){ m_contPageProcessing = b; }
+  static void cancelContinuousPage(){ m_contPageProcessing = false; }
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
-  bool ContinuousPage() { return m_contPageProcessing; }
-  void setContinuousPage(bool b){ m_contPageProcessing = b; }
-  void cancelContinuousPage(){ m_contPageProcessing = false; }
 
   // left side progress bar
   void progressBarInit();
@@ -1559,8 +1557,6 @@ signals:
   void setPliIconPathSig(QString &,QString &);
 
 public:
-  Page                  &page = getPageRef();         // the abstract version of page contents
-
   ParmsWindow           *parmsWindow;                 // the parameter file editor
 
   // multi-thread worker classes
@@ -1656,8 +1652,8 @@ private:
   bool            viewerUndo;                 // suppress displayPage()
   bool            viewerRedo;                 // suppress displayPage()
 
-  bool            previousPageContinuousIsRunning;// stop the continuous previous page action
-  bool            nextPageContinuousIsRunning;    // stop the continuous next page action
+  bool     previousPageContinuousIsRunning;// stop the continuous previous page action
+  bool     nextPageContinuousIsRunning;    // stop the continuous next page action
 
   bool isUserSceneObject(const int so);
 

@@ -125,7 +125,7 @@ int     Gui::m_exportMode;           // export Mode
 QString Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
 int     Gui::boms;                   // the number of pli BOMs in the document
-int     Gui::bomOccurrence;          // the actual occurrence of each pli BOM
+int     Gui::bomOccurrence;          // the actual occurrence of each pli BO
 
 /****************************************************************************
  *
@@ -1158,15 +1158,15 @@ void Gui::setGoToPage(int index)
 
 void Gui::fitWidth()
 {
-  QRectF rect(0,0,LPub->pageSize(page.meta.LPub.page, 0)
-                 ,LPub->pageSize(page.meta.LPub.page, 1));
+  QRectF rect(0,0,LPub->pageSize(LPub->page.meta.LPub.page, 0)
+                 ,LPub->pageSize(LPub->page.meta.LPub.page, 1));
   KpageView->fitWidth(rect);
 }
 
 void Gui::fitVisible()
 {
-  QRectF rect(0,0,LPub->pageSize(page.meta.LPub.page, 0),
-                  LPub->pageSize(page.meta.LPub.page, 1));
+  QRectF rect(0,0,LPub->pageSize(LPub->page.meta.LPub.page, 0),
+                  LPub->pageSize(LPub->page.meta.LPub.page, 1));
   KpageView->fitVisible(rect);
   zoomSliderWidget->setValue(50);
 }
@@ -2256,52 +2256,52 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
 
 void Gui::pageSetup()
 {
-  GlobalPageDialog::getPageGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalPageDialog::getPageGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::assemSetup()
 {
-  GlobalAssemDialog::getAssemGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalAssemDialog::getAssemGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::pliSetup()
 {
-  GlobalPliDialog::getPliGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalPliDialog::getPliGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::bomSetup()
 {
-  GlobalPliDialog::getBomGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalPliDialog::getBomGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::calloutSetup()
 {
-  GlobalCalloutDialog::getCalloutGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalCalloutDialog::getCalloutGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::multiStepSetup()
 {
-  GlobalMultiStepDialog::getMultiStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalMultiStepDialog::getMultiStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::subModelSetup()
 {
-  GlobalSubModelDialog::getSubModelGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalSubModelDialog::getSubModelGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::projectSetup()
 {
-  GlobalProjectDialog::getProjectGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalProjectDialog::getProjectGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::fadeStepSetup()
 {
-  GlobalFadeStepDialog::getFadeStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalFadeStepDialog::getFadeStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::highlightStepSetup()
 {
-  GlobalHighlightStepDialog::getHighlightStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
+  GlobalHighlightStepDialog::getHighlightStepGlobals(LPub->ldrawFile.topLevelFile(),LPub->page.meta);
 }
 
 void Gui::useSystemEditor()
@@ -2922,7 +2922,7 @@ void Gui::preferences()
     if (Preferences::getPreferences()) {
 
         Meta meta;
-        page.meta = meta;
+        LPub->page.meta = meta;
 
         QMessageBox box;
         box.setMinimumSize(40,20);
@@ -5790,7 +5790,7 @@ void Gui::enableActions2()
     insertNumberedPageAct->setEnabled(frontCover);
     bool backCover = mi->okToAppendNumberedPage();
     appendNumberedPageAct->setEnabled(backCover);
-    deletePageAct->setEnabled(page.list.size() == 0);
+    deletePageAct->setEnabled(LPub->page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);
     addTextAct->setEnabled(true);
 }
