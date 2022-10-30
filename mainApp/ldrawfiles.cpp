@@ -3707,11 +3707,12 @@ int LDrawFile::getBuildModStepIndex(const int _modelIndex, const int _lineNumber
     } else if (modelIndex > BM_INVALID_INDEX) {
         QVector<int> indexKey = { modelIndex, lineNumber };
         stepIndex = _buildModStepIndexes.indexOf(indexKey);
-
+#ifdef QT_DEBUG_MODE
         if (stepIndex == BM_INVALID_INDEX) {
             logType = LOG_ERROR;
             insert = QString("Get BuildMod (INVALID)");
         }
+#endif
     }
 #ifdef QT_DEBUG_MODE
     else {
@@ -3834,10 +3835,11 @@ int LDrawFile::getBuildModPrevStepIndex()
 
 int LDrawFile::getBuildModNextStepIndex()
 {
+    int lineNumber  = 0;
+
 #ifdef QT_DEBUG_MODE
     LogType logType = LOG_DEBUG;
     QString message;
-    int lineNumber  = 0;
     bool validIndex = false;
     bool firstIndex = false;
 #endif
