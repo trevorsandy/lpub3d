@@ -456,7 +456,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		parent = gMainWindow;
 	}
 
-	auto SetTimeLineTopItem = [this, &FileName, &parent] (const QStringList& Content)
+	auto SetTimeLineTopItem = [this, &FileName, &StepKey, &parent] (const QStringList& Content)
 	{
 		if (!mIsPreview)
 		{
@@ -481,7 +481,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
 			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
 			bool IsPli = mImageType == Options::PLI;
-			QStringList Keys = gui->getViewerStepKeys(true/*Return Name*/, IsPli, mStepKey);
+			QStringList Keys = gui->getViewerStepKeys(true/*Return Name*/, IsPli, StepKey);
 
 			if (Keys.size() > 2) {
 				const QString PieceName = Keys.at(BM_STEP_MODEL_KEY);
@@ -540,22 +540,21 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		if (!IsLPubModel/*We have a StepKey*/)
 		{
 /*** LPub3D Mod - viewer step key ***/
-			mStepKey = StepKey;
-			mProjectPieceModified = mImageType == Options::CSI ? gui->viewerStepModified(mStepKey, true) : false;
+			mProjectPieceModified = mImageType == Options::CSI ? gui->viewerStepModified(StepKey, true) : false;
 /*** LPub3D Mod end ***/
 
-			FileName = gui->getViewerStepFilePath(mStepKey);
+			FileName = gui->getViewerStepFilePath(StepKey);
 
 			if (FileName.isEmpty())
 			{
 				if (ShowErrors)
 /*** LPub3D Mod - viewer step key ***/
-					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for step key '%1'.").arg(mStepKey));
+					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for step key '%1'.").arg(StepKey));
 /*** LPub3D Mod end ***/
 				return false;
 			}
 
-			Content = gui->getViewerStepRotatedContents(mStepKey);
+			Content = gui->getViewerStepRotatedContents(StepKey);
 
 			SetTimeLineTopItem(Content);
 		}

@@ -162,11 +162,6 @@ public:
 	void ShowModelListDialog();
 
 /*** LPub3D Mod - project piece ***/
-	QString GetStepKey() const
-	{
-		return mStepKey;
-	}
-
 	bool IsProjectPieceModified() const
 	{
 		return mProjectPieceModified;
@@ -235,7 +230,6 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - project piece ***/
 	bool mProjectPieceModified;
-	QString mStepKey;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;
