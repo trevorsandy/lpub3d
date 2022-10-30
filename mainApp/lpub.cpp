@@ -110,6 +110,9 @@ public:
 
 QHash<SceneObject, QString> soMap;
 
+int          Gui::pa;                // page adjustment
+int          Gui::sa;                // step number adustment
+int          Gui::maxPages;
 int          Gui::displayPageNum;    // what page are we displaying
 int          Gui::processOption;     // export Option
 int          Gui::pageDirection;     // page processing direction

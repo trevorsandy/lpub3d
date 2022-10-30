@@ -489,8 +489,10 @@ public:
   static bool         saveProjection;  // saved projection when temporarily switching to Native renderer
   static QString      pageRangeText;   // page range parameters
 
-  int             pa;               // page adjustment
-  int             sa;               // step number adustment
+  static int          pa;               // page adjustment
+  static int          sa;               // step number adustment
+  static int          maxPages;
+
   int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
 
@@ -1113,8 +1115,6 @@ public:
   void displayFile(LDrawFile *ldrawFile, const Where &here, bool editModelFile = false, bool displayStartPage = false);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &duration);
-
-  int             maxPages;
 
   LGraphicsView *pageview()
   {
