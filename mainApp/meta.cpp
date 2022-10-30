@@ -707,10 +707,11 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
           _value[pushed].offsets[0] = argv[index  ].toFloat(&ok[0]);
           _value[pushed].offsets[1] = argv[index+1].toFloat(&ok[1]);
           if (!ok[0] || !ok[1])
-              rc = FailureRc;
-           _here[pushed] = here;
+              return rc;
+          _here[pushed] = here;
+          return OkRc;
         } else if (argc - index < 2) {
-          rc = FailureRc;
+          return rc;
         }
     }
 
@@ -768,24 +769,16 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
               rx.setPattern("^(INSIDE|OUTSIDE)$");
               if (argv[index].contains(rx)) {
                   preposition = argv[index++];
-                  rc = OkRc;
                 }
               if (argc - index >= 2) {
-                  if (argv[index] == "OFFSET") {
-                    index++;
-                    if (argc - index == 2) {
-                      bool ok[2];
-                      _offsets[0] = argv[index  ].toFloat(&ok[0]);
-                      _offsets[1] = argv[index+1].toFloat(&ok[1]);
-                      if (!ok[0] || !ok[1])
-                          rc = FailureRc;
-                    } else if (argc - index < 2) {
-                        rc = FailureRc;
-                    }
-                  }
+                  if (argv[index] == "OFFSET")
+                      index++;
+                  bool ok[2];
+                  _offsets[0] = argv[index  ].toFloat(&ok[0]);
+                  _offsets[1] = argv[index+1].toFloat(&ok[1]);
+                  if (!ok[0] || !ok[1])
+                      return FailureRc;
                 }
-            } else {
-              rc = OkRc;
             }
         }
 

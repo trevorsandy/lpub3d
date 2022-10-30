@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2685 (30 10 2022 21:21:02)
+LPub3D 2.4.4.1.2686 (30 10 2022 21:22:38)
 
 Features, enhancements, fixes and changes
 ------------
@@ -20,6 +20,7 @@ Revisions:
 - Fix - Error occurred while downloading archive library #568
 - Fix - Invalid appstream file #589
 - Fix - LPub3D plug, logo and other auto text features #594
+- Fix - OFFSET not applied in some cases #595
 - Fix - Preferences default url not being saved #587
 - Fix - Update build from source scripts #585
 
