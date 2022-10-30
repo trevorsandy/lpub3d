@@ -32,7 +32,7 @@ class PageAttributePixmapItem : public ResizePixmapItem
     PageAttributePixmapItem(
       Page                     *page,
       QPixmap                  &pixmap,
-      PageAttributePictureMeta &pageAttributePictureMeta,
+      PageAttributeImageMeta &pageAttributeImageMeta,
       QGraphicsItem            *parent);
 
     virtual void change();

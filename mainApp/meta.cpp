@@ -3803,7 +3803,7 @@ void PageAttributeTextMeta::init(
 
 /* ------------------ */
 
-PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
+PageAttributeImageMeta::PageAttributeImageMeta() : BranchMeta()
 {
   placement.setValue(TopLeftInsideCorner,PageType);
   display.setValue(Preferences::displayAllAttributes);
@@ -3823,7 +3823,7 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   fill.setValue(Aspect);
 }
 
-void PageAttributePictureMeta::init(
+void PageAttributeImageMeta::init(
     BranchMeta *parent,
     QString name)
 {

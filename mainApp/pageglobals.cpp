@@ -81,7 +81,7 @@ GlobalPageDialog::GlobalPageDialog(
   PageFooterMeta *pageFooterMeta = &data->meta.LPub.page.pageFooter;
   pageFooterMeta->size.setValue(0, pW);
   PageAttributeTextGui *childTextGui;
-  PageAttributePictureGui *chilPicdGui;
+  PageAttributeImageGui *childImageGui;
 
   setLayout(layout);
   layout->addWidget(tab);
@@ -252,9 +252,9 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   coverPageBox = new QGroupBox(tr("Display Cover Image"));
   childlayout->addWidget(coverPageBox);
-  coverImageChildFront = new PageAttributePictureGui(&pageMeta->coverImage,coverPageBox);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(coverImageChildFront);
-  chilPicdGui->pictureEdit->setToolTip("Enter image path");
+  coverImageChildFront = new PageAttributeImageGui(&pageMeta->coverImage,coverPageBox);
+  childImageGui = static_cast<PageAttributeImageGui*>(coverImageChildFront);
+  childImageGui->imageEdit->setToolTip("Enter image path");
   data->children.append(coverImageChildFront);
   connect(coverPageBox, SIGNAL(toggled(bool)),
           this,         SLOT(  displayGroup(bool)));
@@ -505,9 +505,9 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   documentLogoBoxFront = new QGroupBox(tr("Display Front Cover Logo"));
   childlayout->addWidget(documentLogoBoxFront);
-  documentLogoChildFront = new PageAttributePictureGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildFront);
-  chilPicdGui->pictureEdit->setToolTip("Enter logo image path");
+  documentLogoChildFront = new PageAttributeImageGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
+  childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildFront);
+  childImageGui->imageEdit->setToolTip("Enter logo image path");
   data->children.append(documentLogoChildFront);
   connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -527,9 +527,9 @@ GlobalPageDialog::GlobalPageDialog(
   documentLogoBoxBack = new QGroupBox(tr("Display Back Cover Logo"));
   childlayout->addWidget(documentLogoBoxBack);
   documentLogoBoxBack->hide();
-  documentLogoChildBack = new PageAttributePictureGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildBack);
-  chilPicdGui->pictureEdit->setToolTip("Enter logo image path");
+  documentLogoChildBack = new PageAttributeImageGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
+  childImageGui = static_cast<PageAttributeImageGui*>(documentLogoChildBack);
+  childImageGui->imageEdit->setToolTip("Enter logo image path");
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -624,12 +624,12 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   lpub3dLogoBox = new QGroupBox(tr("Display LPub3D Logo"));
   childlayout->addWidget(lpub3dLogoBox);
-  lpub3dLogoChildBack = new PageAttributePictureGui(&pageMeta->plugImage,lpub3dLogoBox);
+  lpub3dLogoChildBack = new PageAttributeImageGui(&pageMeta->plugImage,lpub3dLogoBox);
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(lpub3dLogoChildBack);
-  chilPicdGui->pictureEdit->setReadOnly(true);
-  chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
-  chilPicdGui->pictureButton->setEnabled(false);
+  childImageGui = static_cast<PageAttributeImageGui*>(lpub3dLogoChildBack);
+  childImageGui->imageEdit->setReadOnly(true);
+  childImageGui->imageEdit->setPalette(readOnlyPalette);
+  childImageGui->imageButton->setEnabled(false);
   data->children.append(lpub3dLogoChildBack);
   connect(lpub3dLogoBox, SIGNAL(toggled(bool)),
           this,    SLOT(  displayGroup(bool)));

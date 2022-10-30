@@ -26,19 +26,19 @@
 PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
   QPixmap                   &pixmap,
-  PageAttributePictureMeta  &pageAttributePictureMeta,
+  PageAttributeImageMeta    &pageAttributeImageMeta,
   QGraphicsItem             *parent):
     isHovered(false),
     mouseIsDown(false)
 {
   page               = _page;
-  placement          = pageAttributePictureMeta.placement;
-  picScale           = pageAttributePictureMeta.picScale;
-  border             = pageAttributePictureMeta.border;
-  displayPicture     = pageAttributePictureMeta.display;
-  margin             = pageAttributePictureMeta.margin;
-  relativeType       = pageAttributePictureMeta.type;
-  fillMode           = pageAttributePictureMeta.fill.value();
+  placement          = pageAttributeImageMeta.placement;
+  picScale           = pageAttributeImageMeta.picScale;
+  border             = pageAttributeImageMeta.border;
+  displayPicture     = pageAttributeImageMeta.display;
+  margin             = pageAttributeImageMeta.margin;
+  relativeType       = pageAttributeImageMeta.type;
+  fillMode           = pageAttributeImageMeta.fill.value();
   parentRelativeType = page->relativeType;
 
   if (relativeType == PageDocumentLogoType ) {
@@ -55,8 +55,8 @@ PageAttributePixmapItem::PageAttributePixmapItem(
 
   bool movable = true;
   if (fillMode == Aspect) {
-    size[XX] = int(pixmap.width() * pageAttributePictureMeta.picScale.value());
-    size[YY] = int(pixmap.height() * pageAttributePictureMeta.picScale.value());
+    size[XX] = int(pixmap.width() * pageAttributeImageMeta.picScale.value());
+    size[YY] = int(pixmap.height() * pageAttributeImageMeta.picScale.value());
   } else {
     movable  = false;
     size[XX] = page->pageSize(XX,false/*adjusted*/,false/*forDivider*/);
@@ -78,7 +78,7 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   painter.setRenderHints(QPainter::Antialiasing,true);
 
   // Set border
-  BorderData  borderData = pageAttributePictureMeta.border.valuePixels();
+  BorderData  borderData = pageAttributeImageMeta.border.valuePixels();
 
   qreal rx = double(borderData.radius);
   qreal ry = double(borderData.radius);

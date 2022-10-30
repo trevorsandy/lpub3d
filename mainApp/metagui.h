@@ -392,47 +392,47 @@ public slots:
 };
 /***********************************************************************
  *
- * PageAttributePicture
+ * PageAttributeImage
  *
  **********************************************************************/
 
-class PageAttributePictureMeta;
+class PageAttributeImageMeta;
 class QDoubleSpinBox;
 class FloatMeta;
-class PageAttributePictureGui : public MetaGui
+class PageAttributeImageGui : public MetaGui
 {
   Q_OBJECT
 public:
 
-  PageAttributePictureGui(
-    PageAttributePictureMeta *meta,
+  PageAttributeImageGui(
+    PageAttributeImageMeta *meta,
     QGroupBox         *parent = nullptr);
 
-  ~PageAttributePictureGui() {}
+  ~PageAttributeImageGui() {}
 
   virtual void apply(QString &topLevelFile);
 
   void setEnabled(bool enabled);
 
 private:
-  PageAttributePictureMeta *meta;
+  PageAttributeImageMeta *meta;
 
   int             selection;
   bool            marginsModified;
   bool            placementModified;
   bool            displayModified;
-  bool            pictureModified;
+  bool            imageModified;
   bool            scaleModified;
   bool            fillModified;
 
-  QString         picture;
+  QString         image;
 
   QLabel         *marginsLabel;
   QLineEdit      *value0;
   QLineEdit      *value1;
 
-  QLineEdit      *pictureEdit;
-  QPushButton    *pictureButton;
+  QLineEdit      *imageEdit;
+  QPushButton    *imageButton;
   QGroupBox      *gbScale;
   QLabel         *scale;
   QDoubleSpinBox *spin;
@@ -457,9 +457,9 @@ public slots:
   void selectionChanged(int value){
       selection = value;
   }
-  void pictureFill(bool);
-  void pictureChange(QString const &);
-  void browsePicture(bool);
+  void imageFill(bool);
+  void imageChange(QString const &);
+  void browseImage(bool);
   void gbScaleClicked(bool);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
@@ -920,8 +920,8 @@ private:
 
 public slots:
   void typeChange(QString const &);
-  void pictureChange(QString const &);
-  void browsePicture(bool);
+  void imageChange(QString const &);
+  void browseImage(bool);
   void setGradient(bool);
   void browseColor(bool);
   void stretch(bool);

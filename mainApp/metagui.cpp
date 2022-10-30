@@ -1400,12 +1400,12 @@ void PageAttributeTextGui::apply(
 
 /***********************************************************************
  *
- * PageAttributePicture
+ * PageAttributeImage
  *
  **********************************************************************/
 
- PageAttributePictureGui::PageAttributePictureGui(
-  PageAttributePictureMeta *_meta,
+ PageAttributeImageGui::PageAttributeImageGui(
+  PageAttributeImageMeta *_meta,
   QGroupBox  *parent)
 {
   QGridLayout   *grid;
@@ -1491,16 +1491,16 @@ void PageAttributeTextGui::apply(
   grid->addWidget(value1,1,2);
 
   // Image
-  picture = meta->file.value();
-  pictureEdit = new QLineEdit(picture,parent);
-  connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  pictureChange(QString const &)));
-  grid->addWidget(pictureEdit,2,0,1,2);
+  image = meta->file.value();
+  imageEdit = new QLineEdit(image,parent);
+  connect(imageEdit,SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  imageChange(QString const &)));
+  grid->addWidget(imageEdit,2,0,1,2);
 
-  pictureButton = new QPushButton("Browse",parent);
-  connect(pictureButton,SIGNAL(clicked(     bool)),
-          this,         SLOT(  browsePicture(bool)));
-  grid->addWidget(pictureButton,2,2,1,1);
+  imageButton = new QPushButton("Browse",parent);
+  connect(imageButton,SIGNAL(clicked(     bool)),
+          this,         SLOT(  browseImage(bool)));
+  grid->addWidget(imageButton,2,2,1,1);
 
   //scale
   bool gbChecked = (meta->picScale.value() > 1.0 ||
@@ -1528,7 +1528,7 @@ void PageAttributeTextGui::apply(
   connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
   // fill
-  gbFill = new QGroupBox("Picture Fill Mode", parent);
+  gbFill = new QGroupBox("Image Fill Mode", parent);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
   grid->addWidget(gbFill,4,0,1,3);
@@ -1536,29 +1536,29 @@ void PageAttributeTextGui::apply(
   aspectRadio = new QRadioButton("Aspect",gbFill);
   aspectRadio->setChecked(meta->fill.value() == Aspect);
   connect(aspectRadio,SIGNAL(clicked(bool)),
-          this,        SLOT(  pictureFill(bool)));
+          this,        SLOT(  imageFill(bool)));
   hLayout->addWidget(aspectRadio);
 
   stretchRadio = new QRadioButton("Stretch",gbFill);
   stretchRadio->setChecked(meta->fill.value() == Stretch);
   connect(stretchRadio,SIGNAL(clicked(bool)),
-          this,        SLOT(  pictureFill(bool)));
+          this,        SLOT(  imageFill(bool)));
   hLayout->addWidget(stretchRadio);
   tileRadio    = new QRadioButton("Tile",gbFill);
   tileRadio->setChecked(meta->fill.value() == Tile);
   connect(tileRadio,SIGNAL(clicked(bool)),
-          this,     SLOT(  pictureFill(bool)));
+          this,     SLOT(  imageFill(bool)));
   hLayout->addWidget(tileRadio);
 
   fillModified      = false;
-  pictureModified   = false;
+  imageModified   = false;
   marginsModified   = false;
   placementModified = false;
   displayModified   = false;
   scaleModified     = false;
 }
 
- void PageAttributePictureGui::pictureFill(bool checked)
+ void PageAttributeImageGui::imageFill(bool checked)
  {
    if (sender() == stretchRadio) {
        meta->fill.setValue(Stretch);
@@ -1576,32 +1576,32 @@ void PageAttributeTextGui::apply(
    modified = fillModified = true;
  }
 
-void PageAttributePictureGui::pictureChange(QString const &pic)
+void PageAttributeImageGui::imageChange(QString const &pic)
 {
   meta->file.setValue(pic);
-  modified = pictureModified = true;
+  modified = imageModified = true;
 }
 
-void PageAttributePictureGui::browsePicture(bool)
+void PageAttributeImageGui::browseImage(bool)
 {
-  QString picture = meta->file.value();
+  QString image = meta->file.value();
   QString cwd = QDir::currentPath();
   QString filePath = QFileDialog::getOpenFileName(
     gui,
-    tr("Choose Picture File"),
-    picture,
+    tr("Choose Image File"),
+    image,
     tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
   if (!filePath.isEmpty()) {
     if (filePath.startsWith(cwd))
       filePath = filePath.replace(cwd,".");
-    picture = filePath;
-    pictureEdit->setText(filePath);
-    meta->file.setValue(picture);
-    modified = pictureModified = true;
+    image = filePath;
+    imageEdit->setText(filePath);
+    meta->file.setValue(image);
+    modified = imageModified = true;
   }
 }
 
-void PageAttributePictureGui::gbScaleClicked(bool checked)
+void PageAttributeImageGui::gbScaleClicked(bool checked)
 {
   qreal value = meta->picScale.value();
   meta->picScale.setValue(value);
@@ -1613,26 +1613,26 @@ void PageAttributePictureGui::gbScaleClicked(bool checked)
   }
 }
 
-void PageAttributePictureGui::value0Changed(QString const &string)
+void PageAttributeImageGui::value0Changed(QString const &string)
 {
   meta->margin.setValue(0,string.toFloat());
   modified = marginsModified = true;
 }
 
-void PageAttributePictureGui::value1Changed(QString const &string)
+void PageAttributeImageGui::value1Changed(QString const &string)
 {
   meta->margin.setValue(1,string.toFloat());
   modified = marginsModified = true;
 }
 
-void PageAttributePictureGui::valueChanged(double value)
+void PageAttributeImageGui::valueChanged(double value)
 {
   meta->picScale.setValue(value);
-  modified = pictureModified = true;
+  modified = imageModified = true;
 }
 
 
-void PageAttributePictureGui::placementChanged(bool clicked)
+void PageAttributeImageGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
@@ -1655,18 +1655,18 @@ void PageAttributePictureGui::placementChanged(bool clicked)
   }
 }
 
-void PageAttributePictureGui::toggled(bool toggled)
+void PageAttributeImageGui::toggled(bool toggled)
 {
     meta->display.setValue(toggled);
     modified = displayModified = true;
 }
 
-void PageAttributePictureGui::apply(QString &topLevelFile)
+void PageAttributeImageGui::apply(QString &topLevelFile)
 {
     MetaItem mi;
     mi.beginMacro("Settings");
 
-    if (pictureModified) {
+    if (imageModified) {
       mi.setGlobalMeta(topLevelFile,&meta->file);
     }
     if (scaleModified) {
@@ -2661,12 +2661,12 @@ BackgroundGui::BackgroundGui(
   pictureEdit = new QLineEdit(picture,parent);
   pictureEdit->setToolTip("Enter image path");
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
-          this,       SLOT(  pictureChange(QString const &)));
+          this,       SLOT(  imageChange(QString const &)));
   grid->addWidget(pictureEdit,1,0);
 
   pictureButton = new QPushButton("Browse",parent);
   connect(pictureButton,SIGNAL(clicked(     bool)),
-          this,         SLOT(  browsePicture(bool)));
+          this,         SLOT(  browseImage(bool)));
   grid->addWidget(pictureButton,1,1);
 
   /* Fill */
@@ -2762,7 +2762,7 @@ void BackgroundGui::typeChange(QString const &type)
   modified = true;
 }
 
-void BackgroundGui::pictureChange(QString const &pic)
+void BackgroundGui::imageChange(QString const &pic)
 {
   BackgroundData background = meta->value();
   background.string = pic;
@@ -2896,7 +2896,7 @@ void BackgroundGui::setGradient(bool){
   modified = true;
 }
 
-void BackgroundGui::browsePicture(bool)
+void BackgroundGui::browseImage(bool)
 {
   BackgroundData background = meta->value();
   QString cwd = QDir::currentPath();

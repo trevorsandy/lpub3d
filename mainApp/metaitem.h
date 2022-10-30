@@ -452,7 +452,7 @@ public:
 
   void setPliPartGroupOffset(PliPartGroupMeta *meta);
 
-  //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
+  //void changePageAttributeImageOffset(Where default const,PageAttributeImageMeta *imageMeta,bool local = false,bool global = true);
 
   void hidePLIParts(    QList<Where> &parts);
 

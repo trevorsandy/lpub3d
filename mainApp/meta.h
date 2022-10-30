@@ -2509,7 +2509,7 @@ public:
 
 /*------------------------*/
 
-class PageAttributePictureMeta : public BranchMeta
+class PageAttributeImageMeta : public BranchMeta
 {
 public:
   PlacementType type;
@@ -2529,12 +2529,12 @@ public:
   {
       return file.value();
   }
-  PageAttributePictureMeta();
-  PageAttributePictureMeta(const PageAttributePictureMeta &rhs) : BranchMeta(rhs)
+  PageAttributeImageMeta();
+  PageAttributeImageMeta(const PageAttributeImageMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-//  virtual ~PageAttributePictureMeta() {}
+//  virtual ~PageAttributeImageMeta() {}
 
   virtual void init(BranchMeta *parent,
                     QString name);
@@ -3377,14 +3377,14 @@ public:
   PageAttributeTextMeta     email;                   //from Preferences::defaultEmail
   PageAttributeTextMeta     emailBack;               //from Preferences::defaultEmail
   PageAttributeTextMeta     disclaimer;              //from Preferences::disclaimer (static)
-  PageAttributePictureMeta  documentLogoFront;       //from Preferences::documentLogoFile
-  PageAttributePictureMeta  documentLogoBack;        //from Preferences::documentLogoFile
-  PageAttributePictureMeta  coverImage;              //from Globals: Page setup
+  PageAttributeImageMeta    documentLogoFront;       //from Preferences::documentLogoFile
+  PageAttributeImageMeta    documentLogoBack;        //from Preferences::documentLogoFile
+  PageAttributeImageMeta    coverImage;              //from Globals: Page setup
   PageAttributeTextMeta     parts;                   //from LDrawFile: count .dat during load
   PageAttributeTextMeta     copyrightBack;           //from Preferences::copyright (static)
   PageAttributeTextMeta     copyright;               //from Preferences::copyright (static)
   PageAttributeTextMeta     plug;                    //from Preferences::plug (static)
-  PageAttributePictureMeta  plugImage;               //from Preferences::plugImage (static)
+  PageAttributeImageMeta    plugImage;               //from Preferences::plugImage (static)
   PageAttributeTextMeta     category;                //from LDrawFile: !CATEGORY (NOT IMPLEMENTED)
 
   PageMeta();
