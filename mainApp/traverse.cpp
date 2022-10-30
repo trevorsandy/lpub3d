@@ -4586,23 +4586,24 @@ void Gui::drawPage(
           topOfStep = firstPage ? current : topOfPages[displayPageIndx];
 
       // if page direction is jump forward, reset vars that may be updated by the count page call
-      buildModJumpForward = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
+      if ((buildModJumpForward = pageDirection == PAGE_JUMP_FORWARD)) {
+        const int saveJumpDisplayPageNum = displayPageNum;
+        const QList<Where> saveJumpTopOfPages = topOfPages;
+        const Where saveJumpCurrent = current;
 
-      Where saveCurrent = current;
+        setBuildModForNextStep(topOfStep);
 
-      int saveTopOfPages = topOfPages.size();
+        // revert registers to pre jump forward count page settings
+        buildModJumpForward = false;
+        displayPageNum = saveJumpDisplayPageNum;
+        current     = saveJumpCurrent;
+        maxPages    = 1 + pa;
+        stepPageNum = maxPages;
+        topOfPages  = saveJumpTopOfPages;
+        lpub->ldrawFile.unrendered();
 
-      setBuildModForNextStep(topOfStep);
-
-      // reinitialize registers and turn off build mod parse from count page
-      if (buildModJumpForward) {
-          buildModJumpForward = false;
-          current = saveCurrent;
-          maxPages    = 1 + pa;
-          stepPageNum = maxPages;
-          lpub->ldrawFile.unrendered();
-          while (topOfPages.size() > saveTopOfPages)
-              topOfPages.takeLast();
+      } else {
+        setBuildModForNextStep(topOfStep);
       }
     } // buildModEnabled
 
@@ -4848,22 +4849,22 @@ void Gui::pagesCounted()
 //*
     emit messageSig(LOG_NOTICE, QString("COUNTED   - Page %1 topOfPage Final Page Finish  (cur) - LineNumber %2, ModelName %3")
                     .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
-    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2")
-                    .arg(saveDisplayPageNum ? saveDisplayPageNum : displayPageNum)
-                    .arg(saveDisplayPageNum ? saveMaxPages : maxPages));
-    emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+    if (!saveDisplayPageNum) {
+        emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
+        emit messageSig(LOG_NOTICE, QString("RENDERED -  Page %1 of %2").arg(displayPageNum).arg(maxPages));
+        emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
 /*
-    for (int i = 0; i < topOfPages.size(); i++)
-    {
-        Where top = topOfPages.at(i);
-        emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                        .arg(i, 3, 10, QChar('0'))               // index
-                        .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
-                        .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
-                        .arg(top.modelName)); // modelName
-    }
+        for (int i = 0; i < topOfPages.size(); i++)
+        {
+            Where top = topOfPages.at(i);
+            emit messageSig(LOG_NOTICE, QString("COUNTED  -  PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
+                            .arg(i, 3, 10, QChar('0'))               // index
+                            .arg(top.modelIndex, 3, 10, QChar('0'))  // modelIndex
+                            .arg(top.lineNumber, 3, 10, QChar('0'))  // lineNumber
+                            .arg(top.modelName)); // modelName
+        }
 //*/
+    }
 #endif
 
     if (Preferences::modeGUI && ! exporting()) {

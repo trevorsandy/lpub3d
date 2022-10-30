@@ -2414,6 +2414,15 @@ int CountPageWorker::countPage(
                                   meta->rotStep = saveRotStep2;             // restore old rotstep
                                   meta->submodelStack.pop_back();           // remove where we stopped in the parent model
 
+                                  // terminate build modification countPage at end of submodel
+                                  if (gui->buildModJumpForward && modelOpts.pageNum == gui->saveDisplayPageNum) {
+                                      opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
+                                      if (! opts.flags.parseBuildMods) {
+                                          countPageMutex.unlock();
+                                          return OkRc;
+                                      }
+                                  }
+
                                   if (Gui::exporting()) {
                                       removePageSize(DEF_SIZE);
                                       insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
@@ -2538,7 +2547,7 @@ int CountPageWorker::countPage(
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
 
-              // terminate build modification parse at end of simple step, callout step or step group
+              // terminate build modification countPage at end of step group
               if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods)
                       opts.flags.numLines = opts.current.lineNumber;
@@ -2759,9 +2768,9 @@ int CountPageWorker::countPage(
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
 
-              // terminate build modification parse at end of simple step, callout step or step group
+              // terminate build modification countPage at end of step
               if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
-                  if (! opts.flags.parseBuildMods && ! opts.flags.callout && ! opts.flags.stepGroup)
+                  if (! opts.flags.parseBuildMods && ! opts.flags.stepGroup)
                       opts.flags.numLines = opts.current.lineNumber;
               }
               break;
@@ -2904,6 +2913,17 @@ int CountPageWorker::countPage(
   // Added callout step parse for parse build modifications so
   // exclude from page number increment and topOfPages indices
   if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
+
+      // terminate parse build mofifications
+      if ( opts.flags.parseBuildMods) {
+          // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
+          if (gui->buildModJumpForward) {
+              // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
+              // to use the correct page number value in determining when to terminate the buildMod parse.
+              opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
+          }
+      }
+
       if (Gui::exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {
@@ -2943,7 +2963,6 @@ int CountPageWorker::countPage(
       ++opts.pageNum;
       gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)
       documentPageCount();
-
     } // Last Step in Submodel
 
   countPageMutex.unlock();
