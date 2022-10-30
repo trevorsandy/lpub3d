@@ -720,7 +720,7 @@ void Gui::closeFile()
   pageSizes.clear();
   undoStack->clear();
   pageDirection = PAGE_NEXT;
-  parseBuildModsAtCount = false;
+  buildModJumpForward = false;
   Preferences::resetFadeSteps();
   Preferences::resetHighlightStep();
   Preferences::resetPreferredRenderer();
@@ -797,7 +797,7 @@ bool Gui::openFile(QString &fileName)
   disableWatcher();
 
   setCountWaitForFinished(false);
-  parseBuildModsAtCount = false;
+  buildModJumpForward = false;
   pageDirection = PAGE_NEXT;
   mloadingFile = true;
   parsedMessages.clear();

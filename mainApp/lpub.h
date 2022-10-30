@@ -487,7 +487,7 @@ public:
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
   bool            resetCache;        // reset model, fade and highlight parts
-  bool            parseBuildModsAtCount; // parse build mods in countPage call - special case for jump forward
+  bool            buildModJumpForward; // parse build mods in countPage call - special case for jump forward
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
 

@@ -4473,7 +4473,7 @@ void Gui::attitudeAdjustment()
 
 void Gui::countPages()
 {
-  if (maxPages < 1 + pa || parseBuildModsAtCount) {
+  if (maxPages < 1 + pa || buildModJumpForward) {
       pageProcessRunning = PROC_COUNT_PAGE;
 
       Meta meta;
@@ -4493,7 +4493,7 @@ void Gui::countPages()
       skipHeader(current);
 
       QString message = tr("Counting pages...");
-      if (parseBuildModsAtCount) {
+      if (buildModJumpForward) {
           flags.parseBuildMods = true;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       } else {
@@ -4584,7 +4584,7 @@ void Gui::drawPage(
           topOfStep = firstPage ? current : topOfPages[displayPageIndx];
 
       // if page direction is jump forward, reset vars that may be updated by the count page call
-      parseBuildModsAtCount = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
+      buildModJumpForward = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
 
       Where saveCurrent = current;
 
@@ -4593,8 +4593,8 @@ void Gui::drawPage(
       setBuildModForNextStep(topOfStep);
 
       // reinitialize registers and turn off build mod parse from count page
-      if (parseBuildModsAtCount) {
-          parseBuildModsAtCount = false;
+      if (buildModJumpForward) {
+          buildModJumpForward = false;
           current = saveCurrent;
           maxPages    = 1 + pa;
           stepPageNum = maxPages;
@@ -5193,7 +5193,7 @@ int Gui::setBuildModForNextStep(
         emit gui->messageSig(LOG_TRACE, QString("BuildMod Next StartStep - Index: %1, ModelName: %2, LineNumber: %3")
                                                 .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
-        if (parseBuildModsAtCount) {                         // jump forward by more than one step/page
+        if (buildModJumpForward) {                         // jump forward by more than one step/page
             jumpDirection = PAGE_JUMP_FORWARD;
             countPages();
         } else if (pageDirection != PAGE_FORWARD) {          // jump backward by one or more steps/pages
@@ -5205,7 +5205,7 @@ int Gui::setBuildModForNextStep(
 #ifdef QT_DEBUG_MODE
             emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - JumpAmount: %2 (Steps), StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
-                                                    .arg(parseBuildModsAtCount ? "Forward" : "Backward")
+                                                    .arg(buildModJumpForward ? "Forward" : "Backward")
                                                     .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
                                                     .arg(startModel).arg(startLine)
                                                     .arg(topOfNextStep.modelName)
