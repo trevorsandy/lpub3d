@@ -76,13 +76,14 @@
 #define SUB_PLACEHOLDER "@@~|~@@"
 
 EditWindow *cmdEditor;
+EditWindow *cmdModEditor;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
   QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_),_pageIndx(0)
 {
     _textEdit = new QTextEditor(_modelFileEdit, this);
 
-    loadModelWorker = new LoadModelWorker();
+    loadModelWorker = new LoadModelWorker(_modelFileEdit);
 
     verticalScrollBar = _textEdit->verticalScrollBar();
 
@@ -124,21 +125,25 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     setCentralWidget(_textEdit);
 
-    if (modelFileEdit()) {
+    if (_modelFileEdit) {
         _saveSubfileIndex = 0;
         QObject::connect(&fileWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(modelFileChanged(const QString&)));
         this->statusBar()->show();
         readSettings();
+        cmdModEditor = this;
+    } else {
+        cmdEditor = this;
     }
-
-    cmdEditor  = this;
 
     setMinimumSize(200, 200);
 }
 
 EditWindow::~EditWindow()
 {
-    cmdEditor = nullptr;
+    if (modelFileEdit())
+        cmdModEditor = nullptr;
+    else
+        cmdEditor = nullptr;
 }
 
 QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
@@ -2053,7 +2058,7 @@ void EditWindow::displayFile(
     _textEdit->document()->clear();
     _textEdit->setIsUTF8(ldrawFile ? LDrawFile::_currFileIsUTF8 : true);
 
-    QFuture<int> loadFuture = QtConcurrent::run(loadModelWorker->loadModel, ldrawFile, fileName, _modelFileEdit);
+    QFuture<int> loadFuture = QtConcurrent::run(loadModelWorker->loadModel, ldrawFile, fileName);
     futureWatcher.setFuture(loadFuture);
 
   } // Detached Editor

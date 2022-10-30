@@ -2942,10 +2942,18 @@ int CountPageWorker::countPage(
   return OkRc;
 } // CountPageWorker::countPage()
 
+/**********************************************
+ *
+ *  Editor loader calls
+ *
+ **********************************************/
+
+bool LoadModelWorker::_detached = false;
+
 void LoadModelWorker::setPlainText(const QString &content)
 {
     QMetaObject::invokeMethod(
-                cmdEditor,                     // obj
+    _detached ? cmdModEditor : cmdEditor,      // obj
                 "setPlainText",                // member
                 Qt::QueuedConnection,          // connection type
                 Q_ARG(QString, content));      // val1
@@ -2954,7 +2962,7 @@ void LoadModelWorker::setPlainText(const QString &content)
 void LoadModelWorker::setPagedContent(const QStringList &content)
 {
     QMetaObject::invokeMethod(
-                cmdEditor,                     // obj
+    _detached ? cmdModEditor : cmdEditor,      // obj
                 "setPagedContent",             // member
                 Qt::QueuedConnection,          // connection type
                 Q_ARG(QStringList, content));  // val1
@@ -2963,7 +2971,7 @@ void LoadModelWorker::setPagedContent(const QStringList &content)
 void LoadModelWorker::setSubFiles(const QStringList &subFiles)
 {
     QMetaObject::invokeMethod(
-                cmdEditor,                     // obj
+    _detached ? cmdModEditor : cmdEditor,      // obj
                 "setSubFiles",                 // member
                 Qt::QueuedConnection,          // connection type
                 Q_ARG(QStringList, subFiles)); // val1
@@ -2972,13 +2980,13 @@ void LoadModelWorker::setSubFiles(const QStringList &subFiles)
 void LoadModelWorker::setLineCount(const int count)
 {
     QMetaObject::invokeMethod(
-                cmdEditor,                     // obj
+    _detached ? cmdModEditor : cmdEditor,      // obj
                 "setLineCount",                // member
                 Qt::QueuedConnection,          // connection type
                 Q_ARG(int, count));            // val1
 }
 
-int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bool detachedEditor)
+int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath)
 {
     QMutex loadMutex;
     loadMutex.lock();
@@ -2992,7 +3000,7 @@ int LoadModelWorker::loadModel(LDrawFile *ldrawFile, const QString &filePath, bo
     QStringList contentList;
     QString fileName = filePath;
 
-    if (detachedEditor) {
+    if (_detached) {
 
         if (QDir::fromNativeSeparators(fileName).count("/")) {
 

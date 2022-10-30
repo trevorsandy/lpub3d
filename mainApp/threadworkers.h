@@ -351,17 +351,18 @@ class LoadModelWorker : public QObject
 {
     Q_OBJECT
 
+public:
+    explicit LoadModelWorker(bool detached = false) { _detached = detached; }
+    ~LoadModelWorker() { }
 public slots:
-    static int loadModel(
-            LDrawFile *,
-     const QString &,
-            bool);
+    static int loadModel(LDrawFile *, const QString &);
 private:
     static void statusMessage(const LogType, const QString &);
     static void setPlainText(const QString &);
     static void setPagedContent(const QStringList &);
     static void setSubFiles(const QStringList &);
     static void setLineCount(const int);
+    static bool _detached;
 };
 
 #include "quazip.h"

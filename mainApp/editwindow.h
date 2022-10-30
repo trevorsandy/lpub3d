@@ -279,6 +279,7 @@ protected:
 };
 
 extern class EditWindow *cmdEditor;
+extern class EditWindow *cmdModEditor;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
