@@ -133,12 +133,13 @@ RendererData Gui::savedData;         // store current renderer data when tempora
 int          Gui::saveRenderer;      // saved renderer when temporarily switching to Native renderer
 bool         Gui::saveProjection;    // saved projection when temporarily switching to Native renderer
 QString      Gui::pageRangeText;     // page range parameters
+
 /****************************************************************************
  *
  * Download with progress monotor
  *
  ***************************************************************************/
-void Gui::downloadFile(QString URL, QString title, bool promptRedirect)
+void Application::downloadFile(QString URL, QString title, bool promptRedirect)
 {
     mTitle = title;
     mPromptRedirect = promptRedirect;
@@ -161,7 +162,7 @@ void Gui::downloadFile(QString URL, QString title, bool promptRedirect)
         QApplication::processEvents();
 }
 
-void Gui::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
+void Application::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
 {
     if (mHttpRequestAborted)
         return;
@@ -170,7 +171,7 @@ void Gui::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
     mProgressDialog->setValue(int(bytesRead));
 }
 
-void Gui::startRequest(QUrl url)
+void Application::startRequest(QUrl url)
 {
     QNetworkRequest request(url);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
@@ -186,13 +187,13 @@ void Gui::startRequest(QUrl url)
             this, SLOT(httpDownloadFinished()));
 }
 
-void Gui::cancelDownload()
+void Application::cancelDownload()
 {
     mHttpRequestAborted = true;
     mHttpReply->abort();
 }
 
-void Gui::httpDownloadFinished()
+void Application::httpDownloadFinished()
 {
     if (mHttpRequestAborted) {
         mByteArray.clear();
@@ -219,7 +220,7 @@ void Gui::httpDownloadFinished()
         QUrl newUrl = mUrl.resolved(redirectionTarget.toUrl());
         bool proceedToRedirect = true;
         if (mPromptRedirect && Preferences::modeGUI) {
-            proceedToRedirect = QMessageBox::question(this, tr("HTTP"),
+            proceedToRedirect = QMessageBox::question(nullptr, tr("HTTP"),
                                               tr("Download redirect to %1 ?").arg(newUrl.toString()),
                                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
         } else {
@@ -3813,8 +3814,8 @@ void Gui::loadBLCodes()
 {
    if (!Annotations::loadBLCodes()){
        QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
-       downloadFile(URL, "BrickLink Elements");
-       QByteArray Buffer = getDownloadedFile();
+       LPub->downloadFile(URL, "BrickLink Elements");
+       QByteArray Buffer = LPub->getDownloadedFile();
        Annotations::loadBLCodes(Buffer);
    }
 }

@@ -393,9 +393,6 @@ class QUndoStack;
 class QUndoCommand;
 class SeparatorComboBox;
 
-class QNetworkReply;
-class QNetworkAccessManager;
-
 class WaitingSpinnerWidget;
 class MpdComboDelegate;
 
@@ -1224,26 +1221,10 @@ public:
   void exportAsColladaDialog();
   void exportAsObjDialog();
 
-  // Download components
-  void downloadFile(QString URL, QString title, bool promptRedirect = false);
-  void startRequest(QUrl url);
-  QByteArray getDownloadedFile() const
-  {
-      return mByteArray;
-  }
-  QProgressDialog *mProgressDialog;
-  bool mPromptRedirect;
-  bool mHttpRequestAborted;
-  QUrl mUrl;
-
 public slots:
 #ifndef QT_NO_CLIPBOARD
   void updateClipboard();
 #endif
-  void httpDownloadFinished();
-  void cancelDownload();
-  void updateDownloadProgress(qint64, qint64);
-  // End Download components
 
   // Native viewer functions
   void enable3DActions(bool enable);
@@ -1590,11 +1571,7 @@ protected:
   QMutex                 mWriteToTmpMutex;
 
   int                    mViewerZoomLevel;
-  // download components
-  QNetworkAccessManager* mHttpManager;
-  QNetworkReply*         mHttpReply;
-  QByteArray             mByteArray;
-  QString                mTitle;
+
   SceneObject            selectedItemObj;
 
 private:

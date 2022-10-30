@@ -8193,8 +8193,8 @@ bool BlenderRenderDialogGui::extractBlenderAddon(const QString &blenderDir)
     }
 
     // Download Blender addon
-    gui->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, "Blender Addon");
-    QByteArray Buffer = gui->getDownloadedFile();
+    LPub->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, "Blender Addon");
+    QByteArray Buffer = LPub->getDownloadedFile();
     QFile file(blenderAddonFile);
     if (! file.open(QIODevice::WriteOnly)) {
         emit gui->messageSig(LOG_ERROR, QString("Failed to open Blender file: %1:<br>%2")

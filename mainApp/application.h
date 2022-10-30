@@ -25,12 +25,11 @@
   #include <Windows.h>
 #endif
 
+#include "lc_global.h"
+#include "lc_math.h"
+
 #include "QsLog.h"
 #include "name.h"
-
-#include "lc_global.h"
-
-#include "lc_math.h"
 
 #include "ldrawfiles.h"
 #include "metatypes.h"
@@ -39,6 +38,8 @@
 #include "step.h"
 
 class NativeOptions;
+class QNetworkReply;
+class QNetworkAccessManager;
 class InitException: public QException
 {
 public:
@@ -94,7 +95,7 @@ public:
     /// Process viewer key to return model, line number and step number
     QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
 
-    /// Stud sytle and automated edge color
+    /// Stud sytle and automated edge color setting calls
     int     GetStudStyle();
     float   GetPartEdgeContrast();
     float   GetPartColorLightDarkIndex();
@@ -107,8 +108,17 @@ public:
     void    SetStudStyle(const NativeOptions*, bool);
     void    SetAutomateEdgeColor(const NativeOptions*);
 
+    /// Fade and highlight settings from command line calls
     bool setFadeStepsFromCommand();
     bool setHighlightStepFromCommand();
+
+    /// Download management calls
+    void downloadFile(QString URL, QString title, bool promptRedirect = false);
+    void startRequest(QUrl url);
+    QByteArray getDownloadedFile() const
+    {
+        return mByteArray;
+    }
 
 #ifdef Q_OS_WIN
     /// Console redirection for Windows
@@ -140,8 +150,21 @@ public:
     /// Contains MPD or all files used in model
     LDrawFile ldrawFile;
 
-    /// currently loaded CSI in Visual Editor
+    /// Currently loaded CSI in Visual Editor
     QString viewerStepKey;
+
+    /// Download management calls
+    QProgressDialog *mProgressDialog;
+    bool mPromptRedirect;
+    bool mHttpRequestAborted;
+    QUrl mUrl;
+
+protected:
+    /// Download management members
+    QNetworkAccessManager* mHttpManager;
+    QNetworkReply*         mHttpReply;
+    QByteArray             mByteArray;
+    QString                mTitle;
 
 public slots:
     /// Splash message function to display message updates during startup
@@ -160,6 +183,11 @@ public slots:
       splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, QColor(QString(SPLASH_FONT_COLOUR)));
       m_application.processEvents();
     }
+
+    /// Download management calls
+    void httpDownloadFinished();
+    void cancelDownload();
+    void updateDownloadProgress(qint64, qint64);
 
 signals:
     /// Splash message signal to pass messages
