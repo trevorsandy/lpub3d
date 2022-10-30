@@ -1,6 +1,6 @@
 # Build, check and deploy LPub3D
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Jun 07, 2022
+# Last Update: Jul 29, 2022
 # Copyright (C) 2021 - 2022 by Trevor SANDY
 #
 # Commit message strings with [skip ci], [ci skip], [no ci], [skip actions], or [actions skip]
@@ -68,7 +68,7 @@ jobs:
   build-macos:
     # if: ${{ false }} # uncomment to disable
     name: Build macOS
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
       - name: Checkout
         uses: actions/checkout@v2
