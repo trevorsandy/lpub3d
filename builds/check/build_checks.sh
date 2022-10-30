@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 04, 2022
+# Last Update Jul 28, 2022
 # Copyright (C) 2018 - 2022 by Trevor SANDY
 # LPub3D Unix build checks - for remote CI (Travis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -279,9 +279,23 @@ for LP3D_BUILD_CHECK in ${LP3D_BUILD_CHECK_LIST[@]}; do
             [ -s "${LP3D_CHECK_STDLOG}" ] && \
             echo "- Standard Error Log Trace: ${LP3D_CHECK_STDLOG}" && \
             cat "${LP3D_CHECK_STDLOG}" || true
-            echo "- Archiving ${LP3D_BUILD_CHECK}_assets to ${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz"
             cp -f "${LP3D_LOG_FILE}" "${LP3D_CHECK_PATH}"
-            tar -czvf "${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}"
+            if [ -d "${LP3D_CHECK_PATH}" ]; then
+                LP3D_CHECK_ASSETS="$(ls -A ${LP3D_CHECK_PATH})"
+                if [ "${LP3D_CHECK_ASSETS}" ]; then
+                    echo "${LP3D_BUILD_CHECK} assets found:" && echo "${LP3D_CHECK_ASSETS}" && \
+                    echo "- Archiving assets to ${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz"
+                    if tar -czvf "${HOME}/${LP3D_BUILD_CHECK}_assets.tar.gz" "${LP3D_CHECK_PATH}/"; then
+                        echo "Success"
+                    else
+                        echo "Oops - tar failed!"
+                    fi
+                else
+                    echo "Nothing to archive. Directory ${LP3D_CHECK_PATH} is empty."
+                fi
+            else
+                echo "Directory ${LP3D_CHECK_PATH} was not found."
+            fi
             echo
         fi
         # Report Xvfb errors
