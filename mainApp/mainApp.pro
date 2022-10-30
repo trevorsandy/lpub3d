@@ -471,9 +471,9 @@ HEADERS += \
     lgraphicsscene.h \
     lgraphicsview.h \
     lpub.h \
+    lpub_object.h \
     lpub_preferences.h \
     lpub_qtcompat.h \
-    lpubalert.h \
     messageboxresizable.h \
     meta.h \
     metagui.h \
@@ -583,8 +583,8 @@ SOURCES += \
     lgraphicsscene.cpp \
     lgraphicsview.cpp \
     lpub.cpp \
+    lpub_object.cpp \
     lpub_preferences.cpp \
-    lpubalert.cpp \
     messageboxresizable.cpp \
     meta.cpp \
     metagui.cpp \

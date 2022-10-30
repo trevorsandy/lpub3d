@@ -24,7 +24,7 @@
 #include "color.h"
 #include "application.h"
 #include "threadworkers.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 /*** LPub3D Mod end ***/
 
 lcApplication* gApplication;

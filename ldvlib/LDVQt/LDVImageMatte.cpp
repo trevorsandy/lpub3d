@@ -27,7 +27,7 @@
 #include <WPngImage.hh>
 
 #include "QsLog.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "render.h"
 #include "name.h"
 #include "paths.h"

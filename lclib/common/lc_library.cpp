@@ -18,7 +18,7 @@
 #include <zlib.h>
 #include <QtConcurrent>
 /*** LPub3D Mod - Includes ***/
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "lpub_preferences.h"
 /*** LPub3D Mod end ***/
 

@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef LPUBALERT_H
-#define LPUBALERT_H
+#ifndef LPUB_OBJECT_H
+#define LPUB_OBJECT_H
 
 #include <QObject>
 
@@ -36,4 +36,4 @@ private:
 
 extern class LPubAlert *lpubAlert;
 
-#endif // LPUBALERT_H
+#endif // LPUB_OBJECT_H

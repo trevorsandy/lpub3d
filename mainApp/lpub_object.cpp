@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "lpubalert.h"
+#include "lpub_object.h"
 
 LPubAlert *lpubAlert;
 

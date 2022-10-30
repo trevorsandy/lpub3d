@@ -81,7 +81,7 @@
 #include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "annotations.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "version.h"
 #include "paths.h"
 #include "lc_http.h"

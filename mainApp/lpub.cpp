@@ -41,7 +41,7 @@
 #include "paths.h"
 #include "globals.h"
 #include "resolution.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "preferencesdialog.h"
 #include "renderdialog.h"
 #include "metaitem.h"
@@ -3421,7 +3421,7 @@ Gui::Gui()
 
     pageProcessRunning              = PROC_NONE;        // display page process
     processOption                   = EXPORT_ALL_PAGES; // export process
-    m_exportMode                      = EXPORT_PDF;
+    m_exportMode                    = EXPORT_PDF;
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
     mloadingFile                    = false;

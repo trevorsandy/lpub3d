@@ -32,7 +32,7 @@
 #include "lc_global.h"
 #include "ldrawpartdialog.h"
 #include "ldrawcolordialog.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "pli.h"
 #include "color.h"
 

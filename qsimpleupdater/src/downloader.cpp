@@ -47,7 +47,7 @@
 #include "progress_dialog.h"
 #include "threadworkers.h"
 #include "downloader.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "version.h"
 
 static const QString PARTIAL_DOWN (".part");

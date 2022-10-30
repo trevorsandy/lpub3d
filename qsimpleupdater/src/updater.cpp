@@ -40,7 +40,7 @@
 #include "messageboxresizable.h"
 #include "version.h"
 #include "name.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "lpub_preferences.h"
 
 Updater::Updater()

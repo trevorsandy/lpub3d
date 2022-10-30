@@ -47,7 +47,7 @@
 
 #include "lc_global.h"
 #include "editwindow.h"
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "highlighter.h"
 #include "highlightersimple.h"
 #include "ldrawfiles.h"

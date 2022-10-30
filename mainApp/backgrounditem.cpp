@@ -40,7 +40,7 @@
 #include <QFile>
 #include "color.h"
 
-#include "lpubalert.h"
+#include "lpub_object.h"
 #include "name.h"
 
 void BackgroundItem::setBackground(
