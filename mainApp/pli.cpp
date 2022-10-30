@@ -1116,7 +1116,7 @@ int Pli::createPartImage(
                         keySub);
 
             // add ROTSTEP command
-            pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
+            pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
 
             // header and closing meta - this call returns isMPD
             //if (renderer->setLDrawHeaderAndFooterMeta(pliFile,type,Options::PLI)) {
@@ -2578,7 +2578,7 @@ int Pli::partSizeLDViewSCall() {
                               keySub);
 
                     // add ROTSTEP command
-                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
+                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
 
                     // header and closing meta - this call returns isMPD
                     //if (renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI)) {

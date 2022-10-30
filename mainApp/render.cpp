@@ -3075,6 +3075,7 @@ float Render::ViewerCameraDistance(
 bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/) {
 
     lcGetActiveProject()->SetRenderAttributes(
+                O->ImageType,
                 O->ImageWidth,
                 O->ImageHeight,
                 O->PageWidth,

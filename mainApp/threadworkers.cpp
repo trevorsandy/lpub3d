@@ -2183,7 +2183,7 @@ int CountPageWorker::countPage(
 
   gui->pageProcessRunning = PROC_COUNT_PAGE;
 
-  if (opts.pageNum == 1 + gui->pa) {
+  if (opts.pageNum == 1 + gui->pa && opts.current.modelName == ldrawFile->topLevelFile()) {
       if (!opts.stepNumber)
           opts.stepNumber = 1 + gui->sa;
 #ifdef QT_DEBUG_MODE
@@ -2218,8 +2218,8 @@ int CountPageWorker::countPage(
   QMap<int, QString>      buildModKeys;
   QMap<int, QVector<int>> buildModAttributes;
 
-  int  buildModStepIndex  = -1;
-  bool buildModExists     = false;
+  bool buildModExists    = false;
+  int  buildModStepIndex = BM_INVALID_INDEX;
 
   auto insertAttribute =
           [&buildMod,
@@ -2292,7 +2292,7 @@ int CountPageWorker::countPage(
   {
       if (Preferences::modeGUI && ! gui->exporting()) {
           statusMessage(LOG_COUNT_STATUS, QString("Counting document page %1...")
-                                                  .arg(QStringLiteral("%1").arg(opts.pageNum, 4, 10, QLatin1Char('0'))));
+                                                  .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
       }
   };
 
@@ -2490,12 +2490,11 @@ int CountPageWorker::countPage(
 
                   // terminate parse build mofifications
                   if ( opts.flags.parseBuildMods) {
-                      // terminate parse build mods from gui::countPage for jump to page
-                      if (gui->parseBuildModsAtCount) {
-                          // terminate build modification parse at end of simple step, callout step or step group
-                          opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
-                          if (! opts.flags.parseBuildMods)
-                             opts.flags.numLines = topOfStep.lineNumber;
+                      // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
+                      if (gui->buildModJumpForward) {
+                          // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
+                          // to use the correct page number value in determining when to terminate the buildMod parse.
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
                       }
                       // terminate parse build modification for steps after first step in step group
                       else if (opts.flags.parseStepGroupBM) {
@@ -2538,6 +2537,12 @@ int CountPageWorker::countPage(
 
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
+
+              // terminate build modification parse at end of simple step, callout step or step group
+              if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+                  if (! opts.flags.parseBuildMods)
+                      opts.flags.numLines = opts.current.lineNumber;
+              }
               break;
 
             case BuildModApplyRc:
@@ -2579,7 +2584,10 @@ int CountPageWorker::countPage(
                    }
                    if ((Rc)buildMod.action != rc) {
 #ifdef QT_DEBUG_MODE
-                       emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - %1").arg(rc == BuildModRemoveRc ? "BuildModRemove" : "BuildModApply"));
+                       emit gui->messageSig(LOG_NOTICE, QString("Setup Reset Build Mod - Key: '%1', Current Action: %2, Next Action: %3")
+                                            .arg(buildMod.key)
+                                            .arg(buildMod.action == BuildModRemoveRc ? "Remove(65)" : "Apply(64)")
+                                            .arg(rc == BuildModRemoveRc ? "Remove(65)" : "Apply(64)"));
 #endif
                        // set BuildMod action for current step
                        ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
@@ -2664,12 +2672,11 @@ int CountPageWorker::countPage(
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
                   // parse build modifications
                   if ( opts.flags.parseBuildMods) {
-                      // terminate build mods from gui::countPage for jump to page
-                      if (gui->parseBuildModsAtCount) {
-                          // terminate build modification parse at end of simple step, callout step or step group
-                          opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
-                          if (! opts.flags.parseBuildMods && ! opts.flags.callout && ! opts.flags.stepGroup)
-                             opts.flags.numLines = opts.current.lineNumber;
+                      // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
+                      if (gui->buildModJumpForward) {
+                          // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
+                          // to use the correct page number value in determining when to terminate the buildMod parse.
+                          opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
                       }
                       // BuildMod create
                       if (buildModKeys.size()) {
@@ -2751,6 +2758,12 @@ int CountPageWorker::countPage(
               meta->LPub.buildMod.clear();
               opts.flags.noStep2 = opts.flags.noStep;
               opts.flags.noStep = false;
+
+              // terminate build modification parse at end of simple step, callout step or step group
+              if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+                  if (! opts.flags.parseBuildMods && ! opts.flags.callout && ! opts.flags.stepGroup)
+                      opts.flags.numLines = opts.current.lineNumber;
+              }
               break;
 
             case CalloutBeginRc:

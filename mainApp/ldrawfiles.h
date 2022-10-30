@@ -490,6 +490,7 @@ class LDrawFile {
     void clearBuildModStep(const QString &buildModKey,const int stepIndex);
     void clearBuildModSteps(const QString &buildModKey);
     void clearBuildModSteps();
+    void setBuildModNavBackward();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     void deleteBuildMods(const int stepIndex);
     QString getBuildModStepKey(const QString &buildModKey);

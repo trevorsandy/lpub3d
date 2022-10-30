@@ -901,6 +901,11 @@ public:
       ldrawFile.setLoadBuildMods(b);
   }
 
+  void setBuildModNavBackward()
+  {
+      ldrawFile.setBuildModNavBackward();
+  }
+
   int getBuildModNextStepIndex()
   {
       return ldrawFile.getBuildModNextStepIndex();
