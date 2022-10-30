@@ -465,7 +465,7 @@ public:
   Gui();
   ~Gui();
 
-  int             displayPageNum;   // what page are we displaying
+
   int             stepPageNum;      // the number displayed on the page
   int             saveStepPageNum;  // saved instance of the number displayed on the page
   int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
@@ -474,14 +474,17 @@ public:
   int             saveMaxPages;     // saved page count when count (actually parse) build mods requested
   int             firstStepPageNum; // the first Step page number - used to specify frontCover page
   int             lastStepPageNum;  // the last Step page number - used to specify backCover page
-  int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
-  QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
+
   QList<Where>    parsedMessages;   // previously parsed messages within the current session
+
+  static int      displayPageNum;   // what page are we displaying
+  static int      processOption;    // export Option
+  static int      pageDirection;    // page processing direction
+  static int      savePrevStepPosition; // indicate the previous step position amongst current and previous steps
+  static QList<Where> topOfPages;   // topOfStep list of modelName and lineNumber for each page
 
   int             pa;               // page adjustment
   int             sa;               // step number adustment
-  int             processOption;    // export Option
-  int             pageDirection;    // page processing direction
   int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
   QString         pageRangeText;    // page range parameters
@@ -525,8 +528,8 @@ public:
           Steps  *steps,
           bool    calledOut);
 
-  Where &topOfPage();
-  Where &bottomOfPage();
+  static Where &topOfPage();
+  static Where &bottomOfPage();
 
   void    changePageNum(int offset)
   {
@@ -1073,7 +1076,7 @@ public:
       exportedFile = fileName;
   }
 
-  bool suppressColourMeta()
+  static bool suppressColourMeta()
   {
     return false; // Preferences::preferredRenderer == RENDERER_NATIVE;
   }
@@ -1253,15 +1256,15 @@ public slots:
 
   QString getViewerStepKey()
   {
-      return viewerStepKey;
+      return LPub->viewerStepKey;
   }
 
-  int GetBOMs()
+  static int GetBOMs()
   {
       return boms;
   }
 
-  int GetBOMOccurrence()
+  static int GetBOMOccurrence()
   {
       return bomOccurrence;
   }
@@ -1359,11 +1362,11 @@ public slots:
   void enableApplyLightAction();
 
   /* Fade color processing */
-  QString createColourEntry(
+  static QString createColourEntry(
     const QString &colourCode,
     const PartType partType);
 
-  bool colourEntryExist(
+  static bool colourEntryExist(
     const QStringList &colourEntries,
     const QString &code,
     const PartType partType);
@@ -1629,8 +1632,8 @@ private:
 
   int                    numPrograms;
 
-  int                     boms;            // the number of pli BOMs in the document
-  int                     bomOccurrence;   // the actual occurrence of each pli BOM
+  static int              boms;            // the number of pli BOMs in the document
+  static int              bomOccurrence;   // the actual occurrence of each pli BOM
   QStringList             bomParts;        // list of part strings configured for BOM setup
   QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
   lcPreview*              preview;
@@ -1650,8 +1653,6 @@ private:
                                              // being edited
   bool               changeAccepted;         // don't throw another message unless existing was accepted
 #endif
-
-  LDrawColor      ldrawColors;               // provides maps from ldraw color to RGB
 
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
@@ -1751,12 +1752,12 @@ private:
 
   void addCsiTypeLine();
 
-  QStringList configureModelSubFile(
+  static QStringList configureModelSubFile(
     const QStringList &,
     const QString &,
     const PartType partType);         // fade and or highlight all parts in subfile
 
-  QStringList configureModelStep(
+  static QStringList configureModelStep(
     const QStringList &csiParts,
     const int         &stepNum,
     Where             &current);      // fade and or highlight parts in a step that are not current

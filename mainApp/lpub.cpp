@@ -110,6 +110,12 @@ public:
 
 QHash<SceneObject, QString> soMap;
 
+int          Gui::displayPageNum;    // what page are we displaying
+int          Gui::processOption;     // export Option
+int          Gui::pageDirection;     // page processing direction
+int          Gui::savePrevStepPosition; // indicate the previous step position amongst current and previous steps
+QList<Where> Gui::topOfPages;        // topOfStep list of modelName and lineNumber for each page
+
 bool    Gui::m_exportingContent;     // indicate export/printing underway
 bool    Gui::m_exportingObjects;     // indicate exporting non-image object file content
 bool    Gui::m_contPageProcessing;   // indicate continuous page processing underway
@@ -117,6 +123,9 @@ bool    Gui::m_countWaitForFinished; // indicate wait for countPage to finish on
 
 int     Gui::m_exportMode;           // export Mode
 QString Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
+
+int     Gui::boms;                   // the number of pli BOMs in the document
+int     Gui::bomOccurrence;          // the actual occurrence of each pli BOM
 
 /****************************************************************************
  *

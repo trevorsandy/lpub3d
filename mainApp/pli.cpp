@@ -65,7 +65,7 @@ QString PartTypeNames[NUM_PART_TYPES] = { "Fade Previous Steps", "Highlight Curr
 const Where &Pli::topOfStep()
 {
   if (bom || step == nullptr || steps == nullptr) {
-      return gui->topOfPage();
+      return Gui::topOfPage();
     } else {
       if (step) {
           return step->topOfStep();
@@ -77,7 +77,7 @@ const Where &Pli::topOfStep()
 const Where &Pli::bottomOfStep()
 {
   if (bom || step == nullptr || steps == nullptr) {
-      return gui->bottomOfPage();
+      return Gui::bottomOfPage();
     } else {
       if (step) {
           return step->bottomOfStep();
