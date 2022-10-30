@@ -469,7 +469,12 @@ bool Gui::exportAsDialog(ExportMode m)
       DialogExportPages *dialog = new DialogExportPages();
       if (dialog->exec() == QDialog::Accepted) {
           if(dialog->allPages()){
-              processOption = EXPORT_ALL_PAGES;
+              if (dialog->allPagesRange()) {
+                processOption = EXPORT_PAGE_RANGE;
+                pageRangeText = dialog->allPagesRangeText();
+              } else {
+                processOption = EXPORT_ALL_PAGES;
+              }
             }
           else
           if(dialog->currentPage()){
@@ -477,7 +482,7 @@ bool Gui::exportAsDialog(ExportMode m)
             }
           else
           if(dialog->pageRange()){
-              processOption  = EXPORT_PAGE_RANGE;
+              processOption = EXPORT_PAGE_RANGE;
               pageRangeText = dialog->pageRangeText();
               if (! validatePageRange()){
                   return false;

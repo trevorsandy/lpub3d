@@ -31,6 +31,7 @@ public:
   ~DialogExportPages();
 
   bool allPages();
+  bool allPagesRange();
   bool currentPage();
   bool pageRange();
   bool resetCache();
@@ -41,6 +42,7 @@ public:
   void groupBoxPixelRatio(bool);
   qreal exportPixelRatio();
   QString const pageRangeText();
+  QString const allPagesRangeText();
   void getPixelRatioMsg(double value);
 
 private slots:
@@ -56,6 +58,7 @@ private:
   Ui::DialogExportPages *ui;
   QAction *setLineEditResetAct;
   QString linePageRange;
+  bool allPagesInRange;
   int rangeMin;
   int rangeMax;
   int flag;

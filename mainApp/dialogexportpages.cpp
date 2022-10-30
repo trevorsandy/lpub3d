@@ -64,7 +64,6 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
                               QString("The page range '%1' is invaid. Valid format is <number>[ <characters> <number>].")
                               .arg(gui->setPageLineEdit->displayText()));
 
-
     if (Gui::m_exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
         ui->pageProcessingContinuousBox->hide();
@@ -103,6 +102,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
             rangeMin = rangeMin + 1;
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(gui->maxPages));
         ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMin).arg(rangeMax));
+        allPagesInRange = pages == 1 + gui->pa;
     } else {
         pages = gui->maxPages;
         if (Gui::m_exportMode == PAGE_PROCESS)
@@ -111,6 +111,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
             rangeMax = rangeMax - 1;
         ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + gui->pa));
         ui->lineEditPageRange->setText(QString("%1 - %2").arg(rangeMax).arg(rangeMin));
+        allPagesInRange = pages == gui->maxPages;
     }
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
@@ -258,8 +259,16 @@ QString const DialogExportPages::pageRangeText(){
     return ui->lineEditPageRange->text();
 }
 
+QString const DialogExportPages::allPagesRangeText(){
+    return ui->labelAllPages->text().replace("to", "-");
+}
+
 bool DialogExportPages::allPages(){
     return ui->radioButtonAllPages->isChecked();
+}
+
+bool DialogExportPages::allPagesRange(){
+    return !allPagesInRange;
 }
 
 bool DialogExportPages::currentPage(){

@@ -703,7 +703,12 @@ bool Gui::continuousPageDialog(PageDirection d)
               continuousTimer.start();
 
               if(dialog->allPages()){
-                  processOption = EXPORT_ALL_PAGES;
+                  if (dialog->allPagesRange()) {
+                      processOption = EXPORT_PAGE_RANGE;
+                      pageRangeText = dialog->allPagesRangeText();
+                  } else {
+                      processOption = EXPORT_ALL_PAGES;
+                  }
               }
               else
               if(dialog->pageRange()){
@@ -966,18 +971,39 @@ bool Gui::continuousPageDialog(PageDirection d)
 
 bool Gui::processPageRange(const QString &range)
 {
-  if (!range.isEmpty()){
-      const QString lineAllPages = QString("1-%1").arg(gui->maxPages);
-      const QString linePageRange = QString(range)
-          .replace("of","-")
-          .replace("to","-")
-          .replace(" ","");
+  if (!range.isEmpty()) {
+      int rangeMin, rangeMax;
+      bool ok[2] = {false, false};
+      QRegExp rx("^(\\d+)(?:[^0-9]*|[a-zA-Z\\s]*)(\\d+)?$", Qt::CaseInsensitive);
+      if (range.trimmed().contains(rx)) {
+          rangeMin = rx.cap(1).toInt(&ok[0]);
+          rangeMax = rx.cap(2).toInt(&ok[1]);
+          if (rangeMin > rangeMax)
+              pageDirection = PAGE_BACKWARD;
+      }
+
+      if (pageDirection < PAGE_BACKWARD) {
+          if (ok[0] && rangeMin > displayPageNum && rangeMax == 0) {
+              rangeMax = rangeMin;
+              rangeMin = displayPageNum;
+              ok[1]    = true;
+          }
+      } else {
+          if (ok[0] && rangeMin < displayPageNum && rangeMax == 0) {
+              rangeMax = displayPageNum;
+              ok[1]    = true;
+          }
+      }
+
+      const QString lineAllPages = QString("%1-%2").arg(1 + pa).arg(maxPages);
+      const QString linePageRange = QString("%1-%2").arg(rangeMax).arg(rangeMin);
+
       if (lineAllPages == linePageRange) {
           processOption = EXPORT_ALL_PAGES;
-        } else {
+      } else {
           processOption = EXPORT_PAGE_RANGE;
-          pageRangeText = linePageRange;
-        }
+          pageRangeText = range;
+      }
       return true;
     } else {
       processOption = EXPORT_ALL_PAGES;
