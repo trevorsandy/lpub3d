@@ -2179,7 +2179,7 @@ int CountPageWorker::countPage(
   // local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
   int displayPageNum = gui->displayPageNum;
 
-  int countInstances = meta->LPub.countInstance.value();
+  opts.flags.countInstances = meta->LPub.countInstance.value();
 
   gui->pageProcessRunning = PROC_COUNT_PAGE;
 
@@ -2198,15 +2198,16 @@ int CountPageWorker::countPage(
 
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
-      ldrawFile->setRendered(opts.current.modelName,
-                             opts.isMirrored,
-                             opts.renderParentModel,
-                             opts.stepNumber,
-                             countInstances,
-                             true/*countPage*/);
       opts.flags.countPageContains = false;
       opts.flags.addCountPage = true;
   }
+
+  ldrawFile->setRendered(opts.current.modelName,
+                         opts.isMirrored,
+                         opts.renderParentModel,
+                         opts.stepNumber,
+                         opts.flags.countInstances,
+                         true/*countPage*/);
 
   Rc rc;
   Where topOfStep  = opts.current;
@@ -2353,7 +2354,7 @@ int CountPageWorker::countPage(
                                                               ldrawFile->mirrored(token),
                                                               opts.current.modelName,
                                                               opts.stepNumber,
-                                                              countInstances,
+                                                              opts.flags.countInstances,
                                                               true /*countPage*/);
 
                           // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
@@ -2868,7 +2869,7 @@ int CountPageWorker::countPage(
               break;
 
             case CountInstanceRc:
-              countInstances = meta->LPub.countInstance.value();
+              opts.flags.countInstances = meta->LPub.countInstance.value();
               break;
 
             case PageOrientationRc:

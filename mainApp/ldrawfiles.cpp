@@ -1010,7 +1010,7 @@ void LDrawFile::setRendered(
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString();
         if (countPage)
-            key.prepend("cp~");
+          key.prepend("cp~");
     if (mirrored) {
       i.value()._mirrorRendered = true;
       if (!key.isEmpty() && !i.value()._mirrorRenderedKeys.contains(key)) {
@@ -1045,15 +1045,19 @@ bool LDrawFile::rendered(const QString &mcFileName,
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString() ;
-    if (countPage)
-        key.prepend("cp~");
     if (mirrored) {
-      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
-                  i.value()._mirrorRenderedKeys.contains(key);
+      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false : i.value()._mirrorRenderedKeys.contains(key);
+      if (!haveKey && countPage) {
+          key.prepend("cp~");
+          haveKey |= key == "cp~" ? howCounted == CountAtTop ? true : false : i.value()._mirrorRenderedKeys.contains(key);
+      }
       rendered  = i.value()._mirrorRendered;
     } else {
-      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
-                  i.value()._renderedKeys.contains(key);
+      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false : i.value()._renderedKeys.contains(key);
+      if (!haveKey && countPage) {
+          key.prepend("cp~");
+          haveKey |= key == "cp~" ? howCounted == CountAtTop ? true : false : i.value()._renderedKeys.contains(key);
+      }
       rendered  = i.value()._rendered;
     }
     return rendered && haveKey;

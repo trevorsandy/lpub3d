@@ -208,6 +208,7 @@ public:
     bool resetIncludeRc;
     bool includeFileFound;
     int  includeFileRc;
+    int  countInstances;
     int  includeLineNum;
     int  partsAdded;
     int  numLines;
@@ -236,6 +237,7 @@ public:
           resetIncludeRc    (false),
           includeFileFound  (false),
           includeFileRc     (-1),    // EndOfIncludeFileRc
+          countInstances    (2),     // CountAtModel
           includeLineNum    (0),
           partsAdded        (0),
           numLines          (0)

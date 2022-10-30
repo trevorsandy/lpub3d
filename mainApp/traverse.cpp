@@ -2846,7 +2846,7 @@ int Gui::findPage(
 
   opts.flags.numLines = lpub->ldrawFile.size(opts.current.modelName);
 
-  int countInstances = meta.LPub.countInstance.value();
+  opts.flags.countInstances = meta.LPub.countInstance.value();
 
   RotStepMeta saveRotStep = meta.rotStep;
 
@@ -2964,7 +2964,7 @@ int Gui::findPage(
   };
 #endif
 
-  lpub->ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, countInstances);
+  lpub->ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.stepNumber/*opts.groupStepNumber*/, opts.flags.countInstances);
 
   /*
    * For findPage(), the BuildMod behaviour captures the appropriate 'block' of lines
@@ -3071,7 +3071,7 @@ int Gui::findPage(
                       if (! opts.flags.callout || (opts.flags.callout && calloutMode != CalloutBeginMeta::Unassembled)) {
 
                           // check if submodel was rendered
-                          bool rendered = lpub->ldrawFile.rendered(type,lpub->ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,countInstances);
+                          bool rendered = lpub->ldrawFile.rendered(type,lpub->ldrawFile.mirrored(token),opts.current.modelName,opts.stepNumber,opts.flags.countInstances);
 
                           // if the submodel was not rendered, and is not in the buffer exchange call setRendered for the submodel.
                           if (! rendered && ! buildModRendered && (! opts.flags.bfxStore2 || ! bfxParts.contains(colorType))) {
@@ -3816,7 +3816,7 @@ int Gui::findPage(
 
             case CountInstanceRc:
               if (! opts.pageDisplayed)
-                  countInstances = meta.LPub.countInstance.value();
+                  opts.flags.countInstances = meta.LPub.countInstance.value();
               break;
 
             case ContStepNumRc:
@@ -3925,7 +3925,7 @@ int Gui::findPage(
       // save continuous step number from current model
       // pass continuous step number to drawPage
       if (opts.contStepNumber) {
-          if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && ! countInstances &&
+          if (isPreDisplayPage/*opts.pageNum < displayPageNum*/ && ! opts.flags.countInstances &&
              (opts.stepNumber > FIRST_STEP + sa || displayPageNum > FIRST_PAGE + sa)) {
               opts.contStepNumber += ! opts.flags.coverPage && ! opts.flags.stepPage;
           }
@@ -4732,6 +4732,9 @@ void Gui::drawPage(
                         .arg(opts.current.lineNumber, 3, 10, QChar('0'))
                         .arg(opts.current.modelName));
 #endif
+
+    // global meta settings from findPage that went out of scope
+    meta.LPub.countInstance.setValue(opts.flags.countInstances);
 
     // pass buildMod settings to parent model
     if (Preferences::buildModEnabled && opts.flags.buildModStack.size()) {
