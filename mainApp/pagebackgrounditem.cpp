@@ -176,7 +176,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                    "part list image.");
         }
       clearPageCacheAction = menu.addAction("Reset Page Assembly Image Cache");
-      clearPageCacheAction->setIcon(QIcon(":/resources/clearpagecache.png"));
+      clearPageCacheAction->setIcon(QIcon(":/resources/resetpagecache.png"));
       clearPageCacheAction->setWhatsThis("Reset the CSI image and ldr cache files for this page.");
     }
 

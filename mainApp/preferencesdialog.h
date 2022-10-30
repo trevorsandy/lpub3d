@@ -21,11 +21,20 @@
 #include <QTreeWidgetItem>
 
 #include "ui_preferences.h"
-#include "lc_qpreferencesdialog.h"
 #include "qsimpleupdater.h"
 #include "threadworkers.h"
 #include "parmswindow.h"
 #include "meta.h"
+
+// LcLib Preferences
+#include "lc_application.h"
+
+struct lcLibRenderOptions
+{
+    lcPreferences Preferences;
+    int AASamples;
+    lcStudStyle StudStyle;
+};
 
 namespace Ui{
 class PreferencesDialog;
@@ -37,9 +46,9 @@ class PreferencesDialog : public QDialog
   Q_OBJECT
   
   public:
-    explicit PreferencesDialog(QWidget *parent = nullptr);
+    explicit PreferencesDialog(QWidget *parent, lcLibRenderOptions* Options);
     ~PreferencesDialog();
-	
+
     QString const ldrawLibPath();
     QString const altLDConfigPath();
     QString const lgeoPath();
@@ -188,6 +197,27 @@ class PreferencesDialog : public QDialog
 
     void on_themeColorsButton_clicked();
 
+    // LcLib Preferences
+    void on_antiAliasing_toggled();
+    void on_edgeLines_toggled();
+    void on_ConditionalLinesCheckBox_toggled();
+    void on_LineWidthSlider_valueChanged();
+    void on_MeshLODSlider_valueChanged();
+    void on_studStyleCombo_currentIndexChanged(int index);
+    void AutomateEdgeColor();
+    void on_FadeSteps_toggled();
+    void ColorButtonClicked();
+    void ResetFadeHighlightColor();
+    void on_HighlightNewParts_toggled();
+    void on_AutomateEdgeColor_toggled();
+    void on_ViewpointsCombo_currentIndexChanged(int index);
+    void on_cameraDefaultDistanceFactor_valueChanged(double value);
+    void on_cameraDefaultPosition_valueChanged(double value);
+    void cameraPropertyReset();
+
+    void lcQPreferencesInit();
+    void lcQPreferencesAccept();
+
 private:
     Ui::PreferencesDialog ui;
 
@@ -229,6 +259,13 @@ private:
     bool resetSceneColorsFlag;
     bool showSaveOnRedrawFlag;
     bool showSaveOnUpdateFlag;
+
+    // LcLib Preferences
+    lcLibRenderOptions* mOptions;
+
+    float mLineWidthRange[2];
+    float mLineWidthGranularity;
+    static constexpr float mMeshLODMultiplier = 25.0f;
 };
 
 /***********************************************************************

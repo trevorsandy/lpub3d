@@ -282,6 +282,10 @@ protected:
 	QString GetTabLayoutKey() const;
 
 	QString mDefaultStyle;
+
+/*** LPub3D Mod - LcLib Preferences ***/
+	friend class Preferences;
+/*** LPub3D Mod end ***/
 };
 
 extern lcApplication* gApplication;

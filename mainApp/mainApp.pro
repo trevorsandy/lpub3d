@@ -573,6 +573,7 @@ SOURCES += \
     highlightstepglobals.cpp \
     historylineedit.cpp \
     hoverpoints.cpp \
+    lclibpreferences.cpp \
     ldrawcolordialog.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \

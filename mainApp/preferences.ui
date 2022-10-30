@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>517</width>
+    <width>613</width>
     <height>618</height>
    </rect>
   </property>
@@ -938,6 +938,685 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
+         <widget class="QWidget" name="NativeTab">
+          <attribute name="title">
+           <string>Native</string>
+          </attribute>
+          <layout class="QGridLayout" name="gridLayout_21">
+           <item row="0" column="0">
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QGridLayout" name="gridLayout_19">
+              <item row="1" column="1">
+               <widget class="QSlider" name="LineWidthSlider">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="tickPosition">
+                 <enum>QSlider::NoTicks</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="antiAliasingSamples">
+                <property name="toolTip">
+                 <string>Set LEGO stud logo exponent</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>2x</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>4x</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>8x</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="MeshLOD">
+                <property name="toolTip">
+                 <string>Enable switching from high to low level of detail during zoom</string>
+                </property>
+                <property name="statusTip">
+                 <string>Enable mesh level of detail</string>
+                </property>
+                <property name="text">
+                 <string>Mesh LOD:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3" colspan="2">
+               <widget class="QCheckBox" name="ConditionalLinesCheckBox">
+                <property name="toolTip">
+                 <string>Draw conditional lines </string>
+                </property>
+                <property name="text">
+                 <string>Draw Conditional Lines</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLabel" name="LineWidthLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QCheckBox" name="LPubTrueFade">
+                <property name="toolTip">
+                 <string>Make faded parts translucent but do not draw back faces</string>
+                </property>
+                <property name="text">
+                 <string>LPub True Fade</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QComboBox" name="studStyleCombo">
+                <property name="toolTip">
+                 <string>Select LEGO stud logo version</string>
+                </property>
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>0 Plain</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>1 Thin Lines Logo</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>2 Outline Logo</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>3 Sharp Top Logo</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>4 Rounded Top Logo</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>5 Flattened Logo</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>6 High Contrast</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>7 High Contrast with Logo</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="edgeLines">
+                <property name="toolTip">
+                 <string>Enable edge lines</string>
+                </property>
+                <property name="text">
+                 <string>Edge Lines:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_39">
+                <property name="text">
+                 <string>Stud Style:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLabel" name="MeshLODLabel">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QSlider" name="MeshLODSlider">
+                <property name="toolTip">
+                 <string>Set mesh level of detail distance</string>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>Shading Mode:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <spacer name="horizontalSpacer_18">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="3" column="1">
+               <widget class="QComboBox" name="ShadingMode">
+                <property name="toolTip">
+                 <string>Select shading mode</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Wireframe</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Flat Shading</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Default Lights</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="antiAliasing">
+                <property name="toolTip">
+                 <string>Enable anti-aliasing</string>
+                </property>
+                <property name="text">
+                 <string>Anti-aliasing:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QCheckBox" name="FadeSteps">
+                <property name="toolTip">
+                 <string>Enable fade previous steps when exporting HTML Steps</string>
+                </property>
+                <property name="text">
+                 <string>HTML Export Fade Previous Steps:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QToolButton" name="FadeStepsColor">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="5">
+               <widget class="QToolButton" name="ResetFadeStepsButton">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QCheckBox" name="HighlightNewParts">
+                <property name="toolTip">
+                 <string>Enable highlight current step parts when exporting HTML Steps</string>
+                </property>
+                <property name="text">
+                 <string>HTML Export Highlight New Parts:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QToolButton" name="HighlightNewPartsColor">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="5">
+               <widget class="QToolButton" name="ResetHighlightNewPartsButton">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QToolButton" name="AutomateEdgeColorButton">
+                <property name="toolTip">
+                 <string>Automate edge color settings</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QCheckBox" name="AutomateEdgeColor">
+                <property name="text">
+                 <string>Automate Edge Color:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="HighContrastButton">
+                <property name="toolTip">
+                 <string>High contrast stud and edge color settings</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="renderingGroup">
+             <property name="title">
+              <string>ViewPoint and Projection</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_26">
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Viewpoint:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="ViewpointsCombo">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Select default viewpoint</string>
+                </property>
+                <property name="statusTip">
+                 <string/>
+                </property>
+                <property name="currentIndex">
+                 <number>7</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Front</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Back</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Top</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Bottom</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Home</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Default</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_23">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Projection:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="ProjectionCombo">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Select default projection</string>
+                </property>
+                <property name="statusTip">
+                 <string/>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Perspective</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Orthographic      </string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Default</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_24">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_40">
+                <property name="text">
+                 <string>Zoom Exetents: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="ZoomExtentCombo">
+                <item>
+                 <property name="text">
+                  <string>Default</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>On Orthographic</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Always</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="groupBox_7">
+             <property name="title">
+              <string>Camera Defaults</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_20">
+              <item row="6" column="2">
+               <widget class="QToolButton" name="resetFarPlane">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QDoubleSpinBox" name="cameraFoV">
+                <property name="toolTip">
+                 <string>Set default field of view</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="3">
+               <widget class="QLabel" name="label_28">
+                <property name="toolTip">
+                 <string>Set the default camera position</string>
+                </property>
+                <property name="text">
+                 <string>Default Camera Position:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QDoubleSpinBox" name="cameraDefaultDistanceFactor">
+                <property name="toolTip">
+                 <string>Set value higher to increase the default rendered image size (automatically multiplied by -1)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QToolButton" name="resetFoV">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="4">
+               <widget class="QDoubleSpinBox" name="cameraDefaultPosition">
+                <property name="toolTip">
+                 <string>Set the default camera position</string>
+                </property>
+                <property name="maximum">
+                 <double>900000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="defaultCameraProperties">
+                <property name="toolTip">
+                 <string>Display default camera properties in Properties window</string>
+                </property>
+                <property name="text">
+                 <string>Display properties</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QDoubleSpinBox" name="cameraNearPlane">
+                <property name="toolTip">
+                 <string>Set default near plane</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="5">
+               <widget class="QToolButton" name="resetDefaultPosition">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_29">
+                <property name="toolTip">
+                 <string>Set default field of view</string>
+                </property>
+                <property name="text">
+                 <string>Field of View:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_30">
+                <property name="toolTip">
+                 <string>Set default near plane</string>
+                </property>
+                <property name="text">
+                 <string>Near Plane:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QLabel" name="label_31">
+                <property name="toolTip">
+                 <string>Set default camera distance factor (automatically multiplied by -1)</string>
+                </property>
+                <property name="text">
+                 <string>Default Distance Factor:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="5">
+               <widget class="QToolButton" name="resetDefaultDistanceFactor">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_32">
+                <property name="toolTip">
+                 <string>Set default far plane</string>
+                </property>
+                <property name="text">
+                 <string>Far Plane:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QDoubleSpinBox" name="cameraFarPlane">
+                <property name="toolTip">
+                 <string>Set default far plane</string>
+                </property>
+                <property name="maximum">
+                 <double>900000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="4">
+               <widget class="QLineEdit" name="cameraDistanceFactor">
+                <property name="toolTip">
+                 <string>Camera distance factor - Default Camera Position divided by negative(Default Distance Factor)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QToolButton" name="resetNearPlane">
+                <property name="toolTip">
+                 <string>Reset</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3">
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>Camera Distance Factor:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="6">
+               <spacer name="horizontalSpacer_25">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>4</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
          <widget class="QWidget" name="LDViewTab">
           <attribute name="title">
            <string>LDView</string>
@@ -2524,7 +3203,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -2894,15 +3573,47 @@ p, li { white-space: pre-wrap; }
   <tabstop>preferredRenderer</tabstop>
   <tabstop>projectionCombo</tabstop>
   <tabstop>rendererTimeout</tabstop>
-  <tabstop>tabRendering</tabstop>
-  <tabstop>ldviewBox</tabstop>
+  <tabstop>tabRenderers</tabstop>
+  <tabstop>antiAliasing</tabstop>
+  <tabstop>antiAliasingSamples</tabstop>
+  <tabstop>edgeLines</tabstop>
+  <tabstop>LineWidthSlider</tabstop>
+  <tabstop>MeshLOD</tabstop>
+  <tabstop>MeshLODSlider</tabstop>
+  <tabstop>ShadingMode</tabstop>
+  <tabstop>studStyleCombo</tabstop>
+  <tabstop>LPubTrueFade</tabstop>
+  <tabstop>ConditionalLinesCheckBox</tabstop>
+  <tabstop>FadeSteps</tabstop>
+  <tabstop>FadeStepsColor</tabstop>
+  <tabstop>ResetFadeStepsButton</tabstop>
+  <tabstop>HighlightNewParts</tabstop>
+  <tabstop>HighlightNewPartsColor</tabstop>
+  <tabstop>ResetHighlightNewPartsButton</tabstop>
+  <tabstop>HighContrastButton</tabstop>
+  <tabstop>AutomateEdgeColor</tabstop>
+  <tabstop>AutomateEdgeColorButton</tabstop>
+  <tabstop>ViewpointsCombo</tabstop>
+  <tabstop>ProjectionCombo</tabstop>
+  <tabstop>ZoomExtentCombo</tabstop>
+  <tabstop>defaultCameraProperties</tabstop>
+  <tabstop>cameraFoV</tabstop>
+  <tabstop>resetFoV</tabstop>
+  <tabstop>cameraNearPlane</tabstop>
+  <tabstop>resetNearPlane</tabstop>
+  <tabstop>cameraFarPlane</tabstop>
+  <tabstop>resetFarPlane</tabstop>
+  <tabstop>cameraDefaultDistanceFactor</tabstop>
+  <tabstop>resetDefaultDistanceFactor</tabstop>
+  <tabstop>cameraDefaultPosition</tabstop>
+  <tabstop>resetDefaultPosition</tabstop>
+  <tabstop>cameraDistanceFactor</tabstop>
   <tabstop>ldviewSingleCall_Chk</tabstop>
   <tabstop>ldviewSnaphsotsList_Chk</tabstop>
   <tabstop>ldvPreferencesBtn</tabstop>
   <tabstop>ldviewPath</tabstop>
   <tabstop>browseLDView</tabstop>
   <tabstop>ldviewInstall</tabstop>
-  <tabstop>povrayBox</tabstop>
   <tabstop>povrayRenderQualityCombo</tabstop>
   <tabstop>povrayAutoCropBox</tabstop>
   <tabstop>povrayDisplay_Chk</tabstop>
@@ -2916,7 +3627,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>lgeoPath</tabstop>
   <tabstop>browseLGEO</tabstop>
   <tabstop>povrayInstall</tabstop>
-  <tabstop>ldgliteBox</tabstop>
   <tabstop>ldglitePath</tabstop>
   <tabstop>browseLDGLite</tabstop>
   <tabstop>ldgliteInstall</tabstop>
@@ -2954,12 +3664,12 @@ p, li { white-space: pre-wrap; }
   <tabstop>logLevelCombo</tabstop>
   <tabstop>logLevelsGrpBox</tabstop>
   <tabstop>fatalLevelBox</tabstop>
-  <tabstop>errorLevelBox</tabstop>
-  <tabstop>statusLevelBox</tabstop>
-  <tabstop>infoLevelBox</tabstop>
   <tabstop>noticeLevelBox</tabstop>
+  <tabstop>errorLevelBox</tabstop>
   <tabstop>traceLevelBox</tabstop>
+  <tabstop>statusLevelBox</tabstop>
   <tabstop>debugLevelBox</tabstop>
+  <tabstop>infoLevelBox</tabstop>
   <tabstop>allLogLevelsBox</tabstop>
   <tabstop>tabOthers</tabstop>
   <tabstop>checkUpdateFrequency_Combo</tabstop>

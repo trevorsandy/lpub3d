@@ -38,8 +38,8 @@
 //QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
 
-PreferencesDialog::PreferencesDialog(QWidget *_parent) :
-    QDialog(_parent)
+PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Options) :
+    QDialog(_parent), mOptions(Options)
 {
   ui.setupUi(this);
 
@@ -382,6 +382,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
   mShowAnnotationErrors   = Preferences::showAnnotationErrors;
 
+  // LcLib Preferences
+  lcQPreferencesInit();
+
 //#ifdef Q_OS_MACOS
 //  resize(640, 835);
 //#else
@@ -403,6 +406,7 @@ void PreferencesDialog::setRenderers()
     int povRayIndex = -1;
     int ldgliteIndex = -1;
     int ldviewIndex = -1;
+    int nativeIndex = -1;
 
     QFileInfo fileInfo;
 
@@ -443,7 +447,7 @@ void PreferencesDialog::setRenderers()
       connect(ui.ldviewInstall, SIGNAL(clicked()), this, SLOT(installRenderer()));
     }
 
-    int nativeIndex = ui.preferredRenderer->count();
+    nativeIndex = ui.preferredRenderer->count();
     ui.preferredRenderer->addItem(rendererNames[RENDERER_NATIVE]);
 
     if (Preferences::preferredRenderer == RENDERER_LDVIEW && ldviewExists) {
@@ -459,7 +463,7 @@ void PreferencesDialog::setRenderers()
       ui.preferredRenderer->setEnabled(true);
       ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
     } else {
-        ui.tabRenderers->setCurrentWidget(ui.LDViewTab);
+        ui.tabRenderers->setCurrentWidget(ui.NativeTab);
         if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ui.preferredRenderer->setCurrentIndex(nativeIndex);
           ui.preferredRenderer->setEnabled(true);
@@ -865,6 +869,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       bool ldviewEnabled  = (currentText == rendererNames[RENDERER_LDVIEW]);
       bool povrayEnabled  = (currentText == rendererNames[RENDERER_POVRAY]);
       bool ldgliteEnabled = (currentText == rendererNames[RENDERER_LDGLITE]);
+      bool nativeEnabled  = (currentText == rendererNames[RENDERER_NATIVE]);
       ui.povNativeGenBox->setEnabled(povrayEnabled);
       ui.ldvPOVSettingsBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
@@ -881,7 +886,9 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       else if (povrayEnabled)
           ui.tabRenderers->setCurrentWidget(ui.POVRayTab);
       else if (ldgliteEnabled)
-          ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab); 
+          ui.tabRenderers->setCurrentWidget(ui.LDGLiteTab);
+      else if (nativeEnabled)
+          ui.tabRenderers->setCurrentWidget(ui.NativeTab);
 
       bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
       ui.applyCALocallyRadio->setChecked(! applyCARenderer);
@@ -1802,6 +1809,10 @@ void PreferencesDialog::accept(){
             emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
     }
+
+    // LcLib Preferences
+    lcQPreferencesAccept();
+
     if(ui.preferredRenderer->count() == 0 || ui.ldrawLibPathEdit->text().isEmpty()){
         missingParms = true;
         if (ui.preferredRenderer->count() == 0){

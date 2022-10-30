@@ -1831,7 +1831,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
-	lpubAlert->messageSig(LOG_STATUS, QString("Visual Editor preferences saved..."));
+	lpubAlert->messageSig(LOG_STATUS, QString("Visual Editor preferences saved"));
 	if (restartApp) {
 		restartApplication();
 	}

@@ -40,7 +40,10 @@
 #include "lpub_qtcompat.h"
 #include "messageboxresizable.h"
 //**3D
+#include "lc_library.h"
 #include "lc_profile.h"
+#include "lc_mainwindow.h"
+#include "lc_view.h"
 //**
 
 Preferences preferences;
@@ -4554,9 +4557,28 @@ bool Preferences::getPreferences()
         Application::instance()->splash->hide();
 #endif
 
-    bool updateLDViewConfigFiles   = false;
+    lcLibRenderOptions Options;
+    int CurrentAASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+    lcStudStyle CurrentStudStyle = lcGetPiecesLibrary()->GetStudStyle();
 
-    PreferencesDialog *dialog      = new PreferencesDialog();
+    Options.Preferences = gApplication->mPreferences;
+
+    Options.AASamples = CurrentAASamples;
+    Options.StudStyle = CurrentStudStyle;
+
+    Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+    Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+    Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+
+    Options.Preferences.mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
+    Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+
+    Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
+    Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
+
+    bool updateLDViewConfigFiles = false;
+
+    PreferencesDialog *dialog    = new PreferencesDialog(gMainWindow, &Options);
 
     QSettings Settings;
 
@@ -5097,6 +5119,214 @@ bool Preferences::getPreferences()
             ldrawFilesLoadMsgs = dialog->ldrawFilesLoadMsgs();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
         }
+
+        // LcLib Preferences
+
+        bool AAChanged = CurrentAASamples != Options.AASamples;
+        bool StudStyleChanged = CurrentStudStyle != Options.StudStyle;
+        bool AutomateEdgeColorChanged = Options.Preferences.mAutomateEdgeColor != gApplication->mPreferences.mAutomateEdgeColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mStudCylinderColor != gApplication->mPreferences.mStudCylinderColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeColor != gApplication->mPreferences.mPartEdgeColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mBlackEdgeColor != gApplication->mPreferences.mBlackEdgeColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mDarkEdgeColor != gApplication->mPreferences.mDarkEdgeColor;
+        AutomateEdgeColorChanged |= Options.Preferences.mPartEdgeContrast != gApplication->mPreferences.mPartEdgeContrast;
+        AutomateEdgeColorChanged |= Options.Preferences.mPartColorValueLDIndex != gApplication->mPreferences.mPartColorValueLDIndex;
+
+        bool drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != gApplication->mPreferences.mDrawEdgeLines;
+        bool shadingModeChanged = Options.Preferences.mShadingMode != gApplication->mPreferences.mShadingMode;
+        bool lineWidthChanged = Options.Preferences.mLineWidth != gApplication->mPreferences.mLineWidth;
+
+        bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != gApplication->mPreferences.mNativeViewpoint;
+        bool NativeProjectionChanged = Options.Preferences.mNativeProjection != gApplication->mPreferences.mNativeProjection;
+
+        bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != gApplication->mPreferences.mLPubTrueFade;
+        bool DrawConditionalLinesChanged = Options.Preferences.mDrawConditionalLines != gApplication->mPreferences.mDrawConditionalLines;
+
+        bool DefaultCameraChanged = Options.Preferences.mDDF != gApplication->mPreferences.mDDF;
+        DefaultCameraChanged |= Options.Preferences.mCDP != gApplication->mPreferences.mCDP;
+        DefaultCameraChanged |= Options.Preferences.mCFoV != gApplication->mPreferences.mCFoV;
+        DefaultCameraChanged |= Options.Preferences.mCNear != gApplication->mPreferences.mCNear;
+        DefaultCameraChanged |= Options.Preferences.mCFar != gApplication->mPreferences.mCFar;
+
+        gApplication->mPreferences = Options.Preferences;
+
+        gApplication->mPreferences.SaveDefaults();
+
+        gApplication->UpdateStyle();
+
+        lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
+        lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
+
+        bool restartApp = false;
+        bool reloadPage = false;
+        bool reloadFile = false;
+
+        QMessageBox box;
+        box.setMinimumSize(40,20);
+        box.setIcon (QMessageBox::Question);
+        box.setDefaultButton   (QMessageBox::Ok);
+        box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
+
+        if (AAChanged) {
+            QString thisChange =  QMessageBox::tr("Anti-aliasing");
+            box.setText (QMessageBox::tr("You must close and restart %1 to enable %2 change.")
+                                         .arg(QLatin1String(VER_PRODUCTNAME_STR))
+                                         .arg(thisChange));
+            box.setInformativeText (QMessageBox::tr("Click \"OK\" to close and restart %1 or \"Cancel\" to continue.\n\n")
+                                                    .arg(QLatin1String(VER_PRODUCTNAME_STR)));
+            if (box.exec() == QMessageBox::Ok) {
+                restartApp = true;
+            }
+        }
+        if ((LPubTrueFadeChanged  ||
+             DefaultCameraChanged ||
+             DrawConditionalLinesChanged) && !restartApp && !reloadFile)
+            reloadPage = true;
+
+        if ((LPubTrueFadeChanged  ||
+             DefaultCameraChanged ||
+             DrawConditionalLinesChanged) && !restartApp && !reloadFile)
+            reloadPage = true;
+
+        if (preferredRenderer == RENDERER_NATIVE && !restartApp)
+        {
+            if (shadingModeChanged     ||
+                drawEdgeLinesChanged   ||
+                lineWidthChanged       ||
+                NativeViewpointChanged ||
+                NativeProjectionChanged)
+            {
+                reloadFile = true;
+
+                QString oldShadingMode, newShadingMode;
+                switch (int(Options.Preferences.mShadingMode))
+                {
+                case int(lcShadingMode::Flat):
+                    newShadingMode = "flat";
+                    break;
+                case int(lcShadingMode::DefaultLights):
+                    newShadingMode = "default lights";
+                    break;
+                case int(lcShadingMode::Full):
+                    newShadingMode = "full";
+                    break;
+                case int(lcShadingMode::Wireframe):
+                    newShadingMode = "wire frame";
+                    break;
+                default:
+                    newShadingMode = "unknown";
+                }
+
+                switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
+                {
+                case int(lcShadingMode::Flat):
+                    oldShadingMode = "flat";
+                    break;
+                case int(lcShadingMode::DefaultLights):
+                    oldShadingMode = "default lights";
+                    break;
+                case int(lcShadingMode::Full):
+                    oldShadingMode = "full";
+                    break;
+                case int(lcShadingMode::Wireframe):
+                    oldShadingMode = "wire frame";
+                    break;
+                default:
+                    oldShadingMode = "unknown";
+                }
+
+                if (shadingModeChanged)
+                    logInfo() << QString("Shading mode changed from %1 to %2.")
+                                 .arg(oldShadingMode)
+                                 .arg(newShadingMode);
+                if (lineWidthChanged)
+                    logInfo() << QString("Edge line width changed from %1 to %2.")
+                                 .arg(double(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH)))
+                                 .arg(double(Options.Preferences.mLineWidth));
+                if (drawEdgeLinesChanged)
+                    logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
+
+                if (NativeViewpointChanged) {
+                    QString Viewpoint;
+                    switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
+                    {
+                    case 0:
+                        Viewpoint = "Front";
+                        break;
+                    case 1:
+                        Viewpoint = "Back";
+                        break;
+                    case 2:
+                        Viewpoint = "Top";
+                        break;
+                    case 3:
+                        Viewpoint = "Bottom";
+                        break;
+                    case 4:
+                        Viewpoint = "Left";
+                        break;
+                    case 5:
+                        Viewpoint = "Right";
+                        break;
+                    case 6:
+                        Viewpoint = "Home";
+                        break;
+                    default:
+                        Viewpoint = "Front";
+                    }
+                    logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
+                }
+
+                if (NativeProjectionChanged) {
+                    QVariant uValue(true);
+                    QString Projection;
+                    switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
+                    {
+                    case 0:
+                        Projection = "Perscpective";
+                        break;
+                    case 1:
+                        Projection = "Ortographic";
+                        uValue = false;
+                        break;
+                    default:
+                        Projection = "Perscpective";
+                        break;
+                    }
+                    logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
+                    QSettings Settings;
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+                }
+            }
+        }
+
+        if (StudStyleChanged)
+        {
+            lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
+            lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true);
+        }
+        else if (AutomateEdgeColorChanged)
+        {
+            lcGetPiecesLibrary()->LoadColors();
+        }
+
+        gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
+        lcView::UpdateAllViews();
+
+        logInfo() << QString("Visual Editor preferences saved.");
+
+        if (restartApp) {
+            restartApplication();
+        }
+        else
+        if (reloadFile) {
+            clearAndReloadModelFile();
+        }
+        else
+        if (reloadPage) {
+            reloadCurrentPage();
+        }
+
         return true;
     } else {
         return false;
