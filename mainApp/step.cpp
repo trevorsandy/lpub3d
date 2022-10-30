@@ -357,6 +357,9 @@ int Step::createCsi(
       }
   }
 
+  // Generate  the renderer CSI file
+  bool generageCSIFile = ! csiExist || csiOutOfDate /*|| gui->exportingObjects()*/;
+
   int rc = 0;
 
   // populate viewerStepKey variable
@@ -382,12 +385,93 @@ int Step::createCsi(
 //                                   .arg(calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber)
 //                                   .arg(stepNumber.number));
 
-  // Generate  the renderer CSI file
-  bool generageCSIFile = ! csiExist || csiOutOfDate /*|| gui->exportingObjects()*/;
+  // Generate Visual Editor CSI entry - this must come before 'Generate and renderer Submodel file'
+  // as we are using the entered key to renderCsi
+  if (! gui->exportingObjects()) {
+
+      timer.start();
+
+      // Viewer Csi does not yet exist in repository
+      bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
+
+      // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
+      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() || gui->viewerStepModified(viewerStepKey));
+
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
+
+          updateViewer = true; // just to be safe
+
+          // set rotated parts
+          QStringList rotatedParts = csiParts;
+
+          // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
+          if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
+              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+
+          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
+          rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
+
+          // header and closing meta
+
+          //renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
+
+          // consolidate subfiles and parts into single file
+          //if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
+          //    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+
+          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+          if (!csiStepMeta.target.isPopulated())
+              keyPart2.append(QString("_0_0_0"));
+          if (!meta.rotStep.isPopulated())
+              keyPart2.append(QString("_0_0_0_REL"));
+          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
+      }
+
+      // for now, we always set viewer display options
+      StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
+      AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
+      HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
+      viewerOptions                 = new ViewerOptions();
+      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
+      viewerOptions->CameraName     = csiStepMeta.cameraName.value();
+      viewerOptions->FoV            = csiStepMeta.cameraFoV.value();
+      viewerOptions->ImageFileName  = pngName;
+      viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
+      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
+      viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
+      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
+      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+      viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
+      viewerOptions->Resolution     = resolution();
+      viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
+      viewerOptions->RotStepType    = meta.rotStep.value().type;
+      viewerOptions->AutoEdgeColor  = aecm->enable.value();
+      viewerOptions->EdgeContrast   = aecm->contrast.value();
+      viewerOptions->EdgeSaturation = aecm->saturation.value();
+      viewerOptions->StudStyle      = ssm->value();
+      viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+      viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+      viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+      viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+      viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+      viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
+      viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
+      viewerOptions->ViewerStepKey  = viewerStepKey;
+      viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
+      viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();
+
+      emit gui->messageSig(LOG_INFO,
+                           QString("Generate Visual Editor step options entry took %1 milliseconds.")
+                                   .arg(timer.elapsed()));
+//      moved to drawPage::StepRc
+//      if (!calledOut && !multiStep && updateViewer)
+//          loadTheViewer();
+  }
 
   if (generageCSIFile) {
 
-     QElapsedTimer timer;
      timer.start();
 
      // this is initialized to true but set to false on csiItem mouseReleaseEvent so reset here
@@ -469,84 +553,6 @@ int Step::createCsi(
          csiPlacement.size[1] = pixmap->height();
          return rc;
      }
-  }
-
-  // Generate Visual Editor CSI entry
-  if (! gui->exportingObjects()) {
-
-      // Viewer Csi does not yet exist in repository
-      bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
-
-      // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
-      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() || gui->viewerStepModified(viewerStepKey));
-
-      if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
-
-          updateViewer = true; // just to be safe
-
-          // set rotated parts
-          QStringList rotatedParts = csiParts;
-
-          // RotateParts #3 - 5 parms, rotate parts for Visual Editor, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
-          if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
-              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
-
-          // add ROTSTEP command - used by Visual Editor to properly adjust rotated parts
-          rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
-
-          // header and closing meta
-
-          //renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
-
-          // consolidate subfiles and parts into single file
-          //if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
-          //    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
-
-          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-          if (!csiStepMeta.target.isPopulated())
-              keyPart2.append(QString("_0_0_0"));
-          if (!meta.rotStep.isPopulated())
-              keyPart2.append(QString("_0_0_0_REL"));
-          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
-      }
-
-      // for now, we always set viewer display options
-      StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
-      AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &csiStepMeta.autoEdgeColor;
-      HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &csiStepMeta.highContrast;
-      viewerOptions                 = new ViewerOptions();
-      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
-      viewerOptions->CameraName     = csiStepMeta.cameraName.value();
-      viewerOptions->FoV            = csiStepMeta.cameraFoV.value();
-      viewerOptions->ImageFileName  = pngName;
-      viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
-      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
-      viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
-      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
-      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
-      viewerOptions->Position       = Vector3(csiStepMeta.position.x(),csiStepMeta.position.y(),csiStepMeta.position.z());
-      viewerOptions->Resolution     = resolution();
-      viewerOptions->RotStep        = Vector3(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
-      viewerOptions->RotStepType    = meta.rotStep.value().type;
-      viewerOptions->AutoEdgeColor  = aecm->enable.value();
-      viewerOptions->EdgeContrast   = aecm->contrast.value();
-      viewerOptions->EdgeSaturation = aecm->saturation.value();
-      viewerOptions->StudStyle      = ssm->value();
-      viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
-      viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
-      viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
-      viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
-      viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
-      viewerOptions->Target         = Vector3(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
-      viewerOptions->UpVector       = Vector3(csiStepMeta.upvector.x(),csiStepMeta.upvector.y(),csiStepMeta.upvector.z());
-      viewerOptions->ViewerStepKey  = viewerStepKey;
-      viewerOptions->ZFar           = csiStepMeta.cameraZFar.value();
-      viewerOptions->ZNear          = csiStepMeta.cameraZNear.value();
-//      moved to drawPage::StepRc
-//      if (!calledOut && !multiStep && updateViewer)
-//          loadTheViewer();
   }
 
   // Reset updateViewer - leave value in place for calledOut and multiStep

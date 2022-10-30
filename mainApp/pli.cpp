@@ -1040,6 +1040,47 @@ int Pli::createPartImage(
 //                                         .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
 //                                         .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
 
+        // Set Visual Editor PLI part entry
+        if (! gui->exportingObjects() && pT == NORMAL_PART) {
+            StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
+            AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
+            HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;
+            // set viewer display options
+            QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
+            QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
+            viewerOptions                 = new ViewerOptions();
+            viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+            viewerOptions->CameraName     = pliMeta.cameraName.value();
+            viewerOptions->ImageFileName  = imageName;
+            viewerOptions->ImageType      = Options::PLI;
+            viewerOptions->Latitude       = nameKeys.at(7).toFloat();
+            viewerOptions->Longitude      = nameKeys.at(8).toFloat();
+            viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
+            viewerOptions->PageHeight     = pageSizeP(meta, 1);
+            viewerOptions->PageWidth      = pageSizeP(meta, 0);
+            viewerOptions->Position       = Vector3(pliMeta.position.x(),pliMeta.position.y(),pliMeta.position.z());
+            viewerOptions->Resolution     = nameKeys.at(3).toFloat();
+            viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
+            viewerOptions->RotStepType    = rotate.at(3);
+            viewerOptions->AutoEdgeColor  = aecm->enable.value();
+            viewerOptions->EdgeContrast   = aecm->contrast.value();
+            viewerOptions->EdgeSaturation = aecm->saturation.value();
+            viewerOptions->StudStyle      = ssm->value();
+            viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
+            viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
+            viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
+            viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
+            viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
+            viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
+            viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
+            viewerOptions->ViewerStepKey  = viewerPliPartKey;
+            viewerOptions->ZFar           = pliMeta.cameraZFar.value();
+            viewerOptions->ZNear          = pliMeta.cameraZNear.value();
+            if (viewerOptsList.contains(keyPart1))
+                viewerOptsList.remove(keyPart1);
+            viewerOptsList.insert(keyPart1,viewerOptions);
+        }
+
         // Check if viewer PLI part does exist in repository
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
@@ -1112,47 +1153,6 @@ int Pli::createPartImage(
                     ptRc = -1;
                 }
             }
-        }
-
-        // Set Visual Editor PLI part entry
-        if (! gui->exportingObjects() && pT == NORMAL_PART) {
-            StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
-            AutoEdgeColorMeta* aecm = meta->LPub.autoEdgeColor.enable.value() ? &meta->LPub.autoEdgeColor : &pliMeta.autoEdgeColor;
-            HighContrastColorMeta* hccm = meta->LPub.studStyle.value() ? &meta->LPub.highContrast : &pliMeta.highContrast;
-            // set viewer display options
-            QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
-            QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
-            viewerOptions                 = new ViewerOptions();
-            viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-            viewerOptions->CameraName     = pliMeta.cameraName.value();
-            viewerOptions->ImageFileName  = imageName;
-            viewerOptions->ImageType      = Options::PLI;
-            viewerOptions->Latitude       = nameKeys.at(7).toFloat();
-            viewerOptions->Longitude      = nameKeys.at(8).toFloat();
-            viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
-            viewerOptions->PageHeight     = pageSizeP(meta, 1);
-            viewerOptions->PageWidth      = pageSizeP(meta, 0);
-            viewerOptions->Position       = Vector3(pliMeta.position.x(),pliMeta.position.y(),pliMeta.position.z());
-            viewerOptions->Resolution     = nameKeys.at(3).toFloat();
-            viewerOptions->RotStep        = Vector3(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
-            viewerOptions->RotStepType    = rotate.at(3);
-            viewerOptions->AutoEdgeColor  = aecm->enable.value();
-            viewerOptions->EdgeContrast   = aecm->contrast.value();
-            viewerOptions->EdgeSaturation = aecm->saturation.value();
-            viewerOptions->StudStyle      = ssm->value();
-            viewerOptions->LightDarkIndex = hccm->lightDarkIndex.value();
-            viewerOptions->StudCylinderColor = hccm->studCylinderColor.value();
-            viewerOptions->PartEdgeColor  = hccm->partEdgeColor.value();
-            viewerOptions->BlackEdgeColor = hccm->blackEdgeColor.value();
-            viewerOptions->DarkEdgeColor  = hccm->darkEdgeColor.value();
-            viewerOptions->Target         = Vector3(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
-            viewerOptions->UpVector       = Vector3(pliMeta.upvector.x(),pliMeta.upvector.y(),pliMeta.upvector.z());
-            viewerOptions->ViewerStepKey  = viewerPliPartKey;
-            viewerOptions->ZFar           = pliMeta.cameraZFar.value();
-            viewerOptions->ZNear          = pliMeta.cameraZNear.value();
-            if (viewerOptsList.contains(keyPart1))
-                viewerOptsList.remove(keyPart1);
-            viewerOptsList.insert(keyPart1,viewerOptions);
         }
 
         // create icon path key - using actual color code
@@ -2496,71 +2496,6 @@ int Pli::partSizeLDViewSCall() {
                                                  .arg(step ? step->calledOut ? "called out" : step->multiStep ? "step group" : "single step" : "BOM")
                                                  .arg(step ? step->calledOut ? step->topOfCallout().lineNumber : step->multiStep ? step->topOfSteps().lineNumber : step->topOfStep().lineNumber : 0));
 
-                // Check if viewer PLI part does exist in repository
-                bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
-
-                if ( ! part.exists() || addViewerPliPartContent) {
-
-                    // store ldrName - long name includes nameKey
-                    ia.ldrNames[pT] << ldrName;
-
-                    // define ldr file name
-                    QFileInfo typeInfo = QFileInfo(pliPart->type);
-                    QString typeName = typeInfo.fileName();
-                    bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(typeInfo.fileName());
-                    if (pT != NORMAL_PART && (isSubModel || isColorPart))
-                        typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
-
-                    // generate PLI Part file
-                    QStringList pliFile;
-                    pliFile = configurePLIPart(
-                              pT,
-                              typeName,
-                              nameKeys,
-                              keySub);
-
-                    // add ROTSTEP command
-                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
-
-                    // header and closing meta - this call returns isMPD
-                    if (renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI)) {
-                        // consolidate pli part and MPD subfile(s) into single file
-                        if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                            emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI parts"));
-                    }
-
-                    // unrotated part
-                    QStringList pliFileU = QStringList()
-                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
-
-                    // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
-                    if (targetPosition.isEmpty())
-                        keyPart2.append(QString("_0_0_0"));
-                    if (rotStep.isEmpty())
-                        keyPart2.append(QString("_0_0_0_REL"));
-                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
-
-                    if ( ! part.exists()) {
-
-                        // create a DAT files to feed the renderer
-                        part.setFileName(ldrName);
-                        if ( ! part.open(QIODevice::WriteOnly)) {
-                            QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                                  QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
-                                                  .arg(ldrName)
-                                                  .arg(part.errorString()));
-                            return -1;
-                        }
-
-                        QTextStream out(&part);
-                        Q_FOREACH (QString line, pliFile)
-                            out << line << lpub_endl;
-                        part.close();
-                    }
-
-                } else { ia.ldrNames[pT] << QStringList(); } // part already exist
-
                 // Set Visual Editor PLI part entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
                     StudStyleMeta* ssm = meta->LPub.studStyle.value() ? &meta->LPub.studStyle : &pliMeta.studStyle;
@@ -2602,8 +2537,71 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptsList.insert(keyPart1,viewerOptions);
                 }
 
-            }     // for every part type
+                // Check if viewer PLI part does exist in repository
+                bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
+                if ( ! part.exists() || addViewerPliPartContent) {
+
+                    // store ldrName - long name includes nameKey
+                    ia.ldrNames[pT] << ldrName;
+
+                    // define ldr file name
+                    QFileInfo typeInfo = QFileInfo(pliPart->type);
+                    QString typeName = typeInfo.fileName();
+                    bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(typeInfo.fileName());
+                    if (pT != NORMAL_PART && (isSubModel || isColorPart))
+                        typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
+
+                    // generate PLI Part file
+                    QStringList pliFile;
+                    pliFile = configurePLIPart(
+                              pT,
+                              typeName,
+                              nameKeys,
+                              keySub);
+
+                    // add ROTSTEP command
+                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
+
+                    // header and closing meta - this call returns isMPD
+                    //if (renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::PLI)) {
+                    //    // consolidate pli part and MPD subfile(s) into single file
+                    //    if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                    //        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI parts"));
+                    //}
+
+                    // unrotated part
+                    QStringList pliFileU = QStringList()
+                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
+
+                    // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+                    if (targetPosition.isEmpty())
+                        keyPart2.append(QString("_0_0_0"));
+                    if (rotStep.isEmpty())
+                        keyPart2.append(QString("_0_0_0_REL"));
+                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),imageName,pliPartKey,multistep,callout,Options::PLI);
+
+                    if ( ! part.exists()) {
+
+                        // create a DAT files to feed the renderer
+                        part.setFileName(ldrName);
+                        if ( ! part.open(QIODevice::WriteOnly)) {
+                            QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                                  QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
+                                                  .arg(ldrName)
+                                                  .arg(part.errorString()));
+                            return -1;
+                        }
+
+                        QTextStream out(&part);
+                        Q_FOREACH (QString line, pliFile)
+                            out << line << lpub_endl;
+                        part.close();
+                    }
+
+                } else { ia.ldrNames[pT] << QStringList(); } // part already exist
+            }     // for every part type
         }         // part is valid
         else
         {

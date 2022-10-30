@@ -229,7 +229,6 @@ int SubModel::createSubModelImage(
   float modelScale   = subModelMeta.modelScale.value();
   int stepNumber     = subModelMeta.showStepNum.value() ?
                        subModelMeta.showStepNum.value() : 1;
-  QString unitsName  = resolutionType() ? "DPI" : "DPCM";
   bool noCA          = subModelMeta.rotStep.value().type == "ABS";
   float camDistance  = subModelMeta.cameraDistance.value();
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
@@ -314,46 +313,8 @@ int SubModel::createSubModelImage(
 
   QElapsedTimer timer;
 
-  // Generate and renderer Submodel file
-  if ((! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
-
-      timer.start();
-
-      // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
-      if (! rotateModel(ldrNames.first(),type,color,noCA)) {
-          emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
-                               .arg(ldrNames.first()));
-          return -1;
-      }
-
-      // feed DAT to renderer
-      if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
-          emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
-                                                 .arg(rendererNames[Render::getRenderer()])
-                                                 .arg(imageName)
-                                                 .arg(callout ? "called out," : "simple,")
-                                                 .arg(multistep ? "step group" : "single step")
-                                                 .arg(step ? step->stepNumber.number : 0)
-                                                 .arg(gui->stepPageNum));
-          imageName = QString(":/resources/missingimage.png");
-          rc = -1;
-      }
-
-      if (!rc) {
-          emit gui->messageSig(LOG_INFO,
-                               QString("%1 Submodel render call took %2 milliseconds "
-                                       "to render %3 for %4 %5 %6 on page %7.")
-                               .arg(rendererNames[Render::getRenderer()])
-                               .arg(timer.elapsed())
-                               .arg(imageName)
-                               .arg(callout ? "called out," : "simple,")
-                               .arg(multistep ? "step group" : "single step")
-                               .arg(step ? step->stepNumber.number : 0)
-                               .arg(gui->stepPageNum));
-      }
-  }
-
-  // Generate the Visual Editor Submodel entry
+  // Generate the Visual Editor Submodel entry - this must come before 'Generate and renderer Submodel file'
+  // as we are using the entered key to renderCsi
   if (! gui->exportingObjects()) {
 
       if (viewerSubmodel)
@@ -440,8 +401,47 @@ int SubModel::createSubModelImage(
 
       if (viewerSubmodel)
           emit gui->messageSig(LOG_INFO,
-                               QString("Generate Visual Editor submodel entry took %1 milliseconds.")
+                               QString("Generate Visual Editor submodel options entry took %1 milliseconds.")
                                        .arg(timer.elapsed()));
+  }
+
+  // Generate and renderer Submodel file
+  if ((! submodel.exists() || imageOutOfDate) && ! viewerSubmodel) {
+
+      timer.start();
+
+      // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
+      if (! rotateModel(ldrNames.first(),type,color,noCA)) {
+          emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
+                               .arg(ldrNames.first()));
+          return -1;
+      }
+
+      // feed DAT to renderer
+      if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+          emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
+                                                 .arg(rendererNames[Render::getRenderer()])
+                                                 .arg(imageName)
+                                                 .arg(callout ? "called out," : "simple,")
+                                                 .arg(multistep ? "step group" : "single step")
+                                                 .arg(step ? step->stepNumber.number : 0)
+                                                 .arg(gui->stepPageNum));
+          imageName = QString(":/resources/missingimage.png");
+          rc = -1;
+      }
+
+      if (!rc) {
+          emit gui->messageSig(LOG_INFO,
+                               QString("%1 Submodel render call took %2 milliseconds "
+                                       "to render %3 for %4 %5 %6 on page %7.")
+                               .arg(rendererNames[Render::getRenderer()])
+                               .arg(timer.elapsed())
+                               .arg(imageName)
+                               .arg(callout ? "called out," : "simple,")
+                               .arg(multistep ? "step group" : "single step")
+                               .arg(step ? step->stepNumber.number : 0)
+                               .arg(gui->stepPageNum));
+      }
   }
 
   if (viewerSubmodel) {
