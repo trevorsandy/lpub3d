@@ -134,6 +134,7 @@ QString LDrawFile::_description    = PUBLISH_DESCRIPTION_DEFAULT;
 QString LDrawFile::_category       = "";
 int     LDrawFile::_emptyInt;
 int     LDrawFile::_partCount      = 0;
+int     LDrawFile::_uniquePartCount= 0;
 bool    LDrawFile::_currFileIsUTF8 = false;
 bool    LDrawFile::_showLoadMessages = false;
 bool    LDrawFile::_loadAborted    = false;
@@ -242,6 +243,7 @@ void LDrawFile::empty()
   _loadUnofficialParts   = true;
   _hasUnofficialParts    = false;
   _partCount             =  0;
+  _uniquePartCount       =  0;
   _buildModNextStepIndex = -1;
   _buildModPrevStepIndex =  0;
 }
@@ -1098,9 +1100,10 @@ int LDrawFile::loadFile(const QString &fileName)
     QFuture<void> countPartsFuture = QtConcurrent::run([this](){countParts(topLevelFile()); });
     countPartsFuture.waitForFinished();
 
-    QString loadStatusMessage = QString("%1 model file '%2' loaded. Part Count %3. %4")
+    QString loadStatusMessage = QString("%1 model file '%2' loaded. Unique Parts %3. Total Parts %4. %5")
             .arg(type == MPD_FILE ? "MPD" : "LDR")
             .arg(fileInfo.fileName())
+            .arg(_uniquePartCount)
             .arg(_partCount)
             .arg(gui->elapsedTime(t.elapsed()));
     emit gui->messageSig(LOG_INFO_STATUS, QString("%1").arg(loadStatusMessage));
@@ -1123,16 +1126,17 @@ int LDrawFile::loadFile(const QString &fileName)
         return count;
     };
 
-    if (_showLoadMessages && Preferences::modeGUI) {
+    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
+                                            .arg(Preferences::buildModEnabled ? "Enabled" : "Disabled"));
+
+    if (Preferences::modeGUI) {
         int vpc = getCount(VALID_LOAD_MSG);
         int mpc = getCount(MISSING_LOAD_MSG);
         int ppc = getCount(PRIMITIVE_LOAD_MSG);
         int spc = getCount(SUBPART_LOAD_MSG);
         int apc = _partCount;
+        int upc = _uniquePartCount;
         bool delta = apc != vpc;
-
-        emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                                .arg(Preferences::buildModEnabled ? "Enabled" : "Disabled"));
 
         switch (Preferences::ldrawFilesLoadMsgs)
         {
@@ -1152,24 +1156,25 @@ int LDrawFile::loadFile(const QString &fileName)
         break;
         }
 
-        QString message = QString("%1 model file <b>%2</b> loaded.%3%4%5%6%7%8%9")
-                .arg(type == MPD_FILE ? "MPD" : "LDR")
-                .arg(fileInfo.fileName())
-                .arg(delta   ? QString("<br>Parts count:            <b>%1</b>").arg(apc) : "")
-                .arg(mpc > 0 ? QString("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
-                .arg(vpc > 0 ? QString("<br>Validated parts:        <b>%1</b>").arg(vpc) : "")
-                .arg(ppc > 0 ? QString("<br>Primitive parts:        <b>%1</b>").arg(ppc) : "")
-                .arg(spc > 0 ? QString("<br>Subparts:               <b>%1</b>").arg(spc) : "")
-                .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
-                .arg(mpc > 0 ? QString("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                       "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
-                                       "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
-                                       .arg(mpc > 1 ? "parts" : "part")          //1
-                                       .arg(mpc > 1 ? "were" : "was")            //2
-                                       .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)       //3
-                                       .arg(VER_LDRAW_OFFICIAL_ARCHIVE)          //4
-                                       .arg(mpc > 1 ? "these are" : "this is a") //5
-                                       .arg(mpc > 1 ? "their" : "its") : "");    //7
+        QString message = QString("%1 model file <b>%2</b> loaded.%3%4%5%6%7%8%9%10")
+                /* 01 */  .arg(type == MPD_FILE ? "MPD" : "LDR")
+                /* 02 */  .arg(fileInfo.fileName())
+                /* 03 */  .arg(delta   ? QString("<br>Parts count:            <b>%1</b>").arg(apc) : "")
+                /* 04 */  .arg(mpc > 0 ? QString("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
+                /* 05 */  .arg(vpc > 0 ? QString("<br>Total validated parts:  <b>%1</b>").arg(vpc) : "")
+                /* 06 */  .arg(upc > 0 ? QString("<br>Unique validated parts: <b>%1</b>").arg(upc) : "")
+                /* 07 */  .arg(ppc > 0 ? QString("<br>Primitive parts:        <b>%1</b>").arg(ppc) : "")
+                /* 08 */  .arg(spc > 0 ? QString("<br>Subparts:               <b>%1</b>").arg(spc) : "")
+                /* 09 */  .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
+                /* 10 */  .arg(mpc > 0 ? QString("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
+                                           "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
+                                           "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
+                                           .arg(mpc > 1 ? "parts" : "part")          //1
+                                           .arg(mpc > 1 ? "were" : "was")            //2
+                                           .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)       //3
+                                           .arg(VER_LDRAW_OFFICIAL_ARCHIVE)          //4
+                                           .arg(mpc > 1 ? "these are" : "this is a") //5
+                                           .arg(mpc > 1 ? "their" : "its") : "");    //7
         _loadedParts << message;
         if (mpc > 0) {
             if (_showLoadMessages) {
@@ -2674,8 +2679,9 @@ void LDrawFile::countParts(const QString &fileName) {
                                  //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
                                  partString += QString("Unofficial part");
                                 if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
+                                    _uniquePartCount++;
                                     _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [Unofficial %2] validated.").arg(_partCount).arg(type));
+                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [Unofficial %2] validated.").arg(_uniquePartCount).arg(type));
                                 }
                                 break;
                             case  UNOFFICIAL_SUBPART:
@@ -2711,9 +2717,11 @@ void LDrawFile::countParts(const QString &fileName) {
                                     _partCount++;modelPartCount++;;
                                     //emit gui->messageSig(LOG_TRACE,QString("PIECE_PART %1 LINE %2 MODEL %3 COUNT %4").arg(type).arg(i).arg(modelName).arg(_partCount));
                                     //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
+                                    if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
+                                        _uniquePartCount++;
+                                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_uniquePartCount).arg(type));
+                                    }
                                     _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(type));
-
                                 } else
                                 if (pieceInfo->IsSubPiece()) {
                                     //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
@@ -2754,7 +2762,7 @@ void LDrawFile::countParts(const QString &fileName) {
 
     countModelParts(top);
 
-    emit gui->messageSig(LOG_STATUS, QString("Parts count for %1 is %2").arg(top.modelName).arg(_partCount));
+    emit gui->messageSig(LOG_STATUS, QString("%1 total parts and %2 unique parts counted for %3").arg(_partCount).arg(_uniquePartCount).arg(top.modelName));
     emit gui->progressPermSetValueSig(size(top.modelName));
     emit gui->progressPermStatusRemoveSig();
 }

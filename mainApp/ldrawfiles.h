@@ -305,11 +305,16 @@ class LDrawFile {
     static QString              _category;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
+    static int                  _uniquePartCount;
     static bool                 _showLoadMessages;
     static bool                 _loadAborted;
     static bool                 _loadBuildMods;
     static bool                 _loadUnofficialParts;
     static bool                 _hasUnofficialParts;
+
+    int getUniquePartCount() {
+        return _uniquePartCount;
+    }
 
     int getPartCount(){
       return _partCount;
