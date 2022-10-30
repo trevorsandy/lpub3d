@@ -1801,6 +1801,7 @@ void Gui::clearAllCaches(bool global)
         ldrawFile.clearPrevStepPositions();
     }
 
+    // if global, skip clearCache here and run in cycleDisPlayPage
     if (!global) {
         timer.start();
         clearPLICache();
@@ -1818,8 +1819,12 @@ void Gui::clearAllCaches(bool global)
 
     //reload current model
     bool cycleEachPage = Preferences::cycleEachPage;
-    if (!cycleEachPage && displayPageNum > 1)
-      cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+    if (!cycleEachPage) {
+        cycleEachPage = global;
+        if (!cycleEachPage && displayPageNum > 1)
+            cycleEachPage = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Cycle each page on model file reload?",nullptr);
+    }
+    // if dialog or global is true, cycleEachPage = FILE_RELOAD (1), else cycleEachPage = FILE_DEFAULT(0)
     cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")

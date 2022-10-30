@@ -89,7 +89,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   highlightStepChild = new HighlightStepGui(highlightStepMeta);
   data->children.append(highlightStepChild);
   connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
-  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (highlightStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(highlightStepChild,0,0);
 
   box = new QGroupBox("Highlight Current Step Setup");
@@ -101,7 +101,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   highlightStepSetupChild = new CheckBoxGui("Setup Highlight Current Step",&highlightStepMeta->setup);
   highlightStepSetupChild->setToolTip(tr("Setup highlight step. Check to enable highlight current step locally."));
   data->children.append(highlightStepSetupChild);
-  connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (highlightStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(highlightStepSetupChild,0,0);
 
   box = new QGroupBox("Final Model Step");
@@ -114,7 +114,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
 
   finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
   data->children.append(finalModelEnabledChild);
-  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(finalModelEnabledChild,0,0);
 
   emit highlightStepChild->getCheckBox()->clicked(highlightStepChild->getCheckBox()->isChecked());
@@ -139,7 +139,7 @@ void GlobalHighlightStepDialog::enableControls(bool b)
     finalModelEnabledChild->setEnabled(b);
 }
 
-void GlobalHighlightStepDialog::reloadModelFile(bool b)
+void GlobalHighlightStepDialog::reloadDisplayPage(bool b)
 {
     if (!data->reloadFile)
         data->reloadFile = b;
@@ -169,7 +169,7 @@ void GlobalHighlightStepDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile) {
-    mi.reloadModelFile(true);
+    mi.reloadDisplayPage(true);
   }
 
   QDialog::accept();

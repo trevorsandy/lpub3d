@@ -89,7 +89,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   fadeStepChild = new FadeStepGui(fadeStepMeta);
   data->children.append(fadeStepChild);
   connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(enableControls(bool)));
-  connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (fadeStepChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(fadeStepChild,0,0);
 
   box = new QGroupBox("Fade Previous Steps Setup");
@@ -101,7 +101,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   fadeStepSetupChild = new CheckBoxGui("Setup Fade Previous Steps",&fadeStepMeta->setup);
   fadeStepSetupChild->setToolTip(tr("Setup fade steps. Check to enable fade previous steps locally."));
   data->children.append(fadeStepSetupChild);
-  connect (fadeStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (fadeStepSetupChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(fadeStepSetupChild,0,0);
 
   box = new QGroupBox("Final Model Step");
@@ -113,7 +113,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
 
   finalModelEnabledChild = new FinalModelEnabledGui("Enable Final Model Step",&lpubMeta->finalModelEnabled);
   data->children.append(finalModelEnabledChild);
-  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (finalModelEnabledChild->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
   boxGrid->addWidget(finalModelEnabledChild,0,0);
 
   emit fadeStepChild->getCheckBox()->clicked(fadeStepChild->getCheckBox()->isChecked());
@@ -138,7 +138,7 @@ void GlobalFadeStepDialog::enableControls(bool b)
     finalModelEnabledChild->setEnabled(b);
 }
 
-void GlobalFadeStepDialog::reloadModelFile(bool b)
+void GlobalFadeStepDialog::reloadDisplayPage(bool b)
 {
     if (!data->reloadFile)
         data->reloadFile = b;
@@ -168,7 +168,7 @@ void GlobalFadeStepDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile) {
-    mi.reloadModelFile(true);
+    mi.reloadDisplayPage(true);
   }
 
   QDialog::accept();

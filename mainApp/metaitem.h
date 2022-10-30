@@ -561,7 +561,7 @@ public:
 
   void clearPageCache(PlacementType relativeType, Page *page, int option);
   void setLoadingFileFlag(bool);
-  void reloadModelFile(bool = false);
+  void reloadDisplayPage(bool = false);
   void clearCache(bool = false);
   void clearCustomPartCache();
   void clearCsiCache();

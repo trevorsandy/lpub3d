@@ -320,7 +320,7 @@ public slots:
   void accept();
   void cancel();
   void enableControls(bool);
-  void reloadModelFile(bool);
+  void reloadDisplayPage(bool);
 };
 
 /*****************************************************************
@@ -347,7 +347,7 @@ public:
 public slots:
   void accept();
   void cancel();
-  void reloadModelFile(bool);
+  void reloadDisplayPage(bool);
   void enableControls(bool);
 };
 
@@ -377,7 +377,7 @@ public slots:
   void accept();
   void cancel();
   void clearCache(bool);
-  void reloadModelFile(bool);
+  void reloadDisplayPage(bool);
   void checkConflict(bool);
 };
 #endif

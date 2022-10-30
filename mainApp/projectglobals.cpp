@@ -87,7 +87,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   vlayout->addWidget(box);
   PreferredRendererGui *rendererChild =new PreferredRendererGui(&lpubMeta->preferredRenderer,box);
   box->setToolTip("Select the default image renderer.");
-  connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadModelFile(bool)));
+  connect (rendererChild, SIGNAL(settingsChanged(bool)), this, SLOT(reloadDisplayPage(bool)));
   data->children.append(rendererChild);
 
   box = new QGroupBox("Resolution");
@@ -162,7 +162,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   LoadUnoffPartsEnabledGui *childLoadUnoffPartsEnabled = new LoadUnoffPartsEnabledGui("Enable unofficial parts load in command editor",&lpubMeta->loadUnoffPartsInEditor,box);
   box->setToolTip("Enable loading unofficial parts in the command editor - setting enabled when unofficial parts are detected.");
   data->children.append(childLoadUnoffPartsEnabled);
-  //connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childLoadUnoffPartsEnabled->getCheckBox(), SIGNAL(clicked(bool)), this, SLOT(reloadDisplayPage(bool)));
 
   box = new QGroupBox("Start Numbers");
   vlayout->addWidget(box);
@@ -202,7 +202,7 @@ void GlobalProjectDialog::getProjectGlobals(
   dialog->exec();
 }
 
-void GlobalProjectDialog::reloadModelFile(bool b)
+void GlobalProjectDialog::reloadDisplayPage(bool b)
 {
   Q_UNUSED(b)
   if (!data->reloadFile)
@@ -249,16 +249,16 @@ void GlobalProjectDialog::accept()
 
   if (data->clearCache) {
     mi.setLoadingFileFlag(false);
-    mi.clearCache(true);  // if true, file reload but cache will not be reloaded
+    mi.clearCache(true);       // if true, clear all the caches
   }
   if (data->reloadFile) {
-    mi.setLoadingFileFlag(true);
+    mi.setLoadingFileFlag(true); // set the
   }
 
-  mi.endMacro();
+  mi.endMacro();              // display Page if setLoadingFileFlag = true
 
   if (data->reloadFile) {
-    mi.reloadModelFile(true); // if true, file reload and cache will be reloaded
+    mi.reloadDisplayPage(true); // if true, cyclePageDisplay (Reload File) but do not clear cache
   }
 
   QDialog::accept();

@@ -3298,7 +3298,7 @@ void MetaItem::changePreferredRenderer(
 //    setLoadingFileFlag(true);
 //    endMacro();
 //    if (reloadFile) {
-//      reloadModelFile(true);
+//      reloadDisplayPage(true);
 //    }
   }
 }
@@ -3342,7 +3342,7 @@ QString         title,
     }
     endMacro();
     if (reloadFile) {
-      reloadModelFile(true);
+      reloadDisplayPage(true);
     } else {
       clearCsiCache();
     }
@@ -3387,7 +3387,7 @@ void MetaItem::setHighlightStep(
     }
     endMacro();
     if (reloadFile) {
-      reloadModelFile(true);
+      reloadDisplayPage(true);
     } else {
       clearCsiCache();
     }
@@ -5151,9 +5151,9 @@ void MetaItem::setLoadingFileFlag(bool b)
     gui->mloadingFile = b;
 }
 
-void MetaItem::reloadModelFile(bool global)
+void MetaItem::reloadDisplayPage(bool global)
 {
-    // if global, cache will not be reloaded
+    // if true, cyclePageDisplay (Reload File) but do not clear cache
     gui->clearAllCaches(global);
 }
 
@@ -5164,7 +5164,7 @@ void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option
 
 void MetaItem::clearCache(bool global)
 {
-    // if global, cache will be reloaded
+    // if global, clear cache only
     gui->clearAndReloadModelFile(global);
 }
 
