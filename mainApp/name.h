@@ -101,7 +101,7 @@ enum ExportMode { PRINT_FILE   = -2,       //-2
                   EXPORT_POVRAY,           // 9
                   EXPORT_BRICKLINK,        // 10
                   EXPORT_CSV,              // 11
-                  EXPORT_ELEMENT,          // 12
+                  EXPORT_ELEMENT,          // 12 not implemented from console
                   EXPORT_HTML_PARTS,       // 13
                   EXPORT_HTML_STEPS,       // 14
                   POVRAY_RENDER,           // 15
@@ -799,5 +799,6 @@ enum ThemeColorType {
 
 #define MPD_COMBO_MIN_ITEMS_DEFAULT             25
 #define GO_TO_PAGE_MIN_ITEMS_DEFAULT            10
+#define FILE_LOAD_WAIT_TIME                     300000        // 5 minutes
 
 #endif // NAME_H

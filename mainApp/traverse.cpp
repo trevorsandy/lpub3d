@@ -4555,7 +4555,7 @@ void Gui::drawPage(
     meta                 = Meta();
 #ifdef QT_DEBUG_MODE
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
-    emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1 of %2").arg(displayPageNum).arg(maxPages));
+    emit messageSig(LOG_NOTICE, QString("BEGIN    -  Page %1").arg(displayPageNum));
 #endif
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {

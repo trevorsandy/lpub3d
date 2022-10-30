@@ -408,7 +408,20 @@ void Gui::clearRecentFiles()
 
 bool Gui::loadFile(const QString &file)
 {
+    return loadFile(file, false/*commandLine*/);
+}
+
+bool Gui::loadFile(const QString &file, bool console)
+{
     lpub->currentStep = nullptr;
+
+    if(Gui::resetCache) {
+        emit messageSig(LOG_INFO,QString("Reset parts cache specified."));
+        //QFuture<void> ResetFuture = QtConcurrent::run([this,&file, console] {
+        resetModelCache(QFileInfo(file).absoluteFilePath(), console);
+        //});
+        //ResetFuture.waitForFinished();
+    }
 
     QString fileName = file;
     QFileInfo info(fileName);
@@ -436,10 +449,12 @@ bool Gui::loadFile(const QString &file)
                             QString("File loaded (%1 parts). %2")
                                     .arg(lpub->ldrawFile.getPartCount())
                                     .arg(elapsedTime(timer.elapsed())));
+        emit fileLoadedSig(true);
         return true;
     } else {
         emit messageSig(LOG_ERROR,QString("Unable to load file %1.").arg(fileName));
     }
+    emit fileLoadedSig(false);
     return false;
 }
 

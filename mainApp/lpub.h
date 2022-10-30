@@ -1205,23 +1205,6 @@ public:
 
   void saveCurrent3DViewerModel(const QString &modelFile);
 
-  void exportAs(const QString &);
-  void exportAsHtml();
-  void exportAsHtmlSteps();
-  void exportAsCsv();
-  void exportAsBricklinkXML();
-  void exportAsPdf();
-  bool exportAsDialog(ExportMode m);
-  void exportAsPdfDialog();
-  void exportAsPngDialog();
-  void exportAsJpgDialog();
-  void exportAsBmpDialog();
-  void exportAsStlDialog();
-  void exportAsPovDialog();
-  void exportAs3dsDialog();
-  void exportAsColladaDialog();
-  void exportAsObjDialog();
-
 public slots:
 #ifndef QT_NO_CLIPBOARD
   void updateClipboard();
@@ -1391,6 +1374,7 @@ public slots:
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, PageDirection d = DIRECTION_NOT_SET);
 
+
   // left side progress bar
   void progressBarInit();
   void progressBarSetText(const QString &progressText);
@@ -1492,6 +1476,7 @@ public slots:
   void processHighlightColourParts(bool overwrite, bool setup);
   void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false);
   bool loadFile(const QString &file);
+  bool loadFile(const QString &file, bool console);
 
   void showRenderDialog();
 
@@ -1543,11 +1528,13 @@ signals:
 
   void requestEndThreadNowSig();
   void loadFileSig(const QString &file);
-  void processCommandLineSig();
 
   void operateHighlightParts(bool, bool);
   void operateFadeParts(bool, bool);
   void setPliIconPathSig(QString &,QString &);
+
+  void fileLoadedSig(bool);
+  void consoleCommandFromOtherThreadSig(int, int *);
 
 public:
   ParmsWindow           *parmsWindow;                 // the parameter file editor
@@ -1837,6 +1824,9 @@ private slots:
     void setGoToPage(int index);
     void loadPages(bool, bool);
 
+    void consoleCommand(int, int *);
+    void consoleCommandCurrentThread(int option, int *value);
+
     void getExportPageSize(float &, float &, int d = Pixels);
     bool validatePageRange();
 
@@ -1846,6 +1836,23 @@ private slots:
     void importLDD();
     void importInventory();
     bool saveImport(const QString& FileName, Project *Importer);
+
+    void exportAs(const QString &);
+    void exportAsHtml();
+    void exportAsHtmlSteps();
+    void exportAsCsv();
+    void exportAsBricklinkXML();
+    void exportAsPdf();
+    bool exportAsDialog(ExportMode m);
+    void exportAsPdfDialog();
+    void exportAsPngDialog();
+    void exportAsJpgDialog();
+    void exportAsBmpDialog();
+    void exportAsStlDialog();
+    void exportAsPovDialog();
+    void exportAs3dsDialog();
+    void exportAsColladaDialog();
+    void exportAsObjDialog();
 
     OrientationEnc getPageOrientation(bool nextPage = false);
     QPageLayout getPageLayout(bool nextPage = false);

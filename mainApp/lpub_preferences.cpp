@@ -404,7 +404,7 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
-bool    Preferences::inlineNativeContent    = true;
+bool    Preferences::inlineNativeContent        = true;
 
 bool    Preferences::ldgliteInstalled           = false;
 bool    Preferences::ldviewInstalled            = false;
@@ -531,6 +531,7 @@ int     Preferences::initHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 QString Preferences::initHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
 
 int     Preferences::initPreferredRenderer      = RENDERER_NATIVE;
+int     Preferences::fileLoadWaitTime           = FILE_LOAD_WAIT_TIME;
 
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
@@ -3751,6 +3752,14 @@ void Preferences::userInterfacePreferences()
       Settings.setValue(QString("%1/%2").arg(SETTINGS,cycleEachPageKey),cycleEachPage);
   } else {
       cycleEachPage = Settings.value(QString("%1/%2").arg(SETTINGS,cycleEachPageKey)).toBool();
+  }
+
+  QString const fileLoadWaitTimeKey("FileLoadWaitInMSec");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,fileLoadWaitTimeKey))) {
+      fileLoadWaitTime = FILE_LOAD_WAIT_TIME;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,fileLoadWaitTimeKey),fileLoadWaitTime);
+  } else {
+      fileLoadWaitTime = Settings.value(QString("%1/%2").arg(SETTINGS,fileLoadWaitTimeKey)).toInt();
   }
 }
 

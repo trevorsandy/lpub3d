@@ -776,10 +776,11 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           m_progressDlgProgressBar->setRange(0,_maxPages);
           m_progressDialog->show();
-      }
-      int progress = 0;
 
-      QApplication::setOverrideCursor(Qt::ArrowCursor);
+          QApplication::setOverrideCursor(Qt::ArrowCursor);
+      }
+
+      int progress = 0;
 
       for (d == PAGE_NEXT ? displayPageNum = 1 + pa : displayPageNum = maxPages ; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 + pa ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
 
@@ -800,14 +801,15 @@ bool Gui::continuousPageDialog(PageDirection d)
                                 .arg(maxPages)
                                 .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
               emit messageSig(LOG_STATUS,message);
-              QApplication::restoreOverrideCursor();
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
-              m_progressDialog->setBtnToClose();
-              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
-              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
-              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-
+              if (Preferences::modeGUI) {
+                QApplication::restoreOverrideCursor();
+                m_progressDialog->setBtnToClose();
+                m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+                disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+                connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+              }
               return false;
           }
 
@@ -822,14 +824,13 @@ bool Gui::continuousPageDialog(PageDirection d)
               enableNavigationActions(true);
               m_progressDlgProgressBar->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
               m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              qApp->processEvents();
+              secSleeper::secSleep(Preferences::pageDisplayPause);
           }
-
-          qApp->processEvents();
-
-          secSleeper::secSleep(Preferences::pageDisplayPause);
       }
 
-      QApplication::restoreOverrideCursor();
+      if (Preferences::modeGUI)
+          QApplication::restoreOverrideCursor();
 
   }
   else
@@ -877,9 +878,8 @@ bool Gui::continuousPageDialog(PageDirection d)
           m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           m_progressDlgProgressBar->setRange(0,_maxPages);
           m_progressDialog->show();
+          QApplication::setOverrideCursor(Qt::BusyCursor);
       }
-
-      QApplication::setOverrideCursor(Qt::BusyCursor);
 
       // process each page
       Q_FOREACH (int printPage,printPages){
@@ -903,14 +903,15 @@ bool Gui::continuousPageDialog(PageDirection d)
                                 .arg(_maxPages)
                                 .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
               emit messageSig(LOG_STATUS,message);
-              QApplication::restoreOverrideCursor();
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
-              m_progressDialog->setBtnToClose();
-              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
-              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
-              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-
+              if (Preferences::modeGUI) {
+                  QApplication::restoreOverrideCursor();
+                  m_progressDialog->setBtnToClose();
+                  m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+                  disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+                  connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+              }
               return false;
           }
 
@@ -930,33 +931,34 @@ bool Gui::continuousPageDialog(PageDirection d)
               enableNavigationActions(true);
               m_progressDlgProgressBar->setValue(pageCount);
               m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              qApp->processEvents();
+              secSleeper::secSleep(Preferences::pageDisplayPause);
           }
-
-          qApp->processEvents();
-
-          secSleeper::secSleep(Preferences::pageDisplayPause);
       }
 
-      QApplication::restoreOverrideCursor();
+      if (Preferences::modeGUI) {
+          QApplication::restoreOverrideCursor();
+      }
+
+      setContinuousPageAct(SET_DEFAULT_ACTION);
+
+      message = QString("%1 page processing completed. %2 of %3 %4 processed%5.")
+                        .arg(direction)
+                        .arg(d == PAGE_NEXT ? pageCount : _maxPages)
+                        .arg(_maxPages)
+                        .arg(_maxPages > 1 ? "pages" : "page")
+                        .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
+      emit messageSig(LOG_INFO_STATUS,message);
+
+      if (Preferences::modeGUI) {
+          m_progressDialog->setBtnToClose();
+          m_progressDlgProgressBar->setValue(_maxPages);
+          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+          disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+          connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+      }
   }
 
-  setContinuousPageAct(SET_DEFAULT_ACTION);
-
-  message = QString("%1 page processing completed. %2 of %3 %4 processed%5.")
-                    .arg(direction)
-                    .arg(d == PAGE_NEXT ? pageCount : _maxPages)
-                    .arg(_maxPages)
-                    .arg(_maxPages > 1 ? "pages" : "page")
-                    .arg(QString(". %1").arg(gui->elapsedTime(continuousTimer.elapsed())));
-  emit messageSig(LOG_INFO_STATUS,message);
-
-  if (Preferences::modeGUI) {
-      m_progressDialog->setBtnToClose();
-      m_progressDlgProgressBar->setValue(_maxPages);
-      m_progressDlgMessageLbl->setText(tr("%1").arg(message));
-      disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
-      connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
-  }
   emit setContinuousPageSig(false);
 
   return true;
@@ -1583,7 +1585,7 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
         }
     }
     if (count)
-        emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+        emit messageSig(LOG_INFO,QString("Parts content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
 }
 
 void Gui::resetModelCache(QString file, bool commandLine)
@@ -1613,7 +1615,7 @@ void Gui::resetModelCache(QString file, bool commandLine)
         if (! QDir::setCurrent(saveCurrentDir))
             emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
 
-        resetCache = false;
+        Gui::resetCache = false;
 
         if (commandLine)
             emit messageSig(LOG_INFO, QString("All caches reset. %1").arg(elapsedTime(timer.elapsed())));
@@ -1847,7 +1849,7 @@ void Gui::clearPLICache()
             }
         }
     }
-    emit messageSig(LOG_INFO_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_INFO_STATUS,QString("Parts content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
 }
 
 void Gui::clearCSICache()
@@ -1889,7 +1891,7 @@ void Gui::clearCSICache()
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_INFO_STATUS,QString("Assembly content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
 }
 
 void Gui::clearSubmodelCache(const QString &key)
@@ -1936,7 +1938,7 @@ void Gui::clearSubmodelCache(const QString &key)
         }
     }
 
-    emit messageSig(LOG_INFO_STATUS,QString("Submodel content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_INFO_STATUS,QString("Submodel content cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
 }
 
 void Gui::clearTempCache()
@@ -1961,7 +1963,7 @@ void Gui::clearTempCache()
     tmpDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = tmpDir.entryInfoList();
-    int count1 = 0;
+    int count = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
         QFile     file(fileInfo.absoluteFilePath());
@@ -1973,14 +1975,14 @@ void Gui::clearTempCache()
 #ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
 #endif
-                count1++;
+                count++;
             }
         }
     }
 
     lpub->ldrawFile.tempCacheCleared();
 
-    emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
+    emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 %2 removed.").arg(count).arg(count == 1 ? "item" : "items" ));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -3604,8 +3606,12 @@ void Gui::initialize()
 
   connect(this, SIGNAL(loadFileSig(QString)),
           this, SLOT(  loadFile(QString)));
-  connect(this, SIGNAL(processCommandLineSig()),
-          this, SLOT(  processCommandLine()));
+  connect(lpub, SIGNAL(loadFileSig(QString, bool)),
+          this, SLOT(  loadFile(QString, bool)));
+  connect(lpub, SIGNAL(consoleCommandSig(int, int*)),
+          this, SLOT(  consoleCommandCurrentThread(int, int*)), Qt::DirectConnection);
+  connect(this, SIGNAL(consoleCommandFromOtherThreadSig(int, int*)),
+          this, SLOT(  consoleCommand(int, int*)), Qt::BlockingQueuedConnection);
   connect(this, SIGNAL(setExportingSig(bool)),
           this, SLOT(  deployExportBanner(bool)));
   connect(this, SIGNAL(setExportingSig(bool)),

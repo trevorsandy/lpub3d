@@ -106,9 +106,17 @@ public slots:
   void httpDownloadFinished();
   void cancelDownload();
   void updateDownloadProgress(qint64, qint64);
+  void fileLoaded(bool b)
+  {
+      mFileLoaded = true;
+      mFileLoadFail = !b;
+  }
 
 signals:
-  void messageSig(LogType logType, QString message);
+  void messageSig(LogType, QString);
+  void loadFileSig(QString, bool);
+  void consoleCommandSig(int, int*);
+
 
 protected:
     /// Download management members
@@ -117,6 +125,9 @@ protected:
     QByteArray             mByteArray;
     QString                mTitle;
 
+private:
+    bool                   mFileLoaded;
+    bool                   mFileLoadFail;
 };
 
 extern class LPub *lpub;

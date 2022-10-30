@@ -14,6 +14,7 @@
 **
 ****************************************************************************/
 
+#include <QTime>
 #include "application.h"
 #include "lc_profile.h"
 #include "lc_library.h"
@@ -73,6 +74,12 @@ int LPub::processCommandLine()
     << "--line-width"
     << "--aa-samples"
     ;
+
+  connect(gui, SIGNAL(fileLoadedSig(bool)),
+          this, SLOT(    fileLoaded(bool)));
+
+  mFileLoaded                   = false;
+  mFileLoadFail                 = false;
 
   quint32 ColorValue            = 0;
   quint32 StudCylinderColor     = GetStudCylinderColor();
@@ -562,63 +569,91 @@ int LPub::processCommandLine()
           Gui::setExporting(true);
       if (processFile)
           Gui::setExporting(false);
-      if(Gui::resetCache) {
-          emit gui->messageSig(LOG_INFO,QString("Reset parts cache specified."));
-          gui->resetModelCache(QFileInfo(commandlineFile).absoluteFilePath(), true/*commandLine*/);
-      }
+
       commandTimer.start();
-      if (!gui->loadFile(commandlineFile)) {
-          return 1;
+
+      emit loadFileSig(commandlineFile, true);
+
+      auto wait = []( int millisecondsToWait )
+      {
+          QTime waitTime = QTime::currentTime().addMSecs( millisecondsToWait );
+          while( QTime::currentTime() < waitTime )
+              QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+      };
+
+      int waited = 0;
+      while (!LPub::mFileLoaded) {
+          if (waited < Preferences::fileLoadWaitTime/*5 minutes*/) {
+              waited += 100;
+              wait(100);
+          } else {
+              message = tr("File '%1' load exceeded the allotted time of %2 minutes. %3")
+                           .arg(QFileInfo(commandlineFile).fileName())
+                           .arg(Preferences::fileLoadWaitTime/60000)
+                           .arg(LPub::elapsedTime(commandTimer.elapsed()));
+              emit gui->messageSig(LOG_ERROR,message);
+              return -1;
+          }
       }
+
+      if (LPub::mFileLoadFail)
+          return -1;
   }
 
+  int mode = PAGE_PROCESS;
+
+  int result = 0;
+
   if (Gui::processPageRange(pageRange)) {
-      if (processFile){
-          Preferences::pageDisplayPause = 1;
-          gui->continuousPageDialog(PAGE_NEXT);
-        }
-      else
+
       if (processExport) {
-            if (exportOption == "pdf")
-               gui->exportAsPdfDialog();
-            else
-            if (exportOption == "png")
-               gui->exportAsPngDialog();
-            else
-            if (exportOption == "jpg")
-               gui->exportAsJpgDialog();
-            else
-            if (exportOption == "bmp")
-               gui->exportAsBmpDialog();
-            else
-            if (exportOption == "stl")
-               gui->exportAsStlDialog();
-            else
-            if (exportOption == "3ds")
-               gui->exportAs3dsDialog();
-            else
-            if (exportOption == "pov")
-               gui->exportAsPovDialog();
-            else
-            if (exportOption == "dae")
-               gui->exportAsColladaDialog();
-            else
-            if (exportOption == "obj")
-               gui->exportAsObjDialog();
-            else
-            if (exportOption == "csv")
-               gui->exportAsCsv();
-            else
-            if (exportOption == "bl-xml")
-               gui->exportAsBricklinkXML();
-            else
-               gui->exportAsPdfDialog();
-          } else {
-            gui->continuousPageDialog(PAGE_NEXT);
-          }
-    } else {
-       return 1;
-    }
+          if (exportOption == "pdf")
+             mode = EXPORT_PDF;
+          else
+          if (exportOption == "png")
+             mode = EXPORT_PNG;
+          else
+          if (exportOption == "jpg")
+             mode = EXPORT_JPG;
+          else
+          if (exportOption == "bmp")
+             mode = EXPORT_BMP;
+          else
+          if (exportOption == "3ds")
+             mode = EXPORT_3DS_MAX;
+          else
+          if (exportOption == "dae")
+             mode = EXPORT_COLLADA;
+          else
+          if (exportOption == "obj")
+             mode = EXPORT_WAVEFRONT;
+          else
+          if (exportOption == "stl")
+             mode = EXPORT_STL;
+          else
+          if (exportOption == "pov")
+             mode = EXPORT_POVRAY;
+          else
+          if (exportOption == "bl-xml")
+             mode = EXPORT_BRICKLINK;
+          else
+          if (exportOption == "csv")
+             mode = EXPORT_CSV;
+          else
+          if (exportOption == "htmlparts")
+             mode = EXPORT_HTML_PARTS;
+          else
+          if (exportOption == "htmlsteps")
+            mode = EXPORT_HTML_STEPS;
+          else
+             mode = EXPORT_PDF;
+      }
+
+      emit consoleCommandSig(mode, &result);
+
+  } else {
+      return 1;
+  }
 
   if (rendererChanged) {
       Preferences::preferredRenderer        = Gui::savedData.renderer;
@@ -631,6 +666,10 @@ int LPub::processCommandLine()
 
   emit gui->messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
                   .arg(QFileInfo(commandlineFile).fileName())
-                  .arg(gui->elapsedTime(commandTimer.elapsed())));
-  return 0;
+                  .arg(LPub::elapsedTime(commandTimer.elapsed())));
+
+  disconnect(gui,  SIGNAL(fileLoadedSig(bool)),
+             this, SLOT(  fileLoaded(bool)));
+
+  return result;
 }

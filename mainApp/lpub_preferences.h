@@ -387,6 +387,7 @@ class Preferences
     static int     maxOpenWithPrograms;
     static int     editorLinesPerPage;
     static int     editorDecoration;
+    static int     fileLoadWaitTime;
 
     static bool    initEnableFadeSteps;
     static bool    initFadeStepsUseColour;

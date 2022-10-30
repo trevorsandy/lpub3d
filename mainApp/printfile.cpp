@@ -389,6 +389,39 @@ bool Gui::validatePageRange(){
   return true;
 }
 
+void Gui::consoleCommand(int mode, int* result)
+{
+    int savePause = Preferences::pageDisplayPause;
+    if (mode == PAGE_PROCESS) {
+        Preferences::pageDisplayPause = 1;
+        continuousPageDialog(PAGE_NEXT);
+    } else if (mode > PAGE_PROCESS && mode < EXPORT_BRICKLINK)
+        exportAsDialog(ExportMode(mode));
+    else if (mode == EXPORT_BRICKLINK)
+        exportAsBricklinkXML();
+    else if (mode == EXPORT_CSV)
+        exportAsCsv();
+    else if (mode == EXPORT_HTML_PARTS)
+        exportAsHtml();
+    else if (mode == EXPORT_HTML_STEPS)
+        exportAsHtmlSteps();
+    else
+        exportAsDialog(EXPORT_PDF);
+    Preferences::pageDisplayPause = savePause;
+
+    *result = 0;
+}
+
+void Gui::consoleCommandCurrentThread(int mode, int *value)
+{
+    QThread *thread = QThread::currentThread();
+    QThread *mainthread = this->thread();
+    if(thread == mainthread)
+        consoleCommand(mode, value);
+    else
+        emit consoleCommandFromOtherThreadSig(mode, value);
+}
+
 void Gui::exportAsPdfDialog(){
   exportAsDialog(EXPORT_PDF);
 }
@@ -2112,9 +2145,3 @@ void Gui::TogglePrintPreview(ExportMode m)
 
     m_previewDialog = false;
 }
-
-
-
-
-
-
