@@ -215,7 +215,7 @@
         <file alias="renderersetup.png">resources/renderersetup.png</file>
         <file alias="resetborderattributes.png">resources/resetborderattributes.png</file>
         <file alias="resetcache.png">resources/resetcache.png</file>
-        <file alias="resetpagecache.png">resources/resetpagecache.png</file>
+        <file alias="resetaction.png">resources/resetaction.png</file>
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
         <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>

@@ -1051,6 +1051,20 @@ void Gui::setGoToPage(int index)
   setPageLineEdit->setText(string);
 }
 
+void Gui::pageLineEditReset()
+{
+    if (setPageLineEdit) {
+        setPageLineEditResetAct->setEnabled(false);
+        setPageLineEdit->setText(QString("%1 of %2").arg(displayPageNum).arg(maxPages));
+    }
+}
+
+void Gui::enablePageLineReset(const QString &displayText)
+{
+    if (setPageLineEdit)
+        setPageLineEditResetAct->setEnabled(displayText != QString("%1 of %2").arg(displayPageNum).arg(maxPages));
+}
+
 void Gui::fitWidth()
 {
   QRectF rect(0,0,lpub->pageSize(lpub->page.meta.LPub.page, 0)
@@ -5202,7 +5216,11 @@ void Gui::createActions()
     setPageLineEdit->setToolTip("Current Page Index");
     setPageLineEdit->setStatusTip("Enter index and hit enter to go to page");
     setPageLineEdit->setEnabled(false);
+    setPageLineEditResetAct = setPageLineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    setPageLineEditResetAct->setEnabled(false);
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
+    connect(setPageLineEdit, SIGNAL(textEdited(const QString &)), this, SLOT(enablePageLineReset(const QString &)));
+    connect(setPageLineEditResetAct, SIGNAL(triggered()), this, SLOT(pageLineEditReset()));
 
     ldrawSearchDirectoriesAct = new QAction(QIcon(":/resources/searchdirectories.png"),tr("LDraw Search Directories..."), this);
     ldrawSearchDirectoriesAct->setStatusTip(tr("Manage LDraw search directories"));

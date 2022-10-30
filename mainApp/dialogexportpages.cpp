@@ -304,14 +304,12 @@ void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)
     const QString allCompare = ui->labelAllPages->text().replace("to","-").replace(" ","");
     const QString rangeCompare = gui->pageDirection < PAGE_BACKWARD ? QString("%1-%2").arg(rangeMin).arg(rangeMax) :
                                                                       QString("%1-%2").arg(rangeMax).arg(rangeMin);
-
-    qDebug() << "AllPages: ["
-             << qPrintable(allCompare.trimmed())
-             << "] compared to PageRange: ["
-             << qPrintable(rangeCompare.trimmed())
-             << "]"
-             << "";
-
+//    qDebug() << "AllPages: ["
+//             << qPrintable(allCompare.trimmed())
+//             << "] compared to PageRange: ["
+//             << qPrintable(rangeCompare.trimmed())
+//             << "]"
+//             << "";
     if (allCompare.trimmed() != rangeCompare.trimmed())
         ui->radioButtonPageRange->setChecked(true);
 

@@ -1818,6 +1818,8 @@ private slots:
     void nextPageContinuous();
     void previousPage();
     void previousPageContinuous();
+    void pageLineEditReset();
+    void enablePageLineReset(const QString &);
     void setPage();
     void firstPage();
     void lastPage();
@@ -2074,6 +2076,7 @@ private:
   QAction           *nextPageContinuousAct;
   QAction           *previousPageComboAct;
   QAction           *previousPageContinuousAct;
+  QAction           *setPageLineEditResetAct;
   QLineEdit         *setPageLineEdit;
   QComboBox         *setGoToPageCombo;
   SeparatorComboBox *mpdCombo;
