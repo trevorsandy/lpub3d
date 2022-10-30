@@ -496,11 +496,11 @@ int Step::createCsi(
 
           // header and closing meta
 
-          renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
+          //renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::CSI,modelDisplayOnlyStep);
 
           // consolidate subfiles and parts into single file
-          if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
-              emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
+          //if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
+          //    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
           if (!csiStepMeta.target.isPopulated())

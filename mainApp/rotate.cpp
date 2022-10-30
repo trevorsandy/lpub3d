@@ -231,20 +231,20 @@ int Render::rotateParts(
   if (imageType != Options::MON)
       rotatedParts.prepend(rotsComment);
 
-  if (nativeRenderer && ! ldvFunction) {
-      // header and closing meta
-      setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
+  //if (nativeRenderer && ! ldvFunction) {
+  //    // header and closing meta
+  //    setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
-      // consolidate subfiles and parts into single file
-      int rc = 0;
-      if (Preferences::buildModEnabled && imageType == Options::SMP)
-          rc = mergeSubmodelContent(rotatedParts);
-      else
-          rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
-      if (rc)
-          emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
-                               .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
-  }
+  //    // consolidate subfiles and parts into single file
+  //    int rc = 0;
+  //    if (Preferences::buildModEnabled && imageType == Options::SMP)
+  //        rc = mergeSubmodelContent(rotatedParts);
+  //    else
+  //        rc = createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep,imageType);
+  //    if (rc)
+  //        emit gui->messageSig(LOG_ERROR,QString("Failed to create merged Native %1 parts")
+  //                             .arg(imageType == Options::CSI ? "CSI" : Options::MON ? "MON" : "SMP"));
+  //}
 
   // Write parts to file
   QTextStream out(&file);
