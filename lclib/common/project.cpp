@@ -170,7 +170,7 @@ bool Project::IsModified() const
 /*** LPub3D Mod - project piece ***/
 bool Project::IsModified(const QString &FileName, bool reset) const
 {
-	return gui->modified(FileName, reset);
+	return LPub->ldrawFile.modified(FileName, reset);
 }
 /*** LPub3D Mod end ***/
 
@@ -461,7 +461,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 	if (mIsPreview)
 	{
 		if (FileName.isEmpty())
-			IsLPubModel = gui->isSubmodel(QFileInfo(FileName).fileName()) || gui->isUnofficialPart(QFileInfo(FileName).fileName());
+			IsLPubModel = LPub->ldrawFile.isSubmodel(QFileInfo(FileName).fileName()) || LPub->ldrawFile.isUnofficialPart(QFileInfo(FileName).fileName());
 	} else {
 		parent = gMainWindow;
 	}
@@ -506,7 +506,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 					const QString RenderType = OutFileInfo.completeBaseName().replace(".ldr", QString());
 					const QString RenderName = QString("%1%2_%3_%4")
 							.arg(IsPli ? QString() : QString("%1_").arg(PieceName))
-							.arg(IsPli ? PieceName : QString::number(gui->getSubmodelIndex(PieceName)))
+							.arg(IsPli ? PieceName : QString::number(LPub->ldrawFile.getSubmodelIndex(PieceName)))
 							.arg(Keys.at(BM_STEP_LINE_KEY))	// ColourNumber when IsPLI
 							.arg(Keys.at(BM_STEP_NUM_KEY));
 					const QString OutfileName = QDir::toNativeSeparators(QString("%1%2viewer_%3_%4.ldr")
@@ -551,10 +551,10 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		{
 /*** LPub3D Mod - viewer step key ***/
 			if (mImageType == Options::CSI)
-				gui->viewerStepModified(StepKey, true/*reset*/);
+				LPub->ldrawFile.viewerStepModified(StepKey, true/*reset*/);
 /*** LPub3D Mod end ***/
 
-			FileName = gui->getViewerStepFilePath(StepKey);
+			FileName = LPub->ldrawFile.getViewerStepFilePath(StepKey);
 
 			if (FileName.isEmpty())
 			{
@@ -565,13 +565,13 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 				return false;
 			}
 
-			Content = gui->getViewerStepRotatedContents(StepKey);
+			Content = LPub->ldrawFile.getViewerStepRotatedContents(StepKey);
 
 			SetTimeLineTopItem(Content);
 		}
 		else
 		{
-			Content = gui->getLDrawFile().contents(QFileInfo(LoadFileName).fileName());
+			Content = LPub->ldrawFile.contents(QFileInfo(LoadFileName).fileName());
 		}
 
 		if (Content.isEmpty())
