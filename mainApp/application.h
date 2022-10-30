@@ -201,18 +201,9 @@ void restartApplication();
 
 extern Application* LPub;
 
-inline Preferences& getPreferencesRef()
-{
-    return LPub->lpub3dPreferences;
-}
-
 inline Meta& getMetaRef()
 {
     return LPub->meta;
 }
 
-inline Page& getPageRef()
-{
-    return LPub->page;
-}
 #endif // APPLICATION_H
