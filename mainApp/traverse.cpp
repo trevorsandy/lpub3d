@@ -4526,35 +4526,27 @@ void Gui::drawPage(
 
     // set next step index and test index is display page index - i.e. refresh a page
     if (Preferences::buildModEnabled) {
-      displayPageIndx    = exporting() ? displayPageNum : displayPageNum - 1;
-      firstPage          = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
+      displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
+      firstPage       = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
+
       if (!firstPage)
-        topOfStep        = topOfPages[displayPageIndx];
+        topOfStep     = topOfPages[displayPageIndx];
+
       if (!topOfStep.lineNumber)
         skipHeader(topOfStep);
-      // skip for first page as we haven't run countInstances yet
-      if (!firstPage) {
-        nextStepIndex    = getStepIndex(topOfStep);
-        setBuildModNextStepIndex(topOfStep);
+
+      nextStepIndex = getStepIndex(topOfStep);
+
+      setBuildModNextStepIndex(topOfStep);
+
+      if (!firstPage)
         adjustTopOfStep  = nextStepIndex == getBuildModNextStepIndex();
-      }
-    }
 
-    // initialize ldrawFile registers
-    setLoadBuildMods(false); // DEBUG
-
-    ldrawFile.countInstances();
-    ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
-
-    // Set BuildMod action options for next step
-    if (Preferences::buildModEnabled) {
       ldrawFile.clearBuildModRendered();
-      if (adjustTopOfStep) {
+
+      if (adjustTopOfStep)
         if (! getBuildModStepIndexWhere(nextStepIndex, topOfStep))
           topOfStep = firstPage ? current : topOfPages[displayPageIndx];
-      } else if (firstPage) {
-        setBuildModNextStepIndex(topOfStep);
-      }
 
       // if page direction is jump forward, reset vars that may be updated by the count page call
       parseBuildModsAtCount = pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD;
@@ -4575,8 +4567,16 @@ void Gui::drawPage(
           while (topOfPages.size() > saveTopOfPages)
               topOfPages.takeLast();
       }
-    }
-  }
+    } // buildModEnabled
+
+    // populate buildMod registers
+    setLoadBuildMods(false); // DEBUG
+    ldrawFile.countInstances();
+
+    // set model start page - used to enable mpd combo to jump to start page
+    ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
+
+  } // not build mod action change
 
   if (!buildModClearStepKey.isEmpty()) {
 #ifdef QT_DEBUG_MODE
