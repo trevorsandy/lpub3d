@@ -2785,48 +2785,57 @@ int Native::renderCsi(
   bool pp             = Preferences::perspectiveProjection;
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
-  const QString viewerStepKey = LPub->viewerStepKey;
-  emit gui->messageSig(LOG_DEBUG,QString("Render CSI using viewer step key '%1' for image '%2'.")
-                                         .arg(viewerStepKey)
-                                         .arg(QFileInfo(pngName).fileName()));
-
   // Renderer options
-  NativeOptions *Options     = getCurrentStepPtr();
-  Options->ViewerStepKey     = viewerStepKey;
-  Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
-  Options->CameraName        = cameraName;
-  Options->FoV               = cameraFoV;
-  Options->HighlightNewParts = false; // gui->suppressColourMeta();
-  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
-  Options->ImageType         = Options::CSI;
-  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
-  Options->InputFileName     = ldrName;
-  Options->IsOrtho           = isOrtho;
-  Options->Latitude          = noCA ? 0.0 : cameraAngleX;
-  Options->LineWidth         = lcGetPreferences().mLineWidth;
-  Options->Longitude         = noCA ? 0.0 : cameraAngleY;
-  Options->ModelScale        = modelScale;
-  Options->OutputFileName    = pngName;
-  Options->PageHeight        = Application::pageSize(meta.LPub.page, YY);
-  Options->PageWidth         = Application::pageSize(meta.LPub.page, XX);
-  Options->Position          = position;
-  Options->Resolution        = resolution();
-  Options->Target            = target;
-  Options->UpVector          = upvector;
-  Options->ZFar              = cameraZFar;
-  Options->ZNear             = cameraZNear;
-  Options->ZoomExtents       = false;
-  Options->AutoEdgeColor  = aecm->enable.value();
-  Options->EdgeContrast   = aecm->contrast.value();
-  Options->EdgeSaturation = aecm->saturation.value();
-  Options->StudStyle      = ssm->value();
-  Options->LightDarkIndex = hccm->lightDarkIndex.value();
-  Options->StudCylinderColor = hccm->studCylinderColor.value();
-  Options->PartEdgeColor  = hccm->partEdgeColor.value();
-  Options->BlackEdgeColor = hccm->blackEdgeColor.value();
-  Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
+  NativeOptions *Options = getCurrentStepPtr()->viewerOptions;
+  const QString viewerStepKey = getCurrentStepPtr()->viewerStepKey;
+  if (Options) {
+    Options->ViewerStepKey     = viewerStepKey;
+    Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
+    Options->CameraName        = cameraName;
+    Options->FoV               = cameraFoV;
+    Options->HighlightNewParts = false; // gui->suppressColourMeta();
+    Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+    Options->ImageType         = Options::CSI;
+    Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
+    Options->InputFileName     = ldrName;
+    Options->IsOrtho           = isOrtho;
+    Options->Latitude          = noCA ? 0.0 : cameraAngleX;
+    Options->LineWidth         = lcGetPreferences().mLineWidth;
+    Options->Longitude         = noCA ? 0.0 : cameraAngleY;
+    Options->ModelScale        = modelScale;
+    Options->OutputFileName    = pngName;
+    Options->PageHeight        = Application::pageSize(meta.LPub.page, YY);
+    Options->PageWidth         = Application::pageSize(meta.LPub.page, XX);
+    Options->Position          = position;
+    Options->Resolution        = resolution();
+    Options->Target            = target;
+    Options->UpVector          = upvector;
+    Options->ZFar              = cameraZFar;
+    Options->ZNear             = cameraZNear;
+    Options->ZoomExtents       = false;
+    Options->AutoEdgeColor     = aecm->enable.value();
+    Options->EdgeContrast      = aecm->contrast.value();
+    Options->EdgeSaturation    = aecm->saturation.value();
+    Options->StudStyle         = ssm->value();
+    Options->LightDarkIndex    = hccm->lightDarkIndex.value();
+    Options->StudCylinderColor = hccm->studCylinderColor.value();
+    Options->PartEdgeColor     = hccm->partEdgeColor.value();
+    Options->BlackEdgeColor    = hccm->blackEdgeColor.value();
+    Options->DarkEdgeColor     = hccm->darkEdgeColor.value();
 
-  // Render image
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG,QString("Render CSI using viewer step key '%1' for image '%2'.")
+                                           .arg(viewerStepKey)
+                                           .arg(QFileInfo(pngName).fileName()));
+#endif
+  } else {
+    emit gui->messageSig(LOG_ERROR,QString("Failed to retrieve CSI render options %1 for image '%2'.")
+                                           .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
+                                           .arg(QFileInfo(pngName).fileName()));
+    return -1;
+  }
+
+  // Update render image
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI image render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
 
@@ -2998,55 +3007,63 @@ int Native::renderPli(
     }
   }
 
+  // Update renderer options
+  NativeOptions *Options = nullptr;
   QString viewerStepKey;
-  Step* currentStep = getCurrentStepPtr();
-  if (currentStep) {
-      if (pliType == SUBMODEL)
-          viewerStepKey = currentStep->subModel.viewerSubmodelKey;
-      else
-          viewerStepKey = currentStep->pli.viewerPliPartKey;
+  if (pliType == SUBMODEL) {
+    Options  = getCurrentStepPtr()->subModel.viewerOptions;
+    viewerStepKey = getCurrentStepPtr()->subModel.viewerSubmodelKey;
+  } else {
+    Options  = getCurrentStepPtr()->pli.viewerOptions;
+    viewerStepKey = getCurrentStepPtr()->pli.viewerPliPartKey;
+  }
+  if (Options) {
+    Options->ViewerStepKey  = viewerStepKey;
+    Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
+    Options->CameraName     = cameraName;
+    Options->FoV            = cameraFoV;
+    Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : Application::pageSize(meta.LPub.page, YY);
+    Options->ImageType      = pliType == SUBMODEL ? Options::SMP : Options::PLI;
+    Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : Application::pageSize(meta.LPub.page, XX);
+    Options->InputFileName  = ldrNames.first();
+    Options->IsOrtho        = isOrtho;
+    Options->Latitude       = noCA ? 0.0 : cameraAngleX;
+    Options->LineWidth      = lcGetPreferences().mLineWidth;;
+    Options->Longitude      = noCA ? 0.0 : cameraAngleY;
+    Options->ModelScale     = modelScale;
+    Options->OutputFileName = pngName;
+    Options->PageHeight     = Application::pageSize(meta.LPub.page, YY);
+    Options->PageWidth      = Application::pageSize(meta.LPub.page, XX);
+    Options->Position       = position;
+    Options->Resolution     = resolution();
+    Options->Target         = target;
+    Options->UpVector       = upvector;
+    Options->ZFar           = cameraZFar;
+    Options->ZNear          = cameraZNear;
+    Options->ZoomExtents    = false;
+    Options->AutoEdgeColor  = aecm->enable.value();
+    Options->EdgeContrast   = aecm->contrast.value();
+    Options->EdgeSaturation = aecm->saturation.value();
+    Options->StudStyle      = ssm->value();
+    Options->LightDarkIndex = hccm->lightDarkIndex.value();
+    Options->StudCylinderColor = hccm->studCylinderColor.value();
+    Options->PartEdgeColor  = hccm->partEdgeColor.value();
+    Options->BlackEdgeColor = hccm->blackEdgeColor.value();
+    Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
+
 #ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("Render %1 using viewer step key '%2' for image '%3'.")
                                            .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI")
                                            .arg(viewerStepKey)
                                            .arg(QFileInfo(pngName).fileName()));
 #endif
+  } else {
+    emit gui->messageSig(LOG_ERROR,QString("Failed to retrieve %1 render options %2 for image '%3'.")
+                                           .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI")
+                                           .arg(viewerStepKey.isEmpty() ? "and viewer step key" : QString("using viewer step key '%1'").arg(viewerStepKey))
+                                           .arg(QFileInfo(pngName).fileName()));
+    return -1;
   }
-
-  // Renderer options
-  NativeOptions *Options  = new NativeOptions();
-  Options->ViewerStepKey  = viewerStepKey;
-  Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
-  Options->CameraName     = cameraName;
-  Options->FoV            = cameraFoV;
-  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : LPub->pageSize(meta.LPub.page, YY);
-  Options->ImageType      = pliType == SUBMODEL ? Options::SMP : Options::PLI;
-  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : LPub->pageSize(meta.LPub.page, XX);
-  Options->InputFileName  = ldrNames.first();
-  Options->IsOrtho        = isOrtho;
-  Options->Latitude       = noCA ? 0.0 : cameraAngleX;
-  Options->LineWidth      = gui->GetPreferences().mLineWidth;;
-  Options->Longitude      = noCA ? 0.0 : cameraAngleY;
-  Options->ModelScale     = modelScale;
-  Options->OutputFileName = pngName;
-  Options->PageHeight     = LPub->pageSize(meta.LPub.page, YY);
-  Options->PageWidth      = LPub->pageSize(meta.LPub.page, XX);
-  Options->Position       = position;
-  Options->Resolution     = resolution();
-  Options->Target         = target;
-  Options->UpVector       = upvector;
-  Options->ZFar           = cameraZFar;
-  Options->ZNear          = cameraZNear;
-  Options->ZoomExtents    = false;
-  Options->AutoEdgeColor  = aecm->enable.value();
-  Options->EdgeContrast   = aecm->contrast.value();
-  Options->EdgeSaturation = aecm->saturation.value();
-  Options->StudStyle      = ssm->value();
-  Options->LightDarkIndex = hccm->lightDarkIndex.value();
-  Options->StudCylinderColor = hccm->studCylinderColor.value();
-  Options->PartEdgeColor  = hccm->partEdgeColor.value();
-  Options->BlackEdgeColor = hccm->blackEdgeColor.value();
-  Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
 
   // Render image
   emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 %2 image render - please wait...")
@@ -3452,7 +3469,7 @@ bool Render::LoadViewer(const NativeOptions *Options) {
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
     if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
-        gui->SetStudStyle(nativeOptions, true/*reload*/);
+        gui->SetStudStyle(Options, true/*reload*/);
 
     if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
         if (Options->AutoEdgeColor && gui->GetStudStyle() > 5) {
@@ -3467,15 +3484,14 @@ bool Render::LoadViewer(const NativeOptions *Options) {
             }
         }
 
-        gui->SetAutomateEdgeColor(nativeOptions);
+        gui->SetAutomateEdgeColor(Options);
     }
 
-    Loaded = LPub->OpenProject(nativeOptions);
+    Loaded = LPub->OpenProject(Options);
     if (!Loaded) {
         emit gui->messageSig(LOG_ERROR, QString("Could not open Loader for ViewerStepKey: '%1', FileName: '%2', [Use Key]")
-                                                .arg(nativeOptions->ViewerStepKey)
-                                                .arg(QFileInfo(nativeOptions->InputFileName).fileName()));
-        delete nativeOptions;
+                                                .arg(Options->ViewerStepKey)
+                                                .arg(QFileInfo(Options->InputFileName).fileName()));
     }
 
     return Loaded;

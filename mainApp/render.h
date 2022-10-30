@@ -39,7 +39,6 @@ class UnitsMeta;
 class RotStepMeta;
 class FloatPairMeta;
 class NativeOptions;
-class ViewerOptions;
 class Project;
 class StudStyleMeta;
 class AutoEdgeColorMeta;

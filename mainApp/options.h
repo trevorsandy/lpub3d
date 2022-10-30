@@ -109,7 +109,7 @@ public:
        Position          (Vector3(0, 0, 0)),
        UpVector          (Vector3(0, 0, 0))
   { }
-//  virtual ~ViewerOptions(){}
+//  virtual ~NativeOptions(){}
   QStringList ExportArgs;   // New
   QString ViewerStepKey;
   QString ImageFileName;

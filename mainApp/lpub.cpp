@@ -3313,7 +3313,6 @@ Gui::Gui()
     qRegisterMetaType<SceneObjectData>("SceneObjectData");
     qRegisterMetaType<SepData>("SepData");
     qRegisterMetaType<SubData>("SubData");
-    qRegisterMetaType<ViewerOptions>("ViewerOptions");
     qRegisterMetaType<Where>("Where");
     qRegisterMetaType<Vector3>("Vector3");
 

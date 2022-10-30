@@ -191,8 +191,8 @@ class Pli : public Placement {
     int                tallestPart;
 
     QString            viewerPliPartKey;
-    QHash<QString,    NativeOptions *> viewerOptsList;
-    NativeOptions    *viewerOptions;
+    QHash<QString,     NativeOptions *> viewerOptsList;
+    NativeOptions     *viewerOptions;
 
     Pli(bool _bom = false);
 

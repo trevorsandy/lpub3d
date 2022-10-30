@@ -49,7 +49,7 @@ class SubModelPart;            // PliPart
 class SMGraphicsPixmapItem;    // PGraphicsPixmapItem
 class SMInstanceTextItem;      // InstanceTextItem
 class SubModelBackgroundItem;  // PliBackgroundItem
-class ViewerOptions;
+class NativeOptions;
 
 class SubModelPart {
   public:
@@ -126,7 +126,7 @@ class SubModel : public Placement {
     SubModelMeta            subModelMeta;
     QString                 imageName;
     QString                 viewerSubmodelKey;
-    ViewerOptions          *viewerOptions;
+    NativeOptions          *viewerOptions;
 
     Meta                   *meta;
     Steps                  *steps;      // topOfSteps()
