@@ -165,6 +165,9 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - project piece ***/
+	bool IsProjectPiece() const;
+/*** LPub3D Mod end ***/
 	void ZoomExtents(float FoV, float AspectRatio, lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix) const;
 	void AddRenderMesh(lcScene& Scene);
 /*** LPub3D Mod - true fade ***/	

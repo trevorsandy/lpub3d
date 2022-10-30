@@ -112,6 +112,15 @@ void PieceInfo::CreateProject(Project* Project, const char* PieceName)
 	m_strDescription[sizeof(m_strDescription) - 1] = 0;
 }
 
+/*** LPub3D Mod - project piece ***/
+bool PieceInfo::IsProjectPiece() const
+{
+	if (mProject)
+		return !strcmp(m_strDescription, mProject->GetFileName().toLatin1().data());
+	return false;
+}
+/*** LPub3D Mod end ***/
+
 bool PieceInfo::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& WorldMatrix) const
 {
 	if (IsModel())
@@ -354,7 +363,9 @@ void PieceInfo::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool Add
 		if (AddSubModels)
 			PartsList[this][DefaultColorIndex]++;
 	}
-	else if (IsProject())
+/*** LPub3D Mod 137 - part type check ***/
+	else if (IsProject() && !IsProjectPiece())
+/*** LPub3D Mod end ***/
 	{
 		const lcModel* const Model = mProject->GetMainModel();
 		if (Model)
