@@ -88,7 +88,7 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The remaining lines in this block adds the LDView source files...
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    LOAD_LDV_SOURCE_FILES = #True
+    COPY_LDV_SOURCE_FILES = #True
     # This line points to ldview git extract folder name, you can set as you like
     VER_LDVSRC            = ldview_vsbuild
     # This line defines the path of the ldview git extract relative to this project file
@@ -118,7 +118,7 @@ message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 # specify ARM platforms that need to suppress local glext.h header
 contains(ARM_BUILD_ARCH,True): contains(BUILD_TARGET,suse): contains(HOST_VERSION,1320) {
     DEFINES += ARM_SKIP_GL_HEADERS
-    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define ARM_SKIP_GL_HEADERS ~~~")
+    message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} define SKIP_LDV_GL_HEADERS ~~~")
 } else {
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) build - $${BUILD_TARGET}-$${HOST_VERSION}-$${BUILD_ARCH} ~~~")
 }
@@ -150,7 +150,7 @@ unix:!macx {
 
 #~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-equals(LOAD_LDV_SOURCE_FILES,True) {
+equals(COPY_LDV_SOURCE_FILES,True) {
     exists($$LDVSRCPATH) {
       message("~~~ lib$${TARGET} Enable copy LDView sources to $$LDVINCLUDE ~~~ ")
     } else {
@@ -231,7 +231,7 @@ OTHER_FILES += \
     $$PWD/../../mainApp/extras/ldvMessages.ini
 
 # These includes are only processed in debug on Windows mode
-win32-msvc*:equals(LOAD_LDV_SOURCE_FILES,True) {
+win32-msvc*:equals(COPY_LDV_SOURCE_FILES,True) {
     include(include/LDExporter/LDExporter.pri)
     include(include/LDLib/LDLib.pri)
     include(include/LDLoader/LDLoader.pri)

@@ -398,7 +398,7 @@ LIBS += -L$$OUT_PWD/../waitingspinner/$$DESTDIR -l$$WAITING_SPINNER_LIB
 #COPY_LDV_LIBS = True
 
 # Load LDView libraries for LDVQt
-LOAD_LDVLIBS = True
+LOAD_LDV_LIBS = True
 
 include(../ldvlib/LDVQt/LDViewLibs.pri)
 

@@ -31,7 +31,7 @@ contains(LOAD_LDV_HEADERS,True) {
     isEmpty(LDVHDRDIR):LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
 #    message("~~~ lib$${TARGET} Headers source: $$LDVHDRDIR ~~~ ")
 
-    # Copy LDView headers to LDV (Enabled on Linux until I figure out what's blocking)
+    # Copy LDView headers to LDV (Disabled)
     contains(COPY_LDV_HEADERS,True) {
         # Header destination path
         isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( ./include ) )
@@ -78,7 +78,7 @@ contains(LOAD_LDV_HEADERS,True) {
             exists( $$system_path( $${LDVINCLUDE}/GL/gl.h) ): \
             message("~~~ lib$${TARGET} LDView GL headers copied to $$system_path( $${LDVINCLUDE}/GL/ ) ~~~")
         }
-    }  else {
+    } else {
         message("~~~ ADD LDVIEW HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR ) ~~~ ")
         isEmpty(LDV3RDHDRDIR):LDV3RDHDRDIR = $$system_path( $${LDVHDRDIR}/3rdParty )
         DEPENDPATH  += $${LDVHDRDIR}
@@ -88,15 +88,17 @@ contains(LOAD_LDV_HEADERS,True) {
             if(!contains(DEFINES,ARM_SKIP_GL_HEADERS)) {
                 system( mkdir -p ./include/GL && touch ./include/GL/glext.h )
                 INCLUDEPATH += $$system_path( ./include/GL )
-                message("~~~ lib$${TARGET} touch include/GL/glext.h for $$upper($$QT_ARCH) build ~~~")
+                message("~~~ ADD GL HEADERS TO INCLUDEPATH: $$system_path( ./include/GL ) ~~~ ")
             }
             exists ($$system_path( $${LDVHDRDIR}/GL )): \
             system(rm -rf $$system_path( $${LDVHDRDIR}/GL ))
             !exists ($$system_path( $${LDVHDRDIR}/GL )): \
-            message("~~~ lib$${TARGET} disable LDView GL headers for $$upper($$QT_ARCH) build ~~~")
+            message("~~~ DISABLE GL HEADERS FOR $$upper($$QT_ARCH) BUILD ~~~ ")
         } else {
-            INCLUDEPATH += $$system_path( $${LDVHDRDIR}/GL )
-            message("~~~ lib$${TARGET} include LDView GL headers ) ~~~")
+            if (!contains(SKIP_LDV_GL_HEADERS,True)) {
+                INCLUDEPATH += $$system_path( $${LDVHDRDIR}/GL )
+                message("~~~ ADD GL HEADERS TO INCLUDEPATH: $$system_path( $$LDVHDRDIR/GL ) ~~~ ")
+            }            
         }
     }
 
@@ -144,7 +146,7 @@ contains(LOAD_LDV_HEADERS,True) {
     }
 
     # These includes are only processed in debug on Windows mode
-    win32-msvc*:equals(LOAD_LDV_SOURCE_FILES,True) {
+    win32-msvc*:equals(COPY_LDV_SOURCE_FILES,True) {
         # Copy source from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.c*) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.c*) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
@@ -168,7 +170,7 @@ contains(LOAD_LDV_HEADERS,True) {
 win32 {
     BUILD_WORKER_VERSION = $$(LP3D_VSVERSION)
     isEmpty(BUILD_WORKER_VERSION): BUILD_WORKER_VERSION = 2019
-    !contains(LOAD_LDVLIBS,True): \
+    !contains(LOAD_LDV_LIBS,True): \
     message("~~~ lib$${TARGET} build worker: Visual Studio $$BUILD_WORKER_VERSION ~~~")
     equals(BUILD_WORKER_VERSION, 2019) {
         contains(QT_ARCH,i386): VSVER=vs2017
@@ -176,12 +178,12 @@ win32 {
     } else {
         VSVER=vs2015
     }
-    !contains(LOAD_LDVLIBS,True): \
+    !contains(LOAD_LDV_LIBS,True): \
     message("~~~ lib$${TARGET} $$upper($$QT_ARCH) MSVS library version: $$VSVER ~~~")
 }
 
 # This block is executed by LPub3D mainApp to enable linking the LDVlib
-contains(LOAD_LDVLIBS,True) {
+contains(LOAD_LDV_LIBS,True) {
     isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
@@ -191,7 +193,7 @@ contains(LOAD_LDVLIBS,True) {
 #    message("~~~ lib$${TARGET} Library path: $$LDVLIBRARY ~~~ ")
 #    message("~~~ lib$${TARGET} Library source: $$LDVLIBDIR ~~~ ")
 
-    # Set library names, source pahts and local paths
+    # Set library names, source paths and local paths
     win32-msvc* {
         # library name
         LDLIB_LIB        = -lLDLib
