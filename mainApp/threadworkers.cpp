@@ -2177,11 +2177,17 @@ int CountPageWorker::countPage(
   countPageMutex.lock();
 
   // local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
-  int displayPageNum = gui->displayPageNum;
+  //int displayPageNum = gui->displayPageNum;
 
   opts.flags.countInstances = meta->LPub.countInstance.value();
 
   gui->pageProcessRunning = PROC_COUNT_PAGE;
+
+  if (opts.flags.countPageContains) {
+      gui->skipHeader(opts.current);
+      opts.flags.countPageContains = false;
+      opts.flags.addCountPage = true;
+  }
 
   if (opts.pageNum == 1 + gui->pa && opts.current.modelName == ldrawFile->topLevelFile()) {
       if (!opts.stepNumber)
@@ -2194,13 +2200,7 @@ int CountPageWorker::countPage(
       gui->topOfPages.append(opts.current);
   }
 
-  QStringList             bfxParts;
-
-  if (opts.flags.countPageContains) {
-      gui->skipHeader(opts.current);
-      opts.flags.countPageContains = false;
-      opts.flags.addCountPage = true;
-  }
+  opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
   ldrawFile->setRendered(opts.current.modelName,
                          opts.isMirrored,
@@ -2210,10 +2210,9 @@ int CountPageWorker::countPage(
                          true/*countPage*/);
 
   Rc rc;
+  QStringList bfxParts;
   Where topOfStep  = opts.current;
   Where topOfSteps = topOfStep;
-
-  opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
   BuildModFlags           buildMod = opts.flags.buildMod;
   QMap<int, QString>      buildModKeys;
@@ -2296,6 +2295,8 @@ int CountPageWorker::countPage(
                                                   .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
       }
   };
+
+  Step *currentStep = lpub->currentStep;
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;

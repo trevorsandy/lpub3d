@@ -1022,6 +1022,18 @@ void LDrawFile::setRendered(
         i.value()._renderedKeys.append(key);
       }
     }
+//#ifdef QT_DEBUG_MODE
+//    qDebug() << "SET RENDERED - "
+//             << "KEY:" << "[" << qPrintable(key) << "]"
+//             << "FileName:" << "[" << qPrintable(fileName) << "]"
+//             << "RenderParentModel:" << "[" << qPrintable(renderParentModel) << "]"
+//             << "HowCounted:"<< "[" << (howCounted == CountAtStep ? "CountAtStep" :
+//                                        howCounted == CountAtTop ? "CountAtTop" :
+//                                        howCounted == CountAtModel ? "CountAtModel" :
+//                                                      qPrintable(QString::number(howCounted)))
+//             << "]" << "\n"
+//                ;
+//#endif
   }
 }
 
@@ -1045,21 +1057,41 @@ bool LDrawFile::rendered(const QString &mcFileName,
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
         howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString() ;
+    QString altKey = key;
+    if (countPage)
+        key.prepend("cp~");
     if (mirrored) {
-      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false : i.value()._mirrorRenderedKeys.contains(key);
-      if (!haveKey && countPage) {
-          key.prepend("cp~");
-          haveKey |= key == "cp~" ? howCounted == CountAtTop ? true : false : i.value()._mirrorRenderedKeys.contains(key);
+      // check the countPage key ('cp~' prefix) if present.
+      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
+                  i.value()._mirrorRenderedKeys.contains(key);
+      // if no key found using countPage key and count-at-step, attempt to check the findPage key (no 'cp~' prefix)
+      if (!haveKey && countPage && howCounted == CountAtStep) {
+        haveKey = altKey.isEmpty() ? howCounted == CountAtTop ? true : false :
+                    i.value()._mirrorRenderedKeys.contains(altKey);
       }
       rendered  = i.value()._mirrorRendered;
     } else {
-      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false : i.value()._renderedKeys.contains(key);
-      if (!haveKey && countPage) {
-          key.prepend("cp~");
-          haveKey |= key == "cp~" ? howCounted == CountAtTop ? true : false : i.value()._renderedKeys.contains(key);
+      haveKey = key.isEmpty() || (countPage && key == "cp~") ? howCounted == CountAtTop ? true : false :
+                  i.value()._renderedKeys.contains(key);
+      if (!haveKey && countPage && howCounted == CountAtStep) {
+        haveKey = altKey.isEmpty() ? howCounted == CountAtTop ? true : false :
+                    i.value()._renderedKeys.contains(altKey);
       }
       rendered  = i.value()._rendered;
     }
+//#ifdef QT_DEBUG_MODE
+//    qDebug() << "RENDERED:" << "["  << qPrintable(rendered ? "YES" : "NO") << "]"
+//             << "HAVEKEY:" << "["  << qPrintable(haveKey ? "YES" : "NO") << "]"
+//             << "KEY:" << "["  << qPrintable(key) << "]"
+//             << "ALTKEY:" << "["  << qPrintable(altKey) << "]"
+//             << "FileName:" << "["  << qPrintable(fileName) << "]"
+//             << "HowCounted:" << "["  << (howCounted == CountAtStep ? "CountAtStep" :
+//                                          howCounted == CountAtTop ? "CountAtTop" :
+//                                          howCounted == CountAtModel ? "CountAtModel" :
+//                                                        qPrintable(QString::number(howCounted)))
+//             << "]" << "\n"
+//                ;
+//#endif
     return rendered && haveKey;
   }
   return rendered;
