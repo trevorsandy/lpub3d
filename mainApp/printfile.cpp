@@ -562,9 +562,14 @@ void Gui::exportAsHtmlSteps()
     Options->ExportMode        = EXPORT_HTML_STEPS;
     Options->ImageType         = Options::CSI;
     Options->InputFileName     = curFile;
-    Options->ExportFileName    = QDir::toNativeSeparators(
-                                 QFileInfo(curFile).absolutePath() + "/" +
-                                 Paths::htmlStepsDir);
+    if (!Gui::m_saveDirectoryName.isEmpty())
+        Options->ExportFileName = QDir::toNativeSeparators(
+                                  Gui::m_saveDirectoryName + "/" +
+                                  Paths::htmlStepsDir);
+    else
+        Options->ExportFileName = QDir::toNativeSeparators(
+                                  QFileInfo(curFile).absolutePath() + "/" +
+                                  Paths::htmlStepsDir);
 
     bool saveFadeStepsFlag = Preferences::enableFadeSteps;
     if (saveFadeStepsFlag) {
@@ -585,7 +590,10 @@ void Gui::exportAsHtml()
     Options->ExportMode        = EXPORT_HTML_PARTS;
     // Visual Editor only
     Options->ImageType         = Options::CSI;
-    Options->ExportFileName    = QFileInfo(curFile).absolutePath();
+    if (!Gui::m_saveDirectoryName.isEmpty())
+        Options->ExportFileName = QDir::toNativeSeparators(Gui::m_saveDirectoryName);
+    else
+        Options->ExportFileName = QDir::toNativeSeparators(QFileInfo(curFile).absolutePath());
     // LDV only
     Options->IniFlag           = NativePartList;
 
@@ -2017,7 +2025,7 @@ void Gui::Print(QPrinter* Printer)
 
 void Gui::showExportedFile(){
 
-  if (! exportedFile.isEmpty()){
+  if (! exportedFile.isEmpty() && Preferences::modeGUI ){
 
       //display completion message
       QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -2039,7 +2047,8 @@ void Gui::showExportedFile(){
       box.setText (title);
       box.setInformativeText (text);
 
-      if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
+      if ((box.exec() == QMessageBox::Yes)) {
+
           QString CommandPath = exportedFile;
           QProcess *Process = new QProcess(this);
           Process->setWorkingDirectory(QDir::currentPath() + "/");

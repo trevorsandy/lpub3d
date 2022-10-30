@@ -80,6 +80,12 @@ public:
       return mByteArray;
   }
 
+  /// currently loaded model file
+  QString getCurFile() const
+  {
+      return commandlineFile;
+  }
+
   /// meta command container
   Meta meta;
 
@@ -128,6 +134,7 @@ protected:
 private:
     bool                   mFileLoaded;
     bool                   mFileLoadFail;
+    QString                commandlineFile;
 };
 
 extern class LPub *lpub;

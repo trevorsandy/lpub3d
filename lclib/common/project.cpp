@@ -917,13 +917,24 @@ bool Project::Export3DStudio(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
 	}
 
-	QString SaveFileName = GetExportFileName(FileName, "3ds", tr("Export 3D Studio"), tr("3DS Files (*.3ds);;All Files (*.*)"));
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(FileName, "3ds", tr("Export 3D Studio"), tr("3DS Files (*.3ds);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.3ds");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
 		return false;
@@ -933,7 +944,7 @@ bool Project::Export3DStudio(const QString& FileName)
 	if (!File.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1367,18 +1378,27 @@ bool Project::ExportBrickLink()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - export ***/
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
-/*** LPub3D Mod end ***/
 	}
 
-	QString SaveFileName = GetExportFileName(QString(), "xml", tr("Export BrickLink"), tr("XML Files (*.xml);;All Files (*.*)"));
+
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(QString(), "xml", tr("Export BrickLink"), tr("XML Files (*.xml);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.xml");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
-/*** LPub3D Mod - export ***/
 		return false;
 
 	return lcExportBrickLink(SaveFileName, PartsList);
@@ -1391,13 +1411,25 @@ bool Project::ExportCOLLADA(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
 	}
 
-	QString SaveFileName = GetExportFileName(FileName, "dae", tr("Export COLLADA"), tr("COLLADA Files (*.dae);;All Files (*.*)"));
+
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(FileName, "dae", tr("Export COLLADA"), tr("COLLADA Files (*.dae);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.dae");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
 		return false;
@@ -1407,7 +1439,7 @@ bool Project::ExportCOLLADA(const QString& FileName)
 	if (!File.open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -1674,20 +1706,28 @@ bool Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - export ***/
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
-/*** LPub3D Mod end ***/
 	}
 
-	QString SaveFileName = GetExportFileName(QString(), "csv", tr("Export CSV"), tr("CSV Files (*.csv);;All Files (*.*)"));
+
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(QString(), "csv", tr("Export CSV"), tr("CSV Files (*.csv);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.csv");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
-/*** LPub3D Mod - export ***/
 		return false;
-/*** LPub3D Mod end ***/
 
 	lcDiskFile CSVFile(SaveFileName);
 	char Line[1024];
@@ -1695,7 +1735,7 @@ bool Project::ExportCSV()
 	if (!CSVFile.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - export ***/
 		return false;
@@ -1785,8 +1825,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 			if (!File.open(QIODevice::WriteOnly))
 			{
-				QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
+				emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 				return false;
 /*** LPub3D Mod end ***/
 
@@ -1821,8 +1861,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 				if (!File.open(QIODevice::WriteOnly))
 				{
-					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
+					emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 					return false;
 /*** LPub3D Mod end ***/
 				}
@@ -1849,8 +1889,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 				if (!File.open(QIODevice::WriteOnly))
 				{
-					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
+					emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 					return false;
 /*** LPub3D Mod end ***/
 				}
@@ -1885,8 +1925,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 				if (!File.open(QIODevice::WriteOnly))
 				{
-					QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export ***/
+					emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 					return false;
 /*** LPub3D Mod end ***/
 				}
@@ -1919,8 +1959,8 @@ bool Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 		if (!File.open(QIODevice::WriteOnly))
 		{
-			QMessageBox::warning(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 /*** LPub3D Mod - export HTML ***/
+			emit gui->messageSig(LOG_ERROR, tr("Error writing to file '%1':\n%2").arg(FileName, File.errorString()));
 			return false;
 /*** LPub3D Mod end ***/
 		}
@@ -1974,13 +2014,25 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
 	}
 
-	QString SaveFileName = GetExportFileName(FileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
+
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(FileName, QLatin1String("pov"), tr("Export POV-Ray"), tr("POV-Ray Files (*.pov);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.pov");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
 		return false;
@@ -1990,7 +2042,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	if (!POVFile.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -2031,7 +2083,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		if (!TableFile.Open(QIODevice::ReadOnly))
 		{
 /*** LPub3D Mod - set Visual Editor label ***/
-			QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
@@ -2079,7 +2131,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		if (!ColorFile.Open(QIODevice::ReadOnly))
 		{
 /*** LPub3D Mod - set Visual Editor label ***/
-			QMessageBox::information(gMainWindow, tr("Visual Editor"), tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
+			emit gui->messageSig(LOG_ERROR, tr("Could not find LGEO files in folder '%1'.").arg(LGEOPath));
 /*** LPub3D Mod end ***/
 			return false;
 		}
@@ -2301,11 +2353,25 @@ bool Project::ExportWavefront(const QString& FileName)
 
 	if (ModelParts.empty())
 	{
-		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
+/*** LPub3D Mod - set console mode export ***/
+		emit gui->messageSig(LOG_ERROR, tr("Nothing to export!"));
+
 		return false;
 	}
 
-	QString SaveFileName = GetExportFileName(FileName, QLatin1String("obj"), tr("Export Wavefront"), tr("Wavefront Files (*.obj);;All Files (*.*)"));
+
+	QString SaveFileName;
+	if (Preferences::modeGUI)
+	{
+		SaveFileName = GetExportFileName(FileName, QLatin1String("obj"), tr("Export Wavefront"), tr("Wavefront Files (*.obj);;All Files (*.*)"));
+	}
+	else
+	{
+		SaveFileName =  QDir::fromNativeSeparators(
+						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCurFile()).baseName() + "-export.obj");
+	}
+/*** LPub3D Mod end ***/
 
 	if (SaveFileName.isEmpty())
 		return false;
@@ -2316,7 +2382,7 @@ bool Project::ExportWavefront(const QString& FileName)
 	if (!OBJFile.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(SaveFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}
@@ -2336,7 +2402,7 @@ bool Project::ExportWavefront(const QString& FileName)
 	if (!MaterialFile.Open(QIODevice::WriteOnly))
 	{
 /*** LPub3D Mod - set Visual Editor label ***/
-		QMessageBox::warning(gMainWindow, tr("Visual Editor"), tr("Could not open file '%1' for writing.").arg(MaterialFileName));
+		emit gui->messageSig(LOG_ERROR, tr("Could not open file '%1' for writing.").arg(SaveFileName));
 /*** LPub3D Mod end ***/
 		return false;
 	}

@@ -742,7 +742,7 @@ int Application::initialize()
 #endif
                 fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg, bmp, stl, 3ds, pov, csv, bl-xml, dae, htmlparts, htmlsteps, or obj. Used with process-export. Default is pdf.\n");
                 fprintf(stdout, "  -od, --export-directory <path>: Designate the export option save folder using absolute path. Used with export-option. Default is model file folder\n");
-                fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
+                fprintf(stdout, "  -of, --output-file/--pdf-output-file <path>: Designate the document save file using absolute path.\n");
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ");
                 fprintf(stdout, "  -pe, --process-export: Export instruction document, images, files, or objects. Used with export-option. Default is pdf document.\n");
                 fprintf(stdout, "  -pf, --process-file: Process ldraw model file and generate images in png format.\n");

@@ -104,8 +104,8 @@ int LPub::processCommandLine()
   bool studStyleChanged      = false;
   bool autoEdgeColorChanged  = false;
   QString pageRange, exportOption, colourConfigFile,
-          commandlineFile, preferredRenderer, projection,
-          fadeStepsColour, highlightStepColour, message;
+          preferredRenderer, projection, message,
+          fadeStepsColour, highlightStepColour;
 
   // Parse parameters
   QStringList Arguments = Application::instance()->arguments();
@@ -333,7 +333,7 @@ int LPub::processCommandLine()
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
 //        imageMatting = true;
 //      else
-      if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
+      if (Param == QLatin1String("-of") || Param == QLatin1String("--output-file") || Param == QLatin1String("--pdf-output-file"))
         ParseString(Gui::saveFileName, true);
       else
       if (Param == QLatin1String("-rs") || Param == QLatin1String("--reset-search-dirs"))

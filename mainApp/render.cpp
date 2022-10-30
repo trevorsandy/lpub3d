@@ -3520,10 +3520,12 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
             HTMLOptions.PathName = Options->ExportFileName;
 
-            lcQHTMLDialog Dialog(gui, &HTMLOptions);
+            if (Preferences::modeGUI) {
+                lcQHTMLDialog Dialog(gui, &HTMLOptions);
 
-            if (Dialog.exec() != QDialog::Accepted)
-                return !Exported;
+                if (Dialog.exec() != QDialog::Accepted)
+                    return !Exported;
+            }
         }
 
         if(Options->StudStyle && Options->StudStyle != lpub->GetStudStyle())
@@ -3553,18 +3555,34 @@ bool Render::NativeExport(const NativeOptions *Options) {
     if (Options->ExportMode == EXPORT_CSV)
     {
         Exported = lcGetActiveProject()->ExportCSV();
+        if (Exported) {
+            emit gui->messageSig(LOG_INFO, QString("CSV export completed!"));
+        } else {
+            emit gui->messageSig(LOG_INFO, QString("CSV export failed!"));
+        }
     }
     else
     if (Options->ExportMode == EXPORT_BRICKLINK)
     {
         Exported = lcGetActiveProject()->ExportBrickLink();
+        if (Exported) {
+            emit gui->messageSig(LOG_INFO, QString("BRICKLINK export completed!"));
+        } else {
+            emit gui->messageSig(LOG_INFO, QString("BRICKLINK export failed!"));
+        }
     }
     else
     if (Options->ExportMode == EXPORT_WAVEFRONT)
     {
         Exported = lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
         if (Exported) {
-           gui->openFolderSelect(Options->ExportFileName);
+            if (Preferences::modeGUI)
+                gui->openFolderSelect(Options->ExportFileName);
+            else
+                emit gui->messageSig(LOG_INFO, QString("WAVEFRONT export completed! File: '%1'")
+                                     .arg(Options->ExportFileName));
+        } else {
+            emit gui->messageSig(LOG_INFO, QString("WAVEFRONT export failed!"));
         }
     }
     else
@@ -3572,7 +3590,13 @@ bool Render::NativeExport(const NativeOptions *Options) {
     {
         Exported = lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
         if (Exported) {
-           gui->openFolderSelect(Options->ExportFileName);
+           if (Preferences::modeGUI)
+               gui->openFolderSelect(Options->ExportFileName);
+           else
+               emit gui->messageSig(LOG_INFO, QString("COLLADA export completed! File: '%1'")
+                                    .arg(Options->ExportFileName));
+        } else {
+            emit gui->messageSig(LOG_INFO, QString("COLLADA export failed!"));
         }
     }
     else
@@ -3587,10 +3611,16 @@ bool Render::NativeExport(const NativeOptions *Options) {
                         HTMLOptions.PathName + "/" +
                         QFileInfo(Options->InputFileName).baseName() +
                         "-index.html");
+            if (Preferences::modeGUI) {
+                gui->setExportedFile(htmlIndex);
 
-            gui->setExportedFile(htmlIndex);
-
-            gui->showExportedFile();
+                gui->showExportedFile();
+            } else {
+                emit gui->messageSig(LOG_INFO, QString("HTML Steps export completed! Index: '%1'")
+                                     .arg(htmlIndex));
+            }
+        } else {
+            emit gui->messageSig(LOG_INFO, QString("HTML Steps export failed!"));
         }
     }
 /*
