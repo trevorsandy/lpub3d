@@ -260,10 +260,10 @@ void LDrawFile::normalizeHeader(const QString &fileName,int missing)
       line = QString("0 Author: %1").arg(Preferences::defaultAuthor);
       insertLine(fileName, lineNumber, line);
     } else {
-      line = QString("0 Name: %1").arg(fileName);
+      line = QString("0 Author: %1").arg(Preferences::defaultAuthor);
       insertLine(fileName, lineNumber, line);
       lineNumber++;
-      line = QString("0 Author: %1").arg(Preferences::defaultAuthor);
+      line = QString("0 Name: %1").arg(fileName);
       insertLine(fileName, lineNumber, line);
     }
   };
@@ -1321,13 +1321,18 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 
         smLine = stagedContents.at(lineIndx).trimmed();
 
-        if (smLine.startsWith("0 FILE ")) // Debug inline file
-            smLine = smLine;
-
         emit gui->progressPermSetValueSig(lineIndx);
+
+        if (smLine.isEmpty())
+            continue;
 
         bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of submodel file
         bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of submodel file
+
+#ifdef QT_DEBUG_MODE
+        if (sof || eof)
+            smLine = smLine;
+#endif
 
         // load LDCad groups
         if (!ldcadGroupsLoaded) {
@@ -1368,79 +1373,81 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 }
             }
 
-            // One time populate model descriptkon
-            if (hdrDescNotFound && lineIndx == descriptionLine && ! isHeader(smLine)) {
-                if (smLine.contains(_fileRegExp[DES_RX]))
-                    _description = QString(smLine).remove(0, 2);
-                else
-                    _description = PUBLISH_DESCRIPTION_DEFAULT;
-                Preferences::publishDescription = _description;
-                hdrDescNotFound = false;
-            }
-
-            if (hdrNameNotFound) {
-                if (smLine.contains(_fileRegExp[NAM_RX])) {
-                    _name = _fileRegExp[NAM_RX].cap(1).replace(": ","");
-                    hdrNameNotFound = false;
+            if (!sof) {
+                // One time populate model descriptkon
+                if (hdrDescNotFound && lineIndx == descriptionLine && ! isHeader(smLine)) {
+                    if (smLine.contains(_fileRegExp[DES_RX]))
+                        _description = QString(smLine).remove(0, 2);
+                    else
+                        _description = PUBLISH_DESCRIPTION_DEFAULT;
+                    Preferences::publishDescription = _description;
+                    hdrDescNotFound = false;
                 }
-            }
 
-            if (hdrAuthorNotFound) {
-                if (smLine.contains(_fileRegExp[AUT_RX])) {
-                    _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
-                    Preferences::defaultAuthor = _author;
-                    hdrAuthorNotFound = false;
+                if (hdrNameNotFound) {
+                    if (smLine.contains(_fileRegExp[NAM_RX])) {
+                        _name = _fileRegExp[NAM_RX].cap(1).replace(": ","");
+                        hdrNameNotFound = false;
+                    }
                 }
-            }
 
-            // One time populate model category (not used)
-            if (hdrCategNotFound) {
-                if (smLine.contains(_fileRegExp[CAT_RX])) {
-                    _category = _fileRegExp[CAT_RX].cap(1);
-                    hdrCategNotFound = false;
+                if (hdrAuthorNotFound) {
+                    if (smLine.contains(_fileRegExp[AUT_RX])) {
+                        _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
+                        Preferences::defaultAuthor = _author;
+                        hdrAuthorNotFound = false;
+                    }
                 }
-            }
 
-            // Check if load external parts in command editor is disabled
-            if (loadUnoffPartsNotFound) {
-                if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
-                    _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
-                    loadUnoffPartsNotFound = false;
+                // One time populate model category (not used)
+                if (hdrCategNotFound) {
+                    if (smLine.contains(_fileRegExp[CAT_RX])) {
+                        _category = _fileRegExp[CAT_RX].cap(1);
+                        hdrCategNotFound = false;
+                    }
                 }
-            }
 
-            // Check if BuildMod is disabled
-            if (metaBuildModNotFund) {
-                if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                    _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
-                    Preferences::buildModEnabled = _loadBuildMods;
-                    metaBuildModNotFund = false;
+                // Check if load external parts in command editor is disabled
+                if (loadUnoffPartsNotFound) {
+                    if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
+                        _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
+                        loadUnoffPartsNotFound = false;
+                    }
                 }
-            }
 
-            // Check if insert final model is disabled
-            if (metaFinalModelNotFound) {
-                if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                    Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
-                    metaFinalModelNotFound = false;
+                // Check if BuildMod is disabled
+                if (metaBuildModNotFund) {
+                    if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                        _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+                        Preferences::buildModEnabled = _loadBuildMods;
+                        metaBuildModNotFund = false;
+                    }
                 }
-            }
 
-            // Check if Start Page Number is specified
-            if (metaStartPageNumNotFound) {
-                if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
-                    number = tokens.last().toInt(&validNumber);
-                    gui->pa = validNumber ? number - 1 : 0;
-                    metaStartPageNumNotFound = false;
+                // Check if insert final model is disabled
+                if (metaFinalModelNotFound) {
+                    if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                        Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
+                        metaFinalModelNotFound = false;
+                    }
                 }
-            }
 
-            // Check if Start Step Number is specified
-            if (metaStartStepNumNotFound) {
-                if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
-                    number = tokens.last().toInt(&validNumber);
-                    gui->sa = validNumber ? number - 1 : 0;
-                    metaStartStepNumNotFound = false;
+                // Check if Start Page Number is specified
+                if (metaStartPageNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->pa = validNumber ? number - 1 : 0;
+                        metaStartPageNumNotFound = false;
+                    }
+                }
+
+                // Check if Start Step Number is specified
+                if (metaStartStepNumNotFound) {
+                    if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
+                        number = tokens.last().toInt(&validNumber);
+                        gui->sa = validNumber ? number - 1 : 0;
+                        metaStartStepNumNotFound = false;
+                    }
                 }
             }
         } // modelHeaderFinished
@@ -1453,7 +1460,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
         }
 
         // processing inlined parts
-        if (hdrFILENotFound) {
+        if (!sof && hdrFILENotFound) {
             if (subfileName.isEmpty() && hdrNameNotFound) {
                 sosf = smLine.contains(_fileRegExp[NAM_RX]);
                 if (! sosf)
@@ -1464,16 +1471,24 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
                     contents << smLine;  // for external files
             }
-            if (hdrAuthorNotFound) {
-                if (smLine.contains(_fileRegExp[AUT_RX]))
-                    hdrAuthorNotFound = false;
-            }
-            if (! partHeaderFinished && unofficialPart == UNOFFICIAL_UNKNOWN) {
-                unofficialPart = getUnofficialFileType(smLine);
-                if (unofficialPart)
-                    emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' spcified as Unofficial Part.");
+
+            if (!sosf && !eosf) {
+                if (hdrAuthorNotFound) {
+                    if (smLine.contains(_fileRegExp[AUT_RX]))
+                        hdrAuthorNotFound = false;
+                }
+                if (! partHeaderFinished && unofficialPart == UNOFFICIAL_UNKNOWN) {
+                    unofficialPart = getUnofficialFileType(smLine);
+                    if (unofficialPart)
+                        emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' spcified as Unofficial Part.");
+                }
             }
         }
+
+#ifdef QT_DEBUG_MODE
+        if (sosf || eosf)
+            smLine = smLine;
+#endif
 
         /* - if at start of file marker, populate subfileName
          * - if at end of file marker, clear subfileName
@@ -1509,13 +1524,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (sof) {
                     hdrNameNotFound   = true;
                     hdrAuthorNotFound = true;
-                    subfileName = _fileRegExp[SOF_RX].cap(1).toLower();
+                    hdrFILENotFound   = false; /* we are at the beginning of an LDraw submodel */
                     modelHeaderFinished = false;
+                    subfileName = _fileRegExp[SOF_RX].cap(1).toLower();
                 } else/*sosf*/ {
+                    unofficialPart  = UNOFFICIAL_UNKNOWN;
                     hdrNameNotFound = sosf = false;
-                    subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     partHeaderFinished = false;
-                    unofficialPart = UNOFFICIAL_UNKNOWN;
+                    subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                 }
                 if (! alreadyLoaded) {
@@ -1529,6 +1545,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 hdrAuthorNotFound   = true; /* reset author capture*/
                 if (eof) {
                     hdrFILENotFound = true; /* we are at the end of an LDraw submodel */
+                    modelHeaderFinished = false;
                 } else/*eosf*/ {
                     /* - at the name of a new inline part so revert line to capture
                     */
@@ -1778,10 +1795,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 
             smLine = stagedContents.at(lineIndx).trimmed();
 
-            //if (smLine.startsWith("0 Name: ")) // Debug inline file
-            //    smLine = smLine;
-
             emit gui->progressPermSetValueSig(lineIndx);
+
+            if (smLine.isEmpty())
+                continue;
 
             if (subfileName.isEmpty() && hdrNameNotFound && (topLevelModel || !smLine.isEmpty())) {
                 sosf = smLine.contains(_fileRegExp[NAM_RX]);
@@ -1795,6 +1812,11 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
                     contents << smLine;  // for external files
             }
+
+#ifdef QT_DEBUG_MODE
+        if (sosf || eosf)
+            smLine = smLine;
+#endif
 
             // load LDCad groups
             if (!ldcadGroupsLoaded) {
@@ -1832,84 +1854,86 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     topFileNotFound = false;
                 }
 
-                // One time populate model descriptkon
-                if (hdrDescNotFound && lineIndx == descriptionLine && ! isHeader(smLine)) {
-                    if (smLine.contains(_fileRegExp[DES_RX]))
-                        _description = QString(smLine).remove(0, 2);
-                    else
-                        _description = PUBLISH_DESCRIPTION_DEFAULT;
-                    Preferences::publishDescription = _description;
-                    hdrDescNotFound = false;
-                }
-
-                if (hdrAuthorNotFound) {
-                    if (smLine.contains(_fileRegExp[AUT_RX])) {
-                        _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
-                        Preferences::defaultAuthor = _author;
-                        hdrAuthorNotFound = false;
+                if (!sosf) {
+                    // One time populate model descriptkon
+                    if (hdrDescNotFound && lineIndx == descriptionLine && ! isHeader(smLine)) {
+                        if (smLine.contains(_fileRegExp[DES_RX]))
+                            _description = QString(smLine).remove(0, 2);
+                        else
+                            _description = PUBLISH_DESCRIPTION_DEFAULT;
+                        Preferences::publishDescription = _description;
+                        hdrDescNotFound = false;
                     }
-                }
 
-                // One time populate model category
-                if (hdrCategNotFound) {
-                    if (smLine.contains(_fileRegExp[CAT_RX])) {
-                        _category = _fileRegExp[CAT_RX].cap(1);
-                        hdrCategNotFound = false;
+                    if (hdrAuthorNotFound) {
+                        if (smLine.contains(_fileRegExp[AUT_RX])) {
+                            _author = _fileRegExp[AUT_RX].cap(1).replace(": ","");
+                            Preferences::defaultAuthor = _author;
+                            hdrAuthorNotFound = false;
+                        }
                     }
-                }
 
-                // Check if load external parts in command editor is disabled
-                if (loadUnoffPartsNotFound) {
-                    if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
-                        _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
-                        loadUnoffPartsNotFound = false;
+                    // One time populate model category
+                    if (hdrCategNotFound) {
+                        if (smLine.contains(_fileRegExp[CAT_RX])) {
+                            _category = _fileRegExp[CAT_RX].cap(1);
+                            hdrCategNotFound = false;
+                        }
                     }
-                }
 
-                // Check if BuildMod is disabled
-                if (metaBuildModNotFund) {
-                    if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                        _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
-                        Preferences::buildModEnabled = _loadBuildMods;
-                        metaBuildModNotFund = false;
+                    // Check if load external parts in command editor is disabled
+                    if (loadUnoffPartsNotFound) {
+                        if (smLine.startsWith("0 !LPUB LOAD_UNOFFICIAL_PARTS_IN_EDITOR")){
+                            _loadUnofficialParts = tokens.last() == "FALSE" ? false : true ;
+                            loadUnoffPartsNotFound = false;
+                        }
                     }
-                }
 
-                // Check if insert final model is disabled
-                if (metaFinalModelNotFound) {
-                    if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
-                        Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
-                        metaFinalModelNotFound = false;
+                    // Check if BuildMod is disabled
+                    if (metaBuildModNotFund) {
+                        if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                            _loadBuildMods  = tokens.last() == "FALSE" ? false : true ;
+                            Preferences::buildModEnabled = _loadBuildMods;
+                            metaBuildModNotFund = false;
+                        }
                     }
-                }
 
-                // Check if Start Page Number is specified
-                if (metaStartPageNumNotFound) {
-                    if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
-                        number = tokens.last().toInt(&validNumber);
-                        gui->pa  = validNumber ? number - 1 : 0;
-                        metaStartPageNumNotFound = false;
+                    // Check if insert final model is disabled
+                    if (metaFinalModelNotFound) {
+                        if (smLine.startsWith("0 !LPUB FINAL_MODEL_ENABLED")) {
+                            Preferences::finalModelEnabled = tokens.last() == "FALSE" ? false : true ;
+                            metaFinalModelNotFound = false;
+                        }
                     }
-                }
 
-                // Check if Start Step Number is specified
-                if (metaStartStepNumNotFound) {
-                    if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
-                        number = tokens.last().toInt(&validNumber);
-                        gui->sa  = validNumber ? number - 1 : 0;
-                        metaStartStepNumNotFound = false;
+                    // Check if Start Page Number is specified
+                    if (metaStartPageNumNotFound) {
+                        if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
+                            number = tokens.last().toInt(&validNumber);
+                            gui->pa  = validNumber ? number - 1 : 0;
+                            metaStartPageNumNotFound = false;
+                        }
                     }
-                }
 
-                if (! unofficialPart) {
-                    unofficialPart = getUnofficialFileType(smLine);
-                    if (unofficialPart)
-                        emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' specified as Unofficial Part.");
+                    // Check if Start Step Number is specified
+                    if (metaStartStepNumNotFound) {
+                        if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
+                            number = tokens.last().toInt(&validNumber);
+                            gui->sa  = validNumber ? number - 1 : 0;
+                            metaStartStepNumNotFound = false;
+                        }
+                    }
+
+                    if (! unofficialPart) {
+                        unofficialPart = getUnofficialFileType(smLine);
+                        if (unofficialPart)
+                            emit gui->messageSig(LOG_TRACE, "Subfile '" + subfileName + "' specified as Unofficial Part.");
+                    }
                 }
             } // topHeaderFinished
 
             if ((alreadyLoaded = LDrawFile::contains(subfileName))) {
-                emit gui->messageSig(LOG_TRACE, QString("MPD " + fileType() + " '" + subfileName + "' already loaded."));
+                emit gui->messageSig(LOG_TRACE, QString("LDR " + fileType() + " '" + subfileName + "' already loaded."));
                 subfileIndx = stagedSubfiles.indexOf(subfileName);
                 if (subfileIndx > NOT_FOUND)
                     stagedSubfiles.removeAt(subfileIndx);
@@ -1959,10 +1983,10 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                  * - else if at end of file marker, clear subfileName
                  */
                 if (sosf) {
+                    unofficialPart  = UNOFFICIAL_UNKNOWN;
                     hdrNameNotFound = sosf = false;
-                    subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     partHeaderFinished = false;
-                    unofficialPart = UNOFFICIAL_UNKNOWN;
+                    subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                     if (! alreadyLoaded) {
                         emit gui->messageSig(LOG_INFO_STATUS, QString("Loading LDR %1 '%2'...").arg(fileType()).arg(subfileName));
