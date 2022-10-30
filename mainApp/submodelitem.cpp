@@ -124,6 +124,7 @@ SubModel::SubModel()
   background = nullptr;
   imageOutOfDate = false;
   shared         = false;
+  viewerSubmodel = false;
   displayInstanceCount = false;
 }
 
@@ -311,10 +312,11 @@ int SubModel::createSubModelImage(
                            .arg(viewerSubmodelKey)
                            .arg(bottom.modelName));
 
-  // Generate and renderer Submodel file
-  if (! part.exists() || imageOutOfDate) {
+  QElapsedTimer timer;
 
-      QElapsedTimer timer;
+  // Generate and renderer Submodel file
+  if ((! part.exists() || imageOutOfDate) && ! viewerSubmodel) {
+
       timer.start();
 
       // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
@@ -353,6 +355,9 @@ int SubModel::createSubModelImage(
 
   // Generate the Visual Editor Submodel entry
   if (! gui->exportingObjects()) {
+
+      if (viewerSubmodel)
+          timer.start();
 
       // Viewer submodel does not yet exist in repository
       bool addViewerStepContent = !gui->viewerStepContentExist(viewerSubmodelKey);
@@ -431,11 +436,22 @@ int SubModel::createSubModelImage(
       viewerOptions->ViewerStepKey  = viewerSubmodelKey;
       viewerOptions->ZFar           = subModelMeta.cameraZFar.value();
       viewerOptions->ZNear          = subModelMeta.cameraZNear.value();
+      viewerOptions->ZoomExtents    = viewerSubmodel;
+
+      if (viewerSubmodel)
+          emit gui->messageSig(LOG_INFO,
+                               QString("Generate Visual Editor submodel entry took %1 milliseconds.")
+                                       .arg(timer.elapsed()));
   }
 
-  pixmap->load(imageName);
-  viewerOptions->ImageWidth  = pixmap->width();
-  viewerOptions->ImageHeight = pixmap->height();
+  if (viewerSubmodel) {
+      viewerOptions->ImageWidth  = 1600;
+      viewerOptions->ImageHeight = 1600;
+  } else {
+      pixmap->load(imageName);
+      viewerOptions->ImageWidth  = pixmap->width();
+      viewerOptions->ImageHeight = pixmap->height();
+  }
 
   return rc;
 }
@@ -474,6 +490,10 @@ int SubModel::generateSubModelItem()
                                  .arg(imageName));
             return -1;
         }
+
+        // stop here if this is a veiwer submodel (no image file generated)
+        if (viewerSubmodel )
+            return 0;
 
         QImage image = pixmap->toImage();
 
@@ -576,6 +596,9 @@ int SubModel::sizeSubModel(Meta *_meta, PlacementType _parentRelativeType, bool 
   rc = generateSubModelItem();
   if (rc != 0) {
     return rc;
+  } else if (viewerSubmodel ) {
+    // stop here if this is a veiwer submodel (no image file generated)
+    return 0;
   }
 
   ConstrainData constrainData = subModelMeta.constrain.value();

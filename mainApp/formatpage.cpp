@@ -312,10 +312,10 @@ int Gui::addGraphicsPageItems(
   PageNumberItem          *pageNumber    = nullptr;
   TextItem                *textItem      = nullptr;
 
-  if (page->coverPage) {
-      emit clearViewerWindowSig();
-      emit updateAllViewsSig();
-  }
+  //if (page->coverPage) {
+  //    emit clearViewerWindowSig();
+  //    emit updateAllViewsSig();
+  //}
 
   int pW, pH;
 

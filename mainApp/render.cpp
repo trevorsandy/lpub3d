@@ -3154,14 +3154,13 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         }
 
         if (!RenderImage) {
-            bool ViewerZoomExtents = ZoomExtents;
-            if (!ViewerZoomExtents) {
+            if (!ZoomExtents) {
                 int PreferedZoomExtents = gui->GetPreferences().mZoomExtents;
                 if (PreferedZoomExtents)
-                    ViewerZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
+                    ZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
             }
             if (!SetTarget)
-                ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ViewerZoomExtents);
+                ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
             ActiveView->SetProjection(IsOrtho);
         }
     }

@@ -135,6 +135,7 @@ class SubModel : public Placement {
                                         // bottomOfStep()
     int                     widestPart;
     int                     tallestPart;
+    bool                    viewerSubmodel;
     bool                    shared;
     // validity
     bool                    imageOutOfDate;

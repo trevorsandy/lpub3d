@@ -1469,9 +1469,7 @@ int Gui::drawPage(
                                         curMeta,
                                         opts.calledOut,
                                         multiStep);
-
                         step->modelDisplayOnlyStep = true;
-
                         range->append(step);
                     }
                  }
@@ -2473,6 +2471,8 @@ int Gui::drawPage(
                       */
                       if ( ! multiStep && ! opts.calledOut) {
 
+                          PlacementType relativeType = SingleStepType;
+
                           steps->placement = steps->meta.LPub.assem.placement;
 
                           int  numSteps = ldrawFile.numSteps(opts.current.modelName);
@@ -2506,6 +2506,8 @@ int Gui::drawPage(
                           if (page && instances > 1) {
                               page->instances            = instances;
                               page->displayInstanceCount = displayInstanceCount;
+                              page->inserts              = inserts;
+                              page->pagePointers         = pagePointers;
                               page->selectedSceneItems   = selectedSceneItems;
 
                               if (step) {
@@ -2514,8 +2516,6 @@ int Gui::drawPage(
                               }
 
                               if (! steps->meta.LPub.stepPli.perStep.value()) {
-
-                                  PlacementType relativeType = SingleStepType;
 
                                   QStringList instancesPliParts;
                                   if (opts.pliParts.size() > 0) {
@@ -2590,14 +2590,34 @@ int Gui::drawPage(
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {
                                   setCurrentStep(step);
-                                  if (partsAdded)
+                                  if (partsAdded && ! coverPage)
                                       step->loadTheViewer();
+                                  showLine(topOfStep);
                               }
                           }
 
-                          // Load the Model Editor - callouts and multistep Steps are ignored
-                          if ((step || coverPage) && Preferences::modeGUI && !exportingObjects()) {
-                              showLine(topOfStep);
+                          // Load the top model into the visual editor on cover page
+                          if (coverPage && Preferences::modeGUI && !exportingObjects()) {
+                             showLine(topOfStep);
+                             if (step == nullptr) {
+                                 if (range == nullptr) {
+                                     range = newRange(steps,opts.calledOut);
+                                 }
+                                 step = new Step(topOfStep,
+                                                 range,
+                                                 0     /* stepNum */,
+                                                 curMeta,
+                                                 false /* calledOut */,
+                                                 false /* multiStep */);
+                             }
+                             emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
+                             step->modelDisplayOnlyStep = true;
+                             step->subModel.setSubModel(opts.current.modelName,steps->meta);
+                             step->subModel.viewerSubmodel = true;
+                             if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                 emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
+                             else
+                                 step->subModel.loadTheViewer();
                           }
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);

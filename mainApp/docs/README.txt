@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2679 (30 10 2022 21:11:28)
+LPub3D 2.4.4.1.2680 (30 10 2022 21:12:59)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Example, Add option to centre justify step group steps #333 => https://github.co
 
 Revisions:
 
+- Enhancement - Load visual editor at cover page #593
 - Change - Load model editor at cover page #593
 - Change - TENTE parts outdated #583
 - Fix - Invalid appstream file #589
