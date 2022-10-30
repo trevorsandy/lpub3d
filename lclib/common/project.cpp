@@ -76,6 +76,10 @@ Project::Project(bool IsPreview)
 	: mIsPreview(IsPreview)
 {
 	mModified = false;
+/*** LPub3D Mod - viewer step key ***/
+	mProjectPieceModified = false;
+	mImageType = Options::PLI;
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Default Model name for new Project and Preview ***/
 	mActiveModel = new lcModel(tr(mIsPreview ? PREVIEW_MODEL_DEFAULT : VIEWER_MODEL_DEFAULT), this, mIsPreview);
 /*** LPub3D Mod end ***/
@@ -101,7 +105,7 @@ Project::~Project()
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 void Project::SetRenderAttributes(
-	const int     Type,
+	const int     ImageType,
 	const int     ImageWidth,
 	const int     ImageHeight,
 	const int     PageWidth,
@@ -110,7 +114,7 @@ void Project::SetRenderAttributes(
 	const QString FileName,
 	const float   Resolution)
 {
-	mImageType     = Type;
+	mImageType     = ImageType;
 	mPageWidth     = PageWidth;
 	mPageHeight    = PageHeight;
 	mRenderer      = Renderer;
@@ -434,14 +438,16 @@ void Project::SetFileName(const QString& FileName)
 /*** LPub3D Mod - preview widget ***/
 bool Project::Load(const QString& FileName, bool ShowErrors)
 {
-	return Load(FileName, QString(), 0, ShowErrors);
+	return Load(FileName, QString()/*StepKey*/, 0/*Options::PLI*/, ShowErrors);
 }
 
 bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors)
 {
+	mImageType = Type;
 	QString FileName = LoadFileName;
 	bool IsLPubModel = false;
 	QWidget* parent = nullptr;
+
 	if (mIsPreview)
 	{
 		if (FileName.isEmpty())
@@ -450,52 +456,8 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 		parent = gMainWindow;
 	}
 
-	QByteArray FileData;
-	if (!FileName.isEmpty() && !IsLPubModel)
+	auto SetTimeLineTopItem = [this, &FileName, &parent] (const QStringList& Content)
 	{
-		QFile File(FileName);
-		if (!File.open(QIODevice::ReadOnly))
-		{
-			if (ShowErrors)
-				QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
-			return false;
-		}
-		FileData = File.readAll();
-	}
-	else if (!StepKey.isEmpty() || IsLPubModel)
-	{
-		QStringList Content;
-
-		if (IsLPubModel)
-		{
-			Content = gui->getLDrawFile().contents(QFileInfo(LoadFileName).fileName());
-		}
-		else
-		{
-			FileName = gui->getViewerStepFilePath(StepKey);
-
-			if (FileName.isEmpty())
-			{
-				if (ShowErrors)
-					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for %1.").arg(FileName));
-				return false;
-			}
-
-			Content = gui->getViewerStepRotatedContents(StepKey);
-		}
-
-		if (Content.isEmpty())
-		{
-			if (ShowErrors)
-				QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
-			return false;
-		}
-
-		foreach(QString line, Content)
-		{
-			FileData.append(line.toUtf8()+"\n");
-		}
-
 		if (!mIsPreview)
 		{
 			auto TitleCase = [] (const string& _s)
@@ -517,37 +479,101 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			// viewerStepKey - 3 elements:
 			// CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)],
 			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
-			// PLI: 0=partName,  1=colourNumber, 2=stepNumber,
-			QStringList Keys = gui->getViewerStepKeys(true/*get Name*/, Type == Options::PLI, StepKey);
-			if (Keys.size()) {
-				QString TimelineTopItem = QString::fromStdString(TitleCase(Keys.at(0).toStdString()));
-				if (Keys.size() > 2)
-					TimelineTopItem.append(QString(" Step %1").arg(Keys.at(2)));
+			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
+			bool IsPli = mImageType == Options::PLI;
+			QStringList Keys = gui->getViewerStepKeys(true/*Return Name*/, IsPli, mStepKey);
+
+			if (Keys.size() > 2) {
+				const QString PieceName = Keys.at(BM_STEP_MODEL_KEY);
+				const QString TimelineTopItem = QString("%1 Step %2")
+														.arg(QString::fromStdString(TitleCase(PieceName.toStdString())))
+														.arg(Keys.at(BM_STEP_NUM_KEY));
 				SetTimelineTopItem(TimelineTopItem);
-			}
 
 #ifdef QT_DEBUG_MODE
-			QFileInfo outFileInfo(FileName);
-			QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
-			QString outfileName = QString("%1/viewer_%2_%3.ldr")
-										  .arg(outFileInfo.absolutePath())
-										  .arg(imageType)
-										  .arg(QString("%1_%2_%3")
-													   .arg(Keys.at(0))    // Name
-													   .arg(Keys.at(1))    // Line Number
-													   .arg(Keys.at(2)));  // Step Number
-			QFile file(outfileName);
-			if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-				QMessageBox::critical(parent, tr("Error"), tr("Cannot open Visual Editor file %1 for writing: %2")
-									  .arg(outfileName) .arg(file.errorString()));
-			}
-			QTextStream out(&file);
-			for (int i = 0; i < Content.size(); i++) {
-				QString line = Content[i];
-				out << line << QString("\n");
-			}
-			file.close();
+				if (!IsPli) {
+					QFileInfo OutFileInfo(FileName);
+					const QString RenderType = OutFileInfo.completeBaseName().replace(".ldr", QString());
+					const QString RenderName = QString("%1%2_%3_%4")
+							.arg(IsPli ? QString() : QString("%1_").arg(PieceName))
+							.arg(IsPli ? PieceName : QString::number(gui->getSubmodelIndex(PieceName)))
+							.arg(Keys.at(BM_STEP_LINE_KEY))	// ColourNumber when IsPLI
+							.arg(Keys.at(BM_STEP_NUM_KEY));
+					const QString OutfileName = QDir::toNativeSeparators(QString("%1%2viewer_%3_%4.ldr")
+																		 .arg(OutFileInfo.absolutePath())
+																		 .arg(QDir::separator())
+																		 .arg(RenderType)
+																		 .arg(RenderName));
+					QFile file(OutfileName);
+					if ( ! file.open(QFile::WriteOnly | QFile::Text))
+						QMessageBox::critical(parent, tr("Error"), tr("Cannot open Visual Editor file %1 for writing: %2")
+											  .arg(OutfileName) .arg(file.errorString()));
+					QTextStream out(&file);
+					for (int i = 0; i < Content.size(); i++) {
+						QString line = Content[i];
+						out << line << QString("\n");
+					}
+					file.close();
+				}
 #endif
+			}
+		}
+	};
+
+	QByteArray FileData;
+	if (!FileName.isEmpty() && !IsLPubModel)
+	{
+		QFile File(FileName);
+		if (!File.open(QIODevice::ReadOnly))
+		{
+			if (ShowErrors)
+				QMessageBox::critical(parent, tr("Error"), tr("Error opening model file '%1':<br>%2").arg(FileName, File.errorString()));
+			return false;
+		}
+
+		FileData = File.readAll();
+	}
+	else if (!StepKey.isEmpty() || IsLPubModel)
+	{
+		QStringList Content;
+
+		if (!IsLPubModel/*We have a StepKey*/)
+		{
+/*** LPub3D Mod - viewer step key ***/
+			mStepKey = StepKey;
+			mProjectPieceModified = mImageType == Options::CSI ? gui->viewerStepModified(mStepKey, true) : false;
+/*** LPub3D Mod end ***/
+
+			FileName = gui->getViewerStepFilePath(mStepKey);
+
+			if (FileName.isEmpty())
+			{
+				if (ShowErrors)
+/*** LPub3D Mod - viewer step key ***/
+					QMessageBox::critical(parent, tr("Error"), tr("Did not receive file name for step key '%1'.").arg(mStepKey));
+/*** LPub3D Mod end ***/
+				return false;
+			}
+
+			Content = gui->getViewerStepRotatedContents(mStepKey);
+
+			SetTimeLineTopItem(Content);
+		}
+		else
+		{
+			Content = gui->getLDrawFile().contents(QFileInfo(LoadFileName).fileName());
+		}
+
+		if (Content.isEmpty())
+		{
+			if (ShowErrors)
+				QMessageBox::critical(parent, tr("Error"), tr("Did not receive content for %1.").arg(FileName));
+			return false;
+		}
+
+		foreach(QString line, Content)
+		{
+			FileData.append(line.toUtf8()+"\n");
 		}
 	}
 	else

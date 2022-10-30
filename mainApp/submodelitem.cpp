@@ -126,6 +126,16 @@ SubModel::SubModel()
   shared         = false;
   viewerSubmodel = false;
   displayInstanceCount = false;
+
+  perStep = false;
+  widestPart = 1;
+  tallestPart = 1;
+  viewerSubmodel = false;
+  shared = false;
+  imageOutOfDate = false;
+  displayInstanceCount = false;
+  multistep = false;
+  callout = false;
 }
 
 void SubModel::setSubModel(

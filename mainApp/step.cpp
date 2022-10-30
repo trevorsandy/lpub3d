@@ -369,6 +369,12 @@ int Step::createCsi(
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
 
+#ifdef QT_DEBUG_MODE
+  emit gui->messageSig(LOG_DEBUG,QString("Create CSI using viewer step key '%1' for image '%2'.")
+                                         .arg(viewerStepKey)
+                                         .arg(QFileInfo(pngName).fileName()));
+#endif
+
 //  if (Preferences::debugLogging)
 //      emit gui->messageSig(LOG_DEBUG,
 //                           QString("CSI ViewerStepKey Attributes "
@@ -395,7 +401,7 @@ int Step::createCsi(
       bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
 
       // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
-      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey() || gui->viewerStepModified(viewerStepKey));
+      bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
 
       if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
 

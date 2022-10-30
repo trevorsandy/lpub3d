@@ -785,9 +785,9 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
-  bool viewerStepModified(const QString &stepKey)
+  bool viewerStepModified(const QString &stepKey, bool reset = false)
   {
-      return ldrawFile.viewerStepModified(stepKey);
+      return ldrawFile.viewerStepModified(stepKey, reset);
   }
 
   /* Build Modifications */
@@ -1303,7 +1303,7 @@ public slots:
   void                   SetSubmodelIconsLoaded(bool);
 
   int                    Process3DViewerCommandLine();
-  bool                   OpenProject(const QString& FileName);
+  bool                   OpenProject(const NativeOptions *, bool = false);
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
   void                   LoadColors();

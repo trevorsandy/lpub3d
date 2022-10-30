@@ -91,7 +91,7 @@ public:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	void SetRenderAttributes(
-		const int Type,
+		const int ImageType,
 		const int ImageWidth,
 		const int ImageHeight,
 		const int PageWidth,
@@ -161,11 +161,23 @@ public:
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;
 	void ShowModelListDialog();
 
+/*** LPub3D Mod - viewer step key ***/
+	QString GetStepKey() const
+	{
+		return mStepKey;
+	}
+
+	bool IsProjectPieceModified() const
+	{
+		return mProjectPieceModified;
+	}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - preview widget ***/
 	bool IsPreview() const
 	{
 		return mIsPreview;
 	}
+
 	bool Load(const QString& LoadFileName, const QString& StepKey, int Type, bool ShowErrors);
 /*** LPub3D Mod end ***/
 	bool Load(const QString& FileName, bool ShowErrors);
@@ -215,6 +227,10 @@ protected:
 	int mRenderer;
 	float mResolution;
 	bool mViewerLoaded;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - viewer step key ***/
+	bool mProjectPieceModified;
+	QString mStepKey;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - set Timeline top item ***/
 	QString mTimelineTopItem;

@@ -41,6 +41,7 @@
 #include "resolution.h"
 #include "meta.h"
 #include "math.h"
+#include "step.h"
 #include "lpub_preferences.h"
 #include "application.h"
 
@@ -2784,8 +2785,14 @@ int Native::renderCsi(
   bool pp             = Preferences::perspectiveProjection;
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
+  const QString viewerStepKey = gui->getViewerStepKey();
+  emit gui->messageSig(LOG_DEBUG,QString("Render CSI using viewer step key '%1' for image '%2'.")
+                                         .arg(viewerStepKey)
+                                         .arg(QFileInfo(pngName).fileName()));
+
   // Renderer options
   NativeOptions *Options     = new NativeOptions();
+  Options->ViewerStepKey     = viewerStepKey;
   Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
@@ -2820,7 +2827,7 @@ int Native::renderCsi(
   Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
 
   // Render image
-  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI render - please wait...")
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 CSI image render - please wait...")
                                                 .arg(pp ? "Perspective" : "Orthographic"));
 
   if (gui->exportingObjects()) {
@@ -2991,13 +2998,29 @@ int Native::renderPli(
     }
   }
 
+  QString viewerStepKey;
+  Step* currentStep = gui->getCurrentStep();
+  if (currentStep) {
+      if (pliType == SUBMODEL)
+          viewerStepKey = currentStep->subModel.viewerSubmodelKey;
+      else
+          viewerStepKey = currentStep->pli.viewerPliPartKey;
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG,QString("Render %1 using viewer step key '%2' for image '%3'.")
+                                           .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI")
+                                           .arg(viewerStepKey)
+                                           .arg(QFileInfo(pngName).fileName()));
+#endif
+  }
+
   // Renderer options
   NativeOptions *Options  = new NativeOptions();
+  Options->ViewerStepKey  = viewerStepKey;
   Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->CameraName     = cameraName;
   Options->FoV            = cameraFoV;
   Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(YY)) : gui->pageSize(meta.LPub.page, YY);
-  Options->ImageType      = Options::PLI;
+  Options->ImageType      = pliType == SUBMODEL ? Options::SMP : Options::PLI;
   Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : gui->pageSize(meta.LPub.page, XX);
   Options->InputFileName  = ldrNames.first();
   Options->IsOrtho        = isOrtho;
@@ -3026,8 +3049,9 @@ int Native::renderPli(
   Options->DarkEdgeColor  = hccm->darkEdgeColor.value();
 
   // Render image
-  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 PLI render - please wait...")
-                                                .arg(pp ? "Perspective" : "Orthographic"));
+  emit gui->messageSig(LOG_INFO_STATUS, QString("Executing Native %1 %2 image render - please wait...")
+                                                .arg(pp ? "Perspective" : "Orthographic")
+                                                .arg(pliType == SUBMODEL ? "SMP" : pliType == BOM ? "BOM" : "PLI"));
 
   if (!RenderNativeImage(Options)) {
       return -1;
@@ -3048,10 +3072,9 @@ float Render::ViewerCameraDistance(
     return distance;
 }
 
-bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/){
+bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/) {
 
     lcGetActiveProject()->SetRenderAttributes(
-                O->ImageType,
                 O->ImageWidth,
                 O->ImageHeight,
                 O->PageWidth,
@@ -3391,13 +3414,14 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
         gui->SetAutomateEdgeColor(Options);
     }
 
-    if (! gui->OpenProject(Options->InputFileName)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load native image input file %1")
-                                                       .arg(Options->InputFileName));
+    if (! gui->OpenProject(Options, true/*RenderImage*/)) {
+        emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', FileName: '%2'")
+                                                .arg(Options->ViewerStepKey)
+                                                .arg(QFileInfo(Options->InputFileName).fileName()));
         return false;
     }
 
-    return RenderNativeView(Options,true/*exportImage*/);;
+    return true;
 }
 
 bool Render::LoadViewer(const ViewerOptions *Options) {
@@ -3431,24 +3455,16 @@ bool Render::LoadViewer(const ViewerOptions *Options) {
         gui->SetAutomateEdgeColor(nativeOptions);
     }
 
-    Project* Loader = new Project();
-    if (Loader->Load(QString(),Options->ViewerStepKey,Options->ImageType, true/*ShowErrors*/))
-    {
-        gApplication->SetProject(Loader);
-        lcView::UpdateProjectViews(Loader);
-        //lcView::UpdateAllViews();
-    }
-    else
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load Visual Editor for step key %1.")
-                             .arg(Options->ViewerStepKey));
-        gui->setViewerStepKey(QString(),0);
-        delete Loader;
+    if (! gui->OpenProject(nativeOptions)) {
+        emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', FileName: '%2'")
+                                                .arg(nativeOptions->ViewerStepKey)
+                                                .arg(QFileInfo(nativeOptions->InputFileName).fileName()));
+        //gui->setViewerStepKey(QString(),0);
         delete nativeOptions;
         return false;
     }
 
-    return RenderNativeView(nativeOptions);;
+    return true;
 }
 
 bool Render::NativeExport(const NativeOptions *Options) {
@@ -3489,9 +3505,12 @@ bool Render::NativeExport(const NativeOptions *Options) {
             gui->SetAutomateEdgeColor(Options);
         }
 
-        if (! gui->OpenProject(Options->InputFileName)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                 .arg(exportModeName));
+      //if (! gui->OpenProject(Options->InputFileName)) {
+        if (! gui->OpenProject(Options)) {
+            emit gui->messageSig(LOG_ERROR, QString("Could not open render project for ViewerStepKey '%1', Export: %2, FileName: '%3'")
+                                                    .arg(Options->ViewerStepKey)
+                                                    .arg(exportModeName)
+                                                    .arg(QFileInfo(Options->InputFileName).fileName()));
             return false;
         }
     }

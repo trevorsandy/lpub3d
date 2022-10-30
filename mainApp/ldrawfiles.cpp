@@ -2556,22 +2556,22 @@ void LDrawFile::countInstances()
 //*
 #ifdef QT_DEBUG_MODE
   if (gui->mloadingFile) {
-  emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
-  emit gui->messageSig(LOG_DEBUG, "----------------------------");
-  for (int i = 0; i < _buildModStepIndexes.size(); i++)
-  {
+    emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
+    emit gui->messageSig(LOG_DEBUG, "----------------------------");
+    for (int i = 0; i < _buildModStepIndexes.size(); i++)
+    {
       const QVector<int> &key = _buildModStepIndexes.at(i);
       emit gui->messageSig(LOG_DEBUG, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                                              .arg(i, 3, 10, QChar('0'))         // index
-                                              .arg(key.at(0), 3, 10, QChar('0')) // modelIndex
-                                              .arg(key.at(1), 3, 10, QChar('0')) // lineNumber
-                                              .arg(getSubmodelName(key.at(0)))); // modelName
+                           .arg(i, 3, 10, QChar('0'))         // index
+                           .arg(key.at(0), 3, 10, QChar('0')) // modelIndex
+                           .arg(key.at(1), 3, 10, QChar('0')) // lineNumber
+                           .arg(getSubmodelName(key.at(0)))); // modelName
+    }
+    emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
+                         .arg(gui->elapsedTime(timer.elapsed())));
+    emit gui->messageSig(LOG_DEBUG, "----------------------------");
   }
-  emit gui->messageSig(LOG_DEBUG, QString("Count steps and submodel instances - %1")
-                                          .arg(gui->elapsedTime(timer.elapsed())));
-  emit gui->messageSig(LOG_DEBUG, "----------------------------");
 #endif
-  }
 //*/
 }
 
@@ -2984,19 +2984,28 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   // Insert new BuildMod
   _buildMods.insert(modKey, buildMod);
 
-  // Set submodelStack if exists
+  // Insert BuildModStep - must come after _buildMods.insert()
+  insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
+
+  // Set submodelStack items modified if exists
   if (modSubmodelStack.size()) {
       buildMod._modSubmodelStack = modSubmodelStack;
       for (const int modelIndex : modSubmodelStack)
           setModified(getSubmodelName(modelIndex),true);
   }
 
-  // Insert BuildModStep - must come after _buildMods.insert()
-  insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
-
   // Set subfile modified
   QString modFileName = getBuildModStepKeyModelName(modKey);
   setModified(modFileName, true);
+
+  // set viewerStepKey modified
+  // used when navigating backward where stack submodels are modified so
+  // the viewer must be triggered to update the piece from its disc files.
+  const QString viewerStepKey = QString("%1;%2;%3")
+          .arg(newAttributes.at(BM_MODEL_NAME_INDEX))
+          .arg(newAttributes.at(BM_MODEL_LINE_NUM))
+          .arg(newAttributes.at(BM_MODEL_STEP_NUM));
+  setViewerStepModified(viewerStepKey);
 
   // Update BuildMod list
   if (!_buildModList.contains(buildModKey))
@@ -3482,7 +3491,7 @@ int LDrawFile::setBuildModAction(
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
 
     int action = modAction;
-    bool change = false;
+
     if (i != _buildMods.end()) {
         QMap<int, int>::iterator ai = i.value()._modActions.find(stepIndex);
         if (ai != i.value()._modActions.end())
@@ -3496,9 +3505,18 @@ int LDrawFile::setBuildModAction(
         for (const int modelIndex : i.value()._modSubmodelStack)
             setModified(getSubmodelName(modelIndex), true);
 
+        // used when navigating backward where stack submodels are modified so
+        // the viewer must be triggered to update the piece from its disc files.
+        const QString viewerStepKey = QString("%1;%2;%3")
+                .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
+                .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
+                .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM));
+        setViewerStepModified(viewerStepKey);
+
         action = i.value()._modActions.value(stepIndex);
 
 #ifdef QT_DEBUG_MODE
+        bool change = modified(modFileName);
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
                                                 .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
                                                 .arg(stepIndex)
@@ -3977,7 +3995,8 @@ QStringList LDrawFile::getPathsFromBuildModKeys(const QStringList &buildModKeys)
     int subModelStackCount = 0;
 #endif
   QStringList imageFilePaths;
-  for (const QString &modKey : buildModKeys) {
+  for (const QString &buildModKey : buildModKeys) {
+    const QString modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_MODEL_STEP_NUM) {
       ViewerStep::StepKey viewerStepKey = { i.value()._modAttributes.at(BM_MODEL_NAME_INDEX),
@@ -4061,19 +4080,36 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
-  ViewerStep viewerStep(stepKey.split(";"),rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
+  const QStringList keys = stepKey.split(";");
+  ViewerStep viewerStep(keys,rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
+  viewerStep._modified = viewType == Options::CSI; // set true on creation and false when read into visual editor - only for CSI items!
+
   Q_FOREACH(QString line, rotatedContents)
     if (line[0] == '1')
       viewerStep._partCount++;
+
   _viewerSteps.insert(stepKey,viewerStep);
+
+#ifdef QT_DEBUG_MODE
+  emit gui->messageSig(LOG_DEBUG,
+                       QString("Insert %1 ViewerStep Key: '%2' [%3 %4 StepNumber: %5], Type: [%6], Modified: [%7]")
+                               .arg(viewType == Options::CSI ? "CSI" : viewType == Options::PLI ? "PLI" : "SMP")
+                               .arg(stepKey)
+                               .arg(viewType == Options::PLI ? QString("PartName: %1,").arg(keys.at(BM_STEP_MODEL_KEY)) :
+                                                               QString("ModelIndex: %1 (%2),").arg(keys.at(BM_STEP_MODEL_KEY)).arg(gui->getSubmodelName(keys.at(BM_STEP_MODEL_KEY).toInt())))
+                               .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
+                                                               QString("PartName: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
+                               .arg(keys.at(BM_STEP_NUM_KEY))
+                               .arg(calledOut ? "called out" : multiStep ? "step group" : viewType == Options::PLI ? "part" : "single step")
+                               .arg(viewerStep._modified ? "Yes" : "No"));
+#endif
 }
 
 /* Viewer Step Exist */
 
 void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &contents, bool rotated)
 {
-  QString    mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
 
   if (i != _viewerSteps.end()) {
     if (rotated)
@@ -4092,8 +4128,7 @@ void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &cont
 
 QStringList LDrawFile::getViewerStepRotatedContents(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._rotatedContents;
   }
@@ -4104,8 +4139,7 @@ QStringList LDrawFile::getViewerStepRotatedContents(const QString &stepKey)
 
 QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._unrotatedContents;
   }
@@ -4116,8 +4150,7 @@ QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &stepKey)
 
 QString LDrawFile::getViewerStepFilePath(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._filePath;
   }
@@ -4168,8 +4201,7 @@ QStringList LDrawFile::getPathsFromViewerStepKey(const QString &stepKey)
 
 QString LDrawFile::getViewerStepImagePath(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._imagePath;
   }
@@ -4180,8 +4212,7 @@ QString LDrawFile::getViewerStepImagePath(const QString &stepKey)
 
 QString LDrawFile::getViewerConfigKey(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._csiKey;
   }
@@ -4192,8 +4223,7 @@ QString LDrawFile::getViewerConfigKey(const QString &stepKey)
 
 int LDrawFile::getViewerStepPartCount(const QString &stepKey)
 {
-    QString mStepKey = stepKey.toLower();
-    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
     if (i != _viewerSteps.end()) {
       return i.value()._partCount;
     }
@@ -4204,8 +4234,7 @@ int LDrawFile::getViewerStepPartCount(const QString &stepKey)
 
 bool LDrawFile::viewerStepContentExist(const QString &stepKey)
 {
-  QString    mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
 
   if (i != _viewerSteps.end()) {
     return true;
@@ -4217,8 +4246,7 @@ bool LDrawFile::viewerStepContentExist(const QString &stepKey)
 
 bool LDrawFile::deleteViewerStep(const QString &stepKey)
 {
-    QString mStepKey = stepKey.toLower();
-    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+    QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
     if (i != _viewerSteps.end()) {
         _viewerSteps.erase(i);
         return true;
@@ -4230,8 +4258,7 @@ bool LDrawFile::deleteViewerStep(const QString &stepKey)
 
 bool LDrawFile::isViewerStepMultiStep(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._multiStep;
   } else {
@@ -4243,8 +4270,7 @@ bool LDrawFile::isViewerStepMultiStep(const QString &stepKey)
 
 bool LDrawFile::isViewerStepCalledOut(const QString &stepKey)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._calledOut;
   } else {
@@ -4252,15 +4278,53 @@ bool LDrawFile::isViewerStepCalledOut(const QString &stepKey)
   }
 }
 
-bool LDrawFile::viewerStepModified(const QString &stepKey)
+bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
 {
-  QString mStepKey = stepKey.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
   if (i != _viewerSteps.end()) {
-    return i.value()._modified;
+    bool modified = i.value()._modified;
+    if (reset)
+      i.value()._modified = false;
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG, QString("Viewer Step for ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4, Key: '%5' %6.")
+                         .arg(i.value()._stepKey.modIndex)
+                         .arg(getSubmodelName(i.value()._stepKey.modIndex))
+                         .arg(i.value()._stepKey.lineNum)
+                         .arg(i.value()._stepKey.stepNum)
+                         .arg(stepKey)
+                         .arg(reset ? "was reset to UnModified" :"is Modified"));
+#endif
+    return modified;
   } else {
     return false;
   }
+}
+
+void LDrawFile::setViewerStepModified(const QString &stepKey)
+{
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(stepKey);
+  if (i != _viewerSteps.end()) {
+    i.value()._modified = true;
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_DEBUG, QString("Viewer Step for ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4, Key: '%5' set to Modified.")
+                         .arg(i.value()._stepKey.modIndex)
+                         .arg(getSubmodelName(i.value()._stepKey.modIndex))
+                         .arg(i.value()._stepKey.lineNum)
+                         .arg(i.value()._stepKey.stepNum)
+                         .arg(stepKey));
+#endif
+  }
+#ifdef QT_DEBUG_MODE
+  else {
+    const QStringList Keys = stepKey.split(";");
+    emit gui->messageSig(LOG_DEBUG, QString("Cannot modify, Viewer Step for ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key '%5' does not exist.")
+                         .arg(Keys.at(BM_STEP_MODEL_KEY))
+                         .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
+                         .arg(Keys.at(BM_STEP_LINE_KEY))
+                         .arg(Keys.at(BM_STEP_NUM_KEY))
+                         .arg(stepKey));
+  }
+#endif
 }
 
 /* Clear ViewerSteps */

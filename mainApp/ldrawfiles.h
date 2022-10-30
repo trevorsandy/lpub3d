@@ -524,8 +524,9 @@ class LDrawFile {
     bool        isViewerStepMultiStep(const QString &stepKey);
     bool        isViewerStepCalledOut(const QString &stepKey);
     bool        viewerStepContentExist(const QString &stepKey);
-    bool        viewerStepModified(const QString &stepKey);
+    bool        viewerStepModified(const QString &stepKey, bool reset = false);
     bool        deleteViewerStep(const QString &stepKey);
+    void        setViewerStepModified(const QString &stepKey);
     void        clearViewerSteps();
 
     /* Line index functions */

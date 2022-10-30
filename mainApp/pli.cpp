@@ -114,6 +114,7 @@ Pli::Pli(bool _bom) : bom(_bom)
   tallestPart = 1;
   background = nullptr;
   splitBom = false;
+  perStep = false;
 
   ptn.append( { FADE_PART, FADE_SFX } );
   ptn.append( { HIGHLIGHT_PART, HIGHLIGHT_SFX } );
@@ -123,6 +124,12 @@ Pli::Pli(bool _bom) : bom(_bom)
   ia.sub[NORMAL_PART] = 0;
 
   isSubModel = false;
+  fadeSteps = false;
+  highlightStep = false;
+  displayIcons = false;
+  isSubModel = false;
+  multistep = false;
+  callout = false;
 }
 
 /****************************************************************************

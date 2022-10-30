@@ -2254,9 +2254,13 @@ int Gui::drawPage(
                       caseType.append("bfx load");
                   if (buildModAction)
                       caseType.isEmpty() ? caseType.append("build modification") : caseType.append(" build modification");
-                  emit messageSig(LOG_INFO, QString("DRAWPAGE - Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
+                  emit messageSig(LOG_INFO, QString("Processing CSI %1 special case for %2...").arg(caseType).arg(topOfStep.modelName));
 
                   step->updateViewer = opts.updateViewer;
+
+                  // set the current step - enable access from other parts of the application - e.g. Renderer
+                  setCurrentStep(step);
+
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
@@ -2327,6 +2331,9 @@ int Gui::drawPage(
                               page->selectedSceneItems   = selectedSceneItems;
                           }
 
+                          // set the current step - enable access from other parts of the application - e.g. Renderer
+                          setCurrentStep(step);
+
                           step->lightList = lightList;
 
                           PlacementType relativeType = SingleStepType;
@@ -2343,7 +2350,7 @@ int Gui::drawPage(
                               opts.pliParts.clear();
                               opts.pliPartGroups.clear();
 
-                              emit messageSig(LOG_INFO, "DRAWPAGE - Processing PLI for " + topOfStep.modelName + "...");
+                              emit messageSig(LOG_INFO, "Processing PLI for " + topOfStep.modelName + "...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
@@ -2524,6 +2531,9 @@ int Gui::drawPage(
                               if (step) {
                                   page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
                                   step->lightList = lightList;
+
+                                  // set the current step - enable access from other parts of the application - e.g. Renderer
+                                  setCurrentStep(step);
                               }
 
                               if (! steps->meta.LPub.stepPli.perStep.value()) {
@@ -2562,12 +2572,12 @@ int Gui::drawPage(
                                               emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
                                       }
                                   }
-                              }
-                          }
+                              } // Not PLI per step
+                          } // Page
 
                           emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
-                          if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
+                          if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
 
                               QElapsedTimer timer;
                               timer.start();
@@ -2594,14 +2604,14 @@ int Gui::drawPage(
                                                            .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
                                                            .arg(opts.calledOut ? "called out," : "simple,")
                                                            .arg(stepPageNum));
-                          }
+                          } // useLDViewSCall()
 
                           // Load the Visual Editor - callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {
-                                  setCurrentStep(step);
                                   if (partsAdded && ! coverPage)
+                                      setCurrentStep(step);
                                       step->loadTheViewer();
                                   showLine(topOfStep);
                               }
@@ -2622,14 +2632,22 @@ int Gui::drawPage(
                                                      false /* calledOut */,
                                                      false /* multiStep */);
                                  }
+
                                  emit messageSig(LOG_INFO, QString("Set cover page model display for %1...").arg(topOfStep.modelName));
-                                 step->modelDisplayOnlyStep = true;
-                                 step->subModel.setSubModel(opts.current.modelName,steps->meta);
-                                 step->subModel.viewerSubmodel = true;
-                                 if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                     emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
-                                 else
-                                     step->subModel.loadTheViewer();
+
+                                 if (step) {
+
+                                    // set the current step - enable access from other parts of the application - e.g. Renderer
+                                    setCurrentStep(step);
+
+                                    step->modelDisplayOnlyStep = true;
+                                    step->subModel.setSubModel(opts.current.modelName,steps->meta);
+                                    step->subModel.viewerSubmodel = true;
+                                    if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                        emit messageSig(LOG_ERROR, QString("Failed to set cover page model display for %1...").arg(topOfStep.modelName));
+                                    else
+                                        step->subModel.loadTheViewer();
+                                 }
                              }
                           }
 
@@ -4540,8 +4558,12 @@ void Gui::drawPage(
       displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
       firstPage       = ! topOfPages.size() || topOfPages.size() < displayPageIndx;
 
-      if (!firstPage)
-        topOfStep     = topOfPages[displayPageIndx];
+      if (!firstPage) {
+        if (topOfPages.size() > displayPageIndx )
+            topOfStep     = topOfPages[displayPageIndx];
+        else
+            topOfStep     = topOfPages.takeLast();
+      }
 
       if (!topOfStep.lineNumber)
         skipHeader(topOfStep);

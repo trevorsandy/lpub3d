@@ -1803,29 +1803,21 @@ void Gui::reloadViewer(){
      return lcGetPiecesLibrary();
  }
 
- bool Gui::OpenProject(const QString& FileName)
+ bool Gui::OpenProject(const NativeOptions* Options, bool RenderImage/*false*/)
  {
-     bool ProjectLoaded = false;
-
-     if (gMainWindow)
-         ProjectLoaded = gMainWindow->OpenProject(FileName);
+     Project* Loader = new Project();
+     if (Loader->Load(QString()/*FileName*/, Options->ViewerStepKey, Options->ImageType, true/*ShowErrors*/))
+     {
+         gApplication->SetProject(Loader);
+         lcView::UpdateProjectViews(Loader);
+     }
      else
      {
-         Project* LoadedProject = new Project();
-
-         if (LoadedProject->Load(FileName, false/*ShowErrors*/))
-         {
-             gApplication->SetProject(LoadedProject);
-             lcView::UpdateProjectViews(LoadedProject);
-             ProjectLoaded = true;
-         }
-         else
-         {
-             delete LoadedProject;
-         }
+         delete Loader;
+         return false;
      }
 
-     return ProjectLoaded;
+     return Render::RenderNativeView(Options, RenderImage);
  }
 
  lcView* Gui::GetActiveView()
@@ -3719,12 +3711,17 @@ bool Gui::setCurrentStep(const QString &key)
 
 void Gui::setCurrentStep(Step *step)
 {
-    viewerStepKey = step->viewerStepKey;
+    step->viewerStepKey = QString("%1;%2;%3%4")
+                                  .arg(gui->getSubmodelIndex(step->top.modelName))
+                                  .arg(step->top.lineNumber)
+                                  .arg(step->stepNumber.number)
+                                  .arg(step->modelDisplayOnlyStep ? "_dm" : "");
     currentStep = step;
-//#ifdef QT_DEBUG_MODE
-//    emit messageSig(LOG_DEBUG,tr("Current step %1 loaded")
-//                    .arg(currentStep->stepNumber.number));
-//#endif
+    viewerStepKey = currentStep->viewerStepKey;
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
+                                      .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
+#endif
 }
 
 /*********************************************
