@@ -2111,14 +2111,14 @@ void LDrawFile::countInstances()
 
 /*
 #ifdef QT_DEBUG_MODE
-  emit gui->messageSig(LOG_DEBUG, QString("CountInstances Step Indexes:"));
+  emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
   {
       const QVector<int> &key = _buildModStepIndexes.at(i);
       emit gui->messageSig(LOG_DEBUG, QString("StepIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                                              .arg(i)                            // index
-                                              .arg(key.at(0))                    // modelIndex
-                                              .arg(key.at(1))                    // lineNumber
+                                              .arg(i, 3, 10, QChar('0'))         // index
+                                              .arg(key.at(0), 3, 10, QChar('0')) // modelIndex
+                                              .arg(key.at(1), 3, 10, QChar('0')) // lineNumber
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
 #endif

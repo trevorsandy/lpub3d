@@ -2193,8 +2193,8 @@ int CountPageWorker::countPage(
       if (!opts.stepNumber)
           opts.stepNumber = 1 + gui->sa;
 #ifdef QT_DEBUG_MODE
-      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage start (opt)            model %1, line %2")
-                      .arg(opts.current.modelName).arg(opts.current.lineNumber));
+      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE topOfPage First Page         (opt) - LineNumber %1, ModelName %2")
+                      .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       gui->topOfPages.clear();
       gui->topOfPages.append(opts.current);
@@ -2529,8 +2529,8 @@ int CountPageWorker::countPage(
                   } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                  gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage StepGroupEnd (tos)        model %1, line %2")
-                                  .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
+                  gui->messageSig(LOG_NOTICE, QString("COUNTPAGE topOfPage StepGroup End      (tos) - LineNumber %1, ModelName %2")
+                                  .arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
                   gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
@@ -2693,8 +2693,8 @@ int CountPageWorker::countPage(
                       } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage Step, !StepGroup (opt)    model %1, line %2")
-                                      .arg(opts.current.modelName).arg(opts.current.lineNumber));
+                      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE topOfPage Step, Not Group    (opt) - LineNumber %1, ModelName %2")
+                                      .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                       ++opts.pageNum;
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
@@ -2887,8 +2887,8 @@ int CountPageWorker::countPage(
       } // Exporting
 
 #ifdef QT_DEBUG_MODE
-      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage Step, Submodel End (opt)  model %1, line %2")
-                                .arg(opts.current.modelName).arg(opts.current.lineNumber));
+      gui->messageSig(LOG_NOTICE, QString("COUNTPAGE topOfPage Step, Submodel End (opt) - LineNumber %1, ModelName %2")
+                                .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;
       ++gui->stepPageNum;
