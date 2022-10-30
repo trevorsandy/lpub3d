@@ -208,6 +208,7 @@ protected:
     QElapsedTimer      displayTimer;
     StepLines          stepLines;
     QVector<int>       savedSelection;
+    QStringList        programEntries;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;

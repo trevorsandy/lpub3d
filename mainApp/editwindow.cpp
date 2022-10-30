@@ -260,7 +260,7 @@ void EditWindow::updateOpenWithActions()
     QString const openWithProgramListKey("OpenWithProgramList");
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
 
-        QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+        programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
         numOpenWithPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
@@ -294,7 +294,7 @@ void EditWindow::updateOpenWithActions()
             if (!programData.isEmpty())
                 openWithProgramAndArgs(programPath,arguments);
             QFileInfo fileInfo(programPath);
-            if (fileInfo.exists()) {
+            if (fileInfo.exists() && fileInfo.isFile()) {
                 programName = programEntries.at(i).split("|").first();
                 QString text = programName;
                 if (text.isEmpty())
@@ -311,9 +311,32 @@ void EditWindow::updateOpenWithActions()
                 --numOpenWithPrograms;
             }
         }
+
+        // add system editor if exits
+        if (!Preferences::systemEditor.isEmpty()) {
+          QFileInfo fileInfo(Preferences::systemEditor);
+          if (fileInfo.exists() && fileInfo.isFile()) {
+            const int i = numOpenWithPrograms;
+            programPath = fileInfo.absoluteFilePath();
+            programName = fileInfo.completeBaseName();
+            programName.replace(programName[0],programName[0].toUpper());
+            QString text = programName;
+            if (text.isEmpty())
+                text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+            openWithActList[i]->setText(text);
+            openWithActList[i]->setData(QString()); // arguments
+            openWithActList[i]->setIcon(getProgramIcon());
+            openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                     .arg(fileInfo.fileName()));
+            openWithActList[i]->setVisible(true);
+            programEntries.append(QString("%1|%2").arg(programName).arg(programPath));
+            numOpenWithPrograms = programEntries.size();
+          }
+        }
+
         emit lpub->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numOpenWithPrograms));
 
-        // hide empty program actions
+        // hide empty program actions - redundant
         for (int j = numOpenWithPrograms; j < Preferences::maxOpenWithPrograms; j++) {
             openWithActList[j]->setVisible(false);
         }
@@ -347,21 +370,27 @@ void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments
 void EditWindow::openWith()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    QStringList arguments = QStringList() << fileName;
+    QString filePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
+    QStringList arguments = QStringList() << QDir::toNativeSeparators(QString("%1/%2").arg(filePath).arg(QFileInfo(fileName).fileName()));
     QString program;
 
     if (action) {
         program = action->data().toString();
         if (program.isEmpty()) {
+            program = Preferences::systemEditor;
+            if (!program.isEmpty()) {
+                openWithProgramAndArgs(program,arguments);
+            }
 #ifdef Q_OS_MACOS
-            if (Preferences::systemEditor.isEmpty()) {
+            else {
                 program = QString("open");
                 arguments.prepend("-e");
-            } else {
-                openWithProgramAndArgs(Preferences::systemEditor,arguments);
             }
 #else
-            openWithProgramAndArgs(Preferences::systemEditor,arguments);
+            else {
+                emit lpub->messageSig(LOG_ERROR, QString("No program specified. Cannot launch %1.")
+                                                         .arg(QFileInfo(fileName).fileName()));
+            }
 #endif
         } else {
             openWithProgramAndArgs(program,arguments);
@@ -376,7 +405,10 @@ void EditWindow::openWith()
 
 void EditWindow::createOpenWithActions()
 {
-    for (int i = 0; i < Preferences::maxOpenWithPrograms; i++) {
+    // adjust for separator and system editor
+    const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
+    const int maxOpenWithPrograms = Preferences::maxOpenWithPrograms + systemEditor;
+    for (int i = 0; i < maxOpenWithPrograms; i++) {
         QAction *openWithAct = new QAction(this);
         openWithAct->setVisible(false);
         connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
@@ -640,8 +672,13 @@ void EditWindow::createToolBars()
         openWithToolbarAct->setMenu(openWithMenu);
         if (numOpenWithPrograms) {
             openWithMenu->setEnabled(true);
-            for (int i = 0; i < numOpenWithPrograms; i++)
+            const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
+            const int maxOpenWithPrograms = Preferences::maxOpenWithPrograms + systemEditor;
+            for (int i = 0; i < maxOpenWithPrograms; i++) {
+                if (i == Preferences::maxOpenWithPrograms)
+                    openWithMenu->addSeparator();
                 openWithMenu->addAction(openWithActList.at(i));
+            }
         }
         editToolBar->addAction(openWithToolbarAct);
         editToolBar->addSeparator();
@@ -847,6 +884,20 @@ void EditWindow::showContextMenu(const QPoint &pt)
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
             menu->addAction(editModelFileAct);
+
+            menu->addSeparator();
+            QMenu *openWithMenu = new QMenu(tr("Open With..."),editWindow);
+            openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
+            menu->addMenu(openWithMenu);
+            if (numOpenWithPrograms) {
+                for (int i = 0; i < numOpenWithPrograms; i++) {
+                    QFileInfo fileInfo(programEntries.at(i).split("|").last());
+                    openWithActList[i]->setStatusTip(QString("Open %1 with %2")
+                                                     .arg(QFileInfo(fileName).fileName())
+                                                     .arg(fileInfo.fileName()));
+                    openWithMenu->addAction(openWithActList.at(i));
+                }
+            }
         }
 
         if (setValidPartLine()) {
@@ -860,14 +911,6 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
-
-            QMenu *openWithMenu = new QMenu(tr("Open With..."));
-            openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
-            menu->addMenu(openWithMenu);
-            if (numOpenWithPrograms) {
-                for (int i = 0; i < numOpenWithPrograms; i++)
-                    openWithMenu->addAction(openWithActList.at(i));
-            }
         }
         menu->addSeparator();
     }
