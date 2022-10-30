@@ -221,8 +221,11 @@ ViewerStep::ViewerStep(const QStringList &stepKey,
     _modified  = false;
     _multiStep = multiStep;
     _calledOut = calledOut;
-    _viewType= viewType;
-    _stepKey   = { stepKey[BM_STEP_MODEL_KEY].toInt(), stepKey[BM_STEP_LINE_KEY].toInt(), stepKey[BM_STEP_NUM_KEY].toInt() };
+    _viewType  = viewType;
+    if (viewType == Options::PLI) // Parts do not have modelIndex or lineNumber
+        _stepKey   = { BM_NONE, 0, stepKey[BM_STEP_NUM_KEY].toInt() };
+    else
+        _stepKey   = { stepKey[BM_STEP_MODEL_KEY].toInt(), stepKey[BM_STEP_LINE_KEY].toInt(), stepKey[BM_STEP_NUM_KEY].toInt() };
 }
 
 void LDrawFile::empty()
