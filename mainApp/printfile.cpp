@@ -848,20 +848,7 @@ void Gui::exportAsPdf()
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
   displayPageNum = savePageNumber;
-/*
-#ifdef QT_DEBUG_MODE
-  emit gui->messageSig(LOG_NOTICE, QString("EXPORT PDF Page indexes at displayPageNum 0 of %1").arg(maxPages));
-  for (int i = 0; i < topOfPages.size(); i++)
-  {
-      Where top = topOfPages.at(i);
-      emit gui->messageSig(LOG_NOTICE, QString("EXPORT PDF PageIndex: %1, SubmodelIndex: %2: LineNumber: %3, ModelName: %4")
-                                              .arg(i)               // index
-                                              .arg(top.modelIndex)  // modelIndex
-                                              .arg(top.lineNumber)  // lineNumber
-                                              .arg(top.modelName)); // modelName
-  }
-#endif
-*/
+
   int _displayPageNum = 0;
   int _maxPages       = 0;
 

@@ -2203,7 +2203,6 @@ int CountPageWorker::countPage(
   gui->saveStepPageNum = gui->stepPageNum;
 
   QStringList             bfxParts;
-  QList<PliPartGroupMeta> emptyPartGroups;
 
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
@@ -2219,7 +2218,7 @@ int CountPageWorker::countPage(
 
   Rc rc;
   Where topOfStep = opts.current;
-  Where stepGroupCurrent;
+  Where topOfSteps;
 
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
@@ -2483,7 +2482,7 @@ int CountPageWorker::countPage(
           switch (rc) {
             case StepGroupBeginRc:
               opts.flags.stepGroup = true;
-              stepGroupCurrent = topOfStep;
+              topOfSteps = topOfStep;
 
               // Steps within step group modify bfxStore2 as they progress
               // so we must save bfxStore2 and use the saved copy when
@@ -2496,11 +2495,19 @@ int CountPageWorker::countPage(
                   opts.flags.stepGroup = false;
                   opts.flags.addCountPage = true;
 
-                  // terminate build modification parse at end of simple step, callout step or step group
+                  // terminate parse build mofifications
                   if ( opts.flags.parseBuildMods) {
-                      opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
-                      if (! opts.flags.parseBuildMods)
-                         opts.flags.numLines = topOfStep.lineNumber;
+                      // terminate parse build mods from gui::countPage for jump to page
+                      if (gui->parseBuildModsAtCount) {
+                          // terminate build modification parse at end of simple step, callout step or step group
+                          opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
+                          if (! opts.flags.parseBuildMods)
+                             opts.flags.numLines = topOfStep.lineNumber;
+                      }
+                      // terminate parse build modification for steps after first step in step group
+                      else if (opts.flags.parseStepGroupBM) {
+                          opts.flags.parseStepGroupBM = opts.flags.parseBuildMods = false;
+                      }
                   }
 
                   // ignored when processing buildMod display
@@ -2545,7 +2552,7 @@ int CountPageWorker::countPage(
             case BuildModRemoveRc:
                // to parse build mods to display page when jumping forward and to
                // parse lines after MULTI_STEP END in the last step of a submodel
-               if ( opts.flags.parseBuildMods) {
+               if (opts.flags.parseBuildMods && ! opts.flags.parseStepGroupBM) {
                    if (opts.flags.partsAdded)
                        gui->parseError(QString("BUILD_MOD REMOVE/APPLY action command must be placed before step parts"),
                                        opts.current,Preferences::BuildModErrors);
@@ -2568,7 +2575,7 @@ int CountPageWorker::countPage(
                        ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                        // set the stepKey to clear the image cache if not navigating backward
                        if (gui->pageDirection < PAGE_BACKWARD) {
-                           // pass the submodel stack
+                           // pass the submodel stack to clear step images
                            QString stack;
                            Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
                              stack.append(QString("%1:").arg(ldrawFile->getSubmodelIndex(model.modelName)));
@@ -2647,10 +2654,13 @@ int CountPageWorker::countPage(
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
                   // parse build modifications
                   if ( opts.flags.parseBuildMods) {
-                      // terminate build modification parse at end of simple step, callout step or step group
-                      opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
-                      if (! opts.flags.parseBuildMods && (! opts.flags.callout && ! opts.flags.stepGroup))
-                         opts.flags.numLines = opts.current.lineNumber;
+                      // terminate build mods from gui::countPage for jump to page
+                      if (gui->parseBuildModsAtCount) {
+                          // terminate build modification parse at end of simple step, callout step or step group
+                          opts.flags.parseBuildMods = opts.pageNum < gui->saveDisplayPageNum;
+                          if (! opts.flags.parseBuildMods && ! opts.flags.callout && ! opts.flags.stepGroup)
+                             opts.flags.numLines = opts.current.lineNumber;
+                      }
                       // BuildMod create
                       if (buildModKeys.size()) {
                           if (buildMod.state != BM_END)
@@ -2666,7 +2676,8 @@ int CountPageWorker::countPage(
                   opts.stepNumber  += ! opts.flags.coverPage && ! opts.flags.stepPage;
                   gui->stepPageNum += ! opts.flags.coverPage && ! opts.flags.stepGroup;
 
-                  // Added callout step parse for parse build modifications so exclude from page number increment
+                  // Added callout step parse for parse build modifications so
+                  // exclude from page number increment and topOfPages indices
                   if ( ! opts.flags.stepGroup && ! opts.flags.callout) {
                       if (gui->exporting()) {
                           gui->getPageSizes().remove(opts.pageNum);
@@ -2716,6 +2727,11 @@ int CountPageWorker::countPage(
                   if ( ! buildMod.ignore2) {
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore2
+                  if (! opts.flags.parseBuildMods && opts.flags.stepGroup && topOfSteps != topOfStep) {
+                      if (opts.pageNum == gui->displayPageNum + 1) {
+                          opts.flags.parseStepGroupBM = opts.flags.parseBuildMods = true;
+                      } // we only care about the next page during each page count run
+                  } // enable parse build modifications for steps after first step in step group
                } // PartsAdded && ! NoStep
 
               if ( ! opts.flags.stepGroup && ! opts.flags.callout && ! opts.flags.noStep) {
@@ -2861,7 +2877,9 @@ int CountPageWorker::countPage(
     } // For Every Line
 
   // last step in submodel
-  if (opts.flags.partsAdded && ! opts.flags.noStep) {
+  // Added callout step parse for parse build modifications so
+  // exclude from page number increment and topOfPages indices
+  if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
       if (gui->exporting()) {
           gui->getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {

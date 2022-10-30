@@ -3469,7 +3469,7 @@ int Gui::findPage(
                                 saveGroupStepNum      = opts.groupStepNumber;
                             }
                             // insert build Mods when processing step group steps after the first step
-                            if (/*opts.pageDisplayed*/opts.flags.stepGroup) {
+                            if (opts.flags.stepGroup) {
                                 // insert build modifications
                                 if (buildModKeys.size()) {
                                     if (buildMod.state != BM_END)
@@ -4630,9 +4630,6 @@ void Gui::drawPage(
     drawPage(view,scene,printing,updateViewer,buildModActionChange);
 
   } else {
-//#ifdef QT_DEBUG_MODE
-//    emit messageSig(LOG_NOTICE, QString("DRAW PAGE Init COUNT page call at page %1 (pageNum %2)").arg(findOptions.pageNum - 1).arg(findOptions.pageNum));
-//#endif
     QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
     if (exporting() || ContinuousPage() || mloadingFile) {
       future.waitForFinished();
@@ -4649,18 +4646,21 @@ void Gui::drawPage(
 
 void Gui::pagesCounted()
 {
-#ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("COUNTED   topOfPage Final Page         (cur) - LineNumber %1, ModelName %2")
-                    .arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
-#endif
     topOfPages.append(current);
 
     maxPages--;
 
     pageProcessRunning = PROC_NONE;
+
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_NOTICE, QString("COUNTED   topOfPage Final Page         (cur) - LineNumber %1, ModelName %2")
+                    .arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
+    emit messageSig(LOG_NOTICE, QString("COUNTED Page Indexes at displayPageNum %1 of %2")
+                    .arg(displayPageNum).arg(maxPages));
+#endif
 /*
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_NOTICE, QString("COUNTED Page Indexes at displayPageNum %1 of %2").arg(displayPageNum).arg(maxPages));
+    emit messageSig(LOG_NOTICE, "------------------------------------------------");
     for (int i = 0; i < topOfPages.size(); i++)
     {
         Where top = topOfPages.at(i);
@@ -4724,7 +4724,7 @@ void Gui::pagesCounted()
         if (Preferences::modeGUI && ! exporting()) {
             enableActions2();
             enableNavigationActions(true);
-            enable3DActions(!page.coverPage);
+            enable3DActions(!page.coverPage || page.meta.LPub.coverPageViewEnabled.value());
         } // modeGUI and not exporting
     } // drawPage
 
@@ -4900,55 +4900,6 @@ int Gui::setBuildModForNextStep(
     QString startModel         = topOfNextStep.modelName;
     Where topOfStep            = topOfNextStep;
 
-    if (submodel) {
-        if (!topOfSubmodel.lineNumber)
-            skipHeader(topOfSubmodel);                       // advance past headers
-
-        startLine  = topOfSubmodel.lineNumber;
-        startModel = topOfSubmodel.modelName;
-        topOfStep  = topOfSubmodel;
-
-#ifdef QT_DEBUG_MODE
-        statusMessage(LOG_NOTICE, QString("Build Modification Step Check - Submodel: '%1'...")
-                                         .arg(topOfSubmodel.modelName));
-#endif
-
-    } else {
-        statusMessage(LOG_INFO_STATUS, QString("Build Modification Step Check - Model: '%1', Line '%2'...")
-                                               .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
-
-        deleteBuildMods(buildModNextStepIndex);              // clear all build mods at and after next step index - used after jump ahead
-
-        startLine = topOfStep.lineNumber;                    // set starting line number
-
-#ifdef QT_DEBUG_MODE
-        statusMessage(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
-                                         .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
-#endif
-
-        if (pageDirection != PAGE_NEXT) {                    // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
-            bool backward = pageDirection >= PAGE_BACKWARD;  // step backward by 1 or jump backward by more than 1
-            if (backward) {                                  // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
-                startLine  = topOfStep.lineNumber;           // set step start lineNumber to topOfStep.lineNumber
-                startModel = topOfStep.modelName;            // set step start modelName to topOfStep.modelName
-            }
-
-#ifdef QT_DEBUG_MODE
-            statusMessage(LOG_TRACE, QString("BuildMod Jump %1 - Indexes: %2, StartModel: %3, "
-                                             "StartLine: %4, ModelName: %5, LineNumber: %6")
-                                             .arg(backward ? "Backward" : "Forward")
-                                             .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
-                                             .arg(startModel).arg(startLine)
-                                             .arg(topOfNextStep.modelName)
-                                             .arg(topOfNextStep.lineNumber));
-#endif
-            if (!backward) {                                 // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
-                countPages();
-                return HitBottomOfStep;
-            }
-        }
-    }
-
     BuildModFlags           buildMod;
     QMap<int, QString>      buildModKeys;
     QMap<int, QVector<int>> buildModAttributes;
@@ -5016,6 +4967,55 @@ int Gui::setBuildModForNextStep(
                        modAttributes,
                        buildModStepIndex);
     };
+
+    if (submodel) {
+        if (!topOfSubmodel.lineNumber)
+            skipHeader(topOfSubmodel);                       // advance past headers
+
+        startLine  = topOfSubmodel.lineNumber;
+        startModel = topOfSubmodel.modelName;
+        topOfStep  = topOfSubmodel;
+
+#ifdef QT_DEBUG_MODE
+        statusMessage(LOG_NOTICE, QString("Build Modification Step Check - Submodel: '%1'...")
+                                         .arg(topOfSubmodel.modelName));
+#endif
+
+    } else {
+        statusMessage(LOG_INFO_STATUS, QString("Build Modification Step Check - Model: '%1', Line '%2'...")
+                                               .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
+
+        deleteBuildMods(buildModNextStepIndex);              // clear all build mods at and after next step index - used after jump ahead
+
+        startLine = topOfStep.lineNumber;                    // set starting line number
+
+#ifdef QT_DEBUG_MODE
+        statusMessage(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
+                                         .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
+#endif
+
+        if (pageDirection != PAGE_NEXT) {                    // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
+            bool backward = pageDirection >= PAGE_BACKWARD;  // step backward by 1 or jump backward by more than 1
+            if (backward) {                                  // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
+                startLine  = topOfStep.lineNumber;           // set step start lineNumber to topOfStep.lineNumber
+                startModel = topOfStep.modelName;            // set step start modelName to topOfStep.modelName
+            }
+
+#ifdef QT_DEBUG_MODE
+            statusMessage(LOG_TRACE, QString("BuildMod Jump %1 - Indexes: %2, StartModel: %3, "
+                                             "StartLine: %4, ModelName: %5, LineNumber: %6")
+                                             .arg(backward ? "Backward" : "Forward")
+                                             .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
+                                             .arg(startModel).arg(startLine)
+                                             .arg(topOfNextStep.modelName)
+                                             .arg(topOfNextStep.lineNumber));
+#endif
+            if (!backward) {                                 // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
+                countPages();
+                return HitBottomOfStep;
+            }
+        }
+    }
 
     Where walk(startModel, getSubmodelIndex(startModel), startLine);
     int numLines = subFileSize(walk.modelName);

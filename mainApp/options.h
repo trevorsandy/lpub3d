@@ -223,6 +223,7 @@ public:
     bool pageSizeUpdate;
     bool addCountPage;
     bool parseBuildMods;
+    bool parseStepGroupBM;
     bool countPageContains;
     bool resetIncludeRc;
     bool includeFileFound;
@@ -246,6 +247,7 @@ public:
           pageSizeUpdate    (false),
           addCountPage      (false),
           parseBuildMods    (false),
+          parseStepGroupBM  (false),
           countPageContains (false),
           resetIncludeRc    (false),
           includeFileFound  (false),
