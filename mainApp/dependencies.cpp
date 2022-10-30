@@ -36,3 +36,9 @@ bool isOlder(
 {
   return gui->isOlder(parsedStack,lastModified);
 }
+
+bool modified(
+  const QStringList &parsedStack)
+{
+  return gui->modified(parsedStack);
+}

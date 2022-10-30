@@ -629,6 +629,15 @@ public:
   {
     return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_SUBPART;
   }
+  bool modified(const QString &fileName)
+  {
+    return ldrawFile.modified(fileName);
+  }
+  bool modified(const QStringList &parsedStack)
+  {
+    bool older = ldrawFile.modified(parsedStack);
+    return older;
+  }
   bool loadAborted()
   {
     return ldrawFile._loadAborted;
@@ -835,6 +844,11 @@ public:
   int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum)
   {
       return ldrawFile.setBuildModDisplayPageNumber(buildModKey, displayPageNum);
+  }
+
+  void setBuildModSubmodelStack(const QString &buildModKey, const QStringList &submodelStack)
+  {
+      ldrawFile.setBuildModSubmodelStack(buildModKey, submodelStack);
   }
 
   int setBuildModStepPieces(const QString &buildModKey, int pieces)

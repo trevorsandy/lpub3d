@@ -31,5 +31,6 @@
 bool isMpd();
 bool isOlder(const QString &, const QDateTime &);
 bool isOlder(const QStringList &, const QDateTime &);
+bool modified(const QStringList &);
 
 #endif

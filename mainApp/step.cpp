@@ -348,7 +348,7 @@ int Step::createCsi(
       QDateTime lastModified = QFileInfo(pngName).lastModified();
       QStringList parsedStack = submodelStack();
       parsedStack << parentModelName;
-      if ( ! isOlder(parsedStack,lastModified)) {
+      if ( ! isOlder(parsedStack,lastModified) || modified(parsedStack)) {
           csiOutOfDate = true;
           emit gui->messageSig(LOG_DEBUG,QString("CSI image out of date %1.").arg(QFileInfo(pngName).fileName()));
           if (! csi.remove()) {

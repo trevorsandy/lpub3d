@@ -601,6 +601,7 @@ int Gui::drawPage(
 
   auto insertBuildModification =
           [this,
+          &step,
           &opts,
           &buildModAttributes,
           &buildModKeys,
@@ -646,6 +647,8 @@ int Gui::drawPage(
       insertBuildMod(buildModKey,
                      modAttributes,
                      buildModStepIndex);
+      if (step->submodelStack().size())
+          setBuildModSubmodelStack(buildModKey,step->submodelStack());
   };
 
   auto buildModIgnoreOverride = [&multiStep, &buildMod] (bool &buildModIgnore, bool &buildModTypeIgnore)
@@ -690,6 +693,8 @@ int Gui::drawPage(
       const QString buildModKey = buildModKeys.value(buildModLevel);
       setBuildModStepKey(buildModKey, step->viewerStepKey);
       setBuildModStepPieces(buildModKey, opts.csiParts.size());
+      if (step->submodelStack().size())
+          setBuildModSubmodelStack(buildModKey,step->submodelStack());
   };
 
   PartLineAttributes pla(
@@ -2048,18 +2053,18 @@ int Gui::drawPage(
                       // set buildModStepIndex for writeToTmp() and findPage() content
                       setBuildModNextStepIndex(topOfStep);
                       // set the stepKey to clear the image cache if not navigating backward
-                      if (pageDirection < PAGE_BACKWARD) {
-                          // pass the submodel stack
-                          QString stack;
-                          Q_FOREACH (const SubmodelStack &model,curMeta.submodelStack)
-                            stack.append(QString("%1:").arg(getSubmodelIndex(model.modelName)));
-                          if (!stack.isEmpty()) {
-                              stack.replace(stack.lastIndexOf(":"),1,";");
-                              buildModClearStepKey = QString("%1%2;%3;%4")
-                                      .arg(stack).arg(topOfStep.modelIndex)
-                                      .arg(topOfStep.lineNumber).arg(opts.stepNum);
-                          }
-                      }
+                      //if (pageDirection < PAGE_BACKWARD) {
+                      //    // pass the submodel stack
+                      //    QString stack;
+                      //    Q_FOREACH (const SubmodelStack &model,curMeta.submodelStack)
+                      //      stack.append(QString("%1:").arg(getSubmodelIndex(model.modelName)));
+                      //    if (!stack.isEmpty()) {
+                      //        stack.replace(stack.lastIndexOf(":"),1,";");
+                      //        buildModClearStepKey = QString("%1%2;%3;%4")
+                      //                .arg(stack).arg(topOfStep.modelIndex)
+                      //                .arg(topOfStep.lineNumber).arg(opts.stepNum);
+                      //    }
+                      //}
                       // Rerun to findPage() to regenerate parts and options for buildMod action
                       pageProcessRunning = PROC_FIND_PAGE;
                       return HitBuildModAction;
@@ -4591,7 +4596,7 @@ void Gui::drawPage(
     QString stepKey = keys.first();
     QString option = keys.last();
 
-    // clear submodel
+    // clear csi image, flag submodel stak item(s) as modified and clear submodel (cm)
     if (keys.size() == 1 || option == "cm") {
       clearWorkingFiles(getBuildModPathsFromStep(stepKey));
 
@@ -4607,7 +4612,10 @@ void Gui::drawPage(
       clearStepCSICache(csiPngName);
     }
 
-    deleteViewerStep(stepKey);
+    if (deleteViewerStep(stepKey))
+#ifdef QT_DEBUG_MODE
+        emit messageSig(LOG_DEBUG, QString("Removed viewer step key %1...").arg(stepKey));
+#endif
 
     buildModClearStepKey.clear();
   }

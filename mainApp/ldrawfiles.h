@@ -204,6 +204,7 @@ class BuildModStep {
 class BuildMod {
   public:
     QVector<int>  _modAttributes;
+    QVector<int>  _modSubmodelStack;
     QMap<int,int> _modActions;
     int           _modStepIndex;
 
@@ -219,6 +220,7 @@ class BuildMod {
        // 6 BM_MODEL_LINE_NUM    0
        // 7 BM_MODEL_STEP_NUM    0
       _modAttributes = { 0, 0, 0, 0, 0, -1, 0, 0 };
+      _modSubmodelStack = {};
       _modActions = {};
       _modStepIndex = -1;
     }
@@ -227,6 +229,7 @@ class BuildMod {
       int                       stepIndex);
     ~BuildMod()
     {
+      _modSubmodelStack.clear();
       _modAttributes.clear();
       _modActions.clear();
     }
@@ -394,6 +397,7 @@ class LDrawFile {
     bool isSubmodel(const QString &file);
     bool modified();
     bool modified(const QString &fileName);
+    bool modified(const QStringList &parsedStack);
     bool older(const QStringList &parsedStack,
                const QDateTime &lastModified);
     bool older(const QString &fileName,
@@ -443,6 +447,8 @@ class LDrawFile {
     void insertBuildModStep(const QString  &buildModKey,
                             const int       stepIndex,
                             const int       modAction = 0);
+    void setBuildModSubmodelStack(const QString &buildModKey,
+                                  const QStringList &submodelStack);
     int setBuildModAction(const QString  &buildModKey,
                           const int       stepIndex,
                           const int       modAction);
