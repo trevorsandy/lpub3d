@@ -583,7 +583,7 @@ void EditWindow::createActions()
     editPartAct = new QAction(QIcon(":/resources/editpart.png"),tr("Change part..."), this);
     editPartAct->setStatusTip(tr("Edit this part"));
     connect(editPartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
-//*
+
     substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute part..."), this);
     substitutePartAct->setStatusTip(tr("Substitute this part"));
     connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
@@ -591,7 +591,7 @@ void EditWindow::createActions()
     removeSubstitutePartAct = new QAction(QIcon(":/resources/removesubstitutepart.png"),tr("Remove Substitute..."), this);
     removeSubstitutePartAct->setStatusTip(tr("Replace this substitute part with the original part."));
     connect(removeSubstitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
-//*/
+
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
@@ -635,12 +635,11 @@ void EditWindow::disableActions()
 #endif
     editColorAct->setEnabled(false);
     editPartAct->setEnabled(false);
-//*
+
     if (removeMenu)
         removeMenu = nullptr;
     substitutePartAct->setEnabled(false);
     removeSubstitutePartAct->setEnabled(false);
-//*/
 }
 
 void EditWindow::enableActions()
@@ -731,9 +730,8 @@ void EditWindow::createToolBars()
 
     toolsToolBar->addAction(editColorAct);
     toolsToolBar->addAction(editPartAct);
-//*
     toolsToolBar->addAction(substitutePartAct);
-//*/
+
     if (modelFileEdit())
         toolsToolBar->addAction(previewLineAct);
 #ifdef QT_DEBUG_MODE
@@ -849,18 +847,16 @@ bool EditWindow::setValidPartLine()
     int validCode = -1;
     int colorCode = LDRAW_MATERIAL_COLOUR;
     bool colorOk = false;
-//*
     bool isSubstitute = false;
-//*/
+    bool isSubstituteAlt = false;
 
     clearEditorHighlightLines();
 
     toolsToolBar->setEnabled(false);
     editColorAct->setText(tr("Edit color"));
     editPartAct->setText(tr("Edit part"));
-//*
     substitutePartAct->setText(tr("Substitute part"));
-//*/
+
     copyFullPathToClipboardAct->setEnabled(false);
     copyFileNameToClipboardAct->setEnabled(false);
 
@@ -874,7 +870,7 @@ bool EditWindow::setValidPartLine()
         for (int i = 14; i < list.size(); i++)
             partType += (list[i]+" ");
 
-    } else if (selection.contains(" PLI BEGIN SUB ")) {
+    } else if (selection.contains(QRegExp("\\sBEGIN\\sSUB\\s"))) {
         // 0 1     2   3     4   5           6
         // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
         list = selection.split(" ", SkipEmptyParts);
@@ -884,9 +880,8 @@ bool EditWindow::setValidPartLine()
 
         if (list.size() > sSubColor)
             validCode = list[6].toInt(&colorOk);
-//*
+
         isSubstitute = true;
-//*/
     } else {
         return false;
     }
@@ -898,22 +893,23 @@ bool EditWindow::setValidPartLine()
         colorCode = validCode;
     else
         return false;
-//*
-    // substitute partKey
-    QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
-//*/
+
     const int lineNumber = getSelectedLineNumber(cursor);
     const bool stepSet = setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
-//*
+
+    // substitute partKey
+    QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
+
     // set substitute flag
     if (stepSet && !isSubstitute) {
         const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
         if (pliPart)
-            isSubstitute = pliPart->subType;
-        else // this check is not 100% but more than likely
-            isSubstitute = !ExcludedParts::hasExcludedPart(partType);
+            isSubstituteAlt = pliPart->subType;
+        // we have a partType that is not in the PLI so check if it is an excluded part
+        else
+            // if the partType is not excluded, likely is being substituted - this check is not 100%
+            isSubstituteAlt = !ExcludedParts::hasExcludedPart(partType);
     }
-//*/
 
     partType = partType.trimmed();
 
@@ -964,11 +960,10 @@ bool EditWindow::setValidPartLine()
     editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
     editPartAct->setEnabled(true);
 
-//*
     const QString actionText = tr("Substitute  %1...").arg(elidedPartType);
-    if (isSubstitute) {
+    if (isSubstitute || isSubstituteAlt) {
         removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
-        removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(sRemove));
+        removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
         removeSubstitutePartAct->setEnabled(stepSet);
 
         removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
@@ -988,7 +983,6 @@ bool EditWindow::setValidPartLine()
     }
     substitutePartAct->setData(subPartKey);
     substitutePartAct->setEnabled(stepSet);
-//*/
 
     if (numOpenWithPrograms)
         openWithToolbarAct->setEnabled(true);
@@ -1040,9 +1034,8 @@ void EditWindow::showContextMenu(const QPoint &pt)
             menu->addMenu(toolsMenu);
             toolsMenu->addAction(editColorAct);
             toolsMenu->addAction(editPartAct);
-//*
             toolsMenu->addAction(substitutePartAct);
-//*/
+
             if (modelFileEdit())
                 toolsMenu->addAction(previewLineAct);
         }
@@ -1070,10 +1063,6 @@ void EditWindow::editLineItem()
     int selectedLines = 0;
     int action = sSubstitute;
 
-    QTextCursor cursor = _textEdit->textCursor();
-    if(cursor.selection().isEmpty())
-        cursor.select(QTextCursor::LineUnderCursor);
-
     if (sender() == editColorAct) {
         elements = editColorAct->data().toString().split("|");
         int colorCode = elements.first().toInt();
@@ -1097,7 +1086,6 @@ void EditWindow::editLineItem()
         else
             replaceText = findText;
     }
-//*
     else if (sender() == substitutePartAct) {
         elements = substitutePartAct->data().toString().split("|");
         if (elements.size() == 3) {
@@ -1112,14 +1100,15 @@ void EditWindow::editLineItem()
     else if (sender() == removeSubstitutePartAct) {
         elements = removeSubstitutePartAct->data().toString().split("|");
         if (elements.size() == 3) {
-            lineNumber = getSelectedLineNumber(cursor);
             action = elements.at(2).toInt();
         } else {
             emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve substitue part key from action data [%1].").arg(elements.join(" ")));
             return;
         }
     }
-//*/
+
+    // remove highlight formatting set when line selected
+    clearEditorHighlightLines();
 
     auto removeLine = [] (QTextCursor &cursor, int lineNumber)
     {
@@ -1130,48 +1119,65 @@ void EditWindow::editLineItem()
         cursor.deleteChar();
     };
 
+    QTextCursor cursor = _textEdit->textCursor();
+    if(cursor.selection().isEmpty())
+        cursor.select(QTextCursor::LineUnderCursor);
+
     QString str = cursor.selection().toPlainText();
     selectedLines = str.count("\n") + 1;
 
-    cursor.beginEditBlock();
+    if (action == sRemove)
+        lineNumber = getSelectedLineNumber(cursor);
 
     QTextCursor::MoveOperation nextLine = cursor.anchor() < cursor.position() ? QTextCursor::Up : QTextCursor::Down;
 
+    cursor.beginEditBlock();
+
     while (currentLine < selectedLines)
     {
-        bool result = false;
-
         cursor.select(QTextCursor::LineUnderCursor);
         QString selection = cursor.selectedText();
-        if (!selection.isEmpty()) {
-            // change the selection to only the part
+
+        bool result  = !selection.isEmpty();
+
+        if (result) {
             if (sender() == editPartAct) {
+                // set cursor selection to the part type
                 QTextDocument::FindFlags flags;
-                result = _textEdit->find(findText, flags);
+                if ((result = _textEdit->find(findText, flags))) {
+                    cursor.setPosition(_textEdit->textCursor().anchor(),QTextCursor::MoveAnchor);
+                    cursor.setPosition(_textEdit->textCursor().position(), QTextCursor::KeepAnchor);
+                }
             } else {
-                _textEdit->setTextCursor(cursor);
                 if (action == sSubstitute)
                     replaceText.replace(SUB_PLACEHOLDER, selection);
-                result = true;
             }
         } else {
             break;
         }
 
         if (result) {
+            // remove substitute lines from bottom-up
             if (action == sRemove) {
                 removeLine(cursor, lineNumber + 4);
                 removeLine(cursor, lineNumber + 3);
                 removeLine(cursor, lineNumber + 1);
                 removeLine(cursor, lineNumber);
+            } else if (action == sRemoveAlt) {
+                removeLine(cursor, lineNumber + 2);
+                removeLine(cursor, lineNumber + 1);
+                removeLine(cursor, lineNumber - 1);
+                removeLine(cursor, lineNumber - 2);
             } else {
-                _textEdit->textCursor().insertText(replaceText);
+                cursor.insertText(replaceText);
             }
 
             if (++currentLine < selectedLines) {
-                cursor.movePosition(nextLine);
-                _textEdit->setTextCursor(cursor);
+                cursor.movePosition(nextLine, QTextCursor::MoveAnchor);
             }
+
+            _textEdit->setTextCursor(cursor);
+            _textEdit->ensureCursorVisible();
         }
     }
 
@@ -1259,7 +1265,9 @@ bool EditWindow::substitutePLIPart(QString &replaceText, const int action, const
                 box.setText (title);
                 box.setInformativeText (text);
                 if (box.exec() == QMessageBox::Save)
-                    emit updateAct->triggered();
+                    emit saveAct->triggered();
+                else if (box.exec() == QMessageBox::Discard)
+                    emit undoAct->triggered();
                 return false;
             } else {
                 emit lpub->messageSig(LOG_ERROR, QString("Failed to retrieve part [%1], color %2 (%3)...")
@@ -1745,8 +1753,6 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines, bool clear, bool ed
     auto highlightLines = [this, &editorSelection] (QVector<int> &linesToFormat, bool clear)
     {
         QTextCursor highlightCursor(_textEdit->document());
-
-        QTextCursor textCursor(_textEdit->document());
 
         if (!_textEdit->isReadOnly()) {
 

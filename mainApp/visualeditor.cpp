@@ -197,11 +197,20 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandTip", QVariant("Lights - Sunlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandTip", QVariant("Lights - Spotlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]->setProperty("CommandTip", QVariant("Lights - Arealight"));
-    connect(lightGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    connect(lightGroupAct, SIGNAL(triggered()),
+            this,          SLOT(  groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT],     SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT],  SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT], SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT], SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
 
     // Viewpoint icons
     viewpointGroupAct = new QAction(tr("Viewpoints"), this);
@@ -229,14 +238,29 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->   setProperty("CommandTip", QVariant("Viewpoints - Top"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandTip", QVariant("Viewpoints - Bottom"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->  setProperty("CommandTip", QVariant("Viewpoints - Home"));
-    connect(viewpointGroupAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
-    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME], SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    connect(viewpointGroupAct,                               SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT],  SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK],   SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT],   SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT],  SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP],    SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM], SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
+
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME],   SIGNAL(triggered()),
+            this,                                            SLOT(groupActionTriggered()));
 
     viewpointZoomExtAct = new QAction(tr("Fit To View"),this);
     viewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
@@ -494,19 +518,41 @@ bool Gui::eventFilter(QObject *object, QEvent *event)
 
 void Gui::initiaizeVisualEditor()
 {
-    connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
-    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
+    connect(this,        SIGNAL(clearViewerWindowSig()),
+            gMainWindow, SLOT(  NewProject()));
 
-    connect(gMainWindow, SIGNAL(SetRotStepMeta()),                         this,        SLOT(SetRotStepMeta()));
-    connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),             this,        SLOT(SetRotStepAngleX(float,bool)));
-    connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),             this,        SLOT(SetRotStepAngleY(float,bool)));
-    connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),             this,        SLOT(SetRotStepAngleZ(float,bool)));
-    connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),       this,        SLOT(SetRotStepTransform(QString&,bool)));
-    connect(gMainWindow, SIGNAL(GetRotStepMeta()),                         this,        SLOT(GetRotStepMeta()));
-    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
-    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
-    connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
-    connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),             this,        SLOT(togglePreviewWidget(bool)));
+    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),
+            gMainWindow, SLOT(  SetSelectedPieces(QVector<int>&)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepMeta()),
+            this,        SLOT(  SetRotStepMeta()));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),
+            this,        SLOT(  SetRotStepAngleX(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),
+            this,        SLOT(  SetRotStepAngleY(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),
+            this,        SLOT(  SetRotStepAngleZ(float,bool)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),
+            this,        SLOT(  SetRotStepTransform(QString&,bool)));
+
+    connect(gMainWindow, SIGNAL(GetRotStepMeta()),
+            this,        SLOT(  GetRotStepMeta()));
+
+    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),
+            this,        SLOT(  SetActiveModel(const QString&,bool)));
+
+    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+            this,        SLOT(  SelectedPartLines(QVector<TypeLine>&,PartSource)));
+
+    connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),
+            this,        SLOT(  UpdateViewerUndoRedo(const QString&,const QString&)));
+
+    connect(gMainWindow, SIGNAL(TogglePreviewWidgetSig(bool)),
+            this,        SLOT(  togglePreviewWidget(bool)));
 
     enable3DActions(false);
 
@@ -611,7 +657,7 @@ void Gui::halt3DViewer(bool enable)
         gMainWindow->menuBar()->setEnabled(true);
     }
 
-    messageSig(LOG_INFO, QString("Exporting content - Visual Editor %1").arg(enable ? "stopped" :"resumed"));
+    emit messageSig(LOG_INFO, QString("Exporting content - Visual Editor %1").arg(enable ? "stopped" :"resumed"));
 }
 
 void Gui::create3DDockWindows()
@@ -758,8 +804,10 @@ void Gui::togglePreviewWidget(bool visible)
             if (viewAct->text() == "Preview") {
                 viewAct->setChecked(visible);
                 viewAct->setVisible(visible);
-                messageSig(LOG_DEBUG, QString("%1 window %2.")
-                           .arg(viewAct->text()).arg(visible ? "Displayed" : "Hidden"));
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_DEBUG, QString("%1 window %2.")
+                                .arg(viewAct->text()).arg(visible ? "Displayed" : "Hidden"));
+#endif
                 break;
             }
         }
@@ -3329,6 +3377,7 @@ bool Gui::saveBuildModification()
         return true;     // continue
 
     QString change = undoAct->data().toString();
+
     if (!BuildModChangeTriggers.contains(change))
         return true;     // continue
 

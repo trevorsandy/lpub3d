@@ -198,7 +198,8 @@ enum SubAttributes {
     sOriginalType,             // 13 Substituted part/Original LDraw part
     sSubstitute,               // 14
     sUpdate,                   // 15
-    sRemove                    // 16
+    sRemove,                   // 16
+    sRemoveAlt                 // 17
 };
 enum NameKeyAttributes {
     nType = 0,        // 0 Includes the Render index at end delimited by '-'. Set to CSI for CSI type

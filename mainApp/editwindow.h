@@ -247,11 +247,11 @@ protected:
 
     QAction  *mpdComboSeparatorAct;
     QAction  *mpdComboAct;
-//*
+
     QMenu    *removeMenu;
     QAction  *substitutePartAct;
     QAction  *removeSubstitutePartAct;
-//*/
+
 #ifdef QT_DEBUG_MODE
     QAction  *previewViewerFileAct;
 #endif
