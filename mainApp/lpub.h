@@ -555,104 +555,104 @@ public:
 
   QStringList fileList()
   {
-    return ldrawFile.subFileOrder();
+    return LPub->ldrawFile.subFileOrder();
   }
   QStringList modelList()
   {
-      return ldrawFile.getSubModels();
+      return LPub->ldrawFile.getSubModels();
   }
   QStringList modelContents(const QString &modelName)
   {
-      return ldrawFile.contents(modelName);
+      return LPub->ldrawFile.contents(modelName);
   }
   QStringList contents(const QString &modelName)
   {
-      return ldrawFile.contents(modelName);
+      return LPub->ldrawFile.contents(modelName);
   }
   QStringList smiContents(const QString &modelName)
   {
-      return ldrawFile.smiContents(modelName);
+      return LPub->ldrawFile.smiContents(modelName);
   }
   bool changedSinceLastWrite(QString &modelName)
   {
-      return ldrawFile.changedSinceLastWrite(modelName);
+      return LPub->ldrawFile.changedSinceLastWrite(modelName);
   }
   int subFileSize(const QString &modelName)
   {
-    return ldrawFile.size(modelName);
+    return LPub->ldrawFile.size(modelName);
   }
   // Only used to return fade or highlight content size
   int configuredSubFileSize(const QString &modelName)
   {
-    return ldrawFile.configuredSubFileSize(modelName);
+    return LPub->ldrawFile.configuredSubFileSize(modelName);
   }
   int numSteps(const QString &modelName)
   {
-    return ldrawFile.numSteps(modelName);
+    return LPub->ldrawFile.numSteps(modelName);
   }
   int numParts()
   {
-    return ldrawFile.getPartCount();
+    return LPub->ldrawFile.getPartCount();
   }
   QString readLine(const Where &here);
 
   // Only used to read fade or highlight content
   QString readConfiguredLine(const Where &here)
   {
-    return ldrawFile.readConfiguredLine(here.modelName,here.lineNumber);
+    return LPub->ldrawFile.readConfiguredLine(here.modelName,here.lineNumber);
   }
 
   bool isSubmodel(const QString &modelName)
   {
-    return ldrawFile.isSubmodel(modelName);
+    return LPub->ldrawFile.isSubmodel(modelName);
   }
   bool isMpd()
   {
-    return ldrawFile.isMpd();
+    return LPub->ldrawFile.isMpd();
   }
   bool isOlder(const QString &fileName,const QDateTime &lastModified)
   {
-    bool older = ldrawFile.older(fileName,lastModified);
+    bool older = LPub->ldrawFile.older(fileName,lastModified);
     return older;
   }
   bool isOlder(const QStringList &parsedStack,const QDateTime &lastModified)
   {
-    bool older = ldrawFile.older(parsedStack,lastModified);
+    bool older = LPub->ldrawFile.older(parsedStack,lastModified);
     return older;
   }
   bool isMirrored(QStringList &argv)
   {
-    return ldrawFile.mirrored(argv);
+    return LPub->ldrawFile.mirrored(argv);
   }
   bool isUnofficialPart(const QString &name)
   {
-    return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_PART;
+    return LPub->ldrawFile.isUnofficialPart(name) == UNOFFICIAL_PART;
   }
   bool isUnofficialSubPart(const QString &name)
   {
-    return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_SUBPART;
+    return LPub->ldrawFile.isUnofficialPart(name) == UNOFFICIAL_SUBPART;
   }
   bool modified(const QString &fileName, bool reset = false)
   {
-    return ldrawFile.modified(fileName, reset);
+    return LPub->ldrawFile.modified(fileName, reset);
   }
   bool modified(const QStringList &parsedStack, bool reset = false)
   {
-    return ldrawFile.modified(parsedStack, reset);
+    return LPub->ldrawFile.modified(parsedStack, reset);
   }
   bool modified(const QVector<int> &parsedIndexes, bool reset = false)
   {
-    return ldrawFile.modified(parsedIndexes, reset);
+    return LPub->ldrawFile.modified(parsedIndexes, reset);
   }
   bool loadAborted()
   {
-    return ldrawFile._loadAborted;
+    return LPub->ldrawFile._loadAborted;
   }
 
   void insertGeneratedModel(const QString &name,
                                   QStringList &csiParts) {
     QDateTime date;
-    ldrawFile.insert(name,csiParts,date,false,true);
+    LPub->ldrawFile.insert(name,csiParts,date,false,true);
     writeToTmp();
   }
 
@@ -662,53 +662,53 @@ public:
 
   void clearPrevStepPositions()
   {
-    ldrawFile.clearPrevStepPositions();
+    LPub->ldrawFile.clearPrevStepPositions();
   }
 
   LDrawFile getLDrawFile()
   {
-      return ldrawFile;
+      return LPub->ldrawFile;
   }
 
   QString getSubmodelName(int index)
   {
-      return ldrawFile.getSubmodelName(index);
+      return LPub->ldrawFile.getSubmodelName(index);
   }
 
   int getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx)
   {
-      return ldrawFile.getLineTypeRelativeIndex(submodelIndx,lineTypeIndx);
+      return LPub->ldrawFile.getLineTypeRelativeIndex(submodelIndx,lineTypeIndx);
   }
 
   int getLineTypeIndex(int submodelIndx, int lineTypeIndx)
   {
-      return ldrawFile.getLineTypeIndex(submodelIndx,lineTypeIndx);
+      return LPub->ldrawFile.getLineTypeIndex(submodelIndx,lineTypeIndx);
   }
 
   int getSubmodelIndex(const QString &fileName)
   {
-      return ldrawFile.getSubmodelIndex(fileName);
+      return LPub->ldrawFile.getSubmodelIndex(fileName);
   }
 
   QVector<int> getSubmodelIndexes(const QString &fileName)
   {
-      return ldrawFile.getSubmodelIndexes(fileName);
+      return LPub->ldrawFile.getSubmodelIndexes(fileName);
   }
 
   int getSubmodelInstances(const QString &fileName, bool isMirrored)
   {
-      return ldrawFile.instances(fileName, isMirrored);
+      return LPub->ldrawFile.instances(fileName, isMirrored);
   }
 
   bool ldcadGroupMatch(const QString &name, const QStringList &lids)
   {
-      return ldrawFile.ldcadGroupMatch(name,lids);
+      return LPub->ldrawFile.ldcadGroupMatch(name,lids);
   }
 
   void updateViewerStep(const QString     &stepKey,
                         const QStringList &contents)
   {
-      ldrawFile.updateViewerStep(stepKey, contents);
+      LPub->ldrawFile.updateViewerStep(stepKey, contents);
   }
 
   void insertViewerStep(const QString     &stepKey,
@@ -721,7 +721,7 @@ public:
                         bool               calledOut,
                         int                viewType)
   {
-      ldrawFile.insertViewerStep(stepKey,
+      LPub->ldrawFile.insertViewerStep(stepKey,
                                  rotatedContents,
                                  unrotatedContents,
                                  filePath,
@@ -734,76 +734,76 @@ public:
 
   QStringList getViewerStepRotatedContents(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepRotatedContents(stepKey);
+      return LPub->ldrawFile.getViewerStepRotatedContents(stepKey);
   }
 
   QStringList getViewerStepUnrotatedContents(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepUnrotatedContents(stepKey);
+      return LPub->ldrawFile.getViewerStepUnrotatedContents(stepKey);
   }
 
   QString getViewerStepFilePath(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepFilePath(stepKey);
+      return LPub->ldrawFile.getViewerStepFilePath(stepKey);
   }
 
   QString getViewerStepImagePath(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepImagePath(stepKey);
+      return LPub->ldrawFile.getViewerStepImagePath(stepKey);
   }
 
   QString getViewerConfigKey(const QString &stepKey)
   {
-      return ldrawFile.getViewerConfigKey(stepKey);
+      return LPub->ldrawFile.getViewerConfigKey(stepKey);
   }
 
   QString getViewerStepKeyFromRange(const Where &here, const Where &top, const Where &bottom)
   {
-      return ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.modelIndex, top.lineNumber, bottom.modelIndex, bottom.lineNumber);
+      return LPub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineNumber, top.modelIndex, top.lineNumber, bottom.modelIndex, bottom.lineNumber);
   }
 
   QString getViewerStepKeyWhere(const Where &here)
   {
-      return ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber);
+      return LPub->ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber);
   }
 
   int getViewerStepPartCount(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepPartCount(stepKey);
+      return LPub->ldrawFile.getViewerStepPartCount(stepKey);
   }
 
   bool isViewerStepMultiStep(const QString &stepKey)
   {
-      return ldrawFile.isViewerStepMultiStep(stepKey);
+      return LPub->ldrawFile.isViewerStepMultiStep(stepKey);
   }
 
   bool isViewerStepCalledOut(const QString &stepKey)
   {
-      return ldrawFile.isViewerStepCalledOut(stepKey);
+      return LPub->ldrawFile.isViewerStepCalledOut(stepKey);
   }
 
   bool viewerStepContentExist(const QString &stepKey)
   {
-      return ldrawFile.viewerStepContentExist(stepKey);
+      return LPub->ldrawFile.viewerStepContentExist(stepKey);
   }
 
   bool deleteViewerStep(const QString &stepKey)
   {
-      return ldrawFile.deleteViewerStep(stepKey);
+      return LPub->ldrawFile.deleteViewerStep(stepKey);
   }
 
   void clearViewerSteps(){
-      ldrawFile.clearViewerSteps();
+      LPub->ldrawFile.clearViewerSteps();
   }
 
   bool viewerStepModified(const QString &stepKey, bool reset = false)
   {
-      return ldrawFile.viewerStepModified(stepKey, reset);
+      return LPub->ldrawFile.viewerStepModified(stepKey, reset);
   }
 
   void setViewerStepModified(const QString &stepKey)
   {
-      ldrawFile.setViewerStepModified(stepKey);
+      LPub->ldrawFile.setViewerStepModified(stepKey);
   }
 
   /* Build Modifications */
@@ -812,210 +812,210 @@ public:
                       const QVector<int> &modAttributes,
                       int                 stepIndex)
   {
-      ldrawFile.insertBuildMod(buildModKey,
+      LPub->ldrawFile.insertBuildMod(buildModKey,
                                modAttributes,
                                stepIndex);
   }
 
   int getBuildModBeginLineNumber(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModBeginLineNumber(buildModKey);
+      return LPub->ldrawFile.getBuildModBeginLineNumber(buildModKey);
   }
 
   int getBuildModActionLineNumber(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModActionLineNumber(buildModKey);
+      return LPub->ldrawFile.getBuildModActionLineNumber(buildModKey);
   }
 
   int getBuildModEndLineNumber(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModEndLineNumber(buildModKey);
+      return LPub->ldrawFile.getBuildModEndLineNumber(buildModKey);
   }
 
   int getBuildModActionPrevIndex(const QString &buildModKey, const int stepIndex, const int action)
   {
-      return ldrawFile.getBuildModActionPrevIndex(buildModKey, stepIndex, action);
+      return LPub->ldrawFile.getBuildModActionPrevIndex(buildModKey, stepIndex, action);
   }
 
   int getBuildModAction(const QString &buildModKey, const int stepIndex)
   {
-      return ldrawFile.getBuildModAction(buildModKey, stepIndex);
+      return LPub->ldrawFile.getBuildModAction(buildModKey, stepIndex);
   }
 
   int getBuildModAction(const QString &buildModKey, const int stepIndex, const int defaultIndex)
   {
-      return ldrawFile.getBuildModAction(buildModKey, stepIndex, defaultIndex);
+      return LPub->ldrawFile.getBuildModAction(buildModKey, stepIndex, defaultIndex);
   }
 
   int setBuildModAction(const QString &buildModKey, int stepIndex, int modAction)
   {
-      return ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
+      return LPub->ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
   }
 
   QMap<int, int> getBuildModActions(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModActions(buildModKey);
+      return LPub->ldrawFile.getBuildModActions(buildModKey);
   }
 
   int getBuildModDisplayPageNumber(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModDisplayPageNumber(buildModKey);
+      return LPub->ldrawFile.getBuildModDisplayPageNumber(buildModKey);
   }
 
   int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum)
   {
-      return ldrawFile.setBuildModDisplayPageNumber(buildModKey, displayPageNum);
+      return LPub->ldrawFile.setBuildModDisplayPageNumber(buildModKey, displayPageNum);
   }
 
   void setBuildModSubmodelStack(const QString &buildModKey, const QStringList &submodelStack)
   {
-      ldrawFile.setBuildModSubmodelStack(buildModKey, submodelStack);
+      LPub->ldrawFile.setBuildModSubmodelStack(buildModKey, submodelStack);
   }
 
   int setBuildModStepPieces(const QString &buildModKey, int pieces)
   {
-      return ldrawFile.setBuildModStepPieces(buildModKey, pieces);
+      return LPub->ldrawFile.setBuildModStepPieces(buildModKey, pieces);
   }
 
   int getBuildModStepPieces(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepPieces(buildModKey);
+      return LPub->ldrawFile.getBuildModStepPieces(buildModKey);
   }
 
   int getBuildModStepIndex(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepIndex(buildModKey);
+      return LPub->ldrawFile.getBuildModStepIndex(buildModKey);
   }
 
   int getBuildModStepIndex(const Where &here)
   {
-      return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
+      return LPub->ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
   int getBuildModStep(const Where &here)
   {
-      return ldrawFile.getBuildModStep(here.modelName, here.lineNumber);
+      return LPub->ldrawFile.getBuildModStep(here.modelName, here.lineNumber);
   }
 
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
   {
-      ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
+      LPub->ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
   }
 
   void setBuildModRendered(const QString &buildModKey, const QString &colorModel)
   {
-      ldrawFile.setBuildModRendered(buildModKey, colorModel);
+      LPub->ldrawFile.setBuildModRendered(buildModKey, colorModel);
   }
 
   bool setBuildModNextStepIndex(const Where &here)
   {
-      return ldrawFile.setBuildModNextStepIndex(here.modelName, here.lineNumber);
+      return LPub->ldrawFile.setBuildModNextStepIndex(here.modelName, here.lineNumber);
   }
 
   void setLoadBuildMods(bool b)
   {
-      ldrawFile.setLoadBuildMods(b);
+      LPub->ldrawFile.setLoadBuildMods(b);
   }
 
   void setBuildModNavBackward()
   {
-      ldrawFile.setBuildModNavBackward();
+      LPub->ldrawFile.setBuildModNavBackward();
   }
 
   int getBuildModNextStepIndex()
   {
-      return ldrawFile.getBuildModNextStepIndex();
+      return LPub->ldrawFile.getBuildModNextStepIndex();
   }
 
   int getBuildModPrevStepIndex()
   {
-      return ldrawFile.getBuildModPrevStepIndex();
+      return LPub->ldrawFile.getBuildModPrevStepIndex();
   }
 
   void clearBuildModAction(const QString &buildModKey,const int stepIndex)
   {
-      ldrawFile.clearBuildModAction(buildModKey, stepIndex);
+      LPub->ldrawFile.clearBuildModAction(buildModKey, stepIndex);
   }
 
   void clearBuildModRendered(const QString &buildModKey, const QString &colorModel)
   {
-      ldrawFile.clearBuildModRendered(buildModKey, colorModel);
+      LPub->ldrawFile.clearBuildModRendered(buildModKey, colorModel);
   }
 
   // This function returns the equivalent of the ViewerStepKey
   QString getBuildModStepKey(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepKey(buildModKey);
+      return LPub->ldrawFile.getBuildModStepKey(buildModKey);
   }
 
   QString getBuildModStepKeyModelName(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepKeyModelName(buildModKey);
+      return LPub->ldrawFile.getBuildModStepKeyModelName(buildModKey);
   }
 
   int getBuildModStepKeyLineNum(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepKeyLineNum(buildModKey);
+      return LPub->ldrawFile.getBuildModStepKeyLineNum(buildModKey);
   }
 
   int getBuildModStepKeyStepNum(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepKeyStepNum(buildModKey);
+      return LPub->ldrawFile.getBuildModStepKeyStepNum(buildModKey);
   }
 
   int getBuildModStepKeyModelIndex(const QString &buildModKey)
   {
-      return ldrawFile.getBuildModStepKeyModelIndex(buildModKey);
+      return LPub->ldrawFile.getBuildModStepKeyModelIndex(buildModKey);
   }
 
   bool getBuildModStepIndexWhere(int stepIndex, Where &here)
   {
-      return ldrawFile.getBuildModStepIndexWhere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
+      return LPub->ldrawFile.getBuildModStepIndexWhere(stepIndex, here.modelName, here.modelIndex, here.lineNumber);
   }
 
   bool getBuildModRendered(const QString &buildModKey, const QString &colorModel)
   {
-      return ldrawFile.getBuildModRendered(buildModKey, colorModel);
+      return LPub->ldrawFile.getBuildModRendered(buildModKey, colorModel);
   }
 
   bool buildModContains(const QString &buildModKey)
   {
-      return ldrawFile.buildModContains(buildModKey);
+      return LPub->ldrawFile.buildModContains(buildModKey);
   }
 
   int getBuildModStepLineNumber(int stepIndex, bool bottom = true)
   {
-      return ldrawFile.getBuildModStepLineNumber(stepIndex, bottom);
+      return LPub->ldrawFile.getBuildModStepLineNumber(stepIndex, bottom);
   }
 
   QStringList getBuildModsList()
   {
-      return ldrawFile.getBuildModsList();
+      return LPub->ldrawFile.getBuildModsList();
   }
 
   QStringList getPathsFromViewerStepKey(const QString &stepKey)
   {
-      return ldrawFile.getPathsFromViewerStepKey(stepKey);
+      return LPub->ldrawFile.getPathsFromViewerStepKey(stepKey);
   }
 
   QStringList getPathsFromBuildModKeys(const QStringList &buildModKeys)
   {
-      return ldrawFile.getPathsFromBuildModKeys(buildModKeys);
+      return LPub->ldrawFile.getPathsFromBuildModKeys(buildModKeys);
   }
 
   bool buildModsCount()
   {
-      return ldrawFile.buildModsCount();
+      return LPub->ldrawFile.buildModsCount();
   }
 
   bool deleteBuildMod(const QString &buildModKey = QString())
   {
-      return ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
+      return LPub->ldrawFile.deleteBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
   void deleteBuildMods(const int &stepIndex)
   {
-      ldrawFile.deleteBuildMods(stepIndex);
+      LPub->ldrawFile.deleteBuildMods(stepIndex);
   }
 
   QString getBuildModChangeKey()
@@ -1058,17 +1058,17 @@ public:
 
   void skipHeader(Where &current)
   {
-      ldrawFile.skipHeader(current.modelName, current.lineNumber);
+      LPub->ldrawFile.skipHeader(current.modelName, current.lineNumber);
   }
 
   int getStepIndex(const Where &here)
   {
-      return ldrawFile.getStepIndex(here.modelName, here.lineNumber);
+      return LPub->ldrawFile.getStepIndex(here.modelName, here.lineNumber);
   }
 
   void getTopOfStepWhere(Where &here)
   {
-      ldrawFile.getTopOfStepWhere(here.modelName, here.modelIndex, here.lineNumber);
+      LPub->ldrawFile.getTopOfStepWhere(here.modelName, here.modelIndex, here.lineNumber);
   }
 
   void setExportedFile(const QString &fileName)

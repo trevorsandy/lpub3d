@@ -206,11 +206,6 @@ inline Preferences& getPreferencesRef()
     return LPub->lpub3dPreferences;
 }
 
-inline LDrawFile& getLdrawFileRef()
-{
-    return LPub->ldrawFile;
-}
-
 inline Meta& getMetaRef()
 {
     return LPub->meta;

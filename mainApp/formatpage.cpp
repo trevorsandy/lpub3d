@@ -603,7 +603,7 @@ int Gui::addGraphicsPageItems(
             case InsertData::InsertBom:
               {
                 Where where(insert.where.modelName, insert.where.lineNumber);
-                Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : ldrawFile.topLevelFile(),0);
+                Where current(insert.bomToEndOfSubmodel ? insert.where.modelName : LPub->ldrawFile.topLevelFile(),0);
                 QFuture<void> future = QtConcurrent::run([this, current]() {
                     bomParts.clear();
                     bomPartGroups.clear();

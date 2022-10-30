@@ -841,13 +841,13 @@ int Pli::createSubModelIcons()
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
-    int iconCount = LPub->ldrawFile.subFileOrder().size()/*gui->fileList().size()*/;
+    int iconCount = LPub->ldrawFile.subFileOrder().size();
 
     auto setSubmodel = [this,&type,&color] (const int i)
     {
         color = "0";
 
-        type = LPub->ldrawFile.subFileOrder()[i]/*gui->fileList()[i]*/;
+        type = LPub->ldrawFile.subFileOrder()[i];
 
         QFileInfo info(type);
 

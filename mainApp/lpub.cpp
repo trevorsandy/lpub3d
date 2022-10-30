@@ -1496,14 +1496,14 @@ void Gui::editModelFile(bool saveBefore, bool subModel)
     if (saveBefore)
         save();
     QString file = getCurFile();
-    if (ldrawFile.isIncludeFile(curSubFile))
+    if (LPub->ldrawFile.isIncludeFile(curSubFile))
         file = curSubFile;
     else if (subModel) {
         file = editWindow->getCurrentFile();
-        writeToTmp(file, ldrawFile.contents(file));
+        writeToTmp(file, LPub->ldrawFile.contents(file));
     }
     editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
-    displayFile(&ldrawFile, Where(file, 0), true/*editModelFile*/);
+    displayFile(&LPub->ldrawFile, Where(file, 0), true/*editModelFile*/);
     editModeWindow->show();
     while (!editModeWindow->contentLoading())
         QApplication::processEvents();
@@ -1543,7 +1543,7 @@ void Gui::mpdComboChanged(int index)
   bool isIncludeFile = false;
   if (newSubFile.endsWith("Include File")) {
       newSubFile = mpdCombo->currentData().toString();
-      isIncludeFile = ldrawFile.isIncludeFile(newSubFile);
+      isIncludeFile = LPub->ldrawFile.isIncludeFile(newSubFile);
   }
 
   if (curSubFile != newSubFile) {
@@ -1551,7 +1551,7 @@ void Gui::mpdComboChanged(int index)
     bool callDisplayFile = isIncludeFile;
 
     if (!callDisplayFile) {
-      const int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
+      const int modelPageNum = LPub->ldrawFile.getModelStartPageNumber(newSubFile);
       countPages();
       if (modelPageNum && displayPageNum != modelPageNum) {
         if (!saveBuildModification())
@@ -1566,7 +1566,7 @@ void Gui::mpdComboChanged(int index)
     if (callDisplayFile) {
       messageSig(LOG_INFO, QString( "Selected %1: %2")
                  .arg(isIncludeFile ? "includeFile" : "subModel").arg(newSubFile));
-      displayFile(&ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
+      displayFile(&LPub->ldrawFile, Where(newSubFile, 0), false/*editModelFile*/, true/*displayStartPage*/);
       showLineSig(0, LINE_HIGHLIGHT);
       if (isIncludeFile) {  // Combo will not be set to include toolTip, so set here
           mpdCombo->setToolTip(tr("Include file: %1").arg(newSubFile));
@@ -1609,7 +1609,7 @@ void Gui::ldrawSearchDirectories()
 void Gui::insertConfiguredSubFile(const QString &name,
                                   QStringList &content) {
     QString subFilePath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/" + name);
-    ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
+    LPub->ldrawFile.insertConfiguredSubFile(name,content,subFilePath);
 }
 
 void Gui::reloadCurrentPage(){
@@ -1662,7 +1662,7 @@ void Gui::reloadCurrentModelFile() { // EditModeWindow Update
     cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
-                    .arg(ldrawFile.getPartCount())
+                    .arg(LPub->ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
 }
 
@@ -1751,7 +1751,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-        ldrawFile.clearPrevStepPositions();
+        LPub->ldrawFile.clearPrevStepPositions();
     }
 
     clearPLICache();
@@ -1763,7 +1763,7 @@ void Gui::clearAndRedrawModelFile() { //EditModeWindow Redraw
     cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                    .arg(ldrawFile.getPartCount())
+                    .arg(LPub->ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
 
     changeAccepted = saveChange;
@@ -1788,7 +1788,7 @@ void Gui::clearAndReloadModelFile(bool global) { // EditWindow Redraw
         clearSubmodelCache();
         clearTempCache();
         emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(ldrawFile.getPartCount())
+                        .arg(LPub->ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
     } else
         clearAllCaches();
@@ -1821,7 +1821,7 @@ void Gui::clearAllCaches(bool global)
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
-        ldrawFile.clearPrevStepPositions();
+        LPub->ldrawFile.clearPrevStepPositions();
     }
 
     // if global, skip clearCache here and run in cycleDisPlayPage
@@ -1832,7 +1832,7 @@ void Gui::clearAllCaches(bool global)
         clearSubmodelCache();
         clearTempCache();
         emit messageSig(LOG_STATUS, QString("All caches reset (%1 parts). %2")
-                        .arg(ldrawFile.getPartCount())
+                        .arg(LPub->ldrawFile.getPartCount())
                         .arg(elapsedTime(timer.elapsed())));
     }
 
@@ -1851,7 +1851,7 @@ void Gui::clearAllCaches(bool global)
     cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
     emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                        .arg(ldrawFile.getPartCount())
+                                        .arg(LPub->ldrawFile.getPartCount())
                                         .arg(elapsedTime(timer.elapsed())));
 
 }
@@ -2085,7 +2085,7 @@ void Gui::clearTempCache()
         }
     }
 
-    ldrawFile.tempCacheCleared();
+    LPub->ldrawFile.tempCacheCleared();
 
     emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
@@ -2256,52 +2256,52 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
 
 void Gui::pageSetup()
 {
-  GlobalPageDialog::getPageGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalPageDialog::getPageGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::assemSetup()
 {
-  GlobalAssemDialog::getAssemGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalAssemDialog::getAssemGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::pliSetup()
 {
-  GlobalPliDialog::getPliGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalPliDialog::getPliGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::bomSetup()
 {
-  GlobalPliDialog::getBomGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalPliDialog::getBomGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::calloutSetup()
 {
-  GlobalCalloutDialog::getCalloutGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalCalloutDialog::getCalloutGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::multiStepSetup()
 {
-  GlobalMultiStepDialog::getMultiStepGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalMultiStepDialog::getMultiStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::subModelSetup()
 {
-  GlobalSubModelDialog::getSubModelGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalSubModelDialog::getSubModelGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::projectSetup()
 {
-  GlobalProjectDialog::getProjectGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalProjectDialog::getProjectGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::fadeStepSetup()
 {
-  GlobalFadeStepDialog::getFadeStepGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalFadeStepDialog::getFadeStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::highlightStepSetup()
 {
-  GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
+  GlobalHighlightStepDialog::getHighlightStepGlobals(LPub->ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::useSystemEditor()
@@ -3899,7 +3899,7 @@ void Gui::reloadModelFileAfterColorFileGen() {
                 cyclePageDisplay(displayPageNum, PageDirection(cycleEachPage));
 
                 emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                .arg(ldrawFile.getPartCount())
+                                .arg(LPub->ldrawFile.getPartCount())
                                 .arg(elapsedTime(timer.elapsed())));
             }
         } else {
@@ -4400,7 +4400,7 @@ void Gui::loadLDSearchDirParts(bool Process, bool OnDemand, bool Update) {
       cyclePageDisplay(displayPageNum, FILE_RELOAD);
 
       emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                      .arg(ldrawFile.getPartCount())
+                      .arg(LPub->ldrawFile.getPartCount())
                       .arg(elapsedTime(timer.elapsed())));
   }
 }
@@ -6385,7 +6385,7 @@ void Gui::showLine(const Where &here, int type)
 {
   if (Preferences::modeGUI && ! exporting()) {
     if (macroNesting == 0) {
-      displayFile(&ldrawFile, here);
+      displayFile(&LPub->ldrawFile, here);
       showLineSig(here.lineNumber, type);
     }
   }

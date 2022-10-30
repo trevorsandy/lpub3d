@@ -1612,7 +1612,7 @@ void Gui::SetActiveModel(const QString &modelName, bool setActive)
             emit messageSig(LOG_ERROR, QString("Active model '%1' not found").arg(modelName));
         }
         if (displayModelFile)
-            displayFile(&ldrawFile, getCurrentStep()->topOfStep());
+            displayFile(&LPub->ldrawFile, getCurrentStep()->topOfStep());
     }
 }
 
@@ -2371,10 +2371,10 @@ void Gui::createBuildModification()
 
             // load LPub content
             QByteArray ByteArray;
-            for (int i = 0; i < ldrawFile.contents(ModelName).size(); i++){
+            for (int i = 0; i < LPub->ldrawFile.contents(ModelName).size(); i++){
                 if (i > ModActionLineNum)
                     break;
-                QString ModLine = ldrawFile.contents(ModelName).at(i);
+                QString ModLine = LPub->ldrawFile.contents(ModelName).at(i);
                 if (i >= ModBeginLineNum)
                     LPubModContents.append(ModLine);
                 ByteArray.append(ModLine.toUtf8());
@@ -3898,7 +3898,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
 #ifdef QT_DEBUG_MODE
         if (modelIndex != NEW_MODEL && source > VIEWER_LINE)
             emit messageSig(LOG_TRACE, QString("Submodel lineIndex count: %1 item(s)")
-                            .arg(ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
+                            .arg(LPub->ldrawFile.getLineTypeRelativeIndexCount(modelIndex)));
 #endif
 
         for (int i = 0; i < indexes.size() && source < VIEWER_CLR; ++i) {

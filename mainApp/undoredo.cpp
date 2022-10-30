@@ -22,43 +22,43 @@
 
 QString Gui::topLevelFile()
 {
-  return ldrawFile.topLevelFile();
+  return LPub->ldrawFile.topLevelFile();
 }
 
 void Gui::insertLine(const Where &here, const QString &line, QUndoCommand *parent)
 {
-  if (ldrawFile.contains(here.modelName)) {
-    undoStack->push(new InsertLineCommand(&ldrawFile,here,line,parent));
+  if (LPub->ldrawFile.contains(here.modelName)) {
+    undoStack->push(new InsertLineCommand(&LPub->ldrawFile,here,line,parent));
   }
 }
 
 void Gui::appendLine(const Where &here, const QString &line, QUndoCommand *parent)
 {
-  if (ldrawFile.contains(here.modelName)) {
-    undoStack->push(new AppendLineCommand(&ldrawFile,here,line,parent));
+  if (LPub->ldrawFile.contains(here.modelName)) {
+    undoStack->push(new AppendLineCommand(&LPub->ldrawFile,here,line,parent));
   }
 }
       
 void Gui::replaceLine(const Where &here, const QString &line, QUndoCommand *parent)
 {
-  if (ldrawFile.contains(here.modelName) && 
-      here.lineNumber < ldrawFile.size(here.modelName)) {
+  if (LPub->ldrawFile.contains(here.modelName) &&
+      here.lineNumber < LPub->ldrawFile.size(here.modelName)) {
 
-    undoStack->push(new ReplaceLineCommand(&ldrawFile,here,line,parent));
+    undoStack->push(new ReplaceLineCommand(&LPub->ldrawFile,here,line,parent));
   }
 }
 
 void Gui::deleteLine(const Where &here, QUndoCommand *parent)
 {
-  if (ldrawFile.contains(here.modelName) && 
-      here.lineNumber < ldrawFile.size(here.modelName)) {
-    undoStack->push(new DeleteLineCommand(&ldrawFile,here,parent));
+  if (LPub->ldrawFile.contains(here.modelName) &&
+      here.lineNumber < LPub->ldrawFile.size(here.modelName)) {
+    undoStack->push(new DeleteLineCommand(&LPub->ldrawFile,here,parent));
   }
 }
 
 QString Gui::readLine(const Where &here)
 {
-  return ldrawFile.readLine(here.modelName,here.lineNumber);
+  return LPub->ldrawFile.readLine(here.modelName,here.lineNumber);
 }
 
 void Gui::beginMacro(QString name)
@@ -85,14 +85,14 @@ void Gui::contentsChange(
 
   /* Calculate the characters removed from the LDrawFile */
 
-  if (_charsRemoved && ldrawFile.contains(fileName)) {
+  if (_charsRemoved && LPub->ldrawFile.contains(fileName)) {
 
-    QString contents = ldrawFile.contents(fileName).join("\n");
+    QString contents = LPub->ldrawFile.contents(fileName).join("\n");
 
     charsRemoved = contents.mid(position,_charsRemoved);
   }
   
-  undoStack->push(new ContentsChangeCommand(&ldrawFile,
+  undoStack->push(new ContentsChangeCommand(&LPub->ldrawFile,
                                             fileName,
                                             position,
                                             charsRemoved,
