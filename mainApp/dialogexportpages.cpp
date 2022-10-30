@@ -66,12 +66,18 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     ui->radioButtonAllPages->setChecked(true);
     ui->checkBoxResetCache->setChecked(false);
 
-    if (gui->pageDirection == PAGE_NEXT){
-        ui->labelAllPages->setText(QString("%1 to %2").arg(1 + gui->pa).arg(gui->maxPages));
-        ui->lineEditPageRange->setText(QString("%1").arg(linePageRange));
+    QString pages(QString::number(1 + gui->pa));
+    if (gui->pageDirection == PAGE_NEXT) {
+        if (gui->exportMode == PAGE_PROCESS)
+            pages = QString::number(++gui->displayPageNum);
+        ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(gui->maxPages));
+        ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(gui->maxPages));
     } else {
-        ui->labelAllPages->setText(QString("%1 to 1").arg(gui->maxPages));
-        ui->lineEditPageRange->setText(QString("%1-%2").arg(linePageRange.section('-',1,1)).arg(linePageRange.section('-',0,0)));
+        pages = QString::number(gui->maxPages);
+        if (gui->exportMode == PAGE_PROCESS)
+            pages = QString::number(++gui->displayPageNum);
+        ui->labelAllPages->setText(QString("%1 to %2").arg(pages).arg(1 + gui->pa));
+        ui->lineEditPageRange->setText(QString("%1-%2").arg(pages).arg(1 + gui->pa));
     }
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 

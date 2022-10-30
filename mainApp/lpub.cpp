@@ -528,17 +528,21 @@ void Gui::enableNavigationActions(bool enable)
   setGoToPageCombo->setEnabled(setGoToPageCombo->count() && enable);
   mpdCombo->setEnabled(mpdCombo->count() && enable);
 
-  firstPageAct->setEnabled(enable);
-  lastPageAct->setEnabled(enable);
+  bool atStart = enable && (displayPageNum == (1 + pa));
+  bool atEnd = enable && (displayPageNum == maxPages);
 
-  if (!nextPageContinuousIsRunning  && !previousPageContinuousIsRunning) {
-    nextPageAct->setEnabled(enable);
-    previousPageAct->setEnabled(enable);
-    nextPageComboAct->setEnabled(enable);
-    previousPageComboAct->setEnabled(enable);
-    nextPageContinuousAct->setEnabled(enable);
-    previousPageContinuousAct->setEnabled(enable);
-  }
+  firstPageAct->setEnabled(!atStart);
+
+  lastPageAct->setEnabled(!atEnd);
+
+  nextPageAct->setEnabled(!atEnd);
+  previousPageAct->setEnabled(!atStart);
+
+  nextPageComboAct->setEnabled(!atEnd);
+  previousPageComboAct->setEnabled(!atStart);
+
+  nextPageContinuousAct->setEnabled(!atEnd);
+  previousPageContinuousAct->setEnabled(!atStart);
 }
 
 void Gui::nextPage()
@@ -905,6 +909,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
+              enableNavigationActions(true);
               m_progressDlgProgressBar->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
               m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           }
@@ -1012,6 +1017,7 @@ bool Gui::continuousPageDialog(PageDirection d)
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
+              enableNavigationActions(true);
               m_progressDlgProgressBar->setValue(pageCount);
               m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           }

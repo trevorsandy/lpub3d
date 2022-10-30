@@ -4505,7 +4505,8 @@ void Gui::drawPage(
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 
-  enableNavigationActions(false);
+  if (Preferences::modeGUI && ! exporting() && ! ContinuousPage())
+    enableNavigationActions(false);
 
   current      = Where(ldrawFile.topLevelFile(),0,0);
   saveMaxPages = maxPages;
@@ -4872,7 +4873,8 @@ void Gui::pagesCounted()
 
         if (Preferences::modeGUI && ! exporting()) {
             enableActions2();
-            enableNavigationActions(true);
+            if (!ContinuousPage())
+                enableNavigationActions(true);
             enable3DActions(!page.coverPage || page.meta.LPub.coverPageViewEnabled.value());
         } // modeGUI and not exporting
     } // drawPage
