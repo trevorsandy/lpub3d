@@ -578,16 +578,23 @@ int Step::createCsi(
                             /*POV scene file generator*/  ldviewParms ;
          if (Preferences::preferredRenderer == RENDERER_POVRAY)
              meta.LPub.assem.povrayParms = povrayParms;
+
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key - i.e.nameAndStepKey
 
-         if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta, nType)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
-                                                    .arg(rendererNames[Render::getRenderer()])
-                                                    .arg(pngName));
-             pngName = QString(":/resources/missingimage.png");
-             rc = -1;
-         }
+         QFuture<int> RenderFuture = QtConcurrent::run([this, &addLine, &csiParts, &csiKeys, &meta, nType] () {
+             int frc = 0;
+             QStringList futureParts = csiParts;
+             if ((frc = renderer->renderCsi(addLine, futureParts, csiKeys, pngName, meta, nType)) != 0) {
+                 emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
+                                      .arg(rendererNames[Render::getRenderer()]).arg(QFileInfo(pngName).fileName()));
+                 pngName = QString(":/resources/missingimage.png");
+                 frc = -1;
+             }
+             return frc;
+         });
+
+         rc = RenderFuture.result();
      }
 
      if (!rc && showStatus) {

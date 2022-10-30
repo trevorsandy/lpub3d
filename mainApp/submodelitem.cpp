@@ -200,27 +200,31 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
    FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
 
-   QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&rotatedModel,&ldrName,&cameraAngles] () {
-       int rcf = true;
-       QStringList futureModel = rotatedModel;
-       // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
-       if ((renderer->rotateParts(
-                addLine,
-                subModelMeta.rotStep,
-                futureModel,
-                ldrName,
-                step ? step->top.modelName : gui->topOfPage().modelName,
-                cameraAngles,
-                false/*ldv*/,
-                Options::SMP)) != 0) {
-           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
-           imageName = QString(":/resources/missingimage.png");
-           rcf = false;
-       }
-       return rcf;
-   });
+   //QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&rotatedModel,&ldrName,&cameraAngles] () {
+   //    int rcf = true;
+   //    QStringList futureModel = rotatedModel;
 
-   return RenderFuture.result();
+   // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
+   if ((renderer->rotateParts(
+            addLine,
+            subModelMeta.rotStep,
+   //       futureModel
+            rotatedModel,
+            ldrName,
+            step ? step->top.modelName : gui->topOfPage().modelName,
+            cameraAngles,
+            false/*ldv*/,
+            Options::SMP)) != 0) {
+       emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.").arg(ldrName));
+       imageName = QString(":/resources/missingimage.png");
+   //    rcf = false
+       return false;
+   }
+   //    return rcf;
+       return true;
+   //});
+
+   //return RenderFuture.result();
 }
 
 int SubModel::pageSizeP(Meta *meta, int which){
@@ -467,25 +471,33 @@ int SubModel::createSubModelImage(
 
       timer.start();
 
-      // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
-      if (! rotateModel(ldrNames.first(),type,color,noCA)) {
-          emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
-                               .arg(ldrNames.first()));
-          return -1;
-      }
+      QFuture<int> RenderFuture = QtConcurrent::run([this, &ldrNames, &type, &color, noCA] () {
+          int frc = 0;
 
-      // feed DAT to renderer
-      if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
-          emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
-                                                 .arg(rendererNames[Render::getRenderer()])
-                                                 .arg(imageName)
-                                                 .arg(callout ? "called out," : "simple,")
-                                                 .arg(multistep ? "step group" : "single step")
-                                                 .arg(step ? step->stepNumber.number : 0)
-                                                 .arg(gui->stepPageNum));
-          imageName = QString(":/resources/missingimage.png");
-          rc = -1;
-      }
+          // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
+          if (! rotateModel(ldrNames.first(),type,color,noCA)) {
+              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
+                                   .arg(ldrNames.first()));
+              return frc = 1;
+          }
+
+          // feed DAT to renderer
+          if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+              emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
+                                                     .arg(rendererNames[Render::getRenderer()])
+                                                     .arg(imageName)
+                                                     .arg(callout ? "called out," : "simple,")
+                                                     .arg(multistep ? "step group" : "single step")
+                                                     .arg(step ? step->stepNumber.number : 0)
+                                                     .arg(gui->stepPageNum));
+              imageName = QString(":/resources/missingimage.png");
+              frc = -1;
+          }
+
+          return frc;
+      });
+
+      rc = RenderFuture.result();
 
       if (!rc) {
           emit gui->messageSig(LOG_INFO,

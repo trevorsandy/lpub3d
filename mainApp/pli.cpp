@@ -1245,9 +1245,10 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             if (! pixmap->load(part->imageName)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load PLI pixmap image.<br>%1 was not found.")
                                      .arg(part->imageName));
+                part->imageName = QString(":/resources/missingimage.png");
+                pixmap->load(part->imageName);
                 rc = -1;
-                if (! pixmap->load(QString(":/resources/missingimage.png")))
-                    continue;
+                continue;
             }
 
             // transfer image info to part
@@ -2094,12 +2095,20 @@ void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
 
 int Pli::sortPli()
 {
-    // populate part size
-    partSize();
+    // Create and render parts to populate part size
+    QFuture<int> PartsFuture = QtConcurrent::run([this] {
+        return partSize();
+    });
 
-    if (! parts.size()) {
-        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("No valid parts were found for this PLI instance"));
-        return 1;
+    int rc = PartsFuture.result();
+    if (rc)
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("There was a problem sizing parts for this PLI instance"));
+
+    rc = !parts.size();
+
+    if (rc) {
+        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("No valid parts were found for this PLI instance"));
+        return rc;
     }
 
     sortedKeys = parts.keys();
@@ -2107,9 +2116,12 @@ int Pli::sortPli()
     if (! bom)
         pliMeta.sort.setValue(true);
 
-    sortParts(parts);
+    QFuture<void> SortFuture = QtConcurrent::run([this] {
+        sortParts(parts);
+    });
+    SortFuture.waitForFinished();
 
-  return 0;
+    return rc;
 }
 
 int Pli::partSize()
@@ -2117,16 +2129,14 @@ int Pli::partSize()
     isSubModel = false; // not sizing icon images
 
     if (renderer->useLDViewSCall()) {
-      int rc = partSizeLDViewSCall();
-      if (rc != 0)
-        return rc;
+      if (partSizeLDViewSCall() != 0)
+          return -1;
     } else {
 
-      QString key;
       widestPart = 0;
       tallestPart = 0;
 
-      Q_FOREACH (key,parts.keys()) {
+      Q_FOREACH (const QString& key,parts.keys()) {
           PliPart *part;
 
           // get part info
@@ -2154,9 +2164,12 @@ int Pli::partSize()
                   nameKey.replace(type, QString(type).replace("_", ";"));
               }
 
-              if (createPartImage(nameKey,part->type,part->color,pixmap,part->subType)) {
+              if (createPartImage(nameKey,part->type,part->color,pixmap,part->subType) != 0) {
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part for key %1")
                                        .arg(part->nameKey));
+                  imageName = QString(":/resources/missingimage.png");
+                  pixmap->load(imageName);
+                  return -1;
               }
 
               QImage image = pixmap->toImage();
@@ -2348,7 +2361,6 @@ int Pli::partSizeLDViewSCall() {
 
     int rc = 0;
     int iaSub = 0;
-    QString key;
     widestPart = 0;
     tallestPart = 0;
 
@@ -2361,7 +2373,7 @@ int Pli::partSizeLDViewSCall() {
     int stepNumber = step ? step->stepNumber.number : 0/*BOM page*/;
 
     // 1. generate ldr files
-    Q_FOREACH (key,parts.keys()) {
+    Q_FOREACH (const QString& key, parts.keys()) {
         PliPart *pliPart;
 
         // get part info
@@ -2698,41 +2710,51 @@ int Pli::partSizeLDViewSCall() {
 
 int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
 {
-  int rc;
+  int rc = !parts.size();
+  if (rc)
+      return rc;
 
   parentRelativeType = _parentRelativeType;
   perStep = _perStep;
-
-  if (parts.size() == 0) {
-      return 1;
-    }
-
   meta = _meta;
 
-  rc = sortPli();
-  if (rc != 0) {
+  // Create and render PLI parts
+  //QFuture<int> PartsFuture = QtConcurrent::run([this] {
+  //    return sortPli();
+  //});
+
+  rc = sortPli(); // PartsFuture.result();
+  if (rc)
       return rc;
-    }
 
   ConstrainData constrainData = pliMeta.constrain.value();
 
-  return resizePli(meta,constrainData);
+  QFuture<int> ResizeFuture = QtConcurrent::run([this, &constrainData] {
+      return resizePli(meta,constrainData);
+  });
+
+  return ResizeFuture.result();
 }
 
 int Pli::sizePli(ConstrainData::PliConstrain constrain, unsigned height)
 {
-  if (parts.size() == 0) {
-      return 1;
-    }
+  int rc = !parts.size();
+  if (rc)
+      return rc;
 
   if (meta) {
       ConstrainData constrainData;
       constrainData.type = constrain;
       constrainData.constraint = height;
 
-      return resizePli(meta,constrainData);
-    }
-  return 1;
+      QFuture<int> PartsFuture = QtConcurrent::run([this, &constrainData] {
+          return resizePli(meta,constrainData);
+      });
+
+      return PartsFuture.result();
+  }
+
+  return rc;
 }
 
 int Pli::resizePli(
