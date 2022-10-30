@@ -52,6 +52,12 @@ int LPub::Process3DViewerCommandLine()
     return gApplication->Process3DViewerCommandLine();
 }
 
+/********************************************************************
+ *
+ * Manage visual editor stud style
+ *
+ * *****************************************************************/
+
 int LPub::GetStudStyle()
 {
     if (gApplication)
@@ -119,63 +125,73 @@ float LPub::GetPartColorLightDarkIndex()
 void LPub::SetStudStyle(const NativeOptions* Options, bool value)
 {
     float  PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
-    quint32 StudCylinderColor = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
-    quint32 PartEdgeColor = lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
-    quint32 BlackEdgeColor = lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
-    quint32 DarkEdgeColor = lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
-    int StudStyle = lcGetProfileInt(LC_PROFILE_STUD_STYLE);
+    quint32 StudCylinderColor    = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
+    quint32 PartEdgeColor        = lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
+    quint32 BlackEdgeColor       = lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
+    quint32 DarkEdgeColor        = lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
+    int StudStyle                = lcGetProfileInt(LC_PROFILE_STUD_STYLE);
 
     if (Options) {
-         PartColorValueLDIndex = Options->LightDarkIndex;
-         StudCylinderColor = Options->StudCylinderColor;
-         PartEdgeColor = Options->PartEdgeColor;
-         BlackEdgeColor = Options->BlackEdgeColor;
-         DarkEdgeColor = Options->DarkEdgeColor;
-         StudStyle = Options->StudStyle;
+        PartColorValueLDIndex = Options->LightDarkIndex;
+        StudCylinderColor     = Options->StudCylinderColor;
+        PartEdgeColor         = Options->PartEdgeColor;
+        BlackEdgeColor        = Options->BlackEdgeColor;
+        DarkEdgeColor         = Options->DarkEdgeColor;
+        StudStyle             = Options->StudStyle;
     }
 
-    bool ColorChanged  = GetStudStyle() != StudStyle;
-         ColorChanged |= lcGetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
-         ColorChanged |= lcGetPreferences().mStudCylinderColor != StudCylinderColor;
-         ColorChanged |= lcGetPreferences().mPartEdgeColor != PartEdgeColor;
-         ColorChanged |= lcGetPreferences().mBlackEdgeColor != BlackEdgeColor;
-         ColorChanged |= lcGetPreferences().mDarkEdgeColor != DarkEdgeColor;
+    lcPreferences& Preferences = lcGetPreferences();
 
-    gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
-    gApplication->mPreferences.mStudCylinderColor = StudCylinderColor;
-    gApplication->mPreferences.mPartEdgeColor = PartEdgeColor;
-    gApplication->mPreferences.mBlackEdgeColor = BlackEdgeColor;
-    gApplication->mPreferences.mDarkEdgeColor = DarkEdgeColor;
+    bool Change = GetStudStyle()                      != StudStyle;
+         Change |= Preferences.mPartColorValueLDIndex != PartColorValueLDIndex;
+         Change |= Preferences.mStudCylinderColor     != StudCylinderColor;
+         Change |= Preferences.mPartEdgeColor         != PartEdgeColor;
+         Change |= Preferences.mBlackEdgeColor        != BlackEdgeColor;
+         Change |= Preferences.mDarkEdgeColor         != DarkEdgeColor;
 
-    lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value);
+    if (Change) {
+        Preferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+        Preferences.mStudCylinderColor     = StudCylinderColor;
+        Preferences.mPartEdgeColor         = PartEdgeColor;
+        Preferences.mBlackEdgeColor        = BlackEdgeColor;
+        Preferences.mDarkEdgeColor         = DarkEdgeColor;
 
-    if (ColorChanged)
+        lcGetPiecesLibrary()->SetStudStyle(static_cast<lcStudStyle>(StudStyle), value);
+
         lcGetPiecesLibrary()->LoadColors();
+    }
 }
 
 void LPub::SetAutomateEdgeColor(const NativeOptions* Options)
 {
-    bool  AutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
-    float PartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
+    bool  AutomateEdgeColor     = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
+    float PartEdgeContrast      = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
     float PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
 
     if (Options) {
-         AutomateEdgeColor = Options->AutoEdgeColor;
-         PartEdgeContrast = Options->EdgeContrast;
-         PartColorValueLDIndex = Options->EdgeSaturation;
+        AutomateEdgeColor     = Options->AutoEdgeColor;
+        PartEdgeContrast      = Options->EdgeContrast;
+        PartColorValueLDIndex = Options->EdgeSaturation;
     }
 
-    bool ColorChanged  = lcGetPreferences().mAutomateEdgeColor != AutomateEdgeColor;
-         ColorChanged |= lcGetPreferences().mPartEdgeContrast != PartEdgeContrast;
-         ColorChanged |= lcGetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
+    lcPreferences& Preferences = lcGetPreferences();
 
-    gApplication->mPreferences.mAutomateEdgeColor = AutomateEdgeColor;
-    gApplication->mPreferences.mPartEdgeContrast = PartEdgeContrast;
-    gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+    bool Changed  = Preferences.mAutomateEdgeColor     != AutomateEdgeColor;
+         Changed |= Preferences.mPartEdgeContrast      != PartEdgeContrast;
+         Changed |= Preferences.mPartColorValueLDIndex != PartColorValueLDIndex;
 
-    if (ColorChanged)
+    if (Changed) {
+        Preferences.mAutomateEdgeColor     = AutomateEdgeColor;
+        Preferences.mPartEdgeContrast      = PartEdgeContrast;
+        Preferences.mPartColorValueLDIndex = PartColorValueLDIndex;
+
         lcGetPiecesLibrary()->LoadColors();
+    }
 }
+
+/********************************************************************
+ *
+ * *****************************************************************/
 
 bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bool UseFile/*false*/)
 {
@@ -227,9 +243,8 @@ bool LPub::OpenProject(const NativeOptions* Options, int Type/*NATIVE_VIEW*/, bo
 
     return Loaded;
 }
+
 /********************************************************************
- *
- *
  *
  * *****************************************************************/
 

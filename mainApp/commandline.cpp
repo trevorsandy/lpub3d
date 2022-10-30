@@ -24,34 +24,38 @@ int LPub::processCommandLine()
 {
   // Visual Editor
   int viewerCommand = Process3DViewerCommandLine();
-  if (viewerCommand < 0)
+  if (viewerCommand < 0) /*fail*/
      return 1;
   else
-  if (viewerCommand)
+  if (viewerCommand)     /*success*/
     return 0;
 
   // Declarations
-  QStringList excludedCommands = QStringList()
+  const QStringList excludedCommands = QStringList()
     // Application::initialize arguments
     << "-ncr" << "--no-console-redirect"
-    << "-ns" << "--no-stdout-log"
-    << "-ll" << "--liblego"
-    << "-lt" << "--libtente"
-    << "-lv" << "--libvexiq"
-    << "-ap" << "--app-paths"
-    << "-v" << "--version"
-    << "-?" << "--help"
+    << "-ns"  << "--no-stdout-log"
+    << "-ll"  << "--liblego"
+    << "-lt"  << "--libtente"
+    << "-lv"  << "--libvexiq"
+    << "-ap"  << "--app-paths"
+    << "-v"   << "--version"
+    << "-?"   << "--help"
     // Visual Editor arguments
-    << "-ve" << "--visual-editor-version"
-    << "-l" << "--libpath"
-    << "-i" << "--image"
-    << "-w" << "--width"
-    << "-h" << "--height"
-    << "-f" << "--from"
-    << "-t" << "--to"
-    << "-s" << "--submodel"
-    << "-c" << "--camera"
-    << "-cl" << "--draw-conditional-lines"
+    << "-ve"  << "--visual-editor-version"
+    << "-l"   << "--libpath"
+    << "-i"   << "--image"
+    << "-w"   << "--width"
+    << "-h"   << "--height"
+    << "-f"   << "--from"
+    << "-t"   << "--to"
+    << "-s"   << "--submodel"
+    << "-c"   << "--camera"
+    << "-cl"  << "--draw-conditional-lines"
+    << "-obj" << "--export-wavefront"
+    << "-3ds" << "--export-3ds"
+    << "-dae" << "--export-collada"
+    << "-html" << "--export-html"
     << "--viewpoint"
     << "--camera-angles"
     << "--camera-position"
@@ -68,10 +72,6 @@ int LPub::processCommandLine()
     << "--shading"
     << "--line-width"
     << "--aa-samples"
-    << "-obj" << "--export-wavefront"
-    << "-3ds" << "--export-3ds"
-    << "-dae" << "--export-collada"
-    << "-html" << "--export-html"
     ;
 
   quint32 ColorValue            = 0;
