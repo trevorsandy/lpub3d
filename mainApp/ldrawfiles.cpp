@@ -1017,8 +1017,13 @@ int LDrawFile::loadFile(const QString &fileName)
     empty();
 
     // allow files ldr suffix to allow for MPD
+    enum {
+        UNKNOWN_FILE,
+        MPD_FILE,
+        LDR_FILE
+    };
 
-    bool mpd = false;
+    int type = UNKNOWN_FILE;
 
     QFileInfo fileInfo(fileName);
 
@@ -1027,22 +1032,27 @@ int LDrawFile::loadFile(const QString &fileName)
         QString line = in.readLine(0);
         if (line.contains(_fileRegExp[SOF_RX])) {
             emit gui->messageSig(LOG_INFO_STATUS, QString("Model file '%1' identified as Multi-Part LDraw System (MPD) Document").arg(fileInfo.fileName()));
-            mpd = true;
+            type = MPD_FILE;
             break;
         }
         if (line.contains(_fileRegExp[NAM_RX]) || line.contains(_fileRegExp[LDR_RX])) {
-            emit gui->messageSig(LOG_INFO_STATUS, QString("Model file '%1' identified as LDraw Sytem (LDR) Document").arg(fileInfo.fileName()));
-            mpd = false;
+            emit gui->messageSig(LOG_INFO_STATUS, QString("Model file '%1' identified as LDraw System (LDR) Document").arg(fileInfo.fileName()));
+            type = LDR_FILE;
             break;
         }
+    }
+
+    if (type == UNKNOWN_FILE) {
+        emit gui->messageSig(LOG_ERROR, QString("File '%1' is not a valid LDraw (LDR) or Multi-Part LDraw (MPD) System Document.").arg(fileInfo.fileName()));
+        return 1;
     }
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     topLevelModel = true;
 
-    QFuture<void> loadFuture = QtConcurrent::run([this, fileInfo, mpd]() {
-        if (mpd)
+    QFuture<void> loadFuture = QtConcurrent::run([this, fileInfo, type]() {
+        if (type == MPD_FILE)
             loadMPDFile(fileInfo.absoluteFilePath());
         else
             loadLDRFile(fileInfo.absoluteFilePath());
@@ -1060,7 +1070,7 @@ int LDrawFile::loadFile(const QString &fileName)
     countPartsFuture.waitForFinished();
 
     QString loadStatusMessage = QString("%1 model file '%2' loaded. Part Count %3. %4")
-            .arg(mpd ? "MPD" : "LDR")
+            .arg(type == MPD_FILE ? "MPD" : "LDR")
             .arg(fileInfo.fileName())
             .arg(_partCount)
             .arg(gui->elapsedTime(t.elapsed()));
@@ -1114,7 +1124,7 @@ int LDrawFile::loadFile(const QString &fileName)
         }
 
         QString message = QString("%1 model file <b>%2</b> loaded.%3%4%5%6%7%8%9")
-                .arg(mpd ? "MPD" : "LDR")
+                .arg(type == MPD_FILE ? "MPD" : "LDR")
                 .arg(fileInfo.fileName())
                 .arg(delta   ? QString("<br>Parts count:            <b>%1</b>").arg(apc) : "")
                 .arg(mpc > 0 ? QString("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
