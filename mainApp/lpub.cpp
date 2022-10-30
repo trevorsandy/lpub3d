@@ -226,12 +226,12 @@ void Gui::SetRotStepTransform(QString& Transform, bool display)
 
 void Gui::insertCoverPage()
 {
-  mi->insertCoverPage();
+  lpub->mi.insertCoverPage();
 }
 
 void Gui::appendCoverPage()
 {
-  mi->appendCoverPage();
+  lpub->mi.appendCoverPage();
   countPages();
   displayPageNum = maxPages;
   displayPage();
@@ -240,41 +240,41 @@ void Gui::appendCoverPage()
 void Gui::generateCoverPages()
 {
     if (Preferences::generateCoverPages){
-        if (!mi->frontCoverPageExist())
-            mi->insertCoverPage();
+        if (!lpub->mi.frontCoverPageExist())
+            lpub->mi.insertCoverPage();
 
-        if (!mi->backCoverPageExist())
-            mi->appendCoverPage();
+        if (!lpub->mi.backCoverPageExist())
+            lpub->mi.appendCoverPage();
     }
 }
 
 void Gui::insertFinalModelStep() {
   if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
-    int modelStatus = mi->displayModelStepExists();
+    int modelStatus = lpub->mi.displayModelStepExists();
     if (modelStatus != DM_FINAL_MODEL && modelStatus != DM_DISPLAY_MODEL) {
       emit messageSig(LOG_INFO, QString("Inserting fade/highlight final model step..."));
-      mi->insertFinalModelStep(modelStatus);
+      lpub->mi.insertFinalModelStep(modelStatus);
     }
   }
 }
 
 void Gui::deleteFinalModelStep() {
   if (Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
-    if (mi->displayModelStepExists() == DM_FINAL_MODEL) {
+    if (lpub->mi.displayModelStepExists() == DM_FINAL_MODEL) {
       emit messageSig(LOG_INFO, QString("Removing fade/highlight final model step..."));
-      mi->deleteFinalModelStep();
+      lpub->mi.deleteFinalModelStep();
     }
   }
 }
 
 //void Gui::insertCoverPage()
 //{
-//  mi->insertCoverPage();
+//  lpub->mi.insertCoverPage();
 //}
 
 //void Gui::appendCoverPage()
 //{
-//  mi->appendCoverPage();
+//  lpub->mi.appendCoverPage();
 //  countPages();
 //  ++displayPageNum;
 //  displayPage();  // display the page we just added
@@ -282,12 +282,12 @@ void Gui::deleteFinalModelStep() {
 
 void Gui::insertNumberedPage()
 {
-  mi->insertNumberedPage();
+  lpub->mi.insertNumberedPage();
 }
 
 void Gui::appendNumberedPage()
 {
-  mi->appendNumberedPage();
+  lpub->mi.appendNumberedPage();
 //countPages();
 //++displayPageNum;
 //displayPage();    // display the page we just added
@@ -295,27 +295,27 @@ void Gui::appendNumberedPage()
 
 void Gui::deletePage()
 {
-  mi->deletePage();
+  lpub->mi.deletePage();
 }
 
 void Gui::addPicture()
 {
-  mi->insertPicture();
+  lpub->mi.insertPicture();
 }
 
 void Gui::addText()
 {
-  mi->insertText();
+  lpub->mi.insertText();
 }
 
 void Gui::addBom()
 {
-  mi->insertBOM();
+  lpub->mi.insertBOM();
 }
 
 void Gui::removeLPubFormatting()
 {
-  mi->removeLPubFormatting();
+  lpub->mi.removeLPubFormatting();
   displayPageNum = 1 + pa;
   displayPage();
 }
@@ -1378,7 +1378,7 @@ void Gui::displayFile(
                     Rc rc = OkRc;
                     bool partsAdded = false;
                     while (!partsAdded && rc != EndOfFileRc)
-                        rc = mi->scanForward(bottom, StepMask|StepGroupEndMask, partsAdded);
+                        rc = lpub->mi.scanForward(bottom, StepMask|StepGroupEndMask, partsAdded);
                 }
             }
 
@@ -3377,8 +3377,6 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
-    mi            = new MetaItem();
-
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
     parmsWindow   = new ParmsWindow();
@@ -3636,7 +3634,6 @@ Gui::~Gui()
   delete parmsWindow;
   delete editModeWindow;
   delete undoStack;
-  delete mi;
   delete mpdCombo;
   delete setGoToPageCombo;
 
@@ -5757,18 +5754,18 @@ void Gui::disableActions()
 
 void Gui::enableActions2()
 {
-    bool frontCoverPageExist = mi->frontCoverPageExist();
+    bool frontCoverPageExist = lpub->mi.frontCoverPageExist();
     insertCoverPageAct->setEnabled(! frontCoverPageExist &&
-                                   mi->okToInsertCoverPage());
-    bool backCoverPageExist = mi->backCoverPageExist();
+                                   lpub->mi.okToInsertCoverPage());
+    bool backCoverPageExist = lpub->mi.backCoverPageExist();
     appendCoverPageAct->setEnabled(! backCoverPageExist &&
-                                   mi->okToAppendCoverPage());
+                                   lpub->mi.okToAppendCoverPage());
 
     loadPages(frontCoverPageExist, backCoverPageExist);
 
-    bool frontCover = mi->okToInsertNumberedPage();
+    bool frontCover = lpub->mi.okToInsertNumberedPage();
     insertNumberedPageAct->setEnabled(frontCover);
-    bool backCover = mi->okToAppendNumberedPage();
+    bool backCover = lpub->mi.okToAppendNumberedPage();
     appendNumberedPageAct->setEnabled(backCover);
     deletePageAct->setEnabled(lpub->page.list.size() == 0);
     addBomAct->setEnabled(frontCover||backCover);

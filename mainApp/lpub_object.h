@@ -109,6 +109,9 @@ public:
   /// Current step as loaded in the Visual Editor
   Step *currentStep;
 
+  /// utility functions for meta commands
+  MetaItem mi;
+
   /// Contains MPD or all files used in model
   LDrawFile ldrawFile;
 

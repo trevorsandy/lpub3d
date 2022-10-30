@@ -512,8 +512,6 @@ public:
   static bool      mloadingFile;        // when true, the endMacro() call will not call displayPage()
   void            *noData;
 
-  MetaItem        *mi;                  // utility functions for meta commands
-
   FadeStepMeta      *fadeStepMeta;      // propagate fade step settings
 
   HighlightStepMeta *highlightStepMeta; // propagate highlight step settings

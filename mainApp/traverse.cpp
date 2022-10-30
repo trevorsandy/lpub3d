@@ -1810,10 +1810,10 @@ int Gui::drawPage(
                           instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                       else
                       if (countInstances == CountAtStep)
-                          instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                          instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
                       else
                       if (countInstances > CountFalse && countInstances < CountAtStep)
-                          instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                          instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
                   }
 
 #ifdef QT_DEBUG_MODE
@@ -2374,10 +2374,10 @@ int Gui::drawPage(
                                           instances = steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                                       else
                                       if (countInstances == CountAtStep)
-                                          instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                                          instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
                                       else
                                       if (countInstances > CountFalse && countInstances < CountAtStep)
-                                          instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                                          instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
                                   }
 
                                   steps->meta.LPub.subModel.instance.setValue(instances);
@@ -2518,10 +2518,10 @@ int Gui::drawPage(
                                   instances = steps->meta.LPub.page.countInstanceOverride.value();
                               else
                               if (countInstances == CountAtStep)
-                                  instances = mi->countInstancesInStep(&steps->meta, opts.current.modelName);
+                                  instances = lpub->mi.countInstancesInStep(&steps->meta, opts.current.modelName);
                               else
                               if (countInstances > CountFalse && countInstances < CountAtStep)
-                                  instances = mi->countInstancesInModel(&steps->meta, opts.current.modelName);
+                                  instances = lpub->mi.countInstancesInModel(&steps->meta, opts.current.modelName);
                           }
 
                           Page *page = dynamic_cast<Page *>(steps);
@@ -3159,7 +3159,7 @@ int Gui::findPage(
                                           // on parseBuildMods in countPage in case ther is a BUILD_MOD REMOVE command.
                                           bool partsAdded;
                                           Where walk = modelOpts.current;
-                                          Rc rc = mi->scanForward(walk,StepMask,partsAdded);
+                                          Rc rc = lpub->mi.scanForward(walk,StepMask,partsAdded);
                                           opts.flags.parseBuildMods = (rc == EndOfFileRc && ! partsAdded);
                                           // if no parts added to last step, set partsAdded to -1 so later increment
                                           // will result in a value of 0.
@@ -3263,7 +3263,7 @@ int Gui::findPage(
                   // New step group page so increment group step number and persisst to global
                   if (opts.groupStepNumber && meta.LPub.multiStep.countGroupSteps.value()) {
                       Where walk(opts.current.modelName);
-                      mi->scanForwardStepGroup(walk);
+                      lpub->mi.scanForwardStepGroup(walk);
                       if (opts.current.lineNumber > walk.lineNumber) {
                           opts.groupStepNumber += 1 + sa;
                           saveGroupStepNum = opts.groupStepNumber;
@@ -4809,7 +4809,7 @@ void Gui::drawPage(
 
           if (lpub->ldrawFile.isSubmodel(type)) {
             Where walk = opts.current;
-            Rc rc = mi->scanBackward(walk,StepMask|StepGroupMask|CalloutMask);
+            Rc rc = lpub->mi.scanBackward(walk,StepMask|StepGroupMask|CalloutMask);
             opts.flags.stepGroup = (rc == StepGroupBeginRc || rc == StepGroupDividerRc);
             opts.flags.callout   = (rc == CalloutDividerRc || rc == CalloutBeginRc);
             opts.flags.partsAdded++;
