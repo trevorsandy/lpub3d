@@ -2176,6 +2176,9 @@ int CountPageWorker::countPage(
   QMutex countPageMutex;
   countPageMutex.lock();
 
+  // local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
+  int displayPageNum = gui->displayPageNum;
+
   int countInstances = meta->LPub.countInstance.value();
 
   gui->pageProcessRunning = PROC_COUNT_PAGE;
@@ -2183,6 +2186,10 @@ int CountPageWorker::countPage(
   if (opts.pageNum == 1 + gui->pa) {
       if (!opts.stepNumber)
           opts.stepNumber = 1 + gui->sa;
+#ifdef QT_DEBUG_MODE
+      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage start (opt)            model %1, line %2")
+                      .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
       gui->topOfPages.clear();
       gui->topOfPages.append(opts.current);
   }
@@ -2514,6 +2521,10 @@ int CountPageWorker::countPage(
                       }
                   } // Exporting
 
+#ifdef QT_DEBUG_MODE
+                  gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage StepGroupEnd (tos)        model %1, line %2")
+                                  .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
+#endif
                   ++opts.pageNum;
                   gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   gui->saveStepPageNum = ++gui->stepPageNum;
@@ -2648,6 +2659,10 @@ int CountPageWorker::countPage(
                           }
                       } // Exporting
 
+#ifdef QT_DEBUG_MODE
+                      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage Step, !StepGroup (opt)    model %1, line %2")
+                                      .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
                       ++opts.pageNum;
                       gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
                       documentPageCount();
@@ -2838,6 +2853,10 @@ int CountPageWorker::countPage(
             }
       } // Exporting
 
+#ifdef QT_DEBUG_MODE
+      gui->messageSig(LOG_NOTICE, QString("COUNT topOfPage countPage Step, Submodel End (opt)  model %1, line %2")
+                                .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
       ++opts.pageNum;
       ++gui->stepPageNum;
       gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)

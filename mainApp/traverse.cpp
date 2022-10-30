@@ -2776,6 +2776,10 @@ int Gui::findPage(
   opts.stepNumber = 1 + sa;
 
   if (opts.pageNum == 1 + pa) {
+#ifdef QT_DEBUG_MODE
+      emit messageSig(LOG_NOTICE, QString("FINDPAGE topOfPage findPage start (ops)             model %1, line %2")
+                      .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
       topOfPages.clear();
       topOfPages.append(opts.current);
   }
@@ -3296,6 +3300,10 @@ int Gui::findPage(
                       }
                   } // Exporting
 
+#ifdef QT_DEBUG_MODE
+                  emit messageSig(LOG_NOTICE, QString("FINDPAGE topOfPage findPage StepGroupEnd (tos)      model %1, line %2")
+                                  .arg(topOfStep.modelName).arg(topOfStep.lineNumber));
+#endif
                   ++opts.pageNum;
                   opts.flags.addCountPage = true;
                   topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
@@ -3526,6 +3534,10 @@ int Gui::findPage(
                                 }
                             } // Exporting
 
+#ifdef QT_DEBUG_MODE
+                            emit messageSig(LOG_NOTICE, QString("FINDPAGE topOfPage findPage Step, !StepGroup (opt)  model %1, line %2")
+                                            .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
                             ++opts.pageNum;
                             opts.flags.addCountPage = true;
                             topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current Step)
@@ -3902,6 +3914,10 @@ int Gui::findPage(
               }
           } // Exporting
 
+#ifdef QT_DEBUG_MODE
+          emit messageSig(LOG_NOTICE, QString("FINDPAGE topOfPage findPage Step, Submodel End (opt)   model %1, line %2")
+                          .arg(opts.current.modelName).arg(opts.current.lineNumber));
+#endif
           ++opts.pageNum;
           ++stepPageNum;
           topOfPages.append(opts.current); // TopOfStep (Next Step), BottomOfStep (Current/Last Step)
@@ -4581,6 +4597,10 @@ void Gui::drawPage(
 
 void Gui::pagesCounted()
 {
+#ifdef QT_DEBUG_MODE
+    emit messageSig(LOG_NOTICE, QString("COUNTED topOfPage pageCounted (current)             model %1, line %2")
+                    .arg(current.modelName).arg(current.lineNumber));
+#endif
     topOfPages.append(current);
 
     maxPages--;
