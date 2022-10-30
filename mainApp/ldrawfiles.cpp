@@ -2222,14 +2222,14 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
           tokens[3] == "BEGIN" &&
           tokens[4] == "SUB") {
         // do we have a color file ?
-        if (gui->ldrawColourParts.isLDrawColourPart(tokens[5])) {
+        if (LDrawColourParts::isLDrawColourPart(tokens[5])) {
           // parse the part lines for custom sub parts
           for (++i; i < j; i++) {
             split(f->_contents[i],tokens);
             if (tokens.size() == 15 && tokens[0] == "1") {
               if (contains(tokens[14])) {
                 // we have custom part so let's add it to the custom part list
-                gui->ldrawColourParts.addLDrawColorPart(tokens[14]);
+                LDrawColourParts::addLDrawColorPart(tokens[14]);
                 // now lets check if the custom part has any sub parts
                 addCustomColorParts(tokens[14],true/*autoadd*/);
               }
@@ -2251,7 +2251,7 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
               // do we have a color part ?
               if (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR &&
                   tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)
-                gui->ldrawColourParts.addLDrawColorPart(tokens[14]);
+                LDrawColourParts::addLDrawColorPart(tokens[14]);
               // now lets check if the part has any sub parts
               addCustomColorParts(tokens[14],true/*autoadd*/);
             }

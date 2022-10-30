@@ -3050,7 +3050,7 @@ void Gui::preferences()
 
         if (enableFadeStepsChanged) {
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
-            if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+            if (Preferences::enableFadeSteps && !LDrawColourParts::ldrawColorPartsIsLoaded()) {
                 QString result;
                 if (!LDrawColourParts::LDrawColorPartsLoad(result)){
                     QString message = QString("Could not open %1 LDraw color parts file [%2], Error: %3")
@@ -3815,7 +3815,7 @@ void Gui::loadBLCodes()
 
 void Gui::ldrawColorPartsLoad()
 {
-    if (!ldrawColourParts.ldrawColorPartsIsLoaded()) {
+    if (!LDrawColourParts::ldrawColorPartsIsLoaded()) {
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)) {
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")

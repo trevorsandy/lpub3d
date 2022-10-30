@@ -1371,9 +1371,9 @@ public slots:
     const QString &code,
     const PartType partType);
 
-  bool isLDrawColourPart(const QString &fileName)
+  static bool isLDrawColourPart(const QString &fileName)
   {
-     return ldrawColourParts.isLDrawColourPart(fileName);
+     return LDrawColourParts::isLDrawColourPart(fileName);
   }
 
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
@@ -1567,9 +1567,6 @@ public:
   PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
-  LDrawColourParts       ldrawColourParts;            // static load the LDraw color parts list
-  LDrawFile             &ldrawFile = getLdrawFileRef(); // contains MPD or all files used in model
-  Preferences           &lpub3dPreferences = getPreferencesRef(); // lpub3D Preferences
 
 protected:
   // capture camera rotation from Visual Editor module

@@ -665,7 +665,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwrite, boo
           split(line,tokens);
           if (tokens.size() == 15 && tokens[0] == "1") {
               // check if colored part and create custom version if yes
-              QString fileString = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
+              QString fileString = LDrawColourParts::getLDrawColourPartInfo(tokens[tokens.size()-1]);
               // validate part is static color part;
               if (!fileString.isEmpty()){
                   QString fileDir  = QString();
@@ -918,7 +918,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                     split(line,tokens);
                     if (tokens.size() == 15 && tokens[0] == "1") {
                         // validate part is static color part;
-                        QString childFileString = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
+                        QString childFileString = LDrawColourParts::getLDrawColourPartInfo(tokens[tokens.size()-1]);
                         // validate part is static color part;
                         if (!childFileString.isEmpty()){
                             QString fileDir  = QString();

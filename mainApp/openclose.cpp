@@ -732,7 +732,7 @@ void Gui::closeFile()
   mSetupFadeSteps = false;
   mSetupHighlightStep = false;
   if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep) {
-      ldrawColourParts.clearGeneratedColorParts();
+      LDrawColourParts::clearGeneratedColorParts();
       partWorkerLDSearchDirs.removeCustomDirs();
   }
   submodelIconsLoaded = false;
@@ -997,9 +997,9 @@ void Gui::fileChanged(const QString &path)
 void Gui::writeGeneratedColorPartsToTemp() {
   emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
   int count = 0;
-  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = ldrawFile._subFileOrder[i];
-    if (ldrawColourParts.isLDrawColourPart(fileName)) {
+  for (int i = 0; i < LPub->ldrawFile._subFileOrder.size(); i++) {
+    QString fileName = LPub->ldrawFile._subFileOrder[i];
+    if (LDrawColourParts::isLDrawColourPart(fileName)) {
       count++;
       ldrawFile.normalizeHeader(fileName);
       QStringList content = ldrawFile.contents(fileName);
