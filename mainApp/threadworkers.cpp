@@ -2211,8 +2211,8 @@ int CountPageWorker::countPage(
   }
 
   Rc rc;
-  Where topOfStep = opts.current;
-  Where topOfSteps;
+  Where topOfStep  = opts.current;
+  Where topOfSteps = topOfStep;
 
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
 
@@ -2269,7 +2269,8 @@ int CountPageWorker::countPage(
                   "Action: Apply(64), "
                   "Attributes: %2 %3 %4 %5 %6 %7 %8 %9, "
                   "ModKey: %10, "
-                  "Level: %11")
+                  "Level: %11, "
+                  "Model: %12")
                   .arg(buildModStepIndex)                      // Attribute Default Initial:
                   .arg(modAttributes.at(BM_BEGIN_LINE_NUM))    // 0         0       this
                   .arg(modAttributes.at(BM_ACTION_LINE_NUM))   // 1         0       this
@@ -2280,7 +2281,8 @@ int CountPageWorker::countPage(
                   .arg(modAttributes.at(BM_MODEL_LINE_NUM))    // 6         0       this
                   .arg(modAttributes.at(BM_MODEL_STEP_NUM))    // 7         0       this
                   .arg(buildModKey)
-                  .arg(buildModLevel));
+                  .arg(buildModLevel)
+                  .arg(topOfStep.modelName));
 #endif
 
       ldrawFile->insertBuildMod(buildModKey,
@@ -2647,17 +2649,17 @@ int CountPageWorker::countPage(
             case BuildModEndRc:
               if (! Preferences::buildModEnabled)
                   break;
-              if (buildMod.state == BM_END_MOD) {
-                  buildMod.level = getLevel(QString(), BM_END);
-                  if (buildMod.level == BM_BASE_LEVEL || buildMod.level == opts.modelStack.size())
-                      buildMod.ignore = false;
-              }
               // parse build modifications
               if ( opts.flags.parseBuildMods) {
                   if (buildMod.state != BM_END_MOD)
                       emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD not found"),
                                               opts.current, Preferences::BuildModErrors,false,false);
                   insertAttribute(buildModAttributes, BM_END_LINE_NUM, opts.current);
+              }
+              if (buildMod.state == BM_END_MOD) {
+                  buildMod.level = getLevel(QString(), BM_END);
+                  if (buildMod.level == BM_BASE_LEVEL || buildMod.level == opts.modelStack.size())
+                      buildMod.ignore = false;
               }
               buildMod.state = BM_END;
               break;
@@ -2917,6 +2919,14 @@ int CountPageWorker::countPage(
             }
       } // Exporting
 
+      // BuildMod create
+      if (buildModKeys.size()) {
+          if (buildMod.state != BM_END)
+              emit gui->parseErrorSig(QString("Required meta BUILD_MOD END not found"),
+                                      opts.current, Preferences::BuildModErrors,false,false);
+          Q_FOREACH (int buildModLevel, buildModKeys.keys())
+              insertBuildModification(buildModLevel);
+      }
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));

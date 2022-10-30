@@ -4464,10 +4464,12 @@ void Gui::countPages()
 
       current              =  Where(ldrawFile.topLevelFile(),0,0);
       saveDisplayPageNum   =  displayPageNum;
-      displayPageNum       =  1 << 31; // really large number: 2147483648
+      displayPageNum       =  1 << 24; // really large number: 16777216
       firstStepPageNum     = -1;       // for front cover page
       lastStepPageNum      = -1;       // for back cover page
       maxPages             =  1 + pa;
+
+      skipHeader(current);
 
       QString message = tr("Counting pages...");
       if (parseBuildModsAtCount) {
@@ -4821,7 +4823,7 @@ void Gui::pagesCounted()
                     .arg(maxPages, 3, 10, QChar('0')).arg(current.lineNumber, 3, 10, QChar('0')).arg(current.modelName));
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
     emit messageSig(LOG_NOTICE, QString("COUNTED  -  Page Indexes at displayPageNum %1 of %2")
-                    .arg(displayPageNum).arg(maxPages));
+                    .arg(saveDisplayPageNum ? saveDisplayPageNum : displayPageNum).arg(saveDisplayPageNum ? saveMaxPages : maxPages));
     emit messageSig(LOG_NOTICE, "---------------------------------------------------------------------------");
 /*
     for (int i = 0; i < topOfPages.size(); i++)
@@ -4838,7 +4840,7 @@ void Gui::pagesCounted()
 
     if (Preferences::modeGUI && ! exporting()) {
         QString message;
-        if (saveDisplayPageNum && parseBuildModsAtCount)
+        if (saveDisplayPageNum)
             message = QString("%1 of %2") .arg(saveDisplayPageNum) .arg(saveMaxPages);
         else
             message = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
@@ -5164,28 +5166,25 @@ int Gui::setBuildModForNextStep(
         emit gui->messageSig(LOG_TRACE, QString("BuildMod StartStep - Index: %1, ModelName: %2, LineNumber: %3")
                                                 .arg(buildModNextStepIndex).arg(startModel).arg(startLine));
 #endif
-
-        if (pageDirection != PAGE_NEXT) {                    // not next sequential step - i.e. advance by 1, (buildModNextStepIndex - buildModPrevStepIndex) != 1
-            bool backward = pageDirection >= PAGE_BACKWARD;  // step backward by 1 or jump backward by more than 1
-            if (backward) {                                  // (buildModNextStepIndex - buildModPrevStepIndex) < 0;
-                startLine  = topOfStep.lineNumber;           // set step start lineNumber to topOfStep.lineNumber
-                startModel = topOfStep.modelName;            // set step start modelName to topOfStep.modelName
-            }
-
+        int jumpDirection = DIRECTION_NOT_SET;
+        if (parseBuildModsAtCount) {                         // jump forward by more than one step/page
+            jumpDirection = PAGE_JUMP_FORWARD;
+            countPages();
+        } else if (pageDirection != PAGE_NEXT) {             // jump backward by one or more steps/pages
+            jumpDirection = PAGE_JUMP_BACKWARD;
+        }
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump %1 - Indexes: %2, StartModel: %3, "
+        if (jumpDirection)
+            emit gui->messageSig(LOG_TRACE, QString("BuildMod Jump %1 - StepIndexes: %2, StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
-                                                    .arg(backward ? "Backward" : "Forward")
+                                                    .arg(parseBuildModsAtCount ? "Forward" : "Backward")
                                                     .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
                                                     .arg(startModel).arg(startLine)
                                                     .arg(topOfNextStep.modelName)
                                                     .arg(topOfNextStep.lineNumber));
 #endif
-            if (!backward) {                                 // jump forward by more than 1 (buildModNextStepIndex - buildModPrevStepIndex) > 1
-                countPages();
-                return HitBottomOfStep;
-            }
-        }
+        if (jumpDirection == PAGE_JUMP_FORWARD)
+            return HitBottomOfStep;
     }
 
     Where walk(startModel, getSubmodelIndex(startModel), startLine);
@@ -5207,8 +5206,15 @@ int Gui::setBuildModForNextStep(
         }
     }
 
-    if (hitEndOfSubmodel)
+    if (hitEndOfSubmodel) {
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
+                             .arg(buildModNextStepIndex)
+                             .arg(walk.modelName)
+                             .arg(walk.lineNumber));
+#endif
         return HitEndOfSubmodel;
+    }
 
     if (!submodel)
         LDrawFile::_currentLevels.clear();
@@ -5296,14 +5302,6 @@ int Gui::setBuildModForNextStep(
                 buildModAttributes.clear();
                 buildMod.clear();
                 partsAdded = 0;
-                if (bottomOfStep) {
-#ifdef QT_DEBUG_MODE
-                    emit gui->messageSig(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
-                                           .arg(buildModNextStepIndex)
-                                           .arg(walk.modelName)
-                                           .arg(walk.lineNumber));
-#endif
-                }
                 break;
             default:
                 break;
@@ -5338,8 +5336,15 @@ int Gui::setBuildModForNextStep(
             insertBuildModification(buildModLevel);
     }
 
-    if (bottomOfStep)
+    if (bottomOfStep) {
+#ifdef QT_DEBUG_MODE
+        emit gui->messageSig(LOG_TRACE, QString("BuildMod EndStep - Index: %1, ModelName: %2, LineNumber: %3")
+                             .arg(buildModNextStepIndex)
+                             .arg(walk.modelName)
+                             .arg(walk.lineNumber));
+#endif
         return HitBottomOfStep;
+    }
     return HitEndOfFile;
 } // Gui::setBuildModForNextStep()
 
@@ -5680,19 +5685,19 @@ void Gui::writeToTmp()
             }));
           }
 
-          // Write children on Buld Modification jump forward
-          if (Preferences::buildModEnabled && pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD) {
-              Q_FOREACH (int modelIndex, ldrawFile.getSubmodelIndexes(fileName)) {
-                  const QString modelFile = ldrawFile.getSubmodelName(modelIndex);
-                  emit messageSig(LOG_TRACE, QString("Writing submodel child '%1' to temp folder...").arg(modelFile));
-                  writtenFiles++;
-                  writeToTmpFutures.append(QtConcurrent::run([this, modelFile]() {
-                      QStringList *modelContent = new QStringList;
-                      modelContent->append(ldrawFile.contents(modelFile));
-                      writeToTmp(modelFile, *modelContent);
-                  }));
-              }
-          } // BuildMod jump forward
+          // Write children on Buld Modification jump forward - deprecated. Setting submodels in stack to 'modified'at setBuildModAction
+          //if (Preferences::buildModEnabled && pageDirection != PAGE_NEXT && pageDirection < PAGE_BACKWARD) {
+          //    Q_FOREACH (int modelIndex, ldrawFile.getSubmodelIndexes(fileName)) {
+          //        const QString modelFile = ldrawFile.getSubmodelName(modelIndex);
+          //        emit messageSig(LOG_TRACE, QString("Writing submodel '%1' subfile '%2' to temp folder...").arg(fileName).arg(modelFile));
+          //        writtenFiles++;
+          //        writeToTmpFutures.append(QtConcurrent::run([this, modelFile]() {
+          //            QStringList *modelContent = new QStringList;
+          //            modelContent->append(ldrawFile.contents(modelFile));
+          //            writeToTmp(modelFile, *modelContent);
+          //        }));
+          //    }
+          //} // BuildMod jump forward
       } // ChangedSinceLastWrite
   } // Parse _subFileOrder
 

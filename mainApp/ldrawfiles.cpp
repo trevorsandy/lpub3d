@@ -2892,6 +2892,7 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
   if (i != _subFiles.end()) {
     bool value = i.value()._changedSinceLastWrite;
     i.value()._changedSinceLastWrite = false;
+    i.value()._modified = false;
     return value;
   }
   return false;
@@ -2902,6 +2903,7 @@ void LDrawFile::tempCacheCleared()
   QString key;
   Q_FOREACH (key,_subFiles.keys()) {
     _subFiles[key]._changedSinceLastWrite = true;
+    _subFiles[key]._modified = true;
   }
 }
 
@@ -2933,12 +2935,16 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
                                int                 stepIndex)
 {
   QString modKey  = buildModKey.toLower();
+  QVector<int>  modSubmodelStack;
   QMap<int,int> modActions;
   QVector<int>  newAttributes;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
     // Preserve actions
     modActions = i.value()._modActions;
+
+    // Preserve submodelStack
+    modSubmodelStack = i.value()._modSubmodelStack;
 
     // Remove action for specified stepIndex
     QMap<int,int>::iterator a = modActions.find(stepIndex);
@@ -2977,6 +2983,13 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
 
   // Insert new BuildMod
   _buildMods.insert(modKey, buildMod);
+
+  // Set submodelStack if exists
+  if (modSubmodelStack.size()) {
+      buildMod._modSubmodelStack = modSubmodelStack;
+      for (const int modelIndex : modSubmodelStack)
+          setModified(getSubmodelName(modelIndex),true);
+  }
 
   // Insert BuildModStep - must come after _buildMods.insert()
   insertBuildModStep(modKey, stepIndex, BuildModApplyRc);
@@ -3339,8 +3352,13 @@ void LDrawFile::setBuildModSubmodelStack(const QString &buildModKey, const QStri
     QString  modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
-        for (const QString &modelFile : submodelStack)
-            i.value()._modSubmodelStack << getSubmodelIndex(modelFile);
+        for (const QString &modelFile : submodelStack) {
+            int submodelIndex = getSubmodelIndex(modelFile);
+            if (!i.value()._modSubmodelStack.contains(submodelIndex)) {
+                i.value()._modSubmodelStack << submodelIndex;
+                setModified(modelFile, true);
+            }
+        }
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod ParentSubmodels: %1, StepIndex: %2, ModKey: %4")
                                                 .arg(i.value()._modSubmodelStack.size())
