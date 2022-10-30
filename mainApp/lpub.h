@@ -1128,9 +1128,6 @@ public:
 
   void enableNavigationActions(bool enable);
 
-  bool setCurrentStep(const QString &key = "");
-  void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);
-  void setCurrentStep(Step *step);
   Step *getCurrentStep()
   {
       return lpub->currentStep;
@@ -1143,7 +1140,6 @@ public:
       return curFile;
   }
 
-  bool extractStepKey(Where &here, int &stepNumber, const QString &key = "");
   void clearWorkingFiles(const QStringList &filePaths);
   void addEditLDrawIniFileAction();
 

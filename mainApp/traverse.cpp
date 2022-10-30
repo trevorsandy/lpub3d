@@ -2001,7 +2001,7 @@ int Gui::drawPage(
                   if (Preferences::modeGUI) {
                       if (lastStep && !lastStep->csiPixmap.isNull()) {
                           emit messageSig(LOG_DEBUG,QString("Step group last step number %1").arg(lastStep->stepNumber.number));
-                          setCurrentStep(lastStep);
+                          lpub->setCurrentStep(lastStep);
                           if (!exportingObjects()) {
                               showLine(lastStep->topOfStep());
                               lastStep->loadTheViewer();
@@ -2263,7 +2263,7 @@ int Gui::drawPage(
                   step->updateViewer = opts.updateViewer;
 
                   // set the current step - enable access from other parts of the application - e.g. Renderer
-                  setCurrentStep(step);
+                  lpub->setCurrentStep(step);
 
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -2336,7 +2336,7 @@ int Gui::drawPage(
                           }
 
                           // set the current step - enable access from other parts of the application - e.g. Renderer
-                          setCurrentStep(step);
+                          lpub->setCurrentStep(step);
 
                           step->lightList = lightList;
 
@@ -2537,7 +2537,7 @@ int Gui::drawPage(
                                   step->lightList = lightList;
 
                                   // set the current step - enable access from other parts of the application - e.g. Renderer
-                                  setCurrentStep(step);
+                                  lpub->setCurrentStep(step);
                               }
 
                               if (! steps->meta.LPub.stepPli.perStep.value()) {
@@ -2615,7 +2615,7 @@ int Gui::drawPage(
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {
                                   if (partsAdded && ! coverPage)
-                                      setCurrentStep(step);
+                                      lpub->setCurrentStep(step);
                                       step->loadTheViewer();
                                   showLine(topOfStep);
                               }
@@ -2642,7 +2642,7 @@ int Gui::drawPage(
                                  if (step) {
 
                                     // set the current step - enable access from other parts of the application - e.g. Renderer
-                                    setCurrentStep(step);
+                                    lpub->setCurrentStep(step);
 
                                     step->modelDisplayOnlyStep = true;
                                     step->subModel.setSubModel(opts.current.modelName,steps->meta);

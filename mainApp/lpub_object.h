@@ -72,6 +72,12 @@ public:
   bool setFadeStepsFromCommand();
   bool setHighlightStepFromCommand();
 
+  /// Current step management calls
+  bool extractStepKey(Where &, int &, const QString & = "");
+  bool setCurrentStep(const QString & = "");
+  void setCurrentStep(Step *, Where &, int, int = BM_SINGLE_STEP);
+  void setCurrentStep(Step *);
+
   /// Download management calls
   void downloadFile(QString URL, QString title, bool promptRedirect = false);
   void startRequest(QUrl url);

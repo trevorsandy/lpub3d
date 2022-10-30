@@ -1622,7 +1622,7 @@ void Gui::SetActiveModel(const QString &modelName, bool setActive)
         if (isSubmodel(modelName)) {
             const QString stepKey = getViewerStepKeyWhere(Where(getSubmodelIndex(modelName), 0));
             if (!stepKey.isEmpty()) {
-                setCurrentStep(stepKey);
+                lpub->setCurrentStep(stepKey);
                 displayModelFile = true;
             }
         } else if (getCurrentStep()) {
@@ -3069,7 +3069,7 @@ void Gui::loadBuildModification()
             bool setBuildModStep = lpub->currentStep && lpub->currentStep->viewerStepKey != buildModStepKey;
 
             if (isViewerStepMultiStep(buildModStepKey) && setBuildModStep) {
-                if (setCurrentStep(buildModStepKey)) {
+                if (lpub->setCurrentStep(buildModStepKey)) {
                     showLine(lpub->currentStep->topOfStep());
                     lpub->currentStep->loadTheViewer();
                 }
@@ -3371,189 +3371,6 @@ void Gui::setViewerStepKey(const QString &stepKey, int imageType)
 
 /*********************************************
  *
- * extract stepKey - callled for CSI and SMP only
- *
- ********************************************/
-
-  bool Gui::extractStepKey(Where &here, int &stepNumber, const QString &key)
-  {
-      // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_dm (displayModel)]
-      QStringList keyArgs = lpub->getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
-
-      if (!keyArgs.size())
-          return false;
-
-      QString modelName  = keyArgs[0]; // Converted to modelName in getViewerStepKeys()
-
-      bool ok[2];
-      int lineNumber = keyArgs[1].toInt(&ok[0]);
-      if (modelName.isEmpty()) {
-          emit messageSig(LOG_ERROR,QString("Model name was not found for index [%1]").arg(keyArgs[1]));
-          return false;
-      } else if (!ok[0]) {
-          emit messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
-          return false;
-      } else {
-          here = Where(modelName,getSubmodelIndex(modelName),lineNumber);
-      }
-
-      stepNumber = 0;
-      if (lpub->page.modelDisplayOnlyStep) {
-          stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
-      } else {
-          stepNumber = keyArgs[2].toInt(&ok[1]);
-      }
-      if (!ok[1]) {
-          emit messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArgs[2]));
-          return false;
-      }
-
-//      if (Preferences::debugLogging) {
-//          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
-//                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
-//          if (!stepNumber && page.pli.tsize() && page.pli.bom)
-//              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
-//                                 .arg(stepPageNum);
-//          emit messageSig(LOG_DEBUG, messsage);
-//      }
-
-      return true;
-  }
-
-/*********************************************
- *
- * current step - called for CSI
- *
- ********************************************/
-
-void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
-{
-    bool stepMatch  = false;
-    auto calledOutStep = [this, &here, &stepNumber, &stepType] (Step* step, bool &stepMatch)
-    {
-        if (! (stepMatch = step->stepNumber.number == stepNumber || step->topOfStep() == here )) {
-            for (int k = 0; k < step->list.size(); k++) {
-                if (step->list[k]->relativeType == CalloutType) {
-                    Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                    for (int l = 0; l < callout->list.size(); l++){
-                        Range *range = dynamic_cast<Range *>(callout->list[l]);
-                        for (int m = 0; m < range->list.size(); m++){
-                            if (range->relativeType == RangeType) {
-                                Step *step = dynamic_cast<Step *>(range->list[m]);
-                                if (step && step->relativeType == StepType){
-                                    setCurrentStep(step, here, stepNumber, stepType);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    if (stepType == BM_CALLOUT_STEP && step){
-        calledOutStep(step, stepMatch);
-    } else if (stepType == BM_MULTI_STEP) {
-        for (int i = 0; i < lpub->page.list.size() && !stepMatch; i++){
-            Range *range = dynamic_cast<Range *>(lpub->page.list[i]);
-            for (int j = 0; j < range->list.size(); j++){
-                if (range->relativeType == RangeType) {
-                    step = dynamic_cast<Step *>(range->list[j]);
-                    if (stepType == BM_CALLOUT_STEP)
-                        calledOutStep(step, stepMatch);
-                    else if (step && step->relativeType == StepType)
-                        stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
-                    if (stepMatch)
-                        break;
-                }
-            }
-        }
-    } else if (stepType == BM_SINGLE_STEP) {
-        Range *range = dynamic_cast<Range *>(lpub->page.list[0]);
-        if (range->relativeType == RangeType) {
-            step = dynamic_cast<Step *>(range->list[0]);
-            if (stepType == BM_CALLOUT_STEP)
-                calledOutStep(step, stepMatch);
-            else if (step && step->relativeType == StepType)
-                stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here);
-        }
-    } else if ((step = gStep)) {
-        if (stepType == BM_CALLOUT_STEP)
-            calledOutStep(step, stepMatch);
-        else if (!(stepMatch = (step->stepNumber.number == stepNumber || step->topOfStep() == here)))
-            step = nullptr;
-    }
-
-    lpub->currentStep = step;
-
-    if (Preferences::debugLogging && !stepMatch)
-        emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
-                                           .arg(stepMatch ? "Match!" : "Oh oh!")
-                                           .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
-                                           .arg(stepType == BM_MULTI_STEP  ? "multi step"  :
-                                                stepType == BM_CALLOUT_STEP   ? "called out"  :
-                                                stepType == BM_SINGLE_STEP ? "single step" : "gStep")
-                                           .arg(here.modelName).arg(here.lineNumber));
-}
-
-bool Gui::setCurrentStep(const QString &key)
-{
-    Step *step     = nullptr;
-    lpub->currentStep    = step;
-    Where here     = Where();
-    int stepNumber = 0;
-    int stepType   = 0; /*None*/
-
-    extractStepKey(here, stepNumber, key);
-
-    QString stepNumberSpecified;
-    if (!stepNumber)
-        stepNumberSpecified = QString("not specified");
-    else
-        stepNumberSpecified = QString::number(stepNumber);
-
-    QString stepKey = key.isEmpty() ? lpub->viewerStepKey : !stepNumber ? getViewerStepKeyWhere(here) : key;
-
-    if (isViewerStepCalledOut(stepKey))
-        stepType = BM_CALLOUT_STEP;
-    else if (isViewerStepMultiStep(stepKey))
-        stepType = BM_MULTI_STEP;
-    else if (lpub->page.relativeType == SingleStepType && lpub->page.list.size())
-        stepType = BM_SINGLE_STEP;
-
-    if (stepType || gStep)
-        setCurrentStep(step, here, stepNumber, stepType);
-    else {
-        emit messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
-                                           .arg(here.modelName).arg(stepNumberSpecified));
-    }
-
-#ifdef QT_DEBUG_MODE
-    if (lpub->currentStep)
-        emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
-                        .arg(lpub->currentStep->stepNumber.number).arg(key));
-#endif
-
-    return lpub->currentStep;
-}
-
-void Gui::setCurrentStep(Step *step)
-{
-    step->viewerStepKey = QString("%1;%2;%3%4")
-                                  .arg(gui->getSubmodelIndex(step->top.modelName))
-                                  .arg(step->top.lineNumber)
-                                  .arg(step->stepNumber.number)
-                                  .arg(step->modelDisplayOnlyStep ? "_dm" : "");
-    lpub->currentStep = step;
-    lpub->viewerStepKey = lpub->currentStep->viewerStepKey;
-#ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
-                                      .arg(lpub->currentStep->stepNumber.number).arg(lpub->currentStep->viewerStepKey));
-#endif
-}
-
-/*********************************************
- *
  * set step from specified line
  *
  ********************************************/
@@ -3568,7 +3385,7 @@ void Gui::setStepForLine(const TypeLine &here)
 
     if (!stepKey.isEmpty()) {
         if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {
-            if (!setCurrentStep(stepKey))
+            if (!lpub->setCurrentStep(stepKey))
                 return;
 
             setLineScopeSig(StepLines(getCurrentStep()->topOfStep().lineNumber, getCurrentStep()->bottomOfStep().lineNumber));

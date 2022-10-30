@@ -98,7 +98,7 @@ void CsiItem::loadTheViewer(bool override, bool zoomExtents)
     bool stepAlreadySet = gui->getViewerStepKey() == step->viewerStepKey;
     if (!stepAlreadySet || override) {
         if (!stepAlreadySet) {
-            gui->setCurrentStep(step);
+            lpub->setCurrentStep(step);
             gui->showLine(step->topOfStep());
         }
         gui->enableBuildModActions();
@@ -559,8 +559,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *deleteBuildModAction = nullptr;
 
   bool canUpdatePreview = true;
-  if (gui->getViewerStepKey() != step->viewerStepKey) {
-      gui->setCurrentStep(step);
+  if (LPub::viewerStepKey != step->viewerStepKey) {
+      lpub->setCurrentStep(step);
       gui->showLine(step->topOfStep());
       if (gui->saveBuildModification()) {
           canUpdatePreview = false;
