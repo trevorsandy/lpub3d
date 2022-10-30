@@ -257,7 +257,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
-    QString line = gui->readLine(walkBack);
+    QString line = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
 
     if (isHeader(line)) {
       break;
@@ -292,7 +292,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             argv[2] == "CALLOUT" && argv[3] == "END") {
           //process callout content
           for (--walkBack; walkBack.lineNumber >= 0; walkBack--) {
-            QString calloutLine = gui->readLine(walkBack);
+            QString calloutLine = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
             QStringList tokens;
             split(calloutLine,tokens);
             if (tokens.size() == 15 && tokens[0] == "1") {
@@ -344,9 +344,9 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   }
 
   walk = step + 1;
-  numLines = gui->subFileSize(walk.modelName);
+  numLines = lpub->ldrawFile.size(walk.modelName);
   for ( ; walk.lineNumber < numLines; walk++) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
@@ -377,7 +377,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
         //process callout content
         for (++walk; walk.lineNumber < numLines; walk++) {
-          QString calloutLine = gui->readLine(walk);
+          QString calloutLine = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
           QStringList tokens;
           split(calloutLine,tokens);
           if (tokens.size() == 15 && tokens[0] == "1") {
@@ -438,7 +438,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
 
     SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
     Where subModel(tos.modelName,0);
-    gui->skipHeader(subModel);
+    lpub->ldrawFile.skipHeader(subModel.modelName,subModel.lineNumber);
 
     /* Scan the lines following this line, to see if there is another
    * submodel just like this one that needs to be added as multiplier.
@@ -456,9 +456,9 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
   bool ignorePartLine = false;
   walk = subModel;
 
-  numLines = gui->subFileSize(walk.modelName);
+  numLines = lpub->ldrawFile.size(walk.modelName);
   for ( ; walk.lineNumber < numLines; walk++) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
@@ -486,7 +486,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
           argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
         //process callout content
         for (++walk; walk.lineNumber < numLines; walk++) {
-          QString calloutLine = gui->readLine(walk);
+          QString calloutLine = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
           QStringList tokens;
           split(calloutLine,tokens);
           if (tokens.size() == 15 && tokens[0] == "1") {
@@ -719,7 +719,7 @@ void MetaItem::movePageToEndOfStepGroup(
 
     topOfPage = bottomOfSteps;
     for (topOfPage = bottomOfSteps - 1; topOfPage >= topOfSteps.lineNumber; topOfPage--) {
-      QString line = gui->readLine(topOfPage);
+      QString line = lpub->ldrawFile.readLine(topOfPage.modelName,topOfPage.lineNumber);
       Rc rc = meta.parse(line,topOfPage);
       if (rc == StepGroupBeginRc) {
         return;
@@ -732,7 +732,7 @@ void MetaItem::movePageToEndOfStepGroup(
     // find bottom of page
 
     for (bottomOfPage = topOfPage + 1; bottomOfPage < bottomOfSteps.lineNumber; bottomOfPage++) {
-      QString line = gui->readLine(bottomOfPage);
+      QString line = lpub->ldrawFile.readLine(bottomOfPage.modelName,bottomOfPage.lineNumber);
       Rc rc = meta.parse(line,bottomOfPage);
       if (rc == StepRc || rc == RotStepRc) {
         break;
@@ -744,7 +744,7 @@ void MetaItem::movePageToEndOfStepGroup(
     // copy page to after step group
 
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2++) {
-      QString line = gui->readLine(walk2);
+      QString line = lpub->ldrawFile.readLine(walk2.modelName,walk2.lineNumber);
       appendMeta(walk++,line);
     }
 
@@ -940,7 +940,7 @@ void MetaItem::addPrevMultiStep(
   ++prevStep;
   movePageToBeginOfStepGroup(prevStep);
 
-//  gui->displayPageNum--;
+//  Gui::displayPageNum--;
   endMacro();
 }
 
@@ -961,7 +961,7 @@ void MetaItem::movePageToBeginOfStepGroup(
     // find top of page
 
     for (topOfPage = topOfSteps + 1; topOfPage <= bottomOfSteps.lineNumber; topOfPage++) {
-      QString line = gui->readLine(topOfPage);
+      QString line = lpub->ldrawFile.readLine(topOfPage.modelName,topOfPage.lineNumber);
       Rc rc = meta.parse(line,topOfPage);
       if (rc == StepGroupEndRc) {
         return;
@@ -974,7 +974,7 @@ void MetaItem::movePageToBeginOfStepGroup(
     // find bottom of page
 
     for (bottomOfPage = topOfPage + 1; bottomOfPage < bottomOfSteps.lineNumber; bottomOfPage++) {
-      QString line = gui->readLine(bottomOfPage);
+      QString line = lpub->ldrawFile.readLine(bottomOfPage.modelName,bottomOfPage.lineNumber);
       Rc rc = meta.parse(line,bottomOfPage);
       if (rc == StepRc || rc == RotStepRc) {
         break;
@@ -986,7 +986,7 @@ void MetaItem::movePageToBeginOfStepGroup(
     // copy page to before step group
 
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2.lineNumber += 2) {
-      QString line = gui->readLine(walk2);
+      QString line = lpub->ldrawFile.readLine(walk2.modelName,walk2.lineNumber);
       insertMeta(topOfSteps,line);
       ++topOfSteps;
       ++bottomOfSteps;
@@ -1155,7 +1155,7 @@ void MetaItem::stepGroupAddToPrev(
 
 void MetaItem::convertToIgnore(Meta *meta)
 {
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
 
   SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
   Where calledOut(tos.modelName,tos.lineNumber);
@@ -1168,12 +1168,12 @@ void MetaItem::convertToIgnore(Meta *meta)
 
 void MetaItem::convertToPart(Meta *meta)
 {
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
 
   SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
   Where calledOut(tos.modelName,tos.lineNumber);
   Where here = calledOut+1;
-  QString line = gui->readLine(calledOut);
+  QString line = lpub->ldrawFile.readLine(calledOut.modelName,calledOut.lineNumber);
   QStringList tokens;
   split(line,tokens);
   if (tokens.size() == 15) {
@@ -1285,7 +1285,7 @@ void MetaItem::setMetaTopOf(
         Where topOfFile = topOf;
 
         if (topOf.lineNumber == 0) {
-            QString line = gui->readLine(topOf);
+            QString line = lpub->ldrawFile.readLine(topOf.modelName,topOf.lineNumber);
             QStringList argv;
             split(line,argv);
             if (argv.size() >= 1 && argv[0] != "0") {
@@ -1350,12 +1350,12 @@ void MetaItem::setMetaBottomOf(
     }
     QString line = meta->format(local, global);
 
-    int  numLines = gui->subFileSize(topOf.modelName);
+    int  numLines = lpub->ldrawFile.size(topOf.modelName);
     bool eof = bottomOf.lineNumber == numLines;
 
     if (eof) {
       bottomOf -1;       //fix: numLines is inclusive (starts from 1) while readline index is exclusive (i.e. starts from 0)
-      QString tline = gui->readLine(bottomOf);
+      QString tline = lpub->ldrawFile.readLine(bottomOf.modelName,bottomOf.lineNumber);
       QStringList argv;
       split(tline,argv);
       if (argv.size() >= 2 && argv[0] == "0" && (argv[1] == "STEP" || argv[1] == "ROTSTEP")) {
@@ -1523,7 +1523,7 @@ void MetaItem::changePlacementOffset(
 
     Where walk;
     bool partsAdded;
-    int eof = gui->subFileSize(defaultWhere.modelName);
+    int eof = lpub->ldrawFile.size(defaultWhere.modelName);
     defaultWhere+1 == eof ? walk = defaultWhere : walk = defaultWhere+1;
 
     // first, lets start from the bottom of the current step - to catch added parts
@@ -1552,7 +1552,7 @@ void MetaItem::changePlacementOffset(
 //                  << " \nStop at line: "
 //                  << defaultWhere.lineNumber
 //                  << " with line contents: \n"
-//                  << gui->readLine(defaultWhere)
+//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
 //                     ;
 //#endif
 
@@ -1566,11 +1566,11 @@ void MetaItem::changePlacementOffset(
 //                  << " \nStop at line: "
 //                  << defaultWhere.lineNumber
 //                  << " with line contents: \n"
-//                  << gui->readLine(defaultWhere)
+//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
 //                     ;
 //#endif
 
-    } else if (defaultWhere.modelName == gui->topLevelFile()) {
+    } else if (defaultWhere.modelName == lpub->ldrawFile.topLevelFile()) {
       scanPastGlobal(defaultWhere);
 
 //#ifdef QT_DEBUG_MODE
@@ -1579,7 +1579,7 @@ void MetaItem::changePlacementOffset(
 //                  << " \nStop at line: "
 //                  << defaultWhere.lineNumber
 //                  << " with line contents: \n"
-//                  << gui->readLine(defaultWhere)
+//                  << lpub->ldrawFile.readLine(defaultWhere.modelName,defaultWhere.lineNumber)
 //                     ;
 //#endif
 
@@ -1673,7 +1673,7 @@ void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
     Where here(groupMeta->value().group.modelName,
                groupMeta->value().group.lineNumber);
     int nextLine  = here.lineNumber + 1;
-    int endOfFile = gui->subFileSize(here.modelName);
+    int endOfFile = lpub->ldrawFile.size(here.modelName);
 
     if (!(canReplace = groupMeta->here() == here)) {
         if (groupMeta->bom() && !groupMeta->bomPart()) {
@@ -1682,7 +1682,7 @@ void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
             Rc rc;
             Meta mi;
             groupMeta->setWhere(here);
-            metaString = gui->readLine(here);
+            metaString = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
             rc = mi.parse(metaString,here);
             if (!(canReplace = rc == PliPartGroupRc || rc == BomPartGroupRc)) {
                 here.lineNumber = nextLine < endOfFile ? nextLine : endOfFile - 1;
@@ -2477,10 +2477,10 @@ void MetaItem::deleteDivider(
     if (rc == expRc) {
       Meta content;
       bool haveSepMeta = false;
-      int numLines = gui->subFileSize(sepMeta.modelName);
+      int numLines = lpub->ldrawFile.size(sepMeta.modelName);
       scanPastGlobal(sepMeta);
       for ( ; sepMeta < numLines; sepMeta++) {
-          QString line = gui->readLine(sepMeta);
+          QString line = lpub->ldrawFile.readLine(sepMeta.modelName,sepMeta.lineNumber);
           rc = content.parse(line,sepMeta);
           if ((haveSepMeta =
                rc == SepRc)       ||
@@ -2566,15 +2566,15 @@ void MetaItem::changeAlloc(
 
 bool MetaItem::okToInsertCoverPage()
 {
-  bool frontCover = gui->displayPageNum <= gui->firstStepPageNum;
-  bool backCover  = gui->displayPageNum >    gui->lastStepPageNum;
+  const bool frontCover = Gui::displayPageNum <= Gui::firstStepPageNum;
+  const bool backCover  = Gui::displayPageNum >    Gui::lastStepPageNum;
 
   return frontCover || backCover;
 }
 bool MetaItem::okToAppendCoverPage()
 {
-  bool frontCover = gui->displayPageNum < gui->firstStepPageNum;
-  bool backCover = gui->displayPageNum >= gui->lastStepPageNum;
+  const bool frontCover = Gui::displayPageNum < Gui::firstStepPageNum;
+  const bool backCover  = Gui::displayPageNum >= Gui::lastStepPageNum;
 
   return frontCover || backCover;
 }
@@ -2584,15 +2584,15 @@ void MetaItem::insertCoverPage()
   Rc rc;
   QString line;
   Meta content;
-  Where here(gui->topLevelFile(),0);
+  Where here(lpub->ldrawFile.topLevelFile(),0);
   QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";
-  int numLines = gui->subFileSize(here.modelName);
+  int numLines = lpub->ldrawFile.size(here.modelName);
 
   scanPastGlobal(here);                         //scan past headers and global
 
   beginMacro("InsertCoverPage");
   for ( ; here < numLines; here++) {            //scan forward
-      line = gui->readLine(here);
+      line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
       rc = content.parse(line,here);
 
       if (rc == StepRc    ||
@@ -2621,8 +2621,8 @@ void MetaItem::insertCoverPage()
 bool MetaItem::frontCoverPageExist()
 {
   QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
-  Where here(gui->topLevelFile(),0);
-  return gui->stepContains(here, rx);
+  Where here(lpub->ldrawFile.topLevelFile(),0);
+  return Gui::stepContains(here, rx);
 }
 
 void MetaItem::appendCoverPage()
@@ -2630,13 +2630,13 @@ void MetaItem::appendCoverPage()
   Rc rc;
   QString line;
   Meta content;
-  Where here(gui->topLevelFile(),0);
-  here.lineNumber = gui->subFileSize(here.modelName); //start at bottom of file
+  Where here(lpub->ldrawFile.topLevelFile(),0);
+  here.lineNumber = lpub->ldrawFile.size(here.modelName); //start at bottom of file
   QString meta    = "0 !LPUB INSERT COVER_PAGE BACK";
   here--;
 
   beginMacro("AppendCoverPage");
-  line = gui->readLine(here);
+  line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
   rc   = content.parse(line,here);
 
    if ((rc == StepGroupEndRc ||                       //STEP so advance line before 'insert' meta
@@ -2654,16 +2654,16 @@ void MetaItem::appendCoverPage()
 bool MetaItem::backCoverPageExist()
 {
   QRegExp rx("^0 !?LPUB INSERT COVER_PAGE ");
-  Where here(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile())); //start at bottom of file
+  Where here(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile())); //start at bottom of file
   if (here.lineNumber)
       scanBackward(here, StepMask | StepGroupMask);
-  return gui->stepContains(here, rx);
+  return Gui::stepContains(here, rx);
 }
 
 bool MetaItem::okToInsertNumberedPage()
 {
-  bool frontCover = gui->displayPageNum >= gui->firstStepPageNum;
-  bool backCover  = gui->displayPageNum <=  gui->lastStepPageNum;
+  bool frontCover = Gui::displayPageNum >= Gui::firstStepPageNum;
+  bool backCover  = Gui::displayPageNum <=  Gui::lastStepPageNum;
 
   return frontCover || backCover;
 }
@@ -2686,11 +2686,11 @@ void MetaItem::appendNumberedPage()
 
 void MetaItem::insertPage(QString &meta)
 {
-  Where topOfStep = gui->topOfPages[gui->displayPageNum-1];
+  Where topOfStep = Gui::topOfPages[Gui::displayPageNum-1];
 
   scanPastGlobal(topOfStep);
 
-  QString line = gui->readLine(topOfStep + 1); // appended line
+  QString line = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber + 1); // appended line
   QStringList argv;
   split(line,argv);
   bool skipStepMeta = (argv.size() >= 2 &&
@@ -2718,7 +2718,7 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
   if (option) {
       bottomOfStep    = where;                               //stat at the specified bottom of page step
   } else {
-      bottomOfStep    = gui->topOfPages[gui->displayPageNum];//start at the bottom of the page's last step
+      bottomOfStep    = Gui::topOfPages[Gui::displayPageNum];//start at the bottom of the page's last step
       QString title   = QString("%1 - Append Page").arg(VER_PRODUCTNAME_STR);
       QString options = QString("At end of main model ?|At current page ?%1")
                                 .arg(where.modelIndex ? QString("|At end of current model ?") : QString());
@@ -2726,17 +2726,17 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
           return false;
 
       if (option == AppendAtSubmodel)                        //start at the bottom of the model's last step
-         bottomOfStep = Where(bottomOfStep.modelName, gui->subFileSize(bottomOfStep.modelName));
+         bottomOfStep = Where(bottomOfStep.modelName, lpub->ldrawFile.size(bottomOfStep.modelName));
       else if (option == AppendAtModel)                      //start at the bottom of the main model's last step
-         bottomOfStep = Where(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile()));
+         bottomOfStep = Where(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()));
   }
 
   Where here = bottomOfStep;
 
-  int numLines = gui->subFileSize(here.modelName);
+  int numLines = lpub->ldrawFile.size(here.modelName);
 
   for ( ; here > 0; --here) {                                //scan from bottom to top of file
-    line = gui->readLine(here);
+    line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     rc = mi.parse(line,here);
     if (rc == StepRc || rc == RotStepRc ||
       rc == StepGroupEndRc || rc == CalloutEndRc) {          //we are on a boundary command so advance one line and break
@@ -2763,7 +2763,7 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
         appendStepMeta = true;
       } else {                                               //insert before cover page
         for ( ; here > 0; --here) {
-          line = gui->readLine(here);
+          line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
           rc = mi.parse(line,here);
           if (rc == StepRc || rc == RotStepRc )
             break;
@@ -2777,7 +2777,7 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
 
   if ( ! appendStepMeta && ! insertStepMeta) {
     for ( ; here < numLines; ++here) {
-      QString line = gui->readLine(here);
+      QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
       QStringList tokens;
       split(line,tokens);
       bool token_1_5 = tokens.size() &&
@@ -2809,8 +2809,8 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
 
 void MetaItem::deletePage()
 {
-  Where topOfPage    = gui->topOfPages[gui->displayPageNum-1];
-  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];
+  Where topOfPage    = Gui::topOfPages[Gui::displayPageNum-1];
+  Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum];
   ++topOfPage;
   int numLines = bottomOfPage.lineNumber - topOfPage.lineNumber;
 
@@ -2834,15 +2834,15 @@ void MetaItem::insertPicture()
     QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(filePath);
     Where insertPosition;
     bool multiStep = false;
-    if (gui->getCurrentStep()){
-        if ((multiStep = gui->getCurrentStep()->multiStep))
-            insertPosition = gui->getCurrentStep()->bottomOfSteps();
+    if (lpub->currentStep) {
+        if ((multiStep = lpub->currentStep->multiStep))
+            insertPosition = lpub->currentStep->bottomOfSteps();
         else
-            insertPosition = gui->getCurrentStep()->topOfStep();
+            insertPosition = lpub->currentStep->topOfStep();
     } else {
         insertPosition = lpub->page.topOfSteps();
     }
-    if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
+    if (insertPosition.modelName == lpub->ldrawFile.topLevelFile() && insertPosition.lineNumber < 2)
         scanPastGlobal(insertPosition);
     appendMeta(insertPosition, meta);
   }
@@ -3002,7 +3002,7 @@ void MetaItem::updateText(
 
 void MetaItem::insertText()
 {
-    Where insertPosition, walkBack, topOfStep, bottomOfStep;
+    Where insertPosition;
 
     bool append        = true;
     bool isRichText    = false;
@@ -3010,22 +3010,21 @@ void MetaItem::insertText()
     bool textPlacement = lpub->page.meta.LPub.page.textPlacement.value();
     PlacementType parentRelativeType = PageType;
 
-    if (gui->getCurrentStep()){
-        if ((multiStep = gui->getCurrentStep()->multiStep))
-            insertPosition = gui->getCurrentStep()->bottomOfSteps();
+    if (lpub->currentStep){
+        if ((multiStep = lpub->currentStep->multiStep))
+            insertPosition = lpub->currentStep->bottomOfSteps();
         else
-            insertPosition = gui->getCurrentStep()->topOfStep();
+            insertPosition = lpub->currentStep->topOfStep();
     } else {
         insertPosition = lpub->page.topOfSteps();
     }
 
-    if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
+    if (insertPosition.modelName == lpub->ldrawFile.topLevelFile() && insertPosition.lineNumber < 2)
         scanPastGlobal(insertPosition);
 
     if (textPlacement) {
       QStringList textFormatOptions;
       textFormatOptions << "Plain Text" << "Rich Text";
-      QInputDialog textTypeDlg;
       bool ok;
       QString textFormat =
               QInputDialog::getItem(gui,
@@ -3070,7 +3069,7 @@ void MetaItem::insertBOM()
 {
   QString meta = QString("0 !LPUB INSERT BOM");
 
-  Where bottomOfPage = gui->topOfPages[gui->displayPageNum]; //start at the bottom of the page's last step
+  Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum]; //start at the bottom of the page's last step
 
   bool forModel;
   int option = BomOptionDialog::getOption(forModel, bottomOfPage.modelIndex, nullptr);
@@ -3090,9 +3089,9 @@ void MetaItem::insertBOM()
     insertMeta(bottomOfPage,meta);
   } else if (option && option != AppendAtPage) {
     if (option == AppendAtSubmodel)                          //start at the bottom of the model's last step
-     bottomOfPage = Where(bottomOfPage.modelName, gui->subFileSize(bottomOfPage.modelName));
+     bottomOfPage = Where(bottomOfPage.modelName, lpub->ldrawFile.size(bottomOfPage.modelName));
     else if (option == AppendAtModel)                        //start at the bottom of the main model's last step
-     bottomOfPage = Where(gui->topLevelFile(), gui->subFileSize(gui->topLevelFile()));
+     bottomOfPage = Where(lpub->ldrawFile.topLevelFile(), lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()));
 
     QString pageMeta = "0 !LPUB INSERT PAGE";
 
@@ -3109,18 +3108,20 @@ int MetaItem::displayModelStepExists()
   QString line;
   Meta meta;
   Where saveHere;                                            //initialize saveHere
-  Where here(gui->topLevelFile(),0);
-  here.lineNumber = gui->subFileSize(here.modelName);        //start at bottom of file
+  Where here(lpub->ldrawFile.topLevelFile(),0);
+  here.lineNumber = lpub->ldrawFile.size(here.modelName);        //start at bottom of file
   here--;                                                    //adjust lineNumber for zero-start index
 
   for ( ; here >= 0; here--) {                               //scan from bottom to top of file
-    line = gui->readLine(here);
+    line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     rc = meta.parse(line,here);
     if (rc == StepRc || rc == RotStepRc) {                   //if Step, save the line number to perform insert (place before) later
         saveHere = here.lineNumber;
     } else if (
       rc == StepGroupEndRc || rc == CalloutEndRc) {          //if Step, StepGroup, RotStep or Callout, save the line number
+#ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG,QString("Insert Final Model - hit end of StepGroup or Callout - Ok to insert Model at line: %1").arg(here.lineNumber));
+#endif
       return here.lineNumber;                                //reached a valid boundary so so return line number
     } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
       emit gui->messageSig(LOG_INFO,QString("Final model detected at line: %1").arg(here.lineNumber));
@@ -3133,13 +3134,17 @@ int MetaItem::displayModelStepExists()
       split(line,args);
       if (args.size() && args[0] >= "1" && args[0] <= "5") { //non-zero line detected so no back final model
         if (saveHere.lineNumber) {
+#ifdef QT_DEBUG_MODE
           emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit end of Step - Ok to insert model at line: %1").arg(saveHere.lineNumber));
+#endif
           return saveHere.lineNumber;
         } else {
-          int lastLine = gui->subFileSize(here.modelName);
+          int lastLine = lpub->ldrawFile.size(here.modelName);
           if (here.lineNumber >= lastLine - 1)               //check if 'here' is at the end of the file
             lastLine = here.lineNumber;                      //at last line so return line number
+#ifdef QT_DEBUG_MODE
           emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit line type 1-5 - Ok to insert model at EOF, line: %1").arg(lastLine));
+#endif
           return lastLine;                                   //return last line
         }
       }
@@ -3150,7 +3155,7 @@ int MetaItem::displayModelStepExists()
 
 void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 {
-    bool atStep = (QString(gui->readLine(here)).contains(QRegExp("^0 STEP$")));
+    bool atStep = (QString(lpub->ldrawFile.readLine(here.modelName,here.lineNumber)).contains(QRegExp("^0 STEP$")));
 
     const QString disclaimerText1  = QString("0 // The following 3 command lines were auto-generated for fade or highlight step.");
     const QString disclaimerText2  = QString("0 // Use 0 !LPUB INSERT DISPLAY_MODEL to override automatic insertion and deletion.");
@@ -3195,7 +3200,7 @@ void MetaItem::insertFinalModelStep(int atLine)
   }
 
   // grab the passed in line
-  Where here(gui->topLevelFile(),atLine);
+  Where here(lpub->ldrawFile.topLevelFile(),atLine);
 
   // insert final model
   insertDisplayModelStep(here, true /*Final Model*/);
@@ -3207,8 +3212,8 @@ bool MetaItem::deleteFinalModelStep(){
 
   int maxLines;
   QStringList tokens;
-  Where here(gui->topLevelFile(),0);                             //start at bottom of file
-  here.lineNumber = maxLines = gui->subFileSize(here.modelName);
+  Where here(lpub->ldrawFile.topLevelFile(),0);                             //start at bottom of file
+  here.lineNumber = maxLines = lpub->ldrawFile.size(here.modelName);
   here--;
 
   Where finalModelLine;
@@ -3220,27 +3225,27 @@ bool MetaItem::deleteFinalModelStep(){
   bool foundFinalModel = false;
 
   for (; here >=0; here--) {                                    //scan backwards until Model
-    QString line = gui->readLine(here);
+    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     rc = meta.parse(line,here);
     if (rc == InsertFinalModelRc) {                             //model found so locate position of page insert line
       foundFinalModel  = true;
       finalModelLine   = here;                                  //mark line as starting point for deletion
       if ((here + 1) < maxLines) {                              //check if line before is page insert and adjust starting point for deletion
         walk = here + 1;
-        QString line = gui->readLine(walk);
+        QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
         Rc rc = meta.parse(line,walk);
         if (rc == InsertPageRc) {
           finalModelLine = walk;                                //adjust starting point for deletion
         }
       }
-
+#ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_DEBUG,QString("Final model meta commands detected at lines %1 to %2").arg(here.lineNumber).arg(finalModelLine.lineNumber));
-
+#endif
     } else if (foundFinalModel && (rc == StepRc || rc == RotStepRc)) { //at at final model [ROT]STEP command ...
       QRegExp rx("auto-generated for fade or highlight step.$|override automatic insertion and deletion.$");
       for (int i = 0; i < 2; i++) {
           walk = here - 1;
-          QString line = gui->readLine(walk);
+          QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
           if (isComment(line) && (line.contains(rx)))
               here = walk;
           else
@@ -3252,8 +3257,10 @@ bool MetaItem::deleteFinalModelStep(){
       beginMacro("deleteFinalModelStep");
 
       for (; walk >= stopAtThisLine.lineNumber ; walk-- ){       //remove lines between model insert and model insert step
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Deleting inserted final model line %1 in '%2' [%3]")
-                                                .arg(walk.lineNumber).arg(walk.modelName).arg(gui->readLine(walk)));
+                                                .arg(walk.lineNumber).arg(walk.modelName).arg(lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
+#endif
         deleteMeta(walk);
       }
 
@@ -3290,7 +3297,7 @@ void MetaItem::changePreferredRenderer(
 //    bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = !gui->stepContains(here,calloutRx);
+    bool useTop = !Gui::stepContains(here,calloutRx);
 //    beginMacro("PreferredRenderer");
     meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local,askLocal);
@@ -3323,7 +3330,7 @@ QString         title,
     bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = !gui->stepContains(here,calloutRx);
+    bool useTop = !Gui::stepContains(here,calloutRx);
     beginMacro("SetFadeSteps");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
@@ -3342,7 +3349,7 @@ QString         title,
     }
     endMacro();
     if (reloadFile) {
-      reloadDisplayPage(true);
+      clearAllCaches(true);
     } else {
       clearCsiCache();
     }
@@ -3369,7 +3376,7 @@ void MetaItem::setHighlightStep(
     bool reloadFile = false;
     QRegExp calloutRx("CALLOUT BEGIN");
     Where here(topOfStep + 1);
-    bool useTop = (append = !gui->stepContains(here,calloutRx));
+    bool useTop = (append = !Gui::stepContains(here,calloutRx));
     beginMacro("SetHighlightStep");
     if(_meta.enable.value() != meta->enable.value()) {
       meta->enable.setValue(_meta.enable.value());
@@ -3387,7 +3394,7 @@ void MetaItem::setHighlightStep(
     }
     endMacro();
     if (reloadFile) {
-      reloadDisplayPage(true);
+      clearAllCaches(true);
     } else {
       clearCsiCache();
     }
@@ -3399,7 +3406,7 @@ void MetaItem::insertSplitBOM()
   QString pageMeta = QString("0 !LPUB INSERT PAGE");
   QString bomMeta  = QString("0 !LPUB INSERT BOM");
 
-  Where topOfStep = gui->topOfPages[gui->displayPageNum-1];
+  Where topOfStep = Gui::topOfPages[Gui::displayPageNum-1];
 
   scanPastGlobal(topOfStep);
 
@@ -3412,10 +3419,10 @@ void MetaItem::insertSplitBOM()
 
 void MetaItem::deleteBOM()
 {
-  Where topOfPage    = gui->topOfPages[gui->displayPageNum-1];
-  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];
+  Where topOfPage    = Gui::topOfPages[Gui::displayPageNum-1];
+  Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum];
   for (++topOfPage; topOfPage.lineNumber < bottomOfPage.lineNumber; topOfPage++) {
-    QString line = gui->readLine(topOfPage);
+    QString line = lpub->ldrawFile.readLine(topOfPage.modelName,topOfPage.lineNumber);
     Meta meta;
     Rc rc;
 
@@ -3436,11 +3443,11 @@ void MetaItem::deleteBOM()
 
 void MetaItem::deleteBOMPartGroups()
 {
-  Where topOfPage    = gui->topOfPages[gui->displayPageNum-1];
-  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];
+  Where topOfPage    = Gui::topOfPages[Gui::displayPageNum-1];
+  Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum];
   for (Where walk = bottomOfPage; walk >= topOfPage.lineNumber; walk--) {
     Meta mi;
-    QString metaString = gui->readLine(walk);
+    QString metaString = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     Rc rc = mi.parse(metaString,walk);
     if (rc == PliPartGroupRc || rc == BomPartGroupRc){
         deleteMeta(walk);
@@ -3454,7 +3461,7 @@ void MetaItem::deletePLIPartGroups(
 {
   for (Where walk = bottomOfStep; walk >= topOfStep.lineNumber; walk--) {
     Meta mi;
-    QString metaString = gui->readLine(walk);
+    QString metaString = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     Rc rc = mi.parse(metaString,walk);
     if (rc == PliPartGroupRc || rc == BomPartGroupRc){
         deleteMeta(walk);
@@ -3467,7 +3474,7 @@ void MetaItem::resetPartGroup(
 {
     Where here = which;
     Meta mi;
-    QString metaString = gui->readLine(here);
+    QString metaString = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     Rc rc = mi.parse(metaString,here);
     if (rc == PliPartGroupRc || rc == BomPartGroupRc){
         deleteMeta(here);
@@ -3506,11 +3513,11 @@ void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand){
   Rc rc;
   Meta meta;
   Where walk = topOfStep + 1;                                     // advance past STEP meta
-  int numLines = gui->subFileSize(topOfStep.modelName);
+  int numLines = lpub->ldrawFile.size(topOfStep.modelName);
   scanPastGlobal(topOfStep);
   QRegExp rotateIconMeta("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
   for ( ; walk < numLines; walk++) {
-      QString line = gui->readLine(walk);
+      QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
       if (line.contains(rotateIconMeta)) {
           deleteMeta(walk);
           walk--;                                                 // compensate for deleted line
@@ -3538,13 +3545,13 @@ void MetaItem::scanPastLPubMeta(
 {
   Where walk = topOfStep + 1;
 
-  int  numLines  = gui->subFileSize(walk.modelName);
+  int  numLines  = lpub->ldrawFile.size(walk.modelName);
   if (walk < numLines) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     QRegExp lpubLine("^\\s*0\\s+!LPUB\\s+.*");
     if (line.contains(lpubLine) || isHeader(line) || isComment(line)) {
       for ( ++walk; walk < numLines; ++walk) {
-        line = gui->readLine(walk);
+        line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
         //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
         if ( ! line.contains(lpubLine) && ! isHeader(line) && ! isComment(line)) {
           topOfStep = walk - 1;
@@ -3568,13 +3575,13 @@ Rc  MetaItem::scanForward(
   bool  &partsAdded)
 {
   Meta tmpMeta;
-  int  numLines  = gui->subFileSize(here.modelName);
+  int  numLines  = lpub->ldrawFile.size(here.modelName);
   partsAdded = false;
 
   scanPastGlobal(here);
 
   for ( ; here < numLines; here++) {
-    QString line = gui->readLine(here);
+    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     QStringList tokens;
 
     split(line,tokens);
@@ -3625,7 +3632,7 @@ Rc MetaItem::scanBackward(
 
   for ( ; here >= 0; here--) {
 
-    QString line = gui->readLine(here);
+    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     QStringList tokens;
 
     if (isHeader(line)) {
@@ -3705,7 +3712,7 @@ void MetaItem::scanPastGlobal(
   Where &topOfStep)
 {
   QRegExp globalLine(GLOBAL_META_RX);
-  gui->scanPast(topOfStep,globalLine);
+  Gui::scanPast(topOfStep,globalLine);
 }
 
 Where MetaItem::firstLine(
@@ -3729,7 +3736,7 @@ Where MetaItem::sortedGlobalWhere(
   QString  /* unused */)
 {
   Where walk = Where(modelName,0);
-  int maxLines = gui->subFileSize(modelName);
+  int maxLines = lpub->ldrawFile.size(modelName);
   QRegExp lines1_5("^\\s*[1-5]");
 
   bool header = true;
@@ -3738,7 +3745,7 @@ Where MetaItem::sortedGlobalWhere(
 
   for ( ; walk < maxLines; walk++)
   {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
 
     if (walk.lineNumber == 0) {
       QStringList argv;
@@ -3764,7 +3771,7 @@ Where MetaItem::sortedGlobalWhere(
 
 int MetaItem::numSteps(QString modelName)
 {
-  return gui->numSteps(modelName);
+  return lpub->ldrawFile.numSteps(modelName);
 }
 
 /***********************************************************************
@@ -3787,7 +3794,7 @@ int MetaItem::nestCallouts(
 
     Where walk(modelName,1);
 
-    int numLines = gui->subFileSize(walk.modelName);
+    int numLines = lpub->ldrawFile.size(walk.modelName);
 
     bool partIgnore = false;
     bool callout = false;
@@ -3799,7 +3806,7 @@ int MetaItem::nestCallouts(
 
     for ( ; walk.lineNumber < numLines; ++walk) {
 
-      QString line = gui->readLine(walk);
+      QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
 
       QStringList argv;
 
@@ -3856,7 +3863,7 @@ bool MetaItem::canConvertToCallout(
   Where walkBack(tos.modelName,tos.lineNumber);
 
   for (; walkBack.lineNumber >= 0; walkBack--) {
-    QString line = gui->readLine(walkBack);
+    QString line = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
 
     if (isHeader(line)) {
       return true;
@@ -3885,7 +3892,7 @@ void MetaItem::convertToCallout(Meta *meta,
   bool  assembled,
   bool pointerless)
 {
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
 
   beginMacro("convertToCallout");
   addCalloutMetas(meta,modelName,isMirrored,assembled,pointerless);
@@ -3909,12 +3916,12 @@ void MetaItem::addCalloutMetas(
   Where walk(modelName,0);
 
   if (! assembled) {
-    numLines = gui->subFileSize(modelName);
+    numLines = lpub->ldrawFile.size(modelName);
     walk.lineNumber = numLines - 1;
     QRegExp ms("^\\s*0\\s+\\!*LPUB\\s+MULTI_STEP\\s+");
 
     do {
-      QString line = gui->readLine(walk);
+      QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
       if (line.contains(ms)) {
         deleteMeta(walk);
       }
@@ -3946,7 +3953,7 @@ void MetaItem::addCalloutMetas(
 
   Where walkBack = calledOut;
   for (; walkBack.lineNumber >= 0; walkBack--) {
-    QString line = gui->readLine(walkBack);
+    QString line = lpub->ldrawFile.readLine(walkBack.modelName,walkBack.lineNumber);
 
     if (isHeader(line)) {
       break;
@@ -3983,9 +3990,9 @@ void MetaItem::addCalloutMetas(
   }
 
   walk = calledOut + 1;
-  numLines = gui->subFileSize(walk.modelName);
+  numLines = lpub->ldrawFile.size(walk.modelName);
   for ( ; walk.lineNumber < numLines; walk++) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
@@ -4022,8 +4029,8 @@ void MetaItem::addCalloutMetas(
     if (assembled) {
       if (instanceCount > 1) {
         QMessageBox::StandardButton pushed;
-        pushed = QMessageBox::question(gui,gui->tr("Multiple Copies"),
-                                           gui->tr("There are multiple copies, do you want them as one callout?"),
+        pushed = QMessageBox::question(gui,QMessageBox::tr("Multiple Copies"),
+                                           QMessageBox::tr("There are multiple copies, do you want them as one callout?"),
                                            QMessageBox::Yes|QMessageBox::No,
                                            QMessageBox::Yes);
         together = pushed == QMessageBox::Yes;
@@ -4054,9 +4061,10 @@ void MetaItem::addCalloutMetas(
                                            modelName,
                                            i,
                                            lpub->ldrawFile.mirrored(argv));
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("[Tip Point] (%1, %2)").arg(QString::number(offset.x(),'f',6))
                              .arg(QString::number(offset.y(),'f',6)));
-
+#endif
         pointerLine = QString("%1 %2 0 0 0 0 0 0 1") .arg(offset.x()) .arg(offset.y());
       }
 
@@ -4107,7 +4115,7 @@ void MetaItem::addPointerTip(
     PlacementEnc placement,
     Rc           rc)
 {
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
 
   beginMacro("addPointerTip");
   addPointerTipMetas(meta,fromHere,toHere,placement,rc);
@@ -4459,6 +4467,7 @@ bool MetaItem::offsetPoint(
     partLoc [0] = left;
     partLoc [1] = top;
 
+#ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG,QString("%1 for model [%2]:")
                                            .arg(partAnnotation ? "Part ["+partType+"] annotation" :
                                                            "Default pointer tip position")
@@ -4471,7 +4480,7 @@ bool MetaItem::offsetPoint(
     emit gui->messageSig(LOG_DEBUG,QString(" -partHeight(sizeY): %1").arg(QString::number(bottom-top)));
     emit gui->messageSig(LOG_DEBUG,QString(" -csiWidth  (sizeX): %1").arg(QString::number(width)));
     emit gui->messageSig(LOG_DEBUG,QString(" -csiHeight (sizeY): %1").arg(QString::number(height)));
-
+#endif
     return true;
   }
   emit gui->messageSig(LOG_ERROR, QString("Render momo %1 image for %2 failed.")
@@ -4491,11 +4500,11 @@ void MetaItem::removeCallout(
   const Where   &topOfCallout,
   const Where   &bottomOfCallout)
 {
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
 
   /* scan the called out model and remove any dividers */
 
-  int  numLines = gui->subFileSize(modelName);
+  int  numLines = lpub->ldrawFile.size(modelName);
 
   Where walk(modelName,numLines-1);
   Rc rc;
@@ -4514,7 +4523,7 @@ void MetaItem::removeCallout(
        walk >= topOfCallout.lineNumber;
        walk--)
   {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (line.contains(callout)) {
       deleteMeta(walk);
     }
@@ -4527,14 +4536,14 @@ void MetaItem::unnestCallouts(
 {
   Where walk(modelName,1);
 
-  int numLines = gui->subFileSize(walk.modelName);
+  int numLines = lpub->ldrawFile.size(walk.modelName);
 
   bool partIgnore = false;
   bool callout = false;
 
   for ( ; walk.lineNumber < numLines; ++walk) {
 
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
 
     QStringList argv;
 
@@ -4595,14 +4604,14 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
      Where walk = here;
      QString pattern = QString("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
      QRegExp rx(pattern);
-     QString line = gui->readLine(++walk); // advance 1 line
+     QString line = lpub->ldrawFile.readLine(walk.modelName,++walk.lineNumber); // advance 1 line
      if (line.contains(rx)) {
          deleteMeta(walk);                 // check first line
      }
      else
      {
         ++walk;                           // check second line
-        line = gui->readLine(walk);
+        line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
         if (line.contains(rx)) {
             deleteMeta(walk);
         }
@@ -4667,7 +4676,7 @@ int MetaItem::monoColorSubmodel(
     return -1;
   }
 
-  int numLines = gui->subFileSize(modelName);
+  int numLines = lpub->ldrawFile.size(modelName);
 
  /*
   * scan past header
@@ -4679,7 +4688,7 @@ int MetaItem::monoColorSubmodel(
     bool firstLine = true;
     for ( ; here < numLines; here++)
     {
-      QString line = gui->readLine(here);
+      QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
       if (here > 0) {
         if (header) {
           header &= (isHeader(line) || firstLine);
@@ -4704,7 +4713,7 @@ int MetaItem::monoColorSubmodel(
       monoColorAdded = true;
     }
 
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     QStringList argv;
 
     split(line,argv);
@@ -4775,7 +4784,7 @@ QPointF MetaItem::defaultPointerTip(
 
   // line adjustment for custom color entry
   int colorLines         = 3; // transwhite
-  int numLines           = gui->subFileSize(modelName) + colorLines;
+  int numLines           = lpub->ldrawFile.size(modelName) + colorLines;
   int adjustedLineNumber = lineNumber + colorLines;
   int instances          = 0;
   QFileInfo info(subModel);
@@ -4850,7 +4859,7 @@ QPointF MetaItem::defaultPointerTip(
     if (meta.submodelStack.size() > 1) {
       tos = meta.submodelStack[meta.submodelStack.size() - 2];
       Where here(tos.modelName, tos.lineNumber+1);
-      addLine = gui->readLine(here);
+      addLine = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     } else {
       addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
     }
@@ -4970,9 +4979,9 @@ QPointF MetaItem::defaultPointerTip(
 void MetaItem::changeRotation(
   const Where &here)
 {
-  int numLines = gui->subFileSize(here.modelName);
+  int numLines = lpub->ldrawFile.size(here.modelName);
   if (here.lineNumber < numLines) {
-    QString line = gui->readLine(here);
+    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
     QStringList tokens;
     split(line,tokens);
     if (tokens.size() == 5 && tokens[0] == "0" && tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
@@ -5107,13 +5116,13 @@ void MetaItem::substitutePLIPart(
 void MetaItem::removeLPubFormatting()
 {
   beginMacro("RemoveLPubFormatting");
-  QStringList fileList = gui->fileList();
+  QStringList fileList = lpub->ldrawFile.subFileOrder();
 
   for (int i = 0; i < fileList.size(); ++i) {
     Where walk(fileList[i],0);
-    int numLines = gui->subFileSize(fileList[i]);
+    int numLines = lpub->ldrawFile.size(fileList[i]);
     for (; walk.lineNumber < numLines; ) {
-      QString line = gui->readLine(walk);
+      QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
       QStringList argv;
       split(line,argv);
       if (argv.size() > 2 && argv[0] == "0" && (argv[1] == "!LPUB" || argv[1] == "LPUB")) {
@@ -5131,10 +5140,10 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
 {
     Where itemTopOf = itemTop;
     if (newCommand){
-        if (itemTopOf.modelName == gui->topLevelFile())
+        if (itemTopOf.modelName == lpub->ldrawFile.topLevelFile())
             scanPastGlobal(itemTopOf);
         // place below item command unless end of file
-        int eof = gui->subFileSize(itemTopOf.modelName);
+        int eof = lpub->ldrawFile.size(itemTopOf.modelName);
         if (itemTopOf.lineNumber == eof)
             insertMeta(itemTopOf, metaString);
         else
@@ -5146,60 +5155,59 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
     }
 }
 
-void MetaItem::setLoadingFileFlag(bool b)
+void MetaItem::setLoadingFileFlag(bool b) const
 {
-    gui->mloadingFile = b;
+    Gui::mloadingFile = b;
 }
 
-void MetaItem::reloadDisplayPage(bool global)
+void MetaItem::clearAllCaches(bool global) const
 {
     // if true, cyclePageDisplay (Reload File) but do not clear cache
-    gui->clearAllCaches(global);
+    emit gui->clearAllCachesSig(global);
 }
 
-void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option)
+void MetaItem::clearPageCache(PlacementType relativeType, Page *page, int option) const
 {
-    gui->clearPageCache(relativeType, page, option);
+    emit gui->clearPageCacheSig(relativeType, page, option);
 }
 
-void MetaItem::clearCache(bool global)
+void MetaItem::clearAndReloadModelFile(bool global) const
 {
     // if global, clear cache only
-    gui->clearAndReloadModelFile(global);
+    emit gui->clearAndReloadModelFileSig(global);
 }
 
-void MetaItem::clearPliCache()
+void MetaItem::clearPliCache() const
 {
-    gui->clearPLICache();
+    emit gui->clearPLICacheSig();
 }
 
-void MetaItem::clearCsiCache()
+void MetaItem::clearCsiCache() const
 {
-    gui->clearCSICache();
+    emit gui->clearCSICacheSig();
 }
 
-void MetaItem::clearSubmodelCache()
+void MetaItem::clearSubmodelCache() const
 {
-    gui->clearSubmodelCache();
+    emit gui->clearSubmodelCacheSig();
 }
 
-void MetaItem::clearTempCache()
+void MetaItem::clearTempCache() const
 {
-    gui->clearTempCache();
+    emit gui->clearTempCacheSig();
 }
 
-void MetaItem::clearCustomPartCache()
+void MetaItem::clearCustomPartCache() const
 {
-    gui->clearCustomPartCache(true/*silent*/);
+    emit gui->clearCustomPartCacheSig(true/*silent*/);
 }
 
-void MetaItem::reloadCurrentPage()
+void MetaItem::reloadCurrentPage() const
 {
-    gui->reloadCurrentPage();
+    emit gui->reloadCurrentPageSig();
 }
 
-void MetaItem::restartApplication()
+void MetaItem::restartApplication() const
 {
-    gui->restartApplication();
+    emit gui->restartApplicationSig();
 }
-

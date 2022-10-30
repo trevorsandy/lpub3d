@@ -158,7 +158,7 @@ void ContentsChangeCommand::redo()
   if ( !isRedo) {
     isRedo = true;
   } else {
-    gui->maxPages = -1;
+    Gui::maxPages = -1;
     gui->displayPage();
   }
 }
@@ -166,7 +166,7 @@ void ContentsChangeCommand::redo()
 void ContentsChangeCommand::undo()
 {
   
-  gui->maxPages = -1;
+  Gui::maxPages = -1;
   
   ldrawFile->changeContents(
     modelName,

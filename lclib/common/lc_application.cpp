@@ -1839,15 +1839,15 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod restart and reload***/
 	lpub->messageSig(LOG_STATUS, QString("Visual Editor preferences saved"));
 	if (restartApp) {
-		restartApplication();
+		lpub->restartApplication();
 	}
 	else
 	if (reloadFile) {
-		clearAndReloadModelFile();
+		lpub->clearAndReloadModelFile(false);
 	}
 	else
 	if (reloadPage) {
-		reloadCurrentPage();
+		lpub->reloadCurrentPage();
 	}
 /*** LPub3D Mod end ***/
 }

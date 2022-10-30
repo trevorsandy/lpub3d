@@ -168,7 +168,7 @@ void GlobalFadeStepDialog::accept()
   mi.endMacro();
 
   if (data->reloadFile) {
-    mi.reloadDisplayPage(true);
+    mi.clearAllCaches(true);
   }
 
   QDialog::accept();

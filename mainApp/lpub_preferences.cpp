@@ -26,6 +26,7 @@
 #include <QDate>
 #include <JlCompress.h>
 #include <LDVQt/LDVWidget.h>
+
 #include "lpub_preferences.h"
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
@@ -39,12 +40,11 @@
 #include "application.h"
 #include "lpub_qtcompat.h"
 #include "messageboxresizable.h"
-//**3D
+#include "lpub_object.h"
+
 #include "lc_library.h"
 #include "lc_profile.h"
-#include "lc_mainwindow.h"
 #include "lc_view.h"
-//**
 
 Preferences preferences;
 
@@ -4602,7 +4602,7 @@ bool Preferences::getPreferences()
 
     bool updateLDViewConfigFiles = false;
 
-    PreferencesDialog *dialog    = new PreferencesDialog(gMainWindow, &Options);
+    PreferencesDialog *dialog    = new PreferencesDialog(nullptr, &Options);
 
     QSettings Settings;
 
@@ -5340,23 +5340,21 @@ bool Preferences::getPreferences()
             lcGetPiecesLibrary()->LoadColors();
         }
 
-        gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
-        lcView::UpdateAllViews();
+        lpub->SetShadingMode(Options.Preferences.mShadingMode);
 
         logInfo() << QString("Visual Editor preferences saved.");
 
         if (restartApp) {
-            restartApplication();
+            lpub->restartApplication();
         }
         else
         if (reloadFile) {
-            clearAndReloadModelFile();
+            lpub->clearAndReloadModelFile(false);
         }
         else
         if (reloadPage) {
-            reloadCurrentPage();
+            lpub->reloadCurrentPage();
         }
-
         return true;
     } else {
         return false;

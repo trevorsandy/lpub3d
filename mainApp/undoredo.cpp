@@ -158,15 +158,15 @@ void Gui::cleanChanged(bool cleanState)
 
 void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 {
-  Where walk    = gui->readLine(topOfStep) == "0 STEP" ? topOfStep + 1 : topOfStep;
+  Where walk    = lpub->ldrawFile.readLine(topOfStep.modelName,topOfStep.lineNumber) == "0 STEP" ? topOfStep + 1 : topOfStep;
   Where lastPos = topOfStep;
-  int  numLines = gui->subFileSize(walk.modelName);
+  int  numLines = lpub->ldrawFile.size(walk.modelName);
   QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 ROTATION");
   if (walk < numLines) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if (line.contains(lineRx) || isHeader(line)) {
       for ( ++walk; walk < numLines; ++walk) {
-        line = gui->readLine(walk);
+        line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
         lastPos = line.contains(lineRx) ? walk : lastPos;
         if ( ! line.contains(lineRx) && ! isHeader(line)) {
           topOfStep = lastPos;
@@ -182,7 +182,7 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 // special case - used in setting fade step from command meta
 bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp) {
     bool found = false;
-    if ((found = stepContains(here,lineRx))){
+    if ((found = Gui::stepContains(here,lineRx))){
         if (capGrp)
             result = lineRx.cap(capGrp);
         else
@@ -195,7 +195,7 @@ bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp
 bool Gui::stepContains(Where &topOfStep, const QString value)
 {
     QRegExp lineRx(value, Qt::CaseInsensitive);
-    return stepContains(topOfStep, lineRx);
+    return Gui::stepContains(topOfStep, lineRx);
 }
 
 // general case regex
@@ -203,16 +203,16 @@ bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
 {
   bool found = false;
   Where walk    = topOfStep;
-  int  numLines = gui->subFileSize(walk.modelName);
+  int  numLines = lpub->ldrawFile.size(walk.modelName);
   QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 NOFILE$|^0 FILE");
   for (; walk < numLines; ++walk) {
-    QString line = gui->readLine(walk);
+    QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
     if ((found = line.contains(lineRx)))
       topOfStep = walk;
     if (found || line.contains(endRx))
       break;
   }
-  topOfStep.setModelIndex(gui->getSubmodelIndex(topOfStep.modelName));
+  topOfStep.setModelIndex(lpub->ldrawFile.getSubmodelIndex(topOfStep.modelName));
   return found;
 }
 

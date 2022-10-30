@@ -29,6 +29,8 @@ class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 
+enum class lcShadingMode;
+
 class LPub : public QObject
 {
     Q_OBJECT
@@ -42,10 +44,10 @@ public:
   bool OpenProject(const NativeOptions*, int = NATIVE_VIEW, bool = false);
 
   /// Flip page size per orientation and return size in pixels
-  static int pageSize(PageMeta  &, int which);
+  static int pageSize(PageMeta  &, int);
 
   /// Process viewer key to return model, line number and step number
-  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
+  static QStringList getViewerStepKeys(bool = true, bool = false, const QString & = "");
 
   /// Stud sytle and automated edge color setting calls
   int     GetStudStyle();
@@ -59,6 +61,7 @@ public:
 
   void    SetStudStyle(const NativeOptions*, bool);
   void    SetAutomateEdgeColor(const NativeOptions*);
+  void    SetShadingMode(lcShadingMode);
 
   /// Run command line execution
   int processCommandLine();
@@ -73,13 +76,18 @@ public:
   bool setHighlightStepFromCommand();
 
   /// Current step management calls
-  bool extractStepKey(Where &, int &, const QString & = "");
+  static bool extractStepKey(Where &, int &, const QString & = "");
   bool setCurrentStep(const QString & = "");
   void setCurrentStep(Step *, Where &, int, int = BM_SINGLE_STEP);
   void setCurrentStep(Step *);
 
+  /// Visual Editor restart and reload calls
+  void clearAndReloadModelFile(bool);
+  void reloadCurrentPage();
+  void restartApplication();
+
   /// Download management calls
-  void downloadFile(QString URL, QString title, bool promptRedirect = false);
+  void downloadFile(QString URL, QString, bool promptRedirect = false);
   void startRequest(QUrl url);
   QByteArray getDownloadedFile() const
   {
@@ -87,7 +95,7 @@ public:
   }
 
   /// currently loaded model file
-  QString getCurFile() const
+  static QString getCmdLineFile()
   {
       return commandlineFile;
   }
@@ -105,7 +113,7 @@ public:
   LDrawFile ldrawFile;
 
   /// Currently loaded CSI in Visual Editor
-  QString viewerStepKey;
+  static QString viewerStepKey;
 
   /// Download management calls
   QProgressDialog *mProgressDialog;
@@ -140,7 +148,7 @@ protected:
 private:
     bool                   mFileLoaded;
     bool                   mFileLoadFail;
-    QString                commandlineFile;
+    static QString         commandlineFile;
 };
 
 extern class LPub *lpub;

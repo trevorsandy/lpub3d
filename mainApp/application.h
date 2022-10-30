@@ -159,9 +159,4 @@ private:
     BOOL m_parent_console;
 #endif
 };
-
-void clearAndReloadModelFile(bool global = false);
-void reloadCurrentPage();
-void restartApplication();
-
 #endif // APPLICATION_H

@@ -395,11 +395,11 @@ int LPub::processCommandLine()
 
   auto restoreRendererAndLibrary = [&rendererChanged] () {
     if (rendererChanged) {
-        Preferences::preferredRenderer        = Gui::savedData.renderer;
-        Preferences::enableLDViewSingleCall   = Gui::savedData.useLDVSingleCall ;
-        Preferences::enableLDViewSnaphsotList = Gui::savedData.useLDVSnapShotList;
-        Preferences::useNativePovGenerator    = Gui::savedData.useNativeGenerator;
-        Preferences::perspectiveProjection    = Gui::savedData.usePerspectiveProjection;
+        Preferences::preferredRenderer        = Gui::savedRendererData.renderer;
+        Preferences::enableLDViewSingleCall   = Gui::savedRendererData.useLDVSingleCall ;
+        Preferences::enableLDViewSnaphsotList = Gui::savedRendererData.useLDVSnapShotList;
+        Preferences::useNativePovGenerator    = Gui::savedRendererData.useNativeGenerator;
+        Preferences::perspectiveProjection    = Gui::savedRendererData.usePerspectiveProjection;
         Preferences::preferredRendererPreferences(true/*global*/);
     }
 
@@ -417,11 +417,11 @@ int LPub::processCommandLine()
   };
 
   if (! preferredRenderer.isEmpty()) {
-     Gui::savedData.renderer           = Preferences::preferredRenderer;
-     Gui::savedData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
-     Gui::savedData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
-     Gui::savedData.useNativeGenerator = Preferences::useNativePovGenerator;
-     Gui::savedData.usePerspectiveProjection = Preferences::perspectiveProjection;
+     Gui::savedRendererData.renderer           = Preferences::preferredRenderer;
+     Gui::savedRendererData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+     Gui::savedRendererData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+     Gui::savedRendererData.useNativeGenerator = Preferences::useNativePovGenerator;
+     Gui::savedRendererData.usePerspectiveProjection = Preferences::perspectiveProjection;
      rendererChanged = setPreferredRendererFromCommand(preferredRenderer);
   }
 

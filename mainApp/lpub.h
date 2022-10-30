@@ -470,10 +470,10 @@ public:
   int             saveGroupStepNum; // saved step group step number when pli per step is false
   int             saveDisplayPageNum; // saved display page number when counting pages
   int             saveMaxPages;     // saved page count when count (actually parse) build mods requested
-  int             firstStepPageNum; // the first Step page number - used to specify frontCover page
-  int             lastStepPageNum;  // the last Step page number - used to specify backCover page
+  static int      firstStepPageNum; // the first Step page number - used to specify frontCover page
+  static int      lastStepPageNum;  // the last Step page number - used to specify backCover page
 
-  QList<Where>    parsedMessages;   // previously parsed messages within the current session
+  static QList<Where> parsedMessages; // previously parsed messages within the current session
 
   static int      displayPageNum;   // what page are we displaying
   static int      processOption;    // export Option
@@ -484,21 +484,21 @@ public:
 
   static QList<Where> topOfPages;   // topOfStep list of modelName and lineNumber for each page
 
-  static RendererData savedData;       // store current renderer data when temporarily switching renderer;
-  static int          saveRenderer;    // saved renderer when temporarily switching to Native renderer
-  static bool         saveProjection;  // saved projection when temporarily switching to Native renderer
-  static QString      pageRangeText;   // page range parameters
+  static RendererData savedRendererData;// store current renderer data when temporarily switching renderer;
+  static int          saveRenderer;     // saved renderer when temporarily switching to Native renderer
+  static bool         saveProjection;   // saved projection when temporarily switching to Native renderer
+  static QString      pageRangeText;    // page range parameters
 
   static int          pa;               // page adjustment
   static int          sa;               // step number adustment
   static int          maxPages;
 
-  int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
+  static int          pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
 
   bool            submodelIconsLoaded; // load submodel images
 
-  bool            buildModJumpForward; // parse build mods in countPage call - special case for jump forward
+  static bool     buildModJumpForward; // parse build mods in countPage call - special case for jump forward
 
   static int       m_exportMode;        // export Mode
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
@@ -509,7 +509,7 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
-  bool             mloadingFile;        // when true, the endMacro() call will not call displayPage()
+  static bool      mloadingFile;        // when true, the endMacro() call will not call displayPage()
   void            *noData;
 
   MetaItem        *mi;                  // utility functions for meta commands
@@ -603,7 +603,6 @@ public:
   {
     return lpub->ldrawFile.getPartCount();
   }
-  QString readLine(const Where &here);
 
   // Only used to read fade or highlight content
   QString readConfiguredLine(const Where &here)
@@ -1091,22 +1090,21 @@ public:
   }
 
   void writeSmiContent(QStringList *content, const QString &fileName);
+  bool installRenderer(const int which);
 
+  QString topLevelFile();
+  QString readLine(const Where &here);
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
-  void scanPast(    Where &here, const QRegExp &lineRx);
-  bool installRenderer(const int which);
+  void beginMacro (QString name);
+  void endMacro();
 
+  static void scanPast(    Where &here, const QRegExp &lineRx);
   static bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
   static bool stepContains(Where &here, QRegExp &lineRx);
   static bool stepContains(Where &here, const QString value);
-
-  QString topLevelFile();
-
-  void beginMacro (QString name);
-  void endMacro   ();
 
   void getRequireds();
   void initialize();
@@ -1128,14 +1126,14 @@ public:
 
   void enableNavigationActions(bool enable);
 
-  Step *getCurrentStep()
+  static Step *getCurrentStep()
   {
       return lpub->currentStep;
   }
 
   bool getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber);
 
-  QString getCurFile()
+  static QString getCurFile()
   {
       return curFile;
   }
@@ -1143,12 +1141,12 @@ public:
   void clearWorkingFiles(const QStringList &filePaths);
   void addEditLDrawIniFileAction();
 
-  QMap<int, PgSizeData> getPageSizes()
+  static QMap<int, PgSizeData> &getPageSizes()
   {
       return pageSizes;
   }
 
-  PgSizeData &getPageSize(int i)
+  static PgSizeData &getPageSize(int i)
   {
       return pageSizes[i];
   }
@@ -1185,11 +1183,11 @@ public:
       QStringList  &out,    // newCSIParts
       QVector<int> &tiout); // newCSIParts
 
-  float getDefaultCameraFoV() const;
-  float getDefaultFOVMinRange() const;
-  float getDefaultFOVMaxRange() const;
-  float getDefaultNativeCameraZNear() const;
-  float getDefaultNativeCameraZFar() const;
+  static float getDefaultCameraFoV();
+  static float getDefaultFOVMinRange();
+  static float getDefaultFOVMaxRange();
+  static float getDefaultNativeCameraZNear();
+  static float getDefaultNativeCameraZFar();
 
   void restorePreferredRenderer();
 
@@ -1232,12 +1230,12 @@ public slots:
       pageProcessRunning = p;
   }
 
-  void insertPageSize(int i, const PgSizeData &pgSizeData)
+  static void insertPageSize(int i, const PgSizeData &pgSizeData)
   {
       pageSizes.insert(i,pgSizeData);
   }
 
-  void removePageSize(int i)
+  static void removePageSize(int i)
   {
       pageSizes.remove(i);
   }
@@ -1505,6 +1503,20 @@ signals:
   void visualEditorVisibleSig(bool);
   void setGeneratingBomSig(bool);
 
+  // cache management
+  void clearPageCacheSig(PlacementType, Page*, int);
+  void clearAndReloadModelFileSig(bool);
+  void clearCustomPartCacheSig(bool);
+  void clearAllCachesSig(bool);
+  void clearSubmodelCacheSig();
+  void clearPLICacheSig();
+  void clearCSICacheSig();
+  void clearTempCacheSig();
+
+  void reloadCurrentPageSig();
+
+  void restartApplicationSig();
+
   // right side progress bar
   void progressBarInitSig();
   void progressMessageSig(const QString &text);
@@ -1541,6 +1553,8 @@ public:
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
 
+  static QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
+
 protected:
   // capture camera rotation from Visual Editor module
   QVector<float>         mStepRotation;
@@ -1550,8 +1564,6 @@ protected:
   QString                mRotStepTransform;
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the Visual Editor timeline view
   QVector<int>           mBuildModRange;       // begin and end range of modified parts from Visual Editor
-
-  QMap<int, PgSizeData>  pageSizes; // page size and orientation object
 
   QMutex                 mWriteToTmpMutex;
 
@@ -1566,7 +1578,6 @@ private:
 
   Meta                  &meta = getMetaRef();   // meta command container
   Where                  current;            // current line being parsed by drawPage
-  QString                curFile;            // the file name for MPD, or top level file
   QString                exportedFile;       // the print preview produced pdf file
   QElapsedTimer          timer;              // measure elapsed time for slow functions
   QString                curSubFile;         // whats being displayed in the edit window
@@ -1581,6 +1592,7 @@ private:
   QFutureWatcher<int>    futureWatcher;
   QMutex                 countPagesMutex;
 
+  static QString         curFile;                // the file name for MPD, or top level file
   static bool            m_exportingContent;     // indicate export/printing underway
   static bool            m_exportingObjects;     // indicate exporting non-image object file content
   static bool            m_contPageProcessing;   // indicate continuous page processing underway

@@ -32,6 +32,9 @@
 
 LPub *lpub;
 
+QString LPub::commandlineFile;
+QString LPub::viewerStepKey;
+
 LPub::LPub()
 {
   lpub = this;
@@ -257,7 +260,7 @@ bool LPub::setFadeStepsFromCommand()
   if (!Preferences::enableFadeSteps) {
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps && result != "GLOBAL") {
-      emit gui->messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableFadeSteps = false;
     }
   }
@@ -268,16 +271,16 @@ bool LPub::setFadeStepsFromCommand()
     fadeRx.setPattern("FADE_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != "GLOBAL") {
-      emit gui->messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
       setupFadeSteps = false;
     }
   }
 
   if (Preferences::enableFadeSteps != Preferences::initEnableFadeSteps)
-    emit gui->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
                                             .arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
   if (setupFadeSteps)
-     emit gui->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
 
   if (!Preferences::enableFadeSteps && !setupFadeSteps)
     return false;
@@ -291,7 +294,7 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
-      emit gui->messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
                                        .arg(fadeStepsOpacityCompare)
                                        .arg(Preferences::fadeStepsOpacity));
   }
@@ -304,12 +307,12 @@ bool LPub::setFadeStepsFromCommand()
     bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
     Preferences::fadeStepsUseColour = ParsedColor.isValid();
     if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
-      emit gui->messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
                                        .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
-      emit gui->messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
                                        .arg(fadeStepsColourCompare.replace("_"," "))
                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
@@ -325,7 +328,7 @@ bool LPub::setHighlightStepFromCommand()
   if (!Preferences::enableHighlightStep) {
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep && result != "GLOBAL") {
-      emit gui->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableHighlightStep = false;
     }
   }
@@ -336,16 +339,16 @@ bool LPub::setHighlightStepFromCommand()
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (setupHighlightStep && result != "GLOBAL") {
-      emit gui->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
       setupHighlightStep = false;
     }
   }
 
   if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
-    emit gui->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
                                             .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
   if (setupHighlightStep)
-     emit gui->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
 
   if (!Preferences::enableHighlightStep && !setupHighlightStep)
     return false;
@@ -359,7 +362,7 @@ bool LPub::setHighlightStepFromCommand()
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
-      emit gui->messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
                                   .arg(highlightStepColourCompare)
                                   .arg(Preferences::highlightStepColour));
   }
@@ -397,7 +400,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
     renderer = RENDERER_POVRAY;
     useNativeGenerator = false;
   } else {
-    emit gui->messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
+    emit lpub->messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
     return rendererChanged;
   }
 
@@ -406,7 +409,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
-      emit gui->messageSig(LOG_INFO,message);
+      emit lpub->messageSig(LOG_INFO,message);
       Preferences::enableLDViewSingleCall = useLDVSingleCall;
       renderFlagChanged = true;
     }
@@ -414,7 +417,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference use LDView Snapshot List changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
-      emit gui->messageSig(LOG_INFO,message);
+      emit lpub->messageSig(LOG_INFO,message);
       Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
       if (useLDVSnapShotList)
           Preferences::enableLDViewSingleCall = true;
@@ -426,7 +429,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference POV file generator changed from %1 to %2.")
                         .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW])
                         .arg(useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
-      emit gui->messageSig(LOG_INFO,message);
+      emit lpub->messageSig(LOG_INFO,message);
       Preferences::useNativePovGenerator = useNativeGenerator;
       if (!renderFlagChanged)
         renderFlagChanged = true;
@@ -452,7 +455,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
                                                          useLDVSnapShotList ? QString(" (Single Call using Export File List)") :
                                                                               QString(" (Single Call)") :
                                                                               QString() : QString());
-    emit gui->messageSig(LOG_INFO,message);
+    emit lpub->messageSig(LOG_INFO,message);
   }
 
   return rendererChanged;
@@ -494,23 +497,23 @@ int LPub::pageSize(PageMeta &meta, int which){
       bool ok[2];
       int lineNumber = keyArgs[1].toInt(&ok[0]);
       if (modelName.isEmpty()) {
-          emit messageSig(LOG_ERROR,QString("Model name was not found for index [%1]").arg(keyArgs[1]));
+          emit lpub->messageSig(LOG_ERROR,QString("Model name was not found for index [%1]").arg(keyArgs[1]));
           return false;
       } else if (!ok[0]) {
-          emit messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
+          emit lpub->messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
           return false;
       } else {
-          here = Where(modelName,ldrawFile.getSubmodelIndex(modelName),lineNumber);
+          here = Where(modelName,lpub->ldrawFile.getSubmodelIndex(modelName),lineNumber);
       }
 
       stepNumber = 0;
-      if (page.modelDisplayOnlyStep) {
+      if (lpub->page.modelDisplayOnlyStep) {
           stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
       } else {
           stepNumber = keyArgs[2].toInt(&ok[1]);
       }
       if (!ok[1]) {
-          emit messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArgs[2]));
+          emit lpub->messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArgs[2]));
           return false;
       }
 
@@ -520,7 +523,7 @@ int LPub::pageSize(PageMeta &meta, int which){
 //          if (!stepNumber && page.pli.tsize() && page.pli.bom)
 //              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
 //                                 .arg(stepPageNum);
-//          emit messageSig(LOG_DEBUG, messsage);
+//          emit lpub->messageSig(LOG_DEBUG, messsage);
 //      }
 
       return true;
@@ -532,7 +535,7 @@ int LPub::pageSize(PageMeta &meta, int which){
  *
  ********************************************/
 
-void LPub::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
+void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
 {
     bool stepMatch  = false;
     auto calledOutStep = [this, &here, &stepNumber, &stepType] (Step* step, bool &stepMatch)
@@ -593,7 +596,7 @@ void LPub::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
     currentStep = step;
 
     if (Preferences::debugLogging && !stepMatch)
-        emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
+        emit lpub->messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
                                            .arg(stepMatch ? "Match!" : "Oh oh!")
                                            .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
                                            .arg(stepType == BM_MULTI_STEP  ? "multi step"  :
@@ -618,7 +621,7 @@ bool LPub::setCurrentStep(const QString &key)
     else
         stepNumberSpecified = QString::number(stepNumber);
 
-    QString stepKey = key.isEmpty() ? viewerStepKey : !stepNumber ? ldrawFile.getViewerStepKeyWhere(here.modelName, here.lineNumber) : key;
+    const QString stepKey = key.isEmpty() ? viewerStepKey : !stepNumber ? ldrawFile.getViewerStepKeyWhere(here.modelIndex, here.lineNumber) : key;
 
     if (ldrawFile.isViewerStepCalledOut(stepKey))
         stepType = BM_CALLOUT_STEP;
@@ -630,13 +633,13 @@ bool LPub::setCurrentStep(const QString &key)
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
     else {
-        emit messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
+        emit lpub->messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
                                            .arg(here.modelName).arg(stepNumberSpecified));
     }
 
 #ifdef QT_DEBUG_MODE
     if (currentStep)
-        emit messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
+        emit lpub->messageSig(LOG_DEBUG,tr("Step %1 loaded from key: %2")
                         .arg(currentStep->stepNumber.number).arg(key));
 #endif
 
@@ -653,7 +656,7 @@ void LPub::setCurrentStep(Step *step)
     currentStep = step;
     viewerStepKey = currentStep->viewerStepKey;
 #ifdef QT_DEBUG_MODE
-    emit messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
+    emit lpub->messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
                                       .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
 #endif
 }
@@ -674,7 +677,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
     // confirm keys has at least 3 elements
     if (keys.size() < 3) {
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
+        emit lpub->messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
 #endif
         return QStringList();
     } else if (keys.at(2).count("_")) {
@@ -688,13 +691,13 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
         int modelNameIndex = keys[0].toInt(&ok);
         if (!ok) {
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+            emit lpub->messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
 #endif
             return QStringList();
         }
 
         if (modelName)
-            keys.replace(0,ldrawFile.getSubmodelName(modelNameIndex));
+            keys.replace(0,lpub->ldrawFile.getSubmodelName(modelNameIndex));
     }
 
     return keys;
@@ -838,4 +841,26 @@ QString LPub::elapsedTime(const qint64 &duration) {
                                 .arg(milliseconds,3,10,QLatin1Char('0'))
                                 .arg(seconds > 1 ? "seconds" : "second"));
 
+}
+
+void LPub::SetShadingMode(lcShadingMode ShadingMode)
+{
+    if (gMainWindow)
+        gMainWindow->SetShadingMode(ShadingMode);
+}
+
+// the next four calls are used when setting Visual Editor preferences
+void LPub::clearAndReloadModelFile(bool global)
+{
+    emit gui->clearAndReloadModelFileSig(global);
+}
+
+void LPub::reloadCurrentPage()
+{
+    emit gui->reloadCurrentPageSig();
+}
+
+void LPub::restartApplication()
+{
+    emit gui->restartApplicationSig();
 }

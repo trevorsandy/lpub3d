@@ -637,7 +637,7 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
                   if (!args.contains(gui->getCurFile(),Qt::CaseInsensitive))
                       args << QString("%1").arg(gui->getCurFile());
                   QSettings Settings;
-                  Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),gui->displayPageNum);
+                  Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),Gui::displayPageNum);
                 } else {
                   args << QString();
                 }

@@ -249,7 +249,7 @@ void GlobalProjectDialog::accept()
 
   if (data->clearCache) {
     mi.setLoadingFileFlag(false);
-    mi.clearCache(true);       // if true, clear all the caches
+    mi.clearAndReloadModelFile(true); // if true, clear all the caches
   }
   if (data->reloadFile) {
     mi.setLoadingFileFlag(true); // set the
@@ -258,7 +258,7 @@ void GlobalProjectDialog::accept()
   mi.endMacro();              // display Page if setLoadingFileFlag = true
 
   if (data->reloadFile) {
-    mi.reloadDisplayPage(true); // if true, cyclePageDisplay (Reload File) but do not clear cache
+    mi.clearAllCaches(true);  // if true, cyclePageDisplay (Reload File) but do not clear cache
   }
 
   QDialog::accept();

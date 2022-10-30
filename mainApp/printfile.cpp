@@ -619,7 +619,7 @@ void Gui::exportAsHtml()
     int pageNum        = maxPages;
 
     // start at the bottom of the page's last step
-    Where pagePos = gui->topOfPages[pageNum];
+    Where pagePos = Gui::topOfPages[pageNum];
     pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
     pagePos--;     //adjust to start at absolute bottom of file
     int numLines = gui->subFileSize(pagePos.modelName);

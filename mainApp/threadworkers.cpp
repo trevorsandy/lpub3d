@@ -2139,35 +2139,6 @@ bool ExtractWorker::removeFile(QStringList listFile) {
     return ret;
 }
 
-void CountPageWorker::statusMessage(const LogType logType, const QString &message)
-{
-    QMetaObject::invokeMethod(
-                gui,                            // obj
-                "statusMessage",                // member
-                Qt::QueuedConnection,           // connection type
-                Q_ARG(LogType, logType),        // val1
-                Q_ARG(QString, message));       // val2
-}
-
-void CountPageWorker::insertPageSize(const int i, const PgSizeData &pgSizeData)
-{
-    QMetaObject::invokeMethod(
-                gui,                            // obj
-                "insertPageSize",               // member
-                Qt::QueuedConnection,           // connection type
-                Q_ARG(int, i),                  // val1
-                Q_ARG(PgSizeData, pgSizeData)); // val2
-}
-
-void CountPageWorker::removePageSize(const int i)
-{
-    QMetaObject::invokeMethod(
-                gui,                          // obj
-                "removePageSize",             // member
-                Qt::QueuedConnection,         // connection type
-                Q_ARG(int, i));               // val1
-}
-
 int CountPageWorker::countPage(
     Meta            *meta,
     LDrawFile       *ldrawFile,
@@ -2177,11 +2148,11 @@ int CountPageWorker::countPage(
   countPageMutex.lock();
 
   // local displayPageNum used to set breakpoint condition (e.g. displayPageNum > 7)
-  //int displayPageNum = gui->displayPageNum;
+  //int displayPageNum = Gui::displayPageNum;
 
   opts.flags.countInstances = meta->LPub.countInstance.value();
 
-  gui->pageProcessRunning = PROC_COUNT_PAGE;
+  Gui::pageProcessRunning = PROC_COUNT_PAGE;
 
   if (opts.flags.countPageContains) {
       gui->skipHeader(opts.current);
@@ -2189,15 +2160,15 @@ int CountPageWorker::countPage(
       opts.flags.addCountPage = true;
   }
 
-  if (opts.pageNum == 1 + gui->pa && opts.current.modelName == ldrawFile->topLevelFile()) {
+  if (opts.pageNum == 1 + Gui::pa && opts.current.modelName == ldrawFile->topLevelFile()) {
       if (!opts.stepNumber)
-          opts.stepNumber = 1 + gui->sa;
+          opts.stepNumber = 1 + Gui::sa;
 #ifdef QT_DEBUG_MODE
       emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page 000 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
                                                .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
-      gui->topOfPages.clear();
-      gui->topOfPages.append(opts.current);
+      Gui::topOfPages.clear();
+      Gui::topOfPages.append(opts.current);
   }
 
   opts.flags.numLines = ldrawFile->size(opts.current.modelName);
@@ -2291,12 +2262,10 @@ int CountPageWorker::countPage(
   auto documentPageCount = [&opts] ()
   {
       if (Preferences::modeGUI && ! Gui::exporting()) {
-          statusMessage(LOG_COUNT_STATUS, QString("Counting document page %1...")
+          gui->messageSig(LOG_COUNT_STATUS, QString("Counting document page %1...")
                                                   .arg(QStringLiteral("%1").arg(opts.pageNum - 1, 4, 10, QLatin1Char('0'))));
       }
   };
-
-  Step *currentStep = lpub->currentStep;
 
   for ( ;
         opts.current.lineNumber < opts.flags.numLines;
@@ -2321,10 +2290,10 @@ int CountPageWorker::countPage(
           // process type 1 line...
           if (! opts.flags.partIgnore) {
 
-              if (gui->firstStepPageNum == -1) {
-                  gui->firstStepPageNum = opts.pageNum;
+              if (Gui::firstStepPageNum == -1) {
+                  Gui::firstStepPageNum = opts.pageNum;
               }
-              gui->lastStepPageNum = opts.pageNum;
+              Gui::lastStepPageNum = opts.pageNum;
 
               QStringList token;
 
@@ -2385,7 +2354,7 @@ int CountPageWorker::countPage(
                                   // save Default pageSize information
                                   PgSizeData pageSize2;
                                   if (Gui::exporting()) {
-                                      pageSize2       = gui->getPageSize(DEF_SIZE);
+                                      pageSize2       = Gui::getPageSize(DEF_SIZE);
                                       opts.flags.pageSizeUpdate  = false;
 #ifdef PAGE_SIZE_DEBUG
                                       logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
@@ -2417,7 +2386,7 @@ int CountPageWorker::countPage(
                                   meta->submodelStack.pop_back();           // remove where we stopped in the parent model
 
                                   // terminate build modification countPage at end of submodel
-                                  if (gui->buildModJumpForward && modelOpts.pageNum == gui->saveDisplayPageNum) {
+                                  if (Gui::buildModJumpForward && modelOpts.pageNum == gui->saveDisplayPageNum) {
                                       opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
                                       if (! opts.flags.parseBuildMods) {
                                           countPageMutex.unlock();
@@ -2426,13 +2395,13 @@ int CountPageWorker::countPage(
                                   }
 
                                   if (Gui::exporting()) {
-                                      removePageSize(DEF_SIZE);
-                                      insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
+                                      Gui::removePageSize(DEF_SIZE);
+                                      Gui::insertPageSize(DEF_SIZE, pageSize2); // restore old Default pageSize information
 #ifdef PAGE_SIZE_DEBUG
                                       logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                                 << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                                                 << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                                                 << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                                                 << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
+                                                 << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                                 << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
                                                  << "Model:" << opts.current.modelName;
 #endif
                                   } // Exporting
@@ -2502,7 +2471,7 @@ int CountPageWorker::countPage(
                   // terminate parse build mofifications
                   if ( opts.flags.parseBuildMods) {
                       // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-                      if (gui->buildModJumpForward) {
+                      if (Gui::buildModJumpForward) {
                           // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
                           // to use the correct page number value in determining when to terminate the buildMod parse.
                           opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
@@ -2515,10 +2484,10 @@ int CountPageWorker::countPage(
 
                   // ignored when processing buildMod display
                   if (Gui::exporting()) {
-                      gui->getPageSizes().remove(opts.pageNum);
+                      Gui::getPageSizes().remove(opts.pageNum);
                       if (opts.flags.pageSizeUpdate) {
                           opts.flags.pageSizeUpdate = false;
-                          insertPageSize(opts.pageNum,opts.pageSize);
+                          Gui::insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                      << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2527,12 +2496,12 @@ int CountPageWorker::countPage(
                                      << "Model:" << opts.current.modelName;
 #endif
                       } else {
-                          insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
+                          Gui::insertPageSize(opts.pageNum,Gui::getPageSize(DEF_SIZE));
 #ifdef PAGE_SIZE_DEBUG
                           logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                     << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                                     << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                                     << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
+                                     << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
                                      << "Model:" << opts.current.modelName;
 #endif
                       }
@@ -2543,14 +2512,14 @@ int CountPageWorker::countPage(
                                        .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
-                  gui->topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
+                  Gui::topOfPages.append(topOfStep/*opts.current*/);  // TopOfSteps(Page) (Next StepGroup), BottomOfSteps(Page) (Current StepGroup)
                   documentPageCount();
 
                 } // StepGroup && ! NoStep2
               opts.flags.noStep2 = false;
 
               // terminate build modification countPage at end of step group
-              if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2603,7 +2572,7 @@ int CountPageWorker::countPage(
                        // set BuildMod action for current step
                        ldrawFile->setBuildModAction(buildMod.key, buildModStepIndex, rc);
                        // set the stepKey to clear the image cache if not navigating backward
-                       //if (gui->pageDirection < PAGE_BACKWARD) {
+                       //if (Gui::pageDirection < PAGE_BACKWARD) {
                        //    // pass the submodel stack to clear step images
                        //    QString stack;
                        //    Q_FOREACH (const SubmodelStack &model,meta->submodelStack)
@@ -2684,7 +2653,7 @@ int CountPageWorker::countPage(
                   // parse build modifications
                   if ( opts.flags.parseBuildMods) {
                       // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-                      if (gui->buildModJumpForward) {
+                      if (Gui::buildModJumpForward) {
                           // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
                           // to use the correct page number value in determining when to terminate the buildMod parse.
                           opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
@@ -2707,10 +2676,10 @@ int CountPageWorker::countPage(
                   // exclude from page number increment and topOfPages indices
                   if ( ! opts.flags.stepGroup && ! opts.flags.callout) {
                       if (Gui::exporting()) {
-                          gui->getPageSizes().remove(opts.pageNum);
+                          Gui::getPageSizes().remove(opts.pageNum);
                           if (opts.flags.pageSizeUpdate) {
                               opts.flags.pageSizeUpdate = false;
-                              insertPageSize(opts.pageNum,opts.pageSize);
+                              Gui::insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
                                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2719,12 +2688,12 @@ int CountPageWorker::countPage(
                                          << "Model:" << opts.current.modelName;
 #endif
                             } else {
-                              insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
+                              Gui::insertPageSize(opts.pageNum,Gui::getPageSize(DEF_SIZE));
 #ifdef PAGE_SIZE_DEBUG
                               logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                                         << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
+                                         << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
                                          << "Model:" << opts.current.modelName;
 #endif
                           }
@@ -2735,7 +2704,7 @@ int CountPageWorker::countPage(
                                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                       ++opts.pageNum;
-                      gui->topOfPages.append(opts.current); // Set TopOfStep (Step)
+                      Gui::topOfPages.append(opts.current); // Set TopOfStep (Step)
                       documentPageCount();
 
                   } // ! StepGroup and ! Callout (Single step)
@@ -2754,7 +2723,7 @@ int CountPageWorker::countPage(
                       ldrawFile->clearBuildModRendered(true/*countPage*/);
                   } // ! BuildMod.ignore
                   if (! opts.flags.parseBuildMods && opts.flags.stepGroup && topOfSteps != topOfStep) {
-                      if (opts.pageNum == gui->displayPageNum + 1) {
+                      if (opts.pageNum == Gui::displayPageNum + 1) {
                           opts.flags.parseStepGroupBM = opts.flags.parseBuildMods = true;
                       } // we only care about the next page during each page count run
                   } // enable parse build modifications for steps after first step in step group
@@ -2771,7 +2740,7 @@ int CountPageWorker::countPage(
               opts.flags.noStep = false;
 
               // terminate build modification countPage at end of step
-              if (gui->buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods && ! opts.flags.stepGroup)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2856,8 +2825,8 @@ int CountPageWorker::countPage(
                     opts.pageSize.sizeH  = meta->LPub.page.size.valueInches(1);
                     opts.pageSize.sizeID = meta->LPub.page.size.valueSizeID();
 
-                    removePageSize(DEF_SIZE);
-                    insertPageSize(DEF_SIZE,opts.pageSize);
+                    Gui::removePageSize(DEF_SIZE);
+                    Gui::insertPageSize(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2879,15 +2848,15 @@ int CountPageWorker::countPage(
                     opts.flags.pageSizeUpdate      = true;
 
                     if (opts.pageSize.sizeW == 0.0f)
-                      opts.pageSize.sizeW    = gui->getPageSize(DEF_SIZE).sizeW;
+                      opts.pageSize.sizeW    = Gui::getPageSize(DEF_SIZE).sizeW;
                     if (opts.pageSize.sizeH == 0.0f)
-                      opts.pageSize.sizeH    = gui->getPageSize(DEF_SIZE).sizeH;
+                      opts.pageSize.sizeH    = Gui::getPageSize(DEF_SIZE).sizeH;
                     if (opts.pageSize.sizeID.isEmpty())
-                      opts.pageSize.sizeID   = gui->getPageSize(DEF_SIZE).sizeID;
+                      opts.pageSize.sizeID   = Gui::getPageSize(DEF_SIZE).sizeID;
                     opts.pageSize.orientation= meta->LPub.page.orientation.value();
 
-                    removePageSize(DEF_SIZE);
-                    insertPageSize(DEF_SIZE,opts.pageSize);
+                    Gui::removePageSize(DEF_SIZE);
+                    Gui::insertPageSize(DEF_SIZE,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
                     logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
                                << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2919,7 +2888,7 @@ int CountPageWorker::countPage(
       // terminate parse build mofifications
       if ( opts.flags.parseBuildMods) {
           // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-          if (gui->buildModJumpForward) {
+          if (Gui::buildModJumpForward) {
               // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
               // to use the correct page number value in determining when to terminate the buildMod parse.
               opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
@@ -2927,10 +2896,10 @@ int CountPageWorker::countPage(
       }
 
       if (Gui::exporting()) {
-          gui->getPageSizes().remove(opts.pageNum);
+          Gui::getPageSizes().remove(opts.pageNum);
           if (opts.flags.pageSizeUpdate) {
               opts.flags.pageSizeUpdate = false;
-              insertPageSize(opts.pageNum,opts.pageSize);
+              Gui::insertPageSize(opts.pageNum,opts.pageSize);
 #ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
                          << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
@@ -2939,12 +2908,12 @@ int CountPageWorker::countPage(
                          << "Model:" << opts.current.modelName;
 #endif
             } else {
-              insertPageSize(opts.pageNum,gui->getPageSize(DEF_SIZE));
+              Gui::insertPageSize(opts.pageNum,Gui::getPageSize(DEF_SIZE));
 #ifdef PAGE_SIZE_DEBUG
               logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
-                         << "W:"    << gui->getPageSize(DEF_SIZE).sizeW << "H:"    << gui->getPageSize(DEF_SIZE).sizeH
-                         << "O:"    << (gui->getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << gui->getPageSize(DEF_SIZE).sizeID
+                         << "W:"    << Gui::getPageSize(DEF_SIZE).sizeW << "H:"    << Gui::getPageSize(DEF_SIZE).sizeH
+                         << "O:"    << (Gui::getPageSize(DEF_SIZE).orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:"   << Gui::getPageSize(DEF_SIZE).sizeID
                          << "Model:" << opts.current.modelName;
 #endif
             }
@@ -2963,7 +2932,7 @@ int CountPageWorker::countPage(
                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;
-      gui->topOfPages.append(opts.current); // Set TopOfStep (Last Step)
+      Gui::topOfPages.append(opts.current); // Set TopOfStep (Last Step)
       documentPageCount();
     } // Last Step in Submodel
 

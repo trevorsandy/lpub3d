@@ -1697,7 +1697,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
  *
  *********************************************/
 
-float Gui::getDefaultCameraFoV() const
+float Gui::getDefaultCameraFoV()
 {
     return (Preferences::preferredRenderer == RENDERER_NATIVE ?
             gApplication ? lcGetPreferences().mCFoV : CAMERA_FOV_NATIVE_DEFAULT :
@@ -1706,14 +1706,14 @@ float Gui::getDefaultCameraFoV() const
             CAMERA_FOV_DEFAULT);
 }
 
-float Gui::getDefaultFOVMinRange() const
+float Gui::getDefaultFOVMinRange()
 {
     return (Preferences::preferredRenderer == RENDERER_NATIVE ?
             CAMERA_FOV_NATIVE_MIN_DEFAULT :
             CAMERA_FOV_MIN_DEFAULT);
 }
 
-float Gui::getDefaultFOVMaxRange() const
+float Gui::getDefaultFOVMaxRange()
 {
     return (Preferences::preferredRenderer == RENDERER_NATIVE ?
             CAMERA_FOV_NATIVE_MAX_DEFAULT :
@@ -1722,14 +1722,14 @@ float Gui::getDefaultFOVMaxRange() const
             CAMERA_FOV_MAX_DEFAULT);
 }
 
-float Gui::getDefaultNativeCameraZNear() const
+float Gui::getDefaultNativeCameraZNear()
 {
     if (gApplication)
         return lcGetPreferences().mCNear;
     return CAMERA_ZNEAR_NATIVE_DEFAULT;
 }
 
-float Gui::getDefaultNativeCameraZFar() const
+float Gui::getDefaultNativeCameraZFar()
 {
     if (gApplication)
         return lcGetPreferences().mCFar;
@@ -1750,7 +1750,7 @@ void Gui::SetRotStepMeta()
 
     if (getCurFile() != "") {
         ShowStepRotationStatus();
-        Step *currentStep = gui->getCurrentStep();
+        Step *currentStep = Gui::getCurrentStep();
 
         if (lpub->currentStep){
             bool newCommand = currentStep->rotStepMeta.here() == Where();
@@ -3149,7 +3149,7 @@ void Gui::deleteBuildModification()
     emit messageSig(LOG_INFO_STATUS, QString("Processing build modification 'delete' action..."));
 
     QString model = "undefined", line = "undefined", step = "undefined";
-    QStringList keys = lpub->getViewerStepKeys(true/*get Name*/, false/*pliPart*/, getBuildModStepKey(buildModKey));
+    QStringList keys = LPub::getViewerStepKeys(true/*get Name*/, false/*pliPart*/, lpub->ldrawFile.getBuildModStepKey(buildModKey));
     if (keys.size() > 2) { model = keys[0]; line = keys[1]; step = keys[2]; }
     /*
     QString text  = "This action will permanently delete build modification '" + buildModKey + "' "

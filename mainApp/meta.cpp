@@ -2203,7 +2203,7 @@ void PreferredRendererMeta::setPreferences(bool reset)
     if (global) {
       Preferences::preferredRendererPreferences(global);
       if (Preferences::preferredRenderer != data.renderer)
-        gui->clearAndReloadModelFile(global);
+        emit gui->clearAndReloadModelFileSig(global);
     }
   }
   Preferences::updatePOVRayConfigFiles();
@@ -3259,14 +3259,14 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
   }
 
   if (rc != OkRc) {
-      if (gui->pageProcessRunning != PROC_NONE) {
+      if (Gui::pageProcessRunning != PROC_NONE) {
           QRegExp partTypeLineRx("^\\s*1|\\bBEGIN SUB\\b");
           Where topOfStep = here;
-          gui->getTopOfStepWhere(topOfStep);
-          if (gui->stepContains(topOfStep, partTypeLineRx)) {
-              here.setModelIndex(gui->getSubmodelIndex(here.modelName));
-              gui->parseErrorSig(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
-                              .arg(argv[index]).arg(topOfStep.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
+          lpub->ldrawFile.getTopOfStepWhere(topOfStep.modelName,topOfStep.modelIndex,topOfStep.lineNumber);
+          if (Gui::stepContains(topOfStep, partTypeLineRx)) {
+              here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
+              emit gui->parseErrorSig(QString("INSERT %1 meta must be followed by 0 [ROT]STEP before part (type 1) at line %2.")
+                                              .arg(argv[index]).arg(topOfStep.lineNumber+1), here, Preferences::InsertErrors, false, true/*override*/);
           }
       }
       return rc;
@@ -3634,15 +3634,15 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
-                     gui->getDefaultFOVMaxRange());
-  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
+                     Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -4220,8 +4220,10 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
                           modelInfo.completeBaseName().endsWith(HIGHLIGHT_SFX);
          }
          Where lineBelow = here + 1;          // start at 1 line below PLI BEGIN SUB meta
-         int numLines = configured ? gui->configuredSubFileSize(here.modelName) : gui->subFileSize(here.modelName);
-         QString originalTypeLine = configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
+         int numLines = configured ? lpub->ldrawFile.configuredSubFileSize(here.modelName) :
+                                     lpub->ldrawFile.size(here.modelName);
+         QString originalTypeLine = configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
+                                                 lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
          // read each line looking for type 1 line or end of step
          for (; !validLine && !subEnd && !newStep && lineBelow <= numLines; lineBelow++) {
              validLine = originalTypeLine[0] == '1';
@@ -4230,7 +4232,8 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
                          originalTypeLine.contains("ROTSTEP");
              // do we have reason to stop checking?
              if (!validLine && !subEnd && !newStep) {
-                originalTypeLine =  configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
+                originalTypeLine =  configured ? lpub->ldrawFile.readConfiguredLine(lineBelow.modelName,lineBelow.lineNumber) :
+                                                 lpub->ldrawFile.readLine(lineBelow.modelName,lineBelow.lineNumber);
              }
          }
 
@@ -4240,8 +4243,8 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
              if(!ldrawType)
                  attributes = tokens[14]+":0;";    // originalType
              originalColor  = tokens[1];
-         } else if (gui->pageProcessRunning != PROC_NONE) {
-             here.setModelIndex(gui->getSubmodelIndex(here.modelName));
+         } else if (Gui::pageProcessRunning != PROC_NONE) {
+             here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
              QString message = QString("Invalid substitute meta command.<br>"
                                        "No valid parts between %1 and PLI END.<br>Got %2.")
                      .arg(argv.join(" ")).arg(originalTypeLine);
@@ -4916,15 +4919,15 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
-                     gui->getDefaultFOVMaxRange());
-  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
+                     Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
 
   // movable pli part groups
@@ -5342,15 +5345,15 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
-                     gui->getDefaultFOVMaxRange());
-  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
+                     Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -5454,15 +5457,15 @@ PliMeta::PliMeta() : BranchMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
-                     gui->getDefaultFOVMaxRange());
-  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
+                     Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -5595,15 +5598,15 @@ BomMeta::BomMeta() : PliMeta()
   cameraAngles.setValues(23,-45);
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
-                     gui->getDefaultFOVMaxRange());
-  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(),
+                     Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
   cameraZNear.setFormats(3,0,"###9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(gui->getDefaultNativeCameraZNear());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
   cameraZFar.setFormats(5,0,"#####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(gui->getDefaultNativeCameraZFar());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
@@ -6525,10 +6528,10 @@ void Meta::processSpecialCases(QString &line, Where &here) {
 
     /* Native camera distance deprecated. Command ignored if not GLOBAL */
     if (line.contains("CAMERA_DISTANCE_NATIVE")) {
-        if (gui->parsedMessages.contains(here)) {
+        if (Gui::parsedMessages.contains(here)) {
             line = "0 // IGNORED";
-        } else if (gui->pageProcessRunning == PROC_WRITE_TO_TMP) {
-            here.setModelIndex(gui->getSubmodelIndex(here.modelName));
+        } else if (Gui::pageProcessRunning == PROC_WRITE_TO_TMP) {
+            here.setModelIndex(lpub->ldrawFile.getSubmodelIndex(here.modelName));
             QRegExp parseRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
             if (line.contains(parseRx)) {
                 QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
@@ -6537,7 +6540,7 @@ void Meta::processSpecialCases(QString &line, Where &here) {
                                           "This command will be ignored. %2")
                                           .arg(parseRx.cap(1))
                                           .arg(line);
-                gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
+                emit gui->parseErrorSig(message,here,Preferences::ParseErrors,false/*option*/,false/*override*/);
                 line = "0 // IGNORED";
             }
         }

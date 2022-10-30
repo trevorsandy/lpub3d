@@ -1231,27 +1231,6 @@ void Application::shutdown()
    ldvWidget = nullptr;
 }
 
-// the next four calls are used by the Visual Editor
-void clearAndReloadModelFile(bool global)
-{
-    gui->clearAndReloadModelFile(global);
-}
-
-void reloadCurrentPage()
-{
-    gui->reloadCurrentPage();
-}
-
-void restartApplication()
-{
-    gui->restartApplication();
-}
-
-void messageSig(LogType logType, QString message)
-{
-    gui->messageSig(logType, message);
-}
-
 static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
 {
     QCoreApplication CoreApp(argc, argv);

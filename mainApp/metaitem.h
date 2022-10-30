@@ -559,17 +559,18 @@ public:
 
   int  numSteps(QString modelName);
 
-  void clearPageCache(PlacementType relativeType, Page *page, int option);
-  void setLoadingFileFlag(bool);
-  void reloadDisplayPage(bool = false);
-  void clearCache(bool = false);
-  void clearCustomPartCache();
-  void clearCsiCache();
-  void clearSubmodelCache();
-  void clearPliCache();
-  void clearTempCache();
-  void reloadCurrentPage();
-  void restartApplication();
+  void setLoadingFileFlag(bool) const;
+
+  void clearAllCaches(bool = false) const;
+  void clearPageCache(PlacementType relativeType, Page *page, int option) const;
+  void clearAndReloadModelFile(bool = false) const;
+  void clearCustomPartCache() const;
+  void clearCsiCache() const;
+  void clearSubmodelCache() const;
+  void clearPliCache() const;
+  void clearTempCache() const;
+  void reloadCurrentPage() const;
+  void restartApplication() const;
 };
 
 #endif

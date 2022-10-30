@@ -675,13 +675,8 @@ void LDrawFile::setModelStartPageNumber(
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-
-  if (i != _subFiles.end()) {
-    //i.value()._modified = true;
+  if (i != _subFiles.end())
     i.value()._startPageNumber = startPageNumber;
-    //i.value()._datetime = QDateTime::currentDateTime();
-    //i.value()._changedSinceLastWrite = true; // remarked on build 491 28/12/2015
-  }
 }
 
 /* return the last fade position value */
@@ -1517,7 +1512,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (metaStartPageNumNotFound) {
                     if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
                         number = tokens.last().toInt(&validNumber);
-                        gui->pa = validNumber ? number - 1 : 0;
+                        Gui::pa = validNumber ? number - 1 : 0;
                         metaStartPageNumNotFound = false;
                     }
                 }
@@ -1526,7 +1521,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (metaStartStepNumNotFound) {
                     if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
                         number = tokens.last().toInt(&validNumber);
-                        gui->sa = validNumber ? number - 1 : 0;
+                        Gui::sa = validNumber ? number - 1 : 0;
                         metaStartStepNumNotFound = false;
                     }
                 }
@@ -1991,7 +1986,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (metaStartPageNumNotFound) {
                         if (smLine.startsWith("0 !LPUB START_PAGE_NUMBER")) {
                             number = tokens.last().toInt(&validNumber);
-                            gui->pa  = validNumber ? number - 1 : 0;
+                            Gui::pa  = validNumber ? number - 1 : 0;
                             metaStartPageNumNotFound = false;
                         }
                     }
@@ -2000,7 +1995,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     if (metaStartStepNumNotFound) {
                         if (smLine.startsWith("0 !LPUB START_STEP_NUMBER")) {
                             number = tokens.last().toInt(&validNumber);
-                            gui->sa  = validNumber ? number - 1 : 0;
+                            Gui::sa  = validNumber ? number - 1 : 0;
                             metaStartStepNumNotFound = false;
                         }
                     }
@@ -2350,7 +2345,7 @@ void LDrawFile::countInstances(
       int stepIndexes = _buildModStepIndexes.size();
 
       bool result =
-              _loadBuildMods && (gui->mloadingFile  ||
+              _loadBuildMods && (Gui::mloadingFile  ||
               stepIndexes >= _buildModPrevStepIndex &&
               stepIndexes <= _buildModNextStepIndex);
 
@@ -2383,13 +2378,13 @@ void LDrawFile::countInstances(
       }
       modAttributes = i.value();
 
-      modAttributes[BM_DISPLAY_PAGE_NUM] = gui->displayPageNum;
+      modAttributes[BM_DISPLAY_PAGE_NUM] = Gui::displayPageNum;
       modAttributes[BM_STEP_PIECES]      = buildModPartCount;
       modAttributes[BM_MODEL_NAME_INDEX] = topOfStep.modelIndex;
       modAttributes[BM_MODEL_LINE_NUM]   = topOfStep.lineNumber;
 //*
 #ifdef QT_DEBUG_MODE
-      if (gui->mloadingFile) {
+      if (Gui::mloadingFile) {
           emit gui->messageSig(LOG_DEBUG, QString(
                                "Insert CountInst BuildMod StepIndex: %1, "
                                "Attributes: %2 %3 %4 %5 %6 %7 %8, "
@@ -2683,7 +2678,7 @@ void LDrawFile::countInstances()
 
 //*
 #ifdef QT_DEBUG_MODE
-  if (gui->mloadingFile) {
+  if (Gui::mloadingFile) {
     emit gui->messageSig(LOG_DEBUG, QString("COUNT INSTANCES Step Indexes"));
     emit gui->messageSig(LOG_DEBUG, "----------------------------");
     for (int i = 0; i < _buildModStepIndexes.size(); i++)
@@ -2906,7 +2901,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                          .arg(_mpd ? "MPD" : "LDR")
                          .arg(writeFileName));
 
-    gui->mloadingFile = true;
+    Gui::mloadingFile = true;
     gui->deleteFinalModelStep();
 
     bool unofficialPart, addFILEMeta;
@@ -2936,7 +2931,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
                                         .arg(writeFileName)
                                         .arg(file.errorString()));
                     gui->insertFinalModelStep();
-                    gui->mloadingFile = false;
+                    Gui::mloadingFile = false;
                     return false;
                 }
 
@@ -2976,7 +2971,7 @@ bool LDrawFile::saveModelFile(const QString &fileName)
     file.close();
 
     gui->insertFinalModelStep();
-    gui->mloadingFile = false;
+    Gui::mloadingFile = false;
 
     return true;
 }

@@ -491,7 +491,7 @@ bool Project::Load(const QString& LoadFileName, const QString& StepKey, int Type
 			// SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
 			// PLI: 0=partName,  1=colourNumber, 2=stepNumber
 			bool IsPli = mImageType == Options::PLI;
-			QStringList Keys = lpub->getViewerStepKeys(true/*Return Name*/, IsPli, StepKey);
+			QStringList Keys = LPub::getViewerStepKeys(true/*Return Name*/, IsPli, StepKey);
 
 			if (Keys.size() > 2) {
 				const QString PieceName = Keys.at(BM_STEP_MODEL_KEY);
@@ -931,8 +931,8 @@ bool Project::Export3DStudio(const QString& FileName)
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.3ds");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.3ds");
 	}
 /*** LPub3D Mod end ***/
 
@@ -1393,8 +1393,8 @@ bool Project::ExportBrickLink()
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.xml");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.xml");
 	}
 /*** LPub3D Mod end ***/
 
@@ -1426,8 +1426,8 @@ bool Project::ExportCOLLADA(const QString& FileName)
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.dae");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.dae");
 	}
 /*** LPub3D Mod end ***/
 
@@ -1721,8 +1721,8 @@ bool Project::ExportCSV()
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.csv");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.csv");
 	}
 /*** LPub3D Mod end ***/
 
@@ -2029,8 +2029,8 @@ bool Project::ExportPOVRay(const QString& FileName)
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.pov");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.pov");
 	}
 /*** LPub3D Mod end ***/
 
@@ -2368,8 +2368,8 @@ bool Project::ExportWavefront(const QString& FileName)
 	else
 	{
 		SaveFileName =  QDir::fromNativeSeparators(
-						QFileInfo(lpub->getCurFile()).absolutePath() + "/" +
-						QFileInfo(lpub->getCurFile()).baseName() + "-export.obj");
+						QFileInfo(lpub->getCmdLineFile()).absolutePath() + "/" +
+						QFileInfo(lpub->getCmdLineFile()).baseName() + "-export.obj");
 	}
 /*** LPub3D Mod end ***/
 

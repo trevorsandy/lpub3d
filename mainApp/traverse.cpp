@@ -4481,7 +4481,6 @@ void Gui::countPages()
       QString empty;
       FindPageFlags flags;
       PgSizeData emptyPageSize;
-      QMap<int,int> buildModActions;
       QList<SubmodelStack> modelStack;
 
       current              =  Where(lpub->ldrawFile.topLevelFile(),0,0);
@@ -5646,7 +5645,7 @@ void Gui::writeToTmp()
 
           emit messageSig(LOG_INFO_STATUS, message);
 
-          if (gui->mloadingFile) {
+          if (Gui::mloadingFile) {
               message = QString("Writing %1 %2 of %3 files (%4 lines)...")
                       .arg(fileType)
                       .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))

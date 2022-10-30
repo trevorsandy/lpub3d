@@ -110,32 +110,40 @@ public:
 
 QHash<SceneObject, QString> soMap;
 
-int          Gui::pa;                // page adjustment
-int          Gui::sa;                // step number adustment
+int          Gui::pa;                     // page adjustment
+int          Gui::sa;                     // step number adustment
 int          Gui::maxPages;
-int          Gui::displayPageNum;    // what page are we displaying
-int          Gui::processOption;     // export Option
-int          Gui::pageDirection;     // page processing direction
-int          Gui::savePrevStepPosition; // indicate the previous step position amongst current and previous steps
-bool         Gui::resetCache;        // reset model, fade and highlight parts
-QString      Gui::saveFileName;      // user specified output file Name [commandline only]
-QList<Where> Gui::topOfPages;        // topOfStep list of modelName and lineNumber for each page
+int          Gui::boms;                   // the number of pli BOMs in the document
+int          Gui::bomOccurrence;          // the actual occurrence of each pli BO
+int          Gui::displayPageNum;         // what page are we displaying
+int          Gui::processOption;          // export Option
+int          Gui::pageDirection;          // page processing direction
+int          Gui::savePrevStepPosition;   // indicate the previous step position amongst current and previous steps
+int          Gui::pageProcessRunning;     // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
+int          Gui::firstStepPageNum;       // the first Step page number - used to specify frontCover page
+int          Gui::lastStepPageNum;        // the last Step page number - used to specify backCover page
+int          Gui::saveRenderer;           // saved renderer when temporarily switching to Native renderer
 
-bool    Gui::m_exportingContent;     // indicate export/printing underway
-bool    Gui::m_exportingObjects;     // indicate exporting non-image object file content
-bool    Gui::m_contPageProcessing;   // indicate continuous page processing underway
-bool    Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
+bool         Gui::saveProjection;         // saved projection when temporarily switching to Native renderer
+bool         Gui::buildModJumpForward;    // parse build mods in countPage call - special case for jump forward
+bool         Gui::resetCache;             // reset model, fade and highlight parts
+QString      Gui::curFile;                // the file name for MPD, or top level file
+QString      Gui::saveFileName;           // user specified output file Name [commandline only]
+QString      Gui::pageRangeText;          // page range parameters
+QList<Where> Gui::topOfPages;             // topOfStep list of modelName and lineNumber for each page
+QList<Where> Gui::parsedMessages;         // previously parsed messages within the current session
 
-int     Gui::m_exportMode;           // export Mode
-QString Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
+bool         Gui::m_exportingContent;     // indicate export/printing underway
+bool         Gui::m_exportingObjects;     // indicate exporting non-image object file content
+bool         Gui::m_contPageProcessing;   // indicate continuous page processing underway
+bool         Gui::m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
+bool         Gui::mloadingFile;           // when true, the endMacro() call will not call displayPage()
 
-int     Gui::boms;                   // the number of pli BOMs in the document
-int     Gui::bomOccurrence;          // the actual occurrence of each pli BO
+int          Gui::m_exportMode;           // export Mode
+QString      Gui::m_saveDirectoryName;    // user specified output directory name [commandline only]
 
-RendererData Gui::savedData;         // store current renderer data when temporarily switching renderer;
-int          Gui::saveRenderer;      // saved renderer when temporarily switching to Native renderer
-bool         Gui::saveProjection;    // saved projection when temporarily switching to Native renderer
-QString      Gui::pageRangeText;     // page range parameters
+RendererData Gui::savedRendererData;      // store current renderer data when temporarily switching renderer;
+QMap<int, PgSizeData>  Gui::pageSizes;    // page size and orientation object
 
 /***********************************************************************
  * set Native renderer for fast processing
@@ -3523,6 +3531,37 @@ Gui::Gui()
     connect(editModeWindow, SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
+    // cache management
+    connect(this,           SIGNAL(clearPageCacheSig(PlacementType, Page*, int)),
+            this,           SLOT(  clearPageCache(PlacementType, Page*, int)));
+
+    connect(this,           SIGNAL(clearAndReloadModelFileSig(bool)),
+            this,           SLOT(  clearAndReloadModelFile(bool)));
+
+    connect(this,           SIGNAL(clearCustomPartCacheSig(bool)),
+            this,           SLOT(  clearCustomPartCache(bool)));
+
+    connect(this,           SIGNAL(clearAllCachesSig(bool)),          // reloadDisplayPage
+            this,           SLOT(  clearAllCaches(bool)));
+
+    connect(this,           SIGNAL(clearSubmodelCacheSig()),
+            this,           SLOT(  clearSubmodelCache()));
+
+    connect(this,           SIGNAL(clearPLICacheSig()),
+            this,           SLOT(  clearPLICache()));
+
+    connect(this,           SIGNAL(clearCSICacheSig()),
+            this,           SLOT(  clearCSICache()));
+
+    connect(this,           SIGNAL(clearTempCacheSig()),
+            this,           SLOT(  clearTempCache()));
+
+    connect(this,           SIGNAL(reloadCurrentPageSig()),
+            this,           SLOT(  reloadCurrentPage()));
+
+    connect(this,           SIGNAL(restartApplicationSig()),
+            this,           SLOT(  restartApplication()));
+
     // Undo Stack
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
@@ -3598,6 +3637,8 @@ Gui::~Gui()
   delete editModeWindow;
   delete undoStack;
   delete mi;
+  delete mpdCombo;
+  delete setGoToPageCombo;
 
   delete progressBar;
   delete m_progressDialog;

@@ -186,12 +186,12 @@ class Where
         return toStringList().join(" ");
     }
 
-    void setModelName(const QString &where)
+    inline void setModelName(const QString &where)
     {
         modelName = where;
     }
 
-    void setModelIndex(const int index)
+    inline void setModelIndex(const int index)
     {
         modelIndex = index;
     }

@@ -344,10 +344,6 @@ public slots:
             Meta            *meta,
             LDrawFile       *ldrawFile,
             FindPageOptions &opts);
-private:
-    static void statusMessage(const LogType, const QString &);
-    static void insertPageSize(const int i, const PgSizeData &);
-    static void removePageSize(const int i);
 };
 
 class LDrawFile;
