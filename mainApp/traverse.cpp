@@ -5206,7 +5206,7 @@ int Gui::setBuildModForNextStep(
 
         if (jumpDirection) {
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - JumpAmount: %2 (Steps), StartModel: %3, "
+            emit gui->messageSig(LOG_TRACE, QString("BuildMod Next Jump %1 - Amount: %2 (Steps), StartModel: %3, "
                                                     "StartLine: %4, ModelName: %5, LineNumber: %6")
                                                     .arg(buildModJumpForward ? "Forward" : "Backward")
                                                     .arg(qAbs(buildModNextStepIndex - getBuildModPrevStepIndex()))
