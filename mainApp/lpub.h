@@ -633,10 +633,13 @@ public:
   {
     return ldrawFile.modified(fileName);
   }
-  bool modified(const QStringList &parsedStack)
+  bool modified(const QStringList &parsedStack, bool reset = false)
   {
-    bool older = ldrawFile.modified(parsedStack);
-    return older;
+    return ldrawFile.modified(parsedStack, reset);
+  }
+  bool modified(const QVector<int> &parsedIndexes, bool reset = false)
+  {
+    return ldrawFile.modified(parsedIndexes, reset);
   }
   bool loadAborted()
   {
@@ -793,6 +796,11 @@ public:
   bool viewerStepModified(const QString &stepKey, bool reset = false)
   {
       return ldrawFile.viewerStepModified(stepKey, reset);
+  }
+
+  void setViewerStepModified(const QString &stepKey)
+  {
+      ldrawFile.setViewerStepModified(stepKey);
   }
 
   /* Build Modifications */

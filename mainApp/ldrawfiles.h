@@ -402,7 +402,8 @@ class LDrawFile {
     bool isSubmodel(const QString &file);
     bool modified();
     bool modified(const QString &fileName);
-    bool modified(const QStringList &parsedStack);
+    bool modified(const QStringList &parsedStack, bool reset);
+    bool modified(const QVector<int> &parsedIndexes, bool reset);
     bool older(const QStringList &parsedStack,
                const QDateTime &lastModified);
     bool older(const QString &fileName,

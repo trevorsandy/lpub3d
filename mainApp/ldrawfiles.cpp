@@ -290,6 +290,7 @@ void LDrawFile::normalizeHeader(const QString &fileName,int missing)
       }
     }
   }
+  setModified(fileName, false);
 }
 
 /* Add a new subFile */
@@ -481,11 +482,9 @@ bool LDrawFile::isSubmodel(const QString &file)
 
 bool LDrawFile::modified()
 {
-  QString key;
-  bool    modified = false;
-  Q_FOREACH (key,_subFiles.keys()) {
+  bool modified = false;
+  Q_FOREACH (const QString &key,_subFiles.keys())
     modified |= _subFiles[key]._modified;
-  }
   return modified;
 }
 
@@ -500,22 +499,35 @@ bool LDrawFile::modified(const QString &mcFileName)
   }
 }
 
-bool LDrawFile::modified(const QStringList &parsedStack)
+bool LDrawFile::modified(const QStringList &parsedStack, bool reset)
 {
-  QString modelFile, key;
-  bool    modified = false;
-  Q_FOREACH (modelFile,parsedStack) {
-    Q_FOREACH (key,_subFiles.keys()) {
-      if (key == modelFile.toLower())
-        modified |= _subFiles[key]._modified;
-    }
+  bool result = false;
+  Q_FOREACH (const QString &fileName, parsedStack) {
+    LDrawSubFile &subFile = _subFiles[fileName];
+    result |= subFile._modified;
+    if (reset)
+       subFile._modified = false;
   }
-  return modified;
+  return result;
+}
+
+bool LDrawFile::modified(const QVector<int> &parsedIndexes, bool reset)
+{
+    bool result = false;
+    Q_FOREACH (const int index, parsedIndexes) {
+        const QString &fileName = getSubmodelName(index);
+        LDrawSubFile &subFile = _subFiles[fileName];
+        const bool modified = subFile._modified;
+        result |= modified;
+        if (reset)
+           subFile._modified = false;
+    }
+    return result;
 }
 
 void LDrawFile::setModified(const QString &mcFileName, bool modified)
 {
-  QString fileName = mcFileName.toLower();
+  const QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
     i.value()._modified = modified;
@@ -732,11 +744,8 @@ QStringList LDrawFile::includeFileList() {
 
 QString LDrawFile::getSubmodelName(int submodelIndx)
 {
-    if (submodelIndx > -1 && submodelIndx < _subFileOrder.size()){
-        QString subFileName = _subFileOrder[submodelIndx];
-        if (!subFileName.isEmpty())
-            return subFileName;
-    }
+    if (submodelIndx > BM_INVALID_INDEX && submodelIndx < _subFileOrder.size())
+        return _subFileOrder.at(submodelIndx);
     return QString();
 }
 
@@ -2942,7 +2951,6 @@ bool LDrawFile::changedSinceLastWrite(const QString &fileName)
   if (i != _subFiles.end()) {
     bool value = i.value()._changedSinceLastWrite;
     i.value()._changedSinceLastWrite = false;
-    i.value()._modified = false;
     return value;
   }
   return false;
@@ -2984,14 +2992,12 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
                                const QVector<int> &modAttributes,
                                int                 stepIndex)
 {
-  bool newMod = true;
   QString modKey  = buildModKey.toLower();
   QVector<int>  modSubmodelStack;
   QMap<int,int> modActions;
   QVector<int>  newAttributes;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
-    newMod = false;
     // Preserve actions
     modActions = i.value()._modActions;
 
@@ -3053,13 +3059,13 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   // set viewerStepKey modified
   // used when navigating backward where stack submodels are modified so
   // the viewer must be triggered to update the piece from its disc files.
-  if (!newMod) {
-    const QString viewerStepKey = QString("%1;%2;%3")
-            .arg(newAttributes.at(BM_MODEL_NAME_INDEX))
-            .arg(newAttributes.at(BM_MODEL_LINE_NUM))
-            .arg(newAttributes.at(BM_MODEL_STEP_NUM));
-    setViewerStepModified(viewerStepKey);
-  }
+  //const QString viewerStepKey = QString("%1;%2;%3")
+  //        .arg(newAttributes.at(BM_MODEL_NAME_INDEX))
+  //        .arg(newAttributes.at(BM_MODEL_LINE_NUM))
+  //        .arg(newAttributes.at(BM_MODEL_STEP_NUM));
+  //QMap<QString, ViewerStep>::iterator s = _viewerSteps.find(viewerStepKey);
+  //if (s != _viewerSteps.end())
+  //    setViewerStepModified(viewerStepKey);
 
   // Update BuildMod list
   if (!_buildModList.contains(buildModKey))
@@ -3562,13 +3568,13 @@ int LDrawFile::setBuildModAction(
 
         // used when navigating backward where stack submodels are modified so
         // the viewer must be triggered to update the piece from its disc files.
-        const QString viewerStepKey = QString("%1;%2;%3")
-                .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
-                .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
-                .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM));
-        QMap<QString, ViewerStep>::iterator s = _viewerSteps.find(viewerStepKey);
-        if (s != _viewerSteps.end())
-            setViewerStepModified(viewerStepKey);
+        //const QString viewerStepKey = QString("%1;%2;%3")
+        //        .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
+        //        .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
+        //        .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM));
+        //QMap<QString, ViewerStep>::iterator s = _viewerSteps.find(viewerStepKey);
+        //if (s != _viewerSteps.end())
+        //    setViewerStepModified(viewerStepKey);
 
         action = i.value()._modActions.value(stepIndex);
 
@@ -4175,7 +4181,6 @@ void LDrawFile::insertViewerStep(const QString     &stepKey,
   }
   const QStringList keys = stepKey.split(";");
   ViewerStep viewerStep(keys,rotatedContents,unrotatedContents,filePath,imagePath,csiKey,multiStep,calledOut,viewType);
-  viewerStep._modified = viewType == Options::CSI; // set true on creation and false when read into visual editor - only for CSI items!
 
   Q_FOREACH(QString line, rotatedContents)
     if (line[0] == '1')
@@ -4391,7 +4396,7 @@ bool LDrawFile::viewerStepModified(const QString &stepKey, bool reset)
                                  .arg(viewType == Options::PLI ? QString("Colour: %1,").arg(keys.at(BM_STEP_LINE_KEY)) :
                                                                  QString("LineNumber: %1,").arg(keys.at(BM_STEP_LINE_KEY)))
                                  .arg(keys.at(BM_STEP_NUM_KEY))
-                                 .arg(reset ? ", Modified [No]." :", Modified [Yes]."));
+                                 .arg(modified ? ", Modified [Yes]." :", Modified [No]."));
 #endif
     return modified;
   } else {
@@ -4405,18 +4410,20 @@ void LDrawFile::setViewerStepModified(const QString &stepKey)
   if (i != _viewerSteps.end()) {
     i.value()._modified = true;
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG, QString("Viewer Step for ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4, Key: '%5' set to Modified.")
+    int viewType = i.value()._viewType;
+    emit gui->messageSig(LOG_DEBUG, QString("Set %1 ViewerStep Key: '%2', ModelIndex: %3 (%4), LineNumber: %5, StepNumber: %6, Modified: [Yes].")
+                         .arg(viewType == Options::PLI ? "PLI" : viewType == Options::CSI ? "CSI" : "SMP")
+                         .arg(stepKey)
                          .arg(i.value()._stepKey.modIndex)
                          .arg(getSubmodelName(i.value()._stepKey.modIndex))
                          .arg(i.value()._stepKey.lineNum)
-                         .arg(i.value()._stepKey.stepNum)
-                         .arg(stepKey));
+                         .arg(i.value()._stepKey.stepNum));
 #endif
   }
 #ifdef QT_DEBUG_MODE
   else {
     const QStringList Keys = stepKey.split(";");
-    emit gui->messageSig(LOG_DEBUG, QString("Cannot modify, Viewer Step for ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key '%5' does not exist.")
+    emit gui->messageSig(LOG_DEBUG, QString("Cannot modify, ViewerStep  Key: '%5', ModelIndex: %1 (%2), LineNumber: %3, StepNumber: %4. Key does not exist.")
                          .arg(Keys.at(BM_STEP_MODEL_KEY))
                          .arg(getSubmodelName(Keys.at(BM_STEP_MODEL_KEY).toInt()))
                          .arg(Keys.at(BM_STEP_LINE_KEY))

@@ -38,7 +38,12 @@ bool isOlder(
 }
 
 bool modified(
-  const QStringList &parsedStack)
+  const QStringList &parsedStack, bool reset)
 {
-  return gui->modified(parsedStack);
+  return gui->modified(parsedStack, reset);
+}
+
+bool modified(const QVector<int> &parsedIndexes, bool reset)
+{
+  return gui->modified(parsedIndexes, reset);
 }

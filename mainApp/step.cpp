@@ -357,17 +357,15 @@ int Step::createCsi(
       }
   }
 
-  // Generate  the renderer CSI file
-  bool generageCSIFile = ! csiExist || csiOutOfDate /*|| gui->exportingObjects()*/;
-
-  int rc = 0;
-
   // populate viewerStepKey variable
   viewerStepKey = QString("%1;%2;%3%4")
                           .arg(gui->getSubmodelIndex(top.modelName))
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
+
+  int rc = 0;
+
 /*
 #ifdef QT_DEBUG_MODE
       const QString stepType = calledOut ? "called out" : multiStep ? "step group" : "single step";
@@ -403,7 +401,7 @@ int Step::createCsi(
       // We are processing again the current step but the Csi has changed - e.g. updated in the viewer
       bool viewerUpdate = (viewerStepKey == gui->getViewerStepKey());
 
-      if (addViewerStepContent || csiOutOfDate || viewerUpdate || generageCSIFile) {
+      if (addViewerStepContent || csiOutOfDate || viewerUpdate /*|| generageCSIFile*/) {
 
           updateViewer = true; // just to be safe
 
@@ -433,6 +431,10 @@ int Step::createCsi(
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
           gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,pngName,stepKey/*keyPart2*/,multiStep,calledOut,Options::CSI);
       }
+
+      // Are any children submodels modified ? - trigger the native renderer to update input files on disc
+      if (modified(gui->getSubmodelIndexes(top.modelName), true/*reset*/))
+          gui->setViewerStepModified(viewerStepKey);
 
       // for now, we always set viewer display options
       StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &csiStepMeta.studStyle;
@@ -476,7 +478,9 @@ int Step::createCsi(
 //          loadTheViewer();
   }
 
-  if (generageCSIFile) {
+  // Generate  the renderer CSI file
+
+  if (! csiExist || csiOutOfDate) {
 
      timer.start();
 
