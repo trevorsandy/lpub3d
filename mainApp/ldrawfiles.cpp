@@ -742,37 +742,48 @@ QString LDrawFile::getSubmodelName(int submodelIndx)
 
 int LDrawFile::getSubmodelIndex(const QString &mcFileName)
 {
-    QString fileName = mcFileName.toLower();
+    const QString fileName = mcFileName.toLower();
     return _subFileOrder.indexOf(fileName);
 }
+
+/* marshall subFile 'child' indexes */
 
 QVector<int> LDrawFile::getSubmodelIndexes(const QString &fileName)
 {
     QVector<int> indexes, parsedIndexes;
+    const QString mcFileName = fileName.toLower();
+    const int mcModelIndex = getSubmodelIndex(mcFileName);
 
-    if (fileName == topLevelFile())
+    if (mcFileName == topLevelFile()) {
+        QMap<QString, LDrawSubFile>::const_iterator it = _subFiles.constBegin();
+        while (it != _subFiles.constEnd()) {
+            if (it.value()._unofficialPart == UNOFFICIAL_SUBMODEL && !it.value()._generated)
+                parsedIndexes << getSubmodelIndex(it.key());
+            ++it;
+        }
         return parsedIndexes;
+    }
 
-    auto getIndexes = [this, &parsedIndexes] (const QString &mcFileName, QVector<int> &indexes)
+    auto getIndexes = [this, &parsedIndexes] (const int index, QVector<int> &indexes)
     {
+        const QString mcFileName = getSubmodelName(index).toLower();
         QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(mcFileName);
         if (it != _subFiles.end()) {
-            Q_FOREACH(int i, it.value()._subFileIndexes) {
-                if (!indexes.contains(i) && !parsedIndexes.contains(i))
-                    indexes << i;
+            if (it.value()._unofficialPart == UNOFFICIAL_SUBMODEL && !it.value()._generated) {
+                Q_FOREACH(int i, it.value()._subFileIndexes) {
+                    if (!indexes.contains(i) && !parsedIndexes.contains(i))
+                        indexes << i;
+                }
             }
         }
     };
 
-    QString mcFileName = fileName.toLower();
-    getIndexes(mcFileName, indexes);
+    getIndexes(mcModelIndex, indexes);
 
-    while (! indexes.isEmpty()) {
+    while (!indexes.isEmpty()) {
         const int modelIndex = indexes.takeFirst();
-        if (! parsedIndexes.contains(modelIndex)) {
-            mcFileName = getSubmodelName(modelIndex).toLower();
-            getIndexes(mcFileName, indexes);
-        }
+        if (!parsedIndexes.contains(modelIndex))
+            getIndexes(modelIndex, indexes);
         parsedIndexes << modelIndex;
     }
 
@@ -2318,6 +2329,7 @@ void LDrawFile::countInstances(
       } else {
         ++f->_instances;
       }
+      // children
       for (int i = 0; i < f->_subFileIndexes.size(); i++) {
         QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(getSubmodelName(f->_subFileIndexes.at(i)));
         if (s != _subFiles.end()) {
@@ -2401,9 +2413,12 @@ void LDrawFile::countInstances(
                 split(f->_contents[top.lineNumber],tokens);
                 if (tokens.size() == 15 && tokens[0] == "1") {
                   if (contains(tokens[14],false/*searchAll*/) && ! stepIgnore && ! buildModIgnore) {
-                    const int subFileIndex = getSubmodelIndex(tokens[14]);
-                    if (top.modelIndex && !f->_subFileIndexes.contains(subFileIndex))
-                      f->_subFileIndexes.append(subFileIndex);
+                    // add contains 'child' index to parent list
+                    if (isSubmodel(tokens[14])) {
+                      const int subFileIndex = getSubmodelIndex(tokens[14]);
+                      if (top.modelIndex && !f->_subFileIndexes.contains(subFileIndex))
+                        f->_subFileIndexes.append(subFileIndex);
+                    }
                     countInstances(tokens[14], true/*firstStep*/, mirrored(tokens), callout);
                   }
                 } else if (tokens.size() == 4 && tokens[0] == "0" &&
@@ -2483,13 +2498,16 @@ void LDrawFile::countInstances(
       // check if subfile and process
       } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
         if (! stepIgnore && ! buildModIgnore) {
-            buildModPartCount++;
-            if (contains(tokens[14],false/*searchAll*/)) {
+          buildModPartCount++;
+          if (contains(tokens[14],false/*searchAll*/)) {
+            // add contains 'child' index to parent list
+            if (isSubmodel(tokens[14])) {
               const int subFileIndex = getSubmodelIndex(tokens[14]);
               if (top.modelIndex && !f->_subFileIndexes.contains(subFileIndex))
                 f->_subFileIndexes.append(subFileIndex);
-              countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
             }
+            countInstances(tokens[14], true /*firstStep*/, mirrored(tokens), callout);
+          }
         }
         partsAdded = true;
       } // part line

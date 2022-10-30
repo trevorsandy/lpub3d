@@ -684,6 +684,11 @@ public:
       return ldrawFile.getSubmodelIndex(fileName);
   }
 
+  QVector<int> getSubmodelIndexes(const QString &fileName)
+  {
+      return ldrawFile.getSubmodelIndexes(fileName);
+  }
+
   int getSubmodelInstances(const QString &fileName, bool isMirrored)
   {
       return ldrawFile.instances(fileName, isMirrored);
