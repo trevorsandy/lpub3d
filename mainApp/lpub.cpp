@@ -3724,7 +3724,7 @@ void Gui::initialize()
   Preferences::setInitPreferredRenderer();
 
   setCurrentFile("");
-  updateOpenWithActions();
+  updateOpenWithActions(); // also adds the system editor if defined
   readSettings();
 
   // scene item z direction
@@ -4720,8 +4720,9 @@ void Gui::exportMetaCommands()
 
 void Gui::createOpenWithActions(int maxPrograms)
 {
-    int maxOpenWithPrograms = maxPrograms ? maxPrograms : Preferences::maxOpenWithPrograms;
-
+    // adjust for separator and system editor
+    const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
+    const int maxOpenWithPrograms = maxPrograms ? maxPrograms + systemEditor : Preferences::maxOpenWithPrograms + systemEditor;
     for (int i = 0; i < maxOpenWithPrograms; i++) {
         QAction *openWithAct = new QAction(this);
         openWithAct->setVisible(false);
@@ -5792,7 +5793,11 @@ void Gui::createMenus()
     openWithMenu = fileMenu->addMenu(tr("Open With..."));
     openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
     openWithMenu->setStatusTip(tr("Open model file with selected application"));
-    for (int i = 0; i < Preferences::maxOpenWithPrograms; i++) {
+    const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
+    const int maxOpenWithPrograms = Preferences::maxOpenWithPrograms + systemEditor;
+    for (int i = 0; i < maxOpenWithPrograms; i++) {
+      if (i == Preferences::maxOpenWithPrograms)
+          openWithMenu->addSeparator();
       openWithMenu->addAction(openWithActList.at(i));
     }
     fileMenu->addAction(saveAct);

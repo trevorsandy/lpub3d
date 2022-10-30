@@ -3745,9 +3745,46 @@ void Preferences::userInterfacePreferences()
   QString const systemEditorKey("SystemEditor");
   systemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,systemEditorKey)).toString();
   QFileInfo systemEditorInfo(systemEditor);
-  if (!systemEditorInfo.exists()) {
-      systemEditor.clear();
-      Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
+  if (!systemEditorInfo.exists() || !systemEditorInfo.isFile()) {
+      bool found = false;
+      bool windows = false;
+      QString command = "which";
+      QStringList arguments;
+#ifdef Q_OS_MAC
+      arguments << MACOS_SYS_EDITOR;
+#elif defined Q_OS_LINUX
+      arguments << LINUX_SYS_EDITOR;
+#elif defined Q_OS_WIN
+      windows = true;
+      if((found = QFileInfo(WINDOWS_NPP_X64).exists())) {
+        systemEditor = WINDOWS_NPP_X64;
+      } else if ((found = QFileInfo(WINDOWS_NPP).exists())) {
+        systemEditor = WINDOWS_NPP;
+      }
+      if (found) {
+        systemEditorInfo.setFile(systemEditor);
+      } else {
+        command = "where";
+        arguments << WINDOWS_SYS_EDITOR;
+      }
+#endif
+      if (!found) {
+        QProcess findProcess;
+        findProcess.start(command, arguments);
+        findProcess.setReadChannel(QProcess::ProcessChannel::StandardOutput);
+        if(findProcess.waitForFinished()) {
+          systemEditor = findProcess.readAll().split(windows ? '\r\n' : '\n').first().trimmed();
+          systemEditorInfo.setFile(systemEditor);
+          found = systemEditorInfo.exists();
+        }
+      }
+      if ((found = systemEditorInfo.isFile())) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,systemEditorKey),systemEditor);
+      }
+      if (!found) {
+        systemEditor.clear();
+        Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
+      }
   }
 
   // check if cycle each step when navigating forward by more than one step is enabled

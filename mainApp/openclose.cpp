@@ -259,7 +259,7 @@ void Gui::updateOpenWithActions()
         if (!programData.isEmpty())
             openWithProgramAndArgs(programPath,arguments);
         QFileInfo fileInfo(programPath);
-        if (fileInfo.exists()) {
+        if (fileInfo.exists() && fileInfo.isFile()) {
           programName = programEntries.at(i).split("|").first();
           QString text = programName;
           if (text.isEmpty())
@@ -277,11 +277,33 @@ void Gui::updateOpenWithActions()
         }
       }
 
+      // add system editor if exits
+      if (!Preferences::systemEditor.isEmpty()) {
+        QFileInfo fileInfo(Preferences::systemEditor);
+        if (fileInfo.exists() && fileInfo.isFile()) {
+          const int i = numPrograms;
+          programPath = fileInfo.absoluteFilePath();
+          programName = fileInfo.completeBaseName();
+          programName.replace(programName[0],programName[0].toUpper());
+          QString text = programName;
+          if (text.isEmpty())
+              text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+          openWithActList[i]->setText(text);
+          openWithActList[i]->setData(QString()); // arguments
+          openWithActList[i]->setIcon(getProgramIcon());
+          openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                   .arg(fileInfo.fileName()));
+          openWithActList[i]->setVisible(true);
+          programEntries.append(QString("%1|%2").arg(programName).arg(programPath));
+          numPrograms = programEntries.size();
+        }
+      }
+
 #ifdef QT_DEBUG_MODE
       messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
 #endif
 
-      // hide empty program actions
+      // hide empty program actions - redundant
       for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++)
         openWithActList[j]->setVisible(false);
 
@@ -339,15 +361,20 @@ void Gui::openWith(const QString &filePath)
     if (action) {
         program = action->data().toString();
         if (program.isEmpty()) {
+            program = Preferences::systemEditor;
+            if (!program.isEmpty()) {
+                openWithProgramAndArgs(program,arguments);
+            }
 #ifdef Q_OS_MACOS
-            if (Preferences::systemEditor.isEmpty()) {
+            else {
                 program = QString("open");
                 arguments.prepend("-e");
-            } else {
-                openWithProgramAndArgs(Preferences::systemEditor,arguments);
             }
 #else
-            openWithProgramAndArgs(Preferences::systemEditor,arguments);
+            else {
+                emit messageSig(LOG_ERROR, QString("No program specified. Cannot launch %1.")
+                                .arg(QFileInfo(filePath).fileName()));
+            }
 #endif
         } else {
             openWithProgramAndArgs(program,arguments);
