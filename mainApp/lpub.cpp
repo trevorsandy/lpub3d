@@ -2866,6 +2866,7 @@ void Gui::preferences()
     bool addLSynthSearchDirCompare         = Preferences::addLSynthSearchDir;
     bool archiveLSynthPartsCompare         = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare      = Preferences::perspectiveProjection;
+    bool inlineNativeRenderFilesCompare    = Preferences::inlineNativeRenderFiles;
     bool saveOnUpdateCompare               = Preferences::saveOnUpdate;
     bool saveOnRedrawCompare               = Preferences::saveOnRedraw;
     bool loadLastOpenedFileCompare         = Preferences::loadLastOpenedFile;
@@ -2924,6 +2925,7 @@ void Gui::preferences()
         bool highlightFirstStepChanged     = Preferences::highlightFirstStep                     != highlightFirstStepCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
+        bool inlineNativeRenderFilesChanged= Preferences::inlineNativeRenderFiles                     != inlineNativeRenderFilesCompare;
         bool saveOnRedrawChanged           = Preferences::saveOnRedraw                           != saveOnRedrawCompare;
         bool saveOnUpdateChanged           = Preferences::saveOnUpdate                           != saveOnUpdateCompare;
         bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
@@ -3174,6 +3176,9 @@ void Gui::preferences()
 
         if (showInsertErrorsChanged)
             emit messageSig(LOG_INFO,QString("Show Insert Errors is %1").arg(Preferences::showInsertErrors    ? "ON" : "OFF"));
+
+        if (inlineNativeRenderFilesChanged)
+            emit messageSig(LOG_INFO,QString("Inline Native Render Content is %1").arg(Preferences::inlineNativeRenderFiles? "ON" : "OFF"));
 
         bool sceneDisplayChanged =
             displayThemeChanged         ||

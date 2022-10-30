@@ -404,6 +404,7 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
+bool    Preferences::inlineNativeRenderFiles    = true;
 
 bool    Preferences::ldgliteInstalled           = false;
 bool    Preferences::ldviewInstalled            = false;
@@ -2327,6 +2328,15 @@ void Preferences::preferredRendererPreferences(bool persist)
             TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
     } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
         TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
+    }
+
+    // Inline Native renderer prject content
+    QString const inlineNativeRenderFilesKey("InlineNativeRenderFiles");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey))) {
+        inlineNativeRenderFiles = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey),inlineNativeRenderFiles);
+    } else {
+        inlineNativeRenderFiles = Settings.value(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey)).toBool();
     }
 }
 
@@ -5118,6 +5128,12 @@ bool Preferences::getPreferences()
         {
             ldrawFilesLoadMsgs = dialog->ldrawFilesLoadMsgs();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
+        }
+
+        if (inlineNativeRenderFiles != dialog->inlineNativeRenderFiles())
+        {
+            inlineNativeRenderFiles = dialog->inlineNativeRenderFiles();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles"),inlineNativeRenderFiles);
         }
 
         // LcLib Preferences

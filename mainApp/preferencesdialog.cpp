@@ -1530,12 +1530,12 @@ QString const PreferencesDialog::publishDescription()
 
 bool PreferencesDialog::addLSynthSearchDir()
 {
-       return ui.addLSynthSearchDirBox->isChecked();
+  return ui.addLSynthSearchDirBox->isChecked();
 }
 
 bool PreferencesDialog::archiveLSynthParts()
 {
-       return ui.archiveLSynthPartsBox->isChecked();
+  return ui.archiveLSynthPartsBox->isChecked();
 }
 
 bool PreferencesDialog::showUpdateNotifications()
@@ -1550,7 +1550,7 @@ bool PreferencesDialog::enableDownloader()
 
 bool PreferencesDialog::showDownloadRedirects()
 {
-       return ui.showDownloadRedirects_Chk->isChecked();
+  return ui.showDownloadRedirects_Chk->isChecked();
 }
 
 bool PreferencesDialog::showAllNotifications()
@@ -1575,27 +1575,37 @@ int PreferencesDialog::pageDisplayPause()
 
 bool PreferencesDialog::showLineParseErrors()
 {
- return mShowLineParseErrors;
+  return mShowLineParseErrors;
 }
 
 bool PreferencesDialog::showInsertErrors()
 {
- return mShowInsertErrors ;
+  return mShowInsertErrors ;
 }
 
 bool PreferencesDialog::showBuildModErrors()
 {
- return mShowBuildModErrors;
+  return mShowBuildModErrors;
 }
 
 bool PreferencesDialog::showIncludeFileErrors()
 {
- return mShowIncludeFileErrors;
+  return mShowIncludeFileErrors;
+}
+
+bool PreferencesDialog::inlineNativeRenderFiles()
+{
+  QSettings Settings;
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles")))
+    return Preferences::inlineNativeRenderFiles;
+  return Settings.value(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles")).toBool();
+
+  // return ui.inlineNativeRenderFilesBox->isChecked(); // future implementation
 }
 
 bool PreferencesDialog::showAnnotationErrors()
 {
- return mShowAnnotationErrors;
+  return mShowAnnotationErrors;
 }
 
 bool PreferencesDialog::includeLogLevel()
