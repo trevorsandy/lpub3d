@@ -75,12 +75,18 @@
 
 #define SUB_PLACEHOLDER "@@~|~@@"
 
+enum CurrentStepType { INVALID_CURRENT_STEP, EXISTING_CURRENT_STEP, NEW_CURRENT_STEP };
+enum DecorationType { SIMPLE_DECORATION, STANDARD_DECORATION };
+
 EditWindow *cmdEditor;
 EditWindow *cmdModEditor;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
   QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_),_pageIndx(0)
 {
+    qRegisterMetaType<CurrentStepType>("CurrentStepType");
+    qRegisterMetaType<DecorationType>("DecorationType");
+
     _textEdit = new QTextEditor(_modelFileEdit, this);
 
     loadModelWorker = new LoadModelWorker(_modelFileEdit);
@@ -106,6 +112,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     showLineType    = LINE_HIGHLIGHT;
     isReadOnly      = false;
     visualEditorVisible = false;
+    stepKeyType     = INVALID_CURRENT_STEP;
 
     createActions();
     updateOpenWithActions();
@@ -189,7 +196,7 @@ void EditWindow::setSelectionHighlighter()
 
 void EditWindow::setTextEditHighlighter()
 {
-    if (Preferences::editorDecoration == SIMPLE)
+    if (Preferences::editorDecoration == SIMPLE_DECORATION)
       highlighterSimple = new HighlighterSimple(_textEdit->document());
     else
       highlighter = new Highlighter(_textEdit->document());
@@ -786,6 +793,52 @@ int EditWindow::getSelectedLineNumber(QTextCursor &cursor) const
     return lineNumber;
 }
 
+int EditWindow::setCurrentStep(const int lineNumber, bool inScope)
+{
+    // limit the scope to the current page
+    if (inScope) {
+        if (!stepLines.isInScope(lineNumber))
+            return stepKeyType = INVALID_CURRENT_STEP;
+    }
+
+    const Where &top = lpub->page.top;
+    const Where &bottom = lpub->page.bottom;
+    const TypeLine here = { fileOrderIndex, lineNumber };
+    stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
+
+    if (!stepKey.isEmpty()) {
+        if (lpub->currentStep && lpub->currentStep->viewerStepKey.startsWith(&stepKey))
+            return stepKeyType = EXISTING_CURRENT_STEP;
+
+        // set current step
+        lpub->setCurrentStep(stepKey);
+
+        if (lpub->currentStep) {
+#ifdef QT_DEBUG_MODE
+            emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
+                                  .arg(here.lineIndex)
+                                  .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex))
+                                  .arg(lpub->page.meta.LPub.page.number.number)
+                                  .arg(lpub->currentStep->stepNumber.number)
+                                  .arg(top.lineNumber + 1/*adjust for 0-start index*/)
+                                  .arg(bottom.lineNumber + 1 /*adjust for 0-index*/));
+#endif
+            return stepKeyType = NEW_CURRENT_STEP;
+        }
+#ifdef QT_DEBUG_MODE
+        else
+            emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %1, model: %2")
+                                  .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+#endif
+    }
+#ifdef QT_DEBUG_MODE
+    else
+        emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
+                              .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
+#endif
+    return stepKeyType = INVALID_CURRENT_STEP;
+}
+
 bool EditWindow::setValidPartLine()
 {
     QTextCursor cursor = _textEdit->textCursor();
@@ -849,50 +902,18 @@ bool EditWindow::setValidPartLine()
     // substitute partKey
     QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
 //*/
-    // limit the scope to the current page
     const int lineNumber = getSelectedLineNumber(cursor);
-    const bool lineInScope = stepLines.isInScope(lineNumber);
-    if (lineInScope) {
-        if (lpub->currentStep) {
-            const Where &top = lpub->page.top;
-            const Where &bottom = lpub->page.bottom;
-            const TypeLine here = { fileOrderIndex, lineNumber };
-            const QString stepKey = lpub->ldrawFile.getViewerStepKeyFromRange(here.modelIndex, here.lineIndex, top.modelIndex,top.lineNumber, bottom.modelIndex, bottom.lineNumber);
-            if (!stepKey.isEmpty()) {
-                // set current step
-                if (!lpub->currentStep->viewerStepKey.startsWith(&stepKey)) {
-                    lpub->setCurrentStep(stepKey);
-#ifdef QT_DEBUG_MODE
-                    emit lpub->messageSig(LOG_DEBUG,tr("Loaded step for line %1 model: %2, page: %3, step: %4, line scope: %5-%6")
-                                                    .arg(here.lineIndex)
-                                                    .arg(lpub->ldrawFile.getSubmodelName(here.modelIndex))
-                                                    .arg(lpub->page.meta.LPub.page.number.number)
-                                                    .arg(lpub->currentStep->stepNumber.number)
-                                                    .arg(top.lineNumber + 1/*adjust for 0-start index*/)
-                                                    .arg(bottom.lineNumber + 1 /*adjust for 0-index*/));
-#endif
-                }
-            }
-#ifdef QT_DEBUG_MODE
-            else
-                emit lpub->messageSig(LOG_DEBUG,tr("Failed to get Viewer Step Key for line: %1, model: %2")
-                                      .arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
-#endif
+    const bool stepSet = setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
 //*
-            // set substitute flag
-            if (lpub->currentStep && !isSubstitute) {
-                const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
-                if (pliPart)
-                    isSubstitute = pliPart->subType;
-            }
-#ifdef QT_DEBUG_MODE
-            else
-                emit lpub->messageSig(LOG_DEBUG,tr("Failed to set Current Step for key [%1], line: %1, model: %2")
-                                      .arg(stepKey).arg(here.lineIndex).arg(lpub->ldrawFile.getSubmodelName(here.modelIndex)));
-#endif
-//*/
-        }
+    // set substitute flag
+    if (stepSet && !isSubstitute) {
+        const PliPart* pliPart = lpub->currentStep->pli.getPart(QString(subPartKey).replace("|","_"));
+        if (pliPart)
+            isSubstitute = pliPart->subType;
+        else // this check is not 100% but more than likely
+            isSubstitute = !ExcludedParts::hasExcludedPart(partType);
     }
+//*/
 
     partType = partType.trimmed();
 
@@ -948,7 +969,7 @@ bool EditWindow::setValidPartLine()
     if (isSubstitute) {
         removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
         removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(sRemove));
-        removeSubstitutePartAct->setEnabled(lineInScope);
+        removeSubstitutePartAct->setEnabled(stepSet);
 
         removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
         removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
@@ -966,7 +987,7 @@ bool EditWindow::setValidPartLine()
         subPartKey.append(QString("|%1").arg(sSubstitute));
     }
     substitutePartAct->setData(subPartKey);
-    substitutePartAct->setEnabled(lineInScope);
+    substitutePartAct->setEnabled(stepSet);
 //*/
 
     if (numOpenWithPrograms)
@@ -1662,23 +1683,25 @@ void EditWindow::updateSelectedParts() {
             break;
         }
 
-        // when multiple lines are selected only submit the last selected line to update the viewer
-        lastInScopeLine = currentLine == stepLines.bottom || currentLine + 1 == selectedLines;
-        if (lastInScopeLine)
+        // display step in viewer enabled
+        if (selectionStep)
         {
-            // clear highlight lines if display step in viewer
-            if (selectionStep)
+            // submit the last selected line to update the viewer
+            lastInScopeLine = currentLine == stepLines.bottom || currentLine + 1 == selectedLines;
+            if (lastInScopeLine) {
+                // clear highlight lines if display step in viewer
                 clearEditorHighlightLines();
 
-            // emit to set the selected step as currentStep - e.g. to enable substitute parts etc...
-            emit setStepForLineSig();
+                // display new step in the viewer i.e. not the initial display step, e.g. a step group step etc...
+                if (stepKeyType == NEW_CURRENT_STEP || (selectedLines > 1 && setCurrentStep(lineNumber) == NEW_CURRENT_STEP))
+                    emit setStepForLineSig();
+            }
         }
 
-        typeLine   = { fileOrderIndex, lineNumber };
-
-        if (content.at(currentLine).startsWith("1") ||
-            content.at(currentLine).contains(" PLI BEGIN SUB "))
+        if (content.at(currentLine).contains(QRegExp("^1|\\sBEGIN\\sSUB\\s")));
         {
+            typeLine = { fileOrderIndex, lineNumber };
+
             lineTypeIndexes.append(typeLine);
 
             if (highlightLines) {
@@ -2407,7 +2430,7 @@ void EditWindow::preferences()
         if (editorDecoration != Preferences::editorDecoration) {
             showMessage("LDraw editor text decoration change");
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
-            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE ? "Simple" : "Standard"));
+            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE_DECORATION ? "Simple" : "Standard"));
         }
         Preferences::editorBufferedPaging = editorBufferedPagingGrpBox->isChecked();
         if (editorBufferedPaging != Preferences::editorBufferedPaging) {

@@ -192,6 +192,7 @@ protected:
     void enableActions();
 
     int getSelectedLineNumber(QTextCursor &cursor) const;
+    int setCurrentStep(const int lineNumber, bool inScope = true);
 
     bool setValidPartLine();
     bool substitutePLIPart(QString &replaceText, const int action, const QStringList &elements);
@@ -199,8 +200,6 @@ protected:
     QAbstractItemModel *modelFromFile(const QString& fileName);
 
     void closeEvent(QCloseEvent*_event);
-
-    enum Decor { SIMPLE, STANDARD };
 
     WaitingSpinnerWidget *_waitingSpinner;
     QTextEditor       *_textEdit;
@@ -215,9 +214,11 @@ protected:
     StepLines          stepLines;
     QVector<int>       savedSelection;
     QStringList        programEntries;
+    QString            stepKey;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;
+    int                stepKeyType;
     int                showLineNumber;
     int                fileOrderIndex;
     QAtomicInt         lineCount;

@@ -3391,9 +3391,15 @@ void Gui::setStepForLine()
     if (!lpub->currentStep || !gMainWindow || !gMainWindow->isVisible() || exporting())
         return;
 
+    disconnect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
+               editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
+
     enableBuildModActions();
     getCurrentStep()->viewerOptions->ZoomExtents = true;
     getCurrentStep()->loadTheViewer();
+
+    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &, bool)),
+            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &, bool)));
 }
 
 /*********************************************
