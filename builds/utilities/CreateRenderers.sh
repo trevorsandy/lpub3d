@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update June 15, 2022
+# Last Update June 23, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 #
 
@@ -330,6 +330,9 @@ InstallDependencies() {
           sed -e 's/ libkf5kio-dev//g' \
               -e 's/ extra-cmake-modules//g' \
               -e 's/ libkf5kdelibs4support5-bin//g' -i $controlFile
+        fi
+        if [[ "${DOCKER}" == "true" && "${GITHUB}" == "" ]]; then
+          sed 's/kdelibs5-dev, //g' -i $controlFile
         fi
         ;;
       povray)

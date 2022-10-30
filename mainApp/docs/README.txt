@@ -1,4 +1,26 @@
-LPub3D 2.4.4.1.2676 (15 06 2022 04:44:54)
+LPub3D 2.4.4.1.2679 (30 10 2022 21:11:28)
+
+Features, enhancements, fixes and changes
+------------
+LPub3D Official release.
+
+Create and follow the links as described below to review additional details for enhancements, changes, and fixes deployed in this release.
+Cheers.
+
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+
+Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
+
+Revisions:
+
+- Change - Load model editor at cover page #593
+- Change - TENTE parts outdated #583
+- Fix - Invalid appstream file #589
+- Fix - Update build from source scripts #585
+
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.4.4.5.2906 (15 06 2022 04:41:52)
 
 Features, enhancements, fixes and changes
 ------------

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 03, 2022
+# Last Update Jun 23, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -8,6 +8,8 @@
 # [options]:
 #  - export DOCKER=true (if using Docker image)
 #  - export OBS=false (if building locally)
+#  - export LP3D_ARCH=amd64 (set build architecture, default is amd64)
+#  - export PRESERVE= (if do not clone remote repository, default is unset)
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -44,7 +46,11 @@ echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
+LP3D_ARCH="${LP3D_ARCH:-amd64}"
+PRESERVE="${PRESERVE:-}" # preserve cloned repository
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   PRESERVE REPO..........$(if test $PRESERVE = "true"; then echo YES; else echo NO; fi)"
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -93,8 +99,19 @@ if [ -d "/in" ]; then
     echo "2. copy input source to SOURCES/${LPUB3D}..."
     mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
 else
-    echo "2. download ${LPUB3D} source to SOURCES/..."
-    git clone https://github.com/trevorsandy/${LPUB3D}.git
+    LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
+    if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
+        echo "2. download ${LPUB3D} source to SOURCES/..."
+        if [ -d "${LPUB3D_REPO}" ]; then
+            rm -rf ${LPUB3D_REPO}
+        fi
+        git clone https://github.com/trevorsandy/${LPUB3D}.git
+    else
+        echo "2. preserve ${LPUB3D} source in SOURCES/..."
+        if [ -d "${LPUB3D_REPO}" ]; then
+            mv -f ${LPUB3D_REPO} ${LPUB3D}
+        fi
+    fi
 fi
 
 # For Docker build, check if there is a tag after the last commit
@@ -122,9 +139,16 @@ echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
 WORK_DIR=${LPUB3D}-git
-mv -f ${LPUB3D} ${WORK_DIR}
+if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
+    echo "4. move ${LPUB3D}/ to ${LPUB3D}-git/ in SOURCES/..."
+    if [ -d ${WORK_DIR} ]; then
+        rm -rf ${WORK_DIR}
+    fi
+    mv -f ${LPUB3D} ${WORK_DIR}
+else
+    echo "4. preserve ${LPUB3D}/ in SOURCES/..."
+fi
 
 echo "6. copy lpub3d.xpm icon to SOURCES/"
 cp -f ${WORK_DIR}/mainApp/resources/lpub3d.xpm .
@@ -156,18 +180,34 @@ fi
 # file copy and downloads above must happen before we make the tarball
 echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."
 tar -czf ${WORK_DIR}.tar.gz \
-        --exclude="${WORK_DIR}/builds/linux/standard" \
-        --exclude="${WORK_DIR}/builds/windows" \
-        --exclude="${WORK_DIR}/builds/macx" \
-        --exclude="${WORK_DIR}/lclib/tools" \
-        --exclude="${WORK_DIR}/.travis.yml" \
-        --exclude="${WORK_DIR}/.gitattributes" \
-        --exclude="${WORK_DIR}/LPub3D.pro.user" \
-        --exclude="${WORK_DIR}/README.md" \
-        --exclude="${WORK_DIR}/_config.yml" \
-        --exclude="${WORK_DIR}/.gitignore" \
-        --exclude="${WORK_DIR}/snapcraft.yaml" \
-        --exclude="${WORK_DIR}/appveyor.yml" ${WORK_DIR}
+        --exclude=".gitignore" \
+        --exclude=".gitattributes" \
+        --exclude=".travis.yml" \
+        --exclude="LPub3D.pro.user" \
+        --exclude="appveyor.yml" \
+        --exclude="README.md" \
+        --exclude="builds/utilities/Copyright-Source-Header.txt" \
+        --exclude="builds/utilities/create-dmg" \
+        --exclude="builds/utilities/CreateRenderers.bat" \
+        --exclude="builds/utilities/README.md" \
+        --exclude="builds/utilities/set-ldrawdir.command" \
+        --exclude="builds/utilities/update-config-files.bat" \
+        --exclude="builds/utilities/cert" \
+        --exclude="builds/utilities/ci" \
+        --exclude="builds/utilities/dmg-utils" \
+        --exclude="builds/utilities/hooks" \
+        --exclude="builds/utilities/icons" \
+        --exclude="builds/utilities/json" \
+        --exclude="builds/utilities/nsis-scripts" \
+        --exclude="builds/linux/docker-compose" \
+        --exclude="builds/linux/standard" \
+        --exclude="builds/linux/CreateDeb.sh" \
+        --exclude="builds/linux/CreateLinuxPkg.sh" \
+        --exclude="builds/linux/CreatePkg.sh" \
+        --exclude="builds/windows" \
+        --exclude="builds/macx" \
+        --exclude="lclib/tools" \
+        ${WORK_DIR}
 
 cd ${BUILD_DIR}/SPECS
 echo "12. Check ${LPUB3D}.spec..."

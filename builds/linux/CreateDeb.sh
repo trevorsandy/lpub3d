@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 03, 2022
+# Last Update Jun 23, 2022
 # Copyright (C) 2017 - 2022 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -8,6 +8,8 @@
 # [options]:
 #  - export DOCKER=true (if using Docker image)
 #  - export OBS=false (if building locally)
+#  - export LP3D_ARCH=amd64 (set build architecture, default is amd64)
+#  - export PRESERVE= (if do not clone remote repository, default is unset)
 # NOTE: elevated access required for apt-get install, execute with sudo
 # or enable user with no password sudo if running noninteractive - see
 # docker-compose/dockerfiles for script example of sudo, no password user.
@@ -43,7 +45,11 @@ echo "Start $ME execution at $CWD..."
 
 # Change thse when you change the LPub3D root directory (e.g. if using a different root folder when testing)
 LPUB3D="${LPUB3D:-lpub3d}"
+LP3D_ARCH="${LP3D_ARCH:-amd64}"
+PRESERVE="${PRESERVE:-}" # preserve cloned repository
 echo "   LPUB3D SOURCE DIR......${LPUB3D}"
+echo "   LPUB3D BUILD ARCH......${LP3D_ARCH}"
+echo "   PRESERVE REPO..........$(if test $PRESERVE = "true"; then echo YES; else echo NO; fi)"
 
 # tell curl to be silent, continue downloads and follow redirects
 curlopts="-sL -C -"
@@ -92,8 +98,19 @@ if [ "${TRAVIS}" != "true" ]; then
         echo "2. copy input source to SOURCES/${LPUB3D}..."
         mkdir -p ${LPUB3D} && cp -rf /in/. ${LPUB3D}/
     else
-        echo "2. download ${LPUB3D} source to SOURCES/..."
-        git clone https://github.com/trevorsandy/${LPUB3D}.git
+    	LPUB3D_REPO=$(find . -maxdepth 1 -type d -name "${LPUB3D}"-*)
+        if [[ "${PRESERVE}" != "true" || ! -d "${LPUB3D_REPO}" ]]; then
+            echo "2. download ${LPUB3D} source to SOURCES/..."
+            if [ -d "${LPUB3D_REPO}" ]; then
+                rm -rf ${LPUB3D_REPO}
+            fi
+            git clone https://github.com/trevorsandy/${LPUB3D}.git
+        else
+            echo "2. preserve ${LPUB3D} source in SOURCES/..."
+            if [ -d "${LPUB3D_REPO}" ]; then
+                mv -f ${LPUB3D_REPO} ${LPUB3D}
+            fi
+        fi
     fi
 else
     echo "2. copy ${LPUB3D} source to SOURCES/..."
@@ -125,22 +142,47 @@ echo "3. source update_config_files.sh..."
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 
-echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
 WORK_DIR=${LPUB3D}-${LP3D_APP_VERSION}
-mv -f ${LPUB3D} ${WORK_DIR}
+if [[ "${PRESERVE}" != "true" || ! -d ${WORK_DIR} ]]; then
+    echo "4. move ${LPUB3D}/ to ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
+    if [ -d ${WORK_DIR} ]; then
+        rm -rf ${WORK_DIR}
+    fi
+    mv -f ${LPUB3D} ${WORK_DIR}
+else
+    echo "4. preserve ${LPUB3D}-${LP3D_APP_VERSION}/ in SOURCES/..."
+fi
 
 echo "5. create cleaned tarball ${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz from ${WORK_DIR}/"
-tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz ${WORK_DIR} \
-        --exclude="${WORK_DIR}/builds/linux/standard" \
-        --exclude="${WORK_DIR}/builds/macx" \
-        --exclude="${WORK_DIR}/.travis.yml" \
-        --exclude="${WORK_DIR}/.gitattributes" \
-        --exclude="${WORK_DIR}/LPub3D.pro.user" \
-        --exclude="${WORK_DIR}/README.md" \
-        --exclude="${WORK_DIR}/_config.yml" \
-        --exclude="${WORK_DIR}/.gitignore" \
-        --exclude="${WORK_DIR}/snapcraft.yaml" \
-        --exclude="${WORK_DIR}/appveyor.yml"
+tar -czf ../${LPUB3D}_${LP3D_APP_VERSION}.orig.tar.gz \
+        --exclude=".gitignore" \
+        --exclude=".gitattributes" \
+        --exclude=".travis.yml" \
+        --exclude="LPub3D.pro.user" \
+        --exclude="appveyor.yml" \
+        --exclude="README.md" \
+        --exclude="builds/utilities/Copyright-Source-Header.txt" \
+        --exclude="builds/utilities/create-dmg" \
+        --exclude="builds/utilities/CreateRenderers.bat" \
+        --exclude="builds/utilities/README.md" \
+        --exclude="builds/utilities/set-ldrawdir.command" \
+        --exclude="builds/utilities/update-config-files.bat" \
+        --exclude="builds/utilities/cert" \
+        --exclude="builds/utilities/ci" \
+        --exclude="builds/utilities/dmg-utils" \
+        --exclude="builds/utilities/hooks" \
+        --exclude="builds/utilities/icons" \
+        --exclude="builds/utilities/json" \
+        --exclude="builds/utilities/nsis-scripts" \
+        --exclude="builds/linux/docker-compose" \
+        --exclude="builds/linux/standard" \
+        --exclude="builds/linux/CreateLinuxPkg.sh" \
+        --exclude="builds/linux/CreatePkg.sh" \
+        --exclude="builds/linux/CreateRpm.sh" \
+        --exclude="builds/windows" \
+        --exclude="builds/macx" \
+        --exclude="lclib/tools" \
+        ${WORK_DIR}
 
 echo "6. download LDraw archive libraries to SOURCES/..."
 # we pull in the library archives here because the lpub3d.spec file copies them
@@ -253,8 +295,8 @@ then
         exit 0
     fi
 
-    echo "11-3. Create LPub3D ${DEB_EXTENSION} distribution packages..."
     IFS=_ read DEB_NAME DEB_VERSION DEB_EXTENSION <<< ${DISTRO_FILE}
+    echo "11-3. Create LPub3D ${DEB_EXTENSION} distribution packages..."
     LP3D_PLATFORM_ID=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $(uname) | awk '{print tolower($0)}')
     LP3D_PLATFORM_VER=$(. /etc/os-release 2>/dev/null; [ -n "$VERSION_ID" ] && echo $VERSION_ID || true)
     case ${LP3D_PLATFORM_ID} in
@@ -279,11 +321,17 @@ then
         19.10)
             LP3D_PLATFORM_NAME="eoan" ;;
         20.04)
-            LP3D_PLATFORM_NAME="groovy" ;;
-        20.10)
             LP3D_PLATFORM_NAME="focal" ;;
+        20.10)
+            LP3D_PLATFORM_NAME="groovy" ;;
         21.04)
-            LP3D_PLATFORM_NAME="Hirsute" ;;
+            LP3D_PLATFORM_NAME="hirsute" ;;
+        21.10)
+            LP3D_PLATFORM_NAME="impish" ;;
+        22.04)
+            LP3D_PLATFORM_NAME="jammy" ;;
+        22.10)
+            LP3D_PLATFORM_NAME="kinetic" ;;
         *)
             LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
@@ -298,6 +346,8 @@ then
             LP3D_PLATFORM_NAME="buster" ;;
         11)
             LP3D_PLATFORM_NAME="bullseye" ;;
+        12)
+            LP3D_PLATFORM_NAME="bookworm" ;;
         *)
             LP3D_PLATFORM_NAME="debian" ;;
         esac

@@ -2585,15 +2585,19 @@ int Gui::drawPage(
                                                            .arg(stepPageNum));
                           }
 
-                          // Load the Visual Editor -  callouts and multistep Steps are not loaded
+                          // Load the Visual Editor - callouts and multistep Steps are not loaded
                           if (step) {
                               step->setBottomOfStep(opts.current);
                               if (Preferences::modeGUI && !exportingObjects()) {
                                   setCurrentStep(step);
                                   if (partsAdded)
                                       step->loadTheViewer();
-                                  showLine(topOfStep);
                               }
+                          }
+
+                          // Load the Model Editor - callouts and multistep Steps are ignored
+                          if ((step || coverPage) && Preferences::modeGUI && !exportingObjects()) {
+                              showLine(topOfStep);
                           }
 
                           addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
