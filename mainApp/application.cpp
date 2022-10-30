@@ -1233,7 +1233,7 @@ int Application::run()
     if (modeGUI()) {
         ExecReturn = m_application.exec();
     } else {
-        ExecReturn = gui->processCommandLine();
+        ExecReturn = processCommandLine();
     }
 
 #ifdef Q_OS_WIN

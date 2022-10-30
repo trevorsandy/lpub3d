@@ -16,10 +16,11 @@
 
 #include "application.h"
 #include "lc_profile.h"
+#include "lc_library.h"
 #include "lc_application.h"
 #include "lpub.h"
 
-int Gui::processCommandLine()
+int Application::processCommandLine()
 {
   // Visual Editor
   int viewerCommand = Process3DViewerCommandLine();
@@ -133,9 +134,9 @@ int Gui::processCommandLine()
       {
           QString message = Text.isEmpty() ? QString("Invalid value specified") : Text;
           if (Pair)
-              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
+              emit gui->messageSig(LOG_ERROR, message.append(QString(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
           else
-              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option.").arg(Param)));
+              emit gui->messageSig(LOG_ERROR, message.append(QString(" '%1' option.").arg(Param)));
 
           ParseOK = false;
       };
@@ -326,13 +327,13 @@ int Gui::processCommandLine()
 //        imageMatting = true;
 //      else
       if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
-        ParseString(saveFileName, true);
+        ParseString(Gui::saveFileName, true);
       else
       if (Param == QLatin1String("-rs") || Param == QLatin1String("--reset-search-dirs"))
           resetSearchDirs = true;
       else
       if (Param == QLatin1String("-x") || Param == QLatin1String("--clear-cache"))
-        resetCache = true;
+        Gui::resetCache = true;
       else
       if (Param == QLatin1String("-p") || Param == QLatin1String("--preferred-renderer"))
         ParseString(preferredRenderer, true);
@@ -344,7 +345,7 @@ int Gui::processCommandLine()
         ParseString(exportOption, true);
       else
       if (Param == QLatin1String("-od") || Param == QLatin1String("--export-directory"))
-        ParseString(m_saveDirectoryName, true);
+        ParseString(Gui::m_saveDirectoryName, true);
       else
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
         ParseString(pageRange, true);
@@ -376,21 +377,21 @@ int Gui::processCommandLine()
     
   if (! ParseOK)
   {
-      emit messageSig(LOG_ERROR,QString("Parse command line failed: %1.").arg(Arguments.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QString("Parse command line failed: %1.").arg(Arguments.join(" ")));
       return 1;
   }
 
   if (! QFileInfo(commandlineFile).exists()) {
-      emit messageSig(LOG_ERROR,QString("Specified model file was not found: %1.").arg(commandlineFile));
+      emit gui->messageSig(LOG_ERROR,QString("Specified model file was not found: %1.").arg(commandlineFile));
       return 1;
   }
 
   if (! preferredRenderer.isEmpty()) {
-     savedData.renderer           = Preferences::preferredRenderer;
-     savedData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
-     savedData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
-     savedData.useNativeGenerator = Preferences::useNativePovGenerator;
-     savedData.usePerspectiveProjection = Preferences::perspectiveProjection;
+     Gui::savedData.renderer           = Preferences::preferredRenderer;
+     Gui::savedData.useLDVSingleCall   = Preferences::enableLDViewSingleCall;
+     Gui::savedData.useLDVSnapShotList = Preferences::enableLDViewSnaphsotList;
+     Gui::savedData.useNativeGenerator = Preferences::useNativePovGenerator;
+     Gui::savedData.usePerspectiveProjection = Preferences::perspectiveProjection;
      rendererChanged = setPreferredRendererFromCommand(preferredRenderer);
   }
 
@@ -399,12 +400,12 @@ int Gui::processCommandLine()
       message = QString("Camera projection set to Perspective.%1")
                         .arg(applyCARenderer ?
                                  QString(" Apply camera angles locally set to false") : "");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::applyCALocally = !applyCARenderer;
       Preferences::perspectiveProjection = true;
   } else if (projection.toLower() == "o" || projection.toLower() == "orthographic") {
       message = QString("Camera projection set to Orthographic");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::perspectiveProjection = false;
   }
 
@@ -420,12 +421,12 @@ int Gui::processCommandLine()
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;
       message = QString("Fade Previous Steps set to ON.");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty()) {
           if (Preferences::fadeStepsUseColour){
               Preferences::fadeStepsUseColour = false;
               message = QString("Use Global Fade Color set to OFF.");
-              emit messageSig(LOG_INFO,message);
+              emit gui->messageSig(LOG_INFO,message);
             }
         }
     }
@@ -435,7 +436,7 @@ int Gui::processCommandLine()
           message = QString("Fade Step Transparency changed from %1 to %2 percent.")
               .arg(Preferences::fadeStepsOpacity)
               .arg(fadeStepsOpacity);
-          emit messageSig(LOG_INFO,message);
+          emit gui->messageSig(LOG_INFO,message);
           Preferences::fadeStepsOpacity = fadeStepsOpacity;
     }
 
@@ -443,13 +444,13 @@ int Gui::processCommandLine()
       if (!Preferences::fadeStepsUseColour) {
           Preferences::fadeStepsUseColour = true;
           message = QString("Use Global Fade Color set to ON.");
-          emit messageSig(LOG_INFO,message);
+          emit gui->messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
               message = QString("Fade Step Transparency changed from %1 to %2 percent.")
                   .arg(Preferences::fadeStepsOpacity)
                   .arg(fadeStepsOpacity);
-              emit messageSig(LOG_INFO,message);
+              emit gui->messageSig(LOG_INFO,message);
               Preferences::fadeStepsOpacity = fadeStepsOpacity;
             }
         }
@@ -459,7 +460,7 @@ int Gui::processCommandLine()
           message = QString("Fade Step Color preference changed from %1 to %2.")
               .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
-          emit messageSig(LOG_INFO,message);
+          emit gui->messageSig(LOG_INFO,message);
           Preferences::validFadeStepsColour = LDrawColor::name(fadeStepsColour);
         }
     }
@@ -469,28 +470,28 @@ int Gui::processCommandLine()
 //      (Preferences::preferredRenderer == RENDERER_LDVIEW)) {
 //      Preferences::enableImageMatting = imageMatting;
 //      message = QString("Enable Image matte is ON.");
-//      emit messageSig(LOG_INFO,message);
+//      emit gui->messageSig(LOG_INFO,message);
 //    } else {
 //      QString message;
 //      if (imageMatting && !Preferences::enableFadeSteps) {
 //          message = QString("Image matte requires fade previous steps set to ON.");
-//          emit messageSig(LOG_ERROR,message);
+//          emit gui->messageSig(LOG_ERROR,message);
 //        }
 
 //      if (imageMatting && (Preferences::preferredRenderer != RENDERER_LDVIEW)) {
 //          message = QString("Image matte requires LDView renderer.");
-//          emit messageSig(LOG_ERROR,message);
+//          emit gui->messageSig(LOG_ERROR,message);
 //        }
 //      if (imageMatting) {
 //          message = QString("Image matte flag will be ignored.");
-//          emit messageSig(LOG_ERROR,message);
+//          emit gui->messageSig(LOG_ERROR,message);
 //        }
 //    }
 
   if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
       Preferences::enableHighlightStep = highlightStep;
       message = QString("Highlight Current Step set to ON.");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
     }
 
   QColor ParsedColor = LDrawColor::color(fadeStepsColour);
@@ -500,7 +501,7 @@ int Gui::processCommandLine()
       message = QString("Highlight Step Color preference changed from %1 to %2.")
           .arg(Preferences::highlightStepColour)
           .arg(highlightStepColour);
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::highlightStepColour = highlightStepColour;
     }
 
@@ -509,13 +510,13 @@ int Gui::processCommandLine()
       message = QString("Highlight Line Width preference changed from %1 to %2.")
           .arg(Preferences::highlightStepLineWidth)
           .arg(highlightLineWidth);
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::highlightStepLineWidth = highlightLineWidth;
     }
 
   if (resetSearchDirs) {
       message = QString("Reset search directories requested..");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
 
       // set fade step setting
       if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
@@ -525,7 +526,7 @@ int Gui::processCommandLine()
       if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
           Preferences::enableHighlightStep = highlightStep;
         }
-      partWorkerLDSearchDirs.resetSearchDirSettings();
+      gui->partWorkerLDSearchDirs.resetSearchDirSettings();
     }
 
   if (!colourConfigFile.isEmpty())
@@ -544,7 +545,7 @@ int Gui::processCommandLine()
       } else if (autoEdgeColorChanged) {
           if (AutomateEdgeColor && StudStyle > 5) {
               message = tr("High contrast stud and edge color settings are ignored when -aec or --automate-edge-color is set.");
-              emit messageSig(LOG_NOTICE,message);
+              emit gui->messageSig(LOG_NOTICE,message);
           }
           viewerOptions->AutoEdgeColor     = AutomateEdgeColor;
           viewerOptions->EdgeContrast      = PartEdgeContrast;
@@ -552,82 +553,83 @@ int Gui::processCommandLine()
           SetAutomateEdgeColor(viewerOptions);
       }
   } else if (coloursChanged) {
-      LoadColors();
+      lcGetPiecesLibrary()->LoadColors();
   }
 
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {
       if (processExport)
-          setExporting(true);
+          Gui::setExporting(true);
       if (processFile)
-          setExporting(false);
-      if(resetCache) {
-          emit messageSig(LOG_INFO,QString("Reset parts cache specified."));
-          resetModelCache(QFileInfo(commandlineFile).absoluteFilePath(), true/*commandLine*/);
+          Gui::setExporting(false);
+      if(Gui::resetCache) {
+          emit gui->messageSig(LOG_INFO,QString("Reset parts cache specified."));
+          gui->resetModelCache(QFileInfo(commandlineFile).absoluteFilePath(), true/*commandLine*/);
       }
       commandTimer.start();
-      if (!loadFile(commandlineFile)) {
+      if (!gui->loadFile(commandlineFile)) {
           return 1;
       }
   }
 
-  if (processPageRange(pageRange)) {
+  if (Gui::processPageRange(pageRange)) {
       if (processFile){
           Preferences::pageDisplayPause = 1;
-          continuousPageDialog(PAGE_NEXT);
-        } else
-        if (processExport) {
+          gui->continuousPageDialog(PAGE_NEXT);
+        }
+      else
+      if (processExport) {
             if (exportOption == "pdf")
-               exportAsPdfDialog();
+               gui->exportAsPdfDialog();
             else
             if (exportOption == "png")
-               exportAsPngDialog();
+               gui->exportAsPngDialog();
             else
             if (exportOption == "jpg")
-               exportAsJpgDialog();
+               gui->exportAsJpgDialog();
             else
             if (exportOption == "bmp")
-               exportAsBmpDialog();
+               gui->exportAsBmpDialog();
             else
             if (exportOption == "stl")
-               exportAsStlDialog();
+               gui->exportAsStlDialog();
             else
             if (exportOption == "3ds")
-               exportAs3dsDialog();
+               gui->exportAs3dsDialog();
             else
             if (exportOption == "pov")
-               exportAsPovDialog();
+               gui->exportAsPovDialog();
             else
             if (exportOption == "dae")
-               exportAsColladaDialog();
+               gui->exportAsColladaDialog();
             else
             if (exportOption == "obj")
-               exportAsObjDialog();
+               gui->exportAsObjDialog();
             else
             if (exportOption == "csv")
-               exportAsCsv();
+               gui->exportAsCsv();
             else
             if (exportOption == "bl-xml")
-               exportAsBricklinkXML();
+               gui->exportAsBricklinkXML();
             else
-               exportAsPdfDialog();
+               gui->exportAsPdfDialog();
           } else {
-            continuousPageDialog(PAGE_NEXT);
+            gui->continuousPageDialog(PAGE_NEXT);
           }
     } else {
        return 1;
     }
 
   if (rendererChanged) {
-      Preferences::preferredRenderer        = savedData.renderer;
-      Preferences::enableLDViewSingleCall   = savedData.useLDVSingleCall ;
-      Preferences::enableLDViewSnaphsotList = savedData.useLDVSnapShotList;
-      Preferences::useNativePovGenerator    = savedData.useNativeGenerator;
-      Preferences::perspectiveProjection    = savedData.usePerspectiveProjection;
+      Preferences::preferredRenderer        = Gui::savedData.renderer;
+      Preferences::enableLDViewSingleCall   = Gui::savedData.useLDVSingleCall ;
+      Preferences::enableLDViewSnaphsotList = Gui::savedData.useLDVSnapShotList;
+      Preferences::useNativePovGenerator    = Gui::savedData.useNativeGenerator;
+      Preferences::perspectiveProjection    = Gui::savedData.usePerspectiveProjection;
       Preferences::preferredRendererPreferences(true/*global*/);
   }
 
-  emit messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
+  emit gui->messageSig(LOG_INFO,QString("Model file '%1' processed. %2.")
                   .arg(QFileInfo(commandlineFile).fileName())
                   .arg(gui->elapsedTime(commandTimer.elapsed())));
   return 0;

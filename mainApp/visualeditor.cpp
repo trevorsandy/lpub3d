@@ -1904,7 +1904,18 @@ void Gui::reloadViewer(){
      return 0;
  }
 
- int Gui::GetStudStyle()
+ /*********************************************
+  *
+  * Command line support calls
+  *
+  ********************************************/
+
+ int Application::Process3DViewerCommandLine()
+ {
+     return gApplication->Process3DViewerCommandLine();
+ }
+
+ int Application::GetStudStyle()
  {
      if (gApplication)
          return static_cast<int>(lcGetPiecesLibrary()->GetStudStyle());
@@ -1912,63 +1923,63 @@ void Gui::reloadViewer(){
          return lcGetProfileInt(LC_PROFILE_STUD_STYLE);
  }
 
- bool Gui::GetAutomateEdgeColor()
+ bool Application::GetAutomateEdgeColor()
  {
      if (gApplication)
-         return GetPreferences().mAutomateEdgeColor;
+         return lcGetPreferences().mAutomateEdgeColor;
      else
          return lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
  }
 
- quint32 Gui::GetStudCylinderColor()
+ quint32 Application::GetStudCylinderColor()
  {
      if (gApplication)
-         return GetPreferences().mStudCylinderColor;
+         return lcGetPreferences().mStudCylinderColor;
      else
          return lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
  }
 
- quint32 Gui::GetPartEdgeColor()
+ quint32 Application::GetPartEdgeColor()
  {
      if (gApplication)
-         return GetPreferences().mPartEdgeColor;
+         return lcGetPreferences().mPartEdgeColor;
      else
          return lcGetProfileInt(LC_PROFILE_PART_EDGE_COLOR);
  }
 
- quint32 Gui::GetBlackEdgeColor()
+ quint32 Application::GetBlackEdgeColor()
  {
      if (gApplication)
-         return GetPreferences().mBlackEdgeColor;
+         return lcGetPreferences().mBlackEdgeColor;
      else
          return lcGetProfileInt(LC_PROFILE_BLACK_EDGE_COLOR);
  }
 
- quint32 Gui::GetDarkEdgeColor()
+ quint32 Application::GetDarkEdgeColor()
  {
      if (gApplication)
-         return GetPreferences().mDarkEdgeColor;
+         return lcGetPreferences().mDarkEdgeColor;
      else
          return lcGetProfileInt(LC_PROFILE_DARK_EDGE_COLOR);
  }
 
- float Gui::GetPartEdgeContrast()
+ float Application::GetPartEdgeContrast()
  {
      if (gApplication)
-         return GetPreferences().mPartEdgeContrast;
+         return lcGetPreferences().mPartEdgeContrast;
      else
          return lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
  }
 
- float Gui::GetPartColorLightDarkIndex()
+ float Application::GetPartColorLightDarkIndex()
  {
      if (gApplication)
-         return GetPreferences().mPartColorValueLDIndex;
+         return lcGetPreferences().mPartColorValueLDIndex;
      else
          return lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
  }
 
- void Gui::SetStudStyle(const NativeOptions* Options, bool value)
+ void Application::SetStudStyle(const NativeOptions* Options, bool value)
  {
      float  PartColorValueLDIndex = lcGetProfileFloat(LC_PROFILE_PART_COLOR_VALUE_LD_INDEX);
      quint32 StudCylinderColor = lcGetProfileInt(LC_PROFILE_STUD_CYLINDER_COLOR);
@@ -1987,11 +1998,11 @@ void Gui::reloadViewer(){
      }
 
      bool ColorChanged  = GetStudStyle() != StudStyle;
-          ColorChanged |= GetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
-          ColorChanged |= GetPreferences().mStudCylinderColor != StudCylinderColor;
-          ColorChanged |= GetPreferences().mPartEdgeColor != PartEdgeColor;
-          ColorChanged |= GetPreferences().mBlackEdgeColor != BlackEdgeColor;
-          ColorChanged |= GetPreferences().mDarkEdgeColor != DarkEdgeColor;
+          ColorChanged |= lcGetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
+          ColorChanged |= lcGetPreferences().mStudCylinderColor != StudCylinderColor;
+          ColorChanged |= lcGetPreferences().mPartEdgeColor != PartEdgeColor;
+          ColorChanged |= lcGetPreferences().mBlackEdgeColor != BlackEdgeColor;
+          ColorChanged |= lcGetPreferences().mDarkEdgeColor != DarkEdgeColor;
 
      gApplication->mPreferences.mPartColorValueLDIndex = PartColorValueLDIndex;
      gApplication->mPreferences.mStudCylinderColor = StudCylinderColor;
@@ -2005,7 +2016,7 @@ void Gui::reloadViewer(){
          lcGetPiecesLibrary()->LoadColors();
  }
 
- void Gui::SetAutomateEdgeColor(const NativeOptions* Options)
+ void Application::SetAutomateEdgeColor(const NativeOptions* Options)
  {
      bool  AutomateEdgeColor = lcGetProfileInt(LC_PROFILE_AUTOMATE_EDGE_COLOR);
      float PartEdgeContrast = lcGetProfileFloat(LC_PROFILE_PART_EDGE_CONTRAST);
@@ -2017,9 +2028,9 @@ void Gui::reloadViewer(){
           PartColorValueLDIndex = Options->EdgeSaturation;
      }
 
-     bool ColorChanged  = GetPreferences().mAutomateEdgeColor != AutomateEdgeColor;
-          ColorChanged |= GetPreferences().mPartEdgeContrast != PartEdgeContrast;
-          ColorChanged |= GetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
+     bool ColorChanged  = lcGetPreferences().mAutomateEdgeColor != AutomateEdgeColor;
+          ColorChanged |= lcGetPreferences().mPartEdgeContrast != PartEdgeContrast;
+          ColorChanged |= lcGetPreferences().mPartColorValueLDIndex != PartColorValueLDIndex;
 
      gApplication->mPreferences.mAutomateEdgeColor = AutomateEdgeColor;
      gApplication->mPreferences.mPartEdgeContrast = PartEdgeContrast;
@@ -2057,11 +2068,6 @@ void Gui::reloadViewer(){
  void Gui::LoadColors()
  {
      lcGetPiecesLibrary()->LoadColors();
- }
-
- int Gui::Process3DViewerCommandLine()
- {
-     return gApplication->Process3DViewerCommandLine();
  }
 
  void Gui::LoadDefaults()

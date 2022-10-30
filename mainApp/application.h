@@ -94,6 +94,22 @@ public:
     /// Process viewer key to return model, line number and step number
     QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
 
+    /// Stud sytle and automated edge color
+    int     GetStudStyle();
+    float   GetPartEdgeContrast();
+    float   GetPartColorLightDarkIndex();
+    bool    GetAutomateEdgeColor();
+    quint32 GetStudCylinderColor();
+    quint32 GetPartEdgeColor();
+    quint32 GetBlackEdgeColor();
+    quint32 GetDarkEdgeColor();
+
+    void    SetStudStyle(const NativeOptions*, bool);
+    void    SetAutomateEdgeColor(const NativeOptions*);
+
+    bool setFadeStepsFromCommand();
+    bool setHighlightStepFromCommand();
+
 #ifdef Q_OS_WIN
     /// Console redirection for Windows
     void RedirectIOToConsole();
@@ -150,6 +166,14 @@ signals:
     void splashMsgSig(QString message);
 
 private:
+    /// Run command line execution
+    int processCommandLine();
+
+    /// Run visual editor command line execution
+    int Process3DViewerCommandLine();
+
+    bool setPreferredRendererFromCommand(const QString &);
+
     /// Qt application
     QApplication m_application;
 

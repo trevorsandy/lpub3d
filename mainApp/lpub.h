@@ -481,17 +481,24 @@ public:
   static int      processOption;    // export Option
   static int      pageDirection;    // page processing direction
   static int      savePrevStepPosition; // indicate the previous step position amongst current and previous steps
+  static bool     resetCache;        // reset model, fade and highlight parts
+  static QString  saveFileName;      // user specified output file Name [commandline only]
+
   static QList<Where> topOfPages;   // topOfStep list of modelName and lineNumber for each page
+
+  static RendererData savedData;       // store current renderer data when temporarily switching renderer;
+  static int          saveRenderer;    // saved renderer when temporarily switching to Native renderer
+  static bool         saveProjection;  // saved projection when temporarily switching to Native renderer
+  static QString      pageRangeText;   // page range parameters
 
   int             pa;               // page adjustment
   int             sa;               // step number adustment
   int             pageProcessRunning; // indicate page processing stage - 0=none, 1=writeToTmp,2-find/drawPage...
   qreal           exportPixelRatio; // export resolution pixel density
-  QString         pageRangeText;    // page range parameters
+
   bool            submodelIconsLoaded; // load submodel images
-  bool            resetCache;        // reset model, fade and highlight parts
+
   bool            buildModJumpForward; // parse build mods in countPage call - special case for jump forward
-  QString         saveFileName;      // user specified output file Name [commandline only]
 
   static int       m_exportMode;        // export Mode
   static QString   m_saveDirectoryName; // user specified output directory name [commandline only]
@@ -530,6 +537,8 @@ public:
 
   static Where &topOfPage();
   static Where &bottomOfPage();
+
+  static bool processPageRange(const QString &range);
 
   void    changePageNum(int offset)
   {
@@ -1088,10 +1097,11 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void scanPast(    Where &here, const QRegExp &lineRx);
-  bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
-  bool stepContains(Where &here, QRegExp &lineRx);
-  bool stepContains(Where &here, const QString value);
   bool installRenderer(const int which);
+
+  static bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
+  static bool stepContains(Where &here, QRegExp &lineRx);
+  static bool stepContains(Where &here, const QString value);
 
   QString topLevelFile();
 
@@ -1196,6 +1206,23 @@ public:
   void createOpenWithActions(int maxPrograms = 0);
 
   void saveCurrent3DViewerModel(const QString &modelFile);
+
+  void exportAs(const QString &);
+  void exportAsHtml();
+  void exportAsHtmlSteps();
+  void exportAsCsv();
+  void exportAsBricklinkXML();
+  void exportAsPdf();
+  bool exportAsDialog(ExportMode m);
+  void exportAsPdfDialog();
+  void exportAsPngDialog();
+  void exportAsJpgDialog();
+  void exportAsBmpDialog();
+  void exportAsStlDialog();
+  void exportAsPovDialog();
+  void exportAs3dsDialog();
+  void exportAsColladaDialog();
+  void exportAsObjDialog();
 
   // Download components
   void downloadFile(QString URL, QString title, bool promptRedirect = false);
@@ -1307,21 +1334,8 @@ public slots:
   QMenu*                 GetProjectionMenu();
   QMenu*                 GetShadingMenu();
   bool                   GetSubmodelIconsLoaded();
-  bool                   GetAutomateEdgeColor();
   int                    GetLPubStepPieces();
-  int                    GetStudStyle();
-  float                  GetPartEdgeContrast();
-  float                  GetPartColorLightDarkIndex();
-  quint32                GetStudCylinderColor();
-  quint32                GetPartEdgeColor();
-  quint32                GetBlackEdgeColor();
-  quint32                GetDarkEdgeColor();
-
-  void                   SetStudStyle(const NativeOptions*, bool);
-  void                   SetAutomateEdgeColor(const NativeOptions*);
   void                   SetSubmodelIconsLoaded(bool);
-
-  int                    Process3DViewerCommandLine();
   bool                   ReloadPiecesLibrary();
   bool                   ReloadUnofficialPiecesLibrary();
   void                   LoadColors();
@@ -1496,7 +1510,6 @@ public slots:
   void processHighlightColourParts(bool overwrite, bool setup);
   void loadLDSearchDirParts(bool Process = false, bool OnDemand = false, bool Update = false);
   bool loadFile(const QString &file);
-  int processCommandLine();
 
   void showRenderDialog();
 
@@ -1628,10 +1641,6 @@ private:
   QList<PliPartGroupMeta> bomPartGroups;   // list of BOM part groups used for multi-page BOMs
   lcPreview*              preview;
 
-  RendererData            savedData;       // store current renderer data when temporarily switching renderer;
-  int                     saveRenderer;    // saved renderer when temporarily switching to Native renderer
-  bool                    saveProjection;  // saved projection when temporarily switching to Native renderer
-
   bool                   okToInvokeProgressBar()
   {
     return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !exporting());
@@ -1760,7 +1769,6 @@ private:
   int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
   void openWith(const QString &filePath);
-  bool processPageRange(const QString &range);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);
   void setSceneItemZValue(SceneObjectDirection direction);
@@ -1861,23 +1869,6 @@ private slots:
     void importInventory();
     bool saveImport(const QString& FileName, Project *Importer);
 
-    void exportAs(const QString &);
-    void exportAsHtml();
-    void exportAsHtmlSteps();
-    void exportAsCsv();
-    void exportAsBricklinkXML();
-    void exportAsPdf();
-    bool exportAsDialog(ExportMode m);
-    void exportAsPdfDialog();
-    void exportAsPngDialog();
-    void exportAsJpgDialog();
-    void exportAsBmpDialog();
-    void exportAsStlDialog();
-    void exportAsPovDialog();
-    void exportAs3dsDialog();
-    void exportAsColladaDialog();
-    void exportAsObjDialog();
-
     OrientationEnc getPageOrientation(bool nextPage = false);
     QPageLayout getPageLayout(bool nextPage = false);
     void checkMixedPageSizeStatus();
@@ -1907,10 +1898,6 @@ private slots:
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);
     void editParamsToolBarVisibilityChanged(bool);
-
-    bool setFadeStepsFromCommand();
-    bool setHighlightStepFromCommand();
-    bool setPreferredRendererFromCommand(const QString &);
 
     void getSubFileList();
 

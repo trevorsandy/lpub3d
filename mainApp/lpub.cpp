@@ -114,6 +114,8 @@ int          Gui::displayPageNum;    // what page are we displaying
 int          Gui::processOption;     // export Option
 int          Gui::pageDirection;     // page processing direction
 int          Gui::savePrevStepPosition; // indicate the previous step position amongst current and previous steps
+bool         Gui::resetCache;        // reset model, fade and highlight parts
+QString      Gui::saveFileName;      // user specified output file Name [commandline only]
 QList<Where> Gui::topOfPages;        // topOfStep list of modelName and lineNumber for each page
 
 bool    Gui::m_exportingContent;     // indicate export/printing underway
@@ -127,6 +129,10 @@ QString Gui::m_saveDirectoryName;    // user specified output directory name [co
 int     Gui::boms;                   // the number of pli BOMs in the document
 int     Gui::bomOccurrence;          // the actual occurrence of each pli BO
 
+RendererData Gui::savedData;         // store current renderer data when temporarily switching renderer;
+int          Gui::saveRenderer;      // saved renderer when temporarily switching to Native renderer
+bool         Gui::saveProjection;    // saved projection when temporarily switching to Native renderer
+QString      Gui::pageRangeText;     // page range parameters
 /****************************************************************************
  *
  * Download with progress monotor
@@ -1072,8 +1078,8 @@ bool Gui::continuousPageDialog(PageDirection d)
 bool Gui::processPageRange(const QString &range)
 {
   if (!range.isEmpty()){
-      QString lineAllPages = QString("1-%1").arg(gui->maxPages);
-      QString linePageRange = QString(range)
+      const QString lineAllPages = QString("1-%1").arg(gui->maxPages);
+      const QString linePageRange = QString(range)
           .replace("of","-")
           .replace("to","-")
           .replace(" ","");
@@ -1695,7 +1701,7 @@ void Gui::clearWorkingFiles(const QStringList &filePaths)
 
 void Gui::resetModelCache(QString file, bool commandLine)
 {
-    if (resetCache && !file.isEmpty()) {
+    if (Gui::resetCache && !file.isEmpty()) {
         if (commandLine)
             timer.start();
 

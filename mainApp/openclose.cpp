@@ -69,13 +69,13 @@ void Gui::open()
     if (fileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
       if (!openFile(fileName)) {
-          emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+          emit gui->messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
           return;
       }
       displayPage();
       enableActions();
       LPub->ldrawFile.showLoadMessages();
-      emit messageSig(LOG_STATUS, gui->loadAborted() ?
+      emit gui->messageSig(LOG_STATUS, gui->loadAborted() ?
                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
                        QString("File loaded (%1 parts). %2")
                                .arg(LPub->ldrawFile.getPartCount())
@@ -754,8 +754,8 @@ void Gui::closeModelFile(){
         emit clearViewerWindowSig();
         emit updateAllViewsSig();
     }
-    SetStudStyle(nullptr, true/*reload*/);
-    SetAutomateEdgeColor(nullptr);
+    LPub->SetStudStyle(nullptr, true/*reload*/);
+    LPub->SetAutomateEdgeColor(nullptr);
 
     // Editor
     emit clearEditorWindowSig();
@@ -822,8 +822,8 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
-  mSetupFadeSteps = setFadeStepsFromCommand();
-  mSetupHighlightStep = setHighlightStepFromCommand();
+  mSetupFadeSteps = LPub->setFadeStepsFromCommand();
+  mSetupHighlightStep = LPub->setHighlightStepFromCommand();
   bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
   bool enableHighlightStep = mSetupHighlightStep || Preferences::enableHighlightStep;
   if (enableFadeSteps || enableHighlightStep) {
@@ -1011,15 +1011,15 @@ void Gui::writeGeneratedColorPartsToTemp() {
       emit messageSig(LOG_INFO, tr("No generated parts written."));
 }
 
-bool Gui::setFadeStepsFromCommand()
+bool Application::setFadeStepsFromCommand()
 {
   QString result;
-  Where topLevelModel(gui->topLevelFile(),0);
+  Where topLevelModel(ldrawFile.topLevelFile(),0);
   QRegExp fadeRx = QRegExp("FADE_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableFadeSteps) {
-    Preferences::enableFadeSteps = stepContains(topLevelModel,fadeRx,result,1);
+    Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps && result != "GLOBAL") {
-      emit messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
+      emit gui->messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableFadeSteps = false;
     }
   }
@@ -1028,50 +1028,50 @@ bool Gui::setFadeStepsFromCommand()
   if (!Preferences::enableFadeSteps) {
     result.clear();
     fadeRx.setPattern("FADE_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
-    setupFadeSteps = stepContains(topLevelModel,fadeRx,result,1);
+    setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != "GLOBAL") {
-      emit messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
+      emit gui->messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
       setupFadeSteps = false;
     }
   }
 
   if (Preferences::enableFadeSteps != Preferences::initEnableFadeSteps)
-    emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
+    emit gui->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
                                             .arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
   if (setupFadeSteps)
-     emit messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
+     emit gui->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
 
   if (!Preferences::enableFadeSteps && !setupFadeSteps)
     return false;
 
   result.clear();
   fadeRx.setPattern("FADE_STEP OPACITY\\s*(?:GLOBAL)?\\s*(\\d+)");
-  stepContains(topLevelModel,fadeRx,result,1);
+  Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
     bool ok = result.toInt(&ok);
     int fadeStepsOpacityCompare = Preferences::fadeStepsOpacity;
     Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
-      emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
+      emit gui->messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
                                        .arg(fadeStepsOpacityCompare)
                                        .arg(Preferences::fadeStepsOpacity));
   }
 
   result.clear();
   fadeRx.setPattern("FADE_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(\\w+)\"");
-  stepContains(topLevelModel,fadeRx,result,1);
+  Gui::stepContains(topLevelModel,fadeRx,result,1);
   if (!result.isEmpty()) {
     QColor ParsedColor = LDrawColor::color(result);
     bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
     Preferences::fadeStepsUseColour = ParsedColor.isValid();
     if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
-      emit messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
+      emit gui->messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
                                        .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
-      emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
+      emit gui->messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
                                        .arg(fadeStepsColourCompare.replace("_"," "))
                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
@@ -1079,15 +1079,15 @@ bool Gui::setFadeStepsFromCommand()
   return setupFadeSteps;
 }
 
-bool Gui::setHighlightStepFromCommand()
+bool Application::setHighlightStepFromCommand()
 {
   QString result;
   Where topLevelModel(gui->topLevelFile(),0);
   QRegExp highlightRx = QRegExp("HIGHLIGHT_STEP ENABLED\\s*(GLOBAL)?\\s*TRUE");
   if (!Preferences::enableHighlightStep) {
-    Preferences::enableHighlightStep = stepContains(topLevelModel,highlightRx,result,1);
+    Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep && result != "GLOBAL") {
-      emit messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
+      emit gui->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableHighlightStep = false;
     }
   }
@@ -1096,32 +1096,32 @@ bool Gui::setHighlightStepFromCommand()
   if (!Preferences::enableHighlightStep) {
     result.clear();
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
-    setupHighlightStep = stepContains(topLevelModel,highlightRx,result,1);
+    setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (setupHighlightStep && result != "GLOBAL") {
-      emit messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
+      emit gui->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
       setupHighlightStep = false;
     }
   }
 
   if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
-    emit messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
+    emit gui->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
                                             .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
   if (setupHighlightStep)
-     emit messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
+     emit gui->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
 
   if (!Preferences::enableHighlightStep && !setupHighlightStep)
     return false;
 
   result.clear();
   highlightRx.setPattern("HIGHLIGHT_STEP COLOR\\s*(?:GLOBAL)?\\s*\"(0x|#)([\\da-fA-F]+)\"");
-  if (stepContains(topLevelModel,highlightRx,result)) {
+  if (Gui::stepContains(topLevelModel,highlightRx,result)) {
     result = QString("%1%2").arg(highlightRx.cap(1),highlightRx.cap(2));
     QColor ParsedColor = QColor(result);
     QString highlightStepColourCompare = Preferences::highlightStepColour;
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
-      messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
+      emit gui->messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
                                   .arg(highlightStepColourCompare)
                                   .arg(Preferences::highlightStepColour));
   }
@@ -1129,7 +1129,7 @@ bool Gui::setHighlightStepFromCommand()
   return setupHighlightStep;
 }
 
-bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
+bool Application::setPreferredRendererFromCommand(const QString &preferredRenderer)
 {
   if (preferredRenderer.isEmpty())
       return false;
@@ -1159,7 +1159,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
     renderer = RENDERER_POVRAY;
     useNativeGenerator = false;
   } else {
-    emit messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
+    emit gui->messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
     return rendererChanged;
   }
 
@@ -1168,7 +1168,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::enableLDViewSingleCall = useLDVSingleCall;
       renderFlagChanged = true;
     }
@@ -1176,7 +1176,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference use LDView Snapshot List changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
       if (useLDVSnapShotList)
           Preferences::enableLDViewSingleCall = true;
@@ -1188,7 +1188,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
       message = QString("Renderer preference POV file generator changed from %1 to %2.")
                         .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW])
                         .arg(useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
-      emit messageSig(LOG_INFO,message);
+      emit gui->messageSig(LOG_INFO,message);
       Preferences::useNativePovGenerator = useNativeGenerator;
       if (!renderFlagChanged)
         renderFlagChanged = true;
@@ -1214,7 +1214,7 @@ bool Gui::setPreferredRendererFromCommand(const QString &preferredRenderer)
                                                          useLDVSnapShotList ? QString(" (Single Call using Export File List)") :
                                                                               QString(" (Single Call)") :
                                                                               QString() : QString());
-    emit messageSig(LOG_INFO,message);
+    emit gui->messageSig(LOG_INFO,message);
   }
 
   return rendererChanged;

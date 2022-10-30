@@ -3437,13 +3437,13 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
 
-    if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
-        gui->SetStudStyle(Options, true/*reload*/);
+    if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
+        LPub->SetStudStyle(Options, true/*reload*/);
 
-    if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && gui->GetStudStyle() > 5)
+    if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
+        if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5)
             emit gui->messageSig(LOG_NOTICE,QString("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
-        gui->SetAutomateEdgeColor(Options);
+        LPub->SetAutomateEdgeColor(Options);
     }
 
     bool Loaded = false;
@@ -3468,14 +3468,14 @@ bool Render::LoadViewer(const NativeOptions *Options) {
 
     gui->setViewerStepKey(Options->ViewerStepKey, Options->ImageType);
 
-    if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
-        gui->SetStudStyle(Options, true/*reload*/);
+    if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
+        LPub->SetStudStyle(Options, true/*reload*/);
 
-    if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
-        if (Options->AutoEdgeColor && gui->GetStudStyle() > 5) {
+    if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
+        if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5) {
             QString message = QString("High contrast stud and edge color settings are ignored when automate edge color is enabled.");
             if (Preferences::getShowMessagePreference(Preferences::ParseErrors)) {
-                Where file(QFileInfo(gui->getViewerStepFilePath(Options->ViewerStepKey)).fileName());
+                Where file(QFileInfo(LPub->ldrawFile.getViewerStepFilePath(Options->ViewerStepKey)).fileName());
                 QString parseMessage = QString("%1<br>(file: %2)").arg(message).arg(file.modelName);
                 Preferences::MsgID msgID(Preferences::AnnotationErrors,file.nameToString());
                 Preferences::showMessage(msgID, parseMessage, "Model File", "parse model file warning");
@@ -3484,7 +3484,7 @@ bool Render::LoadViewer(const NativeOptions *Options) {
             }
         }
 
-        gui->SetAutomateEdgeColor(Options);
+        LPub->SetAutomateEdgeColor(Options);
     }
 
     Loaded = LPub->OpenProject(Options);
@@ -3526,13 +3526,13 @@ bool Render::NativeExport(const NativeOptions *Options) {
                 return !Exported;
         }
 
-        if(Options->StudStyle && Options->StudStyle != gui->GetStudStyle())
-            gui->SetStudStyle(Options, true/*reload*/);
+        if(Options->StudStyle && Options->StudStyle != LPub->GetStudStyle())
+            LPub->SetStudStyle(Options, true/*reload*/);
 
-        if(Options->AutoEdgeColor != gui->GetAutomateEdgeColor()) {
-            if (Options->AutoEdgeColor && gui->GetStudStyle() > 5)
+        if(Options->AutoEdgeColor != LPub->GetAutomateEdgeColor()) {
+            if (Options->AutoEdgeColor && LPub->GetStudStyle() > 5)
                 emit gui->messageSig(LOG_NOTICE,QString("High contrast stud and edge color settings are ignored when automate edge color is enabled."));
-            gui->SetAutomateEdgeColor(Options);
+            LPub->SetAutomateEdgeColor(Options);
         }
 
         Exported = LPub->OpenProject(Options, NATIVE_EXPORT, true/*UseFile*/);

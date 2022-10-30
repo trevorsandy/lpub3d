@@ -3581,11 +3581,11 @@ AutoEdgeColorMeta::AutoEdgeColorMeta() : BranchMeta()
 {
   contrast.setRange(0.0f,1.0f);
   contrast.setFormats(1,2,"#9.99");
-  contrast.setValue(gui->GetPartEdgeContrast());
+  contrast.setValue(LPub->GetPartEdgeContrast());
   saturation.setRange(0.0f,1.0f);
   saturation.setFormats(1,2,"#9.99");
-  saturation.setValue(gui->GetPartColorLightDarkIndex());
-  enable.setValue(gui->GetAutomateEdgeColor());
+  saturation.setValue(LPub->GetPartColorLightDarkIndex());
+  enable.setValue(LPub->GetAutomateEdgeColor());
 }
 
 void AutoEdgeColorMeta::init(BranchMeta *parent, QString name)
@@ -3602,11 +3602,11 @@ HighContrastColorMeta::HighContrastColorMeta() : BranchMeta()
 {
   lightDarkIndex.setRange(0.0f,1.0f);
   lightDarkIndex.setFormats(1,2,"#9.99");
-  lightDarkIndex.setValue(gui->GetPartColorLightDarkIndex());
-  studCylinderColor.setValue(gui->GetStudCylinderColor());
-  partEdgeColor.setValue(gui->GetPartEdgeColor());
-  blackEdgeColor.setValue(gui->GetBlackEdgeColor());
-  darkEdgeColor.setValue(gui->GetDarkEdgeColor());
+  lightDarkIndex.setValue(LPub->GetPartColorLightDarkIndex());
+  studCylinderColor.setValue(LPub->GetStudCylinderColor());
+  partEdgeColor.setValue(LPub->GetPartEdgeColor());
+  blackEdgeColor.setValue(LPub->GetBlackEdgeColor());
+  darkEdgeColor.setValue(LPub->GetDarkEdgeColor());
 }
 
 void HighContrastColorMeta::init(BranchMeta *parent, QString name)
