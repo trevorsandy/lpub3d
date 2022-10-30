@@ -4495,7 +4495,6 @@ void Gui::countPages()
       QString message = tr("Counting pages...");
       if (parseBuildModsAtCount) {
           flags.parseBuildMods = true;
-          stepPageNum    = -1;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
       } else {
           stepPageNum    = 1 + pa;
