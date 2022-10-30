@@ -505,15 +505,24 @@ float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
     return stdCameraDistance(meta,scale);
 }
 
-const QStringList Render::getImageAttributes(const QString &nameKey)
+const QStringList Render::getImageAttributes(const QString &pngName)
 {
-    QFileInfo fileInfo(nameKey);
+    QFileInfo fileInfo(pngName);
     QString cleanString = fileInfo.completeBaseName();
-    if (Preferences::enableFadeSteps && nameKey.endsWith(FADE_SFX))
+    if (Preferences::enableFadeSteps && pngName.endsWith(FADE_SFX))
         cleanString.chop(QString(FADE_SFX).size());
     else
-    if (Preferences::enableHighlightStep && nameKey.endsWith(HIGHLIGHT_SFX))
+    if (Preferences::enableHighlightStep && pngName.endsWith(HIGHLIGHT_SFX))
         cleanString.chop(QString(HIGHLIGHT_SFX).size());
+
+    // treat parts with '_' in the name
+    const int index = cleanString.indexOf("-");
+    // 1. get type name without renderer index
+    const QString type = cleanString.left(index);
+    // 2. remove renderer index and delimiter from string - e.g. '-0'
+    cleanString = cleanString.right(cleanString.length() - (index + 2));
+    // 3. prepend type
+    cleanString.prepend(QString("%1").arg(type));
 
     return cleanString.split("_");
 }
@@ -1789,9 +1798,9 @@ int LDView::renderCsi(
         const QStringList &csiKeys,
         const QString     &pngName,
         Meta              &meta,
-        int                nType)
+        int                type)
 {
-    Q_UNUSED(nType)
+    Q_UNUSED(type)
 
     // paths
     QString tempPath  = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir);
@@ -1978,12 +1987,26 @@ int LDView::renderCsi(
         }
     };
 
+    auto getSnapshotArgsAttributes = [] (const QString& snapshotArgsKey)
+    {
+        // treat parts with '_' in the name
+        const int index = snapshotArgsKey.indexOf("-");
+        // 1. get type name without renderer index
+        const QString type = snapshotArgsKey.left(index);
+        // 2. remove renderer index and delimiter from string - e.g. '-0'
+        QString cleanString = snapshotArgsKey.right(snapshotArgsKey.length() - (index + 2));
+        // 3. prepend type
+        cleanString.prepend(QString("%1").arg(type));
+
+        return cleanString.split("_");
+    };
+
     /* Create the CSI DAT file(s) */
 
     QString f, snapshotArgsKey, imageMatteArgsKey;
     bool usingListCmdArg     = false;
     bool usingDefaultArgs    = true;
-    bool usingSingleSetArgs  =false;
+    bool usingSingleSetArgs  = false;
     bool snapshotArgsChanged = false;
     bool enableIM            = false;
     QStringList ldrNames, ldrNamesIM, snapshotLdrs;
@@ -1991,7 +2014,7 @@ int LDView::renderCsi(
         // populate ldrNames
         if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
             enableIM = true;
-            Q_FOREACH (QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
+            Q_FOREACH (QString csiEntry, csiParts){           // csiParts are ldrNames under LDViewSingleCall
                 QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
                 if (LDVImageMatte::validMatteCSIImage(csiFile)) {
                     ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
@@ -2016,13 +2039,15 @@ int LDView::renderCsi(
 
             // split snapshot, imageMatte and additional renderer keys,
             keys              = csiKeys.at(i).split("|");
-            snapshotArgsKey   = keys.at(0);
-            imageMatteArgsKey = keys.at(1);
+            snapshotArgsKey   = keys.at(0); // using compareKey - keyPart2 and rotStep
+            imageMatteArgsKey = keys.at(1); // using nameAndStepKey - csi_name, nameExtension, renderer index
             if (keys.size() == 3)
                 ldviewParmslist = keys.at(2).split(" ");
-            attributes = snapshotArgsKey.split("_");
+
+            attributes = getSnapshotArgsAttributes(snapshotArgsKey);
+
             if (attributes.size() > 2)
-                attributes.replace(1,"0");
+                attributes.replace(1,"0"); // replace step number with 0
 
             // attributes are different from default
             usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
@@ -2984,6 +3009,7 @@ int Native::renderPli(
   StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &metaType.studStyle;
   AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &metaType.autoEdgeColor;
   HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &metaType.highContrast;
+  QString nameKey;
 
   bool useImageSize    = metaType.imageSize.value(XX) > 0;
 
@@ -2993,8 +3019,10 @@ int Native::renderPli(
 
   // Process substitute part attributes
   if (keySub) {
-    QStringList attributes = getImageAttributes(pngName);
     bool hr;
+    QStringList attributes = getImageAttributes(pngName);
+    if (attributes.size() >= nTypeNameKey)
+        nameKey = QString("%1_%2").arg(attributes.at(nType)).arg(attributes.at(nColorCode));
     if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
       noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
     if (attributes.size() >= nHasTarget)

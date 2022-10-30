@@ -542,7 +542,7 @@ void Pli::setParts(
               .arg(QString("%1-%2").arg(baseName).arg(Preferences::preferredRenderer)) // 0
               .arg(color)                                              // 1
               .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
-                                  lpub->pageSize(meta.LPub.page, 0))    // 2
+                                  lpub->pageSize(meta.LPub.page, 0))   // 2
               .arg(double(resolution()))                               // 3
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")           // 4
               .arg(double(modelScale))                                 // 5

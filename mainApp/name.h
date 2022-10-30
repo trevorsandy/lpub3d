@@ -198,8 +198,10 @@ enum SubAttributes {
     sRemove           // 16
 };
 enum NameKeyAttributes {
-    nType = 0,        // 0 Set to CSI for CSI type
-    nColorCode,       // 1 This is Step Number for CSI type
+    nType = 0,        // 0 Includes the Render index at end delimited by '-'. Set to CSI for CSI type
+    nTypeNameKey,     // 1
+    nTypeAttributes = nTypeNameKey, // 1
+    nColorCode = nTypeNameKey,      // 1 This is Step Number for CSI type
     nPageWidth,       // 2
     nResolution,      // 3
     nResType,         // 4
