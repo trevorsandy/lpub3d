@@ -1327,11 +1327,13 @@ public slots:
   void openDropFile(QString &fileName);
 
   void deployExportBanner(bool b);
-  void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; } }
+  void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; }; if (b){ m_countWaitForFinished = b; } }
   void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
+  void setCountWaitForFinished(bool b){ m_countWaitForFinished = b; }
   bool exporting() { return m_exportingContent; }
   bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
   bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
+  bool countWaitForFinished() { return m_countWaitForFinished; }
   void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
 
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
@@ -1558,7 +1560,8 @@ private:
 
   bool                   m_exportingContent; // indicate export/printing underway
   bool                   m_exportingObjects; // indicate exporting non-image object file content
-  bool                   m_contPageProcessing;// indicate continuous page processing underway
+  bool                   m_contPageProcessing; // indicate continuous page processing underway
+  bool                   m_countWaitForFinished; // indicate wait for countPage to finish on exporting 'return to saved page'
 
   QString                buildModClearStepKey;// the step key indicating the step to start build mod clear actions
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create

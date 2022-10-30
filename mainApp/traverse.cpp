@@ -4631,7 +4631,7 @@ void Gui::drawPage(
 
   } else {
     QFuture<int> future = QtConcurrent::run(CountPageWorker::countPage, &meta, &ldrawFile, findOptions);
-    if (exporting() || ContinuousPage() || mloadingFile) {
+    if (exporting() || ContinuousPage() || countWaitForFinished() || mloadingFile) {
       future.waitForFinished();
       pagesCounted();
     } else {
@@ -4730,6 +4730,10 @@ void Gui::pagesCounted()
 
     if (mloadingFile)
         mloadingFile = false;
+
+    // reset countPage future wait on last drawPage call from export 'printfile' where exporting() is reset to false
+    if (!exporting() && countWaitForFinished())
+        setCountWaitForFinished(false);
 
     QApplication::restoreOverrideCursor();
 }
