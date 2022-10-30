@@ -4490,16 +4490,17 @@ void Gui::countPages()
       firstStepPageNum     = -1;       // for front cover page
       lastStepPageNum      = -1;       // for back cover page
       maxPages             =  1 + pa;
+      stepPageNum          =  1 + pa;
 
       skipHeader(current);
+
+      // set model start page - used to enable mpd combo to jump to start page
+      lpub->ldrawFile.setModelStartPageNumber(current.modelName,maxPages);
 
       QString message = tr("Counting pages...");
       if (buildModJumpForward) {
           flags.parseBuildMods = true;
           message = tr("BuildMod Next parsing from countPage for jump to page %1...").arg(saveDisplayPageNum);
-      } else {
-          stepPageNum    = 1 + pa;
-          writeToTmp();
       }
 
       emit messageSig(LOG_TRACE, message);
