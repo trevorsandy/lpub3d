@@ -232,7 +232,7 @@ void EditWindow::previewLine()
         }
     }
 
-    emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+    emit lpub->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
 }
 
 #ifdef QT_DEBUG_MODE
@@ -259,7 +259,7 @@ void EditWindow::updateOpenWithActions()
 
         numOpenWithPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
-        emit lpubAlert->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numOpenWithPrograms));
+        emit lpub->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numOpenWithPrograms));
 
         QString programData, programName, programPath;
 
@@ -275,7 +275,7 @@ void EditWindow::updateOpenWithActions()
                 QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
                 QPixmap iconPixmap = fileIcon.pixmap(16,16);
                 if (!iconPixmap.save(iconFile))
-                    emit lpubAlert->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+                    emit lpub->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
                 return fileIcon;
             }
             return QIcon(iconFile);
@@ -306,7 +306,7 @@ void EditWindow::updateOpenWithActions()
                 --numOpenWithPrograms;
             }
         }
-        emit lpubAlert->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numOpenWithPrograms));
+        emit lpub->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numOpenWithPrograms));
 
         // hide empty program actions
         for (int j = numOpenWithPrograms; j < Preferences::maxOpenWithPrograms; j++) {
@@ -364,7 +364,7 @@ void EditWindow::openWith()
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit lpubAlert->messageSig(LOG_INFO, QString("Launched %1 with %2...")
+        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with %2...")
                                   .arg(QFileInfo(fileName).fileName()).arg(QFileInfo(program).fileName()));
     }
 }
@@ -752,7 +752,7 @@ bool EditWindow::setValidPartLine()
     partType = partType.trimmed();
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,
+    emit lpub->messageSig(LOG_DEBUG,
                                QString("Editor PartType: %1, ColorCode: %2, Line: %3")
                                .arg(partType).arg(colorCode).arg(selection));
 #endif
@@ -1134,7 +1134,7 @@ void EditWindow::updateClipboard()
         }
 
         if (data.isEmpty()) {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
+            emit lpub->messageSig(LOG_ERROR, QString("Copy to clipboard - Sender: %1, No data detected")
                                                .arg(sender()->metaObject()->className()));
             return;
         }
@@ -1149,7 +1149,7 @@ void EditWindow::updateClipboard()
                                 efn.right(3) : efn)
                            .arg(fullPath ? "full path" : "name");
 
-        emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("%1 copied to clipboard.").arg(_fileName));
+        emit lpub->messageSig(LOG_INFO_STATUS, QString("%1 copied to clipboard.").arg(_fileName));
     }
 }
 #endif
@@ -1633,7 +1633,7 @@ void EditWindow::showLine(int lineNumber, int lineType)
       if (pages) {
           waitingSpinnerStart();
 
-          emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Show Line %1 - Loading buffered page %2 lines...")
+          emit lpub->messageSig(LOG_INFO_STATUS,QString("Show Line %1 - Loading buffered page %2 lines...")
                                      .arg(lineNumber).arg(linesNeeded));
 
           for (int i = 0; i < pages && !_contentLoading; i++) {
@@ -1641,9 +1641,9 @@ void EditWindow::showLine(int lineNumber, int lineType)
               loadPagedContent();
           }
 
-          emit lpubAlert->messageSig(LOG_STATUS,QString());
+          emit lpub->messageSig(LOG_STATUS,QString());
 #ifdef QT_DEBUG_MODE
-          emit lpubAlert->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
+          emit lpub->messageSig(LOG_DEBUG,QString("ShowLine add %1 %2 to line %3 from line %4.")
                                      .arg(pages).arg(pages == 1 ? "page" : "pages").arg(lineNumber).arg(_pageIndx + 1));
 #endif
           waitingSpinnerStop();
@@ -1682,7 +1682,7 @@ void EditWindow::setSubFiles(const QStringList& subFiles){
 void EditWindow::setPagedContent(const QStringList & content)
 {
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("Set paged content line count: %1, content size %2")
+    emit lpub->messageSig(LOG_DEBUG,QString("Set paged content line count: %1, content size %2")
                                .arg(lineCount)
                                .arg(content.size()));
 #endif
@@ -1694,7 +1694,7 @@ void EditWindow::setPagedContent(const QStringList & content)
 void EditWindow::setPlainText(const QString &content)
 {
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("Set plain text line count: %1, content size %2")
+    emit lpub->messageSig(LOG_DEBUG,QString("Set plain text line count: %1, content size %2")
                                .arg(lineCount)
                                .arg(content.count(QRegExp("\\r\\n?|\\n")) + 1));
 #endif
@@ -1715,7 +1715,7 @@ void EditWindow::setVisualEditorVisible(bool value)
 {
     visualEditorVisible = value;
 #ifdef QT_DEBUG_MODE
-        emit lpubAlert->messageSig(LOG_DEBUG,QMessageBox::tr("Visual Editor (from Command Editor) visible: %1").arg(value ? "TRUE" : "FALSE"));
+        emit lpub->messageSig(LOG_DEBUG,QMessageBox::tr("Visual Editor (from Command Editor) visible: %1").arg(value ? "TRUE" : "FALSE"));
 #endif
 }
 
@@ -1753,7 +1753,7 @@ void EditWindow::displayFile(
   }
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("1. Editor Load Starting..."));
+    emit lpub->messageSig(LOG_DEBUG,QString("1. Editor Load Starting..."));
 #endif
 
   if (fileName == "") {
@@ -1798,7 +1798,7 @@ void EditWindow::displayFile(
 
     if (Preferences::editorBufferedPaging && lineCount > Preferences::editorLinesPerPage) {
 #ifdef QT_DEBUG_MODE
-      emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
+      emit lpub->messageSig(LOG_DEBUG,QString("3. Editor Load Paged Text Started..."));
 #endif
       _pageContent = ldrawFile->contents(fileName);
 
@@ -1806,7 +1806,7 @@ void EditWindow::displayFile(
 
     } else {
 #ifdef QT_DEBUG_MODE
-      emit lpubAlert->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
+      emit lpub->messageSig(LOG_DEBUG,QString("3. Editor Load Plain Text Started..."));
 #endif
       // loadContentBlocks(ldrawFile->contents(fileName),true/ *initial load* /);
 
@@ -1823,7 +1823,7 @@ void EditWindow::displayFile(
     enableActions();
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("6. %1 Document loaded with %2 lines")
+    emit lpub->messageSig(LOG_DEBUG,QString("6. %1 Document loaded with %2 lines")
                                                  .arg(QFileInfo(fileName).baseName())
                                                  .arg(_textEdit->document()->lineCount()));
 #endif
@@ -1839,14 +1839,14 @@ void EditWindow::contentLoaded()
             .arg(reloaded ? "Updated" : "Loaded")
             .arg(QFileInfo(fileName).fileName())
             .arg(lineCount)
-            .arg(lpubAlert->elapsedTime(displayTimer.elapsed()));
+            .arg(lpub->elapsedTime(displayTimer.elapsed()));
 
     if (futureWatcher.future().result()) {
         _textEdit->document()->clear();
         _textEdit->document()->setModified(false);
         connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
                 this,                  SLOT(  contentsChange(int,int,int)));
-        emit lpubAlert->messageSig(LOG_ERROR, QString("Editor not loaded for %1").arg(fileName));
+        emit lpub->messageSig(LOG_ERROR, QString("Editor not loaded for %1").arg(fileName));
         return;
     }
 
@@ -1902,7 +1902,7 @@ void EditWindow::contentLoaded()
 
 #ifdef QT_DEBUG_MODE
     previewViewerFileAct->setEnabled(true);
-    emit lpubAlert->messageSig(LOG_DEBUG,"5. "+message);
+    emit lpub->messageSig(LOG_DEBUG,"5. "+message);
 #endif
 }
 
@@ -1934,7 +1934,7 @@ void EditWindow::waitingSpinnerStart()
     _waitingSpinner->start();
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Started"));
+    emit lpub->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Started"));
 #endif
 
     QApplication::processEvents();
@@ -1949,7 +1949,7 @@ void EditWindow::waitingSpinnerStop()
     _waitingSpinner->stop();
 
 #ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Stopped"));
+    emit lpub->messageSig(LOG_DEBUG,QString("4. Waiting Spinner Stopped"));
 #endif
   }
 }
@@ -2136,37 +2136,37 @@ void EditWindow::preferences()
         if (editorDecoration != Preferences::editorDecoration) {
             showMessage("LDraw editor text decoration change");
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
-            emit lpubAlert->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE ? "Simple" : "Standard"));
+            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE ? "Simple" : "Standard"));
         }
         Preferences::editorBufferedPaging = editorBufferedPagingGrpBox->isChecked();
         if (editorBufferedPaging != Preferences::editorBufferedPaging) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"),Preferences::editorBufferedPaging);
-            emit lpubAlert->messageSig(LOG_INFO,QString("Editor buffered paging is %1").arg(Preferences::editorBufferedPaging ? "On" : "Off"));
+            emit lpub->messageSig(LOG_INFO,QString("Editor buffered paging is %1").arg(Preferences::editorBufferedPaging ? "On" : "Off"));
         }
         Preferences::editorLinesPerPage   = editorLinesPerPageSpin->text().toInt();
         if (editorLinesPerPage != Preferences::editorLinesPerPage) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),Preferences::editorLinesPerPage);
-            emit lpubAlert->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
+            emit lpub->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
         }
 
         if (! modelFileEdit()) {
             Preferences::editorHighlightLines   = editorHighlightLinesBox->isChecked();
             if (editorHighlightLines != Preferences::editorHighlightLines) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorHighlightLines"),Preferences::editorHighlightLines);
-                emit lpubAlert->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
+                emit lpub->messageSig(LOG_INFO,QString("Highlight selected lines changed from %1 to %2").arg(editorHighlightLines).arg(Preferences::editorLinesPerPage));
             }
 
             Preferences::editorLoadSelectionStep   = editorLoadSelectionStepBox->isChecked();
             if (editorLoadSelectionStep != Preferences::editorLoadSelectionStep) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLoadSelectionStep"),Preferences::editorLoadSelectionStep);
-                emit lpubAlert->messageSig(LOG_INFO,QString("Load selection step in Visual Editor changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
+                emit lpub->messageSig(LOG_INFO,QString("Load selection step in Visual Editor changed from %1 to %2").arg(editorLoadSelectionStep).arg(Preferences::editorLoadSelectionStep));
             }
         } // ! modelFileEdit()
         else {
             Preferences::editorPreviewOnDoubleClick = editorPreviewOnDoubleClickBox->isChecked();
             if (editorPreviewOnDoubleClick != Preferences::editorPreviewOnDoubleClick) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorPreviewOnDoubleClick"),Preferences::editorPreviewOnDoubleClick);
-                emit lpubAlert->messageSig(LOG_INFO,QString("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
+                emit lpub->messageSig(LOG_INFO,QString("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
             }
         } // modelFileEdit()
     }
@@ -2184,12 +2184,12 @@ void  EditWindow::verticalScrollValueChanged(int value)
         return;
 
     if (value > (verticalScrollBar->maximum() * 0.90 /*trigger load at 90% page scroll*/)) {
-        emit lpubAlert->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...")
+        emit lpub->messageSig(LOG_INFO_STATUS,QString("Loading buffered page %1 lines...")
                                    .arg(Preferences::editorLinesPerPage));
 
         loadPagedContent();
 
-        emit lpubAlert->messageSig(LOG_STATUS,QString());
+        emit lpub->messageSig(LOG_STATUS,QString());
         QApplication::processEvents();
     }
 }
@@ -2222,10 +2222,10 @@ void EditWindow::loadContentBlocks(const QStringList &content, bool firstBlock) 
                 _textEdit->append(block);
             }
 #ifdef QT_DEBUG_MODE
-        emit lpubAlert->messageSig(LOG_DEBUG,QString("Load content block %1, lines %2 - %3")
+        emit lpub->messageSig(LOG_DEBUG,QString("Load content block %1, lines %2 - %3")
                                    .arg(i)
                                    .arg(blockLineCount)
-                                   .arg(lpubAlert->elapsedTime(t.elapsed())));
+                                   .arg(lpub->elapsedTime(t.elapsed())));
 #endif
             blockIndx = maxBlockIndx;
             QApplication::processEvents();
@@ -2239,7 +2239,7 @@ void EditWindow::loadPagedContent()
 
    QElapsedTimer t; t.start();
 #ifdef QT_DEBUG_MODE
-   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load paged content %1 lines - start...")
+   emit lpub->messageSig(LOG_DEBUG,QString("Load paged content %1 lines - start...")
                               .arg(_pageContent.size()));
 #endif
 
@@ -2251,9 +2251,9 @@ void EditWindow::loadPagedContent()
    int pageLineCount  = page.count("\n") + (initialLoad ? 2 : 1);
 
 #ifdef QT_DEBUG_MODE
-   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page line count %1 - %2")
+   emit lpub->messageSig(LOG_DEBUG,QString("Load page line count %1 - %2")
                               .arg(pageLineCount)
-                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+                              .arg(lpub->elapsedTime(t.elapsed())));
 #endif
 
    disconnect(_textEdit->document(),SIGNAL(contentsChange(int,int,int)),
@@ -2274,29 +2274,29 @@ void EditWindow::loadPagedContent()
    if (initialLoad) {
        _textEdit->setPlainText(page);
 #ifdef QT_DEBUG_MODE
-   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page set %1 plain text lines - %2")
+   emit lpub->messageSig(LOG_DEBUG,QString("Load page set %1 plain text lines - %2")
                               .arg(pageLineCount)
-                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+                              .arg(lpub->elapsedTime(t.elapsed())));
 #endif
    } else {
        _textEdit->append(page);
 #ifdef QT_DEBUG_MODE
-   emit lpubAlert->messageSig(LOG_DEBUG,QString("Load page append %1 text lines - %2")
+   emit lpub->messageSig(LOG_DEBUG,QString("Load page append %1 text lines - %2")
                               .arg(pageLineCount)
-                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+                              .arg(lpub->elapsedTime(t.elapsed())));
 #endif
    }
 // */
 
    _contentLoaded = maxPageIndx >= _pageContent.size() - 1;
 
-   emit lpubAlert->messageSig(LOG_TRACE,QString("Load page of %1 lines from %2 to %3, content lines %4, final page: %5 - %6")
+   emit lpub->messageSig(LOG_TRACE,QString("Load page of %1 lines from %2 to %3, content lines %4, final page: %5 - %6")
                               .arg(pageLineCount)
                               .arg(_pageIndx + 1)
                               .arg(maxPageIndx + 1)
                               .arg(_pageContent.size())
                               .arg(_contentLoaded ? "Yes" : "No")
-                              .arg(lpubAlert->elapsedTime(t.elapsed())));
+                              .arg(lpub->elapsedTime(t.elapsed())));
 
    _pageIndx = maxPageIndx;
 

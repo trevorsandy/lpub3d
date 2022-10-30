@@ -148,7 +148,7 @@ void SubstitutePartDialog::initialize()
     mLdrawType.clear();
 
     if (Preferences::debugLogging)
-        emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
+        emit lpub->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
                                    .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
 
     // extract valid type and adjust attributes
@@ -547,16 +547,16 @@ void SubstitutePartDialog::showPartPreview(Which attribute)
         if (Preview && ViewWidget) {
             ViewWidget->setAttribute(Qt::WA_DeleteOnClose, true);
             if (!Preview->SetCurrentPiece(partType, colorCode))
-                emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+                emit lpub->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
             previewLayout->addWidget(ViewWidget);
             ViewWidget->SetPreferredSize(ui->previewFrame->size());
             mViewWidgetEnabled        = true;
         } else {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+            emit lpub->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
         }
     } else if (Preview) {
         if (!Preview->SetCurrentPiece(partType, colorCode))
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
+            emit lpub->messageSig(LOG_ERROR, QString("Part preview for %1 failed.").arg(partType));
     }
 }
 
@@ -756,7 +756,7 @@ void SubstitutePartDialog::accept()
                (removeLevel[Level1] =
                  mInitialAttributes.at(sType) == mAttributes.at(sType) &&
                (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true))) {
-                emit lpubAlert->messageSig(LOG_TRACE,QString("Nothing to %1 for part type [%2]: [%3]")
+                emit lpub->messageSig(LOG_TRACE,QString("Nothing to %1 for part type [%2]: [%3]")
                                            .arg(label1).arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
                 mAttributes.clear();
                 mModified = false;
@@ -773,13 +773,13 @@ void SubstitutePartDialog::accept()
             label2 = "Substitute removal";
         }
 
-        emit lpubAlert->messageSig(LOG_TRACE,QString("%1 for part type %2: [%3], Input: [%4]")
+        emit lpub->messageSig(LOG_TRACE,QString("%1 for part type %2: [%3], Input: [%4]")
                          .arg(label2).arg(mAttributes.at(sType)).arg(mAttributes.join(" ")).arg(mInitialAttributes.join(" ")));
     };
 
     if (mModified) {
       if (Preferences::debugLogging)
-          emit lpubAlert->messageSig(LOG_DEBUG,QString("Set substitution for part type %1: [%2], Input: [%3]")
+          emit lpub->messageSig(LOG_DEBUG,QString("Set substitution for part type %1: [%2], Input: [%3]")
                                    .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")).arg(mInitialAttributes.join(" ")));
       setAttributes();
     }

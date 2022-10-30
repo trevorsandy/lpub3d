@@ -143,7 +143,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 												  .arg(VER_LDVMESSAGESINI_FILE));
 	if (!TCLocalStrings::loadStringTable(messagesPath.toUtf8().constData()))
 	{
-		emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load file %1")
+		emit lpub->messageSig(LOG_ERROR, QString("Could not load file %1")
 													  .arg(messagesPath));
 	}
 
@@ -172,7 +172,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 	sessionNames->release();
 
 	QString prefSet = TCUserDefaults::getSessionName();
-	emit lpubAlert->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
+	emit lpub->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
 							 .arg(prefSet.isEmpty() ? "Default" : prefSet));
 
 	ldvWidget = this;
@@ -205,7 +205,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
 	if (!LDSnapshotTaker::doCommandLine(false, true))
 	{
 		if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1)){
-			emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
+			emit lpub->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
 			retValue = false;
 		} else
 		if (iniFlag == NativePartList) {
@@ -266,7 +266,7 @@ bool LDVWidget::setupLDVApplication(){
 	modelViewer = new LDrawModelViewer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 
 	if (! modelViewer) {
-		emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to initialize LDVApplication modelViewer"));
+		emit lpub->messageSig(LOG_ERROR, QString("Unable to initialize LDVApplication modelViewer"));
 		return false;
 	}
 
@@ -308,13 +308,13 @@ bool LDVWidget::setIniFile()
 	if (!TCUserDefaults::isIniFileSet() || forceIni)
 	{
 		if (getIniTitle().isEmpty()){
-			emit lpubAlert->messageSig(LOG_ERROR, QString("INI file was not specified").arg(getIniTitle()).arg(getIniFile()));
+			emit lpub->messageSig(LOG_ERROR, QString("INI file was not specified").arg(getIniTitle()).arg(getIniFile()));
 			return false;
 		}
 
 		if (!TCUserDefaults::setIniFile(getIniFile().toUtf8().constData()))
 		{
-			emit lpubAlert->messageSig(LOG_ERROR, QString("Could not set %1 INI %2").arg(getIniTitle()).arg(getIniFile()));
+			emit lpub->messageSig(LOG_ERROR, QString("Could not set %1 INI %2").arg(getIniTitle()).arg(getIniFile()));
 			return false;
 		}
 	}
@@ -381,7 +381,7 @@ void LDVWidget::setupLDVContext()
 		setFormat(ldvFormat);
 		needsInitialize = true;
 	} else {
-		emit lpubAlert->messageSig(LOG_ERROR, QString("ERROR - The OpenGL context is not valid!"));
+		emit lpub->messageSig(LOG_ERROR, QString("ERROR - The OpenGL context is not valid!"));
 	}
 
 	if (needsInitialize) {
@@ -484,19 +484,19 @@ bool LDVWidget::loadModel(const char *filename)
 	filename = copyString(QFileInfo(filename).absoluteFilePath().toUtf8().constData());
 	if (setDirFromFilename(filename))
 	{
-		emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Loading %1. Please wait...")
+		emit lpub->messageSig(LOG_INFO_STATUS, QString("Loading %1. Please wait...")
 								   .arg(QFileInfo(filename).completeBaseName()));
 		modelViewer->setFilename(filename);
 		if (! modelViewer->loadModel())
 		{
-			emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load command line file %1")
+			emit lpub->messageSig(LOG_ERROR, QString("Could not load command line file %1")
 									   .arg(filename));
 			retValue = false;
 		}
 	}
 	else
 	{
-		emit lpubAlert->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
+		emit lpub->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
 								   .arg(filename));
 		retValue = false;
 	}
@@ -577,12 +577,12 @@ void LDVWidget::doPartList(
 			if (!userDefinedSnapshot.isEmpty()) {
 				QString snapshot = QDir::toNativeSeparators(snapshotPath);
 				delete snapshotPath;
-				emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Using user defined Snapshot image %1.").arg(userDefinedSnapshot));
+				emit lpub->messageSig(LOG_INFO_STATUS, QString("Using user defined Snapshot image %1.").arg(userDefinedSnapshot));
 
 				if (htmlInventory->getOverwriteSnapshotFlag()){
 					QFile snapshotFile(snapshot);
 					if (snapshotFile.exists() && !snapshotFile.remove()){
-						emit lpubAlert->messageSig(LOG_ERROR, QString("Could not remove existing snapshot file '%1'").arg(snapshot));
+						emit lpub->messageSig(LOG_ERROR, QString("Could not remove existing snapshot file '%1'").arg(snapshot));
 						return;
 					}
 				}
@@ -593,11 +593,11 @@ void LDVWidget::doPartList(
 
 				QImageWriter Writer(snapshot);
 				if (!Writer.write(image)) {
-					emit lpubAlert->messageSig(LOG_ERROR, QString("Error writing to file '%1':\n%2").arg(snapshot).arg(Writer.errorString()));
+					emit lpub->messageSig(LOG_ERROR, QString("Error writing to file '%1':\n%2").arg(snapshot).arg(Writer.errorString()));
 					return;
 				}
 			} else {
-				emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Generating Snapshot image..."));
+				emit lpub->messageSig(LOG_INFO_STATUS, QString("Generating Snapshot image..."));
 
 				bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
 
@@ -615,7 +615,7 @@ void LDVWidget::doPartList(
 					trimmedFilename.pop_back();
 				}
 				if (!loadModel(trimmedFilename.c_str())){
-					emit lpubAlert->messageSig(LOG_ERROR, QString("Snapshot image input file was not loaded."));
+					emit lpub->messageSig(LOG_ERROR, QString("Snapshot image input file was not loaded."));
 				}
 				saveImage(snapshotPath, imageWidth, imageHeight);
 				delete snapshotPath;
@@ -624,7 +624,7 @@ void LDVWidget::doPartList(
 	}
 	else
 	{
-		emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
+		emit lpub->messageSig(LOG_STATUS, QString("%1")
 								   .arg(QString::fromWCharArray(
 											TCLocalStrings::get(L"PLGenerateError"))
 										));
@@ -636,7 +636,7 @@ void LDVWidget::doPartList(void)
 	if (modelViewer)
 	{
 		if (!loadModel(modelFilename)){
-			emit lpubAlert->messageSig(LOG_ERROR, QString("Model file %1 was not loaded.").arg(modelFilename));
+			emit lpub->messageSig(LOG_ERROR, QString("Model file %1 was not loaded.").arg(modelFilename));
 			return;
 		}
 		LDPartsList *partsList = modelViewer->getPartsList();
@@ -650,7 +650,7 @@ void LDVWidget::doPartList(void)
 				QString filename = modelViewer->getFilename();
 				if (filename.isEmpty())
 				{
-					emit lpubAlert->messageSig(LOG_STATUS, QString("No filename received from modelViewer."));
+					emit lpub->messageSig(LOG_STATUS, QString("No filename received from modelViewer."));
 				}
 				filename = QFileInfo(filename).completeBaseName();
 				filename = filename.left(int(filename.length()) - 6); // remove _parts
@@ -795,13 +795,13 @@ void LDVWidget::showDocument(QString &htmlFilename){
 #endif
 		  return;
 		} else {
-		  emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("%1 HTML part list generation completed!")
+		  emit lpub->messageSig(LOG_INFO_STATUS, QString("%1 HTML part list generation completed!")
 														 .arg(QFileInfo(htmlFilename).completeBaseName()));
 		  return;
 
 		}
   } else {
-	  emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
+	  emit lpub->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
 													.arg(QFileInfo(htmlFilename).completeBaseName()));
   }
 }
@@ -810,7 +810,7 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 {
 	if (alert)
 	{
-		emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
+		emit lpub->messageSig(LOG_STATUS, QString("%1")
 								   .arg(alert->getMessage()));
 	}
 }
@@ -977,9 +977,9 @@ void LDVWidget::displayGLExtensions()
 	countString = QString::number(extensionCount);
 	countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
 
-	emit lpubAlert->messageSig(LOG_INFO, QString("OpenGL supported extensions (%1)").arg(countString));
+	emit lpub->messageSig(LOG_INFO, QString("OpenGL supported extensions (%1)").arg(countString));
 	Q_FOREACH (openGLString, list){
-		emit lpubAlert->messageSig(LOG_INFO, QString("%1").arg(openGLString));
+		emit lpub->messageSig(LOG_INFO, QString("%1").arg(openGLString));
 	}
 #endif
 }
@@ -1010,7 +1010,7 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 		QByteArray RBPartCode = PartObject["part_num"].toString().toLatin1();
 		utf8String = QString(RBPartCode).toUtf8().constData();
 		if (LDrawPartID == utf8String) {
-			emit lpubAlert->messageSig(LOG_INFO, QString("LDID=%1 RBCode=%2 RBUrl=%3 ")
+			emit lpub->messageSig(LOG_INFO, QString("LDID=%1 RBCode=%2 RBUrl=%3 ")
 									   .arg(QString::fromStdString(LDrawPartID))
 									   .arg(QString(RBPartCode))
 									   .arg(QString(RBPartUrl)));
@@ -1024,7 +1024,7 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
 				QByteArray LDPartCode = PartIDArray[i].toString().toLatin1();
 				utf8String = QString(LDPartCode).toUtf8().constData();
 				if (LDrawPartID == utf8String) {
-					emit lpubAlert->messageSig(LOG_INFO, QString("LDCode=%1 RBCode=%2 RBUrl=%3 ")
+					emit lpub->messageSig(LOG_INFO, QString("LDCode=%1 RBCode=%2 RBUrl=%3 ")
 											   .arg(QString(LDPartCode))
 											   .arg(QString(RBPartCode))
 											   .arg(QString(RBPartUrl)));
@@ -1064,7 +1064,7 @@ void LDVWidget::DownloadFinished(lcHttpReply* Reply)
 
 		if (m_Keys.isEmpty())
 		{
-			emit lpubAlert->messageSig(LOG_ERROR, QString("%1").arg("Could not connect to server - no API Key specified."));
+			emit lpub->messageSig(LOG_ERROR, QString("%1").arg("Could not connect to server - no API Key specified."));
 			close();
 		}
 
@@ -1075,7 +1075,7 @@ void LDVWidget::DownloadFinished(lcHttpReply* Reply)
 		if (!Reply->error())
 			m_RebrickableParts = Reply->readAll();
 		else
-			emit lpubAlert->messageSig(LOG_ERROR, QString("%1").arg("Could not download Rebrickable parts."));
+			emit lpub->messageSig(LOG_ERROR, QString("%1").arg("Could not download Rebrickable parts."));
 
 		m_PartsReply = nullptr;
 	}

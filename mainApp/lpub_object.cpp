@@ -14,19 +14,19 @@
 
 #include "lpub_object.h"
 
-LPubAlert *lpubAlert;
+LPub *lpub;
 
-LPubAlert::LPubAlert()
+LPub::LPub()
 {
-  lpubAlert = this;
+  lpub = this;
 }
 
-LPubAlert::~LPubAlert()
+LPub::~LPub()
 {
-  lpubAlert = nullptr;
+  lpub = nullptr;
 }
 
-QString LPubAlert::elapsedTime(const qint64 &duration) {
+QString LPub::elapsedTime(const qint64 &duration) {
 
     qint64 elapsed = duration;
     int milliseconds = int(elapsed % 1000);
@@ -38,18 +38,19 @@ QString LPubAlert::elapsedTime(const qint64 &duration) {
     int hours = int(elapsed % 24);
 
     return QString("Elapsed time: %1%2%3")
-                   .arg(hours >   0 ?
+                   .arg(hours   >   0 ?
                                   QString("%1 %2 ")
                                           .arg(hours)
-                                          .arg(hours > 1 ? "hours" : "hour")
-                                  : QString())
+                                          .arg(hours   > 1 ? "hours"   : "hour") :
+                                  QString())
                    .arg(minutes > 0 ?
                                   QString("%1 %2 ")
                                           .arg(minutes)
-                                          .arg(minutes > 1 ? "minutes" : "minute")
-                                  : QString())
+                                          .arg(minutes > 1 ? "minutes" : "minute") :
+                                  QString())
                    .arg(QString("%1.%2 %3")
                                 .arg(seconds)
                                 .arg(milliseconds,3,10,QLatin1Char('0'))
                                 .arg(seconds > 1 ? "seconds" : "second"));
+
 }

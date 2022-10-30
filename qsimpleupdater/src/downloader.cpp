@@ -315,7 +315,7 @@ void Downloader::openDownload()
             QString destination = QDir::toNativeSeparators(tr("%1").arg(m_extractPath));
             QString message     = tr("Extracting %1. Please wait...")
                                      .arg(QFileInfo(newarchive).fileName());
-            emit lpubAlert->messageSig(LOG_STATUS,message);
+            emit lpub->messageSig(LOG_STATUS,message);
 
             QStringList items = JlCompress::getFileList(newarchive);
             ProgressDialog  *m_progressDialog;
@@ -367,11 +367,11 @@ void Downloader::openDownload()
                              .arg(m_workerJobResult)
                              .arg(items.count())
                              .arg(destination);
-                emit lpubAlert->messageSig(LOG_INFO,message);
+                emit lpub->messageSig(LOG_INFO,message);
             } else {
                 message = tr("Failed to extract %1 library files")
                              .arg(QFileInfo(newarchive).fileName());
-                emit lpubAlert->messageSig(LOG_ERROR,message);
+                emit lpub->messageSig(LOG_ERROR,message);
             }
             m_progressDialog->progressBarSetLabelText(message);
             m_progressDialog->setBtnToClose();

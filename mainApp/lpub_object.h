@@ -21,19 +21,24 @@
 
 class QString;
 
-class LPubAlert : public QObject
+class LPub : public QObject
 {
     Q_OBJECT
 
 public:
-  LPubAlert();
-  ~LPubAlert();
+  LPub();
+  ~LPub();
   static QString elapsedTime(const qint64 &duration);
+
+public slots:
+
 signals:
   void messageSig(LogType logType, QString message);
+
 private:
+
 };
 
-extern class LPubAlert *lpubAlert;
+extern class LPub *lpub;
 
 #endif // LPUB_OBJECT_H

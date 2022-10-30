@@ -194,7 +194,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 			bool Preview = CurrentProject ? CurrentProject->IsPreview() : false;
 			Project* NewProject = new Project(Preview);
 #ifdef QT_DEBUG_MODE
-			emit lpubAlert->messageSig(LOG_DEBUG, QString("LC_LIB - Create piece for project file %1").arg(ProjectFile.fileName()));
+			emit lpub->messageSig(LOG_DEBUG, QString("LC_LIB - Create piece for project file %1").arg(ProjectFile.fileName()));
 #endif
 /*** LPub3D Mod end ***/
 
@@ -385,7 +385,7 @@ void lcPiecesLibrary::UpdateStudStyleSource()
 bool lcPiecesLibrary::OpenArchive(const QString& FileName, lcZipFileType ZipFileType)
 {
 /*** LPub3D Mod - loading library ***/
-	lpubAlert->messageSig(LOG_INFO, QString("Loading archive %1...").arg(FileName));
+	lpub->messageSig(LOG_INFO, QString("Loading archive %1...").arg(FileName));
 /*** LPub3D Mod end ***/
 
 	std::unique_ptr<lcDiskFile> File(new lcDiskFile(FileName));
@@ -2023,7 +2023,7 @@ bool lcPiecesLibrary::Reload()
 	QString OfficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawPartsArchive);
 	if (!OpenArchive(OfficialFileName, lcZipFileType::Official))
 	{
-		lpubAlert->messageSig(LOG_ERROR, QString("Failed to load archive %1").arg(OfficialFileName));
+		lpub->messageSig(LOG_ERROR, QString("Failed to load archive %1").arg(OfficialFileName));
 		return false;
 	}
 

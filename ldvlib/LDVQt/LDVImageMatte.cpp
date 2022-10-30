@@ -95,7 +95,7 @@ void LDVImageMatte::removeMatteCSIImage(QString item) {
 		if (removed != 0)
 		  removed = csiKey2csiFile.remove(csiKey);
 	  }
-  emit lpubAlert->messageSig(LOG_INFO,QString("Removed %1 item, CSI Key: %2 for File: %3").arg(removed).arg(csiKey).arg(csiFile));
+  emit lpub->messageSig(LOG_INFO,QString("Removed %1 item, CSI Key: %2 for File: %3").arg(removed).arg(csiKey).arg(csiFile));
 }
 
 /*
@@ -156,7 +156,7 @@ void LDVImageMatte::clearMatteCSIImages(){
 bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
 
   if (!validMatteCSIImage(csiKey)){
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("csiKey %1 does not exist.")
+	  emit lpub->messageSig(LOG_ERROR,QString("csiKey %1 does not exist.")
 								 .arg(csiKey));
 	  return false;
 	}
@@ -182,7 +182,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
   if (QFileInfo(baseLdrFile).exists()) {
 	  arguments.append(baseLdrFile);                 // ldrName
 	} else {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find baseLdrFile %1")
+	  emit lpub->messageSig(LOG_ERROR,QString("Could not find baseLdrFile %1")
 								 .arg(baseLdrFile));
 	  return false;
 	}
@@ -193,14 +193,14 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
   if (QFileInfo(overlayLdrFile).exists()) {
 	  arguments.append(overlayLdrFile);                 // ldrName
 	} else {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find overlayLdrFile %1")
+	  emit lpub->messageSig(LOG_ERROR,QString("Could not find overlayLdrFile %1")
 								 .arg(overlayLdrFile));
 	  return false;
 	}
 
   // Generate IM png file pair
   if (Render::executeLDViewProcess(arguments, Options::CSI) != 0) {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("LDView CSI IM render failed for arguments %1")
+	  emit lpub->messageSig(LOG_ERROR,QString("LDView CSI IM render failed for arguments %1")
 								 .arg(arguments.join(" ")));
 	  return false;
 	}
@@ -212,7 +212,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
   // Check previous png file
   QString basePngFile = QString(csiIMFileInfo.absoluteFilePath()).replace(ext,base_png_ext);
   if (!QFileInfo(basePngFile).exists()) {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find basePngFile %1")
+	  emit lpub->messageSig(LOG_ERROR,QString("Could not find basePngFile %1")
 								 .arg(basePngFile));
 	  return false;
 	}
@@ -220,7 +220,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
   // Check current png file
   QString overlayPngFile = QString(csiIMFileInfo.absoluteFilePath()).replace(ext,overlay_png_ext);
   if (!QFileInfo(overlayPngFile).exists()) {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Could not find overlayPngFile %1")
+	  emit lpub->messageSig(LOG_ERROR,QString("Could not find overlayPngFile %1")
 								 .arg(overlayPngFile));
 	  return false;
 	}
@@ -234,7 +234,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
 
   QFileInfo overlayImageInfo(overlayImagePath);
   if (!overlayImageInfo.exists()) {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Base Image File Not Found %1.").arg(overlayImageInfo.absoluteFilePath()));
+	  emit lpub->messageSig(LOG_ERROR,QString("Base Image File Not Found %1.").arg(overlayImageInfo.absoluteFilePath()));
 	  return false;
 	}
 
@@ -244,7 +244,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
 
   QFileInfo baseImageInfo(baseImagePath);
   if (!baseImageInfo.exists()) {
-	  emit lpubAlert->messageSig(LOG_ERROR,QString("Overlay Image File Not Found %1.").arg(baseImageInfo.absoluteFilePath()));
+	  emit lpub->messageSig(LOG_ERROR,QString("Overlay Image File Not Found %1.").arg(baseImageInfo.absoluteFilePath()));
 	  return false;
 	}
 
@@ -259,13 +259,13 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
 						.arg(overlayImage.width())
 						.arg(baseImage.width()));
   logType = overlayImage.width() != baseImage.width() ? LOG_INFO : LOG_STATUS;
-  emit lpubAlert->messageSig(logType,imageWidthMsg);
+  emit lpub->messageSig(logType,imageWidthMsg);
 
   QString imageHeightMsg(QString("Matte Image - Base Height: %1, Overlay Height: %2")
 						 .arg(overlayImage.height())
 						 .arg(baseImage.height()));
   logType = overlayImage.height() != baseImage.height() ? LOG_INFO : LOG_STATUS;
-  emit lpubAlert->messageSig(logType,imageHeightMsg);
+  emit lpub->messageSig(logType,imageHeightMsg);
 
   // draw the overlay image on top of the base image
 //  baseImage.drawImage(0,0, overlayImage);
@@ -328,7 +328,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
   if (clippedImageStatus.printErrorMsg()) {
 	  return false;
 	} else {
-	  emit lpubAlert->messageSig(LOG_INFO, clippedImage.BoundMsg);
+	  emit lpub->messageSig(LOG_INFO, clippedImage.BoundMsg);
 	}
 
   return true;

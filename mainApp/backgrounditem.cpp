@@ -115,7 +115,7 @@ void BackgroundItem::setBackground(
         if (fileInfo.exists()) {
             backgroundData.string = fileInfo.absoluteFilePath();
         } else {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate background image %1. Be sure image file "
+            emit lpub->messageSig(LOG_ERROR, QString("Unable to locate background image %1. Be sure image file "
                                                           "is relative to model file or use absolute path.").arg( fileInfo.fileName()));
             return;
         }

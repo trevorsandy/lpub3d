@@ -1561,7 +1561,7 @@ void lcApplication::ShowPreferencesDialog()
 		return;
 
 /*** LPub3D Mod - preferences save message ***/
-	lpubAlert->messageSig(LOG_STATUS, QString("Saving Visual Editor preferences. Please wait..."));
+	lpub->messageSig(LOG_STATUS, QString("Saving Visual Editor preferences. Please wait..."));
 /*** LPub3D Mod end ***/
 
 	bool LanguageChanged = Options.Language != lcGetProfileString(LC_PROFILE_LANGUAGE);
@@ -1837,7 +1837,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcView::UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
-	lpubAlert->messageSig(LOG_STATUS, QString("Visual Editor preferences saved"));
+	lpub->messageSig(LOG_STATUS, QString("Visual Editor preferences saved"));
 	if (restartApp) {
 		restartApplication();
 	}

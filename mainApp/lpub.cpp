@@ -3447,7 +3447,7 @@ Gui::Gui()
 
     mi            = new MetaItem();
 
-    lpubAlert     = new LPubAlert();
+    lpub          = new LPub();
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
@@ -3508,7 +3508,7 @@ Gui::Gui()
 
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
 
-    connect(lpubAlert,      SIGNAL(messageSig(LogType,QString)),
+    connect(lpub,           SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 
     // Gui

@@ -1000,7 +1000,7 @@ void Updater::showErrorMessage (QString error)
       box.setInformativeText (text);
       box.exec();
     } else {
-      emit lpubAlert->messageSig(LOG_ERROR,error);
+      emit lpub->messageSig(LOG_ERROR,error);
     }
 }
 
