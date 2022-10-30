@@ -2187,8 +2187,8 @@ int CountPageWorker::countPage(
       if (!opts.stepNumber)
           opts.stepNumber = 1 + gui->sa;
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
-                           .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
+      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page 000 topOfPage First Page         (opt) - LineNumber %2, ModelName %3")
+                                               .arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       gui->topOfPages.clear();
       gui->topOfPages.append(opts.current);
@@ -2528,7 +2528,7 @@ int CountPageWorker::countPage(
                   } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                  emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
+                  emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage StepGroup End      (tos) - LineNumber %2, ModelName %3")
                                        .arg(opts.pageNum, 3, 10, QChar('0')).arg(topOfStep.lineNumber, 3, 10, QChar('0')).arg(topOfStep.modelName));
 #endif
                   ++opts.pageNum;
@@ -2720,7 +2720,7 @@ int CountPageWorker::countPage(
                       } // Exporting
 
 #ifdef QT_DEBUG_MODE
-                      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
+                      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Not Group    (opt) - LineNumber %2, ModelName %3")
                                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
                       ++opts.pageNum;
@@ -2935,7 +2935,7 @@ int CountPageWorker::countPage(
               insertBuildModification(buildModLevel);
       }
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
+      emit gui->messageSig(LOG_NOTICE, QString("COUNTPAGE - Page %1 topOfPage Step, Submodel End (opt) - LineNumber %2, ModelName %3")
                            .arg(opts.pageNum, 3, 10, QChar('0')).arg(opts.current.lineNumber, 3, 10, QChar('0')).arg(opts.current.modelName));
 #endif
       ++opts.pageNum;

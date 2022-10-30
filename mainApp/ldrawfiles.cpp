@@ -3048,7 +3048,7 @@ void LDrawFile::insertBuildModStep(const QString &buildModKey,
 
 #ifdef QT_DEBUG_MODE
     int action = modAction ? modAction : newModStep._buildModAction;
-    emit gui->messageSig(LOG_DEBUG, QString("Insert BuildMod Step ModStepIndex: %1, Action: %2, ModKey: %3")
+    emit gui->messageSig(LOG_DEBUG, QString("Insert BuildMod Step ModStepIndex: %1, Action: %2, ModKey: '%3'")
                          .arg(stepIndex).arg(action == BuildModApplyRc ? "Apply(64)" : "Remove(65)").arg(buildModKey));
 #endif
 }
@@ -3070,7 +3070,7 @@ int LDrawFile::getBuildModStep(const QString &modelName,
         modSourceStepIndex = getBuildModStepIndex(modKey);
         modSource = modSourceStepIndex == modStepIndex;
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Get BuildModStep StepIndex: %1, SourceIndex: %2, ModCount: %3, Action: %4%5, TopOfPage: ModelIndex %6 Line %7, ModKey: %8")
+        emit gui->messageSig(LOG_DEBUG, QString("Get BuildModStep StepIndex: %1, SourceIndex: %2, ModCount: %3, Action: %4%5, TopOfPage: ModelIndex %6 Line %7, ModKey: '%8'")
                         .arg(modStepIndex)
                         .arg(modSourceStepIndex)
                         .arg(_buildModSteps.values(modStepIndex).size())
@@ -3109,7 +3109,7 @@ void LDrawFile::clearBuildModStep(const QString &buildModKey,const int stepIndex
     }
 
 #ifdef QT_DEBUG_MODE
-    emit gui->messageSig(LOG_DEBUG, QString("Remove BuildModStep ModStepIndex: %1, Action: %2, ModKey: %3")
+    emit gui->messageSig(LOG_DEBUG, QString("Remove BuildModStep ModStepIndex: %1, Action: %2, ModKey: '%3'")
                          .arg(stepIndex)
                          .arg(action == BuildModApplyRc ? "Apply(64)" : action == BuildModRemoveRc ? "Remove(65)" : action == BuildModSourceRc ? "Source(67)" : "None(0)")
                          .arg(buildModKey));
@@ -3168,7 +3168,7 @@ bool LDrawFile::deleteBuildMod(const QString &buildModKey)
         clearBuildModSteps(modKey);
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Removed BuildMod ModKey: %1").arg(buildModKey));
+        emit gui->messageSig(LOG_DEBUG, QString("Removed BuildMod ModKey: '%1'").arg(buildModKey));
 #endif
         return true;
     }
@@ -3189,7 +3189,7 @@ void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &mo
         QMap<int, int>::iterator ai = i.value()._modActions.find(i.value()._modStepIndex);
         if (ai != i.value()._modActions.end())
             action = ai.value();
-        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepKey: %1;%2;%3, StepIndex: %4, Action: %5, ModKey: %6")
+        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepKey: %1;%2;%3, StepIndex: %4, Action: %5, ModKey: '%6'")
                              .arg(i.value()._modAttributes.at(BM_MODEL_NAME_INDEX))
                              .arg(i.value()._modAttributes.at(BM_MODEL_LINE_NUM))
                              .arg(i.value()._modAttributes.at(BM_MODEL_STEP_NUM))
@@ -3252,7 +3252,7 @@ int LDrawFile::setBuildModDisplayPageNumber(const QString &buildModKey, int disp
         i.value()._modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
 
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod DisplayPageNumber: %1, BuildModKey: %2")
+        emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod DisplayPageNumber: %1, ModKey: '%2'")
                                                 .arg(i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM))
                                                 .arg(buildModKey));
 #endif
@@ -3285,7 +3285,7 @@ int LDrawFile::setBuildModStepPieces(const QString &buildModKey, int pieces)
         QMap<int, int>::iterator ai = i.value()._modActions.find(i.value()._modStepIndex);
         if (ai != i.value()._modActions.end())
             action = ai.value();
-        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepPieces: %1, StepIndex: %2, Action: %3, ModKey: %4")
+        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod StepPieces: %1, StepIndex: %2, Action: %3, ModKey: '%4'")
                                                 .arg(i.value()._modAttributes.at(BM_STEP_PIECES))
                                                 .arg(i.value()._modStepIndex)
                                                 .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
@@ -3315,7 +3315,7 @@ int LDrawFile::setBuildModRendered(const QString &buildModKey, const QString &re
         entryAdded = false;
     }
     if (entryAdded)
-        emit gui->messageSig(LOG_DEBUG, QString("Insert BuildMod RenderedModel: %1, ModKey: %2").arg(renderedModel).arg(buildModKey));
+        emit gui->messageSig(LOG_DEBUG, QString("Insert BuildMod RenderedModel: %1, ModKey: '%2'").arg(renderedModel).arg(buildModKey));
 #endif
     return 0;
 }
@@ -3327,7 +3327,7 @@ bool LDrawFile::getBuildModRendered(const QString &buildModKey, const QString &r
     if (i != _buildModRendered.end()) {
         if (i.value().contains(renderedModel.toLower())) {
 #ifdef QT_DEBUG_MODE
-            emit gui->messageSig(LOG_DEBUG, QString("BuildMod RenderedModel: %1, ModKey: %2")
+            emit gui->messageSig(LOG_DEBUG, QString("BuildMod RenderedModel: %1, ModKey: '%2'")
                                  .arg(renderedModel).arg((countPage ? "cp~" : "")+buildModKey));
 #endif
             return true;
@@ -3345,7 +3345,7 @@ void LDrawFile::clearBuildModRendered(const QString &buildModKey, const QString 
         int cleared = i.value().removeAll(subModel);
 #ifdef QT_DEBUG_MODE
         if (cleared)
-            emit gui->messageSig(LOG_DEBUG, QString("Clear BuildMod RenderedModel: %1, Count: %2, ModKey: %3")
+            emit gui->messageSig(LOG_DEBUG, QString("Clear BuildMod RenderedModel: %1, Count: %2, ModKey: '%3'")
                                  .arg(renderedModel).arg(cleared).arg(buildModKey));
 #endif
     }
@@ -3381,7 +3381,7 @@ void LDrawFile::setBuildModSubmodelStack(const QString &buildModKey, const QStri
             }
         }
 #ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod ParentSubmodels: %1, StepIndex: %2, ModKey: %4")
+        emit gui->messageSig(LOG_DEBUG, QString("Update BuildMod ParentSubmodels: %1, StepIndex: %2, ModKey: '%4'")
                                                 .arg(i.value()._modSubmodelStack.size())
                                                 .arg(i.value()._modStepIndex)
                                                 .arg(buildModKey));
@@ -3478,13 +3478,13 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, const int stepIndex
 
 #ifdef QT_DEBUG_MODE
   if (!action)
-      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod%1 Action: (INVALID), StepIndex: %2, ActionStepIndex: %3, BuildModKey: %4")
+      emit gui->messageSig(LOG_ERROR, QString("Get BuildMod%1 Action: (INVALID), StepIndex: %2, ActionStepIndex: %3, ModKey: '%4'")
                                               .arg(insert)
                                               .arg(stepIndex)
                                               .arg(actionStepIndex)
                                               .arg(buildModKey));
   else
-      emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, %3ActionStepIndex: %4, BuildModKey: %5")
+      emit gui->messageSig(LOG_TRACE, QString("Get BuildMod%1 Action: %2, %3ActionStepIndex: %4, ModKey: '%5'")
                                               .arg(insert)
                                               .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
                                               .arg(stepIndex >= 0 ? QString("StepIndex: %1, ").arg(stepIndex) : "")
@@ -3532,8 +3532,9 @@ int LDrawFile::setBuildModAction(
 
 #ifdef QT_DEBUG_MODE
         bool change = modified(modFileName);
-        emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
+        emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod Action: %1, ModKey: '%2', StepIndex: %3, Changed: %4, ModelFile: %5")
                                                 .arg(action ? action == BuildModApplyRc ? "Apply(64)" : "Remove(65)" : "None(0)")
+                                                .arg(modKey)
                                                 .arg(stepIndex)
                                                 .arg(change ? "True" : "False")
                                                 .arg(modFileName));
@@ -3603,7 +3604,7 @@ void LDrawFile::setBuildModNavBackward()
 #ifdef QT_DEBUG_MODE
                 int actionStepIndex = _buildMods[modKey]._modActions.lastKey();
                 keys.append(QString("'%1' [%2], ").arg(modKey).arg(stepIndex));
-                emit gui->messageSig(LOG_TRACE, QString("Get BuildMod Last Action: %1, StepIndex: %2, ActionStepIndex: %3, BuildModKey: %4")
+                emit gui->messageSig(LOG_TRACE, QString("Get BuildMod Last Action: %1, StepIndex: %2, ActionStepIndex: %3, ModKey: '%4'")
                                                         .arg(action == BuildModApplyRc ? "Apply(64)" : "Remove(65)")
                                                         .arg(stepIndex)
                                                         .arg(actionStepIndex)
@@ -3713,7 +3714,7 @@ int LDrawFile::getBuildModStepLineNumber(int stepIndex, bool bottom)
     return lineNumber;
 }
 
-/* Returns index for BEGIN BuildMod command, requires BuildModKey*/
+/* Returns index for BEGIN BuildMod command, requires BuildMod Key*/
 
 int LDrawFile::getBuildModStepIndex(const QString &buildModKey)
 {
