@@ -27,6 +27,9 @@ PieceInfo::PieceInfo()
 	mModel = nullptr;
 	mProject = nullptr;
 	mSynthInfo = nullptr;
+/*** LPub3D Mod - project piece ***/
+	mProjectPiece = false;
+/*** LPub3D Mod end ***/
 	mFileName[0] = 0;
 	m_strDescription[0] = 0;
 }
@@ -110,13 +113,57 @@ void PieceInfo::CreateProject(Project* Project, const char* PieceName)
 	mFileName[sizeof(mFileName) - 1] = 0;
 	strncpy(m_strDescription, Project->GetFileName().toLatin1().data(), sizeof(m_strDescription) - 1);
 	m_strDescription[sizeof(m_strDescription) - 1] = 0;
+
+/*** LPub3D Mod - project piece ***/
+	if (!mModel)
+	{
+		mModel = mProject->GetMainModel();
+
+		if (mModel && mModel->GetProperties().mFileName == QLatin1String(mFileName))
+		{
+			int CurrentLine = 0;
+			while (CurrentLine < mModel->GetFileLines().size())
+			{
+				QString Line = mModel->GetFileLines()[CurrentLine];
+				QTextStream LineStream(&Line, QIODevice::ReadOnly);
+
+				QString Token;
+				LineStream >> Token;
+
+				if (Token == QLatin1String("0"))
+				{
+					LineStream >> Token;
+
+					if (Token.toUpper().replace("_"," ") == QLatin1String("UNOFFICIAL PART") )
+					{
+						mProjectPiece = true;
+						break;
+					}
+					else if (Token == QLatin1String("!LDRAW_ORG") )
+					{
+						LineStream >> Token;
+
+						if (Token.toUpper().replace("_"," ") == QLatin1String("UNOFFICIAL PART"))
+						{
+							mProjectPiece = true;
+							break;
+						}
+					}
+				}
+				CurrentLine++;
+			}
+		}
+		mModel = nullptr;
+	}
+/*** LPub3D Mod end ***/	
 }
 
 /*** LPub3D Mod - project piece ***/
-bool PieceInfo::IsProjectPiece() const
+bool PieceInfo::DisplayProjectAsPiece() const
 {
 	if (mProject)
 		return !strcmp(m_strDescription, mProject->GetFileName().toLatin1().data());
+
 	return false;
 }
 /*** LPub3D Mod end ***/
@@ -364,7 +411,7 @@ void PieceInfo::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool Add
 			PartsList[this][DefaultColorIndex]++;
 	}
 /*** LPub3D Mod 137 - part type check ***/
-	else if (IsProject() && !IsProjectPiece())
+	else if (IsProject() && !DisplayProjectAsPiece())
 /*** LPub3D Mod end ***/
 	{
 		const lcModel* const Model = mProject->GetMainModel();

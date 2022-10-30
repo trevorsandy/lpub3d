@@ -166,7 +166,11 @@ public:
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - project piece ***/
-	bool IsProjectPiece() const;
+	bool IsProjectPiece() const
+	{
+		return mProjectPiece;
+	}
+	bool DisplayProjectAsPiece() const;
 /*** LPub3D Mod end ***/
 	void ZoomExtents(float FoV, float AspectRatio, lcMatrix44& ProjectionMatrix, lcMatrix44& ViewMatrix) const;
 	void AddRenderMesh(lcScene& Scene);
@@ -208,6 +212,9 @@ protected:
 	void ReleaseMesh();
 
 	int mRefCount;
+/*** LPub3D Mod - project piece ***/
+	bool mProjectPiece;
+/*** LPub3D Mod end ***/
 	lcPieceInfoType mType;
 	lcModel* mModel;
 	Project* mProject;

@@ -174,7 +174,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 		PieceInfo* Info = PieceIt->second;
 
 /*** LPub3D Mod - project piece ***/
-		if ((!CurrentProject || !Info->IsModel() || CurrentProject->GetModels().FindIndex(Info->GetModel()) != -1) && (!ProjectPath.isEmpty() || !Info->IsProject() || Info->IsProjectPiece()))
+		if ((!CurrentProject || !Info->IsModel() || CurrentProject->GetModels().FindIndex(Info->GetModel()) != -1) && ((!ProjectPath.isEmpty() && (Info->IsProjectPiece() || (CurrentProject ? CurrentProject->IsPreview() : false))) || !Info->IsProject()))
 /*** LPub3D Mod end ***/
 			return Info;
 	}
@@ -186,7 +186,7 @@ PieceInfo* lcPiecesLibrary::FindPiece(const char* PieceName, Project* CurrentPro
 		if (ProjectFile.isFile())
 		{
 /*** LPub3D Mod - preview widget ***/
-			bool Preview = CurrentProject ? CurrentProject->GetIsPreview() : false;
+			bool Preview = CurrentProject ? CurrentProject->IsPreview() : false;
 			Project* NewProject = new Project(Preview);
 /*** LPub3D Mod end ***/
 

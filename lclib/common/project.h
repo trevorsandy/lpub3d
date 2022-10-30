@@ -162,7 +162,7 @@ public:
 	void ShowModelListDialog();
 
 /*** LPub3D Mod - preview widget ***/
-	bool GetIsPreview()
+	bool IsPreview() const
 	{
 		return mIsPreview;
 	}
