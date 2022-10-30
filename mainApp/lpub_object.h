@@ -19,12 +19,13 @@
 
 #include "name.h"
 #include "ldrawfiles.h"
-#include "metatypes.h"
 #include "ranges.h"
 #include "meta.h"
-#include "step.h"
 
+class Step;
 class NativeOptions;
+class lcHttpManager;
+class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 
@@ -58,6 +59,14 @@ public:
 
   void    SetStudStyle(const NativeOptions*, bool);
   void    SetAutomateEdgeColor(const NativeOptions*);
+
+  /// Run command line execution
+  int processCommandLine();
+
+  /// Run visual editor command line execution
+  int Process3DViewerCommandLine();
+
+  bool setPreferredRendererFromCommand(const QString &);
 
   /// Fade and highlight settings from command line calls
   bool setFadeStepsFromCommand();
@@ -108,14 +117,6 @@ protected:
     QByteArray             mByteArray;
     QString                mTitle;
 
-private:
-  /// Run command line execution
-  int processCommandLine();
-
-  /// Run visual editor command line execution
-  int Process3DViewerCommandLine();
-
-  bool setPreferredRendererFromCommand(const QString &);
 };
 
 extern class LPub *lpub;

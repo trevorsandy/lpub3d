@@ -33,8 +33,6 @@
 
 #define RUN_APPLICATION 2
 
-Application* LPub;
-
 #ifdef Q_OS_WIN
 
   #include <stdio.h>
@@ -244,14 +242,10 @@ Application::Application(int &argc, char **argv)
   Preferences::setDistribution();
 #endif
   m_instance = this;
-
-  LPub = this;
 }
 
 Application::~Application()
-{
-    LPub = nullptr;
-}
+{ }
 
 Application* Application::instance()
 {

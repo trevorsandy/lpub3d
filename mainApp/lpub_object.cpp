@@ -12,7 +12,22 @@
 **
 ****************************************************************************/
 
+#include <QMessageBox>
+
 #include "lpub_object.h"
+
+#include "application.h"
+#include "lpub_preferences.h"
+#include "lpub.h"
+
+#include "lc_application.h"
+#include "lc_mainwindow.h"
+#include "lc_library.h"
+#include "lc_profile.h"
+#include "lc_context.h"
+#include "lc_view.h"
+#include "lc_http.h"
+#include "project.h"
 
 LPub *lpub;
 

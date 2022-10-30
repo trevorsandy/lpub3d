@@ -366,6 +366,7 @@
 #include "QsLog.h"
 
 #include "application.h"
+#include "lpub_object.h"
 
 // Set to enable file watcher
 #ifndef WATCHER
