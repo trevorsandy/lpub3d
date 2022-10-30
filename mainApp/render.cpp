@@ -3084,101 +3084,115 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->ImageFileName,
                 O->Resolution);
 
-    if (!RenderImage) {
-        gui->enableApplyLightAction();
-        gui->GetPartSelectionWidget()->SetDefaultPart();
-    }
+    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
 
-    lcView* ActiveView = gui->GetActiveView();
-
-    lcModel* ActiveModel = nullptr;
-
-    if (ActiveView) {
-        ActiveModel = ActiveView->GetActiveModel();
-    } else {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active view."));
+    if (!ActiveModel) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active model."));
         return false;
     }
+
+    lcView* ActiveView = nullptr;
+
+    if (RenderImage) {
+        ActiveView = new lcView(lcViewType::View, ActiveModel);
+    } else {
+        gui->enableApplyLightAction();
+        gui->GetPartSelectionWidget()->SetDefaultPart();
+
+        ActiveView = gui->GetActiveView();
+    }
+
+    if (!ActiveView) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to set active view."));
+        return false;
+    }
+
+    const lcPreferences& Preferences = lcGetPreferences();
 
     lcCamera* Camera = nullptr;
 
     bool ZoomExtents    = O->ZoomExtents;
     bool DefaultCamera  = O->CameraName.isEmpty();
-    bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
-    bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
+    bool IsOrtho        = DefaultCamera ? Preferences.mNativeProjection : O->IsOrtho;
+    bool UsingViewpoint = Preferences.mNativeViewpoint <= 6;
     bool SetTarget      = O->Target.isPopulated();
 
-    if (DefaultCamera)
-        Camera = ActiveView->GetCamera();
-    else
-        Camera = new lcCamera(false);
-
-    if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
-
-        lcViewpoint Viewpoint = lcViewpoint(gui->GetPreferences().mNativeViewpoint);
-        if (!RenderImage)
-            ActiveView->SetViewpoint(Viewpoint);
+    if (ActiveView) {
+        if (DefaultCamera)
+            Camera = ActiveView->GetCamera();
         else
-            Camera->SetViewpoint(Viewpoint);
+            Camera = new lcCamera(false);
 
-    } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
-        if (Preferences::preferredRenderer == RENDERER_NATIVE)
-            Camera->m_fovy = O->FoV;
-        else
-            Camera->m_fovy = O->FoV + Camera->m_fovy - gui->getDefaultCameraFoV();
+        if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
-        if (SetTarget) {
-            if (Camera->m_zNear != O->ZNear)
-                Camera->m_zNear = O->ZNear;
+            lcViewpoint Viewpoint = lcViewpoint(Preferences.mNativeViewpoint);
+            if (!RenderImage)
+                ActiveView->SetViewpoint(Viewpoint);
+            else
+                Camera->SetViewpoint(Viewpoint);
 
-            if (Camera->m_zFar != O->ZFar)
-                Camera->m_zFar = O->ZFar;
+        } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
+            if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+                Camera->m_fovy = O->FoV;
+            } else {
+                const float defaultFov = Preferences::preferredRenderer == RENDERER_LDVIEW &&
+                                         Preferences::perspectiveProjection ?
+                                         CAMERA_FOV_LDVIEW_P_DEFAULT :
+                                         CAMERA_FOV_DEFAULT;
+                Camera->m_fovy = O->FoV + Camera->m_fovy - defaultFov;
+            }
 
-            if (O->Position.isPopulated())
-                Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
+            if (SetTarget) {
+                if (Camera->m_zNear != O->ZNear)
+                    Camera->m_zNear = O->ZNear;
 
-            if (O->UpVector.isPopulated())
-                Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
+                if (Camera->m_zFar != O->ZFar)
+                    Camera->m_zFar = O->ZFar;
 
-            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
-            Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
-        }
+                if (O->Position.isPopulated())
+                    Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
 
-        Camera->UpdatePosition(1);
+                if (O->UpVector.isPopulated())
+                    Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
 
-        if (!DefaultCamera) {
-            for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
-                QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
-                if (Name == O->CameraName) {
-                    ActiveModel->RemoveCameraIndex(CameraIdx);
-                    QStringList keys = gui->getViewerStepKeys(true/*Name*/,O->ImageType, O->ViewerStepKey);
-                    QString step;
-                    if (keys.size() >= 3)
-                        step = QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0));
-                    emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.").arg(O->CameraName).arg(step));
+                // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
+                Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
+            }
+
+            Camera->UpdatePosition(1);
+
+            if (!DefaultCamera) {
+                for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
+                    QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
+                    if (Name == O->CameraName) {
+                        ActiveModel->RemoveCameraIndex(CameraIdx);
+                        const QStringList keys = O->ViewerStepKey.split(";");
+                        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.")
+                                             .arg(O->CameraName).arg(keys.size() > 2 ? QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0)) : ""));
+                    }
+                    else
+                        CameraIdx++;
                 }
-                else
-                    CameraIdx++;
+
+                Camera->SetName(O->CameraName);
+                Camera->SetSelected(true);
+
+                ActiveModel->AddCamera(Camera);
+                ActiveView->SetCamera(O->CameraName);
             }
 
-            Camera->SetName(O->CameraName);
-            Camera->SetSelected(true);
-
-            ActiveModel->AddCamera(Camera);
-            ActiveView->SetCamera(O->CameraName);
-        }
-
-        if (!RenderImage) {
-            if (!ZoomExtents) {
-                int PreferedZoomExtents = gui->GetPreferences().mZoomExtents;
-                if (PreferedZoomExtents)
-                    ZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
+            if (!RenderImage) {
+                if (!ZoomExtents) {
+                    int PreferedZoomExtents = Preferences.mZoomExtents;
+                    if (PreferedZoomExtents)
+                        ZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
+                }
+                if (!SetTarget)
+                    ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
+                ActiveView->SetProjection(IsOrtho);
             }
-            if (!SetTarget)
-                ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
-            ActiveView->SetProjection(IsOrtho);
         }
-    }
+    } // ActiveView
 
     bool rc = true;
 
@@ -3204,12 +3218,12 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         const lcStep CurrentStep = ActiveModel->GetCurrentStep();
         const lcStep ImageStep   = ActiveModel->GetLastStep();
 
-        lcView View(lcViewType::View, ActiveModel);
-        View.SetCamera(Camera, true);
-        View.SetOffscreenContext();
-        View.MakeCurrent();
+        lcView ImageView(lcViewType::View, ActiveModel);
+        ImageView.SetCamera(Camera, true);
+        ImageView.SetOffscreenContext();
+        ImageView.MakeCurrent();
 
-        if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {
+        if ((rc = ImageView.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
             struct NativeImage
             {
@@ -3221,13 +3235,13 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             ActiveModel->SetTemporaryStep(ImageStep);
 
             if (!SetTarget)
-                View.SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
+                ImageView.SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
 
-            View.OnDraw();
+            ImageView.OnDraw();
 
-            Image.RenderedImage = View.GetRenderImage();
+            Image.RenderedImage = ImageView.GetRenderImage();
 
-            View.EndRenderToImage();
+            ImageView.EndRenderToImage();
 
             ActiveModel->SetTemporaryStep(CurrentStep);
 
@@ -3285,7 +3299,7 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                                      .arg(O->ExportMode == EXPORT_NONE ?
                                               QString("image") :
                                               QString("%1 object")
-                                              .arg(nativeExportNames[gui->exportMode]))
+                                              .arg(nativeExportNames[O->ExportMode]))
                                      .arg(O->OutputFileName)
                                      .arg(Writer.errorString()));
                 rc = false;
