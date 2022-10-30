@@ -1593,14 +1593,14 @@ bool PreferencesDialog::showIncludeFileErrors()
   return mShowIncludeFileErrors;
 }
 
-bool PreferencesDialog::inlineNativeRenderFiles()
+bool PreferencesDialog::inlineNativeContent()
 {
   QSettings Settings;
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles")))
-    return Preferences::inlineNativeRenderFiles;
-  return Settings.value(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles")).toBool();
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"InlineNativeContent")))
+    return Preferences::inlineNativeContent;
+  return Settings.value(QString("%1/%2").arg(SETTINGS,"InlineNativeContent")).toBool();
 
-  // return ui.inlineNativeRenderFilesBox->isChecked(); // future implementation
+  // return ui.inlineNativeContentBox->isChecked(); // future implementation
 }
 
 bool PreferencesDialog::showAnnotationErrors()

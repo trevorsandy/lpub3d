@@ -430,7 +430,7 @@ int Step::createCsi(
           rc = rotatedParts.isEmpty();
 
           // Prepare content for Native renderer
-          if (!rc && Preferences::inlineNativeRenderFiles) {
+          if (!rc && Preferences::inlineNativeContent) {
               QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedParts] () {
                   QStringList futureParts = rotatedParts;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedParts file

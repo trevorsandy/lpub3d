@@ -89,7 +89,7 @@ class PreferencesDialog : public QDialog
     bool          enableLDViewSingleCall();
     bool          enableLDViewSnaphsotList();
     bool          showUpdateNotifications();
-    bool          inlineNativeRenderFiles();
+    bool          inlineNativeContent();
     bool          enableDownloader();
     bool          showDownloadRedirects();
     bool          showAllNotifications();

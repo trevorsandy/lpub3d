@@ -1115,7 +1115,7 @@ int Pli::createPartImage(
                 // add ROTSTEP command
                 futureFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
                 // prepare content for Native renderer
-                if (Preferences::inlineNativeRenderFiles) {
+                if (Preferences::inlineNativeContent) {
                     // header and closing meta - this call returns an updated pliFile
                     if (renderer->setLDrawHeaderAndFooterMeta(futureFile,type,Options::PLI)) {
                         // consolidate pli part and MPD subfile(s) into single file
@@ -2581,7 +2581,7 @@ int Pli::partSizeLDViewSCall() {
                         // add ROTSTEP command
                         futureFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "REL 0 0 0" : rotStep.replace("_"," ")));
                         // prepare content for Native renderer
-                        if (Preferences::inlineNativeRenderFiles) {
+                        if (Preferences::inlineNativeContent) {
                             // header and closing meta - this call returns an updated pliFile
                             if (renderer->setLDrawHeaderAndFooterMeta(futureFile,pliPart->type,Options::PLI)) {
                                 // consolidate pli part and MPD subfile(s) into single file

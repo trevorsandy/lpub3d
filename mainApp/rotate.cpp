@@ -232,7 +232,7 @@ int Render::rotateParts(
       rotatedParts.prepend(rotsComment);
 
   // Prepare content for Native renderer
-  if (nativeRenderer && Preferences::inlineNativeRenderFiles && ! ldvFunction) {
+  if (nativeRenderer && Preferences::inlineNativeContent && ! ldvFunction) {
       // header and closing meta for Visual Editor - this call returns an updated pliFile
       setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 

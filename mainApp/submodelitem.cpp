@@ -388,7 +388,7 @@ int SubModel::createSubModelImage(
           rc = rotatedModel.isEmpty();
 
           // Prepare content for Native renderer
-          if (!rc && Preferences::inlineNativeRenderFiles) {
+          if (!rc && Preferences::inlineNativeContent) {
               QFuture<QStringList> RenderFuture = QtConcurrent::run([this, &rotatedModel] () {
                   QStringList futureModel = rotatedModel;
                   // header and closing meta for Visual Editor - this call returns an updated rotatedModel file

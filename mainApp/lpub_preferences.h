@@ -351,7 +351,7 @@ class Preferences
     static bool    showSaveOnUpdate;
     static bool    suppressStdOutToLog;
     static bool    archivePartsOnLaunch;
-    static bool    inlineNativeRenderFiles;
+    static bool    inlineNativeContent;
 
     static bool    customSceneBackgroundColor;
     static bool    customSceneGridColor;

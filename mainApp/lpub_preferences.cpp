@@ -404,7 +404,7 @@ bool    Preferences::finalModelEnabled          = true;
 bool    Preferences::editorHighlightLines       = true;
 bool    Preferences::editorLoadSelectionStep    = true;
 bool    Preferences::editorPreviewOnDoubleClick = true;
-bool    Preferences::inlineNativeRenderFiles    = true;
+bool    Preferences::inlineNativeContent    = true;
 
 bool    Preferences::ldgliteInstalled           = false;
 bool    Preferences::ldviewInstalled            = false;
@@ -2331,12 +2331,12 @@ void Preferences::preferredRendererPreferences(bool persist)
     }
 
     // Inline Native renderer prject content
-    QString const inlineNativeRenderFilesKey("InlineNativeRenderFiles");
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey))) {
-        inlineNativeRenderFiles = true;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey),inlineNativeRenderFiles);
+    QString const inlineNativeContentKey("InlineNativeContent");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,inlineNativeContentKey))) {
+        inlineNativeContent = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,inlineNativeContentKey),inlineNativeContent);
     } else {
-        inlineNativeRenderFiles = Settings.value(QString("%1/%2").arg(SETTINGS,inlineNativeRenderFilesKey)).toBool();
+        inlineNativeContent = Settings.value(QString("%1/%2").arg(SETTINGS,inlineNativeContentKey)).toBool();
     }
 }
 
@@ -5130,10 +5130,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
         }
 
-        if (inlineNativeRenderFiles != dialog->inlineNativeRenderFiles())
+        if (inlineNativeContent != dialog->inlineNativeContent())
         {
-            inlineNativeRenderFiles = dialog->inlineNativeRenderFiles();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"InlineNativeRenderFiles"),inlineNativeRenderFiles);
+            inlineNativeContent = dialog->inlineNativeContent();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"InlineNativeContent"),inlineNativeContent);
         }
 
         // LcLib Preferences
