@@ -97,6 +97,8 @@ public:
     bool directDownload() const;
     bool promptedDownload() const;
     bool getChangeLogOnly() const;
+    bool versionsRequested() const;
+    bool compareVersionStr (const QString& x, const QString& y) { return compare(x,y); }
     QString fileName() const;
     QString downloadDir() const;
     QString getAvailableVersions() const;
@@ -124,14 +126,13 @@ public slots:
     void setDownloadDir (const QString& path);
     void setChangelogOnly  (const bool& enabled);
     void retrieveAvailableVersions();
-    bool compareVersionStr (const QString& x, const QString& y) { return compare(x,y); }
+    void retrieveChangeLog();
     // Mod End
 
 private slots:
     void onReply (QNetworkReply* reply);
     void setUpdateAvailable (const bool available);
     // LPub3D Mod
-    bool versionsRequested();
     void setVersionsRequested(const bool& available);
     void changeLogReply (QNetworkReply* reply);
     void changeLogRequest(const QUrl& _url);
@@ -141,6 +142,7 @@ private slots:
 
 private:
     bool compare (const QString& x, const QString& y);
+    bool sslIsSupported();
 
 private:
     QString m_url;

@@ -105,6 +105,7 @@ public:
     QString getAvailableVersions (const QString& url) const;
     void setChangelogOnly(const QString& url, const bool &enabled);
     bool getChangelogOnly(const QString& url) const;
+    bool getVersionsRequested(const QString& url) const;
     bool compareVersionStr (const QString& url, const QString& x, const QString& y);
     // Mod End
 
@@ -124,6 +125,7 @@ public slots:
     void setShowRedirects (const QString& url, const bool& enabled);
     void setModuleRevision (const QString& url, const QString& revision);
     void retrieveAvailableVersions (const QString& url) const;
+    void retrieveChangeLog (const QString& url) const;
     void setPromptedDownload (const QString& url, const bool& enabled);
     void setDirectDownload (const QString& url, const bool& enabled);
     void setDownloadDir (const QString& url, const QString& path);

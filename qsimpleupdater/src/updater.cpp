@@ -96,9 +96,6 @@ Updater::Updater()
 
     setUserAgentString(QString ("%1/%2 (Qt; QSimpleUpdater)").arg(qApp->applicationName(),
                         qApp->applicationVersion()));
-    // LPub3D Mod
-    //connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancel()));
-    // Mod End
     connect (m_downloader, SIGNAL (downloadFinished(QString,QString)),
              this,         SIGNAL (downloadFinished(QString,QString)));
     connect (m_manager,    SIGNAL (finished(QNetworkReply*)),
@@ -112,7 +109,6 @@ Updater::Updater()
 Updater::~Updater()
 {
   // LPub3D Mod
-  // delete m_progressDialog;
   if (m_downloader)
     m_downloader->deleteLater();
   if (m_manager)
@@ -290,25 +286,11 @@ bool Updater::customProcedure() const
 void Updater::checkForUpdates()
 {
     // LPub3D Mod
-    // if (notifyOnFinish())
-    // {
-    //     if (customProcedure())
-    //        m_progressDialog->setDownloadInfo();
-    //     m_progressDialog->show();
-    // }
-    if (!QSslSocket::supportsSsl()) {
-        showErrorMessage(tr("SSL not supported, %1.").arg(
-                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
-                                         QString("Build not detected") :
-                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
-                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
-                                         QString(", Library not detected") :
-                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+    if (!sslIsSupported()) {
         emit downloadCancelled();
         return;
     }
     // Mod end
-
     QNetworkRequest request (url());
     if (!userAgentString().isEmpty())
         request.setRawHeader ("User-Agent", userAgentString().toUtf8());
@@ -434,12 +416,6 @@ void Updater::setCustomProcedure (const bool custom)
  */
 void Updater::onReply (QNetworkReply* reply)
 {
-    // LPub3D Mod
-    // Hide the progress dialog
-    //if (m_progressDialog->isVisible())
-    //    m_progressDialog->hide();
-    // Mod End
-
     /* Check if we need to redirect */
     QUrl redirect = reply->attribute (
                         QNetworkRequest::RedirectionTargetAttribute).toUrl();
@@ -486,7 +462,6 @@ void Updater::onReply (QNetworkReply* reply)
       if (! platform.isEmpty()) {
           m_availableVersions = platform.value ("available-versions").toString();
       }
-      setVersionsRequested(false);
       emit checkingFinished (url());
       return;
     }
@@ -803,6 +778,26 @@ bool Updater::compare (const QString& x, const QString& y)
 
 // LPub3D Mod
 /**
+ * Check if installed SSL library version is supported by
+ * build SSL version
+ */
+bool Updater::sslIsSupported()
+{
+    if (!QSslSocket::supportsSsl()) {
+        showErrorMessage(tr("SSL not supported, %1.").arg(
+                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
+                                         QString("Build not detected") :
+                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
+                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
+                                         QString(", Library not detected") :
+                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Disconnects the network access manager when the user
  * clicks on the "cancel" button in the progress dialog.
  */
@@ -817,7 +812,8 @@ void Updater::cancel (void)
  * directly download content without running the version compare logic
  * This is used for direct content download like library files
  */
-void Updater::setDirectDownload (const bool& enabled) {
+void Updater::setDirectDownload (const bool& enabled)
+{
     m_directDownload = enabled;
 }
 
@@ -826,28 +822,32 @@ void Updater::setDirectDownload (const bool& enabled) {
  * to download the requeste dcontent with an option to proceed.
  * This is used for in-applicaton content download like library files
  */
-void Updater::setPromptedDownload (const bool& enabled) {
+void Updater::setPromptedDownload (const bool& enabled)
+{
     m_promptedDownload = enabled;
 }
 
 /**
  * Sets the flag to indicate download is a portable distribution
  */
-void Updater::setPortableDistro (const bool& enabled) {
+void Updater::setPortableDistro (const bool& enabled)
+{
     m_downloader->setPortableDistro (enabled);
 }
 
 /**
  * Sets the flag to display HTTP redirects
  */
-void Updater::setShowRedirects (const bool& enabled) {
+void Updater::setShowRedirects (const bool& enabled)
+{
     m_downloader->setShowRedirects (enabled);
 }
 
 /**
  * Sets the path for download content
  */
-void Updater::setDownloadDir (const QString& path) {
+void Updater::setDownloadDir (const QString& path)
+{
     m_downloader->setDownloadDir (path);
 }
 
@@ -856,14 +856,16 @@ void Updater::setDownloadDir (const QString& path) {
  * registered with the given \a url. The full update check is not performed.
  *
  */
-void Updater::setChangelogOnly (const bool& enabled) {
+void Updater::setChangelogOnly (const bool& enabled)
+{
     m_changeLogOnly = enabled;
 }
 
 /**
  * Set the version request flag
  */
-void Updater::setVersionsRequested(const bool& version) {
+void Updater::setVersionsRequested(const bool& version)
+{
     m_versionsRequest = version;
 }
 
@@ -872,19 +874,10 @@ void Updater::setVersionsRequested(const bool& version) {
  * available versions for the platform
  */
 void Updater::retrieveAvailableVersions() {
-    // LPub3D Mod
-    if (!QSslSocket::supportsSsl()) {
-        showErrorMessage(tr("SSL not supported, %1.").arg(
-                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
-                                         QString("Build not detected") :
-                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
-                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
-                                         QString(", Library not detected") :
-                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+    if (!sslIsSupported()) {
         emit downloadCancelled();
         return;
     }
-    // Mod end
     setVersionsRequested(true);
     QNetworkRequest versionsRequest (url());
     if (!userAgentString().isEmpty())
@@ -894,9 +887,26 @@ void Updater::retrieveAvailableVersions() {
 }
 
 /**
- * Return the version request flag
+ * Downloads the latest available  change log
  */
-bool Updater::versionsRequested() {
+void Updater::retrieveChangeLog() {
+    if (!sslIsSupported()) {
+        emit downloadCancelled();
+        return;
+    }
+    setChangelogOnly(true);
+    QNetworkRequest versionsRequest (url());
+    if (!userAgentString().isEmpty())
+      versionsRequest.setRawHeader ("User-Agent", userAgentString().toUtf8());
+
+    m_manager->get (versionsRequest);
+}
+
+/**
+ * Return the versions request flag
+ */
+bool Updater::versionsRequested() const
+{
     return m_versionsRequest;
 }
 
@@ -912,14 +922,16 @@ bool Updater::getChangeLogOnly() const
  * Returns the download file name
  * This is used for non-software updates only
  */
-QString Updater::fileName() const {
+QString Updater::fileName() const
+{
     return m_fileName;
 }
 
 /**
  * Returns the download local path
  */
-QString Updater::downloadDir() const {
+QString Updater::downloadDir() const
+{
     return m_downloader->downloadDir();
 }
 
@@ -927,7 +939,8 @@ QString Updater::downloadDir() const {
  * Returns \c if the update request is a direct download
  * and and bypasses the version compare logic.
  */
-bool Updater::directDownload() const {
+bool Updater::directDownload() const
+{
     return m_directDownload;
 }
 
@@ -935,7 +948,8 @@ bool Updater::directDownload() const {
  * Returns \c if the update request is a prompted download
  * which presents a notification and option to proceed.
  */
-bool Updater::promptedDownload() const {
+bool Updater::promptedDownload() const
+{
     return m_promptedDownload;
 }
 
@@ -943,7 +957,8 @@ bool Updater::promptedDownload() const {
  * Returns the available versions for download, which is
  * automatically retrieved at application startup.
  */
-QString Updater::getAvailableVersions() const {
+QString Updater::getAvailableVersions() const
+{
     return m_availableVersions;
 }
 
@@ -973,47 +988,19 @@ QString QSimpleUpdater::getModuleRevision (const QString& url) const
 }
 
 /**
- * Alerts the user when there is an error.
- */
-void Updater::showErrorMessage (QString error)
-{
-  if (notifyOnFinish()) // ! not silent
-    {
-      // Hide the progress dialog
-      //if (m_progressDialog->isVisible())
-      //    m_progressDialog->hide();
-
-      QMessageBox box;
-      box.setTextFormat (Qt::RichText);
-      box.setIcon (QMessageBox::Critical);
-      box.setStandardButtons (QMessageBox::Ok );
-      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      box.setWindowTitle(customProcedure() ? tr ("Library Update") : tr ("Software Update"));
-      QString title = customProcedure() ?
-            "<b>" + tr ("An error occured while downloading %1.&nbsp;&nbsp;&nbsp;&nbsp;")
-                        .arg(fileName().isEmpty() ? QString("archive ibrary") : fileName()) + "</b>" :
-            "<b>" + tr ("An error occured while checking for %1 update.&nbsp;&nbsp;&nbsp;")
-                        .arg(moduleName().isEmpty() ? QString(VER_PRODUCTNAME_STR) : moduleName()) + "</b>";
-      QString text = tr("%1").arg(error);
-
-      box.setText (title);
-      box.setInformativeText (text);
-      box.exec();
-    } else {
-      emit lpub->messageSig(LOG_ERROR,error);
-    }
-}
-
-/**
  * Request the change log.
  */
-void Updater::changeLogRequest(const QUrl &_url){
-
+void Updater::changeLogRequest(const QUrl &_url)
+{
     QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
 
-    connect (_manager, SIGNAL (finished (QNetworkReply *)),
-             this,     SLOT (changeLogReply (QNetworkReply *)));
+    connect (_manager, SIGNAL (finished(QNetworkReply *)),
+             this,     SLOT (changeLogReply(QNetworkReply *)));
 
+    if (!sslIsSupported()) {
+        emit downloadCancelled();
+        return;
+    }
     QNetworkRequest updateRequest (_url.toString());
     if (!userAgentString().isEmpty())
         updateRequest.setRawHeader ("User-Agent", userAgentString().toUtf8());
@@ -1028,7 +1015,8 @@ void Updater::changeLogRequest(const QUrl &_url){
 /**
  * Reads and analyzes the downloaded change log.
  */
-void Updater::changeLogReply (QNetworkReply *reply){
+void Updater::changeLogReply (QNetworkReply *reply)
+{
      if (reply->error() == QNetworkReply::NoError) {
 
         /* Get redirection url */
@@ -1049,5 +1037,33 @@ void Updater::changeLogReply (QNetworkReply *reply){
          showErrorMessage("Error receiving change log: " + reply->errorString() + ".");
      }
      emit changeLogReplyFinished();
+}
+
+/**
+ * Alerts the user when there is an error.
+ */
+void Updater::showErrorMessage (QString error)
+{
+  if (notifyOnFinish()) // ! not silent
+    {
+      QMessageBox box;
+      box.setTextFormat (Qt::RichText);
+      box.setIcon (QMessageBox::Critical);
+      box.setStandardButtons (QMessageBox::Ok );
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(customProcedure() ? tr ("Library Update") : tr ("Software Update"));
+      QString title = customProcedure() ?
+            "<b>" + tr ("An error occured while downloading %1.&nbsp;&nbsp;&nbsp;&nbsp;")
+                        .arg(fileName().isEmpty() ? QString("archive ibrary") : fileName()) + "</b>" :
+            "<b>" + tr ("An error occured while checking for %1 update.&nbsp;&nbsp;&nbsp;")
+                        .arg(moduleName().isEmpty() ? QString(VER_PRODUCTNAME_STR) : moduleName()) + "</b>";
+      QString text = tr("%1").arg(error);
+
+      box.setText (title);
+      box.setInformativeText (text);
+      box.exec();
+    } else {
+      emit lpub->messageSig(LOG_ERROR,error);
+    }
 }
     // Mod End

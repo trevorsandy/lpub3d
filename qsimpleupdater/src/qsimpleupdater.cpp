@@ -169,7 +169,7 @@ QString QSimpleUpdater::getChangelog (const QString& url) const
 void QSimpleUpdater::setChangelogOnly (const QString& url,
                                           const bool& enabled)
 {
-    return getUpdater (url)->setChangelogOnly(enabled);
+    getUpdater (url)->setChangelogOnly(enabled);
 }
 
 bool QSimpleUpdater::getChangelogOnly (const QString& url) const
@@ -177,6 +177,13 @@ bool QSimpleUpdater::getChangelogOnly (const QString& url) const
     return getUpdater (url)->getChangeLogOnly();
 }
 
+/**
+ * Return the versions request flag
+ */
+ bool QSimpleUpdater::getVersionsRequested(const QString& url) const
+ {
+     return getUpdater (url)->versionsRequested();
+ }
 // Mod End
 
 /**
@@ -445,8 +452,17 @@ Updater* QSimpleUpdater::getUpdater (const QString& url) const
 /**
  * Returns the available versions registered for the platform \c url
  */
-void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const {
+void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const
+{
     getUpdater (url)->retrieveAvailableVersions();
+}
+
+/**
+ * Returns the latest available  change log \c url
+ */
+void QSimpleUpdater::retrieveChangeLog (const QString& url) const
+{
+    getUpdater (url)->retrieveChangeLog();
 }
 
 /**
@@ -459,7 +475,8 @@ void QSimpleUpdater::retrieveAvailableVersions (const QString& url) const {
  *       to download non versioned content
  */
 void QSimpleUpdater::setPromptedDownload (const QString& url,
-                                          const bool& enabled) {
+                                          const bool& enabled)
+{
     getUpdater (url)->setPromptedDownload (enabled);
 }
 
@@ -476,8 +493,9 @@ void QSimpleUpdater::setModuleRevision (const QString& url,
 * \note Sets the flag to display HTTP redirects.
 */
 void QSimpleUpdater::setShowRedirects (const QString& url,
-                                       const bool& enabled) {
-  getUpdater (url)->setShowRedirects (enabled);
+                                       const bool& enabled)
+{
+    getUpdater (url)->setShowRedirects (enabled);
 }
 
 /**
@@ -490,7 +508,8 @@ void QSimpleUpdater::setShowRedirects (const QString& url,
  *       to download non versioned content
  */
 void QSimpleUpdater::setDirectDownload (const QString& url,
-                                        const bool& enabled) {
+                                        const bool& enabled)
+{
     getUpdater (url)->setDirectDownload (enabled);
 }
 
@@ -498,14 +517,16 @@ void QSimpleUpdater::setDirectDownload (const QString& url,
  * Sets the path of the downloaded content
  */
 void QSimpleUpdater::setDownloadDir (const QString& url,
-                                           const QString &path) {
-  getUpdater (url)->setDownloadDir(path);
+                                           const QString &path)
+{
+    getUpdater (url)->setDownloadDir(path);
 }
 
 /**
  * Returns the latest version online
  */
-QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
+QString QSimpleUpdater::getAvailableVersions (const QString& url) const
+{
     return getUpdater (url)->getAvailableVersions();
 }
 
@@ -515,7 +536,8 @@ QString QSimpleUpdater::getAvailableVersions (const QString& url) const {
  *     - If \a y is greater than \x, this function returns \c false.
  *     - If both versions are the same, this function returns \c false.
  */
-bool QSimpleUpdater::compareVersionStr (const QString& url, const QString& x, const QString& y) {
+bool QSimpleUpdater::compareVersionStr (const QString& url, const QString& x, const QString& y)
+{
     return getUpdater (url)->compareVersionStr(x,y);
 }
 // Mod End

@@ -197,8 +197,8 @@ AvailableVersions::AvailableVersions(QObject *parent) : QObject(parent)
 }
 
 void AvailableVersions::setAvailableVersions(const QString &url){
-  if (url == DEFS_URL) {
-      QString versions = m_updater->getAvailableVersions(DEFS_URL);
+  if (url == DEFS_URL && m_updater->getVersionsRequested(url)) {
+      QString versions = m_updater->getAvailableVersions(url);
       if (! versions.isEmpty())
         Preferences::availableVersions = versions;
       else
