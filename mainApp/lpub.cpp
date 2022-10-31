@@ -5201,53 +5201,14 @@ void Gui::createActions()
     lpub->actions.insert(copyFilePathToClipboardAct->objectName(), Action(tr("File.Full Path To Clipboard"), copyFilePathToClipboardAct));
     connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
-    QAction *recentFile1Act = new QAction(tr("Recent File 1"),this);
-    recentFile1Act->setObjectName("recentFile0Act.1");
-    recentFile1Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile1Act->objectName(), Action(tr("Recent Files.Recent File 1"), recentFile1Act));
-    connect(recentFile1Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile2Act = new QAction(tr("Recent File 2"),this);
-    recentFile2Act->setObjectName("recentFile1Act.1");
-    recentFile2Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile2Act->objectName(), Action(tr("Recent Files.Recent File 2"), recentFile2Act));
-    connect(recentFile2Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile3Act = new QAction(tr("Recent File 3"),this);
-    recentFile3Act->setObjectName("recentFile2Act.1");
-    recentFile3Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile3Act->objectName(), Action(tr("Recent Files.Recent File 3"), recentFile3Act));
-    connect(recentFile3Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile4Act = new QAction(tr("Recent File 4"),this);
-    recentFile4Act->setObjectName("recentFile3Act.1");
-    recentFile4Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile4Act->objectName(), Action(tr("Recent Files.Recent File 4"), recentFile4Act));
-    connect(recentFile4Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile5Act = new QAction(tr("Recent File 5"),this);
-    recentFile5Act->setObjectName("recentFile4Act.1");
-    recentFile5Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile5Act->objectName(), Action(tr("Recent Files.Recent File 5"), recentFile5Act));
-    connect(recentFile5Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile6Act = new QAction(tr("Recent File 6"),this);
-    recentFile6Act->setObjectName("recentFile5Act.1");
-    recentFile6Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile6Act->objectName(), Action(tr("Recent Files.Recent File 6"), recentFile6Act));
-    connect(recentFile6Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile7Act = new QAction(tr("Recent File 7"),this);
-    recentFile7Act->setObjectName("recentFile6Act.1");
-    recentFile7Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile7Act->objectName(), Action(tr("Recent Files.Recent File 7"), recentFile7Act));
-    connect(recentFile7Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
-
-    QAction *recentFile8Act = new QAction(tr("Recent File 8"),this);
-    recentFile8Act->setObjectName("recentFile7Act.1");
-    recentFile8Act->setStatusTip(tr("Clear recent files"));
-    lpub->actions.insert(recentFile8Act->objectName(), Action(tr("Recent Files.Recent File 8"), recentFile8Act));
-    connect(recentFile8Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+    for (int i = 0; i < MAX_RECENT_FILES; i++) {
+      recentFilesActs[i] = new QAction(this);
+      recentFilesActs[i]->setObjectName(tr("recentFile%1Act.1").arg(i));
+      recentFilesActs[i]->setStatusTip(tr("Clear recent file %1").arg(i));
+      recentFilesActs[i]->setVisible(false);
+      lpub->actions.insert(recentFilesActs[i]->objectName(), Action(tr("Recent Files.Recent File %1").arg(i), recentFilesActs[i]));
+      connect(recentFilesActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));
+    }
 
     QAction *clearRecentAct = new QAction(tr("Clear Recent Files"),this);
     clearRecentAct->setObjectName("clearRecentAct.1");
@@ -6254,7 +6215,7 @@ void Gui::enableActions()
   getMenu("setupMenu")->setEnabled(true);
   getMenu("cacheMenu")->setEnabled(true);
   getMenu("exportMenu")->setEnabled(true);
-  getMenu("openWithMenu")->setEnabled(numPrograms);
+  openWithMenu->setEnabled(numPrograms);
 
   //Visual Editor
   //ViewerExportMenu->setEnabled(true); // Hide Visual Editor step export functions
@@ -6328,7 +6289,7 @@ void Gui::disableActions()
   getMenu("setupMenu")->setEnabled(false);
   getMenu("cacheMenu")->setEnabled(false);
   getMenu("exportMenu")->setEnabled(false);
-  getMenu("openWithMenu")->setEnabled(false);
+  openWithMenu->setEnabled(false);
 
   // Visual Editor
   // ViewerExportMenu->setEnabled(false); // Hide Visual Editor step export functions
@@ -6382,7 +6343,7 @@ void Gui::createMenus()
     menus.insert(fileMenu->objectName(), fileMenu);
     fileMenu->addAction(getAct("openAct.1"));
 
-    QMenu *openWithMenu = fileMenu->addMenu(tr("Open With..."));
+    openWithMenu = fileMenu->addMenu(tr("Open With..."));
     openWithMenu->setObjectName("openWithMenu");
     menus.insert(openWithMenu->objectName(), openWithMenu);
     openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
@@ -6450,11 +6411,9 @@ void Gui::createMenus()
     recentFileMenu->setStatusTip(tr("Open recent model file"));
 
     for (int i = 0; i < MAX_RECENT_FILES; i++) {
-      recentFileMenu->addAction(getAct(tr("recentFile%1Act.1").arg(i)));
+      recentFileMenu->addAction(recentFilesActs[i]);
     }
-    QAction *separatorAct = recentFileMenu->addSeparator();
-    separatorAct->setObjectName("separatorAct.1");
-    lpub->actions.insert(separatorAct->objectName(), Action(tr(""), separatorAct));
+    recentFilesSeparatorAct = recentFileMenu->addSeparator();
 
     recentFileMenu->addSeparator();
     recentFileMenu->addAction(getAct("clearRecentAct.1"));

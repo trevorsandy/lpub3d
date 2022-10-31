@@ -1966,6 +1966,8 @@ private:
   QMenu *ViewerZoomSliderMenu;
   QMenu *RotateActionMenu;
 
+  // main window menus
+  QMenu  *openWithMenu;
   QMap<QString, QMenu *> menus;
 
   QToolBar *exportToolBar;
@@ -2010,6 +2012,8 @@ private:
   QAction *MoveAct;
   QAction *AngleAct;
 
+  QAction *recentFilesSeparatorAct;
+  QAction *recentFilesActs[MAX_RECENT_FILES];
   QList<QAction *> openWithActList;
   QAction *snapGridActions[NUM_GRID_SIZES];
 

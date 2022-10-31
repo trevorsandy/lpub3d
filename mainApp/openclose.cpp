@@ -312,15 +312,15 @@ void Gui::updateOpenWithActions()
         openWithActList[j]->setVisible(false);
 
       // clear old menu actions
-      if (getMenu("openWithMenu")->actions().size())
-          getMenu("openWithMenu")->clear();
+      if (openWithMenu->actions().size())
+          openWithMenu->clear();
 
       // add menu actions from updated list
       for (int k = 0; k < numPrograms; k++)
-        getMenu("openWithMenu")->addAction(openWithActList.at(k));
+        openWithMenu->addAction(openWithActList.at(k));
 
       // enable menu accordingly
-      getMenu("openWithMenu")->setEnabled(numPrograms > 0);
+      openWithMenu->setEnabled(numPrograms > 0);
     }
 }
 
@@ -955,15 +955,15 @@ void Gui::updateRecentFileActions()
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
       QString text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-      getAct(tr("recentFile%1Act.1").arg(i))->setText(text);
-      getAct(tr("recentFile%1Act.1").arg(i))->setData(files[i]);
-      getAct(tr("recentFile%1Act.1").arg(i))->setStatusTip(fileInfo.absoluteFilePath());
-      getAct(tr("recentFile%1Act.1").arg(i))->setVisible(true);
+      recentFilesActs[i]->setText(text);
+      recentFilesActs[i]->setData(files[i]);
+      recentFilesActs[i]->setStatusTip(fileInfo.absoluteFilePath());
+      recentFilesActs[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MAX_RECENT_FILES; j++) {
-      getAct(tr("recentFile%1Act.1").arg(j))->setVisible(false);
+      recentFilesActs[j]->setVisible(false);
     }
-    getAct("separatorAct.1")->setVisible(numRecentFiles > 0);
+    recentFilesSeparatorAct->setVisible(numRecentFiles > 0);
   }
 }
 
