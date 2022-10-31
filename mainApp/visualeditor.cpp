@@ -219,7 +219,7 @@ void Gui::create3DActions()
     CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
     CreateBuildModAct->setObjectName("CreateBuildModAct.4");
     CreateBuildModAct->setStatusTip(tr("Create a new build modification for this step"));
-    CreateBuildModAct->setShortcut(tr("Shift+J"));
+    CreateBuildModAct->setShortcut(QStringLiteral("Shift+J"));
     lpub->actions.insert(CreateBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Create Build Modification"), CreateBuildModAct));
     connect(CreateBuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
 
@@ -230,7 +230,7 @@ void Gui::create3DActions()
     UpdateBuildModAct->setObjectName("UpdateBuildModAct.4");
     UpdateBuildModAct->setEnabled(false);
     UpdateBuildModAct->setStatusTip(tr("Commit changes to the current build modification"));
-    UpdateBuildModAct->setShortcut(tr("Shift+K"));
+    UpdateBuildModAct->setShortcut(QStringLiteral("Shift+K"));
     lpub->actions.insert(UpdateBuildModAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Build Modification.Update Build Modification"), UpdateBuildModAct));
     connect(UpdateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
 
@@ -298,7 +298,7 @@ void Gui::create3DActions()
     ApplyLightAct->setObjectName("ApplyLightAct.4");
     ApplyLightAct->setEnabled(false);
     ApplyLightAct->setStatusTip(tr("Save light settings to current step"));
-    ApplyLightAct->setShortcut(tr("Shift+I"));
+    ApplyLightAct->setShortcut(QStringLiteral("Shift+I"));
     lpub->actions.insert(ApplyLightAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Lights.Save Light Settings"), ApplyLightAct));
     connect(ApplyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
@@ -308,7 +308,7 @@ void Gui::create3DActions()
     ApplyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
     ApplyCameraAct->setObjectName("ApplyCameraAct.4");
     ApplyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image"));
-    ApplyCameraAct->setShortcut(tr("Shift+A"));
+    ApplyCameraAct->setShortcut(QStringLiteral("Shift+A"));
     lpub->actions.insert(ApplyCameraAct->objectName(), Action(QStringLiteral("3DViewer.Tools.Camera.Save Camera Settings"), ApplyCameraAct));
     connect(ApplyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
@@ -481,7 +481,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_PIECE_DELETE]->setIcon(QIcon(":/resources/delete.png"));
 
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
-    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(tr("Alt+0"));
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(QStringLiteral("Alt+0"));
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
 
     gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setIcon(QIcon(":/resources/3ds32.png"));
@@ -497,7 +497,7 @@ void Gui::create3DActions()
     ViewLookAtIcon.addFile(":/resources/lookat.png");
     ViewLookAtIcon.addFile(":/resources/lookat.png");
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setIcon(ViewLookAtIcon);
-    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setShortcut(tr("Shift+O"));
+    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setShortcut(QStringLiteral("Shift+O"));
     gMainWindow->mActions[LC_VIEW_LOOK_AT]->setStatusTip(tr("Position camera so selection is placed at the viewport center - Shift+O"));
 
     enableBuildModification();
