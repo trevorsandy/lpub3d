@@ -36,6 +36,7 @@ namespace Ui {
 class LdrawFilesLoadDialog;
 }
 
+class QAbstractButton;
 class LdrawFilesLoadModel : public QStandardItemModel
 {
     Q_OBJECT
@@ -49,10 +50,11 @@ class LdrawFilesLoad : public QDialog
 {
     Q_OBJECT
 public:
-    explicit LdrawFilesLoad(QStringList &loadItems, QWidget *parent = nullptr);
+    explicit LdrawFilesLoad(const QStringList &loadItems, QWidget *parent = nullptr);
     ~LdrawFilesLoad();
-    static int showLoadMessages(QStringList &stringList);
+    static int showLoadMessages(const QStringList &stringList);
 private slots:
+    void getButton(QAbstractButton *button);
     void keyPressEvent(QKeyEvent * event);
     void copy();
 private:

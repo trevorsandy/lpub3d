@@ -4954,7 +4954,7 @@ void Gui::pagesCounted()
     {
         if (suspendFileDisplay) {
             if (Preferences::modeGUI && ! exporting()) {
-                emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
+                emit messageSig(LOG_INFO_STATUS, lpub->loadAborted() ?
                                     tr("Load model file %1 aborted.").arg(QFileInfo(getCurFile()).fileName()) :
                                     tr("Model file loaded (%1 pages, %2 parts). %3")
                                     .arg(maxPages)

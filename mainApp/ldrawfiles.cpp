@@ -1311,10 +1311,11 @@ int LDrawFile::loadFile(const QString &fileName)
                                                      .arg(mpc > 1 ? QObject::tr("these are") : QObject::tr("this is a")) //5
                                                      .arg(mpc > 1 ? QObject::tr("their") : QObject::tr("its")) : "");    //7
         _loadedParts << message;
-        if (mpc > 0) {
+        if (mpc) {
             if (_showLoadMessages) {
                 _showLoadMessages = false;
-                if ((_loadAborted = LdrawFilesLoad::showLoadMessages(_loadedParts) == 0)/*0=Rejected,1=Accepted*/) {
+                if (LdrawFilesLoad::showLoadMessages(_loadedParts) == QDialog::Rejected) {
+                    _loadAborted = true;
                     return 1;
                 }
             }

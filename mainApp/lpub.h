@@ -646,10 +646,6 @@ public:
   {
     return lpub->ldrawFile.modified(parsedIndexes, reset);
   }
-  bool loadAborted()
-  {
-    return lpub->ldrawFile._loadAborted;
-  }
 
   void insertGeneratedModel(const QString &name,
                                   QStringList &csiParts) {

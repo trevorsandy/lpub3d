@@ -45,15 +45,15 @@ QVariant LdrawFilesLoadModel::headerData(int section, Qt::Orientation orientatio
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch (section) {
         case 0:
-            return QString("Part");
+            return tr("Part");
         case 1:
-            return QString("Description");
+            return tr("Description");
         }
     }
     return QVariant();
 }
 
-LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
+LdrawFilesLoad::LdrawFilesLoad(const QStringList &stringList, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LdrawFilesLoadDialog),
     lm(new LdrawFilesLoadModel(this))
@@ -66,16 +66,23 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
 
     QStringList _loadedParts = stringList;
 
-    QString status = _loadedParts.last();
-    _loadedParts.removeLast();
+    QString status = _loadedParts.size() ? _loadedParts.takeLast() : tr("No loaded parts received.");
 
     ui->messagesLabel->setText(status);
+    if (_loadedParts.isEmpty())
+        ui->messagesLabel->setStyleSheet("QLabel { color: red; }");
     ui->messagesLabel->adjustSize();
+
+    QColor errorColor = QColor(Qt::red);
+    QBrush errorBrush (errorColor);
+
+    QColor warningColor = QColor(Qt::yellow);
+    QBrush warningBrush (warningColor);
 
     auto getCount = [&_loadedParts] (const LoadMsgType lmt)
     {
         int count = 0;
-        for (QString part : _loadedParts)
+        for (const QString &part : _loadedParts)
         {
             if (part.startsWith(int(lmt)))
                 count++;
@@ -83,45 +90,63 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
         return count;
     };
 
-    auto prepareRow = [] (const QString &item,const QString &desc)
+    auto prepareRow = [] (const QString &column01,const QString &column02)
     {
-        QList<QStandardItem *> row = { new QStandardItem(item),new QStandardItem(desc) };
+        QList<QStandardItem *> row = { new QStandardItem(column01), new QStandardItem(column02) };
         return row;
     };
 
-    auto setChildItems = [&_loadedParts, &prepareRow] (const LoadMsgType lmt, QList<QStandardItem *>parentItem)
+    auto setChildItems = [&] (const LoadMsgType lmt, QList<QStandardItem *>parentRow)
     {
         for (const QString &part : _loadedParts)
         {
             if (part.startsWith(int(lmt))) {
-                QStringList components = part.split("|");
-                QList<QStandardItem *>childItem = prepareRow(components.at(1),components.at(2));
-                parentItem.first()->appendRow(childItem);
+                QStringList columns = part.split("|");
+                QList<QStandardItem *>childRow = prepareRow(columns.at(1),columns.at(2));
+                if (lmt == MISSING_LOAD_MSG) {
+                    QStandardItem *part = childRow.at(0);
+                    part->setForeground(errorBrush);
+                    QStandardItem *desc = childRow.at(1);
+                    desc->setForeground(errorBrush);
+                } else if (lmt != VALID_LOAD_MSG) {
+                    QStandardItem *part = childRow.at(0);
+                    part->setForeground(warningBrush);
+                    QStandardItem *desc = childRow.at(1);
+                    desc->setForeground(errorBrush);
+                }
+                parentRow.first()->appendRow(childRow);
             }
         }
     };
 
     QStandardItem *rootNode = lm->invisibleRootItem();
     if (getCount(MISSING_LOAD_MSG)) {
-        QList<QStandardItem *>missingItem = prepareRow("Error - Missing Parts","");
-        rootNode->appendRow(missingItem);
-        setChildItems(MISSING_LOAD_MSG, missingItem);
-        ui->buttonBox->addButton(QDialogButtonBox::Abort);
+        QList<QStandardItem *>missingRow = prepareRow(tr("Error - Missing Parts"),"");
+        QStandardItem *header = missingRow.at(0);
+        header->setForeground(errorBrush);
+        rootNode->appendRow(missingRow);
+        setChildItems(MISSING_LOAD_MSG, missingRow);
+        ui->buttonBox->addButton(QDialogButtonBox::Discard);
+        connect(ui->buttonBox,SIGNAL(clicked(QAbstractButton*)),SLOT(getButton(QAbstractButton*)));
     }
     if (getCount(VALID_LOAD_MSG)) {
-        QList<QStandardItem *>validItem = prepareRow("Validated Parts","");
-        rootNode->appendRow(validItem);
-        setChildItems(VALID_LOAD_MSG, validItem);
+        QList<QStandardItem *>validRow = prepareRow(tr("Validated Parts"),"");
+        rootNode->appendRow(validRow);
+        setChildItems(VALID_LOAD_MSG, validRow);
     }
     if (getCount(PRIMITIVE_LOAD_MSG)) {
-        QList<QStandardItem *>primitiveItem = prepareRow("Warning - Primitive Parts","");
-        rootNode->appendRow(primitiveItem);
-        setChildItems(PRIMITIVE_LOAD_MSG, primitiveItem);
+        QList<QStandardItem *>primitiveRow = prepareRow(tr("Warning - Primitive Parts"),"");
+        QStandardItem *header = primitiveRow.at(0);
+        header->setForeground(warningBrush);
+        rootNode->appendRow(primitiveRow);
+        setChildItems(PRIMITIVE_LOAD_MSG, primitiveRow);
     }
     if (getCount(SUBPART_LOAD_MSG)) {
-        QList<QStandardItem *>subpartItem = prepareRow("Warning - Sublevel Parts","");
-        rootNode->appendRow(subpartItem);
-        setChildItems(SUBPART_LOAD_MSG, subpartItem);
+        QList<QStandardItem *>subpartRow = prepareRow(tr("Warning - Sublevel Parts"),"");
+        QStandardItem *header = subpartRow.at(0);
+        header->setForeground(warningBrush);
+        rootNode->appendRow(subpartRow);
+        setChildItems(SUBPART_LOAD_MSG, subpartRow);
     }
 
     ui->messagesView->setModel(lm);
@@ -133,7 +158,8 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
     ui->messagesView->adjustSize();
 
     contextMenu = new QMenu(ui->messagesView);
-    copyAct = new QAction(tr("Copy - Ctrl+C"),contextMenu);
+    copyAct = new QAction(tr("Copy"),contextMenu);
+    copyAct->setShortcut(QKeySequence::Copy);
     ui->messagesView->setContextMenuPolicy(Qt::ActionsContextMenu);
     ui->messagesView->addAction(copyAct);
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
@@ -187,6 +213,13 @@ void LdrawFilesLoad::copy()
     qApp->clipboard()->setMimeData(md);
 }
 
+void LdrawFilesLoad::getButton(QAbstractButton *button)
+{
+  QDialogButtonBox::ButtonRole role = ui->buttonBox->buttonRole(button);
+  if (role == QDialogButtonBox::DestructiveRole)
+    QDialog::reject();
+}
+
 void LdrawFilesLoad::keyPressEvent(QKeyEvent * event)
 {
     if(event->matches(QKeySequence::Copy) ||
@@ -196,9 +229,8 @@ void LdrawFilesLoad::keyPressEvent(QKeyEvent * event)
         QDialog::keyPressEvent(event);
 }
 
-int LdrawFilesLoad::showLoadMessages(
-  QStringList &stringList)
+int LdrawFilesLoad::showLoadMessages(const QStringList &stringList)
 {
-  LdrawFilesLoad *dlg = new LdrawFilesLoad(stringList);
-  return dlg->exec();
+  LdrawFilesLoad *filesLoadDialog = new LdrawFilesLoad(stringList);
+  return filesLoadDialog->exec();
 }
