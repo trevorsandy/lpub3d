@@ -308,6 +308,8 @@ private:
     bool showSaveOnRedrawFlag;
     bool showSaveOnUpdateFlag;
 
+    bool m_updateFinished;
+
     // LcLib Preferences
     lcLibRenderOptions* mOptions;
     bool mSetOptions;

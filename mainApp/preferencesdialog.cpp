@@ -857,11 +857,6 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
     }
 }
 
-void PreferencesDialog::on_checkForUpdates_btn_clicked()
-{
-    checkForUpdates();
-}
-
 void PreferencesDialog::on_ldviewSingleCall_Chk_clicked(bool checked)
 {
     ui.ldviewSnaphsotsList_Chk->setEnabled(checked);
@@ -893,6 +888,7 @@ void PreferencesDialog::on_logLevelsGrpBox_clicked(bool checked)
   ui.statusLevelBox->setChecked(checked);
   ui.logLevelGrpBox->setChecked(!checked);
 }
+
 void PreferencesDialog::on_logLevelGrpBox_clicked(bool checked)
 {
   ui.logValiationLbl->hide();
@@ -1188,17 +1184,6 @@ void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
     ldvWidget->showLDVPreferences();
 }
 
-void PreferencesDialog::on_autoUpdateChangeLogBox_clicked(bool checked)
-{
-   ui.updateChangeLogBtn->setEnabled(!checked);
-}
-
-void PreferencesDialog::on_updateChangeLogBtn_clicked()
-{
-    //populate release notes from the web
-    lpub->m_updater->retrieveChangeLog( LPub::DEFS_URL);
-}
-
 void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
 {
       ui.logPathEdit->setEnabled(checked);
@@ -1309,9 +1294,79 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     }
 }
 
+void PreferencesDialog::on_checkForUpdates_btn_clicked()
+{
+    checkForUpdates();
+}
+
+void PreferencesDialog::on_autoUpdateChangeLogBox_clicked(bool checked)
+{
+   ui.updateChangeLogBtn->setEnabled(!checked);
+}
+
+void PreferencesDialog::on_updateChangeLogBtn_clicked()
+{
+    //populate release notes from the web
+    QElapsedTimer timer;
+    timer.start();
+    m_updateFinished = false;
+    lpub->m_updater->retrieveChangeLog( LPub::DEFS_URL);
+    while (!m_updateFinished)
+        QApplication::processEvents();
+    emit gui->messageSig(LOG_NOTICE, tr("Download release notes completed. %1")
+                                        .arg(lpub->elapsedTime(timer.elapsed())));
+}
+
+void PreferencesDialog::checkForUpdates ()
+{
+    auto processRequest = [&] ()
+    {
+        const QString htmlNotes = ui.changeLog_txbr->toHtml();
+
+        ui.changeLog_txbr->setHtml("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>");
+
+        /* Get settings from the UI */
+        const QString moduleVersion = ui.moduleVersion_Combo->currentText();
+        const QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
+        const bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
+        const bool enableDownloader = ui.enableDownloader_Chk->isChecked();
+        const bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
+        const bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
+
+        /* Apply the settings */
+        if (lpub->m_updater->getModuleVersion(LPub::DEFS_URL) != moduleVersion)
+            lpub->m_updater->setModuleVersion(LPub::DEFS_URL, moduleVersion);
+        if (lpub->m_updater->getModuleRevision(LPub::DEFS_URL) != moduleRevision)
+            lpub->m_updater->setModuleRevision(LPub::DEFS_URL, moduleRevision);
+        lpub->m_updater->setShowRedirects(LPub::DEFS_URL, showRedirects);
+        lpub->m_updater->setDownloaderEnabled(LPub::DEFS_URL, enableDownloader);
+        lpub->m_updater->setNotifyOnFinish(LPub::DEFS_URL, showAllNotifications);
+        lpub->m_updater->setNotifyOnUpdate (LPub::DEFS_URL, showUpdateNotifications);
+
+        /* Check for updates */
+        lpub->m_updater->checkForUpdates (LPub::DEFS_URL);
+
+        if (!LPub::m_updaterCancelled) {
+            QSettings Settings;
+            Settings.setValue(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime::currentDateTimeUtc());
+        }
+
+        if (ui.changeLog_txbr->document()->isEmpty())
+            ui.changeLog_txbr->setHtml(htmlNotes);
+    };
+
+    QElapsedTimer timer;
+    timer.start();
+    m_updateFinished = false;
+    processRequest();
+    while (!m_updateFinished)
+        QApplication::processEvents();
+    emit gui->messageSig(LOG_NOTICE, tr("Check for updates completed. %1")
+                                        .arg(lpub->elapsedTime(timer.elapsed())));
+}
+
 void PreferencesDialog::messageManagement()
 {
-
     auto countErrors = [this] ()
     {
         int lineParseErrorCount   = 0;
@@ -1418,6 +1473,11 @@ void PreferencesDialog::messageManagement()
                                                                            Preferences::messagesNotShown.size()));
     clearDetailErrorsTBtn->setEnabled(Preferences::messagesNotShown.size());
     messageButtonBox->button(QDialogButtonBox::Cancel)->setEnabled(!cleared);
+}
+
+QString const PreferencesDialog::moduleVersion()
+{
+   return ui.moduleVersion_Combo->currentText();
 }
 
 QString const PreferencesDialog::ldrawLibPath()
@@ -1869,60 +1929,11 @@ void PreferencesDialog::updateChangelog()
     if (ui.updateChangeLogBtn->isEnabled())
         ui.updateChangeLogBtn->setEnabled(false);
 
-    emit gui->messageSig(LOG_NOTICE, tr("Loaded Release Notes. %1")
-                                     .arg(lpub->elapsedTime(timer.elapsed())));
+    m_updateFinished = true;
 }
 
-QString const PreferencesDialog::moduleVersion()
+void PreferencesDialog::accept()
 {
-   return ui.moduleVersion_Combo->currentText();
-}
-
-void PreferencesDialog::checkForUpdates () {
-    auto processRequest = [&] ()
-    {
-        const QString htmlNotes = ui.changeLog_txbr->toHtml();
-
-        ui.changeLog_txbr->setHtml("<p><span style=\"color: #0000ff;\">Updating change log, please wait...</span></p>");
-
-        /* Get settings from the UI */
-        const QString moduleVersion = ui.moduleVersion_Combo->currentText();
-        const QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
-        const bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
-        const bool enableDownloader = ui.enableDownloader_Chk->isChecked();
-        const bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
-        const bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
-
-        /* Apply the settings */
-        if (lpub->m_updater->getModuleVersion(LPub::DEFS_URL) != moduleVersion)
-            lpub->m_updater->setModuleVersion(LPub::DEFS_URL, moduleVersion);
-        if (lpub->m_updater->getModuleRevision(LPub::DEFS_URL) != moduleRevision)
-            lpub->m_updater->setModuleRevision(LPub::DEFS_URL, moduleRevision);
-        lpub->m_updater->setShowRedirects(LPub::DEFS_URL, showRedirects);
-        lpub->m_updater->setDownloaderEnabled(LPub::DEFS_URL, enableDownloader);
-        lpub->m_updater->setNotifyOnFinish(LPub::DEFS_URL, showAllNotifications);
-        lpub->m_updater->setNotifyOnUpdate (LPub::DEFS_URL, showUpdateNotifications);
-
-        /* Check for updates */
-        lpub->m_updater->checkForUpdates (LPub::DEFS_URL);
-
-        if (!LPub::m_updaterCancelled) {
-            QSettings Settings;
-            Settings.setValue(QString("%1/%2").arg(UPDATES,"LastCheck"), QDateTime::currentDateTimeUtc());
-        }
-
-        if (ui.changeLog_txbr->document()->isEmpty())
-            ui.changeLog_txbr->setHtml(htmlNotes);
-    };
-
-    QElapsedTimer timer;
-    timer.start();
-    processRequest();
-    emit gui->messageSig(LOG_NOTICE, tr("Check for updates completed. %1")
-                                        .arg(lpub->elapsedTime(timer.elapsed())));
-}
-
-void PreferencesDialog::accept(){
     bool missingParms = false;
     QFileInfo fileInfo;
 
@@ -1932,7 +1943,8 @@ void PreferencesDialog::accept(){
     if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
         fileInfo.setFile(ui.povrayPath->text());
         bool povRayExists = fileInfo.exists();
-        if (povRayExists) {
+        if (povRayExists)
+        {
             Preferences::povrayExe = ui.povrayPath->text();
             ui.preferredRenderer->addItem(rendererNames[RENDERER_POVRAY]);
         } else {
@@ -1942,7 +1954,8 @@ void PreferencesDialog::accept(){
     if (!ui.ldglitePath->text().isEmpty() && (ui.ldglitePath->text() != Preferences::ldgliteExe)) {
         fileInfo.setFile(ui.ldglitePath->text());
         bool ldgliteExists = fileInfo.exists();
-        if (ldgliteExists) {
+        if (ldgliteExists)
+        {
             Preferences::ldgliteExe = ui.ldglitePath->text();
             ui.preferredRenderer->addItem(rendererNames[RENDERER_LDGLITE]);
         } else {
@@ -1959,7 +1972,8 @@ void PreferencesDialog::accept(){
         fileInfo.setFile(QString("%1/%2").arg(info.absolutePath()).arg(info.fileName().toLower()));
 #endif
         bool ldviewExists = fileInfo.exists();
-        if (ldviewExists) {
+        if (ldviewExists)
+        {
             Preferences::ldviewExe = ldviewPath;
             ui.preferredRenderer->addItem(rendererNames[RENDERER_LDVIEW]);
         } else {
@@ -1970,7 +1984,8 @@ void PreferencesDialog::accept(){
     // LcLib Preferences
     lcQPreferencesAccept();
 
-    if(ui.preferredRenderer->count() == 0 || ui.ldrawLibPathEdit->text().isEmpty()){
+    if(ui.preferredRenderer->count() == 0 || ui.ldrawLibPathEdit->text().isEmpty())
+    {
         missingParms = true;
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
@@ -1978,18 +1993,21 @@ void PreferencesDialog::accept(){
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldrawLibPathEdit->setPlaceholderText("LDraw path must be defined");
         }
-      }
+    }
+
     if (ui.includesGrpBox->isChecked() &&
         ! ui.includeLogLevelBox->isChecked() &&
         ! ui.includeTimestampBox->isChecked() &&
         ! ui.includeLineNumberBox->isChecked() &&
         ! ui.includeFileNameBox->isChecked() &&
-        ! ui.includeFunctionBox->isChecked()){
+        ! ui.includeFunctionBox->isChecked())
+    {
         missingParms = true;
         ui.logValiationLbl->show();
         ui.logValiationLbl->setText("At lease one attribute must be included.");
         ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
-      }
+    }
+
     if (ui.logLevelsGrpBox->isChecked() &&
         ! ui.fatalLevelBox->isChecked() &&
         ! ui.errorLevelBox->isChecked() &&
@@ -1997,13 +2015,16 @@ void PreferencesDialog::accept(){
         ! ui.infoLevelBox->isChecked() &&
         ! ui.noticeLevelBox->isChecked() &&
         ! ui.traceLevelBox->isChecked() &&
-        ! ui.debugLevelBox->isChecked()){
+        ! ui.debugLevelBox->isChecked())
+    {
         missingParms = true;
         ui.logValiationLbl->show();
         ui.logValiationLbl->setText("At lease one logging level must be selected.");
         ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : white; }");
-      }
-    if (missingParms){
+    }
+
+    if (missingParms)
+    {
         if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialogue?",
                               "Required settings are missing.\n Are you sure you want to exit?",
                               QMessageBox::Yes|QMessageBox::No)){
@@ -2014,8 +2035,9 @@ void PreferencesDialog::accept(){
     }
 }
 
-void PreferencesDialog::cancel(){
-  QDialog::reject();
+void PreferencesDialog::cancel()
+{
+    QDialog::reject();
 }
 
 void PreferencesDialog::closeEvent(QCloseEvent *event)
