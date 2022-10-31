@@ -700,6 +700,9 @@ int SubModel::resizeSubModel(
     case StepGroupType:
       placement = meta->LPub.multiStep.subModel.placement;
     break;
+    case CalloutType:
+      placement = meta->LPub.callout.subModel.placement;
+    break;
     default:
       placement = meta->LPub.subModel.placement;
     break;

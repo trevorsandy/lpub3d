@@ -1260,6 +1260,10 @@ private:
   QCheckBox    *showTopModelDefaultBox;
   QCheckBox    *showTopModelMetaBox;
 
+  QCheckBox    *showSubmodelInCalloutBox;
+  QCheckBox    *showSubmodelInCalloutDefaultBox;
+  QCheckBox    *showSubmodelInCalloutMetaBox;
+
   QCheckBox    *showInstanceCountBox;
   QCheckBox    *showInstanceCountDefaultBox;
   QCheckBox    *showInstanceCountMetaBox;
@@ -1268,11 +1272,13 @@ private:
 
   bool          showSubmodelsModified;
   bool          showTopModelModified;
+  bool          showSubmodelInCalloutModified;
   bool          showInstanceCountModified;
   bool          placementModified;
 
   bool          showSubmodelsDefaultSettings;
   bool          showTopModelDefaultSettings;
+  bool          showSubmodelInCalloutDefaultSettings;
   bool          showInstanceCountDefaultSettings;
 
 signals:
@@ -1282,6 +1288,7 @@ public slots:
   void enableSubmodelControls(bool checked);
   void showSubmodelsChange(bool checked);
   void showTopModelChange(bool checked);
+  void showSubmodelInCalloutChange(bool checked);
   void showInstanceCountChange(bool checked);
   void placementChanged(bool);
 };

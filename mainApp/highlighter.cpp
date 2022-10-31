@@ -494,6 +494,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bSHOW_INSTANCE_COUNT\\b"),
         QStringLiteral("\\bSHOW_STEP_NUM\\b"),
         QStringLiteral("\\bSHOW_STEP_NUMBER\\b"),
+        QStringLiteral("\\bSHOW_SUBMODEL_IN_CALLOUT\\b"),
         QStringLiteral("\\bSHOW_TOP_MODEL\\b"),
         QStringLiteral("\\bSINGLE_CALL\\b"),
         QStringLiteral("\\bSINGLE_CALL_EXPORT_LIST\\b"),

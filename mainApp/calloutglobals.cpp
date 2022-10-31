@@ -136,6 +136,11 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   child = new JustifyStepGui("Set step justification",&calloutMeta->justifyStep,box);
   data->children.append(child);
 
+  box = new QGroupBox("Submodel");
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Show Submodel image at first step",&calloutMeta->subModel.show, box);
+  data->children.append(child);
+
   box = new QGroupBox("Step Number");
   vlayout->addWidget(box);
   child = new NumberGui(&calloutMeta->stepNum,box);

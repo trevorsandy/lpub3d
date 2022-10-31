@@ -1039,8 +1039,10 @@ int Gui::drawPage(
           if (step && steps->meta.LPub.subModel.show.value()) {
               bool topModel     = (lpub->ldrawFile.topLevelFile() == topOfStep.modelName);
               bool showTopModel = (steps->meta.LPub.subModel.showTopModel.value());
+              bool calloutOk    = (opts.calledOut ? opts.assembledCallout : true ) &&
+                                  (opts.calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value() : true);
               bool showStepOk   = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
-              if (showStepOk && !opts.calledOut && (!topModel || showTopModel)){
+              if (showStepOk && calloutOk && (!topModel || showTopModel)){
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
                       previewNotPerStep = !previewNotPerStep ? true : previewNotPerStep;
                   } else {

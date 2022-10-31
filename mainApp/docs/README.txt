@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2832 (31 10 2022 01:14:22)
+LPub3D 2.4.4.1.2833 (31 10 2022 01:16:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -25,6 +25,7 @@ Revisions:
 - Enhancement - View visual editor render preferences in main menu preferences #597
 - Change - Failed to resolve google drive file at path #561
 - Change - Load model editor at cover page #593
+- Change - Restore preview submodel from callout #271
 - Change - TENTE parts outdated #583
 - Development - Convert command editor to QPlainTextEdit #601
 - Fix - Build mods don't work properly #520

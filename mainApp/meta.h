@@ -3441,18 +3441,22 @@ public:
 
 /*------------------------*/
 
-class MultiStepSubModelMeta : public BranchMeta
+class ShowSubModelMeta : public BranchMeta
 {
 public:
   PlacementMeta placement;
   MarginsMeta   margin;
   BoolMeta      show;
-  MultiStepSubModelMeta();
-  MultiStepSubModelMeta(const MultiStepSubModelMeta &rhs) : BranchMeta(rhs)
+  void setPreferences()
+  {
+      Preferences::showSubmodelInCallout = show.value();
+  }
+  ShowSubModelMeta();
+  ShowSubModelMeta(const ShowSubModelMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-//  virtual ~MultiStepSubModelMeta() {}
+//  virtual ~ShowSubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3693,6 +3697,7 @@ public:
   FontListMeta        subModelFont;
   StringListMeta      subModelFontColor;
 
+  ShowSubModelMeta    subModel;
   BackgroundMeta      background;
   BorderMeta          border;
   NumberPlacementMeta instance;
@@ -3740,7 +3745,7 @@ public:
   BoolMeta              adjustOnItemOffset;
   RotateIconMeta        rotateIcon;
   UnitsMeta             stepSize;
-  MultiStepSubModelMeta subModel;
+  ShowSubModelMeta      subModel;
 
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
@@ -3909,10 +3914,12 @@ public:
   IntMeta    showStepNum; // Used to indicate the 'first' step number of a step group when continuous step numbers flag is On
   BoolMeta   showInstanceCount;
   BoolMeta   showTopModel;
+  BoolMeta   showSubmodelInCallout;
   void setPreferences()
   {
       Preferences::showSubmodels         = show.value();
       Preferences::showTopModel          = showTopModel.value();
+      Preferences::showSubmodelInCallout = showSubmodelInCallout.value();
       Preferences::showInstanceCount     = showInstanceCount.value();
   }
   SubModelMeta();
