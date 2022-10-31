@@ -253,6 +253,7 @@ class Preferences
     static QString sceneRulerTrackingColor;
     static QString sceneGuideColor;
     static QString currentLibrarySave;
+    static QString editorFont;
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
@@ -389,6 +390,7 @@ class Preferences
     static int     editorLinesPerPage;
     static int     editorDecoration;
     static int     fileLoadWaitTime;
+    static int     editorFontSize;
 
     static bool    initEnableFadeSteps;
     static bool    initFadeStepsUseColour;

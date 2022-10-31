@@ -590,7 +590,7 @@ void EditWindow::createActions()
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
-    preferencesAct->setStatusTip(tr("Set your preferences for LDraw Editor"));
+    preferencesAct->setStatusTip(tr("Set your preferences for the LDraw Command editor"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
     openFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
@@ -2370,14 +2370,23 @@ void EditWindow::closeEvent(QCloseEvent *_event)
     }
 }
 
+/*
+ *
+ * Editor options section
+ *
+ */
+
 void EditWindow::preferences()
 {
     const QString windowTitle       = QString("Editor Preferences");
     int editorDecoration            = Preferences::editorDecoration;
     int editorLinesPerPage          = Preferences::editorLinesPerPage;
+    int editorFontSize              = Preferences::editorFontSize;
     bool editorBufferedPaging       = Preferences::editorBufferedPaging;
     bool editorHighlightLines       = Preferences::editorHighlightLines;
     bool editorLoadSelectionStep    = Preferences::editorLoadSelectionStep;
+    QString editorFont              = Preferences::editorFont;
+    QString change;
     // modelFileEdit() only
     bool editorPreviewOnDoubleClick = Preferences::editorPreviewOnDoubleClick;
 
@@ -2406,13 +2415,30 @@ void EditWindow::preferences()
     dialog->setWindowTitle(windowTitle);
     QFormLayout *form = new QFormLayout(dialog);
 
+    // options - editor font
+    QGroupBox *editorFontGrpBox = new QGroupBox(tr("Editor Font"));
+    form->addWidget(editorFontGrpBox);
+    QFormLayout *editorFontSubform = new QFormLayout(editorFontGrpBox);
+
+    QLabel    *editorFontLabel = new QLabel(tr("Family:"), dialog);
+    QFontComboBox *editorFontCombo = new QFontComboBox(dialog);
+    editorFontCombo->setCurrentFont(QFont(editorFont, editorFontSize));
+    editorFontSubform->addRow(editorFontLabel, editorFontCombo);
+
+    QLabel    *editorFontSizeLabel = new QLabel(tr("Size:"), dialog);
+    QComboBox *editorFontSizeCombo = new QComboBox(dialog);
+    foreach (int size, QFontDatabase::standardSizes())
+        editorFontSizeCombo->addItem(QString().setNum(size));
+    editorFontSizeCombo->setCurrentText(QString().setNum(editorFontSize));
+    editorFontSubform->addRow(editorFontSizeLabel, editorFontSizeCombo);
+
     // options - editor decoration
     QGroupBox *editorDecorationGrpBox = new QGroupBox(tr("Editor Text Decoration"));
     form->addWidget(editorDecorationGrpBox);
     QFormLayout *editorDecorationSubform = new QFormLayout(editorDecorationGrpBox);
 
     QLabel    *editorDecorationLabel = new QLabel(tr("Text Decoration:"), dialog);
-    QComboBox * editorDecorationCombo = new QComboBox(dialog);
+    QComboBox *editorDecorationCombo = new QComboBox(dialog);
     editorDecorationCombo->addItem(tr("Simple"));
     editorDecorationCombo->addItem(tr("Standard"));
     editorDecorationCombo->setCurrentIndex(editorDecoration);
@@ -2439,9 +2465,9 @@ void EditWindow::preferences()
     QCheckBox *editorLoadSelectionStepBox = nullptr;
     QCheckBox *editorPreviewOnDoubleClickBox = nullptr;
 
-        QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
-        form->addWidget(editorSelectedItemsGrpBox);
-        QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
+    QGroupBox *editorSelectedItemsGrpBox = new QGroupBox(tr("Selected Items"));
+    form->addWidget(editorSelectedItemsGrpBox);
+    QFormLayout *editorSelectedItemsSubform = new QFormLayout(editorSelectedItemsGrpBox);
     if (!modelFileEdit()) {
         editorHighlightLinesBox = new QCheckBox(tr("Highlight Selected Lines"), dialog);
         editorHighlightLinesBox->setToolTip(tr("Highlight selected line(s) when clicked in Editor"));
@@ -2470,10 +2496,23 @@ void EditWindow::preferences()
     dialog->setMinimumSize(220,100);
 
     if (dialog->exec() == QDialog::Accepted) {
+        bool fontChanged = false;
         QSettings Settings;
+        Preferences::editorFont           = editorFontCombo->currentFont().family();
+        if (editorFont != Preferences::editorFont) {
+            fontChanged |= true;
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFont"),Preferences::editorFont);
+            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text font changed to %1").arg(Preferences::editorFont));
+        }
+        Preferences::editorFontSize       = editorFontSizeCombo->currentText().toInt();
+        if (editorFontSize != Preferences::editorFontSize) {
+            fontChanged |= true;
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFontSize"),Preferences::editorFontSize);
+            emit lpub->messageSig(LOG_INFO,QString("LDraw editor text font size changed to %1").arg(Preferences::editorFontSize));
+        }
         Preferences::editorDecoration     = editorDecorationCombo->currentIndex();
         if (editorDecoration != Preferences::editorDecoration) {
-            showMessage("LDraw editor text decoration change");
+            change += QString(change.isEmpty() ?  "%1" : ", %1").arg("text decoration");
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
             emit lpub->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE_DECORATION ? "Simple" : "Standard"));
         }
@@ -2508,6 +2547,12 @@ void EditWindow::preferences()
                 emit lpub->messageSig(LOG_INFO,QString("Launch floating preview part double click changed from %1 to %2").arg(editorPreviewOnDoubleClick).arg(Preferences::editorPreviewOnDoubleClick));
             }
         } // modelFileEdit()
+
+        if (fontChanged)
+            _textEdit->setEditorFont();
+
+        if (!change.isEmpty())
+            showMessage(QString("%1 editor %2 change").arg(VER_PRODUCTNAME_STR).arg(change));
     }
 }
 
@@ -2678,6 +2723,8 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
         lineNumberPalette.setColor(QPalette::Background,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]).lighter(130));
 
     lineNumberArea->setPalette(lineNumberPalette);
+
+    setEditorFont();
 
     setVerticalScrollBar(new ScrollBarFix(Qt::Vertical, this));
 
@@ -2912,6 +2959,17 @@ int TextEditor::lineNumberAreaWidth()
 
     int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
     return space;
+}
+
+void TextEditor::setEditorFont()
+{
+    const int editorFontSize = Preferences::editorFontSize;
+    const QString editorFont = Preferences::editorFont;
+    QFont font(editorFont, editorFontSize);
+    font.setStyleHint(QFont::System);
+
+    lineNumberArea->setFont(font);
+    setFont(font);
 }
 
 void TextEditor::updateLineNumberAreaWidth(int /* newBlockCount */)

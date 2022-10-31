@@ -317,6 +317,8 @@ signals:
     void triggerPreviewLine();
 
 public slots:
+    void setEditorFont();
+
     void resizeEvent(QResizeEvent *e) override;
 
 private slots:
@@ -325,11 +327,10 @@ private slots:
 
     void insertCompletion(const QString &completion);
 
+    void showCharacters(QString findString, QString replaceString);
+
     void findDialog();
     void toggleComment();
-    void showCharacters(
-         QString findString,
-         QString replaceString);
 
 protected:
     void mouseReleaseEvent(QMouseEvent *event) override;

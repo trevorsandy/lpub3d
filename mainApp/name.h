@@ -658,6 +658,12 @@ enum ThemeColorType {
 #define NEXT                                    1
 #define PREVIOUS                                2
 
+#define DEFAULT_EDITOR_FONT_WINDOWS             "MS Shell Dlg 2"
+#define DEFAULT_EDITOR_FONT_MACOS               "San Francisco"
+#define DEFAULT_EDITOR_FONT_LINUX               "Helvetica"
+#define DEFAULT_EDITOR_FONT_SIZE_WINDOWS        8
+#define DEFAULT_EDITOR_FONT_SIZE_MACOS          10
+#define DEFAULT_EDITOR_FONT_SIZE_LINUX          9
 #define DEFAULT_MARGIN                          0.05f
 #define DEFAULT_MARGINS                         DEFAULT_MARGIN,DEFAULT_MARGIN
 #define DEFAULT_MARGIN_RANGE                    0.0f,100.0f

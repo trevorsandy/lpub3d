@@ -380,6 +380,14 @@ QString Preferences::sceneRulerTickColor        = defaultThemeColors[THEME_DEFAU
 QString Preferences::sceneRulerTrackingColor    = defaultThemeColors[THEME_DEFAULT_RULER_TRACK_PEN].color;
 QString Preferences::sceneGuideColor            = defaultThemeColors[THEME_DEFAULT_GUIDE_PEN].color;
 
+#ifdef Q_OS_MAC
+QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_MACOS;
+#elif defined Q_OS_LINUX
+QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_LINUX;
+#elif defined Q_OS_WIN
+QString Preferences::editorFont                 = DEFAULT_EDITOR_FONT_WINDOWS;
+#endif
+
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::perspectiveProjection      = true;
 bool    Preferences::saveOnRedraw               = true;
@@ -521,6 +529,14 @@ int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT
 
 int     Preferences::editorLinesPerPage         = EDITOR_MIN_LINES_DEFAULT;
 int     Preferences::editorDecoration           = EDITOR_DECORATION_DEFAULT;
+
+#ifdef Q_OS_MAC
+int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_MACOS;
+#elif defined Q_OS_LINUX
+int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_LINUX;
+#elif defined Q_OS_WIN
+int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_WINDOWS;
+#endif
 
 bool    Preferences::initEnableFadeSteps        = false;
 bool    Preferences::initFadeStepsUseColour     = false;
@@ -3349,13 +3365,29 @@ void Preferences::editorPreferences()
 {
     QSettings Settings;
 
+    //  LDraw editor font
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"EditorFont"))) {
+        editorFont = qApp->font().family();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFont"),editorFont);
+    } else {
+        editorFont = Settings.value(QString("%1/%2").arg(DEFAULTS,"EditorFont")).toString();
+    }
+
+    //  LDraw editor font size
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"EditorFontSize"))) {
+        editorFontSize = qApp->font().pointSize();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"EditorFontSize"),editorFontSize);
+    } else {
+        editorFontSize = Settings.value(QString("%1/%2").arg(DEFAULTS,"EditorFontSize")).toInt();
+    }
+
     //  LDraw editor buffered page read
-     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"))) {
-         QVariant uValue(editorBufferedPaging);
-         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"),uValue);
-     } else {
-         editorBufferedPaging = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging")).toBool();
-     }
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"))) {
+        QVariant uValue(editorBufferedPaging);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"),uValue);
+    } else {
+        editorBufferedPaging = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging")).toBool();
+    }
 
     // Number of LDraw editor lines per paged buffer read
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"))) {
