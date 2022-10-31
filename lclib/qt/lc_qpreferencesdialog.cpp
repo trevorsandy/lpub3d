@@ -15,8 +15,9 @@ static const char* gLanguageLocales[] =
 	"", "cs_CZ", "de_DE", "en_US", "fr_FR", "pt_PT", "es_ES"
 };
 
-lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options)
-	: QDialog(Parent), mOptions(Options), ui(new Ui::lcQPreferencesDialog)
+/*** LPub3D Mod - Load Preferences Dialog ***/
+lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
+	: QDialog(Parent), ui(new Ui::lcQPreferencesDialog)
 {
 	ui->setupUi(this);
 
@@ -68,6 +69,30 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	connect(ui->ResetFadeStepsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 	connect(ui->ResetHighlightNewPartsButton, SIGNAL(clicked()), this, SLOT(ResetFadeHighlightColor()));
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - set preferences dialog properties ***/
+	ui->MinifigSettingsEdit->hide();
+	ui->MinifigSettingsBrowseButton->hide();
+	ui->MinifigSettingsLabel->hide();
+	ui->autoLoadMostRecent->hide();
+	ui->lgeoPathBrowse->hide();
+	ui->Language->hide();
+	ui->checkForUpdates->hide();
+	ui->RestoreTabLayout->hide();
+	ui->ColorTheme->setDisabled(true);
+	ui->label_29->hide();					//label Language
+	ui->label_10->hide();					//label check for updates
+	ui->fixedDirectionKeys->hide();
+	ui->tabWidget->removeTab(4);			//hide tabKeyboard
+	ui->tabWidget->removeTab(4);			//hide mouse
+/*** LPub3D Mod end ***/
+
+}
+
+/*** LPub3D Mod - Load Preferences Dialog ***/
+void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
+{
+	mOptions = Options;
 
 	ui->partsLibrary->setText(mOptions->LibraryPath);
 	ui->ColorConfigEdit->setText(mOptions->ColorConfigPath);
@@ -364,23 +389,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->povrayExecutableBrowse->hide();
 	ui->lgeoPath->setReadOnly(true);
 	ui->lgeoPath->setPalette(readOnlyPalette);
-	ui->MinifigSettingsEdit->hide();
-	ui->MinifigSettingsBrowseButton->hide();
-	ui->MinifigSettingsLabel->hide();
-	ui->autoLoadMostRecent->hide();
-	ui->lgeoPathBrowse->hide();
-	ui->Language->hide();
-	ui->checkForUpdates->hide();
-	ui->RestoreTabLayout->hide();
-	ui->ColorTheme->setDisabled(true);
-	ui->label_29->hide();					//label Language
-	ui->label_10->hide();					//label check for updates
-	ui->fixedDirectionKeys->hide();
-	ui->tabWidget->removeTab(4);			//hide tabKeyboard
-	ui->tabWidget->removeTab(4);			//hide mouse
 /*** LPub3D Mod end ***/
 
 }
+/*** LPub3D Mod end ***/
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
 {

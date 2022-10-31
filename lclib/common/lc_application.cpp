@@ -1556,9 +1556,14 @@ void lcApplication::ShowPreferencesDialog()
 	Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
-	lcQPreferencesDialog Dialog(gMainWindow, &Options);
-	if (Dialog.exec() != QDialog::Accepted)
+/*** LPub3D Mod - Load Preferences Dialog ***/
+	lcQPreferencesDialog *Dialog = lpub->visualEditorPreferencesDialog;
+
+	Dialog->setOptions(&Options);
+
+	if (Dialog->exec() != QDialog::Accepted)
 		return;
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - preferences save message ***/
 	lpub->messageSig(LOG_STATUS, QString("Saving Visual Editor preferences. Please wait..."));

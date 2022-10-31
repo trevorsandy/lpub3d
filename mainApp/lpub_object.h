@@ -38,6 +38,7 @@ class CommandCollection;
 class SnippetCollection;
 
 class PreferencesDialog;
+class lcQPreferencesDialog;
 
 enum class lcShadingMode;
 
@@ -198,9 +199,11 @@ public:
   /// Snippet text editor
   CommandsTextEdit *snippetTextEdit = nullptr;
 
-  /// Preferences dialog
+  /// LPub3D Preferences dialog
   PreferencesDialog *preferencesDialog = nullptr;
 
+  /// Visual Editor Preferences dialog
+  lcQPreferencesDialog *visualEditorPreferencesDialog = nullptr;
 
 public slots:
   /// Download management calls

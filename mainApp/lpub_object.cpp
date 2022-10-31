@@ -25,6 +25,7 @@
 #include "texteditdialog.h"
 #include "preferencesdialog.h"
 
+#include "lc_qpreferencesdialog.h"
 #include "lc_application.h"
 #include "lc_mainwindow.h"
 #include "lc_library.h"
@@ -84,7 +85,9 @@ void LPub::loadDialogs()
 
 void LPub::loadPreferencesDialog()
 {
+  emit messageSig(LOG_INFO_STATUS,tr("Loading preferences dialogue for main application and visual editor."));
   preferencesDialog = new PreferencesDialog(gui);
+  visualEditorPreferencesDialog = new lcQPreferencesDialog(nullptr);
 }
 
 /*********************************************
@@ -302,7 +305,7 @@ bool LPub::setFadeStepsFromCommand()
   if (!Preferences::enableFadeSteps) {
     Preferences::enableFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (Preferences::enableFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,QString("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableFadeSteps = false;
     }
   }
@@ -313,16 +316,16 @@ bool LPub::setFadeStepsFromCommand()
     fadeRx.setPattern("FADE_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupFadeSteps = Gui::stepContains(topLevelModel,fadeRx,result,1);
     if (setupFadeSteps && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,QString("Top level FADE_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level FADE_STEP SETUP meta command must be GLOBAL"));
       setupFadeSteps = false;
     }
   }
 
   if (Preferences::enableFadeSteps != Preferences::initEnableFadeSteps)
-    emit lpub->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Previous Steps is %1 - Set from meta command.")
                                             .arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
   if (setupFadeSteps)
-     emit lpub->messageSig(LOG_INFO_STATUS,QString("Fade Previous Steps Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,tr("Fade Previous Steps Setup is ENABLED."));
 
   if (!Preferences::enableFadeSteps && !setupFadeSteps)
     return false;
@@ -336,7 +339,7 @@ bool LPub::setFadeStepsFromCommand()
     Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
     bool fadeStepsOpacityChanged = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
     if (fadeStepsOpacityChanged)
-      emit lpub->messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Fade Step Transparency changed from %1 to %2 percent - Set from meta command")
                                        .arg(fadeStepsOpacityCompare)
                                        .arg(Preferences::fadeStepsOpacity));
   }
@@ -349,12 +352,12 @@ bool LPub::setFadeStepsFromCommand()
     bool fadeStepsUseColorCompare = Preferences::fadeStepsUseColour;
     Preferences::fadeStepsUseColour = ParsedColor.isValid();
     if (Preferences::fadeStepsUseColour != fadeStepsUseColorCompare)
-      emit lpub->messageSig(LOG_INFO,QString("Use Fade Color is %1 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Use Fade Color is %1 - Set from meta command")
                                        .arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
     QString fadeStepsColourCompare = Preferences::validFadeStepsColour;
     Preferences::validFadeStepsColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     if (QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower())
-      emit lpub->messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Fade Step Color preference changed from %1 to %2 - Set from meta command")
                                        .arg(fadeStepsColourCompare.replace("_"," "))
                                        .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
   }
@@ -370,7 +373,7 @@ bool LPub::setHighlightStepFromCommand()
   if (!Preferences::enableHighlightStep) {
     Preferences::enableHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (Preferences::enableHighlightStep && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP ENABLED meta command must be GLOBAL"));
       Preferences::enableHighlightStep = false;
     }
   }
@@ -381,16 +384,16 @@ bool LPub::setHighlightStepFromCommand()
     highlightRx.setPattern("HIGHLIGHT_STEP SETUP\\s*(GLOBAL)?\\s*TRUE");
     setupHighlightStep = Gui::stepContains(topLevelModel,highlightRx,result,1);
     if (setupHighlightStep && result != "GLOBAL") {
-      emit lpub->messageSig(LOG_ERROR,QString("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
+      emit lpub->messageSig(LOG_ERROR,tr("Top level HIGHLIGHT_STEP SETUP meta command must be GLOBAL"));
       setupHighlightStep = false;
     }
   }
 
   if (Preferences::enableHighlightStep != Preferences::initEnableHighlightStep)
-    emit lpub->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step is %1 - Set from meta command.")
+    emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step is %1 - Set from meta command.")
                                             .arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
   if (setupHighlightStep)
-     emit lpub->messageSig(LOG_INFO_STATUS,QString("Highlight Current Step Setup is ENABLED."));
+     emit lpub->messageSig(LOG_INFO_STATUS,tr("Highlight Current Step Setup is ENABLED."));
 
   if (!Preferences::enableHighlightStep && !setupHighlightStep)
     return false;
@@ -404,7 +407,7 @@ bool LPub::setHighlightStepFromCommand()
     Preferences::highlightStepColour = ParsedColor.isValid() ? result : Preferences::validFadeStepsColour;
     bool highlightStepColorChanged = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
     if (highlightStepColorChanged)
-      emit lpub->messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
+      emit lpub->messageSig(LOG_INFO,tr("Highlight Step Color preference changed from %1 to %2 - Set from meta command")
                                   .arg(highlightStepColourCompare)
                                   .arg(Preferences::highlightStepColour));
   }
@@ -442,13 +445,13 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
     renderer = RENDERER_POVRAY;
     useNativeGenerator = false;
   } else {
-    emit lpub->messageSig(LOG_ERROR,QString("Invalid renderer console command option specified: '%1'.").arg(renderer));
+    emit lpub->messageSig(LOG_ERROR,tr("Invalid renderer console command option specified: '%1'.").arg(renderer));
     return rendererChanged;
   }
 
   if (renderer == RENDERER_LDVIEW) {
     if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
-      message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
+      message = tr("Renderer preference use LDView Single Call changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
       emit lpub->messageSig(LOG_INFO,message);
@@ -456,7 +459,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
       renderFlagChanged = true;
     }
     if (Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
-      message = QString("Renderer preference use LDView Snapshot List changed from %1 to %2.")
+      message = tr("Renderer preference use LDView Snapshot List changed from %1 to %2.")
                         .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
                         .arg(useLDVSingleCall ? "Yes" : "No");
       emit lpub->messageSig(LOG_INFO,message);
@@ -468,7 +471,7 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
     }
   } else if (renderer == RENDERER_POVRAY) {
     if (Preferences::useNativePovGenerator != useNativeGenerator) {
-      message = QString("Renderer preference POV file generator changed from %1 to %2.")
+      message = tr("Renderer preference POV file generator changed from %1 to %2.")
                         .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW])
                         .arg(useNativeGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]);
       emit lpub->messageSig(LOG_INFO,message);
@@ -491,11 +494,11 @@ bool LPub::setPreferredRendererFromCommand(const QString &preferredRenderer)
     message = QString("Renderer preference changed from %1 to %2%3.")
                       .arg(rendererNames[Preferences::preferredRenderer])
                       .arg(rendererNames[renderer])
-                      .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)")
+                      .arg(renderer == RENDERER_POVRAY ? tr(" (POV file generator is %1)")
                                                                  .arg(Preferences::useNativePovGenerator ? rendererNames[RENDERER_NATIVE] : rendererNames[RENDERER_LDVIEW]) :
                            renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
-                                                         useLDVSnapShotList ? QString(" (Single Call using Export File List)") :
-                                                                              QString(" (Single Call)") :
+                                                         useLDVSnapShotList ? tr(" (Single Call using Export File List)") :
+                                                                              tr(" (Single Call)") :
                                                                               QString() : QString());
     emit lpub->messageSig(LOG_INFO,message);
   }
@@ -539,10 +542,10 @@ int LPub::pageSize(PageMeta &meta, int which){
       bool ok[2];
       int lineNumber = keyArgs[1].toInt(&ok[0]);
       if (modelName.isEmpty()) {
-          emit lpub->messageSig(LOG_ERROR,QString("Model name was not found for index [%1]").arg(keyArgs[1]));
+          emit lpub->messageSig(LOG_ERROR,tr("Model name was not found for index [%1]").arg(keyArgs[1]));
           return false;
       } else if (!ok[0]) {
-          emit lpub->messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
+          emit lpub->messageSig(LOG_ERROR,tr("Line number is not an integer [%1]").arg(keyArgs[1]));
           return false;
       } else {
           here = Where(modelName,lpub->ldrawFile.getSubmodelIndex(modelName),lineNumber);
@@ -555,7 +558,7 @@ int LPub::pageSize(PageMeta &meta, int which){
           stepNumber = keyArgs[2].toInt(&ok[1]);
       }
       if (!ok[1]) {
-          emit lpub->messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArgs[2]));
+          emit lpub->messageSig(LOG_NOTICE,tr("Step number is not an integer [%1]").arg(keyArgs[2]));
           return false;
       }
 
@@ -638,9 +641,9 @@ void LPub::setCurrentStep(Step *step, Where &here, int stepNumber, int stepType)
     currentStep = step;
 
     if (Preferences::debugLogging && !stepMatch)
-        emit lpub->messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
+        emit lpub->messageSig(LOG_DEBUG, tr("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
                                            .arg(stepMatch ? "Match!" : "Oh oh!")
-                                           .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
+                                           .arg(tr("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
                                            .arg(stepType == BM_MULTI_STEP  ? "multi step"  :
                                                 stepType == BM_CALLOUT_STEP   ? "called out"  :
                                                 stepType == BM_SINGLE_STEP ? "single step" : "gStep")
@@ -659,7 +662,7 @@ bool LPub::setCurrentStep(const QString &key)
 
     QString stepNumberSpecified;
     if (!stepNumber)
-        stepNumberSpecified = QString("not specified");
+        stepNumberSpecified = tr("not specified");
     else
         stepNumberSpecified = QString::number(stepNumber);
 
@@ -675,7 +678,7 @@ bool LPub::setCurrentStep(const QString &key)
     if (stepType || gStep)
         setCurrentStep(step, here, stepNumber, stepType);
     else {
-        emit lpub->messageSig(LOG_ERROR, QString("Could not determine step for '%1' at step number '%2'.")
+        emit lpub->messageSig(LOG_ERROR, tr("Could not determine step for '%1' at step number '%2'.")
                                            .arg(here.modelName).arg(stepNumberSpecified));
     }
 
@@ -698,7 +701,7 @@ void LPub::setCurrentStep(Step *step)
     currentStep = step;
     viewerStepKey = currentStep->viewerStepKey;
 #ifdef QT_DEBUG_MODE
-    emit lpub->messageSig(LOG_DEBUG,QString("Set current step %1, with key '%2'.")
+    emit lpub->messageSig(LOG_DEBUG,tr("Set current step %1, with key '%2'.")
                                       .arg(currentStep->stepNumber.number).arg(currentStep->viewerStepKey));
 #endif
 }
@@ -719,7 +722,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
     // confirm keys has at least 3 elements
     if (keys.size() < 3) {
 #ifdef QT_DEBUG_MODE
-        emit lpub->messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
+        emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey [%1] failed").arg(viewerStepKey));
 #endif
         return QStringList();
     } else if (keys.at(2).count("_")) {
@@ -733,7 +736,7 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
         int modelNameIndex = keys[0].toInt(&ok);
         if (!ok) {
 #ifdef QT_DEBUG_MODE
-            emit lpub->messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+            emit lpub->messageSig(LOG_DEBUG, tr("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
 #endif
             return QStringList();
         }
@@ -846,7 +849,7 @@ void LPub::loadCommandCollection()
         commandCollection->insert(_command);
     }
 
-    emit messageSig(LOG_INFO, QString("Meta command collection loaded %1 of %2 commands. %3")
+    emit messageSig(LOG_INFO, tr("Meta command collection loaded %1 of %2 commands. %3")
                     .arg(commandCollection->count())
                     .arg(commands.count())
                     .arg(elapsedTime(timer.elapsed())));
@@ -861,7 +864,7 @@ void LPub::loadCommandCollection()
 bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool descriptons)
 {
     if (!commandCollection) {
-        result = QString("The command collection is null.");
+        result = tr("The command collection is null.");
         emit messageSig(LOG_ERROR, result);
         return false;
     }
@@ -892,7 +895,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
 
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        emit messageSig(LOG_ERROR, QString("Cannot write file %1:\n%2.")
+        emit messageSig(LOG_ERROR, tr("Cannot write file %1:\n%2.")
                         .arg(fileName)
                         .arg(file.errorString()));
         return false;
@@ -900,7 +903,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
 
     QTextStream out(&file);
 
-    const QString generated = QString("%1 %2 - Generated on %3")
+    const QString generated = tr("%1 %2 - Generated on %3")
             .arg(VER_PRODUCTNAME_STR)
             .arg(documentTitle)
             .arg(QDateTime::currentDateTime().toString(fmtDateTime));
@@ -910,83 +913,83 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
             .arg(commandCollection->count());
 
     // header
-    doc.prepend(QString("Meta Commands:"));
+    doc.prepend(tr("Meta Commands:"));
     doc.prepend(QString());
     doc.prepend(QString());
-    doc.prepend(QString("   |  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified."));
-    doc.prepend(QString("  \" \" Items within double quotes are \"string\" values. Strings containing space require quotes. Numeric values are not quoted."));
-    doc.prepend(QString("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
-    doc.prepend(QString("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
-    doc.prepend(QString("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
-    doc.prepend(QString("Meta Command Symbols:"));
+    doc.prepend(tr("   |  Items bisected by a pipe (or) indicate multiple options are available; however, only one option per command can be specified."));
+    doc.prepend(tr("  \" \" Items within double quotes are \"string\" values. Strings containing space require quotes. Numeric values are not quoted."));
+    doc.prepend(tr("  [ ] Items within square brackets indicate optional meta command(s) and or value(s)."));
+    doc.prepend(tr("  < > Items within chevron (greater,less than) indicate meta command value options required to complete the command."));
+    doc.prepend(tr("  ( ) Items within curly brackets (parentheses) are built-in meta command options."));
+    doc.prepend(tr("Meta Command Symbols:"));
     doc.prepend(QString());
-    doc.prepend(QString("---------------------------------------------------------------------------------"));
+    doc.prepend(tr("---------------------------------------------------------------------------------"));
     doc.prepend(QString());
-    doc.prepend(QString("  LPub UDL: %1assets/resources/LPub3D_Npp_UDL.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR));
-    doc.prepend(QString("  selected to enable LPub syntax highlighting."));
-    doc.prepend(QString("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
-    doc.prepend(QString("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
-    doc.prepend(QString("  LPub3D has an LPub User Defined Language (UDL) configuration file for Notepad++"));
-    doc.prepend(QString("  Best viewed with Notepad++ <https://notepad-plus-plus.org>."));
+    doc.prepend(tr("  LPub UDL: %1assets/resources/LPub3D_Npp_UDL.xml.zip").arg(VER_HOMEPAGE_GITHUB_STR));
+    doc.prepend(tr("  selected to enable LPub syntax highlighting."));
+    doc.prepend(tr("  Install LPub3D_Npp_UDL.xml and open this file in Notepad++ with 'LPUB3D' UDL"));
+    doc.prepend(tr("  available in the 'extras' folder or at the %1 homepage.").arg(VER_PRODUCTNAME_STR));
+    doc.prepend(tr("  LPub3D has an LPub User Defined Language (UDL) configuration file for Notepad++"));
+    doc.prepend(tr("  Best viewed with Notepad++ <https://notepad-plus-plus.org>."));
     doc.prepend(QString());
-    doc.prepend(QString("---------------------------------------------------------------------------------"));
+    doc.prepend(tr("---------------------------------------------------------------------------------"));
     doc.prepend(QString());
-    doc.prepend(QString("  Copyright © 2022 by %1").arg(VER_PUBLISHER_STR));
-    doc.prepend(QString("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
-    doc.prepend(QString("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
-    doc.prepend(QString("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
-    doc.prepend(QString("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
-    doc.prepend(QString("  Author......: %1").arg(VER_PUBLISHER_STR));
-    doc.prepend(QString("  Name........: %1, LPub Meta Commands").arg(VER_FILEDESCRIPTION_STR));
+    doc.prepend(tr("  Copyright © 2022 by %1").arg(VER_PUBLISHER_STR));
+    doc.prepend(tr("  License.....: GPLv3 - see %1").arg(VER_LICENSE_INFO_STR));
+    doc.prepend(tr("  Homepage....: %1").arg(VER_HOMEPAGE_GITHUB_STR));
+    doc.prepend(tr("  Last Update.: %1").arg(VER_COMPILE_DATE_STR));
+    doc.prepend(tr("  Version.....: %1.%2").arg(VER_PRODUCTVERSION_STR).arg(VER_COMMIT_STR));
+    doc.prepend(tr("  Author......: %1").arg(VER_PUBLISHER_STR));
+    doc.prepend(tr("  Name........: %1, LPub Meta Commands").arg(VER_FILEDESCRIPTION_STR));
     doc.prepend(QString());
     doc.prepend(generated);
 
     // footer
     doc.append(QString());
-    doc.append(QString("Meta Command Notes:"));
-    doc.append(QString("-    The <\"page size id\"> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc..."));
-    doc.append(QString("     For custom page size use  <decimal width> <decimal height> \"Custom\""));
-    doc.append(QString("-    The SUBMODEL metas below enable font and background settings for nested submodels and callouts."));
-    doc.append(QString("-    The SUBMODEL_FONT meta is supported for up to four levels."));
-    doc.append(QString("-    The SUBMODEL_FONT_COLOR meta is supported for up to four levels."));
-    doc.append(QString("-    The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels."));
-    doc.append(QString("     Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined."));
-    doc.append(QString("-    The <stud style integer 0-7> meta value captures the 7 stud style types."));
-    doc.append(QString("     0 None"));
-    doc.append(QString("     1 Thin line logo"));
-    doc.append(QString("     2 Outline logo"));
-    doc.append(QString("     3 Sharp top logo"));
-    doc.append(QString("     4 Rounded top logo"));
-    doc.append(QString("     5 Flattened logo"));
-    doc.append(QString("     6 High contrast without logo"));
-    doc.append(QString("     7 High contrast with logo"));
-    doc.append(QString("-    The <annotation style integer 0-4> meta value captures the 4 annotation icon style types."));
-    doc.append(QString("     0 None"));
-    doc.append(QString("     1 Circle"));
-    doc.append(QString("     2 Square"));
-    doc.append(QString("     3 Rectangle"));
-    doc.append(QString("     4 LEGO element"));
-    doc.append(QString("-    The <line integer 0-5> meta value captures the 5 border line types."));
-    doc.append(QString("     0 None"));
-    doc.append(QString("     1 Solid        ----"));
-    doc.append(QString("     2 Dash         - - "));
-    doc.append(QString("     3 Dot          ...."));
-    doc.append(QString("     4 Dash dot     -.-."));
-    doc.append(QString("     5 Dash dot dot -..-"));
-    doc.append(QString("-    The <\"font attributes\"> meta value is a comma-delimited <\"string\"> of 10 attributes."));
-    doc.append(QString("     Example font attributes <\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \">"));
-    doc.append(QString("     1  FamilyName - \"Arial\""));
-    doc.append(QString("     2  PointSizeF - 64 size of font, -1 if using PixelSize"));
-    doc.append(QString("     3  PixelSize  - -1 size of font, -1 if using PointSizeF"));
-    doc.append(QString("     4  StyleHint  - 255 = no style hint set, 5 = any style, 4 = system font, 0 = Helvetica, etc..."));
-    doc.append(QString("     5  Weight     - 75 = bold, 50 = normal, etc..."));
-    doc.append(QString("     6  Underline  - 0 = disabled, 1 = enabled"));
-    doc.append(QString("     7  Strikeout  - 0 = disabled, 1 = enabled"));
-    doc.append(QString("     8  StrikeOut  - 0 = disabled, 1 = enabled"));
-    doc.append(QString("     9  FixedPitch - 0 = disabled, 1 = enabled"));
-    doc.append(QString("     10 RawMode    - 0 obsolete, use default value"));
+    doc.append(tr("Meta Command Notes:"));
+    doc.append(tr("-    The <\"page size id\"> meta value captures paper size, e.g. A4, B4, Letter, Custom, etc..."));
+    doc.append(tr("     For custom page size use  <decimal width> <decimal height> \"Custom\""));
+    doc.append(tr("-    The SUBMODEL metas below enable font and background settings for nested submodels and callouts."));
+    doc.append(tr("-    The SUBMODEL_FONT meta is supported for up to four levels."));
+    doc.append(tr("-    The SUBMODEL_FONT_COLOR meta is supported for up to four levels."));
+    doc.append(tr("-    The SUBMODEL_BACKGROUND_COLOR meta is supported for up to four levels."));
+    doc.append(tr("     Four level colours #FFFFFF, #FFFFCC, #FFCCCC, and #CCCCFF are predefined."));
+    doc.append(tr("-    The <stud style integer 0-7> meta value captures the 7 stud style types."));
+    doc.append(tr("     0 None"));
+    doc.append(tr("     1 Thin line logo"));
+    doc.append(tr("     2 Outline logo"));
+    doc.append(tr("     3 Sharp top logo"));
+    doc.append(tr("     4 Rounded top logo"));
+    doc.append(tr("     5 Flattened logo"));
+    doc.append(tr("     6 High contrast without logo"));
+    doc.append(tr("     7 High contrast with logo"));
+    doc.append(tr("-    The <annotation style integer 0-4> meta value captures the 4 annotation icon style types."));
+    doc.append(tr("     0 None"));
+    doc.append(tr("     1 Circle"));
+    doc.append(tr("     2 Square"));
+    doc.append(tr("     3 Rectangle"));
+    doc.append(tr("     4 LEGO element"));
+    doc.append(tr("-    The <line integer 0-5> meta value captures the 5 border line types."));
+    doc.append(tr("     0 None"));
+    doc.append(tr("     1 Solid        ----"));
+    doc.append(tr("     2 Dash         - - "));
+    doc.append(tr("     3 Dot          ...."));
+    doc.append(tr("     4 Dash dot     -.-."));
+    doc.append(tr("     5 Dash dot dot -..-"));
+    doc.append(tr("-    The <\"font attributes\"> meta value is a comma-delimited <\"string\"> of 10 attributes."));
+    doc.append(tr("     Example font attributes <\" Arial, 64, -1, 255, 75, 0, 0, 0, 0, 0 \">"));
+    doc.append(tr("     1  FamilyName - \"Arial\""));
+    doc.append(tr("     2  PointSizeF - 64 size of font, -1 if using PixelSize"));
+    doc.append(tr("     3  PixelSize  - -1 size of font, -1 if using PointSizeF"));
+    doc.append(tr("     4  StyleHint  - 255 = no style hint set, 5 = any style, 4 = system font, 0 = Helvetica, etc..."));
+    doc.append(tr("     5  Weight     - 75 = bold, 50 = normal, etc..."));
+    doc.append(tr("     6  Underline  - 0 = disabled, 1 = enabled"));
+    doc.append(tr("     7  Strikeout  - 0 = disabled, 1 = enabled"));
+    doc.append(tr("     8  StrikeOut  - 0 = disabled, 1 = enabled"));
+    doc.append(tr("     9  FixedPitch - 0 = disabled, 1 = enabled"));
+    doc.append(tr("     10 RawMode    - 0 obsolete, use default value"));
     doc.append(QString());
-    doc.append(QString("End of file."));
+    doc.append(tr("End of file."));
 
     // export content list
     for (int i = 0; i < doc.size(); i++) {
@@ -995,7 +998,7 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
 
     file.close();
 
-    result = QString("Export %1 processed %2 commands.").arg(documentTitle).arg(exported);
+    result = tr("Export %1 processed %2 commands.").arg(documentTitle).arg(exported);
 
     emit messageSig(LOG_INFO, QString(result).replace(".", QString(" to %1.")
                                                                    .arg(QDir::toNativeSeparators(fileName))));
@@ -1059,7 +1062,7 @@ void LPub::removeLPubFormatting(int option)
               Gui::displayPageNum = 1 + Gui::pa;
           } else if (result == QMessageBox::No) {
 #ifdef QT_DEBUG_MODE
-              qDebug() << qPrintable(QString("COMPARE Preserve GLOBAL HEADERS: %1").arg(preserveGlobalHeaders ? "NO" : "YES"));
+              qDebug() << qPrintable(tr("COMPARE Preserve GLOBAL HEADERS: %1").arg(preserveGlobalHeaders ? "NO" : "YES"));
 #endif
               if (preserveGlobalHeaders)
                   mi.scanPastGlobal(top);
@@ -1071,7 +1074,7 @@ void LPub::removeLPubFormatting(int option)
   case RLPF_PAGE:
       if (page.relativeType == StepGroupType) {
 #ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(QString("COMPARE Using PAGE STEPS"));
+          qDebug() << qPrintable(tr("COMPARE Using PAGE STEPS"));
 #endif
           /*
           for Step Group we want page.top [Steps::top]
@@ -1082,7 +1085,7 @@ void LPub::removeLPubFormatting(int option)
           bottom = page.bottom;
       } else {
 #ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(QString("COMPARE Using PAGE"));
+          qDebug() << qPrintable(tr("COMPARE Using PAGE"));
 #endif
           /*
           for Single Step and No Step we wat topOf/bottomOf Steps
@@ -1097,7 +1100,7 @@ void LPub::removeLPubFormatting(int option)
 #ifdef QT_DEBUG_MODE
       _top    = Gui::topOfPages[Gui::displayPageNum-1];
       _bottom = Gui::topOfPages[Gui::displayPageNum];
-      qDebug() << qPrintable(QString("COMAPARE PAGE/TOPofPAGES top/_top: %1,%2, bottom/_bottom: %3,%4")
+      qDebug() << qPrintable(tr("COMAPARE PAGE/TOPofPAGES top/_top: %1,%2, bottom/_bottom: %3,%4")
                              .arg(top.lineNumber).arg(_top.lineNumber).arg(bottom.lineNumber).arg(_bottom.lineNumber));
 #endif
       break;
@@ -1112,7 +1115,7 @@ void LPub::removeLPubFormatting(int option)
                   for (int i = 0; i < steps->list.size() && !stepFound; i++) {
                       if (steps->list[i]->relativeType == RangeType) {
                          Range *range = dynamic_cast<Range *>(steps->list[i]);
-                         thisStep = QInputDialog::getInt(gui,QMessageBox::tr("Steps"),QMessageBox::tr("Which Step"),1,1,range->list.size(),1,&stepOk);
+                         thisStep = QInputDialog::getInt(gui,tr("Steps"),tr("Which Step"),1,1,range->list.size(),1,&stepOk);
                          if (range && stepOk) {
                              /* foreach step*/
                              for (int j = 0; j < range->list.size(); j++) {
@@ -1157,8 +1160,8 @@ void LPub::removeLPubFormatting(int option)
          top = Where(bottom.modelName, bottom.modelIndex, 1);
 #ifdef QT_DEBUG_MODE
          _bottom = currentStep ? currentStep->bottom : Gui::topOfPages[Gui::displayPageNum];
-         qDebug() << qPrintable(QString("COMPARE BOM %1").arg(currentStep ? "CURRENT STEP" : "TOPofPAGES"));
-         qDebug() << qPrintable(QString("COMAPARE COMAPARE BOM TOPofPAGES/CURRENT STEP bottom/_bottom: %1,%2")
+         qDebug() << qPrintable(tr("COMPARE BOM %1").arg(currentStep ? "CURRENT STEP" : "TOPofPAGES"));
+         qDebug() << qPrintable(tr("COMAPARE COMAPARE BOM TOPofPAGES/CURRENT STEP bottom/_bottom: %1,%2")
                                 .arg(bottom.lineNumber, _bottom.lineNumber));
 #endif
       break;
@@ -1242,10 +1245,10 @@ void LPub::httpDownloadFinished()
     QVariant redirectionTarget = mHttpReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (mHttpReply->error()) {
         mByteArray.clear();
-        message = QString("%1 Download failed: %2.")
+        message = tr("%1 Download failed: %2.")
                           .arg(mTitle).arg(mHttpReply->errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),  message);
+            QMessageBox::warning(nullptr,tr("LPub3D"),  message);
         } else {
             logError() << message;
         }
@@ -1259,7 +1262,7 @@ void LPub::httpDownloadFinished()
                                               tr("Download redirect to %1 ?").arg(newUrl.toString()),
                                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
         } else {
-            logNotice() << QString("Download redirect to %1 ?").arg(newUrl.toString());
+            logNotice() << tr("Download redirect to %1 ?").arg(newUrl.toString());
         }
         if (proceedToRedirect) {
             mUrl = newUrl;
@@ -1290,18 +1293,18 @@ QString LPub::elapsedTime(const qint64 &duration) {
     elapsed /= 60;
     int hours = int(elapsed % 24);
 
-    return QString("Elapsed time: %1%2%3")
+    return tr("Elapsed time: %1%2%3")
                    .arg(hours   >   0 ?
-                                  QString("%1 %2 ")
+                                  tr("%1 %2 ")
                                           .arg(hours)
                                           .arg(hours   > 1 ? "hours"   : "hour") :
                                   QString())
                    .arg(minutes > 0 ?
-                                  QString("%1 %2 ")
+                                  tr("%1 %2 ")
                                           .arg(minutes)
                                           .arg(minutes > 1 ? "minutes" : "minute") :
                                   QString())
-                   .arg(QString("%1.%2 %3")
+                   .arg(tr("%1.%2 %3")
                                 .arg(seconds)
                                 .arg(milliseconds,3,10,QLatin1Char('0'))
                                 .arg(seconds > 1 ? "seconds" : "second"));
@@ -1445,7 +1448,7 @@ QAction *LPub::getAct(const QString &objectName)
 {
     if (actions.contains(objectName))
         return actions.value(objectName).action;
-    emit messageSig(LOG_TRACE, QString("Action was not found or is null [%1]").arg(objectName));
+    emit messageSig(LOG_TRACE, tr("Action was not found or is null [%1]").arg(objectName));
     return nullptr;
 }
 
@@ -1517,7 +1520,7 @@ void LPub::updateChangelog (const QString &url)
         QFile file(releaseNotesFile);
         if (! file.open(QFile::ReadOnly | QFile::Text)) {
             m_setReleaseNotesAsText = true;
-            m_releaseNotesContent = QString("Failed to open Release Notes file: \n%1:\n%2")
+            m_releaseNotesContent = tr("Failed to open Release Notes file: \n%1:\n%2")
                                              .arg(releaseNotesFile)
                                              .arg(file.errorString());
         } else {

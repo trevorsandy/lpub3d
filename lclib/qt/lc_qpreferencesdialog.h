@@ -47,7 +47,9 @@ class lcQPreferencesDialog : public QDialog
 	Q_OBJECT
 
 public:
-	lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options);
+/*** LPub3D Mod - Load Preferences Dialog ***/
+	lcQPreferencesDialog(QWidget* Parent);
+/*** LPub3D Mod end ***/
 	~lcQPreferencesDialog();
 
 	lcPreferencesDialogOptions* mOptions;
@@ -56,6 +58,10 @@ public:
 	{
 		CategoryRole = Qt::UserRole
 	};
+
+/*** LPub3D Mod - Load Preferences Dialog ***/
+	void setOptions(lcPreferencesDialogOptions* Options);
+/*** LPub3D Mod end ***/
 
 	bool eventFilter(QObject* Object, QEvent* Event) override;
 
