@@ -119,7 +119,7 @@ public:
   Page page;
 
   /// Current step as loaded in the Visual Editor
-  Step *currentStep;
+  Step *currentStep = nullptr;
 
   /// utility functions for meta commands
   MetaItem mi;
