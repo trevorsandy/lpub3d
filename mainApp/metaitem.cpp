@@ -2749,10 +2749,13 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
     bool token_1_5 = tokens.size() &&                        //no boundary command so check for valid step content
          tokens[0].size() == 1 &&
          tokens[0] >= "1" && tokens[0] <= "5";
+    // type 1 - 5 line
     if (token_1_5 || isHeader(line)) {
       appendStepMeta = true;
       break;
-    } else if (tokens.size() >= 4 &&
+    }
+    // cover page
+    else if (tokens.size() >= 4 &&
                tokens[2] == "INSERT" &&
                tokens[3] == "COVER_PAGE") {
       bool afterCoverPage = false;
@@ -2772,6 +2775,13 @@ bool MetaItem::appendPage(QString &metaCommand, Where &where, int option)
         insertStepMeta = true;
       }
       break;
+    }
+    // final model
+    else if (tokens.size() >= 4 &&
+             tokens[2] == "INSERT" &&
+            (tokens[3] == "PAGE" ||
+             tokens[3] == "MODEL")) {
+        appendStepMeta = true;
     }
   }
 

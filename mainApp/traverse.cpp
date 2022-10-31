@@ -537,9 +537,9 @@ int Gui::drawPage(
   };
 
   auto getTopOfPreviousStep = [this,&topOfStep] () {
-      int index = displayPageNum - 1; // top of 1 step back
-      bool indexOk = topOfPages.size() && topOfPages.size() >= index;
-      return indexOk ? topOfPages[index] : topOfStep;;
+      Where prevTopOfStep = topOfStep - 1; // move past [ROT]STEP
+      lpub->mi.scanBackward(prevTopOfStep, StepMask);
+      return prevTopOfStep;
   };
 
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
