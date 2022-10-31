@@ -203,9 +203,9 @@ protected:
     void closeEvent(QCloseEvent*_event);
 
     WaitingSpinnerWidget *_waitingSpinner;
-    TextEditor       *_textEdit;
+    TextEditor        *_textEdit;
     LoadModelWorker   *loadModelWorker;
-    QCompleter        *completer;
+    QCompleter        *autoCompleter;
     Highlighter       *highlighter;
     HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
@@ -302,17 +302,15 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
-    FindReplace *popUp;
+    void setAutoCompleter(QCompleter *c);
 
-    void setCompleter(QCompleter *c);
-    void setCompleterMinChars(int min_chars);
-    void setCompleterMaxSuggestions(int max);
-    void setCompleterPrefix(const QString& prefix);
     void gotoLine(int line);
     bool modelFileEdit()
     {
         return detachedEdit;
     }
+
+    FindReplace *popUp;
 
 signals:
     void updateSelectedParts();
@@ -325,30 +323,28 @@ private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
     void updateLineNumberArea(const QRect &rect, int dy);
 
+    void insertCompletion(const QString &completion);
+
     void findDialog();
     void toggleComment();
     void showCharacters(
          QString findString,
          QString replaceString);
-    void autocomplete(const QString &completion);
 
 protected:
-    void keyPressEvent(QKeyEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
-    void focusInEvent(QFocusEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *e) override;
-    QString currentWord() const;
+
+    void keyPressEvent(QKeyEvent *e) override;
+    void focusInEvent(QFocusEvent *e) override;
 
 private:
     QString textUnderCursor() const;
-    int wordStart() const;
-    QCompleter *completer;
-    int         completion_minchars;
-    int         completion_max;
-    QString     completion_prefix;
+
+    QCompleter *ac;
+    QWidget    *lineNumberArea;
     bool        detachedEdit;
     std::atomic<bool> _fileIsUTF8;
-    QWidget    *lineNumberArea;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
