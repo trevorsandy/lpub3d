@@ -93,52 +93,52 @@ PageAttributeTextItem::PageAttributeTextItem(
   switch(_pageAttributeText.type)
   {
   case PageTitleType:
-      name              = tr("Title");
-      toolTip           = tr("Title - click to edit, right-click to modify");
+      name    = tr("Title");
+      toolTip = tr("Title - click to edit, right-click to modify");
       break;
   case PageModelNameType:
-      name              = tr("Model ID");
-      toolTip           = tr("Model ID - click to edit, right-click to modify");
+      name    = tr("Model ID");
+      toolTip = tr("Model ID - click to edit, right-click to modify");
       break;
   case PageAuthorType:
-      name              = tr("Author");
-      toolTip           = tr("Author - click to edit, right-click to modify");
+      name    = tr("Author");
+      toolTip = tr("Author - click to edit, right-click to modify");
       break;
   case PageURLType:
-      name              = tr("URL");
-      toolTip           = tr("URL - click to edit, right-click to modify");
+      name    = tr("URL");
+      toolTip = tr("URL - click to edit, right-click to modify");
       break;
   case PageModelDescType:
-      name              = tr("Model Description");
-      toolTip           = tr("Model Description - click to edit, right-click to modify");
+      name    = tr("Model Description");
+      toolTip = tr("Model Description - click to edit, right-click to modify");
       break;
   case PagePublishDescType:
-      name              = tr("Publish Description");
-      toolTip           = tr("Publish Description - click to edit, right-click to modify");
+      name    = tr("Publish Description");
+      toolTip = tr("Publish Description - click to edit, right-click to modify");
       break;
   case PageCopyrightType:
-      name              = tr("Copyright");
-      toolTip           = tr("Copyright - click to edit, right-click to modify");
+      name    = tr("Copyright");
+      toolTip = tr("Copyright - click to edit, right-click to modify");
       break;
   case PageEmailType:
-      name              = tr("Email");
-      toolTip           = tr("Email - click to edit, right-click to modify");
+      name    = tr("Email");
+      toolTip = tr("Email - click to edit, right-click to modify");
       break;
   case PageDisclaimerType:
-      name              = tr("LEGO Disclaimer");
-      toolTip           = tr("Disclaimer - click to edit, right-click to modify");
+      name    = tr("LEGO Disclaimer");
+      toolTip = tr("Disclaimer - click to edit, right-click to modify");
       break;
   case PagePartsType:
-      name              = tr("Parts");
-      toolTip           = tr("Parts - click to edit, right-click to modify");
+      name    = tr("Parts");
+      toolTip = tr("Parts - click to edit, right-click to modify");
       break;
   case PagePlugType:
-      name              = tr("Plug");
-      toolTip           = tr("Plug - click to edit, right-click to modify");
+      name    = tr("Plug");
+      toolTip = tr("Plug - click to edit, right-click to modify");
       break;
   case PageCategoryType:
-      name              = tr("Category");
-      toolTip           = tr("Category - click to edit, right-click to modify");
+      name    = tr("Category");
+      toolTip = tr("Category - click to edit, right-click to modify");
       break;
     default:
       break;
@@ -160,59 +160,57 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 {
   QMenu menu;
 
-  PlacementData placementData = placement.value();
-  QAction *placementAction    = commonMenus.placementMenu(menu,name,
-                                    commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
-  QAction *fontAction         = commonMenus.fontMenu(menu,name);
-  QAction *colorAction        = commonMenus.colorMenu(menu,name);
-  QAction *marginAction       = commonMenus.marginMenu(menu,name);
+  QAction *placementAction      = lpub->getAct("placementAction.1");
+  PlacementData placementData   = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu);
 
-  //QAction *displayTextAction  = commonMenus.displayMenu(menu,name);
+  QAction *fontAction           = lpub->getAct("fontAction.1");
+  commonMenus.addAction(fontAction,menu);
 
-  int  onPageType;
-  if (page->coverPage && page->frontCover){
-      onPageType = FrontCoverPage;
-      //logInfo() << " On Front Cover Page";
-  }
-  else if(page->coverPage && page->backCover){
-      onPageType = BackCoverPage;
-      //logInfo() << " On Back Cover Page";
-  }
-  else {
-      onPageType = ContentPage;
-      //logInfo() << " On Content Page";
-  }
+  QAction *colorAction          = lpub->getAct("colorAction.1");
+  commonMenus.addAction(colorAction,menu);
+
+  QAction *marginAction         = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu);
 
   //temporary until I figure a way to hide dependent attributes w/o crashing
   //TODO redesign attribute placement relativeTo scheme to allow hide w/o crash
-  QAction *displayTextAction = nullptr;
-  if (onPageType == FrontCoverPage){
-      if (relativeType == PageModelNameType || relativeType == PagePublishDescType){
-          displayTextAction  = commonMenus.displayMenu(menu,name);
-        }
-  } else if (onPageType == BackCoverPage) {
-      switch(relativeType)
-      {
-      case PageTitleType:
-      case PageAuthorType:
-      case PageCopyrightType:
-      case PageURLType:
-      case PageEmailType:
-      case PageDisclaimerType:
-      case PagePlugType:
-          ;
-          break;
-      default:
-            displayTextAction  = commonMenus.displayMenu(menu,name);
-          break;
+  int  onPageType = ContentPage;
+  QAction *displayTextAction    = nullptr;
+  if (page->coverPage) {
+      if (page->frontCover) {
+          onPageType = FrontCoverPage;
+          if (relativeType == PageModelNameType || relativeType == PagePublishDescType) {
+              displayTextAction = lpub->getAct("displayTextAction.1");
+              commonMenus.addAction(displayTextAction,menu);
+          }
+      } else if(page->backCover) {
+          onPageType = BackCoverPage;
+          switch(relativeType)
+          {
+              case PageTitleType:
+              case PageAuthorType:
+              case PageCopyrightType:
+              case PageURLType:
+              case PageEmailType:
+              case PageDisclaimerType:
+              case PagePlugType:
+                  break;
+              default:
+                  displayTextAction = lpub->getAct("displayTextAction.1");
+                  commonMenus.addAction(displayTextAction,menu);
+                  break;
+          }
       }
+      //logInfo() << (page->coverPage ? "On Front Cover Page" : page->backCover ? "On Back Cover Page" : "On Content Page");
   }
 
-  QAction *selectedAction     = menu.exec(event->screenPos());
+  QAction *selectedAction = menu.exec(event->screenPos());
 
-  Where topOfSteps            = page->topOfSteps();
-  Where bottomOfSteps         = page->bottomOfSteps();
-  bool  useTop                = parentRelativeType != StepGroupType;
+  Where topOfSteps        = page->topOfSteps();
+  Where bottomOfSteps     = page->bottomOfSteps();
+  bool  useTop            = parentRelativeType != StepGroupType;
 
   if (selectedAction == nullptr) {
     return;
@@ -245,7 +243,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 #endif
       changePlacement(parentRelativeType,
                       relativeType,
-                     "Move " + name,
+                      tr("Move %1").arg(name),
                       topOfSteps,
                       bottomOfSteps,
                      &placement,
@@ -256,46 +254,51 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                       onPageType);
 
   } else if (selectedAction == marginAction) {
-
+#ifdef QT_DEBUG_MODE
       logInfo() << "\nCHANGE MARGIN (TEXT) - "
                 << "\nPAGE- "
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
                              ;
-      changeMargins(name + " Margins",
+#endif
+      changeMargins(tr("%1 Margins").arg(name),
                     topOfSteps,
                     bottomOfSteps,
                    &margin,
                     useTop);
 
   } else if (selectedAction == fontAction) {
+#ifdef QT_DEBUG_MODE
       logInfo() << "\nCHANGE FONT (TEXT) - "
                 << "\nPAGE- "
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
                              ;
+#endif
       changeFont(topOfSteps,
                  bottomOfSteps,
                 &textFont,1, true,
                  useTop);
 
   } else if (selectedAction == colorAction) {
+#ifdef QT_DEBUG_MODE
       logInfo() << "\nCHANGE COLOUR (TEXT) - "
                 << "\nPAGE- "
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
                              ;
+#endif
       changeColor(topOfSteps,
                   bottomOfSteps,
                  &textColor,1, true,
                   useTop);
 
-  } else if (selectedAction == displayTextAction){
-
+  } else if (selectedAction == displayTextAction) {
+#ifdef QT_DEBUG_MODE
       logInfo() << "\nCHANGE DISPLAY (TEXT) - "
                 << "\nPAGE- "
                 << " \nRelativeType:  " << RelNames[relativeType]       << " (" << relativeType << ")"
                 << " \nOnPageType:    " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
                           ;
-
+#endif
       changeBool(topOfSteps,
                  bottomOfSteps,
                 &displayText,

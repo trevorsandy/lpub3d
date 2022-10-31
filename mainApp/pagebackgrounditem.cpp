@@ -51,7 +51,7 @@ PageBackgroundItem::PageBackgroundItem(
 
   pixmap = new QPixmap(width,height);
 
-  QString toolTip(QString("Page background [%1 x %2 px] - right-click to modify")
+  QString toolTip(QObject::tr("Page background [%1 x %2 px] - right-click to modify")
                   .arg(width)
                   .arg(height));
 
@@ -78,35 +78,25 @@ PageBackgroundItem::PageBackgroundItem(
 void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString name = "Page";
   bool fullContextMenu = page->list.size() && ! page->modelDisplayOnlyStep;
+  QString name = "Page";
 
   // figure out if first step step number is greater than 1
 
-  QAction *addNextStepAction    = nullptr;
-  QAction *addNextStepsAction   = nullptr;
-  QAction *addPrevStepAction    = nullptr;
-  QAction *calloutAction        = nullptr;
-  QAction *calloutNoPointAction = nullptr;
-  QAction *assembledAction      = nullptr;
-  QAction *ignoreAction         = nullptr;
-  QAction *partAction           = nullptr;
-  QAction *perStepAction        = nullptr;
-  QAction *clearPageCacheAction = nullptr;
-
-  QAction *borderAction         = nullptr;
-  QAction *backgroundAction     = nullptr;
-  QAction *subModelColorAction  = nullptr;
-  QAction *imageAction          = nullptr;
-  QAction *displayImageAction   = nullptr;
-
-  QAction *sizeAndOrientationAction = nullptr;
-
-  Step    *lastStep = nullptr;
-  Step    *firstStep = nullptr;
-
-  int maxSteps = 0;
+  Step *lastStep     = nullptr;
+  Step *firstStep    = nullptr;
+  int maxSteps       = 0;
   int lastStepNumber = 0;
+
+  QAction *addNextStepAction         = nullptr;
+  QAction *addNextStepsAction        = nullptr;
+  QAction *addPrevStepAction         = nullptr;
+  QAction *calloutAction             = nullptr;
+  QAction *calloutNoPointAction      = nullptr;
+  QAction *assembledAction           = nullptr;
+  QAction *ignoreAction              = nullptr;
+  QAction *partAction                = nullptr;
+  QAction *clearPageCacheAction      = nullptr;
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {
@@ -116,17 +106,15 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
               lastStepNumber = lastStep->stepNumber.number;
               maxSteps = numSteps(lastStep->topOfStep().modelName);
               if (lastStepNumber != maxSteps) {
-                  addNextStepAction = menu.addAction("Add Next Step");
-                  addNextStepAction->setIcon(QIcon(":/resources/nextstep.png"));
-                  addNextStepAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");
-                }
-              if ((maxSteps - lastStepNumber) >= 2) {
-                  addNextStepsAction = menu.addAction("Add Next Steps");
-                  addNextStepsAction->setIcon(QIcon(":/resources/nextsteps.png"));
-                  addNextStepsAction->setWhatsThis("Add Next Steps:\n Add a specified number of next steps to this page\n");
+                  addNextStepAction  = lpub->getAct("addNextStepAction.1");
+                  commonMenus.addAction(addNextStepAction,menu);
               }
-            }
-        }
+              if ((maxSteps - lastStepNumber) >= 2) {
+                  addNextStepsAction = lpub->getAct("addNextStepsAction.1");
+                  commonMenus.addAction(addNextStepsAction,menu);
+              }
+          }
+      }
 
       // figure out if first step step number is greater than 1
 
@@ -136,90 +124,88 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           if (rangeElement->relativeType == StepType) {
               firstStep = dynamic_cast<Step *> (rangeElement);
               if (firstStep->stepNumber.number > 1) {
-                  addPrevStepAction = menu.addAction("Add Previous Step");
-                  addPrevStepAction->setIcon(QIcon(":/resources/previousstep.png"));
-                  addPrevStepAction->setWhatsThis("Add Previous Step:\n Add the last step of the previous page to this page\n");
-                }
-            }
-        }
+                  addPrevStepAction  = lpub->getAct("addPrevStepAction.1");
+                  commonMenus.addAction(addPrevStepAction,menu);
+              }
+          }
+      }
 
       if (page->meta.submodelStack.size() > 0) {
-          calloutAction = menu.addAction("Convert to Callout");
-          calloutAction->setIcon(QIcon(":/resources/convertcallout.png"));
-          calloutAction->setWhatsThis("Convert to Callout:\n"
-                                      "  A callout shows how to build these steps in a picture next\n"
-                                      "  to where it is added to the set you are building");
+          calloutAction              = lpub->getAct("calloutAction.1");
+          commonMenus.addAction(calloutAction,menu);
 
-          calloutNoPointAction = menu.addAction("Convert to Pointerless Callout");
-          calloutNoPointAction->setIcon(QIcon(":/resources/convertcalloutwithoutpointer.png"));
-          calloutNoPointAction->setWhatsThis("Convert to Pointerless Callout:\n"
-                                      "  A callout without pointer shows how to build these steps in a\n"
-                                      "  picture next to where it is added to the set you are building");
+          calloutNoPointAction       = lpub->getAct("calloutNoPointAction.1");
+          commonMenus.addAction(calloutNoPointAction,menu);
 
           // FIXME: don't allow this if it already got an assembled.
           if (canConvertToCallout(&page->meta)) {
-              assembledAction = menu.addAction("Add Assembled Image to Parent Page");
-              assembledAction->setIcon(QIcon(":/resources/addassembledimage.png"));
-              assembledAction->setWhatsThis("Add Assembled Image to Parent Page\n"
-                                            "  A callout like image is added to the page where this submodel\n"
-                                            "  is added to the set you are building");
-            }
+              assembledAction        = lpub->getAct("assembledAction.1");
+              commonMenus.addAction(assembledAction,menu);
+          }
 
-          ignoreAction = menu.addAction("Ignore this submodel");
-          ignoreAction->setIcon(QIcon(":/resources/ignoresubmodel.png"));
-          ignoreAction->setWhatsThis("Stops these steps from showing up in your instructions");
+          ignoreAction               = lpub->getAct("ignoreAction.1");
+          commonMenus.addAction(ignoreAction,menu);
 
-          partAction = menu.addAction("Treat as Part");
-          partAction->setIcon(QIcon(":/resources/treataspart.png"));
-          partAction->setWhatsThis("Treating this submodel as a part means these steps go away, "
-                                   "and the submodel is displayed as a part in the parent step's "
-                                   "part list image.");
-        }
-      clearPageCacheAction = menu.addAction("Reset Page Assembly Image Cache");
-      clearPageCacheAction->setIcon(QIcon(":/resources/resetaction.png"));
-      clearPageCacheAction->setWhatsThis("Reset the CSI image and ldr cache files for this page.");
-    }
-
-  if (page->instances > 1) {
-      QString m_name = "Step";
-      if (page->meta.LPub.stepPli.perStep.value()) {
-          perStepAction = commonMenus.noPartsList(menu,m_name);
-        } else {
-          perStepAction = commonMenus.partsList(menu,m_name);
-        }
-    }
-
-  backgroundAction    = commonMenus.backgroundMenu(menu,name);
-  subModelColorAction = commonMenus.subModelColorMenu(menu,name);
-
-  if (page->frontCover) {
-
-      if (page->meta.LPub.page.coverImage.file.value().isEmpty()){
-          imageAction     = commonMenus.changeImageMenu(menu,"Add Cover " + name + " Image");
-      } else if (!page->meta.LPub.page.coverImage.display.value()) {
-          displayImageAction = commonMenus.displayMenu(menu,name);
-          displayImageAction->setText("Show Cover " + name + " Image");
+          partAction                 = lpub->getAct("partAction.1");
+          commonMenus.addAction(partAction,menu);
       }
   }
 
-  sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
-  sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
-  sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
+  QAction *perStepAction             = nullptr;
+  if (page->instances > 1) {
+      // present the opposite action
+      if (!page->meta.LPub.stepPli.perStep.value()) {
+          perStepAction              = lpub->getAct("partsListAction.1");
+      } else {
+          perStepAction              = lpub->getAct("noPartsListAction.1");
+      }
+      commonMenus.addAction(perStepAction,menu,name);
+  }
 
+  QAction *borderAction              = nullptr;
   if(page->meta.LPub.page.background.value().type == BackgroundData::BgTransparent) {
-      borderAction = commonMenus.borderMenu(menu,name);
-    }
+      borderAction                   = lpub->getAct("borderAction.1");
+      commonMenus.addAction(borderAction,menu,name);
+  }
 
-  QAction *selectedAction     = menu.exec(event->screenPos());
+  QAction *changeImageAction         = nullptr;
+  QAction *displayImageAction        = nullptr;
+  if (page->frontCover) {
+      if (page->meta.LPub.page.coverImage.file.value().isEmpty()) {
+          changeImageAction          = lpub->getAct("changeImageAction.1");
+          changeImageAction->setText(QObject::tr("Add Cover Page Image"));
+          commonMenus.addAction(changeImageAction,menu,name);
+      } else if (!page->meta.LPub.page.coverImage.display.value()) {
+          displayImageAction         = lpub->getAct("displayImageAction.1");
+          displayImageAction->setText(QObject::tr("Show Cover Page Image"));
+          commonMenus.addAction(displayImageAction,menu,name);
+      }
+  }
+
+  QAction *backgroundAction          = lpub->getAct("backgroundAction.1");
+  commonMenus.addAction(backgroundAction,menu,name);
+
+  QAction *subModelColorAction       = lpub->getAct("subModelColorAction.1");
+  commonMenus.addAction(subModelColorAction,menu,name);
+
+  QAction *sizeAndOrientationAction  = lpub->getAct("sizeAndOrientationAction.1");
+  commonMenus.addAction(sizeAndOrientationAction,menu);
+
+  if (fullContextMenu) {
+      clearPageCacheAction           = lpub->getAct("clearPageCacheAction.1");
+      commonMenus.addAction(clearPageCacheAction,menu,name);
+  }
+
+  QAction *selectedAction            = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   bool useTop = relativeType == SingleStepType;
 
   if (page->meta.LPub.page.background.value().gsize[0] == 0.0 &&
-      page->meta.LPub.page.background.value().gsize[1] == 0.0) {
+          page->meta.LPub.page.background.value().gsize[1] == 0.0) {
 
       page->meta.LPub.page.background.value().gsize[0] = Preferences::pageHeight;
       page->meta.LPub.page.background.value().gsize[1] = Preferences::pageWidth;
@@ -230,64 +216,63 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       int v_off = gSize.height() / 8;
       page->meta.LPub.page.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
                                                       << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+  }
 
-    }
-
-  if (fullContextMenu){
+  if (fullContextMenu) {
       if (selectedAction == calloutAction) {
-          convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
-        } else if (selectedAction == calloutNoPointAction) {
-          convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false, true);
-        } else if (selectedAction == assembledAction) {
-          convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, true);
-        } else if (selectedAction == ignoreAction) {
-          convertToIgnore(&page->meta);
-        } else if (selectedAction == partAction) {
-          convertToPart(&page->meta);
-        } else if (selectedAction == addNextStepAction) {
-          addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
-        } else if (selectedAction == addNextStepsAction) {
-          bool ok;
-          int maxNextSteps = maxSteps - lastStepNumber;
-          int numOfSteps = QInputDialog::getInt(gui,"Next Steps","Number of next steps",maxNextSteps,1,maxNextSteps,1,&ok);
-          if (ok)
-              addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
-        } else if (selectedAction == addPrevStepAction) {
-          addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
-        } else if (selectedAction == clearPageCacheAction){
-          clearPageCache(relativeType,page,Options::CSI);
-        }
-    }
+        convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false);
+      } else if (selectedAction == calloutNoPointAction) {
+        convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, false, true);
+      } else if (selectedAction == assembledAction) {
+        convertToCallout(&page->meta, page->bottom.modelName, page->isMirrored, true);
+      } else if (selectedAction == ignoreAction) {
+        convertToIgnore(&page->meta);
+      } else if (selectedAction == partAction) {
+        convertToPart(&page->meta);
+      } else if (selectedAction == addNextStepAction) {
+        addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
+      } else if (selectedAction == addNextStepsAction) {
+        bool ok;
+        int maxNextSteps = maxSteps - lastStepNumber;
+        int numOfSteps = QInputDialog::getInt(gui,QObject::tr("Next Steps"),QObject::tr("Number of next steps"),maxNextSteps,1,maxNextSteps,1,&ok);
+        if (ok)
+            addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+      } else if (selectedAction == addPrevStepAction) {
+        addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
+      } else if (selectedAction == clearPageCacheAction){
+        clearPageCache(relativeType,page,Options::CSI);
+      }
+  }
 
   if (selectedAction == perStepAction) {
       changeBool(page->top,
                  page->bottom,
                  &page->meta.LPub.stepPli.perStep,true,0,false,false);
     } else if (selectedAction == borderAction) {
-      changeBorder("Border",
+      changeBorder(QObject::tr("Border"),
                    page->top,
                    page->bottom,
                    &page->meta.LPub.page.border);
     } else if (selectedAction == backgroundAction) {
-      changeBackground("Page Background",
+      changeBackground(QObject::tr("Page Background"),
                        page->top,
                        page->bottom,
                        &page->meta.LPub.page.background, useTop);
-    } else if (selectedAction == imageAction) {
+    } else if (selectedAction == changeImageAction) {
 
-      changeImage("Add Cover" + name + " Image",
+      changeImage(QObject::tr("Add Cover Page Image"),
                    page->top,
                    page->bottom,
                    &page->meta.LPub.page.coverImage.file,
                     true,1,true/*allowLocal*/,false/*askLocal*/);
     } else if (selectedAction == subModelColorAction) {
-      changeSubModelColor("Submodel Color",
+      changeSubModelColor(QObject::tr("Submodel Color"),
                           page->top,
                           page->bottom,
                           &page->meta.LPub.page.subModelColor,useTop);
 
     } else if (selectedAction == sizeAndOrientationAction) {
-      changeSizeAndOrientation("Size and Orientation",
+      changeSizeAndOrientation(QObject::tr("Size and Orientation"),
                                page->top,
                                page->bottom,
                                &page->meta.LPub.page.size,
@@ -297,7 +282,5 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                  page->bottom,
                 &page->meta.LPub.page.coverImage.display,
                  true,1,true/*allowLocal*/,false/*askLocal*/);
-
-  }
-
+    }
 }

@@ -22,6 +22,7 @@
 #include "step.h"
 #include "ranges.h"
 #include "name.h"
+#include "lpub_object.h"
 
 PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
@@ -42,13 +43,13 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   parentRelativeType = page->relativeType;
 
   if (relativeType == PageDocumentLogoType ) {
-    name    = "Logo";
+    name    = QObject::tr("Logo Image");
   } else if (relativeType == PageCoverImageType) {
-    name    = "Cover Image";
+    name    = QObject::tr("Cover Image");
   } else if (relativeType == PagePlugImageType) {
-    name    = "Plug Image";
+    name    = QObject::tr("Plug Image");
   }
-  setToolTip(QString("%1 [%2 x %3 px] - right-click to modify")
+  setToolTip(QObject::tr("%1 [%2 x %3 px] - right-click to modify")
              .arg(name)
              .arg(pixmap.width())
              .arg(pixmap.height()));
@@ -278,41 +279,64 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
 {
   QMenu menu;
 
-  QAction *placementAction      = nullptr;
-  QAction *scaleAction          = nullptr;
-  QAction *stretchAction        = nullptr;
-  QAction *tileAction           = nullptr;
+  QAction *placementAction    = nullptr;
+  QAction *scaleAction        = nullptr;
+  QAction *stretchImageAction = nullptr;
+  QAction *tileImageAction    = nullptr;
   if (fillMode == Aspect) {
+    placementAction           = lpub->getAct("placementAction.1");
     PlacementData placementData = placement.value();
-    placementAction             = commonMenus.placementMenu(menu,name,
-                                  commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
-    scaleAction                 = commonMenus.scaleMenu(menu,name);
-    stretchAction               = commonMenus.stretchImageMenu(menu,name);
-    tileAction                  = commonMenus.tileImageMenu(menu,name);
+    placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+    commonMenus.addAction(placementAction,menu,name);
+
+    scaleAction               = lpub->getAct("scaleAction.1");
+    commonMenus.addAction(scaleAction,menu,name);
+
+    stretchImageAction        = lpub->getAct("stretchImageAction.1");
+    commonMenus.addAction(stretchImageAction,menu,name);
+
+    tileImageAction           = lpub->getAct("tileImageAction.1");
+    commonMenus.addAction(tileImageAction,menu,name);
   }
-  if (fillMode == Tile)
-    stretchAction               = commonMenus.stretchImageMenu(menu,name);
-  if (fillMode == Stretch)
-    tileAction                  = commonMenus.tileImageMenu(menu,name);
-  QAction *imageAction          = commonMenus.changeImageMenu(menu,"Change " + name);
-  QAction *borderAction         = commonMenus.borderMenu(menu,name);
-  QAction *marginAction         = commonMenus.marginMenu(menu,name);
-  QAction *displayPictureAction = commonMenus.displayMenu(menu,name);
-  QAction *deleteImageAction    = commonMenus.deleteImageMenu(menu,name);
 
-  Where topOfSteps              = page->topOfSteps();
-  Where bottomOfSteps           = page->bottomOfSteps();
-  bool multiStep                = parentRelativeType == StepGroupType;
+  if (fillMode == Tile) {
+    tileImageAction           = lpub->getAct("tileImageAction.1");
+    commonMenus.addAction(tileImageAction,menu,name);
+  }
 
-  int  onPageType;
-  if (page->coverPage && page->frontCover)
+  if (fillMode == Stretch) {
+    stretchImageAction        = lpub->getAct("stretchImageAction.1");
+    commonMenus.addAction(stretchImageAction,menu,name);
+  }
+
+  QAction *changeImageAction  = lpub->getAct("changeImageAction.1");
+  commonMenus.addAction(changeImageAction,menu,name);
+
+   QAction *borderAction      = lpub->getAct("borderAction.1");
+  commonMenus.addAction(borderAction,menu,name);
+
+  QAction *marginAction       = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
+
+  QAction *displayImageAction = lpub->getAct("displayImageAction.1");
+  commonMenus.addAction(displayImageAction,menu,name);
+
+  QAction *deleteImageAction  = lpub->getAct("deleteImageAction.1");
+  commonMenus.addAction(deleteImageAction,menu,name);
+
+  Where topOfSteps    = page->topOfSteps();
+  Where bottomOfSteps = page->bottomOfSteps();
+  bool multiStep      = parentRelativeType == StepGroupType;
+
+  int  onPageType = ContentPage;
+  if (page->coverPage) {
+    if (page->frontCover)
       onPageType = FrontCoverPage;
-  else if(page->coverPage && page->backCover)
+    else if(page->backCover)
       onPageType = BackCoverPage;
-  else
-      onPageType = ContentPage;
+  }
 
-  QAction *selectedAction = menu.exec(event->screenPos());
+  QAction *selectedAction     = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
@@ -340,65 +364,65 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
                 << " \nOnPageType:                  " << (onPageType == 0 ? " \nContent Page" :
                                                           onPageType == 1 ? " \nFront Cover Page" :
                                                                             " \nBack Cover Page")  << " (" << onPageType << ")"
-                                                   ;
+                ;
 #endif
-      changePlacement(parentRelativeType,
-                      relativeType,
-                     "Move " + name,
-                      topOfSteps,
-                      bottomOfSteps,
-                     &placement,
-                      true,                 //default
-                      1,                    //default
-                      true,true,            //default
-                      onPageType);
-
-   } else if (selectedAction == scaleAction) {
-      changeFloatSpin("Scale " + name,
-                      name + " Size",
-                      topOfSteps,
-                      bottomOfSteps,
-                     &picScale);
-
-   } else if (selectedAction == imageAction) {
-      changeImage("Change " + name,
-                   topOfSteps,
-                   bottomOfSteps,
-                   &page->meta.LPub.page.coverImage.file);
-
-    } else if (selectedAction == borderAction) {
-      changeBorder(name + " Border",
-                   topOfSteps,
-                   bottomOfSteps,
-                   &border,
-                   true,1,true,false,true/*corners*/);
-
-    } else if (selectedAction == marginAction) {
-      changeMargins(name + " Margins",
+    changePlacement(parentRelativeType,
+                    relativeType,
+                    QObject::tr("Move %1").arg(name),
                     topOfSteps,
                     bottomOfSteps,
-                   &margin);
+                   &placement,
+                    true,                 //default
+                    1,                    //default
+                    true,true,            //default
+                    onPageType);
 
-  } else if (selectedAction == displayPictureAction){
-      changeBool(topOfSteps,
+  } else if (selectedAction == scaleAction) {
+    changeFloatSpin(QObject::tr("Scale %1").arg(name),
+                    QObject::tr("%1 Size").arg(name),
+                    topOfSteps,
+                    bottomOfSteps,
+                   &picScale);
+
+  } else if (selectedAction == changeImageAction) {
+    changeImage(QObject::tr("Change %1").arg(name),
+                 topOfSteps,
                  bottomOfSteps,
-                &displayPicture,
-                 true,1,true/*allowLocal*/,false/*askLocal*/);
+                 &page->meta.LPub.page.coverImage.file);
 
-  } else if (selectedAction == stretchAction){
-      page->meta.LPub.page.coverImage.fill.setValue(Stretch);
-      changeImageFill(topOfSteps,
-                      bottomOfSteps,
-                     &page->meta.LPub.page.coverImage.fill);
+  } else if (selectedAction == borderAction) {
+    changeBorder(QObject::tr("%1 Border").arg(name),
+                 topOfSteps,
+                 bottomOfSteps,
+                 &border,
+                 true,1,true,false,true/*corners*/);
 
-  } else if (selectedAction == tileAction){
-      page->meta.LPub.page.coverImage.fill.setValue(Tile);
-      changeImageFill(topOfSteps,
-                      bottomOfSteps,
-                     &page->meta.LPub.page.coverImage.fill);
+  } else if (selectedAction == marginAction) {
+    changeMargins(QObject::tr("%1 Margins").arg(name),
+                  topOfSteps,
+                  bottomOfSteps,
+                 &margin);
+
+  } else if (selectedAction == displayImageAction){
+    changeBool(topOfSteps,
+               bottomOfSteps,
+              &displayPicture,
+               true,1,true/*allowLocal*/,false/*askLocal*/);
+
+  } else if (selectedAction == stretchImageAction){
+    page->meta.LPub.page.coverImage.fill.setValue(Stretch);
+    changeImageFill(topOfSteps,
+                    bottomOfSteps,
+                   &page->meta.LPub.page.coverImage.fill);
+
+  } else if (selectedAction == tileImageAction){
+    page->meta.LPub.page.coverImage.fill.setValue(Tile);
+    changeImageFill(topOfSteps,
+                    bottomOfSteps,
+                   &page->meta.LPub.page.coverImage.fill);
 
   } else if (selectedAction == deleteImageAction){
-      deleteMeta(page->meta.LPub.page.coverImage.file.here());
+    deleteMeta(page->meta.LPub.page.coverImage.file.here());
   }
 }
 
