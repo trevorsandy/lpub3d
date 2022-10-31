@@ -75,7 +75,7 @@ void RotateIconItem::setAttributes(
 
   setRotateIconImage(pixmap);
 
-  QString toolTip("Rotate Icon - right-click to modify");
+  QString toolTip(QObject::tr("Rotate Icon - right-click to modify"));
   setToolTip(toolTip);
   setData(ObjectId, RotateIconBackgroundObj);
   setZValue(ROTATEICONBACKGROUND_ZVALUE_DEFAULT);
@@ -451,46 +451,47 @@ void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString name = QObject::tr("Rotate Icon");
 
-  PlacementData placementData = placement.value();
+  QAction *placementAction        = lpub->getAct("placementAction.1");
+  PlacementData placementData     = placement.value();
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QString pl = "Rotate Icon";
-  QAction *placementAction = nullptr;
-//  bool singleStep = parentRelativeType == SingleStepType;
-//  if (! singleStep) {
-      placementAction  = commonMenus.placementMenu(menu,pl,
-                         commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
-//    }
+  QAction *backgroundAction       = lpub->getAct("backgroundAction.1");
+  commonMenus.addAction(backgroundAction,menu,name);
 
-  QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-  QAction *marginAction        = commonMenus.marginMenu(menu,pl);
-  QAction *displayAction       = commonMenus.displayMenu(menu,pl);
+  QAction *marginAction           = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
 
-  QAction *borderAction        = nullptr;
-  QAction *subModelColorAction = nullptr;
-  QAction *editArrowAction     = nullptr;
+  QAction *displayAction          = lpub->getAct("displayRotateIconAction.1");
+  commonMenus.addAction(displayAction,menu,name);
+
+  QAction *borderAction              = nullptr;
+  QAction *subModelColorAction       = nullptr;
+  QAction *editRotateIconArrowAction = nullptr;
   if (!backgroundImage) {
-      borderAction        = commonMenus.borderMenu(menu,pl);
-      subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+    borderAction                  = lpub->getAct("borderAction.1");
+    commonMenus.addAction(borderAction,menu,name);
 
-      editArrowAction = menu.addAction("Edit "+pl+" Arrows");
-      editArrowAction->setWhatsThis("Edit this rotation icon arrows");
-      editArrowAction->setIcon(QIcon(":/resources/editrotateicon.png"));
+    subModelColorAction           = lpub->getAct("subModelColorAction.1");
+    commonMenus.addAction(subModelColorAction,menu,name);
+
+    editRotateIconArrowAction     = lpub->getAct("editRotateIconArrowAction.1");
+    commonMenus.addAction(editRotateIconArrowAction,menu);
   }
 
-  QAction *rotateIconSizeAction = menu.addAction("Change "+pl+" Size");
-  rotateIconSizeAction->setWhatsThis("Change the rotateIcon size");
-  rotateIconSizeAction->setIcon(QIcon(":/resources/rotateiconsize.png"));
+  QAction *rotateIconSizeAction   = lpub->getAct("rotateIconSizeAction.1");
+  commonMenus.addAction(rotateIconSizeAction,menu);
 
-  QAction *deleteRotateIconAction = menu.addAction("Delete "+pl);
-  deleteRotateIconAction->setWhatsThis("Delete this rotate icon");
-  deleteRotateIconAction->setIcon(QIcon(":/resources/delete.png"));
+  QAction *deleteRotateIconAction = lpub->getAct("deleteRotateIconAction.1");
+  commonMenus.addAction(deleteRotateIconAction,menu,name);
 
-  QAction *selectedAction  = menu.exec(event->screenPos());
+  QAction *selectedAction         = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
-    }
+  }
 
   Where top    = step->topOfStep();
   Where bottom = step->bottomOfStep();
@@ -525,28 +526,28 @@ void RotateIconItem::contextMenuEvent(
 
       changePlacement(parentRelativeType,
                       RotateIconType,
-                      pl+" Placement",
+                      QObject::tr("%1 Placement").arg(name),
                       top,
                       bottom,
                       &placement,true,1,0,false);
     } else if (selectedAction == backgroundAction) {
-      changeBackground(pl+" Background",
+      changeBackground(QObject::tr("%1 Background").arg(name),
                        top,
                        bottom,
                        &background);
     } else if (selectedAction == subModelColorAction) {
-      changeSubModelColor(pl+" Submodel Color",
+      changeSubModelColor(QObject::tr("%1 Submodel Color").arg(name),
                           top,
                           bottom,
                        &subModelColor,0,false,false);
 
     } else if (selectedAction == borderAction) {
-      changeBorder(pl+" Border",
+      changeBorder(QObject::tr("%1 Border").arg(name),
                    top,
                    bottom,
                    &border);
     } else if (selectedAction == marginAction) {
-      changeMargins(pl+" Margins",
+      changeMargins(QObject::tr("%1 Margins").arg(name),
                     top,
                     bottom,
                     &margin);
@@ -554,15 +555,15 @@ void RotateIconItem::contextMenuEvent(
       changeBool(top,
                  bottom,
                  &display);
-    } else if (selectedAction == editArrowAction) {
-      changeBorder(pl+" Arrows",
+    } else if (selectedAction == editRotateIconArrowAction) {
+      changeBorder(QObject::tr("%1 Arrows").arg(name),
                    top,
                    bottom,
                    &arrow,
                    true,1,true,
                    true);   // indicate that this call is from rotate arrow
     } else if (selectedAction == rotateIconSizeAction) {
-      changeImageItemSize(pl+" Size",
+      changeImageItemSize(QObject::tr("%1 Size").arg(name),
                            top,
                            bottom,
                            &iconSize,
@@ -698,7 +699,7 @@ void RotateIconItem::change()
 
           picScale.setValue(picScale.value()*oldScale);
           changeFloat(top,bottom,&picScale, 1, false);
-
+#ifdef QT_DEBUG_MODE
           logInfo() << "\nRESIZE ROTATE_ICON - "
                     << "\nPICTURE DATA - "
                     << " \npicScale: "                   << picScale.value()
@@ -725,10 +726,8 @@ void RotateIconItem::change()
                     << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
                     << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                        ;
+#endif
           endMacro();
         }
     }
 }
-
-
-
