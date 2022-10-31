@@ -573,7 +573,7 @@ lcCommandLineOptions lcApplication::ParseCommandLineOptions()
 	Options.SetCameraAngles = false;
 	Options.SetCameraPosition = false;
 /*** LPub3D Mod - DrawConditionalLines ***/
-	Options.DrawConditionalLines = false;
+	Options.DrawConditionalLines = Preferences.mDrawConditionalLines;
 /*** LPub3D Mod end ***/
 	Options.Orthographic = false;
 	Options.SetFoV = false;

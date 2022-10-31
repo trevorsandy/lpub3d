@@ -81,6 +81,7 @@ class Preferences
     static void themePreferences();
     static void userInterfacePreferences();
     static void editorPreferences();
+    static void keyboardShortcutPreferences();
 
     static bool extractLDrawLib();
     static void getRequireds();
@@ -145,6 +146,10 @@ class Preferences
     static void resetFadeSteps();
     static void resetHighlightStep();
     static void resetPreferredRenderer();
+
+    static void addKeyboardShortcut(const QString &objectName, const QKeySequence &keySequence);
+    static bool hasKeyboardShortcut(const QString &objectName);
+    static QKeySequence keyboardShortcut(const QString &objectName);
 
     static int showMessage(Preferences::MsgID,
                            const QString &message,
@@ -408,6 +413,8 @@ class Preferences
     static QString initHighlightStepColour;
 
     static int     initPreferredRenderer;
+
+    static QMap<QString, QKeySequence> keyboardShortcuts;
 
     virtual ~Preferences() {}
 };

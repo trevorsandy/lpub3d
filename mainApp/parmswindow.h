@@ -66,24 +66,25 @@ private:
     QMenu    *editMenu;
     QToolBar *editToolBar;
     QToolBar *undoRedoToolBar;
-    QAction  *exitAct;
-    QAction  *openAct;
-    QAction  *refreshAct;
-    QAction  *cutAct;
-    QAction  *copyAct;
-    QAction  *pasteAct;
-    QAction  *saveAct;
-    QAction  *saveCopyAsAct;
-    QAction  *undoAct;
-    QAction  *redoAct;
-    QAction  *delAct;
-    QAction  *systemeditorAct;
-    QAction  *selAllAct;
-    QAction  *gotoLineAct;
-    QAction  *findAct;
-    QAction  *topAct;
-    QAction  *bottomAct;
-    QAction  *showAllCharsAct;
+
+    QAction *exitAct;
+    QAction *openAct;
+    QAction *refreshAct;
+    QAction *cutAct;
+    QAction *copyAct;
+    QAction *pasteAct;
+    QAction *findAct;
+    QAction *gotoLineAct;
+    QAction *saveAct;
+    QAction *saveCopyAsAct;
+    QAction *topAct;
+    QAction *bottomAct;
+    QAction *delAct;
+    QAction *systemEditorAct;
+    QAction *selAllAct;
+    QAction *showAllCharsAct;
+    QAction *undoAct;
+    QAction *redoAct;
 
 private slots:
     void openFile();
@@ -97,7 +98,7 @@ private slots:
     bool saveCopyAsFile();
     void topOfDocument();
     void bottomOfDocument();
-    void systemeditor();
+    void systemEditor();
     void showAllCharacters();
     void showContextMenu(const QPoint &pt);
     void setSelectionHighlighter();

@@ -266,6 +266,7 @@ Preferences::ThemeSettings Preferences::defaultThemeColors[THEME_NUM_COLORS] =
 };
 
 QString Preferences::themeColors[THEME_NUM_COLORS];
+QMap<QString, QKeySequence> Preferences::keyboardShortcuts;
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
 QString Preferences::ldrawLibPath               = EMPTY_STRING_DEFAULT;
@@ -4689,6 +4690,19 @@ void Preferences::viewerPreferences()
     lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
 }
 
+void Preferences::keyboardShortcutPreferences()
+{
+    QSettings Settings;
+    Settings.beginGroup(KEYBOARDSHORTCUTS);
+    foreach (const QString &objectName, Settings.childKeys()) {
+        QKeySequence keySequence = Settings.value(objectName, "").value<QKeySequence>();
+        if (objectName.isEmpty())
+            continue;
+        keyboardShortcuts.insert(objectName, keySequence);
+    }
+    Settings.endGroup();
+}
+
 bool Preferences::getPreferences()
 {
 #ifdef Q_OS_MAC
@@ -4701,6 +4715,7 @@ bool Preferences::getPreferences()
     lcStudStyle CurrentStudStyle = lcGetPiecesLibrary()->GetStudStyle();
 
     Options.Preferences = gApplication->mPreferences;
+    Options.KeyboardShortcuts = keyboardShortcuts;
 
     Options.AASamples = CurrentAASamples;
     Options.StudStyle = CurrentStudStyle;
@@ -4714,6 +4729,9 @@ bool Preferences::getPreferences()
 
     Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
     Options.Preferences.mDrawConditionalLines = lcGetProfileInt(LC_PROFILE_DRAW_CONDITIONAL_LINES);
+
+    Options.KeyboardShortcutsModified = false;
+    Options.KeyboardShortcutsDefault = false;
 
     bool updateLDViewConfigFiles = false;
 
@@ -5266,8 +5284,35 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"InlineNativeContent"),inlineNativeContent);
         }
 
-        // LcLib Preferences
+        // Shortcuts
+        if (Options.KeyboardShortcutsModified) {
 
+            if (Options.KeyboardShortcutsDefault) {
+
+                Settings.beginGroup(KEYBOARDSHORTCUTS);
+                Settings.remove("");
+                Settings.endGroup();
+
+                keyboardShortcuts.clear();
+
+                lpub->setDefaultKeyboardShortcuts();
+
+            } else {
+                keyboardShortcuts = Options.KeyboardShortcuts;
+
+                Settings.beginGroup(KEYBOARDSHORTCUTS);
+                QMap<QString, QKeySequence>::const_iterator it = keyboardShortcuts.constBegin();
+                while (it != keyboardShortcuts.constEnd()) {
+                    Settings.setValue(it.key(), it.value());
+                    ++it;
+                }
+                Settings.endGroup();
+            }
+
+            lpub->setKeyboardShortcuts();
+        }
+
+        // LcLib Preferences
         bool AAChanged = CurrentAASamples != Options.AASamples;
         bool StudStyleChanged = CurrentStudStyle != Options.StudStyle;
         bool AutomateEdgeColorChanged = Options.Preferences.mAutomateEdgeColor != gApplication->mPreferences.mAutomateEdgeColor;
@@ -5450,15 +5495,18 @@ bool Preferences::getPreferences()
         {
             lcSetProfileInt(LC_PROFILE_STUD_STYLE, static_cast<int>(Options.StudStyle));
             lcGetPiecesLibrary()->SetStudStyle(Options.StudStyle, true);
+            logInfo() << QString("Stud style changed from %1 to %2.")
+                         .arg(static_cast<int>(CurrentStudStyle))
+                         .arg(static_cast<int>(Options.StudStyle));
         }
         else if (AutomateEdgeColorChanged)
         {
             lcGetPiecesLibrary()->LoadColors();
+            logInfo() << QString("Automate edge color changed");
         }
 
-        lpub->SetShadingMode(Options.Preferences.mShadingMode);
-
-        logInfo() << QString("Visual Editor preferences saved.");
+        if (shadingModeChanged)
+            lpub->SetShadingMode(Options.Preferences.mShadingMode);
 
         if (restartApp) {
             lpub->restartApplication();
@@ -5837,4 +5885,20 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
             return false;
     }
     return true;
+}
+
+void Preferences::addKeyboardShortcut(const QString &objectName, const QKeySequence &keySequence)
+{
+    if (objectName.isEmpty()) return;
+    keyboardShortcuts.insert(objectName, keySequence);
+}
+
+bool Preferences::hasKeyboardShortcut(const QString &objectName)
+{
+    return keyboardShortcuts.contains(objectName);
+}
+
+QKeySequence Preferences::keyboardShortcut(const QString &objectName)
+{
+    return keyboardShortcuts.value(objectName);
 }

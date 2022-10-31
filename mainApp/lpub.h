@@ -1045,20 +1045,11 @@ public:
   int setBuildModForNextStep(Where topOfNextStep,
                              Where topOfSubmodel = Where());
 
-  QAction *getApplyBuildModAct()
-  {
-      return applyBuildModAct;
-  }
+  QAction *getApplyBuildModAct();
 
-  QAction *getRemoveBuildModAct()
-  {
-      return removeBuildModAct;
-  }
+  QAction *getRemoveBuildModAct();
 
-  QAction *getDeleteBuildModAct()
-  {
-      return deleteBuildModAct;
-  }
+  QAction *getDeleteBuildModAct();
 
   /* End Build Modifications */
 
@@ -1196,6 +1187,14 @@ public:
   void createOpenWithActions(int maxPrograms = 0);
 
   void saveCurrent3DViewerModel(const QString &modelFile);
+
+  /******************************
+   *
+   * Shortcut mangement
+   *
+   */
+
+  QAction *getAct(const QString &objectName);
 
 public slots:
 #ifndef QT_NO_CLIPBOARD
@@ -1950,286 +1949,81 @@ private:
   QDockWidget       *visualEditDockWindow;
   QDockWidget       *previewDockWindow;
 
-  // Menus
-  QMenu    *fileMenu;
-  QMenu    *openWithMenu;
-  QMenu    *recentFileMenu;
-  QMenu    *editMenu;
-  QMenu    *viewMenu;
-  QMenu    *toolsMenu;
-  QMenu    *configMenu;
-  QMenu    *helpMenu;
+  QMenu *getMenu(const QString &objectName);
 
-  QMenu    *editorMenu;
-  QMenu    *cacheMenu;
-  QMenu    *importMenu;
-  QMenu    *exportMenu;
-  QMenu    *recentMenu;
-  QMenu    *setupMenu;
-
-  QMenu    *removeLPubFormatMenu;
-  QMenu    *nextPageContinuousMenu;
-  QMenu    *previousPageContinuousMenu;
-  QMenu    *snapToGridMenu;
-  QMenu    *sceneRulerTrackingMenu;
-  QMenu    *zoomSliderMenu;
-  QMenu    *sceneGuidesMenu;
-
-  QMenu    *cameraMenu;
-  QMenu    *lightMenu;
-  QMenu    *buildModMenu;
-  QMenu    *rotateActionMenu;
+  QMenu *viewMenu;
 
   // Visual Editor Menus
-  QMenu* ViewerMenu;
-  QMenu* FileMenuViewer;
-  QMenu* ViewerExportMenu;
-  QMenu* ViewerZoomSliderMenu;
+  QMenu *CameraMenu;
+  QMenu *LightMenu;
+  QMenu *BuildModMenu;
+  QMenu *SnapXYMenu;
+  QMenu *SnapZMenu;
+  QMenu *SnapMenu;
+  QMenu *SnapAngleMenu;
+  QMenu *ViewerMenu;
+  QMenu *FileMenuViewer;
+  QMenu *ViewerExportMenu;
+  QMenu *ViewerZoomSliderMenu;
+  QMenu *RotateActionMenu;
 
-  // toolbars
-  QToolBar *fileToolBar;
-  QToolBar *undoredoToolBar;
-  QToolBar *importToolBar;
+  QMap<QString, QMenu *> menus;
+
   QToolBar *exportToolBar;
-  QToolBar *editToolBar;
-  QToolBar *cacheToolBar;
-  QToolBar *setupToolBar;
-  QToolBar *editParamsToolBar;
-  QToolBar *zoomToolBar;
-  QToolBar *navigationToolBar;
-  QToolBar *removeLPubFormatToolBar;
 
-  // file
-  QAction  *openAct;
-  QAction  *saveAct;
-  QAction  *saveAsAct;
-  QAction  *saveCopyAct;
-  QAction  *closeFileAct;
-  QAction  *printToFileAct;
-  QAction  *printToFilePreviewAct;
-  QAction  *importLDDAct;
-  QAction  *importSetInventoryAct;
-  QAction  *exportAsPdfAct;
-  QAction  *exportAsPdfPreviewAct;
-  QAction  *exportPngAct;
-  QAction  *exportJpgAct;
-  QAction  *exportBmpAct;
+  QToolBar *getToolBar(const QString &objectName);
 
-  QAction  *exportStlAct;
-  QAction  *exportPovAct;
-  QAction  *export3dsAct;
-  QAction  *exportColladaAct;
-  QAction  *exportObjAct;
-  QAction  *exportCsvAct;
-  QAction  *exportBricklinkAct;
-  QAction  *exportHtmlAct;
+  QMap<QString, QToolBar *> toolbars;
 
-  QAction *bringToFrontAct;
-  QAction *sendToBackAct;
-
-  QAction  *povrayRenderAct;
-  QAction  *blenderRenderAct;
-  QAction  *blenderImportAct;
-
-  QAction  *clearRecentAct;
-  QAction  *exitAct;
-
-  QAction  *undoAct;
-  QAction  *redoAct;
-
-  QAction  *insertCoverPageAct;
-  QAction  *appendCoverPageAct;
-  QAction  *insertNumberedPageAct;
-  QAction  *appendNumberedPageAct;
-  QAction  *deletePageAct;
-  QAction  *addPictureAct;
-  QAction  *addTextAct;
-  QAction  *addBomAct;
-
-  QAction  *removeLPubFormatBomAct;
-  QAction  *removeLPubFormatDocumentAct;
-  QAction  *removeLPubFormatPageAct;
-  QAction  *removeLPubFormatStepAct;
-  QAction  *removeBuildModFormatAct;
-  QAction  *removeLPubFormatSubmodelAct;
-  QAction  *removeChildSubmodelFormatAct;
-  QAction  *cycleEachPageAct;
-
-  // view
-  // zoom toolbar
-
-  QAction  *fitWidthAct;
-  QAction  *fitVisibleAct;
-  QAction  *fitSceneAct;
-  QAction  *actualSizeAct;
-
-  QAction  *zoomInComboAct;
-  QAction  *zoomOutComboAct;
-
-  QSlider  *zoomSliderWidget;
-  QWidgetAction* zoomSliderAct;
-
-  QSlider  *viewerZoomSliderWidget;
+  QWidgetAction *zoomSliderAct;
   QWidgetAction *viewerZoomSliderAct;
 
-  QAction  *sceneGuidesComboAct;
-  QAction  *sceneGuidesSolidLineAct;
-  QAction  *sceneGuidesDashLineAct;
-  QAction  *sceneGuidesPosTLeftAct;
-  QAction  *sceneGuidesPosTRightAct;
-  QAction  *sceneGuidesPosBLeftAct;
-  QAction  *sceneGuidesPosBRightAct;
-  QAction  *sceneGuidesPosCentreAct;
-  QAction  *sceneRulerComboAct;
-  QAction  *sceneRulerTrackingTickAct;
-  QAction  *sceneRulerTrackingLineAct;
-  QAction  *sceneRulerTrackingNoneAct;
-  QAction  *hideRulerPageBackgroundAct;
-  QAction  *hideGridPageBackgroundAct;
-  QAction  *showTrackingCoordinatesAct;
-  QAction  *showGuidesCoordinatesAct;
+  QActionGroup  *SceneGuidesPosGroup;
+  QActionGroup  *SceneGuidesLineGroup;
+  QActionGroup  *SceneRulerGroup;
+  QActionGroup  *GridStepSizeGroup;
 
-  QAction  *defaultCameraPropertiesAct;
+  QAction *undoAct;
+  QAction *redoAct;
 
-  QActionGroup* SceneGuidesPosGroup;
-  QActionGroup* SceneGuidesLineGroup;
-  QActionGroup* SceneRulerGroup;
-  QActionGroup* GridStepSizeGroup;
+  QAction *blenderRenderAct;
+  QAction *blenderImportAct;
+  QAction *povrayRenderAct;
 
-  // view
-  // navigation toolbar
+  QAction *ApplyCameraAct;
+  QAction *CreateBuildModAct;
+  QAction *ApplyBuildModAct;
+  QAction *RemoveBuildModAct;
+  QAction *LoadBuildModAct;
+  QAction *UpdateBuildModAct;
+  QAction *DeleteBuildModAct;
+  QAction *EnableBuildModAct;
+  QAction *EnableRotstepRotateAct;
+  QAction *UseImageSizeAct;
+  QAction *AutoCenterSelectionAct;
+  QAction *DefaultCameraPropertiesAct;
 
-  QAction           *firstPageAct;
-  QAction           *lastPageAct;
-  QAction           *nextPageAct;
-  QAction           *previousPageAct;
-  QAction           *nextPageComboAct;
-  QAction           *nextPageContinuousAct;
-  QAction           *previousPageComboAct;
-  QAction           *previousPageContinuousAct;
-  QAction           *setPageLineEditResetAct;
-  QLineEdit         *setPageLineEdit;
-  QComboBox         *setGoToPageCombo;
-  SeparatorComboBox *mpdCombo;
-
-  // manage search directories
-  QAction *ldrawSearchDirectoriesAct;
-
-  // manage Caches
-  QAction *clearAllCachesAct;
-
-  QAction *clearPLICacheAct;
-  QAction *clearCSICacheAct;
-  QAction *clearSubmodelCacheAct;
-  QAction *clearTempCacheAct;
-  QAction *clearCustomPartCacheAct;
-
-  QAction *refreshLDrawUnoffPartsAct;
-  QAction *refreshLDrawOfficialPartsAct;
-
-  // archive
-  QAction *archivePartsOnDemandAct;
-  QAction *archivePartsOnLaunchAct;
-
-  // config menu
-
-  QAction *pageSetupAct;
-  QAction *assemSetupAct;
-  QAction *pliSetupAct;
-  QAction *bomSetupAct;
-  QAction *calloutSetupAct;
-  QAction *multiStepSetupAct;
-  QAction *subModelSetupAct;
-  QAction *projectSetupAct;
-  QAction *fadeStepSetupAct;
-  QAction *highlightStepSetupAct;
-  QAction *copyFilePathToClipboardAct;
-
-  QAction *preferencesAct;
-
-  QAction *editFreeFormAnnitationsAct;
-  QAction *editTitleAnnotationsAct;
-  QAction *editLDrawColourPartsAct;
-  QAction *editPliBomSubstitutePartsAct;
-  QAction *editExcludedPartsAct;
-  QAction *editStickerPartsAct;
-  QAction *editLdrawIniFileAct;
-  QAction *editLPub3DIniFileAct;
-  QAction *editLdgliteIniAct;
-  QAction *editNativePOVIniAct;
-  QAction *editLdviewIniAct;
-  QAction *editLdviewPovIniAct;
-  QAction *editBlenderParametersAct;
-  QAction *editPovrayIniAct;
-  QAction *editPovrayConfAct;
-  QAction *editAnnotationStyleAct;
-  QAction *editLD2BLCodesXRefAct;
-  QAction *editLD2BLColorsXRefAct;
-  QAction *editLD2RBCodesXRefAct;
-  QAction *editLD2RBColorsXRefAct;
-  QAction *editBLColorsAct;
-  QAction *editBLCodesAct;
-  QAction *generateCustomColourPartsAct;
-  QAction *editModelFileAct;
-  QAction *editPliControlFileAct;
-  QAction *useSystemEditorAct;
-
-  QAction *snapGridActions[NUM_GRID_SIZES];
-  QAction *snapToGridComboAct;
-
-  QMenu* SnapXYMenu;
-  QMenu* SnapZMenu;
-  QMenu* SnapMenu;
-  QMenu* SnapAngleMenu;
-  QAction* TransformAction;
-  QAction* MoveAction;
-  QAction* AngleAction;
-
-  QAction *applyCameraAct;
-  QAction *createBuildModAct;
-  QAction *applyBuildModAct;
-  QAction *removeBuildModAct;
-  QAction *loadBuildModAct;
-  QAction *updateBuildModAct;
-  QAction *deleteBuildModAct;
-  QAction *setTargetPositionAct;
-  QAction *useImageSizeAct;
-  QAction *autoCenterSelectionAct;
-  QAction *enableBuildModAct;
-  QAction *enableRotstepRotateAct;
-  QAction *exportHtmlStepsAct;
-
-  QAction *applyLightAct;
-  QAction *lightGroupAct;
-  QAction *viewpointGroupAct;
-  QAction *viewpointZoomExtAct;
-
-  // help
-
-  QAction  *aboutAct;
-  QAction  *visitHomepageAct;
-  QAction  *reportBugAct;
-
-  // Begin Jaco's code
-
-  QAction  *onlineManualAct;
-
-  // End Jaco's code
-
-  QAction  *commandsDialogAct;
-  QAction  *exportMetaCommandsAct;
-  QAction  *separatorAct;
+  QAction *ApplyLightAct;
+  QAction *LightGroupAct;
+  QAction *ViewpointGroupAct;
+  QAction *ViewpointZoomExtAct;
+  QAction *TransformAct;
+  QAction *MoveAct;
+  QAction *AngleAct;
 
   QList<QAction *> openWithActList;
-  QAction  *openWithSetupAct;
+  QAction *snapGridActions[NUM_GRID_SIZES];
 
-  enum { MaxRecentFiles = 8 };
-  QAction *recentFilesActs[MaxRecentFiles];
+  /******************************
+   * Other controls
+   */
+  QLineEdit         *setPageLineEdit;
 
-  QAction *updateAppAct;
-  QAction *viewLogAct;
-  QAction *openWorkingFolderAct;
-  QAction *fullScreenViewAct;
+  SeparatorComboBox *mpdCombo;
+  QComboBox         *setGoToPageCombo;
+
+  QSlider           *zoomSliderWidget;
+  QSlider           *viewerZoomSliderWidget;
 
   friend class PartWorker;
   friend class DialogExportPages;

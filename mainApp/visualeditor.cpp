@@ -63,113 +63,296 @@ const QStringList BuildModChangeTriggers = QStringList()
 
 void Gui::create3DActions()
 {
+    gMainWindow->mActions[LC_VIEW_PREFERENCES]->setObjectName("PreferencesAct.4");
+    lpub->actions.insert("PreferencesAct.4", Action(tr("3DViewer.Preferences"), gMainWindow->mActions[LC_VIEW_PREFERENCES]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->setObjectName("PointLightAct.4");
+    lpub->actions.insert("PointLightAct.4", Action(tr("3DViewer.Tools.Lights.PointLight"), gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setObjectName("SunLightAct.4");
+    lpub->actions.insert("SunLightAct.4", Action(tr("3DViewer.Tools.Lights.SunLight"), gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setObjectName("SpotLightAct.4");
+    lpub->actions.insert("SpotLightAct.4", Action(tr("3DViewer.Tools.Lights.SpotLight"), gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]->setObjectName("AreaLightAct.4");
+    lpub->actions.insert("AreaLightAct.4", Action(tr("3DViewer.Tools.Lights.AreaLight"), gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]));
+
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setObjectName("SaveImageAct.4");
+    lpub->actions.insert("SaveImageAct.4", Action(tr("3DViewer.Save Image"), gMainWindow->mActions[LC_FILE_SAVE_IMAGE]));
+
+    gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setObjectName("Export3dsAct.4");
+    lpub->actions.insert("Export3dsAct.4", Action(tr("3DViewer.Export As.3DS"), gMainWindow->mActions[LC_FILE_EXPORT_3DS]));
+
+    gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]->setObjectName("ExportColladaAct.4");
+    lpub->actions.insert("ExportColladaAct.4", Action(tr("3DViewer.Export As.COLLADA"), gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]));
+
+    gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setObjectName("ExportWavefrontAct.4");
+    lpub->actions.insert("ExportWavefrontAct.4", Action(tr("3DViewer.Export As.Wavefront"), gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]));
+
+    gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]->setObjectName("EditSnapMoveToggleAct.4");
+    lpub->actions.insert("EditSnapMoveToggleAct.4", Action(tr("3DViewer.Tools.Snap.Move Snap Enabled"), gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]));
+
+    gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]->setObjectName("EditSnapAngleToggleAct.4");
+    lpub->actions.insert("EditSnapAngleToggleAct.4", Action(tr("3DViewer.Tools.SnapAngle.Rotation Snap Enabled"), gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]));
+
+    gMainWindow->mActions[LC_EDIT_CUT]->setObjectName("EditCutAct.4");
+    lpub->actions.insert("EditCutAct.4", Action(tr("3DViewer.Cut"), gMainWindow->mActions[LC_EDIT_CUT]));
+
+    gMainWindow->mActions[LC_EDIT_COPY]->setObjectName("EditCopyAct.4");
+    lpub->actions.insert("EditCopyAct.4", Action(tr("3DViewer.Copy"), gMainWindow->mActions[LC_EDIT_COPY]));
+
+    gMainWindow->mActions[LC_EDIT_PASTE]->setObjectName("EditPasteAct.4");
+    lpub->actions.insert("EditPasteAct.4", Action(tr("3DViewer.Paste"), gMainWindow->mActions[LC_EDIT_PASTE]));
+
+    gMainWindow->mActions[LC_PIECE_DELETE]->setObjectName("PiectDeleteAct.4");
+    lpub->actions.insert("PiectDeleteAct.4", Action(tr("3DViewer.Delete"), gMainWindow->mActions[LC_PIECE_DELETE]));
+
+    gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]->setObjectName("PaintSelectedAct.4");
+    lpub->actions.insert("PaintSelectedAct.4", Action(tr("3DViewer.Paint Selected"), gMainWindow->mActions[LC_PIECE_PAINT_SELECTED]));
+
+    gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]->setObjectName("EditSelectedSubmodelAct.4");
+    lpub->actions.insert("EditSelectedSubmodelAct.4", Action(tr("3DViewer.Edit Selected Submodel"), gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]));
+
+    gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]->setObjectName("EndSubmodelEditAct.4");
+    lpub->actions.insert("EndSubmodelEditAct.4", Action(tr("3DViewer.End Submodel Editing"), gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setObjectName("EditClearTransformAct.4");
+    lpub->actions.insert("EditClearTransformAct.4", Action(tr("3DViewer.Tools.Clear Transform"), gMainWindow->mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]));
+
+    gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]->setObjectName("HideSelectedAct.4");
+    lpub->actions.insert("HideSelectedAct.4", Action(tr("3DViewer.Hide Selected"), gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]));
+
+    gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]->setObjectName("UnhideSelectedAct.4");
+    lpub->actions.insert("UnhideSelectedAct.4", Action(tr("3DViewer.Unhide Selected"), gMainWindow->mActions[LC_PIECE_UNHIDE_SELECTED]));
+
+    gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]->setObjectName("HideUnselectedAct.4");
+    lpub->actions.insert("HideUnselectedAct.4", Action(tr("3DViewer.Hide Unselected"), gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]));
+
+    gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]->setObjectName("UnhideAllAct.4");
+    lpub->actions.insert("UnhideAllAct.4", Action(tr("3DViewer.Unhide All"), gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setObjectName("EditSelectAct.4");
+    lpub->actions.insert("EditSelectAct.4", Action(tr("3DViewer.Tools.Select"), gMainWindow->mActions[LC_EDIT_ACTION_SELECT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setObjectName("EditRotateAct.4");
+    lpub->actions.insert("EditRotateAct.4", Action(tr("3DViewer.Tools.Rotate"), gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_MOVE]->setObjectName("EditMoveAct.4");
+    lpub->actions.insert("EditMoveAct.4", Action(tr("3DViewer.Tools.Move"), gMainWindow->mActions[LC_EDIT_ACTION_MOVE]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_DELETE]->setObjectName("EditDeleteAct.4");
+    lpub->actions.insert("EditDeleteAct.4", Action(tr("3DViewer.Tools.Delete"), gMainWindow->mActions[LC_EDIT_ACTION_DELETE]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_PAINT]->setObjectName("EditPaintAct.4");
+    lpub->actions.insert("EditPaintAct.4", Action(tr("3DViewer.Tools.Paint"), gMainWindow->mActions[LC_EDIT_ACTION_PAINT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]->setObjectName("EditColorPickerAct.4");
+    lpub->actions.insert("EditColorPickerAct.4", Action(tr("3DViewer.Tools.Color Picker"), gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setObjectName("EditRotateStepAct.4");
+    lpub->actions.insert("EditRotateStepAct.4", Action(tr("3DViewer.Tools.Apply ROTSTEP"), gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_INSERT]->setObjectName("EditInsertAct.4");
+    lpub->actions.insert("EditInsertAct.4", Action(tr("3DViewer.Tools.Insert"), gMainWindow->mActions[LC_EDIT_ACTION_INSERT]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setObjectName("EditCameraAct.4");
+    lpub->actions.insert("EditCameraAct.4", Action(tr("3DViewer.Tools.Camera"), gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]));
+
+    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setObjectName("ViewLookAtAct.4");
+    lpub->actions.insert("ViewLookAtAct.4", Action(tr("3DViewer.Tools.Look At"), gMainWindow->mActions[LC_VIEW_LOOK_AT]));
+
+    gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]->setObjectName("ViewZoomExtentsAct.4");
+    lpub->actions.insert("ViewZoomExtentsAct.4", Action(tr("3DViewer.Tools.Zoom Extents"), gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setObjectName("EditZoomAct.4");
+    lpub->actions.insert("EditZoomAct.4", Action(tr("3DViewer.Tools.Zoom"), gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]->setObjectName("EditZoomRegionAct.4");
+    lpub->actions.insert("EditZoomRegionAct.4", Action(tr("3DViewer.Tools.Zoom Region"), gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setObjectName("EditRotateViewAct.4");
+    lpub->actions.insert("EditRotateViewAct.4", Action(tr("3DViewer.Tools.Rotate View"), gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]));
+
+    gMainWindow->mActions[LC_EDIT_ACTION_PAN]->setObjectName("EditPanAct.4");
+    lpub->actions.insert("EditPanAct.4", Action(tr("3DViewer.Tools.Pan"), gMainWindow->mActions[LC_EDIT_ACTION_PAN]));
+
+    gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]->setObjectName("ViewSplitHorizontalAct.4");
+    lpub->actions.insert("ViewSplitHorizontalAct.4", Action(tr("3DViewer.Split Horizontal"), gMainWindow->mActions[LC_VIEW_SPLIT_HORIZONTAL]));
+
+    gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]->setObjectName("ViewSplitVerticalAct.4");
+    lpub->actions.insert("ViewSplitVerticalAct.4", Action(tr("3DViewer.Split Vertical"), gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]));
+
+    gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]->setObjectName("ViewRemoveViewAct.4");
+    lpub->actions.insert("ViewRemoveViewAct.4", Action(tr("3DViewer.Remove View"), gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]));
+
+    gMainWindow->mActions[LC_VIEW_RESET_VIEWS]->setObjectName("ViewResetViewsAct.4");
+    lpub->actions.insert("ViewResetViewsAct.4", Action(tr("3DViewer.Reset Views"), gMainWindow->mActions[LC_VIEW_RESET_VIEWS]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setObjectName("ViewViewpointsHomeAct.4");
+    lpub->actions.insert("ViewViewpointsHomeAct.4", Action(tr("3DViewer.Tools.Viewpoints.Home"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setObjectName("ViewViewpointsFrontAct.4");
+    lpub->actions.insert("ViewViewpointsFrontAct.4", Action(tr("3DViewer.Tools.Viewpoints.Front"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setObjectName("ViewViewpointsBackAct.4");
+    lpub->actions.insert("ViewViewpointsBackAct.4", Action(tr("3DViewer.Tools.Viewpoints.Back"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setObjectName("ViewViewpointsLeftAct.4");
+    lpub->actions.insert("ViewViewpointsLeftAct.4", Action(tr("3DViewer.Tools.Viewpoints.Left"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setObjectName("ViewViewpointsRightAct.4");
+    lpub->actions.insert("ViewViewpointsRightAct.4", Action(tr("3DViewer.Tools.Viewpoints.Right"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setObjectName("ViewViewpointsTopAct.4");
+    lpub->actions.insert("ViewViewpointsTopAct.4", Action(tr("3DViewer.Tools.Viewpoints.Top"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]));
+
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setObjectName("ViewViewpointsBottomAct.4");
+    lpub->actions.insert("ViewViewpointsBottomAct.4", Action(tr("3DViewer.Tools.Viewpoints.Bottom"), gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]));
+
+    gMainWindow->mActions[LC_HELP_ABOUT]->setObjectName("HelpAboutAct.4");
+    lpub->actions.insert("HelpAboutAct.4", Action(tr("3DViewer.About"), gMainWindow->mActions[LC_HELP_ABOUT]));
+
     QIcon CreateBuildModIcon;
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
-    createBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification - Shift+J"),this);
-    createBuildModAct->setStatusTip(tr("Create a new build modification for this step - Shift+J"));
-    createBuildModAct->setShortcut(tr("Shift+J"));
-    connect(createBuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+    CreateBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
+    CreateBuildModAct->setObjectName("CreateBuildModAct.4");
+    CreateBuildModAct->setStatusTip(tr("Create a new build modification for this step"));
+    CreateBuildModAct->setShortcut(tr("Shift+J"));
+    lpub->actions.insert(CreateBuildModAct->objectName(), Action(tr("3DViewer.Tools.Create Build Modification"), CreateBuildModAct));
+    connect(CreateBuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
 
     QIcon UpdateBuildModIcon;
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
     UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
-    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification - Shift+K"),this);
-    updateBuildModAct->setEnabled(false);
-    updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification - Shift+K"));
-    updateBuildModAct->setShortcut(tr("Shift+K"));
-    connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
+    UpdateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification"),this);
+    UpdateBuildModAct->setObjectName("UpdateBuildModAct.4");
+    UpdateBuildModAct->setEnabled(false);
+    UpdateBuildModAct->setStatusTip(tr("Commit changes to the current build modification"));
+    UpdateBuildModAct->setShortcut(tr("Shift+K"));
+    lpub->actions.insert(UpdateBuildModAct->objectName(), Action(tr("3DViewer.Tools.Build Modification.Update Build Modification"), UpdateBuildModAct));
+    connect(UpdateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
 
     QIcon ApplyBuildModIcon;
     ApplyBuildModIcon.addFile(":/resources/buildmodapply.png");
     ApplyBuildModIcon.addFile(":/resources/buildmodapply16.png");
-    applyBuildModAct = new QAction(ApplyBuildModIcon,tr("Apply Build Modification..."),this);
-    applyBuildModAct->setEnabled(false);
-    applyBuildModAct->setStatusTip(tr("Apply existing build modification to this step"));
-    connect(applyBuildModAct, SIGNAL(triggered()), this, SLOT(applyBuildModification()));
+    ApplyBuildModAct = new QAction(ApplyBuildModIcon,tr("Apply Build Modification..."),this);
+    ApplyBuildModAct->setObjectName("ApplyBuildModAct.4");
+    ApplyBuildModAct->setEnabled(false);
+    ApplyBuildModAct->setStatusTip(tr("Apply existing build modification to this step"));
+    lpub->actions.insert(ApplyBuildModAct->objectName(), Action(tr("3DViewer.Tools.Build Modification.Apply Build Modification"), ApplyBuildModAct));
+    connect(ApplyBuildModAct, SIGNAL(triggered()), this, SLOT(applyBuildModification()));
 
     QIcon RemoveBuildModIcon;
     RemoveBuildModIcon.addFile(":/resources/buildmodremove.png");
     RemoveBuildModIcon.addFile(":/resources/buildmodremove16.png");
-    removeBuildModAct = new QAction(RemoveBuildModIcon,tr("Remove Build Modification..."),this);
-    removeBuildModAct->setEnabled(false);
-    removeBuildModAct->setStatusTip(tr("Remove build modification from this step"));
-    connect(removeBuildModAct, SIGNAL(triggered()), this, SLOT(removeBuildModification()));
+    RemoveBuildModAct = new QAction(RemoveBuildModIcon,tr("Remove Build Modification..."),this);
+    RemoveBuildModAct->setObjectName("RemoveBuildModAct.4");
+    RemoveBuildModAct->setEnabled(false);
+    RemoveBuildModAct->setStatusTip(tr("Remove build modification from this step"));
+    lpub->actions.insert(RemoveBuildModAct->objectName(), Action(tr("3DViewer.Tools.Build Modification.Remove Build Modification"), RemoveBuildModAct));
+    connect(RemoveBuildModAct, SIGNAL(triggered()), this, SLOT(removeBuildModification()));
 
     QIcon LoadBuildModIcon;
     LoadBuildModIcon.addFile(":/resources/buildmodload.png");
     LoadBuildModIcon.addFile(":/resources/buildmodload16.png");
-    loadBuildModAct = new QAction(LoadBuildModIcon,tr("Load Build Modification..."),this);
-    loadBuildModAct->setEnabled(false);
-    loadBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
-    connect(loadBuildModAct, SIGNAL(triggered()), this, SLOT(loadBuildModification()));
+    LoadBuildModAct = new QAction(LoadBuildModIcon,tr("Load Build Modification..."),this);
+    LoadBuildModAct->setObjectName("LoadBuildModAct.4");
+    LoadBuildModAct->setEnabled(false);
+    LoadBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
+
+    lpub->actions.insert(LoadBuildModAct->objectName(), Action(tr("3DViewer.Tools.Build Modification.Load Build Modification"), LoadBuildModAct));
+    connect(LoadBuildModAct, SIGNAL(triggered()), this, SLOT(loadBuildModification()));
 
     QIcon DeleteBuildModIcon;
     DeleteBuildModIcon.addFile(":/resources/buildmoddelete.png");
     DeleteBuildModIcon.addFile(":/resources/buildmoddelete16.png");
-    deleteBuildModAct = new QAction(DeleteBuildModIcon,tr("Delete Build Modification..."),this);
-    deleteBuildModAct->setEnabled(false);
-    deleteBuildModAct->setStatusTip(tr("Delete selected build modification meta commands"));
-    connect(deleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
+    DeleteBuildModAct = new QAction(DeleteBuildModIcon,tr("Delete Build Modification..."),this);
+    DeleteBuildModAct->setObjectName("DeleteBuildModAct.4");
+    DeleteBuildModAct->setEnabled(false);
+    DeleteBuildModAct->setStatusTip(tr("Delete selected build modification meta commands"));
+    lpub->actions.insert(DeleteBuildModAct->objectName(), Action(tr("3DViewer.Tools.Build Modification.Text"), DeleteBuildModAct));
+    connect(DeleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
 
-    enableBuildModAct = new QAction(tr("Build Modifications Enabled"),this);
-    enableBuildModAct->setStatusTip(tr("Enable build modification configuration on rotate action"));
-    enableBuildModAct->setCheckable(true);
-    enableBuildModAct->setChecked(lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION));
-    connect(enableBuildModAct, SIGNAL(triggered()), this, SLOT(enableBuildModification()));
+    EnableBuildModAct = new QAction(tr("Build Modifications Enabled"),this);
+    EnableBuildModAct->setObjectName("EnableBuildModAct.4");
+    EnableBuildModAct->setStatusTip(tr("Enable build modification configuration on rotate action"));
+    EnableBuildModAct->setCheckable(true);
+    EnableBuildModAct->setChecked(lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION));
+    lpub->actions.insert(EnableBuildModAct->objectName(), Action(tr("3DViewer.Tools.Rotate.Build Modifications Enabled"), EnableBuildModAct));
+    connect(EnableBuildModAct, SIGNAL(triggered()), this, SLOT(enableBuildModification()));
 
-    enableRotstepRotateAct = new QAction(tr("ROTSTEP Rotate Enabled"),this);
-    enableRotstepRotateAct->setStatusTip(tr("Enable ROTSTEP configuration on rotate action"));
-    enableRotstepRotateAct->setCheckable(true);
-    enableRotstepRotateAct->setChecked(!lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION));
-    connect(enableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableBuildModification()));
-
-    QIcon ApplyCameraIcon;
-    ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
-    ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
-    applyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
-    applyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image - Shift+A"));
-    applyCameraAct->setShortcut(tr("Shift+A"));
-    connect(applyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
+    EnableRotstepRotateAct = new QAction(tr("ROTSTEP Rotate Enabled"),this);
+    EnableRotstepRotateAct->setObjectName("EnableRotstepRotateAct.4");
+    EnableRotstepRotateAct->setStatusTip(tr("Enable ROTSTEP configuration on rotate action"));
+    EnableRotstepRotateAct->setCheckable(true);
+    EnableRotstepRotateAct->setChecked(!lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION));
+    lpub->actions.insert(EnableRotstepRotateAct->objectName(), Action(tr("3DViewer.Tools.Rotate.ROTSTEP Rotate Enabled"), EnableRotstepRotateAct));
+    connect(EnableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableBuildModification()));
 
     QIcon ApplyLightIcon;
     ApplyLightIcon.addFile(":/resources/applylightsettings.png");
     ApplyLightIcon.addFile(":/resources/applylightsettings_16.png");
-    applyLightAct = new QAction(ApplyLightIcon,tr("Save Light Settings"),this);
-    applyLightAct->setEnabled(false);
-    applyLightAct->setStatusTip(tr("Save light settings to current step - Shift+I"));
-    applyLightAct->setShortcut(tr("Shift+I"));
-    connect(applyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
+    ApplyLightAct = new QAction(ApplyLightIcon,tr("Save Light Settings"),this);
+    ApplyLightAct->setObjectName("ApplyLightAct.4");
+    ApplyLightAct->setEnabled(false);
+    ApplyLightAct->setStatusTip(tr("Save light settings to current step"));
+    ApplyLightAct->setShortcut(tr("Shift+I"));
+    lpub->actions.insert(ApplyLightAct->objectName(), Action(tr("3DViewer.Tools.Lights.Save Light Settings"), ApplyLightAct));
+    connect(ApplyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
-    useImageSizeAct = new QAction(tr("Use Image Size"),this);
-    useImageSizeAct->setStatusTip(tr("Use image width and height - you can also edit width and height in camera Properties tab"));
-    useImageSizeAct->setCheckable(true);
-    useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
-    connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
+    QIcon ApplyCameraIcon;
+    ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
+    ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
+    ApplyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
+    ApplyCameraAct->setObjectName("ApplyCameraAct.4");
+    ApplyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image"));
+    ApplyCameraAct->setShortcut(tr("Shift+A"));
+    lpub->actions.insert(ApplyCameraAct->objectName(), Action(tr("3DViewer.Tools.Camera.Save Camera Settings"), ApplyCameraAct));
+    connect(ApplyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
-    autoCenterSelectionAct = new QAction(tr("Look At Selection"),this);
-    autoCenterSelectionAct->setStatusTip(tr("Automatically rotate view so selected pieces are at center"));
-    autoCenterSelectionAct->setCheckable(true);
-    autoCenterSelectionAct->setChecked(lcGetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION));
-    connect(autoCenterSelectionAct, SIGNAL(triggered()), this, SLOT(autoCenterSelection()));
+    UseImageSizeAct = new QAction(tr("Use Image Size"),this);
+    UseImageSizeAct->setObjectName("UseImageSizeAct.4");
+    UseImageSizeAct->setStatusTip(tr("Use image width and height - you can also edit width and height in camera Properties tab"));
+    UseImageSizeAct->setCheckable(true);
+    UseImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
+    lpub->actions.insert(UseImageSizeAct->objectName(), Action(tr("3DViewer.Tools.Camera.Use Image Size"), UseImageSizeAct));
+    connect(UseImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
 
-    defaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
-    defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
-    defaultCameraPropertiesAct->setCheckable(true);
-    defaultCameraPropertiesAct->setChecked(GetPreferences().mDefaultCameraProperties);
-    connect(defaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
+    AutoCenterSelectionAct = new QAction(tr("Look At Selection"),this);
+    AutoCenterSelectionAct->setObjectName("AutoCenterSelectionAct.4");
+    AutoCenterSelectionAct->setStatusTip(tr("Automatically rotate view so selected pieces are at center"));
+    AutoCenterSelectionAct->setCheckable(true);
+    AutoCenterSelectionAct->setChecked(lcGetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION));
+    lpub->actions.insert(AutoCenterSelectionAct->objectName(), Action(tr("3DViewer.Tools.Camera.Look At Selection"), AutoCenterSelectionAct));
+    connect(AutoCenterSelectionAct, SIGNAL(triggered()), this, SLOT(autoCenterSelection()));
 
-    TransformAction = new QAction(tr("Transform"), this);
-    TransformAction->setStatusTip(tr("Transform Options"));
-    TransformAction->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+    DefaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
+    DefaultCameraPropertiesAct->setObjectName("DefaultCameraPropertiesAct.4");
+    DefaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
+    DefaultCameraPropertiesAct->setCheckable(true);
+    DefaultCameraPropertiesAct->setChecked(GetPreferences().mDefaultCameraProperties);
+    lpub->actions.insert(DefaultCameraPropertiesAct->objectName(), Action(tr("3DViewer.Tools.Camera.Display Properties"), DefaultCameraPropertiesAct));
+    connect(DefaultCameraPropertiesAct, SIGNAL(triggered()), this, SLOT(showDefaultCameraProperties()));
 
-    MoveAction = new QAction(tr("Movement Snap"), this);
-    MoveAction->setStatusTip(tr("Snap translations to fixed intervals"));
-    MoveAction->setIcon(QIcon(":/resources/edit_snap_move.png"));
+    TransformAct = new QAction(tr("Transform"), this);
+    TransformAct->setObjectName("TransformAct.4");
+    TransformAct->setStatusTip(tr("Transform Options"));
+    lpub->actions.insert(TransformAct->objectName(), Action(tr("3DViewer.Tools.Transform"), TransformAct));
+    TransformAct->setIcon(QIcon(":/resources/edit_transform_relative.png"));
 
-    AngleAction = new QAction(tr("Rotation Snap"), this);
-    AngleAction->setStatusTip(tr("Snap rotations to fixed intervals"));
-    AngleAction->setIcon(QIcon(":/resources/edit_snap_angle.png"));
+    MoveAct = new QAction(tr("Movement Snap"), this);
+    MoveAct->setObjectName("MoveAct.4");
+    MoveAct->setStatusTip(tr("Snap translations to fixed intervals"));
+    MoveAct->setIcon(QIcon(":/resources/edit_snap_move.png"));
+    lpub->actions.insert(MoveAct->objectName(), Action(tr("3DViewer.Tools.Movement Snap"), MoveAct));
+
+    AngleAct = new QAction(tr("Rotation Snap"), this);
+    AngleAct->setObjectName("AngleAct.4");
+    AngleAct->setStatusTip(tr("Snap rotations to fixed intervals"));
+    AngleAct->setIcon(QIcon(":/resources/edit_snap_angle.png"));
+    lpub->actions.insert(AngleAct->objectName(), Action(tr("3DViewer.Tools.Rotation Snap"), AngleAct));
 
     QIcon ViewViewPointHomeIcon;
     ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home.png");
@@ -184,20 +367,30 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setIcon(QIcon(":/resources/clear_transform.png"));
 
     // Light icons
-    lightGroupAct = new QAction(tr("Lights"), this);
-    lightGroupAct->setToolTip(tr("Lights - Pointlight"));
-    lightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
-    lightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
-    lightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+    LightGroupAct = new QAction(tr("Lights"), this);
+    LightGroupAct->setObjectName("LightGroupAct.4");
+    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
+    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
+    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
+    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+    lpub->actions.insert(LightGroupAct->objectName(), Action(tr("3DViewer.Tools.Lights.Lights"), LightGroupAct));
+    // Light icons
+    LightGroupAct = new QAction(tr("Lights"), this);
+    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
+    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
+    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
+    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+
     gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SUNLIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_SPOTLIGHT));
     gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]->setProperty("CommandId", QVariant(LC_EDIT_ACTION_AREALIGHT));
+
     gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->setProperty("CommandTip", QVariant("Lights - Pointlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]->setProperty("CommandTip", QVariant("Lights - Sunlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]->setProperty("CommandTip", QVariant("Lights - Spotlight"));
     gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]->setProperty("CommandTip", QVariant("Lights - Arealight"));
-    connect(lightGroupAct, SIGNAL(triggered()),
+    connect(LightGroupAct, SIGNAL(triggered()),
             this,          SLOT(  groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT],     SIGNAL(triggered()),
@@ -213,17 +406,21 @@ void Gui::create3DActions()
             this,                                            SLOT(groupActionTriggered()));
 
     // Viewpoint icons
-    viewpointGroupAct = new QAction(tr("Viewpoints"), this);
-    viewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
-    viewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
-    viewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
-    viewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    ViewpointGroupAct = new QAction(tr("Viewpoints"), this);
+    ViewpointGroupAct->setObjectName("ViewpointGroupAct.4");
+    ViewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
+    ViewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
+    ViewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
+    ViewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    lpub->actions.insert(ViewpointGroupAct->objectName(), Action(tr("3DViewer.Viewpoints"), ViewpointGroupAct));
+
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setIcon(QIcon(":/resources/front.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setIcon(QIcon(":/resources/back.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setIcon(QIcon(":/resources/left.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setIcon(QIcon(":/resources/right.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setIcon(QIcon(":/resources/top.png"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setIcon(QIcon(":/resources/bottom.png"));
+
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_FRONT));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_BACK));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_LEFT));
@@ -231,6 +428,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_TOP));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_BOTTOM));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]-> setProperty("CommandTip", QVariant("Viewpoints - Front"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->  setProperty("CommandTip", QVariant("Viewpoints - Back"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->  setProperty("CommandTip", QVariant("Viewpoints - Left"));
@@ -238,7 +436,7 @@ void Gui::create3DActions()
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->   setProperty("CommandTip", QVariant("Viewpoints - Top"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setProperty("CommandTip", QVariant("Viewpoints - Bottom"));
     gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->  setProperty("CommandTip", QVariant("Viewpoints - Home"));
-    connect(viewpointGroupAct,                               SIGNAL(triggered()),
+    connect(ViewpointGroupAct,                               SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT],  SIGNAL(triggered()),
@@ -262,11 +460,13 @@ void Gui::create3DActions()
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME],   SIGNAL(triggered()),
             this,                                            SLOT(groupActionTriggered()));
 
-    viewpointZoomExtAct = new QAction(tr("Fit To View"),this);
-    viewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
-    viewpointZoomExtAct->setCheckable(true);
-    viewpointZoomExtAct->setChecked(lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT));
-    connect(viewpointZoomExtAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
+    ViewpointZoomExtAct = new QAction(tr("Fit To View"),this);
+    ViewpointZoomExtAct->setObjectName("ViewpointZoomExtAct.4");
+    ViewpointZoomExtAct->setStatusTip(tr("Specify whether to zoom all items to fit the current view"));
+    ViewpointZoomExtAct->setCheckable(true);
+    ViewpointZoomExtAct->setChecked(lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT));
+    lpub->actions.insert(ViewpointZoomExtAct->objectName(), Action(tr("3DViewer.Viewpoints.Fit To View"), ViewpointZoomExtAct));
+    connect(ViewpointZoomExtAct, SIGNAL(triggered()), this, SLOT(groupActionTriggered()));
 
     viewerZoomSliderAct = new QWidgetAction(nullptr);
     viewerZoomSliderWidget = new QSlider();
@@ -327,43 +527,43 @@ void Gui::create3DMenus()
 
      gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setMenu(gMainWindow->GetSelectionModeMenu());
 
-     TransformAction->setMenu(gMainWindow->GetTransformMenu());
+     TransformAct->setMenu(gMainWindow->GetTransformMenu());
 
      SnapMenu = new QMenu(tr("Snap Menu"), this);
      SnapMenu->addAction(gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]);
      SnapMenu->addSeparator();
      SnapMenu->addMenu(SnapXYMenu);
      SnapMenu->addMenu(SnapZMenu);
-     MoveAction->setMenu(SnapMenu);
+     MoveAct->setMenu(SnapMenu);
 
      SnapAngleMenu = new QMenu(tr("Snap Angle Menu"), this);
      SnapAngleMenu->addAction(gMainWindow->mActions[LC_EDIT_SNAP_ANGLE_TOGGLE]);
      SnapAngleMenu->addSeparator();
      for (int actionIdx = LC_EDIT_SNAP_ANGLE0; actionIdx <= LC_EDIT_SNAP_ANGLE9; actionIdx++)
          SnapAngleMenu->addAction(gMainWindow->mActions[actionIdx]);
-     AngleAction->setMenu(SnapAngleMenu);
+     AngleAct->setMenu(SnapAngleMenu);
 
-     buildModMenu = new QMenu(tr("Build Modification"),this);
-     buildModMenu->addAction(updateBuildModAct);
-     buildModMenu->addSeparator();
-     buildModMenu->addAction(applyBuildModAct);
-     buildModMenu->addAction(removeBuildModAct);
-     buildModMenu->addSeparator();
-     buildModMenu->addAction(loadBuildModAct);
-     buildModMenu->addAction(deleteBuildModAct);
-     createBuildModAct->setMenu(buildModMenu);
+     BuildModMenu = new QMenu(tr("Build Modification"),this);
+     BuildModMenu->addAction(UpdateBuildModAct);
+     BuildModMenu->addSeparator();
+     BuildModMenu->addAction(ApplyBuildModAct);
+     BuildModMenu->addAction(RemoveBuildModAct);
+     BuildModMenu->addSeparator();
+     BuildModMenu->addAction(LoadBuildModAct);
+     BuildModMenu->addAction(DeleteBuildModAct);
+     CreateBuildModAct->setMenu(BuildModMenu);
 
-     lightMenu = new QMenu(tr("Lights"), this);
-     lightMenu->addAction(applyLightAct);
-     lightMenu->addSeparator();
-     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]);
-     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]);
-     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-     lightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]);
-     lightGroupAct->setMenu(lightMenu);
+     LightMenu = new QMenu(tr("Lights"), this);
+     LightMenu->addAction(ApplyLightAct);
+     LightMenu->addSeparator();
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]);
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SUNLIGHT]);
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+     LightMenu->addAction(gMainWindow->mActions[LC_EDIT_ACTION_AREALIGHT]);
+     LightGroupAct->setMenu(LightMenu);
 
-     viewpointGroupAct->setMenu(gMainWindow->GetViewpointMenu());
-     gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], viewpointZoomExtAct);
+     ViewpointGroupAct->setMenu(gMainWindow->GetViewpointMenu());
+     gMainWindow->GetViewpointMenu()->insertAction(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT], ViewpointZoomExtAct);
      gMainWindow->GetViewpointMenu()->insertSeparator(gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]);
 
      // Viewer menus
@@ -409,10 +609,10 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-     gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
+     gMainWindow->GetToolsMenu()->addAction(CreateBuildModAct);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
-     gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(LightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
@@ -421,11 +621,11 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
-     gMainWindow->GetToolsMenu()->addAction(viewpointGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(ViewpointGroupAct);
      gMainWindow->GetToolsMenu()->addSeparator();
-     gMainWindow->GetToolsMenu()->addAction(TransformAction);
-     gMainWindow->GetToolsMenu()->addAction(MoveAction);
-     gMainWindow->GetToolsMenu()->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
+     gMainWindow->GetToolsMenu()->addAction(TransformAct);
+     gMainWindow->GetToolsMenu()->addAction(MoveAct);
+     gMainWindow->GetToolsMenu()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
      ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
      // ViewPoint menu
      ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
@@ -451,20 +651,20 @@ void Gui::create3DMenus()
      // Visual Editor about menu
      ViewerMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 
-     rotateActionMenu = new QMenu(tr("Edit Rotate"),this);
-     rotateActionMenu->addAction(enableRotstepRotateAct);
-     rotateActionMenu->addAction(enableBuildModAct);
-     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setMenu(rotateActionMenu);
+     RotateActionMenu = new QMenu(tr("Edit Rotate"),this);
+     RotateActionMenu->addAction(EnableRotstepRotateAct);
+     RotateActionMenu->addAction(EnableBuildModAct);
+     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setMenu(RotateActionMenu);
 
-     cameraMenu = new QMenu(tr("Camera Settings"),this);
-     cameraMenu->addAction(applyCameraAct);
-     cameraMenu->addSeparator();
-     cameraMenu->addMenu(gMainWindow->GetCameraMenu());
-     cameraMenu->addSeparator();
-     cameraMenu->addAction(useImageSizeAct);
-     cameraMenu->addAction(autoCenterSelectionAct);
-     cameraMenu->addAction(defaultCameraPropertiesAct);
-     gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(cameraMenu);
+     CameraMenu = new QMenu(tr("Camera Settings"),this);
+     CameraMenu->addAction(ApplyCameraAct);
+     CameraMenu->addSeparator();
+     CameraMenu->addMenu(gMainWindow->GetCameraMenu());
+     CameraMenu->addSeparator();
+     CameraMenu->addAction(UseImageSizeAct);
+     CameraMenu->addAction(AutoCenterSelectionAct);
+     CameraMenu->addAction(DefaultCameraPropertiesAct);
+     gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(CameraMenu);
 }
 
 void Gui::create3DToolBars()
@@ -488,10 +688,10 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    gMainWindow->GetToolsToolBar()->addAction(createBuildModAct);
+    gMainWindow->GetToolsToolBar()->addAction(CreateBuildModAct);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
-    gMainWindow->GetToolsToolBar()->addAction(lightGroupAct);
+    gMainWindow->GetToolsToolBar()->addAction(LightGroupAct);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->GetToolsToolBar()->addSeparator();
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
@@ -500,11 +700,11 @@ void Gui::create3DToolBars()
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
     gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
-    gMainWindow->GetToolsToolBar()->addAction(viewpointGroupAct);
+    gMainWindow->GetToolsToolBar()->addAction(ViewpointGroupAct);
     gMainWindow->GetToolsToolBar()->addSeparator();
-    gMainWindow->GetToolsToolBar()->addAction(TransformAction);
-    gMainWindow->GetToolsToolBar()->addAction(MoveAction);
-    gMainWindow->GetToolsToolBar()->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
+    gMainWindow->GetToolsToolBar()->addAction(TransformAct);
+    gMainWindow->GetToolsToolBar()->addAction(MoveAct);
+    gMainWindow->GetToolsToolBar()->addAction(AngleAct); // Snap Rotations to Fixed Intervals menu item
     gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
 }
 
@@ -566,10 +766,10 @@ void Gui::enable3DActions(bool enable)
     if (enable)
         enableBuildModMenuAndActions();
     else
-        createBuildModAct->setEnabled(enable);
+        CreateBuildModAct->setEnabled(enable);
 
-    lightGroupAct->setEnabled(enable);
-    viewpointGroupAct->setEnabled(enable);
+    LightGroupAct->setEnabled(enable);
+    ViewpointGroupAct->setEnabled(enable);
 
     blenderRenderAct->setEnabled(enable);
     blenderImportAct->setEnabled(enable);
@@ -908,7 +1108,7 @@ void Gui::ResetViewerZoomSlider()
 
 void Gui::enableApplyLightAction()
 {
-    applyLightAct->setEnabled(lcGetActiveProject()->GetImageType() == Options::CSI);
+    ApplyLightAct->setEnabled(lcGetActiveProject()->GetImageType() == Options::CSI);
 }
 
 void Gui::applyLightSettings()
@@ -1131,7 +1331,7 @@ void Gui::applyCameraSettings()
 
         SettingsMeta cameraMeta;
 
-        if (autoCenterSelectionAct->isChecked())
+        if (AutoCenterSelectionAct->isChecked())
             ActiveView->LookAt();
 
         lcCamera* Camera = ActiveView->GetCamera();
@@ -1259,7 +1459,7 @@ void Gui::applyCameraSettings()
             lpub->currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.position.here(), metaString, newCommand);
         }
 
-        if (useImageSizeAct->isChecked()) {
+        if (UseImageSizeAct->isChecked()) {
             cameraMeta.imageSize.setFormats(3,0,"###9");
             cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
                                            lcGetActiveProject()->GetImageHeight());
@@ -1277,7 +1477,7 @@ void Gui::applyCameraSettings()
         }
 
         if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
-                    !useImageSizeAct->isChecked()) {
+                    !UseImageSizeAct->isChecked()) {
             clearStepCache = true;
             cameraMeta.cameraDistance.setValue(qRound(Distance));
             metaString = cameraMeta.cameraDistance.format(true,false);
@@ -1479,19 +1679,19 @@ void Gui::groupActionTriggered()
     QString commandTip;
     bool ok;
 
-    if (Action == viewpointZoomExtAct)
+    if (Action == ViewpointZoomExtAct)
     {
-        lcSetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT, viewpointZoomExtAct->isChecked());
+        lcSetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT, ViewpointZoomExtAct->isChecked());
     }
-    else if (Action == viewpointGroupAct)
+    else if (Action == ViewpointGroupAct)
     {
-        commandId = lcCommandId(viewpointGroupAct->property("CommandId").toInt(&ok));
+        commandId = lcCommandId(ViewpointGroupAct->property("CommandId").toInt(&ok));
         if (ok)
             gMainWindow->mActions[commandId]->trigger();
     }
-    else if (Action == lightGroupAct)
+    else if (Action == LightGroupAct)
     {
-        commandId = lcCommandId(lightGroupAct->property("CommandId").toInt(&ok));
+        commandId = lcCommandId(LightGroupAct->property("CommandId").toInt(&ok));
         if (ok)
             gMainWindow->mActions[commandId]->trigger();
     }
@@ -1504,38 +1704,38 @@ void Gui::groupActionTriggered()
                 commandId == LC_EDIT_ACTION_SUNLIGHT ||
                 commandId == LC_EDIT_ACTION_SPOTLIGHT ||
                 commandId == LC_EDIT_ACTION_AREALIGHT) {
-                lightGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
-                lightGroupAct->setToolTip(tr(commandTip.toLatin1()));
-                lightGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
-                lightGroupAct->setProperty("CommandId", QVariant(commandId));
+                LightGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
+                LightGroupAct->setToolTip(tr(commandTip.toLatin1()));
+                LightGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
+                LightGroupAct->setProperty("CommandId", QVariant(commandId));
             } else {
-                viewpointGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
-                viewpointGroupAct->setToolTip(tr(commandTip.toLatin1()));
-                viewpointGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
-                viewpointGroupAct->setProperty("CommandId", QVariant(commandId));
+                ViewpointGroupAct->setIcon(gMainWindow->mActions[commandId]->icon());
+                ViewpointGroupAct->setToolTip(tr(commandTip.toLatin1()));
+                ViewpointGroupAct->setStatusTip(gMainWindow->mActions[commandId]->statusTip());
+                ViewpointGroupAct->setProperty("CommandId", QVariant(commandId));
             }
         }
     }
 }
 
 void Gui::restoreLightAndViewpointDefaults(){
-    lightGroupAct->setToolTip(tr("Lights - Pointlight"));
-    lightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
-    lightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
-    lightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
+    LightGroupAct->setToolTip(tr("Lights - Pointlight"));
+    LightGroupAct->setIcon(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->icon());
+    LightGroupAct->setStatusTip(gMainWindow->mActions[LC_EDIT_ACTION_LIGHT]->statusTip());
+    LightGroupAct->setProperty("CommandId", QVariant(LC_EDIT_ACTION_LIGHT));
 
-    viewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
-    viewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
-    viewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
-    viewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
+    ViewpointGroupAct->setToolTip(tr("Viewpoints - Home"));
+    ViewpointGroupAct->setIcon(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->icon());
+    ViewpointGroupAct->setStatusTip(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME]->statusTip());
+    ViewpointGroupAct->setProperty("CommandId", QVariant(LC_VIEW_VIEWPOINT_HOME));
 }
 
 void Gui::enableBuildModification()
 {
-    if (sender() == enableBuildModAct)
-        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, Preferences::buildModEnabled && enableBuildModAct->isChecked());
-    else if (sender() == enableRotstepRotateAct)
-        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, !enableRotstepRotateAct->isChecked());
+    if (sender() == EnableBuildModAct)
+        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, Preferences::buildModEnabled && EnableBuildModAct->isChecked());
+    else if (sender() == EnableRotstepRotateAct)
+        lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, !EnableRotstepRotateAct->isChecked());
     else
         lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, Preferences::buildModEnabled);
 
@@ -1549,8 +1749,8 @@ void Gui::enableBuildModification()
     else
         RotateIcon.addFile(":/resources/rotaterotstep.png");
 
-    enableBuildModAct->setChecked(buildModEnabled);
-    enableRotstepRotateAct->setChecked(!buildModEnabled);
+    EnableBuildModAct->setChecked(buildModEnabled);
+    EnableRotstepRotateAct->setChecked(!buildModEnabled);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(!buildModEnabled);
     gApplication->mPreferences.mBuildModificationEnabled = lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION);
@@ -1558,7 +1758,7 @@ void Gui::enableBuildModification()
 
 void Gui::enableBuildModActions()
 {
-    if (!createBuildModAct->isEnabled() || !Preferences::modeGUI || exporting())
+    if (!CreateBuildModAct->isEnabled() || !Preferences::modeGUI || exporting())
         return;
 
     Rc buildModStep = BuildModNoActionRc;
@@ -1572,7 +1772,7 @@ void Gui::enableBuildModActions()
 
     bool appliedMod = false, sourceMod = false, removedMod = false;
 
-    bool dlgTitle = applyBuildModAct->text().endsWith("...");
+    bool dlgTitle = ApplyBuildModAct->text().endsWith("...");
 
     switch (buildModStep)
     {
@@ -1592,10 +1792,10 @@ void Gui::enableBuildModActions()
 
     if (oneMod || !dlgTitle) {
         QList<QAction*> modActions; modActions
-                << applyBuildModAct
-                << removeBuildModAct
-                << loadBuildModAct
-                << deleteBuildModAct;
+                << ApplyBuildModAct
+                << RemoveBuildModAct
+                << LoadBuildModAct
+                << DeleteBuildModAct;
         Q_FOREACH(QAction* action, modActions) {
             QString text = action->text();
             if (oneMod && dlgTitle)
@@ -1606,34 +1806,34 @@ void Gui::enableBuildModActions()
         }
     }
 
-    applyBuildModAct->setEnabled(hasMod && (!appliedMod || removedMod) && !sourceMod);
-    removeBuildModAct->setEnabled(hasMod && (appliedMod || !removedMod) && !sourceMod);
-    updateBuildModAct->setEnabled(hasMod && sourceMod);
-    loadBuildModAct->setEnabled(hasMod && !(sourceMod && oneMod));
-    deleteBuildModAct->setEnabled(hasMod);
+    ApplyBuildModAct->setEnabled(hasMod && (!appliedMod || removedMod) && !sourceMod);
+    RemoveBuildModAct->setEnabled(hasMod && (appliedMod || !removedMod) && !sourceMod);
+    UpdateBuildModAct->setEnabled(hasMod && sourceMod);
+    LoadBuildModAct->setEnabled(hasMod && !(sourceMod && oneMod));
+    DeleteBuildModAct->setEnabled(hasMod);
 }
 
 void Gui::enableBuildModMenuAndActions()
 {
     if (!curFile.isEmpty() && Preferences::buildModEnabled)
-        createBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
+        CreateBuildModAct->setEnabled(mBuildModRange.first() || buildModsCount());
     enableBuildModification();
 }
 
 void Gui::showDefaultCameraProperties()
 {
-  gApplication->mPreferences.mDefaultCameraProperties = defaultCameraPropertiesAct->isChecked();
-  lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, defaultCameraPropertiesAct->isChecked());
+  gApplication->mPreferences.mDefaultCameraProperties = DefaultCameraPropertiesAct->isChecked();
+  lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, DefaultCameraPropertiesAct->isChecked());
 }
 
 void Gui::useImageSize()
 {
-  lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, useImageSizeAct->isChecked());
+  lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, UseImageSizeAct->isChecked());
 }
 
 void Gui::autoCenterSelection()
 {
-  lcSetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION, autoCenterSelectionAct->isChecked());
+  lcSetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION, AutoCenterSelectionAct->isChecked());
 }
 
 void Gui::createStatusBar()
@@ -3593,7 +3793,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source) {
                         mBuildModRange = { lineNumber, lineNumber, modelIndex };
                     }
                     if (!modsEnabled) {
-                        createBuildModAct->setEnabled(true);
+                        CreateBuildModAct->setEnabled(true);
                         enableBuildModification();
                         modsEnabled = true;
                     }
@@ -3634,7 +3834,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source) {
             // delete action with no selected lines
             if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 if (!modsEnabled) {
-                    createBuildModAct->setEnabled(true);
+                    CreateBuildModAct->setEnabled(true);
                     enableBuildModification();
                 }
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")

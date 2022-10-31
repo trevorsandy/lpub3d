@@ -24,11 +24,14 @@
 
 class Step;
 class NativeOptions;
+class TextEditDialog;
 class lcHttpManager;
 class QProgressDialog;
 class QNetworkReply;
 class QNetworkAccessManager;
 
+class CommandsDialog;
+class CommandsTextEdit;
 class CommandCollection;
 class SnippetCollection;
 
@@ -66,6 +69,19 @@ public:
   void    SetAutomateEdgeColor(const NativeOptions*);
   void    SetShadingMode(lcShadingMode);
 
+  /// Editors
+  void initDialogEditors();
+
+  /// Shortcuts
+  void setShortcutKeywords();
+  void setKeyboardShortcuts();
+  void setDefaultKeyboardShortcuts();
+  void setKeyboardShortcut(QMenu *menu);
+  void setKeyboardShortcut(QAction *action);
+
+  /// Action management
+  QAction *getAct(const QString &objectName);
+
   /// Remove LPub formatting from document, submodel, page, step, callout and BOM
   void removeLPubFormatting(int option = 0/*Document*/);
 
@@ -92,8 +108,11 @@ public:
   void reloadCurrentPage();
   void restartApplication();
 
-  /// LPub commands collection load call
+  /// LPub commands collection load
   void loadCommandCollection();
+
+  /// LPub snippet collection load
+  void loadSnippetCollection();
 
   /// Export LPub meta commands to file
   bool exportMetaCommands(const QString &, QString &, bool = false);
@@ -111,6 +130,12 @@ public:
   {
       return commandlineFile;
   }
+
+  /// Shortcut mangement
+  QMap<QString, Action> actions;
+
+  /// Shortcut id keywords
+  QStringList shortcutIdKeywords;
 
   /// meta command container
   Meta meta;
@@ -140,10 +165,30 @@ public:
   static QString viewerStepKey;
 
   /// Download management calls
-  QProgressDialog *mProgressDialog;
+  QProgressDialog *mProgressDialog = nullptr;
   bool mPromptRedirect;
   bool mHttpRequestAborted;
   QUrl mUrl;
+
+  /// Release notes and version updater
+  static QString    DEFS_URL;
+  static QString    m_versionInfo;
+  QSimpleUpdater   *m_updater = nullptr;
+  static bool       m_updaterCancelled;
+  static bool       m_setReleaseNotesAsText;
+  static QString    m_releaseNotesContent;
+
+  /// Text editor dialog
+  TextEditDialog   *textEdit = nullptr;
+
+  /// Commands dialog
+  CommandsDialog   *commandsDialog = nullptr;
+
+  /// Commands text editor
+  CommandsTextEdit *commandTextEdit = nullptr;
+
+  /// Snippet text editor
+  CommandsTextEdit *snippetTextEdit = nullptr;
 
 public slots:
   /// Download management calls
@@ -163,8 +208,8 @@ signals:
 
 protected:
     /// Download management members
-    QNetworkAccessManager* mHttpManager;
-    QNetworkReply*         mHttpReply;
+    QNetworkAccessManager* mHttpManager = nullptr;
+    QNetworkReply*         mHttpReply = nullptr;
     QByteArray             mByteArray;
     QString                mTitle;
 
@@ -174,6 +219,7 @@ private:
     static QString         commandlineFile;
 };
 
+extern const QString shortcutParentNames[];
 extern class LPub *lpub;
 
 inline Meta& getMetaRef()

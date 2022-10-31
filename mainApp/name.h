@@ -59,7 +59,17 @@ struct LineHighlight {
         line(_line), action(_action) {}
 };
 
-enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_PAGE, RLPF_STEP, RLPF_BOM, RLPF_CALLOUT };
+class QString;
+class QAction;
+struct Action {
+    QString id;
+    QAction *action;
+    Action() : action(nullptr) {}
+    Action(const QString &_id, QAction *_action) :
+        id(_id), action(_action) {}
+};
+
+enum RemoveLPubFormatType { RLPF_NONE = -1, RLPF_DOCUMENT, RLPF_SUBMODEL, RLPF_PAGE, RLPF_STEP, RLPF_CALLOUT, RLPF_BOM };
 enum RendererType { RENDERER_INVALID = -1, RENDERER_NATIVE, RENDERER_LDVIEW, RENDERER_LDGLITE, RENDERER_POVRAY, NUM_RENDERERS };
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
@@ -87,6 +97,17 @@ enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum SceneObjectInfo { ObjectId };
+enum RecentFilesType { MAX_RECENT_FILES = 8 };
+enum ActionModuleType {NO_ACTION,                 //  0
+                       MAIN_WINDOW_ACTION,        //  1
+                       COMMAND_EDITOR_ACTION,     //  2
+                       TEXT_EDITOR_ACTION,        //  3
+                       VISUAL_EDITOR_ACTION,      //  4
+                       PARAMS_EDITOR_ACTION,      //  5
+                       COMMANDS_DIALOG_ACTION,    //  6
+                       COMMANDS_TEXT_EDIT_ACTION, //  7
+                       OTHER_ACTION               //  8
+};
 enum PageDirection { DIRECTION_NOT_SET,
                      FILE_DEFAULT  = DIRECTION_NOT_SET,
                      FILE_RELOAD,
@@ -651,6 +672,7 @@ enum ThemeColorType {
 #define IMPORTLDRAW                            "importldraw"
 #define IMPORTDEFAULT                          "DEFAULT"
 #define THEMECOLORS                            "ThemeColors"
+#define KEYBOARDSHORTCUTS                        "KeyboardShortcuts"
 
 #define FADE_SFX                                "-fade"
 #define HIGHLIGHT_SFX                           "-highlight"

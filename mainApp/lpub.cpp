@@ -48,6 +48,7 @@
 #include "ranges_element.h"
 #include "updatecheck.h"
 #include "step.h"
+#include "texteditdialog.h"
 #include "messageboxresizable.h"
 #include "separatorcombobox.h"
 #include <commands/command.h>
@@ -221,7 +222,7 @@ void Gui::SetRotStepTransform(QString& Transform, bool display)
 
 void Gui::fullScreenView()
 {
-    if (fullScreenViewAct->isChecked()) {
+    if (getAct("fullScreenViewAct.1")->isChecked()) {
         showFullScreen();
     } else {
         showNormal();
@@ -326,13 +327,13 @@ void Gui::addBom()
 
 void Gui::removeBuildModFormat()
 {
-    bool prompt = removeBuildModFormatAct->isChecked();
+    bool prompt = getAct("removeBuildModFormatAct.1")->isChecked();
     Preferences::removeBuildModFormatPreference(prompt);
 }
 
 void Gui::removeChildSubmodelFormat()
 {
-    bool prompt = removeChildSubmodelFormatAct->isChecked();
+    bool prompt = getAct("removeChildSubmodelFormatAct.1")->isChecked();
     Preferences::removeChildSubmodelFormatPreference(prompt);
 }
 
@@ -341,15 +342,15 @@ void Gui::removeLPubFormatting()
     int option = RLPF_DOCUMENT;
     int saveDisplayPageNum = displayPageNum;
     displayPageNum = 1 + pa;
-    if (sender() == removeLPubFormatSubmodelAct) {
+    if (sender() == getAct("removeLPubFormatSubmodelAct.1")) {
         option = RLPF_SUBMODEL;
-    } else if (sender() == removeLPubFormatPageAct) {
+    } else if (sender() == getAct("removeLPubFormatPageAct.1")) {
         option = RLPF_PAGE;
         displayPageNum = saveDisplayPageNum;
-    } else if (sender() == removeLPubFormatStepAct) {
+    } else if (sender() == getAct("removeLPubFormatStepAct.1")) {
         option = RLPF_STEP;
         displayPageNum = saveDisplayPageNum;
-    } else if (sender() == removeLPubFormatBomAct) {
+    } else if (sender() == getAct("removeLPubFormatBomAct.1")) {
         option = RLPF_BOM;
     }
 
@@ -363,7 +364,7 @@ void Gui::updateClipboard()
     if (action) {
         bool isImage = false;
         QString data;
-        if (action == copyFilePathToClipboardAct) {
+        if (action == getAct("copyFilePathToClipboardAct.1")) {
             data = QDir::toNativeSeparators(getCurFile());
         } else {
             isImage = true;
@@ -476,7 +477,7 @@ void Gui::cyclePageDisplay(const int inputPageNum, int option/*FILE_DEFAULT*/)
 void Gui::cycleEachPage()
 {
     bool cycleEachPageCompare  = Preferences::cycleEachPage;
-    Preferences::cycleEachPage = cycleEachPageAct->isChecked();
+    Preferences::cycleEachPage = getAct("cycleEachPageAct.1")->isChecked();
     bool cycleEachPageChanged  = Preferences::cycleEachPage  != cycleEachPageCompare;
 
     if (cycleEachPageChanged) {
@@ -496,18 +497,18 @@ void Gui::enableNavigationActions(bool enable)
   bool atStart = enable && (displayPageNum == (1 + pa));
   bool atEnd = enable && (displayPageNum == maxPages);
 
-  firstPageAct->setEnabled(!atStart);
+  getAct("firstPageAct.1")->setEnabled(!atStart);
 
-  lastPageAct->setEnabled(!atEnd);
+  getAct("lastPageAct.1")->setEnabled(!atEnd);
 
-  nextPageAct->setEnabled(!atEnd);
-  previousPageAct->setEnabled(!atStart);
+  getAct("nextPageAct.1")->setEnabled(!atEnd);
+  getAct("previousPageAct.1")->setEnabled(!atStart);
 
-  nextPageComboAct->setEnabled(!atEnd);
-  previousPageComboAct->setEnabled(!atStart);
+  getAct("nextPageComboAct.1")->setEnabled(!atEnd);
+  getAct("previousPageComboAct.1")->setEnabled(!atStart);
 
-  nextPageContinuousAct->setEnabled(!atEnd);
-  previousPageContinuousAct->setEnabled(!atStart);
+  getAct("nextPageContinuousAct.1")->setEnabled(!atEnd);
+  getAct("previousPageContinuousAct.1")->setEnabled(!atStart);
 }
 
 void Gui::nextPage()
@@ -706,24 +707,24 @@ void Gui::setPageContinuousIsRunning(bool b, PageDirection d){
 void Gui::setContinuousPageAct(PAction p) {
     if (p == SET_STOP_ACTION) {
         if (pageDirection == PAGE_NEXT) {
-            nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
-            nextPageContinuousAct->setStatusTip("Stop continuous next page processing - Ctrl+Shift+E");
-            nextPageContinuousAct->setText("Stop Continuous Next Page");
+            getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuousstop.png"));
+            getAct("nextPageContinuousAct.1")->setStatusTip("Stop continuous next page processing - Ctrl+Shift+E");
+            getAct("nextPageContinuousAct.1")->setText("Stop Continuous Next Page");
         } else {
-            previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
-            previousPageContinuousAct->setStatusTip("Stop continuous previous page processing - Ctrl+Shift+E");
-            previousPageContinuousAct->setText("Stop Continuous Previous Page");
+            getAct("previousPageContinuousAct.1")->setIcon(QIcon(":/resources/prevpagecontinuousstop.png"));
+            getAct("previousPageContinuousAct.1")->setStatusTip("Stop continuous previous page processing - Ctrl+Shift+E");
+            getAct("previousPageContinuousAct.1")->setText("Stop Continuous Previous Page");
         }
     } else { // SET_DEFAULT_ACTION
         if (pageDirection == PAGE_NEXT) {
-            nextPageContinuousAct->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
-            nextPageContinuousAct->setStatusTip(tr("Continuously process next document page - Ctrl+Shift+N"));
-            nextPageContinuousAct->setText("Continuous Next Page");
+            getAct("nextPageContinuousAct.1")->setIcon(QIcon(":/resources/nextpagecontinuous.png"));
+            getAct("nextPageContinuousAct.1")->setStatusTip(tr("Continuously process next document page - Ctrl+Shift+N"));
+            getAct("nextPageContinuousAct.1")->setText("Continuous Next Page");
             setPageContinuousIsRunning(false);
         } else {
-            previousPageContinuousAct->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
-            previousPageContinuousAct->setStatusTip(tr("Continuously process previous document page - Ctrl+Shift+E"));
-            previousPageContinuousAct->setText("Continuous Previous Page");
+            getAct("previousPageContinuousAct.1")->setIcon(QIcon(":/resources/prevpagecontinuous.png"));
+            getAct("previousPageContinuousAct.1")->setStatusTip(tr("Continuously process previous document page - Ctrl+Shift+E"));
+            getAct("previousPageContinuousAct.1")->setText("Continuous Previous Page");
             setPageContinuousIsRunning(false);
         }
     }
@@ -1135,7 +1136,7 @@ void Gui::setGoToPage(int index)
 void Gui::pageLineEditReset()
 {
     if (setPageLineEdit) {
-        setPageLineEditResetAct->setEnabled(false);
+        getAct("setPageLineEditResetAct.1")->setEnabled(false);
         setPageLineEdit->setText(QString("%1 of %2").arg(displayPageNum).arg(maxPages));
     }
 }
@@ -1143,7 +1144,7 @@ void Gui::pageLineEditReset()
 void Gui::enablePageLineReset(const QString &displayText)
 {
     if (setPageLineEdit)
-        setPageLineEditResetAct->setEnabled(displayText != QString("%1 of %2").arg(displayPageNum).arg(maxPages));
+        getAct("setPageLineEditResetAct.1")->setEnabled(displayText != QString("%1 of %2").arg(displayPageNum).arg(maxPages));
 }
 
 void Gui::fitWidth()
@@ -1199,17 +1200,17 @@ void Gui::zoomSlider(int value)
 
 void Gui::sceneGuides()
 {
-  Preferences::setSceneGuidesPreference(sceneGuidesComboAct->isChecked());
+  Preferences::setSceneGuidesPreference(getAct("sceneGuidesComboAct.1")->isChecked());
   SceneGuidesLineGroup->setEnabled(Preferences::sceneGuides);
   SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
-  showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
+  getAct("showGuidesCoordinatesAct.1")->setEnabled(Preferences::sceneGuides);
   KpageView->setSceneGuides();
 }
 
 void Gui::sceneGuidesLine()
 {
   int line = int(Qt::DashLine);
-  if (sceneGuidesSolidLineAct->isChecked())
+  if (getAct("sceneGuidesSolidLineAct.1")->isChecked())
       line = int(Qt::SolidLine);
 
   Preferences::setSceneGuidesLinePreference(line);
@@ -1219,16 +1220,16 @@ void Gui::sceneGuidesLine()
 void Gui::sceneGuidesPosition()
 {
     int position = int(GUIDES_TOP_LEFT);
-    if (sceneGuidesPosTRightAct->isChecked())
+    if (getAct("sceneGuidesPosTRightAct.1")->isChecked())
         position = int(GUIDES_TOP_RIGHT);
     else
-    if (sceneGuidesPosBLeftAct->isChecked())
+    if (getAct("sceneGuidesPosBLeftAct.1")->isChecked())
         position = int(GUIDES_BOT_LEFT);
     else
-    if (sceneGuidesPosBRightAct->isChecked())
+    if (getAct("sceneGuidesPosBRightAct.1")->isChecked())
         position = int(GUIDES_BOT_RIGHT);
     else
-    if (sceneGuidesPosCentreAct->isChecked())
+    if (getAct("sceneGuidesPosCentreAct.1")->isChecked())
         position = int(GUIDES_CENTRE);
 
     Preferences::setSceneGuidesPositionPreference(position);
@@ -1237,8 +1238,8 @@ void Gui::sceneGuidesPosition()
 
 void Gui::sceneRuler()
 {
-  Preferences::setSceneRulerPreference(sceneRulerComboAct->isChecked());
-  hideRulerPageBackgroundAct->setEnabled(Preferences::sceneRuler);
+  Preferences::setSceneRulerPreference(getAct("sceneRulerComboAct.1")->isChecked());
+  getAct("hideRulerPageBackgroundAct.1")->setEnabled(Preferences::sceneRuler);
   SceneRulerGroup->setEnabled(Preferences::sceneRuler);
   KpageView->setSceneRuler();
 }
@@ -1246,12 +1247,12 @@ void Gui::sceneRuler()
 void Gui::sceneRulerTracking()
 {
   RulerTrackingType trackingStyle = TRACKING_NONE;
-  if (sceneRulerTrackingTickAct->isChecked())
+  if (getAct("sceneRulerTrackingTickAct.1")->isChecked())
       trackingStyle = TRACKING_TICK;
   else
-  if (sceneRulerTrackingLineAct->isChecked()) {
+  if (getAct("sceneRulerTrackingLineAct.1")->isChecked()) {
       trackingStyle = TRACKING_LINE;
-      showTrackingCoordinatesAct->setEnabled(true);
+      getAct("showTrackingCoordinatesAct.1")->setEnabled(true);
   }
 
   Preferences::setSceneRulerTrackingPreference(int(trackingStyle));
@@ -1260,12 +1261,12 @@ void Gui::sceneRulerTracking()
 
 void Gui::snapToGrid()
 {
-  bool checked = snapToGridComboAct->isChecked();
+  bool checked = getAct("snapToGridComboAct.1")->isChecked();
   if (Preferences::snapToGrid == checked)
       return;
 
   Preferences::setSnapToGridPreference(checked);
-  hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
+  getAct("hideGridPageBackgroundAct.1")->setEnabled(Preferences::snapToGrid);
   GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
   KpageView->setSnapToGrid();
   reloadCurrentPage();
@@ -1274,14 +1275,14 @@ void Gui::snapToGrid()
 void Gui::hidePageBackground()
 {
   bool checked;
-  if (sender() == hideRulerPageBackgroundAct) {
-      checked = hideRulerPageBackgroundAct->isChecked();
-      hideGridPageBackgroundAct->setChecked(checked);
+  if (sender() == getAct("hideRulerPageBackgroundAct.1")) {
+      checked = getAct("hideRulerPageBackgroundAct.1")->isChecked();
+      getAct("hideGridPageBackgroundAct.1")->setChecked(checked);
   }
   else
   {
-      checked = hideGridPageBackgroundAct->isChecked();
-      hideRulerPageBackgroundAct->setChecked(checked);
+      checked = getAct("hideGridPageBackgroundAct.1")->isChecked();
+      getAct("hideRulerPageBackgroundAct.1")->setChecked(checked);
   }
   Preferences::setHidePageBackgroundPreference(checked);
   reloadCurrentPage();
@@ -1289,15 +1290,15 @@ void Gui::hidePageBackground()
 
 void Gui::showCoordinates()
 {
-  if (sender() == showTrackingCoordinatesAct) {
+  if (sender() == getAct("showTrackingCoordinatesAct.1")) {
       Preferences::setShowTrackingCoordinatesPreference(
-                  showTrackingCoordinatesAct->isChecked());
+                  getAct("showTrackingCoordinatesAct.1")->isChecked());
   }
   else
-  if (sender() == showGuidesCoordinatesAct)
+  if (sender() == getAct("showGuidesCoordinatesAct.1"))
   {
       Preferences::setShowGuidesCoordinatesPreference(
-                  showGuidesCoordinatesAct->isChecked());
+                  getAct("showGuidesCoordinatesAct.1")->isChecked());
   }
   KpageView->setShowCoordinates();
 }
@@ -1782,7 +1783,7 @@ void Gui::clearAllCaches(bool global)
     }
 
     bool disableSaveOnRedraw = false;
-    if (sender() == clearAllCachesAct || global) {
+    if (sender() == getAct("clearAllCachesAct.1") || global) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1841,7 +1842,7 @@ void Gui::clearCustomPartCache(bool silent)
   if (Paths::customDir.isEmpty())
       return;
 
-  if (sender() == clearCustomPartCacheAct) {
+  if (sender() == getAct("clearCustomPartCacheAct.1")) {
       bool _continue;
       if (Preferences::saveOnRedraw) {
           _continue = maybeSave(false); // No prompt
@@ -1903,7 +1904,7 @@ void Gui::clearPLICache()
         return;
     }
 
-    if (sender() == clearPLICacheAct) {
+    if (sender() == getAct("clearPLICacheAct.1")) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1944,7 +1945,7 @@ void Gui::clearCSICache()
         return;
     }
 
-    if (sender() == clearCSICacheAct) {
+    if (sender() == getAct("clearCSICacheAct.1")) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -1986,7 +1987,7 @@ void Gui::clearSubmodelCache(const QString &key)
         return;
     }
 
-    if (sender() == clearSubmodelCacheAct) {
+    if (sender() == getAct("clearSubmodelCacheAct.1")) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2033,7 +2034,7 @@ void Gui::clearTempCache()
         return;
     }
 
-    if (sender() == clearTempCacheAct) {
+    if (sender() == getAct("clearTempCacheAct.1")) {
         bool _continue;
         if (Preferences::saveOnRedraw) {
             _continue = maybeSave(false); // No prompt
@@ -2286,9 +2287,9 @@ void Gui::highlightStepSetup()
 
 void Gui::useSystemEditor()
 {
-   bool useSystemEditor = useSystemEditorAct->isChecked();
+   bool useSystemEditor = getAct("useSystemEditorAct.1")->isChecked();
    Preferences::useSystemEditorPreference(useSystemEditor);
-   editModelFileAct->setStatusTip(tr("Edit current model file with %1")
+   getAct("editModelFileAct.1")->setStatusTip(tr("Edit current model file with %1")
                                   .arg(useSystemEditor ? Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                                Preferences::systemEditor : "detached LDraw Editor"));
 }
@@ -2844,6 +2845,8 @@ void Gui::viewLog()
 
 void Gui::preferences()
 {
+    lpub->setShortcutKeywords();
+
     bool libraryChangeRestart              = false;
     bool defaultUnitsCompare               = Preferences::preferCentimeters;
     bool enableLDViewSCallCompare          = Preferences::enableLDViewSingleCall;
@@ -2863,7 +2866,7 @@ void Gui::preferences()
     bool addLSynthSearchDirCompare         = Preferences::addLSynthSearchDir;
     bool archiveLSynthPartsCompare         = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare      = Preferences::perspectiveProjection;
-    bool inlineNativeContentCompare    = Preferences::inlineNativeContent;
+    bool inlineNativeContentCompare        = Preferences::inlineNativeContent;
     bool saveOnUpdateCompare               = Preferences::saveOnUpdate;
     bool saveOnRedrawCompare               = Preferences::saveOnRedraw;
     bool loadLastOpenedFileCompare         = Preferences::loadLastOpenedFile;
@@ -2904,6 +2907,17 @@ void Gui::preferences()
         Meta meta;
         lpub->page.meta = meta;
 
+        lpub->setKeyboardShortcuts();
+        foreach (QAction *action, editWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
+        foreach (QAction *action, editModeWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
+        foreach (QAction *action, parmsWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
+
         QMessageBox box;
         box.setMinimumSize(40,20);
         box.setIcon (QMessageBox::Information);
@@ -2922,7 +2936,7 @@ void Gui::preferences()
         bool highlightFirstStepChanged     = Preferences::highlightFirstStep                     != highlightFirstStepCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
-        bool inlineNativeContentChanged= Preferences::inlineNativeContent                     != inlineNativeContentCompare;
+        bool inlineNativeContentChanged    = Preferences::inlineNativeContent                     != inlineNativeContentCompare;
         bool saveOnRedrawChanged           = Preferences::saveOnRedraw                           != saveOnRedrawCompare;
         bool saveOnUpdateChanged           = Preferences::saveOnUpdate                           != saveOnUpdateCompare;
         bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
@@ -3306,6 +3320,7 @@ Gui::Gui()
     qRegisterMetaType<Vector3>("Vector3");
 
     // structs
+    qRegisterMetaType<Action>("Action");
     qRegisterMetaType<ActionAttributes>("ActionAttributes");
     qRegisterMetaType<lcLibRenderOptions>("lcLibRenderOptions");
     qRegisterMetaType<LineHighlight>("LineHighlight");
@@ -3313,6 +3328,7 @@ Gui::Gui()
     qRegisterMetaType<TypeLine>("TypeLine");
 
     // enumerators
+    qRegisterMetaType<ActionModuleType>("ActionModuleType");
     qRegisterMetaType<AllocEnc>("AllocEnc");
     qRegisterMetaType<AnnotationCategory>("AnnotationCategory");
     qRegisterMetaType<AnnotationStyle>("AnnotationStyle");
@@ -3387,6 +3403,7 @@ Gui::Gui()
     Preferences::lgeoPreferences();
     Preferences::publishingPreferences();
     Preferences::exportPreferences();
+    Preferences::keyboardShortcutPreferences();
 
     sa                 = 0;
     pa                 = 0;
@@ -3756,6 +3773,35 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(QString("90% - %1 widgets loading...").arg(VER_PRODUCTNAME_STR));
 
+  if (Preferences::modeGUI) {
+      if (lpub) {
+          // QSimpleUpdater start
+          LPub::m_updaterCancelled = false;
+          lpub->m_updater = QSimpleUpdater::getInstance();
+          connect (lpub->m_updater, SIGNAL(checkingFinished (QString)),
+                   lpub,            SLOT(  updateChangelog (QString)));
+
+          connect (lpub->m_updater, SIGNAL(cancel()),
+                   lpub,            SLOT(  updaterCancelled ()));
+
+          // set release notes
+          if (Preferences::autoUpdateChangeLog) {
+              //populate release notes object from the web
+              lpub->m_updater->setChangelogOnly(LPub::DEFS_URL, true);
+              lpub->m_updater->checkForUpdates (LPub::DEFS_URL);
+          } else {
+              // populate release notes object from local file
+              lpub->updateChangelog(QString());
+          }
+
+          lpub->loadCommandCollection();
+
+          lpub->loadSnippetCollection();
+
+          lpub->initDialogEditors();
+      }
+  }
+
   createActions();
   createMenus();
   createToolBars();
@@ -3763,9 +3809,9 @@ void Gui::initialize()
   createDockWindows();
 
   if (Preferences::modeGUI) {
-      if (lpub)
-          lpub->loadCommandCollection();
+
       initiaizeVisualEditor();
+
       toggleLCStatusBar(true);
   }
 
@@ -4026,6 +4072,36 @@ void Gui::progressPermStatusRemove(){
     }
 }
 
+void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
+  int pageNum = 0 + pa;
+  disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
+  setGoToPageCombo->clear();
+
+  for(int i=1 + pa;i <= maxPages;i++) {
+      pageNum++;
+      if (frontCoverPageExist && i == 1) {
+          pageNum--;
+          setGoToPageCombo->addItem(QString("Front Cover"));
+      }
+      else if (backCoverPageExist && i == maxPages) {
+          setGoToPageCombo->addItem(QString("Back Cover"));
+      }
+      else
+          setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
+  }
+
+  setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
+  connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
+}
+
+void Gui::addEditLDrawIniFileAction()
+{
+    if (Preferences::ldrawiniFound) {
+        getMenu("editorMenu")->insertAction(getAct("editNativePOVIniAct.1"), getAct("editLdrawIniFileAct.1"));
+        getToolBar("editParamsToolBar")->insertAction(getAct("editNativePOVIniAct.1"), getAct("editLdrawIniFileAct.1"));
+    }
+}
+
 void Gui::showRenderDialog()
 {
     int importOnly = sender() == blenderImportAct ? BLENDER_IMPORT : 0;
@@ -4044,7 +4120,7 @@ void Gui::aboutDialog()
 
 void Gui::archivePartsOnLaunch() {
     bool archivePartsOnLaunchCompare  = Preferences::archivePartsOnLaunch;
-    Preferences::archivePartsOnLaunch = archivePartsOnLaunchAct->isChecked();
+    Preferences::archivePartsOnLaunch = getAct("archivePartsOnLaunchAct.1")->isChecked();
     bool archivePartsOnLaunchChanged  = Preferences::archivePartsOnLaunch  != archivePartsOnLaunchCompare;
 
     if (archivePartsOnLaunchChanged) {
@@ -4823,13 +4899,9 @@ void Gui::exportMetaCommands()
   box.setDefaultButton   (QMessageBox::Yes);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
   box.setWindowTitle(tr ("Export Meta Commands"));
-
-  QString text = QString("<b> " + result + " </b>");
-  QString info = tr ("Do you want to open this document ?\n\n%1")
-                     .arg(QDir::toNativeSeparators(fileName));
-
-  box.setText (text);
-  box.setInformativeText (info);
+  box.setText (tr ("<b> %1 </b>").arg(result));
+  box.setInformativeText (tr ("Do you want to open this document ?\n\n%1")
+                              .arg(QDir::toNativeSeparators(fileName)));
 
   if (box.exec() == QMessageBox::Yes) {
     QString CommandPath = fileName;
@@ -4865,8 +4937,10 @@ void Gui::createOpenWithActions(int maxPrograms)
     const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
     const int maxOpenWithPrograms = maxPrograms ? maxPrograms + systemEditor : Preferences::maxOpenWithPrograms + systemEditor;
     for (int i = 0; i < maxOpenWithPrograms; i++) {
-        QAction *openWithAct = new QAction(this);
+        QAction *openWithAct = new QAction(tr("Open With Application %1").arg(i),this);
+        openWithAct->setObjectName(tr("openWith%1Act.1").arg(i));
         openWithAct->setVisible(false);
+        lpub->actions.insert(openWithAct->objectName(), Action(tr("File.Open With Application %1").arg(i), openWithAct));
         connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
         if (i < openWithActList.size()) {
             openWithActList.replace(i,openWithAct);
@@ -4876,358 +4950,611 @@ void Gui::createOpenWithActions(int maxPrograms)
     }
 }
 
+void SetActionShortcut(QAction *action, const QKeySequence &shortcut)
+{
+    action->setShortcut(shortcut);
+    action->setProperty("defaultshortcut", shortcut);
+}
+
+QAction *Gui::getApplyBuildModAct()
+{
+    return ApplyBuildModAct;
+}
+
+QAction *Gui::getRemoveBuildModAct()
+{
+    return RemoveBuildModAct;
+}
+
+QAction *Gui::getDeleteBuildModAct()
+{
+    return DeleteBuildModAct;
+}
+
+QAction *Gui::getAct(const QString &objectName)
+{
+    if (lpub->actions.contains(objectName))
+        return lpub->actions.value(objectName).action;
+#ifdef QT_DEBUG_MODE
+    emit lpub->messageSig(LOG_ERROR, QString("Mainwindow action was not found or is null [%1]").arg(objectName));
+#endif
+    return nullptr;
+}
+
 void Gui::createActions()
 {
-    openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open..."), this);
+    // File
+    QAction *openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open..."), this);
+    openAct->setObjectName("openAct.1");
     openAct->setShortcut(tr("Ctrl+O"));
-    openAct->setStatusTip(tr("Open an existing file - Ctrl+O"));
+    openAct->setStatusTip(tr("Open an existing file"));
+    lpub->actions.insert(openAct->objectName(), Action(tr("File.Open"), openAct));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
     createOpenWithActions();
 
-    openWithSetupAct = new QAction(QIcon(":/resources/openwithsetup.png"), tr("Open With S&etup..."), this);
-    openWithSetupAct->setStatusTip(tr("Setup 'Open With' applications."));
-    connect(openWithSetupAct, SIGNAL(triggered()), this, SLOT(openWithSetup()));
-
-    saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
+    QAction *saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
+    saveAct->setObjectName("saveAct.1");
     saveAct->setShortcut(tr("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
+    saveAct->setStatusTip(tr("Save the document to disk"));
     saveAct->setEnabled(false);
+    lpub->actions.insert(saveAct->objectName(), Action(tr("File.Save"), saveAct));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
+    QAction *saveAsAct = new QAction(QIcon(":/resources/saveas.png"),tr("Save A&s..."), this);
+    saveAsAct->setObjectName("saveAsAct.1");
     saveAsAct->setShortcut(tr("Ctrl+Shift+S"));
-    saveAsAct->setStatusTip(tr("Save the document under a new name - Ctrl+Shift+S"));
+    saveAsAct->setStatusTip(tr("Save the document under a new name"));
     saveAsAct->setEnabled(false);
+    lpub->actions.insert(saveAsAct->objectName(), Action(tr("File.Save As"), saveAsAct));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
+    QAction *saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
+    saveCopyAct->setObjectName("saveCopyAct.1");
     saveCopyAct->setShortcut(tr("Ctrl+Shift+C"));
-    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name - Ctrl+Shift+C"));
+    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name"));
     saveCopyAct->setEnabled(false);
+    lpub->actions.insert(saveCopyAct->objectName(), Action(tr("File.Save A Copy As"), saveCopyAct));
     connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveCopy()));
 
-    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close File"), this);
+    QAction *closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close File"), this);
+    closeFileAct->setObjectName("closeFileAct.1");
     closeFileAct->setShortcut(tr("Ctrl+W"));
-    closeFileAct->setStatusTip(tr("Close current model file - Ctrl+W"));
+    closeFileAct->setStatusTip(tr("Close current model file"));
     closeFileAct->setEnabled(false);
+    lpub->actions.insert(closeFileAct->objectName(), Action(tr("File.Close File"), closeFileAct));
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
     QIcon printToFilePreviewIcon;
     printToFilePreviewIcon.addFile(":/resources/file_print_preview.png");
     printToFilePreviewIcon.addFile(":/resources/file_print_preview_16.png");
-    printToFilePreviewAct = new QAction(printToFilePreviewIcon, tr("File Print Pre&view..."), this);
-    printToFilePreviewAct->setShortcut(tr("Alt+Shift+P"));
-    printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed - Alt+Shift+P"));
+    QAction *printToFilePreviewAct = new QAction(printToFilePreviewIcon, tr("File Print Pre&view..."), this);
+    printToFilePreviewAct->setObjectName("printToFilePreviewAct.1");
+    printToFilePreviewAct->setShortcut(tr("Alt+Shift+R"));
+    printToFilePreviewAct->setStatusTip(tr("Preview the current document to be printed"));
     printToFilePreviewAct->setEnabled(false);
+    lpub->actions.insert(printToFilePreviewAct->objectName(), Action(tr("File.File Print Preview"), printToFilePreviewAct));
     connect(printToFilePreviewAct, SIGNAL(triggered()), this, SLOT(TogglePrintToFilePreview()));
 
     QIcon printToFileIcon;
     printToFileIcon.addFile(":/resources/file_print.png");
     printToFileIcon.addFile(":/resources/file_print_16.png");
-    printToFileAct = new QAction(printToFileIcon, tr("File &Print..."), this);
-    printToFileAct->setShortcut(tr("Alt+Shift+F"));
-    printToFileAct->setStatusTip(tr("Print the current document - Alt+Shift+F"));
+    QAction *printToFileAct = new QAction(printToFileIcon, tr("File &Print..."), this);
+    printToFileAct->setObjectName("printToFileAct.1");
+    printToFileAct->setShortcut(tr("Alt+Shift+P"));
+    printToFileAct->setStatusTip(tr("Print the current document"));
     printToFileAct->setEnabled(false);
+    lpub->actions.insert(printToFileAct->objectName(), Action(tr("File.File Print"), printToFileAct));
     connect(printToFileAct, SIGNAL(triggered()), this, SLOT(ShowPrintDialog()));
 
-    importLDDAct = new QAction(QIcon(":/resources/importldd.png"),tr("LEGO Digital Designer File..."), this);
+    QAction *importLDDAct = new QAction(QIcon(":/resources/importldd.png"),tr("LEGO Digital Designer File..."), this);
+    importLDDAct->setObjectName("importLDDAct.1");
     importLDDAct->setShortcut(tr("Alt+Shift+L"));
-    importLDDAct->setStatusTip(tr("Import LEGO Digital Designer File - Alt+Shift+L"));
+    importLDDAct->setStatusTip(tr("Import LEGO Digital Designer File"));
+    lpub->actions.insert(importLDDAct->objectName(), Action(tr("File.Import.LEGO Digital Designer File"), importLDDAct));
     connect(importLDDAct, SIGNAL(triggered()), this, SLOT(importLDD()));
 
-    importSetInventoryAct = new QAction(QIcon(":/resources/importsetinventory.png"),tr("Set Inventory File..."), this);
+    QAction *importSetInventoryAct = new QAction(QIcon(":/resources/importsetinventory.png"),tr("Set Inventory File..."), this);
+    importSetInventoryAct->setObjectName("importSetInventoryAct.1");
     importSetInventoryAct->setShortcut(tr("Alt+Shift+S"));
-    importSetInventoryAct->setStatusTip(tr("Import Rebrickable Set Inventory File - Alt+Shift+S"));
+    importSetInventoryAct->setStatusTip(tr("Import Rebrickable Set Inventory File"));
+    lpub->actions.insert(importSetInventoryAct->objectName(), Action(tr("File.Import.Set Inventory File"), importSetInventoryAct));
     connect(importSetInventoryAct, SIGNAL(triggered()), this, SLOT(importInventory()));
 
-    exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
+    QAction *exportAsPdfPreviewAct = new QAction(QIcon(":/resources/pdf_print_preview.png"), tr("PDF Export Preview..."), this);
+    exportAsPdfPreviewAct->setObjectName("exportAsPdfPreviewAct.1");
     exportAsPdfPreviewAct->setShortcut(tr("Alt+P"));
-    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current pdf document to be exported - Alt+P"));
+    exportAsPdfPreviewAct->setStatusTip(tr("Preview the current pdf document to be exported"));
     exportAsPdfPreviewAct->setEnabled(false);
+    lpub->actions.insert(exportAsPdfPreviewAct->objectName(), Action(tr("File.PDF Export Preview"), exportAsPdfPreviewAct));
     connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePdfExportPreview()));
 
-    exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File..."), this);
+    QAction *exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File..."), this);
+    exportAsPdfAct->setObjectName("exportAsPdfAct.1");
     exportAsPdfAct->setShortcut(tr("Alt+F"));
-    exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file - Alt+F"));
+    exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file"));
     exportAsPdfAct->setEnabled(false);
+    lpub->actions.insert(exportAsPdfAct->objectName(), Action(tr("File.Export To PDF File"), exportAsPdfAct));
     connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
-    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As P&NG Images..."), this);
+    QAction *exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("P&NG Images..."), this);
+    exportPngAct->setObjectName("exportPngAct.1");
     exportPngAct->setShortcut(tr("Alt+N"));
-    exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images - Alt+N"));
+    exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images"));
     exportPngAct->setEnabled(false);
+    lpub->actions.insert(exportPngAct->objectName(), Action(tr("File.Export As.PNG Images"), exportPngAct));
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
-    exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images..."), this);
+    QAction *exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("&JPEG Images..."), this);
+    exportJpgAct->setObjectName("exportJpgAct.1");
     exportJpgAct->setShortcut(tr("Alt+J"));
-    exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images - Alt+J"));
+    exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images"));
     exportJpgAct->setEnabled(false);
+    lpub->actions.insert(exportJpgAct->objectName(), Action(tr("File.Export As.JPEG Images"), exportJpgAct));
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
-    exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images..."), this);
+    QAction *exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("&Bitmap Images..."), this);
+    exportBmpAct->setObjectName("exportBmpAct.1");
     exportBmpAct->setShortcut(tr("Alt+B"));
-    exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images - Alt+B"));
+    exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images"));
     exportBmpAct->setEnabled(false);
+    lpub->actions.insert(exportBmpAct->objectName(), Action(tr("File.Export As.Bitmap Images"), exportBmpAct));
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
-    exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("Export As &HTML Part List..."), this);
+    QAction *exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("&HTML Part List..."), this);
+    exportHtmlAct->setObjectName("exportHtmlAct.1");
     exportHtmlAct->setShortcut(tr("Alt+6"));
-    exportHtmlAct->setStatusTip(tr("Export your document as an HTML part list - Alt+6"));
+    exportHtmlAct->setStatusTip(tr("Export your document as an HTML part list"));
     exportHtmlAct->setEnabled(false);
+    lpub->actions.insert(exportHtmlAct->objectName(), Action(tr("File.Export As.HTML Part List"), exportHtmlAct));
     connect(exportHtmlAct, SIGNAL(triggered()), this, SLOT(exportAsHtml()));
 
-    exportHtmlStepsAct = new QAction(QIcon(":/resources/htmlsteps32.png"),tr("Export As HT&ML Steps..."), this);
+    QAction *exportHtmlStepsAct = new QAction(QIcon(":/resources/htmlsteps32.png"),tr("HT&ML Steps..."), this);
+    exportHtmlStepsAct->setObjectName("exportHtmlStepsAct.1");
     exportHtmlStepsAct->setShortcut(tr("Alt+Shift+6"));
-    exportHtmlStepsAct->setStatusTip(tr("Export your document as navigatable steps in HTML format - Alt+Shift+6"));
+    exportHtmlStepsAct->setStatusTip(tr("Export your document as navigatable steps in HTML format"));
     exportHtmlStepsAct->setEnabled(false);
+    lpub->actions.insert(exportHtmlStepsAct->objectName(), Action(tr("File.Export As.HTML Steps"), exportHtmlStepsAct));
     connect(exportHtmlStepsAct, SIGNAL(triggered()), this, SLOT(exportAsHtmlSteps()));
 
-    exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("Export As &COLLADA Objects..."), this);
+    QAction *exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("&COLLADA Objects..."), this);
+    exportColladaAct->setObjectName("exportColladaAct.1");
     exportColladaAct->setShortcut(tr("Alt+4"));
-    exportColladaAct->setStatusTip(tr("Export your document as a sequence of Collada objects - Alt+4"));
+    exportColladaAct->setStatusTip(tr("Export your document as a sequence of Collada objects"));
     exportColladaAct->setEnabled(false);
+    lpub->actions.insert(exportColladaAct->objectName(), Action(tr("File.Export As.COLLADA Objects"), exportColladaAct));
     connect(exportColladaAct, SIGNAL(triggered()), this, SLOT(exportAsColladaDialog()));
 
-    exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("Export As &Wavefront Objects..."), this);
+    QAction *exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("&Wavefront Objects..."), this);
+    exportObjAct->setObjectName("exportObjAct.1");
     exportObjAct->setShortcut(tr("Alt+1"));
-    exportObjAct->setStatusTip(tr("Export your document as a sequence of Wavefront objects - Alt+1"));
+    exportObjAct->setStatusTip(tr("Export your document as a sequence of Wavefront objects"));
     exportObjAct->setEnabled(false);
+    lpub->actions.insert(exportObjAct->objectName(), Action(tr("File.Export As.Wavefront Objects"), exportObjAct));
     connect(exportObjAct, SIGNAL(triggered()), this, SLOT(exportAsObjDialog()));
 
-    export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("Export As &3DStudio Objects..."), this);
+    QAction *export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("&3DStudio Objects..."), this);
+    export3dsAct->setObjectName("export3dsAct.1");
     export3dsAct->setShortcut(tr("Alt+5"));
-    export3dsAct->setStatusTip(tr("Export your document as a sequence of 3DStudio objects - Alt+5"));
+    export3dsAct->setStatusTip(tr("Export your document as a sequence of 3DStudio objects"));
     export3dsAct->setEnabled(false);
+    lpub->actions.insert(export3dsAct->objectName(), Action(tr("File.Export As.3DStudio Objects"), export3dsAct));
     connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
 
-    exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects..."), this);
+    QAction *exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("&Stereo Lithography Objects..."), this);
+    exportStlAct->setObjectName("exportStlAct.1");
     exportStlAct->setShortcut(tr("Alt+2"));
-    exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects - Alt+2"));
+    exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects"));
     exportStlAct->setEnabled(false);
+    lpub->actions.insert(exportStlAct->objectName(), Action(tr("File.Export As.Stereo Lithography Objects"), exportStlAct));
     connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
 
-    exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("Export As &PovRay Scene Files..."), this);
+    QAction *exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("&PovRay Scene Files..."), this);
+    exportPovAct->setObjectName("exportPovAct.1");
     exportPovAct->setShortcut(tr("Alt+3"));
-    exportPovAct->setStatusTip(tr("Export your document as a sequence of PovRay Scene Files - Alt+3"));
+    exportPovAct->setStatusTip(tr("Export your document as a sequence of PovRay Scene Files"));
     exportPovAct->setEnabled(false);
+    lpub->actions.insert(exportPovAct->objectName(), Action(tr("File.Export As.PovRay Scene Files"), exportPovAct));
     connect(exportPovAct, SIGNAL(triggered()), this, SLOT(exportAsPovDialog()));
 
-    exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("Export As &CSV Part List..."), this);
+    QAction *exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("&CSV Part List..."), this);
+    exportCsvAct->setObjectName("exportCsvAct.1");
     exportCsvAct->setShortcut(tr("Alt+8"));
-    exportCsvAct->setStatusTip(tr("Export your document as a CSV part list - Alt+8"));
+    exportCsvAct->setStatusTip(tr("Export your document as a CSV part list"));
     exportCsvAct->setEnabled(false);
+    lpub->actions.insert(exportCsvAct->objectName(), Action(tr("File.Export As.CSV Part List"), exportCsvAct));
     connect(exportCsvAct, SIGNAL(triggered()), this, SLOT(exportAsCsv()));
 
-    exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("Export As &Bricklink XML Part List..."), this);
+    QAction *exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("&Bricklink XML Part List..."), this);
+    exportBricklinkAct->setObjectName("exportBricklinkAct.1");
     exportBricklinkAct->setShortcut(tr("Alt+7"));
-    exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List - Alt+7"));
+    exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List"));
     exportBricklinkAct->setEnabled(false);
+    lpub->actions.insert(exportBricklinkAct->objectName(), Action(tr("File.Export As.Bricklink XML Part List"), exportBricklinkAct));
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
+
+    QAction *exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
+    exitAct->setObjectName("exitAct.1");
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    exitAct->setStatusTip(tr("Exit the application"));
+    lpub->actions.insert(exitAct->objectName(), Action(tr("File.Exit"), exitAct));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     QIcon blenderIcon;
     blenderIcon.addFile(":/resources/blendericon.png");
     blenderIcon.addFile(":/resources/blendericon16.png");
     blenderRenderAct = new QAction(blenderIcon,tr("Blender Render..."), this);
+    blenderRenderAct->setObjectName("blenderRenderAct.4");
     blenderRenderAct->setShortcut(tr("Alt+Shift+8"));
-    blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles - Alt+Shift+8"));
+    blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles"));
     blenderRenderAct->setEnabled(false);
+    lpub->actions.insert(blenderRenderAct->objectName(), Action(tr("3DViewer.Blender Render"), blenderRenderAct));
     connect(blenderRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
     blenderImportAct = new QAction(blenderIcon,tr("Blender Import..."), this);
+    blenderImportAct->setObjectName("blenderImportAct.4");
     blenderImportAct->setShortcut(tr("Alt+Shift+9"));
-    blenderImportAct->setStatusTip(tr("Import the current step and launch Blender - Alt+Shift+9"));
+    blenderImportAct->setStatusTip(tr("Import the current step and launch Blender"));
     blenderImportAct->setEnabled(false);
+    lpub->actions.insert(blenderImportAct->objectName(), Action(tr("3DViewer.Blender Import"), blenderImportAct));
     connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
     
-    copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
-    copyFilePathToClipboardAct->setShortcut(tr("Alt+Shift+0"));
-    copyFilePathToClipboardAct->setStatusTip(tr("Copy current model full file path to clipboard - Alt+Shift+0"));
-    copyFilePathToClipboardAct->setEnabled(false);
-    connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
-
     povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
+    povrayRenderAct->setObjectName("povrayRenderAct.4");
     povrayRenderAct->setShortcut(tr("Alt+9"));
-    povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
+    povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray"));
     povrayRenderAct->setEnabled(false);
+    lpub->actions.insert(povrayRenderAct->objectName(), Action(tr("3DViewer.POVRay Render"), povrayRenderAct));
     connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
-    exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
-    exitAct->setShortcut(tr("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+    QAction *copyFilePathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
+    copyFilePathToClipboardAct->setObjectName("copyFilePathToClipboardAct.1");
+    copyFilePathToClipboardAct->setShortcut(tr("Alt+Shift+0"));
+    copyFilePathToClipboardAct->setStatusTip(tr("Copy current model full file path to clipboard"));
+    copyFilePathToClipboardAct->setEnabled(false);
+    lpub->actions.insert(copyFilePathToClipboardAct->objectName(), Action(tr("File.Full Path To Clipboard"), copyFilePathToClipboardAct));
+    connect(copyFilePathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
-    for (int i = 0; i < MaxRecentFiles; i++) {
-      recentFilesActs[i] = new QAction(this);
-      recentFilesActs[i]->setVisible(false);
-      connect(recentFilesActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));
-    }
+    QAction *recentFile1Act = new QAction(tr("Recent File 1"),this);
+    recentFile1Act->setObjectName("recentFile0Act.1");
+    recentFile1Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile1Act->objectName(), Action(tr("Recent Files.Recent File 1"), recentFile1Act));
+    connect(recentFile1Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
 
-    clearRecentAct = new QAction(tr("Clear Files"),this);
+    QAction *recentFile2Act = new QAction(tr("Recent File 2"),this);
+    recentFile2Act->setObjectName("recentFile1Act.1");
+    recentFile2Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile2Act->objectName(), Action(tr("Recent Files.Recent File 2"), recentFile2Act));
+    connect(recentFile2Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile3Act = new QAction(tr("Recent File 3"),this);
+    recentFile3Act->setObjectName("recentFile2Act.1");
+    recentFile3Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile3Act->objectName(), Action(tr("Recent Files.Recent File 3"), recentFile3Act));
+    connect(recentFile3Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile4Act = new QAction(tr("Recent File 4"),this);
+    recentFile4Act->setObjectName("recentFile3Act.1");
+    recentFile4Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile4Act->objectName(), Action(tr("Recent Files.Recent File 4"), recentFile4Act));
+    connect(recentFile4Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile5Act = new QAction(tr("Recent File 5"),this);
+    recentFile5Act->setObjectName("recentFile4Act.1");
+    recentFile5Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile5Act->objectName(), Action(tr("Recent Files.Recent File 5"), recentFile5Act));
+    connect(recentFile5Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile6Act = new QAction(tr("Recent File 6"),this);
+    recentFile6Act->setObjectName("recentFile5Act.1");
+    recentFile6Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile6Act->objectName(), Action(tr("Recent Files.Recent File 6"), recentFile6Act));
+    connect(recentFile6Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile7Act = new QAction(tr("Recent File 7"),this);
+    recentFile7Act->setObjectName("recentFile6Act.1");
+    recentFile7Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile7Act->objectName(), Action(tr("Recent Files.Recent File 7"), recentFile7Act));
+    connect(recentFile7Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *recentFile8Act = new QAction(tr("Recent File 8"),this);
+    recentFile8Act->setObjectName("recentFile7Act.1");
+    recentFile8Act->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(recentFile8Act->objectName(), Action(tr("Recent Files.Recent File 8"), recentFile8Act));
+    connect(recentFile8Act, SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+    QAction *clearRecentAct = new QAction(tr("Clear Recent Files"),this);
+    clearRecentAct->setObjectName("clearRecentAct.1");
     clearRecentAct->setStatusTip(tr("Clear recent files"));
+    lpub->actions.insert(clearRecentAct->objectName(), Action(tr("Recent Files.Clear Recent Files"), clearRecentAct));
     connect(clearRecentAct, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
-    // undo/redo
 
+    // Edit
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("&Undo"), this);
+    undoAct->setObjectName("undoAct.1");
     undoAct->setShortcut(tr("Ctrl+Z"));
-    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo last change"));
     undoAct->setEnabled(false);
+    lpub->actions.insert(undoAct->objectName(), Action(tr("Edit.Undo"), undoAct));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
+
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("&Redo"), this);
+    redoAct->setObjectName("redoAct.1");
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #else
     redoAct->setShortcut(tr("Ctrl+Y"));
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #endif
     redoAct->setEnabled(false);
+    lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
-    insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
+    QAction *insertCoverPageAct = new QAction(QIcon(":/resources/insertcoverpage.png"),tr("Insert Front Cover Page"),this);
+    insertCoverPageAct->setObjectName("insertCoverPageAct.1");
     insertCoverPageAct->setShortcut(tr("Ctrl+Alt+F"));
-    insertCoverPageAct->setStatusTip(tr("Insert a front cover page - Ctrl+Alt+F"));
+    insertCoverPageAct->setStatusTip(tr("Insert a front cover page"));
     insertCoverPageAct->setEnabled(false);
+    lpub->actions.insert(insertCoverPageAct->objectName(), Action(tr("Edit.Insert Front Cover Page"), insertCoverPageAct));
     connect(insertCoverPageAct, SIGNAL(triggered()), this, SLOT(insertCoverPage()));
 
-    appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
+    QAction *appendCoverPageAct = new QAction(QIcon(":/resources/appendcoverpage.png"),tr("Append Back Cover Page"),this);
+    appendCoverPageAct->setObjectName("appendCoverPageAct.1");
     appendCoverPageAct->setShortcut(tr("Ctrl+Alt+B"));
-    appendCoverPageAct->setStatusTip(tr("Append back cover page - Ctrl+Alt+B"));
+    appendCoverPageAct->setStatusTip(tr("Append back cover page"));
     appendCoverPageAct->setEnabled(false);
+    lpub->actions.insert(appendCoverPageAct->objectName(), Action(tr("Edit.Append Back Cover Page"), appendCoverPageAct));
     connect(appendCoverPageAct, SIGNAL(triggered()), this, SLOT(appendCoverPage()));
 
-    insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
+    QAction *insertNumberedPageAct = new QAction(QIcon(":/resources/insertpage.png"),tr("Insert Page"),this);
+    insertNumberedPageAct->setObjectName("insertNumberedPageAct.1");
     insertNumberedPageAct->setShortcut(tr("Ctrl+Alt+I"));
-    insertNumberedPageAct->setStatusTip(tr("Insert a numbered page - Ctrl+Alt+I"));
+    insertNumberedPageAct->setStatusTip(tr("Insert a numbered page"));
     insertNumberedPageAct->setEnabled(false);
+    lpub->actions.insert(insertNumberedPageAct->objectName(), Action(tr("Edit.Insert Page"), insertNumberedPageAct));
     connect(insertNumberedPageAct, SIGNAL(triggered()), this, SLOT(insertNumberedPage()));
 
-    appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
+    QAction *appendNumberedPageAct = new QAction(QIcon(":/resources/appendpage.png"),tr("Append Page"),this);
+    appendNumberedPageAct->setObjectName("appendNumberedPageAct.1");
     appendNumberedPageAct->setShortcut(tr("Ctrl+Alt+A"));
-    appendNumberedPageAct->setStatusTip(tr("Append a numbered page - Ctrl+Alt+A"));
+    appendNumberedPageAct->setStatusTip(tr("Append a numbered page"));
     appendNumberedPageAct->setEnabled(false);
+    lpub->actions.insert(appendNumberedPageAct->objectName(), Action(tr("Edit.Append Page"), appendNumberedPageAct));
     connect(appendNumberedPageAct, SIGNAL(triggered()), this, SLOT(appendNumberedPage()));
 
-    deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
+    QAction *deletePageAct = new QAction(QIcon(":/resources/deletepage.png"),tr("Delete Page"),this);
+    deletePageAct->setObjectName("deletePageAct.1");
     deletePageAct->setShortcut(tr("Ctrl+Alt+D"));
-    deletePageAct->setStatusTip(tr("Delete this page - Ctrl+Alt+D"));
+    deletePageAct->setStatusTip(tr("Delete this page"));
     deletePageAct->setEnabled(false);
+    lpub->actions.insert(deletePageAct->objectName(), Action(tr("Edit.Delete Page"), deletePageAct));
     connect(deletePageAct, SIGNAL(triggered()), this, SLOT(deletePage()));
 
-    addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
+    QAction *addPictureAct = new QAction(QIcon(":/resources/addpicture.png"),tr("Add Picture"),this);
+    addPictureAct->setObjectName("addPictureAct.1");
     addPictureAct->setShortcut(tr("Ctrl+Alt+P"));
-    addPictureAct->setStatusTip(tr("Add a picture to this page - Ctrl+Alt+P"));
+    addPictureAct->setStatusTip(tr("Add a picture to this page"));
     addPictureAct->setEnabled(false);
+    lpub->actions.insert(addPictureAct->objectName(), Action(tr("Edit.Add Picture"), addPictureAct));
     connect(addPictureAct, SIGNAL(triggered()), this, SLOT(addPicture()));
 
-    addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
+    QAction *addTextAct = new QAction(QIcon(":/resources/addtext.png"),tr("Add Text"),this);
+    addTextAct->setObjectName("addTextAct.1");
     addTextAct->setShortcut(tr("Ctrl+Alt+T"));
-    addTextAct->setStatusTip(tr("Add text to this page - Ctrl+Alt+T"));
+    addTextAct->setStatusTip(tr("Add text to this page"));
     addTextAct->setEnabled(false);
+    lpub->actions.insert(addTextAct->objectName(), Action(tr("Edit.Add Text"), addTextAct));
     connect(addTextAct, SIGNAL(triggered()), this, SLOT(addText()));
 
-    addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
+    QAction *addBomAct = new QAction(QIcon(":/resources/addbom.png"),tr("Add Bill of Materials"),this);
+    addBomAct->setObjectName("addBomAct.1");
     addBomAct->setShortcut(tr("Ctrl+Alt+M"));
-    addBomAct->setStatusTip(tr("Add Bill of Materials to this page - Ctrl+Alt+M"));
+    addBomAct->setStatusTip(tr("Add Bill of Materials to this page"));
     addBomAct->setEnabled(false);
+    lpub->actions.insert(addBomAct->objectName(), Action(tr("Edit.Add Bill Of Materials"), addBomAct));
     connect(addBomAct, SIGNAL(triggered()), this, SLOT(addBom()));
 
-    removeLPubFormatBomAct = new QAction(QIcon(":/resources/removelpubformatbom.png"),tr("Unformat Bill of Materials"),this);
+    QAction *cycleEachPageAct = new QAction(QIcon(":/resources/cycleeachpage.png"),tr("Cycle Each Page"), this);
+    cycleEachPageAct->setObjectName("cycleEachPageAct.1");
+    cycleEachPageAct->setStatusTip(tr("Cycle each page step(s) when navigating forward by more than one page - click to enable"));
+    cycleEachPageAct->setCheckable(true);
+    cycleEachPageAct->setChecked(Preferences::cycleEachPage);
+    lpub->actions.insert(cycleEachPageAct->objectName(), Action(tr("Edit.Cycle Each Page"), cycleEachPageAct));
+    connect(cycleEachPageAct, SIGNAL(triggered()), this, SLOT(cycleEachPage()));
+
+    QAction *removeLPubFormatBomAct = new QAction(QIcon(":/resources/removelpubformatbom.png"),tr("Unformat Bill of Materials"),this);
+    removeLPubFormatBomAct->setObjectName("removeLPubFormatBomAct.1");
     removeLPubFormatBomAct->setShortcut(tr("Ctrl+Alt+J"));
-    removeLPubFormatBomAct->setStatusTip(tr("Remove all LPub Bill of Materials metacommands - Ctrl+Alt+J"));
+    removeLPubFormatBomAct->setStatusTip(tr("Remove all LPub Bill of Materials metacommands"));
     removeLPubFormatBomAct->setEnabled(false);
+    lpub->actions.insert(removeLPubFormatBomAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Bill Of Materials"), removeLPubFormatBomAct));
     connect(removeLPubFormatBomAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    removeLPubFormatDocumentAct = new QAction(QIcon(":/resources/removelpubformatdocument.png"),tr("Unformat Document"),this);
+    QAction *removeLPubFormatDocumentAct = new QAction(QIcon(":/resources/removelpubformatdocument.png"),tr("Unformat Document"),this);
+    removeLPubFormatDocumentAct->setObjectName("removeLPubFormatDocumentAct.1");
     removeLPubFormatDocumentAct->setShortcut(tr("Ctrl+Alt+R"));
-    removeLPubFormatDocumentAct->setStatusTip(tr("Remove all LPub metacommands from entire document - Ctrl+Alt+R"));
+    removeLPubFormatDocumentAct->setStatusTip(tr("Remove all LPub metacommands from entire document"));
     removeLPubFormatDocumentAct->setEnabled(false);
+    lpub->actions.insert(removeLPubFormatDocumentAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Document"), removeLPubFormatDocumentAct));
     connect(removeLPubFormatDocumentAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    removeLPubFormatPageAct = new QAction(QIcon(":/resources/removelpubformatpage.png"),tr("Unformat Current Page"),this);
+    QAction *removeLPubFormatPageAct = new QAction(QIcon(":/resources/removelpubformatpage.png"),tr("Unformat Current Page"),this);
+    removeLPubFormatPageAct->setObjectName("removeLPubFormatPageAct.1");
     removeLPubFormatPageAct->setShortcut(tr("Ctrl+Alt+E"));
-    removeLPubFormatPageAct->setStatusTip(tr("Remove all LPub metacommands from the current page - Ctrl+Alt+E"));
+    removeLPubFormatPageAct->setStatusTip(tr("Remove all LPub metacommands from the current page"));
     removeLPubFormatPageAct->setEnabled(false);
+    lpub->actions.insert(removeLPubFormatPageAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Current Page"), removeLPubFormatPageAct));
     connect(removeLPubFormatPageAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    removeLPubFormatStepAct = new QAction(QIcon(":/resources/removelpubformatstep.png"),tr("Unformat Single Step"),this);
+    QAction *removeLPubFormatStepAct = new QAction(QIcon(":/resources/removelpubformatstep.png"),tr("Unformat Single Step"),this);
+    removeLPubFormatStepAct->setObjectName("removeLPubFormatStepAct.1");
     removeLPubFormatStepAct->setShortcut(tr("Ctrl+Alt+L"));
-    removeLPubFormatStepAct->setStatusTip(tr("Remove all LPub metacommands from the current step - Ctrl+Alt+L"));
+    removeLPubFormatStepAct->setStatusTip(tr("Remove all LPub metacommands from the current step"));
     removeLPubFormatStepAct->setEnabled(false);
+    lpub->actions.insert(removeLPubFormatStepAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Single Step"), removeLPubFormatStepAct));
     connect(removeLPubFormatStepAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    removeLPubFormatSubmodelAct = new QAction(QIcon(":/resources/removelpubformatsubmodel.png"),tr("Unformat Current Submodel"),this);
+    QAction *removeLPubFormatSubmodelAct = new QAction(QIcon(":/resources/removelpubformatsubmodel.png"),tr("Unformat Current Submodel"),this);
+    removeLPubFormatSubmodelAct->setObjectName("removeLPubFormatSubmodelAct.1");
     removeLPubFormatSubmodelAct->setShortcut(tr("Ctrl+Alt+H"));
-    removeLPubFormatSubmodelAct->setStatusTip(tr("Remove all LPub metacommands from the current submodel - Ctrl+Alt+H"));
+    removeLPubFormatSubmodelAct->setStatusTip(tr("Remove all LPub metacommands from the current submodel"));
     removeLPubFormatSubmodelAct->setEnabled(false);
+    lpub->actions.insert(removeLPubFormatSubmodelAct->objectName(), Action(tr("Edit.Remove LPub Format.Unformat Current Submodel"), removeLPubFormatSubmodelAct));
     connect(removeLPubFormatSubmodelAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    removeBuildModFormatAct = new QAction(tr("Remove Build Mod Format"),this);
+    QAction *removeBuildModFormatAct = new QAction(tr("Remove Build Mod Format"),this);
+    removeBuildModFormatAct->setObjectName("removeBuildModFormatAct.1");
     removeBuildModFormatAct->setStatusTip(tr("Remove build modification formatting including modified part lines."));
     removeBuildModFormatAct->setCheckable(true);
     removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
     removeBuildModFormatAct->setChecked(Preferences::removeBuildModFormat);
+    lpub->actions.insert(removeBuildModFormatAct->objectName(), Action(tr("Edit.Remove LPub Format.Remove Build Mod Format"), removeBuildModFormatAct));
     connect(removeBuildModFormatAct, SIGNAL(triggered()), this, SLOT(removeBuildModFormat()));
 
-    removeChildSubmodelFormatAct = new QAction(tr("Remove Child Submodel Format"),this);
+    QAction *removeChildSubmodelFormatAct = new QAction(tr("Remove Child Submodel Format"),this);
+    removeChildSubmodelFormatAct->setObjectName("removeChildSubmodelFormatAct.1");
     removeChildSubmodelFormatAct->setStatusTip(tr("Remove child submodel formatting for submodel, step, page or callout removals."));
     removeChildSubmodelFormatAct->setCheckable(true);
     removeChildSubmodelFormatAct->setChecked(Preferences::removeChildSubmodelFormat);
+    lpub->actions.insert(removeChildSubmodelFormatAct->objectName(), Action(tr("Edit.Remove LPub Format.Remove Child Submodel Format"), removeChildSubmodelFormatAct));
     connect(removeChildSubmodelFormatAct, SIGNAL(triggered()), this, SLOT(removeChildSubmodelFormat()));
 
-    // fitWidth,fitVisible,actualSize,fitScene
-
-    fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit &Width"), this);
+    // View
+    QAction *fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit &Width"), this);
+    fitWidthAct->setObjectName("fitWidthAct.1");
     fitWidthAct->setShortcut(tr("Alt+W"));
-    fitWidthAct->setStatusTip(tr("Fit document to width - Alt+W"));
+    fitWidthAct->setStatusTip(tr("Fit document to width"));
     fitWidthAct->setEnabled(false);
+    lpub->actions.insert(fitWidthAct->objectName(), Action(tr("View.Fit Width"), fitWidthAct));
     connect(fitWidthAct, SIGNAL(triggered()), this, SLOT(fitWidth()));
 
-    fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit &Visible"), this);
+    QAction *fitVisibleAct = new QAction(QIcon(":/resources/fitVisible.png"), tr("Fit &Visible"), this);
+    fitVisibleAct->setObjectName("fitVisibleAct.1");
     fitVisibleAct->setShortcut(tr("Alt+V"));
-    fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible - Alt+V"));
+    fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible"));
     fitVisibleAct->setEnabled(false);
+    lpub->actions.insert(fitVisibleAct->objectName(), Action(tr("View.Fit Visible"), fitVisibleAct));
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
 
-    fitSceneAct = new QAction(QIcon(":/resources/fitScene.png"), tr("Fit &Scene"), this);
+    QAction *fitSceneAct = new QAction(QIcon(":/resources/fitScene.png"), tr("Fit &Scene"), this);
+    fitSceneAct->setObjectName("fitSceneAct.1");
     fitSceneAct->setShortcut(tr("Alt+H"));
-    fitSceneAct->setStatusTip(tr("Fit document so whole scene is visible - Alt+H"));
+    fitSceneAct->setStatusTip(tr("Fit document so whole scene is visible"));
     fitSceneAct->setEnabled(false);
+    lpub->actions.insert(fitSceneAct->objectName(), Action(tr("View.Fit Scene"), fitSceneAct));
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
-    bringToFrontAct = new QAction(QIcon(":/resources/bringtofront.png"), tr("Bring to &Front"), this);
+    QAction *bringToFrontAct = new QAction(QIcon(":/resources/bringtofront.png"), tr("Bring To &Front"), this);
+    bringToFrontAct->setObjectName("bringToFrontAct.1");
     bringToFrontAct->setShortcut(tr("Alt+Shift+F"));
-    bringToFrontAct->setStatusTip(tr("Bring item to front - Alt+Shift+F"));
+    bringToFrontAct->setStatusTip(tr("Bring item to front"));
     bringToFrontAct->setEnabled(false);
+    lpub->actions.insert(bringToFrontAct->objectName(), Action(tr("View.Bring To Front"), bringToFrontAct));
     connect(bringToFrontAct, SIGNAL(triggered()), this, SLOT(bringToFront()));
 
-    sendToBackAct = new QAction(QIcon(":/resources/sendtoback.png"), tr("Send to &Back"), this);
+    QAction *sendToBackAct = new QAction(QIcon(":/resources/sendtoback.png"), tr("Send To &Back"), this);
+    sendToBackAct->setObjectName("sendToBackAct.1");
     sendToBackAct->setShortcut(tr("Alt+Shift+B"));
-    sendToBackAct->setStatusTip(tr("Send item to back - Alt+Shift+B"));
+    sendToBackAct->setStatusTip(tr("Send item to back"));
     sendToBackAct->setEnabled(false);
+    lpub->actions.insert(sendToBackAct->objectName(), Action(tr("View.Send To Back"), sendToBackAct));
     connect(sendToBackAct, SIGNAL(triggered()), this, SLOT(sendToBack()));
 
-    sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
-    sceneRulerTrackingNoneAct->setStatusTip(tr("Set scene ruler tracking Off"));
-    sceneRulerTrackingNoneAct->setCheckable(true);
-    connect(sceneRulerTrackingNoneAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+    QAction *actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
+    actualSizeAct->setObjectName("actualSizeAct.1");
+    actualSizeAct->setShortcut(tr("Alt+A"));
+    actualSizeAct->setStatusTip(tr("Show document actual size"));
+    actualSizeAct->setEnabled(false);
+    lpub->actions.insert(actualSizeAct->objectName(), Action(tr("View.Actual Size"), actualSizeAct));
+    connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
-    sceneRulerTrackingTickAct = new QAction(tr("Ruler Tracking Tick"),this);
-    sceneRulerTrackingTickAct->setStatusTip(tr("Set scene ruler tracking to use ruler tick mark"));
-    sceneRulerTrackingTickAct->setCheckable(true);
-    connect(sceneRulerTrackingTickAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+    // TESTING ONLY
+    //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
 
-    sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
-    sceneRulerTrackingLineAct->setStatusTip(tr("Set scene ruler tracking to use full scene line"));
-    sceneRulerTrackingLineAct->setCheckable(true);
-    connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+    QAction *fullScreenViewAct = new QAction(QIcon(":/resources/fullscreenview.png"),tr("Full Screen View"),this);
+    fullScreenViewAct->setObjectName("fullScreenViewAct.1");
+    fullScreenViewAct->setShortcut(tr("Ctrl+M"));
+    fullScreenViewAct->setStatusTip(tr("Toggle full screen view"));
+    fullScreenViewAct->setCheckable(true);
+    lpub->actions.insert(fullScreenViewAct->objectName(), Action(tr("View.Full Screen View"), fullScreenViewAct));
+    connect(fullScreenViewAct, SIGNAL(triggered()), this, SLOT(fullScreenView()));
 
-    hideRulerPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    zoomSliderAct = new QWidgetAction(nullptr);
+    zoomSliderWidget = new QSlider();
+    zoomSliderWidget->setSingleStep(1);
+    zoomSliderWidget->setTickInterval(10);
+    zoomSliderWidget->setTickPosition(QSlider::TicksBelow);
+    zoomSliderWidget->setMaximum(150);
+    zoomSliderWidget->setMinimum(1);
+    zoomSliderWidget->setValue(50);
+    zoomSliderAct->setDefaultWidget(zoomSliderWidget);
+    connect(zoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(zoomSlider(int)));
+
+    QAction *zoomInComboAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
+    zoomInComboAct->setObjectName("zoomInComboAct.1");
+    zoomInComboAct->setShortcut(tr("Ctrl++"));
+    zoomInComboAct->setStatusTip(tr("Zoom in"));
+    zoomInComboAct->setEnabled(false);
+    lpub->actions.insert(zoomInComboAct->objectName(), Action(tr("View.Zoom In"), zoomInComboAct));
+    connect(zoomInComboAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
+
+    QAction *zoomOutComboAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
+    zoomOutComboAct->setObjectName("zoomOutComboAct.1");
+    zoomOutComboAct->setShortcut(tr("Ctrl+-"));
+    zoomOutComboAct->setStatusTip(tr("Zoom out"));
+    zoomOutComboAct->setEnabled(false);
+    lpub->actions.insert(zoomOutComboAct->objectName(), Action(tr("View.Zoom Out"), zoomOutComboAct));
+    connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
+
+    QAction *sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
+    sceneRulerComboAct->setObjectName("sceneRulerComboAct.1");
+    sceneRulerComboAct->setShortcut(tr("Alt+U"));
+    sceneRulerComboAct->setStatusTip(tr("Toggle the scene ruler"));
+    sceneRulerComboAct->setEnabled(true);
+    sceneRulerComboAct->setCheckable(true);
+    sceneRulerComboAct->setChecked(Preferences::sceneRuler);
+    lpub->actions.insert(sceneRulerComboAct->objectName(), Action(tr("View.Scene Ruler"), sceneRulerComboAct));
+    connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
+
+    QAction *hideRulerPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    hideRulerPageBackgroundAct->setObjectName("hideRulerPageBackgroundAct.1");
     hideRulerPageBackgroundAct->setStatusTip(tr("Toggle hide ruler page background"));
     hideRulerPageBackgroundAct->setCheckable(true);
     hideRulerPageBackgroundAct->setChecked(Preferences::hidePageBackground);
     hideRulerPageBackgroundAct->setEnabled(Preferences::sceneRuler);
+    lpub->actions.insert(hideRulerPageBackgroundAct->objectName(), Action(tr("View.Scene Ruler.Hide Page Background"), hideRulerPageBackgroundAct));
     connect(hideRulerPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
+
+    QAction *sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
+    sceneRulerTrackingNoneAct->setObjectName("sceneRulerTrackingNoneAct.1");
+    sceneRulerTrackingNoneAct->setStatusTip(tr("Set scene ruler tracking Off"));
+    sceneRulerTrackingNoneAct->setCheckable(true);
+    lpub->actions.insert(sceneRulerTrackingNoneAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Off"), sceneRulerTrackingNoneAct));
+    connect(sceneRulerTrackingNoneAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    QAction *sceneRulerTrackingTickAct = new QAction(tr("Ruler Tracking Tick"),this);
+    sceneRulerTrackingTickAct->setObjectName("sceneRulerTrackingTickAct.1");
+    sceneRulerTrackingTickAct->setStatusTip(tr("Set scene ruler tracking to use ruler tick mark"));
+    sceneRulerTrackingTickAct->setCheckable(true);
+    lpub->actions.insert(sceneRulerTrackingTickAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Tick"), sceneRulerTrackingTickAct));
+    connect(sceneRulerTrackingTickAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    QAction *sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
+    sceneRulerTrackingLineAct->setObjectName("sceneRulerTrackingLineAct.1");
+    sceneRulerTrackingLineAct->setStatusTip(tr("Set scene ruler tracking to use full scene line"));
+    sceneRulerTrackingLineAct->setCheckable(true);
+    lpub->actions.insert(sceneRulerTrackingLineAct->objectName(), Action(tr("View.Scene Ruler.Ruler Tracking Line"), sceneRulerTrackingLineAct));
+    connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    QAction *showTrackingCoordinatesAct = new QAction(tr("Show Tracking Coordinates"),this);
+    showTrackingCoordinatesAct->setObjectName("showTrackingCoordinatesAct.1");
+    showTrackingCoordinatesAct->setStatusTip(tr("Toggle show ruler tracking coordinates"));
+    showTrackingCoordinatesAct->setCheckable(true);
+    showTrackingCoordinatesAct->setChecked(Preferences::showTrackingCoordinates);
+    showTrackingCoordinatesAct->setEnabled(Preferences::sceneRulerTracking == int(TRACKING_LINE));
+    lpub->actions.insert(showTrackingCoordinatesAct->objectName(), Action(tr("View.Scene Ruler.Show Tracking Coordinates"), showTrackingCoordinatesAct));
+    connect(showTrackingCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
 
     SceneRulerGroup = new QActionGroup(this);
     SceneRulerGroup->setEnabled(Preferences::sceneRuler);
@@ -5238,22 +5565,28 @@ void Gui::createActions()
     sceneRulerTrackingLineAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_LINE));
     SceneRulerGroup->addAction(sceneRulerTrackingLineAct);
 
-    sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
-    sceneRulerComboAct->setShortcut(tr("Alt+U"));
-    sceneRulerComboAct->setStatusTip(tr("Toggle the scene ruler - Alt+U"));
-    sceneRulerComboAct->setEnabled(true);
-    sceneRulerComboAct->setCheckable(true);
-    sceneRulerComboAct->setChecked(Preferences::sceneRuler);
-    connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
+    QAction *sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
+    sceneGuidesComboAct->setObjectName("sceneGuidesComboAct.1");
+    sceneGuidesComboAct->setShortcut(tr("Alt+G"));
+    sceneGuidesComboAct->setStatusTip(tr("Toggle horizontal and vertical scene guides"));
+    sceneGuidesComboAct->setEnabled(true);
+    sceneGuidesComboAct->setCheckable(true);
+    sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
+    lpub->actions.insert(sceneGuidesComboAct->objectName(), Action(tr("View.Scene Guides"), sceneGuidesComboAct));
+    connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
 
-    sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
+    QAction *sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
+    sceneGuidesDashLineAct->setObjectName("sceneGuidesDashLineAct.1");
     sceneGuidesDashLineAct->setStatusTip(tr("Select dash scene guide lines"));
     sceneGuidesDashLineAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesDashLineAct->objectName(), Action(tr("View.Scene Guides.Dash Line"), sceneGuidesDashLineAct));
     connect(sceneGuidesDashLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
-    sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
+    QAction *sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
+    sceneGuidesSolidLineAct->setObjectName("sceneGuidesSolidLineAct.1");
     sceneGuidesSolidLineAct->setStatusTip(tr("Select solid scene guide lines"));
     sceneGuidesSolidLineAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesSolidLineAct->objectName(), Action(tr("View.Scene Guides.Solid Line"), sceneGuidesSolidLineAct));
     connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
     SceneGuidesLineGroup = new QActionGroup(this);
@@ -5263,30 +5596,49 @@ void Gui::createActions()
     sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
     SceneGuidesLineGroup->addAction(sceneGuidesSolidLineAct);
 
-    sceneGuidesPosTLeftAct = new QAction(tr("Top Left"),this);
+    QAction *sceneGuidesPosTLeftAct = new QAction(tr("Top Left"),this);
+    sceneGuidesPosTLeftAct->setObjectName("sceneGuidesPosTLeftAct.1");
     sceneGuidesPosTLeftAct->setStatusTip(tr("Set scene guides position to top left of graphic item"));
     sceneGuidesPosTLeftAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesPosTLeftAct->objectName(), Action(tr("View.Scene Guides.Top Left"), sceneGuidesPosTLeftAct));
     connect(sceneGuidesPosTLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
-    sceneGuidesPosTRightAct = new QAction(tr("Top Right"),this);
+    QAction *sceneGuidesPosTRightAct = new QAction(tr("Top Right"),this);
+    sceneGuidesPosTRightAct->setObjectName("sceneGuidesPosTRightAct.1");
     sceneGuidesPosTRightAct->setStatusTip(tr("Set scene guides position to top right of graphic item"));
     sceneGuidesPosTRightAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesPosTRightAct->objectName(), Action(tr("View.Scene Guides.Top Right"), sceneGuidesPosTRightAct));
     connect(sceneGuidesPosTRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
-    sceneGuidesPosBLeftAct = new QAction(tr("Bottom Left"),this);
+    QAction *sceneGuidesPosBLeftAct = new QAction(tr("Bottom Left"),this);
+    sceneGuidesPosBLeftAct->setObjectName("sceneGuidesPosBLeftAct.1");
     sceneGuidesPosBLeftAct->setStatusTip(tr("Set scene guides position to bottom left of graphic item"));
     sceneGuidesPosBLeftAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesPosBLeftAct->objectName(), Action(tr("View.Scene Guides.Bottom Left"), sceneGuidesPosBLeftAct));
     connect(sceneGuidesPosBLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
-    sceneGuidesPosBRightAct = new QAction(tr("Bottom Right"),this);
+    QAction *sceneGuidesPosBRightAct = new QAction(tr("Bottom Right"),this);
+    sceneGuidesPosBRightAct->setObjectName("sceneGuidesPosBRightAct.1");
     sceneGuidesPosBRightAct->setStatusTip(tr("Set scene guides position to bottom right of graphic item"));
     sceneGuidesPosBRightAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesPosBRightAct->objectName(), Action(tr("View.Scene Guides.Bottom Right"), sceneGuidesPosBRightAct));
     connect(sceneGuidesPosBRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
-    sceneGuidesPosCentreAct = new QAction(tr("Centre"),this);
+    QAction *sceneGuidesPosCentreAct = new QAction(tr("Centre"),this);
+    sceneGuidesPosCentreAct->setObjectName("sceneGuidesPosCentreAct.1");
     sceneGuidesPosCentreAct->setStatusTip(tr("Set scene guides position to centre of graphic item"));
     sceneGuidesPosCentreAct->setCheckable(true);
+    lpub->actions.insert(sceneGuidesPosCentreAct->objectName(), Action(tr("View.Scene Guides.Centre"), sceneGuidesPosCentreAct));
     connect(sceneGuidesPosCentreAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    QAction *showGuidesCoordinatesAct = new QAction(tr("Show Guide Coordinates"),this);
+    showGuidesCoordinatesAct->setObjectName("showGuidesCoordinatesAct.1");
+    showGuidesCoordinatesAct->setStatusTip(tr("Toggle show scene guide coordinates"));
+    showGuidesCoordinatesAct->setCheckable(true);
+    showGuidesCoordinatesAct->setChecked(Preferences::showGuidesCoordinates);
+    showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
+    lpub->actions.insert(showGuidesCoordinatesAct->objectName(), Action(tr("View.Scene Guides.Show Guide Coordinates"), showGuidesCoordinatesAct));
+    connect(showGuidesCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
 
     SceneGuidesPosGroup = new QActionGroup(this);
     SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
@@ -5301,32 +5653,29 @@ void Gui::createActions()
     sceneGuidesPosCentreAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_CENTRE));
     SceneGuidesPosGroup->addAction(sceneGuidesPosCentreAct);
 
-    sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
-    sceneGuidesComboAct->setShortcut(tr("Alt+G"));
-    sceneGuidesComboAct->setStatusTip(tr("Toggle horizontal and vertical scene guides - Alt+G"));
-    sceneGuidesComboAct->setEnabled(true);
-    sceneGuidesComboAct->setCheckable(true);
-    sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
-    connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
+    QAction *snapToGridComboAct = new QAction(QIcon(":/resources/scenegrid.png"),tr("&Snap To Grid"),this);
+    snapToGridComboAct->setObjectName("snapToGridComboAct.1");
+    snapToGridComboAct->setShortcut(tr("Alt+K"));
+    snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid"));
+    snapToGridComboAct->setCheckable(true);
+    snapToGridComboAct->setChecked(Preferences::snapToGrid);
+    lpub->actions.insert(snapToGridComboAct->objectName(), Action(tr("View.Snap To Grid"), snapToGridComboAct));
+    connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
 
-    actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
-    actualSizeAct->setShortcut(tr("Alt+A"));
-    actualSizeAct->setStatusTip(tr("Show document actual size - Alt+A"));
-    actualSizeAct->setEnabled(false);
-    connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
-
-    hideGridPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    QAction *hideGridPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    hideGridPageBackgroundAct->setObjectName("hideGridPageBackgroundAct.1");
     hideGridPageBackgroundAct->setStatusTip(tr("Toggle hide snap to grid page background"));
     hideGridPageBackgroundAct->setCheckable(true);
     hideGridPageBackgroundAct->setChecked(Preferences::hidePageBackground);
     hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
+    lpub->actions.insert(hideGridPageBackgroundAct->objectName(), Action(tr("View.Snap To Grid.Hide Page Background"), hideGridPageBackgroundAct));
     connect(hideGridPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
     GridStepSizeGroup = new QActionGroup(this);
     GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
     for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx < GRID_SIZE_LAST; ActionIdx++)
     {
-        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[ActionIdx].MenuName), this);
+        QAction *Action = new QAction(qApp->translate("Menu", sgCommands[ActionIdx].MenuName), this);
         Action->setStatusTip(qApp->translate("Status", sgCommands[ActionIdx].StatusText));
         connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
         addAction(Action);
@@ -5337,112 +5686,67 @@ void Gui::createActions()
 
     snapGridActions[Preferences::gridSizeIndex]->setChecked(true);
 
-    snapToGridComboAct = new QAction(QIcon(":/resources/scenegrid.png"),tr("&Snap To Grid"),this);
-    snapToGridComboAct->setShortcut(tr("Alt+K"));
-    snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid - Alt+K"));
-    snapToGridComboAct->setCheckable(true);
-    snapToGridComboAct->setChecked(Preferences::snapToGrid);
-    connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
-
-    showTrackingCoordinatesAct = new QAction(tr("Show Tracking Coordinates"),this);
-    showTrackingCoordinatesAct->setStatusTip(tr("Toggle show ruler tracking coordinates"));
-    showTrackingCoordinatesAct->setCheckable(true);
-    showTrackingCoordinatesAct->setChecked(Preferences::showTrackingCoordinates);
-    showTrackingCoordinatesAct->setEnabled(Preferences::sceneRulerTracking == int(TRACKING_LINE));
-    connect(showTrackingCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
-
-    showGuidesCoordinatesAct = new QAction(tr("Show Guide Coordinates"),this);
-    showGuidesCoordinatesAct->setStatusTip(tr("Toggle show scene guide coordinates"));
-    showGuidesCoordinatesAct->setCheckable(true);
-    showGuidesCoordinatesAct->setChecked(Preferences::showGuidesCoordinates);
-    showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
-    connect(showGuidesCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
-
-    fullScreenViewAct = new QAction(QIcon(":/resources/fullscreenview.png"),tr("Full Screen View"),this);
-    fullScreenViewAct->setShortcut(tr("Ctrl+M"));
-    fullScreenViewAct->setStatusTip(tr("Toggle full screen view - Ctrl+M"));
-    fullScreenViewAct->setCheckable(true);
-    connect(fullScreenViewAct, SIGNAL(triggered()), this, SLOT(fullScreenView()));
-
-    // TESTING ONLY
-    //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
-
-    // zoomIn,zoomOut
-    zoomSliderAct = new QWidgetAction(nullptr);
-    zoomSliderWidget = new QSlider();
-    zoomSliderWidget->setSingleStep(1);
-    zoomSliderWidget->setTickInterval(10);
-    zoomSliderWidget->setTickPosition(QSlider::TicksBelow);
-    zoomSliderWidget->setMaximum(150);
-    zoomSliderWidget->setMinimum(1);
-    zoomSliderWidget->setValue(50);
-    zoomSliderAct->setDefaultWidget(zoomSliderWidget);
-    connect(zoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(zoomSlider(int)));
-
-    zoomInComboAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
-    zoomInComboAct->setShortcut(tr("Ctrl++"));
-    zoomInComboAct->setStatusTip(tr("Zoom in - Ctrl++"));
-    zoomInComboAct->setEnabled(false);
-    connect(zoomInComboAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
-
-    zoomOutComboAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
-    zoomOutComboAct->setShortcut(tr("Ctrl+-"));
-    zoomOutComboAct->setStatusTip(tr("Zoom out - Ctrl+-"));
-    zoomOutComboAct->setEnabled(false);
-    connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
-
-    cycleEachPageAct = new QAction(QIcon(":/resources/cycleeachpage.png"),tr("Cycle Each Page"), this);
-    cycleEachPageAct->setStatusTip(tr("Cycle each page step(s) when navigating forward by more than one page - click to enable"));
-    cycleEachPageAct->setCheckable(true);
-    cycleEachPageAct->setChecked(Preferences::cycleEachPage);
-    connect(cycleEachPageAct, SIGNAL(triggered()), this, SLOT(cycleEachPage()));
-
-    // firstPage,lastPage,nextPage,previousPage
-    firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
+    // Tools
+    QAction *firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
+    firstPageAct->setObjectName("firstPageAct.1");
     firstPageAct->setShortcut(tr("Ctrl+P"));
-    firstPageAct->setStatusTip(tr("Go to first page of document - Ctrl+P"));
+    firstPageAct->setStatusTip(tr("Go to first page of document"));
     firstPageAct->setEnabled(false);
+    lpub->actions.insert(firstPageAct->objectName(), Action(tr("Navigation.First Page"), firstPageAct));
     connect(firstPageAct, SIGNAL(triggered()), this, SLOT(firstPage()));
 
-    lastPageAct = new QAction(QIcon(":/resources/last.png"),tr("Last Page"), this);
+    QAction *lastPageAct = new QAction(QIcon(":/resources/last.png"),tr("Last Page"), this);
+    lastPageAct->setObjectName("lastPageAct.1");
     lastPageAct->setShortcut(tr("Ctrl+L"));
-    lastPageAct->setStatusTip(tr("Go to last page of document - Ctrl+L"));
+    lastPageAct->setStatusTip(tr("Go to last page of document"));
     lastPageAct->setEnabled(false);
+    lpub->actions.insert(lastPageAct->objectName(), Action(tr("Navigation.Last Page"), lastPageAct));
     connect(lastPageAct, SIGNAL(triggered()), this, SLOT(lastPage()));
 
-    nextPageAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
+    QAction *nextPageAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
+    nextPageAct->setObjectName("nextPageAct.1");
     nextPageAct->setShortcut(tr("Ctrl+N"));
-    nextPageAct->setStatusTip(tr("Go to next page of document - Ctrl+N"));
+    nextPageAct->setStatusTip(tr("Go to next page of document"));
     nextPageAct->setEnabled(false);
+    lpub->actions.insert(nextPageAct->objectName(), Action(tr("Navigation.Next Page"), nextPageAct));
     connect(nextPageAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
-    previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
+    QAction *previousPageAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
+    previousPageAct->setObjectName("previousPageAct.1");
     previousPageAct->setShortcut(tr("Ctrl+E"));
-    previousPageAct->setStatusTip(tr("Go to previous page of document - Ctrl+E"));
+    previousPageAct->setStatusTip(tr("Go to previous page of document"));
     previousPageAct->setEnabled(false);
+    lpub->actions.insert(previousPageAct->objectName(), Action(tr("Navigation.Previous Page"), previousPageAct));
     connect(previousPageAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
-    // nextContinuousPage,previousContinuousPage
-    nextPageComboAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
-    nextPageComboAct->setStatusTip(tr("Go to next page of document - Ctrl+N"));
+    QAction *nextPageComboAct = new QAction(QIcon(":/resources/next.png"),tr("&Next Page"),this);
+    nextPageComboAct->setObjectName("nextPageComboAct.1");
+    nextPageComboAct->setStatusTip(tr("Go to next page of document"));
     nextPageComboAct->setEnabled(false);
+    lpub->actions.insert(nextPageComboAct->objectName(), Action(tr("Navigation.Next Page Combo"), nextPageComboAct));
     connect(nextPageComboAct, SIGNAL(triggered()), this, SLOT(nextPage()));
 
-    previousPageComboAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
-    previousPageComboAct->setStatusTip(tr("Go to previous page of document - Ctrl+E"));
+    QAction *previousPageComboAct = new QAction(QIcon(":/resources/prev.png"),tr("&Previous Page"),this);
+    previousPageComboAct->setObjectName("previousPageComboAct.1");
+    previousPageComboAct->setStatusTip(tr("Go to previous page of document"));
     previousPageComboAct->setEnabled(false);
+    lpub->actions.insert(previousPageComboAct->objectName(), Action(tr("Navigation.Previous Page Combo"), previousPageComboAct));
     connect(previousPageComboAct, SIGNAL(triggered()), this, SLOT(previousPage()));
 
-    nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
+    QAction *nextPageContinuousAct = new QAction(QIcon(":/resources/nextpagecontinuous.png"),tr("Continuous Next Page"),this);
+    nextPageContinuousAct->setObjectName("nextPageContinuousAct.1");
     nextPageContinuousAct->setShortcut(tr("Ctrl+Shift+N"));
-    nextPageContinuousAct->setStatusTip(tr("Continuously process next page to end of document - Ctrl+Shift+N"));
+    nextPageContinuousAct->setStatusTip(tr("Continuously process next page to end of document"));
     nextPageContinuousAct->setEnabled(false);
+    lpub->actions.insert(nextPageContinuousAct->objectName(), Action(tr("Navigation.Continuous Next Page"), nextPageContinuousAct));
     connect(nextPageContinuousAct, SIGNAL(triggered()), this, SLOT(nextPageContinuous()));
 
-    previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
+    QAction *previousPageContinuousAct = new QAction(QIcon(":/resources/prevpagecontinuous.png"),tr("Continuous Previous Page"),this);
+    previousPageContinuousAct->setObjectName("previousPageContinuousAct.1");
     previousPageContinuousAct->setShortcut(tr("Ctrl+Shift+E"));
-    previousPageContinuousAct->setStatusTip(tr("Continuously process previous page to start of document - Ctrl+Shift+E"));
+    previousPageContinuousAct->setStatusTip(tr("Continuously process previous page to start of document"));
     previousPageContinuousAct->setEnabled(false);
+    lpub->actions.insert(previousPageContinuousAct->objectName(), Action(tr("Navigation.Continuous Previous Page"), previousPageContinuousAct));
     connect(previousPageContinuousAct, SIGNAL(triggered()), this, SLOT(previousPageContinuous()));
 
     QString pageString = "";
@@ -5450,418 +5754,520 @@ void Gui::createActions()
     QSize size = setPageLineEdit->sizeHint();
     size.setWidth(size.width()/3);
     setPageLineEdit->setMinimumSize(size);
-    setPageLineEdit->setToolTip("Current Page Index");
-    setPageLineEdit->setStatusTip("Enter index and hit enter to go to page");
+    setPageLineEdit->setToolTip("Current Page");
+    setPageLineEdit->setStatusTip("Enter the desired page number and hit enter to go to page");
     setPageLineEdit->setEnabled(false);
-    setPageLineEditResetAct = setPageLineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    QAction *setPageLineEditResetAct = setPageLineEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    setPageLineEditResetAct->setText(tr("Current Page Edit Reset"));
+    setPageLineEditResetAct->setObjectName("setPageLineEditResetAct.1");
     setPageLineEditResetAct->setEnabled(false);
+    lpub->actions.insert(setPageLineEditResetAct->objectName(), Action(tr("Navigation.Current Page Edit Reset"), setPageLineEditResetAct));
     connect(setPageLineEdit, SIGNAL(returnPressed()), this, SLOT(setPage()));
     connect(setPageLineEdit, SIGNAL(textEdited(const QString &)), this, SLOT(enablePageLineReset(const QString &)));
     connect(setPageLineEditResetAct, SIGNAL(triggered()), this, SLOT(pageLineEditReset()));
 
-    ldrawSearchDirectoriesAct = new QAction(QIcon(":/resources/searchdirectories.png"),tr("LDraw Search Directories..."), this);
-    ldrawSearchDirectoriesAct->setStatusTip(tr("Manage LDraw search directories"));
-    connect(ldrawSearchDirectoriesAct, SIGNAL(triggered()), this, SLOT(ldrawSearchDirectories()));
-
-    clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Reset Parts Image Cache"), this);
-    clearPLICacheAct->setShortcut(tr("Alt+R"));
-    clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache - Alt+R"));
-    connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
-
-    clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Reset Assembly Image Cache"), this);
-    clearCSICacheAct->setShortcut(tr("Alt+S"));
-    clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache - Alt+S"));
-    connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
-
-    clearSubmodelCacheAct = new QAction(QIcon(":/resources/clearsubmodelcache.png"),tr("Reset Submodel Image Cache"), this);
-    clearSubmodelCacheAct->setShortcut(tr("Alt+E"));
-    clearSubmodelCacheAct->setStatusTip(tr("Reset the submodel image cache - Alt+E"));
-    connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
-
-    clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Reset Temp File Cache"), this);
-    clearTempCacheAct->setShortcut(tr("Alt+T"));
-    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache - Alt+T"));
-    connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
-
-    clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Reset Model Caches"), this);
-    clearAllCachesAct->setShortcut(tr("Alt+M"));
-    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches - Alt+M"));
-    connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
-
-    clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Reset Custom Files Cache"), this);
-    clearCustomPartCacheAct->setShortcut(tr("Alt+C"));
-    clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache - Alt+C"));
-    connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
-
-    archivePartsOnDemandAct = new QAction(QIcon(":/resources/archivefilesondemand.png"),tr("Archive Unofficial Parts"), this);
-    archivePartsOnDemandAct->setStatusTip(tr("Archive unofficial parts from LDraw search directories - Alt+Y"));
-    archivePartsOnDemandAct->setShortcut(tr("Alt+Y"));
-    connect(archivePartsOnDemandAct, SIGNAL(triggered()), this, SLOT(archivePartsOnDemand()));
-
-    archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Unofficial Parts On Launch"), this);
-    archivePartsOnLaunchAct->setStatusTip(tr("Automatically archive unofficial parts from LDraw search directories on next application launch"));
-    archivePartsOnLaunchAct->setCheckable(true);
-    archivePartsOnLaunchAct->setChecked(Preferences::archivePartsOnLaunch);
-    connect(archivePartsOnLaunchAct, SIGNAL(triggered()), this, SLOT(archivePartsOnLaunch()));
-
-    refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
-    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data - restart required"));
-    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
-    connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
-
-    refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
-    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data - restart required"));
-    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
-    connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
-
-    // Config menu
-
-    pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup"), this);
-    pageSetupAct->setEnabled(false);
-    pageSetupAct->setStatusTip(tr("Default values for your project's pages"));
-    connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
-
-    assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup"), this);
-    assemSetupAct->setEnabled(false);
-    assemSetupAct->setStatusTip(tr("Default values for your project's assembly images"));
-    connect(assemSetupAct, SIGNAL(triggered()), this, SLOT(assemSetup()));
-
-    pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup"), this);
-    pliSetupAct->setEnabled(false);
-    pliSetupAct->setStatusTip(tr("Default values for your project's parts lists"));
-    connect(pliSetupAct, SIGNAL(triggered()), this, SLOT(pliSetup()));
-
-    bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup"), this);
-    bomSetupAct->setEnabled(false);
-    bomSetupAct->setStatusTip(tr("Default values for your project's bill of materials"));
-    connect(bomSetupAct, SIGNAL(triggered()), this, SLOT(bomSetup()));
-
-    calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup"), this);
-    calloutSetupAct->setEnabled(false);
-    calloutSetupAct->setStatusTip(tr("Default values for your project's callouts"));
-    connect(calloutSetupAct, SIGNAL(triggered()), this, SLOT(calloutSetup()));
-
-    multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup"), this);
-    multiStepSetupAct->setEnabled(false);
-    multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
-    connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
-
-    subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup"), this);
-    subModelSetupAct->setEnabled(false);
-    subModelSetupAct->setStatusTip(tr("Default values for your submodel preview at first step"));
-    connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
-
-    projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);
-    projectSetupAct->setEnabled(false);
-    projectSetupAct->setStatusTip(tr("Default values for your project"));
-    connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
-
-    fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
-    fadeStepSetupAct->setEnabled(false);
-    fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
-    connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
-
-    highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup"), this);
-    highlightStepSetupAct->setEnabled(false);
-    highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
-    connect(highlightStepSetupAct, SIGNAL(triggered()), this, SLOT(highlightStepSetup()));
-
-    preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
+    // Configuration
+    QAction *preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("&Preferences"), this);
+    preferencesAct->setObjectName("preferencesAct.1");
     preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
+    lpub->actions.insert(preferencesAct->objectName(), Action(tr("Configuration.Preferences"), preferencesAct));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    useSystemEditorAct = new QAction(tr("Use System Editor"),this);
+    QAction *pageSetupAct = new QAction(QIcon(":/resources/pagesetup.png"),tr("Page Setup"), this);
+    pageSetupAct->setObjectName("pageSetupAct.1");
+    pageSetupAct->setEnabled(false);
+    pageSetupAct->setStatusTip(tr("Default values for your project's pages"));
+    lpub->actions.insert(pageSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Page Setup"), pageSetupAct));
+    connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
+
+    QAction *assemSetupAct = new QAction(QIcon(":/resources/assemblysetup.png"),tr("Assembly Setup"), this);
+    assemSetupAct->setObjectName("assemSetupAct.1");
+    assemSetupAct->setEnabled(false);
+    assemSetupAct->setStatusTip(tr("Default values for your project's assembly images"));
+    lpub->actions.insert(assemSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Assembly Setup"), assemSetupAct));
+    connect(assemSetupAct, SIGNAL(triggered()), this, SLOT(assemSetup()));
+
+    QAction *pliSetupAct = new QAction(QIcon(":/resources/partslistsetup.png"),tr("Parts List Setup"), this);
+    pliSetupAct->setObjectName("pliSetupAct.1");
+    pliSetupAct->setEnabled(false);
+    pliSetupAct->setStatusTip(tr("Default values for your project's parts lists"));
+    lpub->actions.insert(pliSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Parts List Setup"), pliSetupAct));
+    connect(pliSetupAct, SIGNAL(triggered()), this, SLOT(pliSetup()));
+
+    QAction *bomSetupAct = new QAction(QIcon(":/resources/bomsetup.png"),tr("Bill of Materials Setup"), this);
+    bomSetupAct->setObjectName("bomSetupAct.1");
+    bomSetupAct->setEnabled(false);
+    bomSetupAct->setStatusTip(tr("Default values for your project's bill of materials"));
+    lpub->actions.insert(bomSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Bill Of Materials Setup"), bomSetupAct));
+    connect(bomSetupAct, SIGNAL(triggered()), this, SLOT(bomSetup()));
+
+    QAction *calloutSetupAct = new QAction(QIcon(":/resources/calloutsetup.png"),tr("Callout Setup"), this);
+    calloutSetupAct->setObjectName("calloutSetupAct.1");
+    calloutSetupAct->setEnabled(false);
+    calloutSetupAct->setStatusTip(tr("Default values for your project's callouts"));
+    lpub->actions.insert(calloutSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Callout Setup"), calloutSetupAct));
+    connect(calloutSetupAct, SIGNAL(triggered()), this, SLOT(calloutSetup()));
+
+    QAction *multiStepSetupAct = new QAction(QIcon(":/resources/stepgroupsetup.png"),tr("Step Group Setup"), this);
+    multiStepSetupAct->setObjectName("multiStepSetupAct.1");
+    multiStepSetupAct->setEnabled(false);
+    multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
+    lpub->actions.insert(multiStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Step Group Setup"), multiStepSetupAct));
+    connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
+
+    QAction *subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup"), this);
+    subModelSetupAct->setObjectName("subModelSetupAct.1");
+    subModelSetupAct->setEnabled(false);
+    subModelSetupAct->setStatusTip(tr("Default values for your submodel preview at first step"));
+    lpub->actions.insert(subModelSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Submodel Preview Setup"), subModelSetupAct));
+    connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
+
+    QAction *projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);
+    projectSetupAct->setObjectName("projectSetupAct.1");
+    projectSetupAct->setEnabled(false);
+    projectSetupAct->setStatusTip(tr("Default values for your project"));
+    lpub->actions.insert(projectSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Project Setup"), projectSetupAct));
+    connect(projectSetupAct, SIGNAL(triggered()), this, SLOT(projectSetup()));
+
+    QAction *fadeStepSetupAct = new QAction(QIcon(":/resources/fadestepsetup.png"),tr("Fade Step Setup"), this);
+    fadeStepSetupAct->setObjectName("fadeStepSetupAct.1");
+    fadeStepSetupAct->setEnabled(false);
+    fadeStepSetupAct->setStatusTip(tr("Fade parts in previous step step"));
+    lpub->actions.insert(fadeStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Fade Step Setup"), fadeStepSetupAct));
+    connect(fadeStepSetupAct, SIGNAL(triggered()), this, SLOT(fadeStepSetup()));
+
+    QAction *highlightStepSetupAct = new QAction(QIcon(":/resources/highlightstepsetup.png"),tr("Highlight Step Setup"), this);
+    highlightStepSetupAct->setObjectName("highlightStepSetupAct.1");
+    highlightStepSetupAct->setEnabled(false);
+    highlightStepSetupAct->setStatusTip(tr("Highlight parts in current step"));
+    lpub->actions.insert(highlightStepSetupAct->objectName(), Action(tr("Configuration.Build Instructions Setup.Highlight Step Setup"), highlightStepSetupAct));
+    connect(highlightStepSetupAct, SIGNAL(triggered()), this, SLOT(highlightStepSetup()));
+
+    QAction *useSystemEditorAct = new QAction(tr("Use System Editor"),this);
+    useSystemEditorAct->setObjectName("useSystemEditorAct.1");
     useSystemEditorAct->setStatusTip(tr("Open parameter file with %1")
                                      .arg(Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                 Preferences::systemEditor));
     useSystemEditorAct->setCheckable(true);
     useSystemEditorAct->setChecked(Preferences::useSystemEditor);
+    lpub->actions.insert(useSystemEditorAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Use System Editor"), useSystemEditorAct));
     connect(useSystemEditorAct, SIGNAL(triggered()), this, SLOT(useSystemEditor()));
 
-    editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Edit Part Title PLI Annotations list"), this);
+    QAction *editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Part Title PLI Annotations List"), this);
+    editTitleAnnotationsAct->setObjectName("editTitleAnnotationsAct.1");
     editTitleAnnotationsAct->setStatusTip(tr("Add/Edit part title PLI part annotatons"));
+    lpub->actions.insert(editTitleAnnotationsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Title PLI Annotations List"), editTitleAnnotationsAct));
     connect(editTitleAnnotationsAct, SIGNAL(triggered()), this, SLOT(editTitleAnnotations()));
 
-    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform PLI Annotations list"), this);
+    QAction *editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Freeform PLI Annotations List"), this);
+    editFreeFormAnnitationsAct->setObjectName("editFreeFormAnnitationsAct.1");
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
+    lpub->actions.insert(editFreeFormAnnitationsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Freeform PLI Annotations List"), editFreeFormAnnitationsAct));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Color Parts list"), this);
+    QAction *editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("LDraw Static Color Parts List"), this);
+    editLDrawColourPartsAct->setObjectName("editLDrawColourPartsAct.1");
     editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static color parts used to process fade and highlight steps"));
+    lpub->actions.insert(editLDrawColourPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw Static Color Parts List"), editLDrawColourPartsAct));
     connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
-    editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts list"), this);
+    QAction *editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute Parts List"), this);
+    editPliBomSubstitutePartsAct->setObjectName("editPliBomSubstitutePartsAct.1");
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
+    lpub->actions.insert(editPliBomSubstitutePartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Substitute Parts List"), editPliBomSubstitutePartsAct));
     connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
 
-    editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Edit Part Count Excluded Parts list"), this);
+    QAction *editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Part Count Excluded Parts List"), this);
+    editExcludedPartsAct->setObjectName("editExcludedPartsAct.1");
     editExcludedPartsAct->setStatusTip(tr("Add/Edit the list of part count excluded parts"));
+    lpub->actions.insert(editExcludedPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Count Excluded Parts List"), editExcludedPartsAct));
     connect(editExcludedPartsAct, SIGNAL(triggered()), this, SLOT(editExcludedParts()));
 
-    editStickerPartsAct = new QAction(QIcon(":/resources/editstickerparts.png"),tr("Edit Part Count Sticker Parts list"), this);
+    QAction *editStickerPartsAct = new QAction(QIcon(":/resources/editstickerparts.png"),tr("Part Count Sticker Parts List"), this);
+    editStickerPartsAct->setObjectName("editStickerPartsAct.1");
     editStickerPartsAct->setStatusTip(tr("Add/Edit the list of part count sticker parts"));
+    lpub->actions.insert(editStickerPartsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Count Sticker Parts List"), editStickerPartsAct));
     connect(editStickerPartsAct, SIGNAL(triggered()), this, SLOT(editStickerParts()));
 
-    editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw INI search directories"), this);
+    QAction *editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("LDraw INI Search Directories"), this);
+    editLdrawIniFileAct->setObjectName("editLdrawIniFileAct.1");
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
+    lpub->actions.insert(editLdrawIniFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw INI Search Directories"), editLdrawIniFileAct));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
-    editLdgliteIniAct = new QAction(QIcon(":/resources/editldgliteconf.png"),tr("Edit LDGLite INI configuration file"), this);
+    QAction *editLdgliteIniAct = new QAction(QIcon(":/resources/editldgliteconf.png"),tr("LDGLite INI Configuration File"), this);
+    editLdgliteIniAct->setObjectName("editLdgliteIniAct.1");
     editLdgliteIniAct->setStatusTip(tr("Edit LDGLite INI configuration file"));
+    lpub->actions.insert(editLdgliteIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDGLite INI Configuration File"), editLdgliteIniAct));
     connect(editLdgliteIniAct, SIGNAL(triggered()), this, SLOT(editLdgliteIni()));
 
-    editNativePOVIniAct = new QAction(QIcon(":/resources/LPub32.png"),tr("Edit Native POV file generation configuration file"), this);
+    QAction *editNativePOVIniAct = new QAction(QIcon(":/resources/LPub32.png"),tr("Native POV file Generation Configuration File"), this);
+    editNativePOVIniAct->setObjectName("editNativePOVIniAct.1");
     editNativePOVIniAct->setStatusTip(tr("Edit Native POV file generation configuration file"));
+    lpub->actions.insert(editNativePOVIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Native POV File Generation Configuration File"), editNativePOVIniAct));
     connect(editNativePOVIniAct, SIGNAL(triggered()), this, SLOT(editNativePovIni()));
 
-    editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView INI configuration file"), this);
+    QAction *editLdviewIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("LDView INI Configuration File"), this);
+    editLdviewIniAct->setObjectName("editLdviewIniAct.1");
     editLdviewIniAct->setStatusTip(tr("Edit LDView INI configuration file"));
+    lpub->actions.insert(editLdviewIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDView INI Configuration File"), editLdviewIniAct));
     connect(editLdviewIniAct, SIGNAL(triggered()), this, SLOT(editLdviewIni()));
 
-    editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("Edit %1 configuration file").arg(VER_PRODUCTNAME_STR), this);
+    QAction *editLPub3DIniFileAct = new QAction(QIcon(":/resources/editsetting.png"),tr("%1 Configuration File").arg(VER_PRODUCTNAME_STR), this);
+    editLPub3DIniFileAct->setObjectName("editLPub3DIniFileAct.1");
     editLPub3DIniFileAct->setStatusTip(tr("Edit %1 application configuration settings file").arg(VER_PRODUCTNAME_STR));
+    lpub->actions.insert(editLPub3DIniFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.%1 Configuration File").arg(VER_PRODUCTNAME_STR), editLPub3DIniFileAct));
     connect(editLPub3DIniFileAct, SIGNAL(triggered()), this, SLOT(editLPub3DIniFile()));
 
-    editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("Edit LDView POV file generation configuration file"), this);
+    QAction *editLdviewPovIniAct = new QAction(QIcon(":/resources/editldviewconf.png"),tr("LDView POV File Generation Configuration File"), this);
+    editLdviewPovIniAct->setObjectName("editLdviewPovIniAct.1");
     editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
+    lpub->actions.insert(editLdviewPovIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDView POV File Generation Configuration File"), editLdviewPovIniAct));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
-    editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Edit Blender LDraw Parameters"), this);
+    QAction *editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Blender LDraw Parameters"), this);
+    editBlenderParametersAct->setObjectName("editBlenderParametersAct.1");
     editBlenderParametersAct->setStatusTip(tr("Add/Edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
+    lpub->actions.insert(editBlenderParametersAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Blender LDraw Parameters"), editBlenderParametersAct));
     connect(editBlenderParametersAct, SIGNAL(triggered()), this, SLOT(editBlenderParameters()));
 
-    editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) INI configuration file"), this);
+    QAction *editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("POV-Ray INI Configuration File"), this);
+    editPovrayIniAct->setObjectName("editPovrayIniAct.1");
     editPovrayIniAct->setStatusTip(tr("Edit Raytracer (POV-Ray) INI configuration file"));
+    lpub->actions.insert(editPovrayIniAct->objectName(), Action(tr("Configuration.Edit Parameter Files.POV-Ray INI Configuration File"), editPovrayIniAct));
     connect(editPovrayIniAct, SIGNAL(triggered()), this, SLOT(editPovrayIni()));
 
-    editPovrayConfAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) file access configuration file"), this);
+    QAction *editPovrayConfAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("POV-Ray File Access Configuration File"), this);
+    editPovrayConfAct->setObjectName("editPovrayConfAct.1");
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
+    lpub->actions.insert(editPovrayConfAct->objectName(), Action(tr("Configuration.Edit Parameter Files.POV-Ray File Access Configuration File"), editPovrayConfAct));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Edit Part Annotation Style reference"), this);
+    QAction *editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Part Annotation Style Reference"), this);
+    editAnnotationStyleAct->setObjectName("editAnnotationStyleAct.1");
     editAnnotationStyleAct->setStatusTip(tr("Add/Edit LDraw Design ID, Part Annotation Style, Part Category reference"));
+    lpub->actions.insert(editAnnotationStyleAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Part Annotation Style Reference"), editAnnotationStyleAct));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), this, SLOT(editAnnotationStyle()));
 
-    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID reference"), this);
+    QAction *editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Design ID Reference"), this);
+    editLD2BLCodesXRefAct->setObjectName("editLD2BLCodesXRefAct.1");
     editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
+    lpub->actions.insert(editLD2BLCodesXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Bricklink Design ID Reference"), editLD2BLCodesXRefAct));
     connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
 
-    editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color reference"), this);
+    QAction *editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("LDraw to Bricklink Color Reference"), this);
+    editLD2BLColorsXRefAct->setObjectName("editLD2BLColorsXRefAct.1");
     editLD2BLColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Bricklink Color ID reference"));
+    lpub->actions.insert(editLD2BLColorsXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Bricklink Color Reference"), editLD2BLColorsXRefAct));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
 
-    editLD2RBCodesXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Design ID reference"), this);
+    QAction *editLD2RBCodesXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("LDraw to Rebrickable Design ID Reference"), this);
+    editLD2RBCodesXRefAct->setObjectName("editLD2RBCodesXRefAct.1");
     editLD2RBCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Rebrickable Design ID reference"));
+    lpub->actions.insert(editLD2RBCodesXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Rebrickable Design ID Reference"), editLD2RBCodesXRefAct));
     connect(editLD2RBCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBCodesXRef()));
 
-    editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Color reference"), this);
+    QAction *editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("LDraw to Rebrickable Color Reference"), this);
+    editLD2RBColorsXRefAct->setObjectName("editLD2RBColorsXRefAct.1");
     editLD2RBColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Rebrickable Color ID reference"));
+    lpub->actions.insert(editLD2RBColorsXRefAct->objectName(), Action(tr("Configuration.Edit Parameter Files.LDraw To Rebrickable Color Reference"), editLD2RBColorsXRefAct));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBColorsXRef()));
 
-    editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color reference"), this);
+    QAction *editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color Reference"), this);
+    editBLColorsAct->setObjectName("editBLColorsAct.1");
     editBLColorsAct->setStatusTip(tr("Add/Edit Bricklink Color ID reference"));
+    lpub->actions.insert(editBLColorsAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Edit Bricklink Color Reference"), editBLColorsAct));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
-    editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Codes reference"), this);
+    QAction *editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Bricklink Codes Reference"), this);
+    editBLCodesAct->setObjectName("editBLCodesAct.1");
     editBLCodesAct->setStatusTip(tr("Add/Edit Bricklink Item No, Color Name, LEGO Element reference"));
+    lpub->actions.insert(editBLCodesAct->objectName(), Action(tr("Configuration.Edit Parameter Files.Bricklink Codes Reference"), editBLCodesAct));
     connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
 
-    editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
+    QAction *editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("PLI Parts Control File"), this);
+    editPliControlFileAct->setObjectName("editPliControlFileAct.1");
+    editPliControlFileAct->setStatusTip(tr("Edit PLI parts control file"));
+    lpub->actions.insert(editPliControlFileAct->objectName(), Action(tr("Configuration.Edit Parameter Files.PLI Parts Control File"), editPliControlFileAct));
+    connect(editPliControlFileAct, SIGNAL(triggered()), this, SLOT(editPliControlFile()));
+
+    QAction *editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Current Model File"), this);
+    editModelFileAct->setObjectName("editModelFileAct.1");
     editModelFileAct->setStatusTip(tr("Edit current model file with %1")
                                    .arg(Preferences::useSystemEditor ?
                                             Preferences::systemEditor.isEmpty() ? "the system editor" :
                                                                                   Preferences::systemEditor : "detached LDraw Editor"));
+    lpub->actions.insert(editModelFileAct->objectName(), Action(tr("Configuration.Current Model File"), editModelFileAct));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
 
-    editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit PLI parts control file"), this);
-    editPliControlFileAct->setStatusTip(tr("Edit PLI parts control file"));
-    connect(editPliControlFileAct, SIGNAL(triggered()), this, SLOT(editPliControlFile()));
-
-    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts list"), this);
-    generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
+    QAction *generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
+    generateCustomColourPartsAct->setObjectName("generateCustomColourPartsAct.1");
+    generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts for use with fade previous steps"));
+    lpub->actions.insert(generateCustomColourPartsAct->objectName(), Action(tr("Configuration.Generate Static Color Parts List"), generateCustomColourPartsAct));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 
-    // Help
+    QAction *openWithSetupAct = new QAction(QIcon(":/resources/openwithsetup.png"), tr("Open With S&etup..."), this);
+    openWithSetupAct->setObjectName("openWithSetupAct.1");
+    openWithSetupAct->setStatusTip(tr("Setup 'Open With' applications."));
+    lpub->actions.insert(openWithSetupAct->objectName(), Action(tr("Configuration.Open With Setup"), openWithSetupAct));
+    connect(openWithSetupAct, SIGNAL(triggered()), this, SLOT(openWithSetup()));
 
-    aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
+    QAction *ldrawSearchDirectoriesAct = new QAction(QIcon(":/resources/searchdirectories.png"),tr("LDraw Search Directories..."), this);
+    ldrawSearchDirectoriesAct->setObjectName("ldrawSearchDirectoriesAct.1");
+    ldrawSearchDirectoriesAct->setStatusTip(tr("Manage LDraw search directories"));
+    lpub->actions.insert(ldrawSearchDirectoriesAct->objectName(), Action(tr("Configuration.LDraw Search Directories"), ldrawSearchDirectoriesAct));
+    connect(ldrawSearchDirectoriesAct, SIGNAL(triggered()), this, SLOT(ldrawSearchDirectories()));
+
+    QAction *clearPLICacheAct = new QAction(QIcon(":/resources/clearplicache.png"),tr("Parts Image Cache"), this);
+    clearPLICacheAct->setObjectName("clearPLICacheAct.1");
+    clearPLICacheAct->setShortcut(tr("Alt+R"));
+    clearPLICacheAct->setStatusTip(tr("Reset the parts list image cache"));
+    lpub->actions.insert(clearPLICacheAct->objectName(), Action(tr("Configuration.Reset Cache.Parts Image Cache"), clearPLICacheAct));
+    connect(clearPLICacheAct, SIGNAL(triggered()), this, SLOT(clearPLICache()));
+
+    QAction *clearCSICacheAct = new QAction(QIcon(":/resources/clearcsicache.png"),tr("Assembly Image Cache"), this);
+    clearCSICacheAct->setObjectName("clearCSICacheAct.1");
+    clearCSICacheAct->setShortcut(tr("Alt+S"));
+    clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache"));
+    lpub->actions.insert(clearCSICacheAct->objectName(), Action(tr("Configuration.Reset Cache.Assembly Image Cache"), clearCSICacheAct));
+    connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
+
+    QAction *clearSubmodelCacheAct = new QAction(QIcon(":/resources/clearsubmodelcache.png"),tr("Submodel Image Cache"), this);
+    clearSubmodelCacheAct->setObjectName("clearSubmodelCacheAct.1");
+    clearSubmodelCacheAct->setShortcut(tr("Alt+E"));
+    clearSubmodelCacheAct->setStatusTip(tr("Reset the submodel image cache"));
+    lpub->actions.insert(clearSubmodelCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Submodel Image Cache"), clearSubmodelCacheAct));
+    connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
+
+    QAction *clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Temp File Cache"), this);
+    clearTempCacheAct->setObjectName("clearTempCacheAct.1");
+    clearTempCacheAct->setShortcut(tr("Alt+T"));
+    clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache"));
+    lpub->actions.insert(clearTempCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Temp File Cache"), clearTempCacheAct));
+    connect(clearTempCacheAct, SIGNAL(triggered()), this, SLOT(clearTempCache()));
+
+    QAction *clearAllCachesAct = new QAction(QIcon(":/resources/clearimagemodelcache.png"),tr("Model Caches"), this);
+    clearAllCachesAct->setObjectName("clearAllCachesAct.1");
+    clearAllCachesAct->setShortcut(tr("Alt+M"));
+    clearAllCachesAct->setStatusTip(tr("Reset model file Parts, Assembly and Temp file caches"));
+    lpub->actions.insert(clearAllCachesAct->objectName(), Action(tr("Configuration.Reset Cache.Model Caches"), clearAllCachesAct));
+    connect(clearAllCachesAct, SIGNAL(triggered()), this, SLOT(clearAllCaches()));
+
+    QAction *clearCustomPartCacheAct = new QAction(QIcon(":/resources/clearcustompartcache.png"),tr("Custom Files Cache"), this);
+    clearCustomPartCacheAct->setObjectName("clearCustomPartCacheAct.1");
+    clearCustomPartCacheAct->setShortcut(tr("Alt+C"));
+    clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache"));
+    lpub->actions.insert(clearCustomPartCacheAct->objectName(), Action(tr("Configuration.Reset Cache.Custom Files Cache"), clearCustomPartCacheAct));
+    connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
+
+    QAction *archivePartsOnDemandAct = new QAction(QIcon(":/resources/archivefilesondemand.png"),tr("Archive Unofficial Parts"), this);
+    archivePartsOnDemandAct->setObjectName("archivePartsOnDemandAct.1");
+    archivePartsOnDemandAct->setStatusTip(tr("Archive unofficial parts from LDraw search directories"));
+    archivePartsOnDemandAct->setShortcut(tr("Alt+Y"));
+    lpub->actions.insert(archivePartsOnDemandAct->objectName(), Action(tr("Configuration.Archive Unofficial Parts"), archivePartsOnDemandAct));
+    connect(archivePartsOnDemandAct, SIGNAL(triggered()), this, SLOT(archivePartsOnDemand()));
+
+    QAction *archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Unofficial Parts On Launch"), this);
+    archivePartsOnLaunchAct->setObjectName("archivePartsOnLaunchAct.1");
+    archivePartsOnLaunchAct->setStatusTip(tr("Automatically archive unofficial parts from LDraw search directories on next application launch"));
+    archivePartsOnLaunchAct->setCheckable(true);
+    archivePartsOnLaunchAct->setChecked(Preferences::archivePartsOnLaunch);
+    lpub->actions.insert(archivePartsOnLaunchAct->objectName(), Action(tr("Configuration.Archive Unofficial Parts On Launch"), archivePartsOnLaunchAct));
+    connect(archivePartsOnLaunchAct, SIGNAL(triggered()), this, SLOT(archivePartsOnLaunch()));
+
+    QAction *refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
+    refreshLDrawUnoffPartsAct->setObjectName("refreshLDrawUnoffPartsAct.1");
+    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data - restart required"));
+    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
+    lpub->actions.insert(refreshLDrawUnoffPartsAct->objectName(), Action(tr("Configuration.Refresh LDraw Unofficial Parts"), refreshLDrawUnoffPartsAct));
+    connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
+
+    QAction *refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
+    refreshLDrawOfficialPartsAct->setObjectName("refreshLDrawOfficialPartsAct.1");
+    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data - restart required"));
+    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
+    lpub->actions.insert(refreshLDrawOfficialPartsAct->objectName(), Action(tr("Configuration.Refresh LDraw Official Parts"), refreshLDrawOfficialPartsAct));
+    connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
+
+    // Help
+    QAction *aboutAct = new QAction(QIcon(":/resources/LPub32.png"),tr("&About %1...").arg(VER_PRODUCTNAME_STR), this);
+    aboutAct->setObjectName("aboutAct.1");
     aboutAct->setStatusTip(tr("Display version, system and build information"));
+    lpub->actions.insert(aboutAct->objectName(), Action(tr("Help.About"), aboutAct));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutDialog()));
 
-    visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage"), this);
+    QAction *visitHomepageAct = new QAction(QIcon(":/resources/homepage.png"),tr("Visit Homepage"), this);
+    visitHomepageAct->setObjectName("visitHomepageAct.1");
     visitHomepageAct->setStatusTip(tr("Visit the %1 home website.").arg(VER_PRODUCTNAME_STR));
+    lpub->actions.insert(visitHomepageAct->objectName(), Action(tr("Help.Visit Homepage"), visitHomepageAct));
     connect(visitHomepageAct, SIGNAL(triggered()), this, SLOT(visitHomepage()));
 
-    reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug"), this);
+    QAction *reportBugAct = new QAction(QIcon(":/resources/bug.png"),tr("Report Bug"), this);
+    reportBugAct->setObjectName("reportBugAct.1");
     reportBugAct->setStatusTip(tr("Create an online ticket to report a bug or issue."));
+    lpub->actions.insert(reportBugAct->objectName(), Action(tr("Help.Report Bug"), reportBugAct));
     connect(reportBugAct, SIGNAL(triggered()), this, SLOT(reportBug()));
 
     // Begin Jaco's code
 
-    onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual"), this);
+    QAction *onlineManualAct = new QAction(QIcon(":/resources/onlinemanual.png"),tr("&Online Manual"), this);
+    onlineManualAct->setObjectName("onlineManualAct.1");
     onlineManualAct->setStatusTip(tr("Visit the Online Manual Website."));
+    lpub->actions.insert(onlineManualAct->objectName(), Action(tr("Help.Online Manual"), onlineManualAct));
     connect(onlineManualAct, SIGNAL(triggered()), this, SLOT(onlineManual()));
 
     // End Jaco's code
     
-    commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
-    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions - Ctrl+K"));
+    QAction *commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
+    commandsDialogAct->setObjectName("commandsDialogAct.1");
+    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(tr("Ctrl+K"));
+    lpub->actions.insert(commandsDialogAct->objectName(), Action(tr("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
     
-    exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands to File"), this);
+    QAction *exportMetaCommandsAct = new QAction(QIcon(":/resources/savemetacommands.png"),tr("&Export LPub Metacommands"), this);
+    exportMetaCommandsAct->setObjectName("exportMetaCommandsAct.1");
     exportMetaCommandsAct->setStatusTip(tr("Export a list of the LPub meta commands to a text file"));
+    lpub->actions.insert(exportMetaCommandsAct->objectName(), Action(tr("Help.Export LPub Metacommands"), exportMetaCommandsAct));
     connect(exportMetaCommandsAct, SIGNAL(triggered()), this, SLOT(exportMetaCommands()));
 
-    updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check for &Updates..."), this);
+    QAction *updateAppAct = new QAction(QIcon(":/resources/softwareupdate.png"),tr("Check For &Updates..."), this);
+    updateAppAct->setObjectName("updateAppAct.1");
     updateAppAct->setStatusTip(tr("Check if a newer version of  %1 is available for download").arg(VER_PRODUCTNAME_STR));
+    lpub->actions.insert(updateAppAct->objectName(), Action(tr("Help.Check For Updates"), updateAppAct));
     connect(updateAppAct, SIGNAL(triggered()), this, SLOT(updateCheck()));
 
-    viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View %1 log").arg(VER_PRODUCTNAME_STR), this);
+    QAction *viewLogAct = new QAction(QIcon(":/resources/viewlog.png"),tr("View Runtime Log"), this);
+    viewLogAct->setObjectName("viewLogAct.1");
     viewLogAct->setShortcut(tr("Alt+L"));
-    viewLogAct->setStatusTip(tr("View %1 log - Alt+L").arg(VER_PRODUCTNAME_STR));
+    viewLogAct->setStatusTip(tr("View %1 log").arg(VER_PRODUCTNAME_STR));
+    lpub->actions.insert(viewLogAct->objectName(), Action(tr("Help.View Runtime Log"), viewLogAct));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
-    openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    QAction *openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    openWorkingFolderAct->setObjectName("openWorkingFolderAct.1");
     openWorkingFolderAct->setShortcut(tr("Alt+Shift+1"));
-    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+1"));
+    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder"));
+    lpub->actions.insert(openWorkingFolderAct->objectName(), Action(tr("Help.Open Working Folder"), openWorkingFolderAct));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
 
     if (Preferences::modeGUI)
         create3DActions();
-}
 
-void Gui::loadPages(bool frontCoverPageExist, bool backCoverPageExist){
-  int pageNum = 0 + pa;
-  disconnect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
-  setGoToPageCombo->clear();
+    // setup default shortcuts
+    foreach (Action act, lpub->actions) {
+        if (!act.action->shortcut().isEmpty()) {
+            QKeySequence shortcut = act.action->shortcut();
+            act.action->setProperty("defaultshortcut", shortcut);
+        }
+    }
 
-  for(int i=1 + pa;i <= maxPages;i++) {
-      pageNum++;
-      if (frontCoverPageExist && i == 1) {
-          pageNum--;
-          setGoToPageCombo->addItem(QString("Front Cover"));
-      }
-      else if (backCoverPageExist && i == maxPages) {
-          setGoToPageCombo->addItem(QString("Back Cover"));
-      }
-      else
-          setGoToPageCombo->addItem(QString("Page %1").arg(QString::number(pageNum)));
-  }
-
-  setGoToPageCombo->setCurrentIndex(displayPageNum - 1 - pa);
-  connect(setGoToPageCombo,SIGNAL(activated(int)), this, SLOT(setGoToPage(int)));
-}
-
-void Gui::addEditLDrawIniFileAction()
-{
-    if (Preferences::ldrawiniFound) {
-        editorMenu->insertAction(editNativePOVIniAct, editLdrawIniFileAct);
-        editParamsToolBar->insertAction(editNativePOVIniAct, editLdrawIniFileAct);
+    lpub->setKeyboardShortcuts();
+    foreach (QAction *action, editWindow->actions()) {
+        lpub->setKeyboardShortcut(action);
+    }
+    foreach (QAction *action, editModeWindow->actions()) {
+        lpub->setKeyboardShortcut(action);
+    }
+    foreach (QAction *action, parmsWindow->actions()) {
+        lpub->setKeyboardShortcut(action);
     }
 }
 
 void Gui::enableActions()
 {
-  saveAsAct->setEnabled(true);
-  saveCopyAct->setEnabled(true);
-  closeFileAct->setEnabled(true);
+  getAct("saveAsAct.1")->setEnabled(true);
+  getAct("saveCopyAct.1")->setEnabled(true);
+  getAct("closeFileAct.1")->setEnabled(true);
+  getAct("printToFileAct.1")->setEnabled(true);
+  getAct("printToFilePreviewAct.1")->setEnabled(true);
+  getAct("exportAsPdfAct.1")->setEnabled(true);
+  getAct("exportAsPdfPreviewAct.1")->setEnabled(true);
+  getAct("exportPngAct.1")->setEnabled(true);
+  getAct("exportJpgAct.1")->setEnabled(true);
+  getAct("exportBmpAct.1")->setEnabled(true);
+  getAct("pageSetupAct.1")->setEnabled(true);
+  getAct("assemSetupAct.1")->setEnabled(true);
+  getAct("pliSetupAct.1")->setEnabled(true);
+  getAct("bomSetupAct.1")->setEnabled(true);
+  getAct("calloutSetupAct.1")->setEnabled(true);
+  getAct("multiStepSetupAct.1")->setEnabled(true);
+  getAct("subModelSetupAct.1")->setEnabled(true);
+  getAct("projectSetupAct.1")->setEnabled(true);
+  getAct("fadeStepSetupAct.1")->setEnabled(true);
+  getAct("highlightStepSetupAct.1")->setEnabled(true);
+  getAct("addPictureAct.1")->setEnabled(true);
+  getAct("removeLPubFormatDocumentAct.1")->setEnabled(true);
+  getAct("removeLPubFormatBomAct.1")->setEnabled(true);
+  getAct("removeLPubFormatPageAct.1")->setEnabled(true);
+  getAct("removeLPubFormatStepAct.1")->setEnabled(true);
+  getAct("removeLPubFormatSubmodelAct.1")->setEnabled(true);
+  getAct("removeChildSubmodelFormatAct.1")->setEnabled(true);
+  getAct("removeBuildModFormatAct.1")->setEnabled(Preferences::buildModEnabled);
+  getAct("editTitleAnnotationsAct.1")->setEnabled(true);
+  getAct("editFreeFormAnnitationsAct.1")->setEnabled(true);
+  getAct("editPliBomSubstitutePartsAct.1")->setEnabled(true);
+  getAct("editExcludedPartsAct.1")->setEnabled(true);
+  getAct("editStickerPartsAct.1")->setEnabled(true);
+  getAct("editLDrawColourPartsAct.1")->setEnabled(!Preferences::ldrawColourPartsFile.isEmpty());
+  getAct("editLdgliteIniAct.1")->setEnabled(true);
+  getAct("editNativePOVIniAct.1")->setEnabled(true);
+  getAct("editLdviewIniAct.1")->setEnabled(true);
+  getAct("editLdviewPovIniAct.1")->setEnabled(true);
+  getAct("editBlenderParametersAct.1")->setEnabled(true);
+  getAct("editPovrayIniAct.1")->setEnabled(true);
+  getAct("editPovrayConfAct.1")->setEnabled(true);
+  getAct("editAnnotationStyleAct.1")->setEnabled(true);
+  getAct("editLD2BLCodesXRefAct.1")->setEnabled(true);
+  getAct("editLD2BLColorsXRefAct.1")->setEnabled(true);
+  getAct("editLD2RBCodesXRefAct.1")->setEnabled(true);
+  getAct("editLD2RBColorsXRefAct.1")->setEnabled(true);
+  getAct("editBLColorsAct.1")->setEnabled(true);
+  getAct("editBLCodesAct.1")->setEnabled(true);
+  getAct("editModelFileAct.1")->setEnabled(true);
+  getAct("editPliControlFileAct.1")->setEnabled(!Preferences::pliControlFile.isEmpty());
+  getAct("openWorkingFolderAct.1")->setEnabled(true);
 
-  printToFileAct->setEnabled(true);
-  printToFilePreviewAct->setEnabled(true);
-  exportAsPdfAct->setEnabled(true);
-  exportAsPdfPreviewAct->setEnabled(true);
+//  setPageLineEdit)->setEnabled(true);
 
-  exportPngAct->setEnabled(true);
-  exportJpgAct->setEnabled(true);
-  exportBmpAct->setEnabled(true);
+//  getAct("firstPageAct.1")->setEnabled(true);
+//  getAct("lastPageAct.1")->setEnabled(true);
 
-  pageSetupAct->setEnabled(true);
-  assemSetupAct->setEnabled(true);
-  pliSetupAct->setEnabled(true);
-  bomSetupAct->setEnabled(true);
-  calloutSetupAct->setEnabled(true);
-  multiStepSetupAct->setEnabled(true);
-  subModelSetupAct->setEnabled(true);
-  projectSetupAct->setEnabled(true);
-  fadeStepSetupAct->setEnabled(true);
-  highlightStepSetupAct->setEnabled(true);
+//  getAct("nextPageAct.1")->setEnabled(true);
+//  getAct("previousPageAct.1")->setEnabled(true);
+//  getAct("nextPageComboAct.1")->setEnabled(true);
+//  getAct("previousPageComboAct.1")->setEnabled(true);
+//  getAct("nextPageContinuousAct.1")->setEnabled(true);
+//  getAct("previousPageContinuousAct.1")->setEnabled(true);
 
-  addPictureAct->setEnabled(true);
-
-  removeLPubFormatDocumentAct->setEnabled(true);
-  removeLPubFormatBomAct->setEnabled(true);
-  removeLPubFormatPageAct->setEnabled(true);
-  removeLPubFormatStepAct->setEnabled(true);
-  removeLPubFormatSubmodelAct->setEnabled(true);
-  removeChildSubmodelFormatAct->setEnabled(true);
-  removeBuildModFormatAct->setEnabled(Preferences::buildModEnabled);
-
-  editTitleAnnotationsAct->setEnabled(true);
-  editFreeFormAnnitationsAct->setEnabled(true);
-  editPliBomSubstitutePartsAct->setEnabled(true);
-  editExcludedPartsAct->setEnabled(true);
-  editStickerPartsAct->setEnabled(true);
-  editLDrawColourPartsAct->setEnabled(!Preferences::ldrawColourPartsFile.isEmpty());
-  editLdgliteIniAct->setEnabled(true);
-  editNativePOVIniAct->setEnabled(true);
-  editLdviewIniAct->setEnabled(true);
-  editLdviewPovIniAct->setEnabled(true);
-  editBlenderParametersAct->setEnabled(true);
-  editPovrayIniAct->setEnabled(true);
-  editPovrayConfAct->setEnabled(true);
-  editAnnotationStyleAct->setEnabled(true);
-  editLD2BLCodesXRefAct->setEnabled(true);
-  editLD2BLColorsXRefAct->setEnabled(true);
-  editLD2RBCodesXRefAct->setEnabled(true);
-  editLD2RBColorsXRefAct->setEnabled(true);
-  editBLColorsAct->setEnabled(true);
-  editBLCodesAct->setEnabled(true);
-  editModelFileAct->setEnabled(true);
-  editPliControlFileAct->setEnabled(!Preferences::pliControlFile.isEmpty());
-  openWorkingFolderAct->setEnabled(true);
-
-//  setPageLineEdit->setEnabled(true);
-
-//  firstPageAct->setEnabled(true);
-//  lastPageAct->setEnabled(true);
-
-//  nextPageAct->setEnabled(true);
-//  previousPageAct->setEnabled(true);
-//  nextPageComboAct->setEnabled(true);
-//  previousPageComboAct->setEnabled(true);
-//  nextPageContinuousAct->setEnabled(true);
-//  previousPageContinuousAct->setEnabled(true);
-
-  fitWidthAct->setEnabled(true);
-  fitVisibleAct->setEnabled(true);
-  fitSceneAct->setEnabled(true);
-  bringToFrontAct->setEnabled(true);
-  sendToBackAct->setEnabled(true);
-  actualSizeAct->setEnabled(true);
-  zoomInComboAct->setEnabled(true);
-  zoomOutComboAct->setEnabled(true);
-  sceneGuidesComboAct->setEnabled(true);
-  snapToGridComboAct->setEnabled(true);
-
-  setupMenu->setEnabled(true);
-  cacheMenu->setEnabled(true);
-  exportMenu->setEnabled(true);
-  openWithMenu->setEnabled(numPrograms);
-
-  exportBricklinkAct->setEnabled(true);
-  exportCsvAct->setEnabled(true);
-  exportPovAct->setEnabled(true);
-  exportStlAct->setEnabled(true);
-  export3dsAct->setEnabled(true);
-  exportObjAct->setEnabled(true);
-  exportColladaAct->setEnabled(true);
-  exportHtmlAct->setEnabled(true);
-  exportHtmlStepsAct->setEnabled(true);
-
+  getAct("fitWidthAct.1")->setEnabled(true);
+  getAct("fitVisibleAct.1")->setEnabled(true);
+  getAct("fitSceneAct.1")->setEnabled(true);
+  getAct("bringToFrontAct.1")->setEnabled(true);
+  getAct("sendToBackAct.1")->setEnabled(true);
+  getAct("actualSizeAct.1")->setEnabled(true);
+  getAct("zoomInComboAct.1")->setEnabled(true);
+  getAct("zoomOutComboAct.1")->setEnabled(true);
+  getAct("sceneGuidesComboAct.1")->setEnabled(true);
+  getAct("snapToGridComboAct.1")->setEnabled(true);
+  getAct("exportBricklinkAct.1")->setEnabled(true);
+  getAct("exportCsvAct.1")->setEnabled(true);
+  getAct("exportPovAct.1")->setEnabled(true);
+  getAct("exportStlAct.1")->setEnabled(true);
+  getAct("export3dsAct.1")->setEnabled(true);
+  getAct("exportObjAct.1")->setEnabled(true);
+  getAct("exportColladaAct.1")->setEnabled(true);
+  getAct("exportHtmlAct.1")->setEnabled(true);
+  getAct("exportHtmlStepsAct.1")->setEnabled(true);
+  getAct("copyFilePathToClipboardAct.1")->setEnabled(true);
   blenderRenderAct->setEnabled(true);
   blenderImportAct->setEnabled(true);
   povrayRenderAct->setEnabled(true);
-  copyFilePathToClipboardAct->setEnabled(true);
+
+  getMenu("setupMenu")->setEnabled(true);
+  getMenu("cacheMenu")->setEnabled(true);
+  getMenu("exportMenu")->setEnabled(true);
+  getMenu("openWithMenu")->setEnabled(numPrograms);
 
   //Visual Editor
   //ViewerExportMenu->setEnabled(true); // Hide Visual Editor step export functions
@@ -5870,82 +6276,72 @@ void Gui::enableActions()
 
 void Gui::disableActions()
 {
-  saveAsAct->setEnabled(false);
-  saveCopyAct->setEnabled(false);
-  closeFileAct->setEnabled(false);
-
-  printToFilePreviewAct->setEnabled(false);
-  printToFileAct->setEnabled(false);
-  exportAsPdfPreviewAct->setEnabled(false);
-  exportAsPdfAct->setEnabled(false);
-
-  exportPngAct->setEnabled(false);
-  exportJpgAct->setEnabled(false);
-  exportBmpAct->setEnabled(false);
-
-  pageSetupAct->setEnabled(false);
-  assemSetupAct->setEnabled(false);
-  pliSetupAct->setEnabled(false);
-  bomSetupAct->setEnabled(false);
-  calloutSetupAct->setEnabled(false);
-  multiStepSetupAct->setEnabled(false);
-  subModelSetupAct->setEnabled(false);
-  projectSetupAct->setEnabled(false);
-  fadeStepSetupAct->setEnabled(false);
-  highlightStepSetupAct->setEnabled(false);
-
-  addPictureAct->setEnabled(false);
-
-  removeLPubFormatBomAct->setEnabled(false);
-  removeLPubFormatDocumentAct->setEnabled(false);
-  removeLPubFormatPageAct->setEnabled(false);
-  removeLPubFormatStepAct->setEnabled(false);
-  removeLPubFormatSubmodelAct->setEnabled(false);
-  removeChildSubmodelFormatAct->setEnabled(false);
-  removeBuildModFormatAct->setEnabled(false);
-
-  editModelFileAct->setEnabled(false);
-
-  openWorkingFolderAct->setEnabled(false);
-  setPageLineEdit->setEnabled(false);
-
-  firstPageAct->setEnabled(false);
-  lastPageAct->setEnabled(false);
-  nextPageAct->setEnabled(false);
-  previousPageAct->setEnabled(false);
-  nextPageComboAct->setEnabled(false);
-  previousPageComboAct->setEnabled(false);
-  nextPageContinuousAct->setEnabled(false);
-  previousPageContinuousAct->setEnabled(false);
-
-  fitWidthAct->setEnabled(false);
-  fitVisibleAct->setEnabled(false);
-  fitSceneAct->setEnabled(false);
-  bringToFrontAct->setEnabled(false);
-  sendToBackAct->setEnabled(false);
-  actualSizeAct->setEnabled(false);
-  zoomInComboAct->setEnabled(false);
-  zoomOutComboAct->setEnabled(false);
-
-  setupMenu->setEnabled(false);
-  cacheMenu->setEnabled(false);
-  exportMenu->setEnabled(false);
-  openWithMenu->setEnabled(false);
-
-  exportBricklinkAct->setEnabled(false);
-  exportCsvAct->setEnabled(false);
-  exportPovAct->setEnabled(false);
-  exportStlAct->setEnabled(false);
-  export3dsAct->setEnabled(false);
-  exportObjAct->setEnabled(false);
-  exportColladaAct->setEnabled(false);
-  exportHtmlAct->setEnabled(false);
-  exportHtmlStepsAct->setEnabled(false);
-
+  getAct("saveAsAct.1")->setEnabled(false);
+  getAct("saveCopyAct.1")->setEnabled(false);
+  getAct("closeFileAct.1")->setEnabled(false);
+  getAct("printToFilePreviewAct.1")->setEnabled(false);
+  getAct("printToFileAct.1")->setEnabled(false);
+  getAct("exportAsPdfPreviewAct.1")->setEnabled(false);
+  getAct("exportAsPdfAct.1")->setEnabled(false);
+  getAct("exportPngAct.1")->setEnabled(false);
+  getAct("exportJpgAct.1")->setEnabled(false);
+  getAct("exportBmpAct.1")->setEnabled(false);
+  getAct("pageSetupAct.1")->setEnabled(false);
+  getAct("assemSetupAct.1")->setEnabled(false);
+  getAct("pliSetupAct.1")->setEnabled(false);
+  getAct("bomSetupAct.1")->setEnabled(false);
+  getAct("calloutSetupAct.1")->setEnabled(false);
+  getAct("multiStepSetupAct.1")->setEnabled(false);
+  getAct("subModelSetupAct.1")->setEnabled(false);
+  getAct("projectSetupAct.1")->setEnabled(false);
+  getAct("fadeStepSetupAct.1")->setEnabled(false);
+  getAct("highlightStepSetupAct.1")->setEnabled(false);
+  getAct("addPictureAct.1")->setEnabled(false);
+  getAct("removeLPubFormatBomAct.1")->setEnabled(false);
+  getAct("removeLPubFormatDocumentAct.1")->setEnabled(false);
+  getAct("removeLPubFormatPageAct.1")->setEnabled(false);
+  getAct("removeLPubFormatStepAct.1")->setEnabled(false);
+  getAct("removeLPubFormatSubmodelAct.1")->setEnabled(false);
+  getAct("removeChildSubmodelFormatAct.1")->setEnabled(false);
+  getAct("removeBuildModFormatAct.1")->setEnabled(false);
+  getAct("editModelFileAct.1")->setEnabled(false);
+  getAct("openWorkingFolderAct.1")->setEnabled(false);
+  getAct("firstPageAct.1")->setEnabled(false);
+  getAct("lastPageAct.1")->setEnabled(false);
+  getAct("nextPageAct.1")->setEnabled(false);
+  getAct("previousPageAct.1")->setEnabled(false);
+  getAct("nextPageComboAct.1")->setEnabled(false);
+  getAct("previousPageComboAct.1")->setEnabled(false);
+  getAct("nextPageContinuousAct.1")->setEnabled(false);
+  getAct("previousPageContinuousAct.1")->setEnabled(false);
+  getAct("fitWidthAct.1")->setEnabled(false);
+  getAct("fitVisibleAct.1")->setEnabled(false);
+  getAct("fitSceneAct.1")->setEnabled(false);
+  getAct("bringToFrontAct.1")->setEnabled(false);
+  getAct("sendToBackAct.1")->setEnabled(false);
+  getAct("actualSizeAct.1")->setEnabled(false);
+  getAct("zoomInComboAct.1")->setEnabled(false);
+  getAct("zoomOutComboAct.1")->setEnabled(false);
+  getAct("exportBricklinkAct.1")->setEnabled(false);
+  getAct("exportCsvAct.1")->setEnabled(false);
+  getAct("exportPovAct.1")->setEnabled(false);
+  getAct("exportStlAct.1")->setEnabled(false);
+  getAct("export3dsAct.1")->setEnabled(false);
+  getAct("exportObjAct.1")->setEnabled(false);
+  getAct("exportColladaAct.1")->setEnabled(false);
+  getAct("exportHtmlAct.1")->setEnabled(false);
+  getAct("exportHtmlStepsAct.1")->setEnabled(false);
+  getAct("copyFilePathToClipboardAct.1")->setEnabled(false);
   blenderRenderAct->setEnabled(false);
   blenderImportAct->setEnabled(false);
   povrayRenderAct->setEnabled(false);
-  copyFilePathToClipboardAct->setEnabled(false);
+
+  setPageLineEdit->setEnabled(false);
+
+  getMenu("setupMenu")->setEnabled(false);
+  getMenu("cacheMenu")->setEnabled(false);
+  getMenu("exportMenu")->setEnabled(false);
+  getMenu("openWithMenu")->setEnabled(false);
 
   // Visual Editor
   // ViewerExportMenu->setEnabled(false); // Hide Visual Editor step export functions
@@ -5955,41 +6351,53 @@ void Gui::disableActions()
 void Gui::enableActions2()
 {
     bool frontCoverPageExist = lpub->mi.frontCoverPageExist();
-    insertCoverPageAct->setEnabled(! frontCoverPageExist &&
+    getAct("insertCoverPageAct.1")->setEnabled(! frontCoverPageExist &&
                                    lpub->mi.okToInsertCoverPage());
     bool backCoverPageExist = lpub->mi.backCoverPageExist();
-    appendCoverPageAct->setEnabled(! backCoverPageExist &&
+    getAct("appendCoverPageAct.1")->setEnabled(! backCoverPageExist &&
                                    lpub->mi.okToAppendCoverPage());
 
     loadPages(frontCoverPageExist, backCoverPageExist);
 
     bool frontCover = lpub->mi.okToInsertNumberedPage();
-    insertNumberedPageAct->setEnabled(frontCover);
+    getAct("insertNumberedPageAct.1")->setEnabled(frontCover);
     bool backCover = lpub->mi.okToAppendNumberedPage();
-    appendNumberedPageAct->setEnabled(backCover);
-    deletePageAct->setEnabled(lpub->page.list.size() == 0);
-    addBomAct->setEnabled(frontCover||backCover);
-    addTextAct->setEnabled(true);
+    getAct("appendNumberedPageAct.1")->setEnabled(backCover);
+    getAct("deletePageAct.1")->setEnabled(lpub->page.list.size() == 0);
+    getAct("addBomAct.1")->setEnabled(frontCover||backCover);
+    getAct("addTextAct.1")->setEnabled(true);
 }
 
 void Gui::disableActions2()
 {
-    insertCoverPageAct->setEnabled(false);
-    appendCoverPageAct->setEnabled(false);
-    insertNumberedPageAct->setEnabled(false);
-    appendNumberedPageAct->setEnabled(false);
-    deletePageAct->setEnabled(false);
-    addBomAct->setEnabled(false);
-    addTextAct->setEnabled(false);
+    getAct("insertCoverPageAct.1")->setEnabled(false);
+    getAct("appendCoverPageAct.1")->setEnabled(false);
+    getAct("insertNumberedPageAct.1")->setEnabled(false);
+    getAct("appendNumberedPageAct.1")->setEnabled(false);
+    getAct("deletePageAct.1")->setEnabled(false);
+    getAct("addBomAct.1")->setEnabled(false);
+    getAct("addTextAct.1")->setEnabled(false);
+}
+
+QMenu *Gui::getMenu(const QString &objectName)
+{
+    if (menus.contains(objectName))
+        return menus.value(objectName);
+    return nullptr;
 }
 
 void Gui::createMenus()
 {
     // Editor Menus
 
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(openAct);
-    openWithMenu = fileMenu->addMenu(tr("Open With..."));
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->setObjectName("fileMenu");
+    menus.insert(fileMenu->objectName(), fileMenu);
+    fileMenu->addAction(getAct("openAct.1"));
+
+    QMenu *openWithMenu = fileMenu->addMenu(tr("Open With..."));
+    openWithMenu->setObjectName("openWithMenu");
+    menus.insert(openWithMenu->objectName(), openWithMenu);
     openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
     openWithMenu->setStatusTip(tr("Open model file with selected application"));
     const int systemEditor = Preferences::systemEditor.isEmpty() ? 0 : 1;
@@ -5999,207 +6407,233 @@ void Gui::createMenus()
           openWithMenu->addSeparator();
       openWithMenu->addAction(openWithActList.at(i));
     }
-    fileMenu->addAction(saveAct);
-    fileMenu->addAction(saveAsAct);
-    fileMenu->addAction(saveCopyAct);
-    fileMenu->addAction(closeFileAct);
 
-    importMenu = fileMenu->addMenu("Import...");
+    fileMenu->addAction(getAct("saveAct.1"));
+    fileMenu->addAction(getAct("saveAsAct.1"));
+    fileMenu->addAction(getAct("saveCopyAct.1"));
+    fileMenu->addAction(getAct("closeFileAct.1"));
+
+    QMenu *importMenu = fileMenu->addMenu("Import...");
+    importMenu->setObjectName("importMenu");
+    menus.insert(importMenu->objectName(), importMenu);
     importMenu->setIcon(QIcon(":/resources/import.png"));
     importMenu->setStatusTip(tr("Import LEGO Digital Designer files and set inventory lists"));
-    importMenu->addAction(importLDDAct);
-    importMenu->addAction(importSetInventoryAct);
+    importMenu->addAction(getAct("importLDDAct.1"));
+    importMenu->addAction(getAct("importSetInventoryAct.1"));
     importMenu->addSeparator();
 
-    exportMenu = fileMenu->addMenu("Export As...");
+    QMenu *exportMenu = fileMenu->addMenu("Export As...");
+    exportMenu->setObjectName("exportMenu");
+    menus.insert(exportMenu->objectName(), exportMenu);
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));
     exportMenu->setStatusTip(tr("Export model file images, objects or part lists"));
-    exportMenu->addAction(exportPngAct);
-    exportMenu->addAction(exportJpgAct);
+    exportMenu->addAction(getAct("exportPngAct.1"));
+    exportMenu->addAction(getAct("exportJpgAct.1"));
 #ifdef Q_OS_WIN
-    exportMenu->addAction(exportBmpAct);
+    exportMenu->addAction(getAct("exportBmpAct.1"));
 #endif
     exportMenu->addSeparator();
-    exportMenu->addAction(exportObjAct);
-    exportMenu->addAction(exportStlAct);
-    exportMenu->addAction(exportPovAct);
-    exportMenu->addAction(exportColladaAct);
-    exportMenu->addAction(export3dsAct);
+    exportMenu->addAction(getAct("exportObjAct.1"));
+    exportMenu->addAction(getAct("exportStlAct.1"));
+    exportMenu->addAction(getAct("exportPovAct.1"));
+    exportMenu->addAction(getAct("exportColladaAct.1"));
+    exportMenu->addAction(getAct("export3dsAct.1"));
     exportMenu->addSeparator();
-    exportMenu->addAction(exportHtmlAct);
-    exportMenu->addAction(exportHtmlStepsAct);
-    exportMenu->addAction(exportBricklinkAct);
-    exportMenu->addAction(exportCsvAct);
+    exportMenu->addAction(getAct("exportHtmlAct.1"));
+    exportMenu->addAction(getAct("exportHtmlStepsAct.1"));
+    exportMenu->addAction(getAct("exportBricklinkAct.1"));
+    exportMenu->addAction(getAct("exportCsvAct.1"));
     exportMenu->addSeparator();
     exportMenu->setDisabled(true);
 
-    fileMenu->addAction(printToFilePreviewAct);
-    fileMenu->addAction(printToFileAct);
-    fileMenu->addAction(exportAsPdfPreviewAct);
-    fileMenu->addAction(exportAsPdfAct);
+    fileMenu->addAction(getAct("printToFilePreviewAct.1"));
+    fileMenu->addAction(getAct("printToFileAct.1"));
+    fileMenu->addAction(getAct("exportAsPdfPreviewAct.1"));
+    fileMenu->addAction(getAct("exportAsPdfAct.1"));
 #ifndef QT_NO_CLIPBOARD
     fileMenu->addSeparator();
-    fileMenu->addAction(copyFilePathToClipboardAct);
+    fileMenu->addAction(getAct("copyFilePathToClipboardAct.1"));
 #endif
     fileMenu->addSeparator();
 
-    recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));
+    QMenu *recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));
+    recentFileMenu->setObjectName("recentFileMenu");
+    menus.insert(recentFileMenu->objectName(), recentFileMenu);
     recentFileMenu->setIcon(QIcon(":/resources/recentfiles.png"));
     recentFileMenu->setStatusTip(tr("Open recent model file"));
-    for (int i = 0; i < MaxRecentFiles; i++) {
-      recentFileMenu->addAction(recentFilesActs[i]);
+
+    for (int i = 0; i < MAX_RECENT_FILES; i++) {
+      recentFileMenu->addAction(getAct(tr("recentFile%1Act.1").arg(i)));
     }
-    separatorAct = recentFileMenu->addSeparator();
-    recentFileMenu->addAction(clearRecentAct);
+    QAction *separatorAct = recentFileMenu->addSeparator();
+    separatorAct->setObjectName("separatorAct.1");
+    lpub->actions.insert(separatorAct->objectName(), Action(tr(""), separatorAct));
+
+    recentFileMenu->addSeparator();
+    recentFileMenu->addAction(getAct("clearRecentAct.1"));
 
     fileMenu->addSeparator();
-    fileMenu->addAction(exitAct);
+    fileMenu->addAction(getAct("exitAct.1"));
 
     menuBar()->addSeparator();
 
-    editMenu = menuBar()->addMenu(tr("&Edit"));
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->setObjectName("editMenu");
+    menus.insert(editMenu->objectName(), editMenu);
 
-    removeLPubFormatMenu = new QMenu(tr("Remove LPub Format..."), editMenu);
+    QMenu *removeLPubFormatMenu = new QMenu(tr("Remove LPub Format..."), editMenu);
+    removeLPubFormatMenu->setObjectName("removeLPubFormatMenu");
+    menus.insert(removeLPubFormatMenu->objectName(), removeLPubFormatMenu);
     removeLPubFormatMenu->setIcon(QIcon(":/resources/removelpubformat.png"));
     removeLPubFormatMenu->setStatusTip(tr("Remove LPub format from document, page, step and submodel"));
-    removeLPubFormatMenu->addAction(removeLPubFormatDocumentAct);
+    removeLPubFormatMenu->addAction(getAct("removeLPubFormatDocumentAct.1"));
     removeLPubFormatMenu->addSeparator();
-    removeLPubFormatMenu->addAction(removeLPubFormatPageAct);
-    removeLPubFormatMenu->addAction(removeLPubFormatStepAct);
-    removeLPubFormatMenu->addAction(removeLPubFormatSubmodelAct);
-    removeLPubFormatMenu->addAction(removeLPubFormatBomAct);
+    removeLPubFormatMenu->addAction(getAct("removeLPubFormatPageAct.1"));
+    removeLPubFormatMenu->addAction(getAct("removeLPubFormatStepAct.1"));
+    removeLPubFormatMenu->addAction(getAct("removeLPubFormatSubmodelAct.1"));
+    removeLPubFormatMenu->addAction(getAct("removeLPubFormatBomAct.1"));
     removeLPubFormatMenu->addSeparator();
-    removeLPubFormatMenu->addAction(removeBuildModFormatAct);
-    removeLPubFormatMenu->addAction(removeChildSubmodelFormatAct);
+    removeLPubFormatMenu->addAction(getAct("removeBuildModFormatAct.1"));
+    removeLPubFormatMenu->addAction(getAct("removeChildSubmodelFormatAct.1"));
 
     editMenu->addAction(undoAct);
     editMenu->addAction(redoAct);
 
     editMenu->addSeparator();
 
-    editMenu->addAction(insertCoverPageAct);
-    editMenu->addAction(appendCoverPageAct);
-    editMenu->addAction(insertNumberedPageAct);
-    editMenu->addAction(appendNumberedPageAct);
-    editMenu->addAction(deletePageAct);
-    editMenu->addAction(addPictureAct);
-    editMenu->addAction(addTextAct);
-    editMenu->addAction(addBomAct);
-    editMenu->addAction(cycleEachPageAct);
+    editMenu->addAction(getAct("insertCoverPageAct.1"));
+    editMenu->addAction(getAct("appendCoverPageAct.1"));
+    editMenu->addAction(getAct("insertNumberedPageAct.1"));
+    editMenu->addAction(getAct("appendNumberedPageAct.1"));
+    editMenu->addAction(getAct("deletePageAct.1"));
+    editMenu->addAction(getAct("addPictureAct.1"));
+    editMenu->addAction(getAct("addTextAct.1"));
+    editMenu->addAction(getAct("addBomAct.1"));
+    editMenu->addAction(getAct("cycleEachPageAct.1"));
     editMenu->addSeparator();
 
-    editMenu->insertMenu(cycleEachPageAct, removeLPubFormatMenu);
-    editMenu->insertSeparator(cycleEachPageAct);
+    editMenu->insertMenu(getAct("cycleEachPageAct.1"), removeLPubFormatMenu);
+    editMenu->insertSeparator(getAct("cycleEachPageAct.1"));
 
     viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction(fitWidthAct);
-    viewMenu->addAction(fitVisibleAct);
-    viewMenu->addAction(actualSizeAct);
-    viewMenu->addAction(fitSceneAct);
-    viewMenu->addAction(bringToFrontAct);
-    viewMenu->addAction(sendToBackAct);
-    viewMenu->addAction(zoomInComboAct);
-    viewMenu->addAction(zoomOutComboAct);
-    viewMenu->addAction(sceneRulerComboAct);
-    viewMenu->addAction(sceneGuidesComboAct);
-    viewMenu->addAction(snapToGridComboAct);
+    viewMenu->setObjectName("viewMenu");
+    menus.insert(viewMenu->objectName(), viewMenu);
+    viewMenu->addAction(getAct("fitWidthAct.1"));
+    viewMenu->addAction(getAct("fitVisibleAct.1"));
+    viewMenu->addAction(getAct("actualSizeAct.1"));
+    viewMenu->addAction(getAct("fitSceneAct.1"));
+    viewMenu->addAction(getAct("bringToFrontAct.1"));
+    viewMenu->addAction(getAct("sendToBackAct.1"));
+    viewMenu->addAction(getAct("zoomInComboAct.1"));
+    viewMenu->addAction(getAct("zoomOutComboAct.1"));
+    viewMenu->addAction(getAct("sceneRulerComboAct.1"));
+    viewMenu->addAction(getAct("sceneGuidesComboAct.1"));
+    viewMenu->addAction(getAct("snapToGridComboAct.1"));
     viewMenu->addSeparator();
-    viewMenu->addAction(fullScreenViewAct);
-    viewMenu->addSeparator();
+    viewMenu->addAction(getAct("fullScreenViewAct.1"));
 
-    toolsMenu = menuBar()->addMenu(tr("&Tools"));
-    toolsMenu->addAction(firstPageAct);
-    toolsMenu->addAction(nextPageAct);
-    toolsMenu->addAction(nextPageContinuousAct);
-    toolsMenu->addAction(previousPageAct);
-    toolsMenu->addAction(previousPageContinuousAct);
-    toolsMenu->addAction(lastPageAct);
-    toolsMenu->addSeparator();
+    QMenu *navigationMenu = menuBar()->addMenu(tr("&Navigation"));
+    navigationMenu->setObjectName("navigationMenu");
+    menus.insert(navigationMenu->objectName(), navigationMenu);
+    navigationMenu->addAction(getAct("firstPageAct.1"));
+    navigationMenu->addAction(getAct("nextPageAct.1"));
+    navigationMenu->addAction(getAct("nextPageContinuousAct.1"));
+    navigationMenu->addAction(getAct("previousPageAct.1"));
+    navigationMenu->addAction(getAct("previousPageContinuousAct.1"));
+    navigationMenu->addAction(getAct("lastPageAct.1"));
 
-    cacheMenu = toolsMenu->addMenu("Reset Cache");
-    cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
-    cacheMenu->setStatusTip(tr("Reset working caches"));
-    cacheMenu->addAction(clearAllCachesAct);
-    cacheMenu->addAction(clearPLICacheAct);
-    cacheMenu->addAction(clearSubmodelCacheAct);
-    cacheMenu->addAction(clearCSICacheAct);
-    cacheMenu->addAction(clearTempCacheAct);
-    cacheMenu->addAction(clearCustomPartCacheAct);
-    cacheMenu->addSeparator();
-    cacheMenu->setDisabled(true);
+    QMenu *configMenu = menuBar()->addMenu(tr("&Configuration"));
+    configMenu->setObjectName("configMenu");
+    menus.insert(configMenu->objectName(), configMenu);
+    configMenu->addAction(getAct("preferencesAct.1"));
 
-    toolsMenu->addSeparator();
-    toolsMenu->addAction(ldrawSearchDirectoriesAct);
-    toolsMenu->addAction(archivePartsOnDemandAct);
-    toolsMenu->addAction(archivePartsOnLaunchAct);
-    toolsMenu->addSeparator();
-    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
-    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
-    toolsMenu->addSeparator();
-
-    configMenu = menuBar()->addMenu(tr("&Configuration"));
-    setupMenu = configMenu->addMenu("Build &Instructions Setup...");
+    QMenu *setupMenu = configMenu->addMenu("Build &Instructions Setup...");
+    setupMenu->setObjectName("setupMenu");
+    menus.insert(setupMenu->objectName(), setupMenu);
     setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
     setupMenu->setStatusTip(tr("Instruction document global settings"));
-    setupMenu->addAction(pageSetupAct);
-    setupMenu->addAction(assemSetupAct);
-    setupMenu->addAction(pliSetupAct);
-    setupMenu->addAction(bomSetupAct);
-    setupMenu->addAction(calloutSetupAct);
-    setupMenu->addAction(multiStepSetupAct);
-    setupMenu->addAction(subModelSetupAct);
-    setupMenu->addAction(projectSetupAct);
-    setupMenu->addAction(fadeStepSetupAct);
-    setupMenu->addAction(highlightStepSetupAct);
+    setupMenu->addAction(getAct("pageSetupAct.1"));
+    setupMenu->addAction(getAct("assemSetupAct.1"));
+    setupMenu->addAction(getAct("pliSetupAct.1"));
+    setupMenu->addAction(getAct("bomSetupAct.1"));
+    setupMenu->addAction(getAct("calloutSetupAct.1"));
+    setupMenu->addAction(getAct("multiStepSetupAct.1"));
+    setupMenu->addAction(getAct("subModelSetupAct.1"));
+    setupMenu->addAction(getAct("projectSetupAct.1"));
+    setupMenu->addAction(getAct("fadeStepSetupAct.1"));
+    setupMenu->addAction(getAct("highlightStepSetupAct.1"));
     setupMenu->addSeparator();
     setupMenu->setDisabled(true);
 
-    configMenu->addSeparator();
-
-    editorMenu = configMenu->addMenu("Edit Parameter Files...");
+    QMenu *editorMenu = configMenu->addMenu("Edit Parameter Files...");
+    editorMenu->setObjectName("editorMenu");
+    menus.insert(editorMenu->objectName(), editorMenu);
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
     editorMenu->setStatusTip(tr("Edit %1 parameter files").arg(VER_PRODUCTNAME_STR));
-    editorMenu->addAction(useSystemEditorAct);
+    editorMenu->addAction(getAct("useSystemEditorAct.1"));
     editorMenu->addSeparator();
 #if defined Q_OS_WIN
     if (Preferences::portableDistribution){
-      editorMenu->addAction(editLPub3DIniFileAct);
+      editorMenu->addAction(getAct("editLPub3DIniFileAct.1"));
       editorMenu->addSeparator();
     }
 #else
-    editorMenu->addAction(editLPub3DIniFileAct);
+    editorMenu->addAction(getAct("editLPub3DIniFileAct.1"));
     editorMenu->addSeparator();
 #endif
-    editorMenu->addAction(editLDrawColourPartsAct);
-    editorMenu->addAction(editPliControlFileAct);
-    editorMenu->addAction(editTitleAnnotationsAct);
-    editorMenu->addAction(editFreeFormAnnitationsAct);
-    editorMenu->addAction(editPliBomSubstitutePartsAct);
-    editorMenu->addAction(editExcludedPartsAct);
-    editorMenu->addAction(editStickerPartsAct);
-    editorMenu->addAction(editAnnotationStyleAct);
-    editorMenu->addAction(editLD2BLCodesXRefAct);
-    editorMenu->addAction(editLD2BLColorsXRefAct);
-    editorMenu->addAction(editBLColorsAct);
-    editorMenu->addAction(editBLCodesAct);
-    editorMenu->addAction(editLD2RBColorsXRefAct);
-    editorMenu->addAction(editLD2RBCodesXRefAct);
+    editorMenu->addAction(getAct("editLDrawColourPartsAct.1"));
+    editorMenu->addAction(getAct("editPliControlFileAct.1"));
+    editorMenu->addAction(getAct("editTitleAnnotationsAct.1"));
+    editorMenu->addAction(getAct("editFreeFormAnnitationsAct.1"));
+    editorMenu->addAction(getAct("editPliBomSubstitutePartsAct.1"));
+    editorMenu->addAction(getAct("editExcludedPartsAct.1"));
+    editorMenu->addAction(getAct("editStickerPartsAct.1"));
+    editorMenu->addAction(getAct("editAnnotationStyleAct.1"));
+    editorMenu->addAction(getAct("editLD2BLCodesXRefAct.1"));
+    editorMenu->addAction(getAct("editLD2BLColorsXRefAct.1"));
+    editorMenu->addAction(getAct("editBLColorsAct.1"));
+    editorMenu->addAction(getAct("editBLCodesAct.1"));
+    editorMenu->addAction(getAct("editLD2RBColorsXRefAct.1"));
+    editorMenu->addAction(getAct("editLD2RBCodesXRefAct.1"));
     editorMenu->addSeparator();
-    editorMenu->addAction(editNativePOVIniAct);
-    editorMenu->addAction(editLdgliteIniAct);
-    editorMenu->addAction(editLdviewIniAct);
-    editorMenu->addAction(editLdviewPovIniAct);
-    editorMenu->addAction(editPovrayIniAct);
-    editorMenu->addAction(editPovrayConfAct);
+    editorMenu->addAction(getAct("editNativePOVIniAct.1"));
+    editorMenu->addAction(getAct("editLdgliteIniAct.1"));
+    editorMenu->addAction(getAct("editLdviewIniAct.1"));
+    editorMenu->addAction(getAct("editLdviewPovIniAct.1"));
+    editorMenu->addAction(getAct("editPovrayIniAct.1"));
+    editorMenu->addAction(getAct("editPovrayConfAct.1"));
     if (!Preferences::blenderExe.isEmpty())
-        editorMenu->addAction(editBlenderParametersAct);
+        editorMenu->addAction(getAct("editBlenderParametersAct.1"));
     editorMenu->addSeparator();
 
-    configMenu->addAction(editModelFileAct);
-    configMenu->addAction(generateCustomColourPartsAct);
+    configMenu->addAction(getAct("editModelFileAct.1"));
+    configMenu->addAction(getAct("generateCustomColourPartsAct.1"));
     configMenu->addSeparator();
-    configMenu->addAction(openWithSetupAct);
-    configMenu->addAction(preferencesAct);
+    configMenu->addAction(getAct("openWithSetupAct.1"));
+
+    configMenu->addSeparator();
+
+    QMenu *cacheMenu = configMenu->addMenu("Reset Cache");
+    cacheMenu->setObjectName("cacheMenu");
+    menus.insert(cacheMenu->objectName(), cacheMenu);
+    cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
+    cacheMenu->setStatusTip(tr("Reset working caches"));
+    cacheMenu->addAction(getAct("clearAllCachesAct.1"));
+    cacheMenu->addAction(getAct("clearPLICacheAct.1"));
+    cacheMenu->addAction(getAct("clearSubmodelCacheAct.1"));
+    cacheMenu->addAction(getAct("clearCSICacheAct.1"));
+    cacheMenu->addAction(getAct("clearTempCacheAct.1"));
+    cacheMenu->addAction(getAct("clearCustomPartCacheAct.1"));
+    cacheMenu->addSeparator();
+    cacheMenu->setDisabled(true);
+
+    configMenu->addSeparator();
+    configMenu->addAction(getAct("ldrawSearchDirectoriesAct.1"));
+    configMenu->addAction(getAct("archivePartsOnDemandAct.1"));
+    configMenu->addAction(getAct("archivePartsOnLaunchAct.1"));
+    configMenu->addSeparator();
+    configMenu->addAction(getAct("refreshLDrawUnoffPartsAct.1"));
+    configMenu->addAction(getAct("refreshLDrawOfficialPartsAct.1"));
 
     // Visual Editor
 
@@ -6208,178 +6642,216 @@ void Gui::createMenus()
 
     // Help Menus
 
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(openWorkingFolderAct);
-    helpMenu->addAction(viewLogAct);
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->setObjectName("helpMenu");
+    menus.insert(helpMenu->objectName(), helpMenu);
+    helpMenu->addAction(getAct("openWorkingFolderAct.1"));
+    helpMenu->addAction(getAct("viewLogAct.1"));
 #ifndef DISABLE_UPDATE_CHECK
-    helpMenu->addAction(updateAppAct);
+    helpMenu->addAction(getAct("updateAppAct.1"));
 #endif
-    helpMenu->addAction(visitHomepageAct);
-    helpMenu->addAction(reportBugAct);
+    helpMenu->addAction(getAct("visitHomepageAct.1"));
+    helpMenu->addAction(getAct("reportBugAct.1"));
     // Begin Jaco's code
-    helpMenu->addAction(onlineManualAct);
+    helpMenu->addAction(getAct("onlineManualAct.1"));
     // End Jaco's code
-    helpMenu->addAction(commandsDialogAct);
-    helpMenu->addAction(exportMetaCommandsAct);
+    helpMenu->addAction(getAct("commandsDialogAct.1"));
+    helpMenu->addAction(getAct("exportMetaCommandsAct.1"));
     helpMenu->addSeparator();
     // About Editor
-    helpMenu->addAction(aboutAct);
+    helpMenu->addAction(getAct("aboutAct.1"));
 
-    previousPageContinuousMenu = new QMenu(tr("Continuous Page Previous"), this);
-    previousPageContinuousMenu->addAction(previousPageContinuousAct);
-    nextPageContinuousMenu = new QMenu(tr("Continuous Page Next"), this);
-    nextPageContinuousMenu->addAction(nextPageContinuousAct);
+    QMenu *previousPageContinuousMenu = new QMenu(tr("Continuous Page Previous"), this);
+    previousPageContinuousMenu->setObjectName("previousPageContinuousMenu");
+    menus.insert(previousPageContinuousMenu->objectName(), previousPageContinuousMenu);
+    previousPageContinuousMenu->addAction(getAct("previousPageContinuousAct.1"));
 
-    zoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
+    QMenu *nextPageContinuousMenu = new QMenu(tr("Continuous Page Next"), this);
+    nextPageContinuousMenu->setObjectName("nextPageContinuousMenu");
+    menus.insert(nextPageContinuousMenu->objectName(), nextPageContinuousMenu);
+    nextPageContinuousMenu->addAction(getAct("nextPageContinuousAct.1"));
+
+    QMenu *zoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
+    zoomSliderMenu->setObjectName("zoomSliderMenu");
+    menus.insert(zoomSliderMenu->objectName(), zoomSliderMenu);
     zoomSliderMenu->addAction(zoomSliderAct);
 
-    sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
-    sceneRulerTrackingMenu->addAction(hideRulerPageBackgroundAct);
+    QMenu *sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
+    sceneRulerTrackingMenu->setObjectName("sceneRulerTrackingMenu");
+    menus.insert(sceneRulerTrackingMenu->objectName(), sceneRulerTrackingMenu);
+    sceneRulerTrackingMenu->addAction(getAct("hideRulerPageBackgroundAct.1"));
     sceneRulerTrackingMenu->addSeparator();
-    sceneRulerTrackingMenu->addAction(sceneRulerTrackingNoneAct);
-    sceneRulerTrackingMenu->addAction(sceneRulerTrackingTickAct);
-    sceneRulerTrackingMenu->addAction(sceneRulerTrackingLineAct);
+    sceneRulerTrackingMenu->addAction(getAct("sceneRulerTrackingNoneAct.1"));
+    sceneRulerTrackingMenu->addAction(getAct("sceneRulerTrackingTickAct.1"));
+    sceneRulerTrackingMenu->addAction(getAct("sceneRulerTrackingLineAct.1"));
     sceneRulerTrackingMenu->addSeparator();
-    sceneRulerTrackingMenu->addAction(showTrackingCoordinatesAct);
+    sceneRulerTrackingMenu->addAction(getAct("showTrackingCoordinatesAct.1"));
 
-    sceneGuidesMenu = new QMenu(tr("Scene Guides"),this);
-    sceneGuidesMenu->addAction(sceneGuidesDashLineAct);
-    sceneGuidesMenu->addAction(sceneGuidesSolidLineAct);
+    QMenu *sceneGuidesMenu = new QMenu(tr("Scene Guides"),this);
+    sceneGuidesMenu->setObjectName("sceneGuidesMenu");
+    menus.insert(sceneGuidesMenu->objectName(), sceneGuidesMenu);
+    sceneGuidesMenu->addAction(getAct("sceneGuidesDashLineAct.1"));
+    sceneGuidesMenu->addAction(getAct("sceneGuidesSolidLineAct.1"));
     sceneGuidesMenu->addSeparator();
-    sceneGuidesMenu->addAction(sceneGuidesPosTLeftAct);
-    sceneGuidesMenu->addAction(sceneGuidesPosTRightAct);
-    sceneGuidesMenu->addAction(sceneGuidesPosCentreAct);
-    sceneGuidesMenu->addAction(sceneGuidesPosBLeftAct);
-    sceneGuidesMenu->addAction(sceneGuidesPosBRightAct);
+    sceneGuidesMenu->addAction(getAct("sceneGuidesPosTLeftAct.1"));
+    sceneGuidesMenu->addAction(getAct("sceneGuidesPosTRightAct.1"));
+    sceneGuidesMenu->addAction(getAct("sceneGuidesPosCentreAct.1"));
+    sceneGuidesMenu->addAction(getAct("sceneGuidesPosBLeftAct.1"));
+    sceneGuidesMenu->addAction(getAct("sceneGuidesPosBRightAct.1"));
     sceneGuidesMenu->addSeparator();
-    sceneGuidesMenu->addAction(showGuidesCoordinatesAct);
+    sceneGuidesMenu->addAction(getAct("showGuidesCoordinatesAct.1"));
 
-    snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
-    snapToGridMenu->addAction(hideGridPageBackgroundAct);
+    QMenu *snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
+    snapToGridMenu->setObjectName("snapToGridMenu");
+    menus.insert(snapToGridMenu->objectName(), snapToGridMenu);
+    snapToGridMenu->addAction(getAct("hideGridPageBackgroundAct.1"));
     snapToGridMenu->addSeparator();
     for (int actionIdx = GRID_SIZE_FIRST; actionIdx < GRID_SIZE_LAST; actionIdx++)
         snapToGridMenu->addAction(snapGridActions[actionIdx]);
+}
+
+QToolBar *Gui::getToolBar(const QString &objectName)
+{
+    if (toolbars.contains(objectName))
+        return toolbars.value(objectName);
+    return nullptr;
 }
 
 void Gui::createToolBars()
 {
     QSettings Settings;
 
-    fileToolBar = addToolBar(tr("File Toolbar"));
+    QToolBar *fileToolBar = addToolBar(tr("File Toolbar"));
+    fileToolBar->setObjectName("fileToolBar");
+    toolbars.insert(fileToolBar->objectName(), fileToolBar);
     fileToolBar->setObjectName("FileToolbar");
-    fileToolBar->addAction(openAct);
-    fileToolBar->addAction(saveAct);
-    fileToolBar->addAction(saveAsAct);
-    //fileToolBar->addAction(saveCopyAct);
-    fileToolBar->addAction(closeFileAct);
+    fileToolBar->addAction(getAct("openAct.1"));
+    fileToolBar->addAction(getAct("saveAct.1"));
+    fileToolBar->addAction(getAct("saveAsAct.1"));
+    //fileToolBar->addAction(getAct("saveCopyAct.1"));
+    fileToolBar->addAction(getAct("closeFileAct.1"));
 
-    fileToolBar->addAction(printToFilePreviewAct);
-    fileToolBar->addAction(printToFileAct);
-    fileToolBar->addAction(exportAsPdfPreviewAct);
-    fileToolBar->addAction(exportAsPdfAct);
+    fileToolBar->addAction(getAct("printToFilePreviewAct.1"));
+    fileToolBar->addAction(getAct("printToFileAct.1"));
+    fileToolBar->addAction(getAct("exportAsPdfPreviewAct.1"));
+    fileToolBar->addAction(getAct("exportAsPdfAct.1"));
 
-    importToolBar = addToolBar(tr("Import Toolbar"));
+    QToolBar *importToolBar = addToolBar(tr("Import Toolbar"));
+    importToolBar->setObjectName("importToolBar");
+    toolbars.insert(importToolBar->objectName(), importToolBar);
     importToolBar->setObjectName("ImportToolbar");
-    importToolBar->addAction(importLDDAct);
-    importToolBar->addAction(importSetInventoryAct);
+    importToolBar->addAction(getAct("importLDDAct.1"));
+    importToolBar->addAction(getAct("importSetInventoryAct.1"));
     bool visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_IMPORT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_IMPORT_TOOLBAR_KEY)).toBool();
-    importMenu->addAction(importToolBar->toggleViewAction());
+    getMenu("importMenu")->addAction(importToolBar->toggleViewAction());
     importToolBar->setVisible(visible);
     connect (importToolBar, SIGNAL (visibilityChanged(bool)),
                       this, SLOT (importToolBarVisibilityChanged(bool)));
 
     exportToolBar = addToolBar(tr("Export Toolbar"));
+    exportToolBar->setObjectName("exportToolBar");
+    toolbars.insert(exportToolBar->objectName(), exportToolBar);
     exportToolBar->setObjectName("ExportToolbar");
-    exportToolBar->addAction(exportPngAct);
-    exportToolBar->addAction(exportJpgAct);
+    exportToolBar->addAction(getAct("exportPngAct.1"));
+    exportToolBar->addAction(getAct("exportJpgAct.1"));
 #ifdef Q_OS_WIN
-    exportToolBar->addAction(exportBmpAct);
+    exportToolBar->addAction(getAct("exportBmpAct.1"));
 #endif
     exportToolBar->addSeparator();
-    exportToolBar->addAction(exportObjAct);
-    exportToolBar->addAction(exportStlAct);
-    exportToolBar->addAction(exportPovAct);
-    exportToolBar->addAction(exportColladaAct);
+    exportToolBar->addAction(getAct("exportObjAct.1"));
+    exportToolBar->addAction(getAct("exportStlAct.1"));
+    exportToolBar->addAction(getAct("exportPovAct.1"));
+    exportToolBar->addAction(getAct("exportColladaAct.1"));
     exportToolBar->addSeparator();
-    exportToolBar->addAction(exportHtmlAct);
-    exportToolBar->addAction(exportHtmlStepsAct);
-    exportToolBar->addAction(exportBricklinkAct);
-    exportToolBar->addAction(exportCsvAct);
+    exportToolBar->addAction(getAct("exportHtmlAct.1"));
+    exportToolBar->addAction(getAct("exportHtmlStepsAct.1"));
+    exportToolBar->addAction(getAct("exportBricklinkAct.1"));
+    exportToolBar->addAction(getAct("exportCsvAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)).toBool();
-    exportMenu->addAction(exportToolBar->toggleViewAction());
+    getMenu("exportMenu")->addAction(exportToolBar->toggleViewAction());
     exportToolBar->setVisible(visible);
     connect (exportToolBar, SIGNAL (visibilityChanged(bool)),
                       this, SLOT (exportToolBarVisibilityChanged(bool)));
 
-    undoredoToolBar = addToolBar(tr("UndoRedo Toolbar"));
+    QToolBar *undoredoToolBar = addToolBar(tr("UndoRedo Toolbar"));
+    undoredoToolBar->setObjectName("undoredoToolBar");
+    toolbars.insert(undoredoToolBar->objectName(), undoredoToolBar);
     undoredoToolBar->setObjectName("UndoRedoToolbar");
     undoredoToolBar->addAction(undoAct);
     undoredoToolBar->addAction(redoAct);
 
-    cacheToolBar = addToolBar(tr("Cache Toolbar"));
+    QToolBar *cacheToolBar = addToolBar(tr("Cache Toolbar"));
+    cacheToolBar->setObjectName("cacheToolBar");
+    toolbars.insert(cacheToolBar->objectName(), cacheToolBar);
     cacheToolBar->setObjectName("CacheToolbar");
     cacheToolBar->addSeparator();
-    cacheToolBar->addAction(clearAllCachesAct);
-    cacheToolBar->addAction(clearPLICacheAct);
-    cacheToolBar->addAction(clearSubmodelCacheAct);
-    cacheToolBar->addAction(clearCSICacheAct);
-    cacheToolBar->addAction(clearTempCacheAct);
-    cacheToolBar->addAction(clearCustomPartCacheAct);
+    cacheToolBar->addAction(getAct("clearAllCachesAct.1"));
+    cacheToolBar->addAction(getAct("clearPLICacheAct.1"));
+    cacheToolBar->addAction(getAct("clearSubmodelCacheAct.1"));
+    cacheToolBar->addAction(getAct("clearCSICacheAct.1"));
+    cacheToolBar->addAction(getAct("clearTempCacheAct.1"));
+    cacheToolBar->addAction(getAct("clearCustomPartCacheAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_CACHE_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_CACHE_TOOLBAR_KEY)).toBool();
-    cacheMenu->addAction(cacheToolBar->toggleViewAction());
+    getMenu("cacheMenu")->addAction(cacheToolBar->toggleViewAction());
     cacheToolBar->setVisible(visible);
     connect (cacheToolBar, SIGNAL (visibilityChanged(bool)),
                      this, SLOT (cacheToolBarVisibilityChanged(bool)));
 
-    setupToolBar = addToolBar(tr("Global Setup Toolbar"));
+    QToolBar *setupToolBar = addToolBar(tr("Global Setup Toolbar"));
+    setupToolBar->setObjectName("setupToolBar");
+    toolbars.insert(setupToolBar->objectName(), setupToolBar);
     setupToolBar->setObjectName("ToolsToolbar");
-    setupToolBar->addAction(pageSetupAct);
-    setupToolBar->addAction(assemSetupAct);
-    setupToolBar->addAction(pliSetupAct);
-    setupToolBar->addAction(bomSetupAct);
-    setupToolBar->addAction(calloutSetupAct);
-    setupToolBar->addAction(multiStepSetupAct);
-    setupToolBar->addAction(subModelSetupAct);
-    setupToolBar->addAction(projectSetupAct);
-    setupToolBar->addAction(fadeStepSetupAct);
-    setupToolBar->addAction(highlightStepSetupAct);
+    setupToolBar->addAction(getAct("pageSetupAct.1"));
+    setupToolBar->addAction(getAct("assemSetupAct.1"));
+    setupToolBar->addAction(getAct("pliSetupAct.1"));
+    setupToolBar->addAction(getAct("bomSetupAct.1"));
+    setupToolBar->addAction(getAct("calloutSetupAct.1"));
+    setupToolBar->addAction(getAct("multiStepSetupAct.1"));
+    setupToolBar->addAction(getAct("subModelSetupAct.1"));
+    setupToolBar->addAction(getAct("projectSetupAct.1"));
+    setupToolBar->addAction(getAct("fadeStepSetupAct.1"));
+    setupToolBar->addAction(getAct("highlightStepSetupAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY)).toBool();
-    setupMenu->addAction(setupToolBar->toggleViewAction());
+    getMenu("setupMenu")->addAction(setupToolBar->toggleViewAction());
     setupToolBar->setVisible(visible);
     connect (setupToolBar, SIGNAL (visibilityChanged(bool)),
                      this, SLOT (setupToolBarVisibilityChanged(bool)));
 
-    editToolBar = addToolBar(tr("Edit Toolbar"));
+    QToolBar *editToolBar = addToolBar(tr("Edit Toolbar"));
+    editToolBar->setObjectName("editToolBar");
+    toolbars.insert(editToolBar->objectName(), editToolBar);
     editToolBar->setObjectName("EditToolbar");
-    editToolBar->addAction(insertCoverPageAct);
-    editToolBar->addAction(appendCoverPageAct);
-    editToolBar->addAction(insertNumberedPageAct);
-    editToolBar->addAction(appendNumberedPageAct);
-    editToolBar->addAction(deletePageAct);
-    editToolBar->addAction(addPictureAct);
-    editToolBar->addAction(addTextAct);
-    editToolBar->addAction(addBomAct);
+    editToolBar->addAction(getAct("insertCoverPageAct.1"));
+    editToolBar->addAction(getAct("appendCoverPageAct.1"));
+    editToolBar->addAction(getAct("insertNumberedPageAct.1"));
+    editToolBar->addAction(getAct("appendNumberedPageAct.1"));
+    editToolBar->addAction(getAct("deletePageAct.1"));
+    editToolBar->addAction(getAct("addPictureAct.1"));
+    editToolBar->addAction(getAct("addTextAct.1"));
+    editToolBar->addAction(getAct("addBomAct.1"));
 
-    removeLPubFormatToolBar = addToolBar(tr("Remove LPub Format Toolbar"));
+    QToolBar *removeLPubFormatToolBar = addToolBar(tr("Remove LPub Format Toolbar"));
+    removeLPubFormatToolBar->setObjectName("removeLPubFormatToolBar");
+    toolbars.insert(removeLPubFormatToolBar->objectName(), removeLPubFormatToolBar);
     removeLPubFormatToolBar->setObjectName("RemoveLPubFormatToolBar");
-    removeLPubFormatToolBar->addAction(removeLPubFormatDocumentAct);
-    removeLPubFormatToolBar->addAction(removeLPubFormatPageAct);
-    removeLPubFormatToolBar->addAction(removeLPubFormatStepAct);
-    removeLPubFormatToolBar->addAction(removeLPubFormatSubmodelAct);
-    removeLPubFormatToolBar->addAction(removeLPubFormatBomAct);
+    removeLPubFormatToolBar->addAction(getAct("removeLPubFormatDocumentAct.1"));
+    removeLPubFormatToolBar->addAction(getAct("removeLPubFormatPageAct.1"));
+    removeLPubFormatToolBar->addAction(getAct("removeLPubFormatStepAct.1"));
+    removeLPubFormatToolBar->addAction(getAct("removeLPubFormatSubmodelAct.1"));
+    removeLPubFormatToolBar->addAction(getAct("removeLPubFormatBomAct.1"));
 
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_REMOVE_LPUB_FORMAT_TOOLBAR_KEY)).toBool();
-    editMenu->addAction(removeLPubFormatToolBar->toggleViewAction());
+    getMenu("editMenu")->addAction(removeLPubFormatToolBar->toggleViewAction());
     removeLPubFormatToolBar->setVisible(visible);
     connect (removeLPubFormatToolBar, SIGNAL (visibilityChanged(bool)),
                                 this, SLOT (removeLPubFormatToolBarVisibilityChanged(bool)));
@@ -6387,106 +6859,112 @@ void Gui::createToolBars()
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)).toBool();
-    editMenu->addAction(editToolBar->toggleViewAction());
-    editMenu->addAction(editWindow->editToolBar->toggleViewAction());
-    editMenu->addAction(editWindow->toolsToolBar->toggleViewAction());
+    getMenu("editMenu")->addAction(editToolBar->toggleViewAction());
+    getMenu("editMenu")->addAction(editWindow->editToolBar->toggleViewAction());
+    getMenu("editMenu")->addAction(editWindow->toolsToolBar->toggleViewAction());
     editToolBar->setVisible(visible);
     connect (editToolBar, SIGNAL (visibilityChanged(bool)),
                     this, SLOT (editToolBarVisibilityChanged(bool)));
 
-    editParamsToolBar = addToolBar(tr("Edit Parameters Toolbar"));
+    QToolBar *editParamsToolBar = addToolBar(tr("Edit Parameters Toolbar"));
+    editParamsToolBar->setObjectName("editParamsToolBar");
+    toolbars.insert(editParamsToolBar->objectName(), editParamsToolBar);
     editParamsToolBar->setObjectName("EditParamsToolbar");
-    editParamsToolBar->addAction(editModelFileAct);
+    editParamsToolBar->addAction(getAct("editModelFileAct.1"));
     editParamsToolBar->addSeparator();
-    editParamsToolBar->addAction(editLDrawColourPartsAct);
-    editParamsToolBar->addAction(editPliControlFileAct);
-    editParamsToolBar->addAction(editTitleAnnotationsAct);
-    editParamsToolBar->addAction(editFreeFormAnnitationsAct);
-    editParamsToolBar->addAction(editPliBomSubstitutePartsAct);
-    editParamsToolBar->addAction(editExcludedPartsAct);
-    editParamsToolBar->addAction(editStickerPartsAct);
-    editParamsToolBar->addAction(editAnnotationStyleAct);
-    editParamsToolBar->addAction(editLD2BLCodesXRefAct);
-    editParamsToolBar->addAction(editLD2BLColorsXRefAct);
-    editParamsToolBar->addAction(editBLColorsAct);
-    editParamsToolBar->addAction(editBLCodesAct);
-    editParamsToolBar->addAction(editLD2RBColorsXRefAct);
-    editParamsToolBar->addAction(editLD2RBCodesXRefAct);
+    editParamsToolBar->addAction(getAct("editLDrawColourPartsAct.1"));
+    editParamsToolBar->addAction(getAct("editPliControlFileAct.1"));
+    editParamsToolBar->addAction(getAct("editTitleAnnotationsAct.1"));
+    editParamsToolBar->addAction(getAct("editFreeFormAnnitationsAct.1"));
+    editParamsToolBar->addAction(getAct("editPliBomSubstitutePartsAct.1"));
+    editParamsToolBar->addAction(getAct("editExcludedPartsAct.1"));
+    editParamsToolBar->addAction(getAct("editStickerPartsAct.1"));
+    editParamsToolBar->addAction(getAct("editAnnotationStyleAct.1"));
+    editParamsToolBar->addAction(getAct("editLD2BLCodesXRefAct.1"));
+    editParamsToolBar->addAction(getAct("editLD2BLColorsXRefAct.1"));
+    editParamsToolBar->addAction(getAct("editBLColorsAct.1"));
+    editParamsToolBar->addAction(getAct("editBLCodesAct.1"));
+    editParamsToolBar->addAction(getAct("editLD2RBColorsXRefAct.1"));
+    editParamsToolBar->addAction(getAct("editLD2RBCodesXRefAct.1"));
     editParamsToolBar->addSeparator();
 #if defined Q_OS_WIN
     if (Preferences::portableDistribution){
-        editParamsToolBar->addAction(editLPub3DIniFileAct);
+        editParamsToolBar->addAction(getAct("editLPub3DIniFileAct.1"));
         editParamsToolBar->addSeparator();
     }
 #else
-    editParamsToolBar->addAction(editLPub3DIniFileAct);
+    editParamsToolBar->addAction(getAct("editLPub3DIniFileAct.1"));
     editParamsToolBar->addSeparator();
 #endif
-    editParamsToolBar->addAction(editNativePOVIniAct);
-    editParamsToolBar->addAction(editLdgliteIniAct);
-    editParamsToolBar->addAction(editLdviewIniAct);
-    editParamsToolBar->addAction(editLdviewPovIniAct);
-    editParamsToolBar->addAction(editPovrayIniAct);
-    editParamsToolBar->addAction(editPovrayConfAct);
+    editParamsToolBar->addAction(getAct("editNativePOVIniAct.1"));
+    editParamsToolBar->addAction(getAct("editLdgliteIniAct.1"));
+    editParamsToolBar->addAction(getAct("editLdviewIniAct.1"));
+    editParamsToolBar->addAction(getAct("editLdviewPovIniAct.1"));
+    editParamsToolBar->addAction(getAct("editPovrayIniAct.1"));
+    editParamsToolBar->addAction(getAct("editPovrayConfAct.1"));
     if (!Preferences::blenderExe.isEmpty())
-        editParamsToolBar->addAction(editBlenderParametersAct);
+        editParamsToolBar->addAction(getAct("editBlenderParametersAct.1"));
     editParamsToolBar->addSeparator();
-    editParamsToolBar->addAction(generateCustomColourPartsAct);
+    editParamsToolBar->addAction(getAct("generateCustomColourPartsAct.1"));
     editParamsToolBar->addSeparator();
-    editParamsToolBar->addAction(viewLogAct);
+    editParamsToolBar->addAction(getAct("viewLogAct.1"));
     visible = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)))
         visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)).toBool();
-    editorMenu->addAction(editParamsToolBar->toggleViewAction());
+    getMenu("editorMenu")->addAction(editParamsToolBar->toggleViewAction());
     editParamsToolBar->setVisible(visible);
     connect (editParamsToolBar, SIGNAL (visibilityChanged(bool)),
                           this, SLOT (editParamsToolBarVisibilityChanged(bool)));
 
-    previousPageComboAct->setMenu(previousPageContinuousMenu);
-    nextPageComboAct->setMenu(nextPageContinuousMenu);
+    getAct("previousPageComboAct.1")->setMenu(getMenu("previousPageContinuousMenu"));
+    getAct("nextPageComboAct.1")->setMenu(getMenu("nextPageContinuousMenu"));
 
-    navigationToolBar = addToolBar(tr("Navigation Toolbar"));
+    QToolBar *navigationToolBar = addToolBar(tr("Navigation Toolbar"));
+    navigationToolBar->setObjectName("navigationToolBar");
+    toolbars.insert(navigationToolBar->objectName(), navigationToolBar);
     navigationToolBar->setObjectName("NavigationToolbar");
-    navigationToolBar->addAction(firstPageAct);
+    navigationToolBar->addAction(getAct("firstPageAct.1"));
     navigationToolBar->addSeparator();
-    navigationToolBar->addAction(previousPageComboAct);
+    navigationToolBar->addAction(getAct("previousPageComboAct.1"));
     navigationToolBar->addSeparator();
     navigationToolBar->addWidget(setPageLineEdit);
     navigationToolBar->addSeparator();
-    navigationToolBar->addAction(nextPageComboAct);
+    navigationToolBar->addAction(getAct("nextPageComboAct.1"));
     navigationToolBar->addSeparator();
-    navigationToolBar->addAction(lastPageAct);
+    navigationToolBar->addAction(getAct("lastPageAct.1"));
     navigationToolBar->addSeparator();
     navigationToolBar->addWidget(setGoToPageCombo);
     navigationToolBar->addSeparator();
     navigationToolBar->addWidget(mpdCombo);
 
-    zoomToolBar = addToolBar(tr("Zoom Toolbar"));
+    QToolBar *zoomToolBar = addToolBar(tr("Zoom Toolbar"));
+    zoomToolBar->setObjectName("zoomToolBar");
+    toolbars.insert(zoomToolBar->objectName(), zoomToolBar);
     zoomToolBar->setObjectName("ZoomToolbar");
-    zoomToolBar->addAction(fitVisibleAct);
-    zoomToolBar->addAction(fitWidthAct);
-    zoomToolBar->addAction(fitSceneAct);
-    zoomToolBar->addAction(actualSizeAct);
+    zoomToolBar->addAction(getAct("fitVisibleAct.1"));
+    zoomToolBar->addAction(getAct("fitWidthAct.1"));
+    zoomToolBar->addAction(getAct("fitSceneAct.1"));
+    zoomToolBar->addAction(getAct("actualSizeAct.1"));
 
-    zoomToolBar->addAction(bringToFrontAct);
-    zoomToolBar->addAction(sendToBackAct);
+    zoomToolBar->addAction(getAct("bringToFrontAct.1"));
+    zoomToolBar->addAction(getAct("sendToBackAct.1"));
 
-    zoomInComboAct->setMenu(zoomSliderMenu);
-    zoomToolBar->addAction(zoomInComboAct);
-    zoomOutComboAct->setMenu(zoomSliderMenu);
-    zoomToolBar->addAction(zoomOutComboAct);
+    getAct("zoomInComboAct.1")->setMenu(getMenu("zoomSliderMenu"));
+    zoomToolBar->addAction(getAct("zoomInComboAct.1"));
+    getAct("zoomOutComboAct.1")->setMenu(getMenu("zoomSliderMenu"));
+    zoomToolBar->addAction(getAct("zoomOutComboAct.1"));
 
-    sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
-    zoomToolBar->addAction(sceneRulerComboAct);
+    getAct("sceneRulerComboAct.1")->setMenu(getMenu("sceneRulerTrackingMenu"));
+    zoomToolBar->addAction(getAct("sceneRulerComboAct.1"));
 
-    sceneGuidesComboAct->setMenu(sceneGuidesMenu);
-    zoomToolBar->addAction(sceneGuidesComboAct);
+    getAct("sceneGuidesComboAct.1")->setMenu(getMenu("sceneGuidesMenu"));
+    zoomToolBar->addAction(getAct("sceneGuidesComboAct.1"));
 
-    snapToGridComboAct->setMenu(snapToGridMenu);
-    zoomToolBar->addAction(snapToGridComboAct);
+    getAct("snapToGridComboAct.1")->setMenu(getMenu("snapToGridMenu"));
+    zoomToolBar->addAction(getAct("snapToGridComboAct.1"));
 
     zoomToolBar->addSeparator();
-    zoomToolBar->addAction(fullScreenViewAct);
+    zoomToolBar->addAction(getAct("fullScreenViewAct.1"));
 
     if (Preferences::modeGUI)
         create3DToolBars();
@@ -6506,7 +6984,7 @@ void Gui::createDockWindows()
                 Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     commandEditDockWindow->setWidget(editWindow);
     addDockWidget(Qt::RightDockWidgetArea, commandEditDockWindow);
-    viewMenu->addAction(commandEditDockWindow->toggleViewAction());
+    getMenu("viewMenu")->addAction(commandEditDockWindow->toggleViewAction());
 
     connect(commandEditDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (enableWindowFlags(bool)));
 

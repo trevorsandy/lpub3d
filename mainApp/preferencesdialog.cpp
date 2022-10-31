@@ -20,6 +20,12 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <QItemEditorFactory>
+#include <QKeySequence>
+#include <QKeySequenceEdit>
+#include <QStyledItemDelegate>
+#include <QTableWidgetItem>
+
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
@@ -34,6 +40,65 @@
 #include "version.h"
 #include "lc_profile.h"
 #include "lc_application.h"
+#include "lc_qutils.h"
+
+// Resize all columns to content except for one stretching column. (adapted from LeoCAD implementation)
+CommandListColumnStretcher::CommandListColumnStretcher(QTreeWidget *treeWidget, int columnToStretch)
+    : QObject(treeWidget->header()), m_columnToStretch(columnToStretch),m_interactiveResize(false), m_stretchWidth(0)
+{
+    parent()->installEventFilter(this);
+    connect(treeWidget->header(), SIGNAL(sectionResized(int, int, int)), SLOT(sectionResized(int, int, int)));
+    QHideEvent stretch;
+    CommandListColumnStretcher::eventFilter(parent(), &stretch);
+}
+
+void CommandListColumnStretcher::sectionResized(int LogicalIndex, int OldSize, int NewSize)
+{
+    Q_UNUSED(OldSize)
+
+    if (LogicalIndex == m_columnToStretch)
+    {
+        QHeaderView* HeaderView = qobject_cast<QHeaderView*>(parent());
+
+        if (HeaderView->isVisible())
+            m_interactiveResize = true;
+
+        m_stretchWidth = NewSize;
+    }
+}
+
+bool CommandListColumnStretcher::eventFilter(QObject* Object, QEvent* Event)
+{
+    if (Object == parent())
+    {
+        QHeaderView* HeaderView = qobject_cast<QHeaderView*>(Object);
+
+        if (Event->type() == QEvent::Show)
+        {
+            for (int i = 0; i < HeaderView->count(); ++i)
+                HeaderView->setSectionResizeMode(i, QHeaderView::Interactive);
+
+            m_stretchWidth = HeaderView->sectionSize(m_columnToStretch);
+
+        }
+        else if (Event->type() == QEvent::Hide)
+        {
+            if (!m_interactiveResize)
+                for (int i = 0; i < HeaderView->count(); ++i)
+                    HeaderView->setSectionResizeMode(i, i == m_columnToStretch ? QHeaderView::Stretch : QHeaderView::ResizeToContents);
+        }
+        else if (Event->type() == QEvent::Resize)
+        {
+            if (HeaderView->sectionResizeMode(m_columnToStretch) == QHeaderView::Interactive) {
+
+                const int StretchWidth = HeaderView->isVisible() ? m_stretchWidth : 32;
+
+                HeaderView->resizeSection(m_columnToStretch, StretchWidth);
+            }
+        }
+    }
+    return false;
+}
 
 //QString PreferencesDialog::DEFS_URL = QString(VER_UPDATE_CHECK_JSON_URL).arg(qApp->applicationVersion());
 QString PreferencesDialog::DEFS_URL = VER_UPDATE_CHECK_JSON_URL;
@@ -62,6 +127,34 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
   else
       readOnlyPalette.setColor(QPalette::Base,QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]));
   readOnlyPalette.setColor(QPalette::Text,QColor(LPUB3D_DISABLED_TEXT_COLOUR));
+
+  // shortcuts
+  QCompleter *completer = new QCompleter(ui.KeyboardFilterEdit);
+  completer->setModel(new QStringListModel(lpub->shortcutIdKeywords, completer));
+  completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
+  completer->setWrapAround(false);
+  ui.KeyboardFilterEdit->setCompleter(completer);
+  ui.KeyboardFilterEdit->setClearButtonEnabled(true);
+
+  ui.shortcutEdit->installEventFilter(this);
+  QAction *setShortcutEditResetAct = ui.shortcutEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  setShortcutEditResetAct->setText(tr("Shortcut Reset"));
+  setShortcutEditResetAct->setObjectName("setShortcutEditResetAct.8");
+  lpub->actions.insert(setShortcutEditResetAct->objectName(), Action(tr("Edit.ShortcutReset"), setShortcutEditResetAct));
+  connect(ui.shortcutEdit,         SIGNAL(textChanged(const QString&)),
+          this,                    SLOT(enableShortcutEditReset(const QString&)));
+  connect(setShortcutEditResetAct, SIGNAL(triggered()),
+          this,                    SLOT(shortcutEditReset()));
+  connect(ui.commandList,          SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+          this,                    SLOT( commandChanged(QTreeWidgetItem*)));
+  connect(completer,               SIGNAL(activated(const QString&)),
+          this,                    SLOT(on_KeyboardFilterEdit_textEdited(const QString&)));
+
+  updateCommandList();
+  new CommandListColumnStretcher(ui.commandList, 0);
+  commandChanged(nullptr);
+  // end shortcuts
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
   QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
@@ -371,9 +464,12 @@ PreferencesDialog::PreferencesDialog(QWidget* _parent, lcLibRenderOptions* Optio
 
   connect (m_updater, SIGNAL(cancel()),
            this,        SLOT(updaterCancelled()));
+
+#ifndef QT_DEBUG_MODE
   //populate readme from the web
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
+#endif
 
   // show message options
   mShowLineParseErrors    = Preferences::lineParseErrors;
@@ -1262,14 +1358,6 @@ QString const PreferencesDialog::altLDConfigPath()
   return "";
 }
 
-QString const PreferencesDialog::lgeoPath()
-{
-    if (ui.povrayBox->isChecked() && ui.lgeoBox->isChecked()){
-        return ui.lgeoPath->displayText();
-    }
-    return "";
-}
-
 QString const PreferencesDialog::pliControlFile()
 {
   if (ui.pliControlBox->isChecked()) {
@@ -1278,9 +1366,17 @@ QString const PreferencesDialog::pliControlFile()
   return "";
 }
 
+QString const PreferencesDialog::lgeoPath()
+{
+    if (Preferences::povRayInstalled && ui.lgeoBox->isChecked()){
+        return ui.lgeoPath->displayText();
+    }
+    return "";
+}
+
 QString const PreferencesDialog::ldviewExe()
 {
-  if (ui.ldviewBox->isChecked()) {
+  if (Preferences::ldviewInstalled) {
     return ui.ldviewPath->displayText();
   }
   return "";
@@ -1288,7 +1384,7 @@ QString const PreferencesDialog::ldviewExe()
 
 QString const PreferencesDialog::ldgliteExe()
 {
-  if (ui.ldgliteBox->isChecked()) {
+  if (Preferences::ldgliteInstalled) {
     return ui.ldglitePath->displayText();
   }
     return "";
@@ -1296,7 +1392,7 @@ QString const PreferencesDialog::ldgliteExe()
 
 QString const PreferencesDialog::povrayExe()
 {
-    if (ui.povrayBox->isChecked()) {
+    if (Preferences::povRayInstalled) {
         return ui.povrayPath->displayText();
     }
     return "";
@@ -1871,6 +1967,49 @@ void PreferencesDialog::cancel(){
   QDialog::reject();
 }
 
+void PreferencesDialog::closeEvent(QCloseEvent *event)
+{
+    if (maybeSave())
+        accept();
+    else
+        cancel();
+    QDialog::closeEvent(event);
+}
+
+bool PreferencesDialog::maybeSave()
+{
+  bool rc = false;
+  bool changed = false;
+  QString changeMessage;
+
+  if (mOptions->KeyboardShortcutsModified) {
+      changeMessage = tr("There are modified keyboard shortcuts.");
+      changed = true;
+  }
+
+  if (changed) {
+
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Preferences").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + tr ("Preference changes detected") + "</b>";
+    QString text = tr("%1<br>Do you want to save your changes?").arg(changeMessage);
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    if (box.exec() == QMessageBox::Yes)
+      rc = true;
+  }
+  return rc;
+}
+
 /***********************************************************************
  *
  * Theme Colors
@@ -2336,4 +2475,629 @@ void ThemeColorsDialog::toggleDefaultsTab()
         tabs->setCurrentIndex(Preferences::displayTheme == THEME_DARK ? 1 : 0);
     }
     dialog->adjustSize();
+}
+
+/***********************************
+ * SHORTCUTS
+ ***********************************/
+
+bool PreferencesDialog::eventFilter(QObject *object, QEvent *event)
+{
+    Q_UNUSED(object);
+
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+
+        int nextKey = keyEvent->key();
+        if (nextKey == Qt::Key_Control || nextKey == Qt::Key_Shift || nextKey == Qt::Key_Meta || nextKey == Qt::Key_Alt)
+            return true;
+
+        Qt::KeyboardModifiers state = keyEvent->modifiers();
+        QString text = QKeySequence(nextKey).toString();
+        if ((state & Qt::ShiftModifier) && (text.isEmpty() || !text.at(0).isPrint() || text.at(0).isLetter() || text.at(0).isSpace()))
+            nextKey |= Qt::SHIFT;
+        if (state & Qt::ControlModifier)
+            nextKey |= Qt::CTRL;
+        if (state & Qt::MetaModifier)
+            nextKey |= Qt::META;
+        if (state & Qt::AltModifier)
+            nextKey |= Qt::ALT;
+
+        QKeySequence ks(nextKey);
+        ui.shortcutEdit->setText(ks.toString(QKeySequence::NativeText));
+        keyEvent->accept();
+
+        return true;
+    }
+
+    if (event->type() == QEvent::Shortcut || event->type() == QEvent::KeyRelease || event->type() == QEvent::ShortcutOverride)
+    {
+        event->accept();
+        return true;
+    }
+
+    return QDialog::eventFilter(object, event);
+}
+
+void PreferencesDialog::on_shortcutAssign_clicked()
+{
+    QTreeWidgetItem* CurrentItem = ui.commandList->currentItem();
+
+    if (!CurrentItem || !CurrentItem->data(0, Qt::UserRole).isValid())
+        return;
+
+    const QString objectName = qvariant_cast<QString>(CurrentItem->data(0, Qt::UserRole));
+
+    if (!lpub->actions.contains(objectName))
+        return;
+
+    QString NewShortcut = ui.shortcutEdit->text();
+
+    if (!isValidKeyboardShortcut(objectName, NewShortcut))
+        return;
+
+    CurrentItem->setText(1, NewShortcut);
+    CurrentItem->setData(1, Qt::UserRole, QVariant::fromValue(QKeySequence(NewShortcut)));
+
+    mOptions->KeyboardShortcuts.insert(objectName, QKeySequence(NewShortcut));
+
+    setShortcutModified(CurrentItem, QKeySequence(NewShortcut) != lpub->actions[objectName].action->shortcut());
+
+    mOptions->KeyboardShortcutsModified = true;
+    mOptions->KeyboardShortcutsDefault = false;
+}
+
+void PreferencesDialog::on_shortcutRemove_clicked()
+{
+    ui.shortcutEdit->setText(QString());
+
+    on_shortcutAssign_clicked();
+}
+
+void PreferencesDialog::on_shortcutsImport_clicked()
+{
+    static const QString defaultFileName(QDir::currentPath() + QDir::separator() + VER_PRODUCTNAME_STR + "_Shortcuts.txt");
+
+    QString FileName = QFileDialog::getOpenFileName(this, tr("Import shortcuts"), defaultFileName, tr("Text Files (*.txt);;All Files (*.*)"));
+
+    if (FileName.isEmpty())
+        return;
+
+    if (!LoadKeyboardShortcuts(FileName)) {
+        emit lpub->messageSig(LOG_ERROR, tr("Error loading keyboard shortcuts file."));
+        return;
+    }
+
+    mOptions->KeyboardShortcutsModified = true;
+    mOptions->KeyboardShortcutsDefault = false;
+}
+
+void PreferencesDialog::on_shortcutsExport_clicked()
+{
+    static const QString defaultFileName(QDir::currentPath() + QDir::separator() + VER_PRODUCTNAME_STR + "_Shortcuts.txt");
+
+    QString FileName = QFileDialog::getSaveFileName(this, tr("Export shortcuts"), defaultFileName, tr("Text Files (*.txt);;All Files (*.*)"));
+
+    if (FileName.isEmpty())
+        return;
+
+    int Count;
+    if (!SaveKeyboardShortcuts(FileName, Count)) {
+        emit lpub->messageSig(LOG_ERROR, tr("Error saving keyboard shortcuts file."));
+        return;
+    }
+
+    //display completion message
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
+    box.setDefaultButton   (QMessageBox::Yes);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setWindowTitle(tr ("Export Keyboard Shortcuts"));
+    box.setText (tr ("<b> %1 Shortcuts Exported </b>").arg(Count));
+    box.setInformativeText (tr ("Do you want to open this document ?\n\n%1")
+                                .arg(QDir::toNativeSeparators(FileName)));
+
+    if (box.exec() == QMessageBox::Yes) {
+        QString CommandPath = FileName;
+        QProcess *Process = new QProcess(this);
+        Process->setWorkingDirectory(QFileInfo(FileName).absolutePath() + QDir::separator());
+
+#ifdef Q_OS_WIN
+        Process->setNativeArguments(CommandPath);
+        QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+        Process->execute(CommandPath);
+        Process->waitForFinished();
+
+        QProcess::ExitStatus Status = Process->exitStatus();
+
+        if (Status != 0) {  // look for error
+            QErrorMessage *m = new QErrorMessage(this);
+            m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+        }
+#endif
+    }
+}
+
+void PreferencesDialog::on_shortcutsReset_clicked()
+{
+    if (QMessageBox::question(this, QLatin1Literal(VER_PRODUCTNAME_STR), tr("Are you sure you want to load the default keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+        return;
+
+    updateCommandList(true/*Default shortucts*/);
+
+    mOptions->KeyboardShortcutsModified = true;
+    mOptions->KeyboardShortcutsDefault = true;
+}
+
+void PreferencesDialog::on_KeyboardFilterEdit_textEdited(const QString& Text)
+{
+    if (Text.isEmpty()) {
+        std::function<void(QTreeWidgetItem*)> ShowItems = [&ShowItems](QTreeWidgetItem* ParentItem)
+        {
+            for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+                ShowItems(ParentItem->child(ChildIdx));
+
+            ParentItem->setHidden(false);
+        };
+
+        ShowItems(ui.commandList->invisibleRootItem());
+    } else {
+        std::function<bool(QTreeWidgetItem*,bool)> ShowItems = [&ShowItems, &Text](QTreeWidgetItem* ParentItem, bool ForceVisible)
+        {
+            ForceVisible |= (bool)ParentItem->text(0).contains(Text, Qt::CaseInsensitive) | (bool)ParentItem->text(1).contains(Text, Qt::CaseInsensitive);
+            bool Visible = ForceVisible;
+
+            for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+                Visible |= ShowItems(ParentItem->child(ChildIdx), ForceVisible);
+
+            ParentItem->setHidden(!Visible);
+
+            return Visible;
+        };
+
+        ShowItems(ui.commandList->invisibleRootItem(), false);
+    }
+}
+
+void PreferencesDialog::updateCommandList(bool loadDefaultShortcuts)
+{
+    QElapsedTimer timer;
+    timer.start();
+
+    int count = 0;
+
+    ui.commandList->clear();
+    QMap<QString, QTreeWidgetItem*> sections;
+
+    QMap<QString, Action>::const_iterator it = lpub->actions.constBegin();
+    while (it != lpub->actions.constEnd()) {
+        if (it.value().id.isEmpty()) {
+            ++it;
+            continue;
+        }
+
+        bool idOk = true;
+        int parentID = it.key().split(".").last().toInt(&idOk);
+
+        if (!idOk)
+            parentID = 0;
+
+        const QString parentSection = shortcutParentNames[parentID];
+        const QString mID = QString(".%1").arg(parentID);
+
+        if (!sections.contains(parentSection)) {
+            QTreeWidgetItem *parentItem = new QTreeWidgetItem(ui.commandList, QStringList(parentSection));
+            QFont f = parentItem->font(0);
+            f.setBold(true);
+            parentItem->setFont(0, f);
+            sections.insert(parentSection, parentItem);
+            ui.commandList->expandItem(parentItem);
+        }
+
+        const QString identifier = QString(it.value().id).replace(" ", "");
+
+        int pos = identifier.indexOf(QLatin1Char('.'));
+        int subPos = identifier.indexOf(QLatin1Char('.'), pos + 1);
+        int subSubPos = identifier.indexOf(QLatin1Char('.'), subPos + 1);
+        bool noSubSub = false;
+        if (subPos == -1)
+            subPos = pos;
+        if ((noSubSub = subSubPos == -1))
+            subSubPos = subPos;
+
+        const QString childSection = identifier.left(pos);
+
+        if (subPos != pos) {
+            if (!sections.contains(childSection+mID))
+            {
+                QTreeWidgetItem *parent = sections[parentSection];
+                QTreeWidgetItem *childItem;
+                if (parent)
+                    childItem = new QTreeWidgetItem(parent, QStringList(childSection));
+                else
+                    childItem = new QTreeWidgetItem(ui.commandList, QStringList(childSection));
+
+                QFont f = childItem->font(0);
+                f.setBold(true);
+                childItem->setFont(0, f);
+                sections.insert(childSection+mID, childItem);
+                ui.commandList->expandItem(childItem);
+            }
+        }
+
+        const QString grandchildSection = identifier.left(subPos);
+
+        if (subSubPos != subPos) {
+            if (!sections.contains(grandchildSection+mID)) {
+                QTreeWidgetItem *child = sections[childSection+mID];
+                QTreeWidgetItem *parent = sections[parentSection];
+                QTreeWidgetItem *grandchildItem;
+
+                if (child)
+                    grandchildItem = new QTreeWidgetItem(child, QStringList(grandchildSection));
+                else if (parent)
+                    grandchildItem = new QTreeWidgetItem(parent, QStringList(grandchildSection));
+                else
+                    grandchildItem = new QTreeWidgetItem(ui.commandList, QStringList(grandchildSection));
+
+                QFont f = grandchildItem->font(0);
+                f.setBold(true);
+                grandchildItem->setFont(0, f);
+                sections.insert(grandchildSection+mID, grandchildItem);
+                ui.commandList->expandItem(grandchildItem);
+            }
+        }
+
+        const QString section = identifier.left(subSubPos);
+
+        if (!sections.contains(section+mID)) {
+            QString categorySection;
+            const int begin = noSubSub ? pos : subPos;
+            const int end   = noSubSub ? subPos : subSubPos;
+            if (begin != end)
+                categorySection = identifier.mid(begin + 1, end - begin - 1);
+            else
+                categorySection = section;
+
+            QTreeWidgetItem *grandchild  = sections[grandchildSection+mID];
+            QTreeWidgetItem *child = sections[childSection+mID];
+            QTreeWidgetItem *parent = sections[parentSection];
+            QTreeWidgetItem *categoryItem;
+            if (grandchild)
+                categoryItem = new QTreeWidgetItem(grandchild, QStringList(categorySection));
+            else if (child)
+                categoryItem = new QTreeWidgetItem(child, QStringList(categorySection));
+            else if (parent)
+                categoryItem = new QTreeWidgetItem(parent, QStringList(categorySection));
+            else
+                categoryItem = new QTreeWidgetItem(ui.commandList, QStringList(categorySection));
+
+            QFont f = categoryItem->font(0);
+            f.setBold(true);
+            categoryItem->setFont(0, f);
+            sections.insert(section+mID, categoryItem);
+            ui.commandList->expandItem(categoryItem);
+        }
+
+        QStringList headerLabels;
+        headerLabels.append(tr("Action"));
+        headerLabels.append(tr("Shortcut"));
+        headerLabels.append(tr("Default"));
+        headerLabels.append(tr("Icon"));
+//#ifdef QT_DEBUG_MODE
+//        headerLabels.append(tr("Key"));
+//        headerLabels.append(tr("ID"));
+//#endif
+        ui.commandList->setColumnCount(headerLabels.count());
+        ui.commandList->setHeaderLabels(headerLabels);
+
+        QKeySequence shortcutDefault(it.value().action->property("defaultshortcut").value<QKeySequence>());
+        QKeySequence shortcut(loadDefaultShortcuts ? shortcutDefault : it.value().action->shortcut());
+
+        QTreeWidgetItem *item = new QTreeWidgetItem;
+        item->setToolTip(0, qApp->translate("Menu", it.value().action->statusTip().toLatin1().constData()));
+        item->setData(   0, Qt::UserRole, QVariant::fromValue(it.key()));
+        item->setText(   0, qApp->translate("Menu", it.value().action->text().toLatin1().constData()).remove('&').remove(QLatin1String("...")));
+        item->setData(   1, Qt::UserRole, QVariant::fromValue(shortcut));
+        item->setText(   1, shortcut.toString(QKeySequence::NativeText));
+        item->setText(   2, shortcutDefault.toString(QKeySequence::NativeText));
+        item->setIcon(   3, it.value().action->icon());
+//#ifdef QT_DEBUG_MODE
+//        item->setText(4, it.key());
+//        item->setText(5, it.value().id);
+//#endif
+
+        QColor textColor = QColor(Preferences::themeColors[THEME_DARK_PALETTE_MIDLIGHT]);
+        if (Preferences::displayTheme == THEME_DARK)
+            textColor = QColor(Preferences::themeColors[THEME_DEFAULT_PALETTE_LIGHT]);
+        QBrush b (textColor);
+        item->setForeground(0, b);
+        item->setForeground(2, b);
+//#ifdef QT_DEBUG_MODE
+//        item->setForeground(4, b);
+//        item->setForeground(5, b);
+//#endif
+
+        if (!loadDefaultShortcuts) {
+            const bool isModified = shortcut != shortcutDefault;
+
+            QString result;
+//#ifdef QT_DEBUG_MODE
+//            //superfluous, and expensive, call to enable permanently, but can be useful during development
+//            if (!shortcut.isEmpty() && !isValidKeyboardShortcut(it.key(), shortcut.toString(QKeySequence::NativeText), result, true/*loading*/))
+//                item->setToolTip(1, result);
+//#endif
+            const bool isInvalid = !result.isEmpty();
+
+            if (isModified || isInvalid)
+                setShortcutModified(item, true, isInvalid);
+        }
+
+        sections[section+mID]->addChild(item);
+        ++it;
+        ++count;
+    }
+#ifdef QT_DEBUG_MODE
+    emit gui->messageSig(LOG_NOTICE, QString(tr("Loaded %1 %2. %3"))
+                         .arg(count).arg(loadDefaultShortcuts ? "default shortcuts" : "shortcuts")
+                         .arg(lpub->elapsedTime(timer.elapsed())));
+#endif
+}
+
+void PreferencesDialog::setShortcutModified(QTreeWidgetItem *treeItem, bool modified, bool invalid)
+{
+    QFont font = treeItem->font(0);
+    font.setItalic(modified);
+    treeItem->setFont(0, font);
+    font.setBold(modified);
+    treeItem->setFont(1, font);
+    if (invalid) {
+        QBrush b (Qt::red);
+        treeItem->setForeground(1, b);
+        treeItem->setFont(1, font);
+    }
+}
+
+void PreferencesDialog::shortcutEditReset()
+{
+    if (ui.shortcutEdit) {
+        QTreeWidgetItem* currentItem = ui.commandList->currentItem();
+        if (!currentItem || !currentItem->data(1, Qt::UserRole).isValid()) {
+            ui.shortcutEdit->setText(QString());
+            ui.shortcutGroup->setEnabled(false);
+            lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
+            return;
+        }
+
+        QKeySequence shortcut(qvariant_cast<QKeySequence>(currentItem->data(1, Qt::UserRole)));
+        ui.shortcutEdit->setText(shortcut.toString(QKeySequence::NativeText));
+        lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
+    }
+}
+
+void PreferencesDialog::enableShortcutEditReset(const QString &displayText)
+{
+    if (ui.shortcutEdit) {
+        QTreeWidgetItem* currentItem = ui.commandList->currentItem();
+        if (!currentItem || !currentItem->data(1, Qt::UserRole).isValid()) {
+            lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
+            return;
+        }
+
+        QKeySequence shortcut(qvariant_cast<QKeySequence>(currentItem->data(1, Qt::UserRole)));
+        lpub->getAct("setShortcutEditResetAct.8")->setEnabled(displayText != shortcut.toString(QKeySequence::NativeText));
+    }
+}
+
+void PreferencesDialog::commandChanged(QTreeWidgetItem *current)
+{
+    if (!current || !current->data(1, Qt::UserRole).isValid()) {
+        ui.shortcutEdit->setText(QString());
+        ui.shortcutGroup->setEnabled(false);
+        lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
+        return;
+    }
+
+    ui.shortcutGroup->setEnabled(true);
+
+    QKeySequence shortcut(qvariant_cast<QKeySequence>(current->data(1, Qt::UserRole)));
+    ui.shortcutEdit->setText(shortcut.toString(QKeySequence::NativeText));
+    lpub->getAct("setShortcutEditResetAct.8")->setEnabled(false);
+}
+
+bool PreferencesDialog::isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut)
+{
+   QString NotUsed;
+   return isValidKeyboardShortcut(ObjectName, NewShortcut, NotUsed, false /*loading*/);
+}
+
+bool PreferencesDialog::isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut, QString &ResultText, bool Loading)
+{
+    bool idOk = true;
+    int newPID = ObjectName.split(".").last().toInt(&idOk);
+
+    if (!idOk)
+        newPID = 0;
+
+    if (!NewShortcut.isEmpty()) {
+        uint ExistingIndex = 0;
+
+        QMap<QString, Action>::iterator it = lpub->actions.begin();
+        while (it != lpub->actions.end()) {
+
+            bool idOk = true;
+            int curPID = it.key().split(".").last().toInt(&idOk);
+
+            if (!idOk)
+                curPID = 0;
+
+            if (NewShortcut == it.value().action->shortcut().toString(QKeySequence::NativeText) && it.key() != ObjectName && newPID == curPID) {
+                QString ActionText = qApp->translate("Menu", it.value().action->text().toLatin1().constData()).remove('&').remove(QLatin1String("..."));
+                ResultText = tr("The shortcut '%1' is already assigned to '%2'.").arg(NewShortcut, ActionText);
+                QString QuestionText = tr("%1 Do you want to replace it?").arg(ResultText).arg(NewShortcut, ActionText);
+
+                if (Loading || QMessageBox::question(this, tr("Override Shortcut"), QuestionText, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+                    return false;
+
+                mOptions->KeyboardShortcuts.insert(ObjectName, QKeySequence(NewShortcut));
+
+                std::function<QTreeWidgetItem* (QTreeWidgetItem*)> FindItem = [&FindItem, ExistingIndex](QTreeWidgetItem* ParentItem) -> QTreeWidgetItem*
+                {
+                    for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+                    {
+                        QTreeWidgetItem* ChildItem = ParentItem->child(ChildIdx);
+                        uint ChildIndex = ChildItem->data(0, Qt::UserRole).toUInt();
+
+                        if (ChildIndex == ExistingIndex)
+                            return ChildItem;
+
+                        QTreeWidgetItem* ExistingItem = FindItem(ChildItem);
+
+                        if (ExistingItem)
+                            return ExistingItem;
+                    }
+
+                    return nullptr;
+                };
+
+                QTreeWidgetItem* ExistingItem = FindItem(ui.commandList->invisibleRootItem());
+
+                if (ExistingItem)
+                {
+                    ExistingItem->setText(1, QString());
+                    const QKeySequence &defaultKeySeq = it.value().action->property("defaultshortcut").value<QKeySequence>();
+                    setShortcutModified(ExistingItem, defaultKeySeq.toString(QKeySequence::NativeText)[0] != 0);
+                }
+            }
+            ++it;
+            ++ExistingIndex;
+        }
+    }
+
+    return true;
+}
+
+bool PreferencesDialog::SaveKeyboardShortcuts(const QString& FileName, int &Count)
+{
+    static const QLatin1String FmtDateTime("yyyy-MM-dd hh:mm:ss");
+
+    static const QLatin1String DocumentTitle("Keyboard Shortcuts");
+
+    const QString GeneratedOn = QString("%1 %2 - Generated on %3")
+            .arg(VER_PRODUCTNAME_STR)
+            .arg(DocumentTitle)
+            .arg(QDateTime::currentDateTime().toString(FmtDateTime));
+
+    QFile File(FileName);
+
+    if (!File.open(QIODevice::WriteOnly))
+        return false;
+
+    QTextStream Stream(&File);
+
+    Stream << GeneratedOn << QLatin1String("\n\n");
+
+    return SaveKeyboardShortcuts(Stream, Count);
+}
+
+bool PreferencesDialog::SaveKeyboardShortcuts(QTextStream& Stream, int &Count)
+{
+    if (!mOptions->KeyboardShortcuts.isEmpty()) {
+        if (QMessageBox::question(this, QLatin1Literal(VER_PRODUCTNAME_STR), tr("Do you want to save un-committed keyboard shortcuts?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            QMap<QString, QKeySequence>::const_iterator it = mOptions->KeyboardShortcuts.constBegin();
+            while (it != mOptions->KeyboardShortcuts.constEnd()) {
+                if (lpub->actions.contains(it.key()))
+                    lpub->actions[it.key()].action->setShortcut(it.value());
+                ++it;
+            }
+        }
+    }
+
+    QMap<QString, Action>::const_iterator it = lpub->actions.constBegin();
+    while (it != lpub->actions.constEnd()) {
+        if (it.value().action->shortcut().isEmpty()) {
+            ++it;
+            continue;
+        }
+
+        bool idOk = true;
+        int parentID = it.key().split(".").last().toInt(&idOk);
+
+        if (!idOk)
+            parentID = 0;
+
+        const QString parentName = shortcutParentNames[parentID];
+        const QString shortcutName = QString("%1.%2").arg(it.key().split(".").first()).arg(parentName);
+        const QString shortcutKey = it.value().action->shortcut().toString(QKeySequence::NativeText);
+
+        Stream << shortcutName << QLatin1String("=") << shortcutKey << QLatin1String("\n");
+        ++it;
+        ++Count;
+    }
+
+    Stream << QLatin1String("\n") << QString("End of file.") << QLatin1String("\n");
+
+    Stream.flush();
+
+    return true;
+}
+
+bool PreferencesDialog::LoadKeyboardShortcuts(const QString& FileName)
+{
+    QFile File(FileName);
+
+    if (!File.open(QIODevice::ReadOnly))
+        return false;
+
+    QTextStream Stream(&File);
+
+    return LoadKeyboardShortcuts(Stream);
+}
+
+bool PreferencesDialog::LoadKeyboardShortcuts(QTextStream& Stream)
+{
+    QHash<QString, int> ParentNameMap;
+    if (ParentNameMap.size() == 0) {
+        ParentNameMap[shortcutParentNames[NO_ACTION]]                 = NO_ACTION;                 //  0
+        ParentNameMap[shortcutParentNames[MAIN_WINDOW_ACTION]]        = MAIN_WINDOW_ACTION;        //  1
+        ParentNameMap[shortcutParentNames[COMMAND_EDITOR_ACTION]]     = COMMAND_EDITOR_ACTION;     //  2
+        ParentNameMap[shortcutParentNames[TEXT_EDITOR_ACTION]]        = TEXT_EDITOR_ACTION;        //  3
+        ParentNameMap[shortcutParentNames[VISUAL_EDITOR_ACTION]]      = VISUAL_EDITOR_ACTION;      //  4
+        ParentNameMap[shortcutParentNames[PARAMS_EDITOR_ACTION]]      = PARAMS_EDITOR_ACTION;      //  5
+        ParentNameMap[shortcutParentNames[COMMANDS_DIALOG_ACTION]]    = COMMANDS_DIALOG_ACTION;    //  6
+        ParentNameMap[shortcutParentNames[COMMANDS_TEXT_EDIT_ACTION]] = COMMANDS_TEXT_EDIT_ACTION; //  7
+        ParentNameMap[shortcutParentNames[OTHER_ACTION]]              = OTHER_ACTION;              //  8
+    }
+
+    for (QString Line = Stream.readLine(); !Line.isNull(); Line = Stream.readLine()) {
+        int Equals = Line.indexOf('=');
+
+        if (Equals == -1)
+            continue;
+
+        const QStringList KS = Line.left(Equals).split(".");
+
+        const QString Key = QString("%1.%2").arg(KS.first()).arg(ParentNameMap[KS.last()]);
+
+        const QKeySequence Shortcut(Line.mid(Equals + 1));
+
+        if (lpub->actions.contains(Key)) {
+
+            if (!isValidKeyboardShortcut(Key, Shortcut.toString(QKeySequence::NativeText)))
+                continue;
+
+            mOptions->KeyboardShortcuts.insert(Key, Shortcut);
+        } else {
+            emit lpub->messageSig(LOG_ERROR, tr("The action %1 for this keyboard shortcut %2 was not found.")
+                                  .arg(Key).arg(Shortcut.toString(QKeySequence::NativeText)));
+        }
+    }
+
+    return true;
 }

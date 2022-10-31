@@ -32,22 +32,106 @@
 
 #include "texteditdialog.h"
 #include "ui_texteditdialog.h"
+#include "messageboxresizable.h"
+#include "lpub_object.h"
+#include "version.h"
 #include "name.h"
 
-TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editFontColor, QString windowTitle, bool _richText, bool fontActions, QWidget *parent) :
+TextEditDialog *tedit;
+
+bool    TextEditDialog::richText;
+bool    TextEditDialog::rendererArgs;
+QString TextEditDialog::text;
+QFont   TextEditDialog::font;
+QColor  TextEditDialog::fontColor;
+
+TextEditDialog::TextEditDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TextEditDialog)
 {
     ui->setupUi(this);
 
-    setWindowTitle(windowTitle);
+    setWindowTitle(tr("Edit Text"));
+
+    ui->actionAccept->setObjectName("textEditAcceptAct.3");
+    ui->actionAccept->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_A));
+    lpub->actions.insert(ui->actionAccept->objectName(), Action(tr("File.Accept"), ui->actionAccept));
+
+    ui->actionCancel->setObjectName("textEditCancelAct.3");
+    lpub->actions.insert(ui->actionCancel->objectName(), Action(tr("File.Cancel"), ui->actionCancel));
+
+    ui->actionNew->setObjectName("textEditNewAct.3");
+    ui->actionNew->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+    lpub->actions.insert(ui->actionNew->objectName(), Action(tr("File.New"), ui->actionNew));
+
+    ui->actionCopy->setObjectName("textEditCopyAct.3");
+    ui->actionCopy->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    lpub->actions.insert(ui->actionCopy->objectName(), Action(tr("Edit.Copy"), ui->actionCopy));
+
+    ui->actionCut->setObjectName("textEditCutAct.3");
+    ui->actionCut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_X));
+    lpub->actions.insert(ui->actionCut->objectName(), Action(tr("Edit.Cut"), ui->actionCut));
+
+    ui->actionPaste->setObjectName("textEditPasteAct.3");
+    ui->actionPaste->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_V));
+    lpub->actions.insert(ui->actionPaste->objectName(), Action(tr("Edit.Paste"), ui->actionPaste));
+
+    ui->actionUndo->setObjectName("textEditUndoAct.3");
+    ui->actionUndo->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
+    lpub->actions.insert(ui->actionUndo->objectName(), Action(tr("Edit.Undo"), ui->actionUndo));
+
+    ui->actionRedo->setObjectName("textEditRedoAct.3");
+    ui->actionRedo->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Y));
+    lpub->actions.insert(ui->actionRedo->objectName(), Action(tr("Edit.Redo"), ui->actionRedo));
+
+    ui->actionFont->setObjectName("textEditFontAct.3");
+    ui->actionFont->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+    lpub->actions.insert(ui->actionFont->objectName(), Action(tr("Edit.Font"), ui->actionFont));
+
+    ui->actionFontColor->setObjectName("textEditFontColorAct.3");
+    ui->actionFontColor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_L));
+    lpub->actions.insert(ui->actionFontColor->objectName(), Action(tr("Edit.FontColor"), ui->actionFontColor));
+
+    ui->actionRichText->setObjectName("textEditRichTextAct.3");
+    ui->actionRichText->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Z));
+    lpub->actions.insert(ui->actionRichText->objectName(), Action(tr("Edit.Rich Text"), ui->actionRichText));
+
+    ui->actionBold->setObjectName("textEditBoldAct.3");
+    ui->actionBold->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_B));
+    lpub->actions.insert(ui->actionBold->objectName(), Action(tr("Edit.Bold"), ui->actionBold));
+
+    ui->actionItalic->setObjectName("textEditItalicAct.3");
+    ui->actionItalic->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_I));
+    lpub->actions.insert(ui->actionItalic->objectName(), Action(tr("Edit.Italic"), ui->actionItalic));
+
+    ui->actionUnderline->setObjectName("textEditUnderlineAct.3");
+    ui->actionUnderline->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_U));
+    lpub->actions.insert(ui->actionUnderline->objectName(), Action(tr("Edit.Underline"), ui->actionUnderline));
+
+    tedit = this;
+
+    setModal(true);
+    setMinimumSize(40,20);
+}
+
+void TextEditDialog::initialize(
+        QString &goods,
+        const QString &editFont,
+        const QString &editFontColor,
+        const QString &windowTitle,
+        bool _richText,
+        bool fontActions)
+{
+    setWindowTitle(tr("Edit %1 Text").arg(windowTitle));
 
     rendererArgs = windowTitle.contains("Renderer Arguments");
+
+    text = goods;
+
+    richText = _richText;
+
     if (rendererArgs)
         ui->statusBar->showMessage("Enter space delimited renderer arguments.");
-
-    text      = goods;
-    richText  = _richText;
 
     QFont textFont("Arial");
     textFont.setStyleHint(QFont::SansSerif);
@@ -75,7 +159,7 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
         ui->actionRichText->setChecked(richText);
 
         connect(ui->textEdit, &QTextEdit::currentCharFormatChanged,
-                this, &TextEditDialog::currentCharFormatChanged);
+                tedit,        &TextEditDialog::currentCharFormatChanged);
 
         QByteArray data = text.toUtf8();
         QTextCodec *codec = Qt::codecForHtml(data);
@@ -91,13 +175,11 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
 
         fontChanged(ui->textEdit->font());
     }
-
-    setModal(true);
-    setMinimumSize(40,20);
 }
 
 TextEditDialog::~TextEditDialog()
 {
+    tedit = nullptr;
     delete ui;
 }
 
@@ -215,13 +297,28 @@ bool TextEditDialog::getText(
       QString &goods,
       QString  windowTitle)
 {
-    QString empty = QString();
-    TextEditDialog *dialog = new TextEditDialog(goods,empty,empty,windowTitle);
+    if (!lpub->textEdit)
+        return false;
 
-    bool ok = dialog->exec() == QDialog::Accepted;
-    if (ok) {
-        goods = dialog->text;
-    }
+    QEventLoop loop;
+    QString empty = QString();
+
+    lpub->textEdit->initialize(goods,empty,empty,windowTitle);
+
+    bool ok =  false;
+
+    connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
+
+    lpub->textEdit->open();
+
+    // Non blocking wait
+    loop.exec(QEventLoop::DialogExec);
+
+    if (ok)
+        goods = lpub->textEdit->text;
+
+    disconnect(lpub->textEdit, &QDialog::finished, nullptr, nullptr);
+
     return ok;
 }
 
@@ -234,6 +331,10 @@ bool TextEditDialog::getText(
       QString  windowTitle,
       bool     fontActions)
 {
+    if (!lpub->textEdit)
+        return false;
+
+    QEventLoop loop;
     QString unformattedGoods = goods;
     if (!goods.isEmpty()) {
         QStringList list;
@@ -259,18 +360,65 @@ bool TextEditDialog::getText(
         unformattedGoods = list.join(" ");
     }
 
-    TextEditDialog *dialog = new TextEditDialog(unformattedGoods,editFont,editFontColor,windowTitle,richText,fontActions);
+    lpub->textEdit->initialize(unformattedGoods, editFont, editFontColor, windowTitle, richText, fontActions);
 
-    bool ok = dialog->exec() == QDialog::Accepted;
+    bool ok = false;
+
+    connect(lpub->textEdit, &QDialog::finished, [&](int r) { ok = r; loop.exit(); });
+
+    lpub->textEdit->open();
+
+    // Non blocking wait
+    loop.exec(QEventLoop::DialogExec);
+
     if (ok) {
-        goods    = dialog->text;
-        richText = dialog->richText;
+        goods    = lpub->textEdit->text;
+        richText = lpub->textEdit->richText;
     }
     if (!richText){
-        editFont      = dialog->font.toString();
-        editFontColor = dialog->fontColor.name();
+        editFont      = lpub->textEdit->font.toString();
+        editFontColor = lpub->textEdit->fontColor.name();
     }
+
+    disconnect(lpub->textEdit, &QDialog::finished, nullptr, nullptr);
+
     return ok;
 }
 
+bool TextEditDialog::maybeSave()
+{
+  bool rc = false;
+
+  if (!ui->textEdit->document()->isEmpty()) {
+
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Text Editor").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + tr ("Document changes detected") + "</b>";
+    QString text = tr("There is unsaved content in the current document.<br>"
+                      "Do you want to save your changes?");
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    if (box.exec() == QMessageBox::Yes)
+      rc = true;
+  }
+  return rc;
+}
+
+void TextEditDialog::closeEvent(QCloseEvent *event)
+{
+    if (maybeSave())
+        on_actionAccept_triggered();
+    else
+        on_actionCancel_triggered();
+    QDialog::closeEvent(event);
+}
 

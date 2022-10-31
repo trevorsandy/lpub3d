@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>613</width>
+    <width>789</width>
     <height>618</height>
    </rect>
   </property>
@@ -936,7 +936,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="NativeTab">
           <attribute name="title">
@@ -3189,6 +3189,130 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="shortcutsTab">
+      <attribute name="title">
+       <string>Shortcuts</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_21">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_18">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4"/>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_16">
+           <item>
+            <widget class="QGroupBox" name="groupBox_8">
+             <property name="title">
+              <string>Keyboard Shortcuts</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <item>
+               <widget class="QTreeWidget" name="commandList">
+                <property name="rootIsDecorated">
+                 <bool>true</bool>
+                </property>
+                <property name="uniformRowHeights">
+                 <bool>true</bool>
+                </property>
+                <property name="columnCount">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="KeyboardFilterEdit">
+                <property name="placeholderText">
+                 <string>Filter shortcuts</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_29">
+                <item>
+                 <widget class="QPushButton" name="shortcutsImport">
+                  <property name="text">
+                   <string>Import...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="shortcutsExport">
+                  <property name="text">
+                   <string>Export...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="shortcutsReset">
+                  <property name="text">
+                   <string>Reset...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_26">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_33"/>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="shortcutGroup">
+             <property name="title">
+              <string>Shortcut</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_34">
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="text">
+                 <string>Key se&amp;quence:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>shortcutEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="shortcutEdit"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="shortcutAssign">
+                <property name="text">
+                 <string>Assign</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="shortcutRemove">
+                <property name="text">
+                 <string>Remove</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabOther">
       <attribute name="title">
        <string>Other</string>
@@ -3671,6 +3795,16 @@ p, li { white-space: pre-wrap; }
   <tabstop>debugLevelBox</tabstop>
   <tabstop>infoLevelBox</tabstop>
   <tabstop>allLogLevelsBox</tabstop>
+  <tabstop>commandList</tabstop>
+  <tabstop>KeyboardFilterEdit</tabstop>
+  <tabstop>shortcutsImport</tabstop>
+  <tabstop>shortcutsExport</tabstop>
+  <tabstop>shortcutsReset</tabstop>
+  <tabstop>shortcutEdit</tabstop>
+  <tabstop>shortcutAssign</tabstop>
+  <tabstop>shortcutRemove</tabstop>
+  <tabstop>lineEditIniFile</tabstop>
+  <tabstop>textEditSearchDirs</tabstop>
   <tabstop>tabOthers</tabstop>
   <tabstop>checkUpdateFrequency_Combo</tabstop>
   <tabstop>moduleVersion_Combo</tabstop>
@@ -3680,8 +3814,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>showUpdateNotifications_Chk</tabstop>
   <tabstop>checkForUpdates_btn</tabstop>
   <tabstop>changeLog_txbr</tabstop>
-  <tabstop>lineEditIniFile</tabstop>
-  <tabstop>textEditSearchDirs</tabstop>
  </tabstops>
  <resources/>
  <connections>

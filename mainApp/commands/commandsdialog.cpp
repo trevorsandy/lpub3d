@@ -123,7 +123,13 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   connect(commandTableView,                   SIGNAL(customContextMenuRequested(QPoint)),
           this,                               SLOT(  customMenuRequested(QPoint)));
 
-  commandTextEdit = new CommandsTextEdit(widget);
+  if (!lpub->commandTextEdit)
+      commandTextEdit = new CommandsTextEdit(widget);
+  else {
+      commandTextEdit = lpub->commandTextEdit;
+      commandTextEdit->setParent(widget);
+  }
+  commandTextEdit->setParent(widget);
   commandTextEdit->setToolTip(tr("Update the command description adding details and examples you find useful."));
   commandTextEdit->setReadOnly(true);
   commandTextEdit->setPalette(readOnlyPalette);
@@ -188,7 +194,12 @@ CommandsDialog::CommandsDialog(QWidget *parent) :
   connect(snippetTableView,                   SIGNAL(customContextMenuRequested(QPoint)),
           this,                               SLOT(  customMenuRequested(QPoint)));
 
-  snippetTextEdit = new CommandsTextEdit(widget);
+  if (!lpub->snippetTextEdit)
+      snippetTextEdit = new CommandsTextEdit(widget);
+  else {
+      snippetTextEdit = lpub->snippetTextEdit;
+      snippetTextEdit->setParent(widget);
+  }
   snippetTextEdit->setToolTip(tr("Create shortcuts that trigger LPub command insert or autocomplete.<br>"
                                  "Place the '$|' marker where the cursor will be after the command is inserted."));
   snippetTextEdit->setReadOnly(true);
@@ -326,9 +337,10 @@ void CommandsDialog::copyToClipboard() {
 void CommandsDialog::customMenuRequested(QPoint pos) {
 
   QAction *copyToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Copy to Clipboard"), this);
-  copyToClipboardAct->setObjectName("copyToClipboardAct");
+  copyToClipboardAct->setObjectName("copyToClipboardAct.6");
   copyToClipboardAct->setShortcut(QKeySequence::Copy);
-  copyToClipboardAct->setProperty("defaultshortcut", copyToClipboardAct->shortcut());
+  lpub->actions.insert(copyToClipboardAct->objectName(), Action(tr("Edit.Copy To Clipboard"), copyToClipboardAct));
+
   QMenu *menu = new QMenu(this);
 #ifndef QT_NO_CLIPBOARD
   menu->addAction(copyToClipboardAct);
@@ -459,11 +471,11 @@ void CommandsDialog::removeSnippetButtonClicked()
 
 void CommandsDialog::showCommandsDialog(QWidget *parent)
 {
-  CommandsDialog *dialog = new CommandsDialog(parent);
+  lpub->commandsDialog->setParent(parent);
 
-  dialog->show();
-  dialog->raise();
-  dialog->activateWindow();
+  lpub->commandsDialog->show();
+  lpub->commandsDialog->raise();
+  lpub->commandsDialog->activateWindow();
 }
 
 void CommandsDialog::accept()

@@ -21,6 +21,8 @@
 #include "step.h"
 #include "lpub.h"
 #include "messageboxresizable.h"
+#include "qsimpleupdater.h"
+#include "texteditdialog.h"
 
 #include "lc_application.h"
 #include "lc_mainwindow.h"
@@ -32,13 +34,29 @@
 #include "project.h"
 
 #include <jsonfile.h>
+#include <commands/snippets/snippetcollection.h>
 #include <commands/jsoncommandtranslatorfactory.h>
 #include <commands/commandcollection.h>
+#include <commands/commandstextedit.h>
+#include <commands/commandsdialog.h>
 
 LPub *lpub;
 
 QString LPub::commandlineFile;
 QString LPub::viewerStepKey;
+
+const QString shortcutParentNames[] =
+{
+    "Root",                // 0
+    "MainWindow",          // 1
+    "CommandEditor",       // 2
+    "TextEditor",          // 3
+    "VisualEditor",        // 4
+    "ParameterEditor",     // 5
+    "CommandsDialog",      // 6
+    "CommandsTextEditor",  // 7
+    "Other"                // 8
+};
 
 LPub::LPub()
 {
@@ -47,7 +65,23 @@ LPub::LPub()
 
 LPub::~LPub()
 {
+  if (textEdit)
+    delete textEdit;
+  if (commandTextEdit)
+    delete commandTextEdit;
+  if (snippetTextEdit)
+    delete snippetTextEdit;
+  if (commandsDialog)
+    delete commandsDialog;
   lpub = nullptr;
+}
+
+void LPub::initDialogEditors()
+{
+  textEdit = new TextEditDialog();
+  commandsDialog  = new CommandsDialog(nullptr);
+  commandTextEdit = new CommandsTextEdit(nullptr);
+  snippetTextEdit = new CommandsTextEdit(nullptr);
 }
 
 /*********************************************
@@ -710,6 +744,19 @@ QStringList LPub::getViewerStepKeys(bool modelName, bool pliPart, const QString 
 
 /****************************************************************************
  *
+ * LPub snippet collection load
+ *
+ ***************************************************************************/
+
+void LPub::loadSnippetCollection()
+{
+    JsonFile<Snippet>::load(":/resources/builtinsnippets.json", snippetCollection);
+    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
+    JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
+}
+
+/****************************************************************************
+ *
  * LPub command collection load
  *
  ***************************************************************************/
@@ -1245,4 +1292,99 @@ void LPub::reloadCurrentPage()
 void LPub::restartApplication()
 {
     emit gui->restartApplicationSig();
+}
+
+void LPub::setShortcutKeywords()
+{
+    // setup shortcut keywords for filter completer
+    QStringList kwList = QStringList()
+        << shortcutParentNames[NO_ACTION]
+        << shortcutParentNames[MAIN_WINDOW_ACTION]
+        << shortcutParentNames[COMMAND_EDITOR_ACTION]
+        << shortcutParentNames[TEXT_EDITOR_ACTION]
+        << shortcutParentNames[VISUAL_EDITOR_ACTION]
+        << shortcutParentNames[PARAMS_EDITOR_ACTION]
+        << shortcutParentNames[COMMANDS_DIALOG_ACTION]
+        << shortcutParentNames[COMMANDS_TEXT_EDIT_ACTION]
+        << shortcutParentNames[OTHER_ACTION]
+           ;
+    foreach (Action act, actions) {
+        if (act.action) {
+            QStringList sl = act.id.split(".");
+            kwList << QString(sl.takeLast()).split(" ");
+            foreach (QString string, sl)
+                kwList << string.replace(" ", "");
+            foreach (const QString &word, kwList)
+                if (word.size() < 2)
+                    kwList.removeAll(word);
+        }
+    }
+    kwList.removeDuplicates();
+
+    auto lt = [] (const QString &w1, const QString &w2) { return w1 < w2; };
+    std::sort(kwList.begin(), kwList.end(),lt);
+
+    shortcutIdKeywords = kwList;
+}
+
+void LPub::setDefaultKeyboardShortcuts()
+{
+    QMap<QString, Action>::iterator it = actions.begin();
+    while (it != actions.end()) {
+        const QKeySequence shortcut(it.value().action->property("defaultshortcut").value<QKeySequence>());
+        it.value().action->setShortcut(shortcut);
+        ++it;
+    }
+}
+
+void LPub::setKeyboardShortcuts()
+{
+    QMap<QString, Action>::const_iterator it = actions.constBegin();
+    while (it != actions.constEnd())
+    {
+        if (it.value().action)
+            setKeyboardShortcut(it.value().action);
+        ++it;
+    }
+    foreach (QAction *action, textEdit->actions()) {
+        setKeyboardShortcut(action);
+    }
+    foreach (QAction *action, commandsDialog->actions()) {
+        setKeyboardShortcut(action);
+    }
+    foreach (QAction *action, commandTextEdit->actions()) {
+        setKeyboardShortcut(action);
+    }
+    foreach (QAction *action, snippetTextEdit->actions()) {
+        setKeyboardShortcut(action);
+    }
+}
+
+void LPub::setKeyboardShortcut(QAction *action)
+{
+    if (Preferences::hasKeyboardShortcut(action->objectName())) {
+        action->setShortcut(Preferences::keyboardShortcut(action->objectName()));
+    }
+}
+
+void LPub::setKeyboardShortcut(QMenu *menu)
+{
+    // setKeyboardShortcut(ui.menuEdit);
+
+    foreach (QAction *action, menu->actions()) {
+        if (action->menu()) {
+            // recurse into submenu
+            setKeyboardShortcut(action->menu());
+        } else {
+            setKeyboardShortcut(action);
+        }
+    }
+}
+
+QAction *LPub::getAct(const QString &objectName)
+{
+    if (actions.contains(objectName))
+        return actions.value(objectName).action;
+    emit messageSig(LOG_TRACE, QString("Action was not found or is null [%1]").arg(objectName));
+    return nullptr;
 }

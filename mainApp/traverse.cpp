@@ -4885,7 +4885,7 @@ void Gui::pagesCounted()
         else
             message = QString("%1 of %2") .arg(displayPageNum) .arg(maxPages);
 
-        setPageLineEditResetAct->setEnabled(false);
+        getAct("setPageLineEditResetAct.1")->setEnabled(false);
         setPageLineEdit->setText(message);
     } // modeGUI and not exporting - countPage and drawPage
 

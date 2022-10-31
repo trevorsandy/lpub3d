@@ -117,10 +117,6 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     _textEdit->setAutoCompleter(new QCompleter(metaCommandModel(this), this));
     _textEdit->setSnippetCompleter(new SnippetCompleter(lpub->snippetCollection, _textEdit));
 
-    JsonFile<Snippet>::load(":/resources/builtinsnippets.json", lpub->snippetCollection);
-    const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
-    JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
-
     _textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -470,85 +466,117 @@ void EditWindow::createActions()
 {
     createOpenWithActions();
 
-    editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
+    editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit Current Model"), this);
+    editModelFileAct->setObjectName("editModelFileAct.2");
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw file in detached LDraw Editor"));
+    lpub->actions.insert(editModelFileAct->objectName(), Action(tr("Edit.Edit Current Model"), editModelFileAct));
     connect(editModelFileAct, SIGNAL(triggered()), this, SIGNAL(editModelFileSig()));
 
-    previewLineAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview highlighted line..."), this);
+    previewLineAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Highlighted Line..."), this);
+    previewLineAct->setObjectName("previewLineAct.2");
     previewLineAct->setStatusTip(tr("Display the part on the highlighted line in a popup 3D viewer"));
+    lpub->actions.insert(previewLineAct->objectName(), Action(tr("Edit.Preview Highlighted Line"), previewLineAct));
     connect(previewLineAct, SIGNAL(triggered()), this, SLOT(previewLine()));
 
 #ifdef QT_DEBUG_MODE
     previewViewerFileAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview Current Model..."), this);
+    previewViewerFileAct->setObjectName("previewViewerFileAct.2");
     previewViewerFileAct->setStatusTip(tr("Display Visual Editor file in a popup 3D viewer"));
+    lpub->actions.insert(previewViewerFileAct->objectName(), Action(tr("Edit.Preview Current Model"), previewViewerFileAct));
     connect(previewViewerFileAct, SIGNAL(triggered()), this, SLOT(previewViewerFile()));
 #endif
 
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
+    cutAct->setObjectName("cutAct.2");
     cutAct->setShortcut(tr("Ctrl+X"));
-    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
+    cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
+    lpub->actions.insert(cutAct->objectName(), Action(tr("Edit.Cut"), cutAct));
     connect(cutAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/resources/copy.png"), tr("&Copy"), this);
+    copyAct->setObjectName("copyAct.2");
     copyAct->setShortcut(tr("Ctrl+C"));
-    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard - Ctrl+C"));
+    copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
+    lpub->actions.insert(copyAct->objectName(), Action(tr("Edit.Copy"), copyAct));
     connect(copyAct, SIGNAL(triggered()), _textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/resources/paste.png"), tr("&Paste"), this);
+    pasteAct->setObjectName("pasteAct.2");
     pasteAct->setShortcut(tr("Ctrl+V"));
-    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection - Ctrl+V"));
+    pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
+    lpub->actions.insert(pasteAct->objectName(), Action(tr("Edit.Paste"), pasteAct));
     connect(pasteAct, SIGNAL(triggered()), _textEdit, SLOT(paste()));
 
     findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
+    findAct->setObjectName("findAct.2");
     findAct->setShortcut(tr("Ctrl+F"));
-    findAct->setStatusTip(tr("Find object - Ctrl+F"));
+    findAct->setStatusTip(tr("Find object"));
+    lpub->actions.insert(findAct->objectName(), Action(tr("Edit.Find"), findAct));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
     gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to Line"), this);
+    gotoLineAct->setObjectName("gotoLineAct.2");
     gotoLineAct->setShortcut(tr("Ctrl+G"));
-    gotoLineAct->setStatusTip(tr("Go to line - Ctrl+G"));
+    gotoLineAct->setStatusTip(tr("Go to line"));
+    lpub->actions.insert(gotoLineAct->objectName(), Action(tr("Edit.Go To Line"), gotoLineAct));
     connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
 
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
+    redrawAct->setObjectName("redrawAct.2");
     redrawAct->setShortcut(tr("Ctrl+R"));
-    redrawAct->setStatusTip(tr("Redraw page, reset model caches - Ctrl+R"));
+    redrawAct->setStatusTip(tr("Redraw page, reset model caches"));
+    lpub->actions.insert(redrawAct->objectName(), Action(tr("Edit.Redraw"), redrawAct));
     connect(redrawAct, SIGNAL(triggered()), this, SLOT(redraw()));
 
     updateAct = new QAction(QIcon(":/resources/update.png"), tr("&Update"), this);
+    updateAct->setObjectName("updateAct.2");
     updateAct->setShortcut(tr("Ctrl+U"));
-    updateAct->setStatusTip(tr("Update page - Ctrl+U"));
+    updateAct->setStatusTip(tr("Update page"));
+    lpub->actions.insert(updateAct->objectName(), Action(tr("Edit.Update"), updateAct));
     connect(updateAct, SIGNAL(triggered(bool)), this, SLOT(update(bool)));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
+    delAct->setObjectName("delAct.2");
     delAct->setShortcut(tr("DEL"));
     delAct->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    delAct->setStatusTip(tr("Delete the selection - DEL"));
+    delAct->setStatusTip(tr("Delete the selection"));
+    lpub->actions.insert(delAct->objectName(), Action(tr("File.Delete"), delAct));
     connect(delAct, SIGNAL(triggered()), this, SLOT(deleteSelection()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
+    selAllAct->setObjectName("selAllAct.2");
     selAllAct->setShortcut(tr("Ctrl+A"));
-    selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
+    selAllAct->setStatusTip(tr("Select all page content"));
+    lpub->actions.insert(selAllAct->objectName(), Action(tr("File.Select All"), selAllAct));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
     showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show All Characters"), this);
+    showAllCharsAct->setObjectName("showAllCharsAct.2");
     showAllCharsAct->setShortcut(tr("Ctrl+J"));
-    showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
+    showAllCharsAct->setStatusTip(tr("Show all characters"));
     showAllCharsAct->setCheckable(true);
+    lpub->actions.insert(showAllCharsAct->objectName(), Action(tr("File.Show All Characters"), showAllCharsAct));
     connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
 
     toggleCmmentAct = new QAction(QIcon(":/resources/togglecomment.png"), tr("Toggle Line Comment"), this);
+    toggleCmmentAct->setObjectName("toggleCmmentAct.2");
     toggleCmmentAct->setShortcut(tr("Ctrl+D"));
-    toggleCmmentAct->setStatusTip(tr("Add or remove comment from selected line - Ctrl+D"));
+    toggleCmmentAct->setStatusTip(tr("Add or remove comment from selected line"));
+    lpub->actions.insert(toggleCmmentAct->objectName(), Action(tr("Edit.Toggle Line Comment"), toggleCmmentAct));
     connect(toggleCmmentAct, SIGNAL(triggered()), _textEdit, SLOT(toggleComment()));
 
     topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
+    topAct->setObjectName("topAct.2");
     topAct->setShortcut(tr("Ctrl+T"));
-    topAct->setStatusTip(tr("Go to the top of document - Ctrl+T"));
+    topAct->setStatusTip(tr("Go to the top of document"));
+    lpub->actions.insert(topAct->objectName(), Action(tr("File.Top Of Document"), topAct));
     connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
 
     bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of Document"), this);
+    bottomAct->setObjectName("bottomAct.2");
     bottomAct->setShortcut(tr("Ctrl+B"));
-    bottomAct->setStatusTip(tr("Go to the bottom of document - Ctrl+B"));
+    bottomAct->setStatusTip(tr("Go to the bottom of document"));
+    lpub->actions.insert(bottomAct->objectName(), Action(tr("File.Bottom Of Document"), bottomAct));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -560,76 +588,107 @@ void EditWindow::createActions()
 
     // edit model file
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
+    exitAct->setObjectName("exitAct.2");
     exitAct->setShortcut(tr("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Close this window - Ctrl+Q"));
+    exitAct->setStatusTip(tr("Close this window"));
+    lpub->actions.insert(exitAct->objectName(), Action(tr("File.Exit"), exitAct));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
+    saveAct->setObjectName("saveAct.2");
     saveAct->setShortcut(tr("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
+    saveAct->setStatusTip(tr("Save the document to disk"));
+    lpub->actions.insert(saveAct->objectName(), Action(tr("File.Save"), saveAct));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
 
-    saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save a Copy As..."), this);
+    saveCopyAct = new QAction(QIcon(":/resources/savecopy.png"),tr("Save A Copy As..."), this);
+    saveCopyAct->setObjectName("saveCopyAct.2");
     saveCopyAct->setShortcut(tr("Ctrl+Shift+C"));
-    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name - Ctrl+Shift+C"));
+    saveCopyAct->setStatusTip(tr("Save a copy of the document under a new name"));
     saveCopyAct->setEnabled(false);
+    lpub->actions.insert(saveCopyAct->objectName(), Action(tr("File.Save A Copy As"), saveCopyAct));
     connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveFileCopy()));
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
+    undoAct->setObjectName("undoAct.2");
     undoAct->setShortcut(tr("Ctrl+Z"));
-    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo last change"));
+    lpub->actions.insert(undoAct->objectName(), Action(tr("Edit.Undo"), undoAct));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
+
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
+    redoAct->setObjectName("redoAct.2");
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #else
     redoAct->setShortcut(tr("Ctrl+Y"));
-    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change"));
 #endif
+    lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
+    preferencesAct->setObjectName("preferencesAct.2");
     preferencesAct->setStatusTip(tr("Set your preferences for the LDraw Command editor"));
+    lpub->actions.insert(preferencesAct->objectName(), Action(tr("Edit.Preferences"), preferencesAct));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
     openFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open Working Folder"), this);
+    openFolderAct->setObjectName("openFolderAct.2");
     openFolderAct->setShortcut(tr("Alt+Shift+2"));
-    openFolderAct->setStatusTip(tr("Open file working folder - Alt+Shift+2"));
+    openFolderAct->setStatusTip(tr("Open file working folder"));
+    lpub->actions.insert(openFolderAct->objectName(), Action(tr("File.Open Working Folder"), openFolderAct));
     connect(openFolderAct, SIGNAL(triggered()), this, SLOT(openFolder()));
 
     copyFullPathToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("Full Path to Clipboard"), this);
+    copyFullPathToClipboardAct->setObjectName("copyFullPathToClipboardAct.2");
     copyFullPathToClipboardAct->setShortcut(tr("Alt+Shift+3"));
-    copyFullPathToClipboardAct->setStatusTip(tr("Copy full file path to clipboard - Alt+Shift+3"));
+    copyFullPathToClipboardAct->setStatusTip(tr("Copy full file path to clipboard"));
+    lpub->actions.insert(copyFullPathToClipboardAct->objectName(), Action(tr("File.Full Path To Clipboard"), copyFullPathToClipboardAct));
     connect(copyFullPathToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
     copyFileNameToClipboardAct = new QAction(QIcon(":/resources/copytoclipboard.png"),tr("File Name to Clipboard"), this);
+    copyFileNameToClipboardAct->setObjectName("copyFileNameToClipboardAct.2");
     copyFileNameToClipboardAct->setShortcut(tr("Alt+Shift+0"));
-    copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard - Alt+Shift+0"));
+    copyFileNameToClipboardAct->setStatusTip(tr("Copy file name to clipboard"));
+    lpub->actions.insert(copyFileNameToClipboardAct->objectName(), Action(tr("File.File Name To Clipboard"), copyFileNameToClipboardAct));
     connect(copyFileNameToClipboardAct, SIGNAL(triggered()), this, SLOT(updateClipboard()));
 
     commandsDialogAct = new QAction(QIcon(":/resources/command32.png"),tr("Manage &LPub Metacommands"), this);
-    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions - Ctrl+K"));
+    commandsDialogAct->setObjectName("commandsDialogAct.2");
+    commandsDialogAct->setStatusTip(tr("View LPub meta commands and customize command descriptions"));
     commandsDialogAct->setShortcut(tr("Ctrl+K"));
+    lpub->actions.insert(commandsDialogAct->objectName(), Action(tr("Help.Manage LPub Metacommands"), commandsDialogAct));
     connect(commandsDialogAct, SIGNAL(triggered()), this, SLOT(commandsDialog()));
 
     openWithToolbarAct = new QAction(QIcon(":/resources/openwith.png"), tr("Open With..."), this);
+    openWithToolbarAct->setObjectName("openWithToolbarAct.2");
     openWithToolbarAct->setStatusTip(tr("Open model file with selected application"));
+    lpub->actions.insert(openWithToolbarAct->objectName(), Action(tr("File.Open With"), openWithToolbarAct));
 
-    editColorAct = new QAction(QIcon(":/resources/editcolor.png"),tr("Change color..."), this);
+    editColorAct = new QAction(QIcon(":/resources/editcolor.png"),tr("Change Part Color..."), this);
+    editColorAct->setObjectName("editColorAct.2");
     editColorAct->setStatusTip(tr("Edit the part color"));
+    lpub->actions.insert(editColorAct->objectName(), Action(tr("Tools.Change Part Color"), editColorAct));
     connect(editColorAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
 
-    editPartAct = new QAction(QIcon(":/resources/editpart.png"),tr("Change part..."), this);
+    editPartAct = new QAction(QIcon(":/resources/editpart.png"),tr("Change Part..."), this);
+    editPartAct->setObjectName("editPartAct.2");
     editPartAct->setStatusTip(tr("Edit this part"));
+    lpub->actions.insert(editPartAct->objectName(), Action(tr("Tools.Change Part"), editPartAct));
     connect(editPartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
 
-    substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute part..."), this);
+    substitutePartAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Substitute Part..."), this);
+    substitutePartAct->setObjectName("substitutePartAct.2");
     substitutePartAct->setStatusTip(tr("Substitute this part"));
+    lpub->actions.insert(substitutePartAct->objectName(), Action(tr("Tools.Substitute Part"), substitutePartAct));
     connect(substitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
 
     removeSubstitutePartAct = new QAction(QIcon(":/resources/removesubstitutepart.png"),tr("Remove Substitute..."), this);
+    removeSubstitutePartAct->setObjectName("removeSubstitutePartAct.2");
     removeSubstitutePartAct->setStatusTip(tr("Replace this substitute part with the original part."));
+    lpub->actions.insert(removeSubstitutePartAct->objectName(), Action(tr("Tools.Remove Substitute"), removeSubstitutePartAct));
     connect(removeSubstitutePartAct, SIGNAL(triggered()), this, SLOT(editLineItem()));
 
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
@@ -660,7 +719,6 @@ void EditWindow::createActions()
     connect(_textEdit, SIGNAL(textChanged()),
              this,     SLOT(enableSave()));
 }
-
 
 void EditWindow::undoKeySequence()
 {
@@ -772,7 +830,12 @@ void EditWindow::createToolBars()
         editToolBar->addAction(redoAct);
 
         mpdComboSeparatorAct = editToolBar->addSeparator();
+        mpdComboSeparatorAct->setObjectName("mpdComboSeparatorAct.2");
+        lpub->actions.insert(mpdComboSeparatorAct->objectName(), Action(tr(""), mpdComboSeparatorAct));
+
         mpdComboAct = editToolBar->addWidget(mpdCombo);
+        mpdComboAct->setObjectName("mpdComboAct.2");
+        lpub->actions.insert(mpdComboAct->objectName(), Action(tr(""), mpdComboAct));
 
 #ifndef QT_NO_CLIPBOARD
         editToolBar->addSeparator();
@@ -992,7 +1055,7 @@ bool EditWindow::setValidPartLine()
 #endif
 
     // partType is valid if we get here so check color to enable tools
-    toolsToolBar->setEnabled(true);
+    //toolsToolBar->setEnabled(true);
 
     const QString elidedPartType = partType.size() > 20 ? QString(partType.left(17) + "..." + partType.right(3)) : partType;
 
@@ -2858,10 +2921,10 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
 
-    QAction * actionComplete = new QAction(tr("Snippet Complete"), this);
-    actionComplete->setObjectName("actionComplete");
+    QAction * actionComplete = new QAction(tr("Snippet Completer"), this);
+    actionComplete->setObjectName("snippetCompleterAct.2");
     actionComplete->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Space));
-    actionComplete->setProperty("defaultshortcut", actionComplete->shortcut());
+    lpub->actions.insert(actionComplete->objectName(), Action("Edit.Snippet Completer", actionComplete));
     connect(actionComplete, SIGNAL(triggered()),
             this,           SLOT(  performCompletion()));
     this->addAction(actionComplete);

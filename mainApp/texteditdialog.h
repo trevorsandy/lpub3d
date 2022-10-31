@@ -37,14 +37,15 @@ class TextEditDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit TextEditDialog(QString  &goods,
-                            QString  &editFont,
-                            QString  &editFontColor,
-                            QString   windowTitle,
-                            bool      richText = false,
-                            bool      fontActions = false,
-                            QWidget  *parent = nullptr);
+    explicit TextEditDialog(QWidget  *parent = nullptr);
     ~TextEditDialog();
+
+     void initialize(      QString  &goods,
+                     const QString  &editFont,
+                     const QString  &editFontColor,
+                     const QString  &windowTitle,
+                           bool      richText = false,
+                           bool      fontActions = false);
 
     static bool getText(
       QString  &goods,
@@ -58,12 +59,11 @@ public:
       QString   windowTitle,
       bool      fontActions = false);
 
-    bool richText;
-    bool rendererArgs;
-
-    QString   text;
-    QFont     font;
-    QColor    fontColor;
+    static bool richText;
+    static bool rendererArgs;
+    static QString text;
+    static QFont   font;
+    static QColor  fontColor;
 
 private slots:
     void currentCharFormatChanged(const QTextCharFormat &format);
@@ -94,11 +94,17 @@ private slots:
 
     void on_actionUnderline_triggered();
 
-    void on_actionItalic_triggered();	
+    void on_actionItalic_triggered();
+
+    void closeEvent(QCloseEvent *event);
+
+    bool maybeSave();
 
 private:
     Ui::TextEditDialog *ui;
     void fontChanged(const QFont &f);
 };
+
+extern class TextEditDialog *tedit;
 
 #endif // TEXTEDITDIALOG_H

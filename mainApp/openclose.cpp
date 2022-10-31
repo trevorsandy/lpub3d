@@ -311,15 +311,15 @@ void Gui::updateOpenWithActions()
         openWithActList[j]->setVisible(false);
 
       // clear old menu actions
-      if (openWithMenu->actions().size())
-          openWithMenu->clear();
+      if (getMenu("openWithMenu")->actions().size())
+          getMenu("openWithMenu")->clear();
 
       // add menu actions from updated list
       for (int k = 0; k < numPrograms; k++)
-        openWithMenu->addAction(openWithActList.at(k));
+        getMenu("openWithMenu")->addAction(openWithActList.at(k));
 
       // enable menu accordingly
-      openWithMenu->setEnabled(numPrograms > 0);
+      getMenu("openWithMenu")->setEnabled(numPrograms > 0);
     }
 }
 
@@ -810,8 +810,8 @@ void Gui::closeModelFile(){
     disableActions2();
     closeFile();           // perform LPub3D file close operations here...
     editModeWindow->close();
-    editModelFileAct->setText(tr("Edit current model file"));
-    editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
+    getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
+    getAct("editModelFileAct.1")->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
     emit messageSig(LOG_INFO, QString("Model unloaded. File closed - %1.").arg(topModel));
 
     QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
@@ -865,8 +865,8 @@ bool Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
-  editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
-  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
+  getAct("editModelFileAct.1")->setText(tr("Edit %1").arg(info.fileName()));
+  getAct("editModelFileAct.1")->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
   mSetupFadeSteps = lpub->setFadeStepsFromCommand();
   mSetupHighlightStep = lpub->setHighlightStepFromCommand();
   bool enableFadeSteps = mSetupFadeSteps || Preferences::enableFadeSteps;
@@ -926,7 +926,7 @@ void Gui::updateRecentFileActions()
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
     QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
 
-    int numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
+    int numRecentFiles = qMin(files.size(), int(MAX_RECENT_FILES));
 
     // filter filest that don't exist
 
@@ -944,15 +944,15 @@ void Gui::updateRecentFileActions()
     for (int i = 0; i < numRecentFiles; i++) {
       QFileInfo fileInfo(files[i]);
       QString text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-      recentFilesActs[i]->setText(text);
-      recentFilesActs[i]->setData(files[i]);
-      recentFilesActs[i]->setStatusTip(fileInfo.absoluteFilePath());
-      recentFilesActs[i]->setVisible(true);
+      getAct(tr("recentFile%1Act.1").arg(i))->setText(text);
+      getAct(tr("recentFile%1Act.1").arg(i))->setData(files[i]);
+      getAct(tr("recentFile%1Act.1").arg(i))->setStatusTip(fileInfo.absoluteFilePath());
+      getAct(tr("recentFile%1Act.1").arg(i))->setVisible(true);
     }
-    for (int j = numRecentFiles; j < MaxRecentFiles; j++) {
-      recentFilesActs[j]->setVisible(false);
+    for (int j = numRecentFiles; j < MAX_RECENT_FILES; j++) {
+      getAct(tr("recentFile%1Act.1").arg(j))->setVisible(false);
     }
-    separatorAct->setVisible(numRecentFiles > 0);
+    getAct("separatorAct.1")->setVisible(numRecentFiles > 0);
   }
 }
 
@@ -983,7 +983,7 @@ void Gui::setCurrentFile(const QString &fileName)
     files.removeAll("");
     files.removeAll(fileName);
     files.prepend(fileName);
-    while (files.size() > MaxRecentFiles) {
+    while (files.size() > MAX_RECENT_FILES) {
       files.removeLast();
     }
     Settings.setValue(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"), files);
@@ -993,8 +993,8 @@ void Gui::setCurrentFile(const QString &fileName)
 
 void Gui::loadLastOpenedFile(){
     updateRecentFileActions();
-    if (recentFilesActs[0]) {
-        loadFile(recentFilesActs[0]->data().toString());
+    if (getAct("recentFile1Act.1")) {
+        loadFile(getAct("recentFile1Act.1")->data().toString());
     }
 }
 

@@ -228,12 +228,13 @@ protected:
     int                _pageIndx;
     int                _saveSubfileIndex;
 
-    QScrollBar *verticalScrollBar;
+    QMenu         *removeMenu;
+    QScrollBar    *verticalScrollBar;
     QList<QAction *> openWithActList;
 
     QAction  *commandsDialogAct;
     QAction  *openWithToolbarAct;
-    QAction  *editModelFileAct;   
+    QAction  *editModelFileAct;
     QAction  *previewLineAct;
     QAction  *editColorAct;
     QAction  *editPartAct;
@@ -241,7 +242,6 @@ protected:
     QAction  *mpdComboSeparatorAct;
     QAction  *mpdComboAct;
 
-    QMenu    *removeMenu;
     QAction  *substitutePartAct;
     QAction  *removeSubstitutePartAct;
 

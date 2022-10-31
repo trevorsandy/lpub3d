@@ -34,6 +34,27 @@ struct lcLibRenderOptions
     lcPreferences Preferences;
     int AASamples;
     lcStudStyle StudStyle;
+    QMap<QString, QKeySequence> KeyboardShortcuts;
+    bool KeyboardShortcutsModified;
+    bool KeyboardShortcutsDefault;
+};
+
+class CommandListColumnStretcher : public QObject
+{
+    Q_OBJECT
+
+public:
+    CommandListColumnStretcher(QTreeWidget* TreeWidget, int ColumnToStretch);
+
+    bool eventFilter(QObject* Object, QEvent* Event) override;
+
+private slots:
+    void sectionResized(int LogicalIndex, int OldSize, int NewSize);
+
+private:
+    const int m_columnToStretch;
+    bool m_interactiveResize;
+    int m_stretchWidth;
 };
 
 namespace Ui{
@@ -139,9 +160,19 @@ class PreferencesDialog : public QDialog
     int           highlightStepLineWidth();
     bool          highlightFirstStep();
 
+    bool          eventFilter(QObject* Object, QEvent* Event) override;
+
   public slots:
     void accept();
     void cancel();
+
+    void on_shortcutAssign_clicked();
+    void on_shortcutRemove_clicked();
+    void on_shortcutsImport_clicked();
+    void on_shortcutsExport_clicked();
+    void on_shortcutsReset_clicked();
+    void on_KeyboardFilterEdit_textEdited(const QString& Text);
+    void commandChanged(QTreeWidgetItem *current);
 
   private slots:
     void on_browseLDraw_clicked();
@@ -178,15 +209,13 @@ class PreferencesDialog : public QDialog
     void on_povGenLDViewRadio_clicked(bool checked);
     void on_ldviewSingleCall_Chk_clicked(bool checked);
     void on_applyCALocallyRadio_clicked(bool checked);
-
     void on_resetSceneColorsButton_clicked(bool checked);
     void on_saveOnRedrawChkBox_clicked(bool checked);
     void on_saveOnUpdateChkBox_clicked(bool checked);
-
     void on_optionsButton_clicked(bool checked);
-
-    void ldvPoVFileGenOptBtn_clicked();
-    void ldvPoVFileGenPrefBtn_clicked();
+    void on_autoUpdateChangeLogBox_clicked(bool checked);
+    void on_updateChangeLogBtn_clicked();
+    void on_themeColorsButton_clicked();
 
     void installRenderer();
     void setRenderers();
@@ -196,7 +225,8 @@ class PreferencesDialog : public QDialog
     void checkForUpdates();
     void updaterCancelled();
 
-    void on_themeColorsButton_clicked();
+    void ldvPoVFileGenOptBtn_clicked();
+    void ldvPoVFileGenPrefBtn_clicked();
 
     // LcLib Preferences
     void on_antiAliasing_toggled();
@@ -205,22 +235,38 @@ class PreferencesDialog : public QDialog
     void on_LineWidthSlider_valueChanged();
     void on_MeshLODSlider_valueChanged();
     void on_studStyleCombo_currentIndexChanged(int index);
-    void AutomateEdgeColor();
     void on_FadeSteps_toggled();
-    void ColorButtonClicked();
-    void ResetFadeHighlightColor();
     void on_HighlightNewParts_toggled();
     void on_AutomateEdgeColor_toggled();
     void on_ViewpointsCombo_currentIndexChanged(int index);
     void on_cameraDefaultDistanceFactor_valueChanged(double value);
     void on_cameraDefaultPosition_valueChanged(double value);
+
+    void AutomateEdgeColor();
+    void ColorButtonClicked();
+    void ResetFadeHighlightColor();
     void cameraPropertyReset();
 
     void lcQPreferencesInit();
     void lcQPreferencesAccept();
 
+    void shortcutEditReset();
+    void enableShortcutEditReset(const QString &displayText);
+
+    bool maybeSave();
+    void closeEvent(QCloseEvent *event);
+
 private:
     Ui::PreferencesDialog ui;
+
+    void updateCommandList(bool = false);
+    void setShortcutModified(QTreeWidgetItem *treeItem, bool modified, bool invalid = false);
+    bool SaveKeyboardShortcuts(const QString& FileName, int &Count);
+    bool SaveKeyboardShortcuts(QTextStream& Stream, int &Count);
+    bool LoadKeyboardShortcuts(const QString& FileName);
+    bool LoadKeyboardShortcuts(QTextStream& Stream);
+    bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut);
+    bool isValidKeyboardShortcut(const QString &ObjectName, const QString &NewShortcut, QString &Result, bool Loading);
 
     QWidget     *parent;
 

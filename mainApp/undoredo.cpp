@@ -203,7 +203,7 @@ void Gui::canUndoChanged(bool enabled)
 
 void Gui::cleanChanged(bool cleanState)
 {
-  saveAct->setDisabled( cleanState);
+  getAct("saveAct.1")->setDisabled( cleanState);
 }
 
 void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)

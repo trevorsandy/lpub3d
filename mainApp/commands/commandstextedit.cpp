@@ -114,10 +114,10 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
 
-    QAction * actionComplete = new QAction(tr("Snippet Complete"), this);
-    actionComplete->setObjectName("actionComplete");
+    QAction * actionComplete = new QAction(tr("Snippet Completer"), this);
+    actionComplete->setObjectName("snippetCompleterAct.7");
     actionComplete->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Space));
-    actionComplete->setProperty("defaultshortcut", actionComplete->shortcut());
+    lpub->actions.insert(actionComplete->objectName(), Action(tr("Edit.Snippet Completer"), actionComplete));
     addAction(actionComplete);
     connect(actionComplete, SIGNAL(triggered()),
             this,           SLOT(  performCompletion()));
@@ -128,69 +128,94 @@ CommandsTextEdit::CommandsTextEdit(QWidget *parent) :
 void CommandsTextEdit::createActions()
 {
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
+    cutAct->setObjectName("cutAct.7");
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
+    lpub->actions.insert(cutAct->objectName(), Action(tr("Edit.Cut"), cutAct));
     connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/resources/copy.png"), tr("&Copy"), this);
+    copyAct->setObjectName("copyAct.7");
     copyAct->setShortcut(tr("Ctrl+C"));
     copyAct->setStatusTip(tr("Copy the current selection's contents to the clipboard - Ctrl+C"));
+    lpub->actions.insert(copyAct->objectName(), Action(tr("Edit.Copy"), copyAct));
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/resources/paste.png"), tr("&Paste"), this);
+    pasteAct->setObjectName("pasteAct.7");
     pasteAct->setShortcut(tr("Ctrl+V"));
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection - Ctrl+V"));
+    lpub->actions.insert(pasteAct->objectName(), Action(tr("Edit.Paste"), pasteAct));
     connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
 
     findAct = new QAction(QIcon(":/resources/find.png"), tr("&Find"), this);
+    findAct->setObjectName("findAct.7");
     findAct->setShortcut(tr("Ctrl+F"));
     findAct->setStatusTip(tr("Find object - Ctrl+F"));
+    lpub->actions.insert(findAct->objectName(), Action(tr("File.Find"), findAct));
     connect(findAct, SIGNAL(triggered()), this, SLOT(findDialog()));
 
-    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to Line"), this);
+    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go To Line"), this);
+    gotoLineAct->setObjectName("gotoLineAct.7");
     gotoLineAct->setShortcut(tr("Ctrl+G"));
     gotoLineAct->setStatusTip(tr("Go to line... - Ctrl+G"));
+    lpub->actions.insert(gotoLineAct->objectName(), Action(tr("File.Go To Line"), gotoLineAct));
     connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
 
     lineWrapAct = new QAction(QIcon(":/resources/linewrap16.png"), tr("&Line Wrap"), this);
+    lineWrapAct->setObjectName("lineWrapAct.7");
     lineWrapAct->setShortcut(tr("Ctrl+W"));
     lineWrapAct->setStatusTip(tr("Allow long sentences to be broken and wrap onto the next line - Ctrl+W"));
     lineWrapAct->setCheckable(true);
+    lpub->actions.insert(lineWrapAct->objectName(), Action(tr("File.Line Wrap"), lineWrapAct));
     connect(lineWrapAct, SIGNAL(triggered()), this, SLOT(lineWrap()));
 
     topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
+    topAct->setObjectName("topAct.7");
     topAct->setShortcut(tr("Ctrl+T"));
     topAct->setStatusTip(tr("Go to the top of document - Ctrl+T"));
+    lpub->actions.insert(topAct->objectName(), Action(tr("File.Top"), topAct));
     connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
 
     bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of Document"), this);
+    bottomAct->setObjectName("bottomAct.7");
     bottomAct->setShortcut(tr("Ctrl+B"));
     bottomAct->setStatusTip(tr("Go to the bottom of document - Ctrl+B"));
+    lpub->actions.insert(bottomAct->objectName(), Action(tr("File.Bottom"), bottomAct));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
+    delAct->setObjectName("delAct.7");
     delAct->setShortcut(tr("DEL"));
     delAct->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     delAct->setStatusTip(tr("Delete the selection - DEL"));
+    lpub->actions.insert(delAct->objectName(), Action(tr("File.Delete"), delAct));
     connect(delAct, SIGNAL(triggered()), this, SLOT(cut()));
 
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
+    selAllAct->setObjectName("selAllAct.7");
     selAllAct->setShortcut(tr("Ctrl+A"));
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
+    lpub->actions.insert(selAllAct->objectName(), Action(tr("File.Delete"), selAllAct));
     connect(selAllAct, SIGNAL(triggered()), this, SLOT(selectAll()));
 
     showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show All Characters"), this);
+    showAllCharsAct->setObjectName("showAllCharsAct.7");
     showAllCharsAct->setShortcut(tr("Ctrl+J"));
     showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
     showAllCharsAct->setCheckable(true);
+    lpub->actions.insert(showAllCharsAct->objectName(), Action(tr("File.Show All Characters"), showAllCharsAct));
     connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
 
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
+    undoAct->setObjectName("undoAct.7");
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
     undoAct->setEnabled(false);
+    lpub->actions.insert(undoAct->objectName(), Action(tr("Edit.Undo"), undoAct));
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
     redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
+    redoAct->setObjectName("redoAct.7");
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
     redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
@@ -199,6 +224,7 @@ void CommandsTextEdit::createActions()
     redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
 #endif
     redoAct->setEnabled(false);
+    lpub->actions.insert(redoAct->objectName(), Action(tr("Edit.Redo"), redoAct));
     connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
 
     enableActions(0, false);
