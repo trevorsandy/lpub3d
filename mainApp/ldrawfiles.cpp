@@ -2658,9 +2658,6 @@ void LDrawFile::countInstances()
   timer.start();
 #endif
 
-  emit gui->messageSig(LOG_STATUS, "Counting model steps and instances...");
-  QApplication::processEvents();
-
   /*
    * For countInstances, the BuildMod behaviour creates a sequential
    * list (Vector<QString>) of all the steps in the loaded model file.

@@ -2469,7 +2469,7 @@ void EditWindow::waitingSpinnerStart()
     emit lpub->messageSig(LOG_DEBUG,QString("2. Waiting Spinner Started"));
 #endif
 
-    QApplication::processEvents();
+    //QApplication::processEvents();
 }
 
 void EditWindow::waitingSpinnerStop()
