@@ -98,6 +98,7 @@
         <file alias="deleteimage.png">resources/deleteimage.png</file>
         <file alias="deletepage.png">resources/deletepage.png</file>
         <file alias="deletepointer.png">resources/deletepointer.png</file>
+        <file alias="deletetext.png">resources/deletetext.png</file>
         <file alias="disablegroupmove.png">resources/disablegroupmove.png</file>
         <file alias="display.png">resources/display.png</file>
         <file alias="displaycolumn.png">resources/displaycolumn.png</file>
@@ -267,7 +268,6 @@
         <file alias="substitutepart.png">resources/substitutepart.png</file>
         <file alias="systemeditor.png">resources/systemeditor.png</file>
         <file alias="systemeditor16.png">resources/systemeditor16.png</file>
-        <file alias="textDelete.png">resources/textDelete.png</file>
         <file alias="textedit.png">resources/textedit.png</file>
         <file alias="tileimage.png">resources/tileimage.png</file>
         <file alias="tipattributes.png">resources/tipattributes.png</file>

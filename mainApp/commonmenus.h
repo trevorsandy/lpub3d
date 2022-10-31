@@ -22,207 +22,254 @@
 #include <QString>
 #include "metatypes.h"
 
+#define DEF_ITEM "Item"
+
 class QAction;
 class QMenu;
 
 class CommonMenus
 {
 public:
-	CommonMenus(void);
-	~CommonMenus(void);
+  CommonMenus(void);
+  ~CommonMenus(void);
+
+  QAction *addAction(
+                QMenu &menu,
+          const QIcon &icon,
+          const QString &text);
+
+  QAction *addNextStepMenu(
+                QMenu   &menu,
+          const QString &name = "");
+
+  QAction *addNextStepsMenu(
+                QMenu   &menu,
+          const QString &name = "");
+
+  QAction *addPrevStepMenu(
+                QMenu   &menu,
+          const QString &name = "");
+
+  QAction *removeStepMenu(
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *addMenu(
-          QMenu   &menu,
-          const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *annotationMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *constrainMenu(
-            QMenu   &menu,
-      const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *textMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *colorMenu(
-          QMenu   &menu, 
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *changeImageMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *stretchImageMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *tileImageMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
-  QAction *deleteImageMenu(
-          QMenu   &menu,
-    const QString  name = "");
+  QAction *deleteMenu(
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &objectName = "",
+          const QString &iconImage = "",
+          const QString &itemText = "",
+          const QString &whatsThis = "");
 
   QAction *displayMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &objectName = "");
 
   QAction *displayRowsMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *displayColumnsMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *resetViewerImageMenu(
-          QMenu &menu,
-    const QString name = "");
+                  QMenu &menu,
+          const QString &name = "");
 
   QAction *copyToClipboardMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *fontMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *marginMenu(
-          QMenu   &menu, 
-    const QString  name = "",
-    const QString  whatsThis = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &whatsThis = "");
 
-  QString naturalLanguagePlacement(
-          PlacementType  type,
-          PlacementData &placement);
+  QAction *noPartsListMenu(
+                QMenu   &menu,
+          const QString &name = "");
 
-  QString naturalLanguagePlacementWhatsThis(
-          PlacementType  type,
-          PlacementData &placement,
-    const QString        name = "");
-
-  QAction *noPartsList(
-          QMenu   &menu,
-    const QString  name = "");
-
-  QAction *partsList(
-          QMenu   &menu,
-    const QString  name = "");
+  QAction *partsListMenu(
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *placementMenu(
-          QMenu   &menu, 
-    const QString  name = "",
-    const QString  whatsThis = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &whatsThis = "");
 
   QAction *sizeMenu(
-          QMenu   &menu,
-    const QString  name = "",
-    const QString  whatsThis = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &whatsThis = "");
 
   QAction *subModelColorMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
-  QAction *cameraDistFactorrMenu(
-          QMenu   &menu,
-    const QString  name = "");
+  QAction *cameraDistFactorMenu(
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *rotStepMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *backgroundMenu(
-          QMenu   &menu, 
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *borderMenu(
-          QMenu   &menu, 
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *scaleMenu(  
-          QMenu   &menu, 
-    const QString  name = "",
-    const QString  whatsThis = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &whatsThis = "");
 
   QAction *cameraFoVMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *cameraAnglesMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
+
+  QAction *clearImageCacheMenu(
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &objectName = "",
+          const QString &iconImage = "",
+          const PlacementType  type = PageType);
 
   QAction *removeMenu(
-            QMenu   &menu,
-      const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
-  QAction *renderParmsMenu(  
-          QMenu   &menu, 
-    const QString  name = "");
+  QAction *rendererArgumentsMenu(
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &objectName = "");
 
   QAction *sortMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *partGroupsOnMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *partGroupsOffMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *substitutePartMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *overrideCountMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *restoreCountMenu( 
-          QMenu   &menu, 
-    const QString  name = ""); 
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *removeSubstitutePartMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *changeSubstitutePartMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *previewPartMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *resetPartGroupMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *hideMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "",
+          const QString &objectName = "",
+          const QString &iconImage = "");
 
   QAction *hidePliPartMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *preferredRendererMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *fadeStepsMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
 
   QAction *highlightStepMenu(
-          QMenu   &menu,
-    const QString  name = "");
+                QMenu   &menu,
+          const QString &name = "");
+
+  QString naturalLanguagePlacement(
+                PlacementType  type,
+                PlacementData &placement);
+
+  QString naturalLanguagePlacementWhatsThis(
+                PlacementType  type,
+                PlacementData &placement,
+          const QString       &name = "");
+
+  void setName(
+                QAction *action,
+          const QString &name = "");
+
+  void addAction(
+                QAction *action,
+                QMenu   &menu,
+          const QString &name = "");
 
 private:
   QString englishPlacement(
@@ -232,8 +279,7 @@ private:
   QString englishPlacementWhatsThis(
     PlacementType  type,
     PlacementData &placement,
-    QString        menuName);
-
+    const QString &menuName);
 };
 
 extern CommonMenus commonMenus;

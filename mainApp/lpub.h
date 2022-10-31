@@ -1043,12 +1043,6 @@ public:
   int setBuildModForNextStep(Where topOfNextStep,
                              Where topOfSubmodel = Where());
 
-  QAction *getApplyBuildModAct();
-
-  QAction *getRemoveBuildModAct();
-
-  QAction *getDeleteBuildModAct();
-
   /* End Build Modifications */
 
   void skipHeader(Where &current)

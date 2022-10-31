@@ -672,7 +672,7 @@ enum ThemeColorType {
 #define IMPORTLDRAW                            "importldraw"
 #define IMPORTDEFAULT                          "DEFAULT"
 #define THEMECOLORS                            "ThemeColors"
-#define KEYBOARDSHORTCUTS                        "KeyboardShortcuts"
+#define KEYBOARDSHORTCUTS                      "KeyboardShortcuts"
 
 #define FADE_SFX                                "-fade"
 #define HIGHLIGHT_SFX                           "-highlight"

@@ -62,6 +62,7 @@
 #include "progress_dialog.h"
 #include "waitingspinnerwidget.h"
 #include "qsimpleupdater.h"
+#include "commonmenus.h"
 
 //Visual Editor
 #include "camera.h"
@@ -2124,9 +2125,7 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
          else
             fileNames << QDir::toNativeSeparators(tmpDirName + "/csi.ldr");
         fileNames << step->pngName;
-    }
-
-    if (option == Options::PLI) {
+    } else  if (option == Options::PLI) {
         if (!renderer->useLDViewSCall())
             fileNames << QDir::toNativeSeparators(tmpDirName + "/pli.ldr");
         QHash<QString, PliPart*> pliParts;
@@ -2139,6 +2138,22 @@ void Gui::clearPageGraphicsItems(Step *step, int option) {
                         fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
                     fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
                 }
+            }
+        }
+    } else if (option == Options::SMP) {
+        if (!renderer->useLDViewSCall())
+            fileNames << QDir::toNativeSeparators(tmpDirName + "/smi.ldr");
+        SubModelPart* submodel = step->subModel.getSubmodel();
+        if (submodel) {
+            const QString key = QString("%1;%2;%3_%4")
+                                        .arg(lpub->ldrawFile.getSubmodelIndex(step->subModel.bottom.modelName))
+                                        .arg(step->subModel.bottom.lineNumber)
+                                        .arg(step->stepNumber.number)
+                                        .arg(SUBMODEL_IMAGE_BASENAME);
+            if (lpub->ldrawFile.viewerStepContentExist(key)) {
+                if (renderer->useLDViewSCall())
+                    fileNames << QDir::toNativeSeparators(gui->getViewerStepFilePath(key));
+                fileNames << QDir::toNativeSeparators(gui->getViewerStepImagePath(key));
             }
         }
     }
@@ -4492,21 +4507,6 @@ void SetActionShortcut(QAction *action, const QKeySequence &shortcut)
     action->setProperty("defaultshortcut", shortcut);
 }
 
-QAction *Gui::getApplyBuildModAct()
-{
-    return ApplyBuildModAct;
-}
-
-QAction *Gui::getRemoveBuildModAct()
-{
-    return RemoveBuildModAct;
-}
-
-QAction *Gui::getDeleteBuildModAct()
-{
-    return DeleteBuildModAct;
-}
-
 QAction *Gui::getAct(const QString &objectName)
 {
     if (lpub->actions.contains(objectName))
@@ -5648,27 +5648,515 @@ void Gui::createActions()
     lpub->actions.insert(openWorkingFolderAct->objectName(), Action(tr("Help.Open Working Folder"), openWorkingFolderAct));
     connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
 
-    if (Preferences::modeGUI)
+    if (Preferences::modeGUI) {
+
+        // context menu actions
+
+        QMenu *contextMenu = new QMenu(this);
+        QString name = tr(DEF_ITEM);
+
+        // page context menu actions
+
+        QAction *calloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/convertcallout.png"),tr("Convert To Callout"));
+        calloutAction->setObjectName("calloutAction.1");
+        calloutAction->setStatusTip(tr("Convert a submodel build steps to a model image placed next to where it is added in the build instructions"));
+        calloutAction->setWhatsThis(tr("Convert to Callout:\n"
+                                       "  A callout shows how to build these steps in a picture next\n"
+                                       "  to where it is added in the build instructions.\n"));
+        lpub->actions.insert(calloutAction->objectName(), Action(tr("PageContext.Convert To Callout"), calloutAction));
+
+        QAction *calloutNoPointAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/convertcalloutwithoutpointer.png"),tr("Convert To Pointerless Callout"));
+        calloutNoPointAction->setObjectName("calloutNoPointAction.1");
+        calloutNoPointAction->setStatusTip(tr("A callout without pointer that shows build steps in a model image next to where it is added in the build instructions"));
+        calloutNoPointAction->setWhatsThis(tr("Convert to Pointerless Callout:\n"
+                                              "  A callout without pointer shows how to build these steps in a\n"
+                                              "  picture next to where it is added in the build instructions.\n"));
+        lpub->actions.insert(calloutNoPointAction->objectName(), Action(tr("PageContext.Convert To Pointerless Callout"), calloutNoPointAction));
+
+        QAction *assembledAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addassembledimage.png"),tr("Add Assembled Image To Parent Page"));
+        assembledAction->setObjectName("assembledAction.1");
+        assembledAction->setStatusTip(QMessageBox::tr("A callout like image is added to the page where this submodel is added to the build instructions"));
+        assembledAction->setWhatsThis(tr("Add Assembled Image to Parent Page\n"
+                                         "  A callout like image is added to the page where this submodel\n"
+                                         "  is added in the build instructions.\n"));
+        lpub->actions.insert(assembledAction->objectName(), Action(tr("PageContext.Add Assembled Image To Parent Page"), assembledAction));
+
+        QAction *ignoreAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/ignoresubmodel.png"),tr("Ignore This Submodel"));
+        ignoreAction->setObjectName("ignoreAction.1");
+        ignoreAction->setStatusTip(tr("The submodel steps are not displayed in the build instructions"));
+        ignoreAction->setWhatsThis(tr("Ignore This Submodel:\n"
+                                      "  Stops these steps from showing up in your build instructions.\n"));
+        lpub->actions.insert(ignoreAction->objectName(), Action(tr("PageContext.Ignore This Submodel"), ignoreAction));
+
+        QAction *partAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/treataspart.png"),tr("Treat As Part"));
+        partAction->setObjectName("partAction.1");
+        partAction->setStatusTip(tr("The submodel steps are removed and it is displayed as a part in the parent step's part list image"));
+        partAction->setWhatsThis(tr("Treat As Part:\n"
+                                    "  Treating this submodel as a part means these steps go away,\n"
+                                    "  and the submodel is displayed as a part in the parent step's\n"
+                                    "  part list image.\n"));
+        lpub->actions.insert(partAction->objectName(), Action(tr("PageContext.Treat As Part"), partAction));
+
+        QAction *sizeAndOrientationAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/pagesizeandorientation.png"),tr("Change Page Size Or Orientation..."));
+        sizeAndOrientationAction->setObjectName("sizeAndOrientationAction.1");
+        sizeAndOrientationAction->setStatusTip(tr("Change the page size and orientation"));
+        sizeAndOrientationAction->setWhatsThis(tr("Change the page size and orientation:\n"
+                                                  "  You can change the page size using common size designations\n"
+                                                  "  like A4, Legal etc...\n"
+                                                  "  You can also change the page orientation from portrait to\n"
+                                                  "  landscape.\n"));
+        lpub->actions.insert(sizeAndOrientationAction->objectName(), Action(tr("PageContext.Change Size Or Orientation"), sizeAndOrientationAction));
+
+        // assembly context menu actions
+
+        QAction *movePrevAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addprevious.png"),tr("Add to Previous Row"));
+        movePrevAction->setObjectName("movePrevAction.1");
+        movePrevAction->setStatusTip(tr("Move this step to the previous row"));
+        movePrevAction->setWhatsThis(tr("Add to Previous Row:\n"
+                                        "  You can move this step to the previous row.\n"));
+        lpub->actions.insert(movePrevAction->objectName(), Action(tr("AssemblyContext.Add to Previous Row"), movePrevAction));
+
+        QAction *moveNextAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addnext.png"),tr("Add to Next Row"));
+        moveNextAction->setObjectName("moveNextAction.1");
+        moveNextAction->setStatusTip(tr("Remove this step from its current column, and put it in the row above"));
+        moveNextAction->setWhatsThis(tr("Add to Next Row:\n"
+                                        "  You can remove this step from its current column,\n"
+                                        "  and put it in the row above.\n"));
+        lpub->actions.insert(moveNextAction->objectName(), Action(tr("AssemblyContext.Add to Next Row"), moveNextAction));
+
+        QAction *addDividerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/divider.png"),tr("Add Divider"));
+        addDividerAction->setObjectName("addDividerAction.1");
+        addDividerAction->setStatusTip(tr("Place a divider before or after the current step"));
+        addDividerAction->setWhatsThis(tr("Add Divider:\n"
+                                          "  Before step - You can place a divider to the left of this step\n"
+                                          "  After Step - You can put the step(s) after this into a new row.\n"));
+        lpub->actions.insert(addDividerAction->objectName(), Action(tr("AssemblyContext.Add Divider"), addDividerAction));
+
+        QAction *addCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpartannotation.png"),tr("Add Part Annotations"));
+        addCsiAnnoAction->setObjectName("addCsiAnnoAction.1");
+        addCsiAnnoAction->setStatusTip(tr("Add part annotations to the model assembly"));
+        addCsiAnnoAction->setWhatsThis(tr("Add Part Annotations:\n"
+                                          "  You can add part annotations to the model assembly.\n"));
+        lpub->actions.insert(addCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Add Part Annotations"), addCsiAnnoAction));
+
+        QAction *refreshCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/reloadpartannotation.png"),tr("Reload Part Annotations"));
+        refreshCsiAnnoAction->setObjectName("refreshCsiAnnoAction.1");
+        refreshCsiAnnoAction->setStatusTip(tr("Reload part annotations"));
+        refreshCsiAnnoAction->setWhatsThis(tr("Reload Part Annotations:\n"
+                                              "  You can reload part annotations.\n"));
+        lpub->actions.insert(refreshCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Reload Part Annotations"), refreshCsiAnnoAction));
+
+        QAction *showCsiAnnoAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/hidepartannotation.png"),tr("Show Hidden Part Annotations"));
+        showCsiAnnoAction->setObjectName("showCsiAnnoAction.1");
+        showCsiAnnoAction->setStatusTip(tr("Show hidden part annotations"));
+        showCsiAnnoAction->setWhatsThis(tr("Show Hidden Part Annotations:\n"
+                                           "  You can show hidden part annotations.\n"));
+        lpub->actions.insert(showCsiAnnoAction->objectName(), Action(tr("AssemblyContext.Show Hidden Part Annotations"), showCsiAnnoAction));
+
+        QAction *insertRotateIconAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotateicon.png"),tr("Insert Rotate Icon"));
+        insertRotateIconAction->setObjectName("insertRotateIconAction.1");
+        insertRotateIconAction->setStatusTip(tr("Insert a rotate image to the model assembly..."));
+        insertRotateIconAction->setWhatsThis(tr("Insert Rotate Icon:\n"
+                                                "  You can insert a rotate image to the model assembly.\n"));
+        lpub->actions.insert(insertRotateIconAction->objectName(), Action(tr("AssemblyContext.Insert Rotate Icon"), insertRotateIconAction));
+
+        QAction *addPagePointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointer.png"),tr("Place Page Pointer"));
+        addPagePointerAction->setObjectName("addPagePointerAction.1");
+        addPagePointerAction->setStatusTip(tr("Add pointer from the page to this assembly image"));
+        addPagePointerAction->setWhatsThis(tr("Place Page Pointer:\n"
+                                              "  You can add pointer from the page to this assembly image.\n"));
+        lpub->actions.insert(addPagePointerAction->objectName(), Action(tr("AssemblyContext.Place Page Pointer"), addPagePointerAction));
+
+        QAction *addDividerPointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/adddividerpointer.png"),tr("Place Divider Pointer"));
+        addDividerPointerAction->setObjectName("addDividerPointerAction.1");
+        addDividerPointerAction->setStatusTip(tr("Add pointer from the step divider to this assembly image"));
+        addDividerPointerAction->setWhatsThis(tr("Place Divider Pointer:\n"
+                                                 "  You can add a pointer from the step divider to this\n"
+                                                 "  assembly image.\n"));
+        lpub->actions.insert(addDividerPointerAction->objectName(), Action(tr("AssemblyContext.Place Divider Pointer"), addDividerPointerAction));
+
+        QAction *noStepAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/display.png"),tr("Hide This Step"));
+        noStepAction->setObjectName("noStepAction.1");
+        noStepAction->setStatusTip(tr("Do not show this step"));
+        noStepAction->setWhatsThis(tr("Do Not Show This Step:\n"
+                                      "  You can choose to not display current step.\n"));
+        lpub->actions.insert(noStepAction->objectName(), Action(tr("AssemblyContext.Do Not Show This Step"), noStepAction));
+
+        QAction *viewCSIFileAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editldraw.png"),tr("View Step Assembly File"));
+        viewCSIFileAction->setObjectName("viewCSIFileAction.1");
+        viewCSIFileAction->setStatusTip(tr("View the current LDraw model assembly file in read-only mode"));
+        viewCSIFileAction->setWhatsThis(tr("View Step Assembly File:\n"
+                                           "  You can view the current model assembly file in\n"
+                                           "  read-only mode.\n"));
+        lpub->actions.insert(viewCSIFileAction->objectName(), Action(tr("AssemblyContext.Add Part Annotations"), viewCSIFileAction));
+
+#ifdef QT_DEBUG_MODE
+        QAction *view3DViewerFileAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editldraw.png"),tr("View Step Assembly Visual Editor File"));
+        view3DViewerFileAction->setObjectName("view3DViewerFileAction.1");
+        view3DViewerFileAction->setStatusTip(tr("View the current LDraw Visual Editor file"));
+        view3DViewerFileAction->setWhatsThis(tr("View Step Assembly Visual Editor File:\n"
+                                                "  You can view the current visual editor model assembly file\n"
+                                                "  in read-only mode.\n"));
+        lpub->actions.insert(view3DViewerFileAction->objectName(), Action(tr("AssemblyContext.View Step Assembly Visual Editor File"), view3DViewerFileAction));
+#endif
+
+        // bom context menu items
+
+        QAction *splitBomAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/splitbom.png"),tr("Split Bill Of Materials"));
+        splitBomAction->setObjectName("splitBomAction.1");
+        splitBomAction->setStatusTip(tr("Split the bill of materials across this page and the next page"));
+        splitBomAction->setWhatsThis(tr("Split Bill Of Materials:\n"
+                                        "  You can split the bill of materials on this page across\n"
+                                        "  this page and the next page.\n"));
+        lpub->actions.insert(splitBomAction->objectName(), Action(tr("BOMContext.Split Bill Of Materials"), splitBomAction));
+
+        //callout context menu items
+
+        QAction *unpackCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/unpackcallout.png"),tr("Unpack Callout"));
+        unpackCalloutAction->setObjectName("unpackCalloutAction.1");
+        unpackCalloutAction->setStatusTip(tr("Unpack the unassembled callout into individual steps"));
+        unpackCalloutAction->setWhatsThis(tr("Unpack Callout:\n"
+                                             "  You can unpack the unassembled callout into individual steps\n"));
+        lpub->actions.insert(unpackCalloutAction->objectName(), Action(tr("CalloutContext.Unpack Callout"), unpackCalloutAction));
+
+        QAction *removeCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/remove.png"),tr("Remove Callout"));
+        removeCalloutAction->setObjectName("removeCalloutAction.1");
+        removeCalloutAction->setStatusTip(tr("Remove the assembled callout from the build instructions"));
+        removeCalloutAction->setWhatsThis(tr("Remove Callout:\n"
+                                             "  You can remove the assembled callout from the build instructions.\n"));
+        lpub->actions.insert(removeCalloutAction->objectName(), Action(tr("CalloutContext.Remove Callout"), removeCalloutAction));
+
+        QAction *rotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotate.png"),tr("Rotate Callout"));
+        rotateCalloutAction->setObjectName("rotateAction.1");
+        rotateCalloutAction->setStatusTip(tr("Rotate the assembled callout"));
+        rotateCalloutAction->setWhatsThis(tr("Rotate Callout:\n"
+                                             "  You can rotate the assembled callout.\n"));
+        lpub->actions.insert(rotateCalloutAction->objectName(), Action(tr("CalloutContext.Rotate Callout"), rotateCalloutAction));
+
+        QAction *unrotateCalloutAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/unrotate.png"),tr("Unrotate Callout"));
+        unrotateCalloutAction->setObjectName("rotateAction.1");
+        unrotateCalloutAction->setStatusTip(tr("Unrotate the assembled callout"));
+        unrotateCalloutAction->setWhatsThis(tr("Unrotate Callout:\n"
+                                               "  You can unrotate the unassembled callout.\n"));
+        lpub->actions.insert(unrotateCalloutAction->objectName(), Action(tr("CalloutContext.Unrotate Callout"), unrotateCalloutAction));
+
+        QAction *addPointerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointer.png"),tr("Add Callout Pointer"));
+        addPointerAction->setObjectName("rotateAction.1");
+        addPointerAction->setStatusTip(tr("Add pointer from this callout to the step model where it is used"));
+        addPointerAction->setWhatsThis(tr("Add Callout Pointer:\n"
+                                          "  You can add a pointer from this callout to the step\n"
+                                          "  model where it is used.\n"));
+        lpub->actions.insert(addPointerAction->objectName(), Action(tr("CalloutContext.Add Callout Pointer"), addPointerAction));
+
+        // divider context menu actions
+
+        QAction *editDividerAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editdivider.png"),tr("Edit Divider"));
+        editDividerAction->setObjectName("editDividerAction.1");
+        editDividerAction->setStatusTip(tr("Edit this divider margin, thickness, length, and color"));
+        editDividerAction->setWhatsThis(tr("Edit Divider:\n"
+                                           "  You can edit this divider margin, thickness,\n"
+                                           "  length, and color.\n"));
+        lpub->actions.insert(editDividerAction->objectName(), Action(tr("DividerContext.Edit Divider"), editDividerAction));
+
+        //rotate icon context menu actions
+
+        QAction *editRotateIconArrowAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/editrotateicon.png"),tr("Edit Rotate Icon Arrows"));
+        editRotateIconArrowAction->setObjectName("editRotateIconArrowAction.1");
+        editRotateIconArrowAction->setStatusTip(tr("Edit the rotate icon arrows"));
+        editRotateIconArrowAction->setWhatsThis(tr("Edit Rotate Icon Arrows:\n"
+                                                   "  You can change the rotate icon arrow attributes such\n"
+                                                   "  as color and line.\n"));
+        lpub->actions.insert(editRotateIconArrowAction->objectName(), Action(tr("RotateIconContext.Edit Rotate Icon Arrows"), editRotateIconArrowAction));
+
+        QAction *rotateIconSizeAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/rotateiconsize.png"),tr("Change Rotate Icon Size"));
+        rotateIconSizeAction->setObjectName("rotateIconSizeAction.1");
+        rotateIconSizeAction->setStatusTip(tr("Change the rotateIcon size"));
+        rotateIconSizeAction->setWhatsThis(tr("Change Rotate Icon Size:\n"
+                                              "  You can change the rotateIcon size.\n"));
+        lpub->actions.insert(rotateIconSizeAction->objectName(), Action(tr("RotateIconContext.Change Rotate Icon Size"), rotateIconSizeAction));
+
+        // pointer context menu actions
+
+        const QString units = QString(" in %1").arg(Preferences::preferCentimeters ? tr("centimetres") : tr("inches"));
+
+        QAction *setLineAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/lineattributes.png"),tr("Edit Line Attributes"));
+        setLineAttributesAction->setObjectName("setLineAttributesAction.1");
+        setLineAttributesAction->setStatusTip(tr("Edit pointer line attributes"));
+        setLineAttributesAction->setWhatsThis(tr("Edit Line Attributes:\n"
+                                                 "  You can edit the pointer line color, thickness,\n"
+                                                 "  and type %1.\n").arg(units));
+        lpub->actions.insert(setLineAttributesAction->objectName(), Action(tr("PointerContext.Edit Line Attributes"), setLineAttributesAction));
+
+        QAction *setBorderAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/borderattributes.png"),tr("Edit Border Attributes"));
+        setBorderAttributesAction->setObjectName("setBorderAttributesAction.1");
+        setBorderAttributesAction->setStatusTip(tr("Edit pointer border attributes"));
+        setBorderAttributesAction->setWhatsThis(tr("Edit Border Attributes:\n"
+                                                   "  You can edit the pointer border color, thickness,\n"
+                                                   "  and line type %1.\n").arg(units));
+        lpub->actions.insert(setBorderAttributesAction->objectName(), Action(tr("PointerContext.Edit Border Attributes"), setBorderAttributesAction));
+
+        QAction *setTipAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/tipattributes.png"),tr("Edit Tip Attributes"));
+        setTipAttributesAction->setObjectName("setTipAttributesAction.1");
+        setTipAttributesAction->setStatusTip(tr("Edit pointer border attributes"));
+        setTipAttributesAction->setWhatsThis(tr("Edit Tip Attributes:\n"
+                                                "  You can edit the pointer pointer tip width,\n"
+                                                "  and height %1.\n").arg(units));
+        lpub->actions.insert(setTipAttributesAction->objectName(), Action(tr("PointerContext.Edit Tip Attributes"), setTipAttributesAction));
+
+        QAction *resetLineAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resetlineattributes.png"),tr("Reset Line Attributes"));
+        resetLineAttributesAction->setObjectName("resetLineAttributesAction.1");
+        resetLineAttributesAction->setStatusTip(tr("Reset pointer line attributes"));
+        resetLineAttributesAction->setWhatsThis(tr("Reset Line Attributes:\n"
+                                                   "  You can reset the pointer border color, thickness,\n"
+                                                   "  and line type %1.\n").arg(units));
+        lpub->actions.insert(resetLineAttributesAction->objectName(), Action(tr("PointerContext.Reset Line Attributes"), resetLineAttributesAction));
+
+        QAction *resetBorderAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resetborderattributes.png"),tr("Reset Border Attributes"));
+        resetBorderAttributesAction->setObjectName("resetBorderAttributesAction.1");
+        resetBorderAttributesAction->setStatusTip(tr("Reset pointer border attributes"));
+        resetBorderAttributesAction->setWhatsThis(tr("Reset Border Attributes:\n"
+                                                     "  You can reset the pointer border color, thickness, and\n"
+                                                     "  line type %1.\n").arg(units));
+        lpub->actions.insert(resetBorderAttributesAction->objectName(), Action(tr("PointerContext.Edit Border Attributes"), resetBorderAttributesAction));
+
+        QAction *resetTipAttributesAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/resettipattributes.png"),tr("Reset Tip Attributes"));
+        resetTipAttributesAction->setObjectName("resetTipAttributesAction.1");
+        resetTipAttributesAction->setStatusTip(tr("Reset pointer border attributes"));
+        resetTipAttributesAction->setWhatsThis(tr("Reset Tip Attributes:\n"
+                                                  "  You can reset the pointer pointer tip width,\n"
+                                                  "  and height %1.\n").arg(units));
+        lpub->actions.insert(resetTipAttributesAction->objectName(), Action(tr("PointerContext.Reset Tip Attributes"), resetTipAttributesAction));
+
+        QAction *addSegmentAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/addpointersegment.png"),tr("Add Pointer Segment"));
+        addSegmentAction->setObjectName("addSegmentAction.1");
+        addSegmentAction->setStatusTip(tr("Add a new pointer shaft segment"));
+        addSegmentAction->setWhatsThis(tr("Add Pointer Segment:\n"
+                                          "  You can add a new pointer shaft segment\n"
+                                          "  the build instruction.\n"
+                                          "  A total of three shaft segments per pointer\n"
+                                          "  are allowed.\n"));
+        lpub->actions.insert(addSegmentAction->objectName(), Action(tr("PointerContext.Add Pointer Segment"), addSegmentAction));
+
+        QAction *removeSegmentAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/removepointersegment.png"),tr("Remove Pointer Segment"));
+        removeSegmentAction->setObjectName("removeSegmentAction.1");
+        removeSegmentAction->setStatusTip(tr("Remove pointer shaft segment"));
+        removeSegmentAction->setWhatsThis(tr("Remove Pointer Segment:\n"
+                                             "  You can remove a pointer shaft segments\n"
+                                             "  from the pointer.\n"));
+        lpub->actions.insert(removeSegmentAction->objectName(), Action(tr("PointerContext.Remove Pointer Segment"), removeSegmentAction));
+
+        QAction *toggleCsiPartRectAction = commonMenus.addAction(*contextMenu,QIcon(":/resources/togglepartoutline.png"),tr("Toggle CSI Part Outline"));
+        toggleCsiPartRectAction->setObjectName("toggleCsiPartRectAction.1");
+        toggleCsiPartRectAction->setStatusTip(tr("Toggle on and off an outline of the annotated CSI part"));
+        toggleCsiPartRectAction->setWhatsThis(tr("Toggle CSI Part Outline:\n"
+                                                 "  You turn on and off the outline of the\n"
+                                                 "  annotated CSI part to aid in interactively\n"
+                                                 "  moving and placing the annotation item.\n"));
+        lpub->actions.insert(toggleCsiPartRectAction->objectName(), Action(tr("AssemblyContext.Toggle Part Outline"), toggleCsiPartRectAction));
+
+        // shared delete context menu items
+
+        QAction *deleteImageAction = commonMenus.deleteMenu(*contextMenu,name,"deleteImageAction.1","deleteimage.png");
+        lpub->actions.insert(deleteImageAction->objectName(), Action(tr("PageContext.Delete Image"), deleteImageAction));
+
+        QAction *clearPageCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPageCacheAction.1");
+        lpub->actions.insert(clearPageCacheAction->objectName(), Action(tr("PageContext.Reset Page Image Cache"), clearPageCacheAction));
+
+        QAction *deletePointerAction = commonMenus.deleteMenu(*contextMenu,name,"deletePointerAction.1","deletepointer.png");
+        lpub->actions.insert(deletePointerAction->objectName(), Action(tr("PointerContext.Delete Pointer"), deletePointerAction));
+
+        QAction *deleteTextAction = commonMenus.deleteMenu(*contextMenu,name,"deleteTextAction.1","deletetext.png");
+        lpub->actions.insert(deleteTextAction->objectName(), Action(tr("TextEdit.Context.Delete Text"), deleteTextAction));
+
+        QAction *deleteDividerAction = commonMenus.deleteMenu(*contextMenu,name,"deleteDividerAction.1","deletedivider.png",tr("step group"));
+        lpub->actions.insert(deleteDividerAction->objectName(), Action(tr("DividerContext.Delete Divider"), deleteDividerAction));
+
+        QAction *deleteRotateIconAction = commonMenus.deleteMenu(*contextMenu,name,"deleteRotateIconAction.1");
+        lpub->actions.insert(deleteRotateIconAction->objectName(), Action(tr("RotateIconContext.Delete Roate Icon"), deleteRotateIconAction));
+
+        QAction *deleteBomAction = commonMenus.deleteMenu(*contextMenu,name,"deleteBomAction.1");
+        lpub->actions.insert(deleteBomAction->objectName(), Action(tr("BOMContext.Delete Bill Of Materials"), deleteBomAction));
+
+        // shared step context menu items
+
+        QAction *removeStepAction = commonMenus.removeStepMenu(*contextMenu,name);
+        lpub->actions.insert(removeStepAction->objectName(), Action(tr("StepContext.Remove This Step"), removeStepAction));
+
+        QAction *addNextStepAction = commonMenus.addNextStepMenu(*contextMenu,name);
+        lpub->actions.insert(addNextStepAction->objectName(), Action(tr("StepContext.Add Next Step"), addNextStepAction));
+
+        QAction *addNextStepsAction = commonMenus.addNextStepsMenu(*contextMenu,name);
+        lpub->actions.insert(addNextStepsAction->objectName(), Action(tr("StepContext.Add Next Steps"), addNextStepsAction));
+
+        QAction *addPrevStepAction = commonMenus.addPrevStepMenu(*contextMenu,name);
+        lpub->actions.insert(addPrevStepAction->objectName(), Action(tr("StepContext.Add Previous Step"), addPrevStepAction));
+
+        QAction *noPartsListAction = commonMenus.noPartsListMenu(*contextMenu,name);
+        lpub->actions.insert(noPartsListAction->objectName(), Action(tr("StepContext.No Parts List Per Step"), noPartsListAction));
+
+        QAction *partsListAction = commonMenus.partsListMenu(*contextMenu,name);
+        lpub->actions.insert(partsListAction->objectName(), Action(tr("StepContext.Parts List Per Step"), partsListAction));
+
+        QAction *clearStepCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearStepCacheAction.1","clearcsicache.png", CsiType);
+        lpub->actions.insert(clearStepCacheAction->objectName(), Action(tr("StepContext.Reset Step Assembly Image Cache"), clearStepCacheAction));
+
+        // shared context menu actions
+
+        QAction *clearPartsCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearPartsCacheAction.1","clearplicache.png", PartsListType);
+        lpub->actions.insert(clearPartsCacheAction->objectName(), Action(tr("SharedContext.Reset Step Assembly Image Cache"), clearPartsCacheAction));
+
+        QAction *clearSubmodelCacheAction = commonMenus.clearImageCacheMenu(*contextMenu,name,"clearSubmodelCacheAction.1","clearsubmodelcache.png", SubModelType);
+        lpub->actions.insert(clearSubmodelCacheAction->objectName(), Action(tr("SharedContext.Reset Step Assembly Image Cache"), clearSubmodelCacheAction));
+
+        QAction *rendererArgumentsAction = commonMenus.rendererArgumentsMenu(*contextMenu,name);
+        lpub->actions.insert(rendererArgumentsAction->objectName(), Action(tr("SharedContext.Add Renderer Arguments"), rendererArgumentsAction));
+
+        QAction *povrayRendererArgumentsAction = commonMenus.rendererArgumentsMenu(*contextMenu,name,"povrayRendererArgumentsAction.1");
+        lpub->actions.insert(povrayRendererArgumentsAction->objectName(), Action(tr("SharedContext.Add Povray Renderer Arguments"), povrayRendererArgumentsAction));
+
+        QAction *highlightStepAction = commonMenus.highlightStepMenu(*contextMenu,name);
+        lpub->actions.insert(highlightStepAction->objectName(), Action(tr("SharedContext.Highlight Current Step"), highlightStepAction));
+
+        QAction *fadeStepsAction = commonMenus.fadeStepsMenu(*contextMenu,name);
+        lpub->actions.insert(fadeStepsAction->objectName(), Action(tr("SharedContext.Fade Previous Steps"), fadeStepsAction));
+
+        QAction *preferredRendererAction = commonMenus.preferredRendererMenu(*contextMenu,name);
+        lpub->actions.insert(preferredRendererAction->objectName(), Action(tr("SharedContext.Change Renderer"), preferredRendererAction));
+
+        QAction *previewPartAction = commonMenus.previewPartMenu(*contextMenu,name);
+        lpub->actions.insert(previewPartAction->objectName(), Action(tr("SharedContext.Preview Item"), previewPartAction));
+
+        QAction *resetViewerImageAction = commonMenus.resetViewerImageMenu(*contextMenu,name);
+        lpub->actions.insert(resetViewerImageAction->objectName(), Action(tr("SharedContext.Reset Viewer Image"), resetViewerImageAction));
+
+#ifndef QT_NO_CLIPBOARD
+        QAction *copyToClipboardAction = commonMenus.copyToClipboardMenu(*contextMenu,name);
+        lpub->actions.insert(copyToClipboardAction->objectName(), Action(tr("SharedContext.Copy Image Path To Clipboard"), copyToClipboardAction));
+#endif
+
+        QAction *displayRowsAction = commonMenus.displayRowsMenu(*contextMenu,name);
+        lpub->actions.insert(displayRowsAction->objectName(), Action(tr("SharedContext.Display As Rows"), displayRowsAction));
+
+        QAction *displayColumnsAction = commonMenus.displayColumnsMenu(*contextMenu,name);
+        lpub->actions.insert(displayColumnsAction->objectName(), Action(tr("SharedContext.Display As Columns"), displayColumnsAction));
+
+        QAction *backgroundAction = commonMenus.backgroundMenu(*contextMenu,name);
+        lpub->actions.insert(backgroundAction->objectName(), Action(tr("SharedContext.Change Background"), backgroundAction));
+
+        QAction *subModelColorAction = commonMenus.subModelColorMenu(*contextMenu,name);
+        lpub->actions.insert(subModelColorAction->objectName(), Action(tr("SharedContext.Change Submodel Color"), subModelColorAction));
+
+        QAction *placementAction = commonMenus.placementMenu(*contextMenu,name);
+        lpub->actions.insert(placementAction->objectName(), Action(tr("SharedContext.Change Placement"), placementAction));
+
+        QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(*contextMenu,name);
+        lpub->actions.insert(cameraAnglesAction->objectName(), Action(tr("SharedContext.Change Camera Angles"), cameraAnglesAction));
+
+        QAction *cameraFoVAction = commonMenus.cameraFoVMenu(*contextMenu,name);
+        lpub->actions.insert(cameraFoVAction->objectName(), Action(tr("SharedContext.Change Camera FOV Angle"), cameraFoVAction));
+
+        QAction *scaleAction = commonMenus.scaleMenu(*contextMenu,name);
+        lpub->actions.insert(scaleAction->objectName(), Action(tr("SharedContext.Change Scale"), scaleAction));
+
+        QAction *stretchImageAction = commonMenus.stretchImageMenu(*contextMenu,name);
+        lpub->actions.insert(stretchImageAction->objectName(), Action(tr("SharedContext.Stretch Image"), stretchImageAction));
+
+        QAction *tileImageAction = commonMenus.tileImageMenu(*contextMenu,name);
+        lpub->actions.insert(tileImageAction->objectName(), Action(tr("SharedContext.Tile Image"), tileImageAction));
+
+        QAction *marginAction = commonMenus.marginMenu(*contextMenu,name);
+        lpub->actions.insert(marginAction->objectName(), Action(tr("SharedContext.Change Margins"), marginAction));
+
+        QAction *borderAction = commonMenus.borderMenu(*contextMenu,name);
+        lpub->actions.insert(borderAction->objectName(), Action(tr("SharedContext.Change Border"), borderAction));
+
+        QAction *fontAction = commonMenus.fontMenu(*contextMenu,name);
+        lpub->actions.insert(fontAction->objectName(), Action(tr("SharedContext.Change Font"), fontAction));
+
+        QAction *colorAction = commonMenus.colorMenu(*contextMenu,name);
+        lpub->actions.insert(colorAction->objectName(), Action(tr("SharedContext.Change Color"), colorAction));
+
+        QAction *changeImageAction = commonMenus.changeImageMenu(*contextMenu,name);
+        lpub->actions.insert(changeImageAction->objectName(), Action(tr("SharedContext.Change Image"), changeImageAction));
+
+        QAction *displayTextAction = commonMenus.displayMenu(*contextMenu,name,"displayTextAction.1");
+        lpub->actions.insert(displayTextAction->objectName(), Action(tr("SharedContext.Toggle Text Display"), displayTextAction));
+
+        QAction *displayImageAction = commonMenus.displayMenu(*contextMenu,name,"displayImageAction.1");
+        lpub->actions.insert(displayImageAction->objectName(), Action(tr("SharedContext.Toggle Image Display"), displayImageAction));
+
+        QAction *displayRotateIconAction = commonMenus.displayMenu(*contextMenu,name,"displayRotateIconAction.1");
+        lpub->actions.insert(displayRotateIconAction->objectName(), Action(tr("SharedContext.Toggle RotateIcon Display"), displayRotateIconAction));
+
+        QAction *constrainAction = commonMenus.constrainMenu(*contextMenu,name);
+        lpub->actions.insert(constrainAction->objectName(), Action(tr("SharedContext.Change Shape"), constrainAction));
+
+        QAction *partGroupsOffAction = commonMenus.partGroupsOffMenu(*contextMenu,name);
+        lpub->actions.insert(partGroupsOffAction->objectName(), Action(tr("SharedContext.Turn Off Movable Group"), partGroupsOffAction));
+
+        QAction *partGroupsOnAction = commonMenus.partGroupsOnMenu(*contextMenu,name);
+        lpub->actions.insert(partGroupsOnAction->objectName(), Action(tr("SharedContext.Turn On Movable Group"), partGroupsOnAction));
+
+        QAction *sortAction = commonMenus.sortMenu(*contextMenu,name);
+        lpub->actions.insert(sortAction->objectName(), Action(tr("SharedContext.Sort Parts"), sortAction));
+
+        QAction *annotationAction = commonMenus.annotationMenu(*contextMenu,name);
+        lpub->actions.insert(annotationAction->objectName(), Action(tr("SharedContext.Annotation Options"), annotationAction));
+
+        QAction *sizeAction = commonMenus.sizeMenu(*contextMenu,name);
+        lpub->actions.insert(sizeAction->objectName(), Action(tr("SharedContext.Change Size"), sizeAction));
+
+        QAction *hideAction = commonMenus.hideMenu(*contextMenu,name);
+        lpub->actions.insert(hideAction->objectName(), Action(tr("SharedContext.Hide Item"), hideAction));
+
+        QAction *hideCsiAnnotationAction = commonMenus.hideMenu(*contextMenu,name,"hideCsiAnnotationAction.1","hidepartannotation.png");
+        lpub->actions.insert(hideCsiAnnotationAction->objectName(), Action(tr("AssemblyContext.Hide Csi Annotation"), hideCsiAnnotationAction));
+
+        QAction *resetPartGroupAction = commonMenus.resetPartGroupMenu(*contextMenu,name);
+        lpub->actions.insert(resetPartGroupAction->objectName(), Action(tr("SharedContext.Reset Group"), resetPartGroupAction));
+
+        QAction *substitutePartAction = commonMenus.substitutePartMenu(*contextMenu,name);
+        lpub->actions.insert(substitutePartAction->objectName(), Action(tr("SharedContext.Substitute Part"), substitutePartAction));
+
+        QAction *changeSubstitutePartAction = commonMenus.changeSubstitutePartMenu(*contextMenu,name);
+        lpub->actions.insert(changeSubstitutePartAction->objectName(), Action(tr("SharedContext.Change Substitute"), changeSubstitutePartAction));
+
+        QAction *removeSubstitutePartAction = commonMenus.removeSubstitutePartMenu(*contextMenu,name);
+        lpub->actions.insert(removeSubstitutePartAction->objectName(), Action(tr("SharedContext.Remove Substitute"), removeSubstitutePartAction));
+
+        QAction *textAction = commonMenus.textMenu(*contextMenu,name);
+        lpub->actions.insert(textAction->objectName(), Action(tr("SharedContext.Edit Text"), textAction));
+
+        QAction *rotStepAction = commonMenus.rotStepMenu(*contextMenu,name);
+        lpub->actions.insert(rotStepAction->objectName(), Action(tr("SharedContext.Change Rotation"), rotStepAction));
+
+        QAction *overrideCountAction = commonMenus.overrideCountMenu(*contextMenu,name);
+        lpub->actions.insert(overrideCountAction->objectName(), Action(tr("SharedContext.Override Count"), overrideCountAction));
+
+        QAction *restoreCountAction = commonMenus.restoreCountMenu(*contextMenu,name);
+        lpub->actions.insert(restoreCountAction->objectName(), Action(tr("SharedContext.Restore Count"), restoreCountAction));
+
         create3DActions();
 
-    // setup default shortcuts
-    foreach (Action act, lpub->actions) {
-        if (!act.action->shortcut().isEmpty()) {
-            QKeySequence shortcut = act.action->shortcut();
-            act.action->setProperty("defaultshortcut", shortcut);
+        // setup default shortcuts
+        foreach (Action act, lpub->actions) {
+            if (!act.action->shortcut().isEmpty()) {
+                QKeySequence shortcut = act.action->shortcut();
+                act.action->setProperty("defaultshortcut", shortcut);
+            }
         }
-    }
 
-    lpub->setKeyboardShortcuts();
+        lpub->setKeyboardShortcuts();
 
-    foreach (QAction *action, editWindow->actions()) {
-        lpub->setKeyboardShortcut(action);
-    }
-    foreach (QAction *action, editModeWindow->actions()) {
-        lpub->setKeyboardShortcut(action);
-    }
-    foreach (QAction *action, parmsWindow->actions()) {
-        lpub->setKeyboardShortcut(action);
+        foreach (QAction *action, editWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
+        foreach (QAction *action, editModeWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
+        foreach (QAction *action, parmsWindow->actions()) {
+            lpub->setKeyboardShortcut(action);
+        }
     }
 }
 
