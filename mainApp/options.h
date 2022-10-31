@@ -32,13 +32,14 @@
 
 namespace Options
 {
-    enum Mt { PLI, CSI ,SMP ,MON    };
+  enum Mt { PLI, CSI ,SMP ,MON    };
 }
 
 class Vector3
 {
+
 private:
-bool _populated;
+  bool _populated;
 
 public:
   Vector3()
@@ -73,6 +74,7 @@ inline bool operator!=(const Vector3 &a, const Vector3 &b)
 
 class NativeOptions
 {
+
 public:
   NativeOptions()
       :ImageType         (Options::CSI),
@@ -296,6 +298,21 @@ public:
     int             contStepNumber;
     int             groupStepNumber;
     QString         renderParentModel;
+};
+
+class DrawPageFlags
+{
+public:
+    bool printing;
+    bool updateViewer;
+    bool csiAnnotation;
+    bool buildModActionChange;
+    DrawPageFlags()
+        : printing(false)
+        , updateViewer(true)
+        , csiAnnotation(false)
+        , buildModActionChange(false)
+    { }
 };
 
 class DrawPageOptions
