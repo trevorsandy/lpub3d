@@ -1161,7 +1161,7 @@ int LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QString("Cannot read ldraw file: [%1]<br>%2.")
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Cannot read ldraw file: [%1]<br>%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return 1;
@@ -1197,19 +1197,19 @@ int LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(_fileRegExp[SOF_RX])) {
-            emit gui->messageSig(LOG_INFO_STATUS, QString("Model file '%1' identified as Multi-Part LDraw System (MPD) Document").arg(fileInfo.fileName()));
+            emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Model file '%1' identified as Multi-Part LDraw System (MPD) Document").arg(fileInfo.fileName()));
             type = MPD_FILE;
             break;
         }
         if (line.contains(_fileRegExp[NAM_RX]) || line.contains(_fileRegExp[LDR_RX])) {
-            emit gui->messageSig(LOG_INFO_STATUS, QString("Model file '%1' identified as LDraw System (LDR) Document").arg(fileInfo.fileName()));
+            emit gui->messageSig(LOG_INFO_STATUS, QObject::tr("Model file '%1' identified as LDraw System (LDR) Document").arg(fileInfo.fileName()));
             type = LDR_FILE;
             break;
         }
     }
 
     if (type == UNKNOWN_FILE) {
-        emit gui->messageSig(LOG_ERROR, QString("File '%1' is not a valid LDraw (LDR) or Multi-Part LDraw (MPD) System Document.").arg(fileInfo.fileName()));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("File '%1' is not a valid LDraw (LDR) or Multi-Part LDraw (MPD) System Document.").arg(fileInfo.fileName()));
         return 1;
     }
 
@@ -1235,7 +1235,7 @@ int LDrawFile::loadFile(const QString &fileName)
     QFuture<void> countPartsFuture = QtConcurrent::run([this](){countParts(topLevelFile()); });
     countPartsFuture.waitForFinished();
 
-    QString loadStatusMessage = QString("%1 model file '%2' loaded. Unique Parts %3. Total Parts %4. %5")
+    QString loadStatusMessage = QObject::tr("%1 model file '%2' loaded. Unique Parts %3. Total Parts %4. %5")
             .arg(type == MPD_FILE ? "MPD" : "LDR")
             .arg(fileInfo.fileName())
             .arg(_uniquePartCount)
@@ -1261,8 +1261,8 @@ int LDrawFile::loadFile(const QString &fileName)
         return count;
     };
 
-    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                            .arg(Preferences::buildModEnabled ? "Enabled" : "Disabled"));
+    emit gui->messageSig(LOG_INFO, QObject::tr("Build Modifications are %1")
+                                               .arg(Preferences::buildModEnabled ? QObject::tr("Enabled") : QObject::tr("Disabled")));
 
     if (Preferences::modeGUI) {
         int vpc = getCount(VALID_LOAD_MSG);
@@ -1291,25 +1291,25 @@ int LDrawFile::loadFile(const QString &fileName)
         break;
         }
 
-        QString message = QString("%1 model file <b>%2</b> loaded.%3%4%5%6%7%8%9%10")
+        QString message = QObject::tr("%1 model file <b>%2</b> loaded.%3%4%5%6%7%8%9%10")
                 /* 01 */  .arg(type == MPD_FILE ? "MPD" : "LDR")
                 /* 02 */  .arg(fileInfo.fileName())
-                /* 03 */  .arg(delta   ? QString("<br>Parts count:            <b>%1</b>").arg(apc) : "")
-                /* 04 */  .arg(mpc > 0 ? QString("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
-                /* 05 */  .arg(vpc > 0 ? QString("<br>Total validated parts:  <b>%1</b>").arg(vpc) : "")
-                /* 06 */  .arg(upc > 0 ? QString("<br>Unique validated parts: <b>%1</b>").arg(upc) : "")
-                /* 07 */  .arg(ppc > 0 ? QString("<br>Primitive parts:        <b>%1</b>").arg(ppc) : "")
-                /* 08 */  .arg(spc > 0 ? QString("<br>Subparts:               <b>%1</b>").arg(spc) : "")
+                /* 03 */  .arg(delta   ? QObject::tr("<br>Parts count:            <b>%1</b>").arg(apc) : "")
+                /* 04 */  .arg(mpc > 0 ? QObject::tr("<span style=\"color:red\"><br>Missing parts:          <b>%1</b></span>").arg(mpc) : "")
+                /* 05 */  .arg(vpc > 0 ? QObject::tr("<br>Total validated parts:  <b>%1</b>").arg(vpc) : "")
+                /* 06 */  .arg(upc > 0 ? QObject::tr("<br>Unique validated parts: <b>%1</b>").arg(upc) : "")
+                /* 07 */  .arg(ppc > 0 ? QObject::tr("<br>Primitive parts:        <b>%1</b>").arg(ppc) : "")
+                /* 08 */  .arg(spc > 0 ? QObject::tr("<br>Subparts:               <b>%1</b>").arg(spc) : "")
                 /* 09 */  .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
-                /* 10 */  .arg(mpc > 0 ? QString("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                           "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
-                                           "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
-                                           .arg(mpc > 1 ? "parts" : "part")          //1
-                                           .arg(mpc > 1 ? "were" : "was")            //2
-                                           .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)       //3
-                                           .arg(VER_LDRAW_OFFICIAL_ARCHIVE)          //4
-                                           .arg(mpc > 1 ? "these are" : "this is a") //5
-                                           .arg(mpc > 1 ? "their" : "its") : "");    //7
+                /* 10 */  .arg(mpc > 0 ? QObject::tr("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
+                                                     "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
+                                                     "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
+                                                     .arg(mpc > 1 ? QObject::tr("parts") : QObject::tr("part"))          //1
+                                                     .arg(mpc > 1 ? QObject::tr("were") : QObject::tr("was"))            //2
+                                                     .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)       //3
+                                                     .arg(VER_LDRAW_OFFICIAL_ARCHIVE)          //4
+                                                     .arg(mpc > 1 ? QObject::tr("these are") : QObject::tr("this is a")) //5
+                                                     .arg(mpc > 1 ? QObject::tr("their") : QObject::tr("its")) : "");    //7
         _loadedParts << message;
         if (mpc > 0) {
             if (_showLoadMessages) {

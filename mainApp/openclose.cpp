@@ -69,15 +69,15 @@ void Gui::open()
     if (fileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
       if (!openFile(fileName)) {
-          emit gui->messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+          emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
           return;
       }
       displayPage();
       enableActions();
       lpub->ldrawFile.showLoadMessages();
-      emit gui->messageSig(LOG_STATUS, gui->loadAborted() ?
-                       QString("Load model file %1 aborted.").arg(fileName) :
-                       QString("Model file loaded (%1 pages, %2 parts). %3")
+      emit lpub->messageSig(LOG_STATUS, lpub->loadAborted() ?
+                            tr("Load model file %1 aborted.").arg(fileName) :
+                            tr("Model file loaded (%1 pages, %2 parts). %3")
                                .arg(maxPages)
                                .arg(lpub->ldrawFile.getPartCount())
                                .arg(elapsedTime(timer.elapsed())));
@@ -101,24 +101,24 @@ void Gui::openDropFile(QString &fileName){
           QSettings Settings;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
           if (!openFile(fileName)) {
-              emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+              emit messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
               return;
           }
           displayPage();
           enableActions();
           lpub->ldrawFile.showLoadMessages();
-          emit messageSig(LOG_STATUS, gui->loadAborted() ?
-                              QString("Load model file %1 aborted.").arg(fileName) :
-                              QString("Model file loaded (%1 pages, %2 parts). %3")
-                                      .arg(maxPages)
-                                      .arg(lpub->ldrawFile.getPartCount())
-                                      .arg(elapsedTime(timer.elapsed())));
+          emit messageSig(LOG_STATUS, lpub->loadAborted() ?
+                              tr("Load model file %1 aborted.").arg(fileName) :
+                              tr("Model file loaded (%1 pages, %2 parts). %3")
+                                 .arg(maxPages)
+                                 .arg(lpub->ldrawFile.getPartCount())
+                                 .arg(elapsedTime(timer.elapsed())));
         } else {
           QString noExtension;
           if (extension.isEmpty())
-              noExtension = QString("<br>No file exension specified. Set the file extension to .mpd,.ldr, or .dat.");
-          emit messageSig(LOG_ERROR, QString("File not supported!<br>%1%2")
-                          .arg(fileName).arg(noExtension));
+              noExtension = tr("<br>No file exension specified. Set the file extension to .mpd,.ldr, or .dat.");
+          emit messageSig(LOG_ERROR, tr("File not supported!<br>%1%2")
+                                        .arg(fileName).arg(noExtension));
         }
     }
 }
@@ -137,7 +137,7 @@ void Gui::openFolderSelect(const QString &absoluteFilePath)
 
         if (!ok) {
             QErrorMessage *m = new QErrorMessage(this);
-            m->showMessage(QString("%1\n%2").arg("Failed to open folder!").arg(path));
+            m->showMessage(tr("Failed to open folder!\n%2").arg(path));
         }
     };
 
@@ -230,7 +230,7 @@ void Gui::updateOpenWithActions()
       numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
 #ifdef QT_DEBUG_MODE
-      messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numPrograms));
+      emit lpub->messageSig(LOG_DEBUG, tr("1. Number of Programs: %1").arg(numPrograms));
 #endif
 
       QString programData, programName, programPath;
@@ -247,7 +247,7 @@ void Gui::updateOpenWithActions()
               QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
               QPixmap iconPixmap = fileIcon.pixmap(16,16);
               if (!iconPixmap.save(iconFile))
-                  emit gui->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+                  emit lpub->messageSig(LOG_INFO,tr("Could not save program file icon: %1").arg(iconFile));
               return fileIcon;
           }
           return QIcon(iconFile);
@@ -269,8 +269,8 @@ void Gui::updateOpenWithActions()
           openWithActList[i]->setText(text);
           openWithActList[i]->setData(programData); // includes arguments
           openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                   .arg(fileInfo.fileName()));
+          openWithActList[i]->setStatusTip(tr("Open current file with %2")
+                                              .arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
           i++;
         } else {
@@ -297,8 +297,8 @@ void Gui::updateOpenWithActions()
           openWithActList[i]->setText(text);
           openWithActList[i]->setData(programData);
           openWithActList[i]->setIcon(getProgramIcon());
-          openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                   .arg(fileInfo.fileName()));
+          openWithActList[i]->setStatusTip(tr("Open current file with %2")
+                                              .arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
           programEntries.append(QString("%1|%2").arg(programName).arg(programData));
           numPrograms = programEntries.size();
@@ -306,7 +306,7 @@ void Gui::updateOpenWithActions()
       }
 
 #ifdef QT_DEBUG_MODE
-      messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
+      lpub->messageSig(LOG_DEBUG, tr("2. Number of Programs: %1").arg(numPrograms));
 #endif
 
       // hide empty program actions - redundant
@@ -378,8 +378,8 @@ void Gui::openWith(const QString &filePath)
             }
 #else
             else {
-                emit messageSig(LOG_ERROR, QString("No program specified. Cannot launch %1.")
-                                .arg(QFileInfo(filePath).fileName()));
+                emit lpub->messageSig(LOG_ERROR, tr("No program specified. Cannot launch %1.")
+                                                    .arg(QFileInfo(filePath).fileName()));
             }
 #endif
         } else {
@@ -388,10 +388,10 @@ void Gui::openWith(const QString &filePath)
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with pid=%2 %3%4...")
-                              .arg(QFileInfo(filePath).fileName()).arg(pid)
-                              .arg(QFileInfo(program).fileName())
-                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
+        emit lpub->messageSig(LOG_INFO, tr("Launched %1 with pid=%2 %3%4...")
+                                           .arg(QFileInfo(filePath).fileName()).arg(pid)
+                                           .arg(QFileInfo(program).fileName())
+                                           .arg(arguments.size() ? " "+arguments.join(" ") : ""));
     }
 }
 
@@ -412,7 +412,7 @@ void Gui::openRecentFile()
     QFileInfo fileInfo(fileName);
     QDir::setCurrent(fileInfo.absolutePath());
     if (!openFile(fileName)) {
-        emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+        emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
         return;
     }
     lpub->currentStep = nullptr;
@@ -420,12 +420,12 @@ void Gui::openRecentFile()
     displayPage();
     enableActions();
     lpub->ldrawFile.showLoadMessages();
-    emit messageSig(LOG_STATUS, gui->loadAborted() ?
-                        QString("Load model file %1 aborted.").arg(fileName) :
-                        QString("Model file loaded (%1 pages, %2 parts). %3")
-                                .arg(maxPages)
-                                .arg(lpub->ldrawFile.getPartCount())
-                                .arg(elapsedTime(timer.elapsed())));
+    emit lpub->messageSig(LOG_STATUS, lpub->loadAborted() ?
+                                      tr("Load model file %1 aborted.").arg(fileName) :
+                                      tr("Model file loaded (%1 pages, %2 parts). %3")
+                                         .arg(maxPages)
+                                         .arg(lpub->ldrawFile.getPartCount())
+                                         .arg(elapsedTime(timer.elapsed())));
   }
 }
 
@@ -452,7 +452,7 @@ bool Gui::loadFile(const QString &file, bool console)
     lpub->currentStep = nullptr;
 
     if(Gui::resetCache) {
-        emit messageSig(LOG_INFO,QString("Reset parts cache specified."));
+        emit lpub->messageSig(LOG_INFO,tr("Reset parts cache specified."));
         //QFuture<void> ResetFuture = QtConcurrent::run([this,&file, console] {
         resetModelCache(QFileInfo(file).absoluteFilePath(), console);
         //});
@@ -465,7 +465,8 @@ bool Gui::loadFile(const QString &file, bool console)
         timer.start();
         QDir::setCurrent(info.absolutePath());
         if (!openFile(fileName)) {
-            emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+            emit lpub->messageSig(LOG_INFO_STATUS, tr("Load LDraw model file %1 aborted.").arg(fileName));
+            emit fileLoadedSig(false);
             return false;
         }
         // check if possible to load page number
@@ -480,16 +481,16 @@ bool Gui::loadFile(const QString &file, bool console)
         enableActions();
 
         lpub->ldrawFile.showLoadMessages();
-        emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
-                            QString("Load model file %1 aborted.").arg(fileName) :
-                            QString("Model file loaded (%1 pages, %2 parts). %3")
-                                    .arg(maxPages)
-                                    .arg(lpub->ldrawFile.getPartCount())
-                                    .arg(elapsedTime(timer.elapsed())));
-        emit fileLoadedSig(true);
+        emit lpub->messageSig(LOG_INFO_STATUS, lpub->loadAborted() ?
+                                               tr("Load model file %1 aborted.").arg(fileName) :
+                                               tr("Model file loaded (%1 pages, %2 parts). %3")
+                                                  .arg(maxPages)
+                                                  .arg(lpub->ldrawFile.getPartCount())
+                                                  .arg(elapsedTime(timer.elapsed())));
+        emit fileLoadedSig(!lpub->loadAborted());
         return true;
     } else {
-        emit messageSig(LOG_ERROR,QString("Unable to load file %1.").arg(fileName));
+        emit messageSig(LOG_ERROR,tr("Unable to load file %1.").arg(fileName));
     }
     emit fileLoadedSig(false);
     return false;
@@ -552,10 +553,10 @@ int Gui::whichFile(int option) {
     if (showDialog && Preferences::modeGUI) {
 
         QDialog *dialog = new QDialog();
-        dialog->setWindowTitle("File to Save");
+        dialog->setWindowTitle(tr("File to Save"));
         QFormLayout *form = new QFormLayout(dialog);
 
-        QGroupBox *saveWhichGrpBox = new QGroupBox("Select which file to save");
+        QGroupBox *saveWhichGrpBox = new QGroupBox(tr("Select which file to save"));
         form->addWidget(saveWhichGrpBox);
         QFormLayout *saveWhichFrmLayout = new QFormLayout(saveWhichGrpBox);
 
@@ -565,7 +566,7 @@ int Gui::whichFile(int option) {
         QFontMetrics currentMetrics(currentButton->font());
         QString elidedText = currentMetrics.elidedText(QFileInfo(curFile).fileName(),
                                                        Qt::ElideRight, currentButton->width());
-        currentButton->setText(QString("Current file: %1").arg(elidedText));
+        currentButton->setText(tr("Current file: %1").arg(elidedText));
         currentButton->setChecked(currentChecked);
         saveWhichFrmLayout->addRow(currentButton);
 
@@ -575,7 +576,7 @@ int Gui::whichFile(int option) {
         QFontMetrics includeMetrics(includeButton->font());
         elidedText = includeMetrics.elidedText(QFileInfo(curSubFile).fileName(),
                                                Qt::ElideRight, includeButton->width());
-        includeButton->setText(QString("Include file: %1").arg(elidedText));
+        includeButton->setText(tr("Include file: %1").arg(elidedText));
         includeButton->setChecked(includeChecked);
         saveWhichFrmLayout->addRow(includeButton);
 
@@ -678,11 +679,11 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
   bool proceed = true;
   SaveOnSender saveSender = SaveOnSender(sender);
   if (saveSender ==  SaveOnRedraw) {
-      senderLabel = "redraw";
+      senderLabel = QLatin1String("redraw");
       proceed = Preferences::showSaveOnRedraw;
   } else
   if (saveSender ==  SaveOnUpdate) {
-     senderLabel = "update";
+     senderLabel = QLatin1String("update");
      proceed = Preferences::showSaveOnUpdate;
   }
 
@@ -732,7 +733,7 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
       }
     } else {
       save();
-      emit messageSig(LOG_INFO,tr("Open document has been saved!"));
+      emit lpub->messageSig(LOG_INFO,tr("Open document has been saved!"));
     }
   }
   return true;
@@ -788,7 +789,7 @@ void Gui::closeFile()
   submodelIconsLoaded = false;
   SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty())
-      emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
+      emit lpub->messageSig(LOG_DEBUG, tr("File closed - %1.").arg(curFile));
 }
 
 // This call definitively closes and clears from curFile, the current model file
@@ -818,7 +819,8 @@ void Gui::closeModelFile(){
     editModeWindow->close();
     getAct("editModelFileAct.1")->setText(tr("Edit current model file"));
     getAct("editModelFileAct.1")->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
-    emit messageSig(LOG_INFO, QString("Model unloaded. File closed - %1.").arg(topModel));
+    if (!topModel.isEmpty())
+        emit lpub->messageSig(LOG_INFO, tr("Model unloaded. File closed - %1.").arg(topModel));
 
     QString windowTitle = QString::fromLatin1(VER_FILEDESCRIPTION_STR);
     QString versionInfo;
@@ -831,7 +833,7 @@ void Gui::closeModelFile(){
                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR), QString::fromLatin1(VER_PRODUCTVERSION_STR), revisionNumber ? QString(" r%1").arg(VER_REVISION_STR) : "");
 #endif
 
-    setWindowTitle(tr("%1[*] - %2").arg(windowTitle).arg(versionInfo));
+    setWindowTitle(QString("%1[*] - %2").arg(windowTitle).arg(versionInfo));
   }
 }
 
@@ -864,10 +866,10 @@ bool Gui::openFile(QString &fileName)
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
-  emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file '%1'...").arg(fileName));
-  setPageLineEdit->setText(QString("Loading..."));
-  setGoToPageCombo->addItem(QString("Loading..."));
-  mpdCombo->addItem(QString("Loading..."));
+  emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading LDraw model file '%1'...").arg(fileName));
+  setPageLineEdit->setText(tr("Loading..."));
+  setGoToPageCombo->addItem(tr("Loading..."));
+  mpdCombo->addItem(tr("Loading..."));
   if (lpub->ldrawFile.loadFile(fileName) != 0) {
       closeModelFile();
       return false;
@@ -890,19 +892,19 @@ bool Gui::openFile(QString &fileName)
     if (enableFadeSteps) {
       if (Preferences::enableImageMatting)
         LDVImageMatte::clearMatteCSIImages();
-      emit messageSig(LOG_INFO_STATUS, "Loading fade color parts...");
+      emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading fade color parts..."));
       partWorkerLDSearchDirs.setDoFadeStep(true);
       processFadeColourParts(false/*overwrite*/, enableFadeSteps);
     }
     if (enableHighlightStep) {
-      emit messageSig(LOG_INFO_STATUS, "Loading highlight color parts...");
+      emit lpub->messageSig(LOG_INFO_STATUS, tr("Loading highlight color parts..."));
       partWorkerLDSearchDirs.setDoHighlightStep(true);
       processHighlightColourParts(false/*overwrite*/, enableHighlightStep);
     }
   }
   QString previewLoadPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
   lcSetProfileString(LC_PROFILE_PREVIEW_LOAD_PATH, previewLoadPath);
-  emit messageSig(LOG_INFO, "Loading user interface items...");
+  emit lpub->messageSig(LOG_INFO, tr("Loading user interface items..."));
   attitudeAdjustment();
   mpdCombo->clear();
   mpdCombo->addItems(lpub->ldrawFile.subFileOrder());
@@ -914,9 +916,9 @@ bool Gui::openFile(QString &fileName)
   curFile = fileName;
   for (int i = 0; i < numPrograms; i++) {
     QFileInfo fileInfo(programEntries.at(i).split("|").last());
-    openWithActList[i]->setStatusTip(QString("Open %1 with %2")
-                                  .arg(QFileInfo(curFile).fileName())
-                                  .arg(fileInfo.fileName()));
+    openWithActList[i]->setStatusTip(tr("Open %1 with %2")
+                                        .arg(QFileInfo(curFile).fileName())
+                                        .arg(fileInfo.fileName()));
   }
 
   insertFinalModelStep();  //insert final fully coloured model if fadeSteps turned on
@@ -927,7 +929,7 @@ bool Gui::openFile(QString &fileName)
 
   defaultResolutionType(Preferences::preferCentimeters);
 
-  emit messageSig(LOG_INFO, QString("Open file '%1' completed.").arg(fileName));
+  emit lpub->messageSig(LOG_INFO, tr("Open file '%1' completed.").arg(fileName));
   return true;
 }
 
@@ -1042,7 +1044,7 @@ void Gui::fileChanged(const QString &path)
     if (lpub->ldrawFile.isIncludeFile(fileName) || lpub->ldrawFile.isUnofficialPart(fileName))
       absoluteFilePath = curFile;
     if (!openFile(absoluteFilePath)) {
-      emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(absoluteFilePath));
+      emit lpub->messageSig(LOG_STATUS, tr("Load LDraw model file %1 aborted.").arg(absoluteFilePath));
       return;
     }
     displayPageNum = goToPage;
@@ -1051,7 +1053,7 @@ void Gui::fileChanged(const QString &path)
 }
 
 void Gui::writeGeneratedColorPartsToTemp() {
-  emit messageSig(LOG_INFO_STATUS, "Writing generated color parts to tmp folder...");
+  emit lpub->messageSig(LOG_INFO_STATUS, tr("Writing generated color parts to tmp folder..."));
   int count = 0;
   for (int i = 0; i < lpub->ldrawFile._subFileOrder.size(); i++) {
     QString fileName = lpub->ldrawFile._subFileOrder[i];
@@ -1059,12 +1061,12 @@ void Gui::writeGeneratedColorPartsToTemp() {
       count++;
       lpub->ldrawFile.normalizeHeader(fileName);
       QStringList content = lpub->ldrawFile.contents(fileName);
-      emit messageSig(LOG_INFO, tr("Writing generated part %1 to temp directory: %2...").arg(count).arg(fileName));
+      emit lpub->messageSig(LOG_INFO, tr("Writing generated part %1 to temp directory: %2...").arg(count).arg(fileName));
       writeToTmp(fileName,content);
     }
   }
   if (!count)
-      emit messageSig(LOG_INFO, tr("No generated parts written."));
+      emit lpub->messageSig(LOG_INFO, tr("No generated parts written."));
 }
 
 //void Gui::dropEvent(QDropEvent* event)
@@ -1121,19 +1123,19 @@ QString Gui::elapsedTime(const qint64 &duration) {
   elapsed /= 60;
   int hours = int(elapsed % 24);
 
-  return QString("Elapsed time: %1%2%3")
-                 .arg(hours >   0 ?
+  return tr("Elapsed time: %1%2%3")
+                 .arg(hours   >   0 ?
                                 QString("%1 %2 ")
                                         .arg(hours)
-                                        .arg(hours > 1 ? "hours" : "hour")
-                                : QString())
+                                        .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
+                                QString())
                  .arg(minutes > 0 ?
                                 QString("%1 %2 ")
                                         .arg(minutes)
-                                        .arg(minutes > 1 ? "minutes" : "minute")
-                                : QString())
+                                        .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
+                                QString())
                  .arg(QString("%1.%2 %3")
                               .arg(seconds)
                               .arg(milliseconds,3,10,QLatin1Char('0'))
-                              .arg(seconds > 1 ? "seconds" : "second"));
+                              .arg(seconds > 1 ? tr("seconds") : tr("second")));
 }

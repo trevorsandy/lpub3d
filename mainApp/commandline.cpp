@@ -140,11 +140,11 @@ int LPub::processCommandLine()
 
       auto InvalidParse = [this, &Param, &Arguments, &ArgIdx, &ParseOK] (const QString& Text, bool Pair)
       {
-          QString message = Text.isEmpty() ? QString("Invalid value specified") : Text;
+          QString message = Text.isEmpty() ? tr("Invalid value specified") : Text;
           if (Pair)
-              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
+              emit messageSig(LOG_ERROR, message.append(tr(" '%1' option: '%2'.").arg(Arguments[ArgIdx - 1]).arg(Param)));
           else
-              emit messageSig(LOG_ERROR, message.append(QString(" '%1' option.").arg(Param)));
+              emit messageSig(LOG_ERROR, message.append(tr(" '%1' option.").arg(Param)));
 
           ParseOK = false;
       };
@@ -158,7 +158,7 @@ int LPub::processCommandLine()
           }
           else if (Required)
           {
-              InvalidParse(QString("Not enough parameters for the"), false);
+              InvalidParse(tr("Not enough parameters for the"), false);
               return false;
           }
 
@@ -179,10 +179,10 @@ int LPub::processCommandLine()
                   return true;
               }
               else
-                  InvalidParse(QString("Invalid parameter value specified for the"), true);
+                  InvalidParse(tr("Invalid parameter value specified for the"), true);
           }
           else
-              InvalidParse(QString("Not enough parameters for the"), false);
+              InvalidParse(tr("Not enough parameters for the"), false);
 
           return false;
       };
@@ -201,10 +201,10 @@ int LPub::processCommandLine()
                   return true;
               }
               else
-                  InvalidParse(QString("Invalid parameter value specified for the"), true);
+                  InvalidParse(tr("Invalid parameter value specified for the"), true);
           }
           else
-              InvalidParse(QString("Not enough parameters for the"), false);
+              InvalidParse(tr("Not enough parameters for the"), false);
 
           return false;
       };
@@ -223,10 +223,10 @@ int LPub::processCommandLine()
                   return true;
               }
               else
-                  InvalidParse(QString("Not enough parameters for the"), false);
+                  InvalidParse(tr("Not enough parameters for the"), false);
           }
           else
-              InvalidParse(QString("Not enough parameters for the"), false);
+              InvalidParse(tr("Not enough parameters for the"), false);
 
           return false;
       };
@@ -268,7 +268,7 @@ int LPub::processCommandLine()
       {
         int Value;
         if (!ParseInteger(Value, 0, 7))
-            InvalidParse(QString("Invalid value specified, valid values range from 0 to 7 for the"), true);
+            InvalidParse(tr("Invalid value specified, valid values range from 0 to 7 for the"), true);
         else if ((studStyleChanged = Value != StudStyle))
             StudStyle = Value;
       }
@@ -277,7 +277,7 @@ int LPub::processCommandLine()
           if (ParseColor32(ColorValue))
           {
               if (StudStyle < 6)
-                  InvalidParse(QString("High contrast stud style is required for the"), true);
+                  InvalidParse(tr("High contrast stud style is required for the"), true);
               else if ((coloursChanged = ColorValue != StudCylinderColor))
                   StudCylinderColor = ColorValue;
           }
@@ -287,7 +287,7 @@ int LPub::processCommandLine()
           if (ParseColor32(PartEdgeColor))
           {
               if (StudStyle < 6)
-                  InvalidParse(QString("High contrast stud style is required for the"), true);
+                  InvalidParse(tr("High contrast stud style is required for the"), true);
               else if ((coloursChanged = ColorValue != PartEdgeColor))
                   PartEdgeColor = ColorValue;
           }
@@ -297,7 +297,7 @@ int LPub::processCommandLine()
           if (ParseColor32(BlackEdgeColor))
           {
               if (StudStyle < 6)
-                  InvalidParse(QString("High contrast stud style is required for the"), true);
+                  InvalidParse(tr("High contrast stud style is required for the"), true);
               else if ((coloursChanged = ColorValue != BlackEdgeColor))
                   BlackEdgeColor = ColorValue;
           }
@@ -307,7 +307,7 @@ int LPub::processCommandLine()
           if (ParseColor32(DarkEdgeColor))
           {
               if (StudStyle < 6)
-                  InvalidParse(QString("High contrast stud style is required for the"), true);
+                  InvalidParse(tr("High contrast stud style is required for the"), true);
               else if ((coloursChanged = ColorValue != DarkEdgeColor))
                   DarkEdgeColor = ColorValue;
           }
@@ -324,14 +324,14 @@ int LPub::processCommandLine()
       {
           if (ParseFloat(PartEdgeContrast, 0.0f, 1.0f))
               if (!AutomateEdgeColor)
-                  InvalidParse(QString("Automate edge color is required for the"), true);
+                  InvalidParse(tr("Automate edge color is required for the"), true);
       }
       else
       if (Param == QLatin1String("-ldv") || Param == QLatin1String("--light-dark-value"))
       {
           if (ParseFloat(PartColorValueLDIndex, 0.0f, 1.0f))
               if (!AutomateEdgeColor)
-                  InvalidParse(QString("Automate edge color is required for the"), true);
+                  InvalidParse(tr("Automate edge color is required for the"), true);
       }
       else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
@@ -364,7 +364,7 @@ int LPub::processCommandLine()
       if (Param == QLatin1String("-hw") || Param == QLatin1String("--highlight-line-width"))
       {
         if (!ParseInteger(highlightLineWidth, 1, 10))
-            InvalidParse(QString("Invalid value specified, valid values range from 1 to 10 for the"), true);
+            InvalidParse(tr("Invalid value specified, valid values range from 1 to 10 for the"), true);
       }
       else
       if (Param == QLatin1String("-ccf") || Param == QLatin1String("--color-config-file"))
@@ -377,41 +377,42 @@ int LPub::processCommandLine()
             }
             else
             {
-                InvalidParse(QString("Invalid value specified for the "), true);
+                InvalidParse(tr("Invalid value specified for the "), true);
                 colourConfigFile = QString();
             }
         }
     }
     else
-      InvalidParse(QString("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
+      InvalidParse(tr("Unknown %1 command line parameter:").arg(VER_PRODUCTNAME_STR), false);
   }
 
-  auto restoreRendererAndLibrary = [&rendererChanged] () {
-    if (rendererChanged) {
-      Preferences::preferredRenderer        = Gui::savedRendererData.renderer;
-      Preferences::enableLDViewSingleCall   = Gui::savedRendererData.useLDVSingleCall ;
-      Preferences::enableLDViewSnaphsotList = Gui::savedRendererData.useLDVSnapShotList;
-      Preferences::useNativePovGenerator    = Gui::savedRendererData.useNativeGenerator;
-      Preferences::perspectiveProjection    = Gui::savedRendererData.usePerspectiveProjection;
-      Preferences::preferredRendererPreferences(true/*global*/);
-    }
+  auto restoreRendererAndLibrary = [&] ()
+  {
+      if (rendererChanged) {
+          Preferences::preferredRenderer        = Gui::savedRendererData.renderer;
+          Preferences::enableLDViewSingleCall   = Gui::savedRendererData.useLDVSingleCall ;
+          Preferences::enableLDViewSnaphsotList = Gui::savedRendererData.useLDVSnapShotList;
+          Preferences::useNativePovGenerator    = Gui::savedRendererData.useNativeGenerator;
+          Preferences::perspectiveProjection    = Gui::savedRendererData.usePerspectiveProjection;
+          Preferences::preferredRendererPreferences(true/*global*/);
+      }
 
-    if (!Preferences::currentLibrarySave.isEmpty()) {
-      QSettings Settings;
-      // set library directly in setings
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),Preferences::currentLibrarySave);
-      // clear current library save
-      Preferences::currentLibrarySave.clear();
-      // call with empty library argument
-      Preferences::setLPub3DAltLibPreferences(QString());
-      // re-initialize directories
-      Preferences::lpubPreferences();
-    }
+      if (! Preferences::currentLibrarySave.isEmpty()) {
+          QSettings Settings;
+          // set library directly in setings
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDrawLibrary"),Preferences::currentLibrarySave);
+          // clear current library save
+          Preferences::currentLibrarySave.clear();
+          // call with empty library argument
+          Preferences::setLPub3DAltLibPreferences(QString());
+          // re-initialize directories
+          Preferences::lpubPreferences();
+      }
   };
 
   if (! ParseOK)
   {
-      emit messageSig(LOG_ERROR,QString("Parse command line failed: %1.").arg(Arguments.join(" ")));
+      emit messageSig(LOG_ERROR,tr("Parse command line failed: %1.").arg(Arguments.join(" ")));
 
       disconnect(gui,  SIGNAL(fileLoadedSig(bool)),
                  this, SLOT(  fileLoaded(bool)));
@@ -441,14 +442,14 @@ int LPub::processCommandLine()
 
   if (projection.toLower() == "p" || projection.toLower() == "perspective") {
       bool applyCARenderer = Preferences::preferredRenderer == RENDERER_LDVIEW;
-      message = QString("Camera projection set to Perspective.%1")
-                        .arg(applyCARenderer ?
-                                 QString(" Apply camera angles locally set to false") : "");
+      message = tr("Camera projection set to Perspective.%1")
+                   .arg(applyCARenderer ?
+                            tr(" Apply camera angles locally set to false") : "");
       emit messageSig(LOG_INFO,message);
       Preferences::applyCALocally = !applyCARenderer;
       Preferences::perspectiveProjection = true;
   } else if (projection.toLower() == "o" || projection.toLower() == "orthographic") {
-      message = QString("Camera projection set to Orthographic");
+      message = tr("Camera projection set to Orthographic");
       emit messageSig(LOG_INFO,message);
       Preferences::perspectiveProjection = false;
   }
@@ -464,50 +465,49 @@ int LPub::processCommandLine()
 
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;
-      message = QString("Fade Previous Steps set to ON.");
+      message = tr("Fade Previous Steps set to ON.");
       emit messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty()) {
           if (Preferences::fadeStepsUseColour){
               Preferences::fadeStepsUseColour = false;
-              message = QString("Use Global Fade Color set to OFF.");
+              message = tr("Use Global Fade Color set to OFF.");
               emit messageSig(LOG_INFO,message);
-            }
-        }
-    }
+          }
+      }
+  }
 
-  if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) &&
-      Preferences::enableFadeSteps) {
-          message = QString("Fade Steps Transparency changed from %1 to %2 percent.")
-              .arg(Preferences::fadeStepsOpacity)
-              .arg(fadeStepsOpacity);
-          emit messageSig(LOG_INFO,message);
-          Preferences::fadeStepsOpacity = fadeStepsOpacity;
-    }
+  if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) && Preferences::enableFadeSteps) {
+      message = tr("Fade Steps Transparency changed from %1 to %2 percent.")
+          .arg(Preferences::fadeStepsOpacity)
+          .arg(fadeStepsOpacity);
+      emit messageSig(LOG_INFO,message);
+      Preferences::fadeStepsOpacity = fadeStepsOpacity;
+  }
 
   if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
       if (!Preferences::fadeStepsUseColour) {
           Preferences::fadeStepsUseColour = true;
-          message = QString("Use Global Fade Color set to ON.");
+          message = tr("Use Global Fade Color set to ON.");
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
-              message = QString("Fade Steps Transparency changed from %1 to %2 percent.")
+              message = tr("Fade Steps Transparency changed from %1 to %2 percent.")
                   .arg(Preferences::fadeStepsOpacity)
                   .arg(fadeStepsOpacity);
               emit messageSig(LOG_INFO,message);
               Preferences::fadeStepsOpacity = fadeStepsOpacity;
-            }
-        }
+          }
+      }
       QColor ParsedColor = LDrawColor::color(fadeStepsColour);
       if (ParsedColor.isValid() &&
           fadeStepsColour.toLower() != Preferences::validFadeStepsColour.toLower()) {
-          message = QString("Fade Steps Color preference changed from %1 to %2.")
+          message = tr("Fade Steps Color preference changed from %1 to %2.")
               .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);
           Preferences::validFadeStepsColour = LDrawColor::name(fadeStepsColour);
-        }
-    }
+      }
+  }
 
   /* [Experimental] LDView Image Matting */
 //  if (imageMatting && Preferences::enableFadeSteps &&
@@ -534,44 +534,43 @@ int LPub::processCommandLine()
 
   if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
       Preferences::enableHighlightStep = highlightStep;
-      message = QString("Highlight Current Step set to ON.");
+      message = tr("Highlight Current Step set to ON.");
       emit messageSig(LOG_INFO,message);
-    }
+  }
 
   QColor ParsedColor = LDrawColor::color(fadeStepsColour);
   if (ParsedColor.isValid() &&
       highlightStepColour.toLower() != Preferences::highlightStepColour.toLower() &&
       Preferences::enableHighlightStep) {
-      message = QString("Highlight Step Color preference changed from %1 to %2.")
+      message = tr("Highlight Step Color preference changed from %1 to %2.")
           .arg(Preferences::highlightStepColour)
           .arg(highlightStepColour);
       emit messageSig(LOG_INFO,message);
       Preferences::highlightStepColour = highlightStepColour;
-    }
+  }
 
-  if ((highlightLineWidth != Preferences::highlightStepLineWidth ) &&
-      Preferences::enableHighlightStep) {
-      message = QString("Highlight Line Width preference changed from %1 to %2.")
+  if ((highlightLineWidth != Preferences::highlightStepLineWidth ) && Preferences::enableHighlightStep) {
+      message = tr("Highlight Line Width preference changed from %1 to %2.")
           .arg(Preferences::highlightStepLineWidth)
           .arg(highlightLineWidth);
       emit messageSig(LOG_INFO,message);
       Preferences::highlightStepLineWidth = highlightLineWidth;
-    }
+  }
 
   if (resetSearchDirs) {
-      message = QString("Reset search directories requested..");
+      message = tr("Reset search directories requested..");
       emit messageSig(LOG_INFO,message);
 
       // set fade step setting
       if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
           Preferences::enableFadeSteps = fadeSteps;
-        }
+      }
       // set highlight step setting
       if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
           Preferences::enableHighlightStep = highlightStep;
-        }
+      }
       gui->partWorkerLDSearchDirs.resetSearchDirSettings();
-    }
+  }
 
   if (!colourConfigFile.isEmpty())
       Preferences::altLDConfigPath = colourConfigFile;
@@ -612,13 +611,14 @@ int LPub::processCommandLine()
           if (processFile)
               Gui::setExporting(false);
 
-          emit loadFileSig(commandlineFile, true);
+          emit loadFileSig(commandlineFile, true/*CommandLine*/);
 
           auto wait = []( int millisecondsToWait )
           {
               QTime waitTime = QTime::currentTime().addMSecs( millisecondsToWait );
-              while( QTime::currentTime() < waitTime )
-                  QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+              QTime currentTime = QTime::currentTime();
+              while( currentTime < waitTime )
+                  QCoreApplication::processEvents( QEventLoop::AllEvents, millisecondsToWait );
           };
 
           int waited = 0;
@@ -642,43 +642,43 @@ int LPub::processCommandLine()
               int mode = PAGE_PROCESS;
 
               if (processExport) {
-                  if (exportOption == "pdf")
+                  if (exportOption == QLatin1String("pdf"))
                      mode = EXPORT_PDF;
                   else
-                  if (exportOption == "png")
+                  if (exportOption == QLatin1String("png"))
                      mode = EXPORT_PNG;
                   else
-                  if (exportOption == "jpg")
+                  if (exportOption == QLatin1String("jpg"))
                      mode = EXPORT_JPG;
                   else
-                  if (exportOption == "bmp")
+                  if (exportOption == QLatin1String("bmp"))
                      mode = EXPORT_BMP;
                   else
-                  if (exportOption == "3ds")
+                  if (exportOption == QLatin1String("3ds"))
                      mode = EXPORT_3DS_MAX;
                   else
-                  if (exportOption == "dae")
+                  if (exportOption == QLatin1String("dae"))
                      mode = EXPORT_COLLADA;
                   else
-                  if (exportOption == "obj")
+                  if (exportOption == QLatin1String("obj"))
                      mode = EXPORT_WAVEFRONT;
                   else
-                  if (exportOption == "stl")
+                  if (exportOption == QLatin1String("stl"))
                      mode = EXPORT_STL;
                   else
-                  if (exportOption == "pov")
+                  if (exportOption == QLatin1String("pov"))
                      mode = EXPORT_POVRAY;
                   else
-                  if (exportOption == "bl-xml")
+                  if (exportOption == QLatin1String("bl-xml"))
                      mode = EXPORT_BRICKLINK;
                   else
-                  if (exportOption == "csv")
+                  if (exportOption == QLatin1String("csv"))
                      mode = EXPORT_CSV;
                   else
-                  if (exportOption == "htmlparts")
+                  if (exportOption == QLatin1String("htmlparts"))
                      mode = EXPORT_HTML_PARTS;
                   else
-                  if (exportOption == "htmlsteps")
+                  if (exportOption == QLatin1String("htmlsteps"))
                     mode = EXPORT_HTML_STEPS;
                   else
                      mode = EXPORT_PDF;
@@ -690,13 +690,14 @@ int LPub::processCommandLine()
               result = 1;
           }
 
-          emit messageSig(LOG_INFO,QString("Model file '%1' process. %2.")
-                          .arg(result ? "failed" : "succeeded")
+          emit messageSig(LOG_INFO,tr("Model file '%1' process %2 (result code %3). %4.")
                           .arg(QFileInfo(commandlineFile).fileName())
+                          .arg(result ? tr("failed") : tr("succeeded"))
+                          .arg(result)
                           .arg(LPub::elapsedTime(commandTimer.elapsed())));
 
       } else {
-          emit messageSig(LOG_ERROR,QString("Specified model file is not valid: %1.").arg(commandlineFile));
+          emit messageSig(LOG_ERROR,tr("Specified model file is not valid: %1.").arg(commandlineFile));
           result = 1;
       }
   }

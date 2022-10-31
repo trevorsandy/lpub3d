@@ -1272,19 +1272,19 @@ QString LPub::elapsedTime(const qint64 &duration) {
 
     return tr("Elapsed time: %1%2%3")
                    .arg(hours   >   0 ?
-                                  tr("%1 %2 ")
+                                  QString("%1 %2 ")
                                           .arg(hours)
-                                          .arg(hours   > 1 ? "hours"   : "hour") :
+                                          .arg(hours   > 1 ? tr("hours")   : tr("hour")) :
                                   QString())
                    .arg(minutes > 0 ?
-                                  tr("%1 %2 ")
+                                  QString("%1 %2 ")
                                           .arg(minutes)
-                                          .arg(minutes > 1 ? "minutes" : "minute") :
+                                          .arg(minutes > 1 ? tr("minutes") : tr("minute")) :
                                   QString())
-                   .arg(tr("%1.%2 %3")
+                   .arg(QString("%1.%2 %3")
                                 .arg(seconds)
                                 .arg(milliseconds,3,10,QLatin1Char('0'))
-                                .arg(seconds > 1 ? "seconds" : "second"));
+                                .arg(seconds > 1 ? tr("seconds") : tr("second")));
 
 }
 

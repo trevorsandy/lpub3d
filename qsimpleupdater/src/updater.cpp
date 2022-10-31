@@ -785,13 +785,11 @@ bool Updater::compare (const QString& x, const QString& y)
 bool Updater::sslIsSupported()
 {
     if (!QSslSocket::supportsSsl()) {
-        showErrorMessage(tr("SSL not supported, %1.").arg(
-                             QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
-                                         QString("Build not detected") :
-                                         QString("Build: " + QSslSocket::sslLibraryBuildVersionString())) +
-                             QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
-                                         QString(", Library not detected") :
-                                         QString(", Detected: " + QSslSocket::sslLibraryVersionString()))));
+        showErrorMessage(tr("SSL not supported, %1.")
+                            .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
+                            .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                 QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
+                            .arg(QSslSocket::sslLibraryVersionString()))));
         return false;
     }
 

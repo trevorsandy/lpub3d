@@ -44,7 +44,7 @@ enum class lcShadingMode;
 
 class LPub : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
   LPub();
@@ -134,13 +134,13 @@ public:
   void startRequest(QUrl url);
   QByteArray getDownloadedFile() const
   {
-      return mByteArray;
+    return mByteArray;
   }
 
   /// currently loaded model file
   static QString getCmdLineFile()
   {
-      return commandlineFile;
+    return commandlineFile;
   }
 
   /// Shortcut mangement
@@ -215,8 +215,8 @@ public slots:
   void updateDownloadProgress(qint64, qint64);
   void fileLoaded(bool b)
   {
-      mFileLoaded = true;
-      mFileLoadFail = !b;
+    mFileLoaded = true;
+    mFileLoadFail = !b;
   }
   /// Update change log call
   void setupChangeLogUpdate();
@@ -230,16 +230,16 @@ signals:
   void checkForUpdatesFinished();
 
 protected:
-    /// Download management members
-    QNetworkAccessManager* mHttpManager = nullptr;
-    QNetworkReply*         mHttpReply = nullptr;
-    QByteArray             mByteArray;
-    QString                mTitle;
+  /// Download management members
+  QNetworkAccessManager* mHttpManager = nullptr;
+  QNetworkReply*         mHttpReply = nullptr;
+  QByteArray             mByteArray;
+  QString                mTitle;
 
 private:
-    bool                   mFileLoaded;
-    bool                   mFileLoadFail;
-    static QString         commandlineFile;
+  bool                   mFileLoaded;
+  bool                   mFileLoadFail;
+  static QString         commandlineFile;
 };
 
 extern const QString shortcutParentNames[];
@@ -247,6 +247,6 @@ extern class LPub *lpub;
 
 inline Meta& getMetaRef()
 {
-    return lpub->meta;
+  return lpub->meta;
 }
 #endif // LPUB_OBJECT_H

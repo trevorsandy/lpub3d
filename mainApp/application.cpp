@@ -16,6 +16,7 @@
 #include <iostream>
 #include <QMessageBox>
 #include <TCFoundation/TCUserDefaults.h>
+#include <LDVQt/LDVWidget.h>
 #include <QSslSocket>
 
 #include "application.h"
@@ -30,6 +31,7 @@
 #include "lc_application.h"
 #include "lc_profile.h"
 #include "lc_context.h"
+#include "pieceinf.h"
 
 #define RUN_APPLICATION 2
 
@@ -432,9 +434,9 @@ void Application::setTheme(bool appStarted)
           qApp->setStyleSheet(stylesheet);
           visualEditorTheme = lcColorTheme::Dark;
       } else {
-          QString styleSheetMessage = QString("Dark mode styleSheet. %1 (%2)")
-                                              .arg(styleSheetFile.errorString())
-                                              .arg(styleSheetFile.fileName());
+          QString styleSheetMessage = tr("Dark mode styleSheet. %1 (%2)")
+                                         .arg(styleSheetFile.errorString())
+                                         .arg(styleSheetFile.fileName());
           if (modeGUI()) {
               logInfo() << styleSheetMessage;
           } else {
@@ -902,7 +904,7 @@ int Application::initialize()
         if (showLogExamples)
         {
             logStatus() << "Uh-oh! - this level is not displayed in the console only the log";
-            logInfo()   << "LPub3D started";
+            logInfo()   << VER_PRODUCTNAME_STR << "started";
             logInfo()   << "Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
             logTrace()  << "Here's a" << QString("trace") << "message";
             logDebug()  << "Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
@@ -925,13 +927,13 @@ int Application::initialize()
         logger.setLoggingLevel(OffLevel);
     }
 
-    logInfo() << QString("Initializing application...");
+    logInfo() << tr("Initializing application...");
 
     // application version information
     logInfo() << "-----------------------------";
     logInfo() << hdr;
     logInfo() << "=============================";
-    logInfo() << QString("Arguments....................(%1)").arg(args);
+    logInfo() << tr("Arguments....................(%1)").arg(args);
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef Q_OS_MAC           // for macOS
     logInfo() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
@@ -960,13 +962,13 @@ int Application::initialize()
     }
 #endif
     // applications paths:
-    logInfo() << QString(QString("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath));
+    logInfo() << tr("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath);
 #ifdef Q_OS_MAC
     logInfo() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(Preferences::lpub3dPath));
 #else // Q_OS_LINUX and Q_OS_WIN
     QString logPath = QString("%1/logs/%2Log.txt").arg(Preferences::lpubDataPath).arg(VER_PRODUCTNAME_STR);
-    logInfo() << QString(QString("LPub3D Executable Path.......(%1)").arg(Preferences::lpub3dPath));
-    logInfo() << QString(QString("LPub3D Log Path..............(%1)").arg(logPath));
+    logInfo() << tr("LPub3D Executable Path.......(%1)").arg(Preferences::lpub3dPath);
+    logInfo() << tr("LPub3D Log Path..............(%1)").arg(logPath);
 #endif
 #ifdef Q_OS_WIN
     QSettings Settings;
@@ -974,39 +976,36 @@ int Application::initialize()
     QString dataPath = Preferences::lpub3dPath;
     if (Preferences::portableDistribution) {
         dataDir = "extras";
-        logInfo() << QString("LPub3D Portable Distribution.(Yes)");
+        logInfo() << tr("LPub3D Portable Distribution.(Yes)");
         // On Windows installer 'dataLocation' folder defaults to LPub3D install path but can be set with 'DataLocation' reg key
     } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,"DataLocation"))) {
         QString validDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,"DataLocation")).toString();
         QDir validDataDir(QString("%1/%2/").arg(validDataPath,dataDir));
         if(QDir(validDataDir).exists()) {
             dataPath = validDataPath;
-            logInfo() << QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath()));
+            logInfo() << tr("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath());
         }
     }
 #else // Q_OS_LINUX and Q_OS_MAC
-    logInfo() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
+    logInfo() << tr("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath);
 #if defined Q_OS_LINUX
     QDir rendererDir(QString("%1/../../%2/%3").arg(Preferences::lpub3dPath)
                                               .arg(Preferences::optPrefix.isEmpty() ? "opt" : Preferences::optPrefix+"/opt")
                                               .arg(Preferences::lpub3dAppName));
-    logInfo() << QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
+    logInfo() << tr("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath());
 #endif // Q_OS_LINUX
-    logInfo() << QString(QString("LPub3D Config File Path......(%1)").arg(Preferences::lpubConfigPath));
-    logInfo() << QString(QString("LPub3D 3D Editor Cache Path..(%1)").arg(Preferences::lpub3dCachePath));
+    logInfo() << tr("LPub3D Config File Path......(%1)").arg(Preferences::lpubConfigPath);
+    logInfo() << tr("LPub3D 3D Editor Cache Path..(%1)").arg(Preferences::lpub3dCachePath);
 #endif //  Q_OS_WIN, Q_OS_LINUX and Q_OS_MAC
-    logInfo() << QString("LPub3D Loaded LDraw Library..(%1)").arg(Preferences::validLDrawPartsLibrary);
-    logInfo() << QString("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
+    logInfo() << tr("LPub3D Loaded LDraw Library..(%1)").arg(Preferences::validLDrawPartsLibrary);
+    logInfo() << tr("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
                          .arg(QString::number(logLevelIndex)).arg(QString(VER_LOGGING_LEVELS_STR).toLower());
-    logInfo() << QString("Debug Logging................(%1)").arg(Preferences::debugLogging ? "Enabled" : "Disabled");
-    logInfo() << QString("Secure Socket Layer..........(%1)").arg(
-                     QString(QSslSocket::supportsSsl() ? "Supported" : "Not Supported") +
-                     QString(QString(QSslSocket::sslLibraryBuildVersionString()).isEmpty() ?
-                                 QString(", Build not detected") :
-                                 QString(", Build: " + QSslSocket::sslLibraryBuildVersionString())) +
-                     QString(QString(QSslSocket::sslLibraryVersionString()).isEmpty() ?
-                                 QString(", Library not detected") :
-                                 QString(", Detected: " + QSslSocket::sslLibraryVersionString())));
+    logInfo() << tr("Debug Logging................(%1)").arg(Preferences::debugLogging ? tr("Enabled") : tr("Disabled"));
+    logInfo() << tr("Secure Socket Layer..........(%1)").arg(QSslSocket::supportsSsl() ? tr("Supported") : tr("Not Supported %1")
+                                                        .arg(QSslSocket::sslLibraryBuildVersionString().isEmpty() ? tr(", Build not detected") : tr(", Build: %1 %2")
+                                                        .arg(QSslSocket::sslLibraryBuildVersionString(),
+                                                             QSslSocket::sslLibraryVersionString().isEmpty() ? tr(", Library not detected") : tr(", Detected: %1")
+                                                        .arg(QSslSocket::sslLibraryVersionString()))));
     logInfo() << "-----------------------------";
 
     // splash
@@ -1030,13 +1029,13 @@ int Application::initialize()
         splash->show();
     }
 
-    emit splashMsgSig(QString("5% - Loading library for %1...").arg(Preferences::validLDrawPartsLibrary));
+    emit splashMsgSig(tr("5% - Loading library for %1...").arg(Preferences::validLDrawPartsLibrary));
 
     // Preferences
     Preferences::lpub3dLibPreferences(false);
     Preferences::ldrawPreferences(false);
 
-    emit splashMsgSig("15% - Preferences loading...");
+    emit splashMsgSig(tr("15% - Preferences loading..."));
 
     Preferences::themePreferences();
     Preferences::lpub3dUpdatePreferences();
@@ -1079,7 +1078,11 @@ int Application::initialize()
     if (Translator.load("lpub_" + Locale.name(), ":../lclib/resources"))
         m_application.installTranslator(&Translator);
 
+    qRegisterMetaType<PieceInfo*>("PieceInfo*");
+    qRegisterMetaType<QList<int> >("QList<int>");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
+#endif
 
     QList<QPair<QString, bool>> LibraryPaths;
 
@@ -1132,10 +1135,10 @@ int Application::initialize()
 
     Preferences::viewerPreferences();
 
-    emit splashMsgSig(QString("40% - Visual Editor initialization..."));
+    emit splashMsgSig(tr("40% - Visual Editor initialization..."));
 
     if (gApplication->Initialize(LibraryPaths, gui) == lcStartupMode::Error) {
-        emit gui->messageSig(LOG_ERROR, QString("Unable to initialize Visual Editor."));
+        emit lpub->messageSig(LOG_ERROR, tr("Unable to initialize Visual Editor."));
         gApplication->Shutdown();
         throw InitException{};
     } else {
@@ -1150,7 +1153,7 @@ void Application::mainApp()
     if (m_print_output)
         return;
 
-    emit splashMsgSig(QString("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
+    emit splashMsgSig(tr("100% - %1 loaded.").arg(VER_PRODUCTNAME_STR));
 
     availableVersions = new AvailableVersions(this);
 
@@ -1181,55 +1184,54 @@ void Application::mainApp()
 
 int Application::run()
 {
-  int ExecReturn = EXIT_FAILURE;
+    int ExecReturn = EXIT_FAILURE;
 
-  try
-  {
-    mainApp();
+    try
+    {
+      mainApp();
 
-    if (modeGUI()) {
-        ExecReturn = m_application.exec();
-    } else {
-        ExecReturn = lpub->processCommandLine();
+      if (modeGUI()) {
+          ExecReturn = m_application.exec();
+      } else {
+          ExecReturn = lpub->processCommandLine();
+      }
+#ifdef Q_OS_WIN
+      ReleaseConsole();
+#endif
+    }
+    catch(const std::exception& ex)
+    {
+      emit lpub->messageSig(LOG_ERROR, tr("Run: Exception %2 has been thrown.").arg(ex.what()));
+    }
+    catch(...)
+    {
+      emit lpub->messageSig(LOG_ERROR, tr("Run: An unhandled exception has been thrown."));
     }
 
-#ifdef Q_OS_WIN
-    ReleaseConsole();
-#endif
-  }
-  catch(const std::exception& ex)
-  {
-    emit gui->messageSig(LOG_ERROR, QString("Run: Exception %2 has been thrown.").arg(ex.what()));
-  }
-  catch(...)
-  {
-    emit gui->messageSig(LOG_ERROR, QString("Run: An unhandled exception has been thrown."));
-  }
+    emit lpub->messageSig(LOG_INFO, tr("Run: Application terminated with return code %1.").arg(ExecReturn));
 
-  emit gui->messageSig(LOG_INFO, QString("Run: Application terminated with return code %1.").arg(ExecReturn));
+    if (!m_print_output)
+    {
+       shutdown();
+    }
 
-  if (!m_print_output)
-  {
-     shutdown();
-  }
-
-  return ExecReturn;
+    return ExecReturn;
 }
 
 void Application::shutdown()
 {
-   delete gui;
-   gui = nullptr;
+    delete gui;
+    gui = nullptr;
 
-   delete lpub;
-   lpub = nullptr;
+    delete lpub;
+    lpub = nullptr;
 
-   gApplication->Shutdown();
+    gApplication->Shutdown();
 
-   delete availableVersions;
-   availableVersions = nullptr;
+    delete availableVersions;
+    availableVersions = nullptr;
 
-   ldvWidget = nullptr;
+    ldvWidget = nullptr;
 }
 
 static void initializeSurfaceFormat(int argc, char* argv[], lcCommandLineOptions &Options)
@@ -1305,12 +1307,12 @@ int main(int argc, char** argv)
     }
     catch(const InitException &ex)
     {
-        fprintf(stderr, "Could not initialize LPub3D.");
+        fprintf(stderr, "Could not initialize %s. Exception: %s.", VER_PRODUCTNAME_STR, ex.what());
         rc = EXIT_FAILURE;
     }
     catch(...)
     {
-        fprintf(stderr, "A fatal LPub3D error ocurred.");
+        fprintf(stderr, "A fatal %s error ocurred.", VER_PRODUCTNAME_STR);
         rc = EXIT_FAILURE;
     }
 
