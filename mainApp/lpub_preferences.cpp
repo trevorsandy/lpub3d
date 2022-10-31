@@ -532,10 +532,10 @@ bool    Preferences::resetCustomCache           = false;
 bool    Preferences::restartApplication         = false;
 bool    Preferences::libraryChangeRestart       = false;
 
-int     Preferences::preferredRenderer          = RENDERER_NATIVE;
-int     Preferences::ldrawFilesLoadMsgs         = NEVER_SHOW;
-int     Preferences::sceneRulerTracking         = TRACKING_NONE;
-int     Preferences::sceneGuidesPosition        = GUIDES_TOP_LEFT;
+int     Preferences::preferredRenderer          = 0; // RENDERER_NATIVE;
+int     Preferences::ldrawFilesLoadMsgs         = 0; // NEVER_SHOW;
+int     Preferences::sceneRulerTracking         = 2; // TRACKING_NONE;
+int     Preferences::sceneGuidesPosition        = 0; // GUIDES_TOP_LEFT;
 int     Preferences::sceneGuidesLine            = SCENE_GUIDES_LINE_DEFAULT;
 int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
@@ -555,6 +555,13 @@ int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT
 int     Preferences::editorLinesPerPage         = EDITOR_MIN_LINES_DEFAULT;
 int     Preferences::editorDecoration           = EDITOR_DECORATION_DEFAULT;
 
+int     Preferences::assemblyCameraLatitude     = DEFAULT_ASSEM_CAMERA_LATITUDE;
+int     Preferences::assemblyCameraLongitude    = DEFAULT_ASSEM_CAMERA_LONGITUDE;
+int     Preferences::partCameraLatitude         = DEFAULT_PART_CAMERA_LATITUDE;
+int     Preferences::partCameraLongitude        = DEFAULT_PART_CAMERA_LONGITUDE;
+int     Preferences::submodelCameraLatitude     = DEFAULT_SUBMODEL_CAMERA_LATITUDE;
+int     Preferences::submodelCameraLongitude    = DEFAULT_SUBMODEL_CAMERA_LONGITUDE;
+
 #ifdef Q_OS_MAC
 int Preferences::editorFontSize                 = DEFAULT_EDITOR_FONT_SIZE_MACOS;
 #elif defined Q_OS_LINUX
@@ -572,7 +579,7 @@ bool    Preferences::initEnableHighlightStep    = false;
 int     Preferences::initHighlightStepLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 QString Preferences::initHighlightStepColour    = HIGHLIGHT_COLOUR_DEFAULT;
 
-int     Preferences::initPreferredRenderer      = RENDERER_NATIVE;
+int     Preferences::initPreferredRenderer      = 0; //RENDERER_NATIVE;
 int     Preferences::fileLoadWaitTime           = FILE_LOAD_WAIT_TIME;
 
 // Native POV file generation settings
@@ -2815,6 +2822,43 @@ void Preferences::rendererPreferences()
                                                                      enableLDViewSnaphsotList ? QString(" (Single Call using Export File List)") :
                                                                                                 QString(" (Single Call)") :
                                                                                                 QString() : QString());
+
+    // default camera preferences;
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLatitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLatitude"),assemblyCameraLatitude);
+    } else {
+        assemblyCameraLatitude = Settings.value(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLatitude")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLongitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLongitude"),assemblyCameraLongitude);
+    } else {
+        assemblyCameraLongitude = Settings.value(QString("%1/%2").arg(SETTINGS,"AssemblyCameraLongitude")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PartCameraLatitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartCameraLatitude"),partCameraLatitude);
+    } else {
+        partCameraLatitude = Settings.value(QString("%1/%2").arg(SETTINGS,"PartCameraLatitude")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PartCameraLongitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PartCameraLongitude"),partCameraLongitude);
+    } else {
+        partCameraLongitude = Settings.value(QString("%1/%2").arg(SETTINGS,"PartCameraLongitude")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLatitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLatitude"),submodelCameraLatitude);
+    } else {
+        submodelCameraLatitude = Settings.value(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLatitude")).toInt();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLongitude"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLongitude"),submodelCameraLongitude);
+    } else {
+        submodelCameraLongitude = Settings.value(QString("%1/%2").arg(SETTINGS,"SubmodelCameraLongitude")).toInt();
+    }
 }
 
 void Preferences::setLDGLiteIniParams()

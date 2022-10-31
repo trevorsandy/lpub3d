@@ -712,6 +712,14 @@ enum ThemeColorType {
 #define DEFAULT_TIP_HEIGHT                      1.0f/8.0f                                         // 0.12500
 #define DEFAULT_TIP_WIDTH                       DEFAULT_TIP_HEIGHT * DEFAULT_TIP_RATIO            // 0.31250
 
+#define DEFAULT_ASSEM_CAMERA_LATITUDE           23
+#define DEFAULT_ASSEM_CAMERA_LONGITUDE          45
+#define DEFAULT_PART_CAMERA_LATITUDE            23
+#define DEFAULT_PART_CAMERA_LONGITUDE          -45
+#define DEFAULT_SUBMODEL_CAMERA_LATITUDE        23
+#define DEFAULT_SUBMODEL_CAMERA_LONGITUDE      -45
+
+
 #define DEFAULT_SUBMODEL_COLOR_01               "#FFFFFF"
 #define DEFAULT_SUBMODEL_COLOR_02               "#FFFFCC"
 #define DEFAULT_SUBMODEL_COLOR_03               "#FFCCCC"
@@ -857,4 +865,5 @@ enum ThemeColorType {
 #define GO_TO_PAGE_MIN_ITEMS_DEFAULT            10
 #define FILE_LOAD_WAIT_TIME                     300000        // 5 minutes
 #define EDITOR_FILTER_MIN_WORD_LENGTH           3             // filter words in document that are greater than 3 characters
-#endif // NAME_H
+
+#endif // DECLARATIONS_H

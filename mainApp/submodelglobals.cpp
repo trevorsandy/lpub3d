@@ -179,15 +179,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  child = new DoubleSpinGui(tr("Scale"),
-                            &subModelMeta->modelScale,
-                            subModelMeta->modelScale._min,
-                            subModelMeta->modelScale._max,
-                            0.01f);
+  child = new ScaleGui(tr("Scale"),&subModelMeta->modelScale);
   data->children.append(child);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   childlayout->addWidget(child);
-
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   child = new UnitsGui(tr("Margins L/R|T/B"),&subModelMeta->part.margin);
   data->children.append(child);
@@ -206,26 +201,22 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui(tr("Camera FOV"),
-                             &subModelMeta->cameraFoV,
-                             subModelMeta->cameraFoV._min,
-                             subModelMeta->cameraFoV._max,
-                             0.01f);
+  child = new CameraFOVGui(tr("Camera FOV"),&subModelMeta->cameraFoV);
   data->children.append(child);
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&subModelMeta->cameraAngles);
+  child = new CameraAnglesGui(tr("Camera Angles"),&subModelMeta->cameraAngles);
   data->children.append(child);
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,1,0);
 
   box = new QGroupBox(tr("Default Step Rotation"));
   vlayout->addWidget(box);
   child = new RotStepGui(&subModelMeta->rotStep,box);
   data->children.append(child);
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
@@ -250,10 +241,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   box = new QGroupBox(tr("Stud Style And Automate Edge Color"));
   vlayout->addWidget(box);
-  StudStyleGui *childStudStyle = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
-  childStudStyle->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
-  data->children.append(childStudStyle);
-  connect (childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  child = new StudStyleGui(&subModelMeta->autoEdgeColor,&subModelMeta->studStyle,&subModelMeta->highContrast,box);
+  child->setToolTip(tr("Select stud style or automate edge colors. High Contrast styles repaint stud cylinders and part edges."));
+  data->children.append(child);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);

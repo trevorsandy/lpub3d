@@ -424,6 +424,13 @@ class Preferences
     static bool    restartApplication;
     static bool    libraryChangeRestart;
 
+    static int     assemblyCameraLatitude;
+    static int     assemblyCameraLongitude;
+    static int     partCameraLatitude;
+    static int     partCameraLongitude;
+    static int     submodelCameraLatitude;
+    static int     submodelCameraLongitude;
+
     static QMap<QString, QKeySequence> keyboardShortcuts;
 
     virtual ~Preferences() {}

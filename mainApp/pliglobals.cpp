@@ -169,13 +169,9 @@ GlobalPliDialog::GlobalPliDialog(
   box->setLayout(childlayout);
 
   // Scale
-  child = new DoubleSpinGui(tr("Scale"),
-                            &pliMeta->modelScale,
-                            pliMeta->modelScale._min,
-                            pliMeta->modelScale._max,
-                            float(0.01));
+  child = new ScaleGui(tr("Scale"),&pliMeta->modelScale);
   data->children.append(child);
-  data->clearCache = child->modified;
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   childlayout->addWidget(child);
 
   child = new UnitsGui(tr("Margins L/R|T/B"),&pliMeta->part.margin);
@@ -191,18 +187,15 @@ GlobalPliDialog::GlobalPliDialog(
   box->setLayout(childlayout);
 
   // camera field ov view
-  child = new DoubleSpinGui(tr("Camera FOV"),
-                            &pliMeta->cameraFoV,
-                            pliMeta->cameraFoV._min,
-                            pliMeta->cameraFoV._max,
-                            pliMeta->cameraFoV.value());
+  child = new CameraFOVGui(tr("Camera FOV"),&pliMeta->cameraFoV);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
   childlayout->addWidget(child);
 
   // view angles
-  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&pliMeta->cameraAngles);
+  child = new CameraAnglesGui(tr("Camera Angles"),&pliMeta->cameraAngles);
   data->children.append(child);
-  data->clearCache = child->modified;
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   childlayout->addWidget(child);
 
   WT_Type wtType = bom ? WT_SETUP_PART_PARTS_MOVABLE_GROUPS_BOM : WT_SETUP_PART_PARTS_MOVABLE_GROUPS_PLI;

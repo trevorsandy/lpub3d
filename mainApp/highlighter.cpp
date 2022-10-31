@@ -373,6 +373,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bHIGHLIGHT_STEP\\b"),
         QStringLiteral("\\bHIGH_CONTRAST\\b"),
         QStringLiteral("\\bHIGH_CONTRAST_WITH_LOGO\\b"),
+        QStringLiteral("\\bHOME\\b"),
         QStringLiteral("\\bHORIZONTAL\\b"),
         QStringLiteral("\\bHOSE\\b"),
         QStringLiteral("\\bHTML_TEXT\\b"),

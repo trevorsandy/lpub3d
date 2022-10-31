@@ -725,17 +725,21 @@ int POVRay::renderCsi(
   QString message, newArg;
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
+  FloatPairMeta cameraAngles;
+  cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                         meta.LPub.assem.cameraAngles.value(1));
 
   // RotateParts #2 - 8 parms
   int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
       return rc;
    }
 
   // Populate render attributes
   QStringList ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
   QString transform  = meta.rotStep.value().type;
-  bool noCA          = Preferences::applyCALocally || transform == "ABS";
+  bool homeViewMod   = meta.LPub.assem.cameraAngles.homeViewpointModified();
+  bool noCA          = !homeViewMod && Preferences::applyCALocally || transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = meta.LPub.assem.modelScale.value();
   float cameraFoV    = meta.LPub.assem.cameraFoV.value();
@@ -1076,7 +1080,8 @@ int POVRay::renderPli(
   // Populate render attributes
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type;
-  bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
+  bool homeViewMod   = metaType.cameraAngles.homeViewpointModified();
+  bool noCA          = !homeViewMod && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -1443,8 +1448,11 @@ int LDGLite::   renderCsi(
   ldrName = "csi.ldr";
   ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
   ldrFile = ldrPath + "/" + ldrName;
+  FloatPairMeta cameraAngles;
+  cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                         meta.LPub.assem.cameraAngles.value(1));
   // RotateParts #2 - 8 parms
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
      return rc;
   }
 
@@ -1455,7 +1463,8 @@ int LDGLite::   renderCsi(
 
   /* apply camera angle */
 
-  bool noCA  = Preferences::applyCALocally;
+  bool homeViewMod = meta.LPub.assem.cameraAngles.homeViewpointModified();
+  bool noCA  = !homeViewMod && Preferences::applyCALocally;
   bool pp    = Preferences::perspectiveProjection;
 
   bool useImageSize = meta.LPub.assem.imageSize.value(XX) > 0;
@@ -1601,7 +1610,8 @@ int LDGLite::renderPli(
 
   // Populate render attributes
   QString transform  = metaType.rotStep.value().type;
-  bool  noCA         = transform  == "ABS";
+  bool homeViewMod   = metaType.cameraAngles.homeViewpointModified();
+  bool  noCA         = !homeViewMod && transform  == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -1813,7 +1823,8 @@ int LDView::renderCsi(
     else
         ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
     QString transform  = meta.rotStep.value().type;
-    bool noCA          = Preferences::applyCALocally || transform == "ABS";
+    bool homeViewMod   = meta.LPub.assem.cameraAngles.homeViewpointModified();
+    bool noCA          = !homeViewMod && Preferences::applyCALocally || transform == "ABS";
     bool pp            = Preferences::perspectiveProjection;
     float modelScale   = meta.LPub.assem.modelScale.value();
     float cameraFoV    = meta.LPub.assem.cameraFoV.value();
@@ -2151,8 +2162,12 @@ int LDView::renderCsi(
 
         getRendererSettings(CA, cg, ldviewParmsArgs);
 
+        FloatPairMeta cameraAngles;
+        cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                               meta.LPub.assem.cameraAngles.value(1));
+
         // RotateParts #2 - 8 parms
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
+        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, cameraAngles,false/*ldv*/,Options::CSI)) < 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView CSI rotate parts failed!"));
             return rc;
         } else
@@ -2332,7 +2347,8 @@ int LDView::renderPli(
   // Populate render attributes
   QStringList ldviewParmslist = metaType.ldviewParms.value().split(' ');
   QString transform  = metaType.rotStep.value().type;
-  bool noCA          = pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
+  bool homeViewMod   = metaType.cameraAngles.homeViewpointModified();
+  bool noCA          = !homeViewMod && pliType == SUBMODEL ? Preferences::applyCALocally || transform == "ABS" : transform == "ABS";
   bool pp            = Preferences::perspectiveProjection;
   float modelScale   = metaType.modelScale.value();
   float cameraFoV    = metaType.cameraFoV.value();
@@ -2763,6 +2779,7 @@ int Native::renderCsi(
   float cameraZNear    = meta.LPub.assem.cameraZNear.value();
   float cameraZFar     = meta.LPub.assem.cameraZFar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
+  bool  homeViewMod    = meta.LPub.assem.cameraAngles.homeViewpointModified();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   Vector3 position     = Vector3(meta.LPub.assem.position.x(),meta.LPub.assem.position.y(),meta.LPub.assem.position.z());
   Vector3 target       = Vector3(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2770,10 +2787,13 @@ int Native::renderCsi(
   StudStyleMeta* ssm   = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &meta.LPub.assem.studStyle;
   AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &meta.LPub.assem.autoEdgeColor;
   HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &meta.LPub.assem.highContrast;
+  CameraAnglesData::CameraViewEnc cameraView = meta.LPub.assem.cameraAngles.cameraView();
   if (nType == NTypeCalledOut) {
     camDistance        = meta.LPub.callout.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.callout.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(YY);
+    cameraView         = meta.LPub.callout.csi.cameraAngles.cameraView();
+    homeViewMod        = meta.LPub.callout.csi.cameraAngles.homeViewpointModified();
     modelScale         = meta.LPub.callout.csi.modelScale.value();
     cameraFoV          = meta.LPub.callout.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.callout.csi.cameraZNear.value();
@@ -2790,6 +2810,8 @@ int Native::renderCsi(
     camDistance        = meta.LPub.multiStep.csi.cameraDistance.value();
     cameraAngleX       = meta.LPub.multiStep.csi.cameraAngles.value(XX);
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(YY);
+    cameraView         = meta.LPub.multiStep.csi.cameraAngles.cameraView();
+    homeViewMod        = meta.LPub.multiStep.csi.cameraAngles.homeViewpointModified();
     modelScale         = meta.LPub.multiStep.csi.modelScale.value();
     cameraFoV          = meta.LPub.multiStep.csi.cameraFoV.value();
     cameraZNear        = meta.LPub.multiStep.csi.cameraZNear.value();
@@ -2806,7 +2828,7 @@ int Native::renderCsi(
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
   QString rotstepType = meta.rotStep.value().type;
-  bool noCA           = rotstepType == "ABS";
+  bool noCA           = !homeViewMod && rotstepType == "ABS";
   bool pp             = Preferences::perspectiveProjection;
   bool useImageSize   = meta.LPub.assem.imageSize.value(XX) > 0;
 
@@ -2824,9 +2846,11 @@ int Native::renderCsi(
     Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
     Options->InputFileName     = ldrName;
     Options->IsOrtho           = isOrtho;
-    Options->Latitude          = noCA ? 0.0 : cameraAngleX;
+    Options->CameraView        = int(cameraView);
+    Options->HomeViewMod       = homeViewMod;
+    Options->Latitude          = noCA ? 0.0f : cameraAngleX;
     Options->LineWidth         = lcGetPreferences().mLineWidth;
-    Options->Longitude         = noCA ? 0.0 : cameraAngleY;
+    Options->Longitude         = noCA ? 0.0f : cameraAngleY;
     Options->ModelScale        = modelScale;
     Options->OutputFileName    = pngName;
     Options->PageHeight        = LPub::pageSize(meta.LPub.page, YY);
@@ -2912,9 +2936,13 @@ int Native::renderCsi(
 
               ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
 
+              FloatPairMeta cameraAngles;
+              cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                                     meta.LPub.assem.cameraAngles.value(1));
+
               // RotateParts #2 - 8 parms, rotate parts for ldvExport - apply camera angles
               int rc;
-              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport,Options::CSI)) < 0) {
+              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),cameraAngles,ldvExport,Options::CSI)) < 0) {
                   return rc;
               }
 
@@ -3002,6 +3030,7 @@ int Native::renderPli(
   float cameraZNear    = metaType.cameraZNear.value();
   float cameraZFar     = metaType.cameraZFar.value();
   bool  isOrtho        = metaType.isOrtho.value();
+  bool  homeViewMod    = metaType.cameraAngles.homeViewpointModified();
   QString cameraName   = metaType.cameraName.value();
   Vector3 position     = Vector3(metaType.position.x(),metaType.position.y(),metaType.position.z());
   Vector3 target       = Vector3(metaType.target.x(),metaType.target.y(),metaType.target.z());
@@ -3009,12 +3038,13 @@ int Native::renderPli(
   StudStyleMeta* ssm = meta.LPub.studStyle.value() ? &meta.LPub.studStyle : &metaType.studStyle;
   AutoEdgeColorMeta* aecm = meta.LPub.autoEdgeColor.enable.value() ? &meta.LPub.autoEdgeColor : &metaType.autoEdgeColor;
   HighContrastColorMeta* hccm = meta.LPub.studStyle.value() ? &meta.LPub.highContrast : &metaType.highContrast;
+  CameraAnglesData::CameraViewEnc cameraView = metaType.cameraAngles.cameraView();
   QString nameKey;
 
   bool useImageSize    = metaType.imageSize.value(XX) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
-  bool noCA            = metaType.rotStep.value().type  == "ABS";
+  bool noCA            = !homeViewMod && metaType.rotStep.value().type  == "ABS";
   bool pp              = Preferences::perspectiveProjection;
 
   // Process substitute part attributes
@@ -3070,6 +3100,8 @@ int Native::renderPli(
     Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(XX)) : LPub::pageSize(meta.LPub.page, XX);
     Options->InputFileName  = ldrNames.first();
     Options->IsOrtho        = isOrtho;
+    Options->CameraView     = int(cameraView);
+    Options->HomeViewMod    = homeViewMod;
     Options->Latitude       = noCA ? 0.0 : cameraAngleX;
     Options->LineWidth      = lcGetPreferences().mLineWidth;;
     Options->Longitude      = noCA ? 0.0 : cameraAngleY;
@@ -3167,12 +3199,14 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
 
     lcCamera* Camera = nullptr;
     lcViewpoint Viewpoint = lcViewpoint::Count;
+    int ViewPointCompare  = static_cast<int>(Viewpoint);
+    bool HasCameraView    = O->CameraView < ViewPointCompare;
 
-    bool ZoomExtents    = O->ZoomExtents;
-    bool DefaultCamera  = O->CameraName.isEmpty();
-    bool IsOrtho        = DefaultCamera ? Preferences.mNativeProjection : O->IsOrtho;
-    bool UsingViewpoint = Preferences.mNativeViewpoint < static_cast<int>(Viewpoint);
-    bool SetTarget      = O->Target.isPopulated();
+    bool ZoomExtents      = O->ZoomExtents;
+    bool DefaultCamera    = O->CameraName.isEmpty();
+    bool IsOrtho          = DefaultCamera ? Preferences.mNativeProjection : O->IsOrtho;
+    bool UsingViewpoint   = Preferences.mNativeViewpoint < ViewPointCompare || HasCameraView;
+    bool SetTarget        = O->Target.isPopulated();
 
     if (DefaultCamera && ActiveView)
         Camera = ActiveView->GetCamera();
@@ -3182,11 +3216,23 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
     if (UsingViewpoint)
     { // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
-        Viewpoint = lcViewpoint(Preferences.mNativeViewpoint);
-        if (!RenderImage && ActiveView)
-            ActiveView->SetViewpoint(Viewpoint);
-        else {
-            Camera->SetViewpoint(Viewpoint);
+        if (HasCameraView)
+            Viewpoint = static_cast<lcViewpoint>(O->CameraView);
+        else
+            Viewpoint = static_cast<lcViewpoint>(Preferences.mNativeViewpoint);
+
+        bool HomeViewModified = Viewpoint == lcViewpoint::Home && O->HomeViewMod;
+
+        if (!RenderImage && ActiveView) {
+            if (HomeViewModified)
+                ActiveView->SetCameraAngles(O->Latitude, O->Longitude, O->CameraDistance);
+            else
+                ActiveView->SetViewpoint(Viewpoint);
+        } else {
+            if (HomeViewModified)
+                Camera->SetAngles(O->Latitude, O->Longitude, O->CameraDistance);
+            else
+                Camera->SetViewpoint(Viewpoint);
         }
 
     } // ViewPoints
@@ -3435,9 +3481,13 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
         arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
         arguments << QString("UsingViewpoint: %1").arg(UsingViewpoint ? "True" : "False");
-        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
+        if (UsingViewpoint) {
+          arguments << QString("CameraViewPoint: %1").arg(cameraViewNames[O->CameraView]);
+          arguments << QString("HomeViewPointModified: %1").arg(O->HomeViewMod ? "True" : "False");
+        }
         arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
         arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
+        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
         arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
         if (O->Position.isPopulated())
             arguments << QString("CameraPosition: X(%1) Y(%2) Z(%3)").arg(double(O->Position.x)).arg(double(O->Position.y)).arg(double(O->Position.z));

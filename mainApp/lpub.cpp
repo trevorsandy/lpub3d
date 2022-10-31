@@ -2864,6 +2864,7 @@ Gui::Gui()
     qRegisterMetaType<BuffExchgData>("BuffExchgData");
     qRegisterMetaType<BuildModFlags>("BuildModFlags");
     qRegisterMetaType<BuildModData>("BuildModData");
+    qRegisterMetaType<CameraAnglesData>("CameraAnglesData");
     qRegisterMetaType<ConstrainData>("ConstrainData");
     qRegisterMetaType<CsiAnnotationIconData>("CsiAnnotationIconData");
     qRegisterMetaType<FindPageFlags>("FindPageFlags");

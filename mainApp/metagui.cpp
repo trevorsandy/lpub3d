@@ -70,6 +70,47 @@
 #include "gradients.h"
 #include "pagesizes.h"
 
+QString MetaGui::formatMask(
+  const float value,
+  const int   width,
+  const int   precision,
+  const int   defaultDecimalPlaces)
+{
+  QString mask;
+  // capture value as a floating point number
+  double real  = value;
+  // capture the whole number size minus 1 to
+  int wholeSize = qMax(QString::number(int(real)).size(), width - (precision + 1));
+  // subtract integer to get decimal portion
+  double residual = real - int(real);
+  // cast decimal portion to string and count characters
+  int floatSize = QString::number(residual,'f',precision).size();
+  // subtract 2 places to account for '0.' in float
+  int decimalSize = floatSize > 1 ? floatSize - 2 : floatSize;
+  // capture decimal places
+  int decimalPlaces = qMax(decimalSize, defaultDecimalPlaces);
+  // construct the mask using 'x' - any non-blank character permitted but not required.
+  for (int i = 0; i < wholeSize; i++) i + 1 == wholeSize ? mask.append("xx")/*extra 'x' at end for '-' sign*/ : mask.append("x");
+  for (int i = 0; i < decimalPlaces; i++) mask.append("x");
+
+#ifdef QT_DEBUG_MODE
+  qDebug() << qPrintable(QString("FORMAT MASK - Input: %1, Mask: %2, "
+                                 "Whole String %3, Decimal String: %4, "
+                                 "Decimal Places %5, Field Width %6, "
+                                 "Precision %7, Default Decimal Places %8")
+                                 /*1*/.arg(value)
+                                 /*2*/.arg(mask)
+                                 /*3*/.arg(QString::number(int(real)))
+                                 /*4*/.arg(QString::number(residual,'f',precision))
+                                 /*5*/.arg(decimalPlaces)
+                                 /*6*/.arg(width)
+                                 /*7*/.arg(precision)
+                                 /*8*/.arg(defaultDecimalPlaces));
+#endif
+
+  return mask;
+}
+
 /***********************************************************************
  *
  * Checkbox
@@ -600,11 +641,17 @@ ConstrainGui::ConstrainGui(
 
   /* Constraint */
 
-  value = new QLineEdit(string,parent);
-  value->setInputMask("009.99");
-  connect(value,SIGNAL(textEdited( QString const &)),
-          this, SLOT(  valueChange(QString const &)));
-  layout->addWidget(value);
+  valueEdit = new QLineEdit(parent);
+  QDoubleValidator *valueValidator = new QDoubleValidator(valueEdit);
+  valueValidator->setRange(0.0f, 1000.0f);
+  valueValidator->setDecimals(4);
+  valueValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueEdit->setValidator(valueValidator);
+  valueEdit->setText(string);
+  //valueEdit->setInputMask("009.99");
+  connect(valueEdit,SIGNAL(textEdited( QString const &)),
+          this,     SLOT(  valueChange(QString const &)));
+  layout->addWidget(valueEdit);
   enable();
 }
 
@@ -628,7 +675,7 @@ void ConstrainGui::typeChange(QString const &type)
     string = QString("%1") .arg(int(constraint.constraint));
     constraint.type = ConstrainData::PliConstrainColumns;
   }
-  value->setText(string);
+  valueEdit->setText(string);
   meta->setValueUnit(constraint);
   enable();
   modified = true;
@@ -648,7 +695,7 @@ void ConstrainGui::setEnabled(bool enable)
     headingLabel->setEnabled(enable);
   }
   combo->setEnabled(enable);
-  value->setEnabled(enable);
+  valueEdit->setEnabled(enable);
 }
 
 void ConstrainGui::enable()
@@ -656,13 +703,13 @@ void ConstrainGui::enable()
   ConstrainData constraint = meta->valueUnit();
   switch (constraint.type) {
     case ConstrainData::PliConstrainArea:
-      value->setDisabled(true);
+      valueEdit->setDisabled(true);
     break;
     case ConstrainData::PliConstrainSquare:
-      value->setDisabled(true);
+      valueEdit->setDisabled(true);
     break;
     default:
-      value->setEnabled(true);
+      valueEdit->setEnabled(true);
     break;
   }
 }
@@ -2193,23 +2240,32 @@ RotStepGui::RotStepGui(
 void RotStepGui::rotStepChanged(double value)
 {
   RotStepData data = meta->value();
-  if (sender() == rotStepSpinX)
+  if (sender() == rotStepSpinX) {
+      if (!modified)
+          modified = data.rots[0] != value;
       data.rots[0] = value;
-  else
-  if (sender() == rotStepSpinY)
+  } else
+  if (sender() == rotStepSpinY) {
+      if (!modified)
+          modified = data.rots[1] != value;
       data.rots[1] = value;
-  else /* rotStepSpinZ */
+  } else /* rotStepSpinZ */ {
+      if (!modified)
+          modified = data.rots[2] != value;
       data.rots[2] = value;
+  }
   meta->setValue(data);
-  modified = true;
+  emit settingsChanged(modified);
 }
 
 void RotStepGui::typeChanged(QString const &value)
 {
   RotStepData data = meta->value();
+  if (!modified)
+      modified = data.type != value;
   data.type = value;
   meta->setValue(data);
-  modified = true;
+  emit settingsChanged(modified);
 }
 
 void RotStepGui::apply(QString &modelName)
@@ -4058,6 +4114,394 @@ void PreferredRendererGui::apply(QString &topLevelFile)
   if (modified) {
     MetaItem mi;
     mi.setGlobalMeta(topLevelFile,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * CameraAngles
+ *
+ **********************************************************************/
+
+CameraAnglesGui::CameraAnglesGui(
+    QString const    &heading,
+    CameraAnglesMeta *_meta,
+    QGroupBox        *parent)
+{
+  meta     = _meta;
+  data     = meta->value();
+
+  QGridLayout *grid = new QGridLayout(parent);
+
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_CAMERA_ANGLES, parent->title()));
+  } else {
+      setLayout(grid);
+      setWhatsThis(lpubWT(WT_GUI_CAMERA_ANGLES, heading.isEmpty() ? tr("Camera Angles") : heading));
+  }
+
+  // latitude
+  latitudeLabel = new QLabel(tr("Latitude"),parent);
+  grid->addWidget(latitudeLabel,0,0);
+
+  latitudeEdit = new QLineEdit(parent);
+  QDoubleValidator *latitudeValidator = new QDoubleValidator(latitudeEdit);
+  latitudeValidator->setRange(-360.0f, 360.0f);
+  latitudeValidator->setDecimals(meta->_precision);
+  latitudeValidator->setNotation(QDoubleValidator::StandardNotation);
+  latitudeEdit->setValidator(latitudeValidator);
+  //latitudeEdit->setInputMask(MetaGui::formatMask(data.angles[0], meta->_fieldWidth, meta->_precision));
+  latitudeEdit->setText(QString::number(data.angles[0],'f',meta->_precision));
+  setLatitudeResetAct = latitudeEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  setLatitudeResetAct->setText(tr("Reset"));
+  setLatitudeResetAct->setEnabled(false);
+  connect(latitudeEdit,         SIGNAL(textEdited( QString const &)),
+          this,                 SLOT(  enableReset(QString const &)));
+  connect(setLatitudeResetAct,  SIGNAL(triggered()),
+          this,                 SLOT(  lineEditReset()));
+  connect(latitudeEdit,         SIGNAL(textEdited(    QString const &)),
+          this,                 SLOT(  latitudeChange(QString const &)));
+  grid->addWidget(latitudeEdit,0,1);
+
+  // longitude
+  longitudeLabel = new QLabel(tr("Longitude"),parent);
+  grid->addWidget(longitudeLabel,0,2);
+
+  longitudeEdit = new QLineEdit(parent);
+  QDoubleValidator *longitudeValidator = new QDoubleValidator(longitudeEdit);
+  longitudeValidator->setRange(-360.0f, 360.0f);
+  longitudeValidator->setDecimals(meta->_precision);
+  longitudeValidator->setNotation(QDoubleValidator::StandardNotation);
+  longitudeEdit->setValidator(longitudeValidator);
+  //longitudeEdit->setInputMask(MetaGui::formatMask(data.angles[1], meta->_fieldWidth, meta->_precision));
+  longitudeEdit->setText(QString::number(data.angles[1],'f',meta->_precision));
+  setLongitudeResetAct = longitudeEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  setLongitudeResetAct->setText(tr("Reset"));
+  setLongitudeResetAct->setEnabled(false);
+  connect(longitudeEdit,        SIGNAL(textEdited( QString const &)),
+          this,                 SLOT(  enableReset(QString const &)));
+  connect(setLongitudeResetAct, SIGNAL(triggered()),
+          this,                 SLOT(  lineEditReset()));
+  connect(longitudeEdit,        SIGNAL(textEdited(     QString const &)),
+          this,                 SLOT(  longitudeChange(QString const &)));
+  grid->addWidget(longitudeEdit,0,3);
+
+  // Camera view
+  cameraViewLabel = new QLabel(tr("Viewpoint"),parent);
+  grid->addWidget(cameraViewLabel,1,0);
+
+  cameraViewCombo = new QComboBox(parent);
+  cameraViewCombo->addItem("Front");
+  cameraViewCombo->addItem("Back");
+  cameraViewCombo->addItem("Top");
+  cameraViewCombo->addItem("Bottom");
+  cameraViewCombo->addItem("Left");
+  cameraViewCombo->addItem("Right");
+  cameraViewCombo->addItem("Home");
+  cameraViewCombo->addItem("Default");
+  cameraViewCombo->setCurrentIndex(int(data.cameraView));
+  connect(cameraViewCombo,SIGNAL(currentIndexChanged(int)),
+          this,           SLOT(  cameraViewChange(   int)));
+  grid->addWidget(cameraViewCombo,1,1);
+
+  // Home viewpoint angles change
+  homeViewpointBox = new QCheckBox(tr("Use Latitude And Longitude Angles"),parent);
+  homeViewpointBox->setChecked(data.cameraView == CameraAnglesData::CameraViewEnc::Home && data.homeViewpointModified);
+  homeViewpointBox->setToolTip(tr("Set Home viewpoint angles to use specified latitude and longitude."));
+  connect(homeViewpointBox,SIGNAL(stateChanged(        int)),
+          this,            SLOT(  homeViewpointChanged(int)));
+  grid->addWidget(homeViewpointBox,1,2,1,2);
+
+  setEnabled(data.cameraView == CameraAnglesData::CameraViewEnc::Default);
+}
+
+void CameraAnglesGui::enableReset(const QString &displayText)
+{
+  const double display = displayText.toDouble();
+
+  if (sender() == latitudeEdit)
+    setLatitudeResetAct->setEnabled(display != (double)data.angles[0]);
+  else
+  if (sender() == longitudeEdit)
+    setLongitudeResetAct->setEnabled(display != (double)data.angles[1]);
+}
+
+void CameraAnglesGui::lineEditReset()
+{
+  if (sender() == setLatitudeResetAct) {
+    setLatitudeResetAct->setEnabled(false);
+    if (latitudeEdit)
+      latitudeEdit->setText(QString::number(data.angles[0],'f',meta->_precision));
+  }
+  else
+  if (sender() == setLongitudeResetAct) {
+    setLongitudeResetAct->setEnabled(false);
+    if (longitudeEdit)
+      longitudeEdit->setText(QString::number(data.angles[1],'f',meta->_precision));
+  }
+}
+
+void CameraAnglesGui::latitudeChange(QString const &string)
+{
+  CameraAnglesData cad = meta->value();
+  cad.angles[0] = string.toFloat();
+  if (homeViewpointBox->isChecked())
+      cad.homeViewpointModified = cad.angles[0] != 30.0 && cad.angles[1] != 45.0;
+  meta->setValue(cad);
+  modified = cad.angles[0] != data.angles[0] && cad.angles[1] != data.angles[1];
+  if (modified)
+    emit settingsChanged(true);
+}
+
+void CameraAnglesGui::longitudeChange(QString const &string)
+{
+  CameraAnglesData cad = meta->value();
+  cad.angles[1] = string.toFloat();
+  if (homeViewpointBox->isChecked())
+      cad.homeViewpointModified = cad.angles[0] != 30.0 && cad.angles[1] != 45.0;
+  meta->setValue(cad);
+  modified = cad.angles[0] != data.angles[0] && cad.angles[1] != data.angles[1];
+  if (modified)
+    emit settingsChanged(true);
+}
+
+void CameraAnglesGui::cameraViewChange(int value)
+{
+  CameraAnglesData::CameraViewEnc cameraView = CameraAnglesData::CameraViewEnc(value);
+  setEnabled(cameraView == CameraAnglesData::CameraViewEnc::Default);
+
+  if (cameraView != meta->cameraView()) {
+    double latitude = 0.0f;
+    double longitude = 0.0f;
+    switch (cameraView)
+    {
+      case CameraAnglesData::CameraViewEnc::Front:
+        latitude = 0.0f;
+        longitude = 0.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Back:
+        latitude = 0.0f;
+        longitude = 180.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Top:
+        latitude = 90.0f;
+        longitude = 0.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Bottom:
+        latitude = -90.0f;
+        longitude =  0.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Left:
+        latitude = 0.0f;
+        longitude = 90.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Right:
+        latitude = 0.0f;
+        longitude = -90.0f;
+        break;
+      case CameraAnglesData::CameraViewEnc::Home:
+        latitude = 30.0f;
+        longitude = 45.0f;
+        break;
+      default:
+        latitude = data.angles[0];
+        longitude = data.angles[1];
+    }
+
+    latitudeEdit->setText(QString::number(latitude,'f',meta->_precision));
+    longitudeEdit->setText(QString::number(longitude,'f',meta->_precision));
+
+    if (cameraView != data.cameraView) {
+      CameraAnglesData cad = meta->value();
+      cad.cameraView = cameraView;
+      meta->setValue(cad);
+      modified = true;
+      emit settingsChanged(true);
+    }
+  }
+}
+
+void CameraAnglesGui::homeViewpointChanged(int state)
+{
+  bool enable = state == Qt::Checked;
+  latitudeLabel->setEnabled(enable);
+  longitudeLabel->setEnabled(enable);
+  latitudeEdit->setEnabled(enable);
+  longitudeEdit->setEnabled(enable);
+}
+
+void CameraAnglesGui::setEnabled(bool enable)
+{
+  bool homeViewpoint = cameraViewCombo->currentIndex() == static_cast<int>(CameraAnglesData::CameraViewEnc::Home);
+  homeViewpointBox->setEnabled(homeViewpoint);
+  homeViewpointBox->setChecked(homeViewpoint && meta->homeViewpointModified());
+  latitudeLabel->setEnabled(enable);
+  longitudeLabel->setEnabled(enable);
+  latitudeEdit->setEnabled(enable);
+  longitudeEdit->setEnabled(enable);
+}
+
+void CameraAnglesGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * CameraFoV
+ *
+ **********************************************************************/
+
+CameraFOVGui::CameraFOVGui(
+  QString const &heading,
+  FloatMeta     *_meta,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_CAMERA_FIELD_OF_VIEW, parent->title()));
+  } else {
+    setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_CAMERA_FIELD_OF_VIEW, heading.isEmpty() ? tr("Camera Field Of View") : heading));
+  }
+
+  label = new QLabel(heading.isEmpty() ? tr("Camera Field Of View") : heading,parent);
+  layout->addWidget(label);
+
+  data = meta->value();
+  const int residual = data - (int)data;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
+
+  spin = new QDoubleSpinBox(parent);
+  spin->setRange(meta->_min,meta->_max);
+  spin->setSingleStep(0.01f);
+  spin->setDecimals(decimalPlaces);
+  spin->setValue(data);
+  connect(spin,SIGNAL(valueChanged(double)),
+          this,SLOT  (valueChanged(double)));
+  layout->addWidget(spin);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(double)),
+          this,   SLOT(  enableReset( double)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void CameraFOVGui::enableReset(double value)
+{
+  button->setEnabled(value != (double)data);
+}
+
+void CameraFOVGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
+}
+
+void CameraFOVGui::valueChanged(double value)
+{
+  meta->setValue(value);
+  modified = (float)value != data;
+  emit settingsChanged(modified);
+}
+
+void CameraFOVGui::setEnabled(bool enable)
+{
+  label->setEnabled(enable);
+  spin->setEnabled(enable);
+}
+
+void CameraFOVGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * Scale
+ *
+ **********************************************************************/
+
+ScaleGui::ScaleGui(
+  QString const &heading,
+  FloatMeta     *_meta,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+    parent->setWhatsThis(lpubWT(WT_GUI_IMAGE_SCALE, parent->title()));
+  } else {
+    setLayout(layout);
+    setWhatsThis(lpubWT(WT_GUI_IMAGE_SCALE, heading.isEmpty() ? tr("Scale") : heading));
+  }
+
+  label = new QLabel(heading.isEmpty() ? tr("Scale") : heading,parent);
+  layout->addWidget(label);
+
+  float val = meta->value();
+  int a = val - (int)val;
+  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+
+  spin = new QDoubleSpinBox(parent);
+  layout->addWidget(spin);
+  spin->setRange(_meta->_min,meta->_max);
+  spin->setSingleStep(0.01f);
+  spin->setDecimals(dec);
+  spin->setValue(val);
+  connect(spin,SIGNAL(valueChanged(double)),
+          this,SLOT  (valueChanged(double)));
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void ScaleGui::valueChanged(double value)
+{
+  modified = (float)value != meta->value();
+  meta->setValue(value);
+  emit settingsChanged(modified);
+}
+
+void ScaleGui::setEnabled(bool enable)
+{
+  label->setEnabled(enable);
+  spin->setEnabled(enable);
+}
+
+void ScaleGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
   }
 }
 

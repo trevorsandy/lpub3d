@@ -82,9 +82,10 @@ public:
        ImageHeight       (600),
        PageWidth         (800),
        PageHeight        (600),
-       StudStyle         (0 /*Plain*/),
+       StudStyle         (0  /*Plain*/),
        IniFlag           (-1 /*NONE*/),
        ExportMode        (-1 /*EXPORT_NONE*/),
+       CameraView        (7  /*Default*/),
        LineWidth         (1.0f),
        Resolution        (150.0f),
        ModelScale        (1.0f),
@@ -102,6 +103,7 @@ public:
        AutoEdgeColor     (false),
        HighlightNewParts (false),
        TransBackground   (true),
+       HomeViewMod       (false),
        StudCylinderColor (0),
        PartEdgeColor     (0),
        BlackEdgeColor    (0),
@@ -112,23 +114,24 @@ public:
        UpVector          (Vector3(0, 0, 0))
   { }
 //  virtual ~NativeOptions(){}
-  QStringList ExportArgs;   // New
+  QStringList ExportArgs;
   QString ViewerStepKey;
   QString ImageFileName;
   QString RotStepType;
   QString CameraName;
-  QString InputFileName;    // New
-  QString OutputFileName;   // New
-  QString ExportFileName;   // New
+  QString InputFileName;
+  QString OutputFileName;
+  QString ExportFileName;
   Options::Mt ImageType;
   int ImageWidth;
   int ImageHeight;
   int PageWidth;
   int PageHeight;
   int StudStyle;
-  int IniFlag;              // New
-  int ExportMode;           // New
-  float LineWidth;          // New
+  int IniFlag;
+  int ExportMode;
+  int CameraView; // Viewpoint
+  float LineWidth;
   float Resolution;
   float ModelScale;
   float CameraDistance;
@@ -143,8 +146,9 @@ public:
   bool IsOrtho;
   bool ZoomExtents;
   bool AutoEdgeColor;
-  bool HighlightNewParts;    // New
-  bool TransBackground;      // New
+  bool HighlightNewParts;
+  bool TransBackground;
+  bool HomeViewMod;
   quint32 StudCylinderColor;
   quint32 PartEdgeColor;
   quint32 BlackEdgeColor;

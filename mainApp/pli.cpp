@@ -577,6 +577,7 @@ void Pli::setParts(
                   part->element         = element;
                   part->description     = description;
                   part->styleMeta       = styleMeta;
+                  part->cameraView      = pliMeta.cameraAngles.cameraView();
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
                   part->sortColour      = QString("%1").arg(color,5,'0');
@@ -596,6 +597,7 @@ void Pli::setParts(
                   part->element         = element;
                   part->description     = description;
                   part->styleMeta       = styleMeta;
+                  part->cameraView      = pliMeta.cameraAngles.cameraView();
                   part->instanceMeta    = pliMeta.instance;
                   part->csiMargin       = pliMeta.part.margin;
                   part->sortColour      = QString("%1").arg(color,5,'0');
@@ -1074,8 +1076,10 @@ int Pli::createPartImage(
             viewerOptions->CameraName     = pliMeta.cameraName.value();
             viewerOptions->ImageFileName  = imageName;
             viewerOptions->ImageType      = Options::PLI;
-            viewerOptions->Latitude       = nameKeys.at(7).toFloat();
-            viewerOptions->Longitude      = nameKeys.at(8).toFloat();
+            viewerOptions->CameraView     = pliMeta.cameraAngles.cameraView();
+            viewerOptions->HomeViewMod    = pliMeta.cameraAngles.homeViewpointModified();
+            viewerOptions->Latitude       = pliMeta.cameraAngles.homeViewpointModified() ? pliMeta.cameraAngles.value(0) : nameKeys.at(7).toFloat();
+            viewerOptions->Longitude      = pliMeta.cameraAngles.homeViewpointModified() ? pliMeta.cameraAngles.value(1) : nameKeys.at(8).toFloat();
             viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
             viewerOptions->PageHeight     = pageSizeP(meta, 1);
             viewerOptions->PageWidth      = pageSizeP(meta, 0);
@@ -2551,8 +2555,10 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->CameraName     = pliMeta.cameraName.value();
                     viewerOptions->ImageFileName  = imageName;
                     viewerOptions->ImageType      = Options::PLI;
-                    viewerOptions->Latitude       = nameKeys.at(7).toFloat();
-                    viewerOptions->Longitude      = nameKeys.at(8).toFloat();
+                    viewerOptions->CameraView     = pliMeta.cameraAngles.cameraView();
+                    viewerOptions->HomeViewMod    = pliMeta.cameraAngles.homeViewpointModified();
+                    viewerOptions->Latitude       = pliMeta.cameraAngles.homeViewpointModified() ? pliMeta.cameraAngles.value(0) : nameKeys.at(7).toFloat();
+                    viewerOptions->Longitude      = pliMeta.cameraAngles.homeViewpointModified() ? pliMeta.cameraAngles.value(1) : nameKeys.at(8).toFloat();
                     viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
                     viewerOptions->PageHeight     = pageSizeP(meta, 1);
                     viewerOptions->PageWidth      = pageSizeP(meta, 0);
@@ -3478,7 +3484,7 @@ void PliBackgroundItem::contextMenuEvent(
                             bottom,
                             &pli->pliMeta.modelScale);
         } else if (selectedAction == cameraFoVAction) {
-            changeFloatSpin(QObject::tr("%1 Camera Angle").arg(name),
+            changeFloatSpin(QObject::tr("%1 Field Of View").arg(name),
                             QObject::tr("Camera FOV"),
                             top,
                             bottom,

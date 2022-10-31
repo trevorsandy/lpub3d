@@ -475,8 +475,10 @@ int Step::createCsi(
       viewerOptions->FoV            = csiStepMeta.cameraFoV.value();
       viewerOptions->ImageFileName  = pngName;
       viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
-      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
+      viewerOptions->CameraView     = csiStepMeta.cameraAngles.cameraView();
+      viewerOptions->HomeViewMod    = csiStepMeta.cameraAngles.homeViewpointModified();
+      viewerOptions->Latitude       = absRotstep && !csiStepMeta.cameraAngles.homeViewpointModified() ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = absRotstep && !csiStepMeta.cameraAngles.homeViewpointModified() ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
       viewerOptions->PageHeight     = lpub->pageSize(meta.LPub.page, 1);
       viewerOptions->PageWidth      = lpub->pageSize(meta.LPub.page, 0);

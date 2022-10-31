@@ -97,22 +97,17 @@ GlobalAssemDialog::GlobalAssemDialog(
   vlayout->addWidget(box);
   box->setLayout(boxGrid);
 
-  // Scale
-  child = new DoubleSpinGui(tr("Scale"),
-                            &assem->modelScale,
-                            assem->modelScale._min,
-                            assem->modelScale._max,
-                            0.01f);
+  // scale
+  child = new ScaleGui(tr("Scale"),&assem->modelScale);
   data->children.append(child);
-  data->clearCache = child->modified;
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0);
 
   child = new UnitsGui(tr("Margins L/R|T/B"),&assem->margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
-  /* Assembly camera settings */
-
+  /* assembly camera settings */
   box = new QGroupBox(tr("Default Assembly Orientation"));
   box->setWhatsThis(lpubWT(WT_SETUP_SHARED_MODEL_ORIENTATION,box->title()));
   vlayout->addWidget(box);
@@ -120,17 +115,15 @@ GlobalAssemDialog::GlobalAssemDialog(
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui(tr("Camera FOV"),
-                            &assem->cameraFoV,
-                            assem->cameraFoV._min,
-                            assem->cameraFoV._max,
-                            assem->cameraFoV.value());
+  child = new CameraFOVGui(tr("Camera FOV"),&assem->cameraFoV);
   data->children.append(child);
-  boxGrid->addWidget(child,0,0,1,2);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  boxGrid->addWidget(child,0,0);
 
   // view angles
-  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&assem->cameraAngles);
+  child = new CameraAnglesGui(tr("Camera Angles"),&assem->cameraAngles);
   data->children.append(child);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,1,0);
 
   /* Step Number */
@@ -179,10 +172,10 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   box = new QGroupBox("Stud Style And Automate Edge Color");
   vlayout->addWidget(box);
-  StudStyleGui *childStudStyle = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
-  childStudStyle->setToolTip(tr("Select stud style, High Contrast styles repaint stud cylinders and part edges."));
-  data->children.append(childStudStyle);
-  connect(childStudStyle, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
+  child = new StudStyleGui(&assem->autoEdgeColor,&assem->studStyle,&assem->highContrast, box);
+  child->setToolTip(tr("Select stud style, High Contrast styles repaint stud cylinders and part edges."));
+  data->children.append(child);
+  connect(child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
 
   //spacer
 

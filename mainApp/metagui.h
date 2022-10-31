@@ -58,7 +58,15 @@ public:
   bool      modified;
   QString   changeMessage;
 
+signals:
+  void settingsChanged(bool);
+
 protected:
+  static QString formatMask(
+    const float value,
+    const int   width = 4,
+    const int   precision = 4,
+    const int   defaultDecimalPlaces = 1);
   LeafMeta *_meta;
 };
 
@@ -293,9 +301,6 @@ private:
 
   bool    studStyleModified;
   bool    autoEdgeModified;
-
-signals:
-  void settingsChanged(bool);
 
 public slots:
   void comboChanged(int);
@@ -687,7 +692,6 @@ public slots:
  *
  **********************************************************************/
 
-class FloatMeta;
 class DoubleSpinGui : public MetaGui
 {
   Q_OBJECT
@@ -779,8 +783,6 @@ private:
   QRadioButton       *modelRadio;
   QRadioButton       *stepRadio;
 
-signals:
-  void settingsChanged(bool);
 public slots:
   void radioChanged(bool checked);
   void valueChanged(bool checked);
@@ -1122,7 +1124,7 @@ private:
 
   QLabel    *headingLabel;
   QComboBox *combo;
-  QLineEdit *value;
+  QLineEdit *valueEdit;
 
   void enable();
 
@@ -1228,12 +1230,123 @@ private:
   QRadioButton *nativeButton;
   QRadioButton *ldvButton;
 
-signals:
-  void settingsChanged(bool);
-
 public slots:
   void valueChanged(int state);
   void buttonChanged(bool checked);
+};
+
+/***********************************************************************
+ *
+ * CameraAngles
+ *
+ **********************************************************************/
+
+class CameraAnglesMeta;
+class CameraAnglesGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CameraAnglesGui(
+    QString const    &heading,
+    CameraAnglesMeta *meta,
+    QGroupBox        *parent = nullptr);
+  ~CameraAnglesGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  CameraAnglesMeta *meta;
+  CameraAnglesData data;
+
+  QLabel           *longitudeLabel;
+  QLabel           *latitudeLabel;
+  QLabel           *cameraViewLabel;
+  QLineEdit        *longitudeEdit;
+  QLineEdit        *latitudeEdit;
+  QComboBox        *cameraViewCombo;
+  QCheckBox        *homeViewpointBox;
+
+  QAction *setLongitudeResetAct;
+  QAction *setLatitudeResetAct;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
+
+public slots:
+  void longitudeChange(QString const &);
+  void latitudeChange(QString const &);
+  void homeViewpointChanged(int);
+  void cameraViewChange(int);
+};
+
+/***********************************************************************
+ *
+ * CameraFOV
+ *
+ **********************************************************************/
+
+class CameraFOVGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  CameraFOVGui(
+    QString const &heading,
+    FloatMeta     *meta,
+    QGroupBox     *parent = nullptr);
+  ~CameraFOVGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  float           data;
+  FloatMeta      *meta;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+  QPushButton    *button;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
+
+public slots:
+  void valueChanged(double);
+};
+
+/***********************************************************************
+ *
+ * Scale
+ *
+ **********************************************************************/
+
+class ScaleGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  ScaleGui(
+    QString const &heading,
+    FloatMeta     *meta,
+    QGroupBox     *parent = nullptr);
+  ~ScaleGui() {}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  FloatMeta      *meta;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+
+public slots:
+  void valueChanged(double);
 };
 
 /***********************************************************************

@@ -2187,28 +2187,23 @@ void MetaItem::changeUnits(
 }
 
 void MetaItem::changeCameraAngles(
-  QString        title,
-  const Where   &topOfStep,
-  const Where   &bottomOfStep,
-  FloatPairMeta *floatPairMeta,
-  int            append,
-  bool           local)
+  QString           title,
+  const Where      &topOfStep,
+  const Where      &bottomOfStep,
+  CameraAnglesMeta *meta,
+  int               append,
+  bool              local)
 {
-  float data[2];
-  data[0] = floatPairMeta->value(0);
-  data[1] = floatPairMeta->value(1);
+  CameraAnglesData data = meta->value();
 
-  bool ok = FloatPairDialog::getFloatPair(
+  bool ok = CameraAnglesDialog::getCameraAngles(
               title,
-              "Latitude",
-              "Longitude",
-              floatPairMeta,
               data,
               gui);
 
   if (ok) {
-    floatPairMeta->setValues(data[0],data[1]);
-    setMetaTopOf(topOfStep,bottomOfStep,floatPairMeta,append,local);
+    meta->setValue(data);
+    setMetaTopOf(topOfStep,bottomOfStep,meta,append,local);
   }
 }
 
@@ -2314,34 +2309,6 @@ void MetaItem::changeImage(
     image->setValue(filePath);
     setMeta(topOfStep,bottomOfStep,image,useTop,append,allowLocal,checkLocal);
   }
-}
-
-void MetaItem::changeImageScale(
-  QString      title,
-  QString      label,
-  const Where &topOfStep,
-  const Where &bottomOfStep,
-  FloatMeta   *floatMeta,
-  float       step,
-  bool  useTop,
-  int   append,
-  bool askLocal)
-{
-    float data = floatMeta->value();
-    bool ok = DoubleSpinDialog::getFloat(
-                                    title,
-                                    label,
-                                    floatMeta,
-                                    data,
-                                    step,        // spin single step
-                                    gui);
-    if (ok) {
-      floatMeta->setValue(data);;
-    } else {
-      ok = floatMeta->value() == 1.0;
-    }
-    if (ok)
-        setMeta(topOfStep,bottomOfStep,floatMeta,useTop,append,askLocal);
 }
 
 void MetaItem::changeBool(
@@ -4485,6 +4452,10 @@ bool MetaItem::offsetPoint(
   QString pngName, ldrName;
   QStringList ldrNames, csiKeys;
   QString addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
+  FloatPairMeta cameraAngles;
+  cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                         meta.LPub.assem.cameraAngles.value(1));
+
 
   // this block has been refactored to reflect that this function exclusively uses the Native Renderer
   if (renderer->useLDViewSCall()) {
@@ -4493,7 +4464,7 @@ bool MetaItem::offsetPoint(
       ldrNames << ldrName;
       csiKeys << title + "Mono";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
@@ -4501,7 +4472,7 @@ bool MetaItem::offsetPoint(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
           // RotateParts #2 - 8 parms
-          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);
+          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
@@ -4973,13 +4944,16 @@ QPointF MetaItem::defaultPointerTip(
   monoOutPngBaseName = QString("mono");
 #endif
   QStringList csiKeys, ldrNames;
+  FloatPairMeta cameraAngles;
+  cameraAngles.setValues(meta.LPub.assem.cameraAngles.value(0),
+                         meta.LPub.assem.cameraAngles.value(1));
   if (renderer->useLDViewSCall()) {
       csiKeys << "mono";
       ldrNames << monoOutName;
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       // RotateParts #2 - 8 parms
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
   } else {
       ok[0] = true;
@@ -4987,7 +4961,7 @@ QPointF MetaItem::defaultPointerTip(
       if (Preferences::preferredRenderer == RENDERER_NATIVE) {
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
          // RotateParts #2 - 8 parms
-         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::MON) == 0);
+         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,cameraAngles,false/*ldv*/,Options::MON) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
   }

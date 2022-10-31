@@ -397,6 +397,7 @@ void FloatPairMeta::init(
   AbstractMeta::init(parent,name);
   rc = _rc;
 }
+
 Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 2) {
@@ -1531,7 +1532,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 
         if (!id && !scoped)
         {
-          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, but got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
           rc = FailureRc;
         }
     }
@@ -2317,7 +2318,7 @@ Rc PreferredRendererMeta::parse(QStringList &argv, int index,Where &here)
     else if (argv[1] == "PREFERRED_RENDERER")
       rc = PreferredRendererRc;
   } else if (reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected (NATIVE|LDGLITE|LDVIEW [SINGLE_CALL|SINGLE_CALL_EXPORT_LIST]|POVRAY [LDVIEW_POV_GENERATOR]) (RESET), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return rc;
 }
@@ -2482,7 +2483,7 @@ Rc AllocMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected HORIZONTAL or VERTICAL got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected HORIZONTAL or VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2504,6 +2505,135 @@ void AllocMeta::metaKeywords(QStringList &out, QString preamble)
 {
   out << preamble + " HORIZONTAL VERTICAL";
 }
+
+/*------------------------*/
+
+void CameraAnglesMeta::init(BranchMeta *parent, const QString name, Rc _rc)
+{
+  AbstractMeta::init(parent,name);
+  rc = _rc;
+}
+
+Rc CameraAnglesMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QString message = QMessageBox::tr("There was an error with \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+  QRegExp rx("^(FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME|DEFAULT)$");
+  if (argv.size() - index == 1) {
+    if (argv[index].contains(rx)) {
+      float latitude  = 0.0f;
+      float longitude = 0.0f;
+      int cameraView = static_cast<int>(_value[pushed].map[argv[index]]);
+      switch (cameraView)
+      {
+        case CameraAnglesData::CameraViewEnc::Front:
+          latitude = 0.0f;
+          longitude = 0.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Back:
+          latitude = 0.0f;
+          longitude = 180.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Top:
+          latitude = 90.0f;
+          longitude = 0.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Bottom:
+          latitude = -90.0f;
+          longitude =  0.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Left:
+          latitude = 0.0f;
+          longitude = 90.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Right:
+          latitude = 0.0f;
+          longitude = -90.0f;
+          break;
+        case CameraAnglesData::CameraViewEnc::Home:
+          latitude = 30.0f;
+          longitude = 45.0f;
+          break;
+      }
+      _value[pushed].cameraView = CameraAnglesData::CameraViewEnc(cameraView);
+      _value[pushed].angles[0]  = latitude;
+      _value[pushed].angles[1]  = longitude;
+      _here[pushed] = here;
+      return OkRc;
+    }
+    message = QMessageBox::tr("Expected FRONT|BACK|TOP|BOTTOM|LEFT|RIGHT|HOME or DEFAULT, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" "));
+  } else if (argv.size() - index == 2) {
+    bool ok[2];
+    float latitude = argv[index  ].toFloat(&ok[0]);
+    float longitude = argv[index+1].toFloat(&ok[1]);
+    if (ok[0] && ok[1]) {
+      if (latitude < _min || latitude > _max ||
+          longitude < _min || longitude > _max) {
+        emit gui->messageSig(LOG_ERROR,message);
+        return RangeErrorRc;
+      }
+      _value[pushed].cameraView = CameraAnglesData::Default;
+      _value[pushed].angles[0]  = latitude;
+      _value[pushed].angles[1]  = longitude;
+      _here[pushed] = here;
+      return rc;
+    }
+    message = QMessageBox::tr("Expected two decimals (e.g. 23.0 45.0), but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+  } else if (argv.size() - index == 3) {
+    rx.setPattern("^(HOME)$");
+    if (argv[index].contains(rx)) {
+      bool ok[2];
+      float latitude = argv[index+1].toFloat(&ok[0]);
+      float longitude = argv[index+2].toFloat(&ok[1]);
+      if (ok[0] && ok[1]) {
+        if (latitude < _min || latitude > _max ||
+            longitude < _min || longitude > _max) {
+          emit gui->messageSig(LOG_ERROR,message);
+          return RangeErrorRc;
+        }
+        _value[pushed].homeViewpointModified = true;
+        _value[pushed].cameraView = CameraAnglesData::Home;
+        _value[pushed].angles[0]  = latitude;
+        _value[pushed].angles[1]  = longitude;
+        _here[pushed] = here;
+        return rc;
+      }
+      message = QMessageBox::tr("Expected HOME <decimal> <decimal> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+    }
+    message = QMessageBox::tr("Expected HOME but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" "));
+  }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,message);
+  }
+  return FailureRc;
+}
+
+QString CameraAnglesMeta::format(bool local, bool global)
+{
+  QString foo;
+  if (_value[pushed].cameraView == CameraAnglesData::Default) {
+    foo = QString("%1 %2")
+                  .arg(double(_value[pushed].angles[0]),_fieldWidth,'f',_precision)
+                  .arg(double(_value[pushed].angles[1]),_fieldWidth,'f',_precision);
+  } else {
+    foo = cameraViewNames[_value[pushed].cameraView];
+    if (_value[pushed].homeViewpointModified) {
+        foo += QString(" %1 %2")
+                       .arg(double(_value[pushed].angles[0]),_fieldWidth,'f',_precision)
+                       .arg(double(_value[pushed].angles[1]),_fieldWidth,'f',_precision);
+    }
+  }
+  return LeafMeta::format(local,global,foo);
+}
+
+void CameraAnglesMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " ( <decimal> <decimal> ) ( FRONT | BACK | TOP | BOTTOM | LEFT | RIGHT | HOME [ <decimal> <decimal> ] )";
+}
+
+void CameraAnglesMeta::metaKeywords(QStringList &out, QString preamble)
+{
+  out << preamble + " <decimal> FRONT BACK TOP BOTTOM LEFT RIGHT HOME";
+}
 /* ------------------ */
 
 FillMeta::FillMeta() : LeafMeta()
@@ -2520,7 +2650,7 @@ Rc FillMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ASPECT, STRETCH, or TILE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ASPECT, STRETCH, or TILE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2570,7 +2700,7 @@ Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
       return OkRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2616,7 +2746,7 @@ Rc PageOrientationMeta::parse(QStringList &argv, int index, Where &here)
       return PageOrientationRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PORTRAIT or LANDSCAPE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PORTRAIT or LANDSCAPE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2661,7 +2791,7 @@ Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
       return CountInstanceRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2716,7 +2846,7 @@ Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
       return ContStepNumRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2763,7 +2893,7 @@ Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
       return BuildModEnableRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -2812,7 +2942,7 @@ Rc FinalModelEnabledMeta::parse(QStringList &argv, int index, Where &here)
       return FinalModelEnableRc;
     }
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   return FailureRc;
 }
@@ -3190,7 +3320,7 @@ Rc StudStyleMeta::parse(QStringList &argv, int index, Where &here)
     rc = FailureRc;
   }
   if (rc == FailureRc && reportErrors) {
-    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected PLAIN, THIN_LINE_LOGO, OUTLINE_LOGO, SHARP_TOP_LOGO, ROUNDED_TOP_LOGO, FLATTENED_LOGO, HIGH_CONTRAST, HIGH_CONTRAST_WITH_LOGO or 1 - 7, but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return rc;
 }
@@ -3271,7 +3401,7 @@ Rc ColorMeta::parse(QStringList &argv, int index, Where &here)
   if (rc == FailureRc && reportErrors) {
     emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Invalid color meta command, expected "
                                                     "<\"0x|#><[AA]RRGGBB\">, or 0-255,0-255,0-255,0-255, "
-                                                    "got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+                                                    "but got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
   }
   return rc;
 }
@@ -3765,22 +3895,22 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   modelScale.setValue(1.0f);
 
   // assem native camera position
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
+  cameraAngles.setFormats(6,1,"###9.0");
+  cameraAngles.setRange(-360.0f,360.0f);
+  cameraAngles.setValues(MetaDefaults::getAssemblyCameraLatitude(),MetaDefaults::getAssemblyCameraLongitude());
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
-                     CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setFormats(3,0,"###9");
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
+                     MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setFormats(5,0,"####9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setFormats(5,0,"#####9");
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
   isOrtho.setValue(false);
-  imageSize.setFormats(7,4,"###9");
+  imageSize.setFormats(4,0,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 }
@@ -3815,10 +3945,10 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
 
 void SettingsMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(), MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
 }
 
 /* ------------------ */ 
@@ -4140,7 +4270,7 @@ Rc EnableMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE, but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
   }
 
@@ -4192,7 +4322,7 @@ Rc FadeColorMeta::parse(QStringList &argv, int index, Where &here)
 
   if (rc == FailureRc) {
     if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected color (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected color (0x|#)([AA]RRGGBB) [USE TRUE|FALSE], but got \"%1\"") .arg(argv[index]) .arg(argv.join(" ")));
     }
   }
 
@@ -5090,20 +5220,20 @@ SubModelMeta::SubModelMeta() : PliMeta()
   rotStep.setValue(rotStepData);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
+  cameraAngles.setFormats(6,1,"###9.0");
+  cameraAngles.setRange(-360.0f,360.0f);
+  cameraAngles.setValues(MetaDefaults::getSubmodelCameraLatitude(),MetaDefaults::getSubmodelCameraLongitude());
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
-                     CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setFormats(3,0,"###9");
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
+                     MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setFormats(5,0,"####9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setFormats(5,0,"#####9");
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
   isOrtho.setValue(false);
 
   // movable pli part groups
@@ -5517,32 +5647,32 @@ AssemMeta::AssemMeta() : BranchMeta()
   showStepNumber.setValue(true);
 
   // image generation
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
+  cameraAngles.setFormats(6,1,"###9.0");
+  cameraAngles.setRange(-360.0f,360.0f);
+  cameraAngles.setValues(MetaDefaults::getAssemblyCameraLatitude(),MetaDefaults::getAssemblyCameraLongitude());                   // using LPub3D Default 0.0,0.0f
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
-                     CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setFormats(3,0,"###9");
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
+                     MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setFormats(5,0,"####9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setFormats(5,0,"#####9");
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
   isOrtho.setValue(false);
-  imageSize.setFormats(7,4,"###9");
+  imageSize.setFormats(4,0,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 }
 
 void AssemMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(), MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
 }
 
 void AssemMeta::init(BranchMeta *parent, QString name)
@@ -5637,22 +5767,22 @@ PliMeta::PliMeta() : BranchMeta()
   sortBy.setValue(SortOptionName[PartSize]);
 
   // image generation
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
+  cameraAngles.setFormats(6,1,"###9.0");
+  cameraAngles.setRange(-360.0f,360.0f);
+  cameraAngles.setValues(MetaDefaults::getPartCameraLatitude(),MetaDefaults::getPartCameraLongitude());
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
-                     CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setFormats(3,0,"###9");
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
+                     MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setFormats(5,0,"####9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setFormats(5,0,"#####9");
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
   isOrtho.setValue(false);
-  imageSize.setFormats(7,4,"###9");
+  imageSize.setFormats(4,0,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 
@@ -5712,10 +5842,10 @@ void PliMeta::init(BranchMeta *parent, QString name)
 
 void PliMeta::resetCameraFoV()
 {
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(), CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(), MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
 }
 
 /* ------------------ */ 
@@ -5786,22 +5916,22 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue(SortOptionName[PartColour]);
 
   // image generation
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
+  cameraAngles.setFormats(6,1,"###9.0");
+  cameraAngles.setRange(-360.0f,360.0f);
+  cameraAngles.setValues(MetaDefaults::getPartCameraLatitude(),MetaDefaults::getPartCameraLongitude());
   cameraDistance.setRange(1.0f,FLT_MAX);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(CamDef::getDefaultFOVMinRange(),
-                     CamDef::getDefaultFOVMaxRange());
-  cameraFoV.setValue(CamDef::getDefaultCameraFoV());
-  cameraZNear.setFormats(3,0,"###9");
+  cameraFoV.setRange(MetaDefaults::getFOVMinRange(),
+                     MetaDefaults::getFOVMaxRange());
+  cameraFoV.setValue(MetaDefaults::getCameraFOV());
+  cameraZNear.setFormats(5,0,"####9");
   cameraZNear.setRange(1.0f,FLT_MAX);
-  cameraZNear.setValue(CamDef::getDefaultNativeCameraZNear());
-  cameraZFar.setFormats(5,0,"#####9");
+  cameraZNear.setValue(MetaDefaults::getNativeCameraZNear());
+  cameraZFar.setFormats(5,0,"####9");
   cameraZFar.setRange(1.0f,FLT_MAX);
-  cameraZFar.setValue(CamDef::getDefaultNativeCameraZFar());
+  cameraZFar.setValue(MetaDefaults::getNativeCameraZFar());
   isOrtho.setValue(false);
-  imageSize.setFormats(7,4,"###9");
+  imageSize.setFormats(4,0,"###9");
   imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 
@@ -6543,7 +6673,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
       tokenMap["PLI_PART"]             = PartsListPixmapObj;
       tokenMap["PLI_PART_GROUP"]       = PartsListGroupObj;
-      tokenMap["STEP_RECTANGLE"]      = StepBackgroundObj;
+      tokenMap["STEP_RECTANGLE"]       = StepBackgroundObj;
 
       tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
       tokenMap["MODEL_ID"]             = PageModelNameType;

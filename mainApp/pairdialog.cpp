@@ -174,12 +174,77 @@ void FloatPairDialog::cancel()
   QDialog::reject();
 }
 
+CameraAnglesDialog::CameraAnglesDialog(
+  QString           _name,
+  CameraAnglesData  &goods,
+  QWidget           *parent)
+  : QDialog(parent)
+{
+  setWindowTitle(_name);
+
+  meta.setValue(goods);
+
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  setLayout(layout);
+
+  QGroupBox *box = new QGroupBox(_name,this);
+  layout->addWidget(box);
+
+  cameraAngles = new CameraAnglesGui(_name,&meta,box);
+
+  QDialogButtonBox *buttonBox;
+
+  buttonBox = new QDialogButtonBox(this);
+
+  buttonBox->addButton(QDialogButtonBox::Ok);
+  connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
+  buttonBox->addButton(QDialogButtonBox::Cancel);
+  connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
+
+  layout->addWidget(buttonBox);
+
+  setModal(true);
+  setMinimumSize(40,20);
+}
+
+CameraAnglesDialog::~CameraAnglesDialog()
+{
+}
+
+bool CameraAnglesDialog::getCameraAngles(
+  QString          _name,
+  CameraAnglesData &goods,
+  QWidget          *parent)
+{
+  CameraAnglesDialog *dialog = new CameraAnglesDialog(_name,goods,parent);
+
+  bool ok = dialog->exec() == QDialog::Accepted;
+  if (ok) {
+    goods = dialog->meta.value();
+  }
+  return ok;
+}
+
+void CameraAnglesDialog::accept()
+{
+  if (cameraAngles->modified) {
+    QDialog::accept();
+  } else {
+    QDialog::reject();
+  }
+}
+
+void CameraAnglesDialog::cancel()
+{
+  QDialog::reject();
+}
+
 DoubleSpinDialog::DoubleSpinDialog(
   QString   _name,
   QString   _heading,
   FloatMeta *floatMeta,
-  float     step,  
-  QWidget *parent)
+  float      step,
+  QWidget   *parent)
   : QDialog(parent)
 {
   setParent(parent);
@@ -196,13 +261,20 @@ DoubleSpinDialog::DoubleSpinDialog(
 
   meta = floatMeta;
 
-  spin = new DoubleSpinGui(
-               _heading,
-               meta,
-               meta->_min,
-               meta->_max,
-               step,
-               box);
+  const QString compare = _heading.toLower();
+  if (compare.contains(tr("fov"))) {
+      spin = new CameraFOVGui(_heading, meta, box);
+  } else if (compare.contains(tr("scale"))) {
+      spin = new ScaleGui(_heading, meta, box);
+  } else {
+      spin = new DoubleSpinGui(
+                   _heading,
+                   meta,
+                   meta->_min,
+                   meta->_max,
+                   step,
+                   box);
+  }
   
   QDialogButtonBox *buttonBox = new QDialogButtonBox;
 

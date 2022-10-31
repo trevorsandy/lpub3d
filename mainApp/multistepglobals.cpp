@@ -175,15 +175,10 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   box->setLayout(boxGrid);
 
   // Scale
-  child = new DoubleSpinGui(tr("Scale"),
-                            &multiStepMeta->csi.modelScale,
-                            multiStepMeta->csi.modelScale._min,
-                            multiStepMeta->csi.modelScale._max,
-                            0.01f);
+  child = new ScaleGui(tr("Scale"),&multiStepMeta->csi.modelScale);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
   boxGrid->addWidget(child);
-
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   child = new UnitsGui(tr("Margins L/R|T/B"),&multiStepMeta->margin);
   data->children.append(child);
@@ -198,18 +193,14 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   box->setLayout(boxGrid);
 
   // camera field of view
-  child = new DoubleSpinGui(tr("Camera FOV"),
-                            &multiStepMeta->csi.cameraFoV,
-                            multiStepMeta->csi.cameraFoV._min,
-                            multiStepMeta->csi.cameraFoV._max,
-                            multiStepMeta->csi.cameraFoV.value());
+  child = new CameraFOVGui(tr("Camera FOV"),&multiStepMeta->csi.cameraFoV);
   data->children.append(child);
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui(tr("Latitude"),tr("Longitude"),&multiStepMeta->csi.cameraAngles);
-  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  child = new CameraAnglesGui(tr("Camera Angles"),&multiStepMeta->csi.cameraAngles);
+  connect (child, SIGNAL(settingsChanged(bool)), this, SLOT(clearCache(bool)));
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 

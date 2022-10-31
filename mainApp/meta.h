@@ -50,6 +50,7 @@
 #include "metatypes.h"
 #include "resolution.h"
 #include "declarations.h"
+#include "QsLog.h"
 
 class Meta;
 class BranchMeta;
@@ -381,8 +382,7 @@ public:
   virtual void    pop();
   BranchMeta &operator= (const BranchMeta &rhs)
   {
-    QString key;
-    Q_FOREACH (key, list.keys()) {
+    Q_FOREACH (const QString &key, list.keys()) {
       *list[key] = *rhs.list[key];
     }
     preamble = rhs.preamble;
@@ -390,8 +390,7 @@ public:
   }
   BranchMeta (const BranchMeta &rhs) : AbstractMeta(rhs)
   {
-    QString key;
-    Q_FOREACH (key, list.keys()) {
+    Q_FOREACH (const QString &key, list.keys()) {
       *list[key] = *rhs.list[key];
     }
   }
@@ -802,6 +801,36 @@ public:
 };
 
 /*
+ * This leaf is to catch booleans (TRUE or FALSE)
+ */
+
+class BoolMeta : public RcMeta {
+private:
+  bool  _value[2];
+public:
+  bool  value()
+  {
+    return _value[pushed];
+  }
+  void setValue(bool value)
+  {
+    _value[pushed] = value;
+  }
+  BoolMeta ()
+  {
+  }
+  BoolMeta(const BoolMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+//  virtual ~BoolMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
  * This leaf meta is used when using real world measuring units
  */
 
@@ -1170,34 +1199,6 @@ public:
 //  virtual ~FontListMeta() {}
 };
 
-/* This leaf is to catch booleans (TRUE or FALSE) */
-
-class BoolMeta : public RcMeta {
-private:
-  bool  _value[2];
-public:
-  bool  value()
-  {
-    return _value[pushed];
-  }
-  void setValue(bool value)
-  {
-    _value[pushed] = value;
-  }
-  BoolMeta ()
-  {
-  }
-  BoolMeta(const BoolMeta &rhs) : RcMeta(rhs)
-  {
-    _value[0] = rhs._value[0];
-    _value[1] = rhs._value[1];
-  }
-//  virtual ~BoolMeta() {}
-  Rc parse(QStringList &argv, int index, Where &here);
-  QString format(bool,bool);
-  virtual void doc(QStringList &out, QString preamble);
-};
-
 /* This class is used to parse placement information */
 
 class PlacementMeta  : public LeafMeta
@@ -1389,12 +1390,134 @@ public:
   virtual QString text();
 };
 
+/*------------------------*/
+
+class CameraAnglesMeta  : public RcMeta
+{
+protected:
+  CameraAnglesData _value[2];
+  float            _min,_max;
+  bool             _default;
+public:
+  int              _fieldWidth;
+  int              _precision;
+  QString          _inputMask;
+
+  bool isDefault()
+  {
+    return _default;
+  }
+
+  CameraAnglesData &value()
+  {
+    return _value[pushed];
+  }
+
+  virtual float value(int which)
+  {
+    return _value[pushed].angles[which];
+  }
+
+  virtual bool homeViewpointModified()
+  {
+    return _value[pushed].homeViewpointModified;
+  }
+
+  virtual CameraAnglesData::CameraViewEnc cameraView()
+  {
+    return _value[pushed].cameraView;
+  }
+
+  void setValue(CameraAnglesData &value)
+  {
+    _default = false;
+    _value[pushed] = value;
+  }
+
+  void setCameraView(CameraAnglesData::CameraViewEnc value)
+  {
+    _value[pushed].cameraView = value;
+    _default = false;
+  }
+
+  void setHomeViewpointLatLon(bool value)
+  {
+    _value[pushed].homeViewpointModified = value;
+    _default = false;
+  }
+
+  void setValue(int which, float value)
+  {
+    _value[pushed].angles[which] = value;
+    _default = false;
+  }
+
+  void setValues(float value1, float value2)
+  {
+    _value[pushed].angles[0] = value1;
+    _value[pushed].angles[1] = value2;
+    _default = false;
+  }
+
+  void setRange(
+    float min,
+    float max)
+  {
+    _min = min;
+    _max = max;
+  }
+
+  void setFormats(
+    int fieldWidth,
+    int precision,
+    QString inputMask)
+  {
+    _fieldWidth = fieldWidth;
+    _precision  = precision;
+    _inputMask  = inputMask;
+  }
+
+  CameraAnglesMeta()
+  {
+    _value[0].cameraView = CameraAnglesData::CameraViewEnc::Default;
+    _value[0].angles[0] = 0.0f;
+    _value[0].angles[1] = 0.0f;
+    _min = 0;
+    _max = 0;
+    _fieldWidth = 6;
+    _precision  = 1;
+    _inputMask  = "###9.9";
+    _default    = true;
+  }
+
+  CameraAnglesMeta(const CameraAnglesMeta &rhs) : RcMeta(rhs)
+  {
+    _value[0].cameraView = rhs._value[0].cameraView;
+    _value[1].cameraView = rhs._value[1].cameraView;
+    _value[0].angles[0]  = rhs._value[0].angles[0];
+    _value[0].angles[1]  = rhs._value[0].angles[1];
+    _value[1].angles[0]  = rhs._value[1].angles[0];
+    _value[1].angles[1]  = rhs._value[1].angles[1];
+    _min                 = rhs._min;
+    _max                 = rhs._max;
+    _fieldWidth          = rhs._fieldWidth;
+    _precision           = rhs._precision;
+    _inputMask           = rhs._inputMask;
+    _default             = rhs._default;
+  }
+
+//  virtual ~CameraAnglesMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void init(BranchMeta *parent, const QString name, Rc _rc=OkRc);
+  virtual void doc(QStringList &out, QString preamble);
+  virtual void metaKeywords(QStringList &out, QString preamble);
+};
+
 /*
  * This class parses pointer attribute
  * meta commands
  */
-
-#include "QsLog.h"
 
 class PointerAttribMeta  : public LeafMeta
 {
@@ -2926,7 +3049,7 @@ public:
 
   // shared camera settings
   FloatMeta            cameraDistance;
-  FloatPairMeta        cameraAngles;
+  CameraAnglesMeta     cameraAngles;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;
@@ -3613,7 +3736,7 @@ public:
   FloatMeta            cameraFoV;
   FloatMeta            cameraZNear;
   FloatMeta            cameraZFar;
-  FloatPairMeta        cameraAngles;
+  CameraAnglesMeta     cameraAngles;
   FloatMeta            cameraDistance;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
@@ -3661,7 +3784,7 @@ public:
   FloatMeta            cameraFoV;
   FloatMeta            cameraZNear;
   FloatMeta            cameraZFar;
-  FloatPairMeta        cameraAngles;
+  CameraAnglesMeta     cameraAngles;
   BoolMeta             isOrtho;
   FloatPairMeta        imageSize;
   StringMeta           cameraName;

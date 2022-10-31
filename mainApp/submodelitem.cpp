@@ -194,7 +194,12 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
        rotatedModel << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
 
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
-   FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
+   FloatPairMeta cameraAngles;
+   if (noCA)
+       cameraAngles.setValues(0.0f,0.0f);
+   else
+       cameraAngles.setValues(subModelMeta.cameraAngles.value(0),
+                              subModelMeta.cameraAngles.value(1));
 
    //QFuture<int> RenderFuture = QtConcurrent::run([this,&addLine,&rotatedModel,&ldrName,&cameraAngles] () {
    //    int rcf = true;
@@ -246,7 +251,8 @@ int SubModel::createSubModelImage(
   float modelScale   = subModelMeta.modelScale.value();
   int stepNumber     = subModelMeta.showStepNum.value() ?
                        subModelMeta.showStepNum.value() : 1;
-  bool noCA          = subModelMeta.rotStep.value().type == "ABS";
+  bool noCA          = subModelMeta.rotStep.value().type == "ABS" &&
+                      !subModelMeta.cameraAngles.homeViewpointModified();
   float camDistance  = subModelMeta.cameraDistance.value();
   bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
 
@@ -351,7 +357,13 @@ int SubModel::createSubModelImage(
 
       if (addViewerStepContent || ! submodel.exists() || imageOutOfDate) {
 
-          FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
+          FloatPairMeta cameraAngles;
+          if (noCA)
+              cameraAngles.setValues(0.0f,0.0f);
+          else
+              cameraAngles.setValues( subModelMeta.cameraAngles.value(0),
+                                      subModelMeta.cameraAngles.value(1));
+
           QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");
 
           // set submodel entries - unrotated and rotated
@@ -428,8 +440,10 @@ int SubModel::createSubModelImage(
       viewerOptions->FoV            = subModelMeta.cameraFoV.value();
       viewerOptions->ImageFileName  = imageName;
       viewerOptions->ImageType      = Options::SMP;
-      viewerOptions->Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
+      viewerOptions->CameraView     = subModelMeta.cameraAngles.cameraView();
+      viewerOptions->HomeViewMod    = subModelMeta.cameraAngles.homeViewpointModified();
+      viewerOptions->Latitude       = noCA ? 0.0f : subModelMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = noCA ? 0.0f : subModelMeta.cameraAngles.value(1);
       viewerOptions->ModelScale     = subModelMeta.modelScale.value();
       viewerOptions->PageHeight     = pageSizeP(meta, 1);
       viewerOptions->PageWidth      = pageSizeP(meta, 0);
@@ -1772,7 +1786,7 @@ void SubModelBackgroundItem::contextMenuEvent(
                               bottom,
                               &subModel->subModelMeta.rotStep);
     } else if (selectedAction == cameraFoVAction) {
-        changeFloatSpin(QObject::tr("%1 Camera Angle").arg(name),
+        changeFloatSpin(QObject::tr("%1 Field Of View").arg(name),
                         QObject::tr("Camera FOV"),
                         top,
                         bottom,

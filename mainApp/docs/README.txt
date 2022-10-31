@@ -1,4 +1,4 @@
-LPub3D 2.4.4.1.2937 (31 10 2022 21:58:54)
+LPub3D 2.4.4.1.2938 (31 10 2022 22:00:38)
 
 Features, enhancements, fixes and changes
 ------------
@@ -23,6 +23,7 @@ Revisions:
 - Enhancement - LPub command editor snippet system #602
 - Enhancement - Manage context menu actions #606
 - Enhancement - Manage keyboard shortcuts #603
+- Enhancement - Merge camera viewpoint and camera angles dialogs #612
 - Enhancement - Refactor file loading parse and add inline file load #591
 - Enhancement - Remove LPub formatting at submodel, page, and step #604
 - Enhancement - Set default system text editor at start-up #599

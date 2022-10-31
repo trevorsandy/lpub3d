@@ -254,7 +254,9 @@ public:
 	void SetViewpoint(lcViewpoint Viewpoint);
 	void SetViewpoint(const lcVector3& Position);
 	void SetViewpoint(const lcVector3& Position, const lcVector3& Target, const lcVector3& Up);
-	void SetCameraAngles(float Latitude, float Longitude);
+/*** LPub3D Mod - Camera Angles (Viewpoint Home Modified) ***/
+	void SetCameraAngles(float Latitude, float Longitude, float Distance = 1.0f);
+/*** LPub3D Mod end ***/
 	void SetDefaultCamera();
 	void SetCamera(lcCamera* Camera, bool ForceCopy);
 	void SetCamera(const QString& CameraName);

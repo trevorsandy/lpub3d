@@ -30,8 +30,16 @@
 
 #include <QtGlobal>
 #include <QDialog>
+#include <QWidget>
+#include <QString>
+#include <QLineEdit>
+#include <QLabel>
+#include <QGridLayout>
+#include <QDialogButtonBox>
+#include <QRadioButton>
 #include "meta.h"
 
+class MetaGui;
 class FloatsGui;
 class FloatPairDialog : public QDialog
 {
@@ -67,7 +75,6 @@ private:
 
 };
 
-class DoubleSpinGui;
 class DoubleSpinDialog : public QDialog
 
 {
@@ -80,7 +87,7 @@ public:
     QString    heading,
     FloatMeta *floatMeta,
     float      step,
-    QWidget *parent);
+    QWidget   *parent);
 
   virtual ~DoubleSpinDialog()
   {
@@ -97,22 +104,40 @@ public:
   FloatMeta *meta;
 
 private:
-  DoubleSpinGui *spin;
+  MetaGui   *spin;
 
 public slots:
   void accept();
   void cancel();
 };
 
-#include <QDialog>
-#include <QWidget>
-#include <QString>
-#include <QLineEdit>
-#include <QLabel>
-#include <QGridLayout>
-#include <QDialogButtonBox>
-#include <QRadioButton>
-#include "meta.h"
+class CameraAnglesDialog : public QDialog
+{
+
+  Q_OBJECT
+
+public:
+  CameraAnglesDialog(
+    QString          title,
+    CameraAnglesData &goods,
+    QWidget          *parent);
+
+  virtual ~CameraAnglesDialog();
+  static bool getCameraAngles(
+    QString           _name,
+    CameraAnglesData &goods,
+    QWidget          *parent);
+
+  CameraAnglesMeta meta;
+
+public slots:
+  void accept();
+  void cancel();
+
+private:
+
+  MetaGui *cameraAngles;
+};
 
 class FloatDialog : public QDialog
 {
@@ -174,4 +199,3 @@ private:
 };
 
 #endif
-

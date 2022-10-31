@@ -286,16 +286,6 @@ public:
                         bool allowLocal = true,
                         bool checkLocal = false);
 
-  void changeImageScale(QString title,
-                        QString label,
-                        const Where &,
-                        const Where &,
-                        FloatMeta   *,
-                        float step = 0.01,
-                        bool  useTop = true,
-                        int   append = 1,
-                        bool  askLocal = true);
-
   void changeImageFill( const Where &,
                         const Where &,
                         FillMeta    *,
@@ -307,7 +297,7 @@ public:
   void changeCameraAngles( QString,
                         const Where &,
                         const Where &,
-                        FloatPairMeta *,
+                        CameraAnglesMeta *,
                         int  append = 1,
                         bool checkLocal = true);
 

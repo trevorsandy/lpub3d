@@ -814,6 +814,52 @@ public:
   }
 };
 
+class CameraAnglesData
+{
+public:
+  QHash<QString, int> map;
+
+  enum CameraViewEnc
+  {
+    Front,  // set camera view at   0 lat,   0 lon
+    Back,   // set camera view at   0 lat, 180 lon
+    Top,    // set camera view at  90 lat,   0 lon
+    Bottom, // set camera view at -90 lat,   0 lon
+    Left,   // set camera view at   0 lat,  90 lon
+    Right,  // set camera view at   0 lat, -90 lon
+    Home,   // set camera view at  30 lat,  45 lon
+    Default // do not set camera view
+  } cameraView;
+
+  float  angles[2];
+
+  bool homeViewpointModified;
+
+  CameraAnglesData()
+  {
+    cameraView = CameraViewEnc::Default;
+    homeViewpointModified = false;
+    angles[0] = 0.0f;
+    angles[1] = 0.0f;
+    if (map.size() == 0) {
+       map["FRONT"]   = CameraViewEnc::Front;
+       map["BACK"]    = CameraViewEnc::Back;
+       map["TOP"]     = CameraViewEnc::Top;
+       map["BOTTOM"]  = CameraViewEnc::Bottom;
+       map["LEFT"]    = CameraViewEnc::Left;
+       map["RIGHT"]   = CameraViewEnc::Right;
+       map["HOME"]    = CameraViewEnc::Home;
+       map["DEFAULT"] = CameraViewEnc::Default;
+    }
+  }
+};
+
+const QString cameraViewNames[CameraAnglesData::CameraViewEnc::Default] =
+{
+  "FRONT","BACK","TOP","BOTTOM",
+  "LEFT","RIGHT","HOME"
+};
+
 /*********************************************
  *
  * Default camera settings

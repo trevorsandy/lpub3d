@@ -1789,7 +1789,9 @@ void lcView::SetViewpoint(const lcVector3& Position, const lcVector3& Target, co
 	emit CameraChanged();
 }
 
-void lcView::SetCameraAngles(float Latitude, float Longitude)
+/*** LPub3D Mod - Camera Angles (Viewpoint Home Modified) ***/
+void lcView::SetCameraAngles(float Latitude, float Longitude, float Distance)
+/*** LPub3D Mod end ***/
 {
 	if (!mCamera || !mCamera->IsSimple())
 	{
@@ -1802,7 +1804,6 @@ void lcView::SetCameraAngles(float Latitude, float Longitude)
 	}
 
 /*** LPub3D Mod - Camera Globe ***/
-	const float Distance = 1.0f;
 	mCamera->SetAngles(Latitude, Longitude, Distance, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
 /*** LPub3D Mod end ***/
 	ZoomExtents();
