@@ -46,7 +46,7 @@
 #include "placement.h"
 #include "backgrounditem.h"
 #include "where.h"
-#include "name.h"
+#include "declarations.h"
 #include "resize.h"
 #include "annotations.h"
 #include "excludedparts.h"

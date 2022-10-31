@@ -9,7 +9,7 @@
 /*** LPub3D Mod - status and logging ***/
 #include <QToolBar>
 #include <QStatusBar>
-#include <name.h>
+#include <declarations.h>
 /*** LPub3D Mod end ***/
 
 class lcPartSelectionWidget;

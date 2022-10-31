@@ -26,7 +26,7 @@
 #include "meta.h"
 #include "metagui.h"
 #include "metaitem.h"
-#include "name.h"
+#include "declarations.h"
 
 /*****************************************************************
  *

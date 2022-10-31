@@ -510,6 +510,7 @@ HEADERS += \
     commonmenus.h \
     csiannotation.h \
     csiitem.h \
+    declarations.h \
     dependencies.h \
     dialogexportpages.h \
     dividerdialog.h \
@@ -541,7 +542,6 @@ HEADERS += \
     metagui.h \
     metaitem.h \
     metatypes.h \
-    name.h \
     numberitem.h \
     options.h \
     pageattributepixmapitem.h \

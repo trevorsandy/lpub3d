@@ -29,7 +29,7 @@
 #include "lc_math.h"
 
 #include "QsLog.h"
-#include "name.h"
+#include "declarations.h"
 
 class InitException: public QException
 {

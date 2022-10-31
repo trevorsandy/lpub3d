@@ -21,7 +21,7 @@
 #include <QTextStream>
 #include "lpub_preferences.h"
 #include "lpub_qtcompat.h"
-#include "name.h"
+#include "declarations.h"
 #include "version.h"
 #include "QsLog.h"
 

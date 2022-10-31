@@ -30,7 +30,7 @@
 #include "archiveparts.h"
 #include "version.h"
 #include "ldsearchdirs.h"
-#include "name.h"
+#include "declarations.h"
 #include "where.h"
 #include "meta.h"
 

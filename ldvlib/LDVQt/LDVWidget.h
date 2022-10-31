@@ -32,7 +32,7 @@
 
 #include <QProgressDialog>
 #include <QTimer>
-#include "name.h"
+#include "declarations.h"
 
 #include "LDVHtmlInventory.h"
 

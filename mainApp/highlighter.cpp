@@ -30,7 +30,7 @@
 #include "application.h"
 #include "lpub_preferences.h"
 #include "lpub_qtcompat.h"
-#include "name.h"
+#include "declarations.h"
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

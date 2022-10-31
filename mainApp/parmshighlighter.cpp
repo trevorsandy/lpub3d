@@ -27,7 +27,7 @@
 #include <QtWidgets>
 #include "parmshighlighter.h"
 #include "version.h"
-#include "name.h"
+#include "declarations.h"
 #include "lpub_preferences.h"
 
 ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)

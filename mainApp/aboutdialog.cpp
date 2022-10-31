@@ -24,7 +24,7 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "lc_global.h"
-#include "name.h"
+#include "declarations.h"
 #include "version.h"
 #include "lpub_preferences.h"
 #include "lpub_object.h"

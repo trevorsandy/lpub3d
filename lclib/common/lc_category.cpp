@@ -5,7 +5,7 @@
 
 /*** LPub3D Mod - support TENTE and VEX Categories ***/
 #include "lpub_preferences.h"
-#include "name.h"
+#include "declarations.h"
 /*** LPub3D Mod end ***/
 
 std::vector<lcLibraryCategory> gCategories;

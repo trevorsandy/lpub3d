@@ -22,7 +22,7 @@
 #include "metatypes.h"
 #include "color.h"
 #include "scaledialog.h"
-#include "name.h"
+#include "declarations.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
 #include "lpub.h"

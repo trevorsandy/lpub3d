@@ -49,7 +49,7 @@
 #include "where.h"
 #include "metatypes.h"
 #include "resolution.h"
-#include "name.h"
+#include "declarations.h"
 
 class Meta;
 class BranchMeta;

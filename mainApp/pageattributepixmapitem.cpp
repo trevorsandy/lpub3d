@@ -21,7 +21,7 @@
 #include "color.h"
 #include "step.h"
 #include "ranges.h"
-#include "name.h"
+#include "declarations.h"
 #include "lpub_object.h"
 
 PageAttributePixmapItem::PageAttributePixmapItem(

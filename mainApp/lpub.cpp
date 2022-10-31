@@ -35,7 +35,7 @@
 #include <ui_progress_dialog.h>
 
 #include "lpub.h"
-#include "name.h"
+#include "declarations.h"
 #include "editwindow.h"
 #include "parmswindow.h"
 #include "paths.h"

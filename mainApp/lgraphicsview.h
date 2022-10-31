@@ -20,7 +20,7 @@
 
 #include "qgraphicsscene.h"
 #include "lgraphicsscene.h"
-#include "name.h"
+#include "declarations.h"
 
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 

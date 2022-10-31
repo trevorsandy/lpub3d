@@ -35,7 +35,7 @@
 #include "meta.h"
 #include "metaitem.h"
 #include "metagui.h"
-#include "name.h"
+#include "declarations.h"
 
 class GlobalAssemPrivate
 {

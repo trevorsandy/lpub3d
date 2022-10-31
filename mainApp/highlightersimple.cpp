@@ -29,7 +29,7 @@
 #include "highlightersimple.h"
 #include "application.h"
 #include "lpub_preferences.h"
-#include "name.h"
+#include "declarations.h"
 
 HighlighterSimple::HighlighterSimple(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

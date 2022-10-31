@@ -19,7 +19,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-#include "name.h"
+#include "declarations.h"
 #include "version.h"
 #include "lpub_preferences.h"
 #include "lpub_qtcompat.h"

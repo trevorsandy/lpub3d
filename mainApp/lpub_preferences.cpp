@@ -35,7 +35,7 @@
 #include "render.h"
 #include "pli.h"
 #include "version.h"
-#include "name.h"
+#include "declarations.h"
 #include "paths.h"
 #include "ldrawcolourparts.h"
 #include "application.h"

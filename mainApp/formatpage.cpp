@@ -51,7 +51,7 @@
 #include "pagepointer.h"
 #include "lgraphicsscene.h"
 #include "reserve.h"
-#include "name.h"
+#include "declarations.h"
 
 #include "ranges_item.h"
 #include "csiannotation.h"

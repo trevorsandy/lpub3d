@@ -33,7 +33,7 @@
 #include "messageboxresizable.h"
 
 #include "lpub.h"
-#include "name.h"
+#include "declarations.h"
 #include "version.h"
 #include "lpub_preferences.h"
 

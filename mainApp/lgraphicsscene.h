@@ -16,7 +16,7 @@
 #define LGRAPHICSSCENE_H
 
 #include <QGraphicsScene>
-#include "name.h"
+#include "declarations.h"
 
 class LGraphicsScene : public QGraphicsScene
 {

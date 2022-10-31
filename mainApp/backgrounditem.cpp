@@ -41,7 +41,7 @@
 #include "color.h"
 
 #include "lpub_object.h"
-#include "name.h"
+#include "declarations.h"
 
 void BackgroundItem::setBackground(
     QPixmap         *pixmap,

@@ -35,14 +35,14 @@
 #include <QMenu>
 #include <QGraphicsSceneContextMenuEvent>
 #include "color.h"
-#include "name.h"
+#include "declarations.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
 
 #include "ranges.h"
 #include "step.h"
 #include "lpub.h"
-#include "name.h"
+#include "declarations.h"
 
 void NumberItem::setAttributes(
   PlacementType  _relativeType,

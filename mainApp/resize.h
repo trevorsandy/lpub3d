@@ -46,7 +46,7 @@
 #include "metatypes.h"
 #include "resolution.h"
 #include "meta.h"
-#include "name.h"
+#include "declarations.h"
 
 class Grabber;
 class QGraphicsItem;

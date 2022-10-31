@@ -17,7 +17,7 @@
 
 #include <QObject>
 
-#include "name.h"
+#include "declarations.h"
 #include "ldrawfiles.h"
 #include "ranges.h"
 #include "meta.h"

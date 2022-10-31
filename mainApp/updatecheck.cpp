@@ -18,7 +18,7 @@
 #include "updatecheck.h"
 #include "lpub_preferences.h"
 #include "version.h"
-#include "name.h"
+#include "declarations.h"
 
 UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
 {

@@ -29,7 +29,7 @@
 #include "ui_LDVExportOptionPanel.h"
 
 #include "lpub_preferences.h"
-#include "name.h"
+#include "declarations.h"
 
 TCStringArray* LDViewExportOption::extraSearchDirs = nullptr;
 

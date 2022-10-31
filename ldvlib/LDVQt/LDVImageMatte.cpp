@@ -29,7 +29,7 @@
 #include "QsLog.h"
 #include "lpub_object.h"
 #include "render.h"
-#include "name.h"
+#include "declarations.h"
 #include "paths.h"
 
 QHash<QString, QString> LDVImageMatte::csiKey2csiFile;  // csiKey, csiFile

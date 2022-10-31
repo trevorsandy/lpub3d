@@ -20,7 +20,7 @@
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - includes ***/
-#include "name.h"
+#include "declarations.h"
 #include "color.h"
 #include "application.h"
 #include "threadworkers.h"

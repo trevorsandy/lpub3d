@@ -38,7 +38,7 @@
 #include <QFileSystemWatcher>
 #include <atomic>
 
-#include "name.h"
+#include "declarations.h"
 
 class QAbstractItemModel;
 class QCompleter;

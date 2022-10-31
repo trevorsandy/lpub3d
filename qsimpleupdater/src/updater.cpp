@@ -39,7 +39,7 @@
 #include "downloader.h"
 #include "messageboxresizable.h"
 #include "version.h"
-#include "name.h"
+#include "declarations.h"
 #include "lpub_object.h"
 #include "lpub_preferences.h"
 

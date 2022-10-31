@@ -28,7 +28,7 @@
 
 #include <QtWidgets>
 #include "pagepointerbackgrounditem.h"
-#include "name.h"
+#include "declarations.h"
 
 PagePointerBackgroundItem::PagePointerBackgroundItem(
   QRect         &_pagePointerRect,

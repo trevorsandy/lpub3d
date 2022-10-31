@@ -14,7 +14,7 @@
 
 #include <messageboxresizable.h>
 
-#include <name.h>
+#include <declarations.h>
 
 #include <QEvent>
 #include <QVBoxLayout>
