@@ -3066,14 +3066,14 @@ Gui::Gui()
 
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
 
+    // LPub - Object connection is Qt::AutoConnection so it will trigger without an active event loop
     connect(lpub,           SIGNAL(messageSig( LogType,QString)),
-            this,           SLOT(statusMessage(LogType,QString)),
-            Qt::QueuedConnection);
+            this,           SLOT(statusMessage(LogType,QString)));
 
-    // Gui
+    // Gui - MainWindow
     connect(this,           SIGNAL(messageSig( LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)),
-            Qt::QueuedConnection);
+            Qt::QueuedConnection); // this connection will only trigger when the Main thread event loop, m_application.exec(), is active
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
