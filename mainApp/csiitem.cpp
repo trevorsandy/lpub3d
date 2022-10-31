@@ -307,24 +307,24 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
   Boundary boundary     = step->boundary();
 
-  QAction *addNextAction = nullptr;
+  QAction *addNextStepAction = nullptr;
   if (fullContextMenu  &&
       step->stepNumber.number != numOfSteps &&
       (parentRelativeType == SingleStepType ||
        (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
-      addNextAction = menu.addAction("Add Next Step");
-      addNextAction->setIcon(QIcon(":/resources/addnext.png"));
-      addNextAction->setWhatsThis("Add Next Step:\n  Add the first step of the next page to this page");
+      addNextStepAction = menu.addAction("Add Next Step");
+      addNextStepAction->setIcon(QIcon(":/resources/addnext.png"));
+      addNextStepAction->setWhatsThis("Add Next Step:\n  Add the first step of the next page to this page");
     }
 
-  QAction *addPrevAction = nullptr;
+  QAction *addPrevStepAction = nullptr;
   if ( fullContextMenu  &&
        step->stepNumber.number > 1 &&
        (parentRelativeType == SingleStepType ||
         (parentRelativeType == StepGroupType && (boundary & StartOfSteps)))) {
-      addPrevAction = menu.addAction("Add Previous Step");
-      addPrevAction->setIcon(QIcon(":/resources/addprevious.png"));
-      addPrevAction->setWhatsThis("Add Previous Step:\n  Add the last step of the previous page to this page");
+      addPrevStepAction = menu.addAction("Add Previous Step");
+      addPrevStepAction->setIcon(QIcon(":/resources/addprevious.png"));
+      addPrevStepAction->setWhatsThis("Add Previous Step:\n  Add the last step of the previous page to this page");
     }
 
   QAction *removeAction = nullptr;
@@ -610,10 +610,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if (selectedAction == previewCsiAction) {
         previewCsi(true /*previewCsiAction*/);
-    } else if (selectedAction == addPrevAction) {
+    } else if (selectedAction == addPrevStepAction) {
       addPrevMultiStep(topOfSteps,bottomOfSteps);
 
-    } else if (selectedAction == addNextAction) {
+    } else if (selectedAction == addNextStepAction) {
       addNextMultiStep(topOfSteps,bottomOfSteps);
 
     } else if (selectedAction == removeAction) {
