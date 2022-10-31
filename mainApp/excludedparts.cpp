@@ -25,10 +25,8 @@
 #include "lpub_qtcompat.h"
 #include "QsLog.h"
 
-
-bool            ExcludedParts::result;
-QString         ExcludedParts::empty;
-QList<QString>  ExcludedParts::excludedParts;
+bool ExcludedParts::result;
+QList<ExcludedParts::Part> ExcludedParts::excludedParts;
 
 ExcludedParts::ExcludedParts()
 {
@@ -64,16 +62,16 @@ ExcludedParts::ExcludedParts()
                 while ( ! in.atEnd()) {
                     QString sLine = in.readLine(0);
                     if (sLine.contains(rx)) {
-                        QString excludedPartID = rx.cap(1);
-                        excludedParts.append(excludedPartID.toLower().trimmed());
-                        //logDebug() << "** ExcludedPartID: " << excludedPartID.toLower();
+                        Part excludedPart(rx.cap(1), rx.cap(2).toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
+                        excludedParts.append(excludedPart);
+                        //logDebug() << "** ExcludedPartName: " << excludedPartID.id;
                     }
                 }
             } else {
-                QString message = QString("Regular expression pattern was not found in %1.<br>"
+                QString message = QMessageBox::tr("Regular expression pattern was not found in %1.<br>"
                                   "Be sure the following lines exist in the file header:<br>"
                                   "# File: %1<br>"
-                                  "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
+                                  "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$")
                                   .arg(QFileInfo(excludedPartsFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
@@ -92,33 +90,52 @@ ExcludedParts::ExcludedParts()
                 if (comment == '#' || comment == ' ')
                     continue;
                 if (sLine.contains(rx)) {
-                    QString excludedPartID = rx.cap(1);
-                    excludedParts.append(excludedPartID.toLower().trimmed());
+                    Part excludedPart(rx.cap(1), rx.cap(2).toLower().startsWith("helper") ? EP_HELPER : EP_STANDARD);
+                    excludedParts.append(excludedPart);
                 }
             }
         }
     }
 }
 
-const bool &ExcludedParts::hasExcludedPart(QString part)
+const bool &ExcludedParts::isExcludedPart(QString part)
 {
-    if (excludedParts.contains(part.toLower().trimmed())) {
-        result = true;
-        return result;
-    } else {
-        result = false;
-        return result;
+    result = false;
+    for (Part &excludedPart : excludedParts) {
+        if (excludedPart.id.toLower() == part.toLower().trimmed()) {
+            result = true;
+            return result;
+        }
     }
+    return result;
+}
+
+const bool &ExcludedParts::isExcludedHelperPart(QString part)
+{
+    result = false;
+    for (Part &excludedPart : excludedParts) {
+        if (excludedPart.id.toLower() == part.toLower().trimmed()) {
+            result = excludedPart.type == EP_HELPER;
+            return result;
+        }
+    }
+    return result;
 }
 
 const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
 {
+    result = false;
     QString part;
     QStringList tt = line.split(" ", SkipEmptyParts);
-    for (int t = 14; t < tt.size(); t++) // treat spaces
+
+    if (tt.size() < 15)
+        return result;
+
+    for (int t = 14; t < tt.size(); t++) // treat parts with spaces in the name
         part += (tt[t]+" ");
 
-    return hasExcludedPart(part);
+    result = isExcludedPart(part.replace(QRegExp("[\"']"),""));
+    return result;
 }
 
 void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
@@ -143,74 +160,54 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
 
 # The Regular Expression used is: ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
 
-# 1. Part ID:          LDraw Part Name                               (Required)
-# 2. Part Description: LDraw Part Description - for reference only   (Optional)
+# 1. Part ID:          LDraw Part Name          (Required)
+# 2. Part Description: LDraw Part Description - (Required)
 */
-    const char LEGOExcludedPartsList[] = {
-        "arrow80.dat       helper arrow 08\n"
-        "arrow88.dat       helper arrow 88\n"
-        "arrow108.dat      helper arrow 108\n"
-        "Har025.dat        helper Har025\n"
-        "Har050.dat        helper Har050\n"
-        "Har075.dat        helper Har075\n"
-        "HashL2.dat        helper HashL2\n"
-        "HashL3.dat        helper HashL3\n"
-        "HashL4.dat        helper HashL4\n"
-        "HashL5.dat        helper HashL5\n"
-        "HashL6.dat        helper HashL6\n"
-        "HasvL1.dat        helper HasvL1\n"
-        "HasvL2.dat        helper HasvL2\n"
-        "HasvL3.dat        helper HasvL3\n"
-        "HasvL4.dat        helper HasvL4\n"
-        "HasvL5.dat        helper HasvL5\n"
-        "HasvL6.dat        helper HasvL6\n"
-        "HdshL2.dat        helper HdshL2\n"
-        "HdshL3.dat        helper HdshL3\n"
-        "HdshL4.dat        helper HdshL4\n"
-        "HdshL5.dat        helper HdshL5\n"
-        "HdshL6.dat        helper HdshL6\n"
-        "HdsvL1.dat        helper HdsvL1\n"
-        "HdsvL2.dat        helper HdsvL2\n"
-        "HdsvL3.dat        helper HdsvL3\n"
-        "HdsvL4.dat        helper HdsvL4\n"
-        "HdsvL5.dat        helper HdsvL5\n"
-        "HdsvL6.dat        helper HdsvL6\n"
-        "Her.dat           helper Her\n"
-        "Hn0.dat           helper Hn0\n"
-        "Hn1.dat           helper Hn1\n"
-        "Hn2.dat           helper Hn2\n"
-        "Hn3.dat           helper Hn3\n"
-        "Hn4.dat           helper Hn4\n"
-        "Hn5.dat           helper Hn5\n"
-        "Hn6.dat           helper Hn6\n"
-        "Hn7.dat           helper Hn7\n"
-        "Hn8.dat           helper Hn8\n"
-        "Hn9.dat           helper Hn9\n"
-        "Mark-Cross.dat    helper Mark-Cross\n"
-        "Mark-Tick.dat     helper Mark-Tick\n"
-    };
-    const char TENTEExcludedPartsList[] = {
-         "no excluded part defined\n"
-    };
-
-    const char VEXIQExcludedPartsList[] = {
-         "no excluded part defined\n"
-    };
-
     const char ExcludedPartsList[] = {
-        "no excluded part defined\n"
+        "arrow80.dat       Helper arrow 08\n"
+        "arrow88.dat       Helper arrow 88\n"
+        "arrow108.dat      Helper arrow 108\n"
+        "Har025.dat        Helper Har025\n"
+        "Har050.dat        Helper Har050\n"
+        "Har075.dat        Helper Har075\n"
+        "HashL2.dat        Helper HashL2\n"
+        "HashL3.dat        Helper HashL3\n"
+        "HashL4.dat        Helper HashL4\n"
+        "HashL5.dat        Helper HashL5\n"
+        "HashL6.dat        Helper HashL6\n"
+        "HasvL1.dat        Helper HasvL1\n"
+        "HasvL2.dat        Helper HasvL2\n"
+        "HasvL3.dat        Helper HasvL3\n"
+        "HasvL4.dat        Helper HasvL4\n"
+        "HasvL5.dat        Helper HasvL5\n"
+        "HasvL6.dat        Helper HasvL6\n"
+        "HdshL2.dat        Helper HdshL2\n"
+        "HdshL3.dat        Helper HdshL3\n"
+        "HdshL4.dat        Helper HdshL4\n"
+        "HdshL5.dat        Helper HdshL5\n"
+        "HdshL6.dat        Helper HdshL6\n"
+        "HdsvL1.dat        Helper HdsvL1\n"
+        "HdsvL2.dat        Helper HdsvL2\n"
+        "HdsvL3.dat        Helper HdsvL3\n"
+        "HdsvL4.dat        Helper HdsvL4\n"
+        "HdsvL5.dat        Helper HdsvL5\n"
+        "HdsvL6.dat        Helper HdsvL6\n"
+        "Her.dat           Helper Her\n"
+        "Hn0.dat           Helper Hn0\n"
+        "Hn1.dat           Helper Hn1\n"
+        "Hn2.dat           Helper Hn2\n"
+        "Hn3.dat           Helper Hn3\n"
+        "Hn4.dat           Helper Hn4\n"
+        "Hn5.dat           Helper Hn5\n"
+        "Hn6.dat           Helper Hn6\n"
+        "Hn7.dat           Helper Hn7\n"
+        "Hn8.dat           Helper Hn8\n"
+        "Hn9.dat           Helper Hn9\n"
+        "Mark-Cross.dat    Helper Mark-Cross\n"
+        "Mark-Tick.dat     Helper Mark-Tick\n"
     };
 
-    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
-        Buffer.append(LEGOExcludedPartsList, sizeof(LEGOExcludedPartsList));
-    else
-    if (Preferences::validLDrawLibrary == TENTE_LIBRARY)
-        Buffer.append(TENTEExcludedPartsList, sizeof(TENTEExcludedPartsList));
-    else
-    if (Preferences::validLDrawLibrary == VEXIQ_LIBRARY)
-        Buffer.append(VEXIQExcludedPartsList, sizeof(VEXIQExcludedPartsList));
-    else
-        Buffer.append(ExcludedPartsList, sizeof(ExcludedPartsList));
+    Buffer.append(ExcludedPartsList, sizeof(ExcludedPartsList));
 }
 
 
@@ -224,30 +221,31 @@ bool ExcludedParts::exportExcludedParts(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File: " << VER_EXCLUDED_PARTS_FILE << lpub_endl;
-        outstream << "# " << lpub_endl;
-        outstream << "# This list captures excluded parts to support accurate part count." << lpub_endl;
-        outstream << "# Excluded parts must be defined using the file name." << lpub_endl;
-        outstream << "# Parts on this list are excluded from the part count and PLI." << lpub_endl;
-        outstream << "# " << lpub_endl;
-        outstream << "# This file can be edited from LPub3D from:" << lpub_endl;
-        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Count Excluded Parts List" << lpub_endl;
-        outstream << "# " << lpub_endl;
-        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << lpub_endl;
-        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << lpub_endl;
-        outstream << "# If you wish to modify the file import, you can edit this regular expression." << lpub_endl;
-        outstream << "# It would be wise to backup the default entry before performing and update - copy" << lpub_endl;
-        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << lpub_endl;
-        outstream << "# " << lpub_endl;
-        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << lpub_endl;
+        outstream << QMessageBox::tr("# File: ") << VER_EXCLUDED_PARTS_FILE << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << QMessageBox::tr("# This list captures excluded parts to support accurate part count.") << lpub_endl;
+        outstream << QMessageBox::tr("# Excluded parts must be defined using the file name.") << lpub_endl;
+        outstream << QMessageBox::tr("# Parts on this list are excluded from the part count and PLI.") << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << QMessageBox::tr("# This file can be edited from LPub3D from:") << lpub_endl;
+        outstream << QMessageBox::tr("#    Configuration=>Edit Parameter Files=>Edit Part Count Excluded Parts List") << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << QMessageBox::tr("# LPub3D will attempt to load the regular expression below first, if the") << lpub_endl;
+        outstream << QMessageBox::tr("# load fails, LPub3D will load the hard-coded (default) regular expression.") << lpub_endl;
+        outstream << QMessageBox::tr("# If you wish to modify the file import, you can edit this regular expression.") << lpub_endl;
+        outstream << QMessageBox::tr("# It would be wise to backup the default entry before performing and update - copy") << lpub_endl;
+        outstream << QMessageBox::tr("# and paste to a new line with starting phrase other than 'The Regular Expression...'") << lpub_endl;
+        outstream << "#" << lpub_endl;
+        outstream << QMessageBox::tr("# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$") << lpub_endl;
         outstream << "#" << lpub_endl;
         outstream << "#" << lpub_endl;
-        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << lpub_endl;
-        outstream << "# 2. Part Description: LDraw Part Description - for reference only   (Optional)" << lpub_endl;
-        outstream << "#" << lpub_endl;
-        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << lpub_endl;
-        outstream << "#" << lpub_endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << lpub_endl;
+        outstream << QMessageBox::tr("# 1. Part ID:          LDraw Part Name        (Required)") << lpub_endl;
+        outstream << QMessageBox::tr("# 2. Part Description: LDraw Part Description (Required)") << lpub_endl;
+        outstream << QMessageBox::tr("#") << lpub_endl;
+        outstream << QMessageBox::tr("# For Helper Parts, be sure the start the description with the keyword Helper.") << lpub_endl;
+        outstream << QMessageBox::tr("# When adding a Part Description, be sure to replace double quotes \" with '.") << lpub_endl;
+        outstream << QMessageBox::tr("#") << lpub_endl;
+        outstream << QMessageBox::tr("# ----------------------Do not delete above this line----------------------------------") << lpub_endl;
         outstream << "#" << lpub_endl;
 
         QByteArray Buffer;

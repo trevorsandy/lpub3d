@@ -1046,7 +1046,7 @@ bool EditWindow::setValidPartLine()
         // we have a partType that is not in the PLI so check if it is an excluded part
         else
             // if the partType is not excluded, likely is being substituted - this check is not 100%
-            isSubstituteAlt = !ExcludedParts::hasExcludedPart(partType);
+            isSubstituteAlt = !ExcludedParts::isExcludedPart(partType);
     }
 
     partType = partType.trimmed();

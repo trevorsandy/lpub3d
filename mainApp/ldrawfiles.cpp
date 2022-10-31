@@ -2778,7 +2778,7 @@ void LDrawFile::countParts(const QString &fileName) {
                 else if (isSubstitute(line, type))
                     countThisLine = !type.isEmpty();
 
-                bool partIncluded = !ExcludedParts::hasExcludedPart(type);
+                bool partIncluded = !ExcludedParts::isExcludedPart(type);
 
                 if (countThisLine && lineIncluded && partIncluded) {
                     QString partString = "|" + type + "|";

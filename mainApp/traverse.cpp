@@ -809,7 +809,7 @@ int Gui::drawPage(
 
           /* check if part is on excludedPart.lst and set pliIgnore*/
 
-          if (ExcludedParts::hasExcludedPart(type))
+          if (ExcludedParts::isExcludedPart(type))
               pliIgnore = true;
 
           /* addition of ldraw parts */
@@ -2792,7 +2792,7 @@ int Gui::drawPage(
       }
       /* if part is on excludedPart.lst, unset pliIgnore if still set */
       if (pliIgnore && tokens[0] == "1" &&
-          ExcludedParts::hasExcludedPart(tokens[tokens.size()-1])) {
+          ExcludedParts::isExcludedPart(tokens[tokens.size()-1])) {
           pliIgnore = false;
       }
     } // for every line

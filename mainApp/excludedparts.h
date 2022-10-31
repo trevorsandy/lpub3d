@@ -16,20 +16,30 @@
 #define EXCLUDEDPARTS_H
 
 #include <QString>
-#include <QStringList>
 
 class ExcludedParts
 {
   private:
-    static bool     				result;
-    static QString     				empty;
-    static QList<QString>           excludedParts;
+    enum Type {
+        EP_STANDARD,
+        EP_HELPER
+    };
+    struct Part {
+        QString id;
+        Type type;
+        Part() : type(EP_STANDARD) {}
+        Part(const QString _id, const Type _type) :
+            id(_id), type(_type) {}
+    };
+    static bool result;
+    static QList<Part> excludedParts;
   public:
     ExcludedParts();
     static void loadExcludedParts(QByteArray &Buffer);
     static bool exportExcludedParts();
     static bool overwriteFile(const QString &file);
-    static const bool &hasExcludedPart(QString part);
+    static const bool &isExcludedPart(QString part);
+    static const bool &isExcludedHelperPart(QString part);
     static const bool &lineHasExcludedPart(const QString &line);
 };
 
