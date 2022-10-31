@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Jun 25, 2022
+# Last Update Oct 12, 2022
 # Copyright (C) 2016 - 2022 by Trevor SANDY
 #
 # This script is automatically executed by qmake from mainApp.pro
@@ -253,7 +253,7 @@ fi
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 [ -z "$LP3D_NO_CONFIG_DISPLAY" ] && \
 Info "3. update RELEASE_NOTES   - build version         [$FILE]" || :
-LineToReplace=12
+LineToReplace=19
 StringToReplace="      <h4><a id=\"LPub3D_0\"></a>LPub3D ${LP3D_BUILD_VERSION}</h4>"
 if [ -f ${FILE} -a -r ${FILE} ]
 then

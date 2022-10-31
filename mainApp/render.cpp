@@ -3134,6 +3134,25 @@ float Render::ViewerCameraDistance(
 
 bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/) {
 
+    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
+
+    if (!ActiveModel) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active model."));
+        return false;
+    }
+
+    lcView* ActiveView = nullptr;
+
+    if (!RenderImage) {
+        ActiveView = gui->GetActiveView();
+        if (!ActiveView) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to set active view."));
+            return false;
+        }
+        gui->enableApplyLightAction();
+        gui->GetPartSelectionWidget()->SetDefaultPart();
+    }
+
     lcGetActiveProject()->SetRenderAttributes(
                 O->ImageType,
                 O->ImageWidth,
@@ -3144,115 +3163,102 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                 O->ImageFileName,
                 O->Resolution);
 
-    lcModel* ActiveModel = lcGetActiveProject()->GetMainModel();
-
-    if (!ActiveModel) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to retrieve active model."));
-        return false;
-    }
-
-    lcView* ActiveView = nullptr;
-
-    if (RenderImage) {
-        ActiveView = new lcView(lcViewType::View, ActiveModel);
-    } else {
-        gui->enableApplyLightAction();
-        gui->GetPartSelectionWidget()->SetDefaultPart();
-
-        ActiveView = gui->GetActiveView();
-    }
-
-    if (!ActiveView) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to set active view."));
-        return false;
-    }
-
     const lcPreferences& Preferences = lcGetPreferences();
 
     lcCamera* Camera = nullptr;
+    lcViewpoint Viewpoint = lcViewpoint::Count;
 
     bool ZoomExtents    = O->ZoomExtents;
     bool DefaultCamera  = O->CameraName.isEmpty();
     bool IsOrtho        = DefaultCamera ? Preferences.mNativeProjection : O->IsOrtho;
-    bool UsingViewpoint = Preferences.mNativeViewpoint <= 6;
+    bool UsingViewpoint = Preferences.mNativeViewpoint < static_cast<int>(Viewpoint);
     bool SetTarget      = O->Target.isPopulated();
 
-    if (ActiveView) {
-        if (DefaultCamera)
-            Camera = ActiveView->GetCamera();
-        else
-            Camera = new lcCamera(false);
+    if (DefaultCamera && ActiveView)
+        Camera = ActiveView->GetCamera();
+    else
+        Camera = new lcCamera(false);
 
-        if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+    if (UsingViewpoint)
+    { // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
-            lcViewpoint Viewpoint = lcViewpoint(Preferences.mNativeViewpoint);
-            if (!RenderImage)
-                ActiveView->SetViewpoint(Viewpoint);
-            else
-                Camera->SetViewpoint(Viewpoint);
+        Viewpoint = lcViewpoint(Preferences.mNativeViewpoint);
+        if (!RenderImage && ActiveView)
+            ActiveView->SetViewpoint(Viewpoint);
+        else {
+            Camera->SetViewpoint(Viewpoint);
+        }
 
-        } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
-            if (Preferences::preferredRenderer == RENDERER_NATIVE) {
-                Camera->m_fovy = O->FoV;
-            } else {
-                const float defaultFov = Preferences::preferredRenderer == RENDERER_LDVIEW &&
-                                         Preferences::perspectiveProjection ?
-                                         CAMERA_FOV_LDVIEW_P_DEFAULT :
-                                         CAMERA_FOV_DEFAULT;
-                Camera->m_fovy = O->FoV + Camera->m_fovy - defaultFov;
-            }
+    } // ViewPoints
+    else
+    { // Default View (Angles + Distance + Perspective|Orthographic)
 
-            if (SetTarget) {
-                if (Camera->m_zNear != O->ZNear)
-                    Camera->m_zNear = O->ZNear;
+        if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+            Camera->m_fovy = O->FoV;
+        } else {
+            const float defaultFov = Preferences::preferredRenderer == RENDERER_LDVIEW &&
+                                     Preferences::perspectiveProjection ?
+                                     CAMERA_FOV_LDVIEW_P_DEFAULT :
+                                     CAMERA_FOV_DEFAULT;
+            Camera->m_fovy = O->FoV + Camera->m_fovy - defaultFov;
+        }
 
-                if (Camera->m_zFar != O->ZFar)
-                    Camera->m_zFar = O->ZFar;
+        if (SetTarget) {
+            if (Camera->m_zNear != O->ZNear)
+                Camera->m_zNear = O->ZNear;
 
-                if (O->Position.isPopulated())
-                    Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
+            if (Camera->m_zFar != O->ZFar)
+                Camera->m_zFar = O->ZFar;
 
-                if (O->UpVector.isPopulated())
-                    Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
+            if (O->Position.isPopulated())
+                Camera->mPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Position.x, O->Position.y, O->Position.z));
 
-                // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
-                Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
-            }
+            if (O->UpVector.isPopulated())
+                Camera->mUpVector = lcVector3LDrawToLeoCAD(lcVector3(O->UpVector.x, O->UpVector.y, O->UpVector.z));
 
-            Camera->UpdatePosition(1);
+            // Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
+            Camera->mTargetPosition = lcVector3LDrawToLeoCAD(lcVector3(O->Target.x, O->Target.y, O->Target.z));
+        }
 
-            if (!DefaultCamera) {
-                for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
-                    QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
-                    if (Name == O->CameraName) {
-                        ActiveModel->RemoveCameraIndex(CameraIdx);
-                        const QStringList keys = O->ViewerStepKey.split(";");
-                        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Camera name %1%2 was replaced.")
-                                             .arg(O->CameraName).arg(keys.size() > 2 ? QString(" in step %1 of model %2").arg(keys.at(2)).arg(keys.at(0)) : ""));
-                    }
-                    else
-                        CameraIdx++;
+        Camera->UpdatePosition(1);
+
+        if (!DefaultCamera) {
+            for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); ) {
+                QString Name = ActiveModel->GetCameras()[CameraIdx]->GetName();
+                if (Name == O->CameraName) {
+                    ActiveModel->RemoveCameraIndex(CameraIdx);
+                    const QStringList keys = O->ViewerStepKey.split(";");
+                    emit gui->messageSig(LOG_NOTICE, QObject::tr("Camera name %1%2 was replaced.")
+                                         .arg(O->CameraName)
+                                         .arg(keys.size() > 2 ? QObject::tr(" in step %1 of model %2")
+                                                                            .arg(keys.at(2))
+                                                                            .arg(keys.at(0)) : ""));
                 }
+                else
+                    CameraIdx++;
+            }
 
-                Camera->SetName(O->CameraName);
-                Camera->SetSelected(true);
+            Camera->SetName(O->CameraName);
+            Camera->SetSelected(true);
 
-                ActiveModel->AddCamera(Camera);
+            ActiveModel->AddCamera(Camera);
+            if (!RenderImage && ActiveView)
                 ActiveView->SetCamera(O->CameraName);
-            }
+        }
 
-            if (!RenderImage) {
-                if (!ZoomExtents) {
-                    int PreferedZoomExtents = Preferences.mZoomExtents;
-                    if (PreferedZoomExtents)
-                        ZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
-                }
+        if (!RenderImage) {
+            if (!ZoomExtents) {
+                int PreferedZoomExtents = Preferences.mZoomExtents;
+                if (PreferedZoomExtents)
+                    ZoomExtents = (PreferedZoomExtents == 1/*On Ortho*/ && IsOrtho) || PreferedZoomExtents == 2/*Always*/;
+            }
+            if (ActiveView) {
                 if (!SetTarget)
                     ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
                 ActiveView->SetProjection(IsOrtho);
             }
         }
-    } // ActiveView
+    } // Default View
 
     bool rc = true;
 
@@ -3263,17 +3269,19 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
                         O->ImageType == Options::PLI ? "PLI" :
                         O->ImageType == Options::SMP ? "SMP" : "MON";
 
-    // generate image
+    // Generate Image
     if (RenderImage) {
         UseImageSize = O->ImageWidth != O->PageWidth || O->ImageHeight != O->PageHeight;
         ImageWidth   = int(O->PageWidth);
         ImageHeight  = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
 
-        Camera->m_fovy = Camera->m_fovy + Preferences::nativeImageCameraFoVAdjust;
-        if (Camera->IsSimple())
-            Camera->SetOrtho(IsOrtho);
-        else
-            ActiveModel->SetCameraOrthographic(Camera, IsOrtho);
+        if (!UsingViewpoint) {
+            Camera->m_fovy = Camera->m_fovy + Preferences::nativeImageCameraFoVAdjust;
+            if (Camera->IsSimple())
+                Camera->SetOrtho(IsOrtho);
+            else
+                ActiveModel->SetCameraOrthographic(Camera, IsOrtho);
+        }
 
         const lcStep CurrentStep = ActiveModel->GetCurrentStep();
         const lcStep ImageStep   = ActiveModel->GetLastStep();
@@ -3282,6 +3290,9 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
         ImageView.SetCamera(Camera, true);
         ImageView.SetOffscreenContext();
         ImageView.MakeCurrent();
+
+        if (!SetTarget && !UsingViewpoint)
+            ImageView.SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
 
         if ((rc = ImageView.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
@@ -3293,9 +3304,6 @@ bool Render::RenderNativeView(const NativeOptions *O, bool RenderImage/*false*/)
             NativeImage Image;
 
             ActiveModel->SetTemporaryStep(ImageStep);
-
-            if (!SetTarget)
-                ImageView.SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Camera->mTargetPosition, ZoomExtents);
 
             ImageView.OnDraw();
 

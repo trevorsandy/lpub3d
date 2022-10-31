@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 03, 2021
+rem  Last Update: Oct 12, 2022
 rem  Copyright (C) 2015 - 2022 by Trevor SANDY
 rem --
 rem --
@@ -26,9 +26,10 @@ IF [%LP3D_BUILDS_DIR%] == [] (
   GOTO :FATAL_ERROR
 )
 
+rem Line number to replace
 SET LINE_README_TXT=1
 SET LINE_README_MD_VER=61
-SET LINE_RELEASE_NOTES_HTM=12
+SET LINE_RELEASE_NOTES_HTM=19
 
 SET LP3D_GIT_DEPTH=150000
 SET LP3D_PAST_RELEASES=2.3.6,2.0.20,1.3.5,1.2.3,1.0.0
