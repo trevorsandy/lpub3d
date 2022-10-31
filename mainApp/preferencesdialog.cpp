@@ -1128,9 +1128,8 @@ void PreferencesDialog::on_autoUpdateChangeLogBox_clicked(bool checked)
 
 void PreferencesDialog::on_updateChangeLogBtn_clicked()
 {
-    //populate readme from the web
-    lpub->m_updater->setChangelogOnly(LPub::DEFS_URL, true);
-    lpub->m_updater->checkForUpdates( LPub::DEFS_URL);
+    //populate release notes from the web
+    lpub->m_updater->retrieveChangeLog( LPub::DEFS_URL);
 }
 
 void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
@@ -1816,7 +1815,6 @@ QString const PreferencesDialog::moduleVersion()
 }
 
 void PreferencesDialog::checkForUpdates () {
-    bool processing = true;
     auto processRequest = [&] ()
     {
         const QString htmlNotes = ui.changeLog_txbr->toHtml();
@@ -1850,16 +1848,12 @@ void PreferencesDialog::checkForUpdates () {
         }
 
         if (ui.changeLog_txbr->document()->isEmpty())
-                   ui.changeLog_txbr->setHtml(htmlNotes);
-
-        return processing = false;
+            ui.changeLog_txbr->setHtml(htmlNotes);
     };
 
     QElapsedTimer timer;
     timer.start();
-    processing = processRequest();
-    while (processing)
-        QApplication::processEvents();
+    processRequest();
     emit gui->messageSig(LOG_NOTICE, tr("Check for updates completed. %1")
                                         .arg(lpub->elapsedTime(timer.elapsed())));
 }

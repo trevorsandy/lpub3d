@@ -1429,11 +1429,10 @@ void LPub::setupChangeLogUpdate()
 
     // set release notes
     if (Preferences::autoUpdateChangeLog) {
-        //populate release notes object from the web
-        m_updater->setChangelogOnly(LPub::DEFS_URL, true);
-        m_updater->checkForUpdates (LPub::DEFS_URL);
+        //populate release notes from the web
+        m_updater->retrieveChangeLog(LPub::DEFS_URL);
     } else {
-        // populate release notes object from local file
+        // populate release notes from local file
         updateChangelog(QString());
     }
 }
@@ -1469,8 +1468,6 @@ void LPub::updateChangelog (const QString &url)
         }
     };
 
-    m_versionInfo = tr("Undefined");
-
     if (url == DEFS_URL)
         processRequest();
     else {
@@ -1494,4 +1491,7 @@ void LPub::updateChangelog (const QString &url)
             m_releaseNotesContent = QString::fromStdString(file.readAll().toStdString());
         }
     }
+
+    if (m_versionInfo.isEmpty())
+        m_versionInfo = tr("Undefined");
 }
