@@ -1783,8 +1783,10 @@ void lcApplication::ShowPreferencesDialog()
 					break;
 				}
 				logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
-				QSettings Settings;
-				Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+				if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+					QSettings Settings;
+					Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+				}
 			}
 		}
 	}

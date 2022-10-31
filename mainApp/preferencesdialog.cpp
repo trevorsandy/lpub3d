@@ -484,10 +484,12 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::setOptions(lcLibRenderOptions* Options)
 {
+    mSetOptions = true;
     mOptions = Options;
 
     // LcLib Preferences
     lcQPreferencesInit();
+    mSetOptions = false;
 }
 
 void PreferencesDialog::setRenderers()
@@ -993,10 +995,15 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
 
 void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
 {
+    if (mSetOptions)
+        return;
+
     bool applyCARenderer = ui.preferredRenderer->currentText() == rendererNames[RENDERER_LDVIEW] &&
                            currentText == "Perspective";
     ui.applyCALocallyRadio->setChecked(! applyCARenderer);
     ui.applyCARendererRadio->setChecked(applyCARenderer);
+
+    ui.ProjectionCombo->setCurrentIndex(ui.projectionCombo->currentIndex());
 }
 
 void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)

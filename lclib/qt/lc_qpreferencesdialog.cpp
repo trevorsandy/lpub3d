@@ -10,6 +10,14 @@
 #include "pieceinf.h"
 #include "lc_edgecolordialog.h"
 
+/*** LPub3D Mod - Native Renderer settings ***/
+#include "camera.h"
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Common menus help ***/
+#include "commonmenus.h"
+/*** LPub3D Mod end ***/
+
 static const char* gLanguageLocales[] =
 {
 	"", "cs_CZ", "de_DE", "en_US", "fr_FR", "pt_PT", "es_ES"
@@ -92,6 +100,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent)
 /*** LPub3D Mod - Load Preferences Dialog ***/
 void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 {
+	mSetOptions = true;
+
 	mOptions = Options;
 
 	ui->partsLibrary->setText(mOptions->LibraryPath);
@@ -295,6 +305,11 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 	SetButtonPixmap(mOptions->Preferences.mBMObjectSelectedColor, ui->BMObjectSelectedColorButton);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Native Renderer settings ***/
+	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
+	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
+/*** LPub3D Mod end ***/
+
 	on_studStyleCombo_currentIndexChanged(ui->studStyleCombo->currentIndex());
 	on_antiAliasing_toggled();
 	on_AutomateEdgeColor_toggled();
@@ -357,11 +372,6 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 	connect(ui->resetFarPlane, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Native Renderer settings ***/
-	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
-	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - Timeline part icons ***/
 	bool preferredIcons = mOptions->Preferences.mViewPieceIcons;
 	ui->viewPieceIconsRadio->setChecked(preferredIcons);
@@ -391,6 +401,7 @@ void lcQPreferencesDialog::setOptions(lcPreferencesDialogOptions* Options)
 	ui->lgeoPath->setPalette(readOnlyPalette);
 /*** LPub3D Mod end ***/
 
+	mSetOptions = false;
 }
 /*** LPub3D Mod end ***/
 
@@ -1640,8 +1651,17 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 /*** LPub3D Mod - Native Renderer settings ***/
 void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
-	if (index <=6)
-		ui->ProjectionCombo->setCurrentIndex(2); // Default
+	if (index < static_cast<int>(lcViewpoint::Count))
+		ui->ProjectionCombo->setCurrentIndex(2/*Default*/);
+}
+
+void lcQPreferencesDialog::on_ProjectionCombo_currentIndexChanged(int index)
+{
+	if (mSetOptions)
+		return;
+
+	if (index < 2/*Default*/)
+		ui->ViewpointsCombo->setCurrentIndex(static_cast<int>(lcViewpoint::Count));
 }
 /*** LPub3D Mod end ***/
 

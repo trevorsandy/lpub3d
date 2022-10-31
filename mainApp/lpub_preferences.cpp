@@ -3856,7 +3856,6 @@ void Preferences::userInterfacePreferences()
         if(findProcess.waitForFinished()) {
           systemEditor = findProcess.readAll().split(windows ? '\r\n' : '\n').first().trimmed();
           systemEditorInfo.setFile(systemEditor);
-          found = systemEditorInfo.exists();
         }
       }
       if ((found = systemEditorInfo.isFile())) {
@@ -4807,6 +4806,7 @@ bool Preferences::getPreferences()
         box.setStandardButtons (QMessageBox::Ok);
 
         bool ldrawPathChanged     = false;
+        bool PerspectiveProjectionChanged = false;
 
         QSettings Settings;
 
@@ -5513,12 +5513,13 @@ bool Preferences::getPreferences()
 
         if ((reloadFile |= perspectiveProjection != dialog->perspectiveProjection()))
         {
+            PerspectiveProjectionChanged = true;
             perspectiveProjection = dialog->perspectiveProjection();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
 
-            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
+            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1); /*0,1 refers to is Orthographic*/
 
-            gApplication->mPreferences.LoadDefaults();
+            gApplication->mPreferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 
             emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Projection set to %1")
                                   .arg(perspectiveProjection ? "Perspective" : "Orthographic"));
@@ -5658,8 +5659,10 @@ bool Preferences::getPreferences()
             lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, Options.Preferences.mNativeViewpoint);
 
         bool NativeProjectionChanged = false;
-        if ((NativeProjectionChanged = Options.Preferences.mNativeProjection != gApplication->mPreferences.mNativeProjection))
-            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Options.Preferences.mNativeProjection);
+        if (!PerspectiveProjectionChanged) {
+            if ((NativeProjectionChanged = Options.Preferences.mNativeProjection != gApplication->mPreferences.mNativeProjection))
+                lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Options.Preferences.mNativeProjection);
+        }
 
         bool LPubTrueFadeChanged = false;
         if ((LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != gApplication->mPreferences.mLPubTrueFade))
@@ -5821,7 +5824,9 @@ bool Preferences::getPreferences()
                         break;
                     }
 
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+                    if (preferredRenderer == RENDERER_NATIVE) {
+                        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+                    }
 
                     emit lpub->messageSig(LOG_INFO,QMessageBox::tr("Native Projection changed to '%1'.")
                                           .arg(Projection.toUpper()));

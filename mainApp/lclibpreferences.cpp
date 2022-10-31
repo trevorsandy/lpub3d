@@ -18,6 +18,7 @@
 #include "lc_library.h"
 #include "lc_glextensions.h"
 #include "lc_edgecolordialog.h"
+#include "camera.h"
 
 void PreferencesDialog::lcQPreferencesInit()
 {
@@ -67,8 +68,8 @@ void PreferencesDialog::lcQPreferencesInit()
     ui.FadeSteps->setChecked(mOptions->Preferences.mFadeSteps);
     ui.HighlightNewParts->setChecked(mOptions->Preferences.mHighlightNewParts);
     ui.AutomateEdgeColor->setChecked(mOptions->Preferences.mAutomateEdgeColor);
-    ui.ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
     ui.ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
+    ui.ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
     ui.LPubTrueFade->setChecked(mOptions->Preferences.mLPubTrueFade);
     ui.ZoomExtentCombo->setCurrentIndex(mOptions->Preferences.mZoomExtents);
 
@@ -220,8 +221,22 @@ void PreferencesDialog::on_AutomateEdgeColor_toggled()
 
 void PreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
-    if (index <=6)
-        ui.ProjectionCombo->setCurrentIndex(2); // Default
+    if (index < static_cast<int>(lcViewpoint::Count))
+        ui.ProjectionCombo->setCurrentIndex(2/*Default*/);
+}
+
+void PreferencesDialog::on_ProjectionCombo_currentIndexChanged(int index)
+{
+    if (mSetOptions)
+        return;
+
+    if (ui.preferredRenderer->currentText() == rendererNames[RENDERER_NATIVE]) {
+        const int currentIndex = index == 2 /*Default*/ ? 0 /*Perspective*/ : index;
+        ui.projectionCombo->setCurrentIndex(currentIndex);
+    }
+    if (index < 2/*Default*/) {
+        ui.ViewpointsCombo->setCurrentIndex(static_cast<int>(lcViewpoint::Count));
+    }
 }
 
 void PreferencesDialog::on_cameraDefaultDistanceFactor_valueChanged(double value)

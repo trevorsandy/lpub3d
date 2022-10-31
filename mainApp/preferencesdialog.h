@@ -241,6 +241,7 @@ class PreferencesDialog : public QDialog
     void on_HighlightNewParts_toggled();
     void on_AutomateEdgeColor_toggled();
     void on_ViewpointsCombo_currentIndexChanged(int index);
+    void on_ProjectionCombo_currentIndexChanged(int index);
     void on_cameraDefaultDistanceFactor_valueChanged(double value);
     void on_cameraDefaultPosition_valueChanged(double value);
 
@@ -306,6 +307,7 @@ private:
 
     // LcLib Preferences
     lcLibRenderOptions* mOptions;
+    bool mSetOptions;
 
     float mLineWidthRange[2];
     float mLineWidthGranularity;

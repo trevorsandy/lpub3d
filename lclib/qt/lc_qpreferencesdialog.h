@@ -122,6 +122,7 @@ public slots:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native Renderer settings ***/
 	void on_ViewpointsCombo_currentIndexChanged(int index);
+	void on_ProjectionCombo_currentIndexChanged(int index);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Reset theme colors ***/
 	void on_ResetColorsButton_clicked();
@@ -148,4 +149,7 @@ private:
 	float mLineWidthRange[2];
 	float mLineWidthGranularity;
 	static constexpr float mMeshLODMultiplier = 25.0f;
+/*** LPub3D Mod - Load Preferences Dialog ***/
+	bool mSetOptions;
+/*** LPub3D Mod end ***/
 };
