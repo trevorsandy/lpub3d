@@ -200,23 +200,7 @@ FOR %%R IN (%PKG_LOG_FILE%) DO (
   )
 )
 
-ECHO.
-ECHO   Build checks cleanup...
-IF EXIST %PKG_RUNLOG% (
-  ECHO.
-  ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log'...
-  IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
-  COPY /V /Y "%PKG_RUNLOG%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | findstr /i /v /r /c:"copied\>"
-) ELSE (
-  ECHO.
-  ECHO -[WARNING] Could not find %PKG_RUNLOG%.
-)
-RMDIR /S /Q %PKG_TARGET_DIR%\cache
-RMDIR /S /Q %PKG_TARGET_DIR%\logs
-RMDIR /S /Q %PKG_TARGET_DIR%\config
-RMDIR /S /Q %PKG_TARGET_DIR%\libraries
-RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
-RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
+CALL :CLEANUP_CHECK_FOLDERS
 
 SET /P PKG_CHECK_PASS=<%TEMP%\$\%PKG_CHECK_PASS_IN%
 SET /P PKG_CHECKS_PASS=<%TEMP%\$\%PKG_CHECKS_PASS_IN%
@@ -320,6 +304,30 @@ IF %PKG_ZIP_UTILITY% == 1 (
   IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% >NUL 2>&1 )
   7z.exe a -tzip %PKG_RUNLOG_DIR%\%PKG_CHECK_ASSETS% %PKG_CHECK_PATH%\ | findstr /i /r /c:"^Creating\>" /c:"^Everything\>"
 )
+EXIT /b
+
+:CLEANUP_CHECK_FOLDERS
+ECHO.
+IF [%SKIP_CLEANUP_CHECK_FOLDERS%] NEQ [] (
+  ECHO Skipping checks cleanup.
+  EXIT /b
+)
+ECHO   Build checks cleanup...
+IF EXIST %PKG_RUNLOG% (
+  ECHO.
+  ECHO   Copying %PKG_DISTRO_DIR%_Run.log to log assets '%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log'...
+  IF NOT EXIST %PKG_RUNLOG_DIR% ( MKDIR %PKG_RUNLOG_DIR% )
+  COPY /V /Y "%PKG_RUNLOG%" "%PKG_RUNLOG_DIR%\%PKG_DISTRO_DIR%_Run.log" /A | findstr /i /v /r /c:"copied\>"
+) ELSE (
+  ECHO.
+  ECHO -[WARNING] Could not find %PKG_RUNLOG%.
+)
+RMDIR /S /Q %PKG_TARGET_DIR%\cache
+RMDIR /S /Q %PKG_TARGET_DIR%\logs
+RMDIR /S /Q %PKG_TARGET_DIR%\config
+RMDIR /S /Q %PKG_TARGET_DIR%\libraries
+RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
+RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
 EXIT /b
 
 :CLEANUP_CHECK_OUTPUT

@@ -8,8 +8,9 @@ rem  Copyright (C) 2017 - 2022 by Trevor SANDY
 
 rem  To Run:
 rem  1. Launch command prompt at root folder or this script folder.
-rem  2. Set debug configuration as appropriate: SET CONFIGURATION=Debug
-rem  3. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
+rem  2. Set skip cleanup if desired: SET CLEANUP_CHECK_FOLDERS=1, unset to enable
+rem  3. Set debug configuration as appropriate: SET CONFIGURATION=Debug
+rem  4. RunBuildCheck.bat x86 | builds\windows\RunBuildCheck.bat x86
 
 CALL :ELAPSED_BUILD_TIME Start
 
