@@ -4939,8 +4939,9 @@ void Gui::pagesCounted()
                 }
             } // modeGUI and not exporting
         } else if (! ContinuousPage()) {
-            emit messageSig(LOG_INFO_STATUS,tr("Page %1 loaded. %2.")
-                            .arg(displayPageNum)
+            emit messageSig(LOG_INFO_STATUS,tr("Page %1 %2. %3.")
+                            .arg(exporting() && displayPageNum < maxPages ? displayPageNum + 1 : displayPageNum)
+                            .arg(exporting() ? tr("exported") : tr("loaded"))
                             .arg(gui->elapsedTime(timer.elapsed())));
         }
 
