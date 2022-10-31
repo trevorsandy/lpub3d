@@ -2937,12 +2937,15 @@ public:
   Vector3Meta          position;
   Vector3Meta          upvector;
 
+  void resetCameraFoV();
+
   SettingsMeta();
   SettingsMeta(const SettingsMeta &rhs) : BranchMeta(rhs)
   {
   }
 
 //  virtual ~SettingsMeta() {}
+
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3621,6 +3624,8 @@ public:
 
   RotStepMeta          rotStep;
 
+  void resetCameraFoV();
+
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
   {
@@ -3663,6 +3668,8 @@ public:
   Vector3Meta          target;
   Vector3Meta          position;
   Vector3Meta          upvector;
+
+  void resetCameraFoV();
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)
@@ -3922,6 +3929,7 @@ public:
       Preferences::showSubmodelInCallout = showSubmodelInCallout.value();
       Preferences::showInstanceCount     = showInstanceCount.value();
   }
+
   SubModelMeta();
   SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)
   {
@@ -3994,6 +4002,8 @@ public:
   RcMeta               piece;
   RcMeta               camera;
   RcMeta               synth;
+
+  void resetCamerasFoV();
 
   LPubMeta();
 //  virtual ~LPubMeta() {}

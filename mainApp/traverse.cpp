@@ -1120,36 +1120,43 @@ int Gui::drawPage(
 
             case PreferredRendererRc:
               curMeta.LPub.preferredRenderer.setPreferences();
+              curMeta.LPub.resetCamerasFoV();
               break;
 
             case PreferredRendererAssemRc:
               curMeta.LPub.assem.preferredRenderer.setPreferences();
+              curMeta.LPub.assem.resetCameraFoV();
               if (step)
                   step->csiStepMeta.preferredRenderer = curMeta.LPub.assem.preferredRenderer;
               break;
 
             case PreferredRendererCalloutAssemRc:
               curMeta.LPub.callout.csi.preferredRenderer.setPreferences();
+              curMeta.LPub.callout.csi.resetCameraFoV();
               if (step)
                   step->csiStepMeta.preferredRenderer = curMeta.LPub.callout.csi.preferredRenderer;
               break;
 
             case PreferredRendererGroupAssemRc:
               curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences();
+              curMeta.LPub.multiStep.csi.resetCameraFoV();
               if (step)
                   step->csiStepMeta.preferredRenderer = curMeta.LPub.multiStep.csi.preferredRenderer;
               break;
 
             case PreferredRendererSubModelRc:
               curMeta.LPub.subModel.preferredRenderer.setPreferences();
+              curMeta.LPub.subModel.resetCameraFoV();
               break;
 
             case PreferredRendererPliRc:
               curMeta.LPub.pli.preferredRenderer.setPreferences();
+              curMeta.LPub.pli.resetCameraFoV();
               break;
 
             case PreferredRendererBomRc:
               curMeta.LPub.bom.preferredRenderer.setPreferences();
+              curMeta.LPub.bom.resetCameraFoV();
               break;
 
             case EnableFadeStepsCalloutAssemRc:
@@ -2679,18 +2686,25 @@ int Gui::drawPage(
                       else if (curMeta.LPub.assem.highlightStep.enable.pushed)
                           curMeta.LPub.assem.highlightStep.setPreferences(reset);
                       // reset local preferred renderer
-                      if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local)
+                      if (curMeta.LPub.callout.csi.preferredRenderer.pushed == local) {
                           curMeta.LPub.callout.csi.preferredRenderer.setPreferences(reset);
-                      else if (curMeta.LPub.multiStep.csi.preferredRenderer.pushed == local)
+                          curMeta.LPub.callout.csi.resetCameraFoV();
+                      } else if (curMeta.LPub.multiStep.csi.preferredRenderer.pushed == local) {
                           curMeta.LPub.multiStep.csi.preferredRenderer.setPreferences(reset);
-                      else if (curMeta.LPub.assem.preferredRenderer.pushed == local)
+                          curMeta.LPub.multiStep.csi.resetCameraFoV();
+                      } else if (curMeta.LPub.assem.preferredRenderer.pushed == local) {
                           curMeta.LPub.assem.preferredRenderer.setPreferences(reset);
-                      else if (curMeta.LPub.subModel.preferredRenderer.pushed == local)
+                          curMeta.LPub.assem.resetCameraFoV();
+                      } else if (curMeta.LPub.subModel.preferredRenderer.pushed == local) {
                           curMeta.LPub.subModel.preferredRenderer.setPreferences(reset);
-                      else if (curMeta.LPub.pli.preferredRenderer.pushed == local)
+                          curMeta.LPub.subModel.resetCameraFoV();
+                      } else if (curMeta.LPub.pli.preferredRenderer.pushed == local) {
                           curMeta.LPub.pli.preferredRenderer.setPreferences(reset);
-                      else if (curMeta.LPub.bom.preferredRenderer.pushed == local)
+                          curMeta.LPub.pli.resetCameraFoV();
+                      } else if (curMeta.LPub.bom.preferredRenderer.pushed == local) {
                           curMeta.LPub.bom.preferredRenderer.setPreferences(reset);
+                          curMeta.LPub.bom.resetCameraFoV();
+                      }
 
                       steps->meta.pop();
                       curMeta.LPub.buildMod.clear();

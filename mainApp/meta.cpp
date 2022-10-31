@@ -3810,6 +3810,14 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   upvector.init         (this,"CAMERA_UPVECTOR");
 }
 
+void SettingsMeta::resetCameraFoV()
+{
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+}
+
 /* ------------------ */ 
 
 CalloutPliMeta::CalloutPliMeta() : BranchMeta()
@@ -5526,6 +5534,14 @@ AssemMeta::AssemMeta() : BranchMeta()
   imageSize.setValues(0.0f,0.0f);
 }
 
+void AssemMeta::resetCameraFoV()
+{
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
+}
+
 void AssemMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
@@ -5689,6 +5705,14 @@ void PliMeta::init(BranchMeta *parent, QString name)
   isOrtho         .init(this,"CAMERA_ORTHOGRAPHIC");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
   preferredRenderer .init(this,"PREFERRED_RENDERER");
+}
+
+void PliMeta::resetCameraFoV()
+{
+  cameraFoV.setRange(Gui::getDefaultFOVMinRange(), Gui::getDefaultFOVMaxRange());
+  cameraFoV.setValue(Gui::getDefaultCameraFoV());
+  cameraZNear.setValue(Gui::getDefaultNativeCameraZNear());
+  cameraZFar.setValue(Gui::getDefaultNativeCameraZFar());
 }
 
 /* ------------------ */ 
@@ -6214,6 +6238,15 @@ LPubMeta::LPubMeta() : BranchMeta()
   // stepNumber - default
 }
 
+void LPubMeta::resetCamerasFoV()
+{
+  pli.resetCameraFoV();
+  assem.resetCameraFoV();
+  callout.csi.resetCameraFoV();
+  multiStep.csi.resetCameraFoV();
+  subModel.resetCameraFoV();
+  bom.resetCameraFoV();
+}
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
