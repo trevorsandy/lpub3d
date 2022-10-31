@@ -2391,7 +2391,7 @@ int CountPageWorker::countPage(
                                       meta->submodelStack.pop_back();       // remove where we stopped in the parent model
 
                                   // terminate build modification countPage at end of submodel
-                                  if (Gui::buildModJumpForward && modelOpts.pageNum == gui->saveDisplayPageNum) {
+                                  if (Gui::buildModJumpForward && ! opts.flags.callout && modelOpts.pageNum == gui->saveDisplayPageNum) {
                                       opts.flags.parseBuildMods = modelOpts.flags.parseBuildMods;
                                       if (! opts.flags.parseBuildMods) {
                                           countPageMutex.unlock();
@@ -2473,10 +2473,10 @@ int CountPageWorker::countPage(
                   opts.flags.stepGroup = false;
                   opts.flags.addCountPage = true;
 
-                  // terminate parse build mofifications
-                  if ( opts.flags.parseBuildMods) {
+                  // terminate parse build modifications
+                  if (opts.flags.parseBuildMods) {
                       // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-                      if (Gui::buildModJumpForward) {
+                      if (Gui::buildModJumpForward && ! opts.flags.callout) {
                           // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
                           // to use the correct page number value in determining when to terminate the buildMod parse.
                           opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
@@ -2524,7 +2524,7 @@ int CountPageWorker::countPage(
               opts.flags.noStep2 = false;
 
               // terminate build modification countPage at end of step group
-              if (Gui::buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2603,8 +2603,8 @@ int CountPageWorker::countPage(
               buildMod.level = getLevel(buildMod.key, BM_BEGIN);
               buildMod.action = BuildModApplyRc;
               buildMod.ignore = false;
-              // parse build mofifications
-              if ( opts.flags.parseBuildMods) {
+              // parse build modifications
+              if (opts.flags.parseBuildMods) {
                   buildModExists = ldrawFile->buildModContains(buildMod.key);
                   if (! buildModExists && ! buildModKeys.contains(buildMod.level)) {
                     buildModKeys.insert(buildMod.level, buildMod.key);
@@ -2623,7 +2623,7 @@ int CountPageWorker::countPage(
                   if (buildMod.action == BuildModApplyRc)
                       buildMod.ignore = true;
               // parse build modifications
-              if ( opts.flags.parseBuildMods) {
+              if (opts.flags.parseBuildMods) {
                   if (buildMod.level > 1 && buildMod.key.isEmpty())
                       emit gui->parseErrorSig("Key required for nested build mod meta command",
                                               opts.current,Preferences::BuildModErrors,false,false);
@@ -2639,7 +2639,7 @@ int CountPageWorker::countPage(
               if (! Preferences::buildModEnabled)
                   break;
               // parse build modifications
-              if ( opts.flags.parseBuildMods) {
+              if (opts.flags.parseBuildMods) {
                   if (buildMod.state != BM_END_MOD)
                       emit gui->parseErrorSig(QString("Required meta BUILD_MOD END_MOD not found"),
                                               opts.current, Preferences::BuildModErrors,false,false);
@@ -2657,9 +2657,9 @@ int CountPageWorker::countPage(
             case StepRc:
               if (opts.flags.partsAdded && ! opts.flags.noStep) {
                   // parse build modifications
-                  if ( opts.flags.parseBuildMods) {
+                  if (opts.flags.parseBuildMods) {
                       // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
-                      if (Gui::buildModJumpForward) {
+                      if (Gui::buildModJumpForward && ! opts.flags.callout) {
                           // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
                           // to use the correct page number value in determining when to terminate the buildMod parse.
                           opts.flags.parseBuildMods = ((opts.pageNum + 1) < gui->saveDisplayPageNum);
@@ -2746,7 +2746,7 @@ int CountPageWorker::countPage(
               opts.flags.noStep = false;
 
               // terminate build modification countPage at end of step
-              if (Gui::buildModJumpForward && opts.pageNum > gui->saveDisplayPageNum) {
+              if (Gui::buildModJumpForward && ! opts.flags.callout && opts.pageNum > gui->saveDisplayPageNum) {
                   if (! opts.flags.parseBuildMods && ! opts.flags.stepGroup)
                       opts.flags.numLines = opts.current.lineNumber;
               }
@@ -2891,8 +2891,8 @@ int CountPageWorker::countPage(
   // exclude from page number increment and topOfPages indices
   if (opts.flags.partsAdded && ! opts.flags.callout && ! opts.flags.noStep) {
 
-      // terminate parse build mofifications
-      if ( opts.flags.parseBuildMods) {
+      // terminate parse build modifications
+      if (opts.flags.parseBuildMods) {
           // terminate parse build mods at end of diplay page when called from gui::countPage for jump to page
           if (Gui::buildModJumpForward) {
               // we will be at the bottom of the 'next' page as pageNum is advanced below; so set pageNum + 1
