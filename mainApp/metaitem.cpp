@@ -3099,7 +3099,7 @@ void MetaItem::insertText()
 
 void MetaItem::insertBOM()
 {
-  QString meta = QString("0 !LPUB INSERT BOM");
+  QString meta = QLatin1String("0 !LPUB INSERT BOM");
 
   Where bottomOfPage = Gui::topOfPages[Gui::displayPageNum]; //start at the bottom of the page's last step
 
@@ -3114,7 +3114,7 @@ void MetaItem::insertBOM()
 
   if (option == AppendAtPage) {
     if (lpub->page.coverPage) {
-        emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Adding a bill of materials to a cover page is not allowed."));
+        emit gui->messageSig(LOG_ERROR, QObject::tr("Adding a bill of materials to a cover page is not allowed."));
         return;
     }
     scanPastGlobal(bottomOfPage);
@@ -3134,84 +3134,96 @@ void MetaItem::insertBOM()
   }
 }
 
-int MetaItem::displayModelStepExists()
+int MetaItem::displayModelStepExists(Rc &rc, bool deleteStep)
 {
-  int lastLine = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
   Where saveHere;                                            //initialize saveHere
-  Where here(lpub->ldrawFile.topLevelFile(), lastLine);      //start at bottom of file
+  Where bottom(lpub->ldrawFile.topLevelFile(),0,lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()));
+  Where here = bottom;                                       //start at bottom of file
   here--;                                                    //adjust lineNumber for zero-start index
+
+  auto thisLine = [&] (const Where &here) { return deleteStep ? 0 : here.lineNumber; };
 
   for ( ; here >= 0; here--) {                               //scan from bottom to top of file
     QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    Rc rc = lpub->meta.parse(line,here);
-    if (rc == StepRc || rc == RotStepRc) {                   //if Step, save the line number to perform insert (place before) later
+    rc = lpub->meta.parse(line,here);
+    if (rc == StepRc || rc == RotStepRc || rc == NoStepRc) { //if Step, RotStep, save the line number to perform insert (place before) later
+      if (saveHere == Where())                                //if nothing saved perform save
         saveHere = here.lineNumber;
-    } else if (
-      rc == StepGroupEndRc || rc == CalloutEndRc) {          //if Step, StepGroup, RotStep or Callout, save the line number
+    } else if (rc == StepGroupEndRc || rc == CalloutEndRc) { //if StepGroup or Callout, return the line number
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG,QString("Insert Final Model - hit end of StepGroup or Callout - Ok to insert Model at line: %1").arg(here.lineNumber));
+      emit gui->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit end of StepGroup or Callout - Ok to insert Model at line: %1").arg(here.lineNumber));
 #endif
-      return here.lineNumber;                                //reached a valid boundary so so return line number
+      return thisLine(here);                                 //reached a valid boundary so return line number
     } else if (rc == InsertFinalModelRc ) {                  //check for inserted final model
-      emit gui->messageSig(LOG_INFO,QString("Final model detected at line: %1").arg(here.lineNumber));
-      return here.lineNumber/*DM_FINAL_MODEL*/;
+      emit lpub->messageSig(LOG_INFO, QObject::tr("Final model detected at line: %1").arg(here.lineNumber));
+      return here.lineNumber /*DM_FINAL_MODEL*/;
     } else if (rc == InsertDisplayModelRc ) {                //check for inserted display model
-      emit gui->messageSig(LOG_INFO,QString("Display model detected at line: %1").arg(here.lineNumber));
-      return here.lineNumber/*DM_DISPLAY_MODEL*/;
+      emit lpub->messageSig(LOG_INFO, QObject::tr("Display model detected at line: %1").arg(here.lineNumber));
+      return thisLine(here)  /*DM_DISPLAY_MODEL*/;
     } else {                                                 //else keep walking back until 1_5 line
       QStringList args;
       split(line,args);
       if (args.size() && args[0] >= "1" && args[0] <= "5") { //non-zero line detected so no back final model
         if (saveHere.lineNumber) {
 #ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit end of Step - Ok to insert model at line: %1").arg(saveHere.lineNumber));
+          emit lpub->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit end of Step - Ok to insert model at line: %1").arg(saveHere.lineNumber));
 #endif
-          return saveHere.lineNumber;
+          return thisLine(saveHere);
         } else {
-          lastLine = lpub->ldrawFile.size(here.modelName);
-          if (here.lineNumber >= lastLine - 1)               //check if 'here' is at the end of the file
-            lastLine = here.lineNumber;                      //at last line so return line number
+          if (here.lineNumber >= bottom.lineNumber - 1) {    //check if 'here' is at the end of the file
 #ifdef QT_DEBUG_MODE
-          emit gui->messageSig(LOG_DEBUG, QString("Insert Final Model - hit line type 1-5 - Ok to insert model at EOF, line: %1").arg(lastLine));
+            emit lpub->messageSig(LOG_DEBUG, QObject::tr("Insert Final Model - hit line type 1-5 - Ok to insert model at EOF, line: %1").arg(here.lineNumber));
 #endif
-          return lastLine;                                   //return last line
+            return thisLine(bottom - 1);                     //return last line adjust for zero-start index
+          }
         }
       }
     }
   }
-  return lastLine;
+  return thisLine(bottom - 1);                               //adjust lineNumber for zero-start index
 }
 
 void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 {
-    bool atStep = (QString(lpub->ldrawFile.readLine(here.modelName,here.lineNumber)).contains(QRegExp("^0 STEP$")));
+    bool isNotFinalStep = lpub->ldrawFile.readLine(here.modelName,here.lineNumber).contains(QRegExp("^0 STEP$"));
+    if (!isNotFinalStep)
+        isNotFinalStep = here.lineNumber < lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile()) - 1; //adjust lineNumber for zero-start index
 
-    const QString disclaimerText1  = QString("0 // The following 3 command lines were auto-generated for fade or highlight step.");
-    const QString disclaimerText2  = QString("0 // Use 0 !LPUB INSERT DISPLAY_MODEL to override automatic insertion and deletion.");
-    const QString modelInsertMeta  = finalModel ? QString("0 !LPUB INSERT MODEL") :
-                                                  QString("0 !LPUB INSERT DISPLAY_MODEL");
-    const QString pageMeta   = QString("0 !LPUB INSERT PAGE");
+    QString textInsert;
+    if (Preferences::enableFadeSteps)
+        textInsert = QString("fade previous steps");
+    if (Preferences::enableHighlightStep)
+        textInsert += Preferences::enableFadeSteps ? QString(" and highlight current step") : QString("highlight current step");
+    
+    const QString disclaimerText1 = QString(    "0 // These 6 command lines were auto-generated for %1.").arg(textInsert);
+    const QString disclaimerText2 = QObject::tr("0 // These lines are not saved and should not be modified, but they can be replaced.");
+    const QString disclaimerText3 = QObject::tr("0 // Remove comment lines and replace MODEL with DISPLAY_MODEL to override this behaviour.");
+    const QString modelInsertMeta = finalModel ? QString("0 !LPUB INSERT MODEL") :
+                                                 QString("0 !LPUB INSERT DISPLAY_MODEL");
+    const QString pageMeta        = QString("0 !LPUB INSERT PAGE");
 
     const QString macroLabel = finalModel ? QString("insertFinalModelStep") : QString("insertDisplayModelStep");
 
     beginMacro(macroLabel);
 
-    if (atStep) {
+    if (isNotFinalStep) {
       if (finalModel) {
          appendMeta(here,disclaimerText1);
          appendMeta(++here,disclaimerText2);
+         appendMeta(++here,disclaimerText3);
          appendMeta(++here,modelInsertMeta);
-      } else {
-          appendMeta(here,modelInsertMeta);
+      } else /*displayModel*/ {
+         appendMeta(here,modelInsertMeta);
       }
       appendMeta(++here,pageMeta);
       appendMeta(++here,step);
-    } else {
+    } else /*insert final step*/ {
       if (finalModel) {
          appendMeta(here,disclaimerText1);
          appendMeta(++here,disclaimerText2);
+         appendMeta(++here,disclaimerText3);
          appendMeta(++here,step);
-      } else {
+      } else /*displayModel*/ {
          appendMeta(here,step);
       }
       appendMeta(++here,modelInsertMeta);
@@ -3224,20 +3236,11 @@ void MetaItem::insertDisplayModelStep(Where &here, bool finalModel)
 void MetaItem::insertFinalModelStep()
 {
   if (currentFile() && Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep)) {
-
-    const int lineNumber = displayModelStepExists();
-
+    Rc rc = OkRc;
+    int lineNumber = displayModelStepExists(rc);
     if (lineNumber) {
-
-      Where here(lpub->ldrawFile.topLevelFile(),lineNumber);
-      QString line = lpub->ldrawFile.readLine(here.modelName, here.lineNumber);
-
-      Rc rc = lpub->meta.parse(line,here);
-
       if (rc != InsertFinalModelRc && rc != InsertDisplayModelRc) {
-
-        emit lpub->messageSig(LOG_INFO, QString("Inserting fade/highlight final model step at line %1...").arg(lineNumber));
-
+        emit lpub->messageSig(LOG_INFO, QObject::tr("Inserting fade/highlight final model step at line %1...").arg(lineNumber));
         insertFinalModelStep(lineNumber);
       }
     }
@@ -3246,97 +3249,64 @@ void MetaItem::insertFinalModelStep()
 
 void MetaItem::insertFinalModelStep(int atLine)
 {
-  // final model already installed so exit.
-  if (atLine <= 0){
+  if (atLine <= 0) // final model already installed so exit.
     return;
-  }
 
-  // grab the passed in line
   Where here(lpub->ldrawFile.topLevelFile(),atLine);
-
-  // insert final model
   insertDisplayModelStep(here, true /*Final Model*/);
-
-  emit gui->messageSig(LOG_INFO, QMessageBox::tr("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
+  emit lpub->messageSig(LOG_INFO, QMessageBox::tr("Final model inserted at lines %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
 }
 
 bool MetaItem::deleteFinalModelStep(bool fromPreferences) {
 
-  int lineNumber = 0;
-  int maxLines = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
+  bool foundFinalModel = false;
+  Where walk,here;
+  Rc rc = OkRc;
 
   if (currentFile() && (fromPreferences || Preferences::finalModelEnabled && (Preferences::enableFadeSteps || Preferences::enableHighlightStep))) {
-
-    lineNumber = displayModelStepExists();
-
-    if (lineNumber && lineNumber != maxLines) {
-
-      emit lpub->messageSig(LOG_INFO, QString("Removing fade/highlight final model step at line %1...").arg(lineNumber));
-
-    } else return false;
-
-  } else return false;
-
-  QStringList tokens;
-  Where here(lpub->ldrawFile.topLevelFile(),lineNumber);         // start at final model line //start at bottom of file
-
-  Where finalModelLine;
-  Where stopAtThisLine;
-  Where walk;
-
-  bool foundFinalModel = false;
-
-  for (; here >=0; here--) {                                    //scan backwards until Model
-    QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
-    Rc rc = lpub->meta.parse(line,here);
-    if (rc == InsertFinalModelRc) {                             //model found so locate position of page insert line
-      foundFinalModel  = true;
-      finalModelLine   = here;                                  //mark line as starting point for deletion
-      if ((here + 1) < maxLines) {                              //check if line before is page insert and adjust starting point for deletion
-        walk = here + 1;
-        QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-        Rc rc1 = lpub->meta.parse(line,walk);
-        if (rc1 == InsertPageRc) {
-          finalModelLine = walk;                                //adjust starting point for deletion
-        }
-      }
+    int finalModelLine = displayModelStepExists(rc, true/*deleteStep*/);
+    if ((foundFinalModel = finalModelLine && rc == InsertFinalModelRc)) {
+      emit lpub->messageSig(LOG_INFO, QObject::tr("Removing fade/highlight final model step at line %1...").arg(finalModelLine));
+      here = Where(lpub->ldrawFile.topLevelFile(),finalModelLine);// start at insert meta command line //start at bottom of file
+      walk = here;                                                //mark line as starting point for deletion
+      int maxLines = lpub->ldrawFile.size(lpub->ldrawFile.topLevelFile());
+      if (walk < maxLines)                                        //check if last line and adjust starting point for deletion
+        rc = scanForwardNoParts(walk, StepMask);                  //scan to end of final model step
 #ifdef QT_DEBUG_MODE
-      emit gui->messageSig(LOG_DEBUG,QString("Final model meta commands detected at lines %1 to %2").arg(here.lineNumber).arg(finalModelLine.lineNumber));
+      emit lpub->messageSig(LOG_DEBUG, QObject::tr("Final model meta commands detected at lines %1 to %2")
+                                                  .arg(here.lineNumber)
+                                                  .arg(walk.lineNumber));
 #endif
-    } else if (foundFinalModel && (rc == StepRc || rc == RotStepRc)) { //at at final model [ROT]STEP command ...
-      QRegExp rx("auto-generated for fade or highlight step.$|override automatic insertion and deletion.$");
-      for (int i = 0; i < 2; i++) {
-          walk = here - 1;
-          QString line = lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber);
-          if (isComment(line) && (line.contains(rx)))
-              here = walk;
-          else
-              break;
-      }
+    } else return foundFinalModel;
+  } else return foundFinalModel;
 
-      stopAtThisLine = here;
-      walk = finalModelLine;
-
-      beginMacro("deleteFinalModelStep");
-      for (; walk >= stopAtThisLine.lineNumber ; walk-- ){       //remove lines between model insert and model insert step
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG, QString("Deleting inserted final model line %1 in '%2' [%3]")
-                                                .arg(walk.lineNumber).arg(walk.modelName).arg(lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
-#endif
-        deleteMeta(walk);
-      }
-      endMacro();
-      return foundFinalModel;
-
-    } else {
-      split(line,tokens);
-      bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
-           tokens[0] >= "1" && tokens[0] <= "5";
-      if (token_1_5) {                                      //we have reached a non-zero line so there is no final model
-        foundFinalModel = false;
-      }
+  if (foundFinalModel && (rc == StepRc || rc == RotStepRc || rc == EndOfFileRc)) {
+    QRegExp rx("^\\s*0\\s+\\/\\/\\s*These 6 command lines were auto-generated for (?:fade previous steps(?: and)? highlight current step).$",Qt::CaseInsensitive);
+    bool eof = rc == EndOfFileRc;
+    int disclaimerTextLines = eof ? 4 : 3;                        //if EOF (final step), account for 0 STEP command before insert INSERT MODEL
+    for (int i = 0; i < disclaimerTextLines; i++) {
+      here.lineNumber -= 1;                                       //return to disclaimer text before insert model meta command line
+      QString line = lpub->ldrawFile.readLine(here.modelName,here.lineNumber);
+      if (isComment(line) || line.contains(rx) || (eof ? line == step : true))
+        continue;
+      else
+        break;
     }
+
+    beginMacro("deleteFinalModelStep");
+    for (; walk.lineNumber >= here.lineNumber ; walk-- ) {        //remove lines between model insert and model insert step
+#ifdef QT_DEBUG_MODE
+      emit lpub->messageSig(LOG_DEBUG, QObject::tr("Deleting inserted final model line %1 in '%2' [%3]")
+                                                  .arg(walk.lineNumber)
+                                                  .arg(walk.modelName)
+                                                  .arg(lpub->ldrawFile.readLine(walk.modelName,walk.lineNumber)));
+#endif
+      deleteMeta(walk);
+    }
+    endMacro();
+    return foundFinalModel;
   }
+
   return foundFinalModel;
 }
 
@@ -3635,7 +3605,7 @@ Rc MetaItem::scanForwardNoParts(Where &here,int mask)
 {
   bool fakePartAdd;
 
-  return scanBackward(here, mask, fakePartAdd, true/*noPartCheck*/);
+  return scanForward(here, mask, fakePartAdd, true/*noPartCheck*/);
 }
 
 Rc  MetaItem::scanForward(

@@ -483,9 +483,9 @@ public:
   bool currentFile();
   bool okToInsertCoverPage();
   bool okToAppendCoverPage();
-  int  displayModelStepExists();
   bool frontCoverPageExist();
   bool backCoverPageExist();
+  int  displayModelStepExists(Rc &rc, bool deleteStep = false);
 
   void insertCoverPage();
   void appendCoverPage();

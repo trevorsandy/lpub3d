@@ -264,7 +264,7 @@ bool Gui::stepContains(Where &topOfStep, const QString value)
 bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
 {
   bool found = false;
-  Where walk    = topOfStep;
+  Where walk = topOfStep;
   LDrawFile &ldrawFile = lpub->ldrawFile;
   int  numLines = ldrawFile.size(walk.modelName);
   QRegExp endRx("^0 STEP$|^0 ROTSTEP|^0 NOFILE$|^0 FILE");

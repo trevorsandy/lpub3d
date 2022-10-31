@@ -4826,7 +4826,7 @@ bool isHeader(QString &line)
 }
 
 bool isComment(QString &line){
-  QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*");
+  QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*$");
   if (line.contains(commentLine))
       return true;
   return false;
