@@ -45,6 +45,8 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   QString        _path,
   QGraphicsItem *parent,
   QGraphicsView *_view)
+    : isHovered(false)
+    , mouseIsDown(false)
 {
   callout     = _callout;
   view        = _view;
@@ -90,8 +92,10 @@ CalloutBackgroundItem::CalloutBackgroundItem(
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
   setData(ObjectId, CalloutBackgroundObj);
   setZValue(CALLOUTBACKGROUND_ZVALUE_DEFAULT);
+  setAcceptHoverEvents(true);
 }
 
 void CalloutBackgroundItem::contextMenuEvent(
@@ -231,25 +235,13 @@ void CalloutBackgroundItem::contextMenuEvent(
 }
 
 /*
- * As the callout moves, the CSI stays in place, yet since the callout is
- * grouped with the pointer, the pointer is moved.  
- */
-
-void CalloutBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  positionChanged = false;
-  position = pos();
-  QGraphicsItem::mousePressEvent(event);
-}
-
-/*
  * When moving a callout, we want the tip of any pointers to stay still.  We
  * need to figure out how much the callout moved, and then compensate 
  */
 
 void CalloutBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  QGraphicsPixmapItem::mouseMoveEvent(event);
+  QGraphicsItem::mouseMoveEvent(event);
   // when sliding the callout up, we get negative Y
   // when sliding left of callout base we get negativeX?
   if ((flags() & QGraphicsItem::ItemIsMovable) && isSelected()) {
@@ -262,11 +254,28 @@ void CalloutBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
   }
 }
+
+/*
+ * As the callout moves, the CSI stays in place, yet since the callout is
+ * grouped with the pointer, the pointer is moved.
+ */
+
+void CalloutBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = true;
+  positionChanged = false;
+  position = pos();
+  QGraphicsItem::mousePressEvent(event);
+}
+
 void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
+
+  QGraphicsPixmapItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
-    gui->beginMacro(QString("DraggingCallout"));
+    gui->beginMacro(QString("DragCallout"));
 
     QPointF delta(position.x() - pos().x(),
                   position.y() - pos().y());
@@ -293,9 +302,31 @@ void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       changePlacementOffset(callout->topOfCallout(),&placement,CalloutType,false,0);  
     }
-    QGraphicsItem::mouseReleaseEvent(event);
+
     gui->endMacro();
-  } else {
-    QGraphicsItem::mouseReleaseEvent(event);
-  } 
+  }
+}
+
+void CalloutBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = !this->isSelected() && !mouseIsDown;
+  QGraphicsItem::hoverEnterEvent(event);
+}
+
+void CalloutBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = false;
+  QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void CalloutBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsPixmapItem::paint(painter,option,widget);
 }
