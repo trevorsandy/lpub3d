@@ -495,9 +495,7 @@ void Gui::enableWatcher()
 {
 #ifdef WATCHER
     if (curFile != "") {
-      if (isMpd()) {
-        watcher.addPath(curFile);
-      }
+      watcher.addPath(curFile);
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
@@ -513,9 +511,7 @@ void Gui::disableWatcher()
 {
 #ifdef WATCHER
     if (curFile != "") {
-      if (isMpd()) {
-        watcher.removePath(curFile);
-      }
+      watcher.removePath(curFile);
       QStringList filePaths = lpub->ldrawFile.getSubFilePaths();
       filePaths.removeDuplicates();
       if (filePaths.size()) {
@@ -530,7 +526,7 @@ void Gui::disableWatcher()
 int Gui::whichFile(int option) {
     bool includeFile    = lpub->ldrawFile.isIncludeFile(curSubFile);
     bool dirtyUndoStack = ! undoStack->isClean();
-    bool currentFile    = ! curFile.isEmpty();
+    bool curFileExists    = ! curFile.isEmpty();
     bool showDialog     = false;
 
     bool includeChecked = option == OPT_SAVE;
@@ -538,12 +534,12 @@ int Gui::whichFile(int option) {
 
     switch (option){
     case OPT_SAVE:
-        showDialog = currentFile && includeFile && dirtyUndoStack;
+        showDialog = curFileExists && includeFile && dirtyUndoStack;
         break;
     case OPT_SAVE_AS:
     case OPT_SAVE_COPY:
     case OPT_OPEN_WITH:
-        showDialog = currentFile && includeFile;
+        showDialog = curFileExists && includeFile;
         break;
     default:
         break;
