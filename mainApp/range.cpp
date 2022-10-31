@@ -35,6 +35,7 @@
 #include "reserve.h"
 #include "meta.h"
 #include "commonmenus.h"
+#include "lpub_object.h"
 
 Range::Range(
   Steps        *_parent,
@@ -642,31 +643,33 @@ MultiStepStepBackgroundItem::MultiStepStepBackgroundItem(
 
 void MultiStepStepBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-      QMenu menu;
-      QString name = "Step";
+    QMenu menu;
+    const QString name = QObject::tr("Step");
 
-      QAction *sizeStepAction = nullptr;
-      if (step->multiStep)
-          sizeStepAction = commonMenus.sizeMenu(menu,name);
+    QAction *sizeAction = nullptr;
+    if (step->multiStep) {
+        sizeAction = lpub->getAct("sizeAction.1");
+        commonMenus.addAction(sizeAction,menu,name);
+    }
 
-      QAction *selectedAction = menu.exec(event->screenPos());
+    QAction *selectedAction = menu.exec(event->screenPos());
 
-      if ( ! selectedAction ) {
-          return;
-      }
+    if ( ! selectedAction ) {
+        return;
+    }
 
-      if (selectedAction == sizeStepAction) {
-        changeStepSize("Change " + name + " size",
+    if (selectedAction == sizeAction) {
+        changeStepSize(QObject::tr("Change %1 size").arg(name),
                        step->topOfStep(),
                        step->bottomOfStep(),
-                       "Width|Height",
+                       QObject::tr("Width|Height"),
                        &step->stepSize,
                        step->size[XX],
                        step->size[YY],
                        1    /*append*/,
                        true /*local*/,
                        false/*askLocal*/);
-      }
+    }
 }
 
 void MultiStepStepBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

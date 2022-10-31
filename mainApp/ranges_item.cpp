@@ -49,7 +49,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setPen(Qt::NoPen);
   setBrush(Qt::NoBrush);
   setParentItem(parent);
-  setToolTip(QString("Steps Group [%1 x %2 px] - right-click to modify")
+  setToolTip(QObject::tr("Steps Group [%1 x %2 px] - right-click to modify")
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
   setFlag(QGraphicsItem::ItemIsSelectable,true);
@@ -144,7 +144,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
 
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
-  setToolTip(QString("Step Group [%1 x %2 px] - right-click to modify")
+  setToolTip(QObject::tr("Step Group [%1 x %2 px] - right-click to modify")
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
   setParentItem(parent);
@@ -156,31 +156,33 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString name = QObject::tr("Step Group");
+
+  QAction *placementAction    = lpub->getAct("placementAction.1");
   PlacementData placementData = meta->LPub.multiStep.placement.value();
-  QString name = "Steps";
+  placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(StepGroupType,placementData,name));
+  commonMenus.addAction(placementAction,menu,name);
 
-  QAction *placementAction;
-  placementAction = commonMenus.placementMenu(menu,name,
-                                              commonMenus.naturalLanguagePlacementWhatsThis(StepGroupType,placementData,name));
-
-  QAction *perStepAction;
+  QAction *perStepAction      = nullptr;
   if (meta->LPub.multiStep.pli.perStep.value()) {
-    perStepAction = commonMenus.noPartsList(menu,"Step");
+    perStepAction = lpub->getAct("noPartsListAction.1");
   } else {
-    perStepAction = commonMenus.partsList(menu,"Step");
+    perStepAction = lpub->getAct("partsListAction.1");
   }
+  commonMenus.addAction(perStepAction,menu,QObject::tr("Step"));
 
-  QAction *allocAction;
+  QAction *allocAction        = nullptr;
   if (page->allocType() == Vertical) {
-    allocAction = commonMenus.displayRowsMenu(menu,name);
+    allocAction               = lpub->getAct("displayRowsAction.1");
   } else {
-    allocAction = commonMenus.displayColumnsMenu(menu, name);
+    allocAction               = lpub->getAct("displayColumnsAction.1");
   }
+  commonMenus.addAction(allocAction,menu,name);
 
-  QAction *marginAction;
-  marginAction = commonMenus.marginMenu(menu,name);
+  QAction *marginAction       = lpub->getAct("marginAction.1");
+  commonMenus.addAction(marginAction,menu,name);
 
-  QAction *selectedAction = menu.exec(event->screenPos());
+  QAction *selectedAction     = menu.exec(event->screenPos());
 
   if ( ! selectedAction ) {
       return;
@@ -189,7 +191,7 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
   if (selectedAction == placementAction) {
     changePlacement(PageType,
                     relativeType,
-                    "Step Group Placement",
+                    QObject::tr("%1 Placement"),
                     page->topOfSteps(),
                     page->bottomOfSteps(),
                     &meta->LPub.multiStep.placement,
@@ -199,7 +201,7 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
                page->bottomOfSteps(),
               &meta->LPub.multiStep.pli.perStep,true,1,false,false);
   } else if (selectedAction == marginAction) {
-    changeMargins("Step Group Margins",
+    changeMargins(QObject::tr("%1 Margins"),
                   page->topOfSteps(),
                   page->bottomOfSteps(),
                   margin);
@@ -458,25 +460,20 @@ DividerItem::DividerItem(
 DividerItem::~DividerItem()
 {
   graphicsDividerPointerList.clear();
-};
+}
 
 void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QAction *editAction;
-  QString pl = "Divider";
+  const QString name = QObject::tr("Divider");
 
-  editAction = menu.addAction("Edit " + pl);
-  editAction->setIcon(QIcon(":/resources/editdivider.png"));
-  editAction->setWhatsThis("Edit this divider margin, thickness, length, and color");
+  QAction *editDividerAction   = lpub->getAct("editDividerAction.1");
+  commonMenus.addAction(editDividerAction,menu);
 
-  QAction *deleteAction;
+  QAction *deleteDividerAction = lpub->getAct("deleteDividerAction.1");
+  commonMenus.addAction(deleteDividerAction,menu,name);
 
-  deleteAction = menu.addAction("Delete " + pl);
-  deleteAction->setIcon(QIcon(":/resources/deletedivider.png"));
-  deleteAction->setWhatsThis("Delete this divider from the model");
-
-  QAction *selectedAction = menu.exec(event->screenPos());
+  QAction *selectedAction      = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
@@ -490,11 +487,11 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where bottomOfStep = nextStep->bottomOfStep();
   Range *range       = parentStep->range();
 
-  if (selectedAction == editAction) {
+  if (selectedAction == editDividerAction) {
 
-    changeDivider("Divider",topOfStep,bottomOfStep,&range->sepMeta,1,false);
+    changeDivider(name,topOfStep,bottomOfStep,&range->sepMeta,1,false);
 
-  } else if (selectedAction == deleteAction) {
+  } else if (selectedAction == deleteDividerAction) {
 
     enum Type { Attribute, MetaCmd };
 
