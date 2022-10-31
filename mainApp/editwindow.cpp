@@ -29,53 +29,48 @@
  ***************************************************************************/
 
 #include <QtWidgets>
-
-#include <QComboBox>
-#include <QLineEdit>
-#include <QGridLayout>
-#include <QPushButton>
-#include <QLabel>
-
-#include <QCompleter>
-#include <QKeyEvent>
-#include <QAbstractItemView>
-#include <QApplication>
-#include <QModelIndex>
-#include <QAbstractItemModel>
-#include <QScrollBar>
+#include <QTextCursor>
 #include <QtConcurrent>
 
+#include <QCompleter>
 #include <QApplication>
 #include <QTextBlock>
 #include <QTextStream>
+#include <QAbstractItemView>
+#include <QAbstractItemModel>
+#include <QModelIndex>
+#include <QKeyEvent>
+#include <QScrollBar>
 
-#include "lc_global.h"
 #include "editwindow.h"
 #include "lpub_object.h"
 #include "highlighter.h"
 #include "highlightersimple.h"
-#include "ldrawfiles.h"
-#include "substitutepartdialog.h"
-#include "messageboxresizable.h"
-#include "waitingspinnerwidget.h"
-#include "threadworkers.h"
 
+#include "ldrawfiles.h"
+#include "findreplace.h"
+#include "substitutepartdialog.h"
+#include "ldrawpartdialog.h"
+#include "ldrawcolordialog.h"
+
+#include "lc_global.h"
+#include "lc_math.h"
 #include "version.h"
 #include "paths.h"
 #include "lpub_preferences.h"
-
 #include "pli.h"
 #include "step.h"
 #include "color.h"
-#include "ldrawpartdialog.h"
-#include "ldrawcolordialog.h"
+#include "messageboxresizable.h"
+#include "waitingspinnerwidget.h"
+#include "threadworkers.h"
 #include "lpub_qtcompat.h"
 
 #include "lc_mainwindow.h"
 #include "lc_viewwidget.h"
 #include "lc_previewwidget.h"
-#include "pieceinf.h"
 #include "lc_colors.h"
+#include "pieceinf.h"
 
 #include <jsonfile.h>
 #include <commands/snippets/jsonsnippettranslatorfactory.h>
@@ -116,10 +111,6 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     verticalScrollBar = _textEdit->verticalScrollBar();
 
-    setTextEditHighlighter();
-
-    setSelectionHighlighter();
-
     lpub->snippetCollection = new SnippetCollection(this);
 
     _textEdit->setAutoCompleter(new QCompleter(metaCommandModel(this), this));
@@ -129,7 +120,7 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     const QString userDataPath = QString("%1/extras").arg(Preferences::lpubDataPath);
     JsonFile<Snippet>::load(QDir::toNativeSeparators(userDataPath + "/user-snippets.json"), lpub->snippetCollection);
 
-    _textEdit->setLineWrapMode(TextEditor::NoWrap);
+    _textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -138,10 +129,11 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     visualEditorVisible = false;
     stepKeyType     = INVALID_CURRENT_STEP;
 
+    setTextEditHighlighter();
+
     createActions();
     updateOpenWithActions();
     createToolBars();
-    highlightCurrentLine();
 
     if (Preferences::editorBufferedPaging) {
         _textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -165,8 +157,6 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     } else {
         cmdEditor = this;
     }
-
-    setMinimumSize(200, 200);
 }
 
 EditWindow::~EditWindow()
@@ -511,7 +501,7 @@ void EditWindow::createActions()
     findAct->setStatusTip(tr("Find object - Ctrl+F"));
     connect(findAct, SIGNAL(triggered()), _textEdit, SLOT(findDialog()));
 
-    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to line"), this);
+    gotoLineAct = new QAction(QIcon(":/resources/gotoline.png"), tr("&Go to Line"), this);
     gotoLineAct->setShortcut(tr("Ctrl+G"));
     gotoLineAct->setStatusTip(tr("Go to line - Ctrl+G"));
     connect(gotoLineAct, SIGNAL(triggered()), this, SLOT(gotoLine()));
@@ -757,7 +747,7 @@ void EditWindow::createToolBars()
     editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
     editToolBar->addAction(toggleCmmentAct);
-//    editToolBar->addAction(showAllCharsAct);
+    //editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
@@ -1094,6 +1084,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
     menu->addAction(gotoLineAct);
     menu->addAction(topAct);
     menu->addAction(bottomAct);
+    menu->addAction(showAllCharsAct);
     menu->exec(_textEdit->mapToGlobal(pt));
     delete menu;
 }
@@ -1502,7 +1493,15 @@ void EditWindow::updateClipboard()
             return;
         }
 
-        QGuiApplication::clipboard()->setText(data, QClipboard::Clipboard);
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(data, QClipboard::Clipboard);
+
+        if (clipboard->supportsSelection())
+            clipboard->setText(data, QClipboard::Selection);
+
+#if defined(Q_OS_LINUX)
+        QThread::msleep(1); //workaround for copied text not being available...
+#endif
 
         QString efn =QFileInfo(data).fileName();
         // Text elided to 20 chars
@@ -2718,6 +2717,7 @@ TextEditor::TextEditor(bool detachedEdit, QWidget *parent) :
     sc(nullptr),
     lineNumberArea(new LineNumberArea(this)),
     detachedEdit(detachedEdit),
+    showHardLinebreaks(false),
     _fileIsUTF8(false)
 {
     QPalette lineNumberPalette = lineNumberArea->palette();
@@ -2805,18 +2805,14 @@ void TextEditor::insertSnippet(const QString &completionPrefix, const QString &c
    this->setTextCursor(cursor);
 }
 
-bool GreaterThanMinimumWordLength(const QString &word)
-{
-    static const int MINIMUM_WORD_LENGTH = 3;
-    return word.length() > MINIMUM_WORD_LENGTH;
-}
-
 QStringList TextEditor::extractDistinctWordsFromDocument() const
 {
     QStringList allWords = retrieveAllWordsFromDocument();
     allWords.removeDuplicates();
 
-    QStringList words = filterWordList(allWords, GreaterThanMinimumWordLength);
+    QStringList words = filterWordList(allWords, [](const QString &word){
+        return word.length() > EDITOR_FILTER_MIN_WORD_LENGTH;
+    });
     words.sort(Qt::CaseInsensitive);
 
     return words;
@@ -2944,6 +2940,46 @@ void TextEditor::focusInEvent(QFocusEvent *e)
     QPlainTextEdit::focusInEvent(e);
 }
 
+void TextEditor::paintEvent(QPaintEvent *e)
+{
+    QPlainTextEdit::paintEvent(e);
+
+    // draw line end markers if enabled
+    if (showHardLinebreaks) {
+        drawLineEndMarker(e);
+    }
+}
+
+void TextEditor::drawLineEndMarker(QPaintEvent *e)
+{
+    QPainter painter(viewport());
+
+    int leftMargin = qRound(fontMetrics().horizontalAdvance(" ") / 2.0);
+    int lineEndCharWidth = fontMetrics().horizontalAdvance("\u00B6");
+    int fontHeight = fontMetrics().height();
+
+    QTextBlock block = firstVisibleBlock();
+    while (block.isValid()) {
+        QRectF blockGeometry = blockBoundingGeometry(block).translated(contentOffset());
+        if (blockGeometry.top() > e->rect().bottom())
+            break;
+
+        if (block.isVisible() && blockGeometry.toRect().intersects(e->rect())) {
+            QString text = block.text();
+            if (text.endsWith("  ")) {
+                painter.drawText(blockGeometry.left() + fontMetrics().horizontalAdvance(text) + leftMargin,
+                                 blockGeometry.top(),
+                                 lineEndCharWidth,
+                                 fontHeight,
+                                 Qt::AlignLeft | Qt::AlignVCenter,
+                                 "\u00B6");
+            }
+        }
+
+        block = block.next();
+    }
+}
+
 void TextEditor::insertCompletion(const QString &completion)
 {
     if (ac->widget() != this)
@@ -3058,22 +3094,24 @@ void TextEditor::toggleComment(){
     cursor.endEditBlock();
 }
 
-void TextEditor::showAllCharacters(bool show){
-    if (show){
-        showCharacters(" ","\u002E");
-#ifdef Q_OS_WIN
-        showCharacters("\t","\u003E");
-#else
-        showCharacters("\t","\u2192");
-#endif
+void TextEditor::showAllCharacters(bool enabled) {
+    showHardLinebreaks = enabled;
+
+    QTextOption textOption = document()->defaultTextOption();
+    QTextOption::Flags optionFlags = textOption.flags();
+    if (enabled) {
+        optionFlags |= QTextOption::ShowLineAndParagraphSeparators;
+        optionFlags |= QTextOption::ShowTabsAndSpaces;
     } else {
-        showCharacters("\u002E"," ");
-#ifdef Q_OS_WIN
-        showCharacters("\u003E","\t");
-#else
-        showCharacters("\u2192","\t");
-#endif
+        optionFlags &= ~QTextOption::ShowLineAndParagraphSeparators;
+        optionFlags &= ~QTextOption::ShowTabsAndSpaces;
     }
+    textOption.setFlags(optionFlags);
+
+    document()->setDefaultTextOption(textOption);
+
+    // repaint
+    viewport()->update();
 }
 
 int TextEditor::lineNumberAreaWidth()
@@ -3088,7 +3126,7 @@ int TextEditor::lineNumberAreaWidth()
     QFont font = lineNumberArea->font();
     const QFontMetrics linefmt(font);
 
-    int space = 10 + linefmt.width(QLatin1Char('9')) * digits;
+    int space = 10 + linefmt.horizontalAdvance(QLatin1Char('9')) * digits;
     return space;
 }
 
@@ -3220,531 +3258,6 @@ void TextEditor::findDialog()
         cursor.select(QTextCursor::WordUnderCursor);
         selection = cursor.selectedText();
     }
-    popUp = new FindReplace(this,selection);
+    popUp = new FindReplace(this, selection);
     popUp->show();
-}
-
-FindReplace::FindReplace(
-    TextEditor *textEdit,
-    const QString &selectedText,
-    QWidget *parent)
-    : QDialog(parent)
-{
-    setWindowIcon(QIcon(":/resources/LPub32.png"));
-    setWindowTitle("LDraw File Editor Find");
-
-    completer = new QCompleter(this);
-    completer->setModel(metaCommandModel(this));
-    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setWrapAround(false);
-
-    find = new FindReplaceCtrls(textEdit,this);
-    find->textFind->setText(selectedText);
-    find->textFind->setWordCompleter(completer);
-    connect(find, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
-
-    findReplace = new FindReplaceCtrls(textEdit,this);
-    findReplace->textFind->setText(selectedText);
-    findReplace->textFind->setWordCompleter(completer);
-    connect(findReplace, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
-
-    connect(this, SIGNAL(accepted()), this, SLOT(popUpClose()));
-    connect(this, SIGNAL(rejected()), this, SLOT(popUpClose()));
-
-    readFindReplaceSettings(find);
-    readFindReplaceSettings(findReplace);
-
-    QTabWidget  *tabWidget = new QTabWidget;
-    QVBoxLayout *vlayout = new QVBoxLayout;
-    QHBoxLayout *hlayout = new QHBoxLayout;
-    QGridLayout *gropuLayout;
-
-    setLayout(vlayout);
-    vlayout->addWidget(tabWidget);
-
-    QWidget *widget;
-    QGridLayout *grid;
-    QGroupBox *box;
-
-    widget = new QWidget;
-    grid = new QGridLayout;
-    widget->setLayout(grid);
-
-    box = new QGroupBox("String to find");
-    grid->addWidget(box);
-    gropuLayout = new QGridLayout;
-    box->setLayout(gropuLayout);
-
-    gropuLayout->addWidget(find->textFind,0,0,1,5);
-
-    gropuLayout->addWidget(find->buttonFind,1,0,1,1);
-    gropuLayout->addWidget(find->buttonFindNext,1,1,1,1);
-    gropuLayout->addWidget(find->buttonFindPrevious,1,2,1,1);
-    gropuLayout->addWidget(find->buttonFindAll,1,3,1,1);
-    gropuLayout->addWidget(find->buttonFindClear,1,4,1,1);
-
-    box = new QGroupBox();
-    box->setLayout(hlayout);
-    gropuLayout->addWidget(box,2,0,1,5);
-    hlayout->addWidget(find->checkboxCase);
-    hlayout->addWidget(find->checkboxWord);
-    hlayout->addWidget(find->checkboxRegExp);
-
-    gropuLayout->addWidget(find->labelMessage,3,0,1,5);
-
-    tabWidget->addTab(widget,"Find");
-
-    widget = new QWidget;
-    grid = new QGridLayout;
-    widget->setLayout(grid);
-
-    box = new QGroupBox("String to find and replace");
-    grid->addWidget(box);
-    gropuLayout = new QGridLayout;
-    box->setLayout(gropuLayout);
-
-    findReplace->label = new QLabel("Find: ");
-    gropuLayout->addWidget(findReplace->label,0,0,1,1);
-    gropuLayout->addWidget(findReplace->textFind,0,1,1,4);
-
-    findReplace->label = new QLabel("Replace: ");
-    gropuLayout->addWidget(findReplace->label,1,0,1,1);
-    gropuLayout->addWidget(findReplace->textReplace,1,1,1,4);
-
-    gropuLayout->addWidget(findReplace->buttonFind,2,0,1,1);
-    gropuLayout->addWidget(findReplace->buttonFindNext,2,1,1,1);
-    gropuLayout->addWidget(findReplace->buttonFindPrevious,2,2,1,1);
-    gropuLayout->addWidget(findReplace->buttonFindAll,2,3,1,1);
-    gropuLayout->addWidget(findReplace->buttonFindClear,2,4,1,1);
-
-    gropuLayout->addWidget(findReplace->buttonReplace,3,0,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceAndFind,3,1,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceAll,3,2,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceClear,3,3,1,1);
-
-    hlayout = new QHBoxLayout;
-    box = new QGroupBox();
-    box->setLayout(hlayout);
-    gropuLayout->addWidget(box,4,0,1,5);
-    hlayout->addWidget(findReplace->checkboxCase);
-    hlayout->addWidget(findReplace->checkboxWord);
-    hlayout->addWidget(findReplace->checkboxRegExp);
-
-    gropuLayout->addWidget(findReplace->labelMessage,5,0,1,5);
-
-    tabWidget->addTab(widget,"Replace");
-
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
-    buttonBox->addButton(findReplace->buttonCancel, QDialogButtonBox::ActionRole);
-    vlayout->addWidget(buttonBox);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    QTimer::singleShot(0, find->textFind, SLOT(setFocus()));
-
-    setMinimumSize(100,80);
-}
-
-QAbstractItemModel *FindReplace::metaCommandModel(QObject *parent)
-{
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-#endif
-
-    QStandardItemModel *model = new QStandardItemModel(parent);
-
-    QStringList keywords;
-    lpub->meta.commandKeywords(keywords);
-    foreach (const QString &keyword, keywords)
-        model->appendRow(new QStandardItem(QIcon(":/resources/command16.png"), keyword));
-
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-    return model;
-}
-
-void  FindReplace::popUpClose()
-{
-    FindReplaceCtrls *fr = qobject_cast<FindReplaceCtrls *>(sender());
-    if (fr) {
-        writeFindReplaceSettings(findReplace);
-        writeFindReplaceSettings(find);
-        if (fr->_findall){
-            fr->_textEdit->document()->undo();
-        }
-    }
-    close();
-}
-
-void FindReplace::readFindReplaceSettings(FindReplaceCtrls *fr) {
-    QSettings settings;
-    settings.beginGroup(FINDREPLACEWINDOW);
-    fr->checkboxCase->setChecked(settings.value(CASE_CHECK, false).toBool());
-    fr->checkboxWord->setChecked(settings.value(WORD_CHECK, false).toBool());
-    fr->checkboxRegExp->setChecked(settings.value(REGEXP_CHECK, false).toBool());
-    settings.endGroup();
-}
-
-void FindReplace::writeFindReplaceSettings(FindReplaceCtrls *fr) {
-    QSettings settings;
-    settings.beginGroup(FINDREPLACEWINDOW);
-    settings.setValue(CASE_CHECK, fr->checkboxCase->isChecked());
-    settings.setValue(WORD_CHECK, fr->checkboxWord->isChecked());
-    settings.setValue(REGEXP_CHECK, fr->checkboxRegExp->isChecked());
-    settings.endGroup();
-}
-
-FindReplaceCtrls::FindReplaceCtrls(TextEditor *textEdit, QWidget *parent)
-    : QWidget(parent),_textEdit(textEdit)
-{
-    // find items
-    textFind    = new HistoryLineEdit/*QLineEdit*/;
-
-    buttonFind  = new QPushButton("Find");
-    buttonFindNext = new QPushButton("Find Next");
-    buttonFindPrevious = new QPushButton("Find Previous");
-    buttonFindAll = new QPushButton("Find All");
-    buttonFindClear = new QPushButton("Clear");
-
-    // options
-    checkboxCase = new QCheckBox("Case Senstive");
-    checkboxWord = new QCheckBox("Whole Words");
-    checkboxRegExp = new QCheckBox("Regular Expression");
-
-    // replace items
-    textReplace = new HistoryLineEdit/*QLineEdit*/;
-
-    buttonReplace = new QPushButton("Replace");
-    buttonReplaceAndFind = new QPushButton("Replace && Find");
-    buttonReplaceAll = new QPushButton("Replace All");
-    buttonReplaceClear = new QPushButton("Clear");
-
-    // message
-    labelMessage = new QLabel;
-
-    // cancel button
-    buttonCancel = new QPushButton("Cancel");
-
-    // events
-    connect(textFind, SIGNAL(textChanged(QString)), this, SLOT(textFindChanged()));
-    connect(textFind, SIGNAL(textChanged(QString)), this, SLOT(validateRegExp(QString)));
-    connect(textReplace, SIGNAL(textChanged(QString)), this, SLOT(textReplaceChanged()));
-
-    connect(checkboxRegExp, SIGNAL(toggled(bool)), this, SLOT(regexpSelected(bool)));
-
-    connect(buttonFind, SIGNAL(clicked()), this,SLOT(findInText()));
-    connect(buttonFindNext,SIGNAL(clicked()),this,SLOT(findInTextNext()));
-    connect(buttonFindPrevious,SIGNAL(clicked()),this,SLOT(findInTextPrevious()));
-    connect(buttonFindAll,SIGNAL(clicked()),this,SLOT(findInTextAll()));
-    connect(buttonFindClear, SIGNAL(clicked()), this, SLOT(findClear()));
-
-    connect(buttonReplace,SIGNAL(clicked()),this,SLOT(replaceInText()));
-    connect(buttonReplaceAndFind,SIGNAL(clicked()),this,SLOT(replaceInTextFind()));
-    connect(buttonReplaceAll,SIGNAL(clicked()),this,SLOT(replaceInTextAll()));
-    connect(buttonReplaceClear, SIGNAL(clicked()), this, SLOT(replaceClear()));
-
-    connect(buttonCancel, SIGNAL(clicked()), this, SIGNAL(popUpClose()));
-
-    disableButtons();
-}
-
-void FindReplaceCtrls::findInText(){
-    find();
-}
-
-void FindReplaceCtrls::findInTextNext()
-{
-    find(NEXT);
-}
-
-void FindReplaceCtrls::findInTextPrevious()
-{
-    find(PREVIOUS);
-}
-
-void FindReplaceCtrls::findInTextAll() {
-    if (!_textEdit)
-        return; // TODO: show some warning?
-
-    const QString &toSearch = textFind->text();
-
-    // undo previous change (if any)
-    _textEdit->document()->undo();
-
-    bool result = false;
-    bool useRegExp = checkboxRegExp->isChecked();
-
-    QTextDocument::FindFlags flags;
-
-    if (checkboxCase->isChecked())
-        flags |= QTextDocument::FindCaseSensitively;
-    if (checkboxWord->isChecked())
-        flags |= QTextDocument::FindWholeWords;
-
-    if (toSearch.isEmpty()) {
-        showError("The search field is empty. Enter a word and click Find.");
-    } else {
-        QTextCursor highlightCursor(_textEdit->document());
-        QTextCursor textCursor(_textEdit->document());
-
-        textCursor.beginEditBlock();
-
-        QTextCharFormat plainFormat(highlightCursor.charFormat());
-        QTextCharFormat colorFormat = plainFormat;
-        colorFormat.setBackground(Qt::yellow);
-
-        QRegExp reg;
-        if (useRegExp) {
-            reg = QRegExp(toSearch,
-                         (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-        }
-
-        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-
-            highlightCursor = useRegExp ? _textEdit->document()->find(reg, highlightCursor, flags) :
-                                          _textEdit->document()->find(toSearch, highlightCursor, flags);
-
-            if (!highlightCursor.isNull()) {
-                result = true;
-                highlightCursor.movePosition(QTextCursor::WordRight,
-                                             QTextCursor::KeepAnchor);
-                highlightCursor.mergeCharFormat(colorFormat);
-            }
-        }
-
-        textCursor.endEditBlock();
-
-        if (result) {
-            _findall = true;
-            showError("");
-        } else {
-            showError(tr("no match found for '%1'").arg(textFind->text()));
-            highlightCursor.setPosition(0); // move to the beginning of the document for the next find
-            _textEdit->setTextCursor(highlightCursor);
-        }
-    }
-}
-
-void FindReplaceCtrls::find(int direction) {
-    if (!_textEdit)
-        return; // TODO: show some warning?
-
-    const QString &toSearch = textFind->text();
-
-    // undo previous change (if any)
-    if (_findall){
-        _textEdit->document()->undo();
-        _findall = false;
-    }
-
-    bool result = false;
-
-    QTextDocument::FindFlags flags;
-
-    if (direction == PREVIOUS)
-        flags |= QTextDocument::FindBackward;
-    if (checkboxCase->isChecked())
-        flags |= QTextDocument::FindCaseSensitively;
-    if (checkboxWord->isChecked())
-        flags |= QTextDocument::FindWholeWords;
-
-    if (toSearch.isEmpty()) {
-        showError("The search field is empty. Enter a word and click Find.");
-    } else {
-        QTextCursor textCursor(_textEdit->document());
-
-        textCursor.beginEditBlock();
-
-        if (direction == NEXT && buttonFindPrevious->isEnabled() == false)
-        {
-             _textEdit->moveCursor(QTextCursor::Start);
-        }
-
-        if (checkboxRegExp->isChecked()) {
-            QRegExp reg(toSearch,
-                        (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-            textCursor = _textEdit->document()->find(reg, textCursor, flags);
-            _textEdit->setTextCursor(textCursor);
-            result = (!textCursor.isNull());
-        } else {
-            result = _textEdit->find(toSearch, flags);
-        }
-
-        textCursor.endEditBlock();
-
-        if (result) {
-            if (direction == NEXT && buttonFindPrevious->isEnabled() == false) {
-                buttonFindPrevious->setEnabled(true);
-            }
-            showError("");
-        } else {
-            if (direction == DEFAULT) {
-                showError(tr("no match found for '%1'").arg(textFind->text()));
-            } else {
-                showError(tr("no more items found for '%1'").arg(textFind->text()));
-            }
-            textCursor.setPosition(0); // move to the beginning of the document for the next find
-            _textEdit->setTextCursor(textCursor);
-        }
-    }
-}
-
-void FindReplaceCtrls::replaceInText() {
-    if (!_textEdit->textCursor().hasSelection()) {
-        find();
-    } else {
-        _textEdit->textCursor().insertText(textReplace->text());
-    }
-}
-
-void FindReplaceCtrls::replaceInTextFind() {
-    if (!_textEdit->textCursor().hasSelection()) {
-        find();
-    } else {
-        _textEdit->textCursor().insertText(textReplace->text());
-        find();
-    }
-}
-
-void FindReplaceCtrls::replaceInTextAll() {
-    if (!_textEdit)
-        return; // TODO: show some warning?
-
-    const QString &toSearch = textFind->text();
-    const QString &toReplace = textReplace->text();
-
-    if (toReplace.isEmpty()) {
-        showError("The replace field is empty. Enter a word and click Replace.");
-    } else if (toSearch.isEmpty()) {
-        showError("The search field is empty. Enter a word and click Replace.");
-    } else {
-        QTextCursor textCursor = _textEdit->textCursor();
-
-        textCursor.beginEditBlock();
-
-        textCursor.movePosition(QTextCursor::Start);
-        QTextCursor newCursor = textCursor;
-        quint64 count = 0;
-
-        QTextDocument::FindFlags flags;
-
-        if (checkboxCase->isChecked())
-            flags |= QTextDocument::FindCaseSensitively;
-        if (checkboxWord->isChecked())
-            flags |= QTextDocument::FindWholeWords;
-
-        while (true)
-        {
-            if (checkboxRegExp->isChecked()) {
-                QRegExp reg(toSearch,
-                            (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-                newCursor = _textEdit->document()->find(reg, newCursor, flags);
-            } else {
-                newCursor = _textEdit->document()->find(toSearch, newCursor, flags);
-            }
-
-            if (!newCursor.isNull())
-            {
-                if (newCursor.hasSelection())
-                {
-                    newCursor.insertText(toReplace);
-                    count++;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        textCursor.endEditBlock();
-        showMessage( tr("%1 occurrence(s) were replaced.").arg(count));
-    }
-}
-
-void FindReplaceCtrls::regexpSelected(bool sel) {
-    if (sel)
-        validateRegExp(textFind->text());
-    else
-        validateRegExp("");
-}
-
-void FindReplaceCtrls::validateRegExp(const QString &text) {
-    if (!checkboxRegExp->isChecked() || text.size() == 0) {
-        labelMessage->clear();
-        return; // nothing to validate
-    }
-
-    QRegExp reg(text,
-                (checkboxCase->isChecked() ? Qt::CaseSensitive : Qt::CaseInsensitive));
-
-    if (reg.isValid()) {
-        showError("");
-    } else {
-        showError(reg.errorString());
-    }
-}
-
-void FindReplaceCtrls::showError(const QString &error) {
-    if (error == "") {
-        labelMessage->clear();
-    } else {
-        labelMessage->setText("<span style=\" font-weight:200; color:#ff0000;\">" + error + "</span>");
-    }
-}
-
-void FindReplaceCtrls::showMessage(const QString &message) {
-    if (message == "") {
-        labelMessage->clear();
-    } else {
-        labelMessage->setText("<span style=\" font-weight:200; color:green;\">" + message + "</span>");
-    }
-}
-
-void FindReplaceCtrls::textReplaceChanged() {
-    bool enable = textReplace->text().size() > 0;
-    buttonReplace->setEnabled(enable);
-    buttonReplaceAndFind->setEnabled(enable);
-    buttonReplaceAll->setEnabled(enable);
-    buttonReplaceClear->setEnabled(enable);
-}
-
-void FindReplaceCtrls::textFindChanged() {
-    bool enable = textFind->text().size() > 0;
-    buttonFind->setEnabled(enable);
-    buttonFindNext->setEnabled(enable);
-    buttonFindAll->setEnabled(enable);
-    buttonFindClear->setEnabled(enable);
-}
-
-void  FindReplaceCtrls::disableButtons()
-{
-    bool enable = false;
-
-    buttonFind->setEnabled(enable);
-    buttonFindNext->setEnabled(enable);
-    buttonFindPrevious->setEnabled(enable);
-    buttonFindAll->setEnabled(enable);
-    buttonFindClear->setEnabled(enable);
-
-    buttonReplace->setEnabled(enable);
-    buttonReplaceAndFind->setEnabled(enable);
-    buttonReplaceAll->setEnabled(enable);
-    buttonReplaceClear->setEnabled(enable);
-}
-
-void FindReplaceCtrls::findClear() {
-    _textEdit->document()->undo();
-    _textEdit->moveCursor(QTextCursor::Start);
-    textFind->clear();
-    labelMessage->clear();
-}
-
-void FindReplaceCtrls::replaceClear() {
-    _textEdit->document()->undo();
-    _textEdit->moveCursor(QTextCursor::Start);
-    textReplace->clear();
-    labelMessage->clear();
 }

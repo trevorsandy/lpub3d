@@ -28,7 +28,6 @@
 #ifndef PARMSWINDOW_H
 #define PARMSWINDOW_H
 
-#include <QDialog>
 #include <QMainWindow>
 #include <QPlainTextEdit>
 
@@ -36,27 +35,8 @@
 #define WATCHER
 #endif
 
-class LDrawFile;
 class ParmsHighlighter;
-class ParmFindReplace;
-class ParmFindReplaceCtrls;
-class ParmLineNumberArea;
 class ParmEditor;
-
-class QString;
-class QAction;
-class QMenu;
-
-class QPlainTextEdit;
-class QPaintEvent;
-class QResizeEvent;
-class QSize;
-class QCheckBox;
-
-class QLineEdit;
-class QPushButton;
-class QLabel;
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class ParmsWindow : public QMainWindow
@@ -191,87 +171,6 @@ protected:
 
 private:
     ParmEditor *textEditor;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class ParmFindReplace : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit ParmFindReplace(ParmEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
-
-protected slots:
-    void popUpClose();
-
-protected:
-    ParmFindReplaceCtrls *find;
-    ParmFindReplaceCtrls *findReplace;
-    void readFindReplaceSettings(ParmFindReplaceCtrls *fr);
-    void writeFindReplaceSettings(ParmFindReplaceCtrls *fr);
-};
-
-class ParmFindReplaceCtrls : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit ParmFindReplaceCtrls(ParmEditor *textEdit, QWidget *parent = nullptr);
-    ParmEditor  *_textEdit;
-    QLineEdit   *textFind;
-    QLineEdit   *textReplace;
-    QLabel      *labelMessage;
-
-    QPushButton *buttonFind;
-    QPushButton *buttonFindNext;
-    QPushButton *buttonFindPrevious;
-    QPushButton *buttonFindAll;
-    QPushButton *buttonFindClear;
-
-    QPushButton *buttonReplace;
-    QPushButton *buttonReplaceAndFind;
-    QPushButton *buttonReplaceAll;
-    QPushButton *buttonReplaceClear;
-
-    QLabel      *label;
-
-    QCheckBox   *checkboxCase;
-    QCheckBox   *checkboxWord;
-    QCheckBox   *checkboxRegExp;
-
-    QPushButton *buttonCancel;
-    bool        _findall;
-
-public slots:
-    void find(int direction = 0);
-
-signals:
-    void popUpClose();
-
-protected slots:
-    void findInText();
-    void findInTextNext();
-    void findInTextPrevious();
-    void findInTextAll();
-
-    void findClear();
-
-    void replaceInText();
-    void replaceInTextFind();
-    void replaceInTextAll();
-
-    void replaceClear();
-
-    void textFindChanged();
-    void textReplaceChanged();
-    void validateRegExp(const QString &text);
-    void regexpSelected(bool sel);
-
-protected:
-    void disableButtons();
-    void showError(const QString &error);
-    void showMessage(const QString &message);
 };
 
 #endif

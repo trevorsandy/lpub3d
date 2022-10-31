@@ -507,6 +507,7 @@ HEADERS += \
     editwindow.h \
     excludedparts.h \
     fadehighlightdialog.h \
+    findreplace.h \
     globals.h \
     gradients.h \
     highlighter.h \
@@ -622,6 +623,7 @@ SOURCES += \
     excludedparts.cpp \
     fadehighlightdialog.cpp \
     fadestepglobals.cpp \
+    findreplace.cpp \
     formatpage.cpp \
     gradients.cpp \
     highlighter.cpp \

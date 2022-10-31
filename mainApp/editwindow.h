@@ -31,50 +31,28 @@
 #ifndef EDITWINDOW_H
 #define EDITWINDOW_H
 
-#include <QDialog>
 #include <QMainWindow>
 #include <QPlainTextEdit>
-#include <QTextCursor>
-#include <QFileSystemWatcher>
+#include <QElapsedTimer>
 #include <QFutureWatcher>
-
-#include "lc_global.h"
-#include "lc_math.h"
+#include <QFileSystemWatcher>
 
 #include "name.h"
-#include "historylineedit.h"
-
-class LDrawFile;
-class Highlighter;
-class HighlighterSimple;
-class FindReplace;
-class FindReplaceCtrls;
-class QLineNumberArea;
-class TextEditor;
-
-class QString;
-class QAction;
-class QMenu;
-class QPaintEvent;
-class QResizeEvent;
-class QSize;
-class QCheckBox;
-
-class QLineEdit;
-class QPushButton;
-class QLabel;
-class QComboBox;
 
 class QAbstractItemModel;
 class QCompleter;
-class QProgressBar;
+class QComboBox;
+class QTextCursor;
 
+class Highlighter;
+class HighlighterSimple;
+class FindReplace;
+class SnippetCompleter;
+
+class TextEditor;
+class LDrawFile;
 class WaitingSpinnerWidget;
 class LoadModelWorker;
-class Where;
-class Pli;
-
-class SnippetCompleter;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -185,7 +163,7 @@ protected:
     void readSettings();
     void writeSettings();
     void clearEditorHighlightLines();
-    void openFolderSelect(const QString& absoluteFilePath);
+    void openFolderSelect(const QString &absoluteFilePath);
     void highlightSelectedLines(QVector<int> &lines, bool clear, bool editor);
     void openWithProgramAndArgs(QString &program, QStringList &arguments);
     void updateOpenWithActions();
@@ -294,7 +272,7 @@ public:
 
     ~TextEditor()override{}
 
-    void showAllCharacters(bool show);
+    void showAllCharacters(bool enabled);
     void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
     bool getIsUTF8() { return _fileIsUTF8; }
 
@@ -340,6 +318,7 @@ protected:
 
     void keyPressEvent(QKeyEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;
+    void paintEvent(QPaintEvent *e) override;
 
 private:
     QStringList extractDistinctWordsFromDocument() const;
@@ -347,13 +326,14 @@ private:
     template <class UnaryPredicate>
     QStringList filterWordList(const QStringList &words, UnaryPredicate predicate) const;
     QString retrieveTextUnderCursor() const;
-
     QString textUnderCursor() const;
+    void drawLineEndMarker(QPaintEvent *e);
 
     QCompleter *ac;
     SnippetCompleter *sc;
     QWidget    *lineNumberArea;
     bool        detachedEdit;
+    bool        showHardLinebreaks;
     std::atomic<bool> _fileIsUTF8;
 };
 
@@ -380,90 +360,6 @@ protected:
 
 private:
     TextEditor *textEditor;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-class FindReplace : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit FindReplace(TextEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
-
-protected slots:
-    void popUpClose();
-
-protected:
-    FindReplaceCtrls *find;
-    FindReplaceCtrls *findReplace;
-    void readFindReplaceSettings(FindReplaceCtrls *fr);
-    void writeFindReplaceSettings(FindReplaceCtrls *fr);
-private:
-    QAbstractItemModel *metaCommandModel(QObject *parent);
-    QCompleter *completer;
-};
-
-class FindReplaceCtrls : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit FindReplaceCtrls(TextEditor *textEdit, QWidget *parent = nullptr);
-    TextEditor *_textEdit;
-    HistoryLineEdit *textFind;
-    HistoryLineEdit *textReplace;
-    QLabel      *labelMessage;
-
-    QPushButton *buttonFind;
-    QPushButton *buttonFindNext;
-    QPushButton *buttonFindPrevious;
-    QPushButton *buttonFindAll;
-    QPushButton *buttonFindClear;
-
-    QPushButton *buttonReplace;
-    QPushButton *buttonReplaceAndFind;
-    QPushButton *buttonReplaceAll;
-    QPushButton *buttonReplaceClear;
-
-    QLabel      *label;
-
-    QCheckBox   *checkboxCase;
-    QCheckBox   *checkboxWord;
-    QCheckBox   *checkboxRegExp;
-
-    QPushButton *buttonCancel;
-    bool        _findall;
-
-public slots:
-    void find(int direction = 0);
-
-signals:
-    void popUpClose();
-
-protected slots:
-    void findInText();
-    void findInTextNext();
-    void findInTextPrevious();
-    void findInTextAll();
-
-    void findClear();
-
-    void replaceInText();
-    void replaceInTextFind();
-    void replaceInTextAll();
-
-    void replaceClear();
-
-    void textFindChanged();
-    void textReplaceChanged();
-    void validateRegExp(const QString &text);
-    void regexpSelected(bool sel);
-
-protected:
-    void disableButtons();
-    void showError(const QString &error);
-    void showMessage(const QString &message);
 };
 
 #endif
