@@ -3609,14 +3609,22 @@ Rc MetaItem::scanForward(Where &here,int mask)
   return scanForward(here, mask, partsAdded);
 }
 
+Rc MetaItem::scanForwardNoParts(Where &here,int mask)
+{
+  bool fakePartAdd;
+
+  return scanBackward(here, mask, fakePartAdd, true/*noPartCheck*/);
+}
+
 Rc  MetaItem::scanForward(
   Where &here,
   int    mask,
-  bool  &partsAdded)
+  bool  &partsAdded,
+  bool noPartCheck)
 {
   Meta tmpMeta;
   int  numLines  = lpub->ldrawFile.size(here.modelName);
-  partsAdded = false;
+  partsAdded = noPartCheck;
 
   scanPastGlobal(here);
 
@@ -3662,13 +3670,21 @@ Rc MetaItem::scanBackward(Where &here,int mask)
   return scanBackward(here, mask, partsAdded);
 }
 
+Rc MetaItem::scanBackwardNoParts(Where &here,int mask)
+{
+  bool fakePartAdd;
+
+  return scanBackward(here, mask, fakePartAdd, true/*noPartCheck*/);
+}
+
 Rc MetaItem::scanBackward(
   Where &here,
   int    mask,  // What we stop on
-  bool  &partsAdded)
+  bool  &partsAdded,
+  bool noPartCheck)
 {
   Meta tmpMeta;
-  partsAdded     = false;
+  partsAdded = noPartCheck;
 
   for ( ; here >= 0; here--) {
 

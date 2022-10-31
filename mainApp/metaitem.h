@@ -545,8 +545,9 @@ public:
   Where sortedGlobalWhere(QString modelName,QString metaString);
   Where sortedGlobalWhere(Meta &tmpMeta,QString modelName,QString metaString);
 
-  Rc   scanForward( Where &here, int mask, bool &partsAdded);
+  Rc   scanForward( Where &here, int mask, bool &partsAdded, bool noPartCheck = false);
   Rc   scanForward( Where &here, int mask);
+  Rc   scanForwardNoParts( Where &here, int mask);
   Rc   scanForwardStepGroup(Where &here, bool & partsAdded);
   Rc   scanForwardStepGroup(Where &here);
 
@@ -554,8 +555,9 @@ public:
   void scanPastLPubMeta(Where &);
   void writeRotateStep(QString &value);
 
-  Rc   scanBackward(Where &here, int mask, bool &partsAdded);
+  Rc   scanBackward(Where &here, int mask, bool &partsAdded, bool noPartCheck = false);
   Rc   scanBackward(Where &here, int mask);
+  Rc   scanBackwardNoParts(Where &here, int mask);
   Rc   scanBackwardStepGroup(Where &here, bool & partsAdded);
   Rc   scanBackwardStepGroup(Where &here);
 
