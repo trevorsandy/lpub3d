@@ -108,16 +108,16 @@ public:
       /* 26 Rotate Icon       */ Ri,
       /* 27 Csi Part          */ Cp,
       /* 28 Step              */ Stp,
-      /* 29 Range             */ Rng
-      /* 30 Text              */ // plus 8 more...
-      /* 31 Bom               */
+      /* 29 Range             */ Rng,
+      /* 30 Text              */ Txt,   // plus 8 more...
+      /* 31 Bom               */ Bom,
 
-      /* 32 PagePointer       */
-      /* 33 SingleStep        */
-      /* 34 Reserve           */
-      /* 35 CoverPage         */
-      /* 36 CsiAnnotationType */
-      /* 37 DividerPointer    */
+      /* 32 PagePointer       */ Pptr,
+      /* 33 SingleStep        */ Ss,
+      /* 34 Reserve           */ Res,
+      /* 35 CoverPage         */ Cvp,
+      /* 36 CsiAnnotationType */ Ca,
+      /* 37 DividerPointer    */ Dp
 
       /* 38 NumRelatives      */
     };

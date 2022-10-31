@@ -858,39 +858,40 @@ const QString RelNames[NumRelatives] =
    "CalloutType",                // 5 Callout
    "PageNumberType",             // 6 pn
 
-   "PageTitleType",              // 7 tt
-   "PageModelNameType",          // 8 mnt
-   "PageAuthorType",             // 9 at
-   "PageURLType",                //10 urlt
-   "PageModelDescType",          //11 mdt
-   "PagePublishDescType",        //12 pdt
-   "PageCopyrightType",          //13 ct
-   "PageEmailType",              //14 et
-   "PageDisclaimerType",         //15 dt
-   "PagePartsType",              //16 pt
-   "PagePlugType",               //17 plt
-   "SubmodelInstanceCountType",  //18 sic
-   "PageDocumentLogoType",       //19 dlt
-   "PageCoverImageType",         //20 cit
-   "PagePlugImageType",          //21 pit
-   "PageHeaderType",             //22 ph
-   "PageFooterType",             //23 pf
-   "PageCategoryType",           //24 cat
+   "PageTitleType",              // 7 Tt
+   "PageModelNameType",          // 8 Mnt
+   "PageAuthorType",             // 9 At
+   "PageURLType",                //10 Urlt
+   "PageModelDescType",          //11 Mdt
+   "PagePublishDescType",        //12 Pdt
+   "PageCopyrightType",          //13 Ct
+   "PageEmailType",              //14 Et
+   "PageDisclaimerType",         //15 Dt
+   "PagePartsType",              //16 Pt
+   "PagePlugType",               //17 Plt
+   "SubmodelInstanceCountType",  //18 Sic
+   "PageDocumentLogoType",       //19 Dlt
+   "PageCoverImageType",         //20 Cit
+   "PagePlugImageType",          //21 Pit
+   "PageHeaderType",             //22 Ph
+   "PageFooterType",             //23 Pf
+   "PageCategoryType",           //24 Cat
    "SubModelType",               //25 Sm
    "RotateIconType",             //26 Ri
    "CsiPartType",                //27 Cp
-   "BomType",                    //28
+   "StepType",                   //28 Stp
+   "RangeType",                  //29 Rng
+   "TextType",                   //30
+   "BomType",                    //31
 
-   "PagePointerType",            //29
-   "SingleStepType",             //30
-   "StepType",                   //31
-   "RangeType",                  //32
-   "ReserveType",                //33
-   "CoverPageType",              //34
-   "CsiAnnotationType",          //35
-   "DividerPointerType"          //36
+   "PagePointerType",            //32
+   "SingleStepType",             //33
+   "ReserveType",                //34
+   "CoverPageType",              //35
+   "CsiAnnotationType",          //36
+   "DividerPointerType"          //37
 
-}; //NumRelatives"               //37
+}; //NumRelatives"               //38
 
 const QString PlacNames[NumPlacements] =
  {

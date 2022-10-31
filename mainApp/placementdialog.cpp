@@ -56,7 +56,7 @@ const QString PlacementDialog::labels[][5] =
 };
 
 const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , Ph , Pf,  Tf,  At,  Ct,  Et,  Urlt, Ms}
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , Ph , Pf,  Tf,  At,  Ct,  Et,  Urlt, Ms, Ca}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
@@ -87,16 +87,16 @@ const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 26 RotateIcon       Ri      */{Page , Csi , Pli      , Sn},
   /* 27 Csi Part         Cp      */{       Csi},
   /* 28 Step             Stp     */{Page                                                                           , Rng},
-  /* 29 Range                    */{Page},
-  /* 30 Text                     */{Page                                      , Ph , Pf},
-  /* 31 Bom                      */{Page                                      , Ph , Pf},
+  /* 29 Range            Rng     */{Page},
+  /* 30 Text             Txt     */{Page                                      , Ph , Pf},
+  /* 31 Bom              Bom     */{Page                                      , Ph , Pf},
 
-  /* 32 PagePointer              */{Page , Csi                                , Ph , Pf},
-  /* 33 SingleStep               */{Page , Csi},
-  /* 34 Reserve                  */{Page},
-  /* 35 CoverPage                */{Page},
-  /* 36 CsiAnnotationType        */{                             Callout                                           , Ms},
-  /* 37 DividerPointer           */{                                                                                 Cp}
+  /* 32 PagePointer       Pptr   */{Page , Csi                                , Ph , Pf},
+  /* 33 SingleStep        Ss     */{Page , Csi},
+  /* 34 Reserve           Res    */{Page},
+  /* 35 CoverPage         Cvp    */{Page},
+  /* 36 CsiAnnotationType Ca     */{                                                                                 Cp},
+  /* 37 DividerPointer    Dp     */{                                                                                 Cp}
 
   /* 38 NumRelatives             */
 };
@@ -144,7 +144,7 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 33 SingleStep               */ OutsideOk,
   /* 34 Reserve                  */ OutsideOk,
   /* 35 CoverPage                */ InsideOk,
-  /* 36 CsiAnnotationType        */ OutsideOk,
+  /* 36 CsiAnnotationType        */ InsideOk|OutsideOk,
   /* 37 DividerPointer           */ InsideOk
 
   /* 38 NumRelatives             */
@@ -183,15 +183,15 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "CSI Part",                   //27 Cp
   "Step Rectangle",             //28 Stp
   "Range",                      //29 Rng
-  "Text",                       //30
-  "BOM",                        //31
+  "Text",                       //30 Txt
+  "BOM",                        //31 Bom
 
-  "Page Pointer",               //32
-  "Single Step",                //33
-  "Reserve",                    //34
-  "Cover Page",                 //35
-  "CSI Annotation",             //36
-  "Divider Pointer",            //37
+  "Page Pointer",               //32 Pptr
+  "Single Step",                //33 Ss
+  "Reserve",                    //34 Res
+  "Cover Page",                 //35 Cvp
+  "CSI Annotation",             //36 Ca
+  "Divider Pointer"             //37 Dp
 
  /*NumRelatives               *///38 NumRelatives
 };
@@ -251,11 +251,13 @@ PlacementDialog::PlacementDialog(
 
   QList<int> oks;
 
-//  logTrace() << " \nPLACEMENT DIALOG "
-//             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
-//             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
-//             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
-//                ;
+#ifdef QT_DEBUG_MODE
+  logTrace() << " \nPLACEMENT DIALOG "
+             << " \nParentType: " << RelNames[parentType]     << " (" << parentType << ")"
+             << " \nPlacedType: " << RelNames[placedType]     << " (" << placedType << ")"
+             << " \nOnPageType: " << (onPageType == 0 ? "Content Page" : onPageType == 1 ? "Front Cover Page" : "Back Cover Page")
+                ;
+#endif
 
   switch (parentType) {
   case StepGroupType:                                //parent type [Multi-step page]
@@ -318,6 +320,9 @@ PlacementDialog::PlacementDialog(
       case TextType:                  //placed type
           oks << Page << Ph << Pf/* << Stp  << Csi*/;
           break;
+      case CsiAnnotationType:
+          oks << Cp;
+          break;
       default:                        //placed type
           oks << Page << Pn /*<< Stp*/;
           break;
@@ -343,6 +348,9 @@ PlacementDialog::PlacementDialog(
       case SubModelType:             //placed type
       case RotateIconType:           //placed type
           oks << Csi << Pli << Sn;
+          break;
+      case CsiAnnotationType:
+          oks << Cp;
           break;
       default:
           oks << Csi << Pli << Sn;
@@ -371,6 +379,9 @@ PlacementDialog::PlacementDialog(
           break;
       case RotateIconType:           //placed type
           oks << Csi << Pli << Sn;
+          break;
+      case CsiAnnotationType:
+          oks << Cp;
           break;
       default:                        //placed type
           oks << Page << Csi << Pli << Sn;
@@ -410,7 +421,7 @@ PlacementDialog::PlacementDialog(
           break;
       }
       break;
-  default:                                           //parent type
+  default:                               //parent type
       oks << relativeToOks[placedType];
       break;
   }
