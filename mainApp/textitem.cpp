@@ -43,7 +43,7 @@ TextItem::TextItem(InsertMeta meta,
 {
   if (meta.value().placementCommand) {
       QString line = gui->readLine(meta.here());
-      emit gui->messageSig(LOG_ERROR, QString("Text placement command must come after an 'Add Text' command.<br>Line: %1")
+      emit gui->messageSig(LOG_ERROR, tr("Text placement command must come after an 'Add Text' command.<br>Line: %1")
                            .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName).arg(line.isEmpty() ? "" : line)));      
       return;
   }
@@ -96,8 +96,8 @@ TextItem::TextItem(InsertMeta meta,
 
   margin.setValues(0.0,0.0);
 
-  setToolTip(QString("%1 [%2 x %3 px] - right-click to modify")
-             .arg(richText ? "Rich Text" : "Text")
+  setToolTip(tr("%1 [%2 x %3 px] - right-click to modify")
+             .arg(richText ? tr("Rich Text") : tr("Text"))
              .arg(boundingRect().width())
              .arg(boundingRect().height()));
 
@@ -143,44 +143,44 @@ void TextItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Text";
+  const QString name = tr("Text");
 
   InsertData data = meta.value();
 
-  PlacementData placementData = placement.value();
+  QAction *editTextAction  = lpub->getAct("textAction.1");
+  commonMenus.addAction(editTextAction,menu,name);
 
-  QAction *editTextAction   = commonMenus.textMenu(menu,pl);
   QAction *placementAction = nullptr;
-
   if (textPlacement) {
-      placementAction = commonMenus.placementMenu(menu,pl,
-                        commonMenus.naturalLanguagePlacementWhatsThis(TextType,placementData,pl));
+      placementAction      = lpub->getAct("placementAction.1");
+      PlacementData placementData = placement.value();
+      placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(TextType,placementData,name));
+      commonMenus.addAction(placementAction,menu,name);
 
-      // remove offset from insertData if textPlacement enabled
       data.offsets[XX] = 0.0f;
       data.offsets[YY] = 0.0f;
   }
 
-  QAction *editFontAction  = nullptr;
-  QAction *editColorAction = nullptr;
+  QAction *fontAction       = nullptr;
+  QAction *colorAction      = nullptr;
   if (!richText){
-    editFontAction  = commonMenus.fontMenu(menu,pl);
-    editColorAction = commonMenus.colorMenu(menu,pl);
+    fontAction              = lpub->getAct("fontAction.1");
+    commonMenus.addAction(fontAction,menu,name);
+
+    colorAction             = lpub->getAct("colorAction.1");
+    commonMenus.addAction(colorAction,menu,name);
   }
 
-  QAction *deleteTextAction = menu.addAction("Delete This Text");
-  deleteTextAction->setIcon(QIcon(":/resources/textDelete.png"));
-  deleteTextAction->setWhatsThis("Delete this text");
+  QAction *deleteTextAction = lpub->getAct("deleteTextAction.1");
+  commonMenus.addAction(deleteTextAction,menu,name);
 
-  QAction *selectedAction  = menu.exec(event->screenPos());
+  QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
     return;
   }
 
   if (selectedAction == editTextAction) {
-
-    bool multiStep = parentRelativeType == StepGroupType;
 
     updateText(meta.here(),
                data.text,
@@ -192,7 +192,7 @@ void TextItem::contextMenuEvent(
                richText,
                false/*append*/);
 
-  } else if (selectedAction == editFontAction) {
+  } else if (selectedAction == fontAction) {
 
     FontMeta font;
     font.setValuePoints(data.textFont);
@@ -218,7 +218,7 @@ void TextItem::contextMenuEvent(
         gui->displayPage();
     }
 
-  } else if (selectedAction == editColorAction) {
+  } else if (selectedAction == colorAction) {
 
     QColor color(data.textColor);
 
@@ -238,7 +238,12 @@ void TextItem::contextMenuEvent(
       PlacementData placementData = placement.value();
       bool ok;
       ok = PlacementDialog
-           ::getPlacement(parentRelativeType,relativeType,placementData,"Placement",onPageType);
+           ::getPlacement(
+                  parentRelativeType,
+                  relativeType,
+                  placementData,
+                  tr("%1 Placement").arg(name),
+                  onPageType);
       if (ok) {
         placement.setValue(placementData);
         QString line = gui->readLine(meta.here());
@@ -252,7 +257,7 @@ void TextItem::contextMenuEvent(
               line = placement.format(true,meta.global);
               replaceMeta(walkFwd,line);
            } else {
-              bool local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",nullptr);
+              bool local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, tr("Change only this step?"),nullptr);
               line = placement.format(local,false);
               insertMeta(walkFwd,line);
            }
