@@ -768,7 +768,7 @@ QString Pli::orient(QString &color, QString type)
 
   QString *cached = orientation[type];
 
-  if ( ! cached) {
+  if (! cached) {
       QString filePath(Preferences::pliControlFile);
 
       if (!filePath.isEmpty()) {
@@ -791,6 +791,15 @@ QString Pli::orient(QString &color, QString type)
                   if (tokens.size() == 15 && tokens[0] == "1" && token14 == type) {
                       cached = new QString(line);
                       orientation.insert(type,cached);
+                      a = tokens[5].toFloat();
+                      b = tokens[6].toFloat();
+                      c = tokens[7].toFloat();
+                      d = tokens[8].toFloat();
+                      e = tokens[9].toFloat();
+                      f = tokens[10].toFloat();
+                      g = tokens[11].toFloat();
+                      h = tokens[12].toFloat();
+                      i = tokens[13].toFloat();
                       break;
                   }
               }
@@ -801,9 +810,7 @@ QString Pli::orient(QString &color, QString type)
                                    .arg(file.errorString()));
           }
       }
-  }
-
-  if (cached) {
+  } else {
       QStringList tokens;
 
       split(*cached, tokens);
@@ -819,7 +826,7 @@ QString Pli::orient(QString &color, QString type)
           h = tokens[12].toFloat();
           i = tokens[13].toFloat();
         }
-    }
+  }
 
   return QString ("1 %1 0 0 0 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11")
       .arg(color)
