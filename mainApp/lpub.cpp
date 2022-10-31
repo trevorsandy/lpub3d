@@ -2817,12 +2817,14 @@ void Gui::preferences()
         else
         if (!getCurFile().isEmpty()) {
             if (Preferences::reloadFile) {
+                lpub->ldrawFile.clearViewerSteps();
                 if (Preferences::resetCustomCache)
                     clearCustomPartCache(true);
                 clearAndReloadModelFile(false, true);
             }
             else
             if (Preferences::reloadPage) {
+                lpub->ldrawFile.clearViewerSteps();
                 reloadCurrentPage(true);
             }
         }
