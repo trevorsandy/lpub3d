@@ -362,16 +362,17 @@ void EditWindow::updateOpenWithActions()
             programPath = fileInfo.absoluteFilePath();
             programName = fileInfo.completeBaseName();
             programName.replace(programName[0],programName[0].toUpper());
+            programData = QString("'%1' %2").arg(programPath).arg(arguments);
             QString text = programName;
             if (text.isEmpty())
                 text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
             openWithActList[i]->setText(text);
-            openWithActList[i]->setData(arguments);
+            openWithActList[i]->setData(programData); // includes arguments
             openWithActList[i]->setIcon(getProgramIcon());
             openWithActList[i]->setStatusTip(QString("Open current file with %2")
                                                      .arg(fileInfo.fileName()));
             openWithActList[i]->setVisible(true);
-            programEntries.append(QString("%1|%2").arg(programName).arg(programPath));
+            programEntries.append(QString("%1|%2").arg(programName).arg(programData));
             numOpenWithPrograms = programEntries.size();
           }
         }
@@ -440,8 +441,10 @@ void EditWindow::openWith()
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with %2...")
-                                  .arg(QFileInfo(fileName).fileName()).arg(QFileInfo(program).fileName()));
+        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with pid=%2 %3%4...")
+                              .arg(QFileInfo(fileName).fileName()).arg(pid)
+                              .arg(QFileInfo(program).fileName())
+                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
     }
 }
 
@@ -987,9 +990,9 @@ bool EditWindow::setValidPartLine()
         editPartAct->setVisible(false);
         substitutePartAct->setVisible(false);
     } else {
-        editColorAct->setText(tr("Edit color"));
-        editPartAct->setText(tr("Edit part"));
-        substitutePartAct->setText(tr("Substitute part"));
+        editColorAct->setText(tr("Edit Color"));
+        editPartAct->setText(tr("Edit Part"));
+        substitutePartAct->setText(tr("Substitute Part"));
     }
 
     copyFullPathToClipboardAct->setEnabled(false);
@@ -1030,7 +1033,7 @@ bool EditWindow::setValidPartLine()
         return false;
 
     const int lineNumber = cursor.blockNumber();
-    const bool stepSet = setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
+    const bool stepSet = modelFileEdit() ? false : setCurrentStep(lineNumber) != INVALID_CURRENT_STEP;
 
     // substitute partKey
     QString subPartKey = QString("%1|%2").arg(QFileInfo(partType).completeBaseName()).arg(QString::number(colorCode));
@@ -1071,7 +1074,7 @@ bool EditWindow::setValidPartLine()
 
     if (_subFileList.contains(partType.toLower())) {
         if (modelFileEdit()) {
-            titleType = "subfile";
+            titleType = "Subfile";
             if (Preferences.mPreviewEnabled) {
                 previewLineAct->setText(tr("Preview %1 %2...").arg(titleType).arg(elidedPartType));
                 previewLineAct->setStatusTip(tr("Display the %1 on the highlighted line in a popup 3D viewer").arg(titleType));
@@ -1088,12 +1091,12 @@ bool EditWindow::setValidPartLine()
     if (!isReadOnly) {
 
         if (colorCode != LDRAW_MATERIAL_COLOUR) {
-            editColorAct->setText(tr("Edit line color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
+            editColorAct->setText(tr("Edit Color %1 (%2)...").arg(gColorList[lcGetColorIndex(colorCode)].Name).arg(colorCode));
             editColorAct->setData(QString("%1|%2").arg(colorCode).arg(selection));
         }
         editColorAct->setEnabled(colorCode != LDRAW_MATERIAL_COLOUR);
 
-        editPartAct->setText(tr("Edit line  %1 %2...").arg(titleType).arg(elidedPartType));
+        editPartAct->setText(tr("Edit %1 %2...").arg(titleType).arg(elidedPartType));
         editPartAct->setData(QString("%1|%2").arg(partType).arg(colorCode));
         editPartAct->setEnabled(true);
 
@@ -1101,7 +1104,7 @@ bool EditWindow::setValidPartLine()
         if (isSubstitute || isSubstituteAlt) {
             removeSubstitutePartAct->setText(tr("Remove %1").arg(actionText));
             removeSubstitutePartAct->setData(QString("%1|%2").arg(subPartKey).arg(isSubstitute ? sRemove : sRemoveAlt));
-            removeSubstitutePartAct->setEnabled(stepSet);
+            removeSubstitutePartAct->setEnabled(stepSet || modelFileEdit());
 
             removeMenu = new QMenu(tr("Remove %1").arg(actionText), this);
             removeMenu->setIcon(QIcon(":/resources/removesubstitutepart.png"));
@@ -1119,7 +1122,7 @@ bool EditWindow::setValidPartLine()
             subPartKey.append(QString("|%1").arg(sSubstitute));
         }
         substitutePartAct->setData(subPartKey);
-        substitutePartAct->setEnabled(stepSet);
+        substitutePartAct->setEnabled(stepSet || modelFileEdit());
 
         if (numOpenWithPrograms)
             openWithToolbarAct->setEnabled(true);

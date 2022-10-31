@@ -288,16 +288,17 @@ void Gui::updateOpenWithActions()
           programPath = fileInfo.absoluteFilePath();
           programName = fileInfo.completeBaseName();
           programName.replace(programName[0],programName[0].toUpper());
+          programData = QString("'%1' %2").arg(programPath).arg(arguments);
           QString text = programName;
           if (text.isEmpty())
               text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
           openWithActList[i]->setText(text);
-          openWithActList[i]->setData(arguments);
+          openWithActList[i]->setData(programData);
           openWithActList[i]->setIcon(getProgramIcon());
           openWithActList[i]->setStatusTip(QString("Open current file with %2")
                                                    .arg(fileInfo.fileName()));
           openWithActList[i]->setVisible(true);
-          programEntries.append(QString("%1|%2").arg(programName).arg(programPath));
+          programEntries.append(QString("%1|%2").arg(programName).arg(programData));
           numPrograms = programEntries.size();
         }
       }
@@ -385,8 +386,10 @@ void Gui::openWith(const QString &filePath)
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit messageSig(LOG_INFO, QString("Launched %1 with %2...")
-                        .arg(QFileInfo(filePath).fileName()).arg(QFileInfo(program).fileName()));
+        emit lpub->messageSig(LOG_INFO, QString("Launched %1 with pid=%2 %3%4...")
+                              .arg(QFileInfo(filePath).fileName()).arg(pid)
+                              .arg(QFileInfo(program).fileName())
+                              .arg(arguments.size() ? " "+arguments.join(" ") : ""));
     }
 }
 
