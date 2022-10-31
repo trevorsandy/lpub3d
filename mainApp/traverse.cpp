@@ -6300,7 +6300,7 @@ QString Gui::createColourEntry(const QString &colourCode, const PartType partTyp
   QString _colourCode        = _colourPrefix + (fadePartType ? Preferences::fadeStepsUseColour ? _fadeColour : colourCode : colourCode);
   QString _mainColourValue   = LDrawColor::value(colourCode);
   QString _edgeColourValue   = fadePartType ? LDrawColor::edge(colourCode) : Preferences::highlightStepColour;
-  QString _colourDescription = LPUB3D_COLOUR_TITLE_PREFIX + LDrawColor::name(colourCode);
+  QString _colourDescription = LPUB3D_COLOUR_NAME_PREFIX + LDrawColor::name(colourCode);
   int _fadeAlphaValue        = ((LDrawColor::alpha(colourCode) * (100 - Preferences::fadeStepsOpacity)) + (100 - 1)) / 100;
   int _alphaValue            = fadePartType ? _fadeAlphaValue : LDrawColor::alpha(colourCode);             // use 100% opacity with highlight color
 
