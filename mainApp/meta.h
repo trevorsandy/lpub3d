@@ -984,6 +984,14 @@ public:
     _precision               = rhs._precision;
     _inputMask               = rhs._inputMask;
   }
+  PageSizeData &value()
+  {
+    return _value[pushed];
+  }
+  void setValue(PageSizeData &value)
+  {
+    _value[pushed] = value;
+  }
   //page size specific
   virtual void setValueSizeID(QString v3) {
     _value[pushed].sizeid     = v3;

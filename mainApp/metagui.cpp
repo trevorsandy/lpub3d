@@ -70,6 +70,13 @@
 #include "gradients.h"
 #include "pagesizes.h"
 
+
+bool notEqual(const double v1, const double v2)
+{
+    const double epsilon  = 0.0001;
+    return fabs(v1 - v2) > epsilon * fabs(v1);
+}
+
 QString MetaGui::formatMask(
   const float value,
   const int   width,
@@ -233,7 +240,10 @@ UnitsGui::UnitsGui(
   QGroupBox     *parent,
   bool           isMargin)
 {
-  meta = _meta;
+  meta  = _meta;
+
+  data0 = _meta->value(0);
+  data1 = _meta->value(1);
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -259,44 +269,89 @@ UnitsGui::UnitsGui(
     label2 = nullptr;
   }
 
-  QString      string;
-
-  string = QString("%1") .arg(meta->value(0),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value0 = new QLineEdit(string,parent);
-  connect(value0,SIGNAL(textEdited(  QString const &)),
-          this,  SLOT(  value0Change(QString const &)));
-  layout->addWidget(value0);
+  value0Edit = new QLineEdit(parent);
+  QDoubleValidator *value0Validator = new QDoubleValidator(value0Edit);
+  value0Validator->setRange(0.0f, 1000.0f);
+  value0Validator->setDecimals(meta->_precision);
+  value0Validator->setNotation(QDoubleValidator::StandardNotation);
+  value0Edit->setValidator(value0Validator);
+  value0Edit->setText(QString::number(meta->value(0),'f',meta->_precision));
+  reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value0Edit,SIGNAL( textEdited(  QString const &)),
+          this,      SLOT(   value0Change(QString const &)));
+  layout->addWidget(value0Edit);
 
   if (secondLabel) {
     label2 = new QLabel(labels.last(),parent);
     layout->addWidget(label2);
   }
 
-  string = QString("%1") .arg(meta->value(1),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(  QString const &)),
-          this,  SLOT(  value1Change(QString const &)));
-  layout->addWidget(value1);
+  value1Edit = new QLineEdit(parent);
+  QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+  value1Validator->setRange(0.0f, 1000.0f);
+  value1Validator->setDecimals(meta->_precision);
+  value1Validator->setNotation(QDoubleValidator::StandardNotation);
+  value1Edit->setValidator(value1Validator);
+  value1Edit->setText(QString::number(meta->value(1),'f',meta->_precision));
+  reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset1Act->setText(tr("Reset"));
+  reset1Act->setEnabled(false);
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset1Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  value1Change(QString const &)));
+  layout->addWidget(value1Edit);
+}
+
+void UnitsGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == value0Edit) {
+    qDebug() << qPrintable(QString("Margin Value %1, Data0: %2, Enable Reset: %3")
+                                   .arg(value).arg((double)data0)
+                                   .arg(notEqual(value, data0 ? "True" : "False"));
+    reset0Act->setEnabled(notEqual(value, data0));
+  } else
+  if (sender() == value1Edit)
+    reset1Act->setEnabled(notEqual(value, data1));
+}
+
+void UnitsGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (value0Edit)
+      value0Edit->setText(QString::number(data0,'f',meta->_precision));
+  }
+  else
+  if (sender() == reset1Act) {
+    reset1Act->setEnabled(false);
+    if (value1Edit)
+      value1Edit->setText(QString::number(data1,'f',meta->_precision));
+  }
 }
 
 void UnitsGui::value0Change(QString const &string)
 {
-  float v = string.toFloat();
-  meta->setValue(0,v);
-  modified = true;
+  const float value = string.toFloat();
+  meta->setValue(0,value);
+  modified = notEqual(value, data0);
 }
 
 void UnitsGui::value1Change(QString const &string)
 {
-  float v = string.toFloat();
-  meta->setValue(1,v);
-  modified = true;
+  const float value = string.toFloat();
+  meta->setValue(1,value);
+  modified = notEqual(value, data1);
 }
 
 void UnitsGui::setEnabled(bool enable)
@@ -307,8 +362,8 @@ void UnitsGui::setEnabled(bool enable)
   if (label2) {
     label2->setEnabled(enable);
   }
-  value0->setEnabled(enable);
-  value1->setEnabled(enable);
+  value0Edit->setEnabled(enable);
+  value1Edit->setEnabled(enable);
 }
 
 void UnitsGui::apply(QString &modelName)
@@ -333,7 +388,11 @@ FloatsGui::FloatsGui(
   int            decPlaces,
   bool           _showPair)
 {
-  meta = _meta;
+  Q_UNUSED(decPlaces)
+
+  meta     = _meta;
+  data0    = _meta->value(0);
+  data1    = _meta->value(1);
   showPair = _showPair;
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
@@ -355,25 +414,23 @@ FloatsGui::FloatsGui(
     layout->addWidget(label0);
   }
 
-  QString      string, numStr, dynMask;
-  int          a, dec;
-  float        val;
-
-  val = meta->value(0);
-  a = val - int(val);
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                          // shameless hack for the number of input decimals
-  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces); // add 1 decimal place for whole numbers
-  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                 // dynamically create the input mask
-
-  string = QString("%1") .arg(double(val),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value0 = new QLineEdit(string,parent);
-  value0->setInputMask(dynMask);
-  connect(value0,SIGNAL(textEdited(  QString const &)),
-          this,  SLOT(  value0Change(QString const &)));
-  layout->addWidget(value0);
+  value0Edit = new QLineEdit(parent);
+  QDoubleValidator *value0Validator = new QDoubleValidator(value0Edit);
+  value0Validator->setRange(0.0f, 1000.0f);
+  value0Validator->setDecimals(_meta->_precision);
+  value0Validator->setNotation(QDoubleValidator::StandardNotation);
+  value0Edit->setValidator(value0Validator);
+  value0Edit->setText(QString::number(_meta->value(0),'f',_meta->_precision));
+  reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  value0Change(QString const &)));
+  layout->addWidget(value0Edit);
 
   if (showPair) {
     if (heading1 == "") {
@@ -383,21 +440,23 @@ FloatsGui::FloatsGui(
       layout->addWidget(label1);
     }
 
-    val = meta->value(1);
-    dynMask.clear();
-    a = val - (int)val;
-    dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
-    numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
-    for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
-    string = QString("%1") .arg(val,
-                                meta->_fieldWidth,
-                                'f',
-                                meta->_precision);
-    value1 = new QLineEdit(string,parent);
-    value1->setInputMask(dynMask);
-    connect(value1,SIGNAL(textEdited(  QString const &)),
-            this,  SLOT(  value1Change(QString const &)));
-    layout->addWidget(value1);
+    value1Edit = new QLineEdit(parent);
+    QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+    value1Validator->setRange(0.0f, 1000.0f);
+    value1Validator->setDecimals(_meta->_precision);
+    value1Validator->setNotation(QDoubleValidator::StandardNotation);
+    value1Edit->setValidator(value1Validator);
+    value1Edit->setText(QString::number(_meta->value(1),'f',_meta->_precision));
+    reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    reset1Act->setText(tr("Reset"));
+    reset1Act->setEnabled(false);
+    connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+            this,       SLOT(  enableReset( QString const &)));
+    connect(reset1Act,  SIGNAL(triggered()),
+            this,       SLOT(  lineEditReset()));
+    connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+            this,       SLOT(  value1Change(QString const &)));
+    layout->addWidget(value1Edit);
   } else {
       QSpacerItem *hSpacer;
       hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -405,18 +464,46 @@ FloatsGui::FloatsGui(
   }
 }
 
+void FloatsGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == value0Edit)
+    reset0Act->setEnabled(notEqual(value, data0));
+  else
+  if (sender() == value1Edit)
+    reset1Act->setEnabled(notEqual(value, data1));
+}
+
+void FloatsGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (value0Edit)
+      value0Edit->setText(QString::number(data0,'f',meta->_precision));
+  }
+  else
+  if (sender() == reset1Act) {
+    reset1Act->setEnabled(false);
+    if (value1Edit)
+      value1Edit->setText(QString::number(data1,'f',meta->_precision));
+  }
+}
+
 void FloatsGui::value0Change(QString const &string)
 {
-  meta->setValue(0,string.toFloat());
+  const float value = string.toFloat();
+  meta->setValue(0,value);
   if (!showPair)
-     meta->setValue(1,string.toFloat());
-  modified = true;
+     meta->setValue(1,value);
+  modified = notEqual(value, data0);
 }
 
 void FloatsGui::value1Change(QString const &string)
 {
-  meta->setValue(1,string.toFloat());
-  modified = true;
+  const float value = string.toFloat();
+  meta->setValue(1,value);
+  modified = notEqual(value, data1);
 }
 
 void FloatsGui::setEnabled(bool enable)
@@ -427,9 +514,9 @@ void FloatsGui::setEnabled(bool enable)
   if (label1) {
     label1->setEnabled(enable);
   }
-  value0->setEnabled(enable);
-  if (value1) {
-    value1->setEnabled(enable);
+  value0Edit->setEnabled(enable);
+  if (value1Edit) {
+    value1Edit->setEnabled(enable);
   }
 }
 
@@ -456,6 +543,7 @@ SpinGui::SpinGui(
   QGroupBox     *parent)
 {
   meta = _meta;
+  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -474,21 +562,48 @@ SpinGui::SpinGui(
     layout->addWidget(label);
   }
 
-  int val = meta->value();
-
   spin = new QSpinBox(parent);
-  layout->addWidget(spin);
   spin->setRange(min,max);
   spin->setSingleStep(step);
-  spin->setValue(val);
+  spin->setValue(data);
   connect(spin,SIGNAL(valueChanged(int)),
           this,SLOT  (valueChanged(int)));
+  layout->addWidget(spin);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(int)),
+          this,   SLOT(  enableReset( int)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void SpinGui::enableReset(int value)
+{
+  button->setEnabled(value != data);
+}
+
+void SpinGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
 }
 
 void SpinGui::valueChanged(int value)
 {
   meta->setValue(value);
-  modified = true;
+  modified = value != data;
 }
 
 void SpinGui::setEnabled(bool enable)
@@ -522,6 +637,7 @@ DoubleSpinGui::DoubleSpinGui(
   QGroupBox     *parent)
 {
   meta = _meta;
+  data = meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -540,24 +656,53 @@ DoubleSpinGui::DoubleSpinGui(
     layout->addWidget(label);
   }
 
-  float val = meta->value();
-  int a = val - (int)val;
-  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  const int residual = data - (int)data;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
 
   spin = new QDoubleSpinBox(parent);
-  layout->addWidget(spin);
   spin->setRange(min,max);
   spin->setSingleStep(step);
-  spin->setDecimals(dec);
-  spin->setValue(val);
+  spin->setDecimals(decimalPlaces);
+  spin->setValue(data);
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
+  layout->addWidget(spin);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(double)),
+          this,   SLOT(  enableReset( double)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void DoubleSpinGui::enableReset(double value)
+{
+  button->setEnabled(notEqual(value, data));
+}
+
+void DoubleSpinGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
 }
 
 void DoubleSpinGui::valueChanged(double value)
 {
   meta->setValue(value);
-  modified = true;
+  modified = notEqual(value, data);
 }
 
 void DoubleSpinGui::setEnabled(bool enable)
@@ -578,6 +723,207 @@ void DoubleSpinGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * Number
+ *
+ **********************************************************************/
+
+NumberGui::NumberGui(
+  QString    title,
+  NumberMeta *_meta,
+  QGroupBox  *parent)
+{
+  meta        = _meta;
+  marginData0 = _meta->margin.value(0);
+  marginData1 = _meta->margin.value(1);
+
+  QGridLayout *grid = new QGridLayout(parent);
+
+  if (parent) {
+      parent->setLayout(grid);
+      parent->setWhatsThis(lpubWT(WT_GUI_NUMBER, parent->title()));
+  } else {
+      setWhatsThis(lpubWT(WT_GUI_NUMBER, title.isEmpty() ? tr("Number") : title));
+      if (!title.isEmpty()) {
+          QGridLayout *gridLayout = new QGridLayout(nullptr);
+          setLayout(gridLayout);
+
+          gbFormat = new QGroupBox(title,parent);
+          parent = gbFormat;
+          parent->setLayout(grid);
+          gridLayout->addWidget(parent,0,0);
+      } else {
+          setLayout(grid);
+      }
+  }
+
+  fontLabel = new QLabel(tr("Font"),parent);
+  grid->addWidget(fontLabel,0,0);
+
+  fontExample = new QLabel("1234",parent);
+  QFont font;
+  font.fromString(_meta->font.valueFoo());
+  fontExample->setFont(font);
+  grid->addWidget(fontExample,0,1);
+
+  fontButton = new QPushButton(tr("Change"),parent);
+  connect(fontButton,SIGNAL(clicked(   bool)),
+          this,      SLOT(  browseFont(bool)));
+  grid->addWidget(fontButton,0,2);
+
+  colorLabel = new QLabel(tr("Color"),parent);
+  grid->addWidget(colorLabel,1,0);
+
+  colorExample = new QLabel(parent);
+  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+  QColor c = QColor(_meta->color.value());
+  QString styleSheet =
+      QString("QLabel { background-color: rgb(%1, %2, %3); }").
+      arg(c.red()).arg(c.green()).arg(c.blue());
+  colorExample->setAutoFillBackground(true);
+  colorExample->setStyleSheet(styleSheet);
+  grid->addWidget(colorExample,1,1);
+
+  colorButton = new QPushButton(tr("Change"));
+  connect(colorButton,SIGNAL(clicked(    bool)),
+          this,       SLOT(  browseColor(bool)));
+  grid->addWidget(colorButton,1,2);
+
+  marginsLabel = new QLabel(tr("Margins"),parent);
+  grid->addWidget(marginsLabel,2,0);
+
+  value0Edit = new QLineEdit(parent);
+  QDoubleValidator *value0Validator = new QDoubleValidator(value0Edit);
+  value0Validator->setRange(0.0f, 100.0f);
+  value0Validator->setDecimals(meta->margin._precision);
+  value0Validator->setNotation(QDoubleValidator::StandardNotation);
+  value0Edit->setValidator(value0Validator);
+  value0Edit->setText(QString::number(meta->margin.value(0),'f',meta->margin._precision));
+  reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value0Changed(QString const &)));
+  grid->addWidget(value0Edit,2,1);
+
+  value1Edit = new QLineEdit(parent);
+  QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+  value1Validator->setRange(0.0f, 100.0f);
+  value1Validator->setDecimals(_meta->margin._precision);
+  value1Validator->setNotation(QDoubleValidator::StandardNotation);
+  value1Edit->setValidator(value1Validator);
+  value1Edit->setText(QString::number(_meta->margin.value(1),'f',_meta->margin._precision));
+  reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset1Act->setText(tr("Reset"));
+  reset1Act->setEnabled(false);
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset1Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value1Changed(QString const &)));
+  grid->addWidget(value1Edit,2,2);
+
+  fontModified    = false;
+  colorModified   = false;
+  marginsModified = false;
+}
+
+void NumberGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == value0Edit)
+    reset0Act->setEnabled(notEqual(value, marginData0));
+  else
+  if (sender() == value1Edit)
+    reset1Act->setEnabled(notEqual(value, marginData1));
+}
+
+void NumberGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (value0Edit)
+      value0Edit->setText(QString::number(marginData0,'f',meta->margin._precision));
+  }
+  else
+  if (sender() == reset1Act) {
+    reset1Act->setEnabled(false);
+    if (value1Edit)
+      value1Edit->setText(QString::number(marginData1,'f',meta->margin._precision));
+  }
+}
+
+void NumberGui::browseFont(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QFont font;
+  QString fontName = meta->font.valueFoo();
+  font.fromString(fontName);
+  bool ok;
+  font = QFontDialog::getFont(&ok,font);
+  fontName = font.toString();
+
+  if (ok) {
+    meta->font.setValue(font.toString());
+    fontExample->setFont(font);
+    modified = fontModified = true;
+  }
+}
+
+void NumberGui::browseColor(bool clicked)
+{
+  Q_UNUSED(clicked);
+  QColor qcolor = LDrawColor::color(meta->color.value());
+  QColor newColor = QColorDialog::getColor(qcolor,this);
+  if (newColor.isValid() && qcolor != newColor) {
+      colorExample->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
+      colorExample->setStyleSheet(styleSheet);
+      meta->color.setValue(newColor.name());
+      modified = colorModified = true;
+    }
+}
+
+void NumberGui::value0Changed(QString const &string)
+{
+  const float value = string.toFloat();
+  meta->margin.setValue(0,value);
+  modified = marginsModified = notEqual(value, marginData0);
+}
+
+void NumberGui::value1Changed(QString const &string)
+{
+  const float value = string.toFloat();
+  meta->margin.setValue(1,value);
+  modified = marginsModified = notEqual(value, marginData1);
+}
+
+void NumberGui::enableTextFormatGroup(bool checked)
+{
+    gbFormat->setEnabled(checked);
+}
+
+void NumberGui::apply(
+  QString &topLevelFile)
+{
+  MetaItem mi;
+  if (fontModified)
+    mi.setGlobalMeta(topLevelFile,&meta->font);
+  if (colorModified)
+    mi.setGlobalMeta(topLevelFile,&meta->color);
+  if (marginsModified)
+    mi.setGlobalMeta(topLevelFile,&meta->margin);
+}
+
+/***********************************************************************
+ *
  * Constraint
  *
  **********************************************************************/
@@ -588,6 +934,8 @@ ConstrainGui::ConstrainGui(
   QGroupBox     *parent)
 {
   meta = _meta;
+
+  data = meta->valueUnit();
 
   QHBoxLayout *layout;
 
@@ -657,36 +1005,35 @@ ConstrainGui::ConstrainGui(
 
 void ConstrainGui::typeChange(QString const &type)
 {
-  ConstrainData constraint = meta->valueUnit();
+  ConstrainData _data = meta->valueUnit();
   QString string = "";
   if (type == "Area") {
-    constraint.type = ConstrainData::PliConstrainArea;
+    _data.type = ConstrainData::PliConstrainArea;
   } else if (type == "Square") {
-    constraint.type = ConstrainData::PliConstrainSquare;
+    _data.type = ConstrainData::PliConstrainSquare;
   } else if (type == "Width") {
-    string = QString("%1") .arg(constraint.constraint,
-                                4,'f',2);
-    constraint.type = ConstrainData::PliConstrainWidth;
+    string = QString::number(_data.constraint,'f',2);
+    _data.type = ConstrainData::PliConstrainWidth;
   } else if (type == "Height") {
-    string = QString("%1") .arg(constraint.constraint,
-                                4,'f',2);
-    constraint.type = ConstrainData::PliConstrainHeight;
+    string = QString::number(_data.constraint,'f',2);
+    _data.type = ConstrainData::PliConstrainHeight;
   } else {
-    string = QString("%1") .arg(int(constraint.constraint));
-    constraint.type = ConstrainData::PliConstrainColumns;
+    string = QString::number(int(_data.constraint));
+    _data.type = ConstrainData::PliConstrainColumns;
   }
   valueEdit->setText(string);
-  meta->setValueUnit(constraint);
+  meta->setValueUnit(_data);
   enable();
   modified = true;
 }
 
-void ConstrainGui::valueChange(QString const &value)
+void ConstrainGui::valueChange(QString const &string)
 {
-  ConstrainData constraint = meta->valueUnit();
-  constraint.constraint = value.toFloat();
-  meta->setValueUnit(constraint);
-  modified = true;
+  float value = string.toFloat();
+  ConstrainData _data = meta->valueUnit();
+  _data.constraint = value;
+  meta->setValueUnit(_data);
+  modified = notEqual(value, data.constraint);
 }
 
 void ConstrainGui::setEnabled(bool enable)
@@ -700,8 +1047,8 @@ void ConstrainGui::setEnabled(bool enable)
 
 void ConstrainGui::enable()
 {
-  ConstrainData constraint = meta->valueUnit();
-  switch (constraint.type) {
+  ConstrainData _data = meta->valueUnit();
+  switch (_data.type) {
     case ConstrainData::PliConstrainArea:
       valueEdit->setDisabled(true);
     break;
@@ -720,155 +1067,6 @@ void ConstrainGui::apply(QString &modelName)
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
   }
-}
-
-/***********************************************************************
- *
- * Number
- *
- **********************************************************************/
-
-NumberGui::NumberGui(
-  QString    title,
-  NumberMeta *_meta,
-  QGroupBox  *parent)
-{
-  meta   = _meta;
-
-  QGridLayout *grid = new QGridLayout(parent);
-
-  if (parent) {
-      parent->setLayout(grid);
-      parent->setWhatsThis(lpubWT(WT_GUI_NUMBER, parent->title()));
-  } else {
-      setWhatsThis(lpubWT(WT_GUI_NUMBER, title.isEmpty() ? tr("Number") : title));
-      if (!title.isEmpty()) {
-          QGridLayout *gridLayout = new QGridLayout(nullptr);
-          setLayout(gridLayout);
-
-          gbFormat = new QGroupBox(title,parent);
-          parent = gbFormat;
-          parent->setLayout(grid);
-          gridLayout->addWidget(parent,0,0);
-      } else {
-          setLayout(grid);
-      }
-  }
-
-  fontLabel = new QLabel("Font",parent);
-  grid->addWidget(fontLabel,0,0);
-
-  fontExample = new QLabel("1234",parent);
-  QFont font;
-  font.fromString(meta->font.valueFoo());
-  fontExample->setFont(font);
-  grid->addWidget(fontExample,0,1);
-
-  fontButton = new QPushButton("Change",parent);
-  connect(fontButton,SIGNAL(clicked(   bool)),
-          this,      SLOT(  browseFont(bool)));
-  grid->addWidget(fontButton,0,2);
-
-  colorLabel = new QLabel("Color",parent);
-  grid->addWidget(colorLabel,1,0);
-
-  colorExample = new QLabel(parent);
-  colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  QColor c = QColor(meta->color.value());
-  QString styleSheet =
-      QString("QLabel { background-color: rgb(%1, %2, %3); }").
-      arg(c.red()).arg(c.green()).arg(c.blue());
-  colorExample->setAutoFillBackground(true);
-  colorExample->setStyleSheet(styleSheet);
-  grid->addWidget(colorExample,1,1);
-
-  colorButton = new QPushButton("Change");
-  connect(colorButton,SIGNAL(clicked(    bool)),
-          this,       SLOT(  browseColor(bool)));
-  grid->addWidget(colorButton,1,2);
-
-  marginsLabel = new QLabel("Margins",parent);
-  grid->addWidget(marginsLabel,2,0);
-
-  QString string;
-
-  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
-  value0 = new QLineEdit(string,parent);
-  connect(value0,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value0Changed(QString const &)));
-  grid->addWidget(value0,2,1);
-
-  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value1Changed(QString const &)));
-  grid->addWidget(value1,2,2);
-
-  fontModified    = false;
-  colorModified   = false;
-  marginsModified = false;
-}
-
-void NumberGui::browseFont(bool clicked)
-{
-  Q_UNUSED(clicked);
-  QFont font;
-  QString fontName = meta->font.valueFoo();
-  font.fromString(fontName);
-  bool ok;
-  font = QFontDialog::getFont(&ok,font);
-  fontName = font.toString();
-
-  if (ok) {
-    meta->font.setValue(font.toString());
-    fontExample->setFont(font);
-    modified = fontModified = true;
-  }
-}
-
-void NumberGui::browseColor(bool clicked)
-{
-  Q_UNUSED(clicked);
-  QColor qcolor = LDrawColor::color(meta->color.value());
-  QColor newColor = QColorDialog::getColor(qcolor,this);
-  if (newColor.isValid() && qcolor != newColor) {
-      colorExample->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
-      colorExample->setStyleSheet(styleSheet);
-      meta->color.setValue(newColor.name());
-      modified = colorModified = true;
-    }
-}
-
-void NumberGui::value0Changed(QString const &string)
-{
-  meta->margin.setValue(0,string.toFloat());
-  modified = marginsModified = true;
-}
-
-void NumberGui::value1Changed(QString const &string)
-{
-  meta->margin.setValue(1, string.toFloat());
-  modified = marginsModified = true;
-}
-
-void NumberGui::enableTextFormatGroup(bool checked)
-{
-    gbFormat->setEnabled(checked);
-}
-
-void NumberGui::apply(
-  QString &topLevelFile)
-{
-  MetaItem mi;
-  if (fontModified)
-    mi.setGlobalMeta(topLevelFile,&meta->font);
-  if (colorModified)
-    mi.setGlobalMeta(topLevelFile,&meta->color);
-  if (marginsModified)
-    mi.setGlobalMeta(topLevelFile,&meta->margin);
 }
 
 /***********************************************************************
@@ -1123,7 +1321,6 @@ PageAttributeTextGui::PageAttributeTextGui(
   PageAttributeTextMeta *_meta,
   QGroupBox  *parent)
 {
-  QString        string;
   QGridLayout   *grid;
   QGridLayout   *gLayout;
   QHBoxLayout   *hLayout;
@@ -1143,20 +1340,20 @@ PageAttributeTextGui::PageAttributeTextGui(
   }
 
   int attributeType;
-  attributeType = meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
+  attributeType = _meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
   int oks;
   oks = attributeKeysOk[attributeType];
 
   // Display
   if (parent) {
     parent->setCheckable(true);
-    parent->setChecked(meta->display.value());
+    parent->setChecked(_meta->display.value());
     connect(parent,SIGNAL(toggled(bool)),
             this, SLOT(  toggled(bool)));
   }
 
   // Section
-  sectionLabel = new QLabel("Section",parent);
+  sectionLabel = new QLabel(tr("Section"),parent);
   grid->addWidget(sectionLabel,0,0);
 
   sectionCombo = new QComboBox(parent);
@@ -1184,41 +1381,41 @@ PageAttributeTextGui::PageAttributeTextGui(
   connect(this,SIGNAL(indexChanged(int)),this,SLOT(newIndex(int)));
 
   // Page Text Placement
-  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[meta->type]),parent);
-  PlacementData placementData = meta->placement.value();
-  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[meta->type]);
-  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(meta->type,placementData,placementButtonText));
+  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[_meta->type]),parent);
+  PlacementData placementData = _meta->placement.value();
+  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[_meta->type]);
+  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_meta->type,placementData,placementButtonText));
   gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement,0,2);
 
-  placementButton = new QPushButton("Change Placement",parent);
+  placementButton = new QPushButton(tr("Change Placement"),parent);
   gLayout->addWidget(placementButton,0,0);
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,      SLOT(  placementChanged(bool)));
 
   // font
-  fontLabel = new QLabel("Font",parent);
+  fontLabel = new QLabel(tr("Font"),parent);
   grid->addWidget(fontLabel,1,0);
 
   fontExample = new QLabel("1234",parent);
   QFont font;
-  font.fromString(meta->textFont.valueFoo());
+  font.fromString(_meta->textFont.valueFoo());
   fontExample->setFont(font);
   grid->addWidget(fontExample,1,1);
 
-  fontButton = new QPushButton("Change",parent);
+  fontButton = new QPushButton(tr("Change"),parent);
   connect(fontButton,SIGNAL(clicked(   bool)),
           this,      SLOT(  browseFont(bool)));
   grid->addWidget(fontButton,1,2);
 
   // color
-  colorLabel = new QLabel("Color",parent);
+  colorLabel = new QLabel(tr("Color"),parent);
   grid->addWidget(colorLabel,2,0);
 
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
-  QColor c = QColor(meta->textColor.value());
+  QColor c = QColor(_meta->textColor.value());
   QString styleSheet =
       QString("QLabel { background-color: rgb(%1, %2, %3); }").
       arg(c.red()).arg(c.green()).arg(c.blue());
@@ -1226,39 +1423,66 @@ PageAttributeTextGui::PageAttributeTextGui(
   colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,2,1);
 
-  colorButton = new QPushButton("Change");
+  colorButton = new QPushButton(tr("Change"));
   connect(colorButton,SIGNAL(clicked(    bool)),
           this,       SLOT(  browseColor(bool)));
   grid->addWidget(colorButton,2,2);
 
   // margins
-  marginsLabel = new QLabel("Margins",parent);
+  marginData0 = _meta->margin.value(0);
+  marginData1 = _meta->margin.value(1);
+
+  marginsLabel = new QLabel(tr("Margins"),parent);
   grid->addWidget(marginsLabel,3,0);
 
-  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
-  value0 = new QLineEdit(string,parent);
-  connect(value0,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value0Changed(QString const &)));
-  grid->addWidget(value0,3,1);
+  value0Edit = new QLineEdit(parent);
+  QDoubleValidator *value0Validator = new QDoubleValidator(value0Edit);
+  value0Validator->setRange(0.0f, 100.0f);
+  value0Validator->setDecimals(_meta->margin._precision);
+  value0Validator->setNotation(QDoubleValidator::StandardNotation);
+  value0Edit->setValidator(value0Validator);
+  value0Edit->setText(QString::number(_meta->margin.value(0),'f',_meta->margin._precision));
+  reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(value0Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value0Changed(QString const &)));
+  grid->addWidget(value0Edit,3,1);
 
-  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value1Changed(QString const &)));
-  grid->addWidget(value1,3,2);
+  value1Edit = new QLineEdit(parent);
+  QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+  value1Validator->setRange(0.0f, 100.0f);
+  value1Validator->setDecimals(_meta->margin._precision);
+  value1Validator->setNotation(QDoubleValidator::StandardNotation);
+  value1Edit->setValidator(value1Validator);
+  value1Edit->setText(QString::number(_meta->margin.value(1),'f',_meta->margin._precision));
+  reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset1Act->setText(tr("Reset"));
+  reset1Act->setEnabled(false);
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset1Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value1Changed(QString const &)));
+  grid->addWidget(value1Edit,3,2);
 
   //Content Dialogue
-  gbContentEdit = new QGroupBox("Content",parent);
+  gbContentEdit = new QGroupBox(tr("Content"),parent);
   hLayout = new QHBoxLayout();
   gbContentEdit->setLayout(hLayout);
   grid->addWidget(gbContentEdit,4,0,1,3);
 
-  content = meta->content.value();
+  content = _meta->content.value();
 
-  if (meta->type == PagePlugType       ||
-      meta->type == PageDisclaimerType ||
-      meta->type == PageModelDescType  ||
-      meta->type == PagePublishDescType) {
+  if (_meta->type == PagePlugType       ||
+      _meta->type == PageDisclaimerType ||
+      _meta->type == PageModelDescType  ||
+      _meta->type == PagePublishDescType) {
       contentTextEdit = new QTextEdit(content,parent);
 
       connect(contentTextEdit,SIGNAL(textChanged()),
@@ -1268,6 +1492,7 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   } else {
       contentLineEdit = new QLineEdit(content,parent);
+      contentLineEdit->setClearButtonEnabled(true);
 
       connect(contentLineEdit,SIGNAL(textChanged(QString const &)),
             this,             SLOT(lineEditChanged(QString const &)));
@@ -1316,16 +1541,44 @@ void PageAttributeTextGui::browseColor(bool clicked)
     }
 }
 
+void PageAttributeTextGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == value0Edit)
+    reset0Act->setEnabled(notEqual(value, marginData0));
+  else
+  if (sender() == value1Edit)
+    reset1Act->setEnabled(notEqual(value, marginData1));
+}
+
+void PageAttributeTextGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (value0Edit)
+      value0Edit->setText(QString::number(marginData0,'f',meta->margin._precision));
+  }
+  else
+  if (sender() == reset1Act) {
+    reset1Act->setEnabled(false);
+    if (value1Edit)
+      value1Edit->setText(QString::number(marginData1,'f',meta->margin._precision));
+  }
+}
+
 void PageAttributeTextGui::value0Changed(QString const &string)
 {
-  meta->margin.setValue(0,string.toFloat());
-  modified = marginsModified = true;
+  const float value = string.toFloat();
+  meta->margin.setValue(0,value);
+  modified = marginsModified = notEqual(value, marginData0);
 }
 
 void PageAttributeTextGui::value1Changed(QString const &string)
 {
-  meta->margin.setValue(1,string.toFloat());
-  modified = marginsModified = true;
+  const float value = string.toFloat();
+  meta->margin.setValue(1,value);
+  modified = marginsModified = notEqual(value, marginData1);
 }
 
 void PageAttributeTextGui::textEditChanged()
@@ -1404,7 +1657,6 @@ void PageAttributeTextGui::apply(
   QGridLayout   *grid;
   QGridLayout   *gLayout;
   QHBoxLayout   *hLayout;
-  QString        string;
 
   meta  = _meta;
 
@@ -1421,20 +1673,20 @@ void PageAttributeTextGui::apply(
   }
 
   int attributeType;
-  attributeType = meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
+  attributeType = _meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
   int oks;
   oks = attributeKeysOk[attributeType];
 
   // Display
   if (parent) {
     parent->setCheckable(true);
-    parent->setChecked(meta->display.value());
+    parent->setChecked(_meta->display.value());
     connect(parent,SIGNAL(toggled(bool)),
             this, SLOT(  toggled(bool)));
   }
 
   // Section
-  sectionLabel = new QLabel("Section",parent);
+  sectionLabel = new QLabel(tr("Section"),parent);
   grid->addWidget(sectionLabel,0,0);
 
   sectionCombo = new QComboBox(parent);
@@ -1461,91 +1713,141 @@ void PageAttributeTextGui::apply(
   connect(this,SIGNAL(indexChanged(int)),this,SLOT(selectionChanged(int)));
 
   // PLI Annotation Placement
-  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[meta->type]),parent);
-  PlacementData placementData = meta->placement.value();
-  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[meta->type]);
-  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(meta->type,placementData,placementButtonText));
+  gbPlacement = new QGroupBox(tr("%1 Placement").arg(pageAttributeName[_meta->type]),parent);
+  PlacementData placementData = _meta->placement.value();
+  const QString placementButtonText = tr("Change %1 Placement").arg(pageAttributeName[_meta->type]);
+  setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_meta->type,placementData,placementButtonText));
   gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement,0,2);
 
-  placementButton = new QPushButton("Change Placement",parent);
+  placementButton = new QPushButton(tr("Change Placement"),parent);
   gLayout->addWidget(placementButton,0,0);
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,      SLOT(  placementChanged(bool)));
 
   // margins
-  marginsLabel = new QLabel("Margins",parent);
+  marginData0 = _meta->margin.value(0);
+  marginData1 = _meta->margin.value(1);
+
+  marginsLabel = new QLabel(tr("Margins"),parent);
   grid->addWidget(marginsLabel,1,0);
 
-  string = QString("%1") .arg(meta->margin.value(0),5,'f',4);
-  value0 = new QLineEdit(string,parent);
-  connect(value0,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value0Changed(QString const &)));
-  grid->addWidget(value0,1,1);
+  value0Edit = new QLineEdit(parent);
+  QDoubleValidator *value0Validator = new QDoubleValidator(value0Edit);
+  value0Validator->setRange(0.0f, 100.0f);
+  value0Validator->setDecimals(_meta->margin._precision);
+  value0Validator->setNotation(QDoubleValidator::StandardNotation);
+  value0Edit->setValidator(value0Validator);
+  value0Edit->setText(QString::number(_meta->margin.value(0),'f',_meta->margin._precision));
+  reset0Act = value0Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(enableEditReset(QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value0Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value0Changed(QString const &)));
+  grid->addWidget(value0Edit,1,1);
 
-  string = QString("%1") .arg(meta->margin.value(1),5,'f',4);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(   QString const &)),
-          this,  SLOT(  value1Changed(QString const &)));
-  grid->addWidget(value1,1,2);
+  value1Edit = new QLineEdit(parent);
+  QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+  value1Validator->setRange(0.0f, 100.0f);
+  value1Validator->setDecimals(_meta->margin._precision);
+  value1Validator->setNotation(QDoubleValidator::StandardNotation);
+  value1Edit->setValidator(value1Validator);
+  value1Edit->setText(QString::number(_meta->margin.value(1),'f',_meta->margin._precision));
+  reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset1Act->setText(tr("Reset"));
+  reset1Act->setEnabled(false);
+  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(enableEditReset(QString const &)));
+  connect(reset1Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value1Edit, SIGNAL(textEdited(   QString const &)),
+          this,       SLOT(  value1Changed(QString const &)));
+  grid->addWidget(value1Edit,1,2);
 
   // Image
-  image = meta->file.value();
+  image = _meta->file.value();
   imageEdit = new QLineEdit(image,parent);
+  imageEdit->setClearButtonEnabled(true);
   connect(imageEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  imageChange(QString const &)));
   grid->addWidget(imageEdit,2,0,1,2);
 
-  imageButton = new QPushButton("Browse",parent);
+  imageButton = new QPushButton(tr("Browse"),parent);
   connect(imageButton,SIGNAL(clicked(     bool)),
           this,         SLOT(  browseImage(bool)));
   grid->addWidget(imageButton,2,2,1,1);
 
   //scale
-  bool gbChecked = (meta->picScale.value() > 1.0 ||
-                    meta->picScale.value() < 1.0) &&
-                   (meta->fill.value() == Aspect);
-  gbScale = new QGroupBox("Scale", parent);
+  scaleData = _meta->picScale.value();
+  const int residual = scaleData - (int)scaleData;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
+
+  bool gbChecked = (_meta->picScale.value() > 1.0 ||
+                    _meta->picScale.value() < 1.0) &&
+                   (_meta->fill.value() == Aspect);
+  gbScale = new QGroupBox(tr("Scale"), parent);
   gbScale->setCheckable(true);
   gbScale->setChecked(gbChecked);
-  gbScale->setEnabled(meta->fill.value() == Aspect);
+  gbScale->setEnabled(_meta->fill.value() == Aspect);
   hLayout = new QHBoxLayout();
   gbScale->setLayout(hLayout);
   grid->addWidget(gbScale,3,0,1,3);
 
-  scale = new QLabel("Scale " + pageAttributeName[meta->type],parent);
+  scale = new QLabel(tr("Scale %1").arg(pageAttributeName[_meta->type]),parent);
   hLayout->addWidget(scale);
 
   spin = new QDoubleSpinBox(parent);
-  spin->setRange(meta->picScale._min,meta->picScale._max);
+  spin->setRange(_meta->picScale._min,_meta->picScale._max);
   spin->setSingleStep(0.1);
-  spin->setDecimals(6);
-  spin->setValue(double(meta->picScale.value()));
+  spin->setDecimals(decimalPlaces);
+  spin->setValue(scaleData);
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
   hLayout->addWidget(spin);
-  connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
+
+  resetButton = new QPushButton(parent);
+  resetButton->setIcon(QIcon(":/resources/resetaction.png"));
+  resetButton->setIconSize(QSize(16,16));
+  resetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  resetButton->setToolTip(tr("Reset"));
+  resetButton->setEnabled(false);
+  connect(spin,        SIGNAL(valueChanged( double)),
+          this,        SLOT(enableSpinReset(double)));
+  connect(resetButton, SIGNAL(clicked(      bool)),
+          this,        SLOT(  spinReset(    bool)));
+  hLayout->addWidget(resetButton);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  hLayout->addSpacerItem(hSpacer);
+
+  connect(gbScale,SIGNAL(clicked(bool)),
+          this,   SLOT(gbScaleClicked(bool)));
 
   // fill
-  gbFill = new QGroupBox("Image Fill", parent);
+  gbFill = new QGroupBox(tr("Image Fill"), parent);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
   grid->addWidget(gbFill,4,0,1,3);
 
-  aspectRadio = new QRadioButton("Aspect",gbFill);
-  aspectRadio->setChecked(meta->fill.value() == Aspect);
+  aspectRadio = new QRadioButton(tr("Aspect"),gbFill);
+  aspectRadio->setChecked(_meta->fill.value() == Aspect);
   connect(aspectRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  imageFill(bool)));
   hLayout->addWidget(aspectRadio);
 
-  stretchRadio = new QRadioButton("Stretch",gbFill);
-  stretchRadio->setChecked(meta->fill.value() == Stretch);
+  stretchRadio = new QRadioButton(tr("Stretch"),gbFill);
+  stretchRadio->setChecked(_meta->fill.value() == Stretch);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  imageFill(bool)));
   hLayout->addWidget(stretchRadio);
-  tileRadio    = new QRadioButton("Tile",gbFill);
-  tileRadio->setChecked(meta->fill.value() == Tile);
+  tileRadio    = new QRadioButton(tr("Tile"),gbFill);
+  tileRadio->setChecked(_meta->fill.value() == Tile);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  imageFill(bool)));
   hLayout->addWidget(tileRadio);
@@ -1558,23 +1860,63 @@ void PageAttributeTextGui::apply(
   scaleModified     = false;
 }
 
- void PageAttributeImageGui::imageFill(bool checked)
- {
-   if (sender() == stretchRadio) {
-       meta->fill.setValue(Stretch);
-       if (checked)
-           gbScale->setEnabled(!checked);
-   } else if (sender() == tileRadio) {
-       meta->fill.setValue(Tile);
-       if (checked)
-           gbScale->setEnabled(!checked);
-   } else { /*aspectRadio*/
-       meta->fill.setValue(Aspect);
-       if (checked)
-           gbScale->setEnabled(checked);
-   }
-   modified = fillModified = true;
- }
+void PageAttributeImageGui::enableEditReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == value0Edit)
+    reset0Act->setEnabled(notEqual(value, marginData0));
+  else
+  if (sender() == value1Edit)
+    reset1Act->setEnabled(notEqual(value, marginData1));
+}
+
+void PageAttributeImageGui::enableSpinReset(double value)
+{
+  resetButton->setEnabled(notEqual(value, scaleData));
+}
+
+void PageAttributeImageGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (value0Edit)
+      value0Edit->setText(QString::number(marginData0,'f',meta->margin._precision));
+  }
+  else
+  if (sender() == reset1Act) {
+    reset1Act->setEnabled(false);
+    if (value1Edit)
+      value1Edit->setText(QString::number(marginData1,'f',meta->margin._precision));
+  }
+}
+
+void PageAttributeImageGui::spinReset(bool)
+{
+  resetButton->setEnabled(false);
+  if (spin) {
+    spin->setValue(scaleData);
+    spin->setFocus();
+  }
+}
+
+void PageAttributeImageGui::imageFill(bool checked)
+{
+  if (sender() == stretchRadio) {
+      meta->fill.setValue(Stretch);
+      if (checked)
+          gbScale->setEnabled(!checked);
+  } else if (sender() == tileRadio) {
+      meta->fill.setValue(Tile);
+      if (checked)
+          gbScale->setEnabled(!checked);
+  } else { /*aspectRadio*/
+      meta->fill.setValue(Aspect);
+      if (checked)
+          gbScale->setEnabled(checked);
+  }
+  modified = fillModified = true;
+}
 
 void PageAttributeImageGui::imageChange(QString const &pic)
 {
@@ -1603,9 +1945,6 @@ void PageAttributeImageGui::browseImage(bool)
 
 void PageAttributeImageGui::gbScaleClicked(bool checked)
 {
-  qreal value = meta->picScale.value();
-  meta->picScale.setValue(value);
-  modified = scaleModified = true;
   if (checked) {
       aspectRadio->setChecked(checked);
       stretchRadio->setChecked(!checked);
@@ -1615,22 +1954,23 @@ void PageAttributeImageGui::gbScaleClicked(bool checked)
 
 void PageAttributeImageGui::value0Changed(QString const &string)
 {
-  meta->margin.setValue(0,string.toFloat());
-  modified = marginsModified = true;
+  const float value = string.toFloat();
+  meta->margin.setValue(0,value);
+  modified = marginsModified = value != marginData0;
 }
 
 void PageAttributeImageGui::value1Changed(QString const &string)
 {
-  meta->margin.setValue(1,string.toFloat());
-  modified = marginsModified = true;
+  const float value = string.toFloat();
+  meta->margin.setValue(1,value);
+  modified = marginsModified = value != marginData0;
 }
 
 void PageAttributeImageGui::valueChanged(double value)
 {
   meta->picScale.setValue(value);
-  modified = imageModified = true;
+  modified = scaleModified = (float)value != scaleData;
 }
-
 
 void PageAttributeImageGui::placementChanged(bool clicked)
 {
@@ -1695,7 +2035,8 @@ HeaderFooterHeightGui::HeaderFooterHeightGui(
   UnitsMeta     *_meta,
   QGroupBox     *parent)
 {
-  meta = _meta;
+  meta  = _meta;
+  data1 = _meta->value(1);
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -1718,32 +2059,48 @@ HeaderFooterHeightGui::HeaderFooterHeightGui(
     label = nullptr;
   }
 
-  QString      string;
+  value0Edit = new QLineEdit(QString::number(_meta->value(0),'f',_meta->_precision),parent);
+  value0Edit->setDisabled(true);
 
-  string = QString("%1") .arg(meta->value(0),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value0 = new QLineEdit(string,parent);
-  value0->setDisabled(true);
+  layout->addWidget(value0Edit);
 
-  layout->addWidget(value0);
+  value1Edit = new QLineEdit(parent);
+  QDoubleValidator *value1Validator = new QDoubleValidator(value1Edit);
+  value1Validator->setRange(0.0f, 1000.0f);
+  value1Validator->setDecimals(_meta->_precision);
+  value1Validator->setNotation(QDoubleValidator::StandardNotation);
+  value1Edit->setValidator(value1Validator);
+  value1Edit->setText(QString::number(_meta->value(1),'f',_meta->_precision));
+  reset1Act = value1Edit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset1Act->setText(tr("Reset"));
+  reset1Act->setEnabled(false);
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset1Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
+  connect(value1Edit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  value1Change(QString const &)));
+  layout->addWidget(value1Edit);
+}
 
-  string = QString("%1") .arg(meta->value(1),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value1 = new QLineEdit(string,parent);
-  connect(value1,SIGNAL(textEdited(  QString const &)),
-          this,  SLOT(  value1Change(QString const &)));
-  layout->addWidget(value1);
+void HeaderFooterHeightGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+  reset1Act->setEnabled(notEqual(value, data1));
+}
+
+void HeaderFooterHeightGui::lineEditReset()
+{
+  reset1Act->setEnabled(false);
+  if (value1Edit)
+    value1Edit->setText(QString::number(data1,'f',meta->_precision));
 }
 
 void HeaderFooterHeightGui::value1Change(QString const &string)
 {
-  float v = string.toFloat();
-  meta->setValue(1,v);
-  modified = true;
+  const float value = string.toFloat();
+  meta->setValue(1,value);
+  modified = notEqual(value, data1);
 }
 
 void HeaderFooterHeightGui::setEnabled(bool enable)
@@ -1751,7 +2108,7 @@ void HeaderFooterHeightGui::setEnabled(bool enable)
   if (label) {
     label->setEnabled(enable);
   }
-  value0->setEnabled(enable);
+  value0Edit->setEnabled(enable);
 }
 
 void HeaderFooterHeightGui::apply(QString &modelName)
@@ -1931,6 +2288,7 @@ HighlightStepGui::HighlightStepGui(
         QGroupBox  *parent)
 {
   meta = _meta;
+  data = _meta->lineWidth.value();
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -1945,11 +2303,11 @@ HighlightStepGui::HighlightStepGui(
   // enable highlight row
 
   highlightCheck = new QCheckBox(tr("Enable Highlight Current Step"), parent);
-  highlightCheck->setChecked(meta->enable.value());
+  highlightCheck->setChecked(_meta->enable.value());
   highlightCheck->setToolTip(tr("Turn on global highlight current step."));
 
   connect(highlightCheck,SIGNAL(stateChanged(int)),
-                    this, SLOT(  valueChanged(int)));
+          this,          SLOT( valueChanged(int)));
 
   grid->addWidget(highlightCheck,0,0,1,2);
 
@@ -1959,7 +2317,7 @@ HighlightStepGui::HighlightStepGui(
   colorExample->setFixedSize(50,20);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   colorExample->setAutoFillBackground(true);
-  QColor c = QColor(meta->color.value());
+  QColor c = QColor(_meta->color.value());
   QString styleSheet =
     QString("QLabel { background-color: rgb(%1, %2, %3); }").
     arg(c.red()).arg(c.green()).arg(c.blue());
@@ -1968,7 +2326,7 @@ HighlightStepGui::HighlightStepGui(
   grid->addWidget(colorExample,1,0);
 
   colorButton = new QPushButton(parent);
-  colorButton->setText("Highlight Color...");
+  colorButton->setText(tr("Highlight Color..."));
 
   connect(colorButton,SIGNAL(clicked(bool)),
                  this, SLOT(colorChange(bool)));
@@ -1983,12 +2341,24 @@ HighlightStepGui::HighlightStepGui(
 
     lineWidthSpin = new QSpinBox(parent);
     lineWidthSpin->setRange(0,10);
-    lineWidthSpin->setValue(_meta->lineWidth.value());
+    lineWidthSpin->setValue(data);
 
     connect(lineWidthSpin,SIGNAL(valueChanged(int)),
-                       this,SLOT(valueChanged(int)));
+            this,         SLOT(  valueChanged(int)));
 
     grid->addWidget(lineWidthSpin,2,1);
+
+    button = new QPushButton(parent);
+    button->setIcon(QIcon(":/resources/resetaction.png"));
+    button->setIconSize(QSize(16,16));
+    button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+    button->setToolTip(tr("Reset"));
+    button->setEnabled(false);
+    connect(lineWidthSpin, SIGNAL(valueChanged(int)),
+            this,          SLOT(  enableReset( int)));
+    connect(button,        SIGNAL(clicked(     bool)),
+            this,          SLOT(  spinReset(   bool)));
+    grid->addWidget(button,2,2);
   }
 
   if (parent) {
@@ -2002,6 +2372,20 @@ HighlightStepGui::HighlightStepGui(
   colorModified = false;
   highlightModified = false;
   lineWidthModified = false;
+}
+
+void HighlightStepGui::enableReset(int value)
+{
+  button->setEnabled(value != data);
+}
+
+void HighlightStepGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (lineWidthSpin) {
+    lineWidthSpin->setValue(data);
+    lineWidthSpin->setFocus();
+  }
 }
 
 void HighlightStepGui::colorChange(bool clicked)
@@ -2038,8 +2422,8 @@ void HighlightStepGui::valueChanged(int state)
       modified = highlightModified;
     meta->enable.setValue(checked);
   } else if (sender() == lineWidthSpin) {
-    modified = lineWidthModified = meta->lineWidth.value() != state;
     meta->lineWidth.setValue(state);
+    modified = lineWidthModified = state != data;
   }
 }
 
@@ -2071,65 +2455,95 @@ JustifyStepGui::JustifyStepGui(
 
   meta = _meta;
 
-  JustifyStepData data = meta->value();
-
-  QGridLayout *grid = new QGridLayout();
+  QHBoxLayout *layout = new QHBoxLayout(parent);
 
   if (parent) {
-    parent->setLayout(grid);
+    parent->setLayout(layout);
     parent->setWhatsThis(lpubWT(WT_GUI_STEP_JUSTIFICATION, parent->title()));
   } else {
-    setLayout(grid);
+    setLayout(layout);
     setWhatsThis(lpubWT(WT_GUI_STEP_JUSTIFICATION, _label.isEmpty() ? tr("Step Justification") : _label));
   }
 
   QLabel    *label;
   label = new QLabel(_label, parent);
-  grid->addWidget(label,0,0);
+  layout->addWidget(label);
 
   typeCombo = new QComboBox(parent);
-  typeCombo->addItem("Center");
-  typeCombo->addItem("Center Horizontal");
-  typeCombo->addItem("Center Vertical");
-  typeCombo->addItem("Left (Default)");
+  typeCombo->addItem(tr("Center"));
+  typeCombo->addItem(tr("Center Horizontal"));
+  typeCombo->addItem(tr("Center Vertical"));
+  typeCombo->addItem(tr("Left (Default)"));
   typeCombo->setCurrentIndex(int(data.type));
   connect(typeCombo,SIGNAL(currentIndexChanged(int)),
           this,     SLOT(  typeChanged(        int)));
-  grid->addWidget(typeCombo,0,1);
+  layout->addWidget(typeCombo);
 
-  label = new QLabel("Spacing",parent);
-  grid->addWidget(label,0,3);
-  grid->setAlignment(label, Qt::AlignRight);
+  label = new QLabel(tr("Spacing"),parent);
+  layout->addWidget(label);
+
+  const int residual = data.spacing - (int)data.spacing;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
 
   spacingSpinBox = new QDoubleSpinBox(parent);
   spacingSpinBox->setRange(0.0,25.0);
   spacingSpinBox->setSingleStep(0.1);
-  spacingSpinBox->setDecimals(4);
+  spacingSpinBox->setDecimals(decimalPlaces);
   spacingSpinBox->setValue(double(data.spacing));
-  spacingSpinBox->setToolTip(QString("Set the spaceing, in %1, between items when step "
-                                     "is center justified").arg(units2name()));
+  spacingSpinBox->setToolTip(tr("Set the spaceing, in %1, between items when step "
+                                "is center justified").arg(units2name()));
   spacingSpinBox->setEnabled(data.type != JustifyLeft);
   connect(spacingSpinBox,SIGNAL(valueChanged(double)),
           this,          SLOT(spacingChanged(double)));
-  grid->addWidget(spacingSpinBox,0,4);
+  layout->addWidget(spacingSpinBox);
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spacingSpinBox,SIGNAL(valueChanged(double)),
+          this,          SLOT(  enableReset( double)));
+  connect(button,        SIGNAL(clicked(     bool)),
+          this,          SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
+
+  QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+  layout->addSpacerItem(hSpacer);
+}
+
+void JustifyStepGui::enableReset(double value)
+{
+  button->setEnabled(notEqual(value, data.spacing));
+}
+
+void JustifyStepGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spacingSpinBox) {
+    spacingSpinBox->setValue(data.spacing);
+    spacingSpinBox->setFocus();
+  }
 }
 
 void JustifyStepGui::typeChanged(int value)
 {
   spacingSpinBox->setEnabled(value != JustifyLeft);
 
-  JustifyStepData data = meta->value();
-  data.type = JustifyStepEnc(value);
-  meta->setValue(data);
-  modified = true;
+  JustifyStepData _data = meta->value();
+  _data.type = JustifyStepEnc(value);
+  meta->setValue(_data);
+  modified = _data.type != data.type;
 }
 
 void JustifyStepGui::spacingChanged(double value)
 {
-  JustifyStepData data = meta->value();
-  data.spacing = float(value);
-  meta->setValue(data);
-  modified = true;
+  JustifyStepData _data = meta->value();
+  _data.spacing = value;
+  meta->setValue(_data);
+  modified = notEqual(value, data.spacing);
 }
 
 void JustifyStepGui::apply(QString &modelName)
@@ -2152,8 +2566,7 @@ RotStepGui::RotStepGui(
 {
 
   meta = _meta;
-
-  RotStepData rotStep = meta->value();
+  data = _meta->value();
 
   QGridLayout *grid = new QGridLayout();
 
@@ -2169,58 +2582,78 @@ RotStepGui::RotStepGui(
   rotStepLabel = new QLabel(tr("Rotation"), parent);
   grid->addWidget(rotStepLabel,0,0);
 
-  qreal val;
-  auto dec = [] (const qreal v)
+  auto decimalPlaces = [] (double value)
   {
-      auto places = [&v] () {
-          if (v == 0.0)
-              return 2;
-
-          int count = 0;
-          qreal num = v;
-          num = abs(num);
-          num = num - int(num);
-          while (abs(num) >= 0.00001) {
-              num = num * 10;
-              count = count + 1;
-              num = num - int(num);
-          }
-          return count;
-      };
-
-      int a = v - int(v);
-      return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+      const int residual = value - (int)value;
+      const int decimalSize = QString::number(residual).size();
+      return decimalSize < 3 ? 2 : decimalSize;
   };
 
-  val = rotStep.rots[0];
+  qreal value = data.rots[0];
   rotStepSpinX = new QDoubleSpinBox(parent);
   rotStepSpinX->setRange(0.0,360.0);
   rotStepSpinX->setSingleStep(1.0);
-  rotStepSpinX->setDecimals(dec(val));
-  rotStepSpinX->setValue(val);
+  rotStepSpinX->setDecimals(decimalPlaces(value));
+  rotStepSpinX->setValue(value);
   connect(rotStepSpinX,SIGNAL(valueChanged(double)),
           this,        SLOT(rotStepChanged(double)));
   grid->addWidget(rotStepSpinX,0,1);
 
-  val = rotStep.rots[1];
+  button0 = new QPushButton(parent);
+  button0->setIcon(QIcon(":/resources/resetaction.png"));
+  button0->setIconSize(QSize(16,16));
+  button0->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button0->setToolTip(tr("Reset"));
+  button0->setEnabled(false);
+  connect(rotStepSpinX,SIGNAL(valueChanged(double)),
+          this,        SLOT(  enableReset( double)));
+  connect(button0,     SIGNAL(clicked(     bool)),
+          this,        SLOT(  spinReset(   bool)));
+  grid->addWidget(button0,0,2);
+
+  value = data.rots[1];
   rotStepSpinY = new QDoubleSpinBox(parent);
   rotStepSpinY->setRange(0.0,360.0);
   rotStepSpinY->setSingleStep(1.0);
-  rotStepSpinY->setDecimals(dec(val));
-  rotStepSpinY->setValue(val);
+  rotStepSpinY->setDecimals(decimalPlaces(value));
+  rotStepSpinY->setValue(value);
   connect(rotStepSpinY,SIGNAL(valueChanged(double)),
           this,        SLOT(rotStepChanged(double)));
-  grid->addWidget(rotStepSpinY,0,2);
+  grid->addWidget(rotStepSpinY,0,3);
 
-  val = rotStep.rots[2];
+  button1 = new QPushButton(parent);
+  button1->setIcon(QIcon(":/resources/resetaction.png"));
+  button1->setIconSize(QSize(16,16));
+  button1->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button1->setToolTip(tr("Reset"));
+  button1->setEnabled(false);
+  connect(rotStepSpinY, SIGNAL(valueChanged(double)),
+          this,         SLOT(  enableReset( double)));
+  connect(button1,      SIGNAL(clicked(     bool)),
+          this,         SLOT(  spinReset(   bool)));
+  grid->addWidget(button1,0,4);
+
+  value = data.rots[2];
   rotStepSpinZ = new QDoubleSpinBox(parent);
   rotStepSpinZ->setRange(0.0,360.0);
   rotStepSpinZ->setSingleStep(1.0);
-  rotStepSpinZ->setDecimals(dec(val));
-  rotStepSpinZ->setValue(val);
+  rotStepSpinZ->setDecimals(decimalPlaces(value));
+  rotStepSpinZ->setValue(value);
   connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
           this,        SLOT(rotStepChanged(double)));
-  grid->addWidget(rotStepSpinZ,0,3);
+  grid->addWidget(rotStepSpinZ,0,5);
+
+  button2 = new QPushButton(parent);
+  button2->setIcon(QIcon(":/resources/resetaction.png"));
+  button2->setIconSize(QSize(16,16));
+  button2->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button2->setToolTip(tr("Reset"));
+  button2->setEnabled(false);
+  connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
+          this,        SLOT(  enableReset( double)));
+  connect(button2,     SIGNAL(clicked(     bool)),
+          this,        SLOT(  spinReset(   bool)));
+  grid->addWidget(button2,0,6);
 
   QLabel    *typeLabel;
   typeLabel = new QLabel("Transform", parent);
@@ -2230,41 +2663,72 @@ RotStepGui::RotStepGui(
   typeCombo->addItem("ABS");
   typeCombo->addItem("REL");
   typeCombo->addItem("ADD");
-  typeCombo->setCurrentIndex(!rotStep.type.isEmpty() ? typeCombo->findText(rotStep.type) : 1);
+  typeCombo->setCurrentIndex(!data.type.isEmpty() ? typeCombo->findText(data.type) : 1);
   connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this,     SLOT(  typeChanged(         QString const &)));
+          this,     SLOT(  typeChanged(        QString const &)));
   grid->addWidget(typeCombo,1,1);
 
 }
 
+void RotStepGui::enableReset(double value)
+{
+  if (sender() == rotStepSpinX)
+      button0->setEnabled(notEqual(value, data.rots[0]));
+  else
+  if (sender() == rotStepSpinY)
+      button1->setEnabled(notEqual(value, data.rots[1]));
+  else
+  if (sender() == rotStepSpinZ)
+      button2->setEnabled(notEqual(value, data.rots[2]));
+}
+
+void RotStepGui::spinReset(bool)
+{
+  if (sender() == rotStepSpinX) {
+    button0->setEnabled(false);
+    rotStepSpinX->setValue(data.rots[0]);
+    rotStepSpinX->setFocus();
+  } else
+  if (sender() == rotStepSpinY) {
+    button1->setEnabled(false);
+    rotStepSpinY->setValue(data.rots[1]);
+    rotStepSpinY->setFocus();
+  } else
+  if (sender() == rotStepSpinZ) {
+    button2->setEnabled(false);
+    rotStepSpinZ->setValue(data.rots[2]);
+    rotStepSpinZ->setFocus();
+  }
+}
+
 void RotStepGui::rotStepChanged(double value)
 {
-  RotStepData data = meta->value();
+  RotStepData _data = meta->value();
   if (sender() == rotStepSpinX) {
       if (!modified)
-          modified = data.rots[0] != value;
-      data.rots[0] = value;
+          modified = notEqual(value, data.rots[0]);
+      _data.rots[0] = value;
   } else
   if (sender() == rotStepSpinY) {
       if (!modified)
-          modified = data.rots[1] != value;
-      data.rots[1] = value;
+          modified = notEqual(value, data.rots[1]);
+      _data.rots[1] = value;
   } else /* rotStepSpinZ */ {
       if (!modified)
-          modified = data.rots[2] != value;
-      data.rots[2] = value;
+          modified = notEqual(value, data.rots[2]);
+      _data.rots[2] = value;
   }
-  meta->setValue(data);
+  meta->setValue(_data);
   emit settingsChanged(modified);
 }
 
 void RotStepGui::typeChanged(QString const &value)
 {
-  RotStepData data = meta->value();
+  RotStepData _data = meta->value();
   if (!modified)
       modified = data.type != value;
-  data.type = value;
-  meta->setValue(data);
+  _data.type = value;
+  meta->setValue(_data);
   emit settingsChanged(modified);
 }
 
@@ -2429,7 +2893,7 @@ BuildModEnabledGui::BuildModEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  change = false;
+  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -2442,7 +2906,7 @@ BuildModEnabledGui::BuildModEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(meta->value());
+  check->setChecked(data);
   layout->addWidget(check);
   connect(check,SIGNAL(stateChanged(int)),
           this, SLOT(  stateChanged(int)));
@@ -2450,29 +2914,19 @@ BuildModEnabledGui::BuildModEnabledGui(
 
 void BuildModEnabledGui::stateChanged(int state)
 {
-  int checked = meta->value();
-
-  if (state == Qt::Unchecked) {
-    checked = 0;
-  } else if (state == Qt::Checked) {
-    checked = 1;
-  }
-  change = checked != int(meta->value());
-  meta->setValue(checked);
-  modified = true;
+  bool value = state == Qt::Checked;
+  meta->setValue(value);
+  modified = value != data;
 }
 
 void BuildModEnabledGui::apply(QString &modelName)
 {
   if (modified) {
-    if (change) {
-      Preferences::buildModEnabled = bool(meta->value());
-      gui->enableBuildModMenuAndActions();
-      changeMessage = QString("%1").arg(meta->value() ?
-                                            tr("Build Modifications are Enabled") :
-                                            tr("Build Modifications are Disabled"));
-      emit gui->messageSig(LOG_INFO, changeMessage);
-    }
+    Preferences::buildModEnabled = meta->value();
+    gui->enableBuildModMenuAndActions();
+    changeMessage = meta->value() ? tr("Build Modifications are Enabled") :
+                                    tr("Build Modifications are Disabled");
+    emit gui->messageSig(LOG_INFO, changeMessage);
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
   }
@@ -2490,7 +2944,7 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  change = false;
+  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -2503,7 +2957,7 @@ FinalModelEnabledGui::FinalModelEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(meta->value());
+  check->setChecked(data);
   layout->addWidget(check);
   connect(check,SIGNAL(stateChanged(int)),
           this, SLOT(  stateChanged(int)));
@@ -2511,28 +2965,18 @@ FinalModelEnabledGui::FinalModelEnabledGui(
 
 void FinalModelEnabledGui::stateChanged(int state)
 {
-  int checked = meta->value();
-
-  if (state == Qt::Unchecked) {
-    checked = 0;
-  } else if (state == Qt::Checked) {
-    checked = 1;
-  }
-  change = checked != int(meta->value());
-  meta->setValue(checked);
-  modified = true;
+  bool value = state == Qt::Checked;
+  meta->setValue(value);
+  modified = value != data;
 }
 
 void FinalModelEnabledGui::apply(QString &modelName)
 {
   if (modified) {
-    if (change) {
-      Preferences::finalModelEnabled = bool(meta->value());
-      changeMessage = QString("%1").arg(meta->value() ?
-                                            tr("Fade/Highlight final model step is Enabled") :
-                                            tr("Fade/Highlight final model step is Disabled"));
-      emit gui->messageSig(LOG_INFO, changeMessage);
-    }
+    Preferences::finalModelEnabled = meta->value();
+    changeMessage = meta->value() ? tr("Fade/Highlight final model step is Enabled") :
+                                    tr("Fade/Highlight final model step is Disabled");
+    emit gui->messageSig(LOG_INFO, changeMessage);
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
   }
@@ -2550,7 +2994,7 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   QGroupBox       *parent)
 {
   meta = _meta;
-  change = false;
+  data = _meta->value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -2563,7 +3007,7 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setChecked(meta->value());
+  check->setChecked(data);
   layout->addWidget(check);
   connect(check,SIGNAL(stateChanged(int)),
           this, SLOT(  stateChanged(int)));
@@ -2571,27 +3015,17 @@ CoverPageViewEnabledGui::CoverPageViewEnabledGui(
 
 void CoverPageViewEnabledGui::stateChanged(int state)
 {
-  int checked = meta->value();
-
-  if (state == Qt::Unchecked) {
-    checked = 0;
-  } else if (state == Qt::Checked) {
-    checked = 1;
-  }
-  change = checked != int(meta->value());
-  meta->setValue(checked);
-  modified = true;
+  bool value = state == Qt::Checked;
+  meta->setValue(value);
+  modified = value != data;
 }
 
 void CoverPageViewEnabledGui::apply(QString &modelName)
 {
   if (modified) {
-    if (change) {
-      changeMessage = QString("%1").arg(meta->value() ?
-                                            tr("Cover page model view is Enabled") :
-                                            tr("Cover page model view is Disabled"));
-      emit gui->messageSig(LOG_INFO, changeMessage);
-    }
+    changeMessage = meta->value() ? tr("Cover page model view is Enabled") :
+                                    tr("Cover page model view is Disabled");
+    emit gui->messageSig(LOG_INFO, changeMessage);
     MetaItem mi;
     mi.setGlobalMeta(modelName,meta);
   }
@@ -2609,7 +3043,7 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
   QGroupBox          *parent)
 {
   meta = _meta;
-  change = false;
+  data = _meta->enabled.value();
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -2622,8 +3056,8 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
   }
 
   check = new QCheckBox(heading,parent);
-  check->setEnabled(meta->enableSetting.value());
-  check->setChecked(meta->enabled.value());
+  check->setEnabled(_meta->enableSetting.value());
+  check->setChecked(data);
   layout->addWidget(check);
   connect(check,SIGNAL(stateChanged(int)),
           this, SLOT(  stateChanged(int)));
@@ -2631,27 +3065,17 @@ LoadUnoffPartsEnabledGui::LoadUnoffPartsEnabledGui(
 
 void LoadUnoffPartsEnabledGui::stateChanged(int state)
 {
-  int checked = meta->enabled.value();
-
-  if (state == Qt::Unchecked) {
-    checked = 0;
-  } else if (state == Qt::Checked) {
-    checked = 1;
-  }
-  change = checked != int(meta->enabled.value());
-  meta->enabled.setValue(checked);
-  modified = true;
+  bool value = state == Qt::Checked;
+  meta->enabled.setValue(value);
+  modified = value != data;
 }
 
 void LoadUnoffPartsEnabledGui::apply(QString &modelName)
 {
   if (modified) {
-    if (change) {
-      changeMessage = QString("%1").arg(meta->enabled.value() ?
-                                            tr("Load unofficial parts in command editor is Enabled") :
-                                            tr("Load unofficial parts in command editor is Disabled"));
-      emit gui->messageSig(LOG_INFO, changeMessage);
-    }
+    changeMessage = meta->enabled.value() ? tr("Load unofficial parts in command editor is Enabled") :
+                                            tr("Load unofficial parts in command editor is Disabled");
+    emit gui->messageSig(LOG_INFO, changeMessage);
     MetaItem mi;
     mi.setGlobalMeta(modelName,&meta->enabled);
   }
@@ -2761,6 +3185,7 @@ BackgroundGui::BackgroundGui(
   /* Image */
 
   pictureEdit = new QLineEdit(picture,parent);
+  pictureEdit->setClearButtonEnabled(true);
   pictureEdit->setToolTip("Enter image path");
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  imageChange(QString const &)));
@@ -3074,9 +3499,8 @@ BorderGui::BorderGui(
 {
   meta = _meta;
 
-  BorderData border = meta->value();
+  border = _meta->value();
 
-  QString        string,chkBoxHideArrowsText;
   QGridLayout   *grid;
 
   grid = new QGridLayout(parent);
@@ -3090,68 +3514,91 @@ BorderGui::BorderGui(
   }
 
   /* Arrows CheckBox */
-  chkBoxHideArrowsText = border.hideTip ? "Rotate Icon arrows hidden" : "Hide Rotate Icon arrows";
+  QString chkBoxHideArrowsText = border.hideTip ? "Rotate Icon Arrows Hidden" : "Hide Rotate Icon Arrows";
   hideArrowsChk = new QCheckBox(chkBoxHideArrowsText, parent);
   hideArrowsChk->setChecked(border.hideTip);
-  hideArrowsChk->setToolTip("Set checked when only icon image is desired.");
+  hideArrowsChk->setToolTip(tr("Set checked when only icon image is desired."));
   connect(hideArrowsChk,SIGNAL(stateChanged(int)),
-          this,            SLOT(  checkChange(int)));
+          this,         SLOT(  checkChange(int)));
   grid->addWidget(hideArrowsChk,0,0,1,3);
 
   /* Type Combo */
 
   typeCombo = new QComboBox(parent);
-  typeCombo->addItem("Borderless");
-  typeCombo->addItem("Square Corners");
-  typeCombo->addItem("Round Corners");
+  typeCombo->addItem(tr("Borderless"));
+  typeCombo->addItem(tr("Square Corners"));
+  typeCombo->addItem(tr("Round Corners"));
   typeCombo->setCurrentIndex(int(border.type));
   connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typeChange(         QString const &)));
+          this,     SLOT(  typeChange(         QString const &)));
   grid->addWidget(typeCombo,0,0);
 
   /* Radius */
 
-  spinLabel = new QLabel("Radius",parent);
+  spinLabel = new QLabel(tr("Radius"),parent);
   grid->addWidget(spinLabel,0,1);
 
   spin = new QSpinBox(parent);
   spin->setRange(0,100);
   spin->setSingleStep(5);
   spin->setValue(int(border.radius));
-  grid->addWidget(spin,0,2);
   connect(spin,SIGNAL(valueChanged(int)),
           this,SLOT(  radiusChange(int)));
+  grid->addWidget(spin,0,2);
+
+  resetButton = new QPushButton(parent);
+  resetButton->setIcon(QIcon(":/resources/resetaction.png"));
+  resetButton->setIconSize(QSize(16,16));
+  resetButton->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  resetButton->setToolTip(tr("Reset"));
+  resetButton->setEnabled(false);
+  connect(spin,        SIGNAL(valueChanged( int)),
+          this,        SLOT(enableSpinReset(int)));
+  connect(resetButton, SIGNAL(clicked(      bool)),
+          this,        SLOT(  spinReset(    bool)));
+  grid->addWidget(resetButton,0,3);
 
   /* Line Combo */
 
   lineCombo = new QComboBox(parent);
-  lineCombo->addItem("No Line");
-  lineCombo->addItem("Solid Line");
-  lineCombo->addItem("Dash Line");
-  lineCombo->addItem("Dotted Line");
-  lineCombo->addItem("Dot-Dash Line");
-  lineCombo->addItem("Dot-Dot-Dash Line");
+  lineCombo->addItem(tr("No Line"));
+  lineCombo->addItem(tr("Solid Line"));
+  lineCombo->addItem(tr("Dash Line"));
+  lineCombo->addItem(tr("Dotted Line"));
+  lineCombo->addItem(tr("Dot-Dash Line"));
+  lineCombo->addItem(tr("Dot-Dot-Dash Line"));
   lineCombo->setCurrentIndex(border.line);
   connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  lineChange(         QString const &)));
+          this,     SLOT(  lineChange(         QString const &)));
   grid->addWidget(lineCombo,1,0);
 
 
   /* Thickness */
 
-  thicknessLabel = new QLabel("Width",parent);
+  thicknessLabel = new QLabel(tr("Width"),parent);
   grid->addWidget(thicknessLabel,1,1);
 
-  string = QString("%1") .arg(border.thickness,5,'f',4);
-  thicknessEdit = new QLineEdit(string,parent);
-  thicknessEdit->setInputMask("9.9000");
+  thicknessEdit = new QLineEdit(parent);
+  QDoubleValidator *thicknessValidator = new QDoubleValidator(thicknessEdit);
+  thicknessValidator->setRange(0.0f, 100.0f);
+  thicknessValidator->setDecimals(4);
+  thicknessValidator->setNotation(QDoubleValidator::StandardNotation);
+  thicknessEdit->setValidator(thicknessValidator);
+  thicknessEdit->setText(QString::number(border.thickness,'f',4));
+  resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetThicknessEditAct->setText(tr("Reset"));
+  resetThicknessEditAct->setEnabled(false);
+  connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
+          this,         SLOT(enableEditReset(  QString const &)));
+  connect(resetThicknessEditAct, SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
   connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
           this,         SLOT(  thicknessChange(QString const &)));
-  grid->addWidget(thicknessEdit,1,2);
+  grid->addWidget(thicknessEdit,1,2,1,2);
 
   /* Color */
 
-  QLabel *label = new QLabel("Color",parent);
+  QLabel *label = new QLabel(tr("Color"),parent);
   grid->addWidget(label,2,0);
 
   colorExample = new QLabel(parent);
@@ -3164,27 +3611,51 @@ BorderGui::BorderGui(
   colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,2,1);
 
-  colorButton = new QPushButton("Change",parent);
+  colorButton = new QPushButton(tr("Change"),parent);
   connect(colorButton,SIGNAL(clicked(    bool)),
           this,       SLOT(  browseColor(bool)));
-  grid->addWidget(colorButton,2,2);
+  grid->addWidget(colorButton,2,2,1,2);
 
   /* Margins */
 
-  label = new QLabel("Margins",parent);
+  label = new QLabel(tr("Margins"),parent);
   grid->addWidget(label,3,0);
 
-  string = QString("%1") .arg(border.margin[0],5,'f',4);
-  marginEditX = new QLineEdit(string,parent);
-  grid->addWidget(marginEditX,3,1);
-  connect(marginEditX,SIGNAL(textEdited(QString const &)),
-          this,    SLOT(marginXChange(QString const &)));
+  marginXEdit = new QLineEdit(parent);
+  QDoubleValidator *marginXValidator = new QDoubleValidator(marginXEdit);
+  marginXValidator->setRange(0.0f, 100.0f);
+  marginXValidator->setDecimals(4);
+  marginXValidator->setNotation(QDoubleValidator::StandardNotation);
+  marginXEdit->setValidator(marginXValidator);
+  marginXEdit->setText(QString::number(border.margin[0],'f',4));
+  resetXEditAct = marginXEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetXEditAct->setText(tr("Reset"));
+  resetXEditAct->setEnabled(false);
+  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(enableEditReset(QString const &)));
+  connect(resetXEditAct,SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(marginXEdit,  SIGNAL(textEdited(QString const &)),
+          this,         SLOT(marginXChange(QString const &)));
+  grid->addWidget(marginXEdit,3,1);
 
-  string = QString("%1") .arg(border.margin[1],5,'f',4);
-  marginEditY = new QLineEdit(string,parent);
-  grid->addWidget(marginEditY,3,2);
-  connect(marginEditY,SIGNAL(textEdited(QString const &)),
-          this,    SLOT(marginYChange(QString const &)));
+  marginYEdit = new QLineEdit(parent);
+  QDoubleValidator *marginYValidator = new QDoubleValidator(marginYEdit);
+  marginYValidator->setRange(0.0f, 100.0f);
+  marginYValidator->setDecimals(4);
+  marginYValidator->setNotation(QDoubleValidator::StandardNotation);
+  marginYEdit->setValidator(marginYValidator);
+  marginYEdit->setText(QString::number(border.margin[1],'f',4));
+  resetYEditAct = marginYEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetYEditAct->setText(tr("Reset"));
+  resetYEditAct->setEnabled(false);
+  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(enableEditReset(QString const &)));
+  connect(resetYEditAct,SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(marginYEdit,  SIGNAL(textEdited(QString const &)),
+          this,         SLOT(marginYChange(QString const &)));
+  grid->addWidget(marginYEdit,3,2,1,2);
 
   enable(rotateArrow);
 
@@ -3196,6 +3667,55 @@ BorderGui::BorderGui(
           hideArrowsChk->hide();
   } else {
       hideArrowsChk->hide();
+  }
+}
+
+void BorderGui::enableSpinReset(int value)
+{
+  resetButton->setEnabled(value != (int)border.radius);
+}
+
+void BorderGui::enableEditReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == marginXEdit)
+    resetXEditAct->setEnabled(notEqual(value, border.margin[0]));
+  else
+  if (sender() == marginYEdit)
+    resetYEditAct->setEnabled(notEqual(value, border.margin[1]));
+  else
+  if (sender() == thicknessEdit)
+    resetThicknessEditAct->setEnabled(notEqual(value, border.thickness));
+}
+
+void BorderGui::spinReset(bool)
+{
+  resetButton->setEnabled(false);
+  if (spin) {
+    spin->setValue(int(border.radius));
+    spin->setFocus();
+  }
+}
+
+void BorderGui::lineEditReset()
+{
+  if (sender() == resetXEditAct) {
+    resetXEditAct->setEnabled(false);
+    if (marginXEdit)
+      marginXEdit->setText(QString::number(border.margin[0],'f',4));
+  }
+  else
+  if (sender() == resetYEditAct) {
+    resetYEditAct->setEnabled(false);
+    if (marginYEdit)
+      marginYEdit->setText(QString::number(border.margin[1],'f',4));
+  }
+  else
+  if (sender() == resetThicknessEditAct) {
+    resetThicknessEditAct->setEnabled(false);
+    if (thicknessEdit)
+      thicknessEdit->setText(QString::number(border.thickness,'f',4));
   }
 }
 
@@ -3211,6 +3731,7 @@ void BorderGui::enable(bool rotateArrow)
       colorButton->setEnabled(false);
       spin->setEnabled(false);
       spinLabel->setEnabled(false);
+      resetButton->setEnabled(false);
     break;
     case BorderData::BdrSquare:
       if (rotateArrow && hideArrowsChk->isChecked()) {
@@ -3218,18 +3739,19 @@ void BorderGui::enable(bool rotateArrow)
           thicknessLabel->setEnabled(false);
           thicknessEdit->setEnabled(false);
           colorButton->setEnabled(false);
-          marginEditX->setEnabled(false);
-          marginEditY->setEnabled(false);
+          marginXEdit->setEnabled(false);
+          marginYEdit->setEnabled(false);
       } else {
           lineCombo->setEnabled(true);
           thicknessLabel->setEnabled(true);
           thicknessEdit->setEnabled(true);
           colorButton->setEnabled(true);
-          marginEditX->setEnabled(true);
-          marginEditY->setEnabled(true);
+          marginXEdit->setEnabled(true);
+          marginYEdit->setEnabled(true);
       }
       spin->setEnabled(false);
       spinLabel->setEnabled(false);
+      resetButton->setEnabled(false);
     break;
     default:
       lineCombo->setEnabled(true);
@@ -3238,6 +3760,7 @@ void BorderGui::enable(bool rotateArrow)
       colorButton->setEnabled(true);
       spin->setEnabled(true);
       spinLabel->setEnabled(true);
+      resetButton->setEnabled(false);
     break;
   }
 
@@ -3248,6 +3771,7 @@ void BorderGui::enable(bool rotateArrow)
       colorButton->setEnabled(false);
       spin->setEnabled(false);
       spinLabel->setEnabled(false);
+      resetButton->setEnabled(false);
     break;
     case BorderData::BdrLnSolid:
     case BorderData::BdrLnDash:
@@ -3258,109 +3782,113 @@ void BorderGui::enable(bool rotateArrow)
     break;
     }
 }
+
 void BorderGui::typeChange(QString const &type)
 {
-  BorderData border = meta->value();
+  BorderData _border = meta->value();
 
   if (type == "Square Corners") {
-      border.type = BorderData::BdrSquare;
-    } else if (type == "Round Corners"){
-      border.type = BorderData::BdrRound;
-    } else {
-      border.type = BorderData::BdrNone;
-    }
+    _border.type = BorderData::BdrSquare;
+  } else if (type == "Round Corners"){
+    _border.type = BorderData::BdrRound;
+  } else {
+    _border.type = BorderData::BdrNone;
+  }
 
-  meta->setValue(border);
+  meta->setValue(_border);
   enable();
-  modified = true;
+  modified = _border.type != border.type;
 }
 
 void BorderGui::lineChange(QString const &line)
 {
-  BorderData border = meta->value();
+  BorderData _border = meta->value();
 
   if (line == "Solid Line") {
-      border.line = BorderData::BdrLnSolid;
-    } else if (line == "Dash Line") {
-      border.line = BorderData::BdrLnDash;
-    } else if (line == "Dotted Line") {
-      border.line = BorderData::BdrLnDot;
-    } else if (line == "Dot-Dash Line") {
-      border.line = BorderData::BdrLnDashDot;
-    } else if (line == "Dot-Dot-Dash Line"){
-      border.line = BorderData::BdrLnDashDotDot;
-    } else {
-      border.line = BorderData::BdrLnNone;
-    }
+    _border.line = BorderData::BdrLnSolid;
+  } else if (line == "Dash Line") {
+    _border.line = BorderData::BdrLnDash;
+  } else if (line == "Dotted Line") {
+    _border.line = BorderData::BdrLnDot;
+  } else if (line == "Dot-Dash Line") {
+    _border.line = BorderData::BdrLnDashDot;
+  } else if (line == "Dot-Dot-Dash Line"){
+    _border.line = BorderData::BdrLnDashDotDot;
+  } else {
+    _border.line = BorderData::BdrLnNone;
+  }
 
-  meta->setValue(border);
+  meta->setValue(_border);
   enable();
-  modified = true;
+  modified = _border.line != border.line;
 }
 
 void BorderGui::checkChange(int value)
 {
   Q_UNUSED(value);
-  BorderData arrows = meta->value();
+  BorderData _border = meta->value();
 
-  arrows.hideTip = hideArrowsChk->isChecked();
+  _border.hideTip = hideArrowsChk->isChecked();
   if (hideArrowsChk->isChecked())
-    hideArrowsChk->setText("Rotate Icon arrows hidden");
+    hideArrowsChk->setText("Rotate Icon Arrows Hidden");
   else
-    hideArrowsChk->setText("Hide Rotate Icon arrows");
+    hideArrowsChk->setText("Hide Rotate Icon Arrows");
 
-  meta->setValue(arrows);
+  meta->setValue(_border);
   enable(true); // Is Rotate Icon
-  modified = true;
+  modified = _border.hideTip != border.hideTip;
 }
 
 void BorderGui::browseColor(bool)
 {
-  BorderData border = meta->value();
+  BorderData _border = meta->value();
 
-  QColor color = LDrawColor::color(border.color);
+  QColor color = LDrawColor::color(_border.color);
   QColor newColor = QColorDialog::getColor(color,this);
   if (newColor.isValid() && color != newColor) {
-    border.color = newColor.name();
-    meta->setValue(border);
+    _border.color = newColor.name();
+    meta->setValue(_border);
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }").
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     colorExample->setAutoFillBackground(true);
     colorExample->setStyleSheet(styleSheet);
-    modified = true;
+    modified = _border.color != border.color;
   }
 }
 
 void BorderGui::thicknessChange(QString const &thickness)
 {
-  BorderData border = meta->value();
-  border.thickness = thickness.toFloat();
-  meta->setValue(border);
-  modified = true;
+  float value = thickness.toFloat();
+  BorderData _border = meta->value();
+  _border.thickness = value;
+  meta->setValue(_border);
+  modified = notEqual(value, border.thickness);
 }
 void BorderGui::radiusChange(int value)
 {
-  BorderData border = meta->value();
-  border.radius = value;
-  meta->setValue(border);
-  modified = true;
+  BorderData _border = meta->value();
+  _border.radius = value;
+  meta->setValue(_border);
+  modified = _border.radius != border.radius;
 }
 void BorderGui::marginXChange(
   QString const &string)
 {
-  BorderData border = meta->value();
-  border.margin[0] = string.toFloat();
-  meta->setValue(border);
-  modified = true;
+  float value = string.toFloat();
+  BorderData _border = meta->value();
+  _border.margin[0] = value;
+  meta->setValue(_border);
+  modified = notEqual(value, border.margin[0]);
 }
 void BorderGui::marginYChange(
   QString const &string)
 {
-  BorderData border = meta->value();
-  border.margin[1] = string.toFloat();
-  meta->setValue(border);
-  modified = true;
+  float value = string.toFloat();
+  BorderData _border = meta->value();
+  _border.margin[1] = value;
+  meta->setValue(_border);
+  modified = notEqual(value, border.margin[1]);
 }
 
 void BorderGui::apply(QString &modelName)
@@ -3384,20 +3912,20 @@ PlacementGui::PlacementGui(
         QGroupBox     *parent)
 {
     meta = _meta;
+    data = _meta->value();
     title = _title;
 
     QHBoxLayout *hlayout = new QHBoxLayout(parent);
 
-    PlacementData placementData = _meta->value();
     const QString placementName = PlacementDialog::placementTypeName(_type);
     const QString placementButtonText = tr("Change %1 Placement").arg(placementName);
 
     if (parent) {
         parent->setLayout(hlayout);
-        parent->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,placementData,placementButtonText));
+        parent->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,data,placementButtonText));
     } else {
         setLayout(hlayout);
-        setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,placementData,placementButtonText));
+        setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(_type,data,placementButtonText));
     }
 
     placementLabel = new QLabel(tr("%1 placement").arg(placementName),parent);
@@ -3409,28 +3937,28 @@ PlacementGui::PlacementGui(
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
 
-    modified = placementModified = false;
+    modified = false;
 }
 
 void PlacementGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
-  PlacementData placementData = meta->value();
+  PlacementData _data = meta->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(SingleStepType,PartsListType,placementData,title,ContentPage);
+       ::getPlacement(SingleStepType,PartsListType,_data,title,ContentPage);
   if (ok) {
-      meta->setValue(placementData);
-      modified = placementModified = true;
+      meta->setValue(_data);
+      modified = _data != data;
   }
 }
 
 void PlacementGui::apply(QString &topLevelFile)
 {
-    if (modified) {
-        MetaItem mi;
-        mi.setGlobalMeta(topLevelFile,meta);
-    }
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,meta);
+  }
 }
 
 /***********************************************************************
@@ -3446,19 +3974,15 @@ void PlacementGui::apply(QString &topLevelFile)
 {
   meta   = _meta;
 
-  isLine = meta->value().attribType == PointerAttribData::Line;
-  isTip  = meta->value().attribType == PointerAttribData::Tip;
-
-  tip.attribType = PointerAttribData::Tip;
-  line.attribType = PointerAttribData::Line;
-  border.attribType = PointerAttribData::Border;
+  isBorder = _meta->value().attribType == PointerAttribData::Border;
+  isLine   = _meta->value().attribType == PointerAttribData::Line;
+  isTip    = _meta->value().attribType == PointerAttribData::Tip;
 
   QGridLayout   *grid;
   QLabel        *label;
 
   grid = new QGridLayout(parent);
 
-  const bool isBorder = meta->value().attribType == PointerAttribData::Border;
   WT_Type wtType = isBorder ? WT_GUI_POINTER_BORDER : isLine ? WT_GUI_POINTER_LINE : WT_GUI_POINTER_TIP;
 
   if (parent) {
@@ -3476,32 +4000,32 @@ void PlacementGui::apply(QString &topLevelFile)
   QString title;
   QString size;
   QString color;
-  QString units = QString("Units in %1").arg(Preferences::preferCentimeters ? "centimetres" : "inches");
+  QString units = tr("Units in %1").arg(Preferences::preferCentimeters ? tr("centimetres") : tr("inches"));
 
   if (!isTip) {
     if (isLine) {
-        line = meta->value();
-        title = "Line";
-        index = (int)line.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
-        size = QString("%1") .arg(line.lineData.thickness,5,'f',4);
-        color = line.lineData.color;
-        hideTip = line.lineData.hideTip;
-    } else {
-        border = meta->value();
-        title = "Border";
-        index = (int)border.borderData.line - 1;
-        size = QString("%1") .arg(border.borderData.thickness,5,'f',4);
-        color = border.borderData.color.isEmpty() ? border.lineData.color : border.borderData.color;
+        data.lineData = _meta->value().lineData;
+        title = tr("Line");
+        index = (int)data.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
+        size = QString::number(data.lineData.thickness,'f',4);
+        color = data.lineData.color;
+        hideTip = data.lineData.hideTip;
+    } else if (isBorder) {
+        data.borderData = _meta->value().borderData;
+        title = tr("Border");
+        index = (int)data.borderData.line - 1;
+        size = QString::number(data.borderData.thickness,'f',4);
+        color = data.borderData.color.isEmpty() ? data.lineData.color : data.borderData.color;
     }
 
     /* Line Combo */
 
     lineCombo = new QComboBox(parent);
-    lineCombo->addItem("Solid Line");
-    lineCombo->addItem("Dash Line");
-    lineCombo->addItem("Dotted Line");
-    lineCombo->addItem("Dot-Dash Line");
-    lineCombo->addItem("Dot-Dot-Dash Line");
+    lineCombo->addItem(tr("Solid Line"));
+    lineCombo->addItem(tr("Dash Line"));
+    lineCombo->addItem(tr("Dotted Line"));
+    lineCombo->addItem(tr("Dot-Dash Line"));
+    lineCombo->addItem(tr("Dot-Dot-Dash Line"));
     lineCombo->setCurrentIndex(index); //
     connect(lineCombo,SIGNAL(currentIndexChanged(QString const &)),
             this,       SLOT(  lineChange(       QString const &)));
@@ -3511,19 +4035,31 @@ void PlacementGui::apply(QString &topLevelFile)
 
     /*  Width */
 
-    label = new QLabel(title+" Width",parent);
+    label = new QLabel(tr("%1 Width").arg(title),parent);
     grid->addWidget(label,0,1);
 
-    thicknessEdit = new QLineEdit(size,parent);
-    thicknessEdit->setInputMask("9.9000");
+    thicknessEdit = new QLineEdit(parent);
+    QDoubleValidator *thicknessValidator = new QDoubleValidator(thicknessEdit);
+    thicknessValidator->setRange(0.0f, 100.0f);
+    thicknessValidator->setDecimals(4);
+    thicknessValidator->setNotation(QDoubleValidator::StandardNotation);
+    thicknessEdit->setValidator(thicknessValidator);
+    thicknessEdit->setText(size);
     thicknessEdit->setToolTip(units);
+    resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    resetThicknessEditAct->setText(tr("Reset"));
+    resetThicknessEditAct->setEnabled(false);
+    connect(thicknessEdit,SIGNAL(textEdited(     QString const &)),
+            this,         SLOT(enableEditReset(  QString const &)));
+    connect(resetThicknessEditAct, SIGNAL(triggered()),
+            this,         SLOT(  lineEditReset()));
     connect(thicknessEdit,SIGNAL(textEdited(QString const &)),
             this,         SLOT(  sizeChange(QString const &)));
     grid->addWidget(thicknessEdit,0,2);
 
     /*  Color */
 
-    label = new QLabel(title+" Color",parent);
+    label = new QLabel(tr("%1 Color").arg(title),parent);
     grid->addWidget(label,1,0);
 
     colorExample = new QLabel(parent);
@@ -3538,7 +4074,7 @@ void PlacementGui::apply(QString &topLevelFile)
     colorExample->setStyleSheet(StyleSheet);
     grid->addWidget(colorExample,1,1);
 
-    colorButton = new QPushButton("Change",parent);
+    colorButton = new QPushButton(tr("Change"),parent);
     connect(colorButton,SIGNAL(clicked(   bool)),
             this,        SLOT(browseColor(bool)));
     grid->addWidget(colorButton,1,2);
@@ -3546,7 +4082,7 @@ void PlacementGui::apply(QString &topLevelFile)
     /* hide arrows [optional] */
 
     if (isLine && !_isCallout) {
-        hideTipBox = new QCheckBox("Hide Pointer Tip", parent);
+        hideTipBox = new QCheckBox(tr("Hide Pointer Tip"), parent);
         hideTipBox->setChecked(hideTip);
         connect(hideTipBox,SIGNAL(clicked(    bool)),
                 this,      SLOT(hideTipChange(bool)));
@@ -3555,40 +4091,108 @@ void PlacementGui::apply(QString &topLevelFile)
 
   } else {
 
-    title = "Tip";
-    tip = meta->value();
+    title = tr("Tip");
+    data.tipData = _meta->value().tipData;
 
     /*  Width */
 
-    label = new QLabel(title+" Width",parent);
+    label = new QLabel(tr("%1 Width").arg(title),parent);
     grid->addWidget(label,0,0);
-    size = QString("%1") .arg(tip.tipData.tipWidth,5,'f',4);
 
-    widthEdit = new QLineEdit(size,parent);
-    widthEdit->setInputMask("9.9000");
+    widthEdit = new QLineEdit(parent);
+    QDoubleValidator *widthValidator = new QDoubleValidator(widthEdit);
+    widthValidator->setRange(0.0f, 100.0f);
+    widthValidator->setDecimals(4);
+    widthValidator->setNotation(QDoubleValidator::StandardNotation);
+    widthEdit->setValidator(widthValidator);
+    widthEdit->setText(QString::number(data.tipData.tipWidth,'f',4));
     widthEdit->setToolTip(units);
-    connect(widthEdit,SIGNAL(textEdited(QString const &)),
-            this,       SLOT(sizeChange(QString const &)));
-
+    resetWidthEditAct = widthEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    resetWidthEditAct->setText(tr("Reset"));
+    resetWidthEditAct->setEnabled(false);
+    connect(widthEdit,        SIGNAL(textEdited(   QString const &)),
+            this,             SLOT(enableEditReset(QString const &)));
+    connect(resetWidthEditAct,SIGNAL(triggered()),
+            this,             SLOT(  lineEditReset()));
+    connect(widthEdit,        SIGNAL(textEdited(QString const &)),
+            this,             SLOT(sizeChange(QString const &)));
     grid->addWidget(widthEdit,0,1);
 
     /*  Height */
 
-    label = new QLabel(title+" Height",parent);
+    label = new QLabel(tr("%1 Height").arg(title),parent);
     grid->addWidget(label,0,2);
-    size = QString("%1") .arg(tip.tipData.tipHeight,5,'f',4);
 
-    heightEdit = new QLineEdit(size,parent);
-    heightEdit->setInputMask("9.9000");
+    heightEdit = new QLineEdit(parent);
+    QDoubleValidator *heightValidator = new QDoubleValidator(heightEdit);
+    heightValidator->setRange(0.0f, 100.0f);
+    heightValidator->setDecimals(4);
+    heightValidator->setNotation(QDoubleValidator::StandardNotation);
+    heightEdit->setValidator(heightValidator);
+    heightEdit->setText(QString::number(data.tipData.tipHeight,'f',4));
     heightEdit->setToolTip(units);
-    connect(heightEdit,SIGNAL(textEdited(   QString const &)),
-            this,      SLOT(sizeChange(QString const &)));
-
+    resetHeightEditAct = heightEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+    resetHeightEditAct->setText(tr("Reset"));
+    resetHeightEditAct->setEnabled(false);
+    connect(heightEdit,        SIGNAL(textEdited(   QString const &)),
+            this,              SLOT(enableEditReset(QString const &)));
+    connect(resetHeightEditAct,SIGNAL(triggered()),
+            this,              SLOT(  lineEditReset()));
+    connect(heightEdit,        SIGNAL(textEdited(   QString const &)),
+            this,              SLOT(sizeChange(     QString const &)));
     grid->addWidget(heightEdit,0,3);
   }
   tipModified = false;
   lineModified = false;
   borderModified = false;
+}
+
+void PointerAttribGui::enableEditReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (isTip) {
+    if (sender() == widthEdit)
+      resetWidthEditAct->setEnabled(notEqual(value, data.tipData.tipWidth));
+    else
+    if (sender() == heightEdit)
+      resetHeightEditAct->setEnabled(notEqual(value, data.tipData.tipHeight));
+  } else if (isLine) {
+    if (sender() == thicknessEdit)
+      resetThicknessEditAct->setEnabled(notEqual(value, data.lineData.thickness));
+  } else if (isBorder) {
+    if (sender() == thicknessEdit)
+      resetThicknessEditAct->setEnabled(notEqual(value, data.borderData.thickness));
+  }
+}
+
+void PointerAttribGui::lineEditReset()
+{
+  if (isTip) {
+    if (sender() == resetWidthEditAct) {
+      resetWidthEditAct->setEnabled(false);
+      if (widthEdit)
+        widthEdit->setText(QString::number(data.tipData.tipWidth,'f',4));
+    }
+    else
+    if (sender() == resetHeightEditAct) {
+      resetHeightEditAct->setEnabled(false);
+      if (heightEdit)
+        heightEdit->setText(QString::number(data.tipData.tipHeight,'f',4));
+    }
+  } else if (isLine) {
+    if (sender() == resetThicknessEditAct) {
+      resetThicknessEditAct->setEnabled(false);
+      if (thicknessEdit)
+        thicknessEdit->setText(QString::number(data.lineData.thickness,'f',4));
+    }
+  } else if (isBorder) {
+    if (sender() == resetThicknessEditAct) {
+      resetThicknessEditAct->setEnabled(false);
+      if (thicknessEdit)
+        thicknessEdit->setText(QString::number(data.borderData.thickness,'f',4));
+    }
+  }
 }
 
 void PointerAttribGui::lineChange(QString const &_line)
@@ -3607,62 +4211,76 @@ void PointerAttribGui::lineChange(QString const &_line)
     padLine = BorderData::BdrLnDashDotDot;
   }
 
+  PointerAttribData _data = meta->value();
   if (isLine) {
     if (!lineModified)
-      lineModified = line.lineData.line != padLine;
-    line.lineData.line = padLine;
-  } else {
+      lineModified = data.lineData.line != padLine;
+    _data.lineData.line = padLine;
+  } else if (isBorder) {
     if (!borderModified)
-      borderModified = border.borderData.line != padLine;
-    border.borderData.line = padLine;
+      borderModified = data.borderData.line != padLine;
+    _data.borderData.line = padLine;
   }
-  modified = lineModified || borderModified;
+  meta->setValue(_data);
+  if (!modified)
+    modified = lineModified || borderModified;
 }
 
 void PointerAttribGui::sizeChange(QString const &size)
 {
+  float value = size.toFloat();
+  PointerAttribData _data = meta->value();
   if (isTip) {
     if (sender() == widthEdit) {
       if (!tipModified)
-        tipModified = tip.tipData.tipWidth != size.toFloat();
-      tip.tipData.tipWidth = size.toFloat();
+        tipModified = notEqual(value, data.tipData.tipWidth);
+      _data.tipData.tipWidth = value;
     } else if (sender() == heightEdit) {
       if (!tipModified)
-        tipModified = tip.tipData.tipHeight != size.toFloat();
-      tip.tipData.tipHeight = size.toFloat();
+        tipModified = notEqual(value, data.tipData.tipHeight);
+      _data.tipData.tipHeight = value;
     }
   } else if (isLine) {
-    if (!lineModified)
-      lineModified = line.lineData.thickness != size.toFloat();
-    line.lineData.thickness = size.toFloat();
-  } else {
-    if (!borderModified)
-      borderModified = border.borderData.thickness != size.toFloat();
-    border.borderData.thickness = size.toFloat();
+    if (sender() == thicknessEdit) {
+      if (!lineModified)
+        lineModified = notEqual(value, data.lineData.thickness);
+      _data.lineData.thickness = value;
+    }
+  } else if (isBorder) {
+    if (sender() == thicknessEdit) {
+      if (!borderModified)
+        borderModified = notEqual(value, data.borderData.thickness);
+      _data.borderData.thickness = value;
+    }
   }
-  modified = tipModified || lineModified || borderModified;
+  meta->setValue(_data);
+  if (!modified)
+    modified = tipModified || lineModified || borderModified;
 }
 
 void PointerAttribGui::browseColor(bool)
 {
   QString padColor;
+  PointerAttribData _data = meta->value();
   if (isLine)
-    padColor = line.lineData.color;
+    padColor = _data.lineData.color;
   else
-    padColor = border.borderData.color;
+    padColor = _data.borderData.color;
   QColor color = LDrawColor::color(padColor);
   QColor newColor = QColorDialog::getColor(color,this);
   if (newColor.isValid() && color != newColor) {
     if (isLine) {
       if (!lineModified)
-        lineModified = line.lineData.color != newColor.name();
-      line.lineData.color = newColor.name();
+        lineModified = data.lineData.color != newColor.name();
+      _data.lineData.color = newColor.name();
     } else {
       if (!borderModified)
-        borderModified = border.borderData.color != newColor.name();
-      border.borderData.color = newColor.name();
+        borderModified = data.borderData.color != newColor.name();
+      _data.borderData.color = newColor.name();
     }
-    modified = lineModified || borderModified;
+    meta->setValue(_data);
+    if (!modified)
+      modified = lineModified || borderModified;
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }").
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
@@ -3673,29 +4291,20 @@ void PointerAttribGui::browseColor(bool)
 
 void PointerAttribGui::hideTipChange(bool checked)
 {
+  PointerAttribData _data = meta->value();
   if (!lineModified)
-    lineModified = line.lineData.hideTip != checked;
-  line.lineData.hideTip = checked;
-  modified = lineModified;
+    lineModified = data.lineData.hideTip != checked;
+  _data.lineData.hideTip = checked;
+  meta->setValue(_data);
+  if (!modified)
+    modified = lineModified;
 }
 
 void PointerAttribGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;
-    if (tipModified) {
-      meta->setValue(tip);
-      mi.setGlobalMeta(modelName,meta);
-    } else {
-      if (lineModified) {
-        meta->setValue(line);
-        mi.setGlobalMeta(modelName,meta);
-      }
-      if (borderModified) {
-        meta->setValue(border);
-        mi.setGlobalMeta(modelName,meta);
-      }
-    }
+    mi.setGlobalMeta(modelName,meta);
   }
 }
 
@@ -3710,6 +4319,7 @@ SepGui::SepGui(
   QGroupBox *parent)
 {
   meta = _meta;
+  data = meta->value();
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -3721,21 +4331,29 @@ SepGui::SepGui(
       setWhatsThis(lpubWT(WT_GUI_SEPARATOR, tr("Divider")));
   }
 
-  QLineEdit   *lineEdit;
   QPushButton *button;
   QComboBox   *typeCombo;
-
-  SepData sep = meta->value();
 
   QLabel *label = new QLabel("Width",parent);
   grid->addWidget(label,0,0);
 
-  QString string = QString("%1") .arg(sep.thickness,
-                              5,'f',4);
-  lineEdit = new QLineEdit(string,parent);
-  connect(lineEdit,SIGNAL(textEdited(QString const &)),
-          this,    SLOT(  thicknessChange(QString const &)));
-  grid->addWidget(lineEdit,0,1);
+  thicknessEdit = new QLineEdit(parent);
+  QDoubleValidator *widthValidator = new QDoubleValidator(thicknessEdit);
+  widthValidator->setRange(0.0f, 100.0f);
+  widthValidator->setDecimals(4);
+  widthValidator->setNotation(QDoubleValidator::StandardNotation);
+  thicknessEdit->setValidator(widthValidator);
+  thicknessEdit->setText(QString::number(data.thickness,'f',4));
+  resetThicknessEditAct = thicknessEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetThicknessEditAct->setText(tr("Reset"));
+  resetThicknessEditAct->setEnabled(false);
+  connect(thicknessEdit,        SIGNAL(textEdited(     QString const &)),
+          this,                 SLOT(  enableReset(    QString const &)));
+  connect(resetThicknessEditAct,SIGNAL(triggered()),
+          this,                 SLOT(  lineEditReset()));
+  connect(thicknessEdit,        SIGNAL(textEdited(     QString const &)),
+          this,                 SLOT(  thicknessChange(QString const &)));
+  grid->addWidget(thicknessEdit,0,1);
 
   label = new QLabel("Length",parent);
   grid->addWidget(label,1,0);
@@ -3744,18 +4362,29 @@ SepGui::SepGui(
   typeCombo->addItem("Default");
   typeCombo->addItem("Page");
   typeCombo->addItem("Custom");
-  typeCombo->setCurrentIndex(int(sep.type));
+  typeCombo->setCurrentIndex(int(data.type));
   connect(typeCombo,SIGNAL(currentIndexChanged(int)),
           this,     SLOT(  typeChange(             int)));
   grid->addWidget(typeCombo,1,1);
 
-  string = QString("%1") .arg(sep.length,
-                              5,'f',4);
-  typeLineEdit = new QLineEdit(string,parent);
-  typeLineEdit->setEnabled(sep.type == SepData::LenCustom);
-  connect(typeLineEdit,SIGNAL(textEdited(QString const &)),
-          this,        SLOT(  lengthChange(QString const &)));
-  grid->addWidget(typeLineEdit,1,2);
+  lengthEdit = new QLineEdit(parent);
+  QDoubleValidator *lengthValidator = new QDoubleValidator(lengthEdit);
+  lengthValidator->setRange(0.0f, 100.0f);
+  lengthValidator->setDecimals(4);
+  lengthValidator->setNotation(QDoubleValidator::StandardNotation);
+  lengthEdit->setValidator(lengthValidator);
+  lengthEdit->setText(QString::number(data.length,'f',4));
+  lengthEdit->setEnabled(data.type == SepData::LenCustom);
+  resetLengthEditAct = lengthEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetLengthEditAct->setText(tr("Reset"));
+  resetLengthEditAct->setEnabled(false);
+  connect(lengthEdit,        SIGNAL(textEdited(     QString const &)),
+          this,              SLOT(  enableReset(    QString const &)));
+  connect(resetLengthEditAct,SIGNAL(triggered()),
+          this,              SLOT(  lineEditReset()));
+  connect(lengthEdit,        SIGNAL(textEdited(     QString const &)),
+          this,              SLOT(  lengthChange(   QString const &)));
+  grid->addWidget(lengthEdit,1,2);
 
   label = new QLabel("Color",parent);
   grid->addWidget(label,2,0);
@@ -3763,7 +4392,7 @@ SepGui::SepGui(
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   colorExample->setAutoFillBackground(true);
-  QColor c = QColor(sep.color);
+  QColor c = QColor(data.color);
   QString styleSheet =
       QString("QLabel { background-color: rgb(%1, %2, %3); }").
       arg(c.red()).arg(c.green()).arg(c.blue());
@@ -3778,54 +4407,124 @@ SepGui::SepGui(
   label = new QLabel("Margins",parent);
   grid->addWidget(label,3,0);
 
-  string = QString("%1") .arg(sep.margin[0],5,'f',4);
-  lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,3,1);
-  connect(lineEdit,SIGNAL(textEdited(QString const &)),
-          this,    SLOT(marginXChange(QString const &)));
+  marginXEdit = new QLineEdit(parent);
+  QDoubleValidator *marginXValidator = new QDoubleValidator(marginXEdit);
+  marginXValidator->setRange(0.0f, 100.0f);
+  marginXValidator->setDecimals(4);
+  marginXValidator->setNotation(QDoubleValidator::StandardNotation);
+  marginXEdit->setValidator(marginXValidator);
+  marginXEdit->setText(QString::number(data.margin[0],'f',4));
+  resetXEditAct = marginXEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetXEditAct->setText(tr("Reset"));
+  resetXEditAct->setEnabled(false);
+  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(  enableReset(  QString const &)));
+  connect(resetXEditAct,SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(marginXEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(  marginXChange(QString const &)));
+  grid->addWidget(marginXEdit,3,1);
 
-  string = QString("%1") .arg(sep.margin[1],5,'f',4);
-  lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,3,2);
-  connect(lineEdit,SIGNAL(textEdited(QString const &)),
-          this,    SLOT(marginYChange(QString const &)));
+  marginYEdit = new QLineEdit(parent);
+  QDoubleValidator *marginYValidator = new QDoubleValidator(marginYEdit);
+  marginYValidator->setRange(0.0f, 100.0f);
+  marginYValidator->setDecimals(4);
+  marginYValidator->setNotation(QDoubleValidator::StandardNotation);
+  marginYEdit->setValidator(marginYValidator);
+  marginYEdit->setText(QString::number(data.margin[1],'f',4));
+  resetYEditAct = marginYEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetYEditAct->setText(tr("Reset"));
+  resetYEditAct->setEnabled(false);
+  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(  enableReset(  QString const &)));
+  connect(resetYEditAct,SIGNAL(triggered()),
+          this,         SLOT(  lineEditReset()));
+  connect(marginYEdit,  SIGNAL(textEdited(   QString const &)),
+          this,         SLOT(  marginYChange(QString const &)));
+  grid->addWidget(marginYEdit,3,2);
+}
+
+void SepGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == marginXEdit)
+    resetXEditAct->setEnabled(notEqual(value, data.margin[0]));
+  else
+  if (sender() == marginYEdit)
+    resetYEditAct->setEnabled(notEqual(value, data.margin[1]));
+  else
+  if (sender() == lengthEdit)
+    resetLengthEditAct->setEnabled(notEqual(value, data.length));
+  else
+  if (sender() == thicknessEdit)
+    resetThicknessEditAct->setEnabled(notEqual(value, data.thickness));
+}
+
+void SepGui::lineEditReset()
+{
+  if (sender() == resetXEditAct) {
+    resetXEditAct->setEnabled(false);
+    if (marginXEdit)
+      marginXEdit->setText(QString::number(data.margin[0],'f',4));
+  }
+  else
+  if (sender() == resetYEditAct) {
+    resetYEditAct->setEnabled(false);
+    if (marginYEdit)
+      marginYEdit->setText(QString::number(data.margin[1],'f',4));
+  }
+  else
+  if (sender() == resetLengthEditAct) {
+    resetLengthEditAct->setEnabled(false);
+    if (lengthEdit)
+      lengthEdit->setText(QString::number(data.length,'f',4));
+  }
+  else
+  if (sender() == resetThicknessEditAct) {
+    resetThicknessEditAct->setEnabled(false);
+    if (thicknessEdit)
+      thicknessEdit->setText(QString::number(data.thickness,'f',4));
+  }
 }
 
 void SepGui::typeChange(
   int type)
 {
-  SepData sep = meta->value();
-  sep.type = SepData::LengthType(type);
-  meta->setValue(sep);
-  typeLineEdit->setEnabled(sep.type == SepData::LenCustom);
-  modified = true;
+  SepData _data = meta->value();
+  _data.type = SepData::LengthType(type);
+  lengthEdit->setEnabled(_data.type == SepData::LenCustom);
+  meta->setValue(_data);
+  modified = _data.type != data.type;
 }
 
 void SepGui::lengthChange(
   QString const &string)
 {
-  SepData sep = meta->value();
-  sep.length = string.toFloat();
-  meta->setValue(sep);
-  modified = true;
+  float value = string.toFloat();
+  SepData _data = meta->value();
+  _data.length = value;
+  meta->setValue(_data);
+  modified = notEqual(value, data.length);
 }
 
 void SepGui::thicknessChange(
   QString const &string)
 {
-  SepData sep = meta->value();
-  sep.thickness = string.toFloat();
-  meta->setValue(sep);
-  modified = true;
+  float value = string.toFloat();
+  SepData _data = meta->value();
+  _data.thickness = value;
+  meta->setValue(_data);
+  modified = notEqual(value, data.thickness);
 }
 
 void SepGui::browseColor(
   bool clicked)
 {
   Q_UNUSED(clicked);
-  SepData sep = meta->value();
+  SepData _data = meta->value();
 
-  QColor qcolor = LDrawColor::color(sep.color);
+  QColor qcolor = LDrawColor::color(_data.color);
   QColor newColor = QColorDialog::getColor(qcolor,this);
   if (newColor.isValid() && qcolor != newColor) {
       colorExample->setAutoFillBackground(true);
@@ -3833,28 +4532,30 @@ void SepGui::browseColor(
           QString("QLabel { background-color: rgb(%1, %2, %3); }")
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
-      sep.color = newColor.name();
-      meta->setValue(sep);
-      modified = true;
+      _data.color = newColor.name();
+      meta->setValue(_data);
+      modified = _data.color != data.color;
     }
 }
 
 void SepGui::marginXChange(
   QString const &string)
 {
-  SepData sep = meta->value();
-  sep.margin[0] = string.toFloat();
-  meta->setValue(sep);
-  modified = true;
+  float value = string.toFloat();
+  SepData _data = meta->value();
+  _data.margin[0] = value;
+  meta->setValue(_data);
+  modified = notEqual(value, data.margin[0]);
 }
 
 void SepGui::marginYChange(
   QString const &string)
 {
-  SepData sep = meta->value();
-  sep.margin[1] = string.toFloat();
-  meta->setValue(sep);
-  modified = true;
+  float value = string.toFloat();
+  SepData _data = meta->value();
+  _data.margin[1] = value;
+  meta->setValue(_data);
+  modified = notEqual(value, data.margin[1]);
 }
 
 void SepGui::apply(QString &modelName)
@@ -3892,16 +4593,15 @@ ResolutionGui::ResolutionGui(
   label = new QLabel("Units",parent);
   grid->addWidget(label,0,0);
 
-  type  = meta->type();
-  value = meta->value();
+  type  = _meta->type();
+  value = _meta->value();
   // default value always inches
   // so convert to centimeters if DPCM
-  if (meta->isDefault() && type == DPCM) {
-      value = inches2centimeters(meta->value());
+  if (_meta->isDefault() && type == DPCM) {
+      value = inches2centimeters(_meta->value());
   }
 
   QComboBox *combo;
-
   combo = new QComboBox(parent);
   combo->addItem("Dots Per Inch");
   combo->addItem("Dots Per Centimetre");
@@ -3910,11 +4610,19 @@ ResolutionGui::ResolutionGui(
           this, SLOT(  unitsChange(        QString const &)));
   grid->addWidget(combo,0,1);
 
-  QString string;
+  valueEdit = new QLineEdit(parent);
+  QIntValidator *valueValidator = new QIntValidator(valueEdit);
+  valueValidator->setRange(0.0f, 100000.0f);
+  valueEdit->setValidator(valueValidator);
+  valueEdit->setText(QString::number(int(value)));
+  reset0Act = valueEdit->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  reset0Act->setText(tr("Reset"));
+  reset0Act->setEnabled(false);
+  connect(valueEdit, SIGNAL(textEdited(  QString const &)),
+          this,       SLOT(  enableReset( QString const &)));
+  connect(reset0Act,  SIGNAL(triggered()),
+          this,       SLOT(  lineEditReset()));
 
-  string = QString("%1") .arg(int(value),4);
-  valueEdit = new QLineEdit(string,parent);
-  valueEdit->setInputMask("9999");
   connect(valueEdit,SIGNAL(textEdited( QString const &)),
           this,     SLOT(  valueChange(QString const &)));
   grid->addWidget(valueEdit,0,2);
@@ -3925,6 +4633,21 @@ ResolutionGui::ResolutionGui(
     parent->setLayout(grid);
   } else {
     setLayout(grid);
+  }
+}
+
+void ResolutionGui::enableReset(const QString &displayText)
+{
+  const int display = displayText.toInt();
+  reset0Act->setEnabled(display != (int)meta->value());
+}
+
+void ResolutionGui::lineEditReset()
+{
+  if (sender() == reset0Act) {
+    reset0Act->setEnabled(false);
+    if (valueEdit)
+      valueEdit->setText(QString::number((int)meta->value()));
   }
 }
 
@@ -3939,29 +4662,26 @@ void ResolutionGui::unitsChange(QString const &units)
 
   if (type == meta->type()) {
     tvalue = value;
-  } else if (type == DPCM /*DPI*/) { // Changed to Centimeters
+  } else if (type == DPCM) { // Changed to Centimeters
     tvalue = inches2centimeters(value)+0.5;
   } else {
     tvalue = centimeters2inches(value)+0.5;
   }
 
-  QString string = QString("%1") .arg(int(tvalue));
-  valueEdit->setText(string);
+  valueEdit->setText(QString::number((int)tvalue));
 }
 
-void ResolutionGui::valueChange(
-  QString const &string)
+void ResolutionGui::valueChange(QString const &string)
 {
   value = string.toFloat();
 }
 
 void ResolutionGui::differences()
 {
+  // TODO: This is redundant - don't need this call
   if (type == meta->type()) {
-    if (value < meta->value() || value > meta->value()) {
-      meta->setValue(type,value);
-      modified = true;
-    }
+    meta->setValue(type,value)
+    modified = notEqual(value, meta->value());
   } else if (type == DPI) {
     // We must convert all units in project to inches
     meta->setValue(type,value);
@@ -4069,12 +4789,7 @@ PreferredRendererGui::PreferredRendererGui(
 
 void PreferredRendererGui::valueChanged(int state)
 {
-  auto isChecked = [&state] ()
-  {
-    return state == Qt::Unchecked ? false : state == Qt::Checked ? true : false;
-  };
-
-  bool checked;
+  bool checked = state == Qt::Checked;
   RendererData data = meta->value();
   if (sender() == combo) {
     QString pick = combo->currentText();
@@ -4084,12 +4799,10 @@ void PreferredRendererGui::valueChanged(int state)
       modified = data.renderer != rendererMap[pick];
     data.renderer = rendererMap[pick];
   } else if (sender() == ldvSnapshotListBox) {
-    checked = isChecked();
     if (!modified)
       modified = data.useLDVSnapShotList != checked;
     data.useLDVSnapShotList = checked;
   } else if (sender() == ldvSingleCallBox) {
-    checked = isChecked();
     ldvSnapshotListBox->setEnabled(checked);
     if (!modified)
       modified = data.useLDVSingleCall != checked;
@@ -4128,8 +4841,8 @@ CameraAnglesGui::CameraAnglesGui(
     CameraAnglesMeta *_meta,
     QGroupBox        *parent)
 {
-  meta     = _meta;
-  data     = meta->value();
+  meta = _meta;
+  data = meta->value();
 
   QGridLayout *grid = new QGridLayout(parent);
 
@@ -4218,13 +4931,13 @@ CameraAnglesGui::CameraAnglesGui(
 
 void CameraAnglesGui::enableReset(const QString &displayText)
 {
-  const double display = displayText.toDouble();
+  const double value = displayText.toDouble();
 
   if (sender() == latitudeEdit)
-    setLatitudeResetAct->setEnabled(display != (double)data.angles[0]);
+    setLatitudeResetAct->setEnabled(notEqual(value, data.angles[0]));
   else
   if (sender() == longitudeEdit)
-    setLongitudeResetAct->setEnabled(display != (double)data.angles[1]);
+    setLongitudeResetAct->setEnabled(notEqual(value, data.angles[1]));
 }
 
 void CameraAnglesGui::lineEditReset()
@@ -4244,26 +4957,26 @@ void CameraAnglesGui::lineEditReset()
 
 void CameraAnglesGui::latitudeChange(QString const &string)
 {
+  float value = string.toFloat();
   CameraAnglesData cad = meta->value();
-  cad.angles[0] = string.toFloat();
+  cad.angles[0] = value;
   if (homeViewpointBox->isChecked())
-      cad.homeViewpointModified = cad.angles[0] != 30.0 && cad.angles[1] != 45.0;
+      cad.homeViewpointModified = notEqual(value, 30.0f) || notEqual(cad.angles[1], 45.0f);
   meta->setValue(cad);
-  modified = cad.angles[0] != data.angles[0] && cad.angles[1] != data.angles[1];
-  if (modified)
-    emit settingsChanged(true);
+  modified = notEqual(value, data.angles[0]) || notEqual(cad.angles[1], data.angles[1]);
+  emit settingsChanged(modified);
 }
 
 void CameraAnglesGui::longitudeChange(QString const &string)
 {
+  float value = string.toFloat();
   CameraAnglesData cad = meta->value();
   cad.angles[1] = string.toFloat();
   if (homeViewpointBox->isChecked())
-      cad.homeViewpointModified = cad.angles[0] != 30.0 && cad.angles[1] != 45.0;
+      cad.homeViewpointModified = notEqual(cad.angles[0], 30.0f) || notEqual(value, 45.0f);
   meta->setValue(cad);
-  modified = cad.angles[0] != data.angles[0] && cad.angles[1] != data.angles[1];
-  if (modified)
-    emit settingsChanged(true);
+  modified = notEqual(cad.angles[0], data.angles[0]) || notEqual(value, data.angles[1]);
+  emit settingsChanged(modified);
 }
 
 void CameraAnglesGui::cameraViewChange(int value)
@@ -4376,13 +5089,13 @@ CameraFOVGui::CameraFOVGui(
   label = new QLabel(heading.isEmpty() ? tr("Camera Field Of View") : heading,parent);
   layout->addWidget(label);
 
-  data = meta->value();
+  data = _meta->value();
   const int residual = data - (int)data;
   const int decimalSize = QString::number(residual).size();
   const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
 
   spin = new QDoubleSpinBox(parent);
-  spin->setRange(meta->_min,meta->_max);
+  spin->setRange(_meta->_min,_meta->_max);
   spin->setSingleStep(0.01f);
   spin->setDecimals(decimalPlaces);
   spin->setValue(data);
@@ -4408,7 +5121,7 @@ CameraFOVGui::CameraFOVGui(
 
 void CameraFOVGui::enableReset(double value)
 {
-  button->setEnabled(value != (double)data);
+  button->setEnabled(notEqual(value, data));
 }
 
 void CameraFOVGui::spinReset(bool)
@@ -4423,7 +5136,7 @@ void CameraFOVGui::spinReset(bool)
 void CameraFOVGui::valueChanged(double value)
 {
   meta->setValue(value);
-  modified = (float)value != data;
+  modified = notEqual(value, data);
   emit settingsChanged(modified);
 }
 
@@ -4467,27 +5180,54 @@ ScaleGui::ScaleGui(
   label = new QLabel(heading.isEmpty() ? tr("Scale") : heading,parent);
   layout->addWidget(label);
 
-  float val = meta->value();
-  int a = val - (int)val;
-  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  data   = _meta->value();
+  const int residual = data - (int)data;
+  const int decimalSize = QString::number(residual).size();
+  const int decimalPlaces = decimalSize < 3 ? 2 : decimalSize;
 
   spin = new QDoubleSpinBox(parent);
   layout->addWidget(spin);
   spin->setRange(_meta->_min,meta->_max);
   spin->setSingleStep(0.01f);
-  spin->setDecimals(dec);
-  spin->setValue(val);
+  spin->setDecimals(decimalPlaces);
+  spin->setValue(data);
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
+
+  button = new QPushButton(parent);
+  button->setIcon(QIcon(":/resources/resetaction.png"));
+  button->setIconSize(QSize(16,16));
+  button->setStyleSheet("QPushButton { background-color: rgba(255,255,255,0);border: 0px; }");
+  button->setToolTip(tr("Reset"));
+  button->setEnabled(false);
+  connect(spin,   SIGNAL(valueChanged(double)),
+          this,   SLOT(  enableReset( double)));
+  connect(button, SIGNAL(clicked(     bool)),
+          this,   SLOT(  spinReset(   bool)));
+  layout->addWidget(button);
 
   QSpacerItem *hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
   layout->addSpacerItem(hSpacer);
 }
 
+void ScaleGui::enableReset(double value)
+{
+  button->setEnabled(notEqual(value, data));
+}
+
+void ScaleGui::spinReset(bool)
+{
+  button->setEnabled(false);
+  if (spin) {
+    spin->setValue(data);
+    spin->setFocus();
+  }
+}
+
 void ScaleGui::valueChanged(double value)
 {
-  modified = (float)value != meta->value();
   meta->setValue(value);
+  modified = (float)value != data;
   emit settingsChanged(modified);
 }
 
@@ -4625,7 +5365,7 @@ ShowSubModelGui::ShowSubModelGui(
     placementButton = new QPushButton(tr("Change %1 Placement").arg(placementName),parent);
     PlacementData placementData = meta->placement.value();
     placementButton->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(SubModelType,placementData,placementButton->text()));
-    placementButton->setToolTip(tr("Set Submodel default placement").arg(placementName));
+    placementButton->setToolTip(tr("Set %1 default placement").arg(placementName));
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
     grid->addWidget(placementButton,12,1);
@@ -6043,7 +6783,9 @@ RotateIconSizeGui::RotateIconSizeGui(
   UnitsMeta               *_meta,
   QGroupBox               *parent)
 {
-  meta = _meta;
+  meta  = _meta;
+  dataW = _meta->value(0);
+  dataH = _meta->value(1);
 
   QGridLayout *grid   = new QGridLayout(parent);
 
@@ -6060,16 +6802,27 @@ RotateIconSizeGui::RotateIconSizeGui(
     label = nullptr;
   }
 
-  QString string;
-  string  = QString("%1") .arg(meta->value(0),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  labelW = new QLabel("Width: ",parent);
-  labelW->setToolTip(QString("Current Width in pixels is %1").arg(meta->valuePixels(0)));
-  valueW = new QLineEdit(string,parent);
-  connect(valueW,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueWChange(QString const &)));
+  QString string  = QString::number(dataW,'f', _meta->_precision);
+
+  valueW = new QLineEdit(parent);
+  QDoubleValidator *valueWValidator = new QDoubleValidator(valueW);
+  valueWValidator->setRange(0.0f, 1000.0f);
+  valueWValidator->setDecimals(_meta->_precision);
+  valueWValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueW->setValidator(valueWValidator);
+  valueW->setText(QString::number(dataW,'f',_meta->_precision));
+  resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetWAct->setText(tr("Reset"));
+  resetWAct->setEnabled(false);
+  connect(valueW,    SIGNAL(textEdited(  QString const &)),
+          this,      SLOT(  enableReset( QString const &)));
+  connect(resetWAct, SIGNAL(triggered()),
+          this,      SLOT(  lineEditReset()));
+  connect(valueW,    SIGNAL(textChanged( QString const &)),
+          this,      SLOT(  valueWChange(QString const &)));
+
+  labelW = new QLabel(tr("Width"),parent);
+  labelW->setToolTip(tr("Current Width in pixels is %1").arg(_meta->valuePixels(0)));
   if (heading == "") {
     grid->addWidget(labelW,0,0);
     grid->addWidget(valueW,0,1);
@@ -6078,15 +6831,27 @@ RotateIconSizeGui::RotateIconSizeGui(
     grid->addWidget(valueW,1,1);
   }
 
-  string = QString("%1") .arg(meta->value(1),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  labelH = new QLabel("Height: ",parent);
-  valueH = new QLineEdit(string,parent);
-  labelH->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
-  connect(valueH,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueHChange(QString const &)));
+  string  = QString::number(dataH,'f', _meta->_precision);
+
+  valueH = new QLineEdit(parent);
+  QDoubleValidator *valueHValidator = new QDoubleValidator(valueH);
+  valueHValidator->setRange(0.0f, 1000.0f);
+  valueHValidator->setDecimals(_meta->_precision);
+  valueHValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueH->setValidator(valueHValidator);
+  valueH->setText(QString::number(dataH,'f',_meta->_precision));
+  resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetHAct->setText(tr("Reset"));
+  resetHAct->setEnabled(false);
+  connect(valueH,    SIGNAL(textEdited(  QString const &)),
+          this,      SLOT(  enableReset( QString const &)));
+  connect(resetHAct, SIGNAL(triggered()),
+          this,      SLOT(  lineEditReset()));
+  connect(valueH,    SIGNAL(textChanged( QString const &)),
+          this,      SLOT(  valueHChange(QString const &)));
+
+  labelH = new QLabel(tr("Height"),parent);
+  labelH->setToolTip(tr("Current Height in pixels is %1").arg(_meta->valuePixels(1)));
   if (heading == "") {
     grid->addWidget(labelH,0,2);
     grid->addWidget(valueH,0,3);
@@ -6098,31 +6863,48 @@ RotateIconSizeGui::RotateIconSizeGui(
   setEnabled(true);
 }
 
+void RotateIconSizeGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
+
+  if (sender() == valueH)
+    resetHAct->setEnabled(notEqual(value, dataH));
+  else
+  if (sender() == valueW)
+    resetWAct->setEnabled(notEqual(value, dataW));
+}
+
+void RotateIconSizeGui::lineEditReset()
+{
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataH,'f',meta->_precision));
+  }
+  else
+  if (sender() == resetWAct) {
+    resetWAct->setEnabled(false);
+    if (valueW)
+      valueW->setText(QString::number(dataW,'f',meta->_precision));
+  }
+}
+
 void RotateIconSizeGui::valueWChange(QString const &string)
 {
-  w = string.toFloat();
-  meta->setValue(0,w);
-  labelW->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
-  modified = true;
-  //qDebug() << "Meta setValue(0) Width change:" << meta->value(0);
+  float value = string.toFloat();
+  meta->setValue(0,value);
+  labelW->setToolTip(tr("Current Height in pixels is %1").arg(meta->valuePixels(1)));
+  modified = notEqual(value, dataH);
 }
 
 void RotateIconSizeGui::valueHChange(QString const &string)
 {
-  h = string.toFloat();
-  meta->setValue(1,h);
-  labelH->setToolTip(QString("Current Height in pixels is %1").arg(meta->valuePixels(1)));
-  modified = true;
-  //qDebug() << "Meta setValue(1) Height change:" << meta->value(1);
+  float value = string.toFloat();
+  meta->setValue(1,value);
+  labelH->setToolTip(tr("Current Height in pixels is %1").arg(meta->valuePixels(1)));
+  modified = notEqual(value, dataH);
 }
 
-void RotateIconSizeGui::updateRotateIconSize(){
-
-  meta->setValue(0,w);
-  meta->setValue(1,h);
-//  qDebug() << "\nMeta setValue(0) Width update:" << meta->value(0)
-//           << "\nMeta setValue(1) Height update:" << meta->value(1);
-}
 
 void RotateIconSizeGui::setEnabled(bool enable)
 {
@@ -6132,9 +6914,7 @@ void RotateIconSizeGui::setEnabled(bool enable)
 
 void RotateIconSizeGui::apply(QString &topLevelFile)
 {
-
   if (modified) {
-    updateRotateIconSize();
     MetaItem mi;
     mi.setGlobalMeta(topLevelFile,meta);
   }
@@ -6153,7 +6933,9 @@ PageSizeGui::PageSizeGui(
   QGroupBox               *parent)
 {
 
-  meta = _meta;
+  meta  = _meta;
+  dataW = _meta->value(0);
+  dataH = _meta->value(1);
 
   QGridLayout *grid   = new QGridLayout(parent);
 
@@ -6181,52 +6963,95 @@ PageSizeGui::PageSizeGui(
   /* page size */
   int numPageTypes = PageSizes::numPageTypes();
 
-  typeCombo = new QComboBox(parent);
+  sizeCombo = new QComboBox(parent);
   for (int i = 0; i < numPageTypes; i++) {
-       typeCombo->addItem(PageSizes::pageTypeSizeID(i));
+       sizeCombo->addItem(PageSizes::pageTypeSizeID(i));
   }
 
-  float pageWidth = meta->value(0);
-  float pageHeight = meta->value(1);
-  typeCombo->setCurrentIndex(int(getTypeIndex(pageWidth,pageHeight)));
-  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
+  sizeCombo->setCurrentIndex(int(getTypeIndex(dataW,dataH)));
+  connect(sizeCombo,SIGNAL(currentIndexChanged(QString const &)),
           this,     SLOT(  typeChange(         QString const &)));
   if (heading == "")
-    grid->addWidget(typeCombo,0,0);
+    grid->addWidget(sizeCombo,0,0);
   else
-    grid->addWidget(typeCombo,1,0);
+    grid->addWidget(sizeCombo,1,0);
 
-  QString      string;
-  string = QString("%1") .arg(meta->value(0),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  valueW = new QLineEdit(string,parent);
-  connect(valueW,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueWChange(QString const &)));
+  valueW = new QLineEdit(parent);
+  QDoubleValidator *valueWValidator = new QDoubleValidator(valueW);
+  valueWValidator->setRange(0.0f, 1000.0f);
+  valueWValidator->setDecimals(meta->_precision);
+  valueWValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueW->setValidator(valueWValidator);
+  valueW->setText(QString::number(dataW,'f',meta->_precision));
+  resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetWAct->setText(tr("Reset"));
+  resetWAct->setEnabled(false);
+  connect(valueW,    SIGNAL(textEdited(  QString const &)),
+          this,      SLOT(  enableReset( QString const &)));
+  connect(resetWAct, SIGNAL(triggered()),
+          this,      SLOT(  lineEditReset()));
+  connect(valueW,    SIGNAL(textChanged( QString const &)),
+          this,      SLOT(  valueWChange(QString const &)));
+
   if (heading == "")
     grid->addWidget(valueW,0,1);
   else
     grid->addWidget(valueW,1,1);
 
-  string = QString("%1") .arg(meta->value(1),
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  valueH = new QLineEdit(string,parent);
-  connect(valueH,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueHChange(QString const &)));
+  valueH = new QLineEdit(parent);
+  QDoubleValidator *valueHValidator = new QDoubleValidator(valueH);
+  valueHValidator->setRange(0.0f, 1000.0f);
+  valueHValidator->setDecimals(meta->_precision);
+  valueHValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueH->setValidator(valueHValidator);
+  valueH->setText(QString::number(dataH,'f',meta->_precision));
+  resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetHAct->setText(tr("Reset"));
+  resetHAct->setEnabled(false);
+  connect(valueH,    SIGNAL(textEdited(  QString const &)),
+          this,      SLOT(  enableReset( QString const &)));
+  connect(resetHAct, SIGNAL(triggered()),
+          this,      SLOT(  lineEditReset()));
+  connect(valueH,    SIGNAL(textChanged( QString const &)),
+          this,      SLOT(  valueHChange(QString const &)));
+
   if (heading == "")
     grid->addWidget(valueH,0,2);
   else
     grid->addWidget(valueH,1,2);
 
-  if (typeCombo->currentText() == "Custom")
+  if (sizeCombo->currentText() == "Custom")
     setEnabled(true);
   else
     setEnabled(false);
 
-//  logDebug() << "Current Page Type: " << typeCombo->currentText();
+//  logDebug() << "Current Page Type: " << sizeCombo->currentText();
+}
+
+void PageSizeGui::enableReset(const QString &displayText)
+{
+  const double display = displayText.toDouble();
+
+  if (sender() == valueH)
+    resetHAct->setEnabled(notEqual(value, dataH));
+  else
+  if (sender() == valueW)
+    resetWAct->setEnabled(notEqual(value, dataW));
+}
+
+void PageSizeGui::lineEditReset()
+{
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataH,'f',meta->_precision));
+  }
+  else
+  if (sender() == resetWAct) {
+    resetWAct->setEnabled(false);
+    if (valueW)
+      valueW->setText(QString::number(dataW,'f',meta->_precision));
+  }
 }
 
 int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
@@ -6249,84 +7074,74 @@ int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
 //               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
 //               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
 
-      if ((pageWidth == typeWidth) && (pageHeight == typeHeight)){
+      if ((pageWidth == typeWidth) && (pageHeight == typeHeight)) {
         index = i;
         break;
-        }
+      }
   }
   if (index == -1)
-      index = typeCombo->findText("Custom");
+      index = sizeCombo->findText("Custom");
 
   return index;
 }
 
 void PageSizeGui::typeChange(const QString &pageType){
 
-  float pageWidth = meta->value(0);
+  float pageWidth  = meta->value(0);
   float pageHeight = meta->value(1);;
-  bool  editLine = true;
+  bool  editLine   = true;
 
 //  qDebug() << "\nPage Type: " << pageType ;
 
-  if (pageType != "Custom") {
+  if (pageType != QStringLiteral("Custom")) {
 
-      bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
-      int   numPageTypes = PageSizes::numPageTypes();
+    bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
+    int   numPageTypes = PageSizes::numPageTypes();
 
-      for (int i = 0; i < numPageTypes; i++) {
-          if (pageType == PageSizes::pageTypeSizeID(i)) {
-              pageWidth  = dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i);
-              pageHeight = dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i);
-              break;
-            }
-        }
-      editLine = false;
+    for (int i = 0; i < numPageTypes; i++) {
+      if (pageType == PageSizes::pageTypeSizeID(i)) {
+        pageWidth  = dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i);
+        pageHeight = dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i);
+        break;
+      }
     }
+    editLine = false;
+  }
 
-  QString      string;
-  string = QString("%1") .arg(pageWidth,
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  valueW->setText(string);
+  valueW->setText(QString::number(pageWidth,'f',meta->_precision));
 
-  string = QString("%1") .arg(pageHeight,
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  valueH->setText(string);
+  valueH->setText(QString::number(pageHeight,'f',meta->_precision));
 
   setEnabled(editLine);
 }
 
 void PageSizeGui::valueWChange(QString const &string)
 {
-  w = string.toFloat();
-  modified     = true;
-//  qDebug() << "Meta setValue(0) Change:" << meta->value(0);
+  dataW = string.toFloat();
+  if (lpub->page.meta.LPub.page.orientation.value() == Portrait) {
+    meta->setValue(0,value);
+    modified = notEqual(value, dataW);
+  } else {
+    meta->setValue(1,value);
+    modified = notEqual(value, dataH);
+  }
 }
 
 void PageSizeGui::valueHChange(QString const &string)
 {
-  h = string.toFloat();
-  modified     = true;
-//  qDebug() << "Meta setValue(1) Change:" << meta->value(1);
-}
-
-void PageSizeGui::updatePageSize(){
-
-  if (lpub->page.meta.LPub.page.orientation.value() == Portrait){
-      meta->setValue(0,w);
-      meta->setValue(1,h);
-//      qDebug() << "\nMeta setValue(0) Portrait Update:" << meta->value(0)
-//               << "\nMeta setValue(1) Portrait Update:" << meta->value(1);
-    }
-  else{
-      meta->setValue(0,h);
-      meta->setValue(1,w);
-//      qDebug() << "\nMeta setValue(0) Landscape Update:" << meta->value(0)
-//               << "\nMeta setValue(1) Landscape Update:" << meta->value(1);
-    }
+  float value = string.toFloat();
+  if (lpub->page.meta.LPub.page.orientation.value() == Portrait) {
+    meta->setValue(1,value);
+    modified = notEqual(value, dataH);
+  } else {
+    meta->setValue(0,value);
+    modified = notEqual(value, dataW);
+  }
+//#ifdef QT_DEBUG_MODE
+//  qDebug() << "\nChange to " << (lpub->page.meta.LPub.page.orientation.value() == Portrait ? "Portrait" : "Landscape") << " Page"
+//           << "\nMeta Value(0) :" << meta->value(0)
+//           << "\nMeta Value(1) :" << meta->value(1);
+//#endif
 }
 
 void PageSizeGui::setEnabled(bool enable)
@@ -6338,7 +7153,6 @@ void PageSizeGui::setEnabled(bool enable)
 void PageSizeGui::apply(QString &topLevelFile)
 {
   if (modified) {
-    updatePageSize();
     MetaItem mi;
     mi.setGlobalMeta(topLevelFile,meta);
   }
@@ -6352,14 +7166,19 @@ void PageSizeGui::apply(QString &topLevelFile)
  **********************************************************************/
 
 SizeAndOrientationGui::SizeAndOrientationGui(
-  QString const            &heading,
-  PageSizeMeta            *_smeta,
-  PageOrientationMeta     *_ometa,
-  QGroupBox               *parent)
+  QString const       &heading,
+  PageSizeMeta        *_smeta,
+  PageOrientationMeta *_ometa,
+  QGroupBox           *parent)
 {
 
-  smeta = _smeta;
-  ometa = _ometa;
+  smeta          = _smeta;
+  ometa          = _ometa;
+  dataO          = _ometa->value();
+  dataS          = _smeta->value();
+  dataW          = _smeta->value(0);
+  dataH          = _smeta->value(1);
+  dataTypeSizeID = _smeta->valueSizeID();
 
   QGridLayout *grid   = new QGridLayout(parent);
 
@@ -6378,18 +7197,19 @@ SizeAndOrientationGui::SizeAndOrientationGui(
     label = nullptr;
   }
 
-//  logNotice() << " \nSizeAndOrientationGui Initialized:" <<
-//                 " \nSize 0:      " << smeta->value(0) <<
-//                 " \nSize 1:      " << smeta->value(1) <<
-//                 " \nField Width: " << smeta->_fieldWidth <<
-//                 " \nPrecision:   " << smeta->_precision <<
-//                 " \nInput Mask:  " << smeta->_inputMask <<
-//                 " \nTypeSizeID:  " << smeta->valueSizeID() <<
-//                 " \nOrientation: " << ometa->value()
+//#ifdef QT_DEBUG_MODE
+//  logNotice() << " \nSizeAndOrientationGui Initialized:"
+//              << " \nSize 0:      " <<  _smeta->value(0)
+//              << " \nSize 1:      " <<  _smeta->value(1)
+//              << " \nField Width: " <<  _smeta->_fieldWidth
+//              << " \nPrecision:   " <<  _smeta->_precision
+//              << " \nInput Mask:  " <<  _smeta->_inputMask
+//              << " \nTypeSizeID:  " <<  _smeta->valueSizeID()
+//              << " \nOrientation: " << (_ometa->value() == Portrait ? "Portrait" : "Landscape")
 //                 ;
+//#endif
 
   float typeWidth,typeHeight;
-  QString pageTypeSizeID = smeta->valueSizeID();
   int   numPageTypes     = PageSizes::numPageTypes();
   bool  dpi              = lpub->page.meta.LPub.resolution.type() == DPI;
   typeCombo              = new QComboBox(parent);
@@ -6397,78 +7217,100 @@ SizeAndOrientationGui::SizeAndOrientationGui(
 
   for (int i = 0; i < numPageTypes; i++) {
 
-      typeWidth  = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
-      typeHeight = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
+    typeWidth  = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
+    typeHeight = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
 
-//      qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
-//               << "\nType: (" << QString::number(typeWidth, 'f', 3) << "x" <<  QString::number(typeHeight, 'f', 3) << ") "
-//               << "\nPage: (" <<  QString::number(pageWidth, 'f', 3) << "x" <<  QString::number(pageHeight, 'f', 3) << ")";
+//    qDebug() << "\n" << pageSizeTypes[i].pageType << " @ index: " << i
+//             << "\nType: (" << QString::number(typeWidth, 'f', 3) << "x" <<  QString::number(typeHeight, 'f', 3) << ") "
+//             << "\nPage: (" <<  QString::number(pageWidth, 'f', 3) << "x" <<  QString::number(pageHeight, 'f', 3) << ")";
 
-      QString type = QString("%1 (%2 x %3)")
-          .arg(PageSizes::pageTypeSizeID(i))
-          .arg(QString::number(typeWidth, 'f', 1))
-          .arg(QString::number(typeHeight, 'f', 1));
+    QString type = QString("%1 (%2 x %3)")
+        .arg(PageSizes::pageTypeSizeID(i))
+        .arg(QString::number(typeWidth, 'f', 1))
+        .arg(QString::number(typeHeight, 'f', 1));
 
-      typeCombo->addItem(type);
+    typeCombo->addItem(type);
 
-      if (pageTypeSizeID != "Custom" && PageSizes::pageTypeSizeID(i) == pageTypeSizeID){
-          typeIndex = i;
-        }
+    if (dataTypeSizeID != QStringLiteral("Custom") && PageSizes::pageTypeSizeID(i) == dataTypeSizeID){
+        typeIndex = i;
     }
+  }
 
   if (typeIndex == -1) {
 
-      float pageWidth = smeta->value(0);
-      float pageHeight = smeta->value(1);
+    float pageWidth = _smeta->value(0);
+    float pageHeight = _smeta->value(1);
 
-      QString customType = QString("%1 (%2 x %3)")
-          .arg(pageTypeSizeID)
-          .arg(QString::number(pageWidth,'f',1))
-          .arg(QString::number(pageHeight,'f',1));
-      int lastItem = typeCombo->count() - 1;
+    QString customType = QString("%1 (%2 x %3)")
+        .arg(dataTypeSizeID)
+        .arg(QString::number(pageWidth,'f',1))
+        .arg(QString::number(pageHeight,'f',1));
+    int lastItem = typeCombo->count() - 1;
 
-      typeCombo->removeItem(lastItem);
-      typeCombo->addItem(customType);
-      typeIndex = lastItem;
+    typeCombo->removeItem(lastItem);
+    typeCombo->addItem(customType);
+    typeIndex = lastItem;
 
-    }
+  }
 
   typeCombo->setCurrentIndex(typeIndex);
-
   connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
-          this, SLOT(  typeChange(             QString const &)));
+          this,     SLOT(  typeChange(         QString const &)));
+
   if (heading == "")
     grid->addWidget(typeCombo,0,0);
   else
     grid->addWidget(typeCombo,1,0);
 
-  QString      string;
-  string = QString("%1") .arg(smeta->value(0),
-                              smeta->_fieldWidth,
-                              'f',
-                              smeta->_precision);
-  valueW = new QLineEdit(string,parent);
-  connect(valueW,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueWChange(QString const &)));
+  QString string = QString::number(_smeta->value(0),'f',_smeta->_precision);
+
+  valueW = new QLineEdit(parent);
+  QDoubleValidator *valueWValidator = new QDoubleValidator(valueW);
+  valueWValidator->setRange(0.0f, 1000.0f);
+  valueWValidator->setDecimals(_smeta->_precision);
+  valueWValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueW->setValidator(valueWValidator);
+  valueW->setText(QString::number(dataW,'f',_smeta->_precision));
+  resetWAct = valueW->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetWAct->setText(tr("Reset"));
+  resetWAct->setEnabled(false);
+  connect(valueW,   SIGNAL(textEdited(  QString const &)),
+          this,     SLOT(  enableReset( QString const &)));
+  connect(resetWAct,SIGNAL(triggered()),
+          this,     SLOT(  lineEditReset()));
+  connect(valueW,   SIGNAL(textChanged( QString const &)),
+          this,     SLOT(  valueWChange(QString const &)));
+
   if (heading == "")
     grid->addWidget(valueW,0,1);
   else
     grid->addWidget(valueW,1,1);
 
-  string = QString("%1") .arg(smeta->value(1),
-                              smeta->_fieldWidth,
-                              'f',
-                              smeta->_precision);
-  valueH = new QLineEdit(string,parent);
-  connect(valueH,SIGNAL(textChanged( QString const &)),
-          this,  SLOT(  valueHChange(QString const &)));
+  string = QString::number(_smeta->value(1),'f',_smeta->_precision);
+
+  valueH = new QLineEdit(parent);
+  QDoubleValidator *valueHValidator = new QDoubleValidator(valueH);
+  valueHValidator->setRange(0.0f, 1000.0f);
+  valueHValidator->setDecimals(_smeta->_precision);
+  valueHValidator->setNotation(QDoubleValidator::StandardNotation);
+  valueH->setValidator(valueHValidator);
+  valueH->setText(QString::number(dataH,'f',_smeta->_precision));
+  resetHAct = valueH->addAction(QIcon(":/resources/resetaction.png"), QLineEdit::TrailingPosition);
+  resetHAct->setText(tr("Reset"));
+  resetHAct->setEnabled(false);
+  connect(valueH,   SIGNAL(textEdited(  QString const &)),
+          this,     SLOT(  enableReset( QString const &)));
+  connect(resetHAct,SIGNAL(triggered()),
+          this,     SLOT(  lineEditReset()));
+  connect(valueH,   SIGNAL(textChanged( QString const &)),
+          this,     SLOT(  valueHChange(QString const &)));
 
   if (heading == "")
     grid->addWidget(valueH,0,2);
   else
     grid->addWidget(valueH,1,2);
 
-  if (typeCombo->currentText() == "Custom")
+  if (typeCombo->currentText() == QStringLiteral("Custom"))
     setEnabled(true);
   else
     setEnabled(false);
@@ -6484,19 +7326,21 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   hLayout->addSpacerItem(hSpacer);
 
   /* page orientation */
-  portraitRadio = new QRadioButton("Portrait",parent);
-  portraitRadio->setChecked(ometa->value() == Portrait);
+  portraitRadio = new QRadioButton(tr("Portrait"),parent);
+  portraitRadio->setChecked(_ometa->value() == Portrait);
   connect(portraitRadio,SIGNAL(clicked(bool)),
           this,         SLOT(  orientationChange(bool)));
+
   if (heading == "")
     grid->addWidget(portraitRadio,1,1);
   else
     grid->addWidget(portraitRadio,2,1);
 
-  landscapeRadio    = new QRadioButton("Landscape",parent);
-  landscapeRadio->setChecked(ometa->value() == Landscape);
+  landscapeRadio    = new QRadioButton(tr("Landscape"),parent);
+  landscapeRadio->setChecked(_ometa->value() == Landscape);
   connect(landscapeRadio,SIGNAL(clicked(bool)),
           this,          SLOT(  orientationChange(bool)));
+
   if (heading == "")
     grid->addWidget(landscapeRadio,1,2);
   else
@@ -6505,52 +7349,72 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   sizeModified        = false;
   orientationModified = false;
 
-//  logDebug() << "Current Page Type: " << typeCombo->currentText();
-
+//#ifdef QT_DEBUG_MODE
+//  logDebug() << qPrintable(QString("0. Current Page Type: %1")
+//                                   .arg(typeCombo->currentText()));
+//#endif
 }
 
-void SizeAndOrientationGui::typeChange(const QString &pageType){
+void SizeAndOrientationGui::enableReset(const QString &displayText)
+{
+  const double value = displayText.toDouble();
 
-    float pageWidth  = smeta->value(0);
-    float pageHeight = smeta->value(1);
-    bool  editLine   = true;
+  if (sender() == valueH)
+    resetHAct->setEnabled(notEqual(value, dataH);
+  else
+  if (sender() == valueW)
+    resetWAct->setEnabled(notEqual(value, dataW);
+}
 
-  int size = pageType.indexOf(" (");
-  QString newType = pageType.left(size);
+void SizeAndOrientationGui::lineEditReset()
+{
+  if (sender() == resetHAct) {
+    resetHAct->setEnabled(false);
+    if (valueH)
+      valueH->setText(QString::number(dataH,'f',smeta->_precision));
+  }
+  else
+  if (sender() == resetWAct) {
+    resetWAct->setEnabled(false);
+    if (valueW)
+      valueW->setText(QString::number(dataW,'f',smeta->_precision));
+  }
+}
+
+void SizeAndOrientationGui::typeChange(const QString &typeString)
+{
+  float pageWidth  = smeta->value(0);
+  float pageHeight = smeta->value(1);
+  bool  staticType = true;
+  int   typeIndx   = typeString.indexOf(" (");
+  const QString newType = typeString.left(typeIndx);
 
   smeta->setValueSizeID(newType);
 
-//  logDebug() << "\nPage Type: " << pageType << "type: " << newType ;
+#ifdef QT_DEBUG_MODE
+  logDebug() << qPrintable(QString("2. NewType: %3, OldType")
+                                   .arg(newType).arg(dataTypeSizeID));
+#endif
 
-  if (newType != "Custom") {
-      bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
-      int  numPageTypes = PageSizes::numPageTypes();
+  if ((staticType = newType != QStringLiteral("Custom"))) {
+    bool dpi = lpub->page.meta.LPub.resolution.type() == DPI;
+    int  numPageTypes = PageSizes::numPageTypes();
 
-      for (int i = 0; i < numPageTypes; i++) {
-
-          if (newType == PageSizes::pageTypeSizeID(i)) {
-              pageWidth  = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
-              pageHeight = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
-              break;
-            }
-        }
-      editLine = false;
+    for (int i = 0; i < numPageTypes; i++) {
+      if (newType == PageSizes::pageTypeSizeID(i)) {
+        pageWidth  = dpi ? PageSizes::pageWidthIn(i) : inches2centimeters(PageSizes::pageWidthIn(i));
+        pageHeight = dpi ? PageSizes::pageHeightIn(i) : inches2centimeters(PageSizes::pageHeightIn(i));
+        break;
+      }
     }
+  }
 
-  QString      string;
-  string = QString("%1") .arg(pageWidth,
-                              smeta->_fieldWidth,
-                              'f',
-                              smeta->_precision);
-  valueW->setText(string);
+  valueW->setText(QString::number(pageWidth,'f',smeta->_precision));
+  valueH->setText(QString::number(pageHeight,'f',smeta->_precision));
 
-  string = QString("%1") .arg(pageHeight,
-                              smeta->_fieldWidth,
-                              'f',
-                              smeta->_precision);
-  valueH->setText(string);
+  modified = orientationModified = newType != dataTypeSizeID;
 
-  setEnabled(editLine);
+  setEnabled(!staticType);
 }
 
 void SizeAndOrientationGui::orientationChange(bool clicked)
@@ -6559,44 +7423,33 @@ void SizeAndOrientationGui::orientationChange(bool clicked)
 
   QObject *radioButton = sender();
   if (radioButton == portraitRadio)
-    {
-      ometa->setValue(Portrait);
-    }
+    ometa->setValue(Portrait);
   else
-    {
-      ometa->setValue(Landscape);
-    }
+    ometa->setValue(Landscape);
 
-  int sizeIdIndx = typeCombo->currentText().indexOf(" (");
-  QString newType = typeCombo->currentText().left(sizeIdIndx);
+#ifdef QT_DEBUG_MODE
+  logDebug() << qPrintable(QString("1. New Orientation: %1, Old Orientation %2")
+                                   .arg(ometa->value() == Portrait ? "Portrait" : "Landscape")
+                                   .arg(dataO == Portrait ? "Portrait" : "Landscape"));
+#endif
 
-  typeChange(newType);
+  typeChange(typeCombo->currentText());
 
-   modified = orientationModified = true;
-//  logDebug() << "Meta Orientation newType:" << newType << "setValue() Value Change:" << ometa->value();
+  modified = orientationModified = ometa->value() != dataO;
 }
 
 void SizeAndOrientationGui::valueWChange(QString const &string)
 {
-  bool ok;
-  w = string.toFloat(&ok);
-  if (ok){
-      smeta->setValue(0,w);
-      modified = sizeModified = true;
-//      logDebug() << "Meta Size Width setValue(0) Value Change:" << smeta->value(0);
-    }
+  float value = string.toFloat(&ok);
+  smeta->setValue(0,value);
+  modified = sizeModified = notEqual(value, dataW);
 }
 
 void SizeAndOrientationGui::valueHChange(QString const &string)
 {
-  bool ok;
-
-  h = string.toFloat(&ok);
-  if (ok){
-      smeta->setValue(1,h);
-      modified = sizeModified = true;
-//      logDebug() << "Meta size Height setValue(1) Value Change:" << smeta->value(1);
-    }
+  float value = string.toFloat(&ok);
+  smeta->setValue(1,value);
+  modified = sizeModified = notEqual(value, dataH);
 }
 
 void SizeAndOrientationGui::setEnabled(bool enable)
@@ -6608,11 +7461,13 @@ void SizeAndOrientationGui::setEnabled(bool enable)
 void SizeAndOrientationGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  if (sizeModified) {
-      mi.setGlobalMeta(topLevelFile,smeta);
-  }
-  if (orientationModified) {
-      mi.setGlobalMeta(topLevelFile,ometa);
+  if ((modified = orientationModified || sizeModified)) {
+    if (sizeModified) {
+        mi.setGlobalMeta(topLevelFile,smeta);
+    }
+    if (orientationModified) {
+        mi.setGlobalMeta(topLevelFile,ometa);
+    }
   }
 }
 
@@ -6995,6 +7850,7 @@ void OpenWithProgramDialogGui::setProgramEntry(int i) {
     programsLayout->addWidget(programLabel,i,0);
 
     QLineEdit *programNameEdit = new QLineEdit(programName, dialog);
+    programNameEdit->setClearButtonEnabled(true);
     programNameEdit->setToolTip("Edit program name");
     if (i < programNameEditList.size()) {
         programsLayout->removeWidget(programNameEditList.at(i));
@@ -7005,6 +7861,7 @@ void OpenWithProgramDialogGui::setProgramEntry(int i) {
     programsLayout->addWidget(programNameEdit,i,1);
 
     QLineEdit *programPathEdit = new QLineEdit(programPath, dialog);
+    programPathEdit->setClearButtonEnabled(true);
     programPathEdit->setToolTip("Edit program path - program arguments are supported, use quotes with spaced names");
     if (i < programPathEditList.size()) {
         programsLayout->removeWidget(programPathEditList.at(i));
@@ -7099,6 +7956,7 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
     systemEditorLabel->setPixmap(getProgramIcon(programPath).pixmap(16,16));
     systemEditorLayout->addWidget(systemEditorLabel,0,0);
     systemEditorEdit = new QLineEdit(programPath, dialog);
+    systemEditorEdit->setClearButtonEnabled(true);
 #ifdef Q_OS_MACOS
     systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use 'open -e' - TextEdit");
 #else

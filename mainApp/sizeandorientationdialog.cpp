@@ -77,7 +77,7 @@ SizeAndOrientationDialog::~SizeAndOrientationDialog()
 }
 
 bool SizeAndOrientationDialog::getSizeAndOrientation(
-  PgSizeData   &sgoods,
+  PgSizeData     &sgoods,
   OrientationEnc &ogoods,
   QString         name,
   QWidget        *parent)
@@ -86,20 +86,18 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
-
-    sgoods.sizeW = dialog->smeta.value(0);
-    sgoods.sizeH = dialog->smeta.value(1);
-    sgoods.sizeID= dialog->smeta.valueSizeID(); // e.g. A4
+    sgoods = dialog->smeta.value();
     ogoods = dialog->ometa.value();
-//    logDebug() << " SIZE TX(dialog return): Width: " << dialog->smeta.value(0) << " Height: " << dialog->smeta.value(1) << " SizeID: " << dialog->smeta.valueSizeID();
-
   }
   return ok;
 }
 
 void SizeAndOrientationDialog::accept()
 {
-  if (sizeAndOrientation->modified) {
+  bool modified = sizeAndOrientation->orientationModified ||
+                  sizeAndOrientation->sizeModified ||
+                  sizeAndOrientation->modified;
+  if (modified) {
     QDialog::accept();
   } else {
     QDialog::reject();

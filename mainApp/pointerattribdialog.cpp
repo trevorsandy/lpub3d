@@ -74,12 +74,6 @@ bool PointerAttribDialog::getPointerAttrib(
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {
-    if (dialog->pointerAttrib->lineModified)
-      dialog->meta.setValue(dialog->pointerAttrib->line);
-    if (dialog->pointerAttrib->borderModified)
-      dialog->meta.setValue(dialog->pointerAttrib->border);
-    if (dialog->pointerAttrib->tipModified)
-      dialog->meta.setValue(dialog->pointerAttrib->tip);
     goods = dialog->meta.value();
   }
   return ok;

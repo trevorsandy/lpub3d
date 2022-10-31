@@ -161,11 +161,20 @@ public:
   virtual void apply(QString &modelName);
 
 private:
+  float      data0;
+  float      data1;
+
   UnitsMeta *meta;
   QLabel    *label;
   QLabel    *label2;
-  QLineEdit *value0;
-  QLineEdit *value1;
+  QLineEdit *value0Edit;
+  QLineEdit *value1Edit;
+  QAction   *reset0Act;
+  QAction   *reset1Act;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void value0Change(QString const &);
@@ -197,17 +206,104 @@ public:
 
   virtual void apply(QString &modelName);
 
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
+
 private:
+  float         data0;
+  float         data1;
   bool          showPair;
   FloatPairMeta *meta;
   QLabel        *label0;
   QLabel        *label1;
-  QLineEdit     *value0;
-  QLineEdit     *value1;
+  QLineEdit     *value0Edit;
+  QLineEdit     *value1Edit;
+  QAction       *reset0Act;
+  QAction       *reset1Act;
 
 public slots:
   void value0Change(QString const &);
   void value1Change(QString const &);
+};
+
+/***********************************************************************
+ *
+ * Integer Spin Box
+ *
+ **********************************************************************/
+
+class SpinGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  SpinGui(
+    QString const &heading,
+    IntMeta       *meta,
+    int            min,
+    int            max,
+    int            step,
+    QGroupBox     *parent = nullptr);
+  ~SpinGui() {}
+
+  virtual void apply(QString &modelName);
+
+  void setEnabled(bool enabled);
+  QSpinBox *getSpinBox() {return spin;}
+
+private:
+  int          data;
+  IntMeta     *meta;
+  QLabel      *label;
+  QSpinBox    *spin;
+  QPushButton *button;
+
+private slots:
+  void enableReset(int);
+  void spinReset(bool);
+
+public slots:
+  void valueChanged(int);
+};
+
+/***********************************************************************
+ *
+ * Double Spin Box
+ *
+ **********************************************************************/
+
+class DoubleSpinGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  DoubleSpinGui(
+    QString const &heading,
+    FloatMeta     *meta,
+    float          min,
+    float          max,
+    float          step,
+    QGroupBox     *parent = nullptr);
+  ~DoubleSpinGui() {}
+
+  virtual void apply(QString &modelName);
+
+  void setEnabled(bool enabled);
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
+
+private:
+  float           data;
+  FloatMeta      *meta;
+  QLabel         *label;
+  QDoubleSpinBox *spin;
+  QPushButton    *button;
+
+public slots:
+  void valueChanged(double);
 };
 
 /***********************************************************************
@@ -224,7 +320,7 @@ class NumberGui : public MetaGui
 
 public:
   NumberGui(
-    QString title,
+    QString     title,
     NumberMeta *meta,
     QGroupBox  *_parent = nullptr);
   ~NumberGui() {}
@@ -237,6 +333,8 @@ private:
   bool        fontModified;
   bool        colorModified;
   bool        marginsModified;
+  float       marginData0;
+  float       marginData1;
 
   QGroupBox   *gbFormat;
   QLabel      *fontLabel;
@@ -246,8 +344,14 @@ private:
   QLabel      *colorExample;
   QPushButton *colorButton;
   QLabel      *marginsLabel;
-  QLineEdit   *value0;
-  QLineEdit   *value1;
+  QLineEdit   *value0Edit;
+  QLineEdit   *value1Edit;
+  QAction     *reset0Act;
+  QAction     *reset1Act;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void browseFont(bool clicked);
@@ -350,6 +454,8 @@ private:
   bool        placementModified;
   bool        displayModified;
   bool        editModified;
+  float       marginData0;
+  float       marginData1;
 
   QLabel      *fontLabel;
   QLabel      *fontExample;
@@ -359,8 +465,10 @@ private:
   QPushButton *colorButton;
   QLabel      *marginsLabel;
 
-  QLineEdit    *value0;
-  QLineEdit    *value1;
+  QLineEdit    *value0Edit;
+  QLineEdit    *value1Edit;
+  QAction      *reset0Act;
+  QAction      *reset1Act;
 
   QCheckBox    *display;
 
@@ -379,6 +487,10 @@ private:
 
 signals:
   void indexChanged(int index);
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void newIndex(int value){
@@ -432,12 +544,18 @@ private:
   bool            imageModified;
   bool            scaleModified;
   bool            fillModified;
+  float           marginData0;
+  float           marginData1;
+  float           scaleData;
 
   QString         image;
 
   QLabel         *marginsLabel;
-  QLineEdit      *value0;
-  QLineEdit      *value1;
+  QLineEdit      *value0Edit;
+  QLineEdit      *value1Edit;
+  QAction        *reset0Act;
+  QAction        *reset1Act;
+  QPushButton    *resetButton;
 
   QLineEdit      *imageEdit;
   QPushButton    *imageButton;
@@ -460,6 +578,12 @@ private:
 
 signals:
   void indexChanged(int index);
+
+private slots:
+  void enableEditReset(QString const &);
+  void enableSpinReset(double);
+  void lineEditReset();
+  void spinReset(bool);
 
 public slots:
   void selectionChanged(int value){
@@ -502,10 +626,16 @@ public:
   virtual void apply(QString &modelName);
 
 private:
+  float      data1;
   UnitsMeta *meta;
   QLabel    *label;
-  QLineEdit *value0;
-  QLineEdit *value1;
+  QLineEdit *value0Edit;
+  QLineEdit *value1Edit;
+  QAction   *reset1Act;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void value1Change(QString const &);
@@ -579,12 +709,18 @@ private:
   QLabel      *colorExample;
   QPushButton *colorButton;
   QSpinBox    *lineWidthSpin;
+  QPushButton *button;
 
   bool global;
 
   bool colorModified;
   bool highlightModified;
   bool lineWidthModified;
+  int  data;
+
+private slots:
+  void enableReset(int);
+  void spinReset(bool);
 
 public slots:
   void colorChange(bool clicked);
@@ -614,6 +750,13 @@ private:
   JustifyStepMeta *meta;
   QComboBox       *typeCombo;
   QDoubleSpinBox  *spacingSpinBox;
+  QPushButton     *button;
+
+  JustifyStepData data;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
 
 public slots:
    void typeChanged(int);
@@ -641,82 +784,24 @@ public:
 
 private:
   RotStepMeta     *meta;
+  RotStepData      data;
 
   QDoubleSpinBox  *rotStepSpinX;
   QDoubleSpinBox  *rotStepSpinY;
   QDoubleSpinBox  *rotStepSpinZ;
   QComboBox       *typeCombo;
 
+  QPushButton    *button0;
+  QPushButton    *button1;
+  QPushButton    *button2;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
+
 public slots:
    void rotStepChanged(double);
    void typeChanged(QString const &);
-};
-
-/***********************************************************************
- *
- * Integer Spin Box
- *
- **********************************************************************/
-
-class SpinGui : public MetaGui
-{
-  Q_OBJECT
-public:
-
-  SpinGui(
-    QString const &heading,
-    IntMeta       *meta,
-    int            min,
-    int            max,
-    int            step,
-    QGroupBox     *parent = nullptr);
-  ~SpinGui() {}
-
-  virtual void apply(QString &modelName);
-
-  void setEnabled(bool enabled);
-  QSpinBox *getSpinBox() {return spin;}
-
-private:
-  IntMeta  *meta;
-  QLabel   *label;
-  QSpinBox *spin;
-
-public slots:
-  void valueChanged(int);
-};
-
-/***********************************************************************
- *
- * Double Spin Box
- *
- **********************************************************************/
-
-class DoubleSpinGui : public MetaGui
-{
-  Q_OBJECT
-public:
-
-  DoubleSpinGui(
-    QString const &heading,
-    FloatMeta     *meta,
-    float          min,
-    float          max,
-    float          step,
-    QGroupBox     *parent = nullptr);
-  ~DoubleSpinGui() {}
-
-  virtual void apply(QString &modelName);
-
-  void setEnabled(bool enabled);
-
-private:
-  FloatMeta      *meta;
-  QLabel         *label;
-  QDoubleSpinBox *spin;
-
-public slots:
-  void valueChanged(double);
 };
 
 /***********************************************************************
@@ -815,7 +900,7 @@ public:
 private:
   BuildModEnabledMeta *meta;
   QCheckBox           *check;
-  bool                 change;
+  bool                 data;
 
 public slots:
   void stateChanged(int state);
@@ -845,8 +930,8 @@ public:
 
 private:
   FinalModelEnabledMeta *meta;
-  QCheckBox           *check;
-  bool                 change;
+  QCheckBox             *check;
+  bool                   data;
 
 public slots:
   void stateChanged(int state);
@@ -879,7 +964,7 @@ public:
 private:
   BoolMeta  *meta;
   QCheckBox *check;
-  bool       change;
+  bool       data;
 
 public slots:
   void stateChanged(int state);
@@ -912,7 +997,7 @@ public:
 private:
   LoadUnoffPartsMeta  *meta;
   QCheckBox           *check;
-  bool                 change;
+  bool                 data;
 
 public slots:
   void stateChanged(int state);
@@ -989,14 +1074,19 @@ public:
   virtual void apply(QString &modelName);
 
 private:
-  BorderMeta *meta;
+  BorderMeta  *meta;
+  BorderData   border;
 
   QLineEdit   *thicknessEdit;
-  QLineEdit   *marginEditX;
-  QLineEdit   *marginEditY;
+  QLineEdit   *marginXEdit;
+  QLineEdit   *marginYEdit;
+  QAction     *resetThicknessEditAct;
+  QAction     *resetXEditAct;
+  QAction     *resetYEditAct;
   QLabel      *thicknessLabel;
   QLabel      *colorExample;
   QPushButton *colorButton;
+  QPushButton *resetButton;
   QSpinBox    *spin;
   QLabel      *spinLabel;
   QComboBox   *typeCombo;
@@ -1004,6 +1094,12 @@ private:
   QCheckBox   *hideArrowsChk;
 
   void enable(bool rotateArrow = false);
+
+private slots:
+  void enableEditReset(QString const &);
+  void enableSpinReset(int);
+  void lineEditReset();
+  void spinReset(bool);
 
 public slots:
   void typeChange(QString const &);
@@ -1037,9 +1133,9 @@ public:
 
 private:
   PlacementMeta  *meta;
+  PlacementData   data;
   QLabel         *placementLabel;
   QPushButton    *placementButton;
-  bool            placementModified;
   QString         title;
 
 public slots:
@@ -1068,15 +1164,14 @@ public:
 
   QCheckBox *getHideTipCheck() { return hideTipBox; }
 
-  PointerAttribData tip;
-  PointerAttribData line;
-  PointerAttribData border;
+  PointerAttribData data;
 
   bool        tipModified;
   bool        lineModified;
   bool        borderModified;
 
 private:
+  bool        isBorder;
   bool        isLine;
   bool        isTip;
 
@@ -1085,10 +1180,17 @@ private:
   QLineEdit   *widthEdit;
   QLineEdit   *heightEdit;
   QLineEdit   *thicknessEdit;
+  QAction     *resetWidthEditAct;
+  QAction     *resetHeightEditAct;
+  QAction     *resetThicknessEditAct;
   QLabel      *colorExample;
   QPushButton *colorButton;
   QComboBox   *lineCombo;
   QCheckBox   *hideTipBox;
+
+private slots:
+  void enableEditReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void lineChange(QString const &);
@@ -1121,6 +1223,7 @@ public:
 
 private:
   ConstrainMeta *meta;
+  ConstrainData data;
 
   QLabel    *headingLabel;
   QComboBox *combo;
@@ -1154,8 +1257,22 @@ public:
 
 private:
   SepMeta   *meta;
+  SepData    data;
   QLabel    *colorExample;
-  QLineEdit *typeLineEdit;
+
+  QLineEdit *thicknessEdit;
+  QLineEdit *lengthEdit;
+  QAction   *resetThicknessEditAct;
+  QAction   *resetLengthEditAct;
+
+  QLineEdit *marginXEdit;
+  QLineEdit *marginYEdit;
+  QAction   *resetXEditAct;
+  QAction   *resetYEditAct;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void typeChange(int type);
@@ -1191,9 +1308,13 @@ private:
   ResolutionType  type;
   float           value;
   QLineEdit      *valueEdit;
-  QIntValidator  *validator;
+  QAction        *reset0Act;
 
   void differences();
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void unitsChange(QString const &);
@@ -1341,9 +1462,15 @@ public:
   virtual void apply(QString &modelName);
 
 private:
+  float           data;
   FloatMeta      *meta;
   QLabel         *label;
   QDoubleSpinBox *spin;
+  QPushButton    *button;
+
+private slots:
+  void enableReset(double);
+  void spinReset(bool);
 
 public slots:
   void valueChanged(double);
@@ -1734,22 +1861,27 @@ public:
     QGroupBox              *parent = nullptr);
   ~RotateIconSizeGui() {}
 
-  void updateRotateIconSize();
   void setEnabled(bool enabled);
 
   virtual void apply(QString &topLevelFile);
 
+private:
+  float                   dataW;
+  float                   dataH;
   QLineEdit              *valueW;
   QLineEdit              *valueH;
+  QAction                *resetWAct;
+  QAction                *resetHAct;
 
-private:
-  float                   w;
-  float                   h;
   UnitsMeta              *meta;
   QLabel                 *label;
   QLabel                 *labelW;
   QLabel                 *labelH;
   QGroupBox              *size;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void valueWChange(QString const &);
@@ -1774,22 +1906,25 @@ public:
   ~PageSizeGui() {}
 
   int  getTypeIndex(float &pgWidth, float &pgHeight);
-  void updatePageSize();
   void setEnabled(bool enabled);
 
   virtual void apply(QString &topLevelFile);
 
-  QLineEdit              *valueW;
-  QLineEdit              *valueH;
-  QComboBox              *typeCombo;
-
 private:
-  float                   w;
-  float                   h;
+  float                   dataW;
+  float                   dataH;
   PageSizeMeta           *meta;
   QLabel                 *label;
   QGroupBox              *size;
+  QLineEdit              *valueW;
+  QLineEdit              *valueH;
+  QAction                *resetHAct;
+  QAction                *resetWAct;
+  QComboBox              *sizeCombo;
 
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void typeChange(QString const &);
@@ -1822,8 +1957,14 @@ public:
 private:
   bool                    sizeModified;
   bool                    orientationModified;
-  float                   w;
-  float                   h;
+
+  float                   dataW;
+  float                   dataH;
+  QString                 dataTypeSizeID;
+
+  PageSizeData            dataS;
+  OrientationEnc          dataO;
+
   PageSizeMeta           *smeta;
   PageOrientationMeta    *ometa;
   QLabel                 *label;
@@ -1834,7 +1975,13 @@ private:
 
   QLineEdit              *valueW;
   QLineEdit              *valueH;
+  QAction                *resetWAct;
+  QAction                *resetHAct;
   QComboBox              *typeCombo;
+
+private slots:
+  void enableReset(QString const &);
+  void lineEditReset();
 
 public slots:
   void typeChange(QString const &);

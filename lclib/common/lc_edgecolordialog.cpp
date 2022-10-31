@@ -1,7 +1,7 @@
 #include "lc_edgecolordialog.h"
 #include "lc_application.h"
 /*** LPub3D Mod - WhatThis help ***/
-#include "commonMenus.h"
+#include "commonmenus.h"
 /*** LPub3D Mod - ***/
 
 lcAutomateEdgeColorDialog::lcAutomateEdgeColorDialog(QWidget* Parent, bool ShowHighContrastDialog)
