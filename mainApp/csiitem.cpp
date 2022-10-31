@@ -57,40 +57,40 @@ CsiItem::CsiItem(
   isHovered(false),
   mouseIsDown(false)
 {
-  step               = _step;
-  meta               = _meta;
-  submodelLevel      = _submodelLevel;
-  parentRelativeType = _parentRelativeType;
-  hiddenAnnotations  = false;
+    step               = _step;
+    meta               = _meta;
+    submodelLevel      = _submodelLevel;
+    parentRelativeType = _parentRelativeType;
+    hiddenAnnotations  = false;
 
-  setPixmap(pixmap);
-  setParentItem(parent);
-  
-  assem = &meta->LPub.assem;
-  // TODO - This might be suspect, consider changing to individual instance per step
-  if (step->multiStep) {
-    divider = &meta->LPub.multiStep.divider;
-  } else if (step->calledOut) {
-    divider = &meta->LPub.callout.divider;
-  } else {
-    divider = nullptr;
-  }
+    setPixmap(pixmap);
+    setParentItem(parent);
 
-  modelScale = meta->LPub.assem.modelScale;
+    assem = &meta->LPub.assem;
+    // TODO - This might be suspect, consider changing to individual instance per step
+    if (step->multiStep) {
+      divider = &meta->LPub.multiStep.divider;
+    } else if (step->calledOut) {
+      divider = &meta->LPub.callout.divider;
+    } else {
+      divider = nullptr;
+    }
 
-  setTransformationMode(Qt::SmoothTransformation);
+    modelScale = meta->LPub.assem.modelScale;
 
-  setToolTip(QString("Assembly (%1) [%2 x %3 px] - right-click to modify")
-             .arg(step->path())
-             .arg(boundingRect().width())
-             .arg(boundingRect().height()));
+    setTransformationMode(Qt::SmoothTransformation);
 
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
-  setFlag(QGraphicsItem::ItemIsFocusable, true);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-  setAcceptHoverEvents(true);
-  setData(ObjectId, AssemObj);
-  setZValue(ASSEM_ZVALUE_DEFAULT);
+    setToolTip(tr("Assembly (%1) [%2 x %3 px] - right-click to modify")
+               .arg(step->path())
+               .arg(boundingRect().width())
+               .arg(boundingRect().height()));
+
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setFlag(QGraphicsItem::ItemIsMovable,true);
+    setAcceptHoverEvents(true);
+    setData(ObjectId, AssemObj);
+    setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
 void CsiItem::loadTheViewer(bool override, bool zoomExtents)
@@ -240,9 +240,9 @@ void CsiItem::previewCsi(bool useDockable) {
         parsedStack << parentModelName;
         if ( ! isOlder(parsedStack,lastModified)) {
             csiOutOfDate = true;
-            emit gui->messageSig(LOG_DEBUG,QString("CSI file out of date %1.").arg(csiFileName));
+            emit gui->messageSig(LOG_TRACE,tr("CSI file out of date %1.").arg(csiFileName));
             if (! csi.remove()) {
-                emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI file %1.").arg(csiFileName));
+                emit gui->messageSig(LOG_ERROR,tr("Failed to remove out of date CSI file %1.").arg(csiFileName));
             }
         }
     }
@@ -252,8 +252,8 @@ void CsiItem::previewCsi(bool useDockable) {
         if (content.size()) {
             QFile file(csiFile);
             if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DPreview file %1 for writing: %2")
-                                     .arg(csiFile) .arg(file.errorString()));
+                emit gui->messageSig(LOG_ERROR,tr("Cannot open file %1 for writing: %2")
+                                                  .arg(csiFile) .arg(file.errorString()));
                 return;
             }
             QTextStream out(&file);
@@ -297,375 +297,379 @@ void CsiItem::previewCsi(bool useDockable) {
 
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-  QMenu menu;
-  QString name          = "Step";
-  QString whatsThis     = QString();
-  bool dividerDetected  = false;
-  bool offerStepDivider = false;
-  int numOfSteps        = numSteps(step->top.modelName);
-  bool fullContextMenu  = ! step->modelDisplayOnlyStep;
-  bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
-  Boundary boundary     = step->boundary();
+    QMenu menu;
+    const QString name    = tr("Assembly");
+    QString whatsThis     = QString();
+    bool dividerDetected  = false;
+    bool offerStepDivider = false;
+    bool fullContextMenu  = ! step->modelDisplayOnlyStep;
+    bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
+    Boundary boundary     = step->boundary();
+    Step    *lastStep     = nullptr;
+    int numOfSteps        = numSteps(step->top.modelName);
+    int maxSteps          = 0;
+    int lastStepNumber    = 0;
 
-  QAction *addNextStepAction = nullptr;
-  if (fullContextMenu  &&
-      step->stepNumber.number != numOfSteps &&
-      (parentRelativeType == SingleStepType ||
-       (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
-      addNextStepAction = menu.addAction("Add Next Step");
-      addNextStepAction->setIcon(QIcon(":/resources/addnext.png"));
-      addNextStepAction->setWhatsThis("Add Next Step:\n  Add the first step of the next page to this page");
+    QAction *addNextStepAction         = nullptr;
+    QAction *addNextStepsAction        = nullptr;
+    if (fullContextMenu  &&
+        step->stepNumber.number != numOfSteps &&
+        (parentRelativeType == SingleStepType ||
+         (parentRelativeType == StepGroupType &&  (boundary & EndOfSteps)))) {
+        AbstractStepsElement *range = lpub->page.list[lpub->page.list.size()-1];
+        if (range->relativeType == RangeType) {
+            AbstractRangeElement *rangeElement = range->list[range->list.size()-1];
+            if (rangeElement->relativeType == StepType) {
+                lastStep = dynamic_cast<Step *> (rangeElement);
+                lastStepNumber = lastStep->stepNumber.number;
+                maxSteps = numSteps(lastStep->topOfStep().modelName);
+                if (lastStepNumber != maxSteps) {
+                    addNextStepAction  = lpub->getAct("addNextStepAction.1");
+                    commonMenus.addAction(addNextStepAction,menu);
+                }
+                if ((maxSteps - lastStepNumber) >= 2) {
+                    addNextStepsAction = lpub->getAct("addNextStepsAction.1");
+                    commonMenus.addAction(addNextStepsAction,menu);
+                }
+            }
+        }
     }
 
-  QAction *addPrevStepAction = nullptr;
-  if ( fullContextMenu  &&
-       step->stepNumber.number > 1 &&
-       (parentRelativeType == SingleStepType ||
+    QAction *addPrevStepAction         = nullptr;
+    if ( fullContextMenu  &&
+         step->stepNumber.number > 1 &&
+        (parentRelativeType == SingleStepType ||
         (parentRelativeType == StepGroupType && (boundary & StartOfSteps)))) {
-      addPrevStepAction = menu.addAction("Add Previous Step");
-      addPrevStepAction->setIcon(QIcon(":/resources/addprevious.png"));
-      addPrevStepAction->setWhatsThis("Add Previous Step:\n  Add the last step of the previous page to this page");
+        addPrevStepAction              = lpub->getAct("addPrevStepAction.1");
+        commonMenus.addAction(addPrevStepAction,menu);
     }
 
-  QAction *removeAction = nullptr;
-  if (parentRelativeType == StepGroupType &&
-      (boundary & (StartOfSteps | EndOfSteps))) {
-      removeAction = menu.addAction("Remove this Step");
-      removeAction->setIcon(QIcon(":/resources/remove.png"));
-      if (boundary & StartOfSteps) {
-          removeAction->setWhatsThis("Remove this Step:\n  Move this step from this page to the previous page");
+    QAction *removeStepAction          = nullptr;
+    if (parentRelativeType == StepGroupType &&
+        (boundary & (StartOfSteps | EndOfSteps))) {
+        removeStepAction               = lpub->getAct("removeStepAction.1");
+        if (boundary & StartOfSteps) {
+            removeStepAction->setStatusTip(tr("Move this step from this page to the previous page"));
+            removeStepAction->setWhatsThis(tr("Remove this Step:\n  Move this step from this page to the previous page"));
+        }
+        commonMenus.addAction(removeStepAction,menu);
+    }
+
+    Where topOfStep     = step->topOfStep();
+    Where bottomOfStep  = step->bottomOfStep();
+    Where topOfSteps    = step->topOfSteps();
+    Where bottomOfSteps = step->bottomOfSteps();
+
+    Callout *callout    = step->callout();
+
+    if (parentRelativeType == StepGroupType) {
+        Where walk = topOfStep;
+        Where walk2 = walk;
+        Rc rc = scanForward(walk,StepMask);
+        Rc rc2 = scanForward(walk2,StepGroupDividerMask|StepMask);
+        offerStepDivider = rc2 == StepGroupDividerRc;
+        if (rc == StepRc || rc == RotStepRc) {
+            ++walk;
+            rc = scanForward(walk,StepGroupDividerMask|StepMask);
+            dividerDetected = rc == StepGroupDividerRc;
+        }
+    }
+
+    QAction *addDividerPointerAction   = nullptr;
+    if (dividerDetected) {
+        addDividerPointerAction = lpub->getAct("addDividerPointerAction.1");
+        commonMenus.addAction(addDividerPointerAction,menu);
+    }
+
+    QAction *movePrevAction            = nullptr;
+    QAction *moveNextAction            = nullptr;
+    QAction *addDividerAction          = nullptr;
+    QAction *allocAction               = nullptr;
+    AllocEnc allocType = step->parent->allocType();
+    if (parentRelativeType == StepGroupType || parentRelativeType == CalloutType) {
+        if ((boundary & StartOfRange) && ! (boundary & StartOfSteps)) {
+            movePrevAction             = lpub->getAct("movePrevAction.1");
+            if (allocType == Vertical) {
+                movePrevAction->setText(tr("Add to Previous Column"));
+                movePrevAction->setWhatsThis(tr("Add to Previous Column:\n"
+                                                "  Move this step to the previous column"));
+            }
+            commonMenus.addAction(movePrevAction,menu);
+        }
+
+        if ((boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
+            moveNextAction             = lpub->getAct("moveNextAction.1");
+            if (allocType == Vertical) {
+                moveNextAction->setText(tr("Add to Next Column"));
+                moveNextAction->setWhatsThis(tr("Add to Next Column:\n"
+                                                "  Remove this step from its current column,\n"
+                                                "  and put it in the column to the right"));
+            }
+            commonMenus.addAction(moveNextAction,menu);
+        }
+
+        if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps) && ! dividerDetected) {
+            addDividerAction           = lpub->getAct("addDividerAction.1");
+            if (allocType == Vertical) {
+                addDividerAction->setWhatsThis(tr("Add Divider:\n"
+                                               "  Before step - Place a divider at the top of this step\n"
+                                               "  After step  - Put the step(s) after this into a new column"));
+            }
+            commonMenus.addAction(addDividerAction,menu);
+        }
+
+        if (allocType == Vertical) {
+            allocAction                = lpub->getAct("displayRowsAction.1");
         } else {
-          removeAction->setWhatsThis("Remove this Step:\n  Move this step from this page to the next page");
+            allocAction                = lpub->getAct("displayColumnsAction.1");
         }
+        commonMenus.addAction(allocAction,menu,tr("Step"));
     }
 
-  QAction *clearStepCacheAction = nullptr;
-  if (parentRelativeType == StepGroupType){
-      clearStepCacheAction = menu.addAction("Reset Step Assembly Image Cache");
-      clearStepCacheAction->setIcon(QIcon(":/resources/clearstepcache.png"));
-      clearStepCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this step.");
+    QAction *placementAction           = nullptr;
+    if (fullContextMenu  && parentRelativeType == SingleStepType) {
+        placementAction                = lpub->getAct("placementAction.1");
+        PlacementData placementData    = placement.value();
+        placementAction->setWhatsThis(commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,name));
+        commonMenus.addAction(placementAction,menu,name);
     }
 
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
-
-  Callout *callout    = step->callout();
-
-  if (parentRelativeType == StepGroupType) {
-      Where walk = topOfStep;
-      Where walk2 = walk;
-      Rc rc = scanForward(walk,StepMask);
-      Rc rc2 = scanForward(walk2,StepGroupDividerMask|StepMask);
-      offerStepDivider = rc2 == StepGroupDividerRc;
-      if (rc == StepRc || rc == RotStepRc) {
-          ++walk;
-          rc = scanForward(walk,StepGroupDividerMask|StepMask);
-          dividerDetected = rc == StepGroupDividerRc;
-      }
-  }
-
-  QAction *movePrevAction = nullptr;
-  QAction *moveNextAction = nullptr;
-  QAction *addDividerAction = nullptr;
-  QAction *addDividerPointerAction = nullptr;
-  QAction *allocAction = nullptr;
-
-  AllocEnc allocType = step->parent->allocType();
-  if (parentRelativeType == StepGroupType || parentRelativeType == CalloutType) {
-      if ((boundary & StartOfRange) && ! (boundary & StartOfSteps)) {
-          if (allocType == Vertical) {
-              movePrevAction = menu.addAction("Add to Previous Column");
-              movePrevAction->setIcon(QIcon(":/resources/addprevious.png"));
-              movePrevAction->setWhatsThis(
-                    "Add to Previous Column:\n"
-                    "  Move this step to the previous column");
-            } else {
-              movePrevAction = menu.addAction("Add to Previous Row");
-              movePrevAction->setIcon(QIcon(":/resources/addprevious.png"));
-              movePrevAction->setWhatsThis(
-                    "Add to Previous Row:\n"
-                    "  Move this step to the previous row\n");
-            }
-        }
-
-      if ((boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
-          if (allocType == Vertical) {
-              moveNextAction = menu.addAction("Add to Next Column");
-              moveNextAction->setIcon(QIcon(":/resources/addnext.png"));
-              moveNextAction->setWhatsThis(
-                    "Add to Next Colum:\n"
-                    "  Remove this step from its current column,\n"
-                    "  and put it in the column to the right");
-            } else {
-              moveNextAction = menu.addAction("Add to Next Row");
-              moveNextAction->setIcon(QIcon(":/resources/addnext.png"));
-              moveNextAction->setWhatsThis(
-                    "Add to Next Row:\n"
-                    "  Remove this step from its current column,\n"
-                    "  and put it in the row above");
-            }
-        }
-      if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps) && ! dividerDetected) {
-          addDividerAction = menu.addAction("Add Divider");
-          addDividerAction->setIcon(QIcon(":/resources/divider.png"));
-          if (allocType == Vertical) {
-              addDividerAction->setWhatsThis(
-                    "Add Divider:\n"
-                    "  Before step - Place a divider at the top of this step\n"
-                    "  After step  - Put the step(s) after this into a new column");
-            } else {
-              addDividerAction->setWhatsThis(
-                    "Add Divider:\n"
-                    "  Before step - Place a divider to the left this step"
-                    "  After Step - Put the step(s) after this into a new row");
-            }
-        }
-      if (allocType == Vertical) {
-          allocAction = commonMenus.displayRowsMenu(menu,name);
+    QAction *addCsiAnnoAction          = nullptr;
+    QAction *refreshCsiAnnoAction      = nullptr;
+    QAction *showCsiAnnoAction         = nullptr;
+    if (fullContextMenu && meta->LPub.assem.annotation.display.value()) {
+        if (!step->csiAnnotations.size()) {
+            addCsiAnnoAction           = lpub->getAct("addCsiAnnoAction.1");
+            commonMenus.addAction(addCsiAnnoAction,menu);
         } else {
-          allocAction = commonMenus.displayColumnsMenu(menu, name);
+            refreshCsiAnnoAction       = lpub->getAct("refreshCsiAnnoAction.1");
+            commonMenus.addAction(refreshCsiAnnoAction,menu);
+        }
+
+        if (hiddenAnnotations) {
+            showCsiAnnoAction          = lpub->getAct("showCsiAnnoAction.1");
+            commonMenus.addAction(showCsiAnnoAction,menu);
         }
     }
 
-  QString pl = "Assembly";
+    QAction *cameraAnglesAction        = lpub->getAct("cameraAnglesAction.1");
+    commonMenus.addAction(cameraAnglesAction,menu,name);
 
-  QAction *placementAction = nullptr;
-  if (fullContextMenu  && parentRelativeType == SingleStepType) {
-      whatsThis = QString(
-            "Move This Assembly:\n"
-            "  Move this assembly step image using a dialog (window)\n"
-            "  with buttons.  You can also move this step image around\n"
-            "  by clicking and dragging it using the mouse.");
-      placementAction = commonMenus.placementMenu(menu, pl, whatsThis);
+    QAction *cameraFoVAction           = lpub->getAct("cameraFoVAction.1");
+    commonMenus.addAction(cameraFoVAction,menu,name);
+
+    QAction *scaleAction               = lpub->getAct("scaleAction.1");
+    commonMenus.addAction(scaleAction,menu,name);
+
+    QAction *marginsAction             = lpub->getAct("marginAction.1");
+    switch (parentRelativeType)
+    {
+      case SingleStepType:
+        whatsThis = tr("Change Assembly Margins:\n"
+                       "Margins are the empty space around this assembly picture.\n"
+                       "You can change the margins if things are too close together,\n"
+                       "or too far apart. ");
+        marginsAction->setWhatsThis(whatsThis);
+        break;
+      case StepGroupType:
+        whatsThis = tr("Change Assembly Margins:\n"
+                       "Margins are the empty space around this assembly picture.\n"
+                       "You can change the margins if things are too close together,\n"
+                       "or too far apart. You can change the margins around the\n"
+                       "whole group of steps, by clicking the menu button with your\n"
+                       "cursor near this assembly image, and using that\n"
+                       "\"Change Step Group Margins\" menu");
+        marginsAction->setWhatsThis(whatsThis);
+        break;
+      case CalloutType:
+        whatsThis = tr("Change Assembly Margins:\n"
+                       "Margins are the empty space around this assembly picture.\n"
+                       "You can change the margins if things are too close together,\n"
+                       "or too far apart. You can change the margins around callout\n"
+                       "this step is in, by putting your cursor on the background\n"
+                       "of the callout, clicking the menu button, and using that\n"
+                       "\"Change Callout Margins\" menu");
+        marginsAction->setWhatsThis(whatsThis);
+        break;
+      default:
+        break;
     }
+    commonMenus.addAction(marginsAction,menu,name);
 
-  QAction *addCsiAnnoAction = nullptr;
-  if (fullContextMenu &&
-      meta->LPub.assem.annotation.display.value() &&
-      (step->calledOut || step->multiStep)) {
-      addCsiAnnoAction = menu.addAction("Add Part Annotations");
-      addCsiAnnoAction->setIcon(QIcon(":/resources/addpartannotation.png"));
-  }
-
-  QAction *refreshCsiAnnoAction = nullptr;
-  if (fullContextMenu && step->csiAnnotations.size()){
-      refreshCsiAnnoAction = menu.addAction("Reload Part Annotations");
-      refreshCsiAnnoAction->setIcon(QIcon(":/resources/reloadpartannotation.png"));
-  }
-
-  QAction *showCsiAnnoAction = nullptr;
-  if (fullContextMenu && hiddenAnnotations){
-      showCsiAnnoAction = menu.addAction("Show Hidden Part Annotations");
-      showCsiAnnoAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
-  }
-
-  QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
-  QAction *scaleAction        = commonMenus.scaleMenu(menu, pl);
-  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
-
-  QAction *marginsAction = nullptr;
-  switch (parentRelativeType) {
-    case SingleStepType:
-      whatsThis = QString("Change Assembly Margins:\n"
-                          "  Margins are the empty space around this assembly picture.\n"
-                          "  You can change the margins if things are too close together,\n"
-                          "  or too far apart. ");
-      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
-      break;
-    case StepGroupType:
-      whatsThis = QString("Change Assembly Margins:\n"
-                          "  Margins are the empty space around this assembly picture.\n"
-                          "  You can change the margins if things are too close together,\n"
-                          "  or too far apart. You can change the margins around the\n"
-                          "  whole group of steps, by clicking the menu button with your\n"
-                          "  cursor near this assembly image, and using that\n"
-                          "  \"Change Step Group Margins\" menu");
-      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
-      break;
-    case CalloutType:
-      whatsThis = QString("Change Assembly Margins:\n"
-                          "  Margins are the empty space around this assembly picture.\n"
-                          "  You can change the margins if things are too close together,\n"
-                          "  or too far apart. You can change the margins around callout\n"
-                          "  this step is in, by putting your cursor on the background\n"
-                          "  of the callout, clicking the menu button, and using that\n"
-                          "  \"Change Callout Margins\" menu");
-      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
-      break;
-    default:
-      break;
-    }
-
-  QAction *insertRotateIconAction = nullptr;
-  if (fullContextMenu) {
-      if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
-          if (parentRelativeType != CalloutType) {
-              insertRotateIconAction = menu.addAction("Add Rotate Icon");
-              insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
-            } else if (meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
-              insertRotateIconAction = menu.addAction("Add Rotate Icon");
-              insertRotateIconAction->setIcon(QIcon(":/resources/rotateicon.png"));
+    QAction *insertRotateIconAction    = nullptr;
+    if (fullContextMenu) {
+        if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
+            if (parentRelativeType != CalloutType ||
+                meta->LPub.callout.begin.mode == CalloutBeginMeta::Unassembled) {
+                insertRotateIconAction = lpub->getAct("insertRotateIconAction.1");
+                commonMenus.addAction(insertRotateIconAction,menu);
             }
         }
     }
 
-  QAction *addPagePointerAction = menu.addAction("Place Page Pointer");
-  addPagePointerAction->setWhatsThis("Add pointer from the page to this CSI image");
-  addPagePointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+    QAction *addPagePointerAction      = lpub->getAct("addPagePointerAction.1");
+    commonMenus.addAction(addPagePointerAction,menu);
 
-  QAction *setHighlightStepAction = commonMenus.highlightStepMenu(menu,pl);
-  QAction *setFadeStepsAction = commonMenus.fadeStepsMenu(menu,pl);
-  QAction *rendererAction = commonMenus.preferredRendererMenu(menu,pl);
-  setHighlightStepAction->setEnabled(meta->LPub.highlightStep.setup.value());
-  setFadeStepsAction->setEnabled(meta->LPub.fadeStep.setup.value());
+    QAction *setHighlightStepAction    = lpub->getAct("highlightStepAction.1");
+    setHighlightStepAction->setEnabled(meta->LPub.highlightStep.setup.value());
+    commonMenus.addAction(setHighlightStepAction,menu,name);
 
-  if (dividerDetected) {
-      addDividerPointerAction = menu.addAction("Place Divider Pointer");
-      addDividerPointerAction->setWhatsThis("Add pointer from the step divider to this CSI image");
-      addDividerPointerAction->setIcon(QIcon(":/resources/adddividerpointer.png"));
-  }
+    QAction *setFadeStepsAction        = lpub->getAct("fadeStepsAction.1");
+    setFadeStepsAction->setEnabled(meta->LPub.fadeStep.setup.value());
+    commonMenus.addAction(setFadeStepsAction,menu,name);
 
-  QAction *povrayRendererArgumentsAction = nullptr;
-  QAction *rendererArgumentsAction = nullptr;
-  bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-  QString rendererLabel = QString("Add %1 Arguments")
-                                 .arg(usingPovray ? "POV Generation":
-                                                    QString("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
-  if (Preferences::preferredRenderer != RENDERER_NATIVE) {
-      rendererArgumentsAction = menu.addAction(rendererLabel);
-      rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
-      rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
-      if (usingPovray) {
-          povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                                  .arg(rendererNames[Render::getRenderer()]));
-          povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
-          povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
-      }
-  }
+    QAction *rendererAction            = lpub->getAct("preferredRendererAction.1");
+    commonMenus.addAction(rendererAction,menu,name);
 
-  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Step"
-                                                         : "Don't Show This Final Model");
-  noStepAction->setIcon(QIcon(":/resources/display.png"));
+    QAction *rendererArgumentsAction   = nullptr;
+    QAction *povrayRendererArgumentsAction = nullptr;
+    bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
+    if (Preferences::preferredRenderer != RENDERER_NATIVE) {
+        rendererArgumentsAction        = lpub->getAct("rendererArgumentsAction.1");
+        commonMenus.addAction(rendererArgumentsAction,menu,name);
+        if (usingPovray) {
+            povrayRendererArgumentsAction = lpub->getAct("povrayRendererArgumentsAction.1");
+            commonMenus.addAction(povrayRendererArgumentsAction,menu,name);
+        }
+    }
 
-  QAction *previewCsiAction = commonMenus.previewPartMenu(menu,pl);
-  lcPreferences& Preferences = lcGetPreferences();
-  previewCsiAction->setEnabled(Preferences.mPreviewEnabled);
+    QAction *clearStepCacheAction      = nullptr;
+    if (parentRelativeType == StepGroupType) {
+        clearStepCacheAction           = lpub->getAct("clearStepCacheAction.1");
+        commonMenus.addAction(clearStepCacheAction,menu,name);
+    }
 
-  // Build modification actions
-  QAction *applyBuildModAction  = nullptr;
-  QAction *removeBuildModAction = nullptr;
-  QAction *deleteBuildModAction = nullptr;
+    QAction *noStepAction              = lpub->getAct("noStepAction.1");
+    noStepAction->setText(tr("Do Not Show This %1").arg(fullContextMenu ? tr("Step") : tr("Final Model")));
+    commonMenus.addAction(noStepAction,menu);
 
-  bool canUpdatePreview = true;
-  if (LPub::viewerStepKey != step->viewerStepKey) {
-      lpub->setCurrentStep(step);
-      gui->showLine(step->topOfStep());
-      if (gui->saveBuildModification()) {
-          canUpdatePreview = false;
-          loadTheViewer(false/*override*/, false/*zoomExtents*/);
-      }
-  }
-  gui->enableBuildModActions();
 
-  if (Preferences::buildModEnabled) {
-      menu.addSeparator();
-      applyBuildModAction  = gui->getApplyBuildModAct();
-      menu.addAction(applyBuildModAction);
-      removeBuildModAction = gui->getRemoveBuildModAct();
-      menu.addAction(removeBuildModAction);
-      deleteBuildModAction = gui->getDeleteBuildModAct();
-      menu.addAction(deleteBuildModAction);
-  }
+    QAction *previewCsiAction          = lpub->getAct("previewPartAction.1");
+    lcPreferences& Preferences         = lcGetPreferences();
+    previewCsiAction->setEnabled(Preferences.mPreviewEnabled);
+    commonMenus.addAction(previewCsiAction,menu,name);
 
-  QAction *resetViewerImageAction = nullptr;
-  if (canUpdatePreview) {
-      menu.addSeparator();
-      resetViewerImageAction = commonMenus.resetViewerImageMenu(menu,pl);
-  }
+    // Build modification actions
+    bool canUpdatePreview = true;
+    if (LPub::viewerStepKey != step->viewerStepKey) {
+        lpub->setCurrentStep(step);
+        gui->showLine(step->topOfStep());
+        if (gui->saveBuildModification()) {
+            canUpdatePreview = false;
+            loadTheViewer(false/*override*/, false/*zoomExtents*/);
+        }
+    }
 
-  // Copy to clipboard
-  QAction *copyCsiImagePathAction = nullptr;
+    gui->enableBuildModActions();
+
+    QAction *applyBuildModAction       = nullptr;
+    QAction *removeBuildModAction      = nullptr;
+    QAction *deleteBuildModAction      = nullptr;
+    if (Preferences::buildModEnabled) {
+        menu.addSeparator();
+        // these trigger the gui slot so nothing is done in selectedAction below
+        applyBuildModAction            = lpub->getAct("ApplyBuildModAct.4");
+        commonMenus.addAction(applyBuildModAction,menu);
+
+        removeBuildModAction           = lpub->getAct("RemoveBuildModAct.4");
+        commonMenus.addAction(removeBuildModAction,menu);
+
+        deleteBuildModAction           = lpub->getAct("DeleteBuildModAct.4");
+        commonMenus.addAction(deleteBuildModAction,menu);
+    }
+
+    QAction *resetViewerImageAction    = nullptr;
+    if (canUpdatePreview) {
+        menu.addSeparator();
+        resetViewerImageAction         = lpub->getAct("resetViewerImageAction.1");
+        commonMenus.addAction(resetViewerImageAction,menu,name);
+    }
+
+    QAction *copyCsiImagePathAction    = nullptr;
 #ifndef QT_NO_CLIPBOARD
-  menu.addSeparator();
-  copyCsiImagePathAction = commonMenus.copyToClipboardMenu(menu,pl);
+    menu.addSeparator();
+    copyCsiImagePathAction             = lpub->getAct("copyToClipboardAction.1");
+    commonMenus.addAction(copyCsiImagePathAction,menu,name);
 #endif
 
-  QAction *viewCSIFileAction = menu.addAction(QString("View Step %1 CSI (Assembly) File").arg(step->stepNumber.number));
-  viewCSIFileAction->setWhatsThis("View the current LDraw CSI file in read-only mode");
-  viewCSIFileAction->setIcon(QIcon(":/resources/editldraw.png"));
+    QAction *viewCSIFileAction         = lpub->getAct("viewCSIFileAction.1");
+    viewCSIFileAction->setText(tr("View Step %1 Assembly File") .arg(step->stepNumber.number));
+    commonMenus.addAction(viewCSIFileAction,menu);
 
 #ifdef QT_DEBUG_MODE
-  QAction *view3DViewerFileAction = menu.addAction(QString("View Step %1 CSI Visual Editor File").arg(step->stepNumber.number));
-  view3DViewerFileAction->setWhatsThis("View the current LDraw Visual Editor file in read-only mode");
-  view3DViewerFileAction->setIcon(QIcon(":/resources/editldraw.png"));
+    QAction *view3DViewerFileAction    = lpub->getAct("view3DViewerFileAction.1");
+    view3DViewerFileAction->setText(tr("View Step %1 Assembly Visual Editor File") .arg(step->stepNumber.number));
+    commonMenus.addAction(view3DViewerFileAction,menu);
 #endif
 
-  QAction *selectedAction = menu.exec(event->screenPos());
+    QAction *selectedAction            = menu.exec(event->screenPos());
 
-  if ( ! selectedAction ) {
-      return;
+    if ( ! selectedAction ) {
+        return;
     }
 
-  if (selectedAction == previewCsiAction) {
-        previewCsi(true /*previewCsiAction*/);
+    if (selectedAction == previewCsiAction) {
+          previewCsi(true /*previewCsiAction*/);
     } else if (selectedAction == addPrevStepAction) {
-      addPrevMultiStep(topOfSteps,bottomOfSteps);
-
+        addPrevMultiStep(topOfSteps,bottomOfSteps);
     } else if (selectedAction == addNextStepAction) {
-      addNextMultiStep(topOfSteps,bottomOfSteps);
-
-    } else if (selectedAction == removeAction) {
-      if (boundary & StartOfSteps) {
-          deleteFirstMultiStep(topOfSteps);
+        addNextMultiStep(topOfSteps,bottomOfSteps);
+    } else if (selectedAction == addNextStepsAction) {
+        bool ok;
+        int maxNextSteps = maxSteps - lastStepNumber;
+        int numOfSteps = QInputDialog::getInt(gui,QMessageBox::tr("Next Steps"),QMessageBox::tr("Number of next steps"),maxNextSteps,1,maxNextSteps,1,&ok);
+        if (ok)
+            addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+    } else if (selectedAction == removeStepAction) {
+        if (boundary & StartOfSteps) {
+            deleteFirstMultiStep(topOfSteps);
         } else {
-          deleteLastMultiStep(topOfSteps,bottomOfSteps);
+            deleteLastMultiStep(topOfSteps,bottomOfSteps);
         }
     } else if (selectedAction == cameraFoVAction) {
-      changeFloatSpin(pl+" Field Of View",
-                      "Camera FOV",
-                      topOfStep,
-                      bottomOfStep,
-                      &step->csiStepMeta.cameraFoV,
-                      0.01f,
-                      1,allowLocal);
+        changeFloatSpin(tr("%1 Field Of View").arg(name),
+                        tr("Camera FOV"),
+                        topOfStep,
+                        bottomOfStep,
+                        &step->csiStepMeta.cameraFoV,
+                        0.01f,
+                        1,allowLocal);
     } else if (selectedAction == cameraAnglesAction) {
-        changeCameraAngles(pl+" Camera Angles",
-                          topOfStep,
-                          bottomOfStep,
-                          &step->csiStepMeta.cameraAngles,
-                         1,allowLocal);
-     } else if (selectedAction == movePrevAction) {
+          changeCameraAngles(tr("%1 Camera Angles").arg(name),
+                            topOfStep,
+                            bottomOfStep,
+                            &step->csiStepMeta.cameraAngles,
+                           1,allowLocal);
+    } else if (selectedAction == movePrevAction) {
 
-      addToPrev(parentRelativeType,topOfStep);
+        addToPrev(parentRelativeType,topOfStep);
 
     } else if (selectedAction == moveNextAction) {
 
-      addToNext(parentRelativeType,topOfStep);
+        addToNext(parentRelativeType,topOfStep);
 
     } else if (selectedAction == addDividerAction) {
 
-      addDivider(parentRelativeType,bottomOfStep,divider,allocType,offerStepDivider);
+        addDivider(parentRelativeType,bottomOfStep,divider,allocType,offerStepDivider);
 
     } else if (selectedAction == addPagePointerAction) {
 
-      PlacementMeta pointerPlacement = meta->LPub.pointerBase.placement;
-      bool ok = setPointerPlacement(&pointerPlacement,
-                                    parentRelativeType,
-                                    PagePointerType,
-                                    pl+" Pointer Placement");
-      if (ok) {
-          addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement,PagePointerRc);
+        PlacementMeta pointerPlacement = meta->LPub.pointerBase.placement;
+        bool ok = setPointerPlacement(&pointerPlacement,
+                                      parentRelativeType,
+                                      PagePointerType,
+                                      tr("%1 Pointer Placement").arg(name));
+        if (ok) {
+            addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement,PagePointerRc);
         }
     } else if (selectedAction == addDividerPointerAction) {
 
-        PlacementEnc placement = Center;
-        addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
+          PlacementEnc placement = Center;
+          addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
 
     } else if (selectedAction == resetViewerImageAction) {
-      if (gui->saveBuildModification())
-          loadTheViewer(true/*override*/, false/*zoomExtents*/);
+        if (gui->saveBuildModification())
+            loadTheViewer(true/*override*/, false/*zoomExtents*/);
     } else if (selectedAction == allocAction) {
         if (parentRelativeType == StepGroupType) {
             changeAlloc(topOfSteps,
@@ -680,107 +684,106 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == placementAction) {
         changePlacement(parentRelativeType,
                         CsiType,
-                        pl+" Placement",
+                        tr("%1 Placement").arg(name),
                         topOfStep,
                         bottomOfStep,
                         &step->csiPlacement.placement);
     } else if (selectedAction == rendererAction) {
-      changePreferredRenderer(pl+" Preferred Renderer",
-                              topOfStep,
-                              bottomOfStep,
-                              &step->csiStepMeta.preferredRenderer);
+        changePreferredRenderer(tr("%1 Preferred Renderer").arg(name),
+                                topOfStep,
+                                bottomOfStep,
+                                &step->csiStepMeta.preferredRenderer);
     } else if (selectedAction == setFadeStepsAction) {
-      setFadeSteps("Fade Previous "+pl+" Steps",
-                    topOfStep,
-                    bottomOfStep,
-                    &step->csiStepMeta.fadeStep);
+        setFadeSteps(tr("Fade Previous Step %1s").arg(name),
+                      topOfStep,
+                      bottomOfStep,
+                      &step->csiStepMeta.fadeStep);
     } else if (selectedAction == setHighlightStepAction) {
-      setHighlightStep("Highlight Current "+pl+" Step",
-                       topOfStep,
-                       bottomOfStep,
-                       &step->csiStepMeta.highlightStep);
+        setHighlightStep(tr("Highlight Current Step %1").arg(name),
+                         topOfStep,
+                         bottomOfStep,
+                         &step->csiStepMeta.highlightStep);
     } else if (selectedAction == scaleAction) {
-        changeFloatSpin(pl+" Scale",
-                        "Model Size",
+        changeFloatSpin(tr("%1 Scale").arg(name),
+                        tr("Model Size"),
                         topOfStep,
                         bottomOfStep,
                         &step->csiStepMeta.modelScale);
     } else if (selectedAction == marginsAction) {
-      changeMargins(pl+" Margins",
-                    topOfStep,
-                    bottomOfStep,
-                    &step->csiPlacement.margin);
-    } else if (selectedAction == clearStepCacheAction) {
-      gui->clearStepCSICache(step->pngName);
+        changeMargins(tr("%1 Margins").arg(name),
+                      topOfStep,
+                      bottomOfStep,
+                      &step->csiPlacement.margin);
     } else if (selectedAction == noStepAction) {
-      appendMeta(topOfStep,"0 !LPUB NOSTEP");
-    } else if (selectedAction == insertRotateIconAction &&fullContextMenu) {
-      appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON");
+        appendMeta(topOfStep,"0 !LPUB NOSTEP");
+    } else if (selectedAction == insertRotateIconAction) {
+        appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON");
     } else if (selectedAction == addCsiAnnoAction) {
-      step->setCsiAnnotationMetas(*meta);
+        step->setCsiAnnotationMetas(*meta);
     } else if (selectedAction == refreshCsiAnnoAction) {
-      step->setCsiAnnotationMetas(*meta,true);
+        step->setCsiAnnotationMetas(*meta,true);
     } else if (selectedAction == showCsiAnnoAction) {
-      for (int i = 0; i < step->csiAnnotations.size(); ++i) {
-          CsiAnnotation *ca = step->csiAnnotations[i];
-          if (ca->caMeta.icon.value().hidden) {
-              ca->caMeta.icon.value().hidden = false;
-              step->csiAnnotations.replace(i,ca);
-          }
-      }
-      hiddenAnnotations = false;
-      step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
+        for (int i = 0; i < step->csiAnnotations.size(); ++i) {
+            CsiAnnotation *ca = step->csiAnnotations[i];
+            if (ca->caMeta.icon.value().hidden) {
+                ca->caMeta.icon.value().hidden = false;
+                step->csiAnnotations.replace(i,ca);
+            }
+        }
+        hiddenAnnotations = false;
+        step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
     } else if (selectedAction == rendererArgumentsAction) {
-      StringMeta rendererArguments =
-                 Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
-                 Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                               /*POV scene file generator*/  step->ldviewParms ;
-      setRendererArguments(topOfStep,
-                         bottomOfStep,
-                         rendererLabel,
-                         &rendererArguments);
+        const QString rendererLabel = tr("Add %1 Arguments")
+                                         .arg(usingPovray ? tr("POV Generation"):
+                                                            tr("%1 Renderer").arg(rendererNames[Render::getRenderer()]));
+        StringMeta rendererArguments =
+                   Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
+                   Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                 /*POV scene file generator*/  step->ldviewParms ;
+        setRendererArguments(topOfStep,
+                           bottomOfStep,
+                           rendererLabel,
+                           &rendererArguments);
     } else if (selectedAction == povrayRendererArgumentsAction) {
-      setRendererArguments(topOfStep,
-                         bottomOfStep,
-                         rendererNames[Render::getRenderer()],
-                         &step->povrayParms);
+        setRendererArguments(topOfStep,
+                           bottomOfStep,
+                           rendererNames[Render::getRenderer()],
+                           &step->povrayParms);
+    } else if (selectedAction == clearStepCacheAction) {
+        Page *page = step->page();
+        clearPageCache(parentRelativeType,page,Options::CSI);
+        //gui->clearStepCSICache(step->pngName);
     } else if (selectedAction == copyCsiImagePathAction) {
-      QObject::connect(copyCsiImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
-      copyCsiImagePathAction->setData(step->pngName);
-      emit copyCsiImagePathAction->triggered();
-    } else if (selectedAction == applyBuildModAction) {
-      ; // triggered from gui
-    } else if (selectedAction == removeBuildModAction) {
-      ; // triggered from gui
-    } else if (selectedAction == deleteBuildModAction) {
-      ; // triggered from gui
+        QObject::connect(copyCsiImagePathAction, SIGNAL(triggered()), gui, SLOT(updateClipboard()));
+        copyCsiImagePathAction->setData(step->pngName);
+        emit copyCsiImagePathAction->triggered();
     } else if (selectedAction == viewCSIFileAction) {
-      QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
-      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
-      const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
-      QString csiFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr");
-      gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
-      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
-      gui->getEditModeWindow()->setReadOnly(true);
-      gui->getEditModeWindow()->show();
+        QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
+        QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
+        const QString modelName = tr("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
+        QString csiFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr");
+        gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
+        gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
+        gui->getEditModeWindow()->setReadOnly(true);
+        gui->getEditModeWindow()->show();
     }
 #ifdef QT_DEBUG_MODE
     else if (selectedAction == view3DViewerFileAction) {
-      QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
-      QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
-      const QString modelName = QString("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
-      QString csiFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-      QStringList Keys    = LPub::getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
-      QString csiFile     = QString("%1/viewer_csi_%2.ldr")
-                                    .arg(QFileInfo(csiFilePath).absolutePath())
-                                    .arg(QString("%1_%2_%3")
-                                                 .arg(Keys.at(0))    // Name
-                                                 .arg(Keys.at(1))    // Line Number
-                                                 .arg(Keys.at(2)));  // Step Number
-      gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
-      gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
-      gui->getEditModeWindow()->setReadOnly(true);
-      gui->getEditModeWindow()->show();
+        QFontMetrics currentMetrics(gui->getEditModeWindow()->font());
+        QString elidedModelName = currentMetrics.elidedText(step->topOfStep().modelName, Qt::ElideRight, gui->getEditModeWindow()->width());
+        const QString modelName = tr("%1 Step %2").arg(elidedModelName).arg(step->stepNumber.number);
+        QString csiFilePath = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+        QStringList Keys    = LPub::getViewerStepKeys(true/*get Name*/, false/*PLI*/, step->viewerStepKey);
+        QString csiFile     = QString("%1/viewer_csi_%2.ldr")
+                                      .arg(QFileInfo(csiFilePath).absolutePath())
+                                      .arg(QString("%1_%2_%3")
+                                                   .arg(Keys.at(0))    // Name
+                                                   .arg(Keys.at(1))    // Line Number
+                                                   .arg(Keys.at(2)));  // Step Number
+        gui->displayFile(nullptr, Where(csiFile, 0), true/*editModelFile*/);
+        gui->getEditModeWindow()->setWindowTitle(tr("Detached LDraw Viewer - %1").arg(modelName));
+        gui->getEditModeWindow()->setReadOnly(true);
+        gui->getEditModeWindow()->show();
     }
 #endif
 }
@@ -831,132 +834,131 @@ void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    QPoint delta(int(pos().x() - position.x() + 0.5),
-                 int(pos().y() - position.y() + 0.5));
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+        QPoint delta(int(pos().x() - position.x() + 0.5),
+                     int(pos().y() - position.y() + 0.5));
 
-    if (delta.x() || delta.y()) {
-      // callouts
-      for (int i = 0; i < step->list.size(); i++) {
-        Callout *callout = step->list[i];
-        callout->drawTips(delta,CsiType);
-      }
-      // page pointers
-      for (int i = 0; i < PP_POSITIONS; i++) {
-          Positions position = Positions(i);
-          PagePointer *pagePointer = step->page()->pagePointers.value(position);
-          if (pagePointer)
-              pagePointer->drawTips(delta,this,CsiType);
-      }
-      // dividers
-      for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-        DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-        int initiator = CsiType;
-        Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
-            if (item == this)
-                pointerItem->drawTip(delta,initiator);
+        if (delta.x() || delta.y()) {
+            // callouts
+            for (int i = 0; i < step->list.size(); i++) {
+                Callout *callout = step->list[i];
+                callout->drawTips(delta,CsiType);
+            }
+            // page pointers
+            for (int i = 0; i < PP_POSITIONS; i++) {
+                Positions position = Positions(i);
+                PagePointer *pagePointer = step->page()->pagePointers.value(position);
+                if (pagePointer)
+                    pagePointer->drawTips(delta,this,CsiType);
+            }
+            // dividers
+            for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
+                DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+                int initiator = CsiType;
+                Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+                    if (item == this)
+                        pointerItem->drawTip(delta,initiator);
+                }
+            }
+            positionChanged = true;
+            //placeGrabbers();
         }
-      }
-      positionChanged = true;
-      //placeGrabbers();
+        QGraphicsPixmapItem::mouseMoveEvent(event);
     }
-    QGraphicsPixmapItem::mouseMoveEvent(event);
-  }
 }
 
 void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  mouseIsDown = false;
+    mouseIsDown = false;
 
-  QGraphicsItem::mouseReleaseEvent(event);
+    QGraphicsItem::mouseReleaseEvent(event);
 
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    if (positionChanged) {
-      beginMacro(QString("DragCsi"));
-      if (step) {
-          step->updateViewer = false; // nothing new to visualize
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+        if (positionChanged) {
+            beginMacro(QString("DragCsi"));
+            if (step) {
+                step->updateViewer = false; // nothing new to visualize
 
-          PlacementData placementData = step->csiPlacement.placement.value();
-          qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-          qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-          calcOffsets(placementData,placementData.offsets,topLeft,size);
-          step->csiPlacement.placement.setValue(placementData);
+                PlacementData placementData = step->csiPlacement.placement.value();
+                qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+                qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+                calcOffsets(placementData,placementData.offsets,topLeft,size);
+                step->csiPlacement.placement.setValue(placementData);
 
-          QPoint deltaI(int(pos().x() - position.x()),
-                        int(pos().y() - position.y()));
+                QPoint deltaI(int(pos().x() - position.x()),
+                              int(pos().y() - position.y()));
 
-          // callouts
-          for (int i = 0; i < step->list.size(); i++) {
-              Callout *callout = step->list[i];
-              callout->updatePointers(deltaI);
-          }
-          // page pointers
-          for (int i = 0; i < PP_POSITIONS; i++){
-              Positions position = Positions(i);
-              PagePointer *pagePointer = step->page()->pagePointers.value(position);
-              if (pagePointer)
-                  pagePointer->updatePointers(deltaI,this);
-          }
-          // dividers
-          for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-              DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-              Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
-                  if (item == this)
-                      pointerItem->updatePointer(deltaI);
-              }
-          }
-      }
-      changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);
-      endMacro();
+                // callouts
+                for (int i = 0; i < step->list.size(); i++) {
+                    Callout *callout = step->list[i];
+                    callout->updatePointers(deltaI);
+                }
+                // page pointers
+                for (int i = 0; i < PP_POSITIONS; i++){
+                    Positions position = Positions(i);
+                    PagePointer *pagePointer = step->page()->pagePointers.value(position);
+                    if (pagePointer)
+                        pagePointer->updatePointers(deltaI,this);
+                }
+                // dividers
+                for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
+                    DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+                    Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+                        if (item == this)
+                            pointerItem->updatePointer(deltaI);
+                    }
+                }
+            }
+            changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);
+            endMacro();
+        }
     }
-  }
 }
 
 void CsiItem::change()
 {
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    if (sizeChanged) {
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+        if (sizeChanged) {
+            beginMacro(QString("Resize"));
 
-      beginMacro(QString("Resize"));
+            PlacementData placementData = meta->LPub.assem.placement.value();
+            qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+            qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+            calcOffsets(placementData,placementData.offsets,topLeft,size);
+            meta->LPub.assem.placement.setValue(placementData);
 
-      PlacementData placementData = meta->LPub.assem.placement.value();
-      qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-      qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-      calcOffsets(placementData,placementData.offsets,topLeft,size);
-      meta->LPub.assem.placement.setValue(placementData);
+            QPoint deltaI(int(pos().x() - position.x()),
+                          int(pos().y() - position.y()));
+            // callouts
+            for (int i = 0; i < step->list.size(); i++) {
+                Callout *callout = step->list[i];
+                callout->updatePointers(deltaI);
+            }
+            // page pointers
+            for (int i = 0; i < PP_POSITIONS; i++){
+                Positions position = Positions(i);
+                PagePointer *pagePointer = step->page()->pagePointers.value(position);
+                if (pagePointer)
+                    pagePointer->updatePointers(deltaI,this);
+            }
+            // dividers
+            for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
+                DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+                Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+                    if (item == this)
+                        pointerItem->updatePointer(deltaI);
+                }
+            }
 
-      QPoint deltaI(int(pos().x() - position.x()),
-                    int(pos().y() - position.y()));
-      // callouts
-      for (int i = 0; i < step->list.size(); i++) {
-        Callout *callout = step->list[i];
-        callout->updatePointers(deltaI);
-      }
-      // page pointers
-      for (int i = 0; i < PP_POSITIONS; i++){
-          Positions position = Positions(i);
-          PagePointer *pagePointer = step->page()->pagePointers.value(position);
-          if (pagePointer)
-              pagePointer->updatePointers(deltaI,this);
-      }
-      // dividers
-      for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-        DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
-        Q_FOREACH (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
-            if (item == this)
-                pointerItem->updatePointer(deltaI);
+            changePlacementOffset(step->topOfStep(),&meta->LPub.assem.placement,CsiType,true,false);
+
+            modelScale = step->csiStepMeta.modelScale;
+            modelScale.setValue(float(modelScale.value())*float(oldScale));
+
+            changeFloat(step->topOfStep(),step->bottomOfStep(),&modelScale,1,0);
+            endMacro();
         }
-      }
-
-      changePlacementOffset(step->topOfStep(),&meta->LPub.assem.placement,CsiType,true,false);  
-      
-      modelScale = step->csiStepMeta.modelScale;
-      modelScale.setValue(float(modelScale.value())*float(oldScale));
-
-      changeFloat(step->topOfStep(),step->bottomOfStep(),&modelScale,1,0);
-      endMacro();
     }
-  }
 }
 
 void CsiItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
