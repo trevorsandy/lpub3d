@@ -5284,13 +5284,13 @@ void MetaItem::removeLPubFormatting(int option, const Where &_top, const Where &
           fileList << top.modelName;
       beginMacro("RemoveLPubFormatting");
       for (int i = 0; i < fileList.size(); ++i) {
-          // skip the header if option is submodel and the submodel is the top-level model
-          if (option == RLPF_SUBMODEL && top.modelIndex) {
+          // skip setting top for the topLevelFile (modelIndex == 0)
+          if (top.modelIndex) {
             top.modelName = fileList[i];
             top.lineNumber = 1;
           }
           bottom.modelName = top.modelName;
-          bottom.lineNumber = lpub->ldrawFile.size(top.modelName);
+          bottom.lineNumber = lpub->ldrawFile.size(bottom.modelName);
           removeFormatting(option, top, bottom);
       }
       endMacro();

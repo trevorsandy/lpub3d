@@ -1014,20 +1014,14 @@ bool LPub::exportMetaCommands(const QString &fileName, QString &result, bool des
 
 void LPub::removeLPubFormatting(int option)
 {
-  QPixmap _icon = QPixmap(":/icons/lpub96.png");
   QMessageBoxResizable box;
   box.setWindowIcon(QIcon());
-  box.setIconPixmap (_icon);
+  box.setIconPixmap (QPixmap(":/icons/lpub96.png"));
   box.setTextFormat (Qt::RichText);
   box.setStandardButtons (QMessageBox::Yes| QMessageBox::No);
   box.setDefaultButton   (QMessageBox::Yes);
   box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-  box.setWindowTitle(tr ("Remove LPub formatting"));
-
-#ifdef QT_DEBUG_MODE
-  Where _top;
-  Where _bottom;
-#endif
+  box.setWindowTitle(tr ("Remove LPub Formatting"));
 
   Where top;
   Where bottom;
@@ -1040,7 +1034,8 @@ void LPub::removeLPubFormatting(int option)
       break;
   case RLPF_SUBMODEL:
       top.modelIndex = currentStep ? currentStep->top.modelIndex : page.top.modelIndex;
-      if (!top.modelIndex) {
+      if (!top.modelIndex)
+      {
           bool preserveGlobalHeaders = false;
           top = Where(ldrawFile.topLevelFile(), 0, 1);
           box.setStandardButtons (QMessageBox::Yes| QMessageBox::No |QMessageBox::Cancel);
@@ -1052,30 +1047,26 @@ void LPub::removeLPubFormatting(int option)
                   preserveGlobalHeaders = true;
           });
 
-          box.setText (tr("<b> Remove format from top level model. </b>"));
+          box.setText (tr("<b> Remove format from top level model - %1. </b>").arg(top.modelName));
           box.setInformativeText (tr ("This action will remove formatting for the top level model only.<br>"
                                       "Did you want to remove formatting from the entire document ?"));
           box.adjustSize();
           int result = box.exec();
-          if (result == QMessageBox::Yes) {
+          if (result == QMessageBox::Cancel) {
+              return;
+          } else if (result == QMessageBox::Yes) {
               option = RLPF_DOCUMENT;
               Gui::displayPageNum = 1 + Gui::pa;
-          } else if (result == QMessageBox::No) {
-#ifdef QT_DEBUG_MODE
-              qDebug() << qPrintable(tr("COMPARE Preserve GLOBAL HEADERS: %1").arg(preserveGlobalHeaders ? "NO" : "YES"));
-#endif
-              if (preserveGlobalHeaders)
-                  mi.scanPastGlobal(top);
-          } else if (result == QMessageBox::Cancel) {
-              return;
+              top = Where(ldrawFile.topLevelFile(), 0, 1);
           }
+
+          if (preserveGlobalHeaders)
+              mi.scanPastGlobal(top);
       }
       break;
   case RLPF_PAGE:
-      if (page.relativeType == StepGroupType) {
-#ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(tr("COMPARE Using PAGE STEPS"));
-#endif
+      if (page.relativeType == StepGroupType)
+      {
           /*
           for Step Group we want page.top [Steps::top]
           which is set at MULTI_STEP BEGIN/END.
@@ -1084,62 +1075,53 @@ void LPub::removeLPubFormatting(int option)
           top = page.top;
           bottom = page.bottom;
       } else {
-#ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(tr("COMPARE Using PAGE"));
-#endif
           /*
-          for Single Step and No Step we wat topOf/bottomOf Steps
+          for Single Step and No Step we want topOf/bottomOf Steps
           [Steps::list(ranges)::list(ranges_elements)::top or
           Steps::top for non-step pages] which is set at the
           first encounter of type 1-5 part - so we should start
           the first step after the header.
-         */
+          */
           top = page.topOfSteps();
           bottom = page.bottomOfSteps();
       }
-#ifdef QT_DEBUG_MODE
-      _top    = Gui::topOfPages[Gui::displayPageNum-1];
-      _bottom = Gui::topOfPages[Gui::displayPageNum];
-      qDebug() << qPrintable(tr("COMAPARE PAGE/TOPofPAGES top/_top: %1,%2, bottom/_bottom: %3,%4")
-                             .arg(top.lineNumber).arg(_top.lineNumber).arg(bottom.lineNumber).arg(_bottom.lineNumber));
-#endif
       break;
   case RLPF_STEP:
       if (currentStep) {
           if (currentStep->multiStep) {
-              bool stepOk  = false;
-              int thisStep = 1;
+              int selectedStep  = 0;
+              bool stepSelected = false;
               Steps *steps = dynamic_cast<Steps *>(&page);
-              if (steps && page.relativeType == StepGroupType){
-                  /* foreach range */
-                  for (int i = 0; i < steps->list.size() && !stepFound; i++) {
-                      if (steps->list[i]->relativeType == RangeType) {
-                         Range *range = dynamic_cast<Range *>(steps->list[i]);
-                         thisStep = QInputDialog::getInt(gui,tr("Steps"),tr("Which Step"),1,1,range->list.size(),1,&stepOk);
-                         if (range && stepOk) {
-                             /* foreach step*/
-                             for (int j = 0; j < range->list.size(); j++) {
-                                Step *step = dynamic_cast<Step *>(range->list[j]);
-                                if ((stepFound = step && step->stepNumber.number == thisStep)) {
-                                    top = step->topOfStep();
-                                    bottom = step->bottomOfStep();
-                                    break;
-                                }
+              if (steps && page.relativeType == StepGroupType) {
+                  selectedStep = QInputDialog::getInt(gui,tr("Steps"),tr("Which Step"),1,1,steps->list.size(),1,&stepSelected);
+                  if (stepSelected) {
+                      for (int i = 0; i < steps->list.size() && !stepFound; i++) {
+                          if (steps->list[i]->relativeType == RangeType) {
+                             Range *range = dynamic_cast<Range *>(steps->list[i]);
+                             if (range) {
+                                 for (int j = 0; j < range->list.size(); j++) {
+                                    Step *step = dynamic_cast<Step *>(range->list[j]);
+                                    if ((stepFound = step && step->stepNumber.number == selectedStep)) {
+                                        top = step->topOfStep();
+                                        bottom = step->bottomOfStep();
+                                        break;
+                                    }
+                                 }
                              }
-                         }
+                          }
                       }
+
+                      if (!stepFound)
+                          box.setText (tr("<b> The selected step %1 was not found. </b>").arg(selectedStep));
+                  } else {
+                      box.setText (tr("<b> Step selection was canceled. </b>"));
                   }
               }
-              if (!stepFound)
-                  box.setText (tr("<b> The selected step %1 was not found. </b>").arg(thisStep));
           } else {
+              stepFound = true;
               top = currentStep->top;
               bottom = currentStep->bottom;
           }
-#ifdef QT_DEBUG_MODE
-          qDebug() << qPrintable(QString("COMAPARE CURRENT STEP top: %1, bottom: %2")
-                                 .arg(top.lineNumber, bottom.lineNumber));
-#endif
       } else {
           box.setText (tr("<b> The current step is null. </b>"));
       }
@@ -1158,16 +1140,11 @@ void LPub::removeLPubFormatting(int option)
          //start at the bottom of the page's last step
          bottom = Gui::topOfPages[Gui::displayPageNum];
          top = Where(bottom.modelName, bottom.modelIndex, 1);
-#ifdef QT_DEBUG_MODE
-         _bottom = currentStep ? currentStep->bottom : Gui::topOfPages[Gui::displayPageNum];
-         qDebug() << qPrintable(tr("COMPARE BOM %1").arg(currentStep ? "CURRENT STEP" : "TOPofPAGES"));
-         qDebug() << qPrintable(tr("COMAPARE COMAPARE BOM TOPofPAGES/CURRENT STEP bottom/_bottom: %1,%2")
-                                .arg(bottom.lineNumber, _bottom.lineNumber));
-#endif
       break;
   default:
       break;
   }
+
   mi.removeLPubFormatting(option, top, bottom);
 }
 
