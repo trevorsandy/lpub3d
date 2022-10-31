@@ -303,6 +303,7 @@ class LDrawFile {
     static QString              _author;
     static QString              _description;
     static QString              _category;
+    static QString              _partDescription;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
     static int                  _uniquePartCount;

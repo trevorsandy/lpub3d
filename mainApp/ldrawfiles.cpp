@@ -133,6 +133,7 @@ QString LDrawFile::_file           = "";
 QString LDrawFile::_name           = "";
 QString LDrawFile::_author         = VER_PRODUCTNAME_STR;
 QString LDrawFile::_description    = PUBLISH_DESCRIPTION_DEFAULT;
+QString LDrawFile::_partDescription= "";
 QString LDrawFile::_category       = "";
 int     LDrawFile::_emptyInt;
 int     LDrawFile::_partCount      = 0;
@@ -1589,10 +1590,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                 if (! sosf)
                     contents << smLine;
             } else if (! hdrNameNotFound && smLine.startsWith("0")) {
-                if ((eosf = smLine.contains(_fileRegExp[NAM_RX])))
-                    ;                    // for inline files
-                else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
-                    contents << smLine;  // for external files
+                if ((eosf = smLine.contains(_fileRegExp[NAM_RX]))) {
+                    const QString &lastLine = contents.last();
+                    if (lastLine.contains(_fileRegExp[DES_RX]))
+                        _partDescription = contents.takeLast(); // for inline files
+                } else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
+                    contents << smLine;                         // for external files
             }
 
             if (!sosf && !eosf) {
@@ -1670,7 +1673,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
                     hdrFILENotFound = true; /* we are at the end of an LDraw submodel */
                     modelHeaderFinished = false;
                 } else/*eosf*/ {
-                    /* - at the name of a new inline part so revert line to capture
+                    /* - if part description found, add it to the start of the part's contents
+                    */
+                    if (!_partDescription.isEmpty()) {
+                        contents << _partDescription;
+                        _partDescription.clear();
+                    }
+                    /* - at the Name: of a new inline part so revert by 1 line to capture
                     */
                     lineIndx--;
                     eosf = false;
@@ -1784,7 +1793,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, bool externalFile)
 #endif
 
     emit gui->progressPermSetValueSig(lineCount);
-    if (!stagedSubfiles.size()/*!stagedSubfilesFound*/)
+    if (!stagedSubfiles.size())
         emit gui->progressPermStatusRemoveSig();
 
     emit gui->messageSig(LOG_NOTICE, QString("MPD file '%1' with %2 lines loaded.")
@@ -1837,7 +1846,6 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
         bool alreadyLoaded;
         bool subFileFound        = false;
         bool partHeaderFinished  = false;
-        bool stagedSubfilesFound = externalFile;
         bool sosf = false;
         bool eosf = false;
 
@@ -1926,20 +1934,18 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             if (subfileName.isEmpty() && hdrNameNotFound && (topLevelModel || !smLine.isEmpty())) {
                 sosf = smLine.contains(_fileRegExp[NAM_RX]);
                 if (!sosf) {
-                    descriptionLine = lineIndx;      //this line should be the first line description
+                    if (!smLine.contains(_fileRegExp[AUT_RX]))
+                        descriptionLine = lineIndx;
                     contents << smLine;
                 }
             } else if (! hdrNameNotFound && smLine.startsWith("0")) {
-                if ((eosf = smLine.contains(_fileRegExp[NAM_RX])))
-                    ;                    // for inline files
-                else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
-                    contents << smLine;  // for external files
+                if ((eosf = smLine.contains(_fileRegExp[NAM_RX]))) {
+                    const QString &lastLine = contents.last();
+                    if (lastLine.contains(_fileRegExp[DES_RX]))
+                        _partDescription = contents.takeLast(); // for inline files
+                } else if ((eosf = lineIndx == lineCount - 1 && smLine == "0"))
+                    contents << smLine;                         // for external files
             }
-
-#ifdef QT_DEBUG_MODE
-        if (sosf || eosf)
-            smLine = smLine;
-#endif
 
             // load LDCad groups
             if (!ldcadGroupsLoaded) {
@@ -1957,6 +1963,24 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
             if ((subFileFound = tokens.size() == 15 && tokens.at(0) != "0")) {
                 topHeaderFinished = partHeaderFinished = true;
                 subFile = tokens.at(14);
+                if ((headerMissing = MissingHeader(missingHeaders()))) {
+                    if (headerMissing == NameMissing || headerMissing == BothMissing) {
+                        const QString missing = QString("0 Name: %1").arg(fileInfo.fileName());
+                        sosf = missing.contains(_fileRegExp[NAM_RX]);
+                        if (hdrAuthorNotFound) {
+                            contents.insert(0,missing);
+                        } else {
+                            for (int lineNumber = 0; lineNumber < contents.size(); lineNumber++) {
+                                const QString &line = contents.at(lineNumber);
+                                if (line.contains(_fileRegExp[AUT_RX])) {
+                                    contents.insert(lineNumber,missing);
+                                    break;
+                                }
+                            }
+                        }
+                        contents.takeLast();
+                    }
+                }
             } else if (isSubstitute(smLine,subFile)) {
                 subFileFound = !subFile.isEmpty();
             }
@@ -1964,10 +1988,8 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(subFile.toLatin1().constData(), nullptr, false, false);
                 if (! pieceInfo && ! LDrawFile::contains(subFile) && ! stagedSubfiles.contains(subFile)) {
                     stagedSubfiles.append(subFile);
-                    stagedSubfilesFound = true;
                 }
-            } else if (externalFile)
-                stagedSubfilesFound = true;
+            }
 
             if (!topHeaderFinished) {
 
@@ -1977,7 +1999,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     topFileNotFound = false;
                 }
 
-                if (!sosf) {
+                if (!sosf || !partHeaderFinished) {
                     // One time populate model descriptkon
                     if (hdrDescNotFound && lineIndx == descriptionLine && ! isHeader(smLine)) {
                         if (smLine.contains(_fileRegExp[DES_RX]))
@@ -2108,7 +2130,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                 if (sosf) {
                     unofficialPart  = UNOFFICIAL_UNKNOWN;
                     hdrNameNotFound = sosf = false;
-                    partHeaderFinished = false;
+                    partHeaderFinished = subFileFound ? true : false;
                     subfileName = _fileRegExp[NAM_RX].cap(1).replace(": ","");
                     contents << smLine;
                     if (! alreadyLoaded) {
@@ -2120,7 +2142,13 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
                     subfileName.clear();
                     hdrNameNotFound   = true; /* reset the Name capture*/
                     hdrAuthorNotFound = true; /* reset author capture*/
-                    /* - at the name of a new inline part so revert line to capture
+                    /* - if part description found, add it to the start of the part's contents
+                    */
+                    if (!_partDescription.isEmpty()) {
+                        contents << _partDescription;
+                        _partDescription.clear();
+                    }
+                    /* - at the Name: of a new inline part so revert by 1 line to capture
                     */
                     lineIndx--;
                     eosf = false;
@@ -2229,7 +2257,7 @@ void LDrawFile::loadLDRFile(const QString &filePath, const QString &fileName, bo
 #endif
 
         emit gui->progressPermSetValueSig(lineCount);
-        if (!stagedSubfiles.size()/*!stagedSubfilesFound*/)
+        if (!stagedSubfiles.size())
             emit gui->progressPermStatusRemoveSig();
 
         emit gui->messageSig(LOG_NOTICE, QString("LDR file '%1' with %2 lines loaded.")
@@ -4710,7 +4738,7 @@ LDrawFile::LDrawFile()
         << QRegExp("^0\\s+AUTHOR:?\\s+(.*)$",Qt::CaseInsensitive)   //AUT_RX
         << QRegExp("^0\\s+NAME:?\\s+(.*)$",Qt::CaseInsensitive)     //NAM_RX
         << QRegExp("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive) //CAT_RX
-        << QRegExp("^0\\s+[^\\s].*$",Qt::CaseInsensitive)           //DES_RX
+        << QRegExp("^(?!0 !?LPUB|0 FILE |0 NOFILE|0 !?LEOCAD|0 !?LDCAD|0 MLCAD|0 GHOST|0 !?SYNTH|[1-5]).*$",Qt::CaseInsensitive) //DES_RX
         << QRegExp("^0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$",Qt::CaseInsensitive) //LDG_RX
         ;
   }
