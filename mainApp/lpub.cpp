@@ -3052,11 +3052,13 @@ Gui::Gui()
     connect(&futureWatcher, &QFutureWatcher<int>::finished, this, &Gui::pagesCounted);
 
     connect(lpub,           SIGNAL(messageSig( LogType,QString)),
-            this,           SLOT(statusMessage(LogType,QString)));
+            this,           SLOT(statusMessage(LogType,QString)),
+            Qt::QueuedConnection);
 
     // Gui
     connect(this,           SIGNAL(messageSig( LogType,QString)),
-            this,           SLOT(statusMessage(LogType,QString)));
+            this,           SLOT(statusMessage(LogType,QString)),
+            Qt::QueuedConnection);
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
