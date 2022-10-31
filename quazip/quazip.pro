@@ -39,6 +39,36 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     STG_ARCH = x86
 }
 
+contains(QT_VERSION, ^5\\..*) {
+  unix:!macx {  
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 4.8) {
+      QMAKE_CXXFLAGS += -std=c++11
+    } else {
+      QMAKE_CXXFLAGS += -std=c++0x
+    }
+  }  else {
+    CONFIG += c++11
+  }
+}
+
+contains(QT_VERSION, ^6\\..*) {
+  win32-msvc* {
+    QMAKE_CXXFLAGS += /std:c++17
+  }
+  macx {
+    QMAKE_CXXFLAGS+= -std=c++17
+  }    
+  unix:!macx {
+    GCC_VERSION = $$system(g++ -dumpversion)
+    greaterThan(GCC_VERSION, 5) {
+      QMAKE_CXXFLAGS += -std=c++17
+    } else {
+      QMAKE_CXXFLAGS += -std=c++0x
+    }
+  }
+}
+
 win32 {
 
     QMAKE_EXT_OBJ = .obj

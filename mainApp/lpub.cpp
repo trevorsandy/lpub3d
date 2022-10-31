@@ -1387,7 +1387,7 @@ void Gui::displayFile(
 
             emit displayFileSig(ldrawFile, modelName, lineScope);
 
-            if (Preferences::debugLogging) {
+#ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_DEBUG,tr("Editor loaded page: %1, step: %2, model: %3, line scope: %4-%5 - %6")
                                 .arg(displayPageNum)
                                 .arg(lpub->currentStep ? lpub->currentStep->stepNumber.number : 0)
@@ -1395,7 +1395,7 @@ void Gui::displayFile(
                                 .arg(top.lineNumber + 1    /*adjust for 0-index*/)
                                 .arg(bottom.lineNumber + 1 /*adjust for 0-index*/)
                                 .arg(elapsedTime(t.elapsed())));
-            }
+#endif
 
             if (displayStartPage) {
                int inputPageNum = ldrawFile->getModelStartPageNumber(modelName);

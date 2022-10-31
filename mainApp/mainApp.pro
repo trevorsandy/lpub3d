@@ -159,6 +159,8 @@ contains(USE_CPP11,NO) {
   DEFINES += USE_CPP11
 }
 
+message("~~~ Building with Qt Version: $$QT_VERSION ~~~")
+
 contains(QT_VERSION, ^5\\..*) {
   unix:!macx {  
     GCC_VERSION = $$system(g++ -dumpversion)
@@ -167,6 +169,8 @@ contains(QT_VERSION, ^5\\..*) {
     } else {
       QMAKE_CXXFLAGS += -std=c++0x
     }
+  } else {
+    CONFIG += c++11
   }
 }
 

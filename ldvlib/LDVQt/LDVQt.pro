@@ -149,6 +149,8 @@ contains(QT_VERSION, ^5\\..*) {
     } else {
       QMAKE_CXXFLAGS += -std=c++0x
     }
+  } else {
+    CONFIG += c++11
   }
 }
 
